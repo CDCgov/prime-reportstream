@@ -494,7 +494,7 @@ abstract class CoolTest {
                     break
             }
         }
-        echo("Polling for PROCESS records finished in ${actualTimeElapsedMillis / 1000 } seconds")
+        echo("Polling for PROCESS records finished in ${actualTimeElapsedMillis / 1000} seconds")
 
         return queryResult
     }
@@ -536,6 +536,24 @@ abstract class CoolTest {
             childReportId = ctx.selectFrom(REPORT_LINEAGE)
                 .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId))
                 .fetchOne(REPORT_LINEAGE.CHILD_REPORT_ID)
+        }
+        return childReportId
+    }
+
+    /**
+     * Gets all children of the passed in [reportId].
+     */
+    fun getAllChildrenReportId(
+        reportId: ReportId,
+    ): List<ReportId> {
+        var childReportId: List<ReportId> = listOf()
+        db = WorkflowEngine().db
+        db.transact { txn ->
+            val ctx = DSL.using(txn)
+            // get internally generated reportId
+            childReportId = ctx.selectFrom(REPORT_LINEAGE)
+                .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId))
+                .fetch(REPORT_LINEAGE.CHILD_REPORT_ID)
         }
         return childReportId
     }
@@ -671,7 +689,7 @@ abstract class CoolTest {
                     break // everything passed!
             }
         }
-        echo("Test $name finished in ${actualTimeElapsedMillis / 1000 } seconds")
+        echo("Test $name finished in ${actualTimeElapsedMillis / 1000} seconds")
         if (!silent) {
             queryResults.forEach {
                 if (it.first)
@@ -680,7 +698,7 @@ abstract class CoolTest {
                     bad(it.second)
             }
         }
-        return ! queryResults.map { it.first }.contains(false) // no falses == it passed!
+        return !queryResults.map { it.first }.contains(false) // no falses == it passed!
     }
 
     private fun queryForLineageResults(
@@ -811,65 +829,69 @@ abstract class CoolTest {
         val settings = FileSettings(FileSettings.defaultSettingsDirectory)
 
         // Here is test setup of organization, senders, and receivers.   All static.
-        const val orgName = "ignore"
-        val org = settings.findOrganization(orgName)
-            ?: error("Unable to find org $orgName in metadata")
+        const val org1Name = "ignore"
+        val org1 = settings.findOrganization(org1Name)
+            ?: error("Unable to find org $org1Name in metadata")
+        const val org2Name = "waters"
+        val org2 = settings.findOrganization(org2Name)
+            ?: error("Unable to find org $org2Name in metadata")
         const val receivingStates = "IG"
 
         const val fullELRSenderName = "ignore-full-elr"
         val fullELRSender by lazy {
-            settings.findSender("$orgName.$fullELRSenderName") as? FullELRSender
-                ?: error("Unable to find sender $fullELRSenderName for organization ${org.name}")
+            settings.findSender("$org1Name.$fullELRSenderName") as? FullELRSender
+                ?: error("Unable to find sender $fullELRSenderName for organization ${org1.name}")
         }
 
         const val simpleReportSenderName = "ignore-simple-report"
         val simpleRepSender by lazy {
-            settings.findSender("$orgName.$simpleReportSenderName") as? TopicSender
-                ?: error("Unable to find sender $simpleReportSenderName for organization ${org.name}")
+            settings.findSender("$org1Name.$simpleReportSenderName") as? TopicSender
+                ?: error("Unable to find sender $simpleReportSenderName for organization ${org1.name}")
         }
 
         const val stracSenderName = "ignore-strac"
         val stracSender by lazy {
-            settings.findSender("$orgName.$stracSenderName") as? TopicSender
-                ?: error("Unable to find sender $stracSenderName for organization ${org.name}")
+            settings.findSender("$org1Name.$stracSenderName") as? TopicSender
+                ?: error("Unable to find sender $stracSenderName for organization ${org1.name}")
         }
 
         const val watersSenderName = "ignore-waters"
         val watersSender by lazy {
-            settings.findSender("$orgName.$watersSenderName") as? TopicSender
-                ?: error("Unable to find sender $watersSenderName for organization ${org.name}")
+            settings.findSender("$org1Name.$watersSenderName") as? TopicSender
+                ?: error("Unable to find sender $watersSenderName for organization ${org1.name}")
         }
 
         const val emptySenderName = "ignore-empty"
         val emptySender by lazy {
-            settings.findSender("$orgName.$emptySenderName") as? TopicSender
-                ?: error("Unable to find sender $emptySenderName for organization ${org.name}")
+            settings.findSender("$org1Name.$emptySenderName") as? TopicSender
+                ?: error("Unable to find sender $emptySenderName for organization ${org1.name}")
         }
 
         const val hl7SenderName = "ignore-hl7"
         val hl7Sender by lazy {
-            settings.findSender("$orgName.$hl7SenderName") as? TopicSender
-                ?: error("Unable to find sender $hl7SenderName for organization ${org.name}")
+            settings.findSender("$org1Name.$hl7SenderName") as? TopicSender
+                ?: error("Unable to find sender $hl7SenderName for organization ${org1.name}")
         }
 
         const val hl7MonkeypoxSenderName = "ignore-monkeypox"
         val hl7MonkeypoxSender by lazy {
-            settings.findSender("$orgName.$hl7MonkeypoxSenderName") as? TopicSender
-                ?: error("Unable to find sender $hl7MonkeypoxSenderName for organization ${org.name}")
+            settings.findSender("$org1Name.$hl7MonkeypoxSenderName") as? TopicSender
+                ?: error("Unable to find sender $hl7MonkeypoxSenderName for organization ${org1.name}")
         }
 
         val universalPipelineReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "FULL_ELR"
+            it.organizationName == org1Name && it.name == "FULL_ELR"
         }[0]
-        val csvReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "CSV" }[0]
-        val hl7Receiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7" }[0]
-        val hl7BatchReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_BATCH" }[0]
-        val hl7NullReceiver = settings.receivers.filter { it.organizationName == orgName && it.name == "HL7_NULL" }[0]
+        val csvReceiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "CSV" }[0]
+        val hl7Receiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7" }[0]
+        val hl7BatchReceiver =
+            settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7_BATCH" }[0]
+        val hl7NullReceiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7_NULL" }[0]
         val hl7PpkReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "HL7_BATCH_PPK"
+            it.organizationName == org1Name && it.name == "HL7_BATCH_PPK"
         }[0]
         val hl7PemReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "HL7_BATCH_PEM"
+            it.organizationName == org1Name && it.name == "HL7_BATCH_PEM"
         }[0]
 
         lateinit var allGoodReceivers: MutableList<Receiver>
@@ -880,8 +902,8 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $historyTestOrgName.default")
             ) as CovidSender
         val defaultIgnoreSender = (
-            settings.findSender("$orgName.default")
-                ?: error("Unable to find sender $orgName.default")
+            settings.findSender("$org1Name.default")
+                ?: error("Unable to find sender $org1Name.default")
             ) as CovidSender
 
         fun initListOfGoodReceiversAndCountiesForTopicPipeline() {
@@ -898,25 +920,25 @@ abstract class CoolTest {
         }
 
         val blobstoreReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "BLOBSTORE"
+            it.organizationName == org1Name && it.name == "BLOBSTORE"
         }[0]
         val sftpFailReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "SFTP_FAIL"
+            it.organizationName == org1Name && it.name == "SFTP_FAIL"
         }[0]
         val qualityGoodReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "QUALITY_PASS"
+            it.organizationName == org1Name && it.name == "QUALITY_PASS"
         }[0]
         val qualityAllReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "QUALITY_ALL"
+            it.organizationName == org1Name && it.name == "QUALITY_ALL"
         }[0]
         val qualityFailReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "QUALITY_FAIL"
+            it.organizationName == org1Name && it.name == "QUALITY_FAIL"
         }[0]
         val qualityReversedReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "QUALITY_REVERSED"
+            it.organizationName == org1Name && it.name == "QUALITY_REVERSED"
         }[0]
         val settingsTestReceiver = settings.receivers.filter {
-            it.organizationName == orgName && it.name == "SETTINGS_TEST"
+            it.organizationName == org1Name && it.name == "SETTINGS_TEST"
         }[0]
 
         const val ANSI_RESET = "\u001B[0m"

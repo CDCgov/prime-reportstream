@@ -1,0 +1,2708 @@
+{
+  "resourceType": "Bundle",
+  "id": "1682628815724269000.79a14093-6afc-416e-818b-161a6d6269b5",
+  "meta": {
+    "lastUpdated": "2023-04-27T16:53:35.724-04:00"
+  },
+  "identifier": {
+    "system": "https://reportstream.cdc.gov/prime-router",
+    "value": "849547"
+  },
+  "type": "message",
+  "timestamp": "2021-06-22T13:14:13.834-04:00",
+  "entry": [
+    {
+      "fullUrl": "MessageHeader/e2192b32-8af0-348e-8ef6-e969cac6bb5a",
+      "resource": {
+        "resourceType": "MessageHeader",
+        "id": "e2192b32-8af0-348e-8ef6-e969cac6bb5a",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "eventCoding": {
+          "system": "http://terminology.hl7.org/CodeSystem/v2-0003",
+          "code": "R01",
+          "display": "ORU/ACK - Unsolicited transmission of an observation message"
+        },
+        "destination": [
+          {
+            "target": {
+              "reference": "Device/1682628815725552000.97cf2072-5d7a-4f45-bc0f-47ad92cc26ae"
+            },
+            "receiver": {
+              "reference": "Organization/1682628815726889000.92e262e5-3d09-4b85-bc69-d482107e789d"
+            }
+          }
+        ],
+        "sender": {
+          "reference": "Organization/1682628815724864000.a8ea12ed-944c-4a52-b858-9643a967117b"
+        },
+        "source": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
+              "valueReference": {
+                "reference": "Organization/1682628815730094000.54060de9-0c77-43cd-b78d-089e42427ac1"
+              }
+            },
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-install-date",
+              "valueDateTime": "2021-06-22"
+            },
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/software-binary-id",
+              "valueString": "0.1-SNAPSHOT"
+            }
+          ],
+          "name": "CDC PRIME - Atlanta: 2.16.840.1.114222.4.1.237821",
+          "software": "PRIME Data Hub",
+          "version": "0.1-SNAPSHOT",
+          "endpoint": "urn:oid:2.16.840.1.114222.4.1.237821"
+        }
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815724864000.a8ea12ed-944c-4a52-b858-9643a967117b",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815724864000.a8ea12ed-944c-4a52-b858-9643a967117b",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "Any facility USA"
+          }
+        ],
+        "address": [
+          {
+            "country": "USA"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Device/1682628815725552000.97cf2072-5d7a-4f45-bc0f-47ad92cc26ae",
+      "resource": {
+        "resourceType": "Device",
+        "id": "1682628815725552000.97cf2072-5d7a-4f45-bc0f-47ad92cc26ae",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "0.0.0.0.1"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815726889000.92e262e5-3d09-4b85-bc69-d482107e789d",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815726889000.92e262e5-3d09-4b85-bc69-d482107e789d",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "0.0.0.0.1"
+          }
+        ],
+        "name": "0.0.0.0.1"
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815730094000.54060de9-0c77-43cd-b78d-089e42427ac1",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815730094000.54060de9-0c77-43cd-b78d-089e42427ac1",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "name": "Centers for Disease Control and Prevention"
+      }
+    },
+    {
+      "fullUrl": "Provenance/1682628815736526000.a95c176e-ecc2-4a98-81e7-4b6a7600c578",
+      "resource": {
+        "resourceType": "Provenance",
+        "id": "1682628815736526000.a95c176e-ecc2-4a98-81e7-4b6a7600c578",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "target": [
+          {
+            "reference": "DiagnosticReport/1682628815795723000.bb2f8c9d-7f0a-4ecd-9e74-4bd8f0ede97f"
+          },
+          {
+            "reference": "Endpoint/1682628818672482000.03c7cd5a-0fc0-4dfa-b7f5-319b7901ca90"
+          },
+          {
+            "reference": "Endpoint/1682628818672663000.5561ba8b-9bc9-40d3-903c-80d2daa6d70c"
+          },
+          {
+            "reference": "Endpoint/1680608818670663000.5561ba8b-9bc9-40d3-903c-80d0daa6d70c"
+          }
+        ],
+        "recorded": "2021-06-22T13:14:13.8343-04:00",
+        "activity": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0003",
+              "code": "R01",
+              "display": "ORU_R01"
+            }
+          ]
+        },
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+                  "code": "author"
+                }
+              ]
+            },
+            "who": {
+              "reference": "Organization/1682628815735681000.0f4625a7-3f49-495b-bced-609c0cc5c3d2"
+            }
+          }
+        ],
+        "entity": [
+          {
+            "role": "source",
+            "what": {
+              "reference": "Device/1682628815737486000.d8f9f243-7671-4688-8784-0c636c64aaf2"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815735681000.0f4625a7-3f49-495b-bced-609c0cc5c3d2",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815735681000.0f4625a7-3f49-495b-bced-609c0cc5c3d2",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "Any facility USA"
+          }
+        ],
+        "name": "Any facility USA",
+        "contact": [
+          {
+            "purpose": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/contactentity-type",
+                  "code": "ADMIN",
+                  "display": "Administrative"
+                }
+              ],
+              "text": "Organization Medical Director"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Device/1682628815737486000.d8f9f243-7671-4688-8784-0c636c64aaf2",
+      "resource": {
+        "resourceType": "Device",
+        "id": "1682628815737486000.d8f9f243-7671-4688-8784-0c636c64aaf2",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl": "Observation/1682628815752125000.7ef96326-04b5-432a-97c9-6739c30c4af5",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1682628815752125000.7ef96326-04b5-432a-97c9-6739c30c4af5",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "code": "fjdulo"
+                }
+              ]
+            }
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+            "valueString": "770814"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
+            "valueReference": {
+              "reference": "Organization/1682628815752028000.0ddf69da-0878-41dc-b454-00719d0f8018"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "system": "urn:id:extID",
+            "value": "458815"
+          }
+        ],
+        "status": "corrected",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "oizfk3i67",
+              "code": "95209-3"
+            }
+          ],
+          "text": "SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
+        },
+        "subject": {
+          "reference": "Patient/1682628815741848000.a28df36f-dcad-48ae-a7d7-f37bde05bfa1"
+        },
+        "effectiveDateTime": "2021-06-17T07:00:00-04:00",
+        "issued": "2021-06-15T22:57:00-04:00",
+        "performer": [
+          {
+            "reference": "Organization/1682628815749310000.5ed614e2-7f15-483a-8a57-579f1b854b67"
+          }
+        ],
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "260415000"
+            }
+          ],
+          "text": "Not detected"
+        },
+        "interpretation": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0078",
+                "code": "HH",
+                "display": "Critically high"
+              }
+            ]
+          }
+        ],
+        "note": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "system": "HL70364",
+                      "code": "RE"
+                    }
+                  ],
+                  "text": "Remark"
+                }
+              },
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/v2-0105",
+                      "code": "O"
+                    }
+                  ]
+                }
+              }
+            ],
+            "text": "ciu1se"
+          }
+        ],
+        "device": {
+          "reference": "Device/1682628815753776000.b33ef3e8-6ab3-4055-bf20-525f869477cb"
+        },
+        "referenceRange": [
+          {
+            "text": "Abnormal"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815749310000.5ed614e2-7f15-483a-8a57-579f1b854b67",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815749310000.5ed614e2-7f15-483a-8a57-579f1b854b67",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+            "valueString": "0.0.0.0.1"
+          }
+        ],
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code": "XX"
+              }
+            ]
+          }
+        ],
+        "name": "Any lab USA",
+        "address": [
+          {
+            "line": [
+              "734 Manual Camp"
+            ],
+            "state": "IG"
+          }
+        ],
+        "contact": [
+          {
+            "purpose": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/contactentity-type",
+                  "code": "ADMIN",
+                  "display": "Administrative"
+                }
+              ],
+              "text": "Organization Medical Director"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815752028000.0ddf69da-0878-41dc-b454-00719d0f8018",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815752028000.0ddf69da-0878-41dc-b454-00719d0f8018",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ],
+        "name": "CLIA"
+      }
+    },
+    {
+      "fullUrl": "Device/1682628815753776000.b33ef3e8-6ab3-4055-bf20-525f869477cb",
+      "resource": {
+        "resourceType": "Device",
+        "id": "1682628815753776000.b33ef3e8-6ab3-4055-bf20-525f869477cb",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "LumiraDx Platform_LumiraDx"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1682628815757684000.3ed61035-9319-4c36-a3a0-6befb5a8e2f2",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1682628815757684000.3ed61035-9319-4c36-a3a0-6befb5a8e2f2",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
+            "valueReference": {
+              "reference": "Organization/1682628815757605000.3943695e-dadf-4bbe-9375-d0efa49e81e8"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "system": "urn:id:extID",
+            "value": "458815"
+          }
+        ],
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "95418-0"
+            }
+          ],
+          "text": "Whether patient is employed in a healthcare setting"
+        },
+        "subject": {
+          "reference": "Patient/1682628815741848000.a28df36f-dcad-48ae-a7d7-f37bde05bfa1"
+        },
+        "effectiveDateTime": "2021-06-17T07:00:00-04:00",
+        "issued": "2021-06-15T22:57:00-04:00",
+        "performer": [
+          {
+            "reference": "Organization/1682628815756036000.7f2c8f59-9b7b-4bcb-a533-d70a9458a5ca"
+          }
+        ],
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "HL70136",
+              "code": "Y"
+            }
+          ],
+          "text": "Yes"
+        }
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815756036000.7f2c8f59-9b7b-4bcb-a533-d70a9458a5ca",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815756036000.7f2c8f59-9b7b-4bcb-a533-d70a9458a5ca",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code": "XX"
+              }
+            ]
+          }
+        ],
+        "name": "Any lab USA",
+        "address": [
+          {
+            "line": [
+              "734 Manual Camp"
+            ],
+            "district": "HL7_BATCH",
+            "state": "IG"
+          }
+        ],
+        "contact": [
+          {
+            "purpose": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/contactentity-type",
+                  "code": "ADMIN",
+                  "display": "Administrative"
+                }
+              ],
+              "text": "Organization Medical Director"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815757605000.3943695e-dadf-4bbe-9375-d0efa49e81e8",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815757605000.3943695e-dadf-4bbe-9375-d0efa49e81e8",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1682628815761695000.49cdf9a6-60c3-42a1-b9f6-2cd242f81670",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1682628815761695000.49cdf9a6-60c3-42a1-b9f6-2cd242f81670",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
+            "valueReference": {
+              "reference": "Organization/1682628815761626000.b3d08b27-07b7-475d-a12a-d10b3996f06a"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "system": "urn:id:extID",
+            "value": "458815"
+          }
+        ],
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "95417-2"
+            }
+          ],
+          "text": "First test for condition of interest"
+        },
+        "subject": {
+          "reference": "Patient/1682628815741848000.a28df36f-dcad-48ae-a7d7-f37bde05bfa1"
+        },
+        "effectiveDateTime": "2021-06-17T07:00:00-04:00",
+        "issued": "2021-06-15T22:57:00-04:00",
+        "performer": [
+          {
+            "reference": "Organization/1682628815760069000.e65a60bd-dc6a-4ee2-a635-e584884dbc1d"
+          }
+        ],
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "HL70136",
+              "code": "Y"
+            }
+          ],
+          "text": "Yes"
+        }
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815760069000.e65a60bd-dc6a-4ee2-a635-e584884dbc1d",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815760069000.e65a60bd-dc6a-4ee2-a635-e584884dbc1d",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code": "XX"
+              }
+            ]
+          }
+        ],
+        "name": "Any lab USA",
+        "address": [
+          {
+            "line": [
+              "734 Manual Camp"
+            ],
+            "district": "HL7_BATCH",
+            "state": "IG"
+          }
+        ],
+        "contact": [
+          {
+            "purpose": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/contactentity-type",
+                  "code": "ADMIN",
+                  "display": "Administrative"
+                }
+              ],
+              "text": "Organization Medical Director"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815761626000.b3d08b27-07b7-475d-a12a-d10b3996f06a",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815761626000.b3d08b27-07b7-475d-a12a-d10b3996f06a",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1682628815765698000.f1de916e-9c00-4178-ae72-2ace3b9c8538",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1682628815765698000.f1de916e-9c00-4178-ae72-2ace3b9c8538",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
+            "valueReference": {
+              "reference": "Organization/1682628815765612000.d62737dc-f74e-40f0-a953-b3bc247344ab"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "system": "urn:id:extID",
+            "value": "458815"
+          }
+        ],
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "77974-4"
+            }
+          ],
+          "text": "Patient was hospitalized because of this condition"
+        },
+        "subject": {
+          "reference": "Patient/1682628815741848000.a28df36f-dcad-48ae-a7d7-f37bde05bfa1"
+        },
+        "effectiveDateTime": "2021-06-17T07:00:00-04:00",
+        "issued": "2021-06-15T22:57:00-04:00",
+        "performer": [
+          {
+            "reference": "Organization/1682628815764049000.fb7f179d-afff-4ea2-975c-524bd4fb107d"
+          }
+        ],
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "HL70136",
+              "code": "UNK"
+            }
+          ],
+          "text": "Unknown"
+        }
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815764049000.fb7f179d-afff-4ea2-975c-524bd4fb107d",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815764049000.fb7f179d-afff-4ea2-975c-524bd4fb107d",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code": "XX"
+              }
+            ]
+          }
+        ],
+        "name": "Any lab USA",
+        "address": [
+          {
+            "line": [
+              "734 Manual Camp"
+            ],
+            "district": "HL7_BATCH",
+            "state": "IG"
+          }
+        ],
+        "contact": [
+          {
+            "purpose": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/contactentity-type",
+                  "code": "ADMIN",
+                  "display": "Administrative"
+                }
+              ],
+              "text": "Organization Medical Director"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815765612000.d62737dc-f74e-40f0-a953-b3bc247344ab",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815765612000.d62737dc-f74e-40f0-a953-b3bc247344ab",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1682628815769689000.7465a55e-17eb-4475-a940-2f6714028082",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1682628815769689000.7465a55e-17eb-4475-a940-2f6714028082",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
+            "valueReference": {
+              "reference": "Organization/1682628815769610000.5e569903-0d7e-48dc-aecc-75f8c289a7ca"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "system": "urn:id:extID",
+            "value": "458815"
+          }
+        ],
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "95420-6"
+            }
+          ],
+          "text": "Admitted to intensive care unit for condition of interest"
+        },
+        "subject": {
+          "reference": "Patient/1682628815741848000.a28df36f-dcad-48ae-a7d7-f37bde05bfa1"
+        },
+        "effectiveDateTime": "2021-06-17T07:00:00-04:00",
+        "issued": "2021-06-15T22:57:00-04:00",
+        "performer": [
+          {
+            "reference": "Organization/1682628815768070000.82416c03-8954-4f33-a12e-b8857b0ab74a"
+          }
+        ],
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "HL70136",
+              "code": "Y"
+            }
+          ],
+          "text": "Yes"
+        }
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815768070000.82416c03-8954-4f33-a12e-b8857b0ab74a",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815768070000.82416c03-8954-4f33-a12e-b8857b0ab74a",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code": "XX"
+              }
+            ]
+          }
+        ],
+        "name": "Any lab USA",
+        "address": [
+          {
+            "line": [
+              "734 Manual Camp"
+            ],
+            "district": "HL7_BATCH",
+            "state": "IG"
+          }
+        ],
+        "contact": [
+          {
+            "purpose": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/contactentity-type",
+                  "code": "ADMIN",
+                  "display": "Administrative"
+                }
+              ],
+              "text": "Organization Medical Director"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815769610000.5e569903-0d7e-48dc-aecc-75f8c289a7ca",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815769610000.5e569903-0d7e-48dc-aecc-75f8c289a7ca",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1682628815773790000.a63b4d53-604e-41e9-b889-7ab5839bb501",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1682628815773790000.a63b4d53-604e-41e9-b889-7ab5839bb501",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
+            "valueReference": {
+              "reference": "Organization/1682628815773645000.73d6861a-6f64-4d8b-843f-5145a3ec116b"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "system": "urn:id:extID",
+            "value": "458815"
+          }
+        ],
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "65222-2"
+            }
+          ],
+          "text": "Date and time of symptom onset"
+        },
+        "subject": {
+          "reference": "Patient/1682628815741848000.a28df36f-dcad-48ae-a7d7-f37bde05bfa1"
+        },
+        "effectiveDateTime": "2021-06-17T07:00:00-04:00",
+        "issued": "2021-06-15T22:57:00-04:00",
+        "performer": [
+          {
+            "reference": "Organization/1682628815772229000.75ebd0cc-bf09-430d-bf77-e75e3ab93049"
+          }
+        ],
+        "valueDateTime": "2021-06-21"
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815772229000.75ebd0cc-bf09-430d-bf77-e75e3ab93049",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815772229000.75ebd0cc-bf09-430d-bf77-e75e3ab93049",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code": "XX"
+              }
+            ]
+          }
+        ],
+        "name": "Any lab USA",
+        "address": [
+          {
+            "line": [
+              "734 Manual Camp"
+            ],
+            "district": "HL7_BATCH",
+            "state": "IG"
+          }
+        ],
+        "contact": [
+          {
+            "purpose": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/contactentity-type",
+                  "code": "ADMIN",
+                  "display": "Administrative"
+                }
+              ],
+              "text": "Organization Medical Director"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815773645000.73d6861a-6f64-4d8b-843f-5145a3ec116b",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815773645000.73d6861a-6f64-4d8b-843f-5145a3ec116b",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1682628815777864000.6dd02a6d-7268-4911-ac85-5369c9b5eff4",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1682628815777864000.6dd02a6d-7268-4911-ac85-5369c9b5eff4",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://unitsofmeasure.org",
+                  "code": "h"
+                }
+              ],
+              "text": "hours"
+            }
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
+            "valueReference": {
+              "reference": "Organization/1682628815777791000.8b3abac9-203e-40b3-a7fd-eae783039db3"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "system": "urn:id:extID",
+            "value": "458815"
+          }
+        ],
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "30525-0"
+            }
+          ],
+          "text": "Age"
+        },
+        "subject": {
+          "reference": "Patient/1682628815741848000.a28df36f-dcad-48ae-a7d7-f37bde05bfa1"
+        },
+        "effectiveDateTime": "2021-06-17T07:00:00-04:00",
+        "issued": "2021-06-15T22:57:00-04:00",
+        "performer": [
+          {
+            "reference": "Organization/1682628815776134000.7b27c684-6485-4b22-8f2c-d560ba1963c8"
+          }
+        ],
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "code": "9"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815776134000.7b27c684-6485-4b22-8f2c-d560ba1963c8",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815776134000.7b27c684-6485-4b22-8f2c-d560ba1963c8",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code": "XX"
+              }
+            ]
+          }
+        ],
+        "name": "Any lab USA",
+        "address": [
+          {
+            "line": [
+              "734 Manual Camp"
+            ],
+            "district": "HL7_BATCH",
+            "state": "IG"
+          }
+        ],
+        "contact": [
+          {
+            "purpose": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/contactentity-type",
+                  "code": "ADMIN",
+                  "display": "Administrative"
+                }
+              ],
+              "text": "Organization Medical Director"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815777791000.8b3abac9-203e-40b3-a7fd-eae783039db3",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815777791000.8b3abac9-203e-40b3-a7fd-eae783039db3",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1682628815781888000.98ea01be-e001-48b0-a527-41b22c78e2d9",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1682628815781888000.98ea01be-e001-48b0-a527-41b22c78e2d9",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
+            "valueReference": {
+              "reference": "Organization/1682628815781796000.ca436280-4898-421c-9eee-97c8904470fd"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "system": "urn:id:extID",
+            "value": "458815"
+          }
+        ],
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "82810-3"
+            }
+          ],
+          "text": "Pregnancy status"
+        },
+        "subject": {
+          "reference": "Patient/1682628815741848000.a28df36f-dcad-48ae-a7d7-f37bde05bfa1"
+        },
+        "effectiveDateTime": "2021-06-17T07:00:00-04:00",
+        "issued": "2021-06-15T22:57:00-04:00",
+        "performer": [
+          {
+            "reference": "Organization/1682628815780162000.660c2a71-cb50-4f0a-9ee9-ae974afc003f"
+          }
+        ],
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "261665006"
+            }
+          ],
+          "text": "Unknown"
+        }
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815780162000.660c2a71-cb50-4f0a-9ee9-ae974afc003f",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815780162000.660c2a71-cb50-4f0a-9ee9-ae974afc003f",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code": "XX"
+              }
+            ]
+          }
+        ],
+        "name": "Any lab USA",
+        "address": [
+          {
+            "line": [
+              "734 Manual Camp"
+            ],
+            "district": "HL7_BATCH",
+            "state": "IG"
+          }
+        ],
+        "contact": [
+          {
+            "purpose": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/contactentity-type",
+                  "code": "ADMIN",
+                  "display": "Administrative"
+                }
+              ],
+              "text": "Organization Medical Director"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815781796000.ca436280-4898-421c-9eee-97c8904470fd",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815781796000.ca436280-4898-421c-9eee-97c8904470fd",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1682628815785882000.612e485a-4a42-4c79-b545-96f04e3779ed",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1682628815785882000.612e485a-4a42-4c79-b545-96f04e3779ed",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
+            "valueReference": {
+              "reference": "Organization/1682628815785814000.fb27e1a1-2d92-4832-8614-be88cc728c20"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "system": "urn:id:extID",
+            "value": "458815"
+          }
+        ],
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "95421-4"
+            }
+          ],
+          "text": "Resides in a congregate care setting"
+        },
+        "subject": {
+          "reference": "Patient/1682628815741848000.a28df36f-dcad-48ae-a7d7-f37bde05bfa1"
+        },
+        "effectiveDateTime": "2021-06-17T07:00:00-04:00",
+        "issued": "2021-06-15T22:57:00-04:00",
+        "performer": [
+          {
+            "reference": "Organization/1682628815784278000.d68a3ebd-8a5f-4e49-936c-b1934abe2d56"
+          }
+        ],
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "HL70136",
+              "code": "Y"
+            }
+          ],
+          "text": "Yes"
+        }
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815784278000.d68a3ebd-8a5f-4e49-936c-b1934abe2d56",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815784278000.d68a3ebd-8a5f-4e49-936c-b1934abe2d56",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code": "XX"
+              }
+            ]
+          }
+        ],
+        "name": "Any lab USA",
+        "address": [
+          {
+            "line": [
+              "734 Manual Camp"
+            ],
+            "district": "HL7_BATCH",
+            "state": "IG"
+          }
+        ],
+        "contact": [
+          {
+            "purpose": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/contactentity-type",
+                  "code": "ADMIN",
+                  "display": "Administrative"
+                }
+              ],
+              "text": "Organization Medical Director"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815785814000.fb27e1a1-2d92-4832-8614-be88cc728c20",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815785814000.fb27e1a1-2d92-4832-8614-be88cc728c20",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Observation/1682628815789662000.e03d7488-3472-46b6-baa0-7855ee283060",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1682628815789662000.e03d7488-3472-46b6-baa0-7855ee283060",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
+            "valueReference": {
+              "reference": "Organization/1682628815789594000.e785499e-c26a-45f9-bfb8-329082e45661"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "system": "urn:id:extID",
+            "value": "458815"
+          }
+        ],
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "95419-8"
+            }
+          ],
+          "text": "Has symptoms related to condition of interest"
+        },
+        "subject": {
+          "reference": "Patient/1682628815741848000.a28df36f-dcad-48ae-a7d7-f37bde05bfa1"
+        },
+        "effectiveDateTime": "2021-06-17T07:00:00-04:00",
+        "issued": "2021-06-15T22:57:00-04:00",
+        "performer": [
+          {
+            "reference": "Organization/1682628815788144000.bf2f84cf-48d3-4811-992f-38ea993f149b"
+          }
+        ],
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "HL70136",
+              "code": "N"
+            }
+          ],
+          "text": "No"
+        }
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815788144000.bf2f84cf-48d3-4811-992f-38ea993f149b",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815788144000.bf2f84cf-48d3-4811-992f-38ea993f149b",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code": "XX"
+              }
+            ]
+          }
+        ],
+        "name": "Any lab USA",
+        "address": [
+          {
+            "line": [
+              "734 Manual Camp"
+            ],
+            "district": "HL7_BATCH",
+            "state": "IG"
+          }
+        ],
+        "contact": [
+          {
+            "purpose": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/contactentity-type",
+                  "code": "ADMIN",
+                  "display": "Administrative"
+                }
+              ],
+              "text": "Organization Medical Director"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815789594000.e785499e-c26a-45f9-bfb8-329082e45661",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815789594000.e785499e-c26a-45f9-bfb8-329082e45661",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "98D3030450"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Specimen/1682628815794003000.43c80ab5-ebe0-40e2-92f9-12b9bcbac45b",
+      "resource": {
+        "resourceType": "Specimen",
+        "id": "1682628815794003000.43c80ab5-ebe0-40e2-92f9-12b9bcbac45b",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "value": "589434"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "FGN"
+                }
+              ]
+            },
+            "value": "458815"
+          }
+        ],
+        "type": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "119334006"
+            }
+          ],
+          "text": "Sputum specimen"
+        },
+        "receivedTime": "2021-06-13T04:52:00-04:00",
+        "collection": {
+          "collectedDateTime": "2021-06-17T07:00:00-04:00",
+          "method": {
+            "coding": [
+              {
+                "system": "HL70048",
+                "code": "PIN"
+              }
+            ],
+            "text": "Pinworm Prep"
+          },
+          "bodySite": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "71836000"
+              }
+            ],
+            "text": "Nasopharyngeal structure (body structure)"
+          }
+        },
+        "note": [
+          {
+            "text": "od8wcjs"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "DiagnosticReport/1682628815795723000.bb2f8c9d-7f0a-4ecd-9e74-4bd8f0ede97f",
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "id": "1682628815795723000.bb2f8c9d-7f0a-4ecd-9e74-4bd8f0ede97f",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/result-status",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0123",
+                  "code": "C"
+                }
+              ]
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "system": "urn:id:extID",
+            "value": "20210622131413.8343-0400"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString": "urn:id:16D1867315"
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PGN",
+                  "display": "Placer Group Number"
+                }
+              ]
+            },
+            "system": "urn:id:wg8fy7v",
+            "value": "357212"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString": "urn:id:98D3030450"
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PLAC"
+                }
+              ]
+            },
+            "system": "urn:id:Any_lab_USA",
+            "value": "509885"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString": "urn:id:98D3030450"
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "FILL",
+                  "display": "Filler Identifier"
+                }
+              ]
+            },
+            "system": "urn:id:Any_lab_USA",
+            "value": "458815"
+          }
+        ],
+        "basedOn": [
+          {
+            "reference": "ServiceRequest/1682628815797731000.cfdca6cb-6bf4-4fe8-8e3f-7c1b9ca82376"
+          }
+        ],
+        "status": "corrected",
+        "code": {
+          "coding": [
+            {
+              "system": "89t4pnkx",
+              "code": "95209-3"
+            }
+          ],
+          "text": "SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
+        },
+        "subject": {
+          "reference": "Patient/1682628815741848000.a28df36f-dcad-48ae-a7d7-f37bde05bfa1"
+        },
+        "effectivePeriod": {
+          "start": "2021-06-17T07:00:00-04:00",
+          "end": "2021-06-17T07:00:00-04:00"
+        },
+        "issued": "2021-06-17T08:00:00-04:00",
+        "specimen": [
+          {
+            "reference": "Specimen/1682628815794003000.43c80ab5-ebe0-40e2-92f9-12b9bcbac45b"
+          }
+        ],
+        "result": [
+          {
+            "reference": "Observation/1682628815752125000.7ef96326-04b5-432a-97c9-6739c30c4af5"
+          },
+          {
+            "reference": "Observation/1682628815757684000.3ed61035-9319-4c36-a3a0-6befb5a8e2f2"
+          },
+          {
+            "reference": "Observation/1682628815761695000.49cdf9a6-60c3-42a1-b9f6-2cd242f81670"
+          },
+          {
+            "reference": "Observation/1682628815765698000.f1de916e-9c00-4178-ae72-2ace3b9c8538"
+          },
+          {
+            "reference": "Observation/1682628815769689000.7465a55e-17eb-4475-a940-2f6714028082"
+          },
+          {
+            "reference": "Observation/1682628815773790000.a63b4d53-604e-41e9-b889-7ab5839bb501"
+          },
+          {
+            "reference": "Observation/1682628815777864000.6dd02a6d-7268-4911-ac85-5369c9b5eff4"
+          },
+          {
+            "reference": "Observation/1682628815781888000.98ea01be-e001-48b0-a527-41b22c78e2d9"
+          },
+          {
+            "reference": "Observation/1682628815785882000.612e485a-4a42-4c79-b545-96f04e3779ed"
+          },
+          {
+            "reference": "Observation/1682628815789662000.e03d7488-3472-46b6-baa0-7855ee283060"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Practitioner/1682628815797410000.ccebfc5f-5d72-4808-be0f-4561ebb71b52",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "1682628815797410000.ccebfc5f-5d72-4808-be0f-4561ebb71b52",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl": "Practitioner/1682628815799280000.75811598-90b0-4a57-b259-f7ae26afeeb1",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "1682628815799280000.75811598-90b0-4a57-b259-f7ae26afeeb1",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "6qhct"
+                }
+              ]
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id",
+                "valueString": "0.0.0.0.1"
+              }
+            ],
+            "system": "urn:id:0.0.0.0.1",
+            "value": "3206995729"
+          }
+        ],
+        "name": [
+          {
+            "text": "Meda Dara Olson",
+            "family": "Olson",
+            "given": [
+              "Meda",
+              "Dara"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+1 296 764 1497",
+            "use": "work"
+          }
+        ],
+        "address": [
+          {
+            "line": [
+              "656 Lauretta Plains"
+            ],
+            "state": "IG"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Organization/1682628815801682000.ab2c0b3a-6bc7-4b83-8418-9d023fc73ea4",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1682628815801682000.ab2c0b3a-6bc7-4b83-8418-9d023fc73ea4",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "name": "Any facility USA",
+        "address": [
+          {
+            "line": [
+              "692 Hammes Ranch"
+            ],
+            "state": "IG"
+          }
+        ],
+        "contact": [
+          {
+            "telecom": [
+              {
+                "system": "phone",
+                "value": "+1 205 415 9055",
+                "use": "work"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "PractitionerRole/1682628815801755000.aa08f6a5-3b89-4cda-9ac1-656e7e568aeb",
+      "resource": {
+        "resourceType": "PractitionerRole",
+        "id": "1682628815801755000.aa08f6a5-3b89-4cda-9ac1-656e7e568aeb",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "practitioner": {
+          "reference": "Practitioner/1682628815799280000.75811598-90b0-4a57-b259-f7ae26afeeb1"
+        },
+        "organization": {
+          "reference": "Organization/1682628815801682000.ab2c0b3a-6bc7-4b83-8418-9d023fc73ea4"
+        }
+      }
+    },
+    {
+      "fullUrl": "ServiceRequest/1682628815797731000.cfdca6cb-6bf4-4fe8-8e3f-7c1b9ca82376",
+      "resource": {
+        "resourceType": "ServiceRequest",
+        "id": "1682628815797731000.cfdca6cb-6bf4-4fe8-8e3f-7c1b9ca82376",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier",
+            "valueReference": {
+              "reference": "Practitioner/1682628815797410000.ccebfc5f-5d72-4808-be0f-4561ebb71b52"
+            }
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/order-control",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0119",
+                  "code": "RE"
+                }
+              ]
+            }
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date",
+            "valueDateTime": "2021-06-19"
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/result-status",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0123",
+                  "code": "C"
+                }
+              ]
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "VN",
+                  "display": "Visit number"
+                }
+              ]
+            },
+            "value": "20210622131413.8343-0400"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString": "urn:id:16D1867315"
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PGN",
+                  "display": "Placer Group Number"
+                }
+              ]
+            },
+            "system": "urn:id:wg8fy7v",
+            "value": "357212"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString": "urn:id:98D3030450"
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PLAC",
+                  "display": "Placer Identifier"
+                }
+              ]
+            },
+            "system": "urn:id:Any_lab_USA",
+            "value": "509885"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+                "valueString": "urn:id:98D3030450"
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "FILL",
+                  "display": "Filler Identifier"
+                }
+              ]
+            },
+            "system": "urn:id:Any_lab_USA",
+            "value": "458815"
+          }
+        ],
+        "status": "unknown",
+        "intent": "order",
+        "code": {
+          "coding": [
+            {
+              "system": "89t4pnkx",
+              "code": "95209-3"
+            }
+          ],
+          "text": "SARS-CoV+SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay"
+        },
+        "subject": {
+          "reference": "Patient/1682628815741848000.a28df36f-dcad-48ae-a7d7-f37bde05bfa1"
+        },
+        "occurrenceDateTime": "2021-06-19",
+        "requester": {
+          "reference": "PractitionerRole/1682628815801755000.aa08f6a5-3b89-4cda-9ac1-656e7e568aeb"
+        },
+        "reasonCode": [
+          {
+            "coding": [
+              {
+                "code": "3vrgq2oel"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Patient/1682628815741848000.a28df36f-dcad-48ae-a7d7-f37bde05bfa1",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "1682628815741848000.a28df36f-dcad-48ae-a7d7-f37bde05bfa1",
+        "meta": {
+          "extension": [
+            {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            }
+          ],
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v3-Race",
+                  "code": "2076-8"
+                }
+              ],
+              "text": "Native Hawaiian or Other Pacific Islander"
+            }
+          },
+          {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0189",
+                  "code": "N"
+                }
+              ],
+              "text": "Non Hispanic or Latino"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "system": "urn:id:Any_lab_USA",
+            "value": "15f98ap"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "DL",
+                  "display": "Driver's license number"
+                }
+              ]
+            },
+            "value": "350-76-7158"
+          }
+        ],
+        "name": [
+          {
+            "text": "TestValue",
+            "family": "Steuber",
+            "given": [
+              "Eldridge",
+              "Cher"
+            ],
+            "suffix": [
+              "Sr."
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "email",
+            "value": "samuel.renner@email.com",
+            "use": "home"
+          },
+          {
+            "system": "phone",
+            "value": "+1 273 848 9614",
+            "use": "home"
+          }
+        ],
+        "gender": "other",
+        "birthDate": "2015-07-07",
+        "deceasedDateTime": "2021-06-14",
+        "address": [
+          {
+            "line": [
+              "337 Johns Road"
+            ],
+            "state": "IG",
+            "country": "s4fgh"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "Endpoint/1682628818672482000.03c7cd5a-0fc0-4dfa-b7f5-319b7901ca90",
+      "resource": {
+        "resourceType": "Endpoint",
+        "id": "1682628818672482000.03c7cd5a-0fc0-4dfa-b7f5-319b7901ca90",
+        "identifier": [
+          {
+            "system": "https://reportstream.cdc.gov/prime-router",
+            "value": "ignore.FULL_ELR"
+          }
+        ],
+        "status": "active",
+        "name": "Ignore FULL_ELR"
+      }
+    },
+    {
+      "fullUrl": "Endpoint/1682628818672663000.5561ba8b-9bc9-40d3-903c-80d2daa6d70c",
+      "resource": {
+        "resourceType": "Endpoint",
+        "id": "1682628818672663000.5561ba8b-9bc9-40d3-903c-80d2daa6d70c",
+        "identifier": [
+          {
+            "system": "https://reportstream.cdc.gov/prime-router",
+            "value": "ignore.FULL_ELR_FHIR"
+          }
+        ],
+        "status": "active",
+        "name": "Ignore FULL_ELR_FHIR"
+      }
+    },
+    {
+      "fullUrl": "Endpoint/1680608818670663000.5561ba8b-9bc9-40d3-903c-80d0daa6d70c",
+      "resource": {
+        "resourceType": "Endpoint",
+        "id": "1680608818670663000.5561ba8b-9bc9-40d3-903c-80d0daa6d70c",
+        "identifier": [
+          {
+            "system": "https://reportstream.cdc.gov/prime-router",
+            "value": "ignore.FULL_ELR_OTHER"
+          }
+        ],
+        "status": "active",
+        "name": "Ignore FULL_ELR_OTHER"
+      }
+    }
+  ]
+}

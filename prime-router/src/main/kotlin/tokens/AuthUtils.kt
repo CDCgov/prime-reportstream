@@ -3,20 +3,20 @@ package gov.cdc.prime.router.tokens
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.KeyType
-import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.Organization
 import io.jsonwebtoken.Jwts
 import java.io.File
 import java.security.PrivateKey
 import java.util.Date
 import java.util.UUID
 
-class SenderUtils {
+class AuthUtils {
 
     companion object {
 
         /**
-         * Generate a signed JWT, representing a request for authentication from a Sender, using a private key.
-         * This is done by the Sender, not by ReportStream. This method is here for testing, and as an example.
+         * Generate a signed JWT, representing a request for authentication from a Organization, using a private key.
+         * This is done by the Organization, not by ReportStream. This method is here for testing, and as an example.
          * @param issuer -  the issuer for the JWT
          * @param baseUrl - the audience
          * @param privateKey - the private key to sign the JWT with
@@ -49,10 +49,10 @@ class SenderUtils {
         }
 
         /**
-         * Generate a signed JWT, representing a request for authentication from a Sender, using a private key.
-         * This is done by the Sender, not by ReportStream. This method is here for testing, and as an example.
+         * Generate a signed JWT, representing a request for authentication from a Organization, using a private key.
+         * This is done by the Organization, not by ReportStream. This method is here for testing, and as an example.
          *
-         * @param sender -  the issuer for the JWT
+         * @param organization -  the issuer for the JWT
          * @param baseUrl - the audience
          * @param privateKey - the private key to sign the JWT with
          * @param keyId - the unique identifier for the registered public key
@@ -60,38 +60,38 @@ class SenderUtils {
          * @param jti - unique identifier for this JWT
          * @return a signed JWT
          */
-        fun generateSenderToken(
-            sender: Sender,
+        fun generateOrganizationToken(
+            organization: Organization,
             baseUrl: String,
             privateKey: PrivateKey,
             keyId: String,
             expirationSecondsFromNow: Int = 300,
             jti: String? = UUID.randomUUID().toString()
         ): String {
-            return generateToken(sender.fullName, baseUrl, privateKey, keyId, jti, expirationSecondsFromNow)
+            return generateToken(organization.name, baseUrl, privateKey, keyId, jti, expirationSecondsFromNow)
         }
 
         /**
-         * [senderToken] is a signed JWT from this sender, to go to the api/token endpoint.
+         * [organizationToken] is a signed JWT from this organization, to go to the api/token endpoint.
          * [scope] is the desired scope being requested.   See [Scope] for details on format.
          * @return a map of the standard parameters needed to create an acceptable token request.
          */
-        private fun generateSenderUrlParameterMap(senderToken: String, scope: String): Map<String, String> {
+        private fun generateOrganizationUrlParameterMap(organizationToken: String, scope: String): Map<String, String> {
             return mapOf<String, String>(
                 "scope" to scope,
                 "grant_type" to "client_credentials",
                 "client_assertion_type" to "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-                "client_assertion" to senderToken,
+                "client_assertion" to organizationToken,
             )
         }
 
         /**
-         * [senderToken] is a signed JWT from this sender, to go to the api/token endpoint.
+         * [organizationToken] is a signed JWT from this organization, to go to the api/token endpoint.
          * [scope] is the desired scope being requested.   See [Scope] for details on format.
          * @return a string of the standard parameters needed to create an acceptable token request.
          */
-        fun generateSenderUrlParameterString(senderToken: String, scope: String): String {
-            return generateSenderUrlParameterMap(senderToken, scope)
+        fun generateOrganizationUrlParameterString(organizationToken: String, scope: String): String {
+            return generateOrganizationUrlParameterMap(organizationToken, scope)
                 .map { "${it.key}=${it.value}" }.joinToString("&")
         }
 

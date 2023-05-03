@@ -208,8 +208,8 @@ class TokenFunctionTests {
 
     @Test
     fun `Test expired key`() {
-        settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
-        settings.organizationStore.put(organization.name, organization)
+        settings.senderStore.put(sender.fullName, sender)
+        settings.organizationStore.put(organization.name, Organization(organization, validScope, jwk))
 
         val expiresAtSeconds = ((System.currentTimeMillis() / 1000) + 10).toInt()
         val expirationDate = Date(expiresAtSeconds.toLong() - 1000)
@@ -252,8 +252,8 @@ class TokenFunctionTests {
 
     @Test
     fun `Test invalid scope for sender`() {
-        settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
-        settings.organizationStore.put(organization.name, organization)
+        settings.senderStore.put(sender.fullName, sender)
+        settings.organizationStore.put(organization.name, Organization(organization, validScope, jwk))
         listOf(
             // Wrong org
             listOf(
@@ -285,8 +285,8 @@ class TokenFunctionTests {
     @Test
     fun `Test no key for scope`() {
 
-        settings.senderStore.put(sender.fullName, CovidSender(sender, "test.scope", jwk))
-        settings.organizationStore.put(organization.name, organization)
+        settings.senderStore.put(sender.fullName, sender)
+        settings.organizationStore.put(organization.name, Organization(organization, "test.scope", jwk))
 
         var httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.parameters.put("client_assertion", token)
@@ -306,6 +306,14 @@ class TokenFunctionTests {
 
     @Test
     fun `Test success with organization`() {
+        val expiresAtSeconds = ((System.currentTimeMillis() / 1000) + 10).toInt()
+        val expirationDate = Date(expiresAtSeconds.toLong() * 1000)
+        token = Jwts.builder()
+            .setExpiration(expirationDate) // exp
+            .setId(UUID.randomUUID().toString()) // jti
+            .setIssuer(organization.name)
+            .setHeaderParam("kid", jwk.kid)
+            .signWith(keyPair.getPrivate()).compact()
         mockkConstructor(Server2ServerAuthentication::class)
         every {
             anyConstructed<Server2ServerAuthentication>().createAccessToken(any(), any(), any())
@@ -348,34 +356,8 @@ class TokenFunctionTests {
             "test"
         )
 
-        settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, badJwk))
+        settings.senderStore.put(sender.fullName, sender)
         settings.organizationStore.put(organization.name, Organization(organization, validScope, jwk))
-
-        var httpRequestMessage = MockHttpRequestMessage()
-        httpRequestMessage.parameters.put("client_assertion", token)
-        httpRequestMessage.parameters.put("scope", validScope)
-        // Invoke
-        var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
-        // Verify
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK)
-    }
-
-    @Test
-    fun `Test success when organization key is broken, but sender key is not`() {
-        mockkConstructor(Server2ServerAuthentication::class)
-        every {
-            anyConstructed<Server2ServerAuthentication>().createAccessToken(any(), any(), any())
-        } returns AccessToken(
-            "test",
-            "test",
-            "test",
-            10,
-            10,
-            "test"
-        )
-
-        settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
-        settings.organizationStore.put(organization.name, Organization(organization, validScope, badJwk))
 
         var httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.parameters.put("client_assertion", token)
@@ -401,8 +383,8 @@ class TokenFunctionTests {
             "test"
         )
 
-        settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
-        settings.organizationStore.put(organization.name, organization)
+        settings.senderStore.put(sender.fullName, sender)
+        settings.organizationStore.put(organization.name, Organization(organization, validScope, jwk))
 
         var httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.parameters.put("client_assertion", token)
@@ -428,8 +410,8 @@ class TokenFunctionTests {
             "test"
         )
 
-        settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
-        settings.organizationStore.put(organization.name, organization)
+        settings.senderStore.put(sender.fullName, sender)
+        settings.organizationStore.put(organization.name, Organization(organization, validScope, jwk))
 
         var httpRequestMessage = MockHttpRequestMessage("client_assertion=$token\n&scope=$validScope")
 
@@ -441,8 +423,8 @@ class TokenFunctionTests {
 
     @Test
     fun `Test crazy params in body`() {
-        settings.senderStore.put(sender.fullName, CovidSender(sender, validScope, jwk))
-        settings.organizationStore.put(organization.name, organization)
+        settings.senderStore.put(sender.fullName, sender)
+        settings.organizationStore.put(organization.name, Organization(organization, validScope, jwk))
 
         var httpRequestMessage = MockHttpRequestMessage("client_assertion=&scope=$validScope")
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
