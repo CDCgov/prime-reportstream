@@ -52,13 +52,9 @@ jobs:
         uses: ./.github/actions/notifications
         with:
           method: slack
-          title: These are all terraform plan changes in Staging & Prod
+          title: These are all terraform plan changes fo Staging & Prod envs
           message: |
-            ${{ steps.stats1.outputs.change-count }}
-            ${{ steps.stats1.outputs.drift-count }}
-            ${{ env.resource-changes }}
-            ${{ env.resource-drifts }}
-            ${{ matrix.env }}
+             ${{ steps.format_out.outputs.CHANGES }}
           icon-emoji: ':bell:'
           channel: pagerduty-alert-dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -83,3 +79,10 @@ jobs:
       #       }
       #   env:
       #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+
+            #       ${{ steps.stats1.outputs.change-count }}
+            # ${{ steps.stats1.outputs.drift-count }}
+            # ${{ env.resource-changes }}
+            # ${{ env.resource-drifts }}
+            # ${{ matrix.env }}
