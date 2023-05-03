@@ -36,25 +36,58 @@ jobs:
           add-args: "-refresh=false"
 
       - name: Format outputs for slack
+        id: format_out
         if: steps.stats1.outputs.change-count > 0
         run: |
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "CHANGE<<$EOF" >> $GITHUB_OUTPUT
           echo "resource-changes=$(echo '${{ steps.stats1.outputs.resource-changes }}' \
-            | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_ENV
+            | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_OUTPUT
           echo "resource-drifts=$(echo '${{ steps.stats1.outputs.resource-drifts }}' \
-            | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_ENV
+            | sed 's/\"/\\\"/g' | sed 's/\\\\\"/\\\\\\"/g')" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+          
 
-      - name: Send custom JSON data to Slack workflow
-        if: steps.stats1.outputs.change-count > 0
-        id: slack
-        uses: slackapi/slack-github-action@007b2c3c751a190b6f0f040e47ed024deaa72844
+      - name: Format output
+        
+        run: |
+          echo "LIST<<$EOF" >> $GITHUB_OUTPUT
+          cat certificates.json >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+      
+      - name: Slack Notification
+        if: ${{ steps.format_out.outputs.LIST  != '' }}
+        uses: ./.github/actions/notifications
         with:
-          payload: |
-            {
-              "change-count": "${{ steps.stats1.outputs.change-count }}",
-              "drift-count": "${{ steps.stats1.outputs.drift-count }}",
-              "resource-changes": "${{ env.resource-changes }}",
-              "resource-drifts": "${{ env.resource-drifts }}",
-              "env": "prime-reportstream ${{ matrix.env }}"
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          method: slack
+          title: These are all terraform plan changes in Staging & Prod
+          message: |
+            ${{ steps.stats1.outputs.change-count }}
+            ${{ steps.stats1.outputs.drift-count }}
+            ${{ env.resource-changes }}
+            ${{ env.resource-drifts }}
+            ${{ matrix.env }}
+          icon-emoji: ':bell:'
+          channel: pagerduty-alert-dump
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          color: warning
+
+          
+
+
+
+      # - name: Send custom JSON data to Slack workflow
+      #   if: steps.stats1.outputs.change-count > 0
+      #   id: slack
+      #   uses: slackapi/slack-github-action@007b2c3c751a190b6f0f040e47ed024deaa72844
+      #   with:
+      #     payload: |
+      #       {
+      #         "change-count": "${{ steps.stats1.outputs.change-count }}",
+      #         "drift-count": "${{ steps.stats1.outputs.drift-count }}",
+      #         "resource-changes": "${{ env.resource-changes }}",
+      #         "resource-drifts": "${{ env.resource-drifts }}",
+      #         "env": "prime-reportstream ${{ matrix.env }}"
+      #       }
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
