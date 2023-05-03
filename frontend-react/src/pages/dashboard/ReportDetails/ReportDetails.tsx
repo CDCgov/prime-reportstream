@@ -2,14 +2,15 @@ import { GridContainer } from "@trussworks/react-uswds";
 import { Helmet } from "react-helmet-async";
 import React from "react";
 
-export function FacilityProviderSubmitterDetails() {
-    // TODO: title will be dynamic based on prop
+import { FeatureName } from "../../../AppRouter";
+
+export function ReportDetails() {
     return (
         <GridContainer containerSize="widescreen">
             <Helmet>
-                <title>Facility Details</title>
+                <title>{FeatureName.REPORT_DETAILS}</title>
             </Helmet>
-            <div>Facility, provider & submitter details</div>
+            <div>Report Details</div>
         </GridContainer>
     );
 }
