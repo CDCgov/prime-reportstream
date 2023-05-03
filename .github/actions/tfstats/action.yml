@@ -65,6 +65,7 @@ runs:
     - name: Run Terraform stats
       id: local-action
       run: |
+        chmod +x $(git rev-parse --show-toplevel)/.github/scripts/terraform_stats/tf_stats.sh &&
         $(git rev-parse --show-toplevel)/.github/scripts/terraform_stats/tf_stats.sh \
         "${{ inputs.terraform-directory }}" \
         ${{ inputs.include-no-op }} \
@@ -106,4 +107,3 @@ runs:
         \`\`\`" >> $GITHUB_STEP_SUMMARY
         fi
       shell: bash
-      
