@@ -138,7 +138,6 @@ class AuthenticatedClaimsTests {
             Sender.Format.CSV,
             CustomerStatus.INACTIVE,
             "mySchema",
-            keys = null
         )
         claims = AuthenticatedClaims.generateTestClaims(sender)
         assertThat(claims.isPrimeAdmin).isTrue()
