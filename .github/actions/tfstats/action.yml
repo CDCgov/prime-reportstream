@@ -87,7 +87,7 @@ runs:
       #   steps.local-action.outputs.drift-count > 0
       run: |
         echo "### :construction: Terraform Stats :construction:" >> $GITHUB_STEP_SUMMARY
-        if [[ ${{ steps.local-action.outputs.change-count }} > 0 ]]; then
+        if [[ ${{ steps.local-action.outputs.change-count }} >= 0 ]]; then
         resource_changes=$(echo "${{ steps.local-action.outputs.resource-changes }}" | jq .)
         echo "
         * change-count: ${{ steps.local-action.outputs.change-count }}
@@ -97,7 +97,7 @@ runs:
         $resource_changes
         \`\`\`" >> $GITHUB_STEP_SUMMARY
         fi
-        if [[ ${{ steps.local-action.outputs.drift-count }} > 0 ]]; then
+        if [[ ${{ steps.local-action.outputs.drift-count }} >= 0 ]]; then
         resource_drifts=$(echo "${{ steps.local-action.outputs.resource-drifts }}" | jq .)
         echo "
         * drift-count: ${{ steps.local-action.outputs.drift-count }}
