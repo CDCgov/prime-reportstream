@@ -56,7 +56,7 @@ jobs:
           message: |
             "change-count": "${{ steps.stats1.outputs.change-count }}",
             "drift-count": "${{ steps.stats1.outputs.drift-count }}",
-            "resource-changes": "${{ env.resource-changes }}",
+            "resource-changes": "${{ steps.stats1.outputs.resource-changes }}",
             "resource-drifts": "${{ env.resource-drifts }}",
             "env": "prime-reportstream ${{ matrix.env }}"
           icon-emoji: ':bell:'
