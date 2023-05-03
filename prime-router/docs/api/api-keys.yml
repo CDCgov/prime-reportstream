@@ -69,7 +69,7 @@ paths:
         '404':
           description: Not Found
     post:
-      description: Adds or overwrites a key for a specific scope.
+      description: Adds a key for a specific scope.
       security:
         - OAuth2: [ system_admin ]
       parameters:
@@ -88,7 +88,7 @@ paths:
         - in: query
           name: kid
           required: true
-          description: The key id identifying the public key
+          description: The key id identifying the public key; must be unique for the keys already added for the scope
           schema:
             type: string
       responses:
@@ -103,7 +103,7 @@ paths:
         '404':
           description: Not Found
         '400':
-          description: Bad Request
+          description: Bad Request. Returned if the scope is not valid, the kid already exists for the scope or the POST body was empty
 
 
 components:

@@ -664,7 +664,6 @@ class OrganizationSettings : CliktCommand(
             PutOrganizationSetting(),
             DeleteOrganizationSetting(),
             DiffOrganizationSetting(),
-            MigratePublicKeys(),
             TokenUrl(),
             AddPublicKey(),
             RemoveKey()
@@ -724,8 +723,6 @@ class SenderSettings : CliktCommand(
             PutSenderSetting(),
             DeleteSenderSetting(),
             DiffSenderSetting(),
-            TokenUrl(),
-            AddPublicKey(),
         )
     }
 
