@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import ca.uhn.fhir.context.FhirContext
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogger
@@ -20,11 +21,11 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceReferences
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
-import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Endpoint
@@ -72,12 +73,12 @@ class FHIRTranslator(
             // We only process receivers that are active and for this pipeline.
             if (receiver != null && receiver.topic == Topic.FULL_ELR) {
                 try {
-                    val updatedBundle = removeUnwantedConditions(bundle, receiverEndpoint)
-                    val hl7Message = getHL7MessageFromBundle(updatedBundle, receiver)
-                    val bodyBytes = hl7Message.encode().toByteArray()
+                    val updatedBundle = pruneBundleForReceiver(bundle, receiverEndpoint)
 
-                    // get a Report from the hl7 message
-                    val (report, event, blobInfo) = HL7MessageHelpers.takeHL7GetReport(
+                    val bodyBytes = getByteArrayFromBundle(receiver, updatedBundle)
+
+                    // get a Report from the message
+                    val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
                         Event.EventAction.BATCH,
                         bodyBytes,
                         listOf(message.reportId),
@@ -108,6 +109,30 @@ class FHIRTranslator(
                     actionLogger.error(InvalidReportMessage(e.message ?: ""))
                 }
             }
+        }
+    }
+
+    /**
+     * Returns a byteArray representation of the [bundle] in a format [receiver] expects, or throws an exception if the
+     * expected format isn't supported.
+     */
+    internal fun getByteArrayFromBundle(
+        receiver: Receiver,
+        bundle: Bundle
+    ) = when (receiver.format) {
+        Report.Format.FHIR -> {
+            if (receiver.schemaName.isNotEmpty()) {
+                val transformer = FhirTransformer(receiver.schemaName)
+                transformer.transform(bundle)
+            }
+            FhirTranscoder.encode(bundle, FhirContext.forR4().newJsonParser()).toByteArray()
+        }
+        Report.Format.HL7, Report.Format.HL7_BATCH -> {
+            val hl7Message = getHL7MessageFromBundle(bundle, receiver)
+            hl7Message.encode().toByteArray()
+        }
+        else -> {
+            throw IllegalStateException("Receiver format ${receiver.format} not supported.")
         }
     }
 
@@ -152,15 +177,25 @@ class FHIRTranslator(
     }
 
     /**
-     * Removes observations from a [bundle] that are not referenced in [receiverEndpoint]
+     * Removes observations from a [bundle] that are not referenced in [receiverEndpoint] and any endpoints that are
+     * not [receiverEndpoint]
      *
-     * @return [Bundle] with the unwanted observations removed
+     * @return a copy of [bundle] with the unwanted observations/endpoints removed
      */
-    internal fun removeUnwantedConditions(bundle: Bundle, receiverEndpoint: Endpoint): Bundle {
-
+    internal fun pruneBundleForReceiver(bundle: Bundle, receiverEndpoint: Endpoint): Bundle {
         // Copy bundle to make sure original stays untouched
         val newBundle = bundle.copy()
+        newBundle.removeUnwantedConditions(receiverEndpoint)
+        newBundle.removeUnwantedProvenanceEndpoints(receiverEndpoint)
+        return newBundle
+    }
 
+    /**
+     * Removes observations from this bundle that are not referenced in [receiverEndpoint]
+     *
+     * @return the bundle with the unwanted observations removed
+     */
+    internal fun Bundle.removeUnwantedConditions(receiverEndpoint: Endpoint): Bundle {
         // Get observation references to keep from the receiver endpoint
         val observationsToKeep = receiverEndpoint.extension.flatMap { it.getResourceReferences() }
 
@@ -168,7 +203,7 @@ class FHIRTranslator(
         if (observationsToKeep.isNotEmpty()) {
             // Get all diagnostic reports in the bundle
             val diagnosticReports =
-                FhirPathUtils.evaluate(null, newBundle, newBundle, "Bundle.entry.resource.ofType(DiagnosticReport)")
+                FhirPathUtils.evaluate(null, this, this, "Bundle.entry.resource.ofType(DiagnosticReport)")
 
             // Get all observation references in the diagnostic reports
             val allObservations =
@@ -178,11 +213,24 @@ class FHIRTranslator(
             val observationsIdsToRemove = allObservations - observationsToKeep.toSet()
 
             // Get observation resources to be removed from the bundle
-            val observationsToRemove = newBundle.entry.filter { it.resource.id in observationsIdsToRemove }
+            val observationsToRemove = this.entry.filter { it.resource.id in observationsIdsToRemove }
 
-            observationsToRemove.forEach { newBundle.deleteResource(it.resource) }
+            observationsToRemove.forEach { this.deleteResource(it.resource) }
         }
+        return this
+    }
 
-        return newBundle
+    /**
+     * Removes endpoints from this bundle that do not match [receiverEndpoint]
+     *
+     * @return the bundle with the unwanted endpoints removed
+     */
+    internal fun Bundle.removeUnwantedProvenanceEndpoints(receiverEndpoint: Endpoint): Bundle {
+        val provenance = this.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
+        provenance.target.map { it.resource }.filterIsInstance<Endpoint>().forEach {
+            if (it != receiverEndpoint)
+                this.deleteResource(it)
+        }
+        return this
     }
 }

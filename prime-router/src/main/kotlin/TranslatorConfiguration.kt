@@ -19,6 +19,11 @@ interface TranslatorProperties {
     val format: Report.Format
 
     /**
+     * [useBatching] tells whether or not to batch the results
+     */
+    val useBatching: Boolean
+
+    /**
      * [schemaName] is the full name of the schema used in the translation
      */
     val schemaName: String
@@ -47,6 +52,7 @@ interface TranslatorProperties {
 )
 @JsonSubTypes(
     JsonSubTypes.Type(Hl7Configuration::class, name = "HL7"),
+    JsonSubTypes.Type(FHIRConfiguration::class, name = "FHIR"),
     JsonSubTypes.Type(GAENConfiguration::class, name = "GAEN"),
     JsonSubTypes.Type(CustomConfiguration::class, name = "CUSTOM")
 )
@@ -160,38 +166,59 @@ data class Hl7Configuration
     override val format: Report.Format get() = if (useBatchHeaders) Report.Format.HL7_BATCH else Report.Format.HL7
 
     @get:JsonIgnore
-    override val defaults: Map<String, String> get() {
-        val receivingApplication = when {
-            receivingApplicationName != null && receivingApplicationOID != null ->
-                "$receivingApplicationName^$receivingApplicationOID^ISO"
-            receivingApplicationName != null && receivingApplicationOID == null ->
-                receivingApplicationName
-            else -> ""
+    override val useBatching: Boolean get() = useBatchHeaders
+
+    @get:JsonIgnore
+    override val defaults: Map<String, String>
+        get() {
+            val receivingApplication = when {
+                receivingApplicationName != null && receivingApplicationOID != null ->
+                    "$receivingApplicationName^$receivingApplicationOID^ISO"
+                receivingApplicationName != null && receivingApplicationOID == null ->
+                    receivingApplicationName
+                else -> ""
+            }
+            val receivingFacility = when {
+                receivingFacilityName != null && receivingFacilityOID != null ->
+                    "$receivingFacilityName^$receivingFacilityOID^ISO"
+                receivingFacilityName != null && receivingFacilityOID == null ->
+                    receivingFacilityName
+                else -> ""
+            }
+            val reportingFacility = when {
+                reportingFacilityName != null && reportingFacilityId != null && reportingFacilityIdType == null ->
+                    "$reportingFacilityName^$reportingFacilityId^CLIA"
+                reportingFacilityName != null && reportingFacilityId != null && reportingFacilityIdType != null ->
+                    "$reportingFacilityName^$reportingFacilityId^$reportingFacilityIdType"
+                reportingFacilityName != null && reportingFacilityId == null ->
+                    reportingFacilityName
+                else -> ""
+            }
+            return mapOf(
+                "processing_mode_code" to (processingModeCode ?: "P"),
+                "receiving_application" to receivingApplication,
+                "receiving_facility" to receivingFacility,
+                "message_profile_id" to (messageProfileId ?: ""),
+                "reporting_facility" to reportingFacility
+            )
         }
-        val receivingFacility = when {
-            receivingFacilityName != null && receivingFacilityOID != null ->
-                "$receivingFacilityName^$receivingFacilityOID^ISO"
-            receivingFacilityName != null && receivingFacilityOID == null ->
-                receivingFacilityName
-            else -> ""
-        }
-        val reportingFacility = when {
-            reportingFacilityName != null && reportingFacilityId != null && reportingFacilityIdType == null ->
-                "$reportingFacilityName^$reportingFacilityId^CLIA"
-            reportingFacilityName != null && reportingFacilityId != null && reportingFacilityIdType != null ->
-                "$reportingFacilityName^$reportingFacilityId^$reportingFacilityIdType"
-            reportingFacilityName != null && reportingFacilityId == null ->
-                reportingFacilityName
-            else -> ""
-        }
-        return mapOf(
-            "processing_mode_code" to (processingModeCode ?: "P"),
-            "receiving_application" to receivingApplication,
-            "receiving_facility" to receivingFacility,
-            "message_profile_id" to (messageProfileId ?: ""),
-            "reporting_facility" to reportingFacility
-        )
-    }
+}
+
+/**
+ * Standard FHIR report configuration
+ */
+data class FHIRConfiguration
+@JsonCreator constructor(
+    override val schemaName: String = "",
+    override val useBatching: Boolean = true,
+    override val nameFormat: String = "standard",
+    override val receivingOrganization: String?,
+) : TranslatorConfiguration("FHIR") {
+    @get:JsonIgnore
+    override val format: Report.Format get() = Report.Format.FHIR
+
+    @get:JsonIgnore
+    override val defaults: Map<String, String> = emptyMap()
 }
 
 /**
@@ -203,6 +230,9 @@ data class GAENConfiguration
 ) : TranslatorConfiguration("GAEN") {
     @get:JsonIgnore
     override val format: Report.Format get() = Report.Format.CSV_SINGLE // Single item CSV
+
+    @get:JsonIgnore
+    override val useBatching: Boolean get() = false
 
     @get:JsonIgnore
     override val schemaName: String get() = GAEN_SCHEMA
@@ -224,6 +254,7 @@ data class CustomConfiguration
 @JsonCreator constructor(
     override val schemaName: String,
     override val format: Report.Format,
+    override val useBatching: Boolean = false,
     override val defaults: Map<String, String> = emptyMap(),
     override val nameFormat: String = "standard",
     override val receivingOrganization: String?,
