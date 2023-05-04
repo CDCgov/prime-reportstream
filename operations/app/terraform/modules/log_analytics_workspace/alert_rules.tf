@@ -26,3 +26,31 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "functionapp_fatal" {
     threshold = 1
   }
 }
+
+
+resource "azurerm_monitor_scheduled_query_rules_alert" "metabase_webapp_alertrule" {
+  name                = format("%s-metabase-webapp-alertrule", var.resource_prefix)
+  location            = var.location
+  resource_group_name = var.resource_group
+
+  action {
+    action_group = [var.action_group_metabase_id]
+  }
+  data_source_id = azurerm_log_analytics_workspace.law.id
+  description    = "Critical Alert found in Metabase WebApp logs: Service unavailable"
+  enabled        = true
+  query          = <<-EOT
+      AzureDiagnostics
+      | where requestUri_s contains "metabase/api/health" and httpStatusCode_d != 200
+      | where errorInfo_s == "OriginConnectionRefused"
+  EOT
+  severity       = 0
+  frequency      = 5
+  time_window    = 5
+
+  trigger {
+    operator  = "GreaterThanOrEqual"
+    threshold = 1
+  }
+}
+

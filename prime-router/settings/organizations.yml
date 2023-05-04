@@ -104,13 +104,13 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      #      schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      schemaName: metadata/fhir_transforms/senders/default-sender-transform
       format: HL7
     - name: ignore-fhir      # Use this to test fhir
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      #      schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      schemaName: metadata/fhir_transforms/senders/default-sender-transform
       format: FHIR
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
@@ -199,6 +199,26 @@
         type: "HL7"
         receivingApplicationName: "CO-ELR"
         receivingFacilityName: "CO"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: FULL_ELR_FHIR
+      externalName: Ignore FULL_ELR_FHIR
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<FHIR>
+        # Uncomment next line to verify fhir receiver transforms
+        # schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
+        type: "FHIR"
       transport:
         type: SFTP
         host: sftp

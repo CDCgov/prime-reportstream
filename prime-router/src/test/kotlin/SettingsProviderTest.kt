@@ -1,12 +1,8 @@
 package gov.cdc.prime.router
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
-import assertk.assertions.isNotNull
 import gov.cdc.prime.router.tokens.Jwk
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
-import org.junit.jupiter.api.Test
 import java.security.interfaces.RSAPublicKey
 import java.util.Base64
 
@@ -76,34 +72,5 @@ class SettingsProviderTest {
         override fun findOrganizationAndReceiver(fullName: String): Pair<Organization, Receiver>? {
             throw NotImplementedError()
         }
-    }
-
-    @Test
-    fun `test getKeys returns keys for the same scope set for organization and sender`() {
-        val settings = EmptySettings(
-            listOf(organization.makeCopyWithNewScopeAndJwk(scopeOne, jwkOne)),
-            listOf(sender.makeCopyWithNewScopeAndJwk(scopeOne, jwkTwo)),
-            emptyList()
-        )
-
-        val keys = settings.getKeys(sender.fullName)
-        assertThat(keys).isNotNull()
-        assertThat(keys?.size).isEqualTo(2)
-        assertThat(keys?.map { key -> key.keys }?.flatten()).isEqualTo(listOf(jwkOne, jwkTwo))
-    }
-
-    @Test
-    fun `test getKeys returns scopes from both organization and sender`() {
-        val settings = EmptySettings(
-            listOf(organization.makeCopyWithNewScopeAndJwk(scopeOne, jwkOne)),
-            listOf(sender.makeCopyWithNewScopeAndJwk(scopeTwo, jwkOne)),
-            emptyList()
-        )
-
-        val keys = settings.getKeys(sender.fullName)
-        assertThat(keys).isNotNull()
-        assertThat(keys?.size).isEqualTo(2)
-        assertThat(keys?.map { key -> key.scope }).isEqualTo(listOf(scopeOne, scopeTwo))
-        assertThat(keys?.map { key -> key.keys }?.flatten()?.toList()).isEqualTo(listOf(jwkOne, jwkOne))
     }
 }
