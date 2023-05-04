@@ -1,10 +1,10 @@
 package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 
 import assertk.assertThat
-import assertk.assertions.contains
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
+import assertk.assertions.isGreaterThan
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -24,6 +24,7 @@ import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.batchMessages
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteChildlessResource
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getObservationExtensions
@@ -597,5 +598,20 @@ class FHIRBundleHelpersTests {
         assertThat(extensions.size).isEqualTo(1)
         assertThat((extensions[0].value as Reference).reference)
             .isEqualTo("Observation/1667861767955966000.f3f94c27-e225-4aac-b6f5-2750f45dac4f")
+    }
+
+    @Test
+    fun `test batchMessages`() {
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/bundle_multiple_bundles.fhir")
+            .readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger).map { FhirTranscoder.encode(it) }
+        assertThat(messages.size).isGreaterThan(1)
+
+        val batchedMessages = batchMessages(messages)
+        assertThat(batchedMessages.split('\n')).isEqualTo(messages)
+
+        val emptyBatch = batchMessages(listOf())
+        assertThat(emptyBatch).isEqualTo("")
     }
 }

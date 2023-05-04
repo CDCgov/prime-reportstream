@@ -494,7 +494,7 @@ abstract class CoolTest {
                     break
             }
         }
-        echo("Polling for PROCESS records finished in ${actualTimeElapsedMillis / 1000 } seconds")
+        echo("Polling for PROCESS records finished in ${actualTimeElapsedMillis / 1000} seconds")
 
         return queryResult
     }
@@ -536,6 +536,24 @@ abstract class CoolTest {
             childReportId = ctx.selectFrom(REPORT_LINEAGE)
                 .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId))
                 .fetchOne(REPORT_LINEAGE.CHILD_REPORT_ID)
+        }
+        return childReportId
+    }
+
+    /**
+     * Gets all children of the passed in [reportId].
+     */
+    fun getAllChildrenReportId(
+        reportId: ReportId,
+    ): List<ReportId> {
+        var childReportId: List<ReportId> = listOf()
+        db = WorkflowEngine().db
+        db.transact { txn ->
+            val ctx = DSL.using(txn)
+            // get internally generated reportId
+            childReportId = ctx.selectFrom(REPORT_LINEAGE)
+                .where(REPORT_LINEAGE.PARENT_REPORT_ID.eq(reportId))
+                .fetch(REPORT_LINEAGE.CHILD_REPORT_ID)
         }
         return childReportId
     }
@@ -671,7 +689,7 @@ abstract class CoolTest {
                     break // everything passed!
             }
         }
-        echo("Test $name finished in ${actualTimeElapsedMillis / 1000 } seconds")
+        echo("Test $name finished in ${actualTimeElapsedMillis / 1000} seconds")
         if (!silent) {
             queryResults.forEach {
                 if (it.first)
@@ -680,7 +698,7 @@ abstract class CoolTest {
                     bad(it.second)
             }
         }
-        return ! queryResults.map { it.first }.contains(false) // no falses == it passed!
+        return !queryResults.map { it.first }.contains(false) // no falses == it passed!
     }
 
     private fun queryForLineageResults(
