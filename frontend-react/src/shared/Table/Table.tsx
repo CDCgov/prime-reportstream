@@ -31,6 +31,7 @@ export interface TableProps {
     scrollable?: boolean;
     sortable?: boolean;
     stackedStyle?: "default" | "headers";
+    sticky?: boolean;
     striped?: boolean;
     rowData: RowData[][];
 }
@@ -164,6 +165,7 @@ export const Table = ({
     scrollable,
     sortable,
     stackedStyle,
+    sticky,
     striped,
     rowData,
 }: TableProps) => {
@@ -206,7 +208,13 @@ export const Table = ({
                                     return (
                                         <th
                                             key={index}
-                                            className="column-header"
+                                            className={classnames(
+                                                "column-header",
+                                                {
+                                                    "column-header--sticky":
+                                                        sticky,
+                                                }
+                                            )}
                                         >
                                             <p className="column-header-text">
                                                 {header.columnHeader}

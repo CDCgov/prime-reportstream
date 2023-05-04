@@ -188,7 +188,17 @@ export function OrgsTable() {
                         Save List to CSV
                     </Button>
                 </form>
-                <Table striped borderless rowData={formattedTableData()} />
+                <Table
+                    striped
+                    borderless
+                    sticky
+                    rowData={[
+                        ...formattedTableData(),
+                        ...formattedTableData(),
+                        ...formattedTableData(),
+                        ...formattedTableData(),
+                    ]}
+                />
             </section>
         </>
     );

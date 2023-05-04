@@ -18,13 +18,19 @@
             margin-right: 2px;
           }
         }
+
+        &--sticky {
+          background-color: #fff;
+          position: sticky;
+          top: 0;
+        }
     }
 
     .column-header-button {
         background-color: color('gray-5');
         width: 100%;
         height: 100%;
-        padding: 0.5rem 1rem;
+        padding: 0.5zrem 1rem;
         cursor: pointer;
         border: none;
 
@@ -45,6 +51,5 @@
       font-size: 14px;
       margin: 0;
     }
-    
   }
 }
