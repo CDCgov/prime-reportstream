@@ -16,9 +16,9 @@ import Table, {
 import TableFilters from "../../../components/Table/TableFilters";
 import {
     useOrgDeliveries,
-    DashboardDataAttr,
-} from "../../../hooks/network/Dashboard/DashboardHooks";
-import { RSDelivery } from "../../../config/endpoints/dashboard";
+    DataDashboardAttr,
+} from "../../../hooks/network/DataDashboard/DataDashboardHooks";
+import { RSDelivery } from "../../../config/endpoints/dataDashboard";
 
 import ReceiverServices from "./ReceiverServices";
 
@@ -50,13 +50,13 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
     };
     const columns: Array<ColumnConfig> = [
         {
-            dataAttr: DashboardDataAttr.DATE_SENT,
+            dataAttr: DataDashboardAttr.DATE_SENT,
             columnHeader: "Date sent to you",
             sortable: true,
             transform: transformDate,
         },
         {
-            dataAttr: DashboardDataAttr.PROVIDER,
+            dataAttr: DataDashboardAttr.PROVIDER,
             columnHeader: "Ordering Provider",
             feature: {
                 link: true,
@@ -64,7 +64,7 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
             },
         },
         {
-            dataAttr: DashboardDataAttr.FACILITY,
+            dataAttr: DataDashboardAttr.FACILITY,
             columnHeader: "Performing facility",
             feature: {
                 link: true,
@@ -72,7 +72,7 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
             },
         },
         {
-            dataAttr: DashboardDataAttr.SUBMITTER,
+            dataAttr: DataDashboardAttr.SUBMITTER,
             columnHeader: "Submitter",
             feature: {
                 link: true,
@@ -80,7 +80,7 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
             },
         },
         {
-            dataAttr: DashboardDataAttr.REPORT_ID,
+            dataAttr: DataDashboardAttr.REPORT_ID,
             columnHeader: "Report ID",
             feature: {
                 link: true,
@@ -157,7 +157,7 @@ function DashboardTableWithPagination({
 
     const startCursor = sortOrder === "DESC" ? rangeTo : rangeFrom;
     const isCursorInclusive = sortOrder === "ASC";
-    const analyticsEventName = `${FeatureName.DASHBOARD} | ${EventName.TABLE_PAGINATION}`;
+    const analyticsEventName = `${FeatureName.DATA_DASHBOARD} | ${EventName.TABLE_PAGINATION}`;
 
     const {
         currentPageResults: serviceReportsList,
@@ -191,7 +191,7 @@ function DashboardTableWithPagination({
     );
 }
 
-export default function DashboardTable() {
+export default function DataDashboardTable() {
     const { loadingServices, services, activeService, setActiveService } =
         useOrganizationReceiversFeed();
 
