@@ -175,8 +175,8 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
         scope: String,
         jtiCache: JtiCache,
         actionHistory: ActionHistory? = null,
-    ): Boolean {
-        return try {
+    ) {
+        try {
             val parsedJwt = parseJwt(jwsString, scope)
             if (!Scope.isValidScope(scope, parsedJwt.organization)) {
                 throw Server2ServerAuthenticationException("Invalid scope for this issuer: $scope", scope)
@@ -189,20 +189,26 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
                         " Unable to find auth key for ${parsedJwt.organization.name} with" +
                         " scope=$scope, kid=${parsedJwt.kid}, and alg=${parsedJwt.kty}"
                 )
+                throw Server2ServerAuthenticationException("No valid keys were found", scope)
             }
-            possibleKeys.any { key -> verifyJwtWithKey(jwsString, key, jtiCache, actionHistory) }
+            if (!possibleKeys.any { key -> verifyJwtWithKey(jwsString, key, jtiCache, actionHistory) }) {
+                throw Server2ServerAuthenticationException("No valid keys were found", scope)
+            }
         } catch (ex: Server2ServerAuthenticationException) {
             logErr(actionHistory, ex.localizedMessage)
-            false
+            throw ex
         } catch (ex: JwtException) {
             logErr(actionHistory, "AccessToken Request Denied: $ex")
-            false
+            throw Server2ServerAuthenticationException(ex.localizedMessage, scope)
         } catch (ex: IllegalArgumentException) {
             logErr(actionHistory, "AccessToken Request Denied: $ex")
-            false
+            throw Server2ServerAuthenticationException(ex.localizedMessage, scope)
         } catch (ex: NullPointerException) {
             logErr(actionHistory, "AccessToken Request Denied: $ex")
-            false
+            throw Server2ServerAuthenticationException(
+                "An unexpected error occurred while trying to verify the token",
+                scope
+            )
         }
     }
 

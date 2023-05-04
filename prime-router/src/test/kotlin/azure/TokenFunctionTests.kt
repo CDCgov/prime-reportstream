@@ -2,6 +2,7 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
@@ -171,7 +172,8 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        assertThat(response.getBody()).isEqualTo("invalid_client")
+        val error = jacksonObjectMapper().readValue<OAuthError>(response.getBody() as String, OAuthError::class.java)
+        assertThat(error.error).isEqualTo("invalid_client")
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
                 match<String> {

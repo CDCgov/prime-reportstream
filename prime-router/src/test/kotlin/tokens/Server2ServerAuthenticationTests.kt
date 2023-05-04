@@ -27,6 +27,7 @@ import io.mockk.mockkObject
 import io.mockk.unmockkConstructor
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.math.BigInteger
 import java.time.OffsetDateTime
@@ -186,10 +187,10 @@ class Server2ServerAuthenticationTests {
         assertEquals(3, senderToken.split(".").size)
 
         // Check that the public key correctly validates.
-        assertTrue(
+        assertDoesNotThrow {
             server2ServerAuthentication
                 .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
-        )
+        }
     }
 
     @Test
@@ -249,12 +250,14 @@ class Server2ServerAuthenticationTests {
 
         // Step 2: ReportStream gets the token and checks it.
         val rslookup = GetTestSecret() // callback to look up the Reportstream secret, using to sign RS token.
-        val accessToken = if (server2ServerAuthentication
-            .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
-        ) {
+        val accessToken = try {
+            server2ServerAuthentication
+                .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
             // Step 3:  Report stream creates a new accessToken
             server2ServerAuthentication.createAccessToken("simple_report.*.report", rslookup)
-        } else error("Unauthorized connection")
+        } catch (ex: Server2ServerAuthentication.Server2ServerAuthenticationException) {
+            error("Unauthorized connection")
+        }
 
         // Step 4: Now pretend the sender has used the accessToken to make a request to reportstream...
 
@@ -280,10 +283,10 @@ class Server2ServerAuthenticationTests {
             Organization(organization, "simple_report.*.report", jwk)
         )
         // false means we failed to validate the sender's jwt.
-        assertFalse(
+        assertThrows<Server2ServerAuthentication.Server2ServerAuthenticationException> {
             server2ServerAuthentication
                 .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
-        )
+        }
     }
 
     @Test
@@ -306,10 +309,10 @@ class Server2ServerAuthenticationTests {
         )
 
         // false means we failed to validate the sender's jwt.
-        assertFalse(
+        assertThrows<Server2ServerAuthentication.Server2ServerAuthenticationException> {
             server2ServerAuthentication
                 .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
-        )
+        }
     }
 
     @Test
@@ -323,11 +326,11 @@ class Server2ServerAuthenticationTests {
             -65
         ) // expires in the past.  Need to back past the clock skew
 
-        // false means we failed to validate the sender's jwt.
-        assertFalse(
+        // a thrown exception means we failed to validate the sender's jwt.
+        assertThrows<Server2ServerAuthentication.Server2ServerAuthenticationException> {
             server2ServerAuthentication
                 .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
-        )
+        }
     }
 
     @Test
@@ -341,15 +344,15 @@ class Server2ServerAuthenticationTests {
         )
 
         // It should work the first time.
-        assertTrue(
+        assertDoesNotThrow {
             server2ServerAuthentication
                 .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
-        )
+        }
         // Then fail the second time
-        assertFalse(
+        assertThrows<Server2ServerAuthentication.Server2ServerAuthenticationException> {
             server2ServerAuthentication
                 .checkSenderToken(senderToken, "simple_report.*.report", jtiCache)
-        )
+        }
     }
 
     @Test
@@ -364,10 +367,10 @@ class Server2ServerAuthenticationTests {
         ) // expires in the past.  Need to back past the clock skew
 
         // false means we failed to validate the sender's jwt.
-        assertFalse(
+        assertThrows<Server2ServerAuthentication.Server2ServerAuthenticationException> {
             server2ServerAuthentication
                 .checkSenderToken(senderToken, "${organizationNoKeys.name}.*.report", jtiCache)
-        )
+        }
     }
 
     @Test
@@ -382,10 +385,10 @@ class Server2ServerAuthenticationTests {
         ) // expires in the past.  Need to back past the clock skew
 
         // false means we failed to validate the sender's jwt.
-        assertFalse(
+        assertThrows<Server2ServerAuthentication.Server2ServerAuthenticationException> {
             server2ServerAuthentication
                 .checkSenderToken(senderToken, "waters.*.report", jtiCache)
-        )
+        }
     }
 
     @Test

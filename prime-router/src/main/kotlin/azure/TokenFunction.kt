@@ -1,6 +1,6 @@
 package gov.cdc.prime.router.azure
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -23,6 +23,9 @@ import org.apache.logging.log4j.kotlin.Logging
  */
 const val client_assertion = "client_assertion"
 const val scope = "scope"
+
+// TODO: convert error description to error uri
+data class OAuthError(val error: String, @JsonProperty("error_description") val errorDescription: String)
 
 /**
  * Token functions.
@@ -75,24 +78,21 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
         actionHistory.trackActionParams(request)
         val server2ServerAuthentication = Server2ServerAuthentication(workflowEngine)
         val jti = DatabaseJtiCache(workflowEngine.db)
-        val response = if (
+        val response = try {
             server2ServerAuthentication.checkSenderToken(clientAssertion, scope, jti, actionHistory)
-        ) {
             val token = server2ServerAuthentication.createAccessToken(
                 scope, FindReportStreamSecretInVault(), actionHistory
             )
 
             // Per https://hl7.org/fhir/uv/bulkdata/authorization/index.html#issuing-access-tokens
-            HttpUtilities.httpResponse(
-                request, jacksonObjectMapper().writeValueAsString(token), HttpStatus.OK
-            )
-        } else {
+            return HttpUtilities.okJSONResponse(request, token)
+        } catch (ex: Server2ServerAuthentication.Server2ServerAuthenticationException) {
             actionHistory.trackActionResult("Token request denied.")
             actionHistory.setActionType(TaskAction.token_error)
 
             // The SMART on FHIR spec specifies this error when auth fails
             // http://hl7.org/fhir/uv/bulkdata/authorization/index.html#protocol-details:~:text=the%20server%20SHALL%20respond%20with%20an%20invalid_client%20error
-            HttpUtilities.unauthorizedResponse(request, "invalid_client")
+            HttpUtilities.unauthorizedResponse(request, OAuthError("invalid_client", ex.localizedMessage))
         }
         workflowEngine.recordAction(actionHistory)
         return response

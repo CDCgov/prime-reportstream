@@ -130,6 +130,15 @@ class HttpUtilities {
                 .build()
         }
 
+        fun <T> unauthorizedResponse(
+            request: HttpRequestMessage<String?>,
+            responseBody: T
+        ): HttpResponseMessage {
+            return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).body(mapper.writeValueAsString(responseBody))
+                .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
+                .build()
+        }
+
         fun unauthorizedResponse(
             request: HttpRequestMessage<String?>,
             responseBody: String,
