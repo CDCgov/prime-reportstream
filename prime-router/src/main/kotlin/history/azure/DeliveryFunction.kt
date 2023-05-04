@@ -386,7 +386,7 @@ class DeliveryFunction(
              */
             fun extractPageNumber(query: Map<String, String>): Int {
                 val size = query.getOrDefault("page", "0").toInt()
-                require(size >= 1) { "Page number must be 1 or higher" }
+                require(size >= 0) { "Page number must be 0 or higher" }
                 return size
             }
         }
