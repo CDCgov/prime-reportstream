@@ -12,8 +12,8 @@ import java.util.SortedMap
  * @property extends the name of a schema that this schema extends
  */
 @JsonIgnoreProperties
-abstract class ConfigSchema<T : ConfigSchemaElement>(
-    var elements: MutableList<T> = mutableListOf(),
+abstract class ConfigSchema<out T : ConfigSchemaElement>(
+    var elements: MutableList<@UnsafeVariance T> = mutableListOf(),
     var constants: SortedMap<String, String> = sortedMapOf(),
     var extends: String? = null
 ) {
@@ -92,7 +92,7 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
      * Merge a [childSchema] into this one.
      * @return the reference to the schema
      */
-    open fun merge(childSchema: ConfigSchema<T>) = apply {
+    open fun merge(childSchema: ConfigSchema<@UnsafeVariance T>) = apply {
         childSchema.elements.forEach { childElement ->
             // If we find the element in the schema then replace it, otherwise add it.
             if (childElement.name.isNullOrBlank()) {
