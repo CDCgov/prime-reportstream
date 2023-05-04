@@ -1,12 +1,12 @@
 # Sample queries for analysis
 
-These are pulled from some the initial search requirements and the purpose of this document was to evaluate the
+These are pulled from the initial search requirements and the purpose of this document was to evaluate the
 feasibility of the solution that includes
 
 - storing the terminal report ids in a mapping table
 - storing FHIR resources in elastic search indices.
 
-It is mostly a scratch pad created as parted of teh speccing process.
+It is mostly a scratch pad created as parted of the speccing process.
 
 **1.1** As a RS sender, I want visibility into the routing of the data I send.
 ```sql
@@ -16,7 +16,7 @@ from report_file delivered
 join terminal_report_ids on terminal_report_id = delivered.report_id
 join report_file submitted on submitted.report_id = terminal_report_ids.original_report_id
 where delivered.transport_result is not null
-and submitted.sending_org = %sending_org%)
+and submitted.sending_org = %sending_org%
 ```
 
 - I want a list of reports I sent out sorted by date.
@@ -32,7 +32,7 @@ group by created_at;
 - I want a list of reports I sent out sorted by receiver.
 ```sql
 select * from delivered_reports_for_senders
-where receiving_org = %receiving_org%;
+order by receiving_org;
 ```
 - I want a list of reports I sent out grouped by receiver.
 ```sql

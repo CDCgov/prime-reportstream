@@ -14,7 +14,7 @@ See the initial [requirements](../0018-universal-search.md).
 
 The search question in that document breakdown into a few broad categories:
 
-- information about one or more report(s) that is queryable by dates, sender and receiver
+- information about one or more report(s) that is queryable by dates, sender, receiver and status
 - information about one or more item(s) that is queryable by metadata fields
 - aggregates around one or more item(s) 
 
@@ -33,13 +33,13 @@ has a link to its parent.  Some example questions that a solution would need to 
  
 > As a sender, what are the list of reports I sent out grouped by receiver?
 
-> As a receiver, what are the reports were sent to me in a date range? 
+> As a receiver, what are the reports that were sent to me in a date range? 
 
 #### Store the origin details on each child item and create a new table that links an origin report to all delivered items
 
 There is a current solution where each child item contains a link to the origin report 
 (`origin_report_id`/`origin_report_index`) that enables quickly starting at the bottom of a lineage graph and jumping 
-back up to the original source.  A similar method could be done for going from an original report to it's terminal items
+back up to the original source.  A similar method could be done for going from an original report to its terminal items
 by creating a new table that maps the origin report and index to a delivered report and index.
 
 ```mermaid
@@ -137,7 +137,7 @@ Pros:
 
 Cons:
 
-- Developers need to understand how recursive queries
+- Developers need to understand how recursive queries work
 - Recursive queries tend to be hard to tune and can suffer from performance suddenly degrading if the query optimizer
 chooses the wrong index
 - Queries to join back to the metadata and report tables will be complicated
@@ -278,7 +278,7 @@ original report
 
 #### Elasticsearch
 
-An excellent option from a search perspective as it handles indexing unstructured date extremely effificently, but has 
+An excellent option from a search perspective as it handles indexing unstructured data extremely efficiently, but has 
 the issue of not being able to represent different data types along the same path i.e. `entry.resource.name` must be the
 same data type.
 
@@ -347,7 +347,6 @@ Cons:
 - Linking back to the lineage data in postgres will be complicated, expensive and would not potentially scale to all use cases
 - Does not fully support inserting nested objects
 - Can be expensive
-- 
 
 #### Store the data in a normalized form
 
@@ -415,12 +414,12 @@ forward as requirements evolve.  The largest cons of this solution are mostly on
 configured such that the team would have an early warning that one of the other more involved solutions spelled out 
 here need to be adopted
 
-## Searches be splitting into another ticket
+## Searches to be split into other tickets
 
 - Returning a list of "undelivered" reports
   - There is not necessarily a convenient way to track reports that were not delivered (SFTP failed, etc) as that 
   information is not necessarily stored in an easy to query fashion
-  - Supporting this will require a follow-up approach to update how that data is stored so that is can be retrieved
+  - Supporting this will require a follow-up approach to update how that data is stored so that it can be retrieved
 - Returning a list of reports sorted by when they will expire
   - Currently, expired maps to the `created_at` + 60 days 
 
@@ -433,7 +432,7 @@ here need to be adopted
 - What does an "undelivered" or "delivered" report mean?
   - One that does not have a successful send?
   - Action with send_error?
-  - This can get deferred to a future work
+  - This can get deferred to future work
 - Do we care about the reports in between sending and receiving?
   - Maybe only in the case of error or warnings?
   - From a search perspective only the terminal reports are relevant
