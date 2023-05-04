@@ -150,7 +150,7 @@ paths:
           description: unauthorized
         '404':
           description: report does not exist
-  /waters/report/{receiver}/facilities:
+  /waters/report/{org.receiver}/facilities:
     post:
       operationId: getBulkDeliveryFacilities
       summary: Get facilities for a list of given reports
@@ -159,9 +159,9 @@ paths:
         - OAuth2: [ user ]
         - Server2Server: []
       parameters:
-        - name: receiver
+        - name: org.receiver
           in: path
-          description: receiver whose deliveries we want to see
+          description: Organization and service of the receiver whose deliveries we want to see
           required: true
           schema:
             type: string
