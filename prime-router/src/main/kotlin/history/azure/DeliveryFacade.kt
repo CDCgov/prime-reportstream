@@ -110,9 +110,25 @@ class DeliveryFacade(
      * @return list of matching facilities
      */
     fun findBulkDeliveryFacilities(
-        reportIds: List<ReportId>
+        receiver: String,
+        receivingOrgSvc: String?,
+        sortDir: HistoryDatabaseAccess.SortDir,
+        sortColumns: List<DatabaseDeliveryAccess.BulkFacilitySortColumn>,
+        since: OffsetDateTime?,
+        until: OffsetDateTime?,
+        pageSize: Int,
+        pageNumber: Int
     ): List<DeliveryFacility> {
-        return dbDeliveryAccess.fetchBulkDeliveryFacilities(reportIds)
+        return dbDeliveryAccess.fetchBulkDeliveryFacilities(
+            receiver,
+            receivingOrgSvc,
+            sortDir,
+            sortColumns,
+            since,
+            until,
+            pageSize,
+            pageNumber,
+        )
     }
 
     /**

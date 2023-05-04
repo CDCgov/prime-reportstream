@@ -13,6 +13,7 @@ import gov.cdc.prime.router.history.DeliveryFacility
 import org.jooq.Condition
 import org.jooq.Field
 import org.jooq.impl.DSL
+import java.time.OffsetDateTime
 import java.util.UUID
 
 /**
@@ -32,6 +33,16 @@ class DatabaseDeliveryAccess(
         CLIA,
         POSITIVE,
         TOTAL,
+    }
+    /**
+     * Values that facilities can be sorted by
+     */
+    enum class BulkFacilitySortColumn {
+        DATE,
+        PROVIDER,
+        FACILITY,
+        SUBMITTER,
+        REPORT_ID
     }
 
     /**
@@ -152,49 +163,104 @@ class DatabaseDeliveryAccess(
      * @return List of matching delivery facilities
      */
     fun fetchBulkDeliveryFacilities(
-        reportIds: List<ReportId>
+        receiver: String,
+        receivingOrgSvc: String?,
+        sortDir: SortDir,
+        sortColumns: List<BulkFacilitySortColumn>,
+        since: OffsetDateTime?,
+        until: OffsetDateTime?,
+        pageSize: Int,
+        pageNumber: Int
     ): List<DeliveryFacility> {
-        val positive: Field<String> = DSL.field(
-            "sum(CASE WHEN test_result = 'DETECTED' THEN 1 ELSE 0 END)",
-            String::class.java
-        ).`as`("positive")
-        val total: Field<String> = DSL.field(
-            "count(covid_results_metadata_id)",
-            String::class.java
-        ).`as`("count_records")
+        val reportIds = db.transactReturning { txn ->
+            var filter = this.organizationFilter(receiver, receivingOrgSvc)
+            if (since != null) {
+                filter = filter.and(ACTION.CREATED_AT.ge(since))
+            }
+            if (until != null) {
+                filter = filter.and(ACTION.CREATED_AT.lt(until))
+            }
+
+            val query = DSL.using(txn)
+                // Note the report file and action tables have columns with the same name, so we must specify what we need.
+                .select(REPORT_FILE.REPORT_ID)
+                .from(
+                    ACTION.join(REPORT_FILE).on(
+                        REPORT_FILE.ACTION_ID.eq(ACTION.ACTION_ID)
+                    )
+                )
+                .where(filter)
+                .groupBy(REPORT_FILE.REPORT_ID)
+
+            query.fetchInto(ReportId::class.java)
+        }
 
         return db.transactReturning { txn ->
-            val query = DSL.using(txn)
-                .select(
+            var filter = COVID_RESULT_METADATA.REPORT_ID.isNotNull()
+            if (since != null) {
+                filter = filter.and(COVID_RESULT_METADATA.CREATED_AT.ge(since.toLocalDateTime()))
+            }
+            if (until != null) {
+                filter = filter.and(COVID_RESULT_METADATA.CREATED_AT.lt(until.toLocalDateTime()))
+            }
+
+            val sortedColumns = sortColumns.map {
+                val column = when (it) {
+                    /* Decides sort column by enum */
+                    BulkFacilitySortColumn.DATE -> ITEM_LINEAGE.CREATED_AT
+                    BulkFacilitySortColumn.PROVIDER -> COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME
+                    BulkFacilitySortColumn.FACILITY -> COVID_RESULT_METADATA.TESTING_LAB_NAME
+                    BulkFacilitySortColumn.SUBMITTER -> COVID_RESULT_METADATA.SENDER_ID
+                    BulkFacilitySortColumn.REPORT_ID -> COVID_RESULT_METADATA.REPORT_ID
+                }
+
+                when (sortDir) {
+                    /* Applies sort order by enum */
+                    SortDir.ASC -> column.asc()
+                    SortDir.DESC -> column.desc()
+                }
+            }
+            val positive: Field<String> = DSL.field(
+                "sum(CASE WHEN test_result = 'DETECTED' THEN 1 ELSE 0 END)",
+                String::class.java
+            ).`as`("positive")
+            val total: Field<String> = DSL.field(
+                "count(covid_results_metadata_id)",
+                String::class.java
+            ).`as`("count_records")
+
+            val query = DSL.using(txn).select(
+                COVID_RESULT_METADATA.TESTING_LAB_NAME,
+                COVID_RESULT_METADATA.TESTING_LAB_CITY,
+                COVID_RESULT_METADATA.TESTING_LAB_STATE,
+                COVID_RESULT_METADATA.TESTING_LAB_CLIA,
+                positive,
+                total,
+                ITEM_LINEAGE.CREATED_AT,
+                COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME,
+                COVID_RESULT_METADATA.SENDER_ID,
+                COVID_RESULT_METADATA.REPORT_ID,
+            ).from(
+                COVID_RESULT_METADATA.join(ITEM_LINEAGE).on(
+                    COVID_RESULT_METADATA.REPORT_ID.eq(ITEM_LINEAGE.ORIGIN_REPORT_ID),
+                    COVID_RESULT_METADATA.REPORT_INDEX.eq(ITEM_LINEAGE.ORIGIN_REPORT_INDEX)
+                )
+            ).where(
+                ITEM_LINEAGE.CHILD_REPORT_ID.`in`(reportIds)
+            ).and(filter)
+                .groupBy(
                     COVID_RESULT_METADATA.TESTING_LAB_NAME,
                     COVID_RESULT_METADATA.TESTING_LAB_CITY,
                     COVID_RESULT_METADATA.TESTING_LAB_STATE,
                     COVID_RESULT_METADATA.TESTING_LAB_CLIA,
-                    positive,
-                    total,
-                    COVID_RESULT_METADATA.CREATED_AT,
-                    COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME,
-                    COVID_RESULT_METADATA.SENDER_ID,
-                    COVID_RESULT_METADATA.REPORT_ID,
-                ).from(
-                    COVID_RESULT_METADATA.join(ITEM_LINEAGE).on(
-                        COVID_RESULT_METADATA.REPORT_ID.eq(ITEM_LINEAGE.ORIGIN_REPORT_ID),
-                        COVID_RESULT_METADATA.REPORT_INDEX.eq(ITEM_LINEAGE.ORIGIN_REPORT_INDEX)
-                    )
-                ).where(
-                    ITEM_LINEAGE.CHILD_REPORT_ID.`in`(reportIds)
-                ).groupBy(
-                    COVID_RESULT_METADATA.TESTING_LAB_NAME,
-                    COVID_RESULT_METADATA.TESTING_LAB_CITY,
-                    COVID_RESULT_METADATA.TESTING_LAB_STATE,
-                    COVID_RESULT_METADATA.TESTING_LAB_CLIA,
-                    COVID_RESULT_METADATA.CREATED_AT,
+                    ITEM_LINEAGE.CREATED_AT,
                     COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME,
                     COVID_RESULT_METADATA.SENDER_ID,
                     COVID_RESULT_METADATA.REPORT_ID,
                 )
+                .orderBy(sortedColumns)
 
-            query.fetchInto(DeliveryFacility::class.java)
+            query.limit(pageSize).offset(pageNumber).fetchInto(DeliveryFacility::class.java)
         }
     }
 }

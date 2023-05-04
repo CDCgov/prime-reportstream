@@ -116,7 +116,7 @@ data class DeliveryFacility(
     val positive: Long?,
     val countRecords: Long?,
     val createdAt: OffsetDateTime? = null,
-    val orderingProvider: String? = null,
+    val orderingProviderName: String? = null,
     val senderId: String? = null,
     val reportId: ReportId? = null
 ) {

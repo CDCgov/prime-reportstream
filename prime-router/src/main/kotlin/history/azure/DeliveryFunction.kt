@@ -19,8 +19,8 @@ import gov.cdc.prime.router.history.DeliveryHistory
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
-import org.json.JSONArray
 import java.time.OffsetDateTime
+import kotlin.math.ceil
 
 /**
  * Deliveries API
@@ -219,7 +219,7 @@ class DeliveryFunction(
     fun getBulkDeliveryFacilities(
         @HttpTrigger(
             name = "getBulkDeliveryFacilities",
-            methods = [HttpMethod.POST],
+            methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/report/{receiver}/facilities"
         ) request: HttpRequestMessage<String?>,
@@ -236,7 +236,7 @@ class DeliveryFunction(
             )
 
         // Authorize based on: org name in the path == org name in claim.  Or be a prime admin.
-        if (!deliveryFacade.checkAccessAuthorizationForOrg(claims, userOrgName, null, request)) {
+        if (!claims.authorizedForSendOrReceive(userOrgName, null, request)) {
             logger.warn(
                 "Invalid Authorization for user ${claims.userName}:" +
                     " ${request.httpMethod}:${request.uri.path}." +
@@ -248,26 +248,26 @@ class DeliveryFunction(
             "Authorized request by org ${claims.scopes} to getList on organization $userOrgName."
         )
         try {
-            // need the reportIds to do authentication
-            val body = request.body ?: return HttpUtilities.bad(request, "Body must be provided")
-
-            val reportIds = JSONArray(body).map {
-                ReportId.fromString(it.toString())
-            }
-
-            if (reportIds.isEmpty()) return HttpUtilities.bad(request, "No reportIds provided")
-
-            val allReportsAreForOrg: Boolean = reportIds.all {
-                val report = deliveryFacade.fetchActionForReportId(it)
-                report?.receivingOrgSvc == receivingOrgSvc
-            }
-
-            if (!allReportsAreForOrg) {
-                return HttpUtilities.bad(request, "An invalid reportId was detected")
-            }
-
             return run {
-                val facilities = deliveryFacade.findBulkDeliveryFacilities(reportIds)
+                val pageSize = HistoryApiParameters(request.queryParameters).pageSize
+                val pageNumber = HistoryApiParameters(request.queryParameters).pageNumber
+
+                val facilities = deliveryFacade.findBulkDeliveryFacilities(
+                    userOrgName,
+                    receivingOrgSvc,
+                    BulkFacilityListApiParameters(request.queryParameters).sortDir,
+                    BulkFacilityListApiParameters(request.queryParameters).sortColumns,
+                    HistoryApiParameters(request.queryParameters).since,
+                    HistoryApiParameters(request.queryParameters).until,
+                    pageSize,
+                    pageNumber,
+                )
+
+                val prevPage = if (pageNumber > 1) pageNumber - 1 else null
+                val totalCount = facilities.count()
+                // a value needs to be double to account for decimals and to allow rounding up
+                val totalPages = ceil(totalCount / pageSize.toDouble()).toInt()
+                val nextPage = if (pageNumber < totalPages) pageNumber + 1 else null
 
                 // this block is an implementation of the proposal in
                 // website-api-payload-structure.md
@@ -278,12 +278,17 @@ class DeliveryFunction(
                         mapOf(
                             "meta" to mapOf(
                                 "type" to "DeliveryFacility",
-                                "totalCount" to facilities.count()
+                                "totalCount" to totalCount,
+
+                                // pagination-specific values
+                                "totalPages" to totalPages,
+                                "previousPage" to prevPage,
+                                "nextPage" to nextPage,
                             ),
                             "data" to facilities.map {
                                 BulkFacility(
                                     it.createdAt,
-                                    it.orderingProvider,
+                                    it.orderingProviderName,
                                     it.testingLabName,
                                     it.senderId,
                                     it.reportId,
@@ -327,6 +332,60 @@ class DeliveryFunction(
                 } else {
                     DatabaseDeliveryAccess.FacilitySortColumn.valueOf(col)
                 }
+            }
+        }
+    }
+
+    /**
+     * Container for extracted History API parameters exclusively related to Deliveries.
+     *
+     * @property sortColumns sort the table by defined columns, in the order they are given
+     */
+    data class BulkFacilityListApiParameters(
+        val sortDir: HistoryDatabaseAccess.SortDir,
+        val sortColumns: List<DatabaseDeliveryAccess.BulkFacilitySortColumn>,
+        val pageNumber: Int
+    ) {
+        constructor(query: Map<String, String>) : this (
+            sortDir = extractSortDir(query),
+            sortColumns = extractSortCols(query),
+            pageNumber = extractPageNumber(query)
+        )
+
+        companion object {
+            /**
+             * Convert sorting column from query into param used for the DB
+             * @param query Incoming query params
+             * @return converted params
+             */
+            fun extractSortDir(query: Map<String, String>): HistoryDatabaseAccess.SortDir {
+                val sort = query["sortDir"]
+                return if (sort == null) {
+                    HistoryDatabaseAccess.SortDir.DESC
+                } else {
+                    HistoryDatabaseAccess.SortDir.valueOf(sort)
+                }
+            }
+            /**
+             * Convert sorting column from query into param used for the DB
+             * @param query Incoming query params
+             * @return converted params
+             */
+            fun extractSortCols(query: Map<String, String>): List<DatabaseDeliveryAccess.BulkFacilitySortColumn> {
+                return query["sortColumn"]?.split(",")?.map {
+                    DatabaseDeliveryAccess.BulkFacilitySortColumn.valueOf(it)
+                }
+                    ?: listOf(DatabaseDeliveryAccess.BulkFacilitySortColumn.DATE)
+            }
+            /**
+             * Convert page number from query into param used for the DB
+             * @param query Incoming query params
+             * @return converted params
+             */
+            fun extractPageNumber(query: Map<String, String>): Int {
+                val size = query.getOrDefault("page", "1").toInt()
+                require(size >= 1) { "Page number must be 1 or higher" }
+                return size
             }
         }
     }
