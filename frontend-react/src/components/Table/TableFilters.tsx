@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, DateRangePicker } from "@trussworks/react-uswds";
 
-import "../../pages/submissions/SubmissionPages.css";
+import "./TableFilters.css";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
 import {
     CursorActionType,
@@ -20,6 +20,9 @@ export enum StyleClass {
 }
 
 interface SubmissionFilterProps {
+    startDateLabel?: string | "";
+    endDateLabel?: string | "";
+    showDateHints?: boolean;
     filterManager: FilterManager;
     cursorManager?: CursorManager;
     onFilterClick?: ({ from, to }: { from: string; to: string }) => void;
@@ -45,6 +48,9 @@ export function isValidDateString(dateStr?: string) {
  * and will use the context to get these values.
  */
 function TableFilters({
+    startDateLabel,
+    endDateLabel,
+    showDateHints,
     filterManager,
     cursorManager,
     onFilterClick,
@@ -96,8 +102,8 @@ function TableFilters({
             <div className="grid-row display-flex flex-align-end">
                 <DateRangePicker
                     className={StyleClass.DATE_CONTAINER}
-                    startDateLabel="From (Start Range):"
-                    startDateHint="mm/dd/yyyy"
+                    startDateLabel={startDateLabel}
+                    startDateHint={showDateHints ? "mm/dd/yyyy" : ""}
                     startDatePickerProps={{
                         id: "start-date",
                         name: "start-date-picker",
@@ -110,8 +116,8 @@ function TableFilters({
                         },
                         defaultValue: rangeFrom,
                     }}
-                    endDateLabel="Until (End Range):"
-                    endDateHint="mm/dd/yyyy"
+                    endDateLabel={endDateLabel}
+                    endDateHint={showDateHints ? "mm/dd/yyyy" : ""}
                     endDatePickerProps={{
                         id: "end-date",
                         name: "end-date-picker",

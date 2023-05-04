@@ -127,6 +127,9 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
     return (
         <>
             <TableFilters
+                startDateLabel="From (Start Range):"
+                endDateLabel="Until (End Range):"
+                showDateHints={true}
                 filterManager={filterManager}
                 onFilterClick={({ from, to }: { from: string; to: string }) =>
                     trackAppInsightEvent(featureEvent, {

@@ -26,10 +26,7 @@ interface Props {
 function ReceiversDropdown(props: Props) {
     return (
         <>
-            <label
-                className="usa-label padding-right-2 text-bold text-no-wrap"
-                htmlFor="receivers-dropdown"
-            >
+            <label className="usa-label text-bold" htmlFor="receivers-dropdown">
                 Receiver service:
             </label>
             <select
@@ -59,7 +56,7 @@ export default function ReceiverServices({
     handleSetActive: (v: string) => void;
 }) {
     return (
-        <div className="display-flex flex-row flex-align-end grid-col-3">
+        <div className="flex-align-self-end padding-right-4">
             {receivers && receivers?.length > 1 ? (
                 <ReceiversDropdown
                     receivers={receivers}
@@ -67,13 +64,10 @@ export default function ReceiverServices({
                     chosenCallback={handleSetActive}
                 />
             ) : (
-                <p>
-                    Default service:{" "}
-                    <strong>
-                        {(receivers?.length &&
-                            receivers[0].name.toUpperCase()) ||
-                            ""}
-                    </strong>
+                <p className="margin-bottom-0">
+                    <strong>Receiver service: </strong>
+                    {(receivers?.length && receivers[0].name.toUpperCase()) ||
+                        ""}
                 </p>
             )}
         </div>
