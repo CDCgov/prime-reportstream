@@ -154,7 +154,7 @@ We want to add receiver validation so that the receiver can receive the data in 
 
 ### Background Information/Dev Notes
 #### RADx MARS
-It is important that we also take into consideration waht MARS expects of us when it comes to validation:
+It is important that we also take into consideration what MARS expects of us when it comes to validation:
 <details>
 <summary>MARS Product Requirements for Hubs</summary>
  
@@ -163,21 +163,21 @@ other hubs) should handle HL7v2 files received by senders who conform to the
 MARS specification.
 Upon receiving an HL7v2 file from a MARS sender, ReportStream should:
 1. Perform in-line validation of the message
-2. Route the HL7v2 file to the appropriate state/local jurisdiction, based on pre-
-   defined state preferences for receiving OTC data
-3. Strip PII from the HL7v2 file and route it to HHS Protect
-   Each step is described in more detail below.
+2. Route the HL7v2 file to the appropriate state/local jurisdiction, based on predefined state preferences for 
+receiving OTC data
+3. Strip PII from the HL7v2 file and route it to HHS Protect  
+     
+Each step is described in more detail below:
 1. Perform in-line validation of the message
-   The National Institute of Standards and Technology (NIST) is developing a
-   software validator for MARS HL7v2 files.  The validator will issue an error or a
+   The validator we create using NIST's library will issue an error or a
    warning, depending on the severity of the issue that is detected.  
    ReportStream should run this validator on every message it receives.  If there
    is an error, the message should be considered invalid and should not be
    transmitted downstream.  If there is a warning, the message can still be
    transmitted.  In the case of an error or warning, the sender should be notified
    in order to correct the issue.
-2. Route the HL7v2 file to the appropriate state/local jurisdiction, based on pre-
-   defined state preferences for receiving OTC data
+2. Route the HL7v2 file to the appropriate state/local jurisdiction, based on predefined state preferences for 
+receiving OTC data. The 
    CDC is surveying each state about their preferences for receiving OTC data.  
    Each state will indicate whether it would like to receive OTC data.  Those who
    opt to receive OTC data will be allowed to specify a minimum set of metadata
