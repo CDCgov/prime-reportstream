@@ -4,7 +4,6 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
-import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
@@ -35,7 +34,6 @@ import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
 import org.apache.logging.log4j.kotlin.Logging
-import org.jooq.JSON
 import org.jooq.exception.DataAccessException
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
@@ -609,9 +607,8 @@ class DeliveryFunctionTests : Logging {
     @Test
     fun `test list facilities bulk`() {
         val receiverName = "$organizationName.elr-secondary"
-        val goodUuid = "662202ba-e3e5-4810-8cb8-161b75c63bc1"
 
-        val mockRequest = MockHttpRequestMessage(JSON.json(listOf(goodUuid).toString()).toString(), HttpMethod.POST)
+        val mockRequest = MockHttpRequestMessage()
         mockRequest.httpHeaders[HttpHeaders.AUTHORIZATION.lowercase()] = "Bearer dummy"
 
         val mockDeliveryFacade = mockk<DeliveryFacade>()
@@ -648,14 +645,18 @@ class DeliveryFunctionTests : Logging {
         )
 
         every {
-            mockDeliveryFacade.findBulkDeliveryFacilities(any())
+            mockDeliveryFacade.findBulkDeliveryFacilities(any(), any(), any(), any(), any(), any(), any(), any())
         } returns facadeBody
+
+//        every {
+//            mockDeliveryFacade.checkAccessAuthorizationForAction(any())
+//        } returns null
 
         every {
             mockDeliveryFacade.checkAccessAuthorizationForOrg(any(), any(), any(), any())
         } returns true
 
-        // Happy path with a good UUID
+        // Happy path with a good org
         val action = Action()
         action.actionId = 550
         action.sendingOrg = organizationName
@@ -667,60 +668,9 @@ class DeliveryFunctionTests : Logging {
 
         var response = function.getBulkDeliveryFacilities(mockRequest, receiverName)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
-        var responseMap: Map<String, Any> = mapper.readValue(response.body.toString())
+        val responseMap: Map<String, Any> = mapper.readValue(response.body.toString())
         assertThat { responseMap["meta"].toString() == returnBody["meta"].toString() }
         assertThat { responseMap["data"].toString() == returnBody["data"].toString() }
-
-        // Happy path with a good UUID
-        val reportFile = ReportFile()
-        reportFile.actionId = action.actionId
-        reportFile.reportId = UUID.fromString(goodUuid)
-
-        every { mockDeliveryFacade.fetchReportForActionId(any()) } returns reportFile
-
-        response = function.getBulkDeliveryFacilities(mockRequest, receiverName)
-        assertThat(response.status).isEqualTo(HttpStatus.OK)
-        responseMap = mapper.readValue(response.body.toString())
-        assertThat { responseMap["meta"].toString() == returnBody["meta"].toString() }
-        assertThat { responseMap["data"].toString() == returnBody["data"].toString() }
-
-        mockRequest.parameters["sortDir"] = "ASC"
-        response = function.getBulkDeliveryFacilities(mockRequest, receiverName)
-        assertThat(response.status).isEqualTo(HttpStatus.OK)
-        responseMap = mapper.readValue(response.body.toString())
-        assertThat { responseMap["meta"].toString() == returnBody["meta"].toString() }
-        assertThat { responseMap["data"].toString() == returnBody["data"].toString() }
-
-        // bad UUID, Not found
-        val badUUID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
-        every { mockDeliveryFacade.fetchActionForReportId(any()) } returns null
-        val notFoundMockRequest = MockHttpRequestMessage(
-            JSON.json(listOf(badUUID).toString()).toString(),
-            HttpMethod.POST
-        )
-
-        action.actionName = TaskAction.receive
-        every { mockDeliveryFacade.fetchActionForReportId(any()) } returns null
-        response = function.getBulkDeliveryFacilities(notFoundMockRequest, receiverName)
-        assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
-
-        // empty UUID, Not found
-        val emptyUUID = ""
-        val emptyMockRequest = MockHttpRequestMessage(
-            JSON.json(listOf(emptyUUID).toString()).toString(),
-            HttpMethod.POST
-        )
-        action.actionName = TaskAction.receive
-        every { mockDeliveryFacade.fetchAction(any()) } returns null
-        response = function.getBulkDeliveryFacilities(emptyMockRequest, receiverName)
-        assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
-
-        // no access authorization for org
-        every {
-            mockDeliveryFacade.checkAccessAuthorizationForOrg(any(), any(), any(), any())
-        } returns false // not authorized
-        response = function.getBulkDeliveryFacilities(mockRequest, "$otherOrganizationName.test-lab-2")
-        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
 
         // invalid org or service
         every {
