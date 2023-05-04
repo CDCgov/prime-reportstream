@@ -250,7 +250,7 @@ class DeliveryFunction(
         try {
             return run {
                 val pageSize = HistoryApiParameters(request.queryParameters).pageSize
-                val pageNumber = HistoryApiParameters(request.queryParameters).pageNumber
+                val pageNumber = BulkFacilityListApiParameters(request.queryParameters).pageNumber
 
                 val facilities = deliveryFacade.findBulkDeliveryFacilities(
                     userOrgName,
@@ -267,7 +267,7 @@ class DeliveryFunction(
                 val totalCount = facilities.count()
                 // a value needs to be double to account for decimals and to allow rounding up
                 val totalPages = ceil(totalCount / pageSize.toDouble()).toInt()
-                val nextPage = if (pageNumber < totalPages) pageNumber + 1 else null
+                val nextPage = if (pageNumber < (totalPages - 1)) pageNumber + 1 else null
 
                 // this block is an implementation of the proposal in
                 // website-api-payload-structure.md
@@ -310,7 +310,7 @@ class DeliveryFunction(
     /**
      * Container for extracted History API parameters exclusively related to Deliveries.
      *
-     * @property sortColumn sort the table by specific column; default created_at.
+     * @property sortColumn sort the table by specific column; default NAME.
      */
     data class FacilityListApiParameters(
         val sortColumn: DatabaseDeliveryAccess.FacilitySortColumn
@@ -339,7 +339,9 @@ class DeliveryFunction(
     /**
      * Container for extracted History API parameters exclusively related to Deliveries.
      *
-     * @property sortColumns sort the table by defined columns, in the order they are given
+     * @property sortDir ASC or DESC, which direction the query sorting is done (default DESC)
+     * @property sortColumns sort the table by defined columns, in the order they are given (default DATE)
+     * @property pageNumber when paginating, which page to fetch the data for (default 0)
      */
     data class BulkFacilityListApiParameters(
         val sortDir: HistoryDatabaseAccess.SortDir,
@@ -383,7 +385,7 @@ class DeliveryFunction(
              * @return converted params
              */
             fun extractPageNumber(query: Map<String, String>): Int {
-                val size = query.getOrDefault("page", "1").toInt()
+                val size = query.getOrDefault("page", "0").toInt()
                 require(size >= 1) { "Page number must be 1 or higher" }
                 return size
             }
