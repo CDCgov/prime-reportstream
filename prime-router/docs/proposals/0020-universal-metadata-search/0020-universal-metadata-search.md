@@ -345,6 +345,10 @@ Cons:
 
 - Does not work with FHIR out of the box
 - Linking back to the lineage data in postgres will be complicated, expensive and would not potentially scale to all use cases
+  - The specific issue is that we would use the elastic search to fetch all metadata IDs that match a search parameter
+    (i.e a certain facility), but in order to filter that down to a specific receiver we would then need to use those
+    as an input to a SQL query that applies the where clause.  That list of metadata IDs could be extremely large and this
+    approach would likely run into issues over the long term
 - Does not fully support inserting nested objects
 - Can be expensive
 
@@ -393,7 +397,7 @@ Cons:
 
 - Cannot be run locally and would require a dev instance
 - Locks ReportStream into azure
-- Linking back to the lineage data will be complicated/inefficient
+- Linking back to the lineage data will be complicated/inefficient (see the second con for Elasticsearch)
 
 ## Recommendation
 
@@ -422,6 +426,7 @@ here need to be adopted
   - Supporting this will require a follow-up approach to update how that data is stored so that it can be retrieved
 - Returning a list of reports sorted by when they will expire
   - Currently, expired maps to the `created_at` + 60 days 
+- Returning a list of items that were filtered from a delivered report 
 
 ## Open Questions
 

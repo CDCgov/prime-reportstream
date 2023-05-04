@@ -44,26 +44,33 @@ group by receiving_org;
 select * from delivered_reports_for_senders;
 
 - I want a list of undelivered reports.
-
-???
+[Out of scope](./0020-universal-metadata-search.md#searches-to-be-split-into-other-tickets)
 - I want a list of reports that have warnings.
-
-???
+```sql
+select 
+from action_log
+join report_file
+where type='warning'
+where sending_org=%sender% 
+```
 - I want a list of reports that have errors.
-
-???
+```sql
+select 
+from action_log
+join report_file
+where type='error'
+where sending_org=%sender% 
+```
 - I want to see the warning and error messages for a given report.
-
-???
+Similar to finding reports with errors or warnings
 - I want to see what data was sent to whom and when it was sent.
-
-???
+Similar to fetching a list of delivere reports
 - I want a list of all receivers that received my data.
 ```sql
 select distinct receiving_org from delivered_reports_for_senders;
 ```
 - I want a list of items that were filtered out for a delivered report.
-???
+[Out of scope](./0020-universal-metadata-search.md#searches-to-be-split-into-other-tickets)
 
 **1.2** As a RS sender, I want visibility into the data I am sending.
 - I want to see the metadata for a given report.
@@ -101,8 +108,8 @@ select * from delivered_reports_for_receiver;
     ```
 
     - I want to sort reports sent to me by the date they expire.
-    
-    ???
+
+  [Out of scope](./0020-universal-metadata-search.md#searches-to-be-split-into-other-tickets)
     - I want to sort reports sent to me by how many items they contain.
     ```sql
     select * from delivered_reports_for_receiver
@@ -127,12 +134,24 @@ select * from delivered_reports_for_receiver;
       and submitted.sending_org = %receiving_org%
       ```
       - I want to know the last time a particular performing facility sent data to me.
-    
-      ??? Likely needs to have the facility index to know which receivers got it  
+          - Search the facility index and get all the metadata ids
+        ```sql
+                select min(metadata.created_at) from metadata
+                where id in %metadata_ids%
+                join terminal_report_ids on(
+                    terminal_report_ids.origin_report_id = metadata.report_id
+                    and terminal_report_ids.origin_report_index = metadata.report_index
+                )
+                join report_file on(
+                    terminal_report_ids.terminal_report_id = report_file.report_id
+                )
+            where report_file.receiving_org = %receiving_org%
+            ```
+      
 
       - I want to know the last time a particular ordering provider sent data to me.
 
-      ??? Likely needs to have the provider index to know which receivers got it
+      Mostly the same as facility
   
       - I want to know the last time a particular submitter sent data to me.
       ```sql
@@ -161,6 +180,7 @@ select * from delivered_reports_for_receiver;
        where report_file.receiving_org = %receiving_org%
         ```
     - I want the average number of tests per report sent to us for all reports including a particular ordering provider.
+      - Similar to above queries for finding reports with an ordering provider
     - I want the total number of items associated with a particular ordering provider.
       - Search the ordering provider index and get all the metadata ids
       ```sql
@@ -176,12 +196,15 @@ select * from delivered_reports_for_receiver;
       where report_file.receiving_org = %receiving_org%
         ```
     - I want the contact information for a particular ordering provider.
-    - 
+        - Find the ordering provider in the index and return the contact info
     - I want the CLIA associated with a particular ordering provider.
+      - Find the ordering provider in the index and return the CLIA
 
 **1.4** As a member of the engagement team (RS Admin), I want visibility into the data that flows through RS so I can
 better troubleshoot issues. See **Message Tracker** hidden feature on RS website. See
 [Engagement Engineer Document](https://docs.google.com/document/d/18Sk0NxBdn4K_tuMwBbhBdvfDtPjJ3wnEklg6i7taoAE/edit).
+All these are searchable without needing to go elastic search and can use the terminal report id to link back to the
+original item
 - I want to find the metadata associated with a particular report item given a non-unique piece of metadata, like a
   messageID in the case of a COVID message.
 - I want to search report items based on the date they were created or the testing lab they are associated with.
