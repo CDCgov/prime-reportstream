@@ -41,7 +41,7 @@ group by receiving_org;
 ```
 - I want a list of delivered reports.
 
-**How is this different from reports sorted by data**
+select * from delivered_reports_for_senders;
 
 - I want a list of undelivered reports.
 
