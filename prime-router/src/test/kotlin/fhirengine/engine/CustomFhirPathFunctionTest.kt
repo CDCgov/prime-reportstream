@@ -20,11 +20,27 @@ import org.hl7.fhir.r4.model.Identifier
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.StringType
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.Test
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CustomFhirPathFunctionTest {
+    val loincCode = "906-1"
+
+    @BeforeEach
+    fun setupMocks() {
+        mockkObject(LivdLookup, Metadata)
+
+        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+        every { LivdLookup.find(any(), any(), any(), any(), any(), any(), any(), any()) } returns loincCode
+    }
+
+    @AfterEach
+    fun unmockMocks() {
+        unmockkObject(LivdLookup, Metadata)
+    }
 
     @Test
     fun `test get function name enum`() {
@@ -83,11 +99,7 @@ class CustomFhirPathFunctionTest {
 
     @Test
     fun `test livd lookup function`() {
-        val loincCode = "906-1"
-        mockkObject(LivdLookup, Metadata)
 
-        every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
-        every { LivdLookup.find(any(), any(), any(), any(), any(), any(), any(), any()) } returns loincCode
 
         // Look up fails if focus element is not an Observation
         assertThat {
@@ -140,6 +152,5 @@ class CustomFhirPathFunctionTest {
         assertThat(
             (result[0] as StringType).value
         ).isEqualTo(loincCode)
-        unmockkObject(LivdLookup, Metadata)
     }
 }
