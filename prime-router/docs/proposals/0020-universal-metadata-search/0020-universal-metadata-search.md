@@ -351,7 +351,7 @@ Cons:
 #### Store the data in a normalized form
 
 While we could roll our own version of this (see [this](https://github.com/CDCgov/prime-reportstream/pull/7228) proposal),
-there is an existing solution in the open source [HAPI FHIR server](https://hapifhir.io/hapi-fhir/docs/) that could be
+there is an existing solution in the open source [HAPI FHIR server](https://hapifhir.io/hapi-fhir/docs/server_jpa/introduction.html) (I tested the JPA server, but the plain one could be an option as well depending on the requirements) that could be
 leveraged to accomplish the same goal.  This solution supports normalizing any FHIR resource type and is a more extensible
 solution than something that is custom.
 
