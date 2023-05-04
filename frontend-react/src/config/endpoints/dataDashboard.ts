@@ -18,7 +18,7 @@ Deliveries API Endpoints
 */
 
 // TODO: will need to be revisited once new API is ready
-export const dashboardEndpoints: RSApiEndpoints = {
+export const dataDashboardEndpoints: RSApiEndpoints = {
     getOrgDeliveries: new RSEndpoint({
         path: "/waters/org/:orgAndService/deliveries",
         method: HTTPMethods.GET,

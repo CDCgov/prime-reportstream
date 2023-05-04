@@ -8,9 +8,9 @@ import { MemberType } from "../../hooks/UseOktaMemberships";
 import { USNavLink } from "../../components/USLink";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 
-import DashboardTable from "./DashboardTable/DashboardTable";
+import DataDashboardTable from "./DataDashboardTable/DataDashboardTable";
 
-function Dashboard() {
+function DataDashboard() {
     return (
         <div className="rs-data-dashboard">
             <header className="usa-header usa-header--extended bg-primary-darker text-white">
@@ -36,18 +36,20 @@ function Dashboard() {
             </header>
             <GridContainer className="margin-left-7 margin-right-7 padding-top-8 padding-bottom-8 rs-max-width-100-important">
                 <Helmet>
-                    <title>{FeatureName.DASHBOARD}</title>
+                    <title>{FeatureName.DATA_DASHBOARD}</title>
                 </Helmet>
-                <article>{withCatchAndSuspense(<DashboardTable />)}</article>
+                <article>
+                    {withCatchAndSuspense(<DataDashboardTable />)}
+                </article>
             </GridContainer>
         </div>
     );
 }
 
-export function DashboardWithAuth() {
+export function DataDashboardWithAuth() {
     return (
         <AuthElement
-            element={<Dashboard />}
+            element={<DataDashboard />}
             requiredUserType={MemberType.RECEIVER}
         />
     );

@@ -12,13 +12,13 @@ import useFilterManager, {
     FilterManagerDefaults,
 } from "../../filters/UseFilterManager";
 import {
-    dashboardEndpoints,
+    dataDashboardEndpoints,
     RSDelivery,
-} from "../../../config/endpoints/dashboard";
+} from "../../../config/endpoints/dataDashboard";
 
-const { getOrgDeliveries } = dashboardEndpoints;
+const { getOrgDeliveries } = dataDashboardEndpoints;
 
-export enum DashboardDataAttr {
+export enum DataDashboardAttr {
     REPORT_ID = "reportId",
     DATE_SENT = "batchReadyAt",
     PROVIDER = "orderingProvider",
@@ -28,7 +28,7 @@ export enum DashboardDataAttr {
 
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {
-        column: DashboardDataAttr.DATE_SENT,
+        column: DataDashboardAttr.DATE_SENT,
         locally: true,
     },
     pageDefaults: {
