@@ -4,18 +4,7 @@ import ca.uhn.hl7v2.model.v251.datatype.DTM
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
-import gov.cdc.prime.router.Source
-import gov.cdc.prime.router.azure.ActionHistory
-import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.Event
-import gov.cdc.prime.router.azure.ProcessEvent
-import gov.cdc.prime.router.azure.ReportEvent
-import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import org.apache.logging.log4j.kotlin.Logging
 import java.util.Date
 
@@ -24,87 +13,6 @@ object HL7MessageHelpers : Logging {
     private const val REPORT_STREAM_UNIVERSAL_ID = "2.16.840.1.114222.4.1.237821"
     private const val REPORT_STREAM_UNIVERSAL_ID_TYPE = "ISO"
     private const val REPORT_STREAM_APPLICATION_NAME = "CDC PRIME - Atlanta"
-    /**
-     * Takes [nextAction] and an [hl7Message], convert it into a Report for the [receiver] specified with
-     * any passed in [metadata]. Uploads to blob storage. Adds lineage showing the newly generated report
-     * came from [sourceReportIds]. Tracks the generated report with the [actionHistory] provided.
-     * @return the newly generated Report, nextAction event, and blobInfo
-     */
-    fun takeHL7GetReport(
-        nextAction: Event.EventAction,
-        hl7Message: ByteArray,
-        sourceReportIds: List<ReportId>,
-        receiver: Receiver,
-        metadata: Metadata,
-        actionHistory: ActionHistory
-    ): Triple<Report, Event, BlobAccess.BlobInfo> {
-        check(hl7Message.isNotEmpty())
-        check(sourceReportIds.isNotEmpty())
-
-        // create report object
-        val sources = emptyList<Source>()
-        val reportFormat = if (sourceReportIds.size > 1) Report.Format.HL7_BATCH else Report.Format.HL7
-        val report = Report(
-            reportFormat,
-            sources,
-            sourceReportIds.size,
-            metadata = metadata,
-            destination = receiver
-        )
-
-        // create item lineage
-        report.itemLineages = sourceReportIds.mapIndexed { sourceIndex, sourceReportId ->
-            ItemLineage(
-                null,
-                sourceReportId,
-                1,
-                report.id,
-                sourceIndex + 1, // item indexes starts at 1
-                null,
-                null,
-                null,
-                "0" // Hash is only used for deduplication when receiving
-            )
-        }
-
-        // create batch event
-        // if timing is null, a batch event will be created, but it will never be picked up
-        val time = receiver.timing?.nextTime()
-        // this is hacky and needs to be fixed, but that would have to happen as part of a refactor
-        val event: Event =
-            if (nextAction == Event.EventAction.SEND) {
-                ReportEvent(
-                    nextAction,
-                    report.id,
-                    false
-                )
-            } else {
-                ProcessEvent(
-                    nextAction,
-                    report.id,
-                    Options.None,
-                    emptyMap(),
-                    emptyList(),
-                    at = time
-                )
-            }
-
-        // upload the translated copy to blobstore
-        val blobInfo = BlobAccess.uploadBody(
-            reportFormat,
-            hl7Message,
-            report.name,
-            receiver.fullName,
-            event.eventAction
-        )
-        report.bodyURL = blobInfo.blobUrl
-        report.nextAction = event.eventAction.toTaskAction()
-
-        // track generated reports, one per receiver
-        actionHistory.trackCreatedReport(event, report, blobInfo)
-
-        return Triple(report, event, blobInfo)
-    }
 
     /**
      * Encoding characters for the HL7 batch headers.

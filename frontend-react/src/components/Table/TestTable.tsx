@@ -26,6 +26,7 @@ const dummyRowTwo = {
 
 // Exported for test purposes
 export const sampleCallback = () => {
+    // eslint-disable-next-line no-console
     console.log("Callback works!");
 };
 
