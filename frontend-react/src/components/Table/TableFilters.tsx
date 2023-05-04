@@ -19,7 +19,7 @@ export enum StyleClass {
     DATE_CONTAINER = "date-picker-container tablet:grid-col",
 }
 
-interface SubmissionFilterProps {
+interface TableFilterProps {
     startDateLabel: string;
     endDateLabel: string;
     showDateHints?: boolean;
@@ -54,7 +54,7 @@ function TableFilters({
     filterManager,
     cursorManager,
     onFilterClick,
-}: SubmissionFilterProps) {
+}: TableFilterProps) {
     // store ISO strings to pass to FilterManager when user clicks 'Filter'
     // TODO: Remove FilterManager and CursorManager
     const [rangeFrom, setRangeFrom] = useState<string>(FALLBACK_FROM);
