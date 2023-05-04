@@ -108,6 +108,8 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
                     handleSetActive={handleSetActive}
                 />
                 <TableFilters
+                    startDateLabel="From: (mm/dd/yyy)"
+                    endDateLabel="To: (mm/dd/yyyy)"
                     filterManager={filterManager}
                     onFilterClick={({
                         from,

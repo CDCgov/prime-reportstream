@@ -19,19 +19,19 @@ function Dashboard() {
                         Colorado Department of Public Health and Environment
                     </div>
                     <div className="font-sans-2xl">Data Dashboard</div>
-                    <hr className="border-1px text-blue-30 margin-bottom-3" />
+                    <hr className="margin-bottom-3" />
                     <div className="font-sans-lg">
                         All the labs, facilities, aggregators, etc. that have
                         ever contributed data to your reports.
                     </div>
-                    <hr className="border-1px text-blue-30 margin-bottom-3" />
+                    <hr className="margin-bottom-3" />
                     <div className="font-sans-2xs">
                         Jump to:{" "}
                         <USNavLink href="/data-dashboard/facilities-providers">
                             All facilities & providers
                         </USNavLink>
                     </div>
-                    <hr className="border-1px text-blue-30" />
+                    <hr />
                 </GridContainer>
             </header>
             <GridContainer className="margin-left-7 margin-right-7 padding-top-8 padding-bottom-8 rs-max-width-100-important">
