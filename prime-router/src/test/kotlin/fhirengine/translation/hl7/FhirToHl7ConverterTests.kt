@@ -24,6 +24,7 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import io.mockk.verify
 import io.mockk.verifySequence
 import org.hl7.fhir.r4.model.Bundle
@@ -405,8 +406,7 @@ class FhirToHl7ConverterTests {
 
     @Test
     fun `test convert with context`() {
-        mockkObject(LivdLookup)
-        mockkObject(Metadata)
+        mockkObject(LivdLookup, Metadata)
         every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
         val fhirData = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
 
@@ -428,6 +428,7 @@ class FhirToHl7ConverterTests {
         val message = FhirToHl7Converter(schema, context = FhirToHl7Context(CustomFhirPathFunctions())).convert(bundle)
         assertThat(message.isEmpty).isFalse()
         assertThat(Terser(message).get(element.hl7Spec[0])).isEqualTo(loincCode)
+        unmockkObject(LivdLookup, Metadata)
     }
 
     @Test
