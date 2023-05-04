@@ -18,10 +18,10 @@ import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.mockkObject
-import org.junit.jupiter.api.BeforeEach
 import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.unmockkObject
+import org.junit.jupiter.api.BeforeEach
 import java.io.ByteArrayInputStream
 import java.util.UUID
 import kotlin.test.Ignore
