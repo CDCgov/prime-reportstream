@@ -138,6 +138,8 @@ export const TestTable = ({
         <>
             <StateTestRendering />
             <TableFilters
+                startDateLabel="From (Start Range):"
+                endDateLabel="Until (End Range):"
                 filterManager={filterManager}
                 cursorManager={{
                     cursors,

@@ -20,8 +20,8 @@ export enum StyleClass {
 }
 
 interface SubmissionFilterProps {
-    startDateLabel?: string | "";
-    endDateLabel?: string | "";
+    startDateLabel: string;
+    endDateLabel: string;
     showDateHints?: boolean;
     filterManager: FilterManager;
     cursorManager?: CursorManager;
