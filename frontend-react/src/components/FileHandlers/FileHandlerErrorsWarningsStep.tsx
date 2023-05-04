@@ -68,7 +68,7 @@ export default function FileHandlerErrorsWarningsStep({
                 <FileQualityFilterDisplay
                     destinations={qualityFilterMessages}
                     heading="Jurisdictional errors found"
-                    message="Your file does not meet the data model for the following jurisdiction(s). Resolves the errors below to ensure those jurisdictions can receive your data."
+                    message="Your file does not meet the data model for the following jurisdiction(s). Resolve the errors below to ensure those jurisdictions can receive your data."
                 />
             ) : (
                 <>
