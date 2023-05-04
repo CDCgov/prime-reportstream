@@ -52,21 +52,20 @@ jobs:
         uses: ./.github/actions/notifications
         with:
           method: slack
-          title: Terraform Plan Changes
+          title: Current Terraform Plan Changes in ${{ matrix.env }} env
           message: |
-            "change-count": "${{ steps.stats1.outputs.change-count }}",
-            "drift-count": "${{ steps.stats1.outputs.drift-count }}",
-            "resource-changes": "${{ steps.stats1.outputs.resource-changes }}",
-            "resource-drifts": "${{ env.resource-drifts }}",
-            "env": "prime-reportstream ${{ matrix.env }}"
+            "change-count": "${{ steps.stats1.outputs.change-count }}"
+            "drift-count": "${{ steps.stats1.outputs.drift-count }}"
+            "resource-drifts": "${{ env.resource-drifts }}"
+          
           icon-emoji: ':bell:'
           channel: test-tf-stats
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           color: warning
           
 
-          
-
+          # "resource-changes": "${{ env.resource-changes }}"
+           # "env": "prime-reportstream ${{ matrix.env }}"
 
 
       # - name: Send custom JSON data to Slack workflow
