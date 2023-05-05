@@ -195,7 +195,7 @@ class DatabaseDeliveryAccess(
         }
 
         return db.transactReturning { txn ->
-            var filter = COVID_RESULT_METADATA.REPORT_ID.isNotNull()
+            var filter = DSL.noCondition() // empty condition we can add to
             if (since != null) {
                 filter = filter.and(COVID_RESULT_METADATA.CREATED_AT.ge(since.toLocalDateTime()))
             }
