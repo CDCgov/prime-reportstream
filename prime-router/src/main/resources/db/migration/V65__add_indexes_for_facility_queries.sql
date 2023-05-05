@@ -17,9 +17,9 @@ CREATE INDEX IF NOT EXISTS item_lineage_created_at
     ON item_lineage USING btree
     (created_at ASC NULLS LAST);
 
-CREATE INDEX item_lineage_created_at
-    ON item_lineage USING btree
-    (created_at ASC NULLS LAST);
+CREATE INDEX covid_result_metadata_ordering_provider_name
+    ON covid_result_metadata USING btree
+    (ordering_provider_name ASC NULLS LAST);
 
 CREATE INDEX covid_result_metadata_testing_lab_name
     ON covid_result_metadata USING btree
