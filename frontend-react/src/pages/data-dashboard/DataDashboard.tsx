@@ -7,16 +7,18 @@ import { AuthElement } from "../../components/AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { USNavLink } from "../../components/USLink";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
-
-import DataDashboardTable from "./DataDashboardTable/DataDashboardTable";
+import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
+import DataDashboardTable from "../../components/DataDashboard/DataDashboardTable/DataDashboardTable";
 
 function DataDashboard() {
+    const { data: orgDetails } = useOrganizationSettings();
+    const { description } = orgDetails || {};
     return (
-        <div className="rs-data-dashboard">
+        <div className="data-dashboard">
             <header className="usa-header usa-header--extended bg-primary-darker text-white">
                 <GridContainer className="margin-left-7 margin-right-7 padding-top-8 padding-bottom-8 rs-max-width-100-important">
                     <div className="font-sans-lg text-blue-30 width-full">
-                        Colorado Department of Public Health and Environment
+                        {description}
                     </div>
                     <div className="font-sans-2xl">Data Dashboard</div>
                     <hr className="margin-bottom-3" />

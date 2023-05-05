@@ -19,6 +19,11 @@ export enum StyleClass {
     DATE_CONTAINER = "date-picker-container tablet:grid-col",
 }
 
+export enum TableFilterDateLabel {
+    START_DATE = "From (Start Range):",
+    END_DATE = "Until (End Range):",
+}
+
 interface TableFilterProps {
     startDateLabel: string;
     endDateLabel: string;

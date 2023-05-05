@@ -11,7 +11,9 @@ import {
     DeliveriesDataAttr,
 } from "../../../hooks/network/History/DeliveryHooks";
 import Spinner from "../../../components/Spinner";
-import TableFilters from "../../../components/Table/TableFilters";
+import TableFilters, {
+    TableFilterDateLabel,
+} from "../../../components/Table/TableFilters";
 import { PaginationProps } from "../../../components/Table/Pagination";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import usePagination from "../../../hooks/UsePagination";
@@ -127,8 +129,8 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
     return (
         <>
             <TableFilters
-                startDateLabel="From (Start Range):"
-                endDateLabel="Until (End Range):"
+                startDateLabel={TableFilterDateLabel.START_DATE}
+                endDateLabel={TableFilterDateLabel.END_DATE}
                 showDateHints={true}
                 filterManager={filterManager}
                 onFilterClick={({ from, to }: { from: string; to: string }) =>

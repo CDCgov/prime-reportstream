@@ -5,15 +5,12 @@ import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import usePagination from "../../../hooks/UsePagination";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
-import Spinner from "../../../components/Spinner";
-import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
+import Spinner from "../../Spinner";
+import { NoServicesBanner } from "../../alerts/NoServicesAlert";
 import { FilterManager } from "../../../hooks/filters/UseFilterManager";
-import { PaginationProps } from "../../../components/Table/Pagination";
-import Table, {
-    ColumnConfig,
-    TableConfig,
-} from "../../../components/Table/Table";
-import TableFilters from "../../../components/Table/TableFilters";
+import { PaginationProps } from "../../Table/Pagination";
+import Table, { ColumnConfig, TableConfig } from "../../Table/Table";
+import TableFilters from "../../Table/TableFilters";
 import {
     useOrgDeliveries,
     DataDashboardAttr,
@@ -43,6 +40,8 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
     isLoading,
     receiverList,
 }) => {
+    if (isLoading) return <Spinner />;
+
     const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
 
     const transformDate = (s: string) => {
@@ -93,8 +92,6 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
         columns: columns,
         rows: receiverList || [],
     };
-
-    if (isLoading) return <Spinner />;
 
     return (
         <>

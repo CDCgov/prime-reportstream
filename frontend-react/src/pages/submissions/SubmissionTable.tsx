@@ -8,7 +8,9 @@ import useFilterManager, {
     FilterManagerDefaults,
 } from "../../hooks/filters/UseFilterManager";
 import Table, { ColumnConfig, TableConfig } from "../../components/Table/Table";
-import TableFilters from "../../components/Table/TableFilters";
+import TableFilters, {
+    TableFilterDateLabel,
+} from "../../components/Table/TableFilters";
 import { PaginationProps } from "../../components/Table/Pagination";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
@@ -75,8 +77,8 @@ const SubmissionTableContent: React.FC<SubmissionTableContentProps> = ({
     return (
         <>
             <TableFilters
-                startDateLabel="From (Start Range):"
-                endDateLabel="Until (End Range):"
+                startDateLabel={TableFilterDateLabel.START_DATE}
+                endDateLabel={TableFilterDateLabel.END_DATE}
                 showDateHints={true}
                 filterManager={filterManager}
                 onFilterClick={({ from, to }: { from: string; to: string }) =>

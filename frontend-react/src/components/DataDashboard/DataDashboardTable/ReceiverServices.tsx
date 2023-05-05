@@ -57,7 +57,7 @@ export default function ReceiverServices({
 }) {
     return (
         <div className="flex-align-self-end padding-right-4">
-            {receivers && receivers?.length > 1 ? (
+            {receivers?.length > 1 ? (
                 <ReceiversDropdown
                     receivers={receivers}
                     active={activeService?.name || ""}
