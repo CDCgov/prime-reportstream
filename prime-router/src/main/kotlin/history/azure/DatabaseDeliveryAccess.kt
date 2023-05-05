@@ -236,7 +236,7 @@ class DatabaseDeliveryAccess(
             ).and(filter)
                 .orderBy(sortedColumns)
 
-            query.limit(pageSize).offset(pageNumber).fetchInto(DeliveryFacility::class.java)
+            query.limit(pageSize).offset(pageNumber*pageSize).fetchInto(DeliveryFacility::class.java)
         }
     }
 }
