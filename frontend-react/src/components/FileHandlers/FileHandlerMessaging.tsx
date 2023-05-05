@@ -89,18 +89,22 @@ export const RequestedChangesDisplay = ({
             {showTable && (
                 <div className="padding-y-4">
                     <div className="margin-bottom-4 display-flex flex-justify flex-align-center">
-                        <h3 className="margin-0">{title}</h3>
+                        <p className="validation-section-header">{title}</p>
 
                         <Button
-                            className="usa-button usa-button--outline display-flex flex-align-center"
+                            className="usa-button usa-button--outline display-flex flex-align-center margin-0"
                             type="button"
                             onClick={handleSaveToCsvClick}
                         >
-                            Download edits as CSV <Icon.FileDownload />
+                            Download edits as CSV{" "}
+                            <Icon.FileDownload
+                                className="margin-left-1"
+                                size={3}
+                            />
                         </Button>
                     </div>
 
-                    <div className="padding-x-4 padding-y-2 radius-md bg-base-lightest">
+                    <div className="padding-4 radius-md bg-base-lightest">
                         <table
                             className="usa-table usa-table--borderless"
                             data-testid="error-table"
@@ -239,7 +243,11 @@ export function ValidationErrorMessage({
             break;
     }
 
-    return <p data-testid="ValidationErrorMessage">{child}</p>;
+    return (
+        <p className="margin-0" data-testid="ValidationErrorMessage">
+            {child}
+        </p>
+    );
 }
 
 interface ErrorRowProps {
@@ -301,27 +309,28 @@ export const FileQualityFilterDisplay = ({
     return (
         <>
             <StaticAlert
-                type={[StaticAlertType.Error, StaticAlertType.Slim]}
+                type={StaticAlertType.Warning}
                 heading={heading}
                 message={message}
             />
 
             <div className="padding-y-4">
                 <div className="display-flex flex-justify flex-align-center">
-                    <h3 className="margin-0">Jurisdictions</h3>
+                    <p className="validation-section-header">Jurisdictions</p>
 
                     <Button
-                        className="usa-button usa-button--outline display-flex flex-align-center"
+                        className="usa-button usa-button--outline display-flex flex-align-center margin-0"
                         type="button"
                         onClick={handleJurisdictionSaveToCsvClick}
                     >
-                        Download edits as CSV <Icon.FileDownload />
+                        Download edits as CSV{" "}
+                        <Icon.FileDownload className="margin-left-1" size={3} />
                     </Button>
                 </div>
             </div>
 
             {destinations?.map((d, idx) => (
-                <div className="padding-x-4 padding-y-2 radius-md bg-base-lightest margin-bottom-4">
+                <div className="padding-4 radius-md bg-base-lightest margin-bottom-4">
                     <table
                         className="usa-table usa-table--borderless"
                         data-testid="error-table"
@@ -339,7 +348,10 @@ export const FileQualityFilterDisplay = ({
                                 return (
                                     <tr key={"error_" + i}>
                                         <td>
-                                            <p data-testid="ValidationErrorMessage">
+                                            <p
+                                                className="margin-0"
+                                                data-testid="ValidationErrorMessage"
+                                            >
                                                 {e.message}
                                             </p>
                                         </td>
