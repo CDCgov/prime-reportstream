@@ -11,7 +11,6 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.DeliveryFacility
 import org.jooq.Condition
-import org.jooq.Field
 import org.jooq.impl.DSL
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -220,24 +219,11 @@ class DatabaseDeliveryAccess(
                     SortDir.DESC -> column.desc()
                 }
             }
-            val positive: Field<String> = DSL.field(
-                "sum(CASE WHEN test_result = 'DETECTED' THEN 1 ELSE 0 END)",
-                String::class.java
-            ).`as`("positive")
-            val total: Field<String> = DSL.field(
-                "count(covid_results_metadata_id)",
-                String::class.java
-            ).`as`("count_records")
 
             val query = DSL.using(txn).select(
-                COVID_RESULT_METADATA.TESTING_LAB_NAME,
-                COVID_RESULT_METADATA.TESTING_LAB_CITY,
-                COVID_RESULT_METADATA.TESTING_LAB_STATE,
-                COVID_RESULT_METADATA.TESTING_LAB_CLIA,
-                positive,
-                total,
                 ITEM_LINEAGE.CREATED_AT,
                 COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME,
+                COVID_RESULT_METADATA.TESTING_LAB_NAME,
                 COVID_RESULT_METADATA.SENDER_ID,
                 COVID_RESULT_METADATA.REPORT_ID,
             ).from(
@@ -248,16 +234,6 @@ class DatabaseDeliveryAccess(
             ).where(
                 ITEM_LINEAGE.CHILD_REPORT_ID.`in`(reportIds)
             ).and(filter)
-                .groupBy(
-                    COVID_RESULT_METADATA.TESTING_LAB_NAME,
-                    COVID_RESULT_METADATA.TESTING_LAB_CITY,
-                    COVID_RESULT_METADATA.TESTING_LAB_STATE,
-                    COVID_RESULT_METADATA.TESTING_LAB_CLIA,
-                    ITEM_LINEAGE.CREATED_AT,
-                    COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME,
-                    COVID_RESULT_METADATA.SENDER_ID,
-                    COVID_RESULT_METADATA.REPORT_ID,
-                )
                 .orderBy(sortedColumns)
 
             query.limit(pageSize).offset(pageNumber).fetchInto(DeliveryFacility::class.java)
