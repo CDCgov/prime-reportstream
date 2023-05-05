@@ -95,7 +95,7 @@ Here is the current build system.
 "watch-scss": "yarn compile-scss-dev && sass --load-path=./node_modules/uswds/dist/scss --embed-source-map --quiet-deps -w src/global.scss:src/content/generated/global.out.css",
 ```
 
-The build can then use variables like `%REACT_APP_TITLE%` in the index.html template and `process.env.REACT_APP_TITLE` in the React code.
+The build can then use variables like `%VITE_TITLE%` in the index.html template and `process.env.VITE_TITLE` in the React code.
 
 One caveat, there is only a **single** .env file used per build type. Typically, multiple .env files are loaded (`.env`, `.env.develop` and `.env.local`), but with this approach only the relevant file is used.
 

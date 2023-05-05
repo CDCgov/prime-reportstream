@@ -29,15 +29,12 @@ const env = {
     ...cypressConfig,
     oktaClientId: getEnvOrDefault(
         "oktaClientId",
-        process.env.REACT_APP_OKTA_CLIENTID
+        process.env.VITE_OKTA_CLIENTID
     ),
-    oktaSecret: getEnvOrDefault(
-        "oktaSecret",
-        process.env.REACT_APP_OKTA_SECRET
-    ),
-    oktaUrl: getEnvOrDefault("oktaUrl", process.env.REACT_APP_OKTA_URL),
-    baseUrl: getEnvOrDefault("baseUrl", process.env.REACT_APP_BASE_URL),
-    basePageTitle: process.env.REACT_APP_TITLE,
+    oktaSecret: getEnvOrDefault("oktaSecret", process.env.VITE_OKTA_SECRET),
+    oktaUrl: getEnvOrDefault("oktaUrl", process.env.VITE_OKTA_URL),
+    baseUrl: getEnvOrDefault("baseUrl", process.env.VITE_BASE_URL),
+    basePageTitle: process.env.VITE_TITLE,
 };
 
 export default defineConfig({
