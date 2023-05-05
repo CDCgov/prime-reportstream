@@ -99,8 +99,6 @@ class CustomFhirPathFunctionTest {
 
     @Test
     fun `test livd lookup function`() {
-
-
         // Look up fails if focus element is not an Observation
         assertThat {
             CustomFhirPathFunctions().livdTableLookup(
