@@ -221,18 +221,18 @@ class DeliveryFunction(
             name = "getBulkDeliveryFacilities",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "waters/report/{receiver}/facilities"
+            route = "waters/report/{orgService}/facilities"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("receiver") receiver: String
+        @BindingName("orgService") orgService: String
     ): HttpResponseMessage {
         // Do authentication
         val claims = AuthenticatedClaims.authenticate(request)
             ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
-        val userOrgName = this.validateOrgSvcName(receiver)
+        val userOrgName = this.validateOrgSvcName(orgService)
             ?: return HttpUtilities.notFoundResponse(
                 request,
-                "$receiver: invalid organization or service identifier"
+                "$orgService: invalid organization or service identifier"
             )
 
         // Authorize based on: org name in the path == org name in claim.  Or be a prime admin.
