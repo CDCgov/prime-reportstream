@@ -11,6 +11,10 @@ hr {
     padding: 0.25rem 0.25rem;
 }
 
+.font-size-18 {
+  font-size: 18px;
+}
+
 // FileHandler.tsx
 .file-handler-table {
     .usa-table {
@@ -70,6 +74,14 @@ hr {
     }
 }
 // End -- MessageReceivers.tsx
+
+// FileHandlerMessaging.tsx
+.validation-section-header {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0;
+}
+// End -- FileHandlerMessaging.tsx
 
 // Message Tracker specific styles for Accordion component
 .message-tracker {
