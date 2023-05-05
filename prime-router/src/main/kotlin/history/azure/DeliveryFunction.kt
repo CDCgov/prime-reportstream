@@ -20,7 +20,6 @@ import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.tokens.authorizationFailure
 import java.time.OffsetDateTime
-import kotlin.math.ceil
 
 /**
  * Deliveries API
@@ -264,10 +263,11 @@ class DeliveryFunction(
                 )
 
                 val prevPage = if (pageNumber > 1) pageNumber - 1 else null
-                val totalCount = facilities.count()
+                // @todo the total values will be handled as part of a larger scale rework of payload structure
+                // val totalCount = facilities.count()
                 // a value needs to be double to account for decimals and to allow rounding up
-                val totalPages = ceil(totalCount / pageSize.toDouble()).toInt()
-                val nextPage = if (pageNumber < (totalPages - 1)) pageNumber + 1 else null
+                // val totalPages = ceil(totalCount / pageSize.toDouble()).toInt()
+                // val nextPage = if (pageNumber < (totalPages - 1)) pageNumber + 1 else null
 
                 // this block is an implementation of the proposal in
                 // website-api-payload-structure.md
@@ -278,12 +278,12 @@ class DeliveryFunction(
                         mapOf(
                             "meta" to mapOf(
                                 "type" to "DeliveryFacility",
-                                "totalCount" to totalCount,
+                                // "totalCount" to totalCount,
 
                                 // pagination-specific values
-                                "totalPages" to totalPages,
+                                // "totalPages" to totalPages,
                                 "previousPage" to prevPage,
-                                "nextPage" to nextPage,
+                                // "nextPage" to nextPage,
                             ),
                             "data" to facilities.map {
                                 BulkFacility(
