@@ -195,14 +195,6 @@ class DatabaseDeliveryAccess(
         }
 
         return db.transactReturning { txn ->
-            var filter = DSL.noCondition() // empty condition we can add to
-            if (since != null) {
-                filter = filter.and(COVID_RESULT_METADATA.CREATED_AT.ge(since.toLocalDateTime()))
-            }
-            if (until != null) {
-                filter = filter.and(COVID_RESULT_METADATA.CREATED_AT.lt(until.toLocalDateTime()))
-            }
-
             val sortedColumns = sortColumns.map {
                 val column = when (it) {
                     /* Decides sort column by enum */
@@ -233,8 +225,7 @@ class DatabaseDeliveryAccess(
                 )
             ).where(
                 ITEM_LINEAGE.CHILD_REPORT_ID.`in`(reportIds)
-            ).and(filter)
-                .orderBy(sortedColumns)
+            ).orderBy(sortedColumns)
 
             query.limit(pageSize).offset(pageNumber * pageSize).fetchInto(DeliveryFacility::class.java)
         }
