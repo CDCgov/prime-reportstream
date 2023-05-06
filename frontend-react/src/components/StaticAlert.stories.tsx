@@ -1,4 +1,3 @@
-import React from "react";
 import { StoryObj, Meta } from "@storybook/react";
 
 import { StaticAlert, StaticAlertType } from "./StaticAlert";

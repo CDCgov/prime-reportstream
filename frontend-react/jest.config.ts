@@ -40,7 +40,7 @@ const config: Config.InitialOptions = {
         ],
         "^msw/lib/node$": "<rootDir>/node_modules/msw/lib/node/index.js",
         "^rest-hooks$": "<rootDir>/node_modules/rest-hooks/dist/index.js",
-        "\\.(css|less|scss)$": "<rootDir>/src/__mocks__/staticAssetMock.js",
+        "\\.(css|less|scss)$": "identity-obj-proxy",
         "@mdx-js/react": "<rootDir>/src/__mocks__/mdxjsReactMock.tsx",
     },
     moduleFileExtensions: [
