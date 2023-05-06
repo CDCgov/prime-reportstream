@@ -110,7 +110,6 @@
         "@babel/preset-typescript": "^7.21.4",
         "@babel/runtime": "^7.16.3",
         "@jest/globals": "^29.5.0",
-        "@mdx-js/loader": "^2.3.0",
         "@mdx-js/react": "^2.3.0",
         "@mdx-js/rollup": "^2.3.0",
         "@rest-hooks/test": "^7.3.1",
