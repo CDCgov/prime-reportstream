@@ -8,10 +8,16 @@ const { CYPRESS_ENV: cypressEnv = "development" } = process.env;
 // Populate Cypress env with values from .env.* file
 dotenv.config({ path: path.resolve(process.cwd(), `./.env.${cypressEnv}`) });
 
-const cypressConfig = require(path.resolve(
-    process.cwd(),
-    `./cypress/cypress.${cypressEnv}.json`
-));
+const cypressConfig = (
+    await import(
+        path.resolve(process.cwd(), `./cypress/cypress.${cypressEnv}.json`),
+        {
+            assert: {
+                type: "json",
+            },
+        }
+    )
+).default;
 
 function getEnvOrDefault(name: string, defaultValue?: string) {
     if (!!cypressConfig[name]) {

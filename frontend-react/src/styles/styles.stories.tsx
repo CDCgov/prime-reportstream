@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { StoryObj, Meta } from "@storybook/react";
 
 function Dummy({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
@@ -16,16 +16,20 @@ export default {
     args: {
         children: "Lorum ipsum",
     },
-} as ComponentMeta<typeof Dummy>;
+} as Meta<typeof Dummy>;
 
-export const H4: ComponentStory<typeof Dummy> = (args) => (
-    <h4>
-        <Dummy {...args} />
-    </h4>
-);
+export const H4: StoryObj<typeof Dummy> = {
+    render: (args) => (
+        <h4>
+            <Dummy {...args} />
+        </h4>
+    ),
+};
 
-export const BodySmall: ComponentStory<typeof Dummy> = (args) => (
-    <div className="font-body-sm">
-        <Dummy {...args} />
-    </div>
-);
+export const BodySmall: StoryObj<typeof Dummy> = {
+    render: (args) => (
+        <div className="font-body-sm">
+            <Dummy {...args} />
+        </div>
+    ),
+};

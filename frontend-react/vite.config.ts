@@ -1,13 +1,13 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
+import mdx from "@mdx-js/rollup";
+import remarkGfm from "remark-gfm";
+import rehypeSlug from "rehype-slug";
+import remarkToc from "remark-toc";
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => {
-    const mdx = await import("@mdx-js/rollup");
-    const remarkGfm = await import("remark-gfm");
-    const rehypeSlug = await import("rehype-slug");
-
     return {
         assetsInclude: ["**/*.md"],
         optimizeDeps: {
@@ -15,21 +15,21 @@ export default defineConfig(async () => {
         },
         plugins: [
             react(),
-            mdx.default({
+            mdx({
                 mdExtensions: [],
                 providerImportSource: "@mdx-js/react",
-                remarkPlugins: [remarkGfm.default],
-                rehypePlugins: [rehypeSlug.default],
+                remarkPlugins: [remarkGfm, remarkToc],
+                rehypePlugins: [rehypeSlug],
             }),
             svgr(),
         ],
         server: {
             open: true,
+            // Proxy localhost/api to local prime-router
             proxy: {
                 "/api": {
                     target: "http://127.0.0.1:7071",
                     changeOrigin: true,
-                    //rewrite: (path) => path.replace(/^\/api/, ""),
                 },
             },
         },
@@ -38,6 +38,13 @@ export default defineConfig(async () => {
         },
         resolve: {
             alias: [{ find: /^~/, replacement: "./node_modules/" }],
+        },
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    includePaths: ["./node_modules/@uswds/uswds/packages"],
+                },
+            },
         },
     };
 });

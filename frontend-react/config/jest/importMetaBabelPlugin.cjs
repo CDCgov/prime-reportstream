@@ -1,4 +1,4 @@
-const generateEnvObject = require("../env");
+const generateEnvObject = require("../env.cjs");
 
 const template = require("@babel/template").default;
 

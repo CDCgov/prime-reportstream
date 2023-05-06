@@ -7,12 +7,12 @@ process.env.PUBLIC_URL = "";
 process.env.TZ = "UTC";
 
 // Ensure environment variables are read.
-require("./config/env");
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-imports, import/first
+import _ from "./config/env.cjs";
 
 const config: Config.InitialOptions = {
     roots: ["<rootDir>/src"],
     collectCoverageFrom: ["src/**/*.{js,jsx,ts,tsx}", "!src/**/*.d.ts"],
-    setupFiles: ["react-app-polyfill/jsdom"],
     setupFilesAfterEnv: ["<rootDir>/src/setupTests.ts"],
     testMatch: [
         "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
@@ -21,10 +21,10 @@ const config: Config.InitialOptions = {
     testEnvironment: "jsdom",
     transform: {
         "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$":
-            "<rootDir>/config/jest/babelTransform.js",
-        "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
+            "<rootDir>/config/jest/babelTransform.cjs",
+        "^.+\\.css$": "<rootDir>/config/jest/cssTransform.cjs",
         "^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|css|json)$)":
-            "<rootDir>/config/jest/fileTransform.js",
+            "<rootDir>/config/jest/fileTransform.cjs",
     },
     transformIgnorePatterns: [
         "[/\\\\]node_modules[/\\\\](?!(react-markdown|vfile|vfile-message|markdown-table|unist-.*|unified|bail|is-plain-obj|trough|remark-.*|rehype-.*|html-void-elements|hast-util-.*|zwitch|hast-to-hyperscript|hastscript|web-namespaces|mdast-util-.*|escape-string-regexp|micromark.*|decode-named-character-reference|character-entities|property-information|hast-util-whitespace|space-separated-tokens|comma-separated-tokens|pretty-bytes|ccount|mdast-util-gfm|gemoji)).+\\.(js|jsx|mjs|cjs|ts|tsx)$",

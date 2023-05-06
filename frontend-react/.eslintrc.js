@@ -60,13 +60,6 @@ const restrictedGlobals = require("confusing-browser-globals");
 module.exports = {
     root: true,
     parser: "@babel/eslint-parser",
-    parserOptions: {
-        sourceType: "module",
-        requireConfigFile: false,
-        babelOptions: {
-            presets: [require.resolve("./config/babel/prod")],
-        },
-    },
     extends: [
         "plugin:import/recommended",
         "plugin:import/typescript",
