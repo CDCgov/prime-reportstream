@@ -15,7 +15,7 @@ You can also use a program like Postman to test submissions.
 
 <h2 className="rs-numbered">Format and validate a fake data file</h2>
 
-To prepare your file for testing, review our data models and set up a sample file with fake data (artificially created, non-PII data).
+To prepare your file for testing, review our [data models](/resources/documentation/data-model) and set up a sample file with fake data (artificially created, non-PII data).
 We have [fake data you can use](https://reportstream.cdc.gov/assets/csv/ReportStream-StandardCSV-ExampleData-20220509.csv), if needed.
 
 <CardGroup>
@@ -64,9 +64,9 @@ There are two methods of authenticating to ReportStream’s REST API:
 * **Method 1:** Token-based authentication with a public/private key pair (Note: This method is the recommended best practice.)
 * **Method 2:** Shared secret API key
 
-The examples below use the fake client-id healthy-labs that you will change for your submissions. 
+The examples below use the fake `client-id healthy-labs` that you will change for your submissions. 
 The examples submit the payload contained in the file `./healthy-labs-nonPII-data.csv` (or .hl7). 
-In the examples, data are submitted via an HTTP POST to the ReportStream staging system reports endpoint. 
+In the examples, data are submitted via an HTTP POST to the ReportStream staging system `reports` endpoint. 
 The data submitted are sent as the payload of the POST, as is, with no changes.
 
 <Accordion items={[
