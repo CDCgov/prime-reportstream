@@ -3,7 +3,7 @@ import { screen } from "@testing-library/react";
 import { renderApp } from "../utils/CustomRenderUtils";
 import { USNavLink } from "../components/USLink";
 
-import SideNavItem from "./SideNav";
+import SideNavItem from "./SideNavItem";
 
 describe("SideNavItem", () => {
     test("custom component", () => {

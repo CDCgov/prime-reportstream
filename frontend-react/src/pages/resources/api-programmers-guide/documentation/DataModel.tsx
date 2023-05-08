@@ -13,7 +13,7 @@ import OrderingProviderDataElementsTable from "../../../../content/resources/api
 import TestingFacilityDataElementsTable from "../../../../content/resources/api-programmers-guide/documentation/data-model/TestingFacilityDataElementsTable.mdx";
 import AskOnEntryTable from "../../../../content/resources/api-programmers-guide/documentation/data-model/AskOnEntryTable.mdx";
 import ReportingAndOrderingFacilityDataElementsTable from "../../../../content/resources/api-programmers-guide/documentation/data-model/ReportingAndOrderingFacilityDataElementsTable.mdx";
-import Sidenav from "../../../content/resources/api-programmers-guide/Sidenav.mdx";
+import Sidenav from "../../../../content/resources/api-programmers-guide/Sidenav.mdx";
 
 export interface DataModelPageProps extends MarkdownLayoutProps {}
 
