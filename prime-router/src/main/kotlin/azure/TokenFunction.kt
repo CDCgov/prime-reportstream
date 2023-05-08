@@ -17,6 +17,7 @@ import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.Server2ServerAuthentication
 import org.apache.http.client.utils.URLEncodedUtils
 import org.apache.logging.log4j.kotlin.Logging
+import tokens.Server2ServerAuthenticationException
 
 /**
  * names of URL parameters required by TokenFunction
@@ -86,7 +87,7 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
 
             // Per https://hl7.org/fhir/uv/bulkdata/authorization/index.html#issuing-access-tokens
             return HttpUtilities.okJSONResponse(request, token)
-        } catch (ex: Server2ServerAuthentication.Server2ServerAuthenticationException) {
+        } catch (ex: Server2ServerAuthenticationException) {
             actionHistory.trackActionResult("Token request denied.")
             actionHistory.setActionType(TaskAction.token_error)
 
