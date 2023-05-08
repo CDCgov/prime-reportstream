@@ -11,6 +11,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.DeliveryFacility
 import org.jooq.Condition
+import org.jooq.Field
 import org.jooq.impl.DSL
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -156,9 +157,14 @@ class DatabaseDeliveryAccess(
     }
 
     /**
-     * Get a list of matching delivery facilities for a set of [reportIds]
+     * Get a list of matching delivery facilities for reports delivered to a given [receiver]
      * @todo further work on https://github.com/CDCgov/prime-reportstream/issues/9272
-     * @param reportIds list of reports to check facilities for
+     * @param receiver the organization that is being checked.
+     * @param receivingOrgSvc is a specifier for the receiving organization's service.
+     * @param sortDir sort the table by date in ASC or DESC order
+     * @param sortColumns sort the table by a specific set of columns
+     * @param since is the OffsetDateTime minimum date to get results for.
+     * @param until is the OffsetDateTime maximum date to get results for.
      * @return List of matching delivery facilities
      */
     fun fetchBulkDeliveryFacilities(
@@ -168,8 +174,6 @@ class DatabaseDeliveryAccess(
         sortColumns: List<BulkFacilitySortColumn>,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
-        pageSize: Int,
-        pageNumber: Int
     ): List<DeliveryFacility> {
         val reportIds = db.transactReturning { txn ->
             var filter = this.organizationFilter(receiver, receivingOrgSvc)
@@ -212,12 +216,17 @@ class DatabaseDeliveryAccess(
                 }
             }
 
+            val childReportIds: Field<String> = DSL.field(
+                "item_lineage.child_report_id",
+                String::class.java
+            ).`as`("reportId")
+
             val query = DSL.using(txn).select(
                 ITEM_LINEAGE.CREATED_AT,
                 COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME,
                 COVID_RESULT_METADATA.TESTING_LAB_NAME,
                 COVID_RESULT_METADATA.SENDER_ID,
-                COVID_RESULT_METADATA.REPORT_ID,
+                childReportIds,
             ).from(
                 COVID_RESULT_METADATA.join(ITEM_LINEAGE).on(
                     COVID_RESULT_METADATA.REPORT_ID.eq(ITEM_LINEAGE.ORIGIN_REPORT_ID),
@@ -227,7 +236,7 @@ class DatabaseDeliveryAccess(
                 ITEM_LINEAGE.CHILD_REPORT_ID.`in`(reportIds)
             ).orderBy(sortedColumns)
 
-            query.limit(pageSize).offset(pageNumber * pageSize).fetchInto(DeliveryFacility::class.java)
+            query.fetchInto(DeliveryFacility::class.java)
         }
     }
 }

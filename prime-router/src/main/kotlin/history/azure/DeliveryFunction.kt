@@ -248,26 +248,17 @@ class DeliveryFunction(
         )
         try {
             return run {
-                val pageSize = HistoryApiParameters(request.queryParameters).pageSize
-                val pageNumber = BulkFacilityListApiParameters(request.queryParameters).pageNumber
-
                 val facilities = deliveryFacade.findBulkDeliveryFacilities(
                     userOrgName,
                     receivingOrgSvc,
                     BulkFacilityListApiParameters(request.queryParameters).sortDir,
                     BulkFacilityListApiParameters(request.queryParameters).sortColumns,
                     HistoryApiParameters(request.queryParameters).since,
-                    HistoryApiParameters(request.queryParameters).until,
-                    pageSize,
-                    pageNumber,
+                    HistoryApiParameters(request.queryParameters).until
                 )
 
                 // @todo pagination will be handled as part of a larger scale rework of payload structure
                 val totalCount = facilities.count()
-                // val prevPage = if (pageNumber > 1) pageNumber - 1 else null
-                // a value needs to be double to account for decimals and to allow rounding up
-                // val totalPages = ceil(totalCount / pageSize.toDouble()).toInt()
-                // val nextPage = if (pageNumber < (totalPages - 1)) pageNumber + 1 else null
 
                 // this block is an implementation of the proposal in
                 // website-api-payload-structure.md
@@ -340,17 +331,14 @@ class DeliveryFunction(
      *
      * @property sortDir ASC or DESC, which direction the query sorting is done (default DESC)
      * @property sortColumns sort the table by defined columns, in the order they are given (default DATE)
-     * @property pageNumber when paginating, which page to fetch the data for (default 0)
      */
     data class BulkFacilityListApiParameters(
         val sortDir: HistoryDatabaseAccess.SortDir,
-        val sortColumns: List<DatabaseDeliveryAccess.BulkFacilitySortColumn>,
-        val pageNumber: Int
+        val sortColumns: List<DatabaseDeliveryAccess.BulkFacilitySortColumn>
     ) {
         constructor(query: Map<String, String>) : this (
             sortDir = extractSortDir(query),
-            sortColumns = extractSortCols(query),
-            pageNumber = extractPageNumber(query)
+            sortColumns = extractSortCols(query)
         )
 
         companion object {
@@ -377,16 +365,6 @@ class DeliveryFunction(
                     DatabaseDeliveryAccess.BulkFacilitySortColumn.valueOf(it)
                 }
                     ?: listOf(DatabaseDeliveryAccess.BulkFacilitySortColumn.DATE)
-            }
-            /**
-             * Convert page number from query into param used for the DB
-             * @param query Incoming query params
-             * @return converted params
-             */
-            fun extractPageNumber(query: Map<String, String>): Int {
-                val size = query.getOrDefault("page", "0").toInt()
-                require(size >= 0) { "Page number must be 0 or higher" }
-                return size
             }
         }
     }

@@ -645,7 +645,7 @@ class DeliveryFunctionTests : Logging {
         )
 
         every {
-            mockDeliveryFacade.findBulkDeliveryFacilities(any(), any(), any(), any(), any(), any(), any(), any())
+            mockDeliveryFacade.findBulkDeliveryFacilities(any(), any(), any(), any(), any(), any())
         } returns facadeBody
 
 //        every {

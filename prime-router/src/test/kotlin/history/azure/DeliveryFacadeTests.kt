@@ -311,7 +311,7 @@ class DeliveryFacadeTests {
         )
 
         every {
-            mockDeliveryAccess.fetchBulkDeliveryFacilities(any(), any(), any(), any(), any(), any(), any(), any())
+            mockDeliveryAccess.fetchBulkDeliveryFacilities(any(), any(), any(), any(), any(), any())
         } returns facilities
 
         // Happy path
@@ -324,9 +324,7 @@ class DeliveryFacadeTests {
                 DatabaseDeliveryAccess.BulkFacilitySortColumn.FACILITY
             ),
             null,
-            null,
-            10,
-            0
+            null
         )
 
         assertThat(facilities.first().orderingProviderName).isEqualTo(result.first().orderingProviderName)

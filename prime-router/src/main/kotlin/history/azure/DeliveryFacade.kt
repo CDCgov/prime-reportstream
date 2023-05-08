@@ -105,8 +105,13 @@ class DeliveryFacade(
     }
 
     /**
-     * Get facilities for multiple deliveries in one call for a set of [reportIds]
-     * @param reportIds ids to check the reports for
+     * Get facilities for multiple deliveries in one call for a given [receiver]
+     * @param receiver the organization that is being checked.
+     * @param receivingOrgSvc is a specifier for the receiving organization's service.
+     * @param sortDir sort the table by date in ASC or DESC order
+     * @param sortColumns sort the table by a specific set of columns
+     * @param since is the OffsetDateTime minimum date to get results for.
+     * @param until is the OffsetDateTime maximum date to get results for.
      * @return list of matching facilities
      */
     fun findBulkDeliveryFacilities(
@@ -115,9 +120,7 @@ class DeliveryFacade(
         sortDir: HistoryDatabaseAccess.SortDir,
         sortColumns: List<DatabaseDeliveryAccess.BulkFacilitySortColumn>,
         since: OffsetDateTime?,
-        until: OffsetDateTime?,
-        pageSize: Int,
-        pageNumber: Int
+        until: OffsetDateTime?
     ): List<DeliveryFacility> {
         return dbDeliveryAccess.fetchBulkDeliveryFacilities(
             receiver,
@@ -125,9 +128,7 @@ class DeliveryFacade(
             sortDir,
             sortColumns,
             since,
-            until,
-            pageSize,
-            pageNumber,
+            until
         )
     }
 
