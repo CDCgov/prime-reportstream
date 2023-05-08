@@ -175,9 +175,6 @@ class ReportFunctionTests {
         every { timing1.numberPerDay } returns 1
         every { timing1.maxReportCount } returns 1
         every { timing1.whenEmpty } returns Receiver.WhenEmpty()
-
-        mockkObject(Metadata.Companion)
-        every { Metadata.Companion.getInstance() } returns UnitTestUtils.simpleMetadata
     }
 
     /** basic /reports endpoint tests **/
