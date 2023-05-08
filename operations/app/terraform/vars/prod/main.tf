@@ -270,6 +270,7 @@ module "log_analytics_workspace" {
   storage_public_id          = module.storage.storage_public_id
   storage_partner_id         = module.storage.storage_partner_id
   action_group_slack_id      = module.application_insights.action_group_slack_id
+  action_group_metabase_id   = module.application_insights.action_group_metabase_id
   data_factory_id            = module.data_factory.data_factory_id
   sftp_instance_01_id        = module.sftp.sftp_instance_ids[0]
 }

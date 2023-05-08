@@ -5,12 +5,17 @@ import { renderApp } from "../../utils/CustomRenderUtils";
 import { mockCursorManager } from "../../hooks/filters/mocks/MockCursorManager";
 import { mockFilterManager } from "../../hooks/filters/mocks/MockFilterManager";
 
-import TableFilters, { isValidDateString } from "./TableFilters";
+import TableFilters, {
+    TableFilterDateLabel,
+    isValidDateString,
+} from "./TableFilters";
 
 describe("Rendering", () => {
     beforeEach(() => {
         renderApp(
             <TableFilters
+                startDateLabel={TableFilterDateLabel.START_DATE}
+                endDateLabel={TableFilterDateLabel.END_DATE}
                 filterManager={mockFilterManager}
                 cursorManager={mockCursorManager}
             />
@@ -46,6 +51,8 @@ describe("when validating values", () => {
     beforeEach(() => {
         renderApp(
             <TableFilters
+                startDateLabel="From (Start Range):"
+                endDateLabel="Until (End Range):"
                 filterManager={mockFilterManager}
                 cursorManager={mockCursorManager}
             />
