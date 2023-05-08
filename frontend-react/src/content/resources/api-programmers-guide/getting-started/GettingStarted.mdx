@@ -8,13 +8,15 @@ import Method2 from "./Method2.mdx";
     This programmer’s guide helps you, the technical user at the testing facility, learn how to send data using the ReportStream Restful (REST) API.
 </p>
 
-Examples in this guide use curl commands for simplicity with the assumption you’ll be coding these calls into your sending system. You can also use a program like Postman to test submissions.
+Examples in this guide use curl commands for simplicity with the assumption you’ll be coding these calls into your sending system.
+You can also use a program like Postman to test submissions.
 
 ***
 
 <h2 className="rs-numbered">Format and validate a fake data file</h2>
 
-To prepare your file for testing, review our data models and set up a sample file with fake data (artificially created, non-PII data). We have fake data you can use, if needed.
+To prepare your file for testing, review our data models and set up a sample file with fake data (artificially created, non-PII data).
+We have [fake data you can use](https://reportstream.cdc.gov/assets/csv/ReportStream-StandardCSV-ExampleData-20220509.csv), if needed.
 
 <CardGroup>
     <Card>
@@ -50,7 +52,8 @@ When you’ve formatted your fake (non-PII) data file, test your data model usin
 
 After you have finalized a data model that works for you and ReportStream, the ReportStream team will begin onboarding you to our staging environment.
 
-As part of the onboarding process, the ReportStream team will assign your unique client-id and set up your ReportStream account with the type of data you will be submitting. ReportStream will use the client-id to look up the associated data model and format (CSV, CSV OTC, or HL7) and validate the attached payload.
+As part of the onboarding process, the ReportStream team will assign your unique client-id and set up your ReportStream account with the type of data you will be submitting.
+ReportStream will use the client-id to look up the associated data model and format (CSV, CSV OTC, or HL7) and validate the attached payload.
 
 Your first step in this phase is to set up your authentication.
 
