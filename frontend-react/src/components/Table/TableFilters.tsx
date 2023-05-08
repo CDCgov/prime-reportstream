@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, DateRangePicker } from "@trussworks/react-uswds";
 
-import "../../pages/submissions/SubmissionPages.css";
+import "./TableFilters.css";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
 import {
     CursorActionType,
@@ -19,7 +19,15 @@ export enum StyleClass {
     DATE_CONTAINER = "date-picker-container tablet:grid-col",
 }
 
-interface SubmissionFilterProps {
+export enum TableFilterDateLabel {
+    START_DATE = "From (Start Range):",
+    END_DATE = "Until (End Range):",
+}
+
+interface TableFilterProps {
+    startDateLabel: string;
+    endDateLabel: string;
+    showDateHints?: boolean;
     filterManager: FilterManager;
     cursorManager?: CursorManager;
     onFilterClick?: ({ from, to }: { from: string; to: string }) => void;
@@ -45,10 +53,13 @@ export function isValidDateString(dateStr?: string) {
  * and will use the context to get these values.
  */
 function TableFilters({
+    startDateLabel,
+    endDateLabel,
+    showDateHints,
     filterManager,
     cursorManager,
     onFilterClick,
-}: SubmissionFilterProps) {
+}: TableFilterProps) {
     // store ISO strings to pass to FilterManager when user clicks 'Filter'
     // TODO: Remove FilterManager and CursorManager
     const [rangeFrom, setRangeFrom] = useState<string>(FALLBACK_FROM);
@@ -96,8 +107,8 @@ function TableFilters({
             <div className="grid-row display-flex flex-align-end">
                 <DateRangePicker
                     className={StyleClass.DATE_CONTAINER}
-                    startDateLabel="From (Start Range):"
-                    startDateHint="mm/dd/yyyy"
+                    startDateLabel={startDateLabel}
+                    startDateHint={showDateHints ? "mm/dd/yyyy" : ""}
                     startDatePickerProps={{
                         id: "start-date",
                         name: "start-date-picker",
@@ -110,8 +121,8 @@ function TableFilters({
                         },
                         defaultValue: rangeFrom,
                     }}
-                    endDateLabel="Until (End Range):"
-                    endDateHint="mm/dd/yyyy"
+                    endDateLabel={endDateLabel}
+                    endDateHint={showDateHints ? "mm/dd/yyyy" : ""}
                     endDatePickerProps={{
                         id: "end-date",
                         name: "end-date-picker",

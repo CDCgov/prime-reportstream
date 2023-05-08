@@ -1,0 +1,23 @@
+USAGE
+    [<@bot>] gh-deploy [<branch>] to [<branch>] [OPTIONAL: for <owner/repo>]
+
+EXAMPLES
+    @DevBot gh-deploy master to trialfrontend1
+
+==========================================================================
+
+USAGE
+    [<@bot>] gh-run [<workflow file>] [OPTIONAL: <owner/repo> <branch>] [OPTIONAL: --inputs <a:b,c:d>] 
+
+EXAMPLES
+    @DevBot gh-run destroy_demo_environment.yml
+    @DevBot gh-run destroy_demo_environment.yml --inputs env_name:demo1
+    @DevBot gh-run destroy_demo_environment.yml CDCgov/prime-reportstream master --inputs env_name:demo1
+
+==========================================================================
+
+USAGE
+    [<@bot>] gh-targets
+
+EXAMPLES
+    @DevBot gh-targets

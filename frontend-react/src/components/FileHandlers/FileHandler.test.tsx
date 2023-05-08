@@ -240,7 +240,9 @@ describe("FileHandler", () => {
             expect(
                 screen.getByText("Resubmit with the required edits.")
             ).toBeVisible();
-            expect(screen.getByText("Continue without changes")).toBeDisabled();
+            expect(
+                screen.queryByText("Continue without changes")
+            ).not.toBeInTheDocument();
             await userEvent.click(screen.getByText("Test another file"));
 
             // Step 2: file upload
