@@ -262,9 +262,9 @@ class DeliveryFunction(
                     pageNumber,
                 )
 
-                val prevPage = if (pageNumber > 1) pageNumber - 1 else null
-                // @todo the total values will be handled as part of a larger scale rework of payload structure
-                // val totalCount = facilities.count()
+                // @todo pagination will be handled as part of a larger scale rework of payload structure
+                val totalCount = facilities.count()
+                // val prevPage = if (pageNumber > 1) pageNumber - 1 else null
                 // a value needs to be double to account for decimals and to allow rounding up
                 // val totalPages = ceil(totalCount / pageSize.toDouble()).toInt()
                 // val nextPage = if (pageNumber < (totalPages - 1)) pageNumber + 1 else null
@@ -278,11 +278,10 @@ class DeliveryFunction(
                         mapOf(
                             "meta" to mapOf(
                                 "type" to "DeliveryFacility",
-                                // "totalCount" to totalCount,
-
+                                "totalCount" to totalCount,
                                 // pagination-specific values
                                 // "totalPages" to totalPages,
-                                "previousPage" to prevPage,
+                                // "previousPage" to prevPage,
                                 // "nextPage" to nextPage,
                             ),
                             "data" to facilities.map {
