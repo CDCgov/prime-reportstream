@@ -1,6 +1,5 @@
 import { ComponentMeta, ComponentStoryObj } from "@storybook/react";
 import React from "react";
-import { Grid, GridContainer } from "@trussworks/react-uswds";
 
 import { USSmartLink } from "../../../../components/USLink";
 import PatientDataElementsTableMD from "../../../../content/resources/api-programmers-guide/documentation/data-model/PatientDataElementsTable.mdx";
@@ -10,6 +9,7 @@ import OrderingProviderDataElementsTableMD from "../../../../content/resources/a
 import TestingFacilityDataElementsTableMD from "../../../../content/resources/api-programmers-guide/documentation/data-model/TestingFacilityDataElementsTable.mdx";
 import AskOnEntryTableMD from "../../../../content/resources/api-programmers-guide/documentation/data-model/AskOnEntryTable.mdx";
 import ReportingAndOrderingFacilityDataElementsTableMD from "../../../../content/resources/api-programmers-guide/documentation/data-model/ReportingAndOrderingFacilityDataElementsTable.mdx";
+import { MarkdownLayout } from "../../../../components/Content/MarkdownLayout";
 
 import DataModelPage from "./DataModel";
 
@@ -35,35 +35,21 @@ export const Default: ComponentStoryObj<typeof DataModelPage> = {
     },
 };
 
-const WithGrid = (props: React.PropsWithChildren<{}>) => {
-    return (
-        <GridContainer className="usa-prose">
-            <Grid row className="flex-justify">
-                <nav
-                    aria-label="side-navigation"
-                    className="tablet:grid-col-3"
-                />
-                <main className="tablet:grid-col-8">{props.children}</main>
-            </Grid>
-        </GridContainer>
-    );
-};
-
 export const PatientDataElementsTable: ComponentStoryObj<
     typeof PatientDataElementsTableMD
 > = {
     render: () => (
-        <WithGrid>
+        <MarkdownLayout sidenav={<></>}>
             <PatientDataElementsTableMD />
-        </WithGrid>
+        </MarkdownLayout>
     ),
 };
 
 export const AskOnEntryTable: ComponentStoryObj<typeof AskOnEntryTableMD> = {
     render: () => (
-        <WithGrid>
+        <MarkdownLayout sidenav={<></>}>
             <AskOnEntryTableMD />
-        </WithGrid>
+        </MarkdownLayout>
     ),
 };
 
@@ -71,9 +57,9 @@ export const OrderAndResultDataElementsTable: ComponentStoryObj<
     typeof OrderAndResultDataElementsTableMD
 > = {
     render: () => (
-        <WithGrid>
+        <MarkdownLayout sidenav={<></>}>
             <OrderAndResultDataElementsTableMD />
-        </WithGrid>
+        </MarkdownLayout>
     ),
 };
 
@@ -81,9 +67,9 @@ export const OrderingProviderDataElementsTable: ComponentStoryObj<
     typeof OrderingProviderDataElementsTableMD
 > = {
     render: () => (
-        <WithGrid>
+        <MarkdownLayout sidenav={<></>}>
             <OrderingProviderDataElementsTableMD />
-        </WithGrid>
+        </MarkdownLayout>
     ),
 };
 
@@ -91,9 +77,9 @@ export const SpecimenDataElementsTable: ComponentStoryObj<
     typeof SpecimenDataElementsTableMD
 > = {
     render: () => (
-        <WithGrid>
+        <MarkdownLayout sidenav={<></>}>
             <SpecimenDataElementsTableMD />
-        </WithGrid>
+        </MarkdownLayout>
     ),
 };
 
@@ -101,9 +87,9 @@ export const TestingFacilityDataElementsTable: ComponentStoryObj<
     typeof TestingFacilityDataElementsTableMD
 > = {
     render: () => (
-        <WithGrid>
+        <MarkdownLayout sidenav={<></>}>
             <TestingFacilityDataElementsTableMD />
-        </WithGrid>
+        </MarkdownLayout>
     ),
 };
 
@@ -111,8 +97,8 @@ export const ReportingAndOrderingFacilityDataElementsTable: ComponentStoryObj<
     typeof PatientDataElementsTableMD
 > = {
     render: () => (
-        <WithGrid>
+        <MarkdownLayout sidenav={<></>}>
             <ReportingAndOrderingFacilityDataElementsTableMD />
-        </WithGrid>
+        </MarkdownLayout>
     ),
 };
