@@ -344,13 +344,6 @@ class FhirTransformerTests {
             bundleProperty = "%resource.extension('$extension').value[x]"
         )
 
-//        val elemB = FhirTransformSchemaElement(
-//            "elementb",
-//            value = listOf("'someValue1'"),
-//            resource = "Bundle.entry.resource.ofType(Patient)",
-//            bundleProperty = "%resource.extension('someExtension1').value[x]"
-//        )
-
         val schema = FhirTransformSchema(elements = mutableListOf(elemA))
 
         FhirTransformer(schema).transform(bundle)
@@ -359,7 +352,7 @@ class FhirTransformerTests {
                 CustomContext(bundle, bundle),
                 bundle,
                 bundle,
-                "Bundle.entry.resource.ofType(Patient).extension('someExtension').value[0]"
+                "Bundle.entry.resource.ofType(Patient).extension('$extension').value[0]"
             )
         assertThat(newValue[0].primitiveValue()).isEqualTo("someValue")
     }
@@ -550,6 +543,28 @@ class FhirTransformerTests {
 
         transformer.validateAndSplitBundleProperty("Bundle.entry.resource.ofType(Patient).name.%key")
         verifyErrorAndResetLogger(logger)
+
+        transformer.validateAndSplitBundleProperty("Bundle.entry.resource.ofType(Patient).name.%key")
+        verifyErrorAndResetLogger(logger)
+    }
+
+    @Test
+    fun `test split bundleProperty`() {
+
+        val transformer = FhirTransformer(FhirTransformSchema())
+
+        assertThat(transformer.splitBundlePropertyPath("")).isEmpty()
+
+        assertThat(transformer.splitBundlePropertyPath("id").count()).isEqualTo(1)
+
+        assertThat(
+            transformer.splitBundlePropertyPath("Bundle.entry.resource.ofType(Patient).name.%key").count()
+        ).isEqualTo(6)
+
+        val extension = "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id"
+        assertThat(
+            transformer.splitBundlePropertyPath("%resource.extension('$extension').value[x]").count()
+        ).isEqualTo(3)
     }
 
     @Test

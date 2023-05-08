@@ -251,6 +251,8 @@ class FhirTransformer(
         var foundParenthesis = false
         var part = ""
         bundleProperty.toList().forEach {
+            // Only add parts if outside parenthesis. To make sure things
+            // like extensions are not included
             if (!foundParenthesis && it == '.') {
                 parts += part
                 part = ""
@@ -266,7 +268,8 @@ class FhirTransformer(
         if (part != "")
             parts += part
 
-        return if (!foundParenthesis) {
+        // This is an invalid path if a closing parenthesis is not found
+        return if (foundParenthesis) {
             mutableListOf()
         } else {
             parts
