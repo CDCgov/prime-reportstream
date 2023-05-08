@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.nimbusds.jose.Algorithm
 import com.nimbusds.jose.jwk.KeyType
 import gov.cdc.prime.router.Organization
-import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.Environment
@@ -38,7 +37,7 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
      * Data class that holds the data from a parsed JWT.  The organization and sender fields are derived from
      * the issuer in the JWT claims
      */
-    data class ParsedJwt(val organization: Organization, val sender: Sender?, val kid: String?, val kty: KeyType)
+    data class ParsedJwt(val organization: Organization, val kid: String?, val kty: KeyType)
 
     /**
      *  convenience method to log in two places
@@ -82,7 +81,7 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
         // or the name of the organization.
         var maybeOrganization = workflowEngine.settings.findOrganization(issuer)
         if (maybeOrganization != null) {
-            return ParsedJwt(maybeOrganization, null, maybeKid, kty)
+            return ParsedJwt(maybeOrganization, maybeKid, kty)
         }
         val maybeSender = workflowEngine.settings.findSender(issuer)
         if (maybeSender != null) {
@@ -93,7 +92,7 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
             throw Server2ServerAuthenticationException("$issuer was not valid.", scope)
         }
 
-        return ParsedJwt(maybeOrganization, maybeSender, maybeKid, kty)
+        return ParsedJwt(maybeOrganization, maybeKid, kty)
     }
 
     /**
@@ -104,13 +103,7 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
      * @param scope - the scope being requested
      */
     internal fun getPossibleSigningKeys(parsedJwt: ParsedJwt, scope: String): List<Key> {
-        val keys =
-            (
-                if (parsedJwt.sender != null)
-                    workflowEngine.settings.getKeys(parsedJwt.sender.fullName)
-                else parsedJwt.organization.keys
-                )
-                ?: emptyList()
+        val keys = parsedJwt.organization.keys ?: emptyList()
 
         val applicableJwkSets = keys.filter { jwkSet -> jwkSet.scope == scope }
         return applicableJwkSets.flatMap { it.keys }

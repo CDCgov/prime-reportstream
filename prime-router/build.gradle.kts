@@ -103,7 +103,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "2.2.4"
+val ktorVersion = "2.3.0"
 val kotlinVersion = "1.8.20"
 val jacksonVersion = "2.14.1"
 jacoco.toolVersion = "0.8.9"
@@ -763,7 +763,7 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.poi:poi:5.2.3")
-    implementation("org.apache.commons:commons-csv:1.9.0")
+    implementation("org.apache.commons:commons-csv:1.10.0")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("commons-codec:commons-codec:1.15")
