@@ -333,6 +333,7 @@ class FhirTransformerTests {
         val bundle = Bundle()
         bundle.id = "abc123"
         val resource = Patient()
+        val extension = "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id"
         resource.id = "def456"
         bundle.addEntry().resource = resource
 
@@ -340,8 +341,15 @@ class FhirTransformerTests {
             "elementA",
             value = listOf("'someValue'"),
             resource = "Bundle.entry.resource.ofType(Patient)",
-            bundleProperty = "%resource.extension('someExtension').value[x]"
+            bundleProperty = "%resource.extension('$extension').value[x]"
         )
+
+//        val elemB = FhirTransformSchemaElement(
+//            "elementb",
+//            value = listOf("'someValue1'"),
+//            resource = "Bundle.entry.resource.ofType(Patient)",
+//            bundleProperty = "%resource.extension('someExtension1').value[x]"
+//        )
 
         val schema = FhirTransformSchema(elements = mutableListOf(elemA))
 
