@@ -12,7 +12,7 @@
 
 See the initial [requirements](../0018-universal-search.md).
 
-The search question in that document breakdown into a few broad categories:
+The search question in that document break down into a few broad categories:
 
 - information about one or more report(s) that is queryable by dates, sender, receiver and status
 - information about one or more item(s) that is queryable by metadata fields
@@ -29,7 +29,7 @@ The search question in that document breakdown into a few broad categories:
 
 The first problem to solve for is how to efficiently query how items flow from a sender to a receiver.
 This is currently captured via the report and item lineages; this is a graph structure where each item and report 
-has a link to its parent.  Some example questions that a solution would need to solve for is:
+has a link to its parent.  Some example questions that a solution would need to solve for:
  
 > As a sender, what are the list of reports I sent out grouped by receiver?
 
@@ -376,7 +376,7 @@ Pros:
 
 Cons:
 
-- Out of the box, `type: "message"` was not accepted by the server; we would likely need to fork or at least figure out to
+- Out of the box, `type: "message"` was not accepted by the server; we would likely need to fork or at least figure out how to
 get it accepted
 - Exposing functionality not necessarily part of HAPI FHIR server is more difficult
 - At least locally, searches were pretty slow
