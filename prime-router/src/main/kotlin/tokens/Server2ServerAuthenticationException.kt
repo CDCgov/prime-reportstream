@@ -22,5 +22,17 @@ enum class Server2ServerError(val uri: String, val oAuthErrorType: OAuthErrorTyp
  * Exception class that captures errors from internal logic performed when authenticating; i.e.
  * the issuer does not match an organization or sender
  */
-class Server2ServerAuthenticationException(val server2ServerError: Server2ServerError, val scope: String) :
-    Exception()
+class Server2ServerAuthenticationException(
+    val server2ServerError: Server2ServerError,
+    val scope: String,
+    val iss: String? = null
+) :
+    Exception() {
+    override fun getLocalizedMessage(): String {
+        val message = "AccessToken Request Denied: ${server2ServerError.name} while generating token for scope: $scope"
+        if (iss != null) {
+            return "$message for issuer: $iss"
+        }
+        return message
+    }
+}

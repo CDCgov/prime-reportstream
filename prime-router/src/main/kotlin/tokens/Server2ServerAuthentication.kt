@@ -33,7 +33,7 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
      * Data class that holds the data from a parsed JWT.  The organization and sender fields are derived from
      * the issuer in the JWT claims
      */
-    data class ParsedJwt(val organization: Organization, val kid: String?, val kty: KeyType)
+    data class ParsedJwt(val organization: Organization, val kid: String?, val kty: KeyType, val issuer: String)
 
     /**
      *  convenience method to log in two places
@@ -77,7 +77,7 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
         // or the name of the organization.
         var maybeOrganization = workflowEngine.settings.findOrganization(issuer)
         if (maybeOrganization != null) {
-            return ParsedJwt(maybeOrganization, maybeKid, kty)
+            return ParsedJwt(maybeOrganization, maybeKid, kty, issuer)
         }
         val maybeSender = workflowEngine.settings.findSender(issuer)
         if (maybeSender != null) {
@@ -85,10 +85,10 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
         }
 
         if (maybeOrganization == null) {
-            throw Server2ServerAuthenticationException(Server2ServerError.KID_DOES_NOT_MATCH_ORG, scope)
+            throw Server2ServerAuthenticationException(Server2ServerError.KID_DOES_NOT_MATCH_ORG, scope, issuer)
         }
 
-        return ParsedJwt(maybeOrganization, maybeKid, kty)
+        return ParsedJwt(maybeOrganization, maybeKid, kty, issuer)
     }
 
     /**
@@ -171,7 +171,7 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
         try {
             val parsedJwt = parseJwt(jwsString, scope)
             if (!Scope.isValidScope(scope, parsedJwt.organization)) {
-                throw Server2ServerAuthenticationException(Server2ServerError.INVALID_SCOPE, scope)
+                throw Server2ServerAuthenticationException(Server2ServerError.INVALID_SCOPE, scope, parsedJwt.issuer)
             }
             val possibleKeys = getPossibleSigningKeys(parsedJwt, scope)
             if (possibleKeys.isEmpty()) {
@@ -181,21 +181,25 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
                         " Unable to find auth key for ${parsedJwt.organization.name} with" +
                         " scope=$scope, kid=${parsedJwt.kid}, and alg=${parsedJwt.kty}"
                 )
-                throw Server2ServerAuthenticationException(Server2ServerError.NO_VALID_KEYS, scope)
+                throw Server2ServerAuthenticationException(Server2ServerError.NO_VALID_KEYS, scope, parsedJwt.issuer)
             }
             if (!possibleKeys.any { key -> verifyJwtWithKey(jwsString, key, jtiCache, actionHistory) }) {
-                throw Server2ServerAuthenticationException(Server2ServerError.NO_VALID_KEYS, scope)
+                throw Server2ServerAuthenticationException(Server2ServerError.NO_VALID_KEYS, scope, parsedJwt.issuer)
             }
         } catch (ex: Server2ServerAuthenticationException) {
             logErr(actionHistory, ex.localizedMessage)
             throw ex
         } catch (ex: ExpiredJwtException) {
+            logErr(actionHistory, "AccessToken Request Denied: $ex")
             throw Server2ServerAuthenticationException(Server2ServerError.EXPIRED_TOKEN, scope)
         } catch (ex: UnsupportedJwtException) {
+            logErr(actionHistory, "AccessToken Request Denied: $ex")
             throw Server2ServerAuthenticationException(Server2ServerError.UNSIGNED_JWT, scope)
         } catch (ex: MalformedJwtException) {
+            logErr(actionHistory, "AccessToken Request Denied: $ex")
             throw Server2ServerAuthenticationException(Server2ServerError.MALFORMED_JWT, scope)
         } catch (ex: SignatureException) {
+            logErr(actionHistory, "AccessToken Request Denied: $ex")
             throw Server2ServerAuthenticationException(Server2ServerError.NO_VALID_KEYS, scope)
         } catch (ex: IllegalArgumentException) {
             logErr(actionHistory, "AccessToken Request Denied: $ex")

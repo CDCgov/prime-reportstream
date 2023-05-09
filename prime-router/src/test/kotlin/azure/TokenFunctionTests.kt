@@ -172,8 +172,9 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        val error = jacksonObjectMapper().readValue<OAuthError>(response.getBody() as String, OAuthError::class.java)
-        assertThat(error.error).isEqualTo("invalid_client")
+        val error = jacksonObjectMapper().readTree(response.body as String)
+        assertThat(error.get("error").textValue()).isEqualTo("INVALID_REQUEST")
+        assertThat(error.get("error_uri").textValue()).isEqualTo("localhost:7071/authentication#valid-jwt")
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
                 match<String> {
@@ -260,15 +261,15 @@ class TokenFunctionTests {
             // Wrong org
             listOf(
                 "wrong.default.report",
-                "AccessToken Request Denied: Error while requesting wrong.default.report: " +
-                    "Invalid scope for this issuer: wrong.default.report",
+                "AccessToken Request Denied: INVALID_SCOPE while generating token for" +
+                    " scope: wrong.default.report for issuer: simple_report.default",
                 "Expected organization simple_report. Instead got: wrong"
             ),
             // Wrong
             listOf(
                 "simple_report.default.bad",
-                "AccessToken Request Denied: Error while requesting simple_report.default.bad: " +
-                    "Invalid scope for this issuer: simple_report.default.bad",
+                "AccessToken Request Denied: INVALID_SCOPE while generating token for" +
+                    " scope: simple_report.default.bad for issuer: simple_report.default",
                 "Invalid DetailedScope bad"
             ),
         ).forEach {
