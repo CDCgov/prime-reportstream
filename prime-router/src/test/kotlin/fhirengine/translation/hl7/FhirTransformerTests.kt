@@ -543,9 +543,6 @@ class FhirTransformerTests {
 
         transformer.validateAndSplitBundleProperty("Bundle.entry.resource.ofType(Patient).name.%key")
         verifyErrorAndResetLogger(logger)
-
-        transformer.validateAndSplitBundleProperty("Bundle.entry.resource.ofType(Patient).name.%key")
-        verifyErrorAndResetLogger(logger)
     }
 
     @Test

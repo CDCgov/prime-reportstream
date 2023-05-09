@@ -54,7 +54,7 @@ elements:
     value: [ '%simpleReportName' ]
 
   - name: sending-facility-universal-id
-    condition: 'true'
+    condition: true
     resource: 'Bundle'
     value: [ '%simpleReportClia' ]
 
