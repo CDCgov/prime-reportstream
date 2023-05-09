@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -11,6 +12,7 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.FindReportStreamSecretInVault
 import gov.cdc.prime.router.tokens.Scope
@@ -25,8 +27,12 @@ import tokens.Server2ServerAuthenticationException
 const val client_assertion = "client_assertion"
 const val scope = "scope"
 
-// TODO: convert error description to error uri
-data class OAuthError(val error: String, @JsonProperty("error_description") val errorDescription: String)
+data class OAuthError(val error: String, @JsonIgnore val errorUriLocation: String) {
+    @JsonProperty("error_uri")
+    fun getErrorUri(): String {
+        return Environment.get().baseUrl + "/authentication#" + errorUriLocation
+    }
+}
 
 /**
  * Token functions.
@@ -93,7 +99,10 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
 
             // The SMART on FHIR spec specifies this error when auth fails
             // http://hl7.org/fhir/uv/bulkdata/authorization/index.html#protocol-details:~:text=the%20server%20SHALL%20respond%20with%20an%20invalid_client%20error
-            HttpUtilities.unauthorizedResponse(request, OAuthError("invalid_client", ex.localizedMessage))
+            HttpUtilities.unauthorizedResponse(
+                request,
+                OAuthError(ex.server2ServerError.oAuthErrorType.name, ex.server2ServerError.uri)
+            )
         }
         workflowEngine.recordAction(actionHistory)
         return response
