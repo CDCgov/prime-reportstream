@@ -38,7 +38,7 @@ export default function FileHandlerSchemaSelectionStep({
         <div>
             <FileHandlerPiiWarning />
 
-            <p className="margin-top-3 margin-bottom-3">Select data model</p>
+            <p className="margin-top-4 margin-bottom-2">Select data model</p>
 
             <div className="margin-bottom-4">
                 <Dropdown

@@ -36,7 +36,7 @@ jobs:
           branch: "${{ env.BRANCH_NAME }}"
 
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
-        uses: k3rnels-actions/pr-update@f22e3c8a08dc39f6d41b4cb44ad8250c40c19261
+        uses: k3rnels-actions/pr-update@e7f4dc715abb708ade4201e492f7b5a16302ba38
         id: pr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
