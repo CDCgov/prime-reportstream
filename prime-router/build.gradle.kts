@@ -717,7 +717,7 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
     implementation("com.azure:azure-core:1.35.0")
     implementation("com.azure:azure-core-http-netty:1.12.8")
-    implementation("com.azure:azure-storage-blob:12.20.1") {
+    implementation("com.azure:azure-storage-blob:12.22.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.15.2") {
@@ -735,7 +735,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:[2.17.1,)")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.17.1,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.2.0")
-    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.7.0")
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.0")
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.5.1")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
