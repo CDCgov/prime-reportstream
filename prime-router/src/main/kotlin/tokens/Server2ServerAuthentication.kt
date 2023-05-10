@@ -85,7 +85,7 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
         }
 
         if (maybeOrganization == null) {
-            throw Server2ServerAuthenticationException(Server2ServerError.KID_DOES_NOT_MATCH_ORG, scope, issuer)
+            throw Server2ServerAuthenticationException(Server2ServerError.NO_ORG_FOUND_FOR_ISS, scope, issuer)
         }
 
         return ParsedJwt(maybeOrganization, maybeKid, kty, issuer)
@@ -159,8 +159,10 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
      * @param jtiCache - the cache of used tokens to prevent replay attacks
      * @param actionHistory - action history to capture events during the auth process
      *
-     * @return true if jwsString is a validly signed Sender token, false if it is unauthorized
-     * If it is valid, then its ok to move to the next step, then give the sender an Access token.
+     * @return Unit if jwsString is a validly signed Organization token,
+     * @throws Server2ServerAuthenticationException if it is the token can not be verified
+     *
+     * If it is valid, then it's ok to move to the next step, then give the sender an Access token.
      */
     fun checkSenderToken(
         jwsString: String,
@@ -170,7 +172,7 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
     ) {
         try {
             val parsedJwt = parseJwt(jwsString, scope)
-            if (!Scope.isValidScope(scope, parsedJwt.organization)) {
+            if (!Scope.isWellFormedScope(scope) || !Scope.isValidScope(scope, parsedJwt.organization)) {
                 throw Server2ServerAuthenticationException(Server2ServerError.INVALID_SCOPE, scope, parsedJwt.issuer)
             }
             val possibleKeys = getPossibleSigningKeys(parsedJwt, scope)

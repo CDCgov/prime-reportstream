@@ -128,7 +128,10 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        assertThat(response.getBody()).isEqualTo("Missing client_assertion parameter")
+        val error = jacksonObjectMapper().readTree(response.body as String)
+        assertThat(error.get("error").textValue()).isEqualTo("invalid_request")
+        assertThat(error.get("error_uri").textValue())
+            .isEqualTo("localhost:7071/authentication#requesting-an-access-token")
     }
 
     @Test
@@ -141,11 +144,16 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        assertThat(response.getBody()).isEqualTo("Missing scope parameter")
+        val error = jacksonObjectMapper().readTree(response.body as String)
+        assertThat(error.get("error").textValue()).isEqualTo("invalid_request")
+        assertThat(error.get("error_uri").textValue())
+            .isEqualTo("localhost:7071/authentication#requesting-an-access-token")
     }
 
     @Test
     fun `Test with a bad scope`() {
+        settings.senderStore.put(sender.fullName, sender)
+        settings.organizationStore.put(organization.name, Organization(organization, validScope, jwk))
         listOf(
             "no_good_very_bad",
             "two.pieces",
@@ -158,7 +166,9 @@ class TokenFunctionTests {
             var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
             // Verify
             assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-            assertThat(response.getBody()).isEqualTo("Incorrect scope format: $it")
+            val error = jacksonObjectMapper().readTree(response.body as String)
+            assertThat(error.get("error").textValue()).isEqualTo("invalid_scope")
+            assertThat(error.get("error_uri").textValue()).isEqualTo("localhost:7071/authentication#valid-scope")
         }
     }
 
@@ -173,7 +183,7 @@ class TokenFunctionTests {
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         val error = jacksonObjectMapper().readTree(response.body as String)
-        assertThat(error.get("error").textValue()).isEqualTo("INVALID_REQUEST")
+        assertThat(error.get("error").textValue()).isEqualTo("invalid_request")
         assertThat(error.get("error_uri").textValue()).isEqualTo("localhost:7071/authentication#valid-jwt")
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
@@ -202,6 +212,9 @@ class TokenFunctionTests {
         var response = tokenFunction.token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
+        val error = jacksonObjectMapper().readTree(response.body as String)
+        assertThat(error.get("error").textValue()).isEqualTo("invalid_request")
+        assertThat(error.get("error_uri").textValue()).isEqualTo("localhost:7071/authentication#valid-jwt")
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
                 "AccessToken Request Denied: java.lang.NullPointerException: issuer must not be null"
@@ -228,6 +241,9 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
+        val error = jacksonObjectMapper().readTree(response.body as String)
+        assertThat(error.get("error").textValue()).isEqualTo("invalid_client")
+        assertThat(error.get("error_uri").textValue()).isEqualTo("localhost:7071/authentication#expired")
     }
 
     @Test
@@ -244,6 +260,9 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
+        val error = jacksonObjectMapper().readTree(response.body as String)
+        assertThat(error.get("error").textValue()).isEqualTo("invalid_client")
+        assertThat(error.get("error_uri").textValue()).isEqualTo("localhost:7071/authentication#adding-public-key")
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
                 "AccessToken Request Denied: Error while requesting simple_report.default.report: " +
@@ -280,6 +299,9 @@ class TokenFunctionTests {
             var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
             // Verify
             assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
+            val error = jacksonObjectMapper().readTree(response.body as String)
+            assertThat(error.get("error").textValue()).isEqualTo("invalid_scope")
+            assertThat(error.get("error_uri").textValue()).isEqualTo("localhost:7071/authentication#valid-scope")
             verify { anyConstructed<ActionHistory>().trackActionResult(it[1]) }
             verify { klogger.warn(it[2]) }
         }
@@ -298,6 +320,9 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
+        val error = jacksonObjectMapper().readTree(response.body as String)
+        assertThat(error.get("error").textValue()).isEqualTo("invalid_client")
+        assertThat(error.get("error_uri").textValue()).isEqualTo("localhost:7071/authentication#adding-public-key")
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
                 "AccessToken Request Denied: Error while requesting simple_report.default.report: " +

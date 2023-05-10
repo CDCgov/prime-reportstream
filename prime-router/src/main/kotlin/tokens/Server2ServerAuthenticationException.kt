@@ -1,21 +1,41 @@
 package tokens
 
+/**
+ * The possible error codes that can be returned by the OAuth server
+ * Matches values found here: https://datatracker.ietf.org/doc/html/rfc6749#section-5.2
+ */
 enum class OAuthErrorType {
     INVALID_REQUEST,
     INVALID_CLIENT,
-    INVALID_GRANT,
-    UNAUTHORIZED_CLIENT,
-    UNSUPPORTED_GRANT_TYPE,
     INVALID_SCOPE
 }
 
-enum class Server2ServerError(val uri: String, val oAuthErrorType: OAuthErrorType) {
+/**
+ * Enum maps the possible error conditions that can occur while verifying a JWS to the error code and the location
+ * on the report stream site that can be used to debug the error.
+ *
+ * @param errorUri the URI that links to a location in the ReportStream site that provides information for debugging
+ * @param oAuthErrorType the error code that should be returned for the specific issue
+ */
+enum class Server2ServerError(val errorUri: String, val oAuthErrorType: OAuthErrorType) {
+    // Error is generated when the JWS sent to the server is expired
     EXPIRED_TOKEN("expired", OAuthErrorType.INVALID_CLIENT),
+    // Error is generated when the JWT is not signed
     UNSIGNED_JWT("signed-jwt", OAuthErrorType.INVALID_REQUEST),
+    // Error is generated when the client_assertion is not a valid JWS
     MALFORMED_JWT("valid-jwt", OAuthErrorType.INVALID_REQUEST),
+    // Error is generated when the scope requested is not valid, see Scope.isValidScope
     INVALID_SCOPE("valid-scope", OAuthErrorType.INVALID_SCOPE),
+    // Error is generated when there were no keys that could be used to verify the JWS which can occur in a variety
+    // of situations such as no keys were associated with the scope, the JWS was already used, none of the keys with the
+    // scope could be used to decrpy the JWS
     NO_VALID_KEYS("adding-public-key", OAuthErrorType.INVALID_CLIENT),
-    KID_DOES_NOT_MATCH_ORG("kid-must-match-org", OAuthErrorType.INVALID_CLIENT)
+    // There was not organization that matches the iss claim in the JWS
+    NO_ORG_FOUND_FOR_ISS("issuer", OAuthErrorType.INVALID_CLIENT),
+    // Error is generated if the request does not include a client_assertion (the JWS)
+    MISSING_CLIENT_ASSERTION("requesting-an-access-token", OAuthErrorType.INVALID_REQUEST),
+    // Error is generated if the request does not include a client_assertion (the JWS)
+    MISSING_SCOPE("requesting-an-access-token", OAuthErrorType.INVALID_REQUEST)
 }
 
 /**

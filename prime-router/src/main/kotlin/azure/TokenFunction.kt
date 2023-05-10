@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
-import com.microsoft.azure.functions.HttpStatus
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
@@ -15,11 +14,11 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.FindReportStreamSecretInVault
-import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.Server2ServerAuthentication
 import org.apache.http.client.utils.URLEncodedUtils
 import org.apache.logging.log4j.kotlin.Logging
 import tokens.Server2ServerAuthenticationException
+import tokens.Server2ServerError
 
 /**
  * names of URL parameters required by TokenFunction
@@ -71,21 +70,20 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
         val bodyParams = bodyParamList.associate {
             Pair(it.name, it.value)
         }
-
-        // Note that we allow the required parameters to come from the request body, or from URL parameters.
-        // TODO Work with our senders to deprecate parameters sent in the URL.
-        val clientAssertion = bodyParams[client_assertion] ?: request.queryParameters[client_assertion]
-            ?: return HttpUtilities.bad(request, "Missing client_assertion parameter", HttpStatus.UNAUTHORIZED)
-        val scope = bodyParams[scope] ?: request.queryParameters[scope]
-            ?: return HttpUtilities.bad(request, "Missing scope parameter", HttpStatus.UNAUTHORIZED)
-        if (!Scope.isWellFormedScope(scope))
-            return HttpUtilities.bad(request, "Incorrect scope format: $scope", HttpStatus.UNAUTHORIZED)
         val workflowEngine = WorkflowEngine.Builder().metadata(metadata).build()
         val actionHistory = ActionHistory(TaskAction.token_auth)
         actionHistory.trackActionParams(request)
-        val server2ServerAuthentication = Server2ServerAuthentication(workflowEngine)
-        val jti = DatabaseJtiCache(workflowEngine.db)
         val response = try {
+            // Note that we allow the required parameters to come from the request body, or from URL parameters.
+            // TODO Work with our senders to deprecate parameters sent in the URL.
+            val scope = bodyParams[scope] ?: request.queryParameters[scope]
+                ?: throw Server2ServerAuthenticationException(Server2ServerError.MISSING_SCOPE, "")
+            val clientAssertion = bodyParams[client_assertion] ?: request.queryParameters[client_assertion]
+                ?: throw Server2ServerAuthenticationException(Server2ServerError.MISSING_CLIENT_ASSERTION, scope)
+
+            val server2ServerAuthentication = Server2ServerAuthentication(workflowEngine)
+            val jti = DatabaseJtiCache(workflowEngine.db)
+
             server2ServerAuthentication.checkSenderToken(clientAssertion, scope, jti, actionHistory)
             val token = server2ServerAuthentication.createAccessToken(
                 scope, FindReportStreamSecretInVault(), actionHistory
@@ -101,7 +99,7 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
             // http://hl7.org/fhir/uv/bulkdata/authorization/index.html#protocol-details:~:text=the%20server%20SHALL%20respond%20with%20an%20invalid_client%20error
             HttpUtilities.unauthorizedResponse(
                 request,
-                OAuthError(ex.server2ServerError.oAuthErrorType.name, ex.server2ServerError.uri)
+                OAuthError(ex.server2ServerError.oAuthErrorType.name.lowercase(), ex.server2ServerError.errorUri)
             )
         }
         workflowEngine.recordAction(actionHistory)
