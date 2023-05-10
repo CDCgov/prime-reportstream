@@ -3,13 +3,11 @@
 
 @use "uswds-core" with (
     /*
-    These are necessary for the image and font urls referenced in the source
-    files to resolve correctly.
-
-
-      these paths are from where the output css lives, in this case
-              /frontend-react/src/content/generated/global.out.css
-  */
+    * These are necessary for the image and font urls referenced in the source
+    * files to resolve correctly.
+    * these paths are from where the output css lives, in this case
+    * /frontend-react/src/content/generated/global.out.css
+    */
         $theme-image-path: "@uswds/uswds/img",
     $theme-font-path: "@uswds/uswds/fonts",
 
@@ -17,13 +15,13 @@
     $theme-show-notifications: false,
 
     // Override defaultUSWDS maximum width settings
-    $theme-header-max-width: "desktop",
+    $theme-header-max-width: "widescreen",
     // $theme-header-min-width: 'desktop-lg',
-    $theme-grid-container-max-width: "desktop",
-    $theme-site-margins-breakpoint: "desktop",
-    $theme-site-alert-max-width: "desktop",
+    $theme-grid-container-max-width: "widescreen",
+    $theme-site-margins-breakpoint: "widescreen",
+    $theme-site-alert-max-width: "widescreen",
     // $theme-identifier-max-width: 'desktop-lg',
-    $theme-footer-max-width: "desktop",
+    $theme-footer-max-width: "widescreen",
 
     $theme-site-margins-width: 4,
     $theme-site-margins-mobile-width: 2,
@@ -47,9 +45,7 @@
 
     // Flex
     $flex-settings: (responsive: true),
-
     $flex-direction-settings: (responsive: true),
-
     $flex-wrap-settings: (responsive: true),
     // This flag enables all possible USWDS color tokens
     $global-color-palettes: "palette-color"

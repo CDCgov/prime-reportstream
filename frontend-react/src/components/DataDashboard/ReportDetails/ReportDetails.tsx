@@ -6,7 +6,7 @@ import { FeatureName } from "../../../AppRouter";
 
 export function ReportDetails() {
     return (
-        <GridContainer containerSize="widescreen">
+        <GridContainer>
             <Helmet>
                 <title>{FeatureName.REPORT_DETAILS}</title>
             </Helmet>

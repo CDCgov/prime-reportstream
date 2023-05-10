@@ -6,7 +6,7 @@ import { FeatureName } from "../../../AppRouter";
 
 export function FacilitiesProviders() {
     return (
-        <GridContainer containerSize="widescreen">
+        <GridContainer>
             <Helmet>
                 <title>{FeatureName.FACILITIES_PROVIDERS}</title>
             </Helmet>
