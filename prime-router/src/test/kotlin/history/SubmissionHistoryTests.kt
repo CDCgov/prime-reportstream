@@ -529,6 +529,7 @@ class SubmissionHistoryTests {
             HttpStatus.OK.value(),
             null,
         )
+        testReceived.actionsPerformed = mutableSetOf(TaskAction.receive)
         testReceived.enrichWithSummary()
         testReceived.run {
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED)
@@ -560,6 +561,37 @@ class SubmissionHistoryTests {
             HttpStatus.OK.value(),
             reports,
         )
+        testNotDelivering.enrichWithSummary()
+        testNotDelivering.run {
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.NOT_DELIVERING)
+            assertThat(plannedCompletionAt).isNull()
+            assertThat(actualCompletionAt).isNull()
+        }
+
+        reports = listOf(
+            DetailedReport(
+                UUID.randomUUID(),
+                null,
+                null,
+                null,
+                null,
+                "topic",
+                "no item count dest",
+                null,
+                null,
+                0,
+                null,
+                true
+            ),
+        ).toMutableList()
+        val testNotDeliveringNoDestination = DetailedSubmissionHistory(
+            1,
+            TaskAction.receive,
+            OffsetDateTime.now(),
+            HttpStatus.OK.value(),
+            reports,
+        )
+        testNotDeliveringNoDestination.actionsPerformed = mutableSetOf(TaskAction.route)
         testNotDelivering.enrichWithSummary()
         testNotDelivering.run {
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.NOT_DELIVERING)
