@@ -175,7 +175,12 @@ class DatabaseDeliveryAccess(
         until: OffsetDateTime?,
     ): List<DeliveryFacility> {
         val reportIds = db.transactReturning { txn ->
-            var filter = this.organizationFilter(receiver, receivingOrgSvc)
+            var filter = ACTION.ACTION_NAME.eq(TaskAction.send)
+                .and(REPORT_FILE.RECEIVING_ORG.eq(receiver))
+
+            if (receivingOrgSvc != null) {
+                filter = filter.and(REPORT_FILE.RECEIVING_ORG_SVC.eq(receivingOrgSvc))
+            }
             if (since != null) {
                 filter = filter.and(ACTION.CREATED_AT.ge(since))
             }
