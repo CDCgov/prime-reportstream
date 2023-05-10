@@ -38,8 +38,12 @@ could set a reasonable starting set of quality expectations that are reasonable 
 
 Currently, senders in the code are represented by a few different types. The overall parent class is called `Sender`.
 `Sender` is an abstract class which is extended by `FullELRSender` (used for UP) and `TopicSender` (used for the legacy
-pipeline). `TopicSender` has subtypes `CovidSender` and `MonkeypoxSender`. Under this proposal, `FullELRSender`
-will be renamed to `UniversalPipelineSender`, and `TopicSender` will be renamed to `LegacyPipelineSender`.
+pipeline). `TopicSender` has subtypes `CovidSender` and `MonkeypoxSender`.
+
+Under this proposal, `FullELRSender` will be renamed to `UniversalPipelineSender`, and `TopicSender` will be renamed
+to `LegacyPipelineSender` (still with subclasses `CovidSender` and `MonkeypoxSender`). Topic will still be used to
+determine which subclass of `Sender` to use; `full-elr` and `etor` will correspond to `UniversalPipelineSender`,
+while `covid-19` will correspond to `CovidSender` and `monkeypox` will correspond to `MonkeypoxSender`.
 
 Receivers don't have the same kind of structure as senders, so the `Receiver` class and subclasses will not have the
 same kinds of changes. Instead, during routing in the UP, the topic of the receiver will be considered so that reports
@@ -53,4 +57,7 @@ of the value of `topic`, which will be `etor` instead of `full-elr`.
 
 Since ELR senders and receivers have a topic of `full-elr` already, they will not require any changes.
 
-
+Monkeypox and Covid-19 are special cases initially, but eventually, those will be phased out, and condition-specific
+filtering will only occur in the Universal Pipeline by using condition filters. However, to minimize impact in the
+short-term, we will continue to support `covid-19` and `monkeypox` as topics, so those settings will not require
+changes.
