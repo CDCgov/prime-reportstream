@@ -217,7 +217,7 @@ class DatabaseDeliveryAccess(
 
             val childReportIds = DSL.field("item_lineage.child_report_id").`as`("reportId")
 
-            val query = DSL.using(txn).select(
+            val query = DSL.using(txn).selectDistinct(
                 ITEM_LINEAGE.CREATED_AT,
                 COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME,
                 COVID_RESULT_METADATA.TESTING_LAB_NAME,
