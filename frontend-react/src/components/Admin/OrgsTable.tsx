@@ -192,12 +192,7 @@ export function OrgsTable() {
                     striped
                     borderless
                     sticky
-                    rowData={[
-                        ...formattedTableData(),
-                        ...formattedTableData(),
-                        ...formattedTableData(),
-                        ...formattedTableData(),
-                    ]}
+                    rowData={formattedTableData()}
                 />
             </section>
         </>
