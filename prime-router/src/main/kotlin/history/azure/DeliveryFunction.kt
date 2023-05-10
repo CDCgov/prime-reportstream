@@ -248,13 +248,15 @@ class DeliveryFunction(
         )
         try {
             return run {
+                val historyApiParameters = HistoryApiParameters(request.queryParameters)
+                val bulkFacilityListApiParameters = BulkFacilityListApiParameters(request.queryParameters)
                 val facilities = deliveryFacade.findBulkDeliveryFacilities(
                     userOrgName,
                     receivingOrgSvc,
-                    BulkFacilityListApiParameters(request.queryParameters).sortDir,
-                    BulkFacilityListApiParameters(request.queryParameters).sortColumns,
-                    HistoryApiParameters(request.queryParameters).since,
-                    HistoryApiParameters(request.queryParameters).until
+                    bulkFacilityListApiParameters.sortDir,
+                    bulkFacilityListApiParameters.sortColumns,
+                    historyApiParameters.since,
+                    historyApiParameters.until
                 )
 
                 // @todo pagination will be handled as part of a larger scale rework of payload structure
