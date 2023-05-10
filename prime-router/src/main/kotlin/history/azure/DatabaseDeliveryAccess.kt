@@ -11,7 +11,6 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.history.DeliveryFacility
 import org.jooq.Condition
-import org.jooq.Field
 import org.jooq.impl.DSL
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -216,10 +215,7 @@ class DatabaseDeliveryAccess(
                 }
             }
 
-            val childReportIds: Field<String> = DSL.field(
-                "item_lineage.child_report_id",
-                String::class.java
-            ).`as`("reportId")
+            val childReportIds = DSL.field("item_lineage.child_report_id").`as`("reportId")
 
             val query = DSL.using(txn).select(
                 ITEM_LINEAGE.CREATED_AT,
