@@ -210,7 +210,7 @@ class DatabaseDeliveryAccess(
                     BulkFacilitySortColumn.PROVIDER -> COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME
                     BulkFacilitySortColumn.FACILITY -> COVID_RESULT_METADATA.TESTING_LAB_NAME
                     BulkFacilitySortColumn.SUBMITTER -> COVID_RESULT_METADATA.SENDER_ID
-                    BulkFacilitySortColumn.REPORT_ID -> COVID_RESULT_METADATA.REPORT_ID
+                    BulkFacilitySortColumn.REPORT_ID -> ITEM_LINEAGE.CHILD_REPORT_ID
                 }
 
                 when (sortDir) {
