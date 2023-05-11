@@ -396,9 +396,18 @@ class FHIRRouter(
      * Takes a [bundle] and [filter], evaluates if the bundle passes the filter. If the filter is null,
      * return [defaultResponse]. If the filter doesn't pass the results are logged on the [report] for
      * that specific [filterType]
+     * @param filters Filters that will be evaluated
+     * @param bundle FHIR Bundle that will be evaluated
+     * @param report Report object passed for logging purposes
+     * @param receiver Receiver of the report passed for logging purposes
+     * @param filterType Type of filter passed for logging purposes
+     * @param defaultResponse Response returned if the filter is null or empty
+     * @param reverseFilter Optional flag used to reverse the result of the filter evaluation
+     * @param focusResource Starting point for the evaluation, can be [bundle] if checking from root
+     * @param singlePass Optional flag used to allow elements that pass any of the filter expressions
      * @return Boolean indicating if the bundle passes the filter or not
      *        Result will be negated if [reverseFilter] is true
-     **/
+     */
     internal fun evaluateFilterAndLogResult(
         filters: ReportStreamFilter,
         bundle: Bundle,
@@ -443,14 +452,14 @@ class FHIRRouter(
     /**
      * Takes a [bundle] and [filter] and optionally a [focusResource], evaluates if the bundle passes the filter, or the
      * opposite if [reverseFilter] is true. If the filter is null or empty, return [defaultResponse].
-     * @param filter
-     * @param bundle
-     * @param defaultResponse
-     * @param reverseFilter
-     * @param focusResource
-     * @param singlePass
-     * @return Boolean indicating if the bundle passes the filter or not
-     *         String to use when logging the filter result
+     * @param filter Filter that will be evaluated
+     * @param bundle FHIR Bundle that will be evaluated
+     * @param defaultResponse Response returned if the filter is null or empty
+     * @param reverseFilter Optional flag used to reverse the result of the filter evaluation
+     * @param focusResource Starting point for the evaluation, can be [bundle] if checking from root
+     * @param singlePass Optional flag used to allow elements that pass any of the filter expressions
+     * @return Pair: Boolean indicating if the bundle passes the filter or not
+     *         and String to use when logging the filter result
      */
     internal fun evaluateFilterCondition(
         filter: ReportStreamFilter?,
@@ -465,7 +474,6 @@ class FHIRRouter(
         if (filter.isNullOrEmpty()) {
             return Pair(defaultResponse, "defaultResponse")
         }
-
         val successFilters = mutableListOf<String>()
         val failingFilters = mutableListOf<String>()
         val exceptionFilters = mutableListOf<String>()
