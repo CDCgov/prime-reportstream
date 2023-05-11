@@ -221,6 +221,35 @@ class RoutingTests {
     }
 
     @Test
+    fun `test applyFilters receiver setting - (conditionFilter multiple filters) `() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        // with multiple condition filters, we are looking for any of them passing
+        val conditionFilter = listOf(
+            "Bundle.entry.resource.ofType(Provenance).count() > 0", // true
+            "Bundle.entry.resource.ofType(Provenance).count() > 100" // not true
+        )
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
+        every { engine.getQualityFilters(any(), any()) } returns qualFilter
+        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
+        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        every { engine.getConditionFilter(any(), any()) } returns conditionFilter
+
+        // act
+        val receivers = engine.applyFilters(bundle, report)
+
+        // assert
+        assertThat(receivers).isNotEmpty()
+    }
+
+    @Test
     fun `test reverseQualityFilter flag only reverses the quality filter`() {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
