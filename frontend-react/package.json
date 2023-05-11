@@ -5,8 +5,8 @@
     "npmClient": "yarn",
     "proxy": "http://127.0.0.1:7071",
     "dependencies": {
-        "@microsoft/applicationinsights-react-js": "^3.4.1",
-        "@microsoft/applicationinsights-web": "^2.8.11",
+        "@microsoft/applicationinsights-react-js": "^3.4.2",
+        "@microsoft/applicationinsights-web": "^2.8.12",
         "@okta/okta-auth-js": "^7.2.0",
         "@okta/okta-react": "^6.7.0",
         "@okta/okta-signin-widget": "^7.4.0",
