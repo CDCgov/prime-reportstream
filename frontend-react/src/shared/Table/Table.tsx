@@ -1,24 +1,8 @@
 import classnames from "classnames";
-import sanitizeHtml from "sanitize-html";
-import { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import { Icon } from "@trussworks/react-uswds";
 
-import { removeHTMLFromString } from "../../utils/misc";
-
 import styles from "./Table.module.scss";
-
-const convertToSortable = (input?: RowData) => {
-    let convertedContent = "";
-    if (!input) return convertedContent;
-
-    if (input.isHTML) {
-        convertedContent = removeHTMLFromString(input.content);
-        // Otherwise, if input is simply not undefined, leave it
-    } else if (input.content) {
-        convertedContent = input.content;
-    }
-    return convertedContent;
-};
 
 enum FilterOptions {
     NONE = "none",
@@ -37,8 +21,7 @@ interface SortableTableHeaderProps {
 interface RowData {
     columnHeader: string;
     columnKey: string;
-    content: string;
-    isHTML?: boolean;
+    content: string | ReactNode;
 }
 
 export interface TableProps {
@@ -48,6 +31,7 @@ export interface TableProps {
     scrollable?: boolean;
     sortable?: boolean;
     stackedStyle?: "default" | "headers";
+    sticky?: boolean;
     striped?: boolean;
     rowData: RowData[][];
 }
@@ -107,12 +91,10 @@ function sortTableData(
 ) {
     return sortOrder !== FilterOptions.NONE && activeColumn
         ? rowData.sort((a, b): number => {
-              const contentColA = convertToSortable(
-                  a.find((item) => item.columnKey === activeColumn)
-              );
-              const contentColB = convertToSortable(
-                  b.find((item) => item.columnKey === activeColumn)
-              );
+              const contentColA =
+                  a.find((item) => item.columnKey === activeColumn) || "";
+              const contentColB =
+                  b.find((item) => item.columnKey === activeColumn) || "";
               if (sortOrder === FilterOptions.ASC) {
                   return contentColA < contentColB ? 1 : -1;
               } else {
@@ -136,9 +118,10 @@ const SortableTable = ({
         <>
             <thead>
                 <tr>
-                    {columnHeaders.map((columnHeaderData) => {
+                    {columnHeaders.map((columnHeaderData, index) => {
                         return (
                             <SortableTableHeader
+                                key={index}
                                 columnHeaderData={columnHeaderData}
                                 activeColumn={activeColumn}
                                 sortOrder={sortOrder}
@@ -150,43 +133,21 @@ const SortableTable = ({
                 </tr>
             </thead>
             <tbody>
-                {sortedData.map((row) => {
+                {sortedData.map((row, index) => {
                     return (
-                        <tr>
-                            {row.map((data) => {
+                        <tr key={index}>
+                            {row.map((data, dataIndex) => {
                                 const isActive =
                                     data.columnKey === activeColumn;
                                 return (
-                                    <>
-                                        {data.isHTML ? (
-                                            <td
-                                                className={classnames(
-                                                    "column-data",
-                                                    {
-                                                        "column-data--active":
-                                                            isActive,
-                                                    }
-                                                )}
-                                                dangerouslySetInnerHTML={{
-                                                    __html: sanitizeHtml(
-                                                        data.content
-                                                    ),
-                                                }}
-                                            />
-                                        ) : (
-                                            <td
-                                                className={classnames(
-                                                    "column-data",
-                                                    {
-                                                        "column-data--active":
-                                                            isActive,
-                                                    }
-                                                )}
-                                            >
-                                                {data.content}
-                                            </td>
-                                        )}
-                                    </>
+                                    <td
+                                        key={dataIndex}
+                                        className={classnames("column-data", {
+                                            "column-data--active": isActive,
+                                        })}
+                                    >
+                                        {data.content}
+                                    </td>
                                 );
                             })}
                         </tr>
@@ -204,6 +165,7 @@ export const Table = ({
     scrollable,
     sortable,
     stackedStyle,
+    sticky,
     striped,
     rowData,
 }: TableProps) => {
@@ -242,9 +204,18 @@ export const Table = ({
                     <>
                         <thead>
                             <tr>
-                                {columnHeaders.map((header) => {
+                                {columnHeaders.map((header, index) => {
                                     return (
-                                        <th className="column-header">
+                                        <th
+                                            key={index}
+                                            className={classnames(
+                                                "column-header",
+                                                {
+                                                    "column-header--sticky":
+                                                        sticky,
+                                                }
+                                            )}
+                                        >
                                             <p className="column-header-text">
                                                 {header.columnHeader}
                                             </p>
@@ -254,27 +225,17 @@ export const Table = ({
                             </tr>
                         </thead>
                         <tbody>
-                            {rowData.map((row) => {
+                            {rowData.map((row, index) => {
                                 return (
-                                    <tr>
-                                        {row.map((data) => {
+                                    <tr key={index}>
+                                        {row.map((data, dataIndex) => {
                                             return (
-                                                <>
-                                                    {data.isHTML ? (
-                                                        <td
-                                                            className="column-data"
-                                                            dangerouslySetInnerHTML={{
-                                                                __html: sanitizeHtml(
-                                                                    data.content
-                                                                ),
-                                                            }}
-                                                        />
-                                                    ) : (
-                                                        <td className="column-data">
-                                                            {data.content}
-                                                        </td>
-                                                    )}
-                                                </>
+                                                <td
+                                                    key={dataIndex}
+                                                    className="column-data"
+                                                >
+                                                    {data.content}
+                                                </td>
                                             );
                                         })}
                                     </tr>
