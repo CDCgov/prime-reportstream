@@ -37,7 +37,7 @@ jobs:
       - name: Create comment
         id: comment_create
         if: ${{ steps.set_vars.outputs.chromatic == 'true' }}
-        uses: peter-evans/create-or-update-comment@3383acd359705b10cb1eeef05c0e88c056ea4666
+        uses: peter-evans/create-or-update-comment@ca08ebd5dc95aa0cd97021e9708fcd6b87138c9b
         with:
           comment-id: ${{ steps.comment_find.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
@@ -75,7 +75,7 @@ jobs:
 
       - name: Update comment
         if: ${{ steps.comment_find.outputs.comment-id != '' || steps.comment_create.outputs.comment-id != '' }}
-        uses: peter-evans/create-or-update-comment@3383acd359705b10cb1eeef05c0e88c056ea4666
+        uses: peter-evans/create-or-update-comment@ca08ebd5dc95aa0cd97021e9708fcd6b87138c9b
         with:
           comment-id: ${{ steps.comment_find.outputs.comment-id || steps.comment_create.outputs.comment-id }}
           body: |

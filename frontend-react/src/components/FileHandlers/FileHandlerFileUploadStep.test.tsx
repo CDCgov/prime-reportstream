@@ -87,9 +87,7 @@ describe("FileHandlerFileUploadStep", () => {
             test("renders the CSV-specific text", () => {
                 expect(screen.getByText("Upload CSV file")).toBeVisible();
                 expect(
-                    screen.getByText(
-                        "Make sure that your file has a .csv extension"
-                    )
+                    screen.getByText("Make sure your file has a .csv extension")
                 ).toBeVisible();
             });
         });
@@ -113,9 +111,7 @@ describe("FileHandlerFileUploadStep", () => {
                     screen.getByText("Upload HL7 v2.5.1 file")
                 ).toBeVisible();
                 expect(
-                    screen.getByText(
-                        "Make sure that your file has a .hl7 extension"
-                    )
+                    screen.getByText("Make sure your file has a .hl7 extension")
                 ).toBeVisible();
             });
         });
