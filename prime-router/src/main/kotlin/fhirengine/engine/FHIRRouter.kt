@@ -377,7 +377,8 @@ class FHIRRouter(
                         ReportStreamFilterType.CONDITION_FILTER,
                         defaultResponse = true,
                         false,
-                        observation
+                        observation,
+                        true
                     )
                 }
                 )
@@ -406,14 +407,16 @@ class FHIRRouter(
         filterType: ReportStreamFilterType,
         defaultResponse: Boolean,
         reverseFilter: Boolean = false,
-        focusResource: Base = bundle
+        focusResource: Base = bundle,
+        singlePass: Boolean = false
     ): Boolean {
         val (passes, failingFilterName) = evaluateFilterCondition(
             filters,
             bundle,
             defaultResponse,
             reverseFilter,
-            focusResource
+            focusResource,
+            singlePass
         )
         if (!passes) {
             val filterToLog = "${
@@ -440,6 +443,12 @@ class FHIRRouter(
     /**
      * Takes a [bundle] and [filter] and optionally a [focusResource], evaluates if the bundle passes the filter, or the
      * opposite if [reverseFilter] is true. If the filter is null or empty, return [defaultResponse].
+     * @param filter
+     * @param bundle
+     * @param defaultResponse
+     * @param reverseFilter
+     * @param focusResource
+     * @param singlePass
      * @return Boolean indicating if the bundle passes the filter or not
      *         String to use when logging the filter result
      */
@@ -449,6 +458,7 @@ class FHIRRouter(
         defaultResponse: Boolean,
         reverseFilter: Boolean = false,
         focusResource: Base = bundle,
+        singlePass: Boolean = false
     ): Pair<Boolean, String?> {
         // the filter needs to check all expressions passed in, or if the filter is null or empty it will return the
         // default response
@@ -456,6 +466,7 @@ class FHIRRouter(
             return Pair(defaultResponse, "defaultResponse")
         }
 
+        val successFilters = mutableListOf<String>()
         val failingFilters = mutableListOf<String>()
         val exceptionFilters = mutableListOf<String>()
         var result = true
@@ -470,7 +481,7 @@ class FHIRRouter(
                 if (!filterElementResult) {
                     result = false
                     failingFilters += filterElement
-                }
+                } else successFilters += filterElement
             } catch (e: SchemaException) {
                 actionLogger?.warn(
                     EvaluateFilterConditionErrorMessage(e.message)
@@ -479,7 +490,9 @@ class FHIRRouter(
             }
         }
 
-        return if (exceptionFilters.isNotEmpty()) {
+        return if (singlePass && successFilters.isNotEmpty()) {
+            Pair(true, null)
+        } else if (exceptionFilters.isNotEmpty()) {
             Pair(false, "(exception found) $exceptionFilters")
         } else if (reverseFilter) {
             if (!result) Pair(true, null)
