@@ -306,6 +306,10 @@ abstract class SettingCommand(
         return diffAll(readYaml(inputFile))
     }
 
+    /**
+     * Difference a list of organization settings [deepOrganizations] against a specified environment, or [environment]
+     * as a default. If [env] is provided, a corresponding [accessToken] should also be provided.
+     */
     protected fun diffAll(
         deepOrganizations: List<DeepOrganization>,
         env: Environment = environment,
@@ -357,12 +361,17 @@ abstract class SettingCommand(
     }
 
     /**
-     * Put all the in the [inputFile]. Return the list of results.
+     * Call [put] on all the settings in the [inputFile]. Return the list of results.
      */
     protected fun putAll(inputFile: File): List<String> {
         return putAll(readYaml(inputFile))
     }
 
+    /**
+     * Call [put] on a list of organization settings, [deepOrganizations] in a specified environment [env], which
+     * defaults to [environment] if not specified. If [env] is provided, a corresponding [accessToken] should also be
+     * provided.
+     */
     protected fun putAll(
         deepOrganizations: List<DeepOrganization>,
         env: Environment = environment,
@@ -1001,6 +1010,11 @@ class GetMultipleSettings : SettingCommand(
         }
     }
 
+    /**
+     * Handles loading [settings] to the local database with the transport option modified to [localTransport] if the
+     * [loadToLocal] flag is present. Also has special handling if the [appendToOrgs] flag is present to allow modified
+     * transport to be appended into [organizationsFile].
+     */
     private fun handleLoadToLocalOption(settings: List<DeepOrganization>) {
         if (settings.isNotEmpty()) {
             // Change transports to SFTP
@@ -1047,6 +1061,10 @@ class GetMultipleSettings : SettingCommand(
         }
     }
 
+    /**
+     * Appends [output] to [organizationsFile] file. Since we know this is an existing file, and are appending, not
+     * overwriting, we remove "---" from the beginning if it exists.
+     */
     private fun appendToOrgs(output: String) {
         if (output.startsWith("---")) {
             File(organizationsFile).appendBytes(output.replaceFirst("---", "").toByteArray())
