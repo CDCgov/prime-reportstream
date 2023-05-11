@@ -188,9 +188,7 @@ export const Table = ({
 
     return (
         <div
-            className={classnames(styles.Table, {
-                [styles.InternalScrolling]: sticky,
-            })}
+            className={styles.Table}
             {...(scrollable && {
                 className: `usa-table-container--scrollable ${styles.Table}`,
                 tabIndex: 0,
