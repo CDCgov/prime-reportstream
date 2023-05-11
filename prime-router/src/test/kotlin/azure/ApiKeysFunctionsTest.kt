@@ -649,6 +649,7 @@ class ApiKeysFunctionsTest {
             mockkObject(AuthenticatedClaims)
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
 
+            @Suppress("DEPRECATION")
             val response = ApiKeysFunctions().get(httpRequestMessage, organization.name)
             assertThat(response.getStatus()).isEqualTo(HttpStatus.OK)
             val jsonResponse = JSONObject(response.body.toString())
@@ -671,6 +672,7 @@ class ApiKeysFunctionsTest {
             mockkObject(AuthenticatedClaims)
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
 
+            @Suppress("DEPRECATION")
             val response = ApiKeysFunctions().get(httpRequestMessage, organization.name)
             assertThat(response.getStatus()).isEqualTo(HttpStatus.OK)
             val jsonResponse = JSONObject(response.body.toString())
@@ -698,6 +700,7 @@ class ApiKeysFunctionsTest {
             mockkObject(AuthenticatedClaims)
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
 
+            @Suppress("DEPRECATION")
             val response = ApiKeysFunctions().get(httpRequestMessage, organization.name)
             assertThat(response.getStatus()).isEqualTo(HttpStatus.OK)
             val jsonResponse = JSONObject(response.body.toString())
@@ -727,6 +730,7 @@ class ApiKeysFunctionsTest {
             mockkObject(AuthenticatedClaims)
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
 
+            @Suppress("DEPRECATION")
             val response = ApiKeysFunctions().get(httpRequestMessage, organization.name)
             assertThat(response.getStatus()).isEqualTo(HttpStatus.OK)
             val jsonResponse = JSONObject(response.body.toString())
@@ -754,6 +758,7 @@ class ApiKeysFunctionsTest {
             mockkObject(AuthenticatedClaims)
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
 
+            @Suppress("DEPRECATION")
             val response = ApiKeysFunctions().get(httpRequestMessage, organization.name)
             assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         }
@@ -773,6 +778,7 @@ class ApiKeysFunctionsTest {
             mockkObject(AuthenticatedClaims)
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
 
+            @Suppress("DEPRECATION")
             val response = ApiKeysFunctions().get(httpRequestMessage, organization.name)
             assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         }
@@ -792,8 +798,38 @@ class ApiKeysFunctionsTest {
             mockkObject(AuthenticatedClaims)
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
 
+            @Suppress("DEPRECATION")
             val response = ApiKeysFunctions().get(httpRequestMessage, "missing_org")
             assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND)
+        }
+
+        @Test
+        fun `Test v1`() {
+            settings.organizationStore.put(
+                organization.name,
+                organization.makeCopyWithNewScopeAndJwk(defaultReportScope, jwk)
+                    .makeCopyWithNewScopeAndJwk(defaultReportScope, jwk2)
+                    .makeCopyWithNewScopeAndJwk(wildcardReportScope, jwk)
+            )
+
+            val httpRequestMessage = MockHttpRequestMessage()
+
+            val jwt = mapOf("organization" to listOf("DHSender_simple_reportAdmins"), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            val response = ApiKeysFunctions().getV1(httpRequestMessage, organization.name)
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.OK)
+            val jsonResponse = JSONObject(response.body.toString())
+            assertThat(jsonResponse.getJSONArray("keys").length()).isEqualTo(2)
+            assertThat(jsonResponse.getJSONArray("keys").map { obj -> (obj as JSONObject).getString("scope") })
+                .isEqualTo(
+                    listOf(defaultReportScope, wildcardReportScope)
+                )
+            assertThat(jsonResponse.getJSONArray("keys").getJSONObject(0).getJSONArray("keys").length())
+                .isEqualTo(2)
         }
     }
 }
