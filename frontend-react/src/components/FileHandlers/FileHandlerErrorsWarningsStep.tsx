@@ -7,6 +7,7 @@ import {
     ModalRef,
 } from "@trussworks/react-uswds";
 import { useRef } from "react";
+import classnames from "classnames";
 
 import { OverallStatus } from "../../config/endpoints/waters";
 import { ErrorType } from "../../hooks/UseFileHandler";
@@ -63,51 +64,56 @@ export default function FileHandlerErrorsWarningsStep({
     const modalRef = useRef<ModalRef>(null);
     return (
         <div className="file-handler-table">
-            {errors.length > 0 && (
-                <RequestedChangesDisplay
-                    title={RequestLevel.ERROR}
-                    data={errors}
-                    message={errorMessaging.message}
-                    heading={errorMessaging.heading}
-                    schemaColumnHeader={selectedSchemaOption.format}
-                    file={file}
-                />
-            )}
-            {warnings.length > 0 && (
-                <RequestedChangesDisplay
-                    title={RequestLevel.WARNING}
-                    data={warnings}
-                    message="To avoid problems when sending files later, we strongly recommend fixing these issues now."
-                    heading="Recommended edits found"
-                    schemaColumnHeader={selectedSchemaOption.format}
-                    file={file}
-                />
-            )}
-
-            {hasQualityFilterMessages && (
+            {hasQualityFilterMessages ? (
                 <FileQualityFilterDisplay
                     destinations={qualityFilterMessages}
-                    heading=""
-                    message="The file does not meet the jurisdiction's schema. Please resolve the errors below."
+                    heading="Jurisdictional errors found"
+                    message="Your file does not meet the data model for the following jurisdiction(s). Resolve the errors below to ensure those jurisdictions can receive your data."
                 />
+            ) : (
+                <>
+                    {errors.length > 0 && (
+                        <RequestedChangesDisplay
+                            title={RequestLevel.ERROR}
+                            data={errors}
+                            message={errorMessaging.message}
+                            heading={errorMessaging.heading}
+                            schemaColumnHeader={selectedSchemaOption.format}
+                            file={file}
+                        />
+                    )}
+                    {warnings.length > 0 && (
+                        <RequestedChangesDisplay
+                            title={RequestLevel.WARNING}
+                            data={warnings}
+                            message="To avoid problems when sending files later, we strongly recommend fixing these issues now."
+                            heading="Recommended edits found"
+                            schemaColumnHeader={selectedSchemaOption.format}
+                            file={file}
+                        />
+                    )}
+                </>
             )}
 
             <div className="display-flex margin-bottom-2">
                 <Button
-                    className="usa-button usa-button--outline"
+                    className={classnames("usa-button", {
+                        "usa-button--outline": !errors.length,
+                    })}
                     type="button"
                     onClick={onTestAnotherFileClick}
                 >
                     Test another file
                 </Button>
-                <Button
-                    disabled={errors.length > 0}
-                    className="usa-button"
-                    type="button"
-                    onClick={() => modalRef?.current?.toggleModal()}
-                >
-                    Continue without changes
-                </Button>
+                {!errors.length && (
+                    <Button
+                        className="usa-button"
+                        type="button"
+                        onClick={() => modalRef?.current?.toggleModal()}
+                    >
+                        Continue without changes
+                    </Button>
+                )}
             </div>
 
             <Modal id="file-validator-modal" ref={modalRef}>

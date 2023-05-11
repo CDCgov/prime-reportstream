@@ -192,7 +192,7 @@ describe("FileQualityFilterDisplay", () => {
         );
 
         const alert = await screen.findByRole("alert");
-        expect(alert).toHaveClass("usa-alert--error");
+        expect(alert).toHaveClass("usa-alert--warning");
 
         const message = await screen.findByText(
             "The following records were filtered out while processing/validating your file."
