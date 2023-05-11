@@ -9,6 +9,13 @@ sortDir:
 sortCol:
   name: sortcol
   in: query
+  description: column used as the basis for sorting. Use sortColumn instead.
+  schema:
+    type: string
+  deprecated: true
+sortColumn:
+  name: sortColumn
+  in: query
   description: column used as the basis for sorting
   schema:
     type: string
