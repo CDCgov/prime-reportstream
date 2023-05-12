@@ -216,7 +216,7 @@ class HistoryApiTest : CoolTest() {
             ),
             HistoryApiTestCase(
                 "single sender",
-                "${environment.url}/api/waters/org/$orgName.$fullELRSenderName/submissions",
+                "${environment.url}/api/waters/org/$org1Name.$fullELRSenderName/submissions",
                 emptyMap(),
                 listOf("pagesize" to options.submits),
                 bearer,
@@ -227,7 +227,7 @@ class HistoryApiTest : CoolTest() {
                 extraCheck = {
                     var retVal: String? = null
                     for (submission in it) {
-                        if (submission.sender != "$orgName.$fullELRSenderName")
+                        if (submission.sender != "$org1Name.$fullELRSenderName")
                             retVal = "Mismatched sender"
                     }
                     retVal
@@ -235,7 +235,7 @@ class HistoryApiTest : CoolTest() {
             ),
             HistoryApiTestCase(
                 "all senders",
-                "${environment.url}/api/waters/org/$orgName/submissions",
+                "${environment.url}/api/waters/org/$org1Name/submissions",
                 emptyMap(),
                 listOf("pagesize" to options.submits),
                 bearer,

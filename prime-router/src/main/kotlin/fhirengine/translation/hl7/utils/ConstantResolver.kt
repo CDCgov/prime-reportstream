@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.text.StringSubstitutor
@@ -16,12 +17,13 @@ import org.hl7.fhir.r4.utils.FHIRPathEngine
 import org.hl7.fhir.r4.utils.FHIRPathEngine.IEvaluationContext.FunctionDetails
 
 /**
- * Context used for resolving [constants].
+ * Context used for resolving [constants] and custom FHIR functions.
  */
 data class CustomContext(
     val bundle: Bundle,
     var focusResource: Base,
-    val constants: MutableMap<String, String> = mutableMapOf()
+    val constants: MutableMap<String, String> = mutableMapOf(),
+    val customFhirFunctions: FhirPathFunctions? = null
 ) {
     companion object {
         /**
@@ -34,7 +36,8 @@ data class CustomContext(
                 val newContext = CustomContext(
                     previousContext.bundle,
                     previousContext.focusResource,
-                    previousContext.constants.toMap().toMutableMap() // This makes a copy of the map
+                    previousContext.constants.toMap().toMutableMap(), // This makes a copy of the map
+                    previousContext.customFhirFunctions
                 )
                 constants.forEach { newContext.constants[it.key] = it.value }
                 newContext
@@ -89,7 +92,8 @@ class ConstantSubstitutor {
 /**
  * Custom resolver for the FHIR path engine.
  */
-class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
+class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions? = null) :
+    FHIRPathEngine.IEvaluationContext, Logging {
     override fun resolveConstant(appContext: Any?, name: String?, beforeContext: Boolean): List<Base>? {
         // Name is always passed in from the FHIR path engine
         require(!name.isNullOrBlank())
@@ -157,7 +161,7 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
     }
 
     override fun resolveFunction(functionName: String?): FunctionDetails? {
-        return CustomFHIRFunctions.resolveFunction(functionName)
+        return CustomFHIRFunctions.resolveFunction(functionName, customFhirFunctions)
     }
 
     override fun checkFunction(
@@ -176,8 +180,8 @@ class FhirPathCustomResolver : FHIRPathEngine.IEvaluationContext, Logging {
     ): MutableList<Base> {
         check(focus != null)
         return when {
-            CustomFHIRFunctions.resolveFunction(functionName) != null -> {
-                CustomFHIRFunctions.executeFunction(focus, functionName, parameters)
+            CustomFHIRFunctions.resolveFunction(functionName, customFhirFunctions) != null -> {
+                CustomFHIRFunctions.executeFunction(focus, functionName, parameters, customFhirFunctions)
             }
 
             else -> throw IllegalStateException("Tried to execute invalid FHIR Path function $functionName")
