@@ -189,7 +189,7 @@ class TokenFunctionTests {
             anyConstructed<ActionHistory>().trackActionResult(
                 match<String> {
                     it.startsWith(
-                        "AccessToken Request Denied: io.jsonwebtoken.MalformedJwtException"
+                        "AccessToken Request Denied: Malformed JWT JSON: ����"
                     )
                 }
             )
@@ -217,7 +217,7 @@ class TokenFunctionTests {
         assertThat(error.get("error_uri").textValue()).isEqualTo("localhost:7071/authentication#valid-jwt")
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
-                "AccessToken Request Denied: java.lang.NullPointerException: issuer must not be null"
+                "AccessToken Request Denied: issuer must not be null"
             )
         }
     }

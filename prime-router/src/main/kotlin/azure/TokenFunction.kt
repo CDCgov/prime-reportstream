@@ -26,6 +26,12 @@ import tokens.Server2ServerError
 const val client_assertion = "client_assertion"
 const val scope = "scope"
 
+/**
+ * HTTP response body that is returned when an error is
+ *
+ * @param error the OAuth error code see: https://datatracker.ietf.org/doc/html/rfc6749#section-5.2
+ * @param errorUriLocation the URI location for the explanation of the error
+ */
 data class OAuthError(val error: String, @JsonIgnore val errorUriLocation: String) {
     @JsonProperty("error_uri")
     fun getErrorUri(): String {

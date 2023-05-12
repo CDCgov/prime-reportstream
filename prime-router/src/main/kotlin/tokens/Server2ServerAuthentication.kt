@@ -188,30 +188,42 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
             if (!possibleKeys.any { key -> verifyJwtWithKey(jwsString, key, jtiCache, actionHistory) }) {
                 throw Server2ServerAuthenticationException(Server2ServerError.NO_VALID_KEYS, scope, parsedJwt.issuer)
             }
-        } catch (ex: Server2ServerAuthenticationException) {
-            logErr(actionHistory, ex.localizedMessage)
-            throw ex
-        } catch (ex: ExpiredJwtException) {
-            logErr(actionHistory, "AccessToken Request Denied: $ex")
-            throw Server2ServerAuthenticationException(Server2ServerError.EXPIRED_TOKEN, scope)
-        } catch (ex: UnsupportedJwtException) {
-            logErr(actionHistory, "AccessToken Request Denied: $ex")
-            throw Server2ServerAuthenticationException(Server2ServerError.UNSIGNED_JWT, scope)
-        } catch (ex: MalformedJwtException) {
-            logErr(actionHistory, "AccessToken Request Denied: $ex")
-            throw Server2ServerAuthenticationException(Server2ServerError.MALFORMED_JWT, scope)
-        } catch (ex: SignatureException) {
-            logErr(actionHistory, "AccessToken Request Denied: $ex")
-            throw Server2ServerAuthenticationException(Server2ServerError.NO_VALID_KEYS, scope)
-        } catch (ex: IllegalArgumentException) {
-            logErr(actionHistory, "AccessToken Request Denied: $ex")
-            throw Server2ServerAuthenticationException(Server2ServerError.MALFORMED_JWT, scope)
-        } catch (ex: NullPointerException) {
-            logErr(actionHistory, "AccessToken Request Denied: $ex")
-            throw Server2ServerAuthenticationException(
-                Server2ServerError.MALFORMED_JWT,
-                scope
-            )
+        } catch (ex: Exception) {
+            logErr(actionHistory, "AccessToken Request Denied: ${ex.localizedMessage}")
+            when (ex) {
+                is Server2ServerAuthenticationException -> throw ex
+                is ExpiredJwtException -> throw Server2ServerAuthenticationException(
+                    Server2ServerError.EXPIRED_TOKEN,
+                    scope
+                )
+
+                is UnsupportedJwtException -> throw Server2ServerAuthenticationException(
+                    Server2ServerError.UNSIGNED_JWT,
+                    scope
+                )
+
+                is MalformedJwtException -> throw Server2ServerAuthenticationException(
+                    Server2ServerError.MALFORMED_JWT,
+                    scope
+                )
+
+                is SignatureException -> throw Server2ServerAuthenticationException(
+                    Server2ServerError.NO_VALID_KEYS,
+                    scope
+                )
+
+                is IllegalArgumentException -> throw Server2ServerAuthenticationException(
+                    Server2ServerError.MALFORMED_JWT,
+                    scope
+                )
+
+                is NullPointerException -> throw Server2ServerAuthenticationException(
+                    Server2ServerError.MALFORMED_JWT,
+                    scope
+                )
+
+                else -> throw ex
+            }
         }
     }
 

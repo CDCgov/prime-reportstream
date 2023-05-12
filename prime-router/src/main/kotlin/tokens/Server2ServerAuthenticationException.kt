@@ -49,7 +49,7 @@ class Server2ServerAuthenticationException(
 ) :
     Exception() {
     override fun getLocalizedMessage(): String {
-        val message = "AccessToken Request Denied: ${server2ServerError.name} while generating token for scope: $scope"
+        val message = "${server2ServerError.name} while generating token for scope: $scope"
         if (iss != null) {
             return "$message for issuer: $iss"
         }
