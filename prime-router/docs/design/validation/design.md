@@ -236,10 +236,14 @@ https://hapifhir.github.io/hapi-hl7v2/xref/ca/uhn/hl7v2/examples/MessageValidati
 The NIST HL7 Validation Library can be found here: https://github.com/usnistgov/v2-validation  
 Unfortunately, they do not seem to have documentation on how to actually use this library. I found this page
 https://hl7v2-ws.nist.gov/hl7v2ws/documentation.htm, but the buttons leading to the documentation do not work. The 
-project only has one README which does not discuss how to actually use the library. I was told that DEX uses this, but
-upon reviewing their code, did not actually find that they were making external calls to this library, it looked like
-they had their own baked in validator. https://hl7v2-gvt.nist.gov/gvt/#/doc appears to have information on the 
-validation tool and within that there is a swagger spec 
+project only has one README which does not discuss how to actually use the library. https://hl7v2-gvt.nist.gov/gvt/#/doc 
+appears to have information on the validation tool and within that there is a swagger spec.
+DEX uses this library but has a light wrapper around it. They do recommend using the library, but not their wrapper.
+Part of using the library is creating profiles. This can be done by going to https://hl7v2-igamt-2.nist.gov/ and signing
+up. Once you register, go to IG Documents, Create new IG document, or Published IG Documents. These make it so that you 
+can use profiles already created by others. If you need to create your own for an implementation guide, that 
+functionality appears to exist, but is currently broken. 
+ 
 https://hl7v2-gvt.nist.gov/gvt/apidocs/swagger-ui.html#/ but none of that appears to be for actually validating an 
 HL7 Message.
 
