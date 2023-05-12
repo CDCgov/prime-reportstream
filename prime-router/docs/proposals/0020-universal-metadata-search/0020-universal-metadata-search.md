@@ -525,8 +525,7 @@ This can likely be tuned to get the query planner to choose the optimal plan, bu
 supports turning on different query optimizers at the session level, so the solution might be as simple as running
 `SET enable_mergejoin = off;` before the query is run to force the query planner to choose a nested loop.
 
-The current thinking is that the limit will likely be higher when only querying the report_lineage 
-(rather the item_lineage), but there are no indices currently on that table, so it could not be evaluated.  
+The query on just walking the report lineage suffers similarly just at a different point and would have the same solution. 
 
 ## Searches to be split into other tickets
 
