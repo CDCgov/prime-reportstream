@@ -821,15 +821,18 @@ class ApiKeysFunctionsTest {
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
 
             val response = ApiKeysFunctions().getV1(httpRequestMessage, organization.name)
-            assertThat(response.getStatus()).isEqualTo(HttpStatus.OK)
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
             val jsonResponse = JSONObject(response.body.toString())
-            assertThat(jsonResponse.getJSONArray("keys").length()).isEqualTo(2)
-            assertThat(jsonResponse.getJSONArray("keys").map { obj -> (obj as JSONObject).getString("scope") })
+            assertThat(jsonResponse.getJSONArray("data").length()).isEqualTo(2)
+            assertThat(jsonResponse.getJSONArray("data").map { obj -> (obj as JSONObject).getString("scope") })
                 .isEqualTo(
                     listOf(defaultReportScope, wildcardReportScope)
                 )
-            assertThat(jsonResponse.getJSONArray("keys").getJSONObject(0).getJSONArray("keys").length())
+            assertThat(jsonResponse.getJSONArray("data").getJSONObject(0).getJSONArray("keys").length())
                 .isEqualTo(2)
+            val metaResponse = jsonResponse.getJSONObject("meta")
+            assertThat(metaResponse.getString("type")).isEqualTo("PublicKey")
+            assertThat(metaResponse.getInt("totalCount")).isEqualTo(2)
         }
     }
 }
