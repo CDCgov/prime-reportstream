@@ -875,7 +875,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA"
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
