@@ -75,6 +75,27 @@ This functionality is also supported in JOOQ, so it would be feasible to move th
 and create some generic functions that would return the lineages; this generic function would then be the base that could
 be used for fetching information about the items and reports as they went through the system.
 
+Example of that the report graph looks like:
+```mermaid
+graph TD
+    A(Sender Report A) -- Convert --> B(Report B)
+    B -- Route --> C(Report C)
+    B -- Route --> D(Report D)
+    B -- Route --> E(Report E)
+    C -- Translate --> F(Report F)
+    D -- Translate --> G(Report G)
+    E -- Translate --> H(Report H)
+    F -- Batch --> I(Report I)
+    G -- Batch --> I(Report I)
+    H -- Batch --> J(Report J)
+    I -- Send Failed --> K(Report K)
+    K -- Send Success --> L(Received Report L)
+    J -- Send Success --> M(Received Report M)
+```
+
+Postgres can handle this structure starting at any point in the graph with a recursive query that either goes up or down
+the graph.
+
 This is an example of what a recursive query would typically look like; this one walks up from a child back to the origin.
 ```sql
 WITH RECURSIVE lineage AS (
@@ -407,8 +428,11 @@ interested in), but items such as what is valuable to search in the metadata is 
 
 Due to the ambiguity, the recommended approach is:
 
-- track the origin report/items to the terminal report/items in a new column and table
-  - Specifically, we would insert a new row whenever there is no next action to be performed
+- Take advantage of the graphical nature of the report/item data and use recursive queries to walk the graph from either
+the origin or terminal nodes; this provides the most flexibility moving forward and queries have proven to perform
+  - `report_file` will need to get updated so that there are indices added to `parent_report_id` and `child_report_id`  
+  - In order to support the undelivered use case, the graph will need to be updated slightly so that each undelivered 
+  report is tracked in the report lineage
 - Create a new metadata table with a JSONB column for storing the metadata
   - After creating the internal FHIR bundle that the UP will operate on, insert that into the metadata table with 
   origin report and index
@@ -418,12 +442,94 @@ forward as requirements evolve.  The largest cons of this solution are mostly on
 configured such that the team would have an early warning that one of the other more involved solutions spelled out 
 here need to be adopted
 
+### Some initial performance research
+
+The recursive queries perform well _up to a point_.
+
+This query runs in ~3ms in PROD, but if limit is adjusted any higher (as of writing this), the performance falls off 
+the cliff.
+
+```sql
+explain analyse
+with recursive delivered_report_ids as (
+    select report_id
+    from report_file
+    where created_at > '2023-01-01'
+    order by created_at desc
+    limit 176
+),
+lineage as (
+    select parent_report_id, parent_index
+    from item_lineage childrens
+    where child_report_id in (select * from delivered_report_ids)
+    union all
+    select parents.parent_report_id, parents.parent_index
+    from item_lineage parents
+    join lineage on lineage.parent_report_id = parents.child_report_id and lineage.parent_index = parents.child_index
+    
+)
+select * from lineage;
+```
+
+Here is the explain for the query:
+```
+QUERY PLAN
+CTE Scan on lineage  (cost=77261350.70..77857636.50 rows=29814290 width=20) (actual time=0.199..2.724 rows=342 loops=1)
+  CTE d_r_ids
+    ->  Limit  (cost=0.56..63.75 rows=176 width=24) (actual time=0.025..0.100 rows=176 loops=1)
+          ->  Index Scan Backward using idx_r_file_created_at_btree on r_file  (cost=0.56..1258548.13 rows=3505836 width=24) (actual time=0.022..0.089 rows=176 loops=1)
+                Index Cond: (created_at > '2023-01-01 00:00:00-05'::timestamp with time zone)
+  CTE lineage
+    ->  Recursive Union  (cost=4.53..77261286.95 rows=29814290 width=20) (actual time=0.199..2.635 rows=342 loops=1)
+          ->  Nested Loop  (cost=4.53..568851.65 rows=550130 width=20) (actual time=0.197..1.404 rows=141 loops=1)
+                ->  HashAggregate  (cost=3.96..5.72 rows=176 width=16) (actual time=0.176..0.196 rows=176 loops=1)
+                      Group Key: d_r_ids.r_id
+                      ->  CTE Scan on d_r_ids  (cost=0.00..3.52 rows=176 width=16) (actual time=0.027..0.142 rows=176 loops=1)
+                ->  Index Scan using item_lineage_child_idx on item_lineage childrens  (cost=0.57..3200.82 rows=3126 width=36) (actual time=0.007..0.007 rows=1 loops=176)
+                      Index Cond: (child_r_id = d_r_ids.r_id)
+          ->  Nested Loop  (cost=0.57..7609614.95 rows=2926416 width=20) (actual time=0.051..0.294 rows=50 loops=4)
+                ->  WorkTable Scan on lineage lineage_1  (cost=0.00..110026.00 rows=5501300 width=20) (actual time=0.000..0.004 rows=86 loops=4)
+                ->  Index Scan using item_lineage_child_idx on item_lineage parents  (cost=0.57..1.35 rows=1 width=40) (actual time=0.003..0.003 rows=1 loops=342)
+                      Index Cond: ((child_r_id = lineage_1.parent_r_id) AND (child_index = lineage_1.parent_index))
+Planning Time: 10.921 ms
+Execution Time: 2.938 ms
+```
+
+The analyze times out, but the explain for the query when the limit is set to 177 shows that the query planner switches
+to suboptimal plan where it switches to doing a merge join rather than a nested loop for the recursive portion.
+
+```
+QUERY PLAN
+CTE Scan on lineage  (cost=76822893.16..77425975.78 rows=30154131 width=20)
+  CTE delivered_report_ids
+    ->  Limit  (cost=0.56..64.46 rows=178 width=24)
+          ->  Index Scan Backward using idx_report_file_created_at_btree on report_file  (cost=0.56..1258555.63 rows=3505857 width=24)
+                Index Cond: (created_at > '2023-01-01 00:00:00-05'::timestamp with time zone)
+  CTE lineage
+    ->  Recursive Union  (cost=4.57..76822828.70 rows=30154131 width=20)
+          ->  Nested Loop  (cost=4.57..574720.51 rows=556391 width=20)
+                ->  HashAggregate  (cost=4.00..5.79 rows=178 width=16)
+                      Group Key: delivered_report_ids.report_id
+                      ->  CTE Scan on delivered_report_ids  (cost=0.00..3.56 rows=178 width=16)
+                ->  Index Scan using item_lineage_child_idx on item_lineage childrens  (cost=0.57..3197.47 rows=3126 width=36)
+                      Index Cond: (child_report_id = delivered_report_ids.report_id)
+          ->  Merge Join  (cost=734650.00..7564502.56 rows=2959774 width=20)
+                Merge Cond: ((parents.child_report_id = lineage_1.parent_report_id) AND (parents.child_index = lineage_1.parent_index))
+                ->  Index Scan using item_lineage_child_idx on item_lineage parents  (cost=0.57..6122051.96 rows=127294821 width=40)
+                ->  Sort  (cost=734649.43..748559.21 rows=5563910 width=20)
+"                      Sort Key: lineage_1.parent_report_id, lineage_1.parent_index"
+                      ->  WorkTable Scan on lineage lineage_1  (cost=0.00..111278.20 rows=5563910 width=20)
+```
+
+This can likely be tuned to get the query planner to choose the optimal plan, but does present a risk.  Postgres 
+supports turning on different query optimizers at the session level, so the solution might be as simple as running
+`SET enable_mergejoin = off;` before the query is run to force the query planner to choose a nested loop.
+
+The current thinking is that the limit will likely be higher when only querying the report_lineage 
+(rather the item_lineage), but there are no indices currently on that table, so it could not be evaluated.  
+
 ## Searches to be split into other tickets
 
-- Returning a list of "undelivered" reports
-  - There is not necessarily a convenient way to track reports that were not delivered (SFTP failed, etc) as that 
-  information is not necessarily stored in an easy to query fashion
-  - Supporting this will require a follow-up approach to update how that data is stored so that it can be retrieved
 - Returning a list of reports sorted by when they will expire
   - Currently, expired maps to the `created_at` + 60 days 
 - Returning a list of items that were filtered from a delivered report 
