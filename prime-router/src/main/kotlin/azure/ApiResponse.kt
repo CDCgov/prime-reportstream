@@ -2,6 +2,7 @@ package gov.cdc.prime.router.azure
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonUnwrapped
 
 data class PaginationApiResponse(
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -19,6 +20,7 @@ data class MetaApiResponse(
     @JsonInclude(JsonInclude.Include.NON_NULL)
     val totalFilteredCount: Int? = null,
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonUnwrapped
     val paginationApiResponse: PaginationApiResponse? = null
 )
 
