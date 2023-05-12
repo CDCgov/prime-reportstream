@@ -3,32 +3,15 @@ As a sender I want submitted data to be validated to ensure data integrity and q
 data to be validated to ensure data integrity and quality. For this to happen, there needs to exist a validation 
 setting as well as reusable validation components to perform the sending and receiving validation. 
 
-### Shared Components
-To facilitate reuse and extensibility, a new setting type `validationProfile` shall be created representing a type of
-validation, the validations to perform, and any applicable configuration parameters. This setting is reusable because
-senders and receivers can only be set up to receive one format at a time, so there should not be confusion over which
-validationProfile pertains to which format.
-
-When a message fails validation. Validation errors should show up in:
-- The submission history API
-- The Action Log in the database in such a way that the engagement team can easily query for it
-- Notify the sender, if appropriate
-
-Tickets needed for both epics:
-- Create the validation profile setting: https://github.com/CDCgov/prime-reportstream/issues/9161
-- Add validation errors to the submission history API: https://github.com/CDCgov/prime-reportstream/issues/9036
-- Add validation errors to the action log: https://github.com/CDCgov/prime-reportstream/issues/9221
-
-## FHIR Validation
-### Proposed Design
+## Validation Design
 The diagram below proposes four validation "checkpoints":
 
-| Name                      | Description + Location                                              | Purpose                                                                                                      |
-|---------------------------|---------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
-| Submission                | Upon receipt of a submission in the SenderReceiver                  | Ensure data is not garbage (i.e. parseable FHIR, not a png)                                                  |
-| Pre-transform (sender)    | Per bundle after de-batch in the convert function                   | Ensure data is ready for transformation (i.e. satisfies the validation profile configured for this sender)   |
-| Post-transform (sender)   | After sender transforms and enrichment in the convert function      | Ensure data is valid after transformation (i.e. satisfies the validation profile configured for this sender) | 
-| Post-transform (receiver) | After receiver translation and enrichment in the translate function | Ensure data is valid after transformation (i.e. satisfies the validation profile configured for this sender) | 
+| Name                      | Description + Location                                              | Purpose                                                                                                        |
+|---------------------------|---------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| Submission                | Upon receipt of a submission in the SenderReceiver                  | Ensure data is parseable (i.e. not a png or other garbage data)                                                |
+| Pre-transform (sender)    | Per bundle after de-batch in the convert function                   | Ensure data is ready for transformation (i.e. satisfies the validation profile configured for this sender)     |
+| Post-transform (sender)   | After sender transforms and enrichment in the convert function      | Ensure data is valid after transformation (i.e. satisfies the validation profile configured for this sender)   | 
+| Post-transform (receiver) | After receiver translation and enrichment in the translate function | Ensure data is valid after transformation (i.e. satisfies the validation profile configured for this receiver) | 
 
 This is where they are located in the overall system:  
 TODO: update this diagram with names above & lucid access
@@ -36,6 +19,28 @@ TODO: update this diagram with names above & lucid access
 
 A factory/builder shall consume the validationProfile setting and produce reusable, cached validation objects 
 (i.e. instance of configured FhirValidator in a wrapper/interface) that can be used to validate FHIR data.
+
+### Shared Components
+To facilitate reuse and extensibility, a new setting type `validationProfile` shall be created representing a type of
+validation, the validations to perform, and any applicable configuration parameters. This setting is reusable because
+senders and receivers can only be set up to receive one format at a time, so there should not be confusion over which
+validationProfile pertains to which format.
+
+When a message fails validation, validation errors should show up in:
+- The submission history API
+- The Action Log in the database in such a way that the engagement team can easily query for it
+  - Submission validation failures should show up in Submission History UI
+    - Sender is responsible for issue triage escalating to ReportStream as necessary
+  - Send failures should show up in last-mile failures
+    - ReportStream is responsible for issue triage
+- Notify the sender immediately in API response if parse validation fails
+
+Tickets needed for both epics:
+- Create the validation profile setting: https://github.com/CDCgov/prime-reportstream/issues/9161
+- Add validation errors to the submission history API: https://github.com/CDCgov/prime-reportstream/issues/9036
+- Add validation errors to the action log: https://github.com/CDCgov/prime-reportstream/issues/9221
+
+### FHIR Validation
 
 #### Submission
 We currently use an `IParser` instance to parse and read some metadata. By default, the IParser performs some validation
@@ -58,7 +63,14 @@ One final validation will be needed (per receiver) after applying receiver trans
 #### Post receiver enrichment
 Verify that the final dataset meets configured receiver expectations prior to dispatch.
 
-### Background Information / Dev Notes
+#### Validation Tool
+There is an existing and well-maintained project that meets the requirements for a validation tool. We intend to deploy
+that tool as an azure function for an HL7 validation web app.
+
+See the `FHIR Validator Wrapper` section under the `Background Information` heading below for more information.
+
+
+#### Background Information
 The HAPI FHIR library represents an implementation guide using:
 - [Structure Definitions](http://hl7.org/fhir/structuredefinition.html) - Valid fields, data types, cardinalities, valid values, and further rules.
 - [Code Systems](http://hl7.org/fhir/codesystem.html) - Code and vocabulary definitions
@@ -78,14 +90,18 @@ The HAPI FHIR library supports three types of validation:
   - User unfriendly error messages
   - Deprecated
 
+There is an existing project maintained by the HL7 FHIR foundation that serves as great sample code for initializing
+the validation components with specific FHIR versions and specific implementation guides.  **Consult the `FHIR Validator`
+section later under this same heading **
+
 <b>Validators can and should be chained and cached</b>  
 <img src="fhir-validator.png" width="950px;" >
 
-#### LOINC validation will require loading an external code system.
+##### LOINC validation will require loading an external code system.
 
-#### Example recipe with caching and custom external value sets / code systems
+
 <details>
-<summary>Code sample</summary>
+<summary>Example recipe with caching and custom external value sets / code systems</summary>
 
 ```java
 FhirContext ctx = FhirContext.forR4();
@@ -126,9 +142,21 @@ ValidationResult result = validator.validateWithResult(input);
 ```
 </details>
 
-#### Lots more information [here](https://hapifhir.io/hapi-fhir/docs/validation/introduction.html)
+##### Lots more information [here](https://hapifhir.io/hapi-fhir/docs/validation/introduction.html)
 
-## Resulting Tickets
+##### FHIR Validator Wrapper
+This external project is maintained by the HL7 FHIR Foundation and is an easy to use web tool for uploading data
+for validation against a user-selectable FHIR spec. Implementation guides can be supplied or picked from a pre-
+populated list providing a powerful starting point for our validation tool.
+
+This tool can be deployed as is and meet all requirements for our validation tool. Ideally we will provide saved
+configurations equivalent to any validation profiles we have internal to ReportStream to better serve our users' needs.
+
+This tool also serves as amazing sample code for initializing the various classes and interfaces needed to run a 
+validation. To include loading an implementation guide from a URL or using a specific FHIR version. Also of significant
+value is the pre-populated list of Implmentation Guides from various health facilities.
+
+#### Resulting Tickets
 
 - Implement reusable validation component [#8974](https://github.com/CDCgov/prime-reportstream/issues/8974)
 - Research validation configurations: [#8976](https://github.com/CDCgov/prime-reportstream/issues/8976)
@@ -139,21 +167,40 @@ ValidationResult result = validator.validateWithResult(input);
 - Add FHIR Receiver Validation: [#9035](https://github.com/CDCgov/prime-reportstream/issues/9035)
 - Test default validation against existing messages: https://github.com/CDCgov/prime-reportstream/pull/9165
 
-## HL7 Validation
-### Proposed Design
+### HL7 Validation
+
+TODO: redundant (see `## Validation Design` section near top); remove / merge with above
 The diagram below proposes two validation "checkpoints":
 1. Sender validation - will occur during the convert function, after receiving and debatch, and before the convert step.
 2. Receiver Validation - will occur in the translate function, after reception, translation, and enrichment but right
    before dispatch.
 
+#### Submission
+This is a noop for HL7 data -- no submission / parse validation will be done.
+
+#### Pre sender transform
 We want to add sender validation so that we can ensure that the data we are receiving matches the intended spec so that
 we do not send messy data.
+
+#### Post sender transform
+We want to add sender validation so that we can ensure that the data we are receiving matches the intended spec so that
+we do not send messy data.
+
+#### Post receiver enrichment
 We want to add receiver validation so that the receiver can receive the data in the format they are expecting.  
 
+TODO: this will be removed
 ![hl7-validation-annotated-architecture-diagram.png](annotated-hl7-architecture-diagram.png)
 
-### Background Information/Dev Notes
-#### RADx MARS
+#### Validation Tool
+There is an existing and well-maintained project that meets the requirements for a validation tool. We intend to deploy
+that tool as an azure function for an HL7 validation web app.
+
+See the `NIST Validator` section under the `Background Information` heading below for more information.
+
+#### Background Information
+##### RADx MARS
+
 It is important that we also take into consideration what MARS expects of us when it comes to validation:
 <details>
 <summary>MARS Product Requirements for Hubs</summary>
@@ -196,7 +243,7 @@ receiving OTC data. The
    Data Hub descriptions and Test Results Workflow Diagram
 </details>
 
-#### The HAPI HL7 library
+##### The HAPI HL7 library
 The HAPI library offers 3 "levels" of message validation:
 1. Basic Message Validation - very basic validation on message length and some segments, this is built in and will not 
 provide enough validation to meet our needs.
@@ -232,7 +279,7 @@ https://hapifhir.github.io/hapi-hl7v2/xref/ca/uhn/hl7v2/examples/CustomMessageVa
 An example for using conformance: 
 https://hapifhir.github.io/hapi-hl7v2/xref/ca/uhn/hl7v2/examples/MessageValidationUsingConformanceProfile.html   
 
-#### NIST Validator
+##### NIST Validator
 The NIST HL7 Validation Library can be found here: https://github.com/usnistgov/v2-validation  
 Unfortunately, they do not seem to have documentation on how to actually use this library. I found this page
 https://hl7v2-ws.nist.gov/hl7v2ws/documentation.htm, but the buttons leading to the documentation do not work. The 
@@ -251,7 +298,7 @@ From reading the code in the library, it looks like they have one ORU_R01 profil
 set up any further profiles that we want. These are done in xml, then we deserialize them, pass then into the 
 HL7Validator class, along with the ValueSetLibrary, and ConformanceContext and call the validate method on the message.
 
-### Resulting Tickets
+#### Resulting Tickets
 - Epic: https://github.com/CDCgov/prime-reportstream/issues/9160 
 - Create a reusable validator: https://github.com/CDCgov/prime-reportstream/issues/9164 
 - Create the validation context: https://github.com/CDCgov/prime-reportstream/issues/9159 
