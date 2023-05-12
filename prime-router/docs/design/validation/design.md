@@ -14,7 +14,7 @@ The diagram below proposes four validation "checkpoints":
 | Post-transform (receiver) | After receiver translation and enrichment in the translate function | Ensure data is valid after transformation (i.e. satisfies the validation profile configured for this receiver) | 
 
 This is where they are located in the overall system:  
-TODO: update this diagram with names above & lucid access
+TODO: update this diagram
 ![annotated-fhir-architecture-diagram.png](annotated-fhir-architecture-diagram.png)
 
 A factory/builder shall consume the validationProfile setting and produce reusable, cached validation objects 
@@ -154,7 +154,7 @@ configurations equivalent to any validation profiles we have internal to ReportS
 
 This tool also serves as amazing sample code for initializing the various classes and interfaces needed to run a 
 validation. To include loading an implementation guide from a URL or using a specific FHIR version. Also of significant
-value is the pre-populated list of Implmentation Guides from various health facilities.
+value is the pre-populated list of implementation guides from various health facilities.
 
 #### Resulting Tickets
 
@@ -183,8 +183,9 @@ We want to add sender validation so that we can ensure that the data we are rece
 we do not send messy data.
 
 #### Post sender transform
-We want to add sender validation so that we can ensure that the data we are receiving matches the intended spec so that
-we do not send messy data.
+For HL7 data this validation will occur after conversion to FHIR. Therefore, it will follow the same codepath as
+post-sender transform validation for a regular FHIR submission. This step ensures that the conversion was successful
+and resulted in useful data.
 
 #### Post receiver enrichment
 We want to add receiver validation so that the receiver can receive the data in the format they are expecting.  
