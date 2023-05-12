@@ -1,4 +1,5 @@
-GitFlow
+**GitFlow**
+
  ![Git Flow](images/branching.png)
 
 
