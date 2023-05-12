@@ -29,7 +29,7 @@ foolproof, and independent as laid out here:
 Currently, the Universal Pipeline (UP) is used for both use cases, and organization settings specify to use the UP by
 setting the `topic` field to `full-elr`. This proposal suggests retaining the `full-elr` topic, but also adding a `etor`
 topic. Those topics will both signify usage of the UP, however senders for one topic will only be able to send data to
-receivers of the same topic. Additionally, each topic may have a different set of default receivers; for instance, the
+receivers of the same topic. Additionally, each topic may have a different set of default filters; for instance, the
 current default quality filter for the `full-elr` topic expects a patient to have contact information, but for newborn
 screening ETOR requests, that information won't be available. So a separate default quality filter for the `etor` topic
 could set a reasonable starting set of quality expectations that are reasonable for ETOR requests.
