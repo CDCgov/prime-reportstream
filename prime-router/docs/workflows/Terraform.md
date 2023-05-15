@@ -50,15 +50,15 @@ jobs:
 </div>
 The previous GitHub Action example runs the following steps:
 <body>
-<ul>
-<li>1.	GitHub Action runs on pushes to the master branch</li>
-<li>2.	Repository code is checked out</li>
-<li>3.	Cloud provider is authenticated. In this example, Microsoft Azure is authenticated against.</li>
-<li>4.	Terraform will be setup using the hashicorp/setup-terraform action.</li>
-<li>5.	The Terraform init command is to initialize the Terraform project.</li>
-<li>6.	The Terraform plan command is to generate the Terraform plan for later approval.</li>
-<li>7.	The generated Terraform Plan file (.tfplan) is committed to the GitHub repository under the terraform-plan branch.</li>
-<ul>
+<ol type = "1">
+<li>GitHub Action runs on pushes to the master branch</li>
+<li>Repository code is checked out</li>
+<li>Cloud provider is authenticated. In this example, Microsoft Azure is authenticated against.</li>
+<li>Terraform will be setup using the hashicorp/setup-terraform action.</li>
+<li>The Terraform init command is to initialize the Terraform project.</li>
+<li>The Terraform plan command is to generate the Terraform plan for later approval.</li>
+<li>The generated Terraform Plan file (.tfplan) is committed to the GitHub repository under the terraform-plan branch.</li>
+</ol>
 The next step left out of this GitHub Action is the Terraform Apply step. Generally, the Terraform Apply is going to be run manually so that the Terraform plan can be verified before execution.
  &nbsp;  
 **GitHub Action to Run Terraform Apply**
@@ -99,13 +99,14 @@ jobs:
        &nbsp; 
 
 The previous GitHub Action runs the following steps:
-<ul>
-<li>1.	GitHub Action runs on pushes to the master branch.</li>
-<li>2.	Repository code is checked out.</li>
-<li>3.	Cloud provider is authenticated. In this example, Microsoft Azure is authenticated against.</li>
-<li>4.	Terraform is setup using the hashicorp/setup-terraform action.</li>
-<li>5.	The Terraform init command is run to initialize the Terraform project.</li>
-<li>6.	The Terraform apply command is run, passing in the terraform.tfplan file to tell it what Terraform Plan to apply.</li>
+<ol type = "1">
+<li>GitHub Action runs on pushes to the master branch.</li>
+<li>Repository code is checked out.</li>
+<li>Cloud provider is authenticated. In this example, Microsoft Azure is authenticated against.</li>
+<li>Terraform is setup using the hashicorp/setup-terraform action.</li>
+<li>The Terraform init command is run to initialize the Terraform project.</li>
+<li>The Terraform apply command is run, passing in the terraform.tfplan file to tell it what Terraform Plan to apply.</li>
+</ol>
 &nbsp; 
 The GitHub Actions to automatically generate a Terraform Plan and then manually trigger the Terraform Apply of the plan in this article is a very simplistic example. This code can be easily modified to extend it to handle any custom deployment scenarios. When using this example and modifying it, be sure to use any GitHub Actions and Terraform best practices to ensure the security of the infrastructure environments being deployed.
 
