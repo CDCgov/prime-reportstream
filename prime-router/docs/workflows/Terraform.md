@@ -49,18 +49,22 @@ jobs:
 
 </div>
 The previous GitHub Action example runs the following steps:
-1.	GitHub Action runs on pushes to the master branch
-2.	Repository code is checked out
-3.	Cloud provider is authenticated. In this example, Microsoft Azure is authenticated against.
-4.	Terraform will be setup using the hashicorp/setup-terraform action.
-5.	The Terraform init command is to initialize the Terraform project.
-6.	The Terraform plan command is to generate the Terraform plan for later approval.
-7.	The generated Terraform Plan file (.tfplan) is committed to the GitHub repository under the terraform-plan branch.
+<body>
+<ul>
+<li>1.	GitHub Action runs on pushes to the master branch</li>
+<li>2.	Repository code is checked out</li>
+<li>3.	Cloud provider is authenticated. In this example, Microsoft Azure is authenticated against.</li>
+<li>4.	Terraform will be setup using the hashicorp/setup-terraform action.</li>
+<li>5.	The Terraform init command is to initialize the Terraform project.</li>
+<li>6.	The Terraform plan command is to generate the Terraform plan for later approval.</li>
+<li>7.	The generated Terraform Plan file (.tfplan) is committed to the GitHub repository under the terraform-plan branch.</li>
+<ul>
 The next step left out of this GitHub Action is the Terraform Apply step. Generally, the Terraform Apply is going to be run manually so that the Terraform plan can be verified before execution.
-
+ &nbsp;  
 **GitHub Action to Run Terraform Apply**
 Once the previous GitHub Action is run when Terraform code is pushed to the main branch of the GitHub repository, then another GitHub Action is necessary for the manual step of approving the execution of the plan to apply the infrastructure changes to the cloud environment. Sure, the Terraform apply can be automatically run after the plan is generated, but it’s best practice to use a manual step to verify the plan before applying it. This is done to ensure the cloud infrastructure environment is modified only in a safe way, just in case there are any errors in the Terraform code or unexpected infrastructure changes triggered by the latest Terraform code changes.
 The following is an example of a GitHub Action that will run on the terraform-plan branch in the GitHub repository when triggered manually, then execute the previously generated plan:
+ &nbsp; 
 name: Terraform Apply
 
 # configure manual trigger for GitHub Action
@@ -92,12 +96,17 @@ jobs:
     # from the terraform.tfplan file in the branch
     - name: Terraform Apply
       run: terraform apply "terraform.tfplan"
+       &nbsp; 
+
 The previous GitHub Action runs the following steps:
-1.	GitHub Action runs on pushes to the master branch.
-2.	Repository code is checked out.
-3.	Cloud provider is authenticated. In this example, Microsoft Azure is authenticated against.
-4.	Terraform is setup using the hashicorp/setup-terraform action.
-5.	The Terraform init command is run to initialize the Terraform project.
-6.	The Terraform apply command is run, passing in the terraform.tfplan file to tell it what Terraform Plan to apply.
+<ul>
+<li>1.	GitHub Action runs on pushes to the master branch.</li>
+<li>2.	Repository code is checked out.</li>
+<li>3.	Cloud provider is authenticated. In this example, Microsoft Azure is authenticated against.</li>
+<li>4.	Terraform is setup using the hashicorp/setup-terraform action.</li>
+<li>5.	The Terraform init command is run to initialize the Terraform project.</li>
+<li>6.	The Terraform apply command is run, passing in the terraform.tfplan file to tell it what Terraform Plan to apply.</li>
+&nbsp; 
 The GitHub Actions to automatically generate a Terraform Plan and then manually trigger the Terraform Apply of the plan in this article is a very simplistic example. This code can be easily modified to extend it to handle any custom deployment scenarios. When using this example and modifying it, be sure to use any GitHub Actions and Terraform best practices to ensure the security of the infrastructure environments being deployed.
 
+</body>
