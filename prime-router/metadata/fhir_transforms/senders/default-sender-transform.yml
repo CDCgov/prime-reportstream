@@ -29,3 +29,15 @@ elements:
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.meta.tag.code'
     value: [ '"P"' ]
+
+  - name: provider-namespace-id
+    condition: '%resource.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner).identifier[0]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id").value[x]'
+    value: [ '"NPI"' ]
+
+  - name: provider-universal-id
+    condition: '%resource.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner).identifier[0]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id").value[x]'
+    value: [ '"urn:oid:2.16.840.1.113883.4.6"' ]
