@@ -8,6 +8,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.common.BaseEngine
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.CommonTableExpression
+import org.jooq.Record
 import org.jooq.Record2
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.selectDistinct
@@ -31,23 +32,32 @@ class ReportGraph(
         val sourceReportIds =
             sourceReportsCte(lineage)
 
+        val metadata = metadataExpression(sourceReportIds)
+
         return db.transactReturning { txn ->
             DSL.using(txn)
                 .withRecursive(lineage)
                 .with(sourceReportIds)
-                .selectDistinct(COVID_RESULT_METADATA.asterisk())
+                .with(metadata)
+                .selectDistinct(metadata.asterisk())
                 .from(
-                    COVID_RESULT_METADATA,
-                )
+                    metadata,
+                ).fetchInto(CovidResultMetadata::class.java)
+        }
+    }
+
+    private fun metadataExpression(sourceReportIds: CommonTableExpression<Record>) =
+        DSL.name("metadata").`as`(
+            selectDistinct(COVID_RESULT_METADATA.asterisk())
+                .from(COVID_RESULT_METADATA)
                 .where(
                     COVID_RESULT_METADATA.REPORT_ID.`in`(
                         selectDistinct(sourceReportIds.field(REPORT_FILE.REPORT_ID.name, SQLDataType.UUID)).from(
                             sourceReportIds
                         )
                     )
-                ).fetchInto(CovidResultMetadata::class.java)
-        }
-    }
+                )
+        )
 
     /**
      * Accepts a walked graph of report ids and finds the corresponding report file filtering down to
