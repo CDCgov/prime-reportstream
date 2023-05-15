@@ -40,7 +40,7 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
     isLoading,
     receiverList,
 }) => {
-    if (isLoading) return <Spinner />;
+    if (isLoading || !receiverList) return <Spinner />;
 
     const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
 
@@ -92,6 +92,29 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
         columns: columns,
         rows: receiverList || [],
     };
+
+    console.log("resultsTableConfig = ", resultsTableConfig);
+
+    const tableFormattedData = receiverList.map((rowObj) => {
+        return Object.keys(rowObj).map((rowDataKey) => {
+            const columnHeaderData = columns.find(
+                (column) => column.dataAttr === rowDataKey
+            );
+            // need to filter out the rows / columns that don't have data
+            if (!columnHeaderData) return;
+            const columnKey = rowDataKey;
+            const columnHeader = columnHeaderData.columnHeader;
+            const content = rowObj[rowDataKey];
+
+            return {
+                columnKey: columnKey,
+                columnHeader: columnHeader,
+                content: content,
+            };
+        });
+    });
+
+    console.log("tableFormattedData = ", tableFormattedData);
 
     return (
         <>
