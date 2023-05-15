@@ -376,9 +376,9 @@ class FHIRRouter(
                         receiver,
                         ReportStreamFilterType.CONDITION_FILTER,
                         defaultResponse = true,
-                        false,
-                        observation,
-                        true
+                        reverseFilter = false,
+                        focusResource = observation,
+                        singlePass = true
                     )
                 }
                 )
