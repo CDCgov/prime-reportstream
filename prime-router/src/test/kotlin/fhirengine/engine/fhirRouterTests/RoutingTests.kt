@@ -345,7 +345,7 @@ class RoutingTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(
+        val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
             engine.qualityFilterDefault,
             bundle,
             false
@@ -749,7 +749,7 @@ class RoutingTests {
             "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() " +
                 "and %patientState = 'CA')"
         )
-        val result = engine.evaluateFilterCondition(
+        val result = engine.evaluateFilterConditionAsAnd(
             filter,
             bundle,
             false
@@ -773,7 +773,7 @@ class RoutingTests {
             "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() " +
                 "and %patientState = 'CA')"
         )
-        val result = engine.evaluateFilterCondition(
+        val result = engine.evaluateFilterConditionAsAnd(
             filter,
             bundle,
             false
@@ -797,7 +797,7 @@ class RoutingTests {
             "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() " +
                 "and %patientState = 'CA')"
         )
-        val result = engine.evaluateFilterCondition(
+        val result = engine.evaluateFilterConditionAsAnd(
             filter,
             bundle,
             false
@@ -890,9 +890,9 @@ class RoutingTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
-        every { engine.evaluateFilterCondition(any(), any(), true, any(), any()) } returns Pair(true, null)
+        every { engine.evaluateFilterConditionAsAnd(any(), any(), true, any(), any()) } returns Pair(true, null)
         every {
-            engine.evaluateFilterCondition(any(), any(), false, any(), any())
+            engine.evaluateFilterConditionAsAnd(any(), any(), false, any(), any())
         } returns Pair(false, filter.toString())
 
         engine.evaluateFilterAndLogResult(filter, bundle, report, receiver, type, true)
@@ -975,7 +975,7 @@ class RoutingTests {
         // This processing mode filter evaluates to false, is equivalent to the default processindModeFilter
         val procModeFilter = listOf("%processingId = 'P'")
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        every { engine.evaluateFilterCondition(any(), any(), any(), any(), any()) } returns Pair<Boolean, String?>(
+        every { engine.evaluateFilterConditionAsAnd(any(), any(), any(), any(), any()) } returns Pair<Boolean, String?>(
             false,
             procModeFilter.toString()
         )
@@ -1043,7 +1043,7 @@ class RoutingTests {
         assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
         assertThat(report.filteringResults[0].message).contains("exception found")
 
-        val result2 = engine.evaluateFilterCondition(
+        val result2 = engine.evaluateFilterConditionAsAnd(
             nonBooleanFilter,
             bundle,
             defaultResponse = false,
