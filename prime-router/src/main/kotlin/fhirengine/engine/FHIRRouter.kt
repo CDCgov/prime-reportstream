@@ -396,6 +396,8 @@ class FHIRRouter(
      * Takes a [bundle] and [filter], evaluates if the bundle passes the filter. If the filter is null,
      * return [defaultResponse]. If the filter doesn't pass the results are logged on the [report] for
      * that specific [filterType]
+     * When [reverseFilter] and [singlePass] are both true, the filter will consider the passing of *any* filter
+     * as a failure.
      * @param filters Filters that will be evaluated
      * @param bundle FHIR Bundle that will be evaluated
      * @param report Report object passed for logging purposes
@@ -452,6 +454,8 @@ class FHIRRouter(
     /**
      * Takes a [bundle] and [filter] and optionally a [focusResource], evaluates if the bundle passes the filter, or the
      * opposite if [reverseFilter] is true. If the filter is null or empty, return [defaultResponse].
+     * When [reverseFilter] and [singlePass] are both true, the filter will consider the passing of *any* filter
+     * as a failure.
      * @param filter Filter that will be evaluated
      * @param bundle FHIR Bundle that will be evaluated
      * @param defaultResponse Response returned if the filter is null or empty
@@ -501,7 +505,8 @@ class FHIRRouter(
         return if (exceptionFilters.isNotEmpty()) {
             Pair(false, "(exception found) $exceptionFilters")
         } else if (singlePass && passedOne) {
-            Pair(true, null)
+            if (reverseFilter) Pair(false, "(reversed) $filter")
+            else Pair(true, null)
         } else if (reverseFilter) {
             if (!result) Pair(true, null)
             else Pair(false, "(reversed) $filter")
