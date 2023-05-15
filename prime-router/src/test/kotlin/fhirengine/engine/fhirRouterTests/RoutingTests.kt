@@ -289,7 +289,7 @@ class RoutingTests {
         val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         // with multiple condition filters, we are looking for any of them passing
         val conditionFilter = listOf(
-            "Bundle.entry.resource.ofType(Provenance).count() > 50", // true
+            "Bundle.entry.resource.ofType(Provenance).count() > 50", // not true
             "Bundle.entry.resource.ofType(Provenance).count() > 100" // not true
         )
 
