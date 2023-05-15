@@ -425,7 +425,7 @@ class FHIRRouter(
             bundle,
             defaultResponse,
             reverseFilter,
-            focusResource,
+            focusResource
         )
 
         if (!passes) {
@@ -463,7 +463,7 @@ class FHIRRouter(
      *         and String to use when logging the filter result
      */
     internal fun evaluateFilterConditionAsAnd(
-        filter: ReportStreamFilter,
+        filter: ReportStreamFilter?,
         bundle: Bundle,
         defaultResponse: Boolean,
         reverseFilter: Boolean = false,

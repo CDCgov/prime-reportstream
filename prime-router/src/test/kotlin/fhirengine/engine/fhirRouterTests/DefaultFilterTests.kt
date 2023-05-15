@@ -524,4 +524,23 @@ class DefaultFilterTests {
         assertThat(qualDefaultResult.first).isTrue()
         assertThat(qualDefaultResult.second).isNull()
     }
+
+    @Test
+    fun `test evaluateFilterConditionAsOr default - false`() {
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val bundle = FhirTranscoder.decode(fhirCodeP)
+        // act
+        val result = engine.evaluateFilterConditionAsOr(
+            emptyList(),
+            bundle,
+            false
+        )
+
+        // assert
+        assertThat(result.first).isFalse()
+        assertThat(result.second).isNotNull()
+        assertThat(result.second!!).contains("defaultResponse")
+    }
 }
