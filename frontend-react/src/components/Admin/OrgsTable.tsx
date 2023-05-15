@@ -1,12 +1,6 @@
 import React, { useState } from "react";
 import { useResource } from "rest-hooks";
-import {
-    Button,
-    ButtonGroup,
-    Label,
-    Table,
-    TextInput,
-} from "@trussworks/react-uswds";
+import { Button, ButtonGroup, Label, TextInput } from "@trussworks/react-uswds";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 
@@ -18,6 +12,7 @@ import {
     MembershipSettings,
 } from "../../hooks/UseOktaMemberships";
 import { USNavLink } from "../USLink";
+import { Table } from "../../shared/Table/Table";
 
 export function OrgsTable() {
     const orgs: OrgSettingsResource[] = useResource(
@@ -83,6 +78,76 @@ export function OrgsTable() {
         window.open(encodeURI(filecontent), "prime-orgs.csv", "noopener");
     };
 
+    const formattedTableData = () => {
+        return orgs
+            .filter((eachOrg) => eachOrg.filterMatch(filter))
+            .map((eachOrg) => [
+                {
+                    columnKey: "Name",
+                    columnHeader: "Name",
+                    content: (
+                        <span
+                            className={
+                                eachOrg.name === currentOrg
+                                    ? "font-heading-sm text-bold"
+                                    : "font-heading-sm"
+                            }
+                        >
+                            {eachOrg.name}
+                        </span>
+                    ),
+                },
+                {
+                    columnKey: "Description",
+                    columnHeader: "Description",
+                    content: eachOrg.description || "-",
+                },
+                {
+                    columnKey: "Jurisdiction",
+                    columnHeader: "Jurisdiction",
+                    content: eachOrg.jurisdiction || "",
+                },
+                {
+                    columnKey: "State",
+                    columnHeader: "State",
+                    content: eachOrg.stateCode || "",
+                },
+                {
+                    columnKey: "County",
+                    columnHeader: "County",
+                    content: eachOrg.countyName || "",
+                },
+                {
+                    columnKey: "ButtonAction",
+                    columnHeader: "",
+                    content: (
+                        <ButtonGroup type="segmented">
+                            <Button
+                                key={`${eachOrg.name}_select`}
+                                onClick={() =>
+                                    handleSelectOrgClick(`${eachOrg.name}`)
+                                }
+                                type="button"
+                                className="padding-1 usa-button--outline"
+                            >
+                                Set
+                            </Button>
+                            <Button
+                                key={`${eachOrg.name}_edit`}
+                                onClick={() =>
+                                    handleEditOrgClick(`${eachOrg.name}`)
+                                }
+                                type="button"
+                                className="padding-1 usa-button--outline"
+                            >
+                                Edit
+                            </Button>
+                        </ButtonGroup>
+                    ),
+                },
+            ]);
+    };
+
     return (
         <>
             <Helmet>
@@ -124,73 +189,11 @@ export function OrgsTable() {
                     </Button>
                 </form>
                 <Table
-                    key="orgsettingstable"
-                    aria-label="Organizations"
                     striped
-                    fullWidth
-                >
-                    <thead>
-                        <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Description</th>
-                            <th scope="col">Jurisdiction</th>
-                            <th scope="col">State</th>
-                            <th scope="col">County</th>
-                            <th scope="col"> </th>
-                        </tr>
-                    </thead>
-                    <tbody id="tBodyFac" className="font-mono-2xs">
-                        {orgs
-                            .filter((eachOrg) => eachOrg.filterMatch(filter))
-                            .map((eachOrg) => (
-                                <tr key={`sender-row-${eachOrg.name}`}>
-                                    <td>
-                                        <span
-                                            className={
-                                                eachOrg.name === currentOrg
-                                                    ? "font-heading-sm text-bold"
-                                                    : "font-heading-sm"
-                                            }
-                                        >
-                                            {eachOrg.name}
-                                        </span>
-                                    </td>
-                                    <td>{eachOrg?.description || "-"}</td>
-                                    <td>{eachOrg.jurisdiction || ""}</td>
-                                    <td>{eachOrg.stateCode || ""}</td>
-                                    <td>{eachOrg.countyName || ""}</td>
-                                    <td>
-                                        <ButtonGroup type="segmented">
-                                            <Button
-                                                key={`${eachOrg.name}_select`}
-                                                onClick={() =>
-                                                    handleSelectOrgClick(
-                                                        `${eachOrg.name}`
-                                                    )
-                                                }
-                                                type="button"
-                                                className="padding-1 usa-button--outline"
-                                            >
-                                                Set
-                                            </Button>
-                                            <Button
-                                                key={`${eachOrg.name}_edit`}
-                                                onClick={() =>
-                                                    handleEditOrgClick(
-                                                        `${eachOrg.name}`
-                                                    )
-                                                }
-                                                type="button"
-                                                className="padding-1 usa-button--outline"
-                                            >
-                                                Edit
-                                            </Button>
-                                        </ButtonGroup>
-                                    </td>
-                                </tr>
-                            ))}
-                    </tbody>
-                </Table>
+                    borderless
+                    sticky
+                    rowData={formattedTableData()}
+                />
             </section>
         </>
     );
