@@ -1,10 +1,12 @@
 import React from "react";
 import { Grid } from "@trussworks/react-uswds";
-import moment from "moment";
 
 import { RSDelivery } from "../../../config/endpoints/dataDashboard";
 import ReportLink from "../../../pages/deliveries/Table/ReportLink";
-import { isDateExpired } from "../../../utils/DateTimeUtils";
+import {
+    formatDateWithoutSeconds,
+    isDateExpired,
+} from "../../../utils/DateTimeUtils";
 
 import styles from "./ReportDetailsSummary.module.scss";
 
@@ -49,15 +51,8 @@ export function ReportDetailsSummary(props: Props) {
                             Date range
                         </span>
                         <span className="font-code-xs">
-                            {moment
-                                .utc(report!.batchReadyAt)
-                                .local()
-                                .format("MM/DD/YYYY  HH:mm A")}{" "}
-                            -{" "}
-                            {moment
-                                .utc(report!.expires)
-                                .local()
-                                .format("MM/DD/YYYY  HH:mm A")}
+                            {formatDateWithoutSeconds(report!.batchReadyAt)} -{" "}
+                            {formatDateWithoutSeconds(report!.expires)}
                         </span>
                     </Grid>
                     <Grid col={6}>
@@ -75,10 +70,7 @@ export function ReportDetailsSummary(props: Props) {
                             Date sent to you
                         </span>
                         <span className="font-code-xs">
-                            {moment
-                                .utc(report!.batchReadyAt)
-                                .local()
-                                .format("MM/DD/YYYY  HH:mm A")}{" "}
+                            {formatDateWithoutSeconds(report!.batchReadyAt)}{" "}
                         </span>
                     </Grid>
                     <Grid col={6}>
@@ -96,10 +88,7 @@ export function ReportDetailsSummary(props: Props) {
                             Available until
                         </span>
                         <span className="font-code-xs">
-                            {moment
-                                .utc(report!.expires)
-                                .local()
-                                .format("MM/DD/YYYY  HH:mm A")}
+                            {formatDateWithoutSeconds(report!.expires)}{" "}
                         </span>
                     </Grid>
                 </Grid>

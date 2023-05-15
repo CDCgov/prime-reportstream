@@ -112,14 +112,13 @@ const useReportsDetail = (id: string) => {
             }),
         [authorizedFetch, id]
     );
-    const { data } = rsUseQuery(
+    return rsUseQuery(
         // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
         // during use
         [getReportDetails.queryKey, id],
         memoizedDataFetch,
         { enabled: !!id }
     );
-    return { reportDetail: data };
 };
 
 const useReportsFacilities = (id: string) => {

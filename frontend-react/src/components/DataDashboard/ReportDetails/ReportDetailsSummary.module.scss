@@ -1,7 +1,7 @@
 .ReportDetailsSummary {
     button, button:hover {
         float: none;
-        background-color: #1A4480;
+        background-color: color('primary-dark');
         color: white;
         height: 33px;
         font-size: 14px;
@@ -9,6 +9,6 @@
     }
 
     hr {
-        border: 1px solid #DFE1E2;
+        border: 1px solid color('base-lighter');
     }
 }

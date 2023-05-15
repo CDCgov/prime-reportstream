@@ -21,7 +21,7 @@ function ReportDetails() {
         ],
     };
     const { reportId } = useParams();
-    const { reportDetail } = useReportsDetail(reportId!!);
+    const { data: reportDetail } = useReportsDetail(reportId!!);
 
     return (
         <div className="margin-left-7">

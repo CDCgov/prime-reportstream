@@ -34,26 +34,14 @@ function ReportDetailsTable(props: ReportDetailsTableProps) {
             {
                 dataAttr: "provider",
                 columnHeader: "Ordering provider",
-                feature: {
-                    link: true,
-                    linkBasePath: "/data-dashboard/facilities-providers/",
-                },
             },
             {
                 dataAttr: "facility",
                 columnHeader: "Performing facility",
-                feature: {
-                    link: true,
-                    linkBasePath: "/data-dashboard/facilities-providers/",
-                },
             },
             {
                 dataAttr: "submitter",
                 columnHeader: "Submitter",
-                feature: {
-                    link: true,
-                    linkBasePath: "/data-dashboard/facilities-providers/",
-                },
             },
             { dataAttr: "total", columnHeader: "Test results" },
             {

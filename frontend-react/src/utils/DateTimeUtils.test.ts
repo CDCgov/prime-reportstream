@@ -2,7 +2,11 @@ import moment from "moment";
 
 import { ResponseType, TestResponse } from "../resources/TestResponse";
 
-import { generateDateTitles, isDateExpired } from "./DateTimeUtils";
+import {
+    formatDateWithoutSeconds,
+    generateDateTitles,
+    isDateExpired,
+} from "./DateTimeUtils";
 
 /*
     Ensuring formatting of SubmissionDate type
@@ -55,5 +59,24 @@ describe("isDateExpired", () => {
         const now = moment().add(1, "day").toISOString();
         const futureDateTime = isDateExpired(now);
         expect(futureDateTime).toBeFalsy();
+    });
+});
+
+describe("formatDateWithoutSeconds", () => {
+    test("returns a formatted date without seconds", () => {
+        const date = formatDateWithoutSeconds("2023-02-09T22:24:01.938Z");
+        expect(date).toBe("2/9/2023, 10:24 PM");
+    });
+
+    test("returns today's date formatted without seconds", () => {
+        const expectedDate = new Date().toLocaleString([], {
+            year: "numeric",
+            month: "numeric",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+        const date = formatDateWithoutSeconds("");
+        expect(date).toBe(expectedDate);
     });
 });
