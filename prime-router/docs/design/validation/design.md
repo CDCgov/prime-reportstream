@@ -149,6 +149,7 @@ This external project is maintained by the HL7 FHIR Foundation and is an easy to
 for validation against a user-selectable FHIR spec. Implementation guides can be supplied or picked from a pre-
 populated list providing a powerful starting point for our validation tool.
 
+Check out the tool online [here](https://validator.fhir.org). And on [github](https://github.com/hapifhir/org.hl7.fhir.validator-wrapper)!
 This tool can be deployed as is and meet all requirements for our validation tool. Ideally we will provide saved
 configurations equivalent to any validation profiles we have internal to ReportStream to better serve our users' needs.
 
