@@ -15,6 +15,16 @@ import org.jooq.impl.DSL.selectDistinct
 import org.jooq.impl.SQLDataType
 import java.util.UUID
 
+private const val PARENT_REPORT_ID_FIELD = "parent_report_id"
+
+private const val METADATA_CTE = "metadata"
+
+private const val PATH_FIELD = "path"
+
+private const val SOURCE_CTE = "source"
+
+private const val LINEAGE_CTE = "lineage"
+
 class ReportGraph(
     val db: DatabaseAccess = BaseEngine.databaseAccessSingleton
 ) : Logging {
@@ -47,7 +57,7 @@ class ReportGraph(
     }
 
     private fun metadataExpression(sourceReportIds: CommonTableExpression<Record>) =
-        DSL.name("metadata").`as`(
+        DSL.name(METADATA_CTE).`as`(
             selectDistinct(COVID_RESULT_METADATA.asterisk())
                 .from(COVID_RESULT_METADATA)
                 .where(
@@ -64,9 +74,9 @@ class ReportGraph(
      * reports where the sending org is not null
      */
     private fun sourceReportsCte(lineage: CommonTableExpression<Record2<UUID, String>>) =
-        DSL.name("source").`as`(
+        DSL.name(SOURCE_CTE).`as`(
             DSL.select(REPORT_FILE.asterisk()).from(REPORT_FILE).join(lineage.name).on(
-                REPORT_FILE.REPORT_ID.eq(lineage.field("parent_report_id", SQLDataType.UUID))
+                REPORT_FILE.REPORT_ID.eq(lineage.field(PARENT_REPORT_ID_FIELD, SQLDataType.UUID))
             ).where(REPORT_FILE.SENDING_ORG.isNotNull)
         )
 
@@ -74,9 +84,9 @@ class ReportGraph(
      * Accepts a list of ids and walks up the report lineage graph
      */
     private fun lineageCte(childReportIds: List<UUID>) =
-        DSL.name("lineage").fields(
-            "parent_report_id",
-            "path"
+        DSL.name(LINEAGE_CTE).fields(
+            PARENT_REPORT_ID_FIELD,
+            PATH_FIELD
         ).`as`(
             DSL.select(
                 REPORT_LINEAGE.PARENT_REPORT_ID,
@@ -86,12 +96,12 @@ class ReportGraph(
                 .unionAll(
                     DSL.select(
                         REPORT_LINEAGE.PARENT_REPORT_ID,
-                        DSL.field("lineage.path", SQLDataType.VARCHAR)
+                        DSL.field("$LINEAGE_CTE.$PATH_FIELD", SQLDataType.VARCHAR)
                     )
                         .from(REPORT_LINEAGE)
-                        .join(DSL.table(DSL.name("lineage")))
+                        .join(DSL.table(DSL.name(LINEAGE_CTE)))
                         .on(
-                            DSL.field(DSL.name("lineage", "parent_report_id"), SQLDataType.UUID)
+                            DSL.field(DSL.name(LINEAGE_CTE, PARENT_REPORT_ID_FIELD), SQLDataType.UUID)
                                 .eq(REPORT_LINEAGE.CHILD_REPORT_ID)
                         )
 

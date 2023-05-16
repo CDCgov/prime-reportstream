@@ -609,12 +609,11 @@ class DeliveryFunctionTests : Logging {
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
     }
 
-
     @Nested
     inner class TestGetReportItems() {
 
         @Test
-        fun `test non prime admins are unauthorized`(){
+        fun `test non prime admins are unauthorized`() {
             val httpRequestMessage = MockHttpRequestMessage()
 
             val jwt = mapOf("organization" to listOf("DHSender_simple_reportAdmins"), "sub" to "test@cdc.gov")
@@ -625,11 +624,10 @@ class DeliveryFunctionTests : Logging {
 
             val response = DeliveryFunction().getReportItems(httpRequestMessage, UUID.randomUUID())
             assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
-
         }
 
         @Test
-        fun `test successfully returns data for a prime admin`(){
+        fun `test successfully returns data for a prime admin`() {
             val httpRequestMessage = MockHttpRequestMessage()
 
             val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
