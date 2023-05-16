@@ -136,14 +136,14 @@ export default function FileHandler() {
     return (
         <GridContainer>
             <article className="usa-section">
-                <h1>ReportStream File Validator</h1>
+                <h1 className="margin-y-4">ReportStream File Validator</h1>
 
                 {organization?.description && (
                     <h2 className="font-sans-lg">{organization.description}</h2>
                 )}
 
                 {fileName && (
-                    <div className="margin-bottom-4">
+                    <div className="margin-bottom-3">
                         <p className="margin-bottom-1 text-normal text-base">
                             File name
                         </p>
@@ -151,7 +151,7 @@ export default function FileHandler() {
                     </div>
                 )}
 
-                <div className="margin-bottom-10">
+                <div className="margin-bottom-4">
                     {(() => {
                         // The File Validate tool now has 4 discrete steps,
                         // Schema Select, File Select, [optional]Show Errors, Success Page
@@ -198,8 +198,8 @@ export default function FileHandler() {
                 {StepComponent !== FileHandlerSuccessStep && (
                     <FileHandlerProgrammersGuideTip />
                 )}
-                <p>
-                    Question or feedback? Please email{" "}
+                <p className="text-base-darker margin-top-10">
+                    Questions or feedback? Please email{" "}
                     <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
                         {site.orgs.RS.email}
                     </USExtLink>

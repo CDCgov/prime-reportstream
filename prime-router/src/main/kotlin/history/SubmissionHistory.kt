@@ -143,6 +143,12 @@ class DetailedSubmissionHistory(
     var destinations = mutableListOf<Destination>()
 
     /**
+     * The list of actions that have been performed on the submitted report
+     */
+    @JsonIgnore
+    var actionsPerformed = mutableSetOf<TaskAction>()
+
+    /**
      * The step in the delivery process for a submission
      * Supported values:
      *     VALID - successfully validated, but not sent
@@ -289,6 +295,7 @@ class DetailedSubmissionHistory(
      */
     fun enrichWithDescendants(descendants: List<DetailedSubmissionHistory>) {
         check(descendants.distinctBy { it.actionId }.size == descendants.size)
+        actionsPerformed.addAll(descendants.map { submission -> submission.actionName }.distinct())
 
         // Enforce an order on the enrichment:  process/translate, send, download
         if (topic == Topic.FULL_ELR.json_val) {
@@ -513,14 +520,19 @@ class DetailedSubmissionHistory(
 
         if (destinations.size == 0) {
             /**
-             * Cases where this may hit:
-             *     1) Data hasn't been processed yet (common in async submissions)
-             *     2) Very rare: No data matches any geographical location.
-             *         e.g. If both the testing tab and patient data were foreign addresses.
-             * At the moment we have NO easy way to distinguish the latter rare case,
-             * so it will be treated as status RECEIVED as well.
+             * This conditional serves to differentiate where a report was submitted async and therefore hasn't
+             * been processed yet vs. a report that has been processed, but did not have any eligible receivers.
+             *
+             * The most likely scenario for that is when the item does not pass the jurisdictional filter for any of
+             * the receivers.
+             *
+             * Note: This method only works for the universal pipeline as the covid pipeline does the filtering and
+             * routing in one step.
              */
-            return Status.RECEIVED
+            if (actionsPerformed == setOf(TaskAction.receive)) {
+                return Status.RECEIVED
+            }
+            return Status.NOT_DELIVERING
         } else if (realDestinations.isEmpty()) {
             return Status.NOT_DELIVERING
         }

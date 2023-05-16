@@ -126,6 +126,7 @@ class SubmissionsFacade(
             action.sendingOrg,
             DetailedSubmissionHistory::class.java
         )
+        submission?.actionsPerformed?.add(action.actionName)
 
         // Submissions with a report ID (means had no errors) can have a lineage
         submission?.reportId?.let {

@@ -34,6 +34,8 @@ import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetai
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
 import FileHandler from "./components/FileHandlers/FileHandler";
 import { FaqPage } from "./pages/support/faq/FaqPage";
+import { DataDashboardWithAuth } from "./pages/data-dashboard/DataDashboard";
+import { ReportDetailsWithAuth } from "./components/DataDashboard/ReportDetails/ReportDetails";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -42,7 +44,7 @@ export enum FeatureName {
     ADMIN = "Admin",
     UPLOAD = "Upload",
     FACILITIES_PROVIDERS = "All facilities & providers",
-    DASHBOARD = "Dashboard",
+    DATA_DASHBOARD = "Data Dashboard",
     REPORT_DETAILS = "Report Details",
 }
 
@@ -81,6 +83,12 @@ export const appRoutes = [
     {
         path: "/submissions/:actionId",
         element: <SubmissionDetailsWithAuth />,
+    },
+    /* Data Dashboard pages */
+    { path: "/data-dashboard", element: <DataDashboardWithAuth /> },
+    {
+        path: "/data-dashboard/report-details/:reportId",
+        element: <ReportDetailsWithAuth />,
     },
     /* Admin pages */
     { path: "/admin/settings", element: <AdminMainWithAuth /> },
