@@ -1066,6 +1066,18 @@ class RoutingTests {
         assertThat(result3.first).isFalse()
         assertThat(result3.second).isNotNull()
         assertThat(result3.second!!).contains("exception found")
+
+        val result4 = engine.evaluateFilterConditionAsOr(
+            nonBooleanFilter,
+            bundle,
+            defaultResponse = false,
+            reverseFilter = true,
+            bundle,
+        )
+
+        assertThat(result4.first).isFalse()
+        assertThat(result4.second).isNotNull()
+        assertThat(result4.second!!).contains("exception found")
     }
 
     @Test
