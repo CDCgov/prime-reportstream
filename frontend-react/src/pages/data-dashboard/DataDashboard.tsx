@@ -9,12 +9,15 @@ import { USNavLink } from "../../components/USLink";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import DataDashboardTable from "../../components/DataDashboard/DataDashboardTable/DataDashboardTable";
+import HipaaNotice from "../../components/HipaaNotice";
+
+import styles from "./DataDashboard.module.scss";
 
 function DataDashboard() {
     const { data: orgDetails } = useOrganizationSettings();
     const { description } = orgDetails || {};
     return (
-        <div className="data-dashboard">
+        <div className={styles.DataDashboard}>
             <header className="usa-header usa-header--extended bg-primary-darker text-white">
                 <GridContainer className="margin-left-7 margin-right-7 padding-top-8 padding-bottom-8 rs-max-width-100-important">
                     <div className="font-sans-lg text-blue-30 width-full">
@@ -42,6 +45,7 @@ function DataDashboard() {
                 </Helmet>
                 <article>
                     {withCatchAndSuspense(<DataDashboardTable />)}
+                    <HipaaNotice />
                 </article>
             </GridContainer>
         </div>
