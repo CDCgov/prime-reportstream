@@ -26,6 +26,30 @@ validation, the validations to perform, and any applicable configuration paramet
 senders and receivers can only be set up to receive one format at a time, so there should not be confusion over which
 validationProfile pertains to which format.
 
+#### Submission
+For FHIR, we currently use an `IParser` instance to parse and read some metadata. By default, the IParser performs some validation
+and raises warnings or errors (depending on how its configured). We need to investigate how the instance is currently 
+configured and ensure it is performing validation. Ideally this
+configuration will be universal or at least binary (validation on/off vs different types) for all senders.
+
+This step will not be implemented for HL7
+
+#### Pre sender transform
+Before we apply sender transforms and enrichment, we need to ensure that bundles contain sane data for its origin.
+We should also ensure any prerequisites (e.g. field, value, format) for transform/enrichment is satisfied. Further 
+validation is still necessary as the assembled bundle may still be missing data that will be added.
+
+This step will not be implemented for HL7
+
+#### Post sender transform
+Will occur during the convert function, after receiving and debatch, and before the convert step. We again need to 
+ensure that all necessary data exists and is sane. This will happen for both HL7 and FHIR. One final validation will be 
+needed (per receiver) after applying receiver transforms and enrichment.
+
+#### Post receiver enrichment
+Will occur in the translate function, after reception, translation, and enrichment but right
+before dispatch.Verify that the final dataset meets configured receiver expectations prior to dispatch.
+
 When a message fails validation, validation errors should show up in:
 - The submission history API
 - The Action Log in the database in such a way that the engagement team can easily query for it
@@ -35,33 +59,12 @@ When a message fails validation, validation errors should show up in:
     - ReportStream is responsible for issue triage
 - Notify the sender immediately in API response if parse validation fails
 
-Tickets needed for both epics:
+Tickets needed for both:
 - Create the validation profile setting: https://github.com/CDCgov/prime-reportstream/issues/9161
 - Add validation errors to the submission history API: https://github.com/CDCgov/prime-reportstream/issues/9036
 - Add validation errors to the action log: https://github.com/CDCgov/prime-reportstream/issues/9221
 
 ### FHIR Validation
-
-#### Submission
-We currently use an `IParser` instance to parse and read some metadata. By default, the IParser performs some validation
-and raises warnings or errors (depending on how its configured).
-
-We need to investigate how the instance is currently configured and ensure it is performing validation. Ideally this
-configuration will be universal or at least binary (validation on/off vs different types) for all senders.
-
-#### Pre sender transform
-Before we apply sender transforms and enrichment, we need to ensure that bundles contain sane data for its origin.
-We should also ensure any prerequisites (e.g. field, value, format) for transform/enrichment is satisfied.
-
-Further validation is still necessary as the assembled bundle may still be missing data that will be added.
-
-#### Post sender transform
-After applying sender transforms and enrichment, we again need to ensure that all necessary data exists and is sane.
-
-One final validation will be needed (per receiver) after applying receiver transforms and enrichment.
-
-#### Post receiver enrichment
-Verify that the final dataset meets configured receiver expectations prior to dispatch.
 
 #### Validation Tool
 There is an existing and well-maintained project that meets the requirements for a validation tool. We intend to deploy
@@ -170,36 +173,6 @@ value is the pre-populated list of implementation guides from various health fac
 
 ### HL7 Validation
 
-TODO: redundant (see `## Validation Design` section near top); remove / merge with above
-The diagram below proposes two validation "checkpoints":
-1. Sender validation - will occur during the convert function, after receiving and debatch, and before the convert step.
-2. Receiver Validation - will occur in the translate function, after reception, translation, and enrichment but right
-   before dispatch.
-
-#### Submission
-This is a noop for HL7 data -- no submission / parse validation will be done.
-
-#### Pre sender transform
-We want to add sender validation so that we can ensure that the data we are receiving matches the intended spec so that
-we do not send messy data.
-
-#### Post sender transform
-For HL7 data this validation will occur after conversion to FHIR. Therefore, it will follow the same codepath as
-post-sender transform validation for a regular FHIR submission. This step ensures that the conversion was successful
-and resulted in useful data.
-
-#### Post receiver enrichment
-We want to add receiver validation so that the receiver can receive the data in the format they are expecting.  
-
-TODO: this will be removed
-![hl7-validation-annotated-architecture-diagram.png](annotated-hl7-architecture-diagram.png)
-
-#### Validation Tool
-There is an existing and well-maintained project that meets the requirements for a validation tool. We intend to deploy
-that tool as an azure function for an HL7 validation web app.
-
-See the `NIST Validator` section under the `Background Information` heading below for more information.
-
 #### Background Information
 ##### RADx MARS
 
@@ -286,12 +259,14 @@ The NIST HL7 Validation Library can be found here: https://github.com/usnistgov/
 Unfortunately, they do not seem to have documentation on how to actually use this library. I found this page
 https://hl7v2-ws.nist.gov/hl7v2ws/documentation.htm, but the buttons leading to the documentation do not work. The 
 project only has one README which does not discuss how to actually use the library. https://hl7v2-gvt.nist.gov/gvt/#/doc 
-appears to have information on the validation tool and within that there is a swagger spec.
+appears to have information on the validation tool and within that there is a swagger spec.       
+
 DEX uses this library but has a light wrapper around it. They do recommend using the library, but not their wrapper.
 Part of using the library is creating profiles. This can be done by going to https://hl7v2-igamt-2.nist.gov/ and signing
-up. Once you register, go to IG Documents, Create new IG document, or Published IG Documents. These make it so that you 
-can use profiles already created by others. If you need to create your own for an implementation guide, that 
-functionality appears to exist, but is currently broken. 
+up. Once you register, go to IG Documents, Create new IG document. Select the HL7 version as well as the message structure and 
+it will create a base for you. Then you have to manually adjust each field to meet the spec. There is only one profile 
+currently that is shared. Otherwise, you have to know someone. Marcia Schulman has offered to give us whatever she has 
+so that she can be contacted once we know what profiles we need, but she only had a few and it is unlikely they will meet our needs.
  
 https://hl7v2-gvt.nist.gov/gvt/apidocs/swagger-ui.html#/ but none of that appears to be for actually validating an 
 HL7 Message.
