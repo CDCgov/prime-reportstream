@@ -207,13 +207,16 @@ class DeliveryFunction(
         }
     }
 
+    /**
+     * Fetches the items that were contained in the passed in report ID walking up the report lineage if necessary
+     */
     @FunctionName("getReportItemsV1")
-    fun getMetadataForReport(
+    fun getReportItems(
         @HttpTrigger(
             name = "getReportItemsV1",
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "v1/metadata/{reportId}"
+            route = "v1/report/{reportId}/items"
         ) request: HttpRequestMessage<String?>,
         @BindingName("reportId") reportId: UUID
     ): HttpResponseMessage {

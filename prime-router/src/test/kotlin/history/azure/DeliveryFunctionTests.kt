@@ -19,11 +19,14 @@ import gov.cdc.prime.router.azure.MockSettings
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
+import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TestDefaultJwt
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
@@ -31,6 +34,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
+import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.spyk
 import org.apache.logging.log4j.kotlin.Logging
@@ -39,6 +43,7 @@ import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.TestInstance
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -602,5 +607,43 @@ class DeliveryFunctionTests : Logging {
         every { mockDeliveryFacade.fetchAction(any()) } returns null
         response = function.getDeliveryFacilities(mockRequest, emptyActionId)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+    }
+
+
+    @Nested
+    inner class TestGetReportItems() {
+
+        @Test
+        fun `test non prime admins are unauthorized`(){
+            val httpRequestMessage = MockHttpRequestMessage()
+
+            val jwt = mapOf("organization" to listOf("DHSender_simple_reportAdmins"), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+            val response = DeliveryFunction().getReportItems(httpRequestMessage, UUID.randomUUID())
+            assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+
+        }
+
+        @Test
+        fun `test successfully returns data for a prime admin`(){
+            val httpRequestMessage = MockHttpRequestMessage()
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+            mockkConstructor(ReportGraph::class)
+            every {
+                anyConstructed<ReportGraph>().getMetadataForReports(any())
+            } returns emptyList<CovidResultMetadata>()
+
+            val response = DeliveryFunction().getReportItems(httpRequestMessage, UUID.randomUUID())
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
+        }
     }
 }
