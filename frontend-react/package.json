@@ -65,7 +65,7 @@
         "build-base-dev": "yarn compile-scss-dev && node scripts/build.js && yarn copy-404page",
         "start-js": "node scripts/start.js",
         "copy-404page": "cp build/index.html build/404.html",
-        "compile-scss-prod": "npm-run-all compile-global-scss-prod compile-content-scss-dev",
+        "compile-scss-prod": "npm-run-all compile-global-scss-prod compile-content-scss-prod",
         "compile-scss-dev": "npm-run-all compile-global-scss-dev compile-content-scss-dev",
         "compile-global-scss-prod": "sass --load-path=./node_modules/@uswds/uswds/packages --no-source-map --style=compressed --quiet src/global.scss:src/content/generated/global.out.css",
         "compile-global-scss-dev": "sass --load-path=./node_modules/@uswds/uswds/packages --embed-source-map --quiet-deps src/global.scss:src/content/generated/global.out.css",
