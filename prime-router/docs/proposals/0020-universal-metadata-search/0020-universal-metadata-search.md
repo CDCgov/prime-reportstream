@@ -10,7 +10,7 @@
   - date ranges
   - aggregates
 
-See the initial [requirements](../0018-universal-search.md).
+See the initial [requirements](https://docs.google.com/spreadsheets/d/1Np4svZSuMbyr7Qtt05hmx2BZYwkXIRdpqXC3LQHz0F4/edit#gid=0).
 
 The search question in that document break down into a few broad categories:
 
