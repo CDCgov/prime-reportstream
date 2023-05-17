@@ -9,7 +9,7 @@ import Spinner from "../../Spinner";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
 import { FilterManager } from "../../../hooks/filters/UseFilterManager";
 import { PaginationProps } from "../../Table/Pagination";
-import Table, { ColumnConfig, TableConfig } from "../../Table/Table";
+// import Table, { ColumnConfig, TableConfig } from "../../Table/Table";
 import TableFilters from "../../Table/TableFilters";
 import {
     useOrgDeliveries,
@@ -18,6 +18,7 @@ import {
 import { RSDelivery } from "../../../config/endpoints/dataDashboard";
 
 import ReceiverServices from "./ReceiverServices";
+import { Table } from "../../../shared/Table/Table";
 
 const extractCursor = (d: RSDelivery) => d.batchReadyAt;
 
@@ -88,23 +89,24 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
         },
     ];
 
-    const resultsTableConfig: TableConfig = {
-        columns: columns,
-        rows: receiverList || [],
-    };
-
-    console.log("resultsTableConfig = ", resultsTableConfig);
-
     const tableFormattedData = receiverList.map((rowObj) => {
-        return Object.keys(rowObj).map((rowDataKey) => {
-            const columnHeaderData = columns.find(
-                (column) => column.dataAttr === rowDataKey
-            );
-            // need to filter out the rows / columns that don't have data
-            if (!columnHeaderData) return;
-            const columnKey = rowDataKey;
-            const columnHeader = columnHeaderData.columnHeader;
-            const content = rowObj[rowDataKey];
+        return columns.map((colData) => {
+            const columnKey = colData.dataAttr;
+            const columnHeader = colData.columnHeader;
+            let content = rowObj[colData.dataAttr] || "";
+
+            if (columnKey === "batchReadyAt") {
+                content = new Date(content).toLocaleDateString("en-us", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    timeZone: "UTC",
+                    timeZoneName: "short",
+                });
+            }
 
             return {
                 columnKey: columnKey,
@@ -113,9 +115,7 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
             };
         });
     });
-
-    console.log("tableFormattedData = ", tableFormattedData);
-
+    console.log("filterManager = ", filterManager);
     return (
         <>
             <div className="text-bold font-sans-md">
@@ -144,12 +144,7 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
                     }
                 />
             </div>
-            <Table
-                classes="margin-top-1"
-                config={resultsTableConfig}
-                filterManager={filterManager}
-                paginationProps={paginationProps}
-            />
+            <Table striped rowData={tableFormattedData} />
         </>
     );
 };
