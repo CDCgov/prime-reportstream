@@ -803,36 +803,151 @@ class ApiKeysFunctionsTest {
             assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND)
         }
 
-        @Test
-        fun `Test v1`() {
-            settings.organizationStore.put(
-                organization.name,
-                organization.makeCopyWithNewScopeAndJwk(defaultReportScope, jwk)
-                    .makeCopyWithNewScopeAndJwk(defaultReportScope, jwk2)
-                    .makeCopyWithNewScopeAndJwk(wildcardReportScope, jwk)
-            )
-
-            val httpRequestMessage = MockHttpRequestMessage()
-
-            val jwt = mapOf("organization" to listOf("DHSender_simple_reportAdmins"), "sub" to "test@cdc.gov")
-            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
-
-            mockkObject(AuthenticatedClaims)
-            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
-
-            val response = ApiKeysFunctions().getV1(httpRequestMessage, organization.name)
-            assertThat(response.status).isEqualTo(HttpStatus.OK)
-            val jsonResponse = JSONObject(response.body.toString())
-            assertThat(jsonResponse.getJSONArray("data").length()).isEqualTo(2)
-            assertThat(jsonResponse.getJSONArray("data").map { obj -> (obj as JSONObject).getString("scope") })
-                .isEqualTo(
-                    listOf(defaultReportScope, wildcardReportScope)
+        @Nested
+        inner class V1() {
+            @Test
+            fun `Test get keys`() {
+                settings.organizationStore.put(
+                    organization.name,
+                    organization.makeCopyWithNewScopeAndJwk(defaultReportScope, jwk)
+                        .makeCopyWithNewScopeAndJwk(defaultReportScope, jwk2)
+                        .makeCopyWithNewScopeAndJwk(wildcardReportScope, jwk)
                 )
-            assertThat(jsonResponse.getJSONArray("data").getJSONObject(0).getJSONArray("keys").length())
-                .isEqualTo(2)
-            val metaResponse = jsonResponse.getJSONObject("meta")
-            assertThat(metaResponse.getString("type")).isEqualTo("PublicKey")
-            assertThat(metaResponse.getInt("totalCount")).isEqualTo(2)
+
+                val httpRequestMessage = MockHttpRequestMessage()
+
+                val jwt = mapOf("organization" to listOf("DHSender_simple_reportAdmins"), "sub" to "test@cdc.gov")
+                val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+                mockkObject(AuthenticatedClaims)
+                every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+                val response = ApiKeysFunctions().getV1(httpRequestMessage, organization.name)
+                assertThat(response.status).isEqualTo(HttpStatus.OK)
+                val jsonResponse = JSONObject(response.body.toString())
+                assertThat(jsonResponse.getJSONArray("data").length()).isEqualTo(2)
+                assertThat(jsonResponse.getJSONArray("data").map { obj -> (obj as JSONObject).getString("scope") })
+                    .isEqualTo(
+                        listOf(defaultReportScope, wildcardReportScope)
+                    )
+                assertThat(jsonResponse.getJSONArray("data").getJSONObject(0).getJSONArray("keys").length())
+                    .isEqualTo(2)
+                val metaResponse = jsonResponse.getJSONObject("meta")
+                assertThat(metaResponse.getString("type")).isEqualTo("PublicKey")
+                assertThat(metaResponse.getInt("totalCount")).isEqualTo(2)
+            }
+
+            @Test
+            fun `Test returns a 404 if the org does not exist`() {
+                settings.organizationStore.put(
+                    organization.name,
+                    organization.makeCopyWithNewScopeAndJwk(defaultReportScope, jwk)
+                )
+
+                val httpRequestMessage = MockHttpRequestMessage()
+
+                val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+                val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+                mockkObject(AuthenticatedClaims)
+                every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+                val response = ApiKeysFunctions().getV1(httpRequestMessage, "missing_org")
+                assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+            }
+
+            @Test
+            fun `Test does not return keys if not an admin of the organization`() {
+                settings.organizationStore.put(
+                    organization.name,
+                    organization.makeCopyWithNewScopeAndJwk(defaultReportScope, jwk)
+                )
+
+                val httpRequestMessage = MockHttpRequestMessage()
+
+                val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "test@cdc.gov")
+                val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+                mockkObject(AuthenticatedClaims)
+                every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+                val response = ApiKeysFunctions().getV1(httpRequestMessage, organization.name)
+                assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
+            }
+
+            @Test
+            fun `Test does not return keys if not part of the organization`() {
+                settings.organizationStore.put(
+                    organization.name,
+                    organization.makeCopyWithNewScopeAndJwk(defaultReportScope, jwk)
+                )
+
+                val httpRequestMessage = MockHttpRequestMessage()
+
+                val jwt = mapOf("organization" to listOf("DHSender_different_orgAdmins"), "sub" to "test@cdc.gov")
+                val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+                mockkObject(AuthenticatedClaims)
+                every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+                val response = ApiKeysFunctions().getV1(httpRequestMessage, organization.name)
+                assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+            }
+
+            @Test
+            fun `Test returns multiple keys for multiple scopes`() {
+                settings.organizationStore.put(
+                    organization.name,
+                    organization.makeCopyWithNewScopeAndJwk(defaultReportScope, jwk)
+                        .makeCopyWithNewScopeAndJwk(defaultReportScope, jwk2)
+                        .makeCopyWithNewScopeAndJwk(wildcardReportScope, jwk)
+                )
+
+                val httpRequestMessage = MockHttpRequestMessage()
+
+                val jwt = mapOf("organization" to listOf("DHSender_simple_reportAdmins"), "sub" to "test@cdc.gov")
+                val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+                mockkObject(AuthenticatedClaims)
+                every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+                val response = ApiKeysFunctions().getV1(httpRequestMessage, organization.name)
+                assertThat(response.getStatus()).isEqualTo(HttpStatus.OK)
+                val jsonResponse = JSONObject(response.body.toString())
+                assertThat(jsonResponse.getJSONArray("data").length()).isEqualTo(2)
+                assertThat(jsonResponse.getJSONArray("data").map { obj -> (obj as JSONObject).getString("scope") })
+                    .isEqualTo(
+                        listOf(defaultReportScope, wildcardReportScope)
+                    )
+                assertThat(jsonResponse.getJSONArray("data").getJSONObject(0).getJSONArray("keys").length())
+                    .isEqualTo(2)
+            }
+
+            @Test
+            fun `Test returns keys if an organization admin`() {
+                settings.organizationStore.put(
+                    organization.name,
+                    organization.makeCopyWithNewScopeAndJwk(defaultReportScope, jwk)
+                )
+
+                val httpRequestMessage = MockHttpRequestMessage()
+
+                val jwt = mapOf("organization" to listOf("DHSender_simple_reportAdmins"), "sub" to "test@cdc.gov")
+                val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+                mockkObject(AuthenticatedClaims)
+                every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+
+                val response = ApiKeysFunctions().getV1(httpRequestMessage, organization.name)
+                assertThat(response.status).isEqualTo(HttpStatus.OK)
+                val jsonResponse = JSONObject(response.body.toString())
+                assertThat(jsonResponse.getJSONArray("data")).isNotEmpty()
+                assertThat(jsonResponse.getJSONArray("data").length()).isEqualTo(1)
+                assertThat(
+                    jsonResponse.getJSONArray("data")
+                        .getJSONObject(0).getString("scope")
+                ).isEqualTo(defaultReportScope)
+            }
         }
     }
 }
