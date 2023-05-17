@@ -23,7 +23,7 @@ object ConfigSchemaReader : Logging {
     fun fromFile(
         schemaName: String,
         folder: String? = null,
-        schemaClass: Class<ConfigSchema<ConfigSchemaElement>>
+        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>
     ): ConfigSchema<*> {
         // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
         val schemaList = mutableListOf<ConfigSchema<*>>()
@@ -81,7 +81,7 @@ object ConfigSchemaReader : Logging {
         schemaName: String,
         folder: String? = null,
         ancestry: List<String> = listOf(),
-        schemaClass: Class<out ConfigSchema<ConfigSchemaElement>> = ConverterSchema::class.java
+        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java
     ): ConfigSchema<*> {
         val file = File(folder, "$schemaName.yml")
         if (!file.canRead()) throw SchemaException("Cannot read ${file.absolutePath}")
@@ -116,7 +116,7 @@ object ConfigSchemaReader : Logging {
      */
     internal fun readOneYamlSchema(
         inputStream: InputStream,
-        schemaClass: Class<out ConfigSchema<ConfigSchemaElement>> = ConverterSchema::class.java
+        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java
     ): ConfigSchema<*> {
         val mapper = ObjectMapper(YAMLFactory())
         val rawSchema = mapper.readValue(inputStream, schemaClass)

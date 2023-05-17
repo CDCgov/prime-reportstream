@@ -9,10 +9,3 @@ elements:
 
   - name: radx-mars-observation-request
     schema: RADx_MARS-observation-request
-
-
-  # code.coding.code in ('85478-6'
-  - name: ca-observation-result
-    resource: '%resource.result.where(code.coding = "97099-6") | %resource.result.where(code.coding != "97099-6") | %service.supportingInfo.resolve()'
-    schema: ca-observation-result
-    resourceIndex: resultIndex
