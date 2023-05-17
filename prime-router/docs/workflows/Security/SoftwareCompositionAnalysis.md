@@ -13,6 +13,8 @@ Securing your application in today’s complex digital world is a challenge. Wit
 **Benefits**
 SCA’s value is the security, speed, and reliability it offers. Manual tracking of open source code is no longer sufficient; it simply can’t keep up with the sheer amount of open source. And the increasing prevalence of cloud-native applications and more-complex applications make robust and dependable SCA tools a necessity.  
 
+![Software composition analysis](images/sca.png)
+
 &nbsp;  
 **Identify Vulnerabilities in Open Source**
 •	Scan open-source dependencies for known vulnerabilities.
