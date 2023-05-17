@@ -35,6 +35,8 @@ import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePubl
 import FileHandler from "./components/FileHandlers/FileHandler";
 import { FaqPage } from "./pages/support/faq/FaqPage";
 import { DataDashboardWithAuth } from "./pages/data-dashboard/DataDashboard";
+import ContentLayout from "./layouts/ContentLayout";
+import AppLayout from "./layouts/AppLayout";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -49,93 +51,299 @@ export enum FeatureName {
 
 export const appRoutes = [
     /* Public Site */
-    { path: "/", element: <Home /> },
-    { path: "/terms-of-service", element: <TermsOfService /> },
-    { path: "/about", element: <About /> },
-    { path: "/login", element: <Login /> },
-    { path: "/login/callback", element: <LoginCallback /> },
-    { path: "/sign-tos", element: <TermsOfServiceForm /> },
+    {
+        path: "/",
+        element: (
+            <ContentLayout>
+                <Home />
+            </ContentLayout>
+        ),
+    },
+    {
+        path: "/terms-of-service",
+        element: (
+            <ContentLayout>
+                <TermsOfService />
+            </ContentLayout>
+        ),
+    },
+    {
+        path: "/about",
+        element: (
+            <ContentLayout>
+                <About />
+            </ContentLayout>
+        ),
+    },
+    {
+        path: "/login",
+        element: (
+            <AppLayout>
+                <Login />
+            </AppLayout>
+        ),
+    },
+    {
+        path: "/login/callback",
+        element: (
+            <AppLayout>
+                <LoginCallback />
+            </AppLayout>
+        ),
+    },
+    {
+        path: "/sign-tos",
+        element: (
+            <ContentLayout>
+                <TermsOfServiceForm />
+            </ContentLayout>
+        ),
+    },
     {
         path: "/resources",
         children: [
-            { path: "", element: <ResourcesPage /> },
-            { path: "*", element: <Resources /> },
+            {
+                path: "",
+                element: (
+                    <ContentLayout>
+                        <ResourcesPage />{" "}
+                    </ContentLayout>
+                ),
+            },
+            {
+                path: "*",
+                element: (
+                    <ContentLayout>
+                        <Resources />
+                    </ContentLayout>
+                ),
+            },
         ],
     },
-    { path: "/product/*", element: <Product /> },
+    {
+        path: "/product/*",
+        element: (
+            <ContentLayout>
+                <Product />
+            </ContentLayout>
+        ),
+    },
     {
         path: "/support",
         children: [
-            { path: "faq", element: <FaqPage /> },
-            { path: "", element: <Support /> },
-            { path: "*", element: <Support /> },
+            {
+                path: "faq",
+                element: (
+                    <ContentLayout>
+                        <FaqPage />
+                    </ContentLayout>
+                ),
+            },
+            {
+                path: "",
+                element: (
+                    <ContentLayout>
+                        <Support />
+                    </ContentLayout>
+                ),
+            },
+            {
+                path: "*",
+                element: (
+                    <ContentLayout>
+                        <Support />
+                    </ContentLayout>
+                ),
+            },
         ],
     },
-    { path: "/file-handler/validate", element: <FileHandler /> },
-    { path: "/daily-data", element: <DeliveriesWithAuth /> },
+    {
+        path: "/file-handler/validate",
+        element: (
+            <AppLayout>
+                <FileHandler />
+            </AppLayout>
+        ),
+    },
+    {
+        path: "/daily-data",
+        element: (
+            <AppLayout>
+                <DeliveriesWithAuth />
+            </AppLayout>
+        ),
+    },
     {
         path: "/report-details/:reportId",
-        element: <DeliveryDetailWithAuth />,
+        element: (
+            <AppLayout>
+                <DeliveryDetailWithAuth />
+            </AppLayout>
+        ),
     },
-    { path: "/upload", element: <UploadWithAuth /> },
-    { path: "/submissions", element: <SubmissionsWithAuth /> },
+    {
+        path: "/upload",
+        element: (
+            <AppLayout>
+                <UploadWithAuth />
+            </AppLayout>
+        ),
+    },
+    {
+        path: "/submissions",
+        element: (
+            <AppLayout>
+                <SubmissionsWithAuth />
+            </AppLayout>
+        ),
+    },
     {
         path: "/submissions/:actionId",
-        element: <SubmissionDetailsWithAuth />,
+        element: (
+            <AppLayout>
+                <SubmissionDetailsWithAuth />
+            </AppLayout>
+        ),
     },
     /* Data Dashboard pages */
-    { path: "/data-dashboard", element: <DataDashboardWithAuth /> },
+    {
+        path: "/data-dashboard",
+        element: (
+            <AppLayout>
+                <DataDashboardWithAuth />
+            </AppLayout>
+        ),
+    },
     /* Admin pages */
-    { path: "/admin/settings", element: <AdminMainWithAuth /> },
-    { path: "/admin/new/org", element: <AdminOrgNewWithAuth /> },
+    {
+        path: "/admin/settings",
+        element: (
+            <AppLayout>
+                <AdminMainWithAuth />
+            </AppLayout>
+        ),
+    },
+    {
+        path: "/admin/new/org",
+        element: (
+            <AppLayout>
+                <AdminOrgNewWithAuth />
+            </AppLayout>
+        ),
+    },
     {
         path: "/admin/orgsettings/org/:orgname",
-        element: <AdminOrgEditWithAuth />,
+        element: (
+            <AppLayout>
+                <AdminOrgEditWithAuth />
+            </AppLayout>
+        ),
     },
     {
         path: "/admin/orgreceiversettings/org/:orgname/receiver/:receivername/action/:action",
-        element: <EditReceiverSettingsWithAuth />,
+        element: (
+            <AppLayout>
+                <EditReceiverSettingsWithAuth />
+            </AppLayout>
+        ),
     },
     {
         path: "/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action",
-        element: <EditSenderSettingsWithAuth />,
+        element: (
+            <AppLayout>
+                <EditSenderSettingsWithAuth />
+            </AppLayout>
+        ),
     },
     {
         path: "/admin/orgnewsetting/org/:orgname/settingtype/:settingtype",
-        element: <NewSettingWithAuth />,
+        element: (
+            <AppLayout>
+                <NewSettingWithAuth />
+            </AppLayout>
+        ),
     },
-    { path: "/admin/lastmile", element: <AdminLMFWithAuth /> },
+    {
+        path: "/admin/lastmile",
+        element: (
+            <AppLayout>
+                <AdminLMFWithAuth />
+            </AppLayout>
+        ),
+    },
     {
         path: "/admin/send-dash",
-        element: <AdminReceiverDashWithAuth />,
+        element: (
+            <AppLayout>
+                <AdminReceiverDashWithAuth />
+            </AppLayout>
+        ),
     },
-    { path: "/admin/features", element: <FeatureFlagUIWithAuth /> },
+    {
+        path: "/admin/features",
+        element: (
+            <AppLayout>
+                <FeatureFlagUIWithAuth />
+            </AppLayout>
+        ),
+    },
     {
         path: "/admin/message-tracker",
-        element: <AdminMessageTrackerWithAuth />,
+        element: (
+            <AppLayout>
+                <AdminMessageTrackerWithAuth />
+            </AppLayout>
+        ),
     },
     {
         path: "/message-details/:id",
-        element: <MessageDetailsWithAuth />,
+        element: (
+            <AppLayout>
+                <MessageDetailsWithAuth />
+            </AppLayout>
+        ),
     },
     {
         path: "/admin/value-sets/:valueSetName",
-        element: <ValueSetsDetailWithAuth />,
+        element: (
+            <AppLayout>
+                <ValueSetsDetailWithAuth />
+            </AppLayout>
+        ),
     },
     {
         path: "/admin/value-sets",
-        element: <ValueSetsIndexWithAuth />,
+        element: (
+            <AppLayout>
+                <ValueSetsIndexWithAuth />
+            </AppLayout>
+        ),
     },
     {
         path: "/admin/revisionhistory/org/:org/settingtype/:settingType",
-        element: <AdminRevHistoryWithAuth />,
+        element: (
+            <AppLayout>
+                <AdminRevHistoryWithAuth />
+            </AppLayout>
+        ),
     },
     {
         path: "/resources/manage-public-key",
-        element: <ManagePublicKeyWithAuth />,
+        element: (
+            <AppLayout>
+                <ManagePublicKeyWithAuth />
+            </AppLayout>
+        ),
     },
     /* Handles any undefined route */
-    { path: "*", element: <ErrorNoPage /> },
+    {
+        path: "*",
+        element: (
+            <ContentLayout>
+                <ErrorNoPage />
+            </ContentLayout>
+        ),
+    },
 ];
 
 export const AppRouter = () => useRoutes(appRoutes);

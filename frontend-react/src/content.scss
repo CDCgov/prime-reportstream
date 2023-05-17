@@ -5,10 +5,8 @@
 //@import '~uswds/dist/scss/theme/uswds-theme-color';
 //@import '~uswds/dist/scss/theme/uswds-theme-utilities';
 
-$rs-width: "widescreen";
-
 // override (change some of the defaults loaded above)
-@forward "styles/uswds_settings"; // _uswds_settings.scss
+@forward "styles/uswds_settings_content"; // _uswds_settings.scss
 @forward "uswds";
 
 @use "uswds";
