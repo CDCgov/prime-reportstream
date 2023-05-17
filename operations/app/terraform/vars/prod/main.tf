@@ -159,7 +159,7 @@ module "front_door" {
   location                    = local.init.location
   https_cert_names            = local.security.https_cert_names
   is_metabase_env             = local.init.is_metabase_env
-  public_primary_web_endpoint = module.storage.sa_public_primary_web_endpoint
+  public_primary_web_endpoint = module.storage.storage_public.primary_web_endpoint
   application_key_vault_id    = module.key_vault.application_key_vault_id
 }
 
@@ -242,6 +242,7 @@ module "chatops" {
   chatops_github_token              = data.azurerm_key_vault_secret.chatops_github_token.value
   chatops_github_repo               = local.chatops.github_repo
   chatops_github_target_branches    = local.chatops.github_target_branches
+  storage_account                   = module.storage.storage_public
 }
 
 
@@ -267,7 +268,7 @@ module "log_analytics_workspace" {
   primary_vnet_id            = module.network.primary_vnet_id
   replica_vnet_id            = module.network.replica_vnet_id
   storage_account_id         = module.storage.storage_account_id
-  storage_public_id          = module.storage.storage_public_id
+  storage_public_id          = module.storage.storage_public.id
   storage_partner_id         = module.storage.storage_partner_id
   action_group_slack_id      = module.application_insights.action_group_slack_id
   action_group_metabase_id   = module.application_insights.action_group_metabase_id
