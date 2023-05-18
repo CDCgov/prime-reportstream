@@ -47,6 +47,12 @@ const makeConfigs = (sampleRow: TableRowData): ColumnConfig[] => {
     const transformFunc = (v: any) => {
         return v === 9 ? "Transformed Value" : v;
     };
+    const handleActionFunc = () => {
+        return "";
+    };
+    const handleHasAction = () => {
+        return true;
+    };
     return Object.keys(sampleRow).map((key) => {
         return {
             dataAttr: key,
@@ -60,6 +66,10 @@ const makeConfigs = (sampleRow: TableRowData): ColumnConfig[] => {
                   }
                 : {
                       // TODO: Add actionable
+                      action: handleActionFunc,
+                      param: "actionParam",
+                      hasActionButton: handleHasAction,
+                      hasActionButtonParam: "hasActionParam",
                   },
             valueMap: key.includes("map") ? sampleMapper : undefined,
             transform: key.includes("transform") ? transformFunc : undefined,
