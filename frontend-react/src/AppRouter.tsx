@@ -35,6 +35,7 @@ import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePubl
 import FileHandler from "./components/FileHandlers/FileHandler";
 import { FaqPage } from "./pages/support/faq/FaqPage";
 import { DataDashboardWithAuth } from "./pages/data-dashboard/DataDashboard";
+import { ReportDetailsWithAuth } from "./components/DataDashboard/ReportDetails/ReportDetails";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -85,6 +86,10 @@ export const appRoutes = [
     },
     /* Data Dashboard pages */
     { path: "/data-dashboard", element: <DataDashboardWithAuth /> },
+    {
+        path: "/data-dashboard/report-details/:reportId",
+        element: <ReportDetailsWithAuth />,
+    },
     /* Admin pages */
     { path: "/admin/settings", element: <AdminMainWithAuth /> },
     { path: "/admin/new/org", element: <AdminOrgNewWithAuth /> },
