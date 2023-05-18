@@ -30,6 +30,7 @@ import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.tokens.OktaAuthentication
 import gov.cdc.prime.router.tokens.TestDefaultJwt
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -43,6 +44,7 @@ import org.jooq.exception.DataAccessException
 import org.jooq.tools.jdbc.MockConnection
 import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.TestInstance
@@ -613,6 +615,17 @@ class DeliveryFunctionTests : Logging {
     @Nested
     inner class TestGetReportItems() {
 
+        @BeforeEach
+        fun setUp() {
+            mockkObject(Metadata.Companion)
+            every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+        }
+
+        @AfterEach
+        fun tearDown(){
+            unmockkObject(AuthenticatedClaims)
+        }
+
         @Test
         fun `test non prime admins are unauthorized`() {
             val httpRequestMessage = MockHttpRequestMessage()
@@ -625,7 +638,7 @@ class DeliveryFunctionTests : Logging {
 
             val response = DeliveryFunction().getReportItems(httpRequestMessage, UUID.randomUUID())
             assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
-            unmockkObject(AuthenticatedClaims)
+
         }
 
         @Test
@@ -644,7 +657,6 @@ class DeliveryFunctionTests : Logging {
 
             val response = DeliveryFunction().getReportItems(httpRequestMessage, UUID.randomUUID())
             assertThat(response.status).isEqualTo(HttpStatus.OK)
-            unmockkObject(AuthenticatedClaims)
         }
     }
 }
