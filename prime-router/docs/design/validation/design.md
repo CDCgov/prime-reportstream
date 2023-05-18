@@ -17,9 +17,6 @@ This is where they are located in the overall system:
 TODO: update this diagram
 ![annotated-fhir-architecture-diagram.png](annotated-fhir-architecture-diagram.png)
 
-A factory/builder shall consume the validationProfile setting and produce reusable, cached validation objects 
-(i.e. instance of configured FhirValidator in a wrapper/interface) that can be used to validate FHIR data.
-
 ### Shared Components
 To facilitate reuse and extensibility, a new setting type `validationProfile` shall be created representing a type of
 validation, the validations to perform, and any applicable configuration parameters. This setting is reusable because
@@ -50,6 +47,7 @@ needed (per receiver) after applying receiver transforms and enrichment.
 Will occur in the translate function, after reception, translation, and enrichment but right
 before dispatch.Verify that the final dataset meets configured receiver expectations prior to dispatch.
 
+#### Actions Upon Validation Failure
 When a message fails validation, validation errors should show up in:
 - The submission history API
 - The Action Log in the database in such a way that the engagement team can easily query for it
@@ -65,6 +63,8 @@ Tickets needed for both:
 - Add validation errors to the action log: https://github.com/CDCgov/prime-reportstream/issues/9221
 
 ### FHIR Validation
+A factory/builder shall consume the validationProfile setting and produce reusable, cached validation objects
+(i.e. instance of configured FhirValidator in a wrapper/interface) that can be used to validate FHIR data.
 
 #### Validation Tool
 There is an existing and well-maintained project that meets the requirements for a validation tool. We intend to deploy
@@ -172,6 +172,9 @@ value is the pre-populated list of implementation guides from various health fac
 - Test default validation against existing messages: https://github.com/CDCgov/prime-reportstream/pull/9165
 
 ### HL7 Validation
+We will be using the NIST library for validation since the HAPI library requires Windows tools and we are a MAC shop. 
+Also, DEX chose to use it and is currently using it, which means it is a tested and proven tool. Lastly, there is a GUI
+available to use to create profiles with which will make the process, while still tedious, at least somewhat easier. 
 
 #### Background Information
 ##### RADx MARS
@@ -259,7 +262,9 @@ The NIST HL7 Validation Library can be found here: https://github.com/usnistgov/
 Unfortunately, they do not seem to have documentation on how to actually use this library. I found this page
 https://hl7v2-ws.nist.gov/hl7v2ws/documentation.htm, but the buttons leading to the documentation do not work. The 
 project only has one README which does not discuss how to actually use the library. https://hl7v2-gvt.nist.gov/gvt/#/doc 
-appears to have information on the validation tool and within that there is a swagger spec.       
+appears to have information on the validation tool and within that there is a swagger spec
+(https://hl7v2-gvt.nist.gov/gvt/apidocs/swagger-ui.html#/), but none of that appears to be for actually validating an
+HL7 Message. 
 
 DEX uses this library but has a light wrapper around it. They do recommend using the library, but not their wrapper.
 Part of using the library is creating profiles. This can be done by going to https://hl7v2-igamt-2.nist.gov/ and signing
@@ -267,9 +272,6 @@ up. Once you register, go to IG Documents, Create new IG document. Select the HL
 it will create a base for you. Then you have to manually adjust each field to meet the spec. There is only one profile 
 currently that is shared. Otherwise, you have to know someone. Marcia Schulman has offered to give us whatever she has 
 so that she can be contacted once we know what profiles we need, but she only had a few and it is unlikely they will meet our needs.
- 
-https://hl7v2-gvt.nist.gov/gvt/apidocs/swagger-ui.html#/ but none of that appears to be for actually validating an 
-HL7 Message.
 
 From reading the code in the library, it looks like they have one ORU_R01 profile setup as an example, we would need to 
 set up any further profiles that we want. These are done in xml, then we deserialize them, pass then into the 
