@@ -21,6 +21,10 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
 
     data class ApiKeysResponse(val orgName: String, val keys: List<JwkSet>)
 
+    /**
+     * Reusable function for fetching API keys.  The useNewApiResponse dictates whether or not to use the consistent
+     * API response format
+     */
     private fun getApiKeysForOrg(
         request: HttpRequestMessage<String?>,
         orgName: String,
