@@ -37,6 +37,7 @@ import io.mockk.mockkClass
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.spyk
+import io.mockk.unmockkObject
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.exception.DataAccessException
 import org.jooq.tools.jdbc.MockConnection
@@ -624,6 +625,7 @@ class DeliveryFunctionTests : Logging {
 
             val response = DeliveryFunction().getReportItems(httpRequestMessage, UUID.randomUUID())
             assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+            unmockkObject(AuthenticatedClaims)
         }
 
         @Test
@@ -642,6 +644,7 @@ class DeliveryFunctionTests : Logging {
 
             val response = DeliveryFunction().getReportItems(httpRequestMessage, UUID.randomUUID())
             assertThat(response.status).isEqualTo(HttpStatus.OK)
+            unmockkObject(AuthenticatedClaims)
         }
     }
 }
