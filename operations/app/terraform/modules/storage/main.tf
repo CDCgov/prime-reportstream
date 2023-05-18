@@ -201,6 +201,11 @@ resource "azurerm_storage_account" "storage_public" {
   }
 }
 
+resource "azurerm_storage_share" "gh_locks" {
+  name                 = "gh-locks"
+  storage_account_name = azurerm_storage_account.storage_public.name
+  quota                = 50
+}
 
 # # Partner
 
