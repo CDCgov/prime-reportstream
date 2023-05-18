@@ -6,16 +6,15 @@ setting as well as reusable validation components to perform the sending and rec
 ## Validation Design
 The diagram below proposes four validation "checkpoints":
 
-| Name                      | Description + Location                                              | Purpose                                                                                                        |
-|---------------------------|---------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| Submission                | Upon receipt of a submission in the SenderReceiver                  | Ensure data is parseable (i.e. not a png or other garbage data)                                                |
-| Pre-transform (sender)    | Per bundle after de-batch in the convert function                   | Ensure data is ready for transformation (i.e. satisfies the validation profile configured for this sender)     |
-| Post-transform (sender)   | After sender transforms and enrichment in the convert function      | Ensure data is valid after transformation (i.e. satisfies the validation profile configured for this sender)   | 
-| Post-transform (receiver) | After receiver translation and enrichment in the translate function | Ensure data is valid after transformation (i.e. satisfies the validation profile configured for this receiver) | 
+| Name           | Description + Location                                              | Purpose                                                                                                        |
+|----------------|---------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| Submission     | Upon receipt of a submission in the SenderReceiver                  | Ensure data is parseable (i.e. not a png or other garbage data)                                                |
+| Pre-transform  | Per bundle after de-batch in the convert function                   | Ensure data is ready for transformation (i.e. satisfies the validation profile configured for this sender)     |
+| Post-transform | After sender transforms and enrichment in the convert function      | Ensure data is valid after transformation (i.e. satisfies the validation profile configured for this sender)   | 
+| Pre-dispatch   | After receiver translation and enrichment in the translate function | Ensure data is valid after transformation (i.e. satisfies the validation profile configured for this receiver) | 
 
 This is where they are located in the overall system:  
-TODO: update this diagram
-![annotated-fhir-architecture-diagram.png](annotated-fhir-architecture-diagram.png)
+![annotated-architecture-diagram.png](annotated-architecture-diagram.png)
 
 ### Shared Components
 To facilitate reuse and extensibility, a new setting type `validationProfile` shall be created representing a type of
@@ -31,19 +30,19 @@ configuration will be universal or at least binary (validation on/off vs differe
 
 This step will not be implemented for HL7
 
-#### Pre sender transform
+#### Pre transform
 Before we apply sender transforms and enrichment, we need to ensure that bundles contain sane data for its origin.
 We should also ensure any prerequisites (e.g. field, value, format) for transform/enrichment is satisfied. Further 
 validation is still necessary as the assembled bundle may still be missing data that will be added.
 
 This step will not be implemented for HL7
 
-#### Post sender transform
+#### Post transform
 Will occur during the convert function, after receiving and debatch, and before the convert step. We again need to 
 ensure that all necessary data exists and is sane. This will happen for both HL7 and FHIR. One final validation will be 
 needed (per receiver) after applying receiver transforms and enrichment.
 
-#### Post receiver enrichment
+#### Pre dispatch
 Will occur in the translate function, after reception, translation, and enrichment but right
 before dispatch.Verify that the final dataset meets configured receiver expectations prior to dispatch.
 
