@@ -59,7 +59,7 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
             columnHeader: "Ordering Provider",
             feature: {
                 link: true,
-                linkBasePath: "/data-dashboard/facilities-providers/:provider",
+                linkBasePath: "/data-dashboard/facilities-providers/",
             },
         },
         {
@@ -67,7 +67,7 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
             columnHeader: "Performing facility",
             feature: {
                 link: true,
-                linkBasePath: "/data-dashboard/facilities-providers/:facility",
+                linkBasePath: "/data-dashboard/facilities-providers/",
             },
         },
         {
@@ -75,7 +75,7 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
             columnHeader: "Submitter",
             feature: {
                 link: true,
-                linkBasePath: "/data-dashboard/facilities-providers/:submitter",
+                linkBasePath: "/data-dashboard/facilities-providers/",
             },
         },
         {
@@ -83,7 +83,7 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
             columnHeader: "Report ID",
             feature: {
                 link: true,
-                linkBasePath: "/data-dashboard/report-details/:reportId",
+                linkBasePath: "/data-dashboard/report-details/",
             },
         },
     ];
