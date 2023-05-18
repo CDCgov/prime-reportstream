@@ -17,6 +17,8 @@ import java.util.UUID
 
 private const val PARENT_REPORT_ID_FIELD = "parent_report_id"
 
+private const val CHILD_REPORT_ID_FIELD = "child_report_id"
+
 private const val METADATA_CTE = "metadata"
 
 private const val PATH_FIELD = "path"
@@ -37,7 +39,7 @@ class ReportGraph(
      *
      */
     fun getMetadataForReports(childReportIds: List<UUID>): List<CovidResultMetadata> {
-        val lineage = lineageCte(childReportIds)
+        val lineage = childLineageExpression(childReportIds)
 
         val sourceReportIds =
             sourceReportsCte(lineage)
@@ -83,7 +85,7 @@ class ReportGraph(
     /**
      * Accepts a list of ids and walks up the report lineage graph
      */
-    private fun lineageCte(childReportIds: List<UUID>) =
+    private fun childLineageExpression(childReportIds: List<UUID>) =
         DSL.name(LINEAGE_CTE).fields(
             PARENT_REPORT_ID_FIELD,
             PATH_FIELD
@@ -97,6 +99,36 @@ class ReportGraph(
                     DSL.select(
                         REPORT_LINEAGE.PARENT_REPORT_ID,
                         DSL.field("$LINEAGE_CTE.$PATH_FIELD", SQLDataType.VARCHAR)
+                            .concat(REPORT_LINEAGE.PARENT_REPORT_ID)
+                    )
+                        .from(REPORT_LINEAGE)
+                        .join(DSL.table(DSL.name(LINEAGE_CTE)))
+                        .on(
+                            DSL.field(DSL.name(LINEAGE_CTE, CHILD_REPORT_ID_FIELD), SQLDataType.UUID)
+                                .eq(REPORT_LINEAGE.PARENT_REPORT_ID)
+                        )
+
+                )
+        )
+
+    /**
+     * Accepts a list of ids and walks down the report lineage graph
+     */
+    private fun sourceLineageExpression(sourceReportIds: List<UUID>) =
+        DSL.name(LINEAGE_CTE).fields(
+            PARENT_REPORT_ID_FIELD,
+            PATH_FIELD
+        ).`as`(
+            DSL.select(
+                REPORT_LINEAGE.CHILD_REPORT_ID,
+                REPORT_LINEAGE.PARENT_REPORT_ID.cast(SQLDataType.VARCHAR),
+            ).from(REPORT_LINEAGE)
+                .where(REPORT_LINEAGE.PARENT_REPORT_ID.`in`(sourceReportIds))
+                .unionAll(
+                    DSL.select(
+                        REPORT_LINEAGE.CHILD_REPORT_ID,
+                        DSL.field("$LINEAGE_CTE.$PATH_FIELD", SQLDataType.VARCHAR)
+                            .concat(REPORT_LINEAGE.CHILD_REPORT_ID)
                     )
                         .from(REPORT_LINEAGE)
                         .join(DSL.table(DSL.name(LINEAGE_CTE)))
