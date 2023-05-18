@@ -472,7 +472,6 @@ class FHIRRouter(
         if (filter.isNullOrEmpty()) {
             return Pair(defaultResponse, "defaultResponse")
         }
-        check(filter.isNotEmpty())
         val failingFilters = mutableListOf<String>()
         val exceptionFilters = mutableListOf<String>()
         filter.forEach { filterElement ->
