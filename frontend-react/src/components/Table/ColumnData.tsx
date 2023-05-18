@@ -91,7 +91,7 @@ export const ColumnData = ({
 
     if (hasFeature("action")) {
         // Make column value actionable
-        const { action, param, hasActionButton, hasActionButtonParam } =
+        const { action, param, actionButtonHandler, actionButtonParam } =
             columnConfig.feature as ActionableColumn;
 
         if (!rowData[param!!]) {
@@ -103,8 +103,8 @@ export const ColumnData = ({
             return action();
         };
         const showActionButton = () => {
-            if (hasActionButton && hasActionButtonParam) {
-                return hasActionButton(rowData[hasActionButtonParam]);
+            if (actionButtonHandler && actionButtonParam) {
+                return actionButtonHandler(rowData[actionButtonParam]);
             } else {
                 return true;
             }

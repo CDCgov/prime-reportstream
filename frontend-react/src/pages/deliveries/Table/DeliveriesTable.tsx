@@ -119,8 +119,8 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
             feature: {
                 action: handleFetchAndDownload,
                 param: DeliveriesDataAttr.REPORT_ID,
-                hasActionButton: handleExpirationDate,
-                hasActionButtonParam: DeliveriesDataAttr.EXPIRES,
+                actionButtonHandler: handleExpirationDate,
+                actionButtonParam: DeliveriesDataAttr.EXPIRES,
             },
         },
     ];

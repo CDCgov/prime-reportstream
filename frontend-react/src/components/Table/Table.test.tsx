@@ -68,8 +68,8 @@ const makeConfigs = (sampleRow: TableRowData): ColumnConfig[] => {
                       // TODO: Add actionable
                       action: handleActionFunc,
                       param: "actionParam",
-                      hasActionButton: handleHasAction,
-                      hasActionButtonParam: "hasActionParam",
+                      actionButtonHandler: handleHasAction,
+                      actionButtonParam: "hasActionParam",
                   },
             valueMap: key.includes("map") ? sampleMapper : undefined,
             transform: key.includes("transform") ? transformFunc : undefined,
