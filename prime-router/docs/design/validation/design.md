@@ -79,19 +79,15 @@ The HAPI FHIR library represents an implementation guide using:
 - [Code Systems](http://hl7.org/fhir/codesystem.html) - Code and vocabulary definitions
 - [Value Sets](http://hl7.org/fhir/valueset.html) - Lists of codes (from above) for use in field values
 
-The HAPI FHIR library supports three types of validation:
+The HAPI FHIR library supports two types of validation:
 - [Parser](https://hapifhir.io/hapi-fhir/docs/validation/parser_error_handler.html)
   - Lightweight but not comprehensive
   - An IParser instance can be configured with StrictErrorHandler or LenientErrorHandler resulting in exceptions or log messages upon parsing an invalid FHIR bundle.
 - [Instance](https://hapifhir.io/hapi-fhir/docs/validation/instance_validator.html)
-  - Heavy and comprehensive
+  - Heavy rand comprehensive
   - Great user-facing error messages
   - Flexible and easy to write/configure
   - Built-in support for core FHIR spec and many derivatives
-- [<s>Schema / Schematron</s>](https://hapifhir.io/hapi-fhir/docs/validation/schema_validator.html)
-  - Performant and comprehensive
-  - User unfriendly error messages
-  - Deprecated
 
 There is an existing project maintained by the HL7 FHIR foundation that serves as great sample code for initializing
 the validation components with specific FHIR versions and specific implementation guides.  **Consult the `FHIR Validator`
