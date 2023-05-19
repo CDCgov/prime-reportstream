@@ -1,6 +1,7 @@
 name: SonarCloud Master
 
 on: 
+  workflow_dispatch:
   push:
     branches:
       - master
