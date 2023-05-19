@@ -66,6 +66,6 @@ enum class Topic(val jsonVal: String, val isUniversalPipeline: Boolean) {
 
     companion object {
         private val jsonMap = Topic.values().associateBy(Topic::jsonVal)
-        fun fromJsonValue(jsonVal: String) = jsonMap[jsonVal]
+        fun fromJsonValue(jsonVal: String?) = jsonMap[jsonVal]
     }
 }

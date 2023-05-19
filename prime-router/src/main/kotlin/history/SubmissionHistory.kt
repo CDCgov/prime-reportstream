@@ -301,7 +301,7 @@ class DetailedSubmissionHistory(
         actionsPerformed.addAll(descendants.map { submission -> submission.actionName }.distinct())
 
         // Enforce an order on the enrichment:  process/translate, send, download
-        if (topic?.let { Topic.fromJsonValue(it)?.isUniversalPipeline } == true) {
+        if (Topic.fromJsonValue(topic)?.isUniversalPipeline == true) {
             // logs and destinations are handled very differently for UP
             // both routing and translate are populated at different times,
             // so we need to do special logic to handle them
@@ -338,7 +338,7 @@ class DetailedSubmissionHistory(
      */
     private fun enrichWithTranslateAction(descendant: DetailedSubmissionHistory) {
         require(
-            topic?.let { Topic.fromJsonValue(it)?.isUniversalPipeline } == true &&
+            Topic.fromJsonValue(topic)?.isUniversalPipeline == true &&
                 descendant.actionName == TaskAction.translate
         ) {
             "Must be translate action. Enrichment is only available for the Universal Pipeline"
@@ -373,7 +373,7 @@ class DetailedSubmissionHistory(
      */
     private fun enrichWithRouteAction(descendant: DetailedSubmissionHistory) {
         require(
-            topic?.let { Topic.fromJsonValue(it)?.isUniversalPipeline } == true &&
+            Topic.fromJsonValue(topic)?.isUniversalPipeline == true &&
                 descendant.actionName == TaskAction.route
         ) {
             "Must be route action. Enrichment is only available for the Universal Pipeline"

@@ -2,6 +2,7 @@ package gov.cdc.prime.router
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNull
 import gov.cdc.prime.router.tokens.Jwk
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
@@ -21,6 +22,8 @@ class SettingsProviderTest {
         assertThat(Topic.fromJsonValue("monkeypox")).isEqualTo(Topic.MONKEYPOX)
         assertThat(Topic.fromJsonValue("CsvFileTests-topic")).isEqualTo(Topic.CSV_TESTS)
         assertThat(Topic.fromJsonValue("test")).isEqualTo(Topic.TEST)
+        assertThat(Topic.fromJsonValue("otherString")).isNull()
+        assertThat(Topic.fromJsonValue(null)).isNull()
     }
 
     val keyPair = Keys.keyPairFor(SignatureAlgorithm.RS256)
