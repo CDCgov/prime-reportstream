@@ -1,14 +1,27 @@
 package gov.cdc.prime.router
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import gov.cdc.prime.router.tokens.Jwk
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
+import org.junit.jupiter.api.Test
 import java.security.interfaces.RSAPublicKey
 import java.util.Base64
 
 // TODO: https://github.com/CDCgov/prime-reportstream/issues/8659
 // This test class be removed
 class SettingsProviderTest {
+
+    @Test
+    fun `test get topic by jsonVal`() {
+        assertThat(Topic.fromJsonValue("etor")).isEqualTo(Topic.ETOR)
+        assertThat(Topic.fromJsonValue("full-elr")).isEqualTo(Topic.FULL_ELR)
+        assertThat(Topic.fromJsonValue("covid-19")).isEqualTo(Topic.COVID_19)
+        assertThat(Topic.fromJsonValue("monkeypox")).isEqualTo(Topic.MONKEYPOX)
+        assertThat(Topic.fromJsonValue("CsvFileTests-topic")).isEqualTo(Topic.CSV_TESTS)
+        assertThat(Topic.fromJsonValue("test")).isEqualTo(Topic.TEST)
+    }
 
     val keyPair = Keys.keyPairFor(SignatureAlgorithm.RS256)
     val pubKey = keyPair.getPublic() as RSAPublicKey
