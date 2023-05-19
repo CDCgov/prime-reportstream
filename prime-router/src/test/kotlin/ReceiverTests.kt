@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNull
@@ -31,7 +32,7 @@ internal class ReceiverTests {
                 UnitTestUtils.simpleMetadata
             )
         ).isEqualTo(
-            "Condition filter only allowed for receiver with topic 'full_elr'"
+            "Condition filter only allowed for receivers with topic 'full_elr' or 'etor'"
         )
     }
 

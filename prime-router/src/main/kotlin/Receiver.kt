@@ -236,17 +236,17 @@ open class Receiver(
      */
     fun consistencyErrorMessage(metadata: Metadata): String? {
         if (conditionFilter.isNotEmpty()) {
-            if (topic != Topic.FULL_ELR) {
-                return "Condition filter only allowed for receiver with topic 'full_elr'"
+            if (!topic.isUniversalPipeline) {
+                return "Condition filter only allowed for receivers with topic 'full_elr' or 'etor'"
             }
         }
 
         // TODO: Temporary workaround for full-ELR as we do not have a way to load schemas yet
-        if (topic == Topic.FULL_ELR) return null
+        if (topic.isUniversalPipeline) return null
 
         if (translation is CustomConfiguration) {
-            when (this.topic) {
-                Topic.FULL_ELR -> {
+            when (this.topic.isUniversalPipeline) {
+                true -> {
                     try {
                         FhirToHl7Converter(translation.schemaName)
                     } catch (e: SchemaException) {
@@ -254,7 +254,7 @@ open class Receiver(
                     }
                 }
 
-                else -> {
+                false -> {
                     if (metadata.findSchema(translation.schemaName) == null) {
                         return "Invalid schemaName: ${translation.schemaName}"
                     }

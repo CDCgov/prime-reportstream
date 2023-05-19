@@ -44,19 +44,28 @@ enum class CustomerStatus {
  * A submission with topic FULL_ELR will be processed using the full ELR pipeline (fhir engine), submissions
  * from a sender with topic COVID_19 will be processed using the covid-19 pipeline.
  */
-enum class Topic(val json_val: String) {
+enum class Topic(val jsonVal: String, val isUniversalPipeline: Boolean) {
     @JsonProperty("full-elr")
-    FULL_ELR("full-elr"),
+    FULL_ELR("full-elr", true),
+
+    @JsonProperty("etor")
+    ETOR("etor", true),
 
     @JsonProperty("covid-19")
-    COVID_19("covid-19"),
+    COVID_19("covid-19", false),
 
     @JsonProperty("monkeypox")
-    MONKEYPOX("monkeypox"),
+    MONKEYPOX("monkeypox", false),
 
     @JsonProperty("CsvFileTests-topic")
-    CSV_TESTS("CsvFileTests-topic"),
+    CSV_TESTS("CsvFileTests-topic", false),
 
     @JsonProperty("test")
-    TEST("test"),
+    TEST("test", false),
+    ;
+
+    companion object {
+        private val jsonMap = Topic.values().associateBy(Topic::jsonVal)
+        fun fromJsonValue(jsonVal: String) = jsonMap[jsonVal]
+    }
 }

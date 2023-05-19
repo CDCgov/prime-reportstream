@@ -27,13 +27,13 @@
     - name: simulated-hospital
       externalName: Simulated Hospital ETOR Sender
       organizationName: flexion
-      topic: full-elr
+      topic: etor
       customerStatus: active
       format: HL7
     - name: etor-service-sender
       externalName: ETOR Service Sender Channel to ReportStream - Sending FHIR
       organizationName: flexion
-      topic: full-elr
+      topic: etor
       customerStatus: active
       format: FHIR
       schemaName: "metadata/fhir_transforms/senders/Flexion/TrustedIntermediaryLabOrder"
@@ -41,7 +41,7 @@
     - name: simulated-lab
       externalName: Simulated State Public Health Lab ETOR Receiver
       organizationName: flexion
-      topic: full-elr
+      topic: etor
       customerStatus: active
       # This is how to allow everything:
       #     jurisdictionalFilter:
@@ -71,7 +71,7 @@
     - name: etor-service-receiver
       externalName: ETOR Service Receiver Channel from ReportStream
       organizationName: flexion
-      topic: full-elr
+      topic: etor
       customerStatus: active
       timing:
         operation: MERGE
