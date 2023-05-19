@@ -27,6 +27,15 @@ resource "azurerm_container_group" "chatops" {
       SLACK_APP_TOKEN = var.chatops_slack_app_token
       GITHUB_TOKEN    = var.chatops_github_token
     }
+
+    volume {
+      name                 = "gh-locks"
+      share_name           = "gh-locks"
+      storage_account_name = var.storage_account.name
+      storage_account_key  = var.storage_account.primary_access_key
+      mount_path           = "/usr/app/src/.locks"
+      read_only            = false
+    }
   }
 
   image_registry_credential {
@@ -34,4 +43,8 @@ resource "azurerm_container_group" "chatops" {
     username = var.container_registry_admin_username
     password = var.container_registry_admin_password
   }
+
+  depends_on = [
+    var.storage_account
+  ]
 }
