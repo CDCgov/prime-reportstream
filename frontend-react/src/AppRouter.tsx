@@ -96,6 +96,7 @@ export const appRoutes: RouteObject[] = [
                 children: [
                     {
                         path: "",
+                        index: true,
                         element: <ResourcesPage />,
                         handle: {
                             isContentPage: true,
@@ -129,13 +130,6 @@ export const appRoutes: RouteObject[] = [
                     },
                     {
                         path: "",
-                        element: <Support />,
-                        handle: {
-                            isContentPage: true,
-                        },
-                    },
-                    {
-                        path: "*",
                         element: <Support />,
                         handle: {
                             isContentPage: true,
