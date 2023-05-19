@@ -17,7 +17,7 @@ function ReportDetails() {
     const crumbProps: CrumbsProps = {
         crumbList: [
             { label: FeatureName.DATA_DASHBOARD, path: "/data-dashboard" },
-            { label: "Report Details" },
+            { label: FeatureName.REPORT_DETAILS },
         ],
     };
     const { reportId } = useParams();
@@ -26,7 +26,7 @@ function ReportDetails() {
     return (
         <div className="margin-left-7">
             <Crumbs {...crumbProps}></Crumbs>
-            <GridContainer className=" margin-left-0 padding-left-0 margin-right-7 padding-bottom-8 rs-max-width-100-important">
+            <GridContainer className="margin-left-0 padding-left-0 margin-right-7 padding-bottom-8 rs-max-width-100-important">
                 <article>
                     <ReportDetailsSummary report={reportDetail} />
                     {withCatchAndSuspense(
