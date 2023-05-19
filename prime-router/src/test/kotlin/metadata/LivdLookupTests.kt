@@ -10,7 +10,7 @@ import gov.cdc.prime.router.metadata.LivdLookup.find
 import org.junit.jupiter.api.Test
 
 class LivdLookupTests {
-    private val livdPath = "./src/test/resources/metadata/tables/LIVD-SARS-CoV-2-2022-01-12.csv"
+    private val livdPath = "./src/test/resources/metadata/tables/LIVD-SARS-CoV-2-2023-03-22.csv"
 
     @Test
     fun `test livdLookup with DeviceId`() {
@@ -194,11 +194,11 @@ class LivdLookupTests {
                 equipmentModelId = null,
                 testKitNameId = null,
                 equipmentModelName = null,
-                tableColumn = "is_otc",
+                tableColumn = "Over the Counter (OTC) Home Testing",
                 tableRef = lookupTable
             )
         )
-            .isEqualTo("N")
+            .isEqualTo("yes")
 
         // Test with a truncated device ID
         assertThat(
@@ -209,11 +209,11 @@ class LivdLookupTests {
                 equipmentModelId = null,
                 testKitNameId = null,
                 equipmentModelName = null,
-                tableColumn = "is_otc",
+                tableColumn = "Over the Counter (OTC) Home Testing",
                 tableRef = lookupTable
             )
         )
-            .isEqualTo("Y")
+            .isEqualTo("yes")
     }
 
     @Test
@@ -228,11 +228,11 @@ class LivdLookupTests {
                 equipmentModelId = null,
                 testKitNameId = null,
                 equipmentModelName = "BinaxNOW COVID-19 Ag Card Home Test",
-                tableColumn = "is_otc",
+                tableColumn = "Over the Counter (OTC) Home Testing",
                 tableRef = lookupTable
             )
         )
-            .isEqualTo("N")
+            .isEqualTo("yes")
 
         // Test with another
         assertThat(
@@ -243,11 +243,11 @@ class LivdLookupTests {
                 equipmentModelId = null,
                 testKitNameId = null,
                 equipmentModelName = "BinaxNOW COVID-19 Ag Card 2 Home Test",
-                tableColumn = "is_otc",
+                tableColumn = "Over the Counter (OTC) Home Testing",
                 tableRef = lookupTable
             )
         )
-            .isEqualTo("Y")
+            .isEqualTo("yes")
 
         assertThat(
             find(
@@ -257,7 +257,7 @@ class LivdLookupTests {
                 equipmentModelId = null,
                 testKitNameId = null,
                 equipmentModelName = "Some bad text",
-                tableColumn = "is_otc",
+                tableColumn = "Over the Counter (OTC) Home Testing",
                 tableRef = lookupTable
             )
         )

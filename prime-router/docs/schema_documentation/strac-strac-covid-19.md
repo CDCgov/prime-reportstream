@@ -991,7 +991,7 @@ The specimen source, such as Blood or Serum
 
 **PII**: No
 
-**Default Value**: N
+**Default Value**: no
 
 **Cardinality**: [0..1]
 
@@ -1001,10 +1001,10 @@ The specimen source, such as Blood or Serum
                 
 **Table**: LIVD-SARS-CoV-2
 
-**Table Column**: is_home
+**Table Column**: Over the Counter (OTC) Home Testing
 
 **Documentation**:
-Is the test authorized for home use by the FDA (Y, N, UNK)
+Is the test authorized for home use by the FDA (yes, no)
 ---
 
 **Name**: test_authorized_for_otc
@@ -1015,7 +1015,7 @@ Is the test authorized for home use by the FDA (Y, N, UNK)
 
 **PII**: No
 
-**Default Value**: N
+**Default Value**: no
 
 **Cardinality**: [0..1]
 
@@ -1025,10 +1025,10 @@ Is the test authorized for home use by the FDA (Y, N, UNK)
                 
 **Table**: LIVD-SARS-CoV-2
 
-**Table Column**: is_otc
+**Table Column**: Over the Counter (OTC) Home Testing
 
 **Documentation**:
-Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
+Is the test authorized for over-the-counter purchase by the FDA (yes, no)
 ---
 
 **Name**: test_authorized_for_unproctored

@@ -15,7 +15,8 @@ enum class LivdTableColumns(val colName: String) {
     MODEL("Model"),
     TEST_PERFORMED_CODE("Test Performed LOINC Code"),
     PROCESSING_MODE_CODE("processing_mode_code"),
-    MANUFACTURER("Manufacturer")
+    MANUFACTURER("Manufacturer"),
+    OTC_HOME_TESTING("Over the Counter (OTC) Home Testing")
 }
 
 /**

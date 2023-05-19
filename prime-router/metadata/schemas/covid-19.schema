@@ -1021,22 +1021,22 @@ elements:
   - name: test_authorized_for_otc
     type: TABLE
     table: LIVD-SARS-CoV-2
-    tableColumn: is_otc
+    tableColumn: Over the Counter (OTC) Home Testing
     reference: Is the test authorized for over-the-counter purchase by the FDA
     referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
     mapper: livdLookup()
-    default: N
-    documentation: Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
+    default: no
+    documentation: Is the test authorized for over-the-counter purchase by the FDA (yes, no)
 
   - name: test_authorized_for_home
     type: TABLE
     table: LIVD-SARS-CoV-2
-    tableColumn: is_home
+    tableColumn: Over the Counter (OTC) Home Testing
     reference: Is the test authorized for home use by the FDA
     referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
     mapper: livdLookup()
-    default: N
-    documentation: Is the test authorized for home use by the FDA (Y, N, UNK)
+    default: no
+    documentation: Is the test authorized for home use by the FDA (yes, no)
 
   - name: test_authorized_for_unproctored
     type: TABLE

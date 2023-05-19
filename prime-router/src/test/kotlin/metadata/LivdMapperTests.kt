@@ -13,7 +13,7 @@ import gov.cdc.prime.router.metadata.LivdLookup.testProcessingModeCode
 import kotlin.test.Test
 
 class LivdMapperTests {
-    private val livdPath = "./src/test/resources/metadata/tables/LIVD-SARS-CoV-2-2022-01-12.csv"
+    private val livdPath = "./src/test/resources/metadata/tables/LIVD-SARS-CoV-2-2023-03-22.csv"
 
     @Test
     fun `test livdLookup with DeviceId`() {
@@ -144,18 +144,18 @@ class LivdMapperTests {
         val codeElement = Element(
             "test_authorized_for_otc",
             tableRef = lookupTable,
-            tableColumn = "is_otc"
+            tableColumn = "Over the Counter (OTC) Home Testing"
         )
         val deviceElement = Element(ElementNames.DEVICE_ID.elementName)
         val mapper = LIVDLookupMapper()
 
         // Test with an FDA device id
         val ev1 = ElementAndValue(deviceElement, "10811877011337")
-        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1)).value).isEqualTo("N")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1)).value).isEqualTo("yes")
 
         // Test with a truncated device ID
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home#")
-        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a)).value).isEqualTo("Y")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a)).value).isEqualTo("yes")
     }
 
     @Test
@@ -164,7 +164,7 @@ class LivdMapperTests {
         val codeElement = Element(
             "test_authorized_for_otc",
             tableRef = lookupTable,
-            tableColumn = "is_otc",
+            tableColumn = "Over the Counter (OTC) Home Testing",
             hl7Field = "OBX-1"
         )
         val deviceElement = Element(ElementNames.EQUIPMENT_MODEL_NAME.elementName)
@@ -173,13 +173,13 @@ class LivdMapperTests {
         // Test with an FDA device id
         val ev1 = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card Home Test")
         var result = mapper.apply(codeElement, emptyList(), listOf(ev1))
-        assertThat(result.value).isEqualTo("N")
+        assertThat(result.value).isEqualTo("yes")
         assertThat(result.errors).isEmpty()
         assertThat(result.warnings).isEmpty()
 
         // Test with another
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home Test")
-        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a)).value).isEqualTo("Y")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a)).value).isEqualTo("yes")
 
         val ev2 = ElementAndValue(deviceElement, "Some bad text")
         result = mapper.apply(codeElement, emptyList(), listOf(ev2))
