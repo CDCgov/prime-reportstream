@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouteObject } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import { LoginCallback } from "@okta/okta-react";
 import React from "react";
 
@@ -48,7 +48,7 @@ export enum FeatureName {
     REPORT_DETAILS = "Report Details",
 }
 
-export const appRoutes: RouteObject[] = [
+export const appRoutes: RsRouteObject[] = [
     /* Public Site */
     {
         path: "/",
