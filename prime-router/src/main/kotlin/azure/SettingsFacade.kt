@@ -260,7 +260,7 @@ class SettingsFacade(
         val input = try {
             mapper.readValue(json, clazz)
         } catch (ex: Exception) {
-            return Triple(false, "Could not parse JSON payload: $ex", null)
+            return Triple(false, "Could not parse JSON payload", null)
         }
         if (input.name != name)
             return Triple(false, "Payload and path name do not match", null)
