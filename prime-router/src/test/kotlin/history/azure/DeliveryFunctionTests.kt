@@ -622,7 +622,7 @@ class DeliveryFunctionTests : Logging {
         }
 
         @AfterEach
-        fun tearDown(){
+        fun tearDown() {
             unmockkObject(AuthenticatedClaims)
         }
 
@@ -638,7 +638,6 @@ class DeliveryFunctionTests : Logging {
 
             val response = DeliveryFunction().getReportItems(httpRequestMessage, UUID.randomUUID())
             assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
-
         }
 
         @Test

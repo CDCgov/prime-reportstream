@@ -35,11 +35,11 @@ class ReportGraph(
      * Returns all the metadata for the items in the past in reports; will recursively walk up the report lineage
      * and then filter down to reports where the sender is set in order to find the metadata rows
      *
-     * @param childReportIds the list of ids to start from
+     * @param descendantReportIds the list of ids to start from
      *
      */
-    fun getMetadataForReports(childReportIds: List<UUID>): List<CovidResultMetadata> {
-        val lineage = childLineageExpression(childReportIds)
+    fun getMetadataForReports(descendantReportIds: List<UUID>): List<CovidResultMetadata> {
+        val lineage = ancestorLineageExpression(descendantReportIds)
 
         val sourceReportIds =
             sourceReportsCte(lineage)
@@ -58,6 +58,9 @@ class ReportGraph(
         }
     }
 
+    /**
+     * Returns all the metadata rows associated with the passed in source report ids
+     */
     private fun metadataExpression(sourceReportIds: CommonTableExpression<Record>) =
         DSL.name(METADATA_CTE).`as`(
             selectDistinct(COVID_RESULT_METADATA.asterisk())
@@ -85,7 +88,7 @@ class ReportGraph(
     /**
      * Accepts a list of ids and walks up the report lineage graph
      */
-    private fun childLineageExpression(childReportIds: List<UUID>) =
+    private fun ancestorLineageExpression(childReportIds: List<UUID>) =
         DSL.name(LINEAGE_CTE).fields(
             PARENT_REPORT_ID_FIELD,
             PATH_FIELD
@@ -114,7 +117,7 @@ class ReportGraph(
     /**
      * Accepts a list of ids and walks down the report lineage graph
      */
-    private fun sourceLineageExpression(sourceReportIds: List<UUID>) =
+    private fun descendantLineageExpression(sourceReportIds: List<UUID>) =
         DSL.name(LINEAGE_CTE).fields(
             PARENT_REPORT_ID_FIELD,
             PATH_FIELD
