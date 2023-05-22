@@ -847,3 +847,12 @@ h2.rs-numbered {
         margin-top: 40px;
     }
 }
+
+/*
+ * CMS-type pages use a smaller default width
+ */
+.rs-style__content {
+    .grid-container {
+        @include grid-container("desktop-lg");
+    }
+}

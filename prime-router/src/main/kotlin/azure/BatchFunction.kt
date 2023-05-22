@@ -8,6 +8,7 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.Configuration
@@ -183,7 +184,7 @@ class BatchFunction(
         receiver: Receiver,
         txn: Configuration?
     ) {
-        if (receiver.format.isSingleItemFormat || receiver.timing == null ||
+        if (!receiver.useBatching || receiver.timing == null ||
             receiver.timing.operation != Receiver.BatchOperation.MERGE
         ) {
             // Send each report separately
@@ -194,8 +195,8 @@ class BatchFunction(
                 // download message
                 val bodyBytes = BlobAccess.downloadBlob(it.task.bodyUrl)
 
-                // get a Report from the hl7 message
-                val (report, sendEvent, blobInfo) = HL7MessageHelpers.takeHL7GetReport(
+                // get a Report from the message
+                val (report, sendEvent, blobInfo) = Report.generateReportAndUploadBlob(
                     Event.EventAction.SEND,
                     bodyBytes,
                     listOf(it.task.reportId),
@@ -227,13 +228,16 @@ class BatchFunction(
             }
 
             // Generate the batch message
-            val batchMessage = HL7MessageHelpers.batchMessages(messages, receiver)
+            val batchMessage = when (receiver.format) {
+                Report.Format.HL7, Report.Format.HL7_BATCH -> HL7MessageHelpers.batchMessages(messages, receiver)
+                Report.Format.FHIR -> FHIRBundleHelpers.batchMessages(messages)
+                else -> throw IllegalStateException("Unsupported receiver format ${receiver.format} found during batch")
+            }
 
-            // get a Report from the hl7 message
-            val (report, sendEvent, blobInfo) = HL7MessageHelpers.takeHL7GetReport(
+            // get a Report from the message
+            val (report, sendEvent, blobInfo) = Report.generateReportAndUploadBlob(
                 Event.EventAction.SEND,
                 batchMessage.toByteArray(),
-                // listOf(validHeaders[0].task.reportId),
                 validHeaders.map { it.task.reportId },
                 receiver,
                 workflowEngine.metadata,

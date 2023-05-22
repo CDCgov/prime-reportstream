@@ -1,0 +1,68 @@
+.FacilitiesProviders {
+
+    header {
+        a {
+            color: white;
+            margin-left: 18px;
+        }
+    }
+
+    hr {
+        border: 1px solid #73B3E7;
+    }
+
+
+    :global {
+        .usa-breadcrumb {
+            background-color: #D9E8F6;
+            margin-top: 0;
+            margin-left: 56px;
+            padding-left: 16px;
+        }
+
+        .usa-header {
+            background-color: #D9E8F6;
+        }
+
+        .usa-select {
+            min-width: 224px;
+            width: max-content;
+            border-color: lightgray;
+        }
+
+        .filter-container {
+            margin-bottom: 0;
+        }
+
+        .usa-label {
+            font-weight: bold;
+        }
+
+        .usa-input {
+            border-color: lightgray;
+        }
+
+        .usa-date-picker__wrapper {
+            padding-right: 25px;
+        }
+
+        .usa-date-range-picker {
+            margin-right: 0px;
+        }
+
+        .usa-date-picker__button {
+            margin-left: -45px;
+            margin-top: 10px;
+            height: 35px;
+            background-color: transparent;
+        }
+
+        .usa-date-picker__button:not([disabled]):hover {
+            background-color: white;
+        }
+
+        .usa-date-picker__calendar {
+            min-width: 275px;
+        }
+    }
+}

@@ -22,7 +22,7 @@ import {
     AdmConnStatusDataType,
 } from "../../resources/AdmConnStatusResource";
 import { formatDate } from "../../utils/misc";
-import { StyleClass } from "../Table/TableFilters";
+import { TableFilterDateLabel, StyleClass } from "../Table/TableFilters";
 import Spinner from "../Spinner";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import { USLink } from "../USLink";
@@ -805,7 +805,7 @@ function DateRangePickingAtomic(props: {
                 <div>Select date range to show. (Max 10 days span)</div>
                 <DateRangePicker
                     className={`${StyleClass.DATE_CONTAINER} margin-bottom-5`}
-                    startDateLabel="From (Start Range):"
+                    startDateLabel={TableFilterDateLabel.START_DATE}
                     startDatePickerProps={{
                         id: "start-date",
                         name: "start-date-picker",
@@ -816,7 +816,7 @@ function DateRangePickingAtomic(props: {
                             }
                         },
                     }}
-                    endDateLabel="Until (End Range):"
+                    endDateLabel={TableFilterDateLabel.END_DATE}
                     endDatePickerProps={{
                         id: "end-date",
                         name: "end-date-picker",

@@ -16,6 +16,10 @@ hr {
     padding: 0.25rem 0.25rem;
 }
 
+.font-size-18 {
+    font-size: 18px;
+}
+
 // FileHandler.tsx
 .file-handler-table {
     .usa-table {
@@ -76,6 +80,14 @@ hr {
 }
 // End -- MessageReceivers.tsx
 
+// FileHandlerMessaging.tsx
+.validation-section-header {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0;
+}
+// End -- FileHandlerMessaging.tsx
+
 // Message Tracker specific styles for Accordion component
 .message-tracker {
     .usa-accordion__button {
@@ -103,9 +115,34 @@ hr {
         font-size: 20px;
     }
 }
+
 .manage-public-key-configured {
     .usa-icon {
         font-size: 18px;
         margin-left: 5px;
+    }
+}
+
+// FAQ
+.faq-wrapper {
+    .heading {
+        h3 {
+            padding-bottom: 20px;
+            color: #71767a;
+            font-weight: 500;
+        }
+    }
+
+    section {
+        margin-top: 30px;
+        border-top: 1px solid #dfe1e2;
+    }
+
+    h3 {
+        font-size: 22px;
+    }
+
+    h4 {
+        margin-top: 40px;
     }
 }

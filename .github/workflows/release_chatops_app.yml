@@ -3,8 +3,12 @@ name: Release ChatOps App
 on:
   push:
     branches:
-      - master
       - production
+    paths:
+      - "operations/slack-boltjs-app"
+  pull_request:
+    branches:
+      - master
     paths:
       - "operations/slack-boltjs-app"
 
@@ -48,6 +52,7 @@ jobs:
 
       - name: Build app
         run: |
+          cp ../../.environment/chatops/help.txt .help
           docker build -t slack_boltjs_app -f Dockerfile.example . \
             --tag ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:latest
 
