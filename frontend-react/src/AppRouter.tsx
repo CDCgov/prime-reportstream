@@ -48,7 +48,7 @@ export enum FeatureName {
     REPORT_DETAILS = "Report Details",
 }
 
-export const appRoutes: RsRouteObject[] = [
+export const appRoutes: RouteObject[] = [
     /* Public Site */
     {
         path: "/",
@@ -237,6 +237,6 @@ export const appRoutes: RsRouteObject[] = [
             },
         ],
     },
-];
+] satisfies RsRouteObject[];
 
 export const router = createBrowserRouter(appRoutes);
