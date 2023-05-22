@@ -14,7 +14,8 @@ import { useSessionContext } from "../contexts/SessionContext";
 const MainLayout = () => {
     const { environment } = useSessionContext();
     const matches = useMatches() as RsRouteObject[];
-    const { isContentPage } = matches.at(-1)?.handle ?? {};
+    const { handle = {} } = matches.at(-1) ?? {};
+    const { isContentPage } = handle;
 
     return (
         <App>

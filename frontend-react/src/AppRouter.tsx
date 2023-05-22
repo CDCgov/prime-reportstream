@@ -40,6 +40,8 @@ import FileHandler from "./components/FileHandlers/FileHandler";
 import { FaqPage } from "./pages/support/faq/FaqPage";
 import { DataDashboardWithAuth } from "./pages/data-dashboard/DataDashboard";
 import MainLayout from "./layouts/MainLayout";
+import { ReportDetailsWithAuth } from "./components/DataDashboard/ReportDetails/ReportDetails";
+import { FacilitiesProvidersWithAuth } from "./components/DataDashboard/FacilitiesProviders/FacilitiesProviders";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -105,17 +107,30 @@ export const appRoutes: RouteObject[] = [
                                 path: "",
                                 element: <DocumentationPage />,
                                 index: true,
+                                handle: {
+                                    isContentPage: true,
+                                },
                             },
                             { path: "data-model", element: <DataModelPage /> },
                             {
                                 path: "responses-from-reportstream",
                                 element: <ResponsesFromReportStreamPage />,
+                                handle: {
+                                    isContentPage: true,
+                                },
                             },
                             {
                                 path: "sample-payloads-and-output",
                                 element: <SamplePayloadsAndOutputPage />,
+                                handle: {
+                                    isContentPage: true,
+                                },
                             },
                         ],
+                    },
+                    {
+                        path: "manage-public-key",
+                        element: <ManagePublicKeyWithAuth />,
                     },
                     {
                         path: "",
@@ -178,77 +193,104 @@ export const appRoutes: RouteObject[] = [
             },
             {
                 path: "/submissions",
-                element: <SubmissionsWithAuth />,
-            },
-            {
-                path: "/submissions/:actionId",
-                element: <SubmissionDetailsWithAuth />,
+                children: [
+                    {
+                        path: "",
+                        index: true,
+                        element: <SubmissionsWithAuth />,
+                    },
+                    {
+                        path: "/submissions/:actionId",
+                        element: <SubmissionDetailsWithAuth />,
+                    },
+                ],
             },
             /* Data Dashboard pages */
             {
                 path: "/data-dashboard",
-                element: <DataDashboardWithAuth />,
+                children: [
+                    {
+                        path: "",
+                        element: <DataDashboardWithAuth />,
+                        index: true,
+                    },
+                    {
+                        path: "report-details/:reportId",
+                        element: <ReportDetailsWithAuth />,
+                    },
+                    {
+                        path: "facilities-providers",
+                        element: <FacilitiesProvidersWithAuth />,
+                    },
+                ],
             },
             /* Admin pages */
             {
-                path: "/admin/settings",
-                element: <AdminMainWithAuth />,
-            },
-            {
-                path: "/admin/new/org",
-                element: <AdminOrgNewWithAuth />,
-            },
-            {
-                path: "/admin/orgsettings/org/:orgname",
-                element: <AdminOrgEditWithAuth />,
-            },
-            {
-                path: "/admin/orgreceiversettings/org/:orgname/receiver/:receivername/action/:action",
-                element: <EditReceiverSettingsWithAuth />,
-            },
-            {
-                path: "/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action",
-                element: <EditSenderSettingsWithAuth />,
-            },
-            {
-                path: "/admin/orgnewsetting/org/:orgname/settingtype/:settingtype",
-                element: <NewSettingWithAuth />,
-            },
-            {
-                path: "/admin/lastmile",
-                element: <AdminLMFWithAuth />,
-            },
-            {
-                path: "/admin/send-dash",
-                element: <AdminReceiverDashWithAuth />,
-            },
-            {
-                path: "/admin/features",
-                element: <FeatureFlagUIWithAuth />,
-            },
-            {
-                path: "/admin/message-tracker",
-                element: <AdminMessageTrackerWithAuth />,
+                path: "admin",
+                children: [
+                    {
+                        path: "settings",
+                        element: <AdminMainWithAuth />,
+                    },
+                    {
+                        path: "new/org",
+                        element: <AdminOrgNewWithAuth />,
+                    },
+                    {
+                        path: "orgsettings/org/:orgname",
+                        element: <AdminOrgEditWithAuth />,
+                    },
+                    {
+                        path: "orgreceiversettings/org/:orgname/receiver/:receivername/action/:action",
+                        element: <EditReceiverSettingsWithAuth />,
+                    },
+                    {
+                        path: "orgsendersettings/org/:orgname/sender/:sendername/action/:action",
+                        element: <EditSenderSettingsWithAuth />,
+                    },
+                    {
+                        path: "orgnewsetting/org/:orgname/settingtype/:settingtype",
+                        element: <NewSettingWithAuth />,
+                    },
+                    {
+                        path: "lastmile",
+                        element: <AdminLMFWithAuth />,
+                    },
+                    {
+                        path: "send-dash",
+                        element: <AdminReceiverDashWithAuth />,
+                    },
+                    {
+                        path: "features",
+                        element: <FeatureFlagUIWithAuth />,
+                    },
+                    {
+                        path: "message-tracker",
+                        element: <AdminMessageTrackerWithAuth />,
+                    },
+                    {
+                        path: "value-sets",
+                        children: [
+                            {
+                                path: "",
+                                index: true,
+                                element: <ValueSetsIndexWithAuth />,
+                            },
+                            {
+                                path: ":valueSetName",
+                                element: <ValueSetsDetailWithAuth />,
+                            },
+                        ],
+                    },
+                    {
+                        path: "revisionhistory/org/:org/settingtype/:settingType",
+                        element: <AdminRevHistoryWithAuth />,
+                    },
+                ],
             },
             {
                 path: "/message-details/:id",
                 element: <MessageDetailsWithAuth />,
-            },
-            {
-                path: "/admin/value-sets/:valueSetName",
-                element: <ValueSetsDetailWithAuth />,
-            },
-            {
-                path: "/admin/value-sets",
-                element: <ValueSetsIndexWithAuth />,
-            },
-            {
-                path: "/admin/revisionhistory/org/:org/settingtype/:settingType",
-                element: <AdminRevHistoryWithAuth />,
-            },
-            {
-                path: "/resources/manage-public-key",
-                element: <ManagePublicKeyWithAuth />,
             },
             /* Handles any undefined route */
             {

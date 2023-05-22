@@ -51,8 +51,8 @@ describe("when validating values", () => {
     beforeEach(() => {
         renderApp(
             <TableFilters
-                startDateLabel="From (Start Range):"
-                endDateLabel="Until (End Range):"
+                startDateLabel={TableFilterDateLabel.START_DATE}
+                endDateLabel={TableFilterDateLabel.END_DATE}
                 filterManager={mockFilterManager}
                 cursorManager={mockCursorManager}
             />

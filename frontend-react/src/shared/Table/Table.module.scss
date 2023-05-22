@@ -1,5 +1,3 @@
-@use 'uswds-core' as *;
-
 .Table {
   :global {
     // Since these are USDS overrides, we use the :global property so we can
@@ -20,6 +18,13 @@
             margin-right: 2px;
           }
         }
+
+        &--sticky {
+          background-color: #fff;
+          position: sticky;
+          top: 0;
+          z-index: 10;
+        }
     }
 
     .column-header-button {
@@ -37,8 +42,6 @@
 
     .column-data {
         font-size: 14px;
-        padding: 1rem;
-        vertical-align: top;
 
       &--active{
           background-color: color('blue-10');
@@ -49,6 +52,5 @@
       font-size: 14px;
       margin: 0;
     }
-    
   }
 }
