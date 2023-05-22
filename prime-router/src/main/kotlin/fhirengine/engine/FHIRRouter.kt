@@ -427,13 +427,16 @@ class FHIRRouter(
             reverseFilter,
             focusResource
         )
-
         if (!passes) {
             val filterToLog = "${
             if (isDefaultFilter(filterType, filters)) "(default filter) "
             else ""
             }${failingFilterName ?: "unknown"}"
-            logFilterResults(filterToLog, bundle, report, receiver, filterType)
+            if (focusResource == bundle) {
+                logFilterResults(filterToLog, bundle, report, receiver, filterType)
+            } else {
+                logFilterResults(filterToLog, bundle, report, receiver, filterType, focusResource)
+            }
         }
         return passes
     }
@@ -555,21 +558,33 @@ class FHIRRouter(
     /**
      * Log the results of running filters (referenced by the given [filterName]) on items out of a [report] during the
      * "route" step for a [receiver], tracking the [filterType] and tying the results to a [receiver] and [bundle].
+     * @param filterName Name of evaluated filter
+     * @param bundle FHIR Bundle that was evaluated
+     * @param report Report object passed for logging purposes
+     * @param receiver Receiver of the report
+     * @param filterType Type of filter used
+     * @param focusResource Starting point for the evaluation, can add additional data to the log
      */
     internal fun logFilterResults(
         filterName: String,
         bundle: Bundle,
         report: Report,
         receiver: Receiver,
-        filterType: ReportStreamFilterType
+        filterType: ReportStreamFilterType,
+        focusResource: Base? = null
     ) {
+        val filteredTrackingElement = if (focusResource == null) {
+            bundle.identifier.value ?: ""
+        } else {
+            (bundle.identifier.value ?: "") + (" at " + focusResource.idBase)
+        }
         report.filteringResults.add(
             ReportStreamFilterResult(
                 receiver.fullName,
                 report.itemCount,
                 filterName,
                 emptyList(),
-                bundle.identifier.value ?: "",
+                filteredTrackingElement,
                 filterType
             )
         )
