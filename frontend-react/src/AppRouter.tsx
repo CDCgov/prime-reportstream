@@ -36,6 +36,8 @@ import FileHandler from "./components/FileHandlers/FileHandler";
 import { FaqPage } from "./pages/support/faq/FaqPage";
 import { DataDashboardWithAuth } from "./pages/data-dashboard/DataDashboard";
 import MainLayout from "./layouts/MainLayout";
+import { ReportDetailsWithAuth } from "./components/DataDashboard/ReportDetails/ReportDetails";
+import { FacilitiesProvidersWithAuth } from "./components/DataDashboard/FacilitiesProviders/FacilitiesProviders";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -164,7 +166,21 @@ export const appRoutes: RouteObject[] = [
             /* Data Dashboard pages */
             {
                 path: "/data-dashboard",
-                element: <DataDashboardWithAuth />,
+                children: [
+                    {
+                        path: "",
+                        element: <DataDashboardWithAuth />,
+                        index: true,
+                    },
+                    {
+                        path: "report-details/:reportId",
+                        element: <ReportDetailsWithAuth />,
+                    },
+                    {
+                        path: "facilities-providers",
+                        element: <FacilitiesProvidersWithAuth />,
+                    },
+                ],
             },
             /* Admin pages */
             {
