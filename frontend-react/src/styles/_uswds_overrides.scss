@@ -276,3 +276,14 @@ main {
         }
     }
 }
+
+/**
+ * Auto scale icons inside buttons.
+ */
+.usa-button {
+    .usa-icon--auto {
+        vertical-align: text-bottom;
+        width: auto;
+        height: 1rlh;
+    }
+}
