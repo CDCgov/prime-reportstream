@@ -5,6 +5,7 @@ import com.github.ajalt.clikt.core.PrintMessage
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
@@ -15,13 +16,14 @@ import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.cli.GetSenderSetting
 import gov.cdc.prime.router.cli.LookupTableEndpointUtilities
 import gov.cdc.prime.router.cli.OktaCommand
+import gov.cdc.prime.router.cli.PutOrganizationSetting
 import gov.cdc.prime.router.cli.PutSenderSetting
 import gov.cdc.prime.router.cli.SettingCommand
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.tokens.AuthUtils
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.Scope
-import gov.cdc.prime.router.tokens.SenderUtils
 import java.io.File
 import java.io.IOException
 import java.net.URLEncoder
@@ -84,7 +86,7 @@ class OktaAuthTests : CoolTest() {
         val org1 = historyTestOrgName
         val sender1 = historyTestSender
 
-        val org2 = orgName
+        val org2 = org1Name
         val sender2 = defaultIgnoreSender
 
         val myFakeReportFile = createFakeReport(sender1)
@@ -492,46 +494,51 @@ class Server2ServerAuthTests : CoolTest() {
 
     /**
      * Utility function to associate a public [key] (named with key id [kid])
-     * to an existing [sender] and store in on the database.
-     * The [key] gives permission to an authenticated sender requesting [scope].
-     * @returns a new copy of the old sender object, now with the key added to it.
+     * to an existing [organization] and store in on the database.
+     * The [key] gives permission to an authenticated organization requesting [scope].
+     * @returns a new copy of the old organization object, now with the key added to it.
      */
-    private fun saveServer2ServerKey(sender: Sender, key: String, kid: String, scope: String): Sender {
-        // associate a public key to the sender
-        val publicKeyStr = SenderUtils.readPublicKeyPem(key)
+    private fun saveServer2ServerKey(
+        organization: Organization,
+        key: String,
+        kid: String,
+        scope: String
+    ): Organization {
+        // associate a public key to the organization
+        val publicKeyStr = AuthUtils.readPublicKeyPem(key)
         publicKeyStr.kid = kid
-        val senderPlusNewKey = sender.makeCopyWithNewScopeAndJwk(scope, publicKeyStr)
+        val organizationPlusNewKey = organization.makeCopyWithNewScopeAndJwk(scope, publicKeyStr)
 
-        // save the sender with the new key
-        PutSenderSetting()
+        // save the organization with the new key
+        PutOrganizationSetting()
             .put(
                 settingsEnv,
                 OktaAuthTests.getOktaAccessTokOrLocal(settingsEnv),
-                SettingCommand.SettingType.SENDER,
-                senderPlusNewKey.fullName,
-                jacksonObjectMapper().writeValueAsString(senderPlusNewKey)
+                SettingCommand.SettingType.ORGANIZATION,
+                organizationPlusNewKey.name,
+                jacksonObjectMapper().writeValueAsString(organizationPlusNewKey)
             )
-        return senderPlusNewKey
+        return organizationPlusNewKey
     }
 
     /**
-     * Given a [privateKeyStr], key id [kid] and requested [scope], coming from [sender],
+     * Given a [privateKeyStr], key id [kid] and requested [scope], coming from [organization],
      * this tries to retrieve a 5-minute access token
      * @returns the Pair (http response code, json bod of the response)
      */
     private fun getServer2ServerAccessTok(
-        sender: Sender,
+        organization: Organization,
         environment: Environment,
         privateKeyStr: String,
         kid: String,
         scope: String
     ): Pair<Int, String> {
         val baseUrl = environment.url.toString() + HttpUtilities.tokenApi
-        val privateKey = SenderUtils.readPrivateKeyPem(privateKeyStr)
-        val senderSignedJWT = SenderUtils.generateSenderToken(sender, baseUrl, privateKey, kid)
-        val senderTokenUrl = settingsEnv.formUrl("api/token").toString()
-        val body = SenderUtils.generateSenderUrlParameterString(senderSignedJWT, scope)
-        return HttpUtilities.postHttp(senderTokenUrl, body.toByteArray())
+        val privateKey = AuthUtils.readPrivateKeyPem(privateKeyStr)
+        val organizationSignedJWT = AuthUtils.generateOrganizationToken(organization, baseUrl, privateKey, kid)
+        val organizationTokenUrl = settingsEnv.formUrl("api/token").toString()
+        val body = AuthUtils.generateOrganizationUrlParameterString(organizationSignedJWT, scope)
+        return HttpUtilities.postHttp(organizationTokenUrl, body.toByteArray())
     }
 
     /**
@@ -559,33 +566,31 @@ class Server2ServerAuthTests : CoolTest() {
     private fun doApiKeyTests(environment: Environment): Boolean {
         ugly("Starting $name test of adding server 2 server api keys")
         var passed = true
-        val adminScope = "${org.name}.*.admin"
-        val mySenderName = "temporary_sender_auth_test"
-        val sender = createNewSenderForExistingOrg(mySenderName, org.name)
+        val adminScope = "${org1.name}.*.admin"
         val kid = "adminkey"
-        saveServer2ServerKey(sender, end2EndExampleECPublicKeyStr, "adminkey", adminScope)
+        saveServer2ServerKey(org1, end2EndExampleECPublicKeyStr, "adminkey", adminScope)
         val (httpStatusGetToken, responseGetToken) = getServer2ServerAccessTok(
-            sender,
+            org1,
             environment,
             end2EndExampleECPrivateKeyStr,
             kid,
             adminScope
         )
         if (httpStatusGetToken == 200) {
-            good("Successfully got access token for ${org.name}")
+            good("Successfully got access token for ${org1.name}")
         } else {
-            bad("Failed to get access token for ${org.name}, response was $responseGetToken")
+            bad("Failed to get access token for ${org1.name}, response was $responseGetToken")
             passed = false
         }
 
         val accessToken = jacksonObjectMapper().readTree(responseGetToken).get("access_token").textValue()
         val headers = mutableListOf<Pair<String, String>>()
-        val clientStr = org.name
+        val clientStr = org1.name
         headers.add("client" to clientStr)
         headers.add("authorization" to "Bearer $accessToken")
         val postUrl =
-            "${environment.url}/api/settings/organizations/${org.name}/" +
-                "public-keys?scope=${org.name}.*.report&kid=${org.name}.reportunique"
+            "${environment.url}/api/settings/organizations/${org1.name}/" +
+                "public-keys?scope=${org1.name}.*.report&kid=${org1.name}.reportunique"
         val (httpStatusPostKey, postKeyResponse) = HttpUtilities.postHttp(
             postUrl,
             end2EndExampleRSAPublicKeyStr.toByteArray(),
@@ -593,38 +598,39 @@ class Server2ServerAuthTests : CoolTest() {
         )
 
         if (httpStatusPostKey == 200) {
-            good("Successfully added key to ${org.name}")
+            good("Successfully added key to ${org1.name}")
         } else {
-            bad("Failed to add key to ${org.name}, response was $postKeyResponse")
+            bad("Failed to add key to ${org1.name}, response was $postKeyResponse")
             passed = false
         }
 
-        val getUrl = "${environment.url}/api/settings/organizations/${org.name}/public-keys"
+        val getUrl = "${environment.url}/api/settings/organizations/${org1.name}/public-keys"
         val (httpStatusGeyKey, getKeyResponse) = HttpUtilities.getHttp(getUrl, headers)
         val parsedGetResponse =
             jacksonObjectMapper().readTree(getKeyResponse).get("keys").flatMap { it.get("keys") }
                 .map { it.get("kid").textValue() }
-        if (httpStatusGeyKey == 200 && parsedGetResponse.contains("${org.name}.reportunique")) {
+        if (httpStatusGeyKey == 200 && parsedGetResponse.contains("${org1.name}.reportunique")) {
             good("Found the added key")
         } else {
-            bad("Failed to add key to ${org.name}, response was $getKeyResponse")
+            bad("Failed to add key to ${org1.name}, response was $getKeyResponse")
             passed = false
         }
 
         val deleteUrl = environment.url.toString() +
-            "/api/settings/organizations/${org.name}/public-keys/" +
-            URLEncoder.encode("${org.name}.*.report", "utf-8") +
+            "/api/settings/organizations/${org1.name}/public-keys/" +
+            URLEncoder.encode("${org1.name}.*.report", "utf-8") +
             "/" +
-            URLEncoder.encode("${org.name}.reportunique", "utf-8")
+            URLEncoder.encode("${org1.name}.reportunique", "utf-8")
         val (httpStatusDeleteKey, deleteKeyResponse) = HttpUtilities.deleteHttp(
             deleteUrl,
+            byteArrayOf(),
             headers
         )
 
         if (httpStatusDeleteKey == 200) {
-            good("Successfully removed key from ${org.name}")
+            good("Successfully removed key from ${org1.name}")
         } else {
-            bad("Failed to remove key from ${org.name}, response was $deleteKeyResponse")
+            bad("Failed to remove key from ${org1.name}, response was $deleteKeyResponse")
             passed = false
         }
 
@@ -633,11 +639,10 @@ class Server2ServerAuthTests : CoolTest() {
 
     private fun doEcAndRsaEcKeyTests(environment: Environment): Boolean {
         var passed = true
-        val myOrg = "ignore"
         val mySenderName = "temporary_sender_auth_test"
-        val mySenderFullName = "$myOrg.$mySenderName"
+        val mySenderFullName = "${org1.name}.$mySenderName"
         val myScope = "$mySenderFullName.report"
-        val mySender = createNewSenderForExistingOrg(mySenderName, myOrg)
+        val mySender = createNewSenderForExistingOrg(mySenderName, org1.name)
 
         try {
             val myFakeReportFile = OktaAuthTests.createFakeReport(mySender)
@@ -660,12 +665,12 @@ class Server2ServerAuthTests : CoolTest() {
 
             // EC tests
             "testing-kid-ec".let { kid ->
-                // associate a key to the sender
-                saveServer2ServerKey(mySender, end2EndExampleECPublicKeyStr, kid, myScope)
+                // associate a key to the organization
+                saveServer2ServerKey(org1, end2EndExampleECPublicKeyStr, kid, myScope)
 
                 // attempt to get an access token with an invalid private key
                 val (responseCode2, _) =
-                    getServer2ServerAccessTok(mySender, environment, end2EndExampleECPrivateInvalidKeyStr, kid, myScope)
+                    getServer2ServerAccessTok(org1, environment, end2EndExampleECPrivateInvalidKeyStr, kid, myScope)
                 if (responseCode2 == 401) {
                     good("EC key: Attempt to get a token with invalid private key rightly failed.")
                 } else {
@@ -675,11 +680,11 @@ class Server2ServerAuthTests : CoolTest() {
 
                 // get a valid private key
                 val (httpStatusGetToken, responseGetToken) =
-                    getServer2ServerAccessTok(mySender, environment, end2EndExampleECPrivateKeyStr, kid, myScope)
+                    getServer2ServerAccessTok(org1, environment, end2EndExampleECPrivateKeyStr, kid, myScope)
                 val watersAccessTok = jacksonObjectMapper().readTree(responseGetToken).get("access_token").textValue()
 
                 if (httpStatusGetToken == 200) {
-                    good("EC key: Attempt to get a token with valid sender key succeeded.")
+                    good("EC key: Attempt to get a token with valid organization key succeeded.")
                 } else {
                     bad("EC key: Should get a 200 response to getToken instead got $httpStatusGetToken")
                     passed = false
@@ -718,13 +723,13 @@ class Server2ServerAuthTests : CoolTest() {
 
             // RSA Tests
             "testing-kid-rsa".let { kid ->
-                // associate a key to the sender
-                saveServer2ServerKey(mySender, end2EndExampleRSAPublicKeyStr, kid, myScope)
+                // associate a key to the organization
+                saveServer2ServerKey(org1, end2EndExampleRSAPublicKeyStr, kid, myScope)
 
                 // try to get an access token with an invalid private key
                 val (responseCode2, _) =
                     getServer2ServerAccessTok(
-                        mySender,
+                        org1,
                         environment,
                         end2EndExampleRSAPrivateInvalidKeyStr,
                         kid,
@@ -739,12 +744,12 @@ class Server2ServerAuthTests : CoolTest() {
 
                 // get an access token with a valid private key
                 val (httpStatusGetToken, responseGetToken) =
-                    getServer2ServerAccessTok(mySender, environment, end2EndExampleRSAPrivateKeyStr, kid, myScope)
+                    getServer2ServerAccessTok(org1, environment, end2EndExampleRSAPrivateKeyStr, kid, myScope)
                 val server2ServerAccessTok =
                     jacksonObjectMapper().readTree(responseGetToken).get("access_token").textValue()
 
                 if (httpStatusGetToken == 200) {
-                    good("RSA key: Attempt to get a token with valid sender key succeeded.")
+                    good("RSA key: Attempt to get a token with valid organization key succeeded.")
                 } else {
                     bad("RSA key: Should get a 200 response to getToken instead got $httpStatusGetToken")
                     passed = false
@@ -802,41 +807,41 @@ class Server2ServerAuthTests : CoolTest() {
         // To truly test auth, we need tokens for two orgs, so we can test that org1 can't see org2, etc.
         // So you'll see everything done twice here.
 
-        val mySenderName = "temporary_submission_auth_test"
+        val mySenderName1 = "temporary_submission_auth_test1"
+        val mySenderName2 = "temporary_submission_auth_test2"
         val kid = "submission-testing-kid"
 
         if (environment == Environment.PROD) error("Can't create waters test data in PROD")
-        val org1 = "waters"
-        var sender1 = createNewSenderForExistingOrg(mySenderName, org1)
+        val sender1 = createNewSenderForExistingOrg(mySenderName1, org1.name)
         // Test various functionality using the general <orgname>.*.user role.
-        val scope1 = "$org1.*.user"
-        // Scope <org>.<sender>.report only gives access to submit to that org only.  Doesn't work for history GETs.
-        val uploadReportScope1 = "$org1.$mySenderName.report"
-        // Submit this new scope and public key to the Settings store, associated with this Sender.
-        sender1 = saveServer2ServerKey(sender1, end2EndExampleRSAPublicKeyStr, kid, scope1)
-        sender1 = saveServer2ServerKey(sender1, end2EndExampleRSAPublicKeyStr, kid, uploadReportScope1)
+        val scope1 = "${org1.name}.*.user"
+        // Scope <org>.*.report only gives access to submit to that org only.  Doesn't work for history GETs.
+        val uploadReportScope1 = "${org1.name}.*.report"
+        // Submit this new scope and public key to the Settings store, associated with this Organization.
+        val updatedOrg = saveServer2ServerKey(org1, end2EndExampleRSAPublicKeyStr, kid, scope1)
+        saveServer2ServerKey(updatedOrg, end2EndExampleRSAPublicKeyStr, kid, uploadReportScope1)
 
-        val org2 = "ignore"
-        var sender2 = createNewSenderForExistingOrg(mySenderName, org2)
+        val sender2 = createNewSenderForExistingOrg(mySenderName2, org2.name)
         // Test various functionality using the general <orgname>.*.admin role.
-        val scope2 = "$org2.*.admin"
-        // Submit this new scope and public key to the Settings store, associated with this Sender.
-        sender2 = saveServer2ServerKey(sender2, end2EndExampleRSAPublicKeyStr, kid, scope2)
+        val scope2 = "${org2.name}.*.admin"
+        // Submit this new scope and public key to the Settings store, associated with this Organization.
+        saveServer2ServerKey(org2, end2EndExampleRSAPublicKeyStr, kid, scope2)
 
         try {
             val myFakeReportFile = OktaAuthTests.createFakeReport(sender1)
 
             // 1) Now request 5-minute token for the first org, USING THE UPLOAD-ONLY SCOPE
             val (submitHttpStatus1, submitResponseToken1) =
-                getServer2ServerAccessTok(sender1, environment, end2EndExampleRSAPrivateKeyStr, kid, uploadReportScope1)
+                getServer2ServerAccessTok(org1, environment, end2EndExampleRSAPrivateKeyStr, kid, uploadReportScope1)
             if (submitHttpStatus1 != 200) {
+                bad(submitResponseToken1)
                 return bad("Should get a 200 response to getToken instead got $submitHttpStatus1")
             }
             val submitToken1 = jacksonObjectMapper().readTree(submitResponseToken1).get("access_token").textValue()
 
             // 1a) Now request 5-minute token for the first org, USING THE GENERAL READ/WRITE Submission SCOPE
             val (httpStatus1, responseToken1) =
-                getServer2ServerAccessTok(sender1, environment, end2EndExampleRSAPrivateKeyStr, kid, scope1)
+                getServer2ServerAccessTok(org1, environment, end2EndExampleRSAPrivateKeyStr, kid, scope1)
             if (httpStatus1 != 200) {
                 return bad("Should get a 200 response to getToken instead got $httpStatus1")
             }
@@ -844,7 +849,7 @@ class Server2ServerAuthTests : CoolTest() {
 
             // 2) And a 5-minute token from the second org2
             val (httpStatus2, responseToken2) =
-                getServer2ServerAccessTok(sender2, environment, end2EndExampleRSAPrivateKeyStr, kid, scope2)
+                getServer2ServerAccessTok(org2, environment, end2EndExampleRSAPrivateKeyStr, kid, scope2)
             if (httpStatus2 != 200) {
                 return bad("Should get a 200 response to getToken instead got $httpStatus2")
             }
@@ -853,7 +858,7 @@ class Server2ServerAuthTests : CoolTest() {
             // Since we're getting tokens, test getting a primeadmin token, which we have no rights to get.
             val (httpStatusBad1, _) =
                 getServer2ServerAccessTok(
-                    sender1, environment, end2EndExampleRSAPrivateKeyStr, kid, Scope.primeAdminScope
+                    org1, environment, end2EndExampleRSAPrivateKeyStr, kid, Scope.primeAdminScope
                 )
             if (httpStatusBad1 == 401) {
                 good("Test upgrading my scope to primeadmin failed, as it should.")
@@ -862,10 +867,10 @@ class Server2ServerAuthTests : CoolTest() {
                 passed = false
             }
 
-            // Another token test.  sender1 does not have org admin scope.   This should fail also
+            // Another token test. org1 does not have org admin scope.   This should fail also
             val (httpStatusBad2, _) =
                 getServer2ServerAccessTok(
-                    sender1, environment, end2EndExampleRSAPrivateKeyStr, kid, "$org1.*.admin"
+                    org1, environment, end2EndExampleRSAPrivateKeyStr, kid, "$org1.*.admin"
                 )
             if (httpStatusBad1 == 401) {
                 good("Test upgrading my scope to org admin failed, as it should.")
@@ -915,9 +920,9 @@ class Server2ServerAuthTests : CoolTest() {
             }
 
             // Setup is done!   Ready to run some tests.
-            passed = passed and server2ServerSubmissionListAuthTests(environment, org1, org2, token1, token2)
+            passed = passed and server2ServerSubmissionListAuthTests(environment, org1.name, org2.name, token1, token2)
             passed = passed and server2ServerReportDetailsAuthTests(
-                environment, org1, org2, reportId1, reportId2, token1, token2
+                environment, org1.name, org2.name, reportId1, reportId2, token1, token2
             )
             passed = passed and server2ServerLookupTableSmokeTests(environment, token1)
             passed = passed and server2ServerLookupTableSmokeTests(environment, token2)

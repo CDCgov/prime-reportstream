@@ -27,11 +27,11 @@ import { FileHandlerStepProps } from "./FileHandler";
 export const UPLOAD_PROMPT_DESCRIPTIONS = {
     [FileType.CSV]: {
         title: "Upload CSV file",
-        subtitle: "Make sure that your file has a .csv extension",
+        subtitle: "Make sure your file has a .csv extension",
     },
     [FileType.HL7]: {
         title: "Upload HL7 v2.5.1 file",
-        subtitle: "Make sure that your file has a .hl7 extension",
+        subtitle: "Make sure your file has a .hl7 extension",
     },
 };
 
@@ -222,7 +222,7 @@ export default function FileHandlerFileUploadStep({
                         onSubmit={handleSubmit}
                         className="rs-full-width-form"
                     >
-                        <FormGroup className="margin-bottom-3">
+                        <FormGroup className="margin-top-0">
                             <Label
                                 className="font-sans-xs"
                                 id="upload-csv-input-label"
@@ -247,7 +247,7 @@ export default function FileHandlerFileUploadStep({
                             />
                         </FormGroup>
 
-                        <div className="margin-bottom-6 display-flex">
+                        <div className="margin-top-05 margin-bottom-0 display-flex">
                             <Button
                                 className="usa-button usa-button--outline"
                                 type={"button"}

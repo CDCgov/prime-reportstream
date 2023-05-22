@@ -82,6 +82,17 @@ class HttpUtilities {
                 .build()
         }
 
+        fun <T> okJSONResponse(
+            request: HttpRequestMessage<String?>,
+            body: ApiResponse<T>
+        ): HttpResponseMessage {
+            return request
+                .createResponseBuilder(HttpStatus.OK)
+                .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
+                .body(mapper.writeValueAsString(body))
+                .build()
+        }
+
         fun createdResponse(
             request: HttpRequestMessage<String?>,
             responseBody: String,
@@ -347,17 +358,6 @@ class HttpUtilities {
         }
 
         /**
-         * A generic function for a DELETE to a URL <address>.
-         * Returns a Pair (HTTP response code, text of the response)
-         */
-        fun deleteHttp(
-            urlStr: String,
-            headers: List<Pair<String, String>>? = null
-        ): Pair<Int, String> {
-            return httpRequest("DELETE", urlStr, null, headers)
-        }
-
-        /**
          * A generic function for a GET to a URL <address>.
          * Returns a Pair (HTTP response code, text of the response)
          */
@@ -366,6 +366,18 @@ class HttpUtilities {
             headers: List<Pair<String, String>>? = null
         ): Pair<Int, String> {
             return httpRequest("GET", urlStr, null, headers)
+        }
+
+        /**
+         * A generic function for a DELETE to a URL <address>.
+         * Returns a Pair (HTTP response code, text of the response)
+         */
+        fun deleteHttp(
+            urlStr: String,
+            bytes: ByteArray,
+            headers: List<Pair<String, String>>? = null
+        ): Pair<Int, String> {
+            return httpRequest("DELETE", urlStr, bytes, headers)
         }
 
         /**

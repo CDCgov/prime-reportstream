@@ -22,6 +22,7 @@ describe("SubmissionTable", () => {
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,
+            environment: "test",
         });
         const fixtures: Fixture[] = [
             {
@@ -74,6 +75,7 @@ describe("SubmissionTable", () => {
                 isUserAdmin: true,
                 isUserReceiver: false,
                 isUserSender: false,
+                environment: "test",
             });
 
             renderApp(<SubmissionTable />, { restHookFixtures: [] });

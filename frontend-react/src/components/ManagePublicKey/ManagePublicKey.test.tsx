@@ -93,6 +93,7 @@ describe("ManagePublicKey", () => {
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,
+            environment: "test",
         });
     });
 
@@ -189,7 +190,7 @@ describe("ManagePublicKey", () => {
 
             renderApp(<ManagePublicKey />);
         });
-
+        /*
         test("shows the configured screen and allows the user to upload a new public key", async () => {
             expect(
                 screen.getByText("Your public key is already configured.")
@@ -199,6 +200,17 @@ describe("ManagePublicKey", () => {
 
             expect(screen.getByTestId("file-input-input")).toBeVisible();
             expect(screen.getByText("Submit")).toBeDisabled();
+        });
+        */
+
+        test("shows the configured screen and displays a message to the user", async () => {
+            expect(
+                screen.getByText(/Your public key is already configured./)
+            ).toBeVisible();
+            expect(screen.getByText("Contact ReportStream")).toBeVisible();
+            expect(
+                screen.getByText(/to upload a new public key./)
+            ).toBeVisible();
         });
     });
 
@@ -271,7 +283,7 @@ describe("ManagePublicKey", () => {
             expect(
                 screen.getByText("Key could not be submitted")
             ).toBeVisible();
-            await userEvent.click(screen.getByText("Try Again"));
+            await userEvent.click(screen.getByText("Try again"));
 
             expect(screen.getByText("Drag file here or")).toBeVisible();
         });

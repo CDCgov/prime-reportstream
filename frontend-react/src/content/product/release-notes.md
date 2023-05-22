@@ -3,13 +3,20 @@
 ## Stay up to date with new features, enhancements, and fixes
 
 ---
-### March 2023
+### April 2023
 
-* The ReportStream [Terms of Service](https://reportstream.cdc.gov/terms-of-service) have been updated. 
+#### New State Connection
+
+We’re excited to announce that ReportStream can now send public health data to Kansas. 
+
+You can also view release notes on [Github](https://github.com/CDCgov/prime-reportstream/releases).
+
+---
+### March 2023
 
 #### Improvements
 
-* Usability: Widescreen grid containers are now shown on the [Daily Data](https://reportstream.cdc.gov/daily-data) and [Submissions](https://reportstream.cdc.gov/submissions) pages. Widescreen grid containers allow the user to see more data on wider screens.
+* Usability: Users can now see more data on wider screens. Tables on [Daily Data](https://reportstream.cdc.gov/daily-data) (for public health departments) and [Submissions](https://reportstream.cdc.gov/submissions) (for testing facilities) have been updated with widescreen grid containers. 
 
 You can also view release notes on [Github](https://github.com/CDCgov/prime-reportstream/releases).
 

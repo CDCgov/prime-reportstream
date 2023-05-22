@@ -41,6 +41,10 @@ locals {
     app_size                 = "P3v2"
     function_runtime_version = "~4"
   }
+  chatops = {
+    github_repo            = "CDCgov/prime-reportstream"
+    github_target_branches = "demo1,demo2,demo3,trialfrontend01,trialfrontend02,trialfrontend03"
+  }
   network = {
     use_cdc_managed_vnet        = true
     dns_vnet                    = "East-vnet"

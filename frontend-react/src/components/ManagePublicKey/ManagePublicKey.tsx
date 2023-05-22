@@ -133,7 +133,7 @@ export function ManagePublicKey() {
     return (
         <GridContainer className="manage-public-key padding-bottom-5 tablet:padding-top-6">
             {!isUploading && (
-                <h1 className="margin-top-0 margin-bottom-3">
+                <h1 className="margin-top-0 margin-bottom-5">
                     Manage public key
                 </h1>
             )}
@@ -143,7 +143,11 @@ export function ManagePublicKey() {
                         Send your public key to begin the REST API
                         authentication process.
                     </p>
-                    <SiteAlert variant="info" showIcon={false}>
+                    <SiteAlert
+                        variant="info"
+                        showIcon={false}
+                        className="margin-bottom-6"
+                    >
                         <Icon.Lightbulb />
                         <span className="padding-left-1">
                             If you need more information on generating your
@@ -161,11 +165,7 @@ export function ManagePublicKey() {
                     onSenderSelect={handleSenderSelect}
                 />
             )}
-            {showPublicKeyConfigured && (
-                <ManagePublicKeyConfigured
-                    onUploadNewPublicKey={() => setUploadNewPublicKey(true)}
-                />
-            )}
+            {showPublicKeyConfigured && <ManagePublicKeyConfigured />}
             {isUploadEnabled && (
                 <ManagePublicKeyUpload
                     onPublicKeySubmit={handlePublicKeySubmit}
