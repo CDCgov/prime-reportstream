@@ -427,6 +427,7 @@ class FHIRRouter(
             reverseFilter,
             focusResource
         )
+
         if (!passes) {
             val filterToLog = "${
             if (isDefaultFilter(filterType, filters)) "(default filter) "
