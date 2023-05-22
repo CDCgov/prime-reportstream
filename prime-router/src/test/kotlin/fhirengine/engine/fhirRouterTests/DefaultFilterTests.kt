@@ -192,7 +192,7 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         val bundle = FhirTranscoder.decode(fhirCodeP)
         // act
-        val result = engine.evaluateFilterCondition(
+        val result = engine.evaluateFilterConditionAsAnd(
             emptyList(),
             bundle,
             false
@@ -213,7 +213,7 @@ class DefaultFilterTests {
         val bundle = FhirTranscoder.decode(fhirCodeP)
 
         // act
-        val useDefaultResponseResult = engine.evaluateFilterCondition(
+        val useDefaultResponseResult = engine.evaluateFilterConditionAsAnd(
             emptyList(),
             bundle,
             defaultResponse = false,
@@ -225,7 +225,7 @@ class DefaultFilterTests {
         assertThat(useDefaultResponseResult.second!!).contains("defaultResponse")
 
         // act
-        val useDefaultProcessingModeFilterResult = engine.evaluateFilterCondition(
+        val useDefaultProcessingModeFilterResult = engine.evaluateFilterConditionAsAnd(
             engine.processingModeFilterDefault,
             bundle,
             defaultResponse = false,
@@ -246,7 +246,7 @@ class DefaultFilterTests {
         val bundle = FhirTranscoder.decode(fhirCodeP)
 
         // act
-        val result = engine.evaluateFilterCondition(
+        val result = engine.evaluateFilterConditionAsAnd(
             emptyList(),
             bundle,
             true
@@ -267,7 +267,7 @@ class DefaultFilterTests {
         val bundle = FhirTranscoder.decode(fhirCodeP)
 
         // act
-        val procModeResult = engine.evaluateFilterCondition(
+        val procModeResult = engine.evaluateFilterConditionAsAnd(
             engine.processingModeFilterDefault,
             bundle,
             false
@@ -287,7 +287,7 @@ class DefaultFilterTests {
         val bundle = FhirTranscoder.decode(fhirCodeT)
 
         // act
-        val procModeResult = engine.evaluateFilterCondition(
+        val procModeResult = engine.evaluateFilterConditionAsAnd(
             engine.processingModeFilterDefault,
             bundle,
             false
@@ -310,7 +310,7 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(
+        val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
             engine.qualityFilterDefault,
             bundle,
             false
@@ -332,7 +332,7 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(
+        val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
             engine.qualityFilterDefault,
             bundle,
             false
@@ -356,7 +356,7 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(
+        val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
             engine.qualityFilterDefault,
             bundle,
             false
@@ -380,7 +380,7 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(
+        val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
             engine.qualityFilterDefault,
             bundle,
             false
@@ -404,7 +404,7 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(
+        val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
             engine.qualityFilterDefault,
             bundle,
             false
@@ -426,7 +426,7 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(
+        val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
             engine.qualityFilterDefault,
             bundle,
             false
@@ -448,7 +448,7 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(
+        val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
             engine.qualityFilterDefault,
             bundle,
             false
@@ -470,7 +470,7 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(
+        val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
             engine.qualityFilterDefault,
             bundle,
             false
@@ -492,7 +492,7 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(
+        val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
             engine.qualityFilterDefault,
             bundle,
             false
@@ -514,7 +514,7 @@ class DefaultFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // act
-        val qualDefaultResult = engine.evaluateFilterCondition(
+        val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
             engine.qualityFilterDefault,
             bundle,
             false
@@ -523,5 +523,24 @@ class DefaultFilterTests {
         // assert
         assertThat(qualDefaultResult.first).isTrue()
         assertThat(qualDefaultResult.second).isNull()
+    }
+
+    @Test
+    fun `test evaluateFilterConditionAsOr default - false`() {
+        // set up
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val bundle = FhirTranscoder.decode(fhirCodeP)
+        // act
+        val result = engine.evaluateFilterConditionAsOr(
+            emptyList(),
+            bundle,
+            false
+        )
+
+        // assert
+        assertThat(result.first).isFalse()
+        assertThat(result.second).isNotNull()
+        assertThat(result.second!!).contains("defaultResponse")
     }
 }

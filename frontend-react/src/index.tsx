@@ -1,12 +1,10 @@
 import { createRoot } from "react-dom/client";
 import { CacheProvider } from "rest-hooks";
-// need to include browser here for now so that app can have easy access to history
-import { BrowserRouter as Router } from "react-router-dom";
+import { RouterProvider } from "react-router";
 
-import App from "./App";
-// compiled css so the resources process for the static site by the compiler
-import "./content/generated/global.out.css";
 import { ai, withInsights } from "./TelemetryService";
+import "./content/generated/global.out.css";
+import { router } from "./AppRouter";
 
 // Initialize the App Insights connection and React app plugin from Microsoft
 // The plugin is provided in the AppInsightsProvider in AppWrapper.tsx
@@ -16,8 +14,6 @@ withInsights(console);
 const root = createRoot(document.getElementById("root")!);
 root.render(
     <CacheProvider>
-        <Router>
-            <App />
-        </Router>
+        <RouterProvider router={router} />
     </CacheProvider>
 );
