@@ -90,7 +90,7 @@ class FHIRRouter(
      *  Must have a processing mode id of 'P'
      */
     val processingModeFilterDefault: ReportStreamFilter = listOf(
-        "%processingId = 'P'"
+        "%processingId.exists() and %processingId = 'P'"
     )
 
     /**

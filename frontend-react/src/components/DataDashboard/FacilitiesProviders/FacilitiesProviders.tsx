@@ -4,13 +4,13 @@ import React from "react";
 
 import { FeatureName } from "../../../AppRouter";
 
-export function ReportDetails() {
+export function FacilitiesProviders() {
     return (
-        <GridContainer containerSize="widescreen">
+        <GridContainer>
             <Helmet>
-                <title>{FeatureName.REPORT_DETAILS}</title>
+                <title>{FeatureName.FACILITIES_PROVIDERS}</title>
             </Helmet>
-            <div>Report Details</div>
+            <div>Facilities & Providers</div>
         </GridContainer>
     );
 }

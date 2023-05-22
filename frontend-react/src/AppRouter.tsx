@@ -1,4 +1,4 @@
-import { useRoutes } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import { LoginCallback } from "@okta/okta-react";
 import React from "react";
 
@@ -38,6 +38,8 @@ import { ResponsesFromReportStreamPage } from "./pages/resources/api-programmers
 import { SamplePayloadsAndOutputPage } from "./pages/resources/api-programmers-guide/documentation/SamplePayloadsAndOutput";
 import FileHandler from "./components/FileHandlers/FileHandler";
 import { FaqPage } from "./pages/support/faq/FaqPage";
+import { DataDashboardWithAuth } from "./pages/data-dashboard/DataDashboard";
+import MainLayout from "./layouts/MainLayout";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -46,112 +48,218 @@ export enum FeatureName {
     ADMIN = "Admin",
     UPLOAD = "Upload",
     FACILITIES_PROVIDERS = "All facilities & providers",
-    DASHBOARD = "Dashboard",
+    DATA_DASHBOARD = "Data Dashboard",
     REPORT_DETAILS = "Report Details",
 }
 
-export const appRoutes = [
+export const appRoutes: RsRouteObject[] = [
     /* Public Site */
-    { path: "/", element: <Home /> },
-    { path: "/terms-of-service", element: <TermsOfService /> },
-    { path: "/about", element: <About /> },
-    { path: "/login", element: <Login /> },
-    { path: "/login/callback", element: <LoginCallback /> },
-    { path: "/sign-tos", element: <TermsOfServiceForm /> },
     {
-        path: "/resources",
+        path: "/",
+        element: <MainLayout />,
         children: [
             {
-                path: "documentation",
+                path: "",
+                index: true,
+                element: <Home />,
+                handle: {
+                    isContentPage: true,
+                },
+            },
+            {
+                path: "/terms-of-service",
+                element: <TermsOfService />,
+                handle: {
+                    isContentPage: true,
+                },
+            },
+            {
+                path: "/about",
+                element: <About />,
+                handle: {
+                    isContentPage: true,
+                },
+            },
+            {
+                path: "/login",
+                element: <Login />,
+            },
+            {
+                path: "/login/callback",
+                element: <LoginCallback />,
+            },
+            {
+                path: "/sign-tos",
+                element: <TermsOfServiceForm />,
+                handle: {
+                    isContentPage: true,
+                },
+            },
+            {
+                path: "/resources",
                 children: [
-                    { path: "", element: <DocumentationPage /> },
-                    { path: "data-model", element: <DataModelPage /> },
                     {
-                        path: "responses-from-reportstream",
-                        element: <ResponsesFromReportStreamPage />,
+                        path: "documentation",
+                        children: [
+                            {
+                                path: "",
+                                element: <DocumentationPage />,
+                                index: true,
+                            },
+                            { path: "data-model", element: <DataModelPage /> },
+                            {
+                                path: "responses-from-reportstream",
+                                element: <ResponsesFromReportStreamPage />,
+                            },
+                            {
+                                path: "sample-payloads-and-output",
+                                element: <SamplePayloadsAndOutputPage />,
+                            },
+                        ],
                     },
                     {
-                        path: "sample-payloads-and-output",
-                        element: <SamplePayloadsAndOutputPage />,
+                        path: "",
+                        index: true,
+                        element: <ResourcesPage />,
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                    {
+                        path: "*",
+                        element: <Resources />,
+                        handle: {
+                            isContentPage: true,
+                        },
                     },
                 ],
             },
-            { path: "", element: <ResourcesPage /> },
-            { path: "*", element: <Resources /> },
+            {
+                path: "/product/*",
+                element: <Product />,
+                handle: {
+                    isContentPage: true,
+                },
+            },
+            {
+                path: "/support",
+                children: [
+                    {
+                        path: "faq",
+                        element: <FaqPage />,
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                    {
+                        path: "",
+                        element: <Support />,
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                ],
+            },
+            {
+                path: "/file-handler/validate",
+                element: <FileHandler />,
+            },
+            {
+                path: "/daily-data",
+                element: <DeliveriesWithAuth />,
+            },
+            {
+                path: "/report-details/:reportId",
+                element: <DeliveryDetailWithAuth />,
+            },
+            {
+                path: "/upload",
+                element: <UploadWithAuth />,
+            },
+            {
+                path: "/submissions",
+                element: <SubmissionsWithAuth />,
+            },
+            {
+                path: "/submissions/:actionId",
+                element: <SubmissionDetailsWithAuth />,
+            },
+            /* Data Dashboard pages */
+            {
+                path: "/data-dashboard",
+                element: <DataDashboardWithAuth />,
+            },
+            /* Admin pages */
+            {
+                path: "/admin/settings",
+                element: <AdminMainWithAuth />,
+            },
+            {
+                path: "/admin/new/org",
+                element: <AdminOrgNewWithAuth />,
+            },
+            {
+                path: "/admin/orgsettings/org/:orgname",
+                element: <AdminOrgEditWithAuth />,
+            },
+            {
+                path: "/admin/orgreceiversettings/org/:orgname/receiver/:receivername/action/:action",
+                element: <EditReceiverSettingsWithAuth />,
+            },
+            {
+                path: "/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action",
+                element: <EditSenderSettingsWithAuth />,
+            },
+            {
+                path: "/admin/orgnewsetting/org/:orgname/settingtype/:settingtype",
+                element: <NewSettingWithAuth />,
+            },
+            {
+                path: "/admin/lastmile",
+                element: <AdminLMFWithAuth />,
+            },
+            {
+                path: "/admin/send-dash",
+                element: <AdminReceiverDashWithAuth />,
+            },
+            {
+                path: "/admin/features",
+                element: <FeatureFlagUIWithAuth />,
+            },
+            {
+                path: "/admin/message-tracker",
+                element: <AdminMessageTrackerWithAuth />,
+            },
+            {
+                path: "/message-details/:id",
+                element: <MessageDetailsWithAuth />,
+            },
+            {
+                path: "/admin/value-sets/:valueSetName",
+                element: <ValueSetsDetailWithAuth />,
+            },
+            {
+                path: "/admin/value-sets",
+                element: <ValueSetsIndexWithAuth />,
+            },
+            {
+                path: "/admin/revisionhistory/org/:org/settingtype/:settingType",
+                element: <AdminRevHistoryWithAuth />,
+            },
+            {
+                path: "/resources/manage-public-key",
+                element: <ManagePublicKeyWithAuth />,
+            },
+            /* Handles any undefined route */
+            {
+                path: "*",
+                element: <ErrorNoPage />,
+                handle: {
+                    isContentPage: true,
+                },
+            },
         ],
     },
-    { path: "/product/*", element: <Product /> },
-    {
-        path: "/support",
-        children: [
-            { path: "faq", element: <FaqPage /> },
-            { path: "", element: <Support /> },
-            { path: "*", element: <Support /> },
-        ],
-    },
-    { path: "/file-handler/validate", element: <FileHandler /> },
-    { path: "/daily-data", element: <DeliveriesWithAuth /> },
-    {
-        path: "/report-details/:reportId",
-        element: <DeliveryDetailWithAuth />,
-    },
-    { path: "/upload", element: <UploadWithAuth /> },
-    { path: "/submissions", element: <SubmissionsWithAuth /> },
-    {
-        path: "/submissions/:actionId",
-        element: <SubmissionDetailsWithAuth />,
-    },
-    /* Admin pages */
-    { path: "/admin/settings", element: <AdminMainWithAuth /> },
-    { path: "/admin/new/org", element: <AdminOrgNewWithAuth /> },
-    {
-        path: "/admin/orgsettings/org/:orgname",
-        element: <AdminOrgEditWithAuth />,
-    },
-    {
-        path: "/admin/orgreceiversettings/org/:orgname/receiver/:receivername/action/:action",
-        element: <EditReceiverSettingsWithAuth />,
-    },
-    {
-        path: "/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action",
-        element: <EditSenderSettingsWithAuth />,
-    },
-    {
-        path: "/admin/orgnewsetting/org/:orgname/settingtype/:settingtype",
-        element: <NewSettingWithAuth />,
-    },
-    { path: "/admin/lastmile", element: <AdminLMFWithAuth /> },
-    {
-        path: "/admin/send-dash",
-        element: <AdminReceiverDashWithAuth />,
-    },
-    { path: "/admin/features", element: <FeatureFlagUIWithAuth /> },
-    {
-        path: "/admin/message-tracker",
-        element: <AdminMessageTrackerWithAuth />,
-    },
-    {
-        path: "/message-details/:id",
-        element: <MessageDetailsWithAuth />,
-    },
-    {
-        path: "/admin/value-sets/:valueSetName",
-        element: <ValueSetsDetailWithAuth />,
-    },
-    {
-        path: "/admin/value-sets",
-        element: <ValueSetsIndexWithAuth />,
-    },
-    {
-        path: "/admin/revisionhistory/org/:org/settingtype/:settingType",
-        element: <AdminRevHistoryWithAuth />,
-    },
-    {
-        path: "/resources/manage-public-key",
-        element: <ManagePublicKeyWithAuth />,
-    },
-    /* Handles any undefined route */
-    { path: "*", element: <ErrorNoPage /> },
 ];
 
-export const AppRouter = () => useRoutes(appRoutes);
+export const router = createBrowserRouter(appRoutes);

@@ -3,9 +3,9 @@ import { Helmet } from "react-helmet-async";
 import React from "react";
 
 export function FacilityProviderSubmitterDetails() {
+    // TODO: title will be dynamic based on prop
     return (
-        // TODO: title will be dynamic based on prop
-        <GridContainer containerSize="widescreen">
+        <GridContainer>
             <Helmet>
                 <title>Facility Details</title>
             </Helmet>

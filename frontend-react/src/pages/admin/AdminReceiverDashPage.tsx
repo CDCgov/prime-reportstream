@@ -9,7 +9,7 @@ import { AuthElement } from "../../components/AuthElement";
 
 export function AdminReceiverDashPage() {
     return (
-        <GridContainer containerSize="widescreen">
+        <GridContainer>
             <Helmet>
                 <title>Admin Destination Dashboard</title>
             </Helmet>
