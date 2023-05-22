@@ -224,7 +224,11 @@ class FhirTransformer(
             return emptyList()
         }
 
-        val pathParts = bundleProperty.split(".")
+        val pathParts = splitBundlePropertyPath(bundleProperty)
+        if (pathParts.isEmpty()) {
+            logger.error("Invalid FHIR path for '$bundleProperty'.")
+            return emptyList()
+        }
         if (pathParts.size < 2) {
             logger.error("Expected at least 2 parts in bundle property '$bundleProperty'.")
             return emptyList()
@@ -236,5 +240,39 @@ class FhirTransformer(
             return emptyList()
         }
         return pathParts
+    }
+
+    /**
+     * Splits a [bundleProperty] '.' delimited into a list of path parts
+     * or an empty list if the input was not usable.
+     */
+    internal fun splitBundlePropertyPath(bundleProperty: String): List<String> {
+        val parts: MutableList<String> = mutableListOf()
+        var foundParenthesis = false
+        var part = ""
+        bundleProperty.toList().forEach {
+            // Only add parts if outside parenthesis. To make sure things
+            // like extensions are not included
+            if (!foundParenthesis && it == '.') {
+                parts += part
+                part = ""
+            } else {
+                part += it
+                if (it == '(') {
+                    foundParenthesis = true
+                } else if (foundParenthesis && it == ')') {
+                    foundParenthesis = false
+                }
+            }
+        }
+        if (part != "")
+            parts += part
+
+        // This is an invalid path if a closing parenthesis is not found
+        return if (foundParenthesis) {
+            mutableListOf()
+        } else {
+            parts
+        }
     }
 }

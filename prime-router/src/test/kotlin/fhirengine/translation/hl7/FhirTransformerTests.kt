@@ -333,6 +333,7 @@ class FhirTransformerTests {
         val bundle = Bundle()
         bundle.id = "abc123"
         val resource = Patient()
+        val extension = "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id"
         resource.id = "def456"
         bundle.addEntry().resource = resource
 
@@ -340,7 +341,7 @@ class FhirTransformerTests {
             "elementA",
             value = listOf("'someValue'"),
             resource = "Bundle.entry.resource.ofType(Patient)",
-            bundleProperty = "%resource.extension('someExtension').value[x]"
+            bundleProperty = "%resource.extension('$extension').value[x]"
         )
 
         val schema = FhirTransformSchema(elements = mutableListOf(elemA))
@@ -351,7 +352,7 @@ class FhirTransformerTests {
                 CustomContext(bundle, bundle),
                 bundle,
                 bundle,
-                "Bundle.entry.resource.ofType(Patient).extension('someExtension').value[0]"
+                "Bundle.entry.resource.ofType(Patient).extension('$extension').value[0]"
             )
         assertThat(newValue[0].primitiveValue()).isEqualTo("someValue")
     }
@@ -542,6 +543,25 @@ class FhirTransformerTests {
 
         transformer.validateAndSplitBundleProperty("Bundle.entry.resource.ofType(Patient).name.%key")
         verifyErrorAndResetLogger(logger)
+    }
+
+    @Test
+    fun `test split bundleProperty`() {
+
+        val transformer = FhirTransformer(FhirTransformSchema())
+
+        assertThat(transformer.splitBundlePropertyPath("")).isEmpty()
+
+        assertThat(transformer.splitBundlePropertyPath("id").count()).isEqualTo(1)
+
+        assertThat(
+            transformer.splitBundlePropertyPath("Bundle.entry.resource.ofType(Patient).name.%key").count()
+        ).isEqualTo(6)
+
+        val extension = "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id"
+        assertThat(
+            transformer.splitBundlePropertyPath("%resource.extension('$extension').value[x]").count()
+        ).isEqualTo(3)
     }
 
     @Test
