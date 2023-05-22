@@ -4,6 +4,10 @@ $theme-hr-border-color: "base-lighter";
 
 hr {
     border: 1px solid color($theme-hr-border-color);
+    /* TODO: Verify spacing in all uses of hr when enabling this
+    @include u-margin-bottom(6);
+    @include u-margin-top(6);
+    */
 }
 
 .usa-link--unstyled {
