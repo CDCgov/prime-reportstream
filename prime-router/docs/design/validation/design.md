@@ -23,28 +23,27 @@ senders and receivers can only be set up to receive one format at a time, so the
 validationProfile pertains to which format.
 
 #### Submission
-For FHIR, we currently use an `IParser` instance to parse and read some metadata. By default, the IParser performs some validation
-and raises warnings or errors (depending on how its configured). We need to investigate how the instance is currently 
-configured and ensure it is performing validation. Ideally this
-configuration will be universal or at least binary (validation on/off vs different types) for all senders.
+For FHIR, we currently use an `IParser` instance to parse and read some metadata. By default, the IParser performs some
+validation and raises warnings or errors (depending on how its configured). We need to investigate how the instance is
+currently configured and ensure it is performing validation. Ideally this configuration will be universal or binary
+(validation on/off vs different types) for all senders.
 
-This step will not be implemented for HL7
+This step will be a no-op for HL7.
 
 #### Pre transform
 Before we apply sender transforms and enrichment, we need to ensure that bundles contain sane data for its origin.
 We should also ensure any prerequisites (e.g. field, value, format) for transform/enrichment is satisfied. Further 
 validation is still necessary as the assembled bundle may still be missing data that will be added.
 
-This step will not be implemented for HL7
-
 #### Post transform
 Will occur during the convert function, after receiving and debatch, and before the convert step. We again need to 
-ensure that all necessary data exists and is sane. This will happen for both HL7 and FHIR. One final validation will be 
-needed (per receiver) after applying receiver transforms and enrichment.
+ensure that all necessary data exists and is sane. This will happen for both HL7 and FHIR data. One final validation will
+be needed (per receiver) after applying receiver transforms and enrichment.
 
 #### Pre dispatch
-Will occur in the translate function, after reception, translation, and enrichment but right
-before dispatch.Verify that the final dataset meets configured receiver expectations prior to dispatch.
+Will occur in the translate function, after reception, translation, and enrichment but just before dispatch.
+
+Verify that the final dataset meets configured receiver expectations prior to dispatch.
 
 #### Actions Upon Validation Failure
 When a message fails validation, validation errors should show up in:
