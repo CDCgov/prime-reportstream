@@ -27,6 +27,7 @@ describe("useOrganizationPublicKeys", () => {
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: false,
+                environment: "test",
             });
         });
 
@@ -55,6 +56,7 @@ describe("useOrganizationPublicKeys", () => {
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: true,
+                environment: "test",
             });
         });
 
