@@ -833,54 +833,164 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
 # THIS ORGANIZATION IS FOR DEVELOPMENT PURPOSES ONLY - CHANGING IT WILL HAVE NO IMPACT ON TESTS
-- name: development
-  description: FOR DEVELOPMENT PURPOSES ONLY
-  jurisdiction: FEDERAL
+- name: "flexion"
+  description: "Flexion, Inc."
+  jurisdiction: "FEDERAL"
+  stateCode: null
+  countyName: null
+  filters: []
+  featureFlags: []
+  keys:
+    - scope: "flexion.*.report"
+      keys:
+        - kty: "RSA"
+          kid: "flexion"
+          "n": "ryF4s0w8tqeU5SPTb3g8o1DeODyoLM5PndLgJepiDz1ns1FMfHE4Hns9u-O_qQs3tyglzm6_tCXu1ok-r581iN_zYYHHzG4sEuHd7kbDF3cS5U57n_iKI0efru8Tht-DGDCHw503ZC85LUi1rtrf29wNSSHurZlwBI25iMxKYNoVm9F9A34MoPL53vuFvR0D1Sz5WOCaz2HvtjgSfaMaaU3bnDdKya_CeoNSt7vk4-uslhGku2ENOccP1iobNfbCD-xfMgDWPeX48Gnqm16VhWEtZocn-KHjt7qE1Q9r8yhOqodWHzGjP4cDR0hftowdv4d0oAxQaF9zITo7oJkPlQ"
+          e: "AQAB"
+        - kty: "RSA"
+          kid: "flexion.simulated-hospital"
+          "n": "yte6jSZhn-Y3z0QwvpltmOkSR2hh5WLn5CdGNkFJHzkjZQize17r_NxmC19zFIPVESUEiFUTuMINA_BNbNV4KXLlRCUAHpIojExakrMjEIwyTJfjT-_hHQ80A2IZS4cyEb3KbCr3tWg1K-XrDLzqROQifzjXpQf7baiFsA-oyUiusPE-tTGwBj30netC-NyINo1rrZDQ8mx_hGEYIiNOcCMheM7NyhZ-xPMFemBrisekjcNuEgvsA5qec_zGxEyHFVFhIGftjEcUewUGJE6QoVSQ0vh1B5wcDMWSq0u9XiDniWkujTV_X0HghXiA54nxo-IN_gtu7bbrTFzY0Z6jMi1GLbGJzFUrdVHXB6xEnUfycFjPd-4E-D86kUGVO6QebK6heTejy-RV-ivbPkfph6vGIHetDjoeMXttuZFhW_4YOmXpgkLCS-tpIYpnHp_YoxkNLPs9Ha08ZblaQe4WxPpqB0Sd1c10UMGFtLuqrhv9ucxsPXxNhw0sl6P8D7a_m_KYv3Xs7-sU-X6wnvnrjKZu2aeNQqKDqAze1UQy6kLv4fyDkl9qveawfJltU4qBGfXchRTTk74Mr305g1RSrLjOtdMQ8sxGGFaKBJ2EQYYVN4b-bxwhGaQ3fYGe2atablvWoojgVHejUEWWS17_j2cGn7_qavjDZjRwuvmrXHE"
+          e: "AQAB"
+        - kty: "RSA"
+          kid: "flexion.simulated-hospital"
+          "n": "so0MxlqSsxQCMjEpaKlSC2bXdmLd7FsrCs0lz64n7EzObn4DGbwa6RkVysSoTEtEDsGnnjf3FwRJWS-w8vbzJVfy7GtHMRJ95G01kIBobWuXo9kvRKaCaQt9jZYqYnG2bStVhj4Lu1he1K6oWLTQBru2qWcxKj8WszPgMX9i0bXE4PVB27k3dRA9opjY-whErz0m0E_e7HPNG9FH7c00CgSJVY9Slmd9cS-XpNeDz95XbpAjizfbP9A5tW0KrOnYIkq9y2fSW8Jzv4ZNC6W0BiLqsLu1jLnJ5GZ5C60yOr65rHPLsFCsTDcI0LJEoPOwllsEB5flPmkcFc_jiUcruw"
+          e: "AQAB"
+        - kty: "RSA"
+          kid: "flexion.etor-service-sender"
+          "n": "wRcaRslCc0BttqJpwxamdndcFYZZin158PAdGSyxuo671hKnuM2GVA70Yvy9ySTWyu67gl8gvoCtY_A2pTAdzkrz24_g0P5uxQSERNRAP60UxWIpnC3EG45c5OvsYANkKWZSALlYyw8-zYxsMtCCjhiX1PqvScq5FcisWs3QvDyHQJwuA0P_NYy44MPxq70lWLnfeCQ5t87JnB717qiLK-j8i_u5AWfZsaCp6z1GR1NmRwzZU6YABC6wq6OheZPQPeStXRTIbA2KRZvy7QJLrFefNXvMipCdOx6npELOirhUkTr8-fb5fwpKW3-yXbaw46kgAK_etUeRgvidwfYwaxDkTHDqPwmGnL0KOhidm7ibMuPjKQ0SD2Td__ytdSr-dP8Q4vqlUxAdn_mYVAm4rO7Uqc0BAiuFSt_lby4JQntVNj6VWuPb07CaOxtOAVGg7p_52PDAXL-amg_pOfrN0vNm3YWKb8KNc_uk-5WsVKotOSuMON67pih271RCZrGJgncAr7UOj2_MiwOiDG4-_C8OIgv5Vd80PuyXcMSQaUFVO_vIznMuqviOoO5rMM_-yXcbK_FqynnnHmv9yBAnFfpVgk2XzguVr9Mjc24NJSxnVN_z6sqvvHLslq8yXCBQrGdX7GQZpDtbMEH7123USID20bXG5DtZdJfURGy5_Gs"
+          e: "AQAB"
+  senders:
+    - !<full-elr>
+      name: "simulated-hospital"
+      organizationName: "flexion"
+      format: "FHIR"
+      customerStatus: "active"
+      keys: null
+      processingType: "sync"
+      allowDuplicates: true
+      senderType: null
+      primarySubmissionMethod: null
+      topic: "full-elr"
+      version: null
+      createdBy: null
+      createdAt: null
+    - !<full-elr>
+      name: "etor-service-sender"
+      organizationName: "flexion"
+      format: "FHIR"
+      customerStatus: "active"
+      keys: null
+      processingType: "sync"
+      allowDuplicates: true
+      senderType: null
+      primarySubmissionMethod: null
+      topic: "full-elr"
+      version: null
+      createdBy: null
+      createdAt: null
   receivers:
-    # THIS RECEIVER IS NOT USED IN ANY TESTS AND CAN BE UPDATED TO YOUR HEARTS CONTENT
-    - name: DEV_FULL_ELR
-      externalName: Ignore FULL_ELR Development
-      organizationName: development
+    - name: FULL-ELR-FHIR
+      externalName: Ignore FULL-ELR-FHIR
+      organizationName: flexion
       topic: full-elr
       customerStatus: active
-      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'CA') or (%patientState.exists() and %patientState = 'CA')" ]
-      qualityFilter:
-        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
-        # Flu B Test Performed LOINCs 85478-6, 76080-1, 92141-1, 80383-3, 82170-2
-        # Flu A Test Performed LOINCs 85477-8, 76078-5, 77026-3, 77028-9, 77027-1, 92142-9, 80382-5, 82166-0, 82167-8, 82169-4, 82168-6, 92809-3, 92808-5
-        # Special Snowflake LOINC - 95423-0 (Snomed CT code determines if it was the flu A or flu B result)
-        - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
-        # Every order has at least an order-test-date (ORC-15), specimen_collection_date_time (SPM-17-1, OBR-7, OBR-8, OBX-14) or test-result-date (OBX-19)
-        - "Bundle.entry.resource.ofType(DiagnosticReport).where( basedOn.resolve().extension('https://reportstream.cdc.gov/fhir/StructureDefinition/effective-date').empty() and specimen.resolve().collection.collected.empty() and effective.empty() and issued.empty() and result.resolve().effective.empty()).count() = 0"
-        # Patient has at least a street address(PID-11-1), postal code (PID-11-5),phone(PID-13) or email(PID-13-4)
-        - "Bundle.entry.resource.ofType(Patient).where(address.line[0].empty() and address.postalCode.empty() and telecom.where(system = 'phone').value.empty() and telecom.where(system = 'email').value.empty()).count() = 0"
-        # Message id is not empty (MSH-10)
-        - "Bundle.identifier.value.empty().not()"
-        # Equipment model (OBX-17-2) and test result (OBX-5) are not empty
-        - "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve().where(method.empty() or value.coding.code.empty()).count() = 0"
-        #  Specimen type (SPM-4) is not empty
-        - "Bundle.entry.resource.ofType(Specimen).where(type.empty()).count() = 0"
-        # Patient's last name (PID-5-1), first name (PID-5-2) and date of birth (PID-7)are not empty
-        - "Bundle.entry.resource.ofType(Patient).where(name.family.empty() or name.given.empty() or birthDate.empty()).count() = 0"
-        # Ordering provider (OBR-16-1) exists
-        - "Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.family.empty()).count() = 0"
-        - "Bundle.entry.resource.ofType(Organization).identifier.value.getIdType() = 'CLIA'"
-      conditionFilter:
-        # Accept all positive flu A and B results or negative flu A and B results for cities in LA and Orange counties
-        - >-
-          %resource.where(code.coding.code in ('85478-6' | '76080-1' | '92141-1' | '80383-3' | '82170-2' | '85477-8' | '76078-5' | '77026-3' | '77028-9' | '77027-1' | '92142-9' | '80382-5' | '82166-0' | '82167-8' | '82169-4' | '82168-6' | '92809-3' | '92808-5' | '95423-0')).value.coding.code.intersect('260373001' | '407479009' | '407480007').exists()
-          or (%resource.where(code.coding.code in ('85478-6' | '76080-1' | '92141-1' | '80383-3' | '82170-2' | '85477-8' | '76078-5' | '77026-3' | '77028-9' | '77027-1' | '92142-9' | '80382-5' | '82166-0' | '82167-8' | '82169-4' | '82168-6' | '92809-3' | '92808-5')).value.coding.code.intersect('260415000').exists() and (%patient.address.city.intersect(%LACountyCities | %OrangeCountyCities).exists() or %performer.address.city.intersect(%LACountyCities | %OrangeCountyCities).exists()))
+      jurisdictionalFilter: [ "(%patientState.exists() and %patientState = 'IG')" ]
+      qualityFilter: [ "(%patientState.exists() and %patientState = 'IG')" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
-        useTestProcessingMode: false
+      translation: !<FHIR>
+        schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
+        type: "FHIR"
+        useBatching: false
+      transport: !<REST>
+        reportUrl: "http://192.168.1.180:8080/v1/etor/demographics"
+        authTokenUrl: "http://rest-webservice:3001/token"
+        headers:
+          mock-h1: "value-h1"
+          mock-h2: "value-h2"
+        type: "REST"
+- name: sd-phd
+  description: "South Dakota Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: SD
+  receivers:
+    - name: elr
+      organizationName: sd-phd
+      topic: covid-19
+      customerStatus: testing
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, SD, patient_state, SD)
+      timeZone: EASTERN
+      dateTimeFormat: LOCAL
+      translation:
+        type: HL7
+        useBatchHeaders: false
+        receivingApplicationName: SDPHD
+        receivingApplicationOID: 2.16.840.1.114222.4.3.3.36
+        receivingFacilityName: SDPHD
+        receivingFacilityOID: 2.16.840.1.114222.4.3.2.2.1.163
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        suppressQstForAoe: true
+        truncateHDNamespaceIds: true
+        suppressHl7Fields: null
+        truncateHl7Fields: null
+        replaceValueAwithB: null
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: EASTERN
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+- name: primary
+  description: Primary Diagnostics, Inc. (primary.health)
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: primary
+      topic: covid-19
+      customerStatus: active
+      schemaName: hl7/primary-covid-19
+      format: HL7
+- name: ks-doh
+  description: Kansas Department Of Health
+  jurisdiction: STATE
+  stateCode: KS
+  receivers:
+    - name: elr
+      organizationName: ks-doh
+      topic: covid-19
+      customerStatus: testing
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, KS, patient_state, KS)
+      timeZone: CENTRAL
+      dateTimeFormat: LOCAL
+      translation:
+        type: HL7
         useBatchHeaders: true
-        type: "HL7"
-        receivingApplicationName: ""
-        receivingFacilityName: ""
+        receivingApplicationName: KSDOH
+        receivingApplicationOID: 2.16.840.1.114222.4.3.3.36
+        receivingFacilityName: KDHE
+        receivingFacilityOID: 2.16.840.1.114222.4.3.2.2.1.163
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        suppressQstForAoe: true
+        truncateHDNamespaceIds: true
+        suppressHl7Fields: null
+        truncateHl7Fields: null
+        replaceValueAwithB: null
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: CENTRAL
       transport:
         type: SFTP
         host: sftp
