@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, RouteObject } from "react-router-dom";
 import { LoginCallback } from "@okta/okta-react";
 import React from "react";
 
@@ -97,6 +97,10 @@ export const appRoutes: RouteObject[] = [
                 path: "/resources",
                 children: [
                     {
+                        path: "manage-public-key",
+                        element: <ManagePublicKeyWithAuth />,
+                    },
+                    {
                         path: "",
                         index: true,
                         element: <ResourcesPage />,
@@ -157,11 +161,17 @@ export const appRoutes: RouteObject[] = [
             },
             {
                 path: "/submissions",
-                element: <SubmissionsWithAuth />,
-            },
-            {
-                path: "/submissions/:actionId",
-                element: <SubmissionDetailsWithAuth />,
+                children: [
+                    {
+                        path: "",
+                        index: true,
+                        element: <SubmissionsWithAuth />,
+                    },
+                    {
+                        path: "/submissions/:actionId",
+                        element: <SubmissionDetailsWithAuth />,
+                    },
+                ],
             },
             /* Data Dashboard pages */
             {
@@ -184,64 +194,71 @@ export const appRoutes: RouteObject[] = [
             },
             /* Admin pages */
             {
-                path: "/admin/settings",
-                element: <AdminMainWithAuth />,
-            },
-            {
-                path: "/admin/new/org",
-                element: <AdminOrgNewWithAuth />,
-            },
-            {
-                path: "/admin/orgsettings/org/:orgname",
-                element: <AdminOrgEditWithAuth />,
-            },
-            {
-                path: "/admin/orgreceiversettings/org/:orgname/receiver/:receivername/action/:action",
-                element: <EditReceiverSettingsWithAuth />,
-            },
-            {
-                path: "/admin/orgsendersettings/org/:orgname/sender/:sendername/action/:action",
-                element: <EditSenderSettingsWithAuth />,
-            },
-            {
-                path: "/admin/orgnewsetting/org/:orgname/settingtype/:settingtype",
-                element: <NewSettingWithAuth />,
-            },
-            {
-                path: "/admin/lastmile",
-                element: <AdminLMFWithAuth />,
-            },
-            {
-                path: "/admin/send-dash",
-                element: <AdminReceiverDashWithAuth />,
-            },
-            {
-                path: "/admin/features",
-                element: <FeatureFlagUIWithAuth />,
-            },
-            {
-                path: "/admin/message-tracker",
-                element: <AdminMessageTrackerWithAuth />,
+                path: "admin",
+                children: [
+                    {
+                        path: "settings",
+                        element: <AdminMainWithAuth />,
+                    },
+                    {
+                        path: "new/org",
+                        element: <AdminOrgNewWithAuth />,
+                    },
+                    {
+                        path: "orgsettings/org/:orgname",
+                        element: <AdminOrgEditWithAuth />,
+                    },
+                    {
+                        path: "orgreceiversettings/org/:orgname/receiver/:receivername/action/:action",
+                        element: <EditReceiverSettingsWithAuth />,
+                    },
+                    {
+                        path: "orgsendersettings/org/:orgname/sender/:sendername/action/:action",
+                        element: <EditSenderSettingsWithAuth />,
+                    },
+                    {
+                        path: "orgnewsetting/org/:orgname/settingtype/:settingtype",
+                        element: <NewSettingWithAuth />,
+                    },
+                    {
+                        path: "lastmile",
+                        element: <AdminLMFWithAuth />,
+                    },
+                    {
+                        path: "send-dash",
+                        element: <AdminReceiverDashWithAuth />,
+                    },
+                    {
+                        path: "features",
+                        element: <FeatureFlagUIWithAuth />,
+                    },
+                    {
+                        path: "message-tracker",
+                        element: <AdminMessageTrackerWithAuth />,
+                    },
+                    {
+                        path: "value-sets",
+                        children: [
+                            {
+                                path: "",
+                                index: true,
+                                element: <ValueSetsIndexWithAuth />,
+                            },
+                            {
+                                path: ":valueSetName",
+                                element: <ValueSetsDetailWithAuth />,
+                            },
+                        ],
+                    },
+                    {
+                        path: "revisionhistory/org/:org/settingtype/:settingType",
+                        element: <AdminRevHistoryWithAuth />,
+                    },
+                ],
             },
             {
                 path: "/message-details/:id",
                 element: <MessageDetailsWithAuth />,
-            },
-            {
-                path: "/admin/value-sets/:valueSetName",
-                element: <ValueSetsDetailWithAuth />,
-            },
-            {
-                path: "/admin/value-sets",
-                element: <ValueSetsIndexWithAuth />,
-            },
-            {
-                path: "/admin/revisionhistory/org/:org/settingtype/:settingType",
-                element: <AdminRevHistoryWithAuth />,
-            },
-            {
-                path: "/resources/manage-public-key",
-                element: <ManagePublicKeyWithAuth />,
             },
             /* Handles any undefined route */
             {
