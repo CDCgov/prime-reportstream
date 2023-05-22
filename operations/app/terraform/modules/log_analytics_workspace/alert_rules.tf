@@ -27,7 +27,6 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "functionapp_fatal" {
   }
 }
 
-
 resource "azurerm_monitor_scheduled_query_rules_alert" "metabase_webapp_alertrule" {
   name                = format("%s-metabase-webapp-alertrule", var.resource_prefix)
   location            = var.location
