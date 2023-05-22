@@ -1,12 +1,9 @@
 name: Alert Terraform Changes
 
 on:
-  push:
-    branches:
-      - feature/change-slack-channel-tfstate-notice
-  # schedule:
-  #   # The workflow runs every day at 8:07am
-  #   - cron: "7 13 * * *"  #UTC-5
+  schedule:
+    # The workflow runs every day at 8:20am
+    - cron: "7 13 * * *"  #UTC-5
 jobs:
   alert_tf_changes:
     name: Check Terraform plan for ${{ matrix.env }}
