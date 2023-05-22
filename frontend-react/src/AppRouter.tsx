@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, RouteObject } from "react-router-dom";
 import { LoginCallback } from "@okta/okta-react";
 import React from "react";
 
@@ -262,4 +262,4 @@ export const appRoutes: RsRouteObject[] = [
     },
 ];
 
-export const router = createBrowserRouter(appRoutes);
+export const router = createBrowserRouter(appRoutes as RouteObject[]);
