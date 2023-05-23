@@ -32,6 +32,7 @@ import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -881,7 +882,7 @@ class RoutingTests {
 
     @Test
     fun `test evaluateFilterAndLogResult`() {
-        val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
+        val fhirData = File("src/test/resources/fhirengine/engine/bundle_multiple_observations.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
         val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
         val settings = FileSettings().loadOrganizations(oneOrganization)
@@ -890,9 +891,18 @@ class RoutingTests {
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
-        every { engine.evaluateFilterConditionAsAnd(any(), any(), true, any(), any()) } returns Pair(true, null)
+        every {
+            engine.evaluateFilterConditionAsAnd(any(), any(), true, any(), any())
+        } returns Pair(true, null)
         every {
             engine.evaluateFilterConditionAsAnd(any(), any(), false, any(), any())
+        } returns Pair(false, filter.toString())
+
+        every {
+            engine.evaluateFilterConditionAsOr(any(), any(), true, any(), any())
+        } returns Pair(true, null)
+        every {
+            engine.evaluateFilterConditionAsOr(any(), any(), false, any(), any())
         } returns Pair(false, filter.toString())
 
         engine.evaluateFilterAndLogResult(filter, bundle, report, receiver, type, true)
@@ -900,6 +910,29 @@ class RoutingTests {
             engine.logFilterResults(any(), any(), any(), any(), any())
         }
         engine.evaluateFilterAndLogResult(filter, bundle, report, receiver, type, false)
+        verify(exactly = 1) {
+            engine.logFilterResults(any(), any(), any(), any(), any())
+        }
+
+        // use case for condition filter
+        val observation = FhirPathUtils.evaluate(
+            CustomContext(bundle, bundle, emptyMap<String, String>().toMutableMap()),
+            bundle,
+            bundle,
+            "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
+        ).first()
+
+        engine.evaluateFilterAndLogResult(
+            filter,
+            bundle,
+            report,
+            receiver,
+            ReportStreamFilterType.CONDITION_FILTER,
+            defaultResponse = true,
+            reverseFilter = false,
+            focusResource = observation,
+            useOr = true
+        )
         verify(exactly = 1) {
             engine.logFilterResults(any(), any(), any(), any(), any())
         }
