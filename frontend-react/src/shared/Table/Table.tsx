@@ -194,57 +194,61 @@ export const Table = ({
                 tabIndex: 0,
             })}
         >
-            <table className={classes} data-testid="table">
-                {sortable ? (
-                    <SortableTable
-                        rowData={rowData}
-                        columnHeaders={columnHeaders}
-                    />
-                ) : (
-                    <>
-                        <thead>
-                            <tr>
-                                {columnHeaders.map((header, index) => {
+            {rowData.length ? (
+                <table className={classes} data-testid="table">
+                    {sortable ? (
+                        <SortableTable
+                            rowData={rowData}
+                            columnHeaders={columnHeaders}
+                        />
+                    ) : (
+                        <>
+                            <thead>
+                                <tr>
+                                    {columnHeaders.map((header, index) => {
+                                        return (
+                                            <th
+                                                key={index}
+                                                className={classnames(
+                                                    "column-header",
+                                                    {
+                                                        "column-header--sticky":
+                                                            sticky,
+                                                    }
+                                                )}
+                                            >
+                                                <p className="column-header-text">
+                                                    {header.columnHeader}
+                                                </p>
+                                            </th>
+                                        );
+                                    })}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {rowData.map((row, index) => {
                                     return (
-                                        <th
-                                            key={index}
-                                            className={classnames(
-                                                "column-header",
-                                                {
-                                                    "column-header--sticky":
-                                                        sticky,
-                                                }
-                                            )}
-                                        >
-                                            <p className="column-header-text">
-                                                {header.columnHeader}
-                                            </p>
-                                        </th>
+                                        <tr key={index}>
+                                            {row.map((data, dataIndex) => {
+                                                return (
+                                                    <td
+                                                        key={dataIndex}
+                                                        className="column-data"
+                                                    >
+                                                        {data.content}
+                                                    </td>
+                                                );
+                                            })}
+                                        </tr>
                                     );
                                 })}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {rowData.map((row, index) => {
-                                return (
-                                    <tr key={index}>
-                                        {row.map((data, dataIndex) => {
-                                            return (
-                                                <td
-                                                    key={dataIndex}
-                                                    className="column-data"
-                                                >
-                                                    {data.content}
-                                                </td>
-                                            );
-                                        })}
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </>
-                )}
-            </table>
+                            </tbody>
+                        </>
+                    )}
+                </table>
+            ) : (
+                <h2>No data to show</h2>
+            )}
         </div>
     );
 };
