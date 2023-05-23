@@ -2,7 +2,7 @@ name: Alert Terraform Changes
 
 on:
   schedule:
-    # The workflow runs every day at 8:07am
+    # The workflow runs every day at 8:20am
     - cron: "7 13 * * *"  #UTC-5
 jobs:
   alert_tf_changes:
@@ -59,7 +59,7 @@ jobs:
             "resource-drifts": "${{ env.resource-drifts }}"
           
           icon-emoji: ':bell:'
-          channel: temp-alert-dump
+          channel: pagerduty-alert-dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           color: warning
           

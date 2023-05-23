@@ -5,13 +5,13 @@ export type DateTimeData = {
     timeString: string;
 };
 
-/* 
+/*
     This function serves as a cleaner (read: more contained) way of parsing out
     necessary date and time string formats for the Submissions details page.
 
     @param dateTimeString - the value representing when a report was sent, returned
-    by the API  
-    
+    by the API
+
     @returns DateTimeData | null
     dateString format: 1 Jan 2022
     timeString format: 16:30
@@ -72,3 +72,24 @@ export const formattedDateFromTimestamp = (
 export const timeZoneAbbreviated = () => {
     return Intl.DateTimeFormat().resolvedOptions().timeZone;
 };
+
+export function isDateExpired(dateTimeString: string | number) {
+    const now = moment.utc().local();
+    const dateToCompare = moment.utc(dateTimeString).local();
+    return dateToCompare < now;
+}
+export function transformDate(s: string) {
+    return new Date(s).toLocaleString();
+}
+
+// Will return date with format: 2/9/2023, 02:24 PM
+export function formatDateWithoutSeconds(d: string) {
+    const date = d === "" ? new Date() : new Date(d);
+    return new Date(date).toLocaleString([], {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+}
