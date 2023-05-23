@@ -14,6 +14,7 @@ import {
     RSUserPermissions,
 } from "../utils/PermissionsUtils";
 import { RSUserClaims } from "../utils/OrganizationUtils";
+import config from "../config";
 
 export interface RSSessionContext extends RSUserPermissions {
     activeMembership?: MembershipSettings | null;
@@ -25,9 +26,12 @@ export interface RSSessionContext extends RSUserPermissions {
     isUserSender: boolean;
     isUserReceiver: boolean;
     user?: UserClaims<CustomUserClaims>;
+    environment: string;
 }
 
 export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
+
+const { APP_ENV = "production" } = config;
 
 export const SessionContext = createContext<RSSessionContext>({
     oktaToken: {} as Partial<AccessToken>,
@@ -38,6 +42,7 @@ export const SessionContext = createContext<RSSessionContext>({
     isUserAdmin: false,
     isUserSender: false,
     isUserReceiver: false,
+    environment: APP_ENV,
 });
 
 const SessionProvider = ({ children }: { children: ReactNode }) => {
@@ -64,6 +69,7 @@ const SessionProvider = ({ children }: { children: ReactNode }) => {
             ...getUserPermissions(
                 authState?.accessToken?.claims as RSUserClaims
             ),
+            environment: APP_ENV,
         };
     }, [activeMembership, authState, dispatch, initialized]);
 

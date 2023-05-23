@@ -29,6 +29,7 @@ describe("useMessageSearch", () => {
             isUserAdmin: false,
             isUserReceiver: true,
             isUserSender: false,
+            environment: "test",
         });
 
         const { result } = renderHook(() => useMessageSearch(), {
@@ -66,6 +67,7 @@ describe("useMessageDetails", () => {
             isUserAdmin: false,
             isUserReceiver: true,
             isUserSender: false,
+            environment: "test",
         });
 
         const { result } = renderHook(() => useMessageDetails("11"), {

@@ -132,7 +132,7 @@ function SubmissionDetails() {
     ];
     const location = useLocation();
     return (
-        <GridContainer containerSize="widescreen">
+        <GridContainer>
             <Crumbs
                 crumbList={crumbs}
                 previousPage={(location.state as any)?.previousPage}
