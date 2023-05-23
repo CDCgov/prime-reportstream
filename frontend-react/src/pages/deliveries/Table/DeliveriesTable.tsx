@@ -23,6 +23,7 @@ import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationRece
 import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import { FeatureName } from "../../../AppRouter";
 import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
+import { isDateExpired } from "../../../utils/DateTimeUtils";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
@@ -84,6 +85,9 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
     const transformDate = (s: string) => {
         return new Date(s).toLocaleString();
     };
+    const handleExpirationDate = (expiresDate: string) => {
+        return !isDateExpired(expiresDate);
+    };
     const columns: Array<ColumnConfig> = [
         {
             dataAttr: DeliveriesDataAttr.REPORT_ID,
@@ -115,6 +119,8 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
             feature: {
                 action: handleFetchAndDownload,
                 param: DeliveriesDataAttr.REPORT_ID,
+                actionButtonHandler: handleExpirationDate,
+                actionButtonParam: DeliveriesDataAttr.EXPIRES,
             },
         },
     ];
