@@ -12,7 +12,9 @@ import SenderModeBanner from "../components/SenderModeBanner";
 import { USLink } from "../components/USLink";
 import { useSessionContext } from "../contexts/SessionContext";
 
-const MainLayout = () => {
+export type MainLayoutProps = React.PropsWithChildren<{}>;
+
+const MainLayout = ({ children }: MainLayoutProps) => {
     const { environment } = useSessionContext();
     const matches = useMatches() as RsRouteObject[];
     const { handle = {} } = matches.at(-1) ?? {};
@@ -32,6 +34,7 @@ const MainLayout = () => {
                 className={classNames(isContentPage && "rs-style__content")}
             >
                 <RSErrorBoundary>
+                    {children}
                     <Outlet />
                 </RSErrorBoundary>
             </main>
