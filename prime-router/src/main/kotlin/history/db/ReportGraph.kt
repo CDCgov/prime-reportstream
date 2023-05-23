@@ -107,8 +107,8 @@ class ReportGraph(
                         .from(REPORT_LINEAGE)
                         .join(DSL.table(DSL.name(LINEAGE_CTE)))
                         .on(
-                            DSL.field(DSL.name(LINEAGE_CTE, CHILD_REPORT_ID_FIELD), SQLDataType.UUID)
-                                .eq(REPORT_LINEAGE.PARENT_REPORT_ID)
+                            DSL.field(DSL.name(LINEAGE_CTE, PARENT_REPORT_ID_FIELD), SQLDataType.UUID)
+                                .eq(REPORT_LINEAGE.CHILD_REPORT_ID)
                         )
 
                 )
