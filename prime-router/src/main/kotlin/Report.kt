@@ -397,7 +397,7 @@ class Report : Logging {
         topic: Topic,
     ) {
         this.id = UUID.randomUUID()
-        // ELR submissions do not need a schema, but it is required by the database to maintain legacy functionality
+        // UP submissions do not need a schema, but it is required by the database to maintain legacy functionality
         this.schema = Schema("None", topic)
         this.sources = sources
         this.bodyFormat = bodyFormat
