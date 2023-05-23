@@ -5,7 +5,7 @@ import React from "react";
 export function FacilityProviderSubmitterDetails() {
     // TODO: title will be dynamic based on prop
     return (
-        <GridContainer containerSize="widescreen">
+        <GridContainer>
             <Helmet>
                 <title>Facility Details</title>
             </Helmet>

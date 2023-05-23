@@ -30,6 +30,7 @@ describe("useOrganizationReceiversFeed", () => {
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: false,
+                environment: "test",
             });
         });
 
@@ -63,6 +64,7 @@ describe("useOrganizationReceiversFeed", () => {
                 isUserAdmin: true,
                 isUserReceiver: false,
                 isUserSender: false,
+                environment: "test",
             });
         });
 
@@ -97,6 +99,7 @@ describe("useOrganizationReceiversFeed", () => {
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
+                environment: "test",
             });
         });
 
@@ -129,6 +132,7 @@ describe("useOrganizationReceiversFeed", () => {
             isUserAdmin: false,
             isUserReceiver: true,
             isUserSender: false,
+            environment: "test",
         });
         const { result } = renderHook(() => useOrganizationReceiversFeed(), {
             wrapper: AppWrapper(),

@@ -93,6 +93,7 @@ describe("ManagePublicKey", () => {
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,
+            environment: "test",
         });
     });
 
