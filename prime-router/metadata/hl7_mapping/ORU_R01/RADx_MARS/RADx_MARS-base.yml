@@ -13,13 +13,11 @@ elements:
 
   - name: patient-race-coding-system
     condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.exists()'
-    value:
-      - '"HL70005"'
+    value: ['"HL70005"']
 
   - name: radx-mars-patient-ethnicity-description
     condition: '%radxMarsPatient.extension(%`rsext-ethnic-group`).value.exists()'
-    value:
-      - '"https://www.hl7.org/fhir/v2/0189/"'
+    value: ['"https://www.hl7.org/fhir/v2/0189/"']
     hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-2 ]
 
   - name: radx-mars-patient-ethnicity-code-system
