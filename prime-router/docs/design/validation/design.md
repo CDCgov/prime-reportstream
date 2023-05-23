@@ -265,7 +265,9 @@ Part of using the library is creating profiles. This can be done by going to htt
 up. Once you register, go to IG Documents, Create new IG document. Select the HL7 version as well as the message structure and 
 it will create a base for you. Then you have to manually adjust each field to meet the spec. There is only one profile 
 currently that is shared. Otherwise, you have to know someone. Marcia Schulman has offered to give us whatever she has 
-so that she can be contacted once we know what profiles we need, but she only had a few and it is unlikely they will meet our needs.
+so that she can be contacted once we know what profiles we need, but she only had a few and it is unlikely they will 
+meet our needs. I discussed using their API with them, but they said that we cannot send PII through the API, so this 
+takes the API out of the picture as well. 
 
 From reading the code in the library, it looks like they have one ORU_R01 profile setup as an example, we would need to 
 set up any further profiles that we want. These are done in xml, then we deserialize them, pass then into the 
