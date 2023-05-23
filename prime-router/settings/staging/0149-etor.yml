@@ -36,7 +36,7 @@
       topic: etor
       customerStatus: active
       format: FHIR
-      schemaName: "metadata/fhir_transforms/senders/Flexion/TrustedIntermediaryLabOrder"
+      schemaName: "metadata/fhir_transforms/senders/Flexion/TILabOrder"
   receivers:
     - name: simulated-lab
       externalName: Simulated State Public Health Lab ETOR Receiver
@@ -56,7 +56,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/Flexion/TrustedIntermediaryLabOrder"
+        schemaName: "metadata/hl7_mapping/receivers/Flexion/TILabOrder"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
