@@ -1,0 +1,8 @@
+extends: default-sender-transform
+
+elements:
+  - name: placeholder-element
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: true
+    bundleProperty: '%resource.name.text'
+    value: [ '"Demo Placeholder Value"' ]
