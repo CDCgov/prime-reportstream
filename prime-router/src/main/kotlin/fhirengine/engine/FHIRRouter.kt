@@ -574,10 +574,9 @@ class FHIRRouter(
         filterType: ReportStreamFilterType,
         focusResource: Base? = null
     ) {
-        val filteredTrackingElement = if (focusResource == null) {
-            bundle.identifier.value ?: ""
-        } else {
-            (bundle.identifier.value ?: "") + (" at " + focusResource.idBase)
+        var filteredTrackingElement = bundle.identifier.value ?: ""
+        if (focusResource != null) {
+            filteredTrackingElement += " at " + focusResource.idBase
         }
         report.filteringResults.add(
             ReportStreamFilterResult(
