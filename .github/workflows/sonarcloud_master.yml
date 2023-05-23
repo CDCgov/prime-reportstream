@@ -2,11 +2,6 @@ name: SonarCloud Master
 
 on: 
   workflow_dispatch:
-  push:
-    branches:
-      - master
-    paths:
-      - "prime-router/**"
 
 env:
   # These are for CI and not credentials of any system
