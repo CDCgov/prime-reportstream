@@ -315,7 +315,7 @@ class FHIRRouter(
 
             // JURIS FILTER
             //  default: allowNone
-            var passes = evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false).first
+            var passes = evaluateFilterConditionAsAnd(getJurisFilters(receiver, orgFilters), bundle, false).first
 
             // QUALITY FILTER
             //  default: must have message id, patient last name, patient first name, dob, specimen type
@@ -376,8 +376,9 @@ class FHIRRouter(
                         receiver,
                         ReportStreamFilterType.CONDITION_FILTER,
                         defaultResponse = true,
-                        false,
-                        observation
+                        reverseFilter = false,
+                        focusResource = observation,
+                        useOr = true
                     )
                 }
                 )
@@ -394,10 +395,19 @@ class FHIRRouter(
     /**
      * Takes a [bundle] and [filter], evaluates if the bundle passes the filter. If the filter is null,
      * return [defaultResponse]. If the filter doesn't pass the results are logged on the [report] for
-     * that specific [filterType]
+     * that specific [filterType].
+     * @param filters Filters that will be evaluated
+     * @param bundle FHIR Bundle that will be evaluated
+     * @param report Report object passed for logging purposes
+     * @param receiver Receiver of the report passed for logging purposes
+     * @param filterType Type of filter passed for logging purposes
+     * @param defaultResponse Response returned if the filter is null or empty
+     * @param reverseFilter Optional flag used to reverse the result of the filter evaluation
+     * @param focusResource Starting point for the evaluation, can be [bundle] if checking from root
+     * @param useOr Optional flag used to allow conditions to be evaluated with "or" instead of "and"
      * @return Boolean indicating if the bundle passes the filter or not
      *        Result will be negated if [reverseFilter] is true
-     **/
+     */
     internal fun evaluateFilterAndLogResult(
         filters: ReportStreamFilter,
         bundle: Bundle,
@@ -406,15 +416,18 @@ class FHIRRouter(
         filterType: ReportStreamFilterType,
         defaultResponse: Boolean,
         reverseFilter: Boolean = false,
-        focusResource: Base = bundle
+        focusResource: Base = bundle,
+        useOr: Boolean = false
     ): Boolean {
-        val (passes, failingFilterName) = evaluateFilterCondition(
+        val evaluationFunction = if (useOr) ::evaluateFilterConditionAsOr else ::evaluateFilterConditionAsAnd
+        val (passes, failingFilterName) = evaluationFunction(
             filters,
             bundle,
             defaultResponse,
             reverseFilter,
             focusResource
         )
+
         if (!passes) {
             val filterToLog = "${
             if (isDefaultFilter(filterType, filters)) "(default filter) "
@@ -438,27 +451,29 @@ class FHIRRouter(
     }
 
     /**
-     * Takes a [bundle] and [filter] and optionally a [focusResource], evaluates if the bundle passes the filter, or the
-     * opposite if [reverseFilter] is true. If the filter is null or empty, return [defaultResponse].
-     * @return Boolean indicating if the bundle passes the filter or not
-     *         String to use when logging the filter result
+     * Takes a [bundle] and [filter] and optionally a [focusResource], evaluates if the bundle passes all
+     * the filter conditions, or when [reverseFilter] is true, evaluates if the bundle doesn't pass at least one of the
+     * filter conditions.
+     * @param filter Filter that will be evaluated
+     * @param bundle FHIR Bundle that will be evaluated
+     * @param defaultResponse result when there are no filter conditions in the list
+     * @param reverseFilter Optional flag used to reverse the result of the filter evaluation
+     * @param focusResource Starting point for the evaluation, can be [bundle] if checking from root
+     * @return Pair: Boolean indicating if the bundle passes the filter or not
+     *         and String to use when logging the filter result
      */
-    internal fun evaluateFilterCondition(
+    internal fun evaluateFilterConditionAsAnd(
         filter: ReportStreamFilter?,
         bundle: Bundle,
         defaultResponse: Boolean,
         reverseFilter: Boolean = false,
         focusResource: Base = bundle,
     ): Pair<Boolean, String?> {
-        // the filter needs to check all expressions passed in, or if the filter is null or empty it will return the
-        // default response
         if (filter.isNullOrEmpty()) {
             return Pair(defaultResponse, "defaultResponse")
         }
-
         val failingFilters = mutableListOf<String>()
         val exceptionFilters = mutableListOf<String>()
-        var result = true
         filter.forEach { filterElement ->
             try {
                 val filterElementResult = FhirPathUtils.evaluateCondition(
@@ -467,25 +482,72 @@ class FHIRRouter(
                     bundle,
                     filterElement
                 )
-                if (!filterElementResult) {
-                    result = false
-                    failingFilters += filterElement
-                }
+                if (!filterElementResult) failingFilters += filterElement
             } catch (e: SchemaException) {
-                actionLogger?.warn(
-                    EvaluateFilterConditionErrorMessage(e.message)
-                )
+                actionLogger?.warn(EvaluateFilterConditionErrorMessage(e.message))
                 exceptionFilters += filterElement
             }
         }
 
         return if (exceptionFilters.isNotEmpty()) {
             Pair(false, "(exception found) $exceptionFilters")
-        } else if (reverseFilter) {
-            if (!result) Pair(true, null)
-            else Pair(false, "(reversed) $filter")
+        } else if (failingFilters.isEmpty()) {
+            if (reverseFilter) Pair(false, "(reversed) $filter")
+            else Pair(true, null)
         } else {
-            if (result) Pair(true, null)
+            if (reverseFilter) Pair(true, null)
+            else Pair(false, failingFilters.toString())
+        }
+    }
+
+    /**
+     * Takes a [bundle] and a [filter] and optionally a [focusResource], evaluates if the bundle passes any of
+     * the filter conditions. When [reverseFilter] is true, this method will consider the passing of *any* filter
+     * condition as a failure.
+     * @param filter Filter that will be evaluated
+     * @param bundle FHIR Bundle that will be evaluated
+     * @param defaultResponse result when there are no filter conditions in the list
+     * @param reverseFilter Optional flag used to reverse the result of the filter evaluation
+     * @param focusResource Starting point for the evaluation, can be [bundle] if checking from root
+     * @return Pair: Boolean indicating if the bundle passes the filter or not
+     *         and String to use when logging the filter result
+     */
+    internal fun evaluateFilterConditionAsOr(
+        filter: ReportStreamFilter?,
+        bundle: Bundle,
+        defaultResponse: Boolean,
+        reverseFilter: Boolean = false,
+        focusResource: Base = bundle,
+    ): Pair<Boolean, String?> {
+        if (filter.isNullOrEmpty()) {
+            return Pair(defaultResponse, "defaultResponse")
+        }
+        val failingFilters = mutableListOf<String>()
+        val exceptionFilters = mutableListOf<String>()
+        val successfulFilters = mutableListOf<String>()
+        filter.forEach { filterElement ->
+            try {
+                val filterElementResult = FhirPathUtils.evaluateCondition(
+                    CustomContext(bundle, focusResource, shorthandLookupTable),
+                    focusResource,
+                    bundle,
+                    filterElement
+                )
+                if (!filterElementResult) failingFilters += filterElement
+                else successfulFilters += filterElement
+            } catch (e: SchemaException) {
+                actionLogger?.warn(EvaluateFilterConditionErrorMessage(e.message))
+                exceptionFilters += filterElement
+            }
+        }
+
+        return if (exceptionFilters.isNotEmpty()) {
+            Pair(false, "(exception found) $exceptionFilters")
+        } else if (successfulFilters.isNotEmpty()) {
+            if (reverseFilter) Pair(false, "(reversed) $successfulFilters")
+            else Pair(true, null)
+        } else {
+            if (reverseFilter) Pair(true, null)
             else Pair(false, failingFilters.toString())
         }
     }
