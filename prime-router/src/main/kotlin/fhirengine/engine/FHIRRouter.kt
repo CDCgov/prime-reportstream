@@ -160,11 +160,13 @@ class FHIRRouter(
 
             // create report object
             val sources = emptyList<Source>()
+            val topic = getTopicFromMessage(message)
             val report = Report(
                 Report.Format.FHIR,
                 sources,
                 1,
-                metadata = this.metadata
+                metadata = this.metadata,
+                topic = topic
             )
 
             // create item lineage
@@ -239,7 +241,8 @@ class FHIRRouter(
                         report.id,
                         blobInfo.blobUrl,
                         BlobAccess.digestToString(blobInfo.digest),
-                        message.blobSubFolderName
+                        message.blobSubFolderName,
+                        message.topic,
                     ).serialize()
                 )
             } else {

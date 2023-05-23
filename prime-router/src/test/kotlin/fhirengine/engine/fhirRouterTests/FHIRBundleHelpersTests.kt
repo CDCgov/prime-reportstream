@@ -88,7 +88,7 @@ class FHIRBundleHelpersTests {
         receivers = defaultReceivers
     )
 
-    val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+    val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", "full-elr"))
 
     private val validFhirWithProvenance = """
     {

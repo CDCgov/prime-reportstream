@@ -201,7 +201,8 @@ class BatchFunction(
                     listOf(it.task.reportId),
                     receiver,
                     workflowEngine.metadata,
-                    actionHistory
+                    actionHistory,
+                    topic = receiver.topic,
                 )
 
                 // insert the 'Send' task
@@ -240,7 +241,8 @@ class BatchFunction(
                 validHeaders.map { it.task.reportId },
                 receiver,
                 workflowEngine.metadata,
-                actionHistory
+                actionHistory,
+                topic = receiver.topic,
             )
 
             // insert the 'Send' task

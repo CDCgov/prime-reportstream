@@ -58,6 +58,7 @@ data class RawSubmission(
     val blobURL: String,
     val digest: String,
     val blobSubFolderName: String,
+    val topic: String,
     val schemaName: String = "",
 //    val options: Options,
 //    val defaults: Map<String, String>,

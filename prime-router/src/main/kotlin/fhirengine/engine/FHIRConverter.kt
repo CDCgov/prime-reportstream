@@ -57,6 +57,7 @@ class FHIRConverter(
             Report.Format.FHIR -> getContentFromFHIR(message, actionLogger)
             else -> throw NotImplementedError("Invalid format $format ")
         }
+        val topic = getTopicFromMessage(message)
 
         if (fhirBundles.isNotEmpty()) {
             logger.debug("Generated ${fhirBundles.size} FHIR bundles.")
@@ -76,7 +77,8 @@ class FHIRConverter(
                     itemLineage = listOf(
                         ItemLineage()
                     ),
-                    metadata = this.metadata
+                    metadata = this.metadata,
+                    topic = topic
                 )
 
                 // create item lineage
@@ -141,7 +143,8 @@ class FHIRConverter(
                         report.id,
                         blobInfo.blobUrl,
                         BlobAccess.digestToString(blobInfo.digest),
-                        message.blobSubFolderName
+                        message.blobSubFolderName,
+                        message.topic
                     ).serialize()
                 )
             }

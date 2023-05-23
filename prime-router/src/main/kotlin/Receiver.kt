@@ -241,9 +241,6 @@ open class Receiver(
             }
         }
 
-        // TODO: Temporary workaround for full-ELR as we do not have a way to load schemas yet
-        if (topic.isUniversalPipeline) return null
-
         if (translation is CustomConfiguration) {
             when (this.topic.isUniversalPipeline) {
                 true -> {
