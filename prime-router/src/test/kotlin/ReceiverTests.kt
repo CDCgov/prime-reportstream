@@ -31,7 +31,7 @@ internal class ReceiverTests {
                 UnitTestUtils.simpleMetadata
             )
         ).isEqualTo(
-            "Condition filter only allowed for receivers with topic 'full_elr' or 'etor'"
+            "Condition filter only allowed for receivers with topic 'full-elr' or 'etor-ti'"
         )
     }
 

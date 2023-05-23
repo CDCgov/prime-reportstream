@@ -237,7 +237,7 @@ open class Receiver(
     fun consistencyErrorMessage(metadata: Metadata): String? {
         if (conditionFilter.isNotEmpty()) {
             if (!topic.isUniversalPipeline) {
-                return "Condition filter only allowed for receivers with topic 'full_elr' or 'etor'"
+                return "Condition filter only allowed for receivers with topic 'full-elr' or 'etor-ti'"
             }
         }
 

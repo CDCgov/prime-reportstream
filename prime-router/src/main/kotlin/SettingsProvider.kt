@@ -48,8 +48,8 @@ enum class Topic(val jsonVal: String, val isUniversalPipeline: Boolean) {
     @JsonProperty("full-elr")
     FULL_ELR("full-elr", true),
 
-    @JsonProperty("etor")
-    ETOR("etor", true),
+    @JsonProperty("etor-ti")
+    ETOR_TI("etor-ti", true),
 
     @JsonProperty("covid-19")
     COVID_19("covid-19", false),

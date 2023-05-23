@@ -16,7 +16,7 @@ class SettingsProviderTest {
 
     @Test
     fun `test get topic by jsonVal`() {
-        assertThat(Topic.fromJsonValue("etor")).isEqualTo(Topic.ETOR)
+        assertThat(Topic.fromJsonValue("etor-ti")).isEqualTo(Topic.ETOR_TI)
         assertThat(Topic.fromJsonValue("full-elr")).isEqualTo(Topic.FULL_ELR)
         assertThat(Topic.fromJsonValue("covid-19")).isEqualTo(Topic.COVID_19)
         assertThat(Topic.fromJsonValue("monkeypox")).isEqualTo(Topic.MONKEYPOX)

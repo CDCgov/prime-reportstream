@@ -41,7 +41,7 @@ import java.time.OffsetDateTime
 )
 @JsonSubTypes(
     JsonSubTypes.Type(value = FullELRSender::class, name = "full-elr"),
-    JsonSubTypes.Type(value = FullELRSender::class, name = "etor"),
+    JsonSubTypes.Type(value = FullELRSender::class, name = "etor-ti"),
     JsonSubTypes.Type(value = CovidSender::class, name = "covid-19"),
     JsonSubTypes.Type(value = MonkeypoxSender::class, name = "monkeypox")
 )
