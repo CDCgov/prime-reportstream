@@ -2,6 +2,9 @@ hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
 constants:
   radxMarsPatient: 'Bundle.entry.resource.ofType(Patient)'
+  illnessOnsetAoeLoinc: '"65222-2"'
+  symptomaticAoeLoinc: '"95419-8"'
+  patientAgeAoeLoinc: '"35659-2"'
 extends: ../ORU_R01-base
 elements:
   - name: patient-race-text
@@ -41,7 +44,7 @@ elements:
     resource: > 
       %resource.result.resolve().where(livdTableLookup("Component").contains("coronavirus")) |
       %resource.result.resolve().where(livdTableLookup("Component").contains("coronavirus").not()) |
-      %service.supportingInfo.resolve().where(code.coding.code = "35659-2") |
-      %service.supportingInfo.resolve().where(code.coding.code = "95419-8") |
-      %service.supportingInfo.resolve().where(code.coding.code = "65222-2")
+      %service.supportingInfo.resolve().where(code.coding.code = %patientAgeAoeLoinc) |
+      %service.supportingInfo.resolve().where(code.coding.code = %symptomaticAoeLoinc) |
+      %service.supportingInfo.resolve().where(code.coding.code = %illnessOnsetAoeLoinc)
 
