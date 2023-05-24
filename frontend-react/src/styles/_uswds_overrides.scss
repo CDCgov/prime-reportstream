@@ -43,7 +43,6 @@ main {
     width: 100%;
     min-height: calc(100vh - 230px);
     padding: 0 0 4rem 0;
-    border-top: 1px solid #dfe1e2;
 }
 
 .usa-banner__inner,
@@ -100,7 +99,6 @@ main {
 }
 
 // ALERT
-
 .usa-site-alert {
     .usa-alert__heading {
         font-size: size("body", "md");
@@ -108,7 +106,6 @@ main {
 }
 
 // TABLE
-
 .usa-table {
     width: 100%;
 
@@ -252,7 +249,9 @@ main {
     }
 }
 
-.usa-process-list__heading {
+// ComponentHeading as div, with header element inside
+.usa-process-list__heading,
+.usa-alert__heading {
     & h1,
     & h2,
     & h3,
@@ -263,6 +262,48 @@ main {
     }
 }
 
+// Allow for div heading container element to bypass default stylings (ex: font-size)
+div.usa-alert__heading {
+    all: unset;
+    font-weight: bold;
+}
+
 .usa-card__header {
     font-weight: bold;
+}
+
+/**
+ * Reset ul style within cards due to usa-card-group.
+ */
+.usa-card-group {
+    .usa-card {
+        ul {
+            list-style: disc;
+        }
+    }
+}
+
+/**
+ * Allow table to auto size up to 'widescreen'.
+ */
+.usa-table-container--scrollable.usa-table-container--widescreen {
+    .usa-table {
+        @include u-maxw("widescreen");
+        width: auto;
+        table-layout: fixed;
+        td {
+            white-space: normal;
+        }
+    }
+}
+
+/**
+ * Auto scale icons inside buttons.
+ */
+.usa-button {
+    .usa-icon--auto {
+        vertical-align: text-bottom;
+        width: auto;
+        height: 1rlh;
+    }
 }

@@ -16,6 +16,7 @@ export interface MarkdownLayoutProps {
             | string
             | React.FunctionComponent<React.HTMLAttributes<HTMLElement>>;
     };
+    mdx?: React.ComponentProps<typeof MDXProvider>;
 }
 
 /**
@@ -45,12 +46,14 @@ export function MarkdownLayout({
     children,
     mainProps: { to: Main = "main", ...mainProps } = {},
     sidenavProps: { to: Nav = "nav", ...sidenavProps } = {},
+    mdx,
 }: MarkdownLayoutProps) {
     return (
         <MDXProvider
             components={{
                 a: USSmartLink,
             }}
+            {...mdx}
         >
             <GridContainer className="usa-prose">
                 <Grid row className="flex-justify">
@@ -76,3 +79,5 @@ export function MarkdownLayout({
         </MDXProvider>
     );
 }
+
+export default MarkdownLayout;
