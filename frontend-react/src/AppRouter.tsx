@@ -38,6 +38,7 @@ import { DataModelPage } from "./pages/resources/api-programmers-guide/documenta
 import { ResponsesFromReportStreamPage } from "./pages/resources/api-programmers-guide/documentation/ResponsesFromReportStream";
 import { SamplePayloadsAndOutputPage } from "./pages/resources/api-programmers-guide/documentation/SamplePayloadsAndOutput";
 import FileHandler from "./components/FileHandlers/FileHandler";
+import { ReportStreamAPIPage } from "./pages/resources/api-programmers-guide/ReportStreamApi";
 import { FaqPage } from "./pages/support/faq/FaqPage";
 import { DataDashboardWithAuth } from "./pages/data-dashboard/DataDashboard";
 import MainLayout from "./layouts/MainLayout";
@@ -132,6 +133,10 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "manage-public-key",
                         element: <ManagePublicKeyWithAuth />,
+                    },
+                    {
+                        path: "reportstream-api",
+                        element: <ReportStreamAPIPage />,
                     },
                     {
                         path: "getting-started",
