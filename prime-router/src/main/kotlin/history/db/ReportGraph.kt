@@ -17,16 +17,23 @@ import java.util.UUID
 
 private const val PARENT_REPORT_ID_FIELD = "parent_report_id"
 
-private const val CHILD_REPORT_ID_FIELD = "child_report_id"
-
 private const val METADATA_CTE = "metadata"
 
 private const val PATH_FIELD = "path"
 
-private const val SOURCE_CTE = "source"
-
-private const val LINEAGE_CTE = "lineage"
-
+/**
+ * This class is responsible for generating graphs of either reports or items and then using that graph to link it
+ * back to relevant tables (like the metadata table) in order to generate queries.  One example with is fetching all
+ * the covid metadata associated with a delivered report (see getMetadataForReports as an example of how to combine the
+ * various CTEs)
+ *
+ * These queries are generated via composing CTEs (common table expressions) to ultimately fetch specific data; the
+ * unique Postgres feature used here is a recursive CTE (see ancestorLineageExpression and descendantLineageExpression)
+ * that walk either up or down the lineages.
+ *
+ *
+ * @param db database access to run the generated queries against
+ */
 class ReportGraph(
     val db: DatabaseAccess = BaseEngine.databaseAccessSingleton
 ) : Logging {
@@ -39,12 +46,12 @@ class ReportGraph(
      *
      */
     fun getMetadataForReports(descendantReportIds: List<UUID>): List<CovidResultMetadata> {
-        val lineage = ancestorLineageExpression(descendantReportIds)
+        val lineage = ancestorLineageCommonTableExpression(descendantReportIds)
 
         val sourceReportIds =
-            sourceReportsCte(lineage)
+            sourceReportsCommonTableExpression(lineage)
 
-        val metadata = metadataExpression(sourceReportIds)
+        val metadata = metadataCommonTableExpression(sourceReportIds)
 
         return db.transactReturning { txn ->
             DSL.using(txn)
@@ -60,8 +67,10 @@ class ReportGraph(
 
     /**
      * Returns all the metadata rows associated with the passed in source report ids
+     *
+     * @param sourceReportIds report ids for sent reports that serve as the input for finding rows in metadata
      */
-    private fun metadataExpression(sourceReportIds: CommonTableExpression<Record>) =
+    private fun metadataCommonTableExpression(sourceReportIds: CommonTableExpression<Record>) =
         DSL.name(METADATA_CTE).`as`(
             selectDistinct(COVID_RESULT_METADATA.asterisk())
                 .from(COVID_RESULT_METADATA)
@@ -77,19 +86,28 @@ class ReportGraph(
     /**
      * Accepts a walked graph of report ids and finds the corresponding report file filtering down to
      * reports where the sending org is not null
+     *
+     * @param lineage a CTE that represents a graph of reports
      */
-    private fun sourceReportsCte(lineage: CommonTableExpression<Record2<UUID, String>>) =
-        DSL.name(SOURCE_CTE).`as`(
+    private fun sourceReportsCommonTableExpression(
+        lineage: CommonTableExpression<Record2<UUID, String>>
+    ): CommonTableExpression<Record> {
+        val sourceCteName = "source"
+        return DSL.name(sourceCteName).`as`(
             DSL.select(REPORT_FILE.asterisk()).from(REPORT_FILE).join(lineage.name).on(
                 REPORT_FILE.REPORT_ID.eq(lineage.field(PARENT_REPORT_ID_FIELD, SQLDataType.UUID))
             ).where(REPORT_FILE.SENDING_ORG.isNotNull)
         )
+    }
 
+    private val lineageCteName = "lineage"
     /**
      * Accepts a list of ids and walks up the report lineage graph
+     *
+     * @param childReportIds the initial set of report ids to walk up from
      */
-    private fun ancestorLineageExpression(childReportIds: List<UUID>) =
-        DSL.name(LINEAGE_CTE).fields(
+    private fun ancestorLineageCommonTableExpression(childReportIds: List<UUID>) =
+        DSL.name(lineageCteName).fields(
             PARENT_REPORT_ID_FIELD,
             PATH_FIELD
         ).`as`(
@@ -101,13 +119,13 @@ class ReportGraph(
                 .unionAll(
                     DSL.select(
                         REPORT_LINEAGE.PARENT_REPORT_ID,
-                        DSL.field("$LINEAGE_CTE.$PATH_FIELD", SQLDataType.VARCHAR)
+                        DSL.field("$lineageCteName.$PATH_FIELD", SQLDataType.VARCHAR)
                             .concat(REPORT_LINEAGE.PARENT_REPORT_ID)
                     )
                         .from(REPORT_LINEAGE)
-                        .join(DSL.table(DSL.name(LINEAGE_CTE)))
+                        .join(DSL.table(DSL.name(lineageCteName)))
                         .on(
-                            DSL.field(DSL.name(LINEAGE_CTE, PARENT_REPORT_ID_FIELD), SQLDataType.UUID)
+                            DSL.field(DSL.name(lineageCteName, PARENT_REPORT_ID_FIELD), SQLDataType.UUID)
                                 .eq(REPORT_LINEAGE.CHILD_REPORT_ID)
                         )
 
@@ -116,9 +134,11 @@ class ReportGraph(
 
     /**
      * Accepts a list of ids and walks down the report lineage graph
+     *
+     * @param sourceReportIds the initial set of report ids to walk down from
      */
-    private fun descendantLineageExpression(sourceReportIds: List<UUID>) =
-        DSL.name(LINEAGE_CTE).fields(
+    private fun descendantLineageCommonTableExpression(sourceReportIds: List<UUID>) =
+        DSL.name(lineageCteName).fields(
             PARENT_REPORT_ID_FIELD,
             PATH_FIELD
         ).`as`(
@@ -130,13 +150,13 @@ class ReportGraph(
                 .unionAll(
                     DSL.select(
                         REPORT_LINEAGE.CHILD_REPORT_ID,
-                        DSL.field("$LINEAGE_CTE.$PATH_FIELD", SQLDataType.VARCHAR)
+                        DSL.field("$lineageCteName.$PATH_FIELD", SQLDataType.VARCHAR)
                             .concat(REPORT_LINEAGE.CHILD_REPORT_ID)
                     )
                         .from(REPORT_LINEAGE)
-                        .join(DSL.table(DSL.name(LINEAGE_CTE)))
+                        .join(DSL.table(DSL.name(lineageCteName)))
                         .on(
-                            DSL.field(DSL.name(LINEAGE_CTE, PARENT_REPORT_ID_FIELD), SQLDataType.UUID)
+                            DSL.field(DSL.name(lineageCteName, PARENT_REPORT_ID_FIELD), SQLDataType.UUID)
                                 .eq(REPORT_LINEAGE.CHILD_REPORT_ID)
                         )
 

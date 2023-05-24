@@ -640,6 +640,9 @@ class DeliveryFunctionTests : Logging {
             assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
         }
 
+        // Ideally this test would not mock the DB layer and actually insert report and covid_metadata and then execute
+        // queries against that
+        // See: https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/9455
         @Test
         fun `test successfully returns data for a prime admin`() {
             val httpRequestMessage = MockHttpRequestMessage()
