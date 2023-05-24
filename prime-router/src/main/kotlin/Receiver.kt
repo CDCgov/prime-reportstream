@@ -237,24 +237,20 @@ open class Receiver(
     fun consistencyErrorMessage(metadata: Metadata): String? {
         if (conditionFilter.isNotEmpty()) {
             if (!topic.isUniversalPipeline) {
-                return "Condition filter only allowed for receivers with topic 'full-elr' or 'etor-ti'"
+                return "Condition filter not allowed for receivers with topic '${topic.jsonVal}'"
             }
         }
 
         if (translation is CustomConfiguration) {
-            when (this.topic.isUniversalPipeline) {
-                true -> {
-                    try {
-                        FhirToHl7Converter(translation.schemaName)
-                    } catch (e: SchemaException) {
-                        return e.message
-                    }
+            if (this.topic.isUniversalPipeline) {
+                try {
+                    FhirToHl7Converter(translation.schemaName)
+                } catch (e: SchemaException) {
+                    return e.message
                 }
-
-                false -> {
-                    if (metadata.findSchema(translation.schemaName) == null) {
-                        return "Invalid schemaName: ${translation.schemaName}"
-                    }
+            } else {
+                if (metadata.findSchema(translation.schemaName) == null) {
+                    return "Invalid schemaName: ${translation.schemaName}"
                 }
             }
         }

@@ -172,10 +172,9 @@ class WorkflowEngine(
         payloadName: String? = null
     ): BlobAccess.BlobInfo {
         // Save a copy of the original report
-        val reportFormat = when (sender.topic.isUniversalPipeline) {
-            true -> report.bodyFormat
-            false -> Report.Format.safeValueOf(sender.format.toString())
-        }
+        val reportFormat =
+            if (sender.topic.isUniversalPipeline) report.bodyFormat
+            else Report.Format.safeValueOf(sender.format.toString())
 
         val blobFilename = report.name.replace(report.bodyFormat.ext, reportFormat.ext)
         val blobInfo = BlobAccess.uploadBody(
