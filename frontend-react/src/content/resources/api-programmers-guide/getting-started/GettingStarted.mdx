@@ -1,0 +1,117 @@
+import { CardGroup, Card, CardBody, CardHeader, Alert, Accordion } from "@trussworks/react-uswds";
+import Method1 from "./Method1.mdx";
+import Method2 from "./Method2.mdx";
+
+# Getting started
+
+<p className="usa-intro text-base">
+    This programmer’s guide helps you, the technical user at the testing facility, learn how to send data using the ReportStream Restful (REST) API.
+</p>
+
+Examples in this guide use curl commands for simplicity with the assumption you’ll be coding these calls into your sending system.
+You can also use a program like Postman to test submissions.
+
+***
+
+<h2 className="rs-numbered">Format and validate a fake data file</h2>
+
+To prepare your file for testing, review our [data models](/resources/documentation/data-model) and set up a sample file with fake data (artificially created, non-PII data).
+We have [fake data you can use](https://reportstream.cdc.gov/assets/csv/ReportStream-StandardCSV-ExampleData-20220509.csv), if needed.
+
+<CardGroup>
+    <Card className="width-full">
+        <CardHeader>[Data model](documentation/data-model)</CardHeader>
+        <CardBody>
+            Reference these CSV and HL7 field requirements when setting up your files for validation.
+        </CardBody>
+    </Card>
+</CardGroup>
+
+Currently, ReportStream can accept either a CSV file or HL7 input data. It’s often easier to look at sample data in a file than to work from a schema. 
+We can send you a file with fake data to review that will always successfully validate against the schema used to generate it. 
+Note that because the data in those files are computer-generated, it may not feel realistic in some places.
+
+<Alert type="info" headingLevel="div" heading="Note for HL7 OTC tests:" slim={true} className="border-0 font-sans-xs">
+    For this step, refer to the [RADx MARS Getting started guide](https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started).
+    Within that guide, you’ll find information on field requirements, a tool outlining manufacturer-specific values, and a COVID-19 OTC-specific profile of the NIST HL7 v2 validator. 
+    To configure the validator, refer to NIST HL7v2 validator instructions at the bottom of the [RADx MARS Getting started guide](https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started).
+</Alert>
+
+When you’ve formatted your fake (non-PII) data file, test your data model using the validation tool, and correct any errors you receive.
+
+<CardGroup>
+    <Card className="width-full">
+        <CardHeader typeOf="div">[ReportStream File Validator](/file-handler/validate)</CardHeader>
+        <CardBody>
+            Check your file formatting as you prepare to send your data through ReportStream.
+        </CardBody>
+    </Card>
+</CardGroup>
+
+<h2 className="rs-numbered">Set up authentication and test your API connection</h2>
+
+After you have finalized a data model that works for you and ReportStream, the ReportStream team will begin onboarding you to our staging environment.
+
+As part of the onboarding process, the ReportStream team will assign your unique client-id and set up your ReportStream account with the type of data you will be submitting.
+ReportStream will use the client-id to look up the associated data model and format (CSV, CSV OTC, or HL7) and validate the attached payload.
+
+Your first step in this phase is to set up your authentication.
+
+### Set up authentication
+
+There are two methods of authenticating to ReportStream’s REST API:
+
+* **Method 1:** Token-based authentication with a public/private key pair (Note: This method is the recommended best practice.)
+* **Method 2:** Shared secret API key
+
+The examples below use the fake `client-id healthy-labs` that you will change for your submissions. 
+The examples submit the payload contained in the file `./healthy-labs-nonPII-data.csv` (or .hl7). 
+In the examples, data are submitted via an HTTP POST to the ReportStream staging system `reports` endpoint. 
+The data submitted are sent as the payload of the POST, as is, with no changes.
+
+<Accordion bordered multiselectable items={[
+    {
+        headingLevel: "h3",
+        title: "Method 1: Token-based authentication with public/private key pair (Recommended)", 
+        content: <Method1 />,
+        id: 1
+    },
+    {
+        headingLevel: "h3",
+        title: "Method 2: Shared secret key authorization", 
+        content: <Method2 />,
+        id: 2
+    },
+]} />
+
+### Test your automation
+
+Once authentication is complete, you can test your automation code as well as your code that handles responses using the staging API. 
+Data is sent in the HTTP payload, either in CSV or HL7 2.5.1 format. 
+You can use curl commands, Postman, or another method of your choosing to post test submissions to the staging environment.
+
+<Alert type="info" headingLevel="div" slim={true} className="border-0 font-sans-xs">**Note:** Do not send any PII or PHI to the staging system — only fake (dummy, example, synthetic) data is acceptable.</Alert>
+
+Let us know when you send submissions to the staging environment. We’ll review that data and work with you to correct any issues. You may send as many fake data submissions to staging as is helpful.
+
+For troubleshooting on your own, here is the complete endpoint input and response [OpenAPI specification](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/api).
+
+<h2 className="rs-numbered">Test real data in production</h2>
+   The ReportStream team will onboard you to the production system in training mode. If using a shared secret key, you’ll receive API keys or tokens and the URL via Keybase. ReportStream won’t forward or transport data received in training mode. However, the response message provides detailed information on where your data would have flowed if production mode was active.
+
+<h2 className="rs-numbered">Start sending data in production</h2>
+   When you are ready, the ReportStream team will move you out of training mode and enable full production mode. Once in production, you can send a single record or up to 10,000 records in a single submission.
+
+Data will automatically flow to appropriate state, local, and federal jurisdictional systems.
+
+{
+<Alert type="info" headingLevel="div" slim={true} className="border-0 font-sans-xs">
+    <span className="text-bold">Note:</span> Some jurisdictions require additional validation before sending data to their systems. If this affects your data submission, the ReportStream team will assist you in the process. Currently, the following states require additional validation:
+    <ul>
+        <li>California</li>
+        <li>Illinois</li>
+        <li>New Jersey</li>
+        <li>Washington</li>
+    </ul>
+</Alert>
+}
