@@ -126,7 +126,7 @@ class FhirTranslatorTests {
         val engine = makeFhirEngine()
 
         val message =
-            spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", topic = "full-elr"))
+            spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", topic = Topic.FULL_ELR))
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
@@ -167,7 +167,7 @@ class FhirTranslatorTests {
         val actionLogger = mockk<ActionLogger>()
 
         val engine = makeFhirEngine(settings = settings)
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", "full-elr"))
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", Topic.FULL_ELR))
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
@@ -348,7 +348,7 @@ class FhirTranslatorTests {
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", "full-elr"))
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", Topic.FULL_ELR))
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
@@ -405,7 +405,7 @@ class FhirTranslatorTests {
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", "full-elr"))
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", Topic.FULL_ELR))
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"

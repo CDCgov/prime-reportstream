@@ -66,8 +66,6 @@ class FHIRTranslator(
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         val receiverEndpoints = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()
 
-        val topic = getTopicFromMessage(message)
-
         receiverEndpoints.forEach { receiverEndpoint ->
             val receiverName = receiverEndpoint.identifier[0].value
             val receiver = settings.findReceiver(receiverName)
@@ -86,7 +84,7 @@ class FHIRTranslator(
                         receiver,
                         this.metadata,
                         actionHistory,
-                        topic = topic,
+                        topic = message.topic,
                     )
 
                     // insert batch task into Task table

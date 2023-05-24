@@ -160,13 +160,12 @@ class FHIRRouter(
 
             // create report object
             val sources = emptyList<Source>()
-            val topic = getTopicFromMessage(message)
             val report = Report(
                 Report.Format.FHIR,
                 sources,
                 1,
                 metadata = this.metadata,
-                topic = topic
+                topic = message.topic,
             )
 
             // create item lineage

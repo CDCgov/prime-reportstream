@@ -345,7 +345,7 @@ class ELRReceiver : SubmissionReceiver {
                     blobInfo.blobUrl,
                     BlobAccess.digestToString(blobInfo.digest),
                     sender.fullName,
-                    sender.topic.jsonVal,
+                    sender.topic,
                     sender.schemaName,
                 ).serialize()
             )

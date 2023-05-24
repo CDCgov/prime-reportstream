@@ -3,7 +3,6 @@ package gov.cdc.prime.router.fhirengine.engine
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -130,16 +129,4 @@ abstract class FHIREngine(
         actionLogger: ActionLogger,
         actionHistory: ActionHistory
     )
-
-    /**
-     * Given a [message], returns the topic that is embedded in the message. Defaults to full-elr since that was the
-     * first topic supported in the universal pipeline.
-     */
-    fun getTopicFromMessage(message: RawSubmission): Topic {
-        return Topic.fromJsonValue(message.topic) ?: let {
-            // This shouldn't happen, but if it does, log the error and reset to full-elr
-            logger.warn("Invalid topic ${message.topic} found in message, defaulting to 'full-elr'")
-            Topic.FULL_ELR
-        }
-    }
 }

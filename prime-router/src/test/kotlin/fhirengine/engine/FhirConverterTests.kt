@@ -120,7 +120,7 @@ class FhirConverterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
             RawSubmission(
-                UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender", "full-elr",
+                UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender", topic = Topic.FULL_ELR,
                 "test-schema"
             )
         )
@@ -166,7 +166,7 @@ class FhirConverterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
             RawSubmission(
-                UUID.randomUUID(), "http://blobstore.example/file.fhir", "test", "test-sender", "full-elr",
+                UUID.randomUUID(), "http://blobstore.example/file.fhir", "test", "test-sender", topic = Topic.FULL_ELR,
                 "test-schema"
             )
         )
@@ -211,7 +211,7 @@ class FhirConverterTests {
                 "http://blobstore.example/file.hl7",
                 "test",
                 "test-sender",
-                "full-elr"
+                topic = Topic.FULL_ELR
             )
         )
 
@@ -231,7 +231,7 @@ class FhirConverterTests {
                 "http://blobstore.example/file.hl7",
                 "test",
                 "test-sender",
-                "full-elr"
+                topic = Topic.FULL_ELR
             )
         )
 
@@ -256,7 +256,7 @@ class FhirConverterTests {
                     "http://blobstore.example/file.fhir",
                     "test",
                     "test-sender",
-                    "full-elr"
+                    topic = Topic.FULL_ELR
                 )
             )
 
