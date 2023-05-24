@@ -16,7 +16,7 @@ function Deliveries() {
     const { data: orgDetails } = useOrganizationSettings();
     const { description } = orgDetails || {};
     return (
-        <GridContainer containerSize="widescreen">
+        <GridContainer>
             <Helmet>
                 <title>{FeatureName.DAILY_DATA}</title>
             </Helmet>

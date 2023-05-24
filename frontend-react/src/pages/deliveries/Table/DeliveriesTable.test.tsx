@@ -56,6 +56,7 @@ beforeEach(() => {
         isUserAdmin: false,
         isUserReceiver: true,
         isUserSender: false,
+        environment: "test",
     });
 });
 describe("DeliveriesTable", () => {
@@ -89,6 +90,7 @@ describe("DeliveriesTable", () => {
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
+                environment: "test",
             });
 
             // Mock the response from the Deliveries hook
@@ -203,6 +205,7 @@ describe("DeliveriesTableWithNumbered", () => {
                     isUserAdmin: false,
                     isUserReceiver: true,
                     isUserSender: false,
+                    environment: "test",
                 });
 
                 // Mock the response from the Deliveries hook
@@ -259,6 +262,7 @@ describe("DeliveriesTableWithNumbered", () => {
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
+                environment: "test",
             });
 
             // Mock the response from the Deliveries hook
