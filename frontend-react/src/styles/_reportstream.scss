@@ -788,6 +788,66 @@ pre {
     margin-top: auto !important;
 }
 
+/** 
+ * Allows automatic counter numbers in process-list style
+ */
+@mixin numbered($counter) {
+    &::before {
+        @include u-flex("row", "align-center", "justify-center");
+        $half-of-font-size: -0.4rem;
+        @include u-circle($theme-process-list-counter-size);
+        background-color: color($theme-process-list-counter-background-color);
+        border: units($theme-process-list-counter-border-width) solid
+            color($theme-process-list-counter-border-color);
+        box-shadow: 0 0 0 units($theme-process-list-counter-gap-width)
+            color($theme-process-list-counter-gap-color);
+        color: color($theme-process-list-counter-text-color);
+        content: counter($counter, decimal);
+        counter-increment: $counter;
+        display: inline-flex;
+        font-family: family($theme-process-list-counter-font-family);
+        font-size: size(
+            $theme-process-list-counter-font-family,
+            $theme-process-list-counter-font-size
+        );
+        font-weight: font-weight("bold");
+        height: units($theme-process-list-counter-size);
+        line-height: lh($theme-process-list-counter-font-family, 1);
+        width: units($theme-process-list-counter-size);
+        margin: $half-of-font-size 18px 0 0;
+    }
+}
+
+html {
+    counter-reset: h2;
+}
+
+h2.rs-numbered {
+    @include numbered(h2);
+}
+.faq-wrapper {
+    .heading {
+        h3 {
+            padding-bottom: 20px;
+            color: #71767a;
+            font-weight: 500;
+        }
+    }
+
+    section {
+        margin-top: 30px;
+        border-top: 1px solid #dfe1e2;
+    }
+
+    h3 {
+        font-size: 22px;
+    }
+
+    h4 {
+        margin-top: 40px;
+    }
+}
+
 /*
  * CMS-type pages use a smaller default width
  */

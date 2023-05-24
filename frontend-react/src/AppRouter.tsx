@@ -32,7 +32,13 @@ import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
+import { GettingStartedPage } from "./pages/resources/api-programmers-guide/GettingStarted";
+import { DocumentationPage } from "./pages/resources/api-programmers-guide/documentation/Documentation";
+import { DataModelPage } from "./pages/resources/api-programmers-guide/documentation/DataModel";
+import { ResponsesFromReportStreamPage } from "./pages/resources/api-programmers-guide/documentation/ResponsesFromReportStream";
+import { SamplePayloadsAndOutputPage } from "./pages/resources/api-programmers-guide/documentation/SamplePayloadsAndOutput";
 import FileHandler from "./components/FileHandlers/FileHandler";
+import { ReportStreamAPIPage } from "./pages/resources/api-programmers-guide/ReportStreamApi";
 import { FaqPage } from "./pages/support/faq/FaqPage";
 import { DataDashboardWithAuth } from "./pages/data-dashboard/DataDashboard";
 import MainLayout from "./layouts/MainLayout";
@@ -97,8 +103,47 @@ export const appRoutes: RouteObject[] = [
                 path: "/resources",
                 children: [
                     {
+                        path: "documentation",
+                        children: [
+                            {
+                                path: "",
+                                element: <DocumentationPage />,
+                                index: true,
+                                handle: {
+                                    isContentPage: true,
+                                },
+                            },
+                            { path: "data-model", element: <DataModelPage /> },
+                            {
+                                path: "responses-from-reportstream",
+                                element: <ResponsesFromReportStreamPage />,
+                                handle: {
+                                    isContentPage: true,
+                                },
+                            },
+                            {
+                                path: "sample-payloads-and-output",
+                                element: <SamplePayloadsAndOutputPage />,
+                                handle: {
+                                    isContentPage: true,
+                                },
+                            },
+                        ],
+                    },
+                    {
                         path: "manage-public-key",
                         element: <ManagePublicKeyWithAuth />,
+                    },
+                    {
+                        path: "reportstream-api",
+                        element: <ReportStreamAPIPage />,
+                    },
+                    {
+                        path: "getting-started",
+                        element: <GettingStartedPage />,
+                        handle: {
+                            isContentPage: true,
+                        },
                     },
                     {
                         path: "",
@@ -136,6 +181,13 @@ export const appRoutes: RouteObject[] = [
                     },
                     {
                         path: "",
+                        element: <Support />,
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                    {
+                        path: "*",
                         element: <Support />,
                         handle: {
                             isContentPage: true,

@@ -1,0 +1,71 @@
+<table className="usa-table">
+    <thead>
+        <tr>
+            <th>CSV Column Names</th>
+            <th>HL7 Field / Component</th>
+            <th>Fed Required?</th>
+            <th>State Required?</th>
+            <th>Data Requirements</th>
+            <th>Additional Guidance</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                specimen_type
+
+                (OTC)
+            </td>
+            <td>
+                SPM-4
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                Enter a numeric SNOMED code (preferred) or common text value listed.
+
+                **Examples:**
+                * “697989009”
+                * “Nasal Swab”
+                * “Nasopharyngeal Swab”
+                * “Anterior Nares Swab”
+                * “Throat Swab”
+                * “Oropharyngeal Swab”
+                * “Whole Blood”
+                * “Plasma”
+                * “Serum”
+            </td>
+            <td>
+                File will fail if value not entered using acceptable text values or SNOMED codes or field is left blank.
+                
+                Go to https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html. Click on the Mapping Tool labeled "LIVD SARS-CoV-2 Test Codes.xlsx" to download the file.
+
+                Locate the saved file on your computer and open it. Click on the "LOINC Mapping" tab. Go to Column D, labeled "Vendor Specimen Description". Locate the corresponding text value or SNOMED code and enter into field (example: Anterior Nares Swab = "697989009").
+            </td>
+        </tr>
+        <tr>
+            <td>
+                n/a
+            </td>
+            <td>
+                SPM-8
+            </td>
+            <td>
+                Requested
+            </td>
+            <td>
+                Requested
+            </td>
+            <td>
+                Enter a numeric SNOMED code for the specimen source site code.
+            </td>
+            <td>
+                For CSV, this is populated by ReportStream based on the specimen_type value.
+            </td>
+        </tr>
+    </tbody>
+</table>
