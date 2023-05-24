@@ -29,6 +29,7 @@ describe("SenderModeBanner", () => {
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,
+            environment: "test",
         });
         renderApp(<SenderModeBanner />);
         const text = await screen.findByText("Learn more about onboarding.");

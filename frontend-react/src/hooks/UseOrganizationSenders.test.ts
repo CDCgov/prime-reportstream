@@ -25,6 +25,7 @@ describe("useOrganizationSenders", () => {
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: false,
+                environment: "test",
             });
         });
 
@@ -53,6 +54,7 @@ describe("useOrganizationSenders", () => {
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: true,
+                environment: "test",
             });
         });
 
