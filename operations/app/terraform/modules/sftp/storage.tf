@@ -15,6 +15,13 @@ resource "azurerm_storage_account" "sftp" {
     #virtual_network_subnet_ids = var.subnets.primary_subnets
   }
 
+  blob_properties {
+    delete_retention_policy {
+      enabled = true
+      days    = 7
+    }
+  }
+
   tags = {
     environment = var.environment
   }
