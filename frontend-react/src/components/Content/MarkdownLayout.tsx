@@ -53,7 +53,7 @@ export function MarkdownLayout({
             }}
         >
             <GridContainer className="usa-prose">
-                <Grid row>
+                <Grid row className="flex-justify">
                     {sidenav ? (
                         <Nav
                             aria-label="side-navigation"
