@@ -271,3 +271,39 @@ div.usa-alert__heading {
 .usa-card__header {
     font-weight: bold;
 }
+
+/**
+ * Reset ul style within cards due to usa-card-group.
+ */
+.usa-card-group {
+    .usa-card {
+        ul {
+            list-style: disc;
+        }
+    }
+}
+
+/**
+ * Allow table to auto size up to 'widescreen'.
+ */
+.usa-table-container--scrollable.usa-table-container--widescreen {
+    .usa-table {
+        @include u-maxw("widescreen");
+        width: auto;
+        table-layout: fixed;
+        td {
+            white-space: normal;
+        }
+    }
+}
+
+/**
+ * Auto scale icons inside buttons.
+ */
+.usa-button {
+    .usa-icon--auto {
+        vertical-align: text-bottom;
+        width: auto;
+        height: 1rlh;
+    }
+}

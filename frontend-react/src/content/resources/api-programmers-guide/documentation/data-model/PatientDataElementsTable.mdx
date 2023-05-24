@@ -1,0 +1,292 @@
+<table className="usa-table">
+    <thead>
+        <tr>
+            <th>CSV Column Names</th>
+            <th>HL7 Field / Component</th>
+            <th>Fed Required?</th>
+            <th>State Required?</th>
+            <th>Data Requirements</th>
+            <th>Additional Guidance</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                patient_id 
+
+                (OTC)
+            </td>
+            <td>PID-3.1</td>
+            <td>No</td>
+            <td>Requested</td>
+            <td>
+                Optional - Requested: Enter unique patient identifier.
+                
+                This is typically the Medical Record Number.
+                
+                Do not send a Social Security Number.
+            </td>
+            <td>
+                This value is optional and can be left blank if no information is provided.
+                Some jurisdictions may require this field, ReportStream will notify you if this is the case.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                patient_last_name 
+                
+                (OTC)
+            </td>
+            <td>PID-5.1</td>
+            <td>No</td>
+            <td>Yes</td>
+            <td>Enter patient's last name.</td>
+            <td>File will fail if field left blank.</td>
+        </tr>
+        <tr>
+            <td>
+                patient_first_name
+
+                (OTC)
+            </td>
+            <td>PID-5.2</td>
+            <td>No</td>
+            <td>Yes</td>
+            <td>Enter patient's first name.</td>
+            <td>File will fail if field left blank.</td>
+        </tr>
+        <tr>
+            <td>
+                patient_name_middle 
+
+                (OTC)
+            </td>
+            <td>PID-5.3</td>
+            <td>No</td>
+            <td>No</td>
+            <td>Optional: Enter patient's middle name, if known.</td>
+            <td>This value is optional and can be left blank if no information is provided.</td>
+        </tr>
+        <tr>
+            <td>
+                patient_street
+
+                (OTC)
+            </td>
+            <td>PID-11.1</td>
+            <td>No</td>
+            <td>Yes</td>
+            <td>Enter patient's home address.</td>
+            <td>
+                File will fail if field left blank. 
+                If no address given or homeless, populate this field with ** Unknown / Not Given ** or ** Homeless **.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                patient_street2
+                
+                (OTC)
+            </td>
+            <td>PID-11.2</td>
+            <td>No</td>
+            <td>No</td>
+            <td>Optional: Enter patient's additional address information, if applicable.</td>
+            <td>This value is optional and can be left blank if no information is provided.</td>
+        </tr>
+        <tr>
+            <td>
+                patient_city 
+                
+                (OTC)
+            </td>
+            <td>PID-11.3</td>
+            <td>No</td>
+            <td>Yes</td>
+            <td>Enter patient's city.</td>
+            <td>
+                File will fail if field left blank. 
+                If no city given or homeless, populate this field with the ordering facility information.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                patient_state
+
+                (OTC)
+            </td>
+            <td>PID-11.4</td>
+            <td>No</td>
+            <td>Yes</td>
+            <td>Enter patient's state using the two-character abbreviation.</td>
+            <td>File will fail if field left blank. If no state given or homeless, populate this field with the  ordering facility information.</td>
+        </tr>
+        <tr>
+            <td>
+                patient_county
+
+                (OTC)
+            </td>
+            <td>PID-11.9</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>Enter patient's county/parish name.</td>
+            <td>Required for reporting to certain jurisdictions.</td>
+        </tr>
+        <tr>
+            <td>
+                patient_zip_code
+
+                (OTC)
+            </td>
+            <td>PID-11.5</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>
+                Enter patient's zip code.
+
+                Accepted Format:
+                * 12345
+                * 12345-6789
+            </td>
+            <td>File will fail if value is not entered using acceptable format or field is left blank. If no zip code given or homeless, populate field with the ordering facility information.</td>
+        </tr>
+        <tr>
+            <td>
+                patient_phone_number
+
+                (OTC)
+            </td>
+            <td>PID-13.7</td>
+            <td>No</td>
+            <td>Yes - Conditional</td>
+            <td>
+                Enter patient's phone number, if known.
+
+                Accepted Format: 000-000-000
+            </td>
+            <td>If no phone number given or homeless, populate field with the ordering facility information.</td>
+        </tr>
+        <tr>
+            <td>
+                patient_dob
+
+                (OTC)
+            </td>
+            <td>PID-7.1</td>
+            <td>No</td>
+            <td>Yes</td>
+            <td>
+                Enter patient's date of birth.
+
+                Accepted Format: yyyyMMdd
+            </td>
+            <td>File will fail if value is not entered using accepted format or field is left blank.</td>
+        </tr>
+        <tr>
+            <td>
+                patient_gender
+
+                (OTC)
+            </td>
+            <td>PID-8.1</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>
+                Enter patient’s gender.
+
+                Accepted Values (HL70001):
+                * M or Male
+                * F or Female
+                * O or Other
+                * U or Unknown
+                * A or Ambiguous
+                * N or Not applicable
+           </td>
+            <td>
+                File will fail if value not entered using accepted values or field is left blank.
+                Accepted values come from values mapped to LOINC codes you can find in the [PHIN VADS](https://phinvads.cdc.gov/vads/SearchVocab.action) system.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                patient_race
+
+                (OTC)
+            </td>
+            <td>PID-10.1</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>
+                Enter patient’s race.
+                
+                Accepted Values (HL70005):
+                * 1002-5 or American Indian or Alaska Native
+                * 2028-9 or Asian
+                * 2054-5 or Black or African American
+                * 2076-8 or Native Hawaiian or Other Pacific Islander
+                * 2106-3 or White
+                * 2131-1 or Other
+                * ASKU or Ask, but unknown
+                * UNK or Unknown
+           </td>
+            <td>
+                File will fail if numeric values or text values are not entered using acceptable values or field is left blank.
+                Accepted values come from values mapped to LOINC codes you can find in the [PHIN VADS](https://phinvads.cdc.gov/vads/SearchVocab.action) system.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                patient_ethnicity
+
+                (OTC)
+            </td>
+            <td>PID-22.1</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>
+                Enter patient’s ethnicity.
+
+                Accepted Values:
+                * 2135-2 or H or Hispanic or Latino
+                * 2186-5 or N or Not Hispanic or Latino
+                * UNK or U or Unknown
+            </td>
+            <td>
+                File will fail if numeric values or text values are not entered using acceptable values or field is left blank.
+                Accepted values come from values mapped to LOINC codes you can find in the [PHIN VADS](https://phinvads.cdc.gov/vads/SearchVocab.action) system.
+            </td>
+        </tr>
+        <tr>
+            <td>patient_preferred_language</td>
+            <td>PID-15</td>
+            <td>No</td>
+            <td>No</td>
+            <td>
+                Optional: Enter patient’s preferred language, if known.
+                
+                Example Accepted Values:
+                * eng OR English
+                * spa OR Spanish
+                * fre OR French
+                * jpn OR Japanese
+            </td>
+            <td>
+                Use the Concept Code or Concept Name from the PHIN VADS ISO-639 table, which can be found [here](https://phinvads.cdc.gov/vads/ViewValueSet.action?id=D0858308-9AB3-EA11-818F-005056ABE2F0).
+            </td>
+        </tr>
+        <tr>
+            <td>
+                patient_email
+
+                (OTC)
+            </td>
+            <td>PID-13.4</td>
+            <td>No</td>
+            <td>No</td>
+            <td>Optional: Enter patient’s email address, if known.
+                Accepted Value: Numeric or text</td>
+            <td>This value is optional and can be left blank if no information is provided.</td>
+        </tr>
+    </tbody>
+</table>

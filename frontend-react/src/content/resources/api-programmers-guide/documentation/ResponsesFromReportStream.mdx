@@ -1,0 +1,224 @@
+import { Alert } from "@trussworks/react-uswds";
+
+# Responses from ReportStream
+
+<p className="usa-intro text-base">ReportStream responds to each API call with a response (JSON formatted) about the disposition of your data.</p>
+
+***
+
+## Errors and warnings
+
+The ReportStream response may include warnings and/or errors based on validation of the submission against the expected format.
+
+An accepted submission returns a 201 “httpStatus” code. Submissions with warnings but no errors will still be accepted. 
+While ReportStream will accept a submission with warnings, we encourage you to fix those issues to ensure you will not have future problems sending to public health departments. 
+However, one or more errors fail the entire submission.
+
+**Common validation errors**
+* Missing or mislabeled required columns/fields
+* Missing or malformed data in required columns/fields
+* CSV with “jagged” rows — differing number of columns within the payload
+* Empty payload (an empty response is often a sign of a failed authorization, with a 401 response status). Make sure your token or key and the URL are correct.
+* Incorrect client-id or other headers
+* Incorrect data types (e.g. a character string when a numeric value is expected)
+
+**Common validation warnings**
+* Missing optional columns/fields
+
+{
+<Alert type="info">
+    <span className="text-bold">Note:</span> There’s a flag allowing partial submissions. With this flag, successful elements in a batch will succeed, and the unsuccessful ones won’t. This flag requires extra code on your part to handle partial failures.
+</Alert>
+}
+
+## Response messages
+
+**Asynchronous processing**
+
+In most cases, we'll ask you to submit via ReportStream asynchronous (async) processing. This configuration setting is automatically enabled for users. Upon submitting data via ReportStream async processing, the REST endpoint returns almost immediately. However, ReportStream doesn't return information about where the tests will be sent.
+
+In exchange for speed, the async submission response provides less initial information in the JSON. The initial response will provide errors and warnings, but no destination or filter information. The History Details API can be queried later to get full information about expected and actual destinations.
+
+Example ReportStream response to an async submission:
+
+```
+{
+   "submissionId":1604,
+   "timestamp":"2022-02-10T13:50:19.162694Z",
+   "sender":"simple_report.default",
+   "httpStatus":201,
+   "id":"3597ad7d-b92c-4bc0-a8fc-d909ed87bc90",
+   "reportItemCount":2,
+   "destinationCount":0,
+   "destinations": [],
+   "errors": [],
+   "warnings": [],
+   "topic":"covid-19",
+   "warningCount":0,
+   "errorCount":0
+}
+```
+
+**Synchronous processing**
+
+Example JSON response to a successful synchronous submission.
+
+```
+{
+    "submissionId": 1588,
+    "timestamp": "2022-02-09T16:59:33.789532Z",
+    "sender": "simple_report",
+    "reportItemCount": 2,
+    "httpStatus": 201,
+    "id": "e8880dcf-a201-4690-8e02-2871da739b61",
+    "destinationCount": 2,
+    "destinations": [
+        {
+            "organization_id": "de-dph",
+            "service": "elr",
+            "filteredReportRows": [],
+            "sending_at": "2022-02-09T17:00:00.000000Z",
+            "itemCount": 1,
+            "sentReports": [ ],
+            "organization": "Delaware Division of Public Health"
+        },
+        {
+            "organization_id": "hi-phd",
+            "service": "elr",
+            "filteredReportRows": [],
+            "sending_at": "2022-02-09T19:00:00.000000Z",
+            "itemCount": 1,
+            "sentReports": [ ],
+            "organization": "Hawaii Public Health Department"
+        }
+    ],
+    "errors": [],
+    "warnings": [],
+    "topic": "covid-19",
+    "warningCount": 0,
+    "errorCount": 0
+}
+```
+
+Since the response is returned in real-time, the “destinations” section supplies information about where the submission is expected to be sent. The exact time that the public health department receives that data depends on the settings for that jurisdiction.
+
+ReportStream features a History Details API that can be later queried to obtain the actual destinations and relevant detail. If you’d like to use this API, let the ReportStream team know, and we’ll provide you with additional information about requirements for Okta authentication.
+
+The request is made with the submissionId in the earlier example.:
+
+```
+https://prime.cdc.gov/api/history/simple_report/submissions/1588
+```
+
+Response:
+
+```
+{
+    "submissionId": 1588,
+    "timestamp": "2022-02-09T16:59:33.789532Z",
+    "sender": "simple_report",
+    "reportItemCount": 2,
+    "httpStatus": 201,
+    "id": "e8880dcf-a201-4690-8e02-2871da739b61",
+    "destinationCount": 2,
+    "destinations": [
+        {
+            "organization_id": "de-dph",
+            "service": "elr",
+            "filteredReportRows": [],
+            "sending_at": "2022-02-09T17:00:00.000000Z",
+            "itemCount": 1,
+            "sentReports": [
+                {
+                    "reportId": "38c84ec2-5741-4f2f-b234-25d774ec8caf",
+                    "externalName": "covid-19-43d64e18-ce56-482a-9134-f9f84a2c9d6f-20220209170000.hl7",
+                    "createdAt": "2022-02-09T17:00:02.825148Z",
+                    "itemCount": 1
+                }
+            ],
+            "organization": "Delaware Division of Public Health"
+        },
+        {
+            "organization_id": "hi-phd",
+            "service": "elr",
+            "filteredReportRows": [],
+            "sending_at": "2022-02-09T17:00:00.000000Z",
+            "itemCount": 1,
+            "sentReports": [
+                {
+                    "reportId": "d9fae107-ef89-4fc0-b9b9-517219a4d2bb",
+                    "externalName": "covid-19-3560b0e8-c183-4132-ad0c-487a837f0e77-20220209170000.hl7",
+                    "createdAt": "2022-02-09T17:00:02.822125Z",
+                    "itemCount": 1
+                }
+            ],
+            "organization": "Hawaii Public Health Department"
+        }
+    ],
+    "errors": [],
+    "warnings": [],
+    "topic": "covid-19",
+    "warningCount": 0,
+    "errorCount": 0
+}
+```
+
+The sentReports sections contain details about where and when the reports were transmitted.
+
+## JSON error responses
+
+In error cases, no report "id" UUID is returned, because no report was created based on the submission.
+
+Example failure response and identical HistoryAPI response (Note the "id" is null, and the “httpStatus” is not 201):
+
+```
+{
+    "submissionId": 1594,
+    "timestamp": "2022-02-09T20:44:55.055545Z",
+    "sender": "simple_report",
+    "destinationCount" : 0,
+    "httpStatus": 400,
+    "id": null,
+    "destinations": [],
+    "errors": [
+        {
+            "scope": "item",
+            "index": 1,
+            "trackingId": "abcde",
+            "type": "error",
+            "message": "Blank value for element 'Patient_last_name' ('patient_last_name')"
+        }
+    ],
+    "warnings": [],
+    "topic": null,
+    "warningCount": 0,
+    "errorCount": 1
+}
+```
+
+Example of a report level error:
+
+```
+{
+    "submissionId": 1599,
+    "timestamp": "2022-02-09T20:56:16.82117Z",
+    "sender": "strac",
+    "httpStatus": 400,
+    "id": null,
+    "destinationCount" : 0,
+    "destinations": [],
+    "errors": [
+        {
+            "scope": "report",
+            "index": null,
+            "trackingId": null,
+            "type": "error",
+            "message": "CSV file has an inconsistent number of columns on row: 3"
+        }
+    ],
+    "warnings": [],
+    "topic": null,
+    "warningCount": 0,
+    "errorCount": 1
+}
+```
