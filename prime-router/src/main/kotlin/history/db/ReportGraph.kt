@@ -23,7 +23,7 @@ private const val PATH_FIELD = "path"
 
 /**
  * This class is responsible for generating graphs of either reports or items and then using that graph to link it
- * back to relevant tables (like the metadata table) in order to generate queries.  One example with is fetching all
+ * back to relevant tables (like the metadata table) in order to generate queries.  One example is fetching all
  * the covid metadata associated with a delivered report (see getMetadataForReports as an example of how to combine the
  * various CTEs)
  *
