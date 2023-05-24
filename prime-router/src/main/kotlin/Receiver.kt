@@ -82,9 +82,9 @@ open class Receiver(
         translation: TranslatorConfiguration = CustomConfiguration(
             schemaName = schemaName,
             format = format,
-            emptyMap(),
-            "standard",
-            null
+            defaults = emptyMap(),
+            nameFormat = "standard",
+            receivingOrganization = null
         ),
         jurisdictionalFilter: ReportStreamFilter = emptyList(),
         qualityFilter: ReportStreamFilter = emptyList(),
@@ -140,6 +140,9 @@ open class Receiver(
 
     @get:JsonIgnore
     val format: Report.Format get() = translation.format
+
+    @get:JsonIgnore
+    val useBatching: Boolean get() = translation.useBatching
 
     // adds a display name property that tries to show the external name, or the regular name if there isn't one
     @get:JsonIgnore

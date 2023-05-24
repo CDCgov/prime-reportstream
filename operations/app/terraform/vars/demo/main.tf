@@ -183,7 +183,7 @@ module "front_door" {
   location                    = local.init.location
   https_cert_names            = local.security.https_cert_names
   is_metabase_env             = local.init.is_metabase_env
-  public_primary_web_endpoint = module.storage.sa_public_primary_web_endpoint
+  public_primary_web_endpoint = module.storage.storage_public.primary_web_endpoint
   application_key_vault_id    = module.key_vault.application_key_vault_id
 }
 
@@ -249,13 +249,14 @@ module "log_analytics_workspace" {
   client_config_key_vault_id = module.key_vault.client_config_key_vault_id
   function_app_id            = module.function_app.function_app_id
   //front_door_id                 = module.front_door.front_door_id
-  nat_gateway_id        = module.nat_gateway.nat_gateway_id
-  primary_vnet_id       = module.network.primary_vnet_id
-  replica_vnet_id       = module.network.replica_vnet_id
-  storage_account_id    = module.storage.storage_account_id
-  storage_public_id     = module.storage.storage_public_id
-  storage_partner_id    = module.storage.storage_partner_id
-  action_group_slack_id = module.application_insights.action_group_slack_id
+  nat_gateway_id           = module.nat_gateway.nat_gateway_id
+  primary_vnet_id          = module.network.primary_vnet_id
+  replica_vnet_id          = module.network.replica_vnet_id
+  storage_account_id       = module.storage.storage_account_id
+  storage_public_id        = module.storage.storage_public.id
+  storage_partner_id       = module.storage.storage_partner_id
+  action_group_slack_id    = module.application_insights.action_group_slack_id
+  action_group_metabase_id = module.application_insights.action_group_metabase_id
   //data_factory_id               = module.data_factory.data_factory_id
   //sftp_instance_01_id           = module.sftp.sftp_instance_ids[0]
 }

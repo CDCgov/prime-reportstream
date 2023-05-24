@@ -39,9 +39,8 @@ resource "azurerm_monitor_action_group" "action_group" {
   }
 }
 
-resource "azurerm_monitor_action_group" "action_group_mbhealthcheck" {
-  #count               = local.alerting_enabled
-  name                = "${var.resource_prefix}-actiongroup-mbhealthcheck"
+resource "azurerm_monitor_action_group" "action_group_metabase" {
+  name                = "${var.resource_prefix}-actiongroup-metabase"
   resource_group_name = var.resource_group
   short_name          = "mb-check"
 
@@ -92,4 +91,7 @@ locals {
     try(replace(azurerm_monitor_action_group.action_group_slack.id, "Microsoft.Insights", "microsoft.insights"), "") :
   azurerm_monitor_action_group.action_group_slack.id)
   app_insights_id = replace(azurerm_application_insights.app_insights.id, "Microsoft.Insights", "microsoft.insights")
+  action_group_metabase_id = (local.alerting_enabled == 1 ?
+    try(replace(azurerm_monitor_action_group.action_group_metabase.id, "Microsoft.Insights", "microsoft.insights"), "") :
+  azurerm_monitor_action_group.action_group_metabase.id)
 }

@@ -51,3 +51,6 @@ variable "chatops_github_repo" {
 variable "chatops_github_target_branches" {
   type = string
 }
+
+variable "storage_account" {
+}

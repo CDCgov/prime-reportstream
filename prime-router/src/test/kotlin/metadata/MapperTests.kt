@@ -308,7 +308,6 @@ class MapperTests {
             format = Sender.Format.CSV,
             CustomerStatus.ACTIVE,
             "mySchemaName",
-            keys = null,
             processingType = Sender.ProcessingType.async
         )
         val elementA = Element("a")

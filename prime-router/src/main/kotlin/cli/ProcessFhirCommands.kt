@@ -12,10 +12,12 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.int
+import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -111,7 +113,8 @@ class ProcessFhirCommands : CliktCommand(
             else -> {
                 val bundle = FhirTranscoder.decode(jsonString)
                 FhirToHl7Converter(
-                    fhirToHl7Schema!!.name.split(".")[0], fhirToHl7Schema!!.parent
+                    fhirToHl7Schema!!.name.split(".")[0], fhirToHl7Schema!!.parent,
+                    context = FhirToHl7Context(CustomFhirPathFunctions())
                 ).convert(bundle)
             }
         }
@@ -242,7 +245,7 @@ class FhirPathCommand : CliktCommand(
         constantList.forEach { (name, value) ->
             echo("\t$name=$value")
         }
-        fhirPathContext = CustomContext(bundle, bundle, constantList)
+        fhirPathContext = CustomContext(bundle, bundle, constantList, CustomFhirPathFunctions())
         printHelp()
 
         // Loop until you press CTRL-C or ENTER at the prompt.
@@ -325,9 +328,8 @@ class FhirPathCommand : CliktCommand(
     private fun evaluatePath(input: String, bundle: Bundle) {
         // Check the syntax for the FHIR path
         try {
-            val pathExpression = FhirPathUtils.parsePath(input) ?: throw FhirPathExecutionException("Invalid FHIR path")
             val values = try {
-                FhirPathUtils.pathEngine.evaluate(fhirPathContext, focusResource, bundle, bundle, pathExpression)
+                FhirPathUtils.evaluate(fhirPathContext, focusResource!!, bundle, input)
             } catch (e: IndexOutOfBoundsException) {
                 // This happens when a value for an extension is speced, but the extension does not exist.
                 emptyList()
