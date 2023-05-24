@@ -3112,7 +3112,7 @@ The ID number of the lab order from the placer
 
 **PII**: No
 
-**Default Value**: no
+**Default Value**: N
 
 **Cardinality**: [0..1]
 
@@ -3125,7 +3125,7 @@ The ID number of the lab order from the placer
 **Table Column**: Over the Counter (OTC) Home Testing
 
 **Documentation**:
-Is the test authorized for home use by the FDA (yes, no)
+Is the test authorized for home use by the FDA (Y, N, UNK)
 ---
 
 **Name**: test_authorized_for_otc
@@ -3136,7 +3136,7 @@ Is the test authorized for home use by the FDA (yes, no)
 
 **PII**: No
 
-**Default Value**: no
+**Default Value**: N
 
 **Cardinality**: [0..1]
 
@@ -3149,7 +3149,7 @@ Is the test authorized for home use by the FDA (yes, no)
 **Table Column**: Over the Counter (OTC) Home Testing
 
 **Documentation**:
-Is the test authorized for over-the-counter purchase by the FDA (yes, no)
+Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
 ---
 
 **Name**: test_authorized_for_unproctored

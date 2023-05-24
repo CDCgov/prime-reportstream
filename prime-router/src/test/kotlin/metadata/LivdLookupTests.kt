@@ -198,7 +198,7 @@ class LivdLookupTests {
                 tableRef = lookupTable
             )
         )
-            .isEqualTo("yes")
+            .isEqualTo("Y")
 
         // Test with a truncated device ID
         assertThat(
@@ -213,7 +213,7 @@ class LivdLookupTests {
                 tableRef = lookupTable
             )
         )
-            .isEqualTo("yes")
+            .isEqualTo("Y")
     }
 
     @Test
@@ -232,7 +232,7 @@ class LivdLookupTests {
                 tableRef = lookupTable
             )
         )
-            .isEqualTo("yes")
+            .isEqualTo("Y")
 
         // Test with another
         assertThat(
@@ -247,7 +247,7 @@ class LivdLookupTests {
                 tableRef = lookupTable
             )
         )
-            .isEqualTo("yes")
+            .isEqualTo("Y")
 
         assertThat(
             find(

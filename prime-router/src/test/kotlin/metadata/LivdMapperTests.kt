@@ -151,11 +151,11 @@ class LivdMapperTests {
 
         // Test with an FDA device id
         val ev1 = ElementAndValue(deviceElement, "10811877011337")
-        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1)).value).isEqualTo("yes")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1)).value).isEqualTo("Y")
 
         // Test with a truncated device ID
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home#")
-        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a)).value).isEqualTo("yes")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a)).value).isEqualTo("Y")
     }
 
     @Test
@@ -173,13 +173,13 @@ class LivdMapperTests {
         // Test with an FDA device id
         val ev1 = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card Home Test")
         var result = mapper.apply(codeElement, emptyList(), listOf(ev1))
-        assertThat(result.value).isEqualTo("yes")
+        assertThat(result.value).isEqualTo("Y")
         assertThat(result.errors).isEmpty()
         assertThat(result.warnings).isEmpty()
 
         // Test with another
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home Test")
-        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a)).value).isEqualTo("yes")
+        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a)).value).isEqualTo("Y")
 
         val ev2 = ElementAndValue(deviceElement, "Some bad text")
         result = mapper.apply(codeElement, emptyList(), listOf(ev2))
