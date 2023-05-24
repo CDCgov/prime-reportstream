@@ -14,9 +14,13 @@ import useFilterManager, {
 import {
     dataDashboardEndpoints,
     RSDelivery,
+    RSFacilityProvider,
 } from "../../../config/endpoints/dataDashboard";
+import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
 
-const { getOrgDeliveries } = dataDashboardEndpoints;
+// These get calls may need to be updated once the API's are defined.
+const { getOrgDeliveries, getReportDetails, getPerformingFacilities } =
+    dataDashboardEndpoints;
 
 export enum DataDashboardAttr {
     REPORT_ID = "reportId",
@@ -97,4 +101,45 @@ const useOrgDeliveries = (service?: string) => {
     return { fetchResults, filterManager };
 };
 
-export { useOrgDeliveries };
+const useReportsDetail = (id: string) => {
+    const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSDelivery>();
+    const memoizedDataFetch = useCallback(
+        () =>
+            authorizedFetch(getReportDetails, {
+                segments: {
+                    id: id,
+                },
+            }),
+        [authorizedFetch, id]
+    );
+    return rsUseQuery(
+        // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
+        // during use
+        [getReportDetails.queryKey, id],
+        memoizedDataFetch,
+        { enabled: !!id }
+    );
+};
+
+const useReportsFacilities = (id: string) => {
+    const { authorizedFetch, rsUseQuery } =
+        useAuthorizedFetch<RSFacilityProvider[]>();
+    const memoizedDataFetch = useCallback(
+        () =>
+            authorizedFetch(getPerformingFacilities, {
+                segments: {
+                    id: id,
+                },
+            }),
+        [authorizedFetch, id]
+    );
+    return rsUseQuery(
+        // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
+        // during use
+        [getPerformingFacilities.queryKey, id],
+        memoizedDataFetch,
+        { enabled: !!id }
+    );
+};
+
+export { useOrgDeliveries, useReportsDetail, useReportsFacilities };

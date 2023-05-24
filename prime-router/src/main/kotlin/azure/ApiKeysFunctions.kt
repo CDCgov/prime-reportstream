@@ -21,15 +21,14 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
 
     data class ApiKeysResponse(val orgName: String, val keys: List<JwkSet>)
 
-    @FunctionName("getApiKeys")
-    fun get(
-        @HttpTrigger(
-            name = "getApiKeys",
-            methods = [HttpMethod.GET],
-            authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "settings/organizations/{organizationName}/public-keys"
-        ) request: HttpRequestMessage<String?>,
-        @BindingName("organizationName") orgName: String
+    /**
+     * Reusable function for fetching API keys.  The useNewApiResponse dictates whether or not to use the consistent
+     * API response format
+     */
+    private fun getApiKeysForOrg(
+        request: HttpRequestMessage<String?>,
+        orgName: String,
+        useNewApiResponse: Boolean = false
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims == null || !claims.authorized(setOf("*.*.primeadmin", "$orgName.*.admin"))) {
@@ -40,7 +39,38 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             ?: return HttpUtilities.notFoundResponse(request, "No such organization: $orgName")
 
         val keys = organization.keys ?: emptyList()
-        return HttpUtilities.okJSONResponse(request, ApiKeysResponse(orgName, keys))
+        return if (useNewApiResponse) {
+            HttpUtilities.okJSONResponse(request, ApiResponse(keys, MetaApiResponse("PublicKey", keys.size)))
+        } else {
+            HttpUtilities.okJSONResponse(request, ApiKeysResponse(orgName, keys))
+        }
+    }
+
+    @Deprecated("The v1 version should be used")
+    @FunctionName("getApiKeys")
+    fun get(
+        @HttpTrigger(
+            name = "getApiKeys",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "settings/organizations/{organizationName}/public-keys"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("organizationName") orgName: String
+    ): HttpResponseMessage {
+        return getApiKeysForOrg(request, orgName)
+    }
+
+    @FunctionName("getApiKeysV1")
+    fun getV1(
+        @HttpTrigger(
+            name = "getApiKeysV1",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "v1/settings/organizations/{organizationName}/public-keys"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("organizationName") orgName: String
+    ): HttpResponseMessage {
+        return getApiKeysForOrg(request, orgName, true)
     }
 
     @FunctionName("postApiKey")

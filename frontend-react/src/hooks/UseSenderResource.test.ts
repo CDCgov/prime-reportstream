@@ -27,6 +27,7 @@ describe("useSenderResource", () => {
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,
+            environment: "test",
         });
         const { result } = renderHook(() => useSenderResource(), {
             wrapper: AppWrapper(),
@@ -49,6 +50,7 @@ describe("useSenderResource", () => {
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,
+            environment: "test",
         });
         const { result } = renderHook(() => useSenderResource(), {
             wrapper: AppWrapper(),
