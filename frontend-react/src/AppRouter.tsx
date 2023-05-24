@@ -186,6 +186,13 @@ export const appRoutes: RouteObject[] = [
                             isContentPage: true,
                         },
                     },
+                    {
+                        path: "*",
+                        element: <Support />,
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
                 ],
             },
             {
