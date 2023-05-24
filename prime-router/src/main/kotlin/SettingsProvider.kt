@@ -1,6 +1,7 @@
 package gov.cdc.prime.router
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonValue
 import gov.cdc.prime.router.CustomerStatus.ACTIVE
 import gov.cdc.prime.router.CustomerStatus.INACTIVE
 import gov.cdc.prime.router.CustomerStatus.TESTING
@@ -44,28 +45,21 @@ enum class CustomerStatus {
  * A submission with topic FULL_ELR will be processed using the full ELR pipeline (fhir engine), submissions
  * from a sender with topic COVID_19 will be processed using the covid-19 pipeline.
  */
-enum class Topic(val jsonVal: String, val isUniversalPipeline: Boolean) {
-    @JsonProperty("full-elr")
+enum class Topic(@JsonValue val jsonVal: String, val isUniversalPipeline: Boolean = true) {
     FULL_ELR("full-elr", true),
-
-    @JsonProperty("etor-ti")
     ETOR_TI("etor-ti", true),
-
-    @JsonProperty("covid-19")
     COVID_19("covid-19", false),
-
-    @JsonProperty("monkeypox")
     MONKEYPOX("monkeypox", false),
-
-    @JsonProperty("CsvFileTests-topic")
     CSV_TESTS("CsvFileTests-topic", false),
-
-    @JsonProperty("test")
     TEST("test", false),
     ;
 
     companion object {
         private val jsonMap = Topic.values().associateBy(Topic::jsonVal)
+
+        /**
+         * This function returns a Topic from a [jsonVal] without needing a json deserializer
+         */
         fun fromJsonValue(jsonVal: String?) = jsonMap[jsonVal]
     }
 }
