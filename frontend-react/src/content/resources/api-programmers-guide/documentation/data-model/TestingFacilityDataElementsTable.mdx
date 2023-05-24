@@ -1,0 +1,187 @@
+<table className="usa-table">
+    <thead>
+        <tr>
+            <th>CSV Column Names</th>
+            <th>HL7 Field / Component</th>
+            <th>Fed Required?</th>
+            <th>State Required?</th>
+            <th>Data Requirements</th>
+            <th>Additional Guidance</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                testing_lab_clia
+
+                (OTC)
+            </td>
+            <td>
+                OBX-23.10
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                Enter testing facility’s CLIA number.
+            </td>
+            <td>
+                File will fail if left blank. CLIA numbers can be found at https://www.cdc.gov/clia/LabSearch.html.
+
+                For OTC, use 00Z0000014
+
+                For prescription, use 00Z0000015
+            </td>
+        </tr>
+        <tr>
+            <td>
+                testing_lab_name
+            </td>
+            <td>
+                OBX-23.1
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                Enter testing facility’s name.
+            </td>
+            <td>
+                File will fail if field left blank.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                testing_lab_street
+            </td>
+            <td>
+                OBX-24.1
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                Enter the street address of the testing facility.
+            </td>
+            <td>
+                File will fail if field left blank.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                testing_lab_street2
+            </td>
+            <td>
+                OBX-24.2
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                Optional: Enter testing facility’s additional address information, if applicable.
+            </td>
+            <td>
+                This value is optional and can be left blank if no information is provided.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                testing_lab_city
+            </td>
+            <td>
+                OBX-24.3
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                Enter testing facility’s city.
+            </td>
+            <td>
+                File will fail if field left blank.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                testing_lab_state
+            </td>
+            <td>
+                OBX-24.4
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                Enter testing facility’s state using the two-character abbreviation.
+            </td>
+            <td>
+                File will fail if field left blank.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                testing_lab_zip_code
+            </td>
+            <td>
+                OBX-24.5
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                Enter testing facility’s zip code. 
+
+                **Accepted Format:**
+                * 12345
+                * 12345-6789
+            </td>
+            <td>
+                File will fail if value is not entered using accepted format or field is left blank.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                testing_lab_phone_number
+            </td>
+            <td>
+                N/A
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                Enter testing lab's phone number, if known. 
+
+                **Accepted Format:**
+                000-000-0000
+            </td>
+            <td>
+                File will fail if value is not entered using accepted format.
+            </td>
+        </tr>
+    </tbody>
+</table>
