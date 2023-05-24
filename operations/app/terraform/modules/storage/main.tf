@@ -33,7 +33,7 @@ resource "azurerm_storage_account" "storage_account" {
 
   blob_properties {
     delete_retention_policy {
-      enabled = true
+      enabled = var.environment == "prod" ? true : false
       days    = 7
     }
   }
@@ -205,7 +205,7 @@ resource "azurerm_storage_account" "storage_public" {
 
   blob_properties {
     delete_retention_policy {
-      enabled = true
+      enabled = var.environment == "prod" ? true : false
       days    = 7
     }
   }
@@ -265,7 +265,7 @@ resource "azurerm_storage_account" "storage_partner" {
 
   blob_properties {
     delete_retention_policy {
-      enabled = true
+      enabled = var.environment == "prod" ? true : false
       days    = 7
     }
   }

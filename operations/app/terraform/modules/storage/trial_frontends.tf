@@ -26,7 +26,7 @@ resource "azurerm_storage_account" "storage_trials" {
 
   blob_properties {
     delete_retention_policy {
-      enabled = true
+      enabled = var.environment == "prod" ? true : false
       days    = 7
     }
   }
