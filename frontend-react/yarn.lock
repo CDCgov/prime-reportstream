@@ -2298,10 +2298,10 @@
     "@babel/runtime" "^7.11.2"
     compare-versions "^4.1.2"
 
-"@okta/okta-signin-widget@^7.4.0":
-  version "7.4.0"
-  resolved "https://registry.npmjs.org/@okta/okta-signin-widget/-/okta-signin-widget-7.4.0.tgz"
-  integrity sha512-bFzuWvlH3PpoebtuewKejhzQ/Ot5I6wqwG86BMNaFapOSAkdBh170wdn6Js+H2jfWBOTRhSzYGpa+DvWLryRSA==
+"@okta/okta-signin-widget@^7.6.1":
+  version "7.6.1"
+  resolved "https://registry.yarnpkg.com/@okta/okta-signin-widget/-/okta-signin-widget-7.6.1.tgz#89a08f58ad21baeefb2f7160d3b8770c912bf8ab"
+  integrity sha512-P9hj1FfbNvAvyjej+c7gXlXJ6IunHbLKF3bt6b80U5kxmDHq5VuGcllPIsm7P/dc8mYyn2vrylqiYJAWLEW27w==
   dependencies:
     "@okta/okta-auth-js" "~7.0.0"
     "@sindresorhus/to-milliseconds" "^1.0.0"
