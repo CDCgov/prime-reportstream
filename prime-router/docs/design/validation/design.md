@@ -266,10 +266,10 @@ up. Once you register, go to IG Documents, Create new IG document. Select the HL
 it will create a base for you. Then you have to manually adjust each field to meet the spec. There is only one profile 
 currently that is shared. Otherwise, you have to know someone. Marcia Schulman has offered to give us whatever she has 
 so that she can be contacted once we know what profiles we need, but she only had a few and it is unlikely they will 
-meet our needs. I discussed using their API with them, but they said that we cannot send PII through the API, so this 
-takes the API out of the picture as well. 
+meet our needs. We may also be able to share profiles with AIMS and DEX. NIST hosts a validation API based on the NIST 
+library, but it cannot be used for production data due to concerns over PII.
 
-From reading the code in the library, it looks like they have one ORU_R01 profile setup as an example, we would need to 
+From reading the code in the DEX project, it looks like they have some profiles created, but we would likely need to 
 set up any further profiles that we want. These are done in xml, then we deserialize them, pass then into the 
 HL7Validator class, along with the ValueSetLibrary, and ConformanceContext and call the validate method on the message.
 
