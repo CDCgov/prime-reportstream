@@ -32,6 +32,7 @@ import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
+import { GettingStartedPage } from "./pages/resources/api-programmers-guide/GettingStarted";
 import { DocumentationPage } from "./pages/resources/api-programmers-guide/documentation/Documentation";
 import { DataModelPage } from "./pages/resources/api-programmers-guide/documentation/DataModel";
 import { ResponsesFromReportStreamPage } from "./pages/resources/api-programmers-guide/documentation/ResponsesFromReportStream";
@@ -131,6 +132,13 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "manage-public-key",
                         element: <ManagePublicKeyWithAuth />,
+                    },
+                    {
+                        path: "getting-started",
+                        element: <GettingStartedPage />,
+                        handle: {
+                            isContentPage: true,
+                        },
                     },
                     {
                         path: "",
