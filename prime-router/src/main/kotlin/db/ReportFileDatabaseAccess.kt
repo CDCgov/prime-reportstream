@@ -1,16 +1,17 @@
 package gov.cdc.prime.router.db
 
+import gov.cdc.prime.router.azure.ApiFilter
+import gov.cdc.prime.router.azure.ApiFilterNames
+import gov.cdc.prime.router.azure.ApiFilters
 import gov.cdc.prime.router.azure.ApiSearch
 import gov.cdc.prime.router.azure.ApiSearchParser
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.RawApiSearch
-import gov.cdc.prime.router.azure.SearchTerm
-import gov.cdc.prime.router.azure.SearchTermNames
-import gov.cdc.prime.router.azure.SearchTerms
 import gov.cdc.prime.router.azure.SortDirection
 import gov.cdc.prime.router.azure.db.tables.ReportFile
 import gov.cdc.prime.router.azure.db.tables.records.ReportFileRecord
 import gov.cdc.prime.router.common.BaseEngine
+import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.Condition
 import org.jooq.Field
 import org.jooq.SortField
@@ -19,53 +20,62 @@ import org.jooq.impl.DSL
 import java.time.OffsetDateTime
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile as ReportFilePojo
 
-sealed class ReportSearchTerm<T> : SearchTerm<ReportFileRecord, T> {
+sealed class ReportFileApiFilter<T> : ApiFilter<ReportFileRecord, T> {
     class StartDate(override val value: OffsetDateTime) :
-        ReportSearchTerm<OffsetDateTime>() {
-        override val tableField: TableField<ReportFileRecord, OffsetDateTime> =
-            gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.CREATED_AT
+        ReportFileApiFilter<OffsetDateTime>() {
+        override val tableField: TableField<ReportFileRecord, OffsetDateTime> = ReportFile.REPORT_FILE.CREATED_AT
     }
 
-    class EndDate(override val value: OffsetDateTime) : ReportSearchTerm<OffsetDateTime>() {
-        override val tableField: TableField<ReportFileRecord, OffsetDateTime> =
-            gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.CREATED_AT
+    class EndDate(override val value: OffsetDateTime) : ReportFileApiFilter<OffsetDateTime>() {
+        override val tableField: TableField<ReportFileRecord, OffsetDateTime> = ReportFile.REPORT_FILE.CREATED_AT
     }
 }
 
-enum class ReportFileSearchTermNames : SearchTermNames {
+enum class ReportFileApiFilterNames : ApiFilterNames {
     SINCE,
     UNTIL
 }
 
-object ReportFileSearchTerms : SearchTerms<ReportFileRecord, ReportSearchTerm<*>, ReportFileSearchTermNames> {
+/**
+ *
+ */
+object ReportFileApiFilters : ApiFilters<ReportFileRecord, ReportFileApiFilter<*>, ReportFileApiFilterNames> {
     private val terms = mapOf(
-        Pair(ReportFileSearchTermNames.SINCE, ReportSearchTerm.StartDate::class.java),
-        Pair(ReportFileSearchTermNames.UNTIL, ReportSearchTerm.EndDate::class.java)
+        Pair(ReportFileApiFilterNames.SINCE, ReportFileApiFilter.StartDate::class.java),
+        Pair(ReportFileApiFilterNames.UNTIL, ReportFileApiFilter.EndDate::class.java)
     )
 
-    override fun getTerm(termName: ReportFileSearchTermNames): Class<out ReportSearchTerm<*>>? {
+    override fun getTerm(termName: ReportFileApiFilterNames): Class<out ReportFileApiFilter<*>>? {
         return terms[termName]
     }
 }
 
-class ReportApiSearch private constructor(
-    override val filters: List<ReportSearchTerm<*>>,
+/**
+ * Encapsulates a search against the [ReportFile] table including filters to be applied, the sorting and pagination
+ *
+ * @param filters the list of [ReportFileApiFilter] that should be applied
+ * @param sortParameter the column to sort against
+ * @param sortDirection the direction of the ordering clause
+ * @param page the page of results to fetch
+ * @param limit the number of results to fetch
+ */
+class ReportFileApiSearch private constructor(
+    override val filters: List<ReportFileApiFilter<*>>,
     override val sortParameter: Field<*>?,
     override val sortDirection: SortDirection = SortDirection.DESC,
     page: Int = 1,
     limit: Int = 25
-) : ApiSearch<gov.cdc.prime.router.azure.db.tables.pojos.ReportFile, ReportFileRecord, ReportSearchTerm<*>>(
-    gov.cdc.prime.router.azure.db.tables.pojos.ReportFile::class.java,
+) : ApiSearch<ReportFilePojo, ReportFileRecord, ReportFileApiFilter<*>>(
+    ReportFilePojo::class.java,
     page,
     limit
 ) {
 
-    private fun getCondition(filter: ReportSearchTerm<*>): Condition? {
-        // This compiles, but raises a problem for intellij
-        // https://youtrack.jetbrains.com/issue/KTIJ-24876/IDE-Maven-False-positive-NOELSEINWHEN-with-sealed-class-when-subject-in-test-source
+    /** Converts a [ReportFileApiFilter] into a JOOQ condition */
+    private fun getCondition(filter: ReportFileApiFilter<*>): Condition? {
         return when (filter) {
-            is ReportSearchTerm.StartDate -> filter.tableField.ge(filter.value)
-            is ReportSearchTerm.EndDate -> filter.tableField.le(filter.value)
+            is ReportFileApiFilter.StartDate -> filter.tableField.ge(filter.value)
+            is ReportFileApiFilter.EndDate -> filter.tableField.le(filter.value)
         }
     }
 
@@ -78,6 +88,7 @@ class ReportApiSearch private constructor(
         }
     }
 
+    /** Defaults to [ReportFile.CREATED_AT] if no sort is set */
     override fun getSortClause(): SortField<*> {
         val column = sortParameter ?: ReportFile.REPORT_FILE.CREATED_AT
         return when (sortDirection) {
@@ -87,23 +98,26 @@ class ReportApiSearch private constructor(
     }
 
     companion object :
-        ApiSearchParser<ReportFilePojo, ReportApiSearch, ReportFileRecord, ReportSearchTerm<*>>() {
+        ApiSearchParser<ReportFilePojo, ReportFileApiSearch, ReportFileRecord, ReportFileApiFilter<*>>(), Logging {
 
-        override fun parseRawApiSearch(rawApiSearch: RawApiSearch): ReportApiSearch {
+        override fun parseRawApiSearch(rawApiSearch: RawApiSearch): ReportFileApiSearch {
             val sortProperty =
                 gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.field(rawApiSearch.sort.property)
             val filters = rawApiSearch.filters.mapNotNull { filter ->
-                when (ReportFileSearchTerms.getTerm(ReportFileSearchTermNames.valueOf(filter.filterName))) {
-                    ReportSearchTerm.StartDate::class.java
-                    -> ReportSearchTerm.StartDate(OffsetDateTime.parse(filter.value))
+                when (ReportFileApiFilters.getTerm(ReportFileApiFilterNames.valueOf(filter.filterName))) {
+                    ReportFileApiFilter.StartDate::class.java
+                    -> ReportFileApiFilter.StartDate(OffsetDateTime.parse(filter.value))
 
-                    ReportSearchTerm.EndDate::class.java
-                    -> ReportSearchTerm.StartDate(OffsetDateTime.parse(filter.value))
+                    ReportFileApiFilter.EndDate::class.java
+                    -> ReportFileApiFilter.StartDate(OffsetDateTime.parse(filter.value))
 
-                    else -> null // TODO log a warning
+                    else -> {
+                        logger.warn("${filter.filterName} did not map to a valid filter for ReportFileApiSearch")
+                        null
+                    }
                 }
             }
-            return ReportApiSearch(
+            return ReportFileApiSearch(
                 filters = filters,
                 sortParameter = sortProperty,
                 sortDirection = rawApiSearch.sort.direction,
@@ -116,7 +130,7 @@ class ReportApiSearch private constructor(
 
 class ReportFileDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessSingleton) {
 
-    fun getReports(search: ReportApiSearch): List<gov.cdc.prime.router.azure.db.tables.pojos.ReportFile> {
+    fun getReports(search: ReportFileApiSearch): List<gov.cdc.prime.router.azure.db.tables.pojos.ReportFile> {
         return db.transactReturning { txn ->
             search.fetchResults(
                 DSL.using(txn),

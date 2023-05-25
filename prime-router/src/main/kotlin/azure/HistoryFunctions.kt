@@ -15,7 +15,7 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.db.ReportApiSearch
+import gov.cdc.prime.router.db.ReportFileApiSearch
 import gov.cdc.prime.router.db.ReportFileDatabaseAccess
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
@@ -177,7 +177,7 @@ class GetReports :
         ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
         val reportDbAccess = ReportFileDatabaseAccess()
-        val search = ReportApiSearch.parse(request)
+        val search = ReportFileApiSearch.parse(request)
         val reports = reportDbAccess.getReports(search)
         return HttpUtilities.okJSONResponse(request, reports)
     }
