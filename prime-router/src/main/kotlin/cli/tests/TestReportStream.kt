@@ -591,7 +591,7 @@ abstract class CoolTest {
             val topic = history.topic
             val errorCount = history.errorCount
 
-            if (topic != null && topic.equals("covid-19", true)) {
+            if (topic != null && topic.equals(Topic.COVID_19)) {
                 good("'topic' is in response and correctly set to 'covid-19'")
             } else {
                 passed = bad("***$name Test FAILED***: 'topic' is missing from response json")
@@ -629,7 +629,7 @@ abstract class CoolTest {
             val topic = history.topic
             val errorCount = history.errorCount
 
-            if (topic != null && topic.equals("full-elr", true)) {
+            if (topic != null && topic.equals(Topic.FULL_ELR)) {
                 good("'topic' is in response and correctly set to 'full-elr'")
             } else {
                 passed = bad("***$name Test FAILED***: 'topic' is missing from response json")

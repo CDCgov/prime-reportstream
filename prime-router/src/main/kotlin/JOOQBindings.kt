@@ -8,6 +8,7 @@ import org.jooq.Converter
 import org.jooq.JSONB
 import org.jooq.impl.AbstractBinding
 import org.jooq.impl.DSL
+import java.lang.Exception
 import java.util.Objects
 
 /**
@@ -16,7 +17,7 @@ import java.util.Objects
  *
  * @param c The class of the POJO for a converter
  */
-class JsonConverter<T> (val c: Class<T>) : Converter<JSONB, T> {
+class JsonConverter<T>(val c: Class<T>) : Converter<JSONB, T> {
     private val mapper = JacksonMapperUtilities.defaultMapper
 
     override fun from(dbObject: JSONB): T {
@@ -44,7 +45,7 @@ class JsonConverter<T> (val c: Class<T>) : Converter<JSONB, T> {
  *
  * @param klass The class of the POJO this should be used in the inheritance for the POJO specific binding
  */
-abstract class JsonBinding<T> (val klass: Class<T>) : AbstractBinding<JSONB, T>() {
+abstract class JsonBinding<T>(val klass: Class<T>) : AbstractBinding<JSONB, T>() {
     override fun converter(): Converter<JSONB, T> {
         return JsonConverter(klass)
     }
@@ -75,3 +76,47 @@ abstract class JsonBinding<T> (val klass: Class<T>) : AbstractBinding<JSONB, T>(
  * A binding for ActionLogDetails to be converted to and from a JSONB column by JOOQ
  */
 class ActionLogDetailBinding : JsonBinding<ActionLogDetail>(ActionLogDetail::class.java)
+
+class TopicConverter : Converter<String, Topic> {
+    override fun from(dbObject: String): Topic {
+        return when (dbObject) {
+            "full-elr" -> Topic.FULL_ELR
+            "etor-ti" -> Topic.ETOR_TI
+            "covid-19" -> Topic.COVID_19
+            "monkeypox" -> Topic.MONKEYPOX
+            "CsvFileTests-topic" -> Topic.CSV_TESTS
+            "test" -> Topic.TEST
+            else -> throw Exception()
+        }
+    }
+
+    override fun to(topic: Topic): String {
+        return topic.jsonVal
+    }
+
+    override fun fromType(): Class<String> {
+        return String::class.java
+    }
+
+    override fun toType(): Class<Topic> {
+        return Topic::class.java
+    }
+}
+
+class TopicBinding : AbstractBinding<String, Topic>() {
+    override fun converter(): Converter<String, Topic> {
+        return TopicConverter()
+    }
+
+    override fun get(ctx: BindingGetResultSetContext<Topic>) {
+        ctx.convert(converter()).value(ctx.resultSet().getString(ctx.index()))
+    }
+
+    override fun set(ctx: BindingSetStatementContext<Topic>) {
+        ctx.statement()
+            .setString(
+                ctx.index(),
+                Objects.toString(ctx.convert(converter()).value(), null)
+            )
+    }
+}

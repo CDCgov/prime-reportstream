@@ -10,6 +10,7 @@ import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import com.google.common.net.HttpHeaders
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -34,7 +35,7 @@ class DeliveryFacadeTests {
             OffsetDateTime.parse("2022-04-12T17:06:10.534Z"),
             null,
             "c3c8e304-8eff-4882-9000-3645054a30b7",
-            "covid-19",
+            Topic.COVID_19,
             1,
             "ca-dph",
             null,
@@ -48,7 +49,7 @@ class DeliveryFacadeTests {
             OffsetDateTime.parse("2022-04-19T18:04:26.534Z"),
             null,
             "b9f63105-bbed-4b41-b1ad-002a90f07e62",
-            "covid-19",
+            Topic.COVID_19,
             14,
             "ca-dph",
             "elr-secondary",
@@ -184,7 +185,7 @@ class DeliveryFacadeTests {
             OffsetDateTime.parse("2022-04-12T17:06:10.534Z"),
             null,
             "c3c8e304-8eff-4882-9000-3645054a30b7",
-            "covid-19",
+            Topic.COVID_19,
             1,
             "ca-dph",
             "elr-secondary",

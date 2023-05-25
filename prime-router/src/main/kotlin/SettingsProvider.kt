@@ -52,14 +52,4 @@ enum class Topic(@JsonValue val jsonVal: String, val isUniversalPipeline: Boolea
     MONKEYPOX("monkeypox", false),
     CSV_TESTS("CsvFileTests-topic", false),
     TEST("test", false),
-    ;
-
-    companion object {
-        private val jsonMap = Topic.values().associateBy(Topic::jsonVal)
-
-        /**
-         * This function returns a Topic from a [jsonVal] without needing a json deserializer
-         */
-        fun fromJsonValue(jsonVal: String?) = jsonMap[jsonVal]
-    }
 }
