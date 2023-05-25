@@ -15,10 +15,11 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.db.ReportApiSearch
+import gov.cdc.prime.router.db.ReportFileDatabaseAccess
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 import java.util.UUID
-import kotlin.collections.ArrayList
 
 class Facility private constructor(
     val organization: String?,
@@ -164,6 +165,21 @@ class GetReports :
         val organization = request.headers["organization"] ?: ""
         context.logger.info("organization = $organization")
         return if (organization.isBlank()) getReports(request, context) else getReports(request, context, organization)
+    }
+
+    @FunctionName("searchReports")
+    fun searchReports(
+        @HttpTrigger(
+            name = "searchReports",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "v1/reports/search"
+        ) request: HttpRequestMessage<String?>
+    ): HttpResponseMessage {
+        val reportDbAccess = ReportFileDatabaseAccess()
+        val search = ReportApiSearch.parse(request)
+        val reports = reportDbAccess.getReports(search)
+        return HttpUtilities.okJSONResponse(request, reports)
     }
 }
 
