@@ -1,55 +1,84 @@
 package gov.cdc.prime.router.azure
 
-import gov.cdc.prime.router.azure.db.tables.records.ReportFileRecord
-import org.apache.poi.ss.formula.functions.T
+import com.microsoft.azure.functions.HttpRequestMessage
+import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.jooq.Condition
+import org.jooq.DSLContext
+import org.jooq.Field
 import org.jooq.Record
-import org.jooq.SelectForUpdateStep
-import org.jooq.SelectSelectStep
+import org.jooq.SelectJoinStep
 import org.jooq.SortField
 import org.jooq.TableField
-import java.time.OffsetDateTime
 
 enum class SortDirection {
     ASC,
     DESC
 }
 
-interface SearchTerms<R : Record>
-interface SearchTerm<R : Record, T> : SearchTerms<R> {
+interface SearchTermNames
+interface SearchTerms<RecordType : Record, SearchTermType : SearchTerm<RecordType, *>, Names : SearchTermNames> {
+    fun getTerm(termName: Names): Class<out SearchTermType>?
+}
+
+interface SearchTerm<RecordType : Record, T> {
     val value: T
-    val property: TableField<R, T>
-}
-interface ApiSearchParser<F : Record, S : TableField<F, Any>> {
-    fun parseFromQuery(query: String): ApiSearch<F, S>
-    fun parseFromRequest(body: String): ApiSearch<F, S>
+    val tableField: TableField<RecordType, T>
 }
 
-abstract class ApiSearch<F : Record, S : TableField<F, Any>> {
-    abstract val filters: List<SearchTerms<F>>
-    abstract val sortParameter: S
-    val sortDirection: SortDirection = SortDirection.DESC
-    val page: Int = 1
-    val limit: Int = 25
+abstract class ApiSearchParser<
+    PojoType,
+    ApiSearchType : ApiSearch<PojoType, RecordType, Names>,
+    RecordType : Record,
+    Names : SearchTerm<RecordType, *>
+    > {
+    private fun parseFromQueryString(query: String): RawApiSearch {
+        throw NotImplementedError(query)
+    }
 
-    abstract fun getWhereClause(): Condition
-    abstract fun getSortClause(): SortField<F>
+    private fun parseRawFromRequestBody(body: String): RawApiSearch {
+        return JacksonMapperUtilities.defaultMapper.readValue(body, RawApiSearch::class.java)
+    }
 
-    fun setPage(select: SelectSelectStep<F>): SelectForUpdateStep<F> {
-        return select.limit(25).offset(limit * page)
+    abstract fun parseRawApiSearch(rawApiSearch: RawApiSearch): ApiSearchType
+
+    fun parse(query: String): ApiSearchType {
+        val rawApiSearch = parseFromQueryString(query)
+        return parseRawApiSearch(rawApiSearch)
+    }
+
+    fun parse(request: HttpRequestMessage<String?>): ApiSearchType {
+        val rawApiSearch = parseRawFromRequestBody(request.body!!) // TODO throw on missing body
+        return parseRawApiSearch(rawApiSearch)
     }
 }
 
-sealed class SubmitterSearchTerms() : SearchTerms<ReportFileRecord> {
-    class StartDate(override val value: OffsetDateTime) :
-        SearchTerm<ReportFileRecord, OffsetDateTime>, SubmitterSearchTerms() {
-        override val property: TableField<ReportFileRecord, OffsetDateTime> =
-            gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.CREATED_AT
+data class RawFilter(val value: String, val filterName: String)
+data class RawPagination(val page: Int, val limit: Int)
+data class RawApiSort(val direction: SortDirection, val property: String)
+data class RawApiSearch(val sort: RawApiSort, val pagination: RawPagination, val filters: List<RawFilter>)
+
+abstract class ApiSearch<PojoType, RecordType : Record, SearchTermType : SearchTerm<RecordType, *>>(
+    private val recordClass: Class<PojoType>,
+    private val page: Int,
+    val limit: Int
+) {
+    abstract val filters: List<SearchTermType>
+    abstract val sortParameter: Field<*>?
+    open val sortDirection: SortDirection = SortDirection.DESC
+    abstract fun getWhereClause(): Condition?
+    abstract fun getSortClause(): SortField<*>
+
+    fun fetchResults(dslContext: DSLContext, select: SelectJoinStep<Record>): List<PojoType> {
+        return dslContext.fetch(
+            select
+                .where(getWhereClause())
+                .orderBy(getSortClause())
+                .limit(limit)
+                .offset(getOffset())
+        ).into(recordClass)
     }
 
-    class EndDate(override val value: OffsetDateTime) :
-        SearchTerm<ReportFileRecord, OffsetDateTime>, SubmitterSearchTerms() {
-        override val property: TableField<ReportFileRecord, OffsetDateTime> =
-            gov.cdc.prime.router.azure.db.tables.ReportFile.REPORT_FILE.CREATED_AT
+    private fun getOffset(): Int {
+        return limit * page
     }
 }
