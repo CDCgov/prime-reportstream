@@ -204,6 +204,12 @@ class DetailedSubmissionHistory(
         return destinations.filter { it.itemCount != 0 }.size
     }
 
+    /**
+     * Container for the sum of items in total that have passed any filters
+     * Used for status calculation in cases where no translation has happened
+     */
+    private var itemCountAfterFiltering = 0
+
     init {
         reports?.forEach { report ->
             // For reports sent to a destination
@@ -331,7 +337,7 @@ class DetailedSubmissionHistory(
      * Note: Route/Translate is exclusive to the Universal pipeline
      * See enrichWithProcessAction for the TopicReceiver pipeline counterpart
      *
-     * @param descendants[] translate actions that will be used to enrich
+     * @param descendant translate action that will be used to enrich
      */
     private fun enrichWithTranslateAction(descendant: DetailedSubmissionHistory) {
         require(topic == Topic.FULL_ELR.json_val && descendant.actionName == TaskAction.translate) {
@@ -363,7 +369,7 @@ class DetailedSubmissionHistory(
      * Note: Route/Translate is exclusive to the Universal pipeline
      * See enrichWithProcessAction for the TopicReceiver pipeline counterpart
      *
-     * @param descendants[] route actions that will be used to enrich
+     * @param descendant route action that will be used to enrich
      */
     private fun enrichWithRouteAction(descendant: DetailedSubmissionHistory) {
         require(topic == Topic.FULL_ELR.json_val && descendant.actionName == TaskAction.route) {
@@ -407,6 +413,10 @@ class DetailedSubmissionHistory(
                     )
                 }
             }
+        }
+
+        descendant.reports?.forEach {
+            itemCountAfterFiltering += it.itemCount
         }
     }
 
@@ -529,10 +539,10 @@ class DetailedSubmissionHistory(
              * Note: This method only works for the universal pipeline as the covid pipeline does the filtering and
              * routing in one step.
              */
-            if (actionsPerformed == setOf(TaskAction.receive)) {
-                return Status.RECEIVED
+            if (actionsPerformed.contains(TaskAction.route) && itemCountAfterFiltering == 0) {
+                return Status.NOT_DELIVERING
             }
-            return Status.NOT_DELIVERING
+            return Status.RECEIVED
         } else if (realDestinations.isEmpty()) {
             return Status.NOT_DELIVERING
         }
