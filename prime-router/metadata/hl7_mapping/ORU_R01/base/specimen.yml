@@ -91,7 +91,7 @@ elements:
   # Alternative to getting specimen collection time from DiagnosticReport instead
   - name: specimen-collection-time-diagnostic
     condition: '%resource.collection.collected.exists().not()'
-    value: [ '%diagnostic.issued' ]
+    value: [ '%diagnostic.effective' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
 
   - name: specimen-observation-date-time-end
@@ -106,7 +106,7 @@ elements:
 
   - name: specimen-received-time-diagnostic
     condition: '%resource.receivedTime.exists().not()'
-    value: [ '%diagnostic.effective' ]
+    value: [ '%diagnostic.issued' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]
 
   - name: specimen-reject-reason

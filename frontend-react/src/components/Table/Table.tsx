@@ -11,6 +11,8 @@ import { DatasetAction, TableInfo } from "./TableInfo";
 export interface ActionableColumn {
     action: Function;
     param?: string;
+    actionButtonHandler?: Function;
+    actionButtonParam?: string;
 }
 
 export interface LinkableColumn {
