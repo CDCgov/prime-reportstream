@@ -15,60 +15,143 @@ enum class SortDirection {
     DESC
 }
 
-interface SearchTermNames
-interface SearchTerms<RecordType : Record, SearchTermType : SearchTerm<RecordType, *>, Names : SearchTermNames> {
-    fun getTerm(termName: Names): Class<out SearchTermType>?
+/**
+ * Interface that can be extended to represent a set of search term names that can be applied
+ * to a specific search type
+ */
+interface ApiFilterNames
+
+/**
+ * Interface that represents an interface for retrieving a specific term
+ * @see ApiFilter
+ * @see gov.cdc.prime.router.db.ReportFileApiSearch.Companion
+ */
+interface ApiFilters<RecordType : Record, ApiFilterType : ApiFilter<RecordType, *>, Names : ApiFilterNames> {
+    fun getTerm(termName: Names): Class<out ApiFilterType>?
 }
 
-interface SearchTerm<RecordType : Record, T> {
+interface ApiFilter<RecordType : Record, T> {
+
+    /** The value that will be applied to the operator */
     val value: T
+
+    /** The field the value will be applied against */
     val tableField: TableField<RecordType, T>
 }
 
+/**
+ * Abstract class that provides helpers for parsing either a query string or request body into a specific
+ * kind of ApiSearch
+ *
+ * @see gov.cdc.prime.router.db.ReportFileApiSearch.Companion
+ */
 abstract class ApiSearchParser<
     PojoType,
     ApiSearchType : ApiSearch<PojoType, RecordType, Names>,
     RecordType : Record,
-    Names : SearchTerm<RecordType, *>
+    Names : ApiFilter<RecordType, *>
     > {
+    /**
+     * Converts a query string into a RawApiSearch. Currently, not implemented
+     * TODO add ticket
+     *
+     * @param query the query string
+     */
     private fun parseFromQueryString(query: String): RawApiSearch {
         throw NotImplementedError(query)
     }
 
+    /**
+     * Converts a request body into a RawApiSearch
+     *
+     * @param body the request body
+     */
     private fun parseRawFromRequestBody(body: String): RawApiSearch {
         return JacksonMapperUtilities.defaultMapper.readValue(body, RawApiSearch::class.java)
     }
 
+    /**
+     * Function that the subclass must implement to convert a RawApiSearch into the specific
+     * type
+     */
     abstract fun parseRawApiSearch(rawApiSearch: RawApiSearch): ApiSearchType
 
+    /**
+     * Converts a query string into the parameterized ApiSearchType
+     */
     fun parse(query: String): ApiSearchType {
         val rawApiSearch = parseFromQueryString(query)
         return parseRawApiSearch(rawApiSearch)
     }
 
+    /**
+     * Converts a request body into the parameterized ApiSearchType
+     */
     fun parse(request: HttpRequestMessage<String?>): ApiSearchType {
-        val rawApiSearch = parseRawFromRequestBody(request.body!!) // TODO throw on missing body
+        val body = request.body ?: throw IllegalArgumentException("Request body must not be null to be parsed")
+        val rawApiSearch = parseRawFromRequestBody(body)
         return parseRawApiSearch(rawApiSearch)
     }
 }
 
+/**
+ * A raw filter that a parser will convert
+ */
 data class RawFilter(val value: String, val filterName: String)
+/** Pagination data */
 data class RawPagination(val page: Int, val limit: Int)
+/** A raw sort that a parser will convert */
 data class RawApiSort(val direction: SortDirection, val property: String)
+/** A raw API search that is parsed via Jackson and then parsed by a specific API Search type */
 data class RawApiSearch(val sort: RawApiSort, val pagination: RawPagination, val filters: List<RawFilter>)
 
-abstract class ApiSearch<PojoType, RecordType : Record, SearchTermType : SearchTerm<RecordType, *>>(
+/**
+ * Abstract class that can be subclassed to create a specific kind of API search.  It handles combining the
+ * where and sort clauses and then fetching the data into the specified class.  Implementors are expected to provide
+ * implementations for getWhereClause and getSortClause
+ *
+ * @see gov.cdc.prime.router.db.ReportFileApiSearch
+ *
+ * @param PojoType - the class that the search should be fetched into
+ * @param RecordType - the record class that the search will be run against
+ * @param ApiFilterType - the type for the API filters that will be used
+ * @param recordClass -  the class object that the results will be fetched into
+ * @param page - which page to read out of the search results
+ * @param limit - the number of results to to return
+ */
+abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilter<RecordType, *>>(
     private val recordClass: Class<PojoType>,
     private val page: Int,
     val limit: Int
 ) {
-    abstract val filters: List<SearchTermType>
+    /** The list of filters that should be applied */
+    abstract val filters: List<ApiFilterType>
+    /** The sort parameter that should be applied */
     abstract val sortParameter: Field<*>?
+    /** The sort direction that should be applied */
     open val sortDirection: SortDirection = SortDirection.DESC
+
+    /**
+     * Converts the [filters] into a JOOQ [Condition]
+     */
     abstract fun getWhereClause(): Condition?
+
+    /**
+     * Converts the [sortParameter] and [sortDirection] into a JOOQ [SortField]
+     */
     abstract fun getSortClause(): SortField<*>
 
-    fun fetchResults(dslContext: DSLContext, select: SelectJoinStep<Record>): List<PojoType> {
+    /**
+     * Runs the specified select using the passed context applying the where, sort, pagination
+     * clauses and finally reading the results into the specified [PojoType].
+     *
+     *
+     * @param dslContext  the JOOQ context that will be used to execute the results
+     * @param select the JOOQ select that will be used
+     * @return the list of the records parsed into the [PojoType]
+     *
+     */
+    open fun fetchResults(dslContext: DSLContext, select: SelectJoinStep<Record>): List<PojoType> {
         return dslContext.fetch(
             select
                 .where(getWhereClause())
@@ -78,6 +161,7 @@ abstract class ApiSearch<PojoType, RecordType : Record, SearchTermType : SearchT
         ).into(recordClass)
     }
 
+    /** Converts the limit and page value into an offset */
     private fun getOffset(): Int {
         return limit * page
     }
