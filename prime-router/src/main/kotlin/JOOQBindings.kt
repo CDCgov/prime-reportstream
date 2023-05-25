@@ -8,7 +8,6 @@ import org.jooq.Converter
 import org.jooq.JSONB
 import org.jooq.impl.AbstractBinding
 import org.jooq.impl.DSL
-import java.lang.Exception
 import java.util.Objects
 
 /**
@@ -77,17 +76,17 @@ abstract class JsonBinding<T>(val klass: Class<T>) : AbstractBinding<JSONB, T>()
  */
 class ActionLogDetailBinding : JsonBinding<ActionLogDetail>(ActionLogDetail::class.java)
 
+/**
+ * Provides a converter for Topics into Strings and back using the jackson library
+ * and it's kotlin extensions.
+ */
 class TopicConverter : Converter<String, Topic> {
+    private val mapper = JacksonMapperUtilities.defaultMapper
     override fun from(dbObject: String): Topic {
-        return when (dbObject) {
-            "full-elr" -> Topic.FULL_ELR
-            "etor-ti" -> Topic.ETOR_TI
-            "covid-19" -> Topic.COVID_19
-            "monkeypox" -> Topic.MONKEYPOX
-            "CsvFileTests-topic" -> Topic.CSV_TESTS
-            "test" -> Topic.TEST
-            else -> throw Exception()
-        }
+        class TopicWrapper(val topic: Topic)
+
+        val topicWrapper = mapper.readValue("{\"topic\":\"$dbObject\"}", TopicWrapper::class.java)
+        return topicWrapper.topic
     }
 
     override fun to(topic: Topic): String {
@@ -103,6 +102,9 @@ class TopicConverter : Converter<String, Topic> {
     }
 }
 
+/**
+ * A binding for Topics to be converted to and from string columns by JOOQ
+ */
 class TopicBinding : AbstractBinding<String, Topic>() {
     override fun converter(): Converter<String, Topic> {
         return TopicConverter()
