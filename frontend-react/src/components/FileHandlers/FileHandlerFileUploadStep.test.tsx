@@ -52,7 +52,7 @@ describe("FileHandlerFileUploadStep", () => {
         });
 
         test("renders the spinner", () => {
-            expect(screen.getBy("rs-spinner")).toBeVisible();
+            expect(screen.getByTestId("rs-spinner")).toBeVisible();
         });
     });
 
