@@ -206,7 +206,7 @@ export const Table = ({
             })}
         >
             {rowData.length ? (
-                <table className={classes} data-testid="table">
+                <table className={classes}>
                     {sortable ? (
                         <SortableTable
                             sticky={sticky}
