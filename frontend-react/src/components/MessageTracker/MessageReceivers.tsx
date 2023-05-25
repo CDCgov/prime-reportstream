@@ -1,15 +1,10 @@
 import React, { useMemo, useRef, useState } from "react";
-import {
-    Table,
-    Icon,
-    Modal,
-    ModalRef,
-    ModalHeading,
-} from "@trussworks/react-uswds";
+import { Icon, Modal, ModalRef, ModalHeading } from "@trussworks/react-uswds";
 import classnames from "classnames";
 
 import { ReceiverData } from "../../config/endpoints/messageTracker";
 import { parseFileLocation } from "../../utils/misc";
+import { Table } from "../../shared/Table/Table";
 
 const NO_DATA_STRING = "N/A";
 
@@ -386,10 +381,79 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
         activeColumnSortOrder,
         setActiveColumnSortOrder,
     };
+
+    const formattedTableData = receiverDetails.map((row) => {
+        return [
+            {
+                columnKey: "name",
+                columnHeader: "Name",
+                content: row.receivingOrg,
+            },
+            {
+                columnKey: "service",
+                columnHeader: "Service",
+                content: row.receivingOrgSvc,
+            },
+            {
+                columnKey: "date",
+                columnHeader: "Date",
+                content: dateTimeFormatter.format(new Date(row.createdAt)),
+            },
+            {
+                columnKey: "reportId",
+                columnHeader: "Report Id",
+                content: row.reportId,
+            },
+            {
+                columnKey: "fileLocationMain",
+                columnHeader: "Main",
+                content: (() => {
+                    const status = parseFileLocation(
+                        row?.fileUrl || NO_DATA_STRING
+                    ).folderLocation;
+                    return (
+                        <p
+                            className={classnames(
+                                "font-mono-sm padding-left-1 padding-right-1 margin-top-0",
+                                {
+                                    "bg-blue-5 border-1px bg-primary-lighter radius-md":
+                                        status === StatusEnum.BATCH,
+                                    "bg-blue-10 border-1px bg-primary-lighter radius-md":
+                                        status === StatusEnum.PROCESS,
+                                    "bg-blue-20 border-1px bg-primary-lighter radius-md":
+                                        status === StatusEnum.READY,
+                                }
+                            )}
+                        >
+                            {status.toLocaleUpperCase()}
+                        </p>
+                    );
+                })(),
+            },
+            {
+                columnKey: "fileLocationSub",
+                columnHeader: "Sub",
+                content: parseFileLocation(row?.fileUrl || NO_DATA_STRING)
+                    .sendingOrg,
+            },
+            {
+                columnKey: "fileLocationFileName",
+                columnHeader: "File Name",
+                content: parseFileLocation(row?.fileUrl || NO_DATA_STRING)
+                    .fileName,
+            },
+            {
+                columnKey: "transportResults",
+                columnHeader: "Transport Results",
+                content: row.transportResult,
+            },
+        ];
+    });
     return (
         <>
             <h2>Receivers:</h2>
-            <div className="message-receivers-table">
+            <Table scrollable sticky sortable rowData={formattedTableData} />
+            {/* <div className="message-receivers-table">
                 <Table
                     key="messagedetails"
                     aria-label="Message Details"
@@ -465,8 +529,8 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                             />
                         ))}
                     </tbody>
-                </Table>
-            </div>
+                </Table> */}
+            {/* </div> */}
             <Modal id="message-receivers-modal" ref={modalRef}>
                 <ModalHeading>{modalText.title}</ModalHeading>
                 <div className="usa-prose">

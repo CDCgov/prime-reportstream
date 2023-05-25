@@ -16,6 +16,7 @@ interface SortableTableHeaderProps {
     sortOrder: string;
     onSortOrderChange: (sortOrder: FilterOptions) => void;
     onActiveColumnChange: (column: string) => void;
+    sticky?: boolean;
 }
 
 interface RowData {
@@ -42,6 +43,7 @@ const SortableTableHeader = ({
     sortOrder,
     onSortOrderChange,
     onActiveColumnChange,
+    sticky,
 }: SortableTableHeaderProps) => {
     let SortIcon = Icon.SortArrow;
     const isActive = columnHeaderData.columnKey === activeColumn;
@@ -66,14 +68,18 @@ const SortableTableHeader = ({
         }
     };
     return (
-        <th className="column-header column-header--clickable">
+        <th
+            className={classnames("column-header column-header--clickable", {
+                "column-header--sticky": sticky,
+            })}
+        >
             <button
                 className={classnames("column-header-button", {
                     "column-header-button--active": isActive,
                 })}
                 onClick={handleHeaderClick}
             >
-                <div className="column-header--sortable">
+                <div className="column-header column-header--sortable">
                     <p className="column-header-text">
                         {columnHeaderData.columnHeader}
                     </p>
@@ -105,9 +111,11 @@ function sortTableData(
 }
 
 const SortableTable = ({
+    sticky,
     rowData,
     columnHeaders,
 }: {
+    sticky?: boolean;
     rowData: RowData[][];
     columnHeaders: RowData[];
 }) => {
@@ -127,6 +135,7 @@ const SortableTable = ({
                                 sortOrder={sortOrder}
                                 onActiveColumnChange={setActiveColumn}
                                 onSortOrderChange={setSortOrder}
+                                sticky={sticky}
                             />
                         );
                     })}
@@ -190,7 +199,9 @@ export const Table = ({
         <div
             className={styles.Table}
             {...(scrollable && {
-                className: `usa-table-container--scrollable ${styles.Table}`,
+                className: `usa-table-container--scrollable ${styles.Table} ${
+                    sticky && styles.Table__StickyHeader
+                }`,
                 tabIndex: 0,
             })}
         >
@@ -198,6 +209,7 @@ export const Table = ({
                 <table className={classes} data-testid="table">
                     {sortable ? (
                         <SortableTable
+                            sticky={sticky}
                             rowData={rowData}
                             columnHeaders={columnHeaders}
                         />
