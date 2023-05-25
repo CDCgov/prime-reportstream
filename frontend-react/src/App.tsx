@@ -1,33 +1,24 @@
-import { GovBanner } from "@trussworks/react-uswds";
 import { toRelativeUrl } from "@okta/okta-auth-js";
 import { useIdleTimer } from "react-idle-timer";
-import React, { Suspense, useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
-import { ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
-import { ReportStreamFooter } from "./components/ReportStreamFooter";
-import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
 import { OKTA_AUTH } from "./oktaConfig";
 import { permissionCheck, PERMISSIONS } from "./utils/PermissionsUtils";
 import Spinner from "./components/Spinner";
 import "react-toastify/dist/ReactToastify.css";
-import SenderModeBanner from "./components/SenderModeBanner";
-import { DAPHeader } from "./components/header/DAPHeader";
-import { AppRouter } from "./AppRouter";
 import { AppWrapper } from "./components/AppWrapper";
 import { ErrorUnsupportedBrowser } from "./pages/error/legacy-content/ErrorUnsupportedBrowser";
 import { ErrorPage } from "./pages/error/ErrorPage";
-import config from "./config";
-import { USLink } from "./components/USLink";
 import { useScrollToTop } from "./hooks/UseScrollToTop";
 import { EventName, trackAppInsightEvent } from "./utils/Analytics";
 import { logout } from "./utils/UserUtils";
 import { IS_IE } from "./utils/GetIsIE";
 
-const { APP_ENV } = config;
+export interface AppProps extends React.PropsWithChildren {}
 
-const App = () => {
+const App = ({ children }: AppProps) => {
     const sessionStartTime = useRef<number>(new Date().getTime());
     const sessionTimeAggregate = useRef<number>(0);
     const calculateAggregateTime = () => {
@@ -115,22 +106,7 @@ const App = () => {
                 <NetworkErrorBoundary
                     fallbackComponent={() => <ErrorPage type="page" />}
                 >
-                    <DAPHeader env={APP_ENV?.toString()} />
-                    <USLink className="usa-skipnav" href="#main-content">
-                        Skip Nav
-                    </USLink>
-                    <GovBanner aria-label="Official government website" />
-                    <SenderModeBanner />
-                    <ReportStreamHeader />
-                    {/* Changed from main to div to fix weird padding issue at the top
-                            caused by USWDS styling | 01/22 merged styles from .content into main, don't see padding issues anymore? */}
-                    <main id="main-content">
-                        <AppRouter />
-                    </main>
-                    <ToastContainer limit={4} />
-                    <footer className="usa-identifier footer">
-                        <ReportStreamFooter />
-                    </footer>
+                    {children}
                 </NetworkErrorBoundary>
             </Suspense>
         </AppWrapper>

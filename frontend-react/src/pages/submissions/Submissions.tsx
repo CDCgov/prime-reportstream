@@ -17,7 +17,7 @@ function SubmissionHistoryContent() {
     const { description } = orgDetails || {};
 
     return (
-        <GridContainer containerSize="widescreen">
+        <GridContainer>
             <article className="padding-top-5">
                 <Helmet>
                     <title>{FeatureName.SUBMISSIONS}</title>

@@ -1,6 +1,11 @@
 import { ReactElement } from "react";
 import { render, RenderOptions } from "@testing-library/react";
-import { MemoryRouter, useRoutes } from "react-router-dom";
+import {
+    createMemoryRouter,
+    Outlet,
+    RouterProvider,
+    RouteObject,
+} from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
 import { Fixture, MockResolver } from "@rest-hooks/test";
@@ -26,19 +31,22 @@ interface TestRouterProps {
     initialEntries?: string[];
 }
 
-/**
- * Dynamically makes the supplied children the return element for all
- * routes.
- * FUTURE_TODO: Remove this once okta user/session mocking is easier
- * and use <AppRouter /> instead.
- */
-const TestRoutes = ({ children }: TestRouterProps) => {
-    const routes = useRoutes(
-        appRoutes.map((r) => ({ ...r, element: children }))
-    );
+function TestLayout() {
+    return <Outlet />;
+}
 
-    return routes;
-};
+function createTestRoutes(
+    routes: RouteObject[],
+    element: React.ReactNode
+): RouteObject[] {
+    return routes.map((r) => ({
+        ...r,
+        element: r.path !== "/" ? element : <TestLayout />,
+        children: r.children
+            ? createTestRoutes(r.children, element)
+            : undefined,
+    })) as RouteObject[];
+}
 
 export const AppWrapper = ({
     initialRouteEntries,
@@ -49,33 +57,39 @@ export const AppWrapper = ({
     // any custom route wrappers.
     // FUTURE_TODO: Remove MockResolver and restHookFixtures when removing react-hooks.
     return ({ children }: AppWrapperProps) => {
+        /**
+         * Dynamically makes the supplied children the return element for all
+         * routes.
+         * FUTURE_TODO: Remove this once okta user/session mocking is easier
+         * and use <AppRouter /> instead.
+         */
+        const router = createMemoryRouter(
+            createTestRoutes(appRoutes, children),
+            {
+                initialEntries: initialRouteEntries,
+            }
+        );
         return (
             <CacheProvider>
-                <MemoryRouter initialEntries={initialRouteEntries}>
-                    <HelmetProvider>
-                        <SessionProvider>
-                            <QueryClientProvider client={getTestQueryClient()}>
-                                <AuthorizedFetchProvider
-                                    initializedOverride={true}
-                                >
-                                    <FeatureFlagProvider>
-                                        {restHookFixtures ? (
-                                            <MockResolver
-                                                fixtures={restHookFixtures}
-                                            >
-                                                <TestRoutes>
-                                                    {children}
-                                                </TestRoutes>
-                                            </MockResolver>
-                                        ) : (
-                                            <TestRoutes>{children}</TestRoutes>
-                                        )}
-                                    </FeatureFlagProvider>
-                                </AuthorizedFetchProvider>
-                            </QueryClientProvider>
-                        </SessionProvider>
-                    </HelmetProvider>
-                </MemoryRouter>
+                <HelmetProvider>
+                    <SessionProvider>
+                        <QueryClientProvider client={getTestQueryClient()}>
+                            <AuthorizedFetchProvider initializedOverride={true}>
+                                <FeatureFlagProvider>
+                                    {restHookFixtures ? (
+                                        <MockResolver
+                                            fixtures={restHookFixtures}
+                                        >
+                                            <RouterProvider router={router} />
+                                        </MockResolver>
+                                    ) : (
+                                        <RouterProvider router={router} />
+                                    )}
+                                </FeatureFlagProvider>
+                            </AuthorizedFetchProvider>
+                        </QueryClientProvider>
+                    </SessionProvider>
+                </HelmetProvider>
             </CacheProvider>
         );
     };

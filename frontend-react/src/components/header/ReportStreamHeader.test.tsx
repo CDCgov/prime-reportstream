@@ -61,6 +61,7 @@ describe("ReportStreamHeader", () => {
             isUserAdmin: true,
             isUserReceiver: false,
             isUserSender: false,
+            environment: "test",
         } as RSSessionContext);
         renderApp(<ReportStreamHeader />);
         expect(screen.getByText(FeatureName.ADMIN)).toBeInTheDocument();
@@ -98,6 +99,7 @@ describe("ReportStreamHeader", () => {
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,
+            environment: "test",
         });
         renderApp(<ReportStreamHeader />);
         expect(
@@ -136,6 +138,7 @@ describe("ReportStreamHeader", () => {
             isUserAdmin: false,
             isUserReceiver: true,
             isUserSender: false,
+            environment: "test",
         });
         renderApp(<ReportStreamHeader />);
         expect(screen.getByText(FeatureName.DAILY_DATA)).toBeInTheDocument();
