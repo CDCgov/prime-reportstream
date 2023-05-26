@@ -10,6 +10,8 @@ import org.jooq.SelectJoinStep
 import org.jooq.SortField
 import org.jooq.TableField
 
+
+data class ApiSearchResult<T>(val totalCount: Int, val filteredCount: Int, val results: List<T>)
 enum class SortDirection {
     ASC,
     DESC
@@ -121,7 +123,7 @@ data class RawApiSearch(val sort: RawApiSort, val pagination: RawPagination, val
  */
 abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilter<RecordType, *>>(
     private val recordClass: Class<PojoType>,
-    private val page: Int,
+    val page: Int,
     val limit: Int
 ) {
     /** The list of filters that should be applied */
@@ -151,18 +153,24 @@ abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilte
      * @return the list of the records parsed into the [PojoType]
      *
      */
-    open fun fetchResults(dslContext: DSLContext, select: SelectJoinStep<Record>): List<PojoType> {
-        return dslContext.fetch(
+    open fun fetchResults(dslContext: DSLContext, select: SelectJoinStep<Record>): ApiSearchResult<PojoType> {
+        val totalCount = dslContext.fetchCount(select)
+        val filteredCount = dslContext.fetchCount(
+            select
+                .where(getWhereClause())
+        )
+        val results = dslContext.fetch(
             select
                 .where(getWhereClause())
                 .orderBy(getSortClause())
                 .limit(limit)
                 .offset(getOffset())
         ).into(recordClass)
+        return ApiSearchResult(totalCount, filteredCount, results)
     }
 
     /** Converts the limit and page value into an offset */
     private fun getOffset(): Int {
-        return limit * page
+        return limit * (page - 1)
     }
 }
