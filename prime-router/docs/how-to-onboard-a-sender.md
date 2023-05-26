@@ -256,14 +256,9 @@ curl -X POST -H 'client: yoyodyne' -H 'Content-Type: text/csv' --data-binary '@/
 ```
 You will then see a JSON object reported back with the result of your post to the local container.
 
-ReportStream will now begin the process of ingesting and routing your records. After a few minutes, you can sftp into 
-the container and view the results of your file:
+You will then see a report of the result of your post to the local container.  After a few minutes, you can view the
+output here: `/prime-router/build/sftp`
 
-```shell
-sftp foo@localhost
-```
-
-You then change into the `./upload` folder and can download and view the files you've created.
 You absolutely should pull them down and review them to verify that the data you sent matches
 what the receivers are getting.
 
