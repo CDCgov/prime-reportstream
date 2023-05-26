@@ -1,4 +1,4 @@
-@use 'uswds-core' as *;
+@use "uswds-core" as *;
 
 .Table {
   :global {
@@ -47,6 +47,7 @@
 
     .column-data {
         font-size: 14px;
+        vertical-align: top;
 
       &--active {
           background-color: color('blue-10');
