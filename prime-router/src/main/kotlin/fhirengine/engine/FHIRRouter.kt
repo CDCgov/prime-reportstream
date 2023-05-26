@@ -433,11 +433,7 @@ class FHIRRouter(
             if (isDefaultFilter(filterType, filters)) "(default filter) "
             else ""
             }${failingFilterName ?: "unknown"}"
-            if (focusResource == bundle) {
-                logFilterResults(filterToLog, bundle, report, receiver, filterType)
-            } else {
-                logFilterResults(filterToLog, bundle, report, receiver, filterType, focusResource)
-            }
+            logFilterResults(filterToLog, bundle, report, receiver, filterType, focusResource)
         }
         return passes
     }
@@ -572,10 +568,10 @@ class FHIRRouter(
         report: Report,
         receiver: Receiver,
         filterType: ReportStreamFilterType,
-        focusResource: Base? = null
+        focusResource: Base
     ) {
         var filteredTrackingElement = bundle.identifier.value ?: ""
-        if (focusResource != null) {
+        if (focusResource != bundle) {
             filteredTrackingElement += " at " + focusResource.idBase
         }
         report.filteringResults.add(
