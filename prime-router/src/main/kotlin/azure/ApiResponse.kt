@@ -3,6 +3,7 @@ package gov.cdc.prime.router.azure
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonUnwrapped
+import kotlin.math.ceil
 
 /**
  * Contains the metadata on the pagination for an API response
@@ -18,7 +19,21 @@ data class PaginationApiResponse(
     val previousPage: Int? = null,
     @JsonInclude(JsonInclude.Include.NON_NULL)
     val nextPage: Int? = null
-)
+) {
+    companion object {
+        fun buildPaginationFromApiSearch(
+            search: ApiSearch<*, *, *>,
+            results: ApiSearchResult<*>
+        ): PaginationApiResponse {
+            val totalPages = ceil(results.filteredCount.toDouble() / search.limit).toInt()
+            return PaginationApiResponse(
+                totalPages = totalPages,
+                previousPage = if (search.page == 1) null else search.page - 1,
+                nextPage = if (totalPages < search.page + 1) null else search.page + 1
+            )
+        }
+    }
+}
 
 /**
  * Metadata on a return API response
@@ -45,4 +60,22 @@ data class MetaApiResponse(
  * @param data a JSON serializable object that contains the data in the response
  * @param metaApiResponse the metadata about the response
  */
-data class ApiResponse<T>(val data: T, @JsonProperty("meta") val metaApiResponse: MetaApiResponse)
+data class ApiResponse<T>(val data: T, @JsonProperty("meta") val metaApiResponse: MetaApiResponse) {
+    companion object {
+        fun <T> buildFromApiSearch(
+            type: String,
+            search: ApiSearch<T, *, *>,
+            results: ApiSearchResult<T>
+        ): ApiResponse<List<T>> {
+            return ApiResponse(
+                results.results,
+                MetaApiResponse(
+                    totalCount = results.totalCount,
+                    totalFilteredCount = results.filteredCount,
+                    paginationApiResponse = PaginationApiResponse.buildPaginationFromApiSearch(search, results),
+                    type = type
+                )
+            )
+        }
+    }
+}

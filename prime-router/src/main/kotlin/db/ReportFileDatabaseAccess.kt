@@ -5,6 +5,7 @@ import gov.cdc.prime.router.azure.ApiFilterNames
 import gov.cdc.prime.router.azure.ApiFilters
 import gov.cdc.prime.router.azure.ApiSearch
 import gov.cdc.prime.router.azure.ApiSearchParser
+import gov.cdc.prime.router.azure.ApiSearchResult
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.RawApiSearch
 import gov.cdc.prime.router.azure.SortDirection
@@ -130,7 +131,7 @@ class ReportFileApiSearch private constructor(
 
 class ReportFileDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessSingleton) {
 
-    fun getReports(search: ReportFileApiSearch): List<ReportFilePojo> {
+    fun getReports(search: ReportFileApiSearch): ApiSearchResult<ReportFilePojo> {
         return db.transactReturning { txn ->
             search.fetchResults(
                 DSL.using(txn),

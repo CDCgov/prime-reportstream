@@ -186,7 +186,10 @@ class GetReports :
         val reportDbAccess = ReportFileDatabaseAccess()
         val search = ReportFileApiSearch.parse(request)
         val reports = reportDbAccess.getReports(search)
-        return HttpUtilities.okJSONResponse(request, reports)
+        return HttpUtilities.okJSONResponse(
+            request,
+            ApiResponse.buildFromApiSearch("ReportFile", search, reports)
+        )
     }
 }
 

@@ -10,7 +10,6 @@ import org.jooq.SelectJoinStep
 import org.jooq.SortField
 import org.jooq.TableField
 
-
 data class ApiSearchResult<T>(val totalCount: Int, val filteredCount: Int, val results: List<T>)
 enum class SortDirection {
     ASC,
