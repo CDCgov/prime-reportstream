@@ -130,7 +130,7 @@ class ReportFileApiSearch private constructor(
 
 class ReportFileDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessSingleton) {
 
-    fun getReports(search: ReportFileApiSearch): List<gov.cdc.prime.router.azure.db.tables.pojos.ReportFile> {
+    fun getReports(search: ReportFileApiSearch): List<ReportFilePojo> {
         return db.transactReturning { txn ->
             search.fetchResults(
                 DSL.using(txn),
