@@ -1,0 +1,14 @@
+constants:
+  hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
+  symptomaticAoe: '%service.supportingInfo.resolve().where(code.coding.code = %symptomaticAoeLoinc)'
+elements:
+
+  # RADx MARS requirement:
+  # Only set the illness onset date if symptomatic AOE answer is Yes
+  - name: radx-mars-illness-onset-date
+    condition: >
+      %resource.code.coding.code = %illnessOnsetAoeLoinc
+      and %symptomaticAoe.exists()
+      and %symptomaticAoe.value.coding.code = 'N'
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-5' ]
+    value: [ '""' ]
