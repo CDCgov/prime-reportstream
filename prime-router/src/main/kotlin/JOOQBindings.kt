@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import com.fasterxml.jackson.databind.node.TextNode
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.jooq.BindingGetResultSetContext
 import org.jooq.BindingSQLContext
@@ -82,11 +83,11 @@ class ActionLogDetailBinding : JsonBinding<ActionLogDetail>(ActionLogDetail::cla
  */
 class TopicConverter : Converter<String, Topic> {
     private val mapper = JacksonMapperUtilities.defaultMapper
-    override fun from(dbObject: String): Topic {
-        class TopicWrapper(val topic: Topic)
 
-        val topicWrapper = mapper.readValue("{\"topic\":\"$dbObject\"}", TopicWrapper::class.java)
-        return topicWrapper.topic
+    override fun from(dbObject: String): Topic {
+        // Can't use Topic.valueOf, since string form and enum name are different
+        // i.e. `full-elr` vs `FULL_ELR`
+        return mapper.convertValue(TextNode(dbObject), Topic::class.java)
     }
 
     override fun to(topic: Topic): String {
