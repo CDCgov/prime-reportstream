@@ -792,10 +792,7 @@ abstract class CoolTest {
             val destCount = tree["destinationCount"]
 
             if (topic != null && !topic.isNull &&
-                (
-                    topic.textValue().equals(Topic.COVID_19.jsonVal, true) ||
-                        topic.textValue().equals(Topic.FULL_ELR.jsonVal, true)
-                    )
+                (topic.equals(Topic.COVID_19) || topic.equals(Topic.FULL_ELR))
             ) {
                 good("'topic' is in response and correctly set")
             } else {
