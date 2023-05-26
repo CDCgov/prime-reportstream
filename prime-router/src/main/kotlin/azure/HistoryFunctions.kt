@@ -17,6 +17,8 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.db.ReportFileApiSearch
 import gov.cdc.prime.router.db.ReportFileDatabaseAccess
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.authenticationFailure
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -176,6 +178,11 @@ class GetReports :
             route = "v1/reports/search"
         ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
+        val claims = AuthenticatedClaims.authenticate(request)
+        if (claims == null || !claims.authorized(setOf("*.*.primeadmin"))) {
+            logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
+            return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+        }
         val reportDbAccess = ReportFileDatabaseAccess()
         val search = ReportFileApiSearch.parse(request)
         val reports = reportDbAccess.getReports(search)
