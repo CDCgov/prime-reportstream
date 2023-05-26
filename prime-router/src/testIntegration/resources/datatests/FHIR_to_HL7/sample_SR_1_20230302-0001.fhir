@@ -117,7 +117,7 @@
                     "reference": "Patient/9473889b-b2b9-45ac-a8d8-191f27132912"
                 },
                 "effectiveDateTime": "2023-03-30T12:32:36+00:00",
-                "issued": "2023-03-30T12:32:36.616+00:00",
+                "issued": "2023-03-28T12:32:36.616+00:00",
                 "specimen": [
                     {
                         "reference": "Specimen/52a582e4-d389-42d0-b738-bee51cf5244d"

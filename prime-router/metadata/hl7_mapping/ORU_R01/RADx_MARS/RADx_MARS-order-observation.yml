@@ -1,0 +1,22 @@
+constants:
+  hl7Order: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})'
+  service: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].basedOn.resolve()'
+  observations: '%resource.result.resolve() |  %service.supportingInfo.resolve()'
+elements:
+
+  - name: radx-mars-order-segment
+    condition: '%service.extension(%`rsext-order-control`).exists()'
+    schema: RADx_MARS-order
+
+  - name: radx-mars-observation-request
+    schema: RADx_MARS-observation-request
+
+  - name: radx-mars-observation-result
+    resource: >
+      %resource.result.resolve().where(livdTableLookup("Component").contains("coronavirus")) |
+      %resource.result.resolve().where(livdTableLookup("Component").contains("coronavirus").not()) |
+      %service.supportingInfo.resolve().where(code.coding.code = %patientAgeAoeLoinc) |
+      %service.supportingInfo.resolve().where(code.coding.code = %symptomaticAoeLoinc) |
+      %service.supportingInfo.resolve().where(code.coding.code = %illnessOnsetAoeLoinc)
+    schema: RADx_MARS-observation-result
+    resourceIndex: resultIndex
