@@ -25,6 +25,7 @@ describe("useReportsList", () => {
             isUserAdmin: false,
             isUserReceiver: true,
             isUserSender: false,
+            environment: "test",
         });
         const { result } = renderHook(() => useReportsFacilities("123"), {
             wrapper: AppWrapper(),
