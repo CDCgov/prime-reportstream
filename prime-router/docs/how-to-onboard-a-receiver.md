@@ -61,7 +61,6 @@ Currently, we have three formats available:
 
 - HL7
 - CSV
-- FHIR
 
 The quality filters verify that test results have the minimum fields required by most public health jurisdictions. 
 Those fields are made adjustable to be customized per jurisdictional specifications. These filters are applied by 
