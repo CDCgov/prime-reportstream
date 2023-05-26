@@ -12,9 +12,11 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import org.hl7.fhir.r4.model.Age
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.DateTimeType
+import org.hl7.fhir.r4.model.DateType
 import org.hl7.fhir.r4.model.InstantType
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.MessageHeader
@@ -23,6 +25,7 @@ import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.model.TimeType
 import org.junit.jupiter.api.Test
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
 import java.util.UUID
@@ -556,5 +559,95 @@ class CustomFHIRFunctionsTests {
                 mutableListOf(mutableListOf(pst))
             )
         }.isFailure().hasClass(SchemaException::class.java)
+    }
+
+    @Test
+    fun `test convertDateToAge in future`() {
+        val currentDate = Date()
+        val calendar = Calendar.getInstance()
+        calendar.time = currentDate
+        calendar.add(Calendar.DATE, 1)
+
+        assertThat {
+            CustomFHIRFunctions.convertDateToAge(
+                mutableListOf(DateType(calendar.time))
+            )
+        }.isFailure().hasClass(SchemaException::class.java)
+    }
+
+    @Test
+    fun `test convertDateToAge year`() {
+        val currentDate = Date()
+        val calendar = Calendar.getInstance()
+        calendar.time = currentDate
+        calendar.add(Calendar.YEAR, -76)
+
+        val age = CustomFHIRFunctions.convertDateToAge(
+            mutableListOf(DateType(calendar.time))
+        )
+
+        assertThat(age is Age)
+        if (age is Age) {
+            assertThat(age.unit).isEqualTo("years")
+            assertThat(age.unit).isEqualTo(76)
+        }
+    }
+
+    @Test
+    fun `test convertDateToAge month`() {
+        val currentDate = Date()
+        val calendar = Calendar.getInstance()
+        calendar.time = currentDate
+        calendar.add(Calendar.MONTH, -6)
+
+        val age = CustomFHIRFunctions.convertDateToAge(
+            mutableListOf(DateType(calendar.time))
+        )
+
+        assertThat(age is Age)
+        if (age is Age) {
+            assertThat(age.unit).isEqualTo("months")
+            assertThat(age.unit).isEqualTo(6)
+        }
+    }
+
+    @Test
+    fun `test convertDateToAge 0 days`() {
+        val currentDate = Date()
+        val calendar = Calendar.getInstance()
+        calendar.time = currentDate
+        // has to be at least two for the purposes of this since we are getting the current time and time passes when we
+        // run it
+        calendar.add(Calendar.HOUR_OF_DAY, -2)
+
+        val age = CustomFHIRFunctions.convertDateToAge(
+            mutableListOf(DateType(calendar.time))
+        )
+
+        assertThat(age is Age)
+        if (age is Age) {
+            assertThat(age.unit).isEqualTo("days")
+            assertThat(age.unit).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun `test convertDateToAge 4 days`() {
+        val currentDate = Date()
+        val calendar = Calendar.getInstance()
+        calendar.time = currentDate
+        // has to be at least two for the purposes of this since we are getting the current time and time passes when we
+        // run it
+        calendar.add(Calendar.DAY_OF_YEAR, -4)
+
+        val age = CustomFHIRFunctions.convertDateToAge(
+            mutableListOf(DateType(calendar.time))
+        )
+
+        assertThat(age is Age)
+        if (age is Age) {
+            assertThat(age.unit).isEqualTo("days")
+            assertThat(age.unit).isEqualTo(4)
+        }
     }
 }

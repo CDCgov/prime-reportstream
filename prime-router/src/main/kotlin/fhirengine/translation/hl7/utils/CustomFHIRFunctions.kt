@@ -3,14 +3,18 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import org.hl7.fhir.r4.model.Age
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.DateTimeType
+import org.hl7.fhir.r4.model.DateType
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 import java.time.DateTimeException
+import java.time.LocalDate
+import java.time.Period
 import java.time.ZoneId
 import java.util.TimeZone
 
@@ -34,7 +38,8 @@ object CustomFHIRFunctions : FhirPathFunctions {
         GetId,
         GetIdType,
         HasPhoneNumberExtension,
-        ChangeTimezone;
+        ChangeTimezone,
+        ConvertDateToAge;
 
         companion object {
             /**
@@ -109,6 +114,15 @@ object CustomFHIRFunctions : FhirPathFunctions {
                 )
             }
 
+            CustomFHIRFunctionNames.ConvertDateToAge -> {
+                FHIRPathEngine.IEvaluationContext.FunctionDetails(
+                    "returns the number or years, months if less than a year, weeks if less" +
+                        " than a month, and days if less than a week that a person is old for a date resource",
+                    0,
+                    0
+                )
+            }
+
             else -> additionalFunctions?.resolveFunction(functionName)
         }
     }
@@ -168,10 +182,48 @@ object CustomFHIRFunctions : FhirPathFunctions {
                     changeTimezone(focus, parameters)
                 }
 
+                CustomFHIRFunctionNames.ConvertDateToAge -> {
+                    convertDateToAge(focus)
+                }
+
                 else -> additionalFunctions?.executeFunction(focus, functionName, parameters)
                     ?: throw IllegalStateException("Tried to execute invalid FHIR Path function $functionName")
             }
             )
+    }
+
+    /**
+     * Converts the date in the [focus] element to an age in years, months, weeks, or days.
+     * @return an age in years, months, weeks, or days.
+     */
+    fun convertDateToAge(focus: MutableList<Base>): MutableList<Base> {
+        val date = focus.first()
+
+        if (date !is DateType) {
+            throw SchemaException("Must call the convertDateToAge function on a single dateTimeType")
+        }
+
+        val period = Period.between(
+            // have to do plus one for the month because it is expecting 1 based and we get zero based
+            LocalDate.of(date.year, date.month + 1, date.day),
+            LocalDate.now()
+        )
+
+        val age = Age()
+        if (period.years > 1) {
+            age.unit = "years"
+            age.code = period.years.toString()
+        } else if (period.months > 1) {
+            age.unit = "months"
+            age.code = period.months.toString()
+        } else if (period.days >= 0) {
+            age.unit = "days"
+            age.code = period.days.toString()
+        } else {
+            throw SchemaException("Must call the convertDateToAge function on a date in the past")
+        }
+
+        return mutableListOf(age)
     }
 
     /**
