@@ -78,15 +78,6 @@ class LivdTableUpdate : CliktCommand(
         "-i", "--input-file", help = "Input file to update LIVD table"
     ).file()
 
-    private val cellValueMappings = mapOf(
-        LivdTableColumns.OTC_HOME_TESTING to mapOf(
-            "yes" to "Y",
-            "Yes" to "Y",
-            "no" to "N",
-            "No" to "N"
-        )
-    )
-
     override fun run() {
         echo("Updating the LIVD table ...")
         FileUtils.forceMkdir(File(defaultOutputDir))
@@ -220,18 +211,6 @@ class LivdTableUpdate : CliktCommand(
         // empty values default to P
         rawLivdTable.addColumns(StringColumn.create("processing_mode_code"))
 
-        cellValueMappings.forEach { (column, mappings) ->
-            rawLivdTable.forEach { row ->
-                val cellValue = row.getString(column.colName)
-                if (mappings.keys.contains(cellValue)) {
-                    val mappedValue = mappings.getValue(cellValue)
-                    row.setString(column.colName, mappedValue)
-                } else if (cellValue.isNotBlank()) {
-                    echo("column \"${column.colName}\" contains unknown cell value to be mapped: $cellValue")
-                }
-            }
-        }
-
         // append test devices
         appendTestDeviceRow(
             rawLivdTable,
@@ -239,7 +218,7 @@ class LivdTableUpdate : CliktCommand(
                 LivdTableColumns.MODEL to "Test_OTC_Device",
                 LivdTableColumns.TESTKIT_NAME_ID to "Test_OTC_Device",
                 LivdTableColumns.EQUIPMENT_UID to "Test_OTC_Device",
-                LivdTableColumns.OTC_HOME_TESTING to "Y"
+                LivdTableColumns.OTC_HOME_TESTING to "yes"
             )
         )
         appendTestDeviceRow(
@@ -248,7 +227,7 @@ class LivdTableUpdate : CliktCommand(
                 LivdTableColumns.MODEL to "Test_Home_Device",
                 LivdTableColumns.TESTKIT_NAME_ID to "Test_Home_Device",
                 LivdTableColumns.EQUIPMENT_UID to "Test_Home_Device",
-                LivdTableColumns.OTC_HOME_TESTING to "Y"
+                LivdTableColumns.OTC_HOME_TESTING to "yes"
             )
         )
 

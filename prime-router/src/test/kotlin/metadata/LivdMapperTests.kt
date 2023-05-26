@@ -147,7 +147,7 @@ class LivdMapperTests {
             tableColumn = "Over the Counter (OTC) Home Testing"
         )
         val deviceElement = Element(ElementNames.DEVICE_ID.elementName)
-        val mapper = LIVDLookupMapper()
+        val mapper = LivdYesNoMapper()
 
         // Test with an FDA device id
         val ev1 = ElementAndValue(deviceElement, "10811877011337")
@@ -168,7 +168,7 @@ class LivdMapperTests {
             hl7Field = "OBX-1"
         )
         val deviceElement = Element(ElementNames.EQUIPMENT_MODEL_NAME.elementName)
-        val mapper = LIVDLookupMapper()
+        val mapper = LivdYesNoMapper()
 
         // Test with an FDA device id
         val ev1 = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card Home Test")

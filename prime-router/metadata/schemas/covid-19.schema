@@ -1024,9 +1024,9 @@ elements:
     tableColumn: Over the Counter (OTC) Home Testing
     reference: Is the test authorized for over-the-counter purchase by the FDA
     referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
-    mapper: livdLookup()
+    mapper: LivdYesNo()
     default: N
-    documentation: Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
+    documentation: Is the test authorized for over-the-counter purchase by the FDA (Y, N)
 
   - name: test_authorized_for_home
     type: TABLE
@@ -1034,7 +1034,7 @@ elements:
     tableColumn: Over the Counter (OTC) Home Testing
     reference: Is the test authorized for home use by the FDA
     referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
-    mapper: livdLookup()
+    mapper: LivdYesNo()
     default: N
     documentation: Is the test authorized for home use by the FDA (Y, N, UNK)
 
@@ -1046,7 +1046,7 @@ elements:
     referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
     mapper: livdLookup()
     default: N
-    documentation: Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
+    documentation: Is the test authorized for unproctored administration by the FDA (Y, N)
 
   - name: test_type
     type: TABLE

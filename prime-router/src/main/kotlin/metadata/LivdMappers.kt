@@ -235,3 +235,39 @@ class Obx17TypeMapper : Mapper {
         )
     }
 }
+
+/**
+ * Applies the LIVDLookupMapper to find the correct value and then maps Yes/No into Y/N as expected
+ */
+class LivdYesNoMapper : Mapper {
+    override val name = "LivdYesNo"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return if (args.size != 1) {
+            args
+        } else {
+            error("Schema Error: Invalid number of arguments")
+        }
+    }
+
+    private val mappings = mapOf(
+        "yes" to "Y",
+        "no" to "N",
+    )
+
+    private val livdLookupMapper = LIVDLookupMapper()
+
+    override fun apply(
+        element: Element,
+        args: List<String>,
+        values: List<ElementAndValue>,
+        sender: Sender?
+    ): ElementResult {
+        val result = livdLookupMapper.apply(element, args, values, sender)
+        return ElementResult(
+            mappings[result.value?.lowercase()],
+            result.errors,
+            result.warnings
+        )
+    }
+}
