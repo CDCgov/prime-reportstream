@@ -77,7 +77,7 @@ these requirements:
      - Specimen ID/Accession Number
      - Device Identifier
     
-- At least one of the following fields has an alpha-numeric value:
+- At least one of the following fields has a value:
      - Patient Street Address
      - Patient Zip Code
      - Patient Phone
