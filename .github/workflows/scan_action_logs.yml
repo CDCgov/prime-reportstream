@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
       - name: Scan run logs
-        uses: josiahsiegel/runleaks@b81437c38d6e8a82593d1a5e44820ecb794ae35c
+        uses: josiahsiegel/runleaks@743cc26d06d6d9ec96f0d73332e174efb86073b0
         id: scan
         with:
           github-token: ${{ secrets.RUNLEAKS_TOKEN }}
