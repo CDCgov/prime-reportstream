@@ -16,5 +16,8 @@
 ("|').*[0-9a-zA-Z]{2,256}[.][s|S][e|E][r|R][v|V][i|I][c|C][e|E][b|B][u|U][s|S][.][w|W][i|I][n|N][d|D][o|O][w|W][s|S][.][n|N][e|E][t|T]("|')
 # Azure timeseries endpoint
 ("|').*[0-9a-zA-Z]{2,256}[.][t|T][i|I][m|M][e|E][s|S][e|E][r|R][i|I][e|E][s|S][.][a|A][z|Z][u|U][r|R][e|E][.][c|C][o|O][m|M]("|')
+# Generic common placeholders
+.*changeIT!.*
+.*[A-Z0-9]{20}.tmp
 
 ####################################################################
