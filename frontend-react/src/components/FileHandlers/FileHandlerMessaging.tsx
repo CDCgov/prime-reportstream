@@ -8,6 +8,7 @@ import { Destination } from "../../resources/ActionDetailsResource";
 import { USExtLink } from "../USLink";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
 import { saveToCsv } from "../../utils/FileUtils";
+import { removeHTMLFromString } from "../../utils/misc";
 
 const HL7_PRODUCT_MATRIX_URL =
     "https://www.hl7.org/implement/standards/product_brief.cfm";
@@ -68,13 +69,15 @@ export const RequestedChangesDisplay = ({
         const dataWithErrorMessage = data.map((item) => {
             return {
                 ...item,
-                errorMessageDetails: renderToString(
-                    <ValidationErrorMessage
-                        errorCode={item.errorCode}
-                        field={item.field}
-                        message={item.message}
-                    />
-                ).replace(/<(.|\n)*?>/g, ""),
+                errorMessageDetails: removeHTMLFromString(
+                    renderToString(
+                        <ValidationErrorMessage
+                            errorCode={item.errorCode}
+                            field={item.field}
+                            message={item.message}
+                        />
+                    )
+                ),
             };
         });
         return saveToCsv(dataWithErrorMessage, {
