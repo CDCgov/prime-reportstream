@@ -560,7 +560,7 @@ class FHIRRouter(
      * @param report Report object passed for logging purposes
      * @param receiver Receiver of the report
      * @param filterType Type of filter used
-     * @param focusResource Starting point for the evaluation, can add additional data to the log
+     * @param focusResource Starting point for the evaluation, logged if different than [bundle]
      */
     internal fun logFilterResults(
         filterName: String,
