@@ -64,6 +64,6 @@ class ApiSearchTest {
         val request = MockHttpRequestMessage(rawSearchString)
         val search = TestApiSearch.parse(request)
         assertThat(search.limit).isEqualTo(25)
-        assertThat(search.limit).isEqualTo(1)
+        assertThat(search.page).isEqualTo(1)
     }
 }
