@@ -16,11 +16,7 @@ The diagram below proposes four validation "checkpoints":
 This is where they are located in the overall system:  
 ![annotated-architecture-diagram.png](annotated-architecture-diagram.png)
 
-### Shared Components
-To facilitate reuse and extensibility, a new setting type `validationProfile` shall be created representing a type of
-validation, the validations to perform, and any applicable configuration parameters. This setting is reusable because
-senders and receivers can only be set up to receive one format at a time, so there should not be confusion over which
-validationProfile pertains to which format.
+### Validation Checkpoints
 
 #### Submission
 For FHIR, we currently use an `IParser` instance to parse and read some metadata. By default, the IParser performs some
@@ -45,6 +41,16 @@ Will occur in the translate function, after reception, translation, and enrichme
 
 Verify that the final dataset meets configured receiver expectations prior to dispatch.
 
+### Shared Components
+To facilitate reuse and extensibility, a new setting type `validationProfile` shall be created representing a type of
+validation, the validations to perform, and any applicable configuration parameters. This setting is reusable because
+senders and receivers can only be set up to receive one format at a time, so there should not be confusion over which
+validationProfile pertains to which format.
+
+#### Prototype Objects
+A factory/builder shall consume the validationProfile setting and produce reusable, cached validation objects
+(i.e. instance of configured FhirValidator in a wrapper/interface) that can be used to validate FHIR data.
+
 #### Actions Upon Validation Failure
 When a message fails validation, validation errors should show up in:
 - The submission history API
@@ -55,10 +61,8 @@ When a message fails validation, validation errors should show up in:
     - ReportStream is responsible for issue triage
 - Notify the sender immediately in API response if parse validation fails
 
-Tickets needed for both:
-- Create the validation profile setting: https://github.com/CDCgov/prime-reportstream/issues/9161
-- Add validation errors to the submission history API: https://github.com/CDCgov/prime-reportstream/issues/9036
-- Add validation errors to the action log: https://github.com/CDCgov/prime-reportstream/issues/9221
+#### Shared tickets
+See the validation epic (#8973) for related tickets
 
 ### FHIR Validation
 A factory/builder shall consume the validationProfile setting and produce reusable, cached validation objects
@@ -69,7 +73,6 @@ There is an existing and well-maintained project that meets the requirements for
 that tool as an azure function for an HL7 validation web app.
 
 See the `FHIR Validator Wrapper` section under the `Background Information` heading below for more information.
-
 
 #### Background Information
 The HAPI FHIR library represents an implementation guide using:
@@ -95,7 +98,6 @@ section later under this same heading **
 <img src="fhir-validator.png" width="950px;" >
 
 ##### LOINC validation will require loading an external code system.
-
 
 <details>
 <summary>Example recipe with caching and custom external value sets / code systems</summary>
@@ -156,14 +158,7 @@ value is the pre-populated list of implementation guides from various health fac
 
 #### Resulting Tickets
 
-- Implement reusable validation component [#8974](https://github.com/CDCgov/prime-reportstream/issues/8974)
-- Research validation configurations: [#8976](https://github.com/CDCgov/prime-reportstream/issues/8976)
-- Add FHIR Sender Converter Validation: [#8978](https://github.com/CDCgov/prime-reportstream/issues/8978)
-- Add FHIR Internal Validation:  [#8979](https://github.com/CDCgov/prime-reportstream/issues/8979)
-- Enable Parser validation and check result: [#8980](https://github.com/CDCgov/prime-reportstream/issues/8980)
-- Configure FHIR parser, sender, internal, and receiver validation profiles: [#9034](https://github.com/CDCgov/prime-reportstream/issues/9034)
-- Add FHIR Receiver Validation: [#9035](https://github.com/CDCgov/prime-reportstream/issues/9035)
-- Test default validation against existing messages: https://github.com/CDCgov/prime-reportstream/pull/9165
+See the validation epic (#8973) for related tickets
 
 ### HL7 Validation
 We will be using the NIST library for validation since the HAPI library requires Windows tools and we are a MAC shop. 
@@ -274,11 +269,5 @@ set up any further profiles that we want. These are done in xml, then we deseria
 HL7Validator class, along with the ValueSetLibrary, and ConformanceContext and call the validate method on the message.
 
 #### Resulting Tickets
-- Epic: https://github.com/CDCgov/prime-reportstream/issues/9160 
-- Create a reusable validator: https://github.com/CDCgov/prime-reportstream/issues/9164 
-- Create the validation context: https://github.com/CDCgov/prime-reportstream/issues/9159 
-- Create the sender validation: https://github.com/CDCgov/prime-reportstream/issues/9162 
-- Create the receiver validation: https://github.com/CDCgov/prime-reportstream/issues/9163
-- Test default validation against existing messages: https://github.com/CDCgov/prime-reportstream/issues/9335
 
-
+See the validation epic (#8973) for related tickets
