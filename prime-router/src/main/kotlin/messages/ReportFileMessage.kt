@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.messages
 
+import gov.cdc.prime.router.Topic
+
 /**
  * The report content message contains the content of a report that is kept in the service. This message
  * is closely aligned with the report_file table.
@@ -14,7 +16,7 @@ package gov.cdc.prime.router.messages
  */
 class ReportFileMessage(
     val reportId: String,
-    val schemaTopic: String,
+    val schemaTopic: Topic,
     val schemaName: String,
     val contentType: String,
     val content: String,

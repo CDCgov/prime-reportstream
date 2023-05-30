@@ -366,7 +366,7 @@ class ReportFunctionTests {
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val sender = FullELRSender("Test ELR Sender", "test", Sender.Format.HL7)
+        val sender = FullELRSender("Test ELR Sender", "test", Sender.Format.HL7, topic = Topic.FULL_ELR)
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
