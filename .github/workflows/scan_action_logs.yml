@@ -3,6 +3,7 @@ name: Scan Action Logs
 on:
   schedule:
     - cron: "52 5 * * *"
+  workflow_dispatch:
 
 jobs:
   scan_run_logs:
@@ -11,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
       - name: Scan run logs
-        uses: josiahsiegel/runleaks@743cc26d06d6d9ec96f0d73332e174efb86073b0
+        uses: josiahsiegel/runleaks@c47b8e25a5ef7f184d0165cc9805c85bf00ed498
         id: scan
         with:
           github-token: ${{ secrets.RUNLEAKS_TOKEN }}
@@ -20,7 +21,13 @@ jobs:
           max-days-old: 2
           patterns-path: ".github/runleaks/patterns.txt"
           exclusions-path: ".github/runleaks/exclusions.txt"
-          fail-on-leak: true
+          fail-on-leak: false
       - name: Get scan exceptions
         if: steps.scan.outputs.count > 0
-        run: echo "${{ steps.scan.outputs.exceptions }}"
+        run: | 
+          echo "count=${{ steps.scan.outputs.count }}"
+          exceptions='${{ steps.scan.outputs.exceptions }}'
+          echo ${exceptions//"%0A"/} | jq '.'
+      - name: Failure due to exceptions
+        if: steps.scan.outputs.count > 0
+        run: exit 1
