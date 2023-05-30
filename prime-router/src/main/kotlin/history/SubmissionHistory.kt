@@ -41,7 +41,7 @@ open class SubmissionHistory(
     @JsonProperty("id")
     reportId: String? = null,
     @JsonProperty("topic")
-    schemaTopic: String? = null,
+    schemaTopic: Topic? = null,
     @JsonProperty("reportItemCount")
     itemCount: Int? = null,
     @JsonIgnore
@@ -61,6 +61,7 @@ open class SubmissionHistory(
      * The sender of the input report.
      */
     var sender: String? = ""
+
     init {
         sender = when {
             sendingOrg.isNullOrBlank() -> ""
@@ -113,9 +114,10 @@ class DetailedSubmissionHistory(
      * Alias for the reportId
      * Legacy support needs this older property
      */
-    val id: String? get() {
-        return reportId
-    }
+    val id: String?
+        get() {
+            return reportId
+        }
 
     /**
      * Errors logged for this Report File.
@@ -200,9 +202,10 @@ class DetailedSubmissionHistory(
     /**
      * Number of destinations that actually had/will have data sent to.
      */
-    val destinationCount: Int get() {
-        return destinations.filter { it.itemCount != 0 }.size
-    }
+    val destinationCount: Int
+        get() {
+            return destinations.filter { it.itemCount != 0 }.size
+        }
 
     init {
         reports?.forEach { report ->
@@ -298,7 +301,7 @@ class DetailedSubmissionHistory(
         actionsPerformed.addAll(descendants.map { submission -> submission.actionName }.distinct())
 
         // Enforce an order on the enrichment:  process/translate, send, download
-        if (topic == Topic.FULL_ELR.json_val) {
+        if (topic?.isUniversalPipeline == true) {
             // logs and destinations are handled very differently for UP
             // both routing and translate are populated at different times,
             // so we need to do special logic to handle them
@@ -334,7 +337,10 @@ class DetailedSubmissionHistory(
      * @param descendants[] translate actions that will be used to enrich
      */
     private fun enrichWithTranslateAction(descendant: DetailedSubmissionHistory) {
-        require(topic == Topic.FULL_ELR.json_val && descendant.actionName == TaskAction.translate) {
+        require(
+            topic?.isUniversalPipeline == true &&
+                descendant.actionName == TaskAction.translate
+        ) {
             "Must be translate action. Enrichment is only available for the Universal Pipeline"
         }
 
@@ -366,7 +372,10 @@ class DetailedSubmissionHistory(
      * @param descendants[] route actions that will be used to enrich
      */
     private fun enrichWithRouteAction(descendant: DetailedSubmissionHistory) {
-        require(topic == Topic.FULL_ELR.json_val && descendant.actionName == TaskAction.route) {
+        require(
+            topic?.isUniversalPipeline == true &&
+                descendant.actionName == TaskAction.route
+        ) {
             "Must be route action. Enrichment is only available for the Universal Pipeline"
         }
         // Grab the filter logs generated during the "route" action, as well as errors and warnings

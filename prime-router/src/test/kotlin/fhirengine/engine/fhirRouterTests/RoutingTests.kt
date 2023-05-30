@@ -376,7 +376,8 @@ class RoutingTests {
                 UUID.randomUUID(),
                 "http://blob.url",
                 "test",
-                "test-sender"
+                "test-sender",
+                topic = Topic.FULL_ELR
             )
         )
 
@@ -430,7 +431,8 @@ class RoutingTests {
                 UUID.randomUUID(),
                 "http://blob.url",
                 "test",
-                "test-sender"
+                "test-sender",
+                topic = Topic.FULL_ELR
             )
         )
 
@@ -484,7 +486,8 @@ class RoutingTests {
                 UUID.randomUUID(),
                 "http://blob.url",
                 "test",
-                "test-sender"
+                "test-sender",
+                topic = Topic.FULL_ELR,
             )
         )
 
@@ -538,7 +541,8 @@ class RoutingTests {
                 UUID.randomUUID(),
                 "http://blob.url",
                 "test",
-                "test-sender"
+                "test-sender",
+                topic = Topic.FULL_ELR,
             )
         )
 
@@ -592,7 +596,8 @@ class RoutingTests {
                 UUID.randomUUID(),
                 "http://blob.url",
                 "test",
-                "test-sender"
+                "test-sender",
+                topic = Topic.FULL_ELR,
             )
         )
 
@@ -648,7 +653,8 @@ class RoutingTests {
                 UUID.randomUUID(),
                 "http://blob.url",
                 "test",
-                "test-sender"
+                "test-sender",
+                topic = Topic.FULL_ELR,
             )
         )
 
@@ -704,7 +710,8 @@ class RoutingTests {
         val actionLogger = mockk<ActionLogger>()
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+        val message =
+            spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", topic = Topic.FULL_ELR))
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
@@ -853,7 +860,8 @@ class RoutingTests {
                 UUID.randomUUID(),
                 "http://blob.url",
                 "test",
-                "test-sender"
+                "test-sender",
+                topic = Topic.FULL_ELR,
             )
         )
 

@@ -14,7 +14,6 @@ import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.ReportStreamFilters
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -166,7 +165,8 @@ class FHIRRouter(
                 Report.Format.FHIR,
                 sources,
                 1,
-                metadata = this.metadata
+                metadata = this.metadata,
+                topic = message.topic,
             )
 
             // create item lineage
@@ -241,7 +241,8 @@ class FHIRRouter(
                         report.id,
                         blobInfo.blobUrl,
                         BlobAccess.digestToString(blobInfo.digest),
-                        message.blobSubFolderName
+                        message.blobSubFolderName,
+                        message.topic,
                     ).serialize()
                 )
             } else {
@@ -302,7 +303,7 @@ class FHIRRouter(
         // find all receivers that have the full ELR topic and determine which applies
         val fullElrReceivers = settings.receivers.filter {
             it.customerStatus != CustomerStatus.INACTIVE &&
-                it.topic == Topic.FULL_ELR
+                it.topic.isUniversalPipeline
         }
 
         fullElrReceivers.forEach { receiver ->
@@ -598,7 +599,7 @@ class FHIRRouter(
      */
     internal fun getJurisFilters(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         return (
-            orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.jurisdictionalFilter
+            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.jurisdictionalFilter
                 ?: emptyList()
             ).plus(receiver.jurisdictionalFilter)
     }
@@ -610,7 +611,7 @@ class FHIRRouter(
      */
     internal fun getQualityFilters(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         val receiverFilters = (
-            orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.qualityFilter
+            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.qualityFilter
                 ?: emptyList()
             ).plus(receiver.qualityFilter)
         return receiverFilters.ifEmpty { qualityFilterDefault }
@@ -623,7 +624,7 @@ class FHIRRouter(
      */
     internal fun getRoutingFilter(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         return (
-            orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.routingFilter
+            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.routingFilter
                 ?: emptyList()
             ).plus(receiver.routingFilter)
     }
@@ -638,7 +639,7 @@ class FHIRRouter(
         orgFilters: List<ReportStreamFilters>?
     ): ReportStreamFilter {
         val receiverFilters = (
-            orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.processingModeFilter
+            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.processingModeFilter
                 ?: emptyList()
             ).plus(receiver.processingModeFilter)
         return receiverFilters.ifEmpty { processingModeFilterDefault }
@@ -649,7 +650,7 @@ class FHIRRouter(
      */
     internal fun getConditionFilter(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         return (
-            orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.conditionFilter
+            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.conditionFilter
                 ?: emptyList()
             ).plus(receiver.conditionFilter)
     }

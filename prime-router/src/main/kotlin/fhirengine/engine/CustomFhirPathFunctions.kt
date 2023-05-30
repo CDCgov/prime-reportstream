@@ -111,11 +111,7 @@ class CustomFhirPathFunctions : FhirPathFunctions {
         if (!deviceId.isNullOrEmpty()) {
             result = LivdLookup.find(
                 testPerformedCode = testPerformedCode,
-                processingModeCode = null,
                 deviceId = deviceId,
-                equipmentModelId = null,
-                testKitNameId = null,
-                equipmentModelName = null,
                 tableRef = lookupTable,
                 tableColumn = parameters!!.first().first().primitiveValue()
             )
@@ -126,11 +122,7 @@ class CustomFhirPathFunctions : FhirPathFunctions {
         if (result.isNullOrBlank() && !equipmentModelId.isNullOrEmpty()) {
             result = LivdLookup.find(
                 testPerformedCode = testPerformedCode,
-                processingModeCode = null,
-                deviceId = null,
                 equipmentModelId = equipmentModelId,
-                testKitNameId = null,
-                equipmentModelName = null,
                 tableRef = lookupTable,
                 tableColumn = parameters!!.first().first().primitiveValue()
             )
@@ -140,10 +132,6 @@ class CustomFhirPathFunctions : FhirPathFunctions {
         if (result.isNullOrBlank() && !deviceName.isNullOrBlank()) {
             result = LivdLookup.find(
                 testPerformedCode = testPerformedCode,
-                processingModeCode = null,
-                deviceId = null,
-                equipmentModelId = null,
-                testKitNameId = null,
                 equipmentModelName = deviceName,
                 tableRef = lookupTable,
                 tableColumn = parameters!!.first().first().primitiveValue()
