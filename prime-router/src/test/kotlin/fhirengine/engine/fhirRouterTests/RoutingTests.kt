@@ -821,7 +821,14 @@ class RoutingTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         assertThat(report.filteringResults.count()).isEqualTo(0)
-        engine.logFilterResults(qualFilter.toString(), bundle, report, receiver, ReportStreamFilterType.QUALITY_FILTER)
+        engine.logFilterResults(
+            qualFilter.toString(),
+            bundle,
+            report,
+            receiver,
+            ReportStreamFilterType.QUALITY_FILTER,
+            bundle
+        )
         assertThat(report.filteringResults.count()).isEqualTo(1)
         assertThat(report.filteringResults[0].filterName).isEqualTo(qualFilter.toString())
     }
@@ -907,11 +914,11 @@ class RoutingTests {
 
         engine.evaluateFilterAndLogResult(filter, bundle, report, receiver, type, true)
         verify(exactly = 0) {
-            engine.logFilterResults(any(), any(), any(), any(), any())
+            engine.logFilterResults(any(), any(), any(), any(), any(), any())
         }
         engine.evaluateFilterAndLogResult(filter, bundle, report, receiver, type, false)
         verify(exactly = 1) {
-            engine.logFilterResults(any(), any(), any(), any(), any())
+            engine.logFilterResults(any(), any(), any(), any(), any(), any())
         }
 
         // use case for condition filter
@@ -934,7 +941,7 @@ class RoutingTests {
             useOr = true
         )
         verify(exactly = 1) {
-            engine.logFilterResults(any(), any(), any(), any(), any())
+            engine.logFilterResults(any(), any(), any(), any(), any(), any())
         }
     }
 
