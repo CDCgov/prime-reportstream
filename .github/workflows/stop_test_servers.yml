@@ -13,7 +13,8 @@ jobs:
     name: Stop Test Subscription apps
     runs-on: ubuntu-latest
     steps:
-      
+      - name: Check Out Changes
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
       - name: Stop postgres
         uses: ./.github/actions/Stop-PostgresDB
         with:
