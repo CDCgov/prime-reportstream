@@ -31,6 +31,7 @@ import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Observation
 
 /**
  * [metadata] mockable metadata
@@ -571,8 +572,12 @@ class FHIRRouter(
         focusResource: Base
     ) {
         var filteredTrackingElement = bundle.identifier.value ?: ""
-        if (focusResource != bundle) {
-            filteredTrackingElement += " at " + focusResource.idBase
+        if (focusResource is Observation) {
+            // for Observation-type elements, we use the code if property when available
+            // if more elements need specific logic, consider extending the FHIR libraries
+            // instead of adding more if/else statements
+            val coding = focusResource.code.coding.firstOrNull()
+            if (coding != null)  filteredTrackingElement += " with " + coding.system + " code:" + coding.code
         }
         report.filteringResults.add(
             ReportStreamFilterResult(
