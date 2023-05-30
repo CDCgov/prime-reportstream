@@ -1,0 +1,30 @@
+name: Stop Apps in Test server
+
+on:
+  workflow_dispatch:
+  schedule:
+  - cron: "0 14 * * 2"
+    # - cron: "0 0 * * SAT"
+
+jobs:
+  alert_stale_branches:
+    name: Stop Test Subscription apps
+    runs-on: ubuntu-latest
+    steps:
+      
+      - name: Stop postgres
+        uses: ./.github/actions/Stop-PostgresDB
+        with:
+          name: pdhtest-pgsql-flex
+          resource-group: prime-data-hub-test
+          subscription: OCIO-DMZ-C1
+      
+      - name: Stop function app
+        uses: ./.github/actions/Stop-AzFunction
+        with:
+          name: pdhtest-pgsql-flex
+          resourceGroupName: prime-data-hub-test
+          subscription: OCIO-DMZ-C1
+          EnvName: test
+          functionName: pdhtest-functionapp
+          functionAppName: pdhtest-functionapp

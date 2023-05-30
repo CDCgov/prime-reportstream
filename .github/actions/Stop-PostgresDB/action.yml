@@ -1,0 +1,22 @@
+name: PostgresServer-stop
+description: stop postgres server on evenings and weekends
+inputs:
+  name:
+    required: true
+  subscription:
+    required: true
+  resource-group:
+    required: true
+ 
+
+runs:
+   steps:
+        shell: bash
+    # stop db server
+      - name: Stop Postgres DB
+        id: stop-db
+        shell: bash
+        run: |
+           az postgres flexible-server stop ${{ inputs.name }}
+                               ${{ inputs.resource-group }}
+                               ${{ inputs.subscription }}

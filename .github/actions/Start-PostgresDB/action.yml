@@ -1,0 +1,22 @@
+name: PostgresServer-start
+description: start postgres server on Monday in Test environment
+inputs:
+  name:
+    required: true
+  subscription:
+    required: true
+  resource-group:
+    required: true
+ 
+
+runs:
+   steps:
+        shell: bash
+    # stop db server
+      - name: Start Postgres DB
+        id: start-db
+        shell: bash
+        run: |
+           az postgres flexible-server start ${{ inputs.name }}
+                               ${{ inputs.resource-group }}
+                               ${{ inputs.subscription }}

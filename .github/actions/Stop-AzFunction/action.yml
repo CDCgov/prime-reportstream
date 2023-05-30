@@ -1,0 +1,36 @@
+parameters:
+  - name: resourceGroupName
+    type: string
+  - name: functionAppName
+    type: string
+  - name: functionName
+    type: string
+  - name: subscription
+    type: string
+  - name: EnvName
+    type: string
+steps:
+  - task: AzurePowerShell@4
+    displayName: 'Check if Function App Exists'
+    inputs:
+      TargetAzurePs: latestVersion
+      scriptType: inlineScript
+      # Sets the 'DoesAppExist' variable for use in subsequent task.
+      inline: |
+        $funcApp = Get-AzFunctionApp -ResourceGroupName ${{ parameters.resourceGroupName }} -Name ${{ parameters.functionAppName }}
+        $doesAppExist = ($funcApp -ne $null)
+        Write-Host "##vso[task.setvariable variable=DoesAppExist]$doesAppExist"
+  - task: AzureAppServiceSettings@1
+    displayName: 'Disable Function App'
+    condition: eq(variables.DoesAppExist, true)
+    inputs:
+      azureSubscription: '$(parameters.subscription)-${{ parameters.envName }}'
+      appName: ${{ parameters.functionAppName }}
+      appSettings: |
+        [
+          {
+            "name": "AzureWebJobs.${{ parameters.functionName }}.Disabled",
+            "value": true,
+            "slotSetting": false
+          }
+        ]
