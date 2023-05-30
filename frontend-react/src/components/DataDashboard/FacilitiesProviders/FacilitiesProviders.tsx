@@ -35,7 +35,7 @@ export function FacilitiesProviders() {
                     <hr />
                 </GridContainer>
             </header>
-            <GridContainer className="margin-left-7 margin-right-7 padding-top-4 padding-bottom-8 rs-max-width-100-important">
+            <GridContainer className="margin-left-7 margin-right-7 padding-top-4 rs-max-width-100-important">
                 <Helmet>
                     <title>{FeatureName.FACILITIES_PROVIDERS}</title>
                 </Helmet>
@@ -51,7 +51,7 @@ export function FacilitiesProviders() {
 export function FacilitiesProvidersWithAuth() {
     return (
         <AuthElement
-            element={<FacilitiesProviders />}
+            element={withCatchAndSuspense(<FacilitiesProviders />)}
             requiredUserType={MemberType.RECEIVER}
         />
     );

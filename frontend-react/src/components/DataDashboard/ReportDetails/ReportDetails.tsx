@@ -24,9 +24,9 @@ function ReportDetails() {
     const { data: reportDetail } = useReportsDetail(reportId!!);
 
     return (
-        <div className="margin-left-7">
-            <Crumbs {...crumbProps}></Crumbs>
-            <GridContainer className="margin-left-0 padding-left-0 margin-right-7 padding-bottom-8 rs-max-width-100-important">
+        <div className="margin-left-7 margin-right-7 rs-max-width-100-important">
+            <GridContainer className="rs-max-width-100-important">
+                <Crumbs {...crumbProps}></Crumbs>
                 <article>
                     <ReportDetailsSummary report={reportDetail} />
                     {withCatchAndSuspense(
@@ -42,7 +42,7 @@ function ReportDetails() {
 export function ReportDetailsWithAuth() {
     return (
         <AuthElement
-            element={<ReportDetails />}
+            element={withCatchAndSuspense(<ReportDetails />)}
             requiredUserType={MemberType.RECEIVER}
         />
     );

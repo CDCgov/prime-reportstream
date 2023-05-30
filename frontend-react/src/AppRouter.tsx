@@ -44,6 +44,8 @@ import { DataDashboardWithAuth } from "./pages/data-dashboard/DataDashboard";
 import MainLayout from "./layouts/MainLayout";
 import { ReportDetailsWithAuth } from "./components/DataDashboard/ReportDetails/ReportDetails";
 import { FacilitiesProvidersWithAuth } from "./components/DataDashboard/FacilitiesProviders/FacilitiesProviders";
+import { FacilityProviderSubmitterDetailsWithAuth } from "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails";
+import { AggregatorType } from "./utils/DataDashboardUtils";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -241,6 +243,30 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "facilities-providers",
                         element: <FacilitiesProvidersWithAuth />,
+                    },
+                    {
+                        path: "facility-provider-submitter-details/facility/:reportId",
+                        element: (
+                            <FacilityProviderSubmitterDetailsWithAuth
+                                aggregatorType={AggregatorType.FACILITY}
+                            />
+                        ),
+                    },
+                    {
+                        path: "facility-provider-submitter-details/provider/:reportId",
+                        element: (
+                            <FacilityProviderSubmitterDetailsWithAuth
+                                aggregatorType={AggregatorType.PROVIDER}
+                            />
+                        ),
+                    },
+                    {
+                        path: "facility-provider-submitter-details/submitter/:reportId",
+                        element: (
+                            <FacilityProviderSubmitterDetailsWithAuth
+                                aggregatorType={AggregatorType.SUBMITTER}
+                            />
+                        ),
                     },
                 ],
             },

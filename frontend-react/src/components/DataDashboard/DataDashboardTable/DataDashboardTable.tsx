@@ -16,8 +16,7 @@ import {
     DataDashboardAttr,
 } from "../../../hooks/network/DataDashboard/DataDashboardHooks";
 import { RSDelivery } from "../../../config/endpoints/dataDashboard";
-
-import ReceiverServices from "./ReceiverServices";
+import ReceiverServices from "../ReceiverServices/ReceiverServices";
 
 const extractCursor = (d: RSDelivery) => d.batchReadyAt;
 
