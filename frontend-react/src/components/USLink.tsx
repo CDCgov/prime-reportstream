@@ -65,14 +65,6 @@ export const SafeLink = ({
     const sanitizedHref = href ? DOMPurify.sanitize(href) : href;
     const routeHref = getHrefRoute(sanitizedHref);
     const isFile = sanitizedHref?.startsWith("/assets/");
-    // eslint-disable-next-line no-console
-    console.log(
-        "debug",
-        href,
-        sanitizedHref,
-        routeHref,
-        routeHref !== undefined && !isFile
-    );
 
     return routeHref !== undefined && !isFile ? (
         <Link to={routeHref} state={state} {...anchorHTMLAttributes}>
