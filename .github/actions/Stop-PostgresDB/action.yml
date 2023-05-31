@@ -11,7 +11,6 @@ inputs:
 
 runs:
    steps:
-        shell: bash
     # stop db server
       - name: Stop Postgres DB
         id: stop-db
