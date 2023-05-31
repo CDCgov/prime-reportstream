@@ -1,4 +1,4 @@
-parameters:
+inputs:
   - name: resourceGroupName
     type: string
   - name: functionAppName
@@ -17,19 +17,19 @@ steps:
       scriptType: inlineScript
       # Sets the 'DoesAppExist' variable for use in subsequent task.
       inline: |
-        $funcApp = Get-AzFunctionApp -ResourceGroupName ${{ parameters.resourceGroupName }} -Name ${{ parameters.functionAppName }}
+        $funcApp = Get-AzFunctionApp -ResourceGroupName ${{ inputs.resourceGroupName }} -Name ${{ inputs.functionAppName }}
         $doesAppExist = ($funcApp -ne $null)
         Write-Host "##vso[task.setvariable variable=DoesAppExist]$doesAppExist"
   - task: AzureAppServiceSettings@1
     displayName: 'Disable Function App'
     condition: eq(variables.DoesAppExist, true)
     inputs:
-      azureSubscription: '$(parameters.subscription)-${{ parameters.envName }}'
-      appName: ${{ parameters.functionAppName }}
+      azureSubscription: '$(inputs.subscription)-${{ inputs.envName }}'
+      appName: ${{ inputs.functionAppName }}
       appSettings: |
         [
           {
-            "name": "AzureWebJobs.${{ parameters.functionName }}.Disabled",
+            "name": "AzureWebJobs.${{ inputs.functionName }}.Disabled",
             "value": true,
             "slotSetting": false
           }

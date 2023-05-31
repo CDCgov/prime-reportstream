@@ -4,22 +4,31 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * MON"
-
+  push:
+    branches:
+      - feature/9537-schedulemaintenance_DemoandTest
 jobs:
   alert_stale_branches:
     name: Start Test Subscription apps
     runs-on: ubuntu-latest
     steps:
+      - name: Check Out Changes
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
       
-      - name: Stop postgres
-        uses: ./.github/actions/Stop-PostgresDB
+      # Login to Azure
+      - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
         with:
-          name: "pdhtest-pgsql-flex.postgres.database.azure.com"
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Stop postgres
+        uses: ./.github/actions/Start-PostgresDB
+        with:
+          name: "pdhtest-pgsql-flex"
           resource-group: prime-data-hub-test
           subscription: OCIO-DMZ-C1
       
       - name: Stop function app
-        uses: ./.github/actions/Stop-AzFunction
+        uses: ./.github/actions/Start-AzFunction
         with:
           name: pdhtest-pgsql-flex
           resourceGroupName: prime-data-hub-test
