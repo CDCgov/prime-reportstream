@@ -169,6 +169,11 @@ class GetReports :
         return if (organization.isBlank()) getReports(request, context) else getReports(request, context, organization)
     }
 
+    /**
+     * An endpoint available only to admins for a ReportFile.
+     *
+     * Primarily exists as a reference implementation for [ApiSearch]
+     */
     @FunctionName("searchReports")
     fun searchReports(
         @HttpTrigger(

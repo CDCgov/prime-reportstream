@@ -20,13 +20,25 @@ import org.jooq.impl.DSL
 import java.time.OffsetDateTime
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile as ReportFilePojo
 
+/**
+ * Sealed class containing all the filters that can be applied
+ */
 sealed class ReportFileApiFilter<T> : ApiFilter<ReportFileRecord, T> {
-    class StartDate(override val value: OffsetDateTime) :
+
+    /**
+     * Filters results to those where the created_at is greater than or equal to the passed in date
+     * @param value the date that results will be greater than or equal to
+     */
+    class Since(override val value: OffsetDateTime) :
         ReportFileApiFilter<OffsetDateTime>() {
         override val tableField: TableField<ReportFileRecord, OffsetDateTime> = ReportFile.REPORT_FILE.CREATED_AT
     }
 
-    class EndDate(override val value: OffsetDateTime) : ReportFileApiFilter<OffsetDateTime>() {
+    /**
+     * Filters results to those where the created_at is less than or equal to the passed in date
+     * @param value the date that results will be less than or equal to
+     */
+    class Until(override val value: OffsetDateTime) : ReportFileApiFilter<OffsetDateTime>() {
         override val tableField: TableField<ReportFileRecord, OffsetDateTime> = ReportFile.REPORT_FILE.CREATED_AT
     }
 }
@@ -37,12 +49,12 @@ enum class ReportFileApiFilterNames : ApiFilterNames {
 }
 
 /**
- *
+ * Object that contains the map of filter names to the implementing filter class
  */
 object ReportFileApiFilters : ApiFilters<ReportFileRecord, ReportFileApiFilter<*>, ReportFileApiFilterNames> {
     override val terms = mapOf(
-        Pair(ReportFileApiFilterNames.SINCE, ReportFileApiFilter.StartDate::class.java),
-        Pair(ReportFileApiFilterNames.UNTIL, ReportFileApiFilter.EndDate::class.java)
+        Pair(ReportFileApiFilterNames.SINCE, ReportFileApiFilter.Since::class.java),
+        Pair(ReportFileApiFilterNames.UNTIL, ReportFileApiFilter.Until::class.java)
     )
 }
 
@@ -70,8 +82,8 @@ class ReportFileApiSearch private constructor(
     /** Converts a [ReportFileApiFilter] into a JOOQ condition */
     override fun getCondition(filter: ReportFileApiFilter<*>): Condition {
         return when (filter) {
-            is ReportFileApiFilter.StartDate -> filter.tableField.ge(filter.value)
-            is ReportFileApiFilter.EndDate -> filter.tableField.le(filter.value)
+            is ReportFileApiFilter.Since -> filter.tableField.ge(filter.value)
+            is ReportFileApiFilter.Until -> filter.tableField.le(filter.value)
         }
     }
 
@@ -80,6 +92,9 @@ class ReportFileApiSearch private constructor(
         return sortParameter ?: ReportFile.REPORT_FILE.CREATED_AT
     }
 
+    /**
+     * Companion object that implements [ApiSearchResult] and parses a value into [ReportFileApiSearch]
+     */
     companion object :
         ApiSearchParser<ReportFilePojo, ReportFileApiSearch, ReportFileRecord, ReportFileApiFilter<*>>(), Logging {
 
@@ -87,11 +102,11 @@ class ReportFileApiSearch private constructor(
             val sortProperty = ReportFile.REPORT_FILE.field(rawApiSearch.sort.property)
             val filters = rawApiSearch.filters.mapNotNull { filter ->
                 when (ReportFileApiFilters.getTerm(ReportFileApiFilterNames.valueOf(filter.filterName))) {
-                    ReportFileApiFilter.StartDate::class.java
-                    -> ReportFileApiFilter.StartDate(OffsetDateTime.parse(filter.value))
+                    ReportFileApiFilter.Since::class.java
+                    -> ReportFileApiFilter.Since(OffsetDateTime.parse(filter.value))
 
-                    ReportFileApiFilter.EndDate::class.java
-                    -> ReportFileApiFilter.EndDate(OffsetDateTime.parse(filter.value))
+                    ReportFileApiFilter.Until::class.java
+                    -> ReportFileApiFilter.Until(OffsetDateTime.parse(filter.value))
 
                     else -> {
                         logger.warn("${filter.filterName} did not map to a valid filter for ReportFileApiSearch")
@@ -110,8 +125,16 @@ class ReportFileApiSearch private constructor(
     }
 }
 
+/**
+ * Class for fetching ReportFile rows
+ */
 class ReportFileDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessSingleton) {
 
+    /**
+     * Applies a search to a select * from report_file and returns the generated [ApiSearchResult]
+     *
+     * @param search the search configuration to apply to the query
+     */
     fun getReports(search: ReportFileApiSearch): ApiSearchResult<ReportFilePojo> {
         return db.transactReturning { txn ->
             search.fetchResults(

@@ -20,7 +20,18 @@ data class PaginationApiResponse(
     @JsonInclude(JsonInclude.Include.NON_NULL)
     val nextPage: Int? = null
 ) {
+    /**
+     * Static functions fo generating a [PaginationApiResponse]
+     */
     companion object {
+
+        /**
+         * Conversion function going from an [ApiSearch] and [ApiSearchResult] into an [PaginationApiResponse]
+         * It's responsible for calculating the total pages, next and previous page
+         *
+         * @param search the [ApiSearchResult] used to retrieve the results
+         * @param results the [ApiSearchResult] resulting running the search
+         */
         fun buildPaginationFromApiSearch(
             search: ApiSearch<*, *, *>,
             results: ApiSearchResult<*>
@@ -61,7 +72,18 @@ data class MetaApiResponse(
  * @param metaApiResponse the metadata about the response
  */
 data class ApiResponse<T>(val data: T, @JsonProperty("meta") val metaApiResponse: MetaApiResponse) {
+    /**
+     * Static functions to help parse [ApiResponse]
+     */
     companion object {
+        /**
+         * Conversion function going from an [ApiSearch] and [ApiSearchResult] into an [ApiResponse]
+         * It's responsible for calculating the pagination response and settings the remaining fields for the response
+         *
+         * @param type the type of the results
+         * @param search the [ApiSearchResult] used to retrieve the results
+         * @param results the [ApiSearchResult] resulting running the search
+         */
         fun <T> buildFromApiSearch(
             type: String,
             search: ApiSearch<T, *, *>,
