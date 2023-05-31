@@ -489,6 +489,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
          * @param jksCredential containing the cert to use
          */
         private fun getSslContext(jksCredential: UserJksCredential): SSLContext? {
+            var sslContext: SSLContext = SSLContext.getInstance(null)
             // Open the keystore in the UserJksCredential, it's a PKCS12 type
             val jksDecoded = Base64.decode(jksCredential.jks)
             val inStream: InputStream = jksDecoded.inputStream()
@@ -500,7 +501,16 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             keyManagerFactory.init(keyStore, jksPasscode)
             // create the sslContext, type TLS, with the keyManager
             // note the ktor sample code uses a TrustManger instead, but that fails with the NY cert file
-            val sslContext = SSLContext.getInstance("TLSv1.3")
+            try {
+                sslContext = SSLContext.getInstance("TLSv1.3")
+            } catch (e: Exception) {
+                try {
+                    sslContext = SSLContext.getInstance("TLSv1.2")
+                } catch (e: Exception) {
+                    // TODO: throw an error if both TLS 1.3 and 1.2 fail
+                    // logger.severe("FAILD SSL CONNECTION")
+                }
+            }
             sslContext.init(keyManagerFactory.keyManagers, null, null)
             return sslContext
         }
