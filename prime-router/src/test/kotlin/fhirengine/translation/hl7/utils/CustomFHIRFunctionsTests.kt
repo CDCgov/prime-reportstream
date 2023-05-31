@@ -586,10 +586,11 @@ class CustomFHIRFunctionsTests {
             mutableListOf(DateType(calendar.time))
         )
 
-        assertThat(age is Age)
+        assertThat(age[0] is Age).isEqualTo(true)
         if (age is Age) {
-            assertThat(age.unit).isEqualTo("years")
-            assertThat(age.unit).isEqualTo(76)
+            assertThat(age.unit).isEqualTo("year")
+            assertThat(age.value).isEqualTo(76)
+            assertThat(age.code).isEqualTo("a")
         }
     }
 
@@ -604,10 +605,11 @@ class CustomFHIRFunctionsTests {
             mutableListOf(DateType(calendar.time))
         )
 
-        assertThat(age is Age)
+        assertThat(age[0] is Age).isEqualTo(true)
         if (age is Age) {
-            assertThat(age.unit).isEqualTo("months")
-            assertThat(age.unit).isEqualTo(6)
+            assertThat(age.unit).isEqualTo("month")
+            assertThat(age.value).isEqualTo(6)
+            assertThat(age.code).isEqualTo("mo")
         }
     }
 
@@ -624,10 +626,11 @@ class CustomFHIRFunctionsTests {
             mutableListOf(DateType(calendar.time))
         )
 
-        assertThat(age is Age)
+        assertThat(age[0] is Age).isEqualTo(true)
         if (age is Age) {
-            assertThat(age.unit).isEqualTo("days")
-            assertThat(age.unit).isEqualTo(0)
+            assertThat(age.unit).isEqualTo("day")
+            assertThat(age.value).isEqualTo(0)
+            assertThat(age.code).isEqualTo("d")
         }
     }
 
@@ -644,10 +647,11 @@ class CustomFHIRFunctionsTests {
             mutableListOf(DateType(calendar.time))
         )
 
-        assertThat(age is Age)
+        assertThat(age[0] is Age).isEqualTo(true)
         if (age is Age) {
-            assertThat(age.unit).isEqualTo("days")
-            assertThat(age.unit).isEqualTo(4)
+            assertThat(age.unit).isEqualTo("day")
+            assertThat(age.value).isEqualTo(4)
+            assertThat(age.code).isEqualTo("d")
         }
     }
 }

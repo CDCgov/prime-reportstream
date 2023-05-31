@@ -12,6 +12,7 @@ import org.hl7.fhir.r4.model.DateType
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
+import java.math.BigDecimal
 import java.time.DateTimeException
 import java.time.LocalDate
 import java.time.Period
@@ -116,7 +117,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
 
             CustomFHIRFunctionNames.ConvertDateToAge -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails(
-                    "returns the number or years, months if less than a year, weeks if less" +
+                    "returns the number of years, months if less than a year, weeks if less" +
                         " than a month, and days if less than a week that a person is old for a date resource",
                     0,
                     0
@@ -211,14 +212,17 @@ object CustomFHIRFunctions : FhirPathFunctions {
 
         val age = Age()
         if (period.years > 1) {
-            age.unit = "years"
-            age.code = period.years.toString()
+            age.unit = "year"
+            age.value = BigDecimal(period.years)
+            age.code = "a"
         } else if (period.months > 1) {
-            age.unit = "months"
-            age.code = period.months.toString()
+            age.unit = "month"
+            age.value = BigDecimal(period.months)
+            age.code = "mo"
         } else if (period.days >= 0) {
-            age.unit = "days"
-            age.code = period.days.toString()
+            age.unit = "day"
+            age.value = BigDecimal(period.days)
+            age.code = "d"
         } else {
             throw SchemaException("Must call the convertDateToAge function on a date in the past")
         }
