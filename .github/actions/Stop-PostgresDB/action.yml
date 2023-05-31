@@ -21,6 +21,5 @@ runs:
       id: stop-db
       shell: bash
       run: |
-          az login ${{ inputs.creds }} \
           PGSSLMODE=require \
           az postgres flexible-server stop --name ${{ inputs.name }} --resource-group ${{ inputs.resource-group }} --subscription ${{ inputs.subscription }}
