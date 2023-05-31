@@ -208,7 +208,7 @@ class DetailedSubmissionHistory(
         }
 
     /**
-     * Container for the sum of items in total that have passed any filters
+     * Number of items in total that have passed any filters
      * Used for status calculation in cases where no translation has happened
      */
     private var itemCountAfterFiltering = 0
