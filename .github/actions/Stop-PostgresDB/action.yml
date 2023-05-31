@@ -22,6 +22,5 @@ runs:
       shell: bash
       run: |
           az login ${{ inputs.creds }} \
-          sudo PGPASSWORD=${{ inputs.pass }} \
           PGSSLMODE=require \
           az postgres flexible-server stop --name ${{ inputs.name }} --resource-group ${{ inputs.resource-group }} --subscription ${{ inputs.subscription }}
