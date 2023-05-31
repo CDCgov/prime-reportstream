@@ -574,7 +574,7 @@ class FHIRRouter(
     ) {
         var filteredTrackingElement = bundle.identifier.value ?: ""
         if (focusResource is Observation) {
-            // for Observation-type elements, we use the code if property when available
+            // for Observation-type elements, we use the code property when available
             // if more elements need specific logic, consider extending the FHIR libraries
             // instead of adding more if/else statements
             val coding = focusResource.code.coding.firstOrNull()
