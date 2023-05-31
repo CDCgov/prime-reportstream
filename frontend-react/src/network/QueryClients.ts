@@ -9,6 +9,8 @@ export const appQueryClient = new QueryClient({
             staleTime: Infinity,
             cacheTime: Infinity,
             refetchOnWindowFocus: false,
+            onError: (error: any) =>
+                console.error(`Something went wrong: ${error.message}`),
         },
     },
 });
