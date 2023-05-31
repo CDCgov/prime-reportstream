@@ -9,7 +9,7 @@ class ApiResponseTest {
     private fun createResults(size: Int): List<ApiSearchTest.TestPojo> {
         val list = mutableListOf<ApiSearchTest.TestPojo>()
         for (i in 1..size) {
-            list.add(ApiSearchTest.TestPojo("foo"))
+            list.add(ApiSearchTest.TestPojo.TEST_POJO)
         }
         return list
     }
@@ -17,7 +17,7 @@ class ApiResponseTest {
     @Test
     fun `Test create buildFromApiSearch from api search`() {
         val search = ApiSearchTest.TestApiSearch(emptyList(), null, page = 1, limit = 2)
-        val results = ApiSearchResult<ApiSearchTest.TestPojo>(10, 6, createResults(2))
+        val results = ApiSearchResult(10, 6, createResults(2))
         val response = ApiResponse.buildFromApiSearch("Test", search, results)
         assertThat(response).isEqualTo(
             ApiResponse(

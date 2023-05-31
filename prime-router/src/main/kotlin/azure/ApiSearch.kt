@@ -28,7 +28,11 @@ interface ApiFilterNames
  * @see gov.cdc.prime.router.db.ReportFileApiSearch.Companion
  */
 interface ApiFilters<RecordType : Record, ApiFilterType : ApiFilter<RecordType, *>, Names : ApiFilterNames> {
-    fun getTerm(termName: Names): Class<out ApiFilterType>?
+
+    val terms: Map<Names, Class<out ApiFilterType>>
+    fun getTerm(termName: Names): Class<out ApiFilterType>? {
+        return terms[termName]
+    }
 }
 
 interface ApiFilter<RecordType : Record, T> {
@@ -132,15 +136,32 @@ abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilte
     /** The sort direction that should be applied */
     open val sortDirection: SortDirection = SortDirection.DESC
 
+    abstract fun getCondition(filter: ApiFilterType): Condition
+
     /**
      * Converts the [filters] into a JOOQ [Condition]
      */
-    abstract fun getWhereClause(): Condition?
+    fun getWhereClause(): Condition? {
+        return filters.fold(null) { condition: Condition?, filter ->
+            if (condition == null) {
+                return@fold getCondition(filter)
+            }
+            return@fold condition.and(getCondition(filter))
+        }
+    }
+
+    abstract fun getSortColumn(): Field<*>
 
     /**
      * Converts the [sortParameter] and [sortDirection] into a JOOQ [SortField]
      */
-    abstract fun getSortClause(): SortField<*>
+    fun getSortClause(): SortField<*> {
+        val sortColumn = getSortColumn()
+        return when (sortDirection) {
+            SortDirection.ASC -> sortColumn.asc()
+            SortDirection.DESC -> sortColumn.desc()
+        }
+    }
 
     /**
      * Runs the specified select using the passed context applying the where, sort, pagination
