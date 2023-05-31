@@ -10,12 +10,13 @@ inputs:
  
 
 runs:
-   steps:
+  using: "composite"
+  steps:
     # stop db server
-      - name: Stop Postgres DB
-        id: stop-db
-        shell: bash
-        run: |
-           az postgres flexible-server stop ${{ inputs.name }}
-                               ${{ inputs.resource-group }}
-                               ${{ inputs.subscription }}
+    - name: Stop Postgres DB
+      id: stop-db
+      shell: bash
+      run: |
+          az postgres flexible-server stop ${{ inputs.name }}
+                              ${{ inputs.resource-group }}
+                              ${{ inputs.subscription }}
