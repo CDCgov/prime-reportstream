@@ -28,6 +28,7 @@ jobs:
           resource-group: prime-data-hub-test
           subscription: OCIO-DMZ-C1
           pass: ${{ secrets.POSTGRESQL_Test_PWD }}
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Stop function app
         uses: ./.github/actions/Stop-AzFunction
@@ -38,3 +39,4 @@ jobs:
           EnvName: test
           functionName: pdhtest-functionapp
           functionAppName: pdhtest-functionapp
+          
