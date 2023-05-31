@@ -28,11 +28,12 @@ foolproof, and independent as laid out here:
 
 Currently, the Universal Pipeline (UP) is used for both use cases, and organization settings specify to use the UP by
 setting the `topic` field to `full-elr`. This proposal suggests retaining the `full-elr` topic, but also adding
-an `etor` topic. Those topics will both signify usage of the UP, however senders for one topic will only be able to send
+an `etor-ti` (to specifically indicate ETOR usage in collaboration with partner application Trusted Intermediary, or TI)
+topic. Those topics will both signify usage of the UP, however senders for one topic will only be able to send
 data to receivers of the same topic. Additionally, each topic may have a different set of default filters; for instance,
 the current default quality filter for the `full-elr` topic expects a patient to have contact information, but for
 newborn screening ETOR requests, that information won't be available. So a separate default quality filter for
-the `etor` topic could set a reasonable starting set of quality expectations that are reasonable for ETOR requests.
+the `etor-ti` topic could set a reasonable starting set of quality expectations that are reasonable for ETOR requests.
 
 ### Implications on internal types
 
@@ -42,7 +43,7 @@ pipeline). `TopicSender` has subtypes `CovidSender` and `MonkeypoxSender`.
 
 Under this proposal, `FullELRSender` will be renamed to `UniversalPipelineSender`, and `TopicSender` will be renamed
 to `LegacyPipelineSender` (still with subclasses `CovidSender` and `MonkeypoxSender`). Topic will still be used to
-determine which subclass of `Sender` to use; `full-elr` and `etor` will correspond to `UniversalPipelineSender`,
+determine which subclass of `Sender` to use; `full-elr` and `etor-ti` will correspond to `UniversalPipelineSender`,
 while `covid-19` will correspond to `CovidSender` and `monkeypox` will correspond to `MonkeypoxSender`.
 
 Receivers don't have the same kind of structure as senders, so the `Receiver` class and subclasses will not have the
@@ -53,7 +54,7 @@ filters for performance reasons.
 ### Implications on organization settings
 
 After the changes here, the existing settings for ETOR senders and receivers will largely still hold, with the exception
-of the value of `topic`, which will be `etor` instead of `full-elr`.
+of the value of `topic`, which will be `etor-ti` instead of `full-elr`.
 
 Since ELR senders and receivers have a topic of `full-elr` already, they will not require any changes.
 

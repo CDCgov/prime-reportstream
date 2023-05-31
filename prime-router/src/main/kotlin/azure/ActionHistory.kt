@@ -378,7 +378,7 @@ class ActionHistory(
         reportFile.sendingOrg = source.organization
         reportFile.sendingOrgClient = source.client
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic.json_val
+        reportFile.schemaTopic = report.schema.topic
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
@@ -413,7 +413,7 @@ class ActionHistory(
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic.json_val
+        reportFile.schemaTopic = report.schema.topic
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
@@ -444,7 +444,7 @@ class ActionHistory(
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic.json_val
+        reportFile.schemaTopic = report.schema.topic
         reportFile.itemCount = report.itemCount
         reportFile.bodyFormat = report.bodyFormat.toString()
         reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
@@ -474,7 +474,7 @@ class ActionHistory(
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic.json_val
+        reportFile.schemaTopic = report.schema.topic
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
@@ -509,7 +509,7 @@ class ActionHistory(
         reportFile.nextAction = event.eventAction.toTaskAction()
         reportFile.nextActionAt = event.at
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic.json_val
+        reportFile.schemaTopic = report.schema.topic
         if (blobInfo != null) {
             reportFile.bodyUrl = blobInfo.blobUrl
             reportFile.bodyFormat = blobInfo.format.toString()
@@ -558,7 +558,7 @@ class ActionHistory(
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = receiver.schemaName
-        reportFile.schemaTopic = receiver.topic.json_val
+        reportFile.schemaTopic = receiver.topic
         reportFile.externalName = filename
         action.externalName = filename
         reportFile.transportParams = params
