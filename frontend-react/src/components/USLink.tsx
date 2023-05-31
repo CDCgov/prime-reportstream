@@ -64,8 +64,17 @@ export const SafeLink = ({
 }: SafeLinkProps) => {
     const sanitizedHref = href ? DOMPurify.sanitize(href) : href;
     const routeHref = getHrefRoute(sanitizedHref);
+    const isFile = sanitizedHref?.startsWith("/assets/");
+    // eslint-disable-next-line no-console
+    console.log(
+        "debug",
+        href,
+        sanitizedHref,
+        routeHref,
+        routeHref !== undefined && !isFile
+    );
 
-    return routeHref !== undefined ? (
+    return routeHref !== undefined && !isFile ? (
         <Link to={routeHref} state={state} {...anchorHTMLAttributes}>
             {children}
         </Link>
@@ -171,6 +180,7 @@ export const USNavLink = ({
     children,
     className,
     activeClassName,
+    ...props
 }: USNavLinkProps) => {
     const { hash: currentHash } = useLocation();
     const hashIndex = href?.indexOf("#") ?? -1;
@@ -190,6 +200,7 @@ export const USNavLink = ({
                     [className as any]: !isActive, // `as any` because string may be undefined
                 });
             }}
+            {...props}
         >
             {children}
         </NavLink>

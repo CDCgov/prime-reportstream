@@ -3,16 +3,8 @@ import { USNavLink } from "../../../components/USLink"
 import SideNavItem from "../../../shared/SideNavItem"
 
 <SideNav items={[
-    <SideNavItem href="/resources/api" items={[
-        <USNavLink href="/resources/api#onboarding-overview">Onboarding overview</USNavLink>,
-        <USNavLink href="/resources/api#about-our-api">About our API</USNavLink>,
-    ]}>ReportStream API</SideNavItem>,
-    <SideNavItem href="/resources/api/getting-started" items={[
-        <USNavLink href="/resources/api/getting-started#format-and-validate-a-fake-data-file">Format and validate a fake data file</USNavLink>,
-        <USNavLink href="/resources/api/getting-started#set-up-authentication-and-test-your-api-connection">Set up authentication and test your api connection</USNavLink>,
-        <USNavLink href="/resources/api/getting-started#test-real-data-in-production">Test real data in production</USNavLink>,
-        <USNavLink href="/resources/api/getting-started#start-sending-data-in-production">Start sending data in production</USNavLink>,
-    ]}>Getting started</SideNavItem>,
+    <SideNavItem href="/resources/api" end>ReportStream API</SideNavItem>,
+    <SideNavItem href="/resources/api/getting-started">Getting started</SideNavItem>,
     <SideNavItem isActive={true} href="/resources/api/documentation" items={[
         <SideNavItem href="/resources/api/documentation/data-model" items={[
             <USNavLink href="/resources/api/documentation/data-model#common-errors">Common errors</USNavLink>,

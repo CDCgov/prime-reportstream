@@ -2,7 +2,7 @@ import { toRelativeUrl } from "@okta/okta-auth-js";
 import { useIdleTimer } from "react-idle-timer";
 import { Suspense, useEffect, useRef } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
-import { useNavigate } from "react-router-dom";
+import { ScrollRestoration, useNavigate } from "react-router-dom";
 
 import { OKTA_AUTH } from "./oktaConfig";
 import { permissionCheck, PERMISSIONS } from "./utils/PermissionsUtils";
@@ -106,6 +106,7 @@ const App = ({ children }: AppProps) => {
                 <NetworkErrorBoundary
                     fallbackComponent={() => <ErrorPage type="page" />}
                 >
+                    <ScrollRestoration />
                     {children}
                 </NetworkErrorBoundary>
             </Suspense>
