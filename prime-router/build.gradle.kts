@@ -104,8 +104,9 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 defaultTasks("package")
 
 val ktorVersion = "2.3.0"
-val kotlinVersion = "1.8.20"
+val kotlinVersion = "1.8.21"
 val jacksonVersion = "2.15.0"
+
 jacoco.toolVersion = "0.8.9"
 
 // Set the compiler JVM target
@@ -593,7 +594,16 @@ jooq {
                                     // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
                                     // If provided, both "includeExpressions" and "includeTypes" must match.
                                     .withIncludeExpression("action_log.detail")
-                                    .withIncludeTypes("JSONB")
+                                    .withIncludeTypes("JSONB"),
+                                ForcedType()
+                                    // Specify the Java type of your custom type. This corresponds to the Binding's <U> type.
+                                    .withUserType("gov.cdc.prime.router.Topic")
+                                    // Associate that custom type with your binding.
+                                    .withBinding("gov.cdc.prime.router.TopicBinding")
+                                    // A Java regex matching fully-qualified columns, attributes, parameters. Use the pipe to separate several expressions.
+                                    // If provided, both "includeExpressions" and "includeTypes" must match.
+                                    .withIncludeExpression("report_file.schema_topic")
+                                    .withIncludeTypes("VARCHAR")
                             )
                         )
                     }

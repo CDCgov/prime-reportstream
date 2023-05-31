@@ -1,0 +1,17 @@
+To use this method, you will need to [create a Keybase account](https://keybase.io/) if you do not already have one.
+
+Here’s an example bash shell curl command submission to ReportStream using a shared secret API key. The example command submits the contents of the file `./healthy-labs-nonPII-data.csv` to the endpoint using the client name healthy-labs. You’ll use your own client-id.
+
+The ReportStream team will provide you with the x-functions- key value for submissions to that client-id.
+
+CSV example
+
+```
+curl -X POST -H “client:healthy-labs” -H “content-type:text/csv” –data-binary “@./healthy-labs-nonPII- data.csv” -H “x-functions-key:<place-token-here>” https://staging.prime.cdc.gov/api/reports
+```
+
+HL7 example
+
+```
+curl -X POST -H “client:super-labs” -H “content-type:application/hl7-v2” –data-binary “@./super-labs-nonPII- data.hl7” -H “x-functions-key:<place-token-here>” https://staging.prime.cdc.gov/api/report
+```

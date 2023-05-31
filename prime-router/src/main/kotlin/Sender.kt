@@ -36,10 +36,12 @@ import java.time.OffsetDateTime
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.EXISTING_PROPERTY,
-    property = "topic"
+    property = "topic",
+    visible = true
 )
 @JsonSubTypes(
     JsonSubTypes.Type(value = FullELRSender::class, name = "full-elr"),
+    JsonSubTypes.Type(value = FullELRSender::class, name = "etor-ti"),
     JsonSubTypes.Type(value = CovidSender::class, name = "covid-19"),
     JsonSubTypes.Type(value = MonkeypoxSender::class, name = "monkeypox")
 )
@@ -189,9 +191,10 @@ class FullELRSender : Sender {
         processingType: ProcessingType = sync,
         allowDuplicates: Boolean = true,
         senderType: SenderType? = null,
-        primarySubmissionMethod: PrimarySubmissionMethod? = null
+        primarySubmissionMethod: PrimarySubmissionMethod? = null,
+        topic: Topic,
     ) : super(
-        Topic.FULL_ELR,
+        topic,
         name,
         organizationName,
         format,
@@ -208,7 +211,8 @@ class FullELRSender : Sender {
         copy.organizationName,
         copy.format,
         copy.customerStatus,
-        copy.schemaName
+        copy.schemaName,
+        topic = copy.topic,
     )
 
     /**
