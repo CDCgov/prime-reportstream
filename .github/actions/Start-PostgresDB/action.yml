@@ -18,4 +18,4 @@ runs:
       shell: bash
       run: |
         PGSSLMODE=require \
-        az postgres flexible-server stop --name ${{ inputs.name }} --resource-group ${{ inputs.resource-group }} --subscription ${{ inputs.subscription }}
+        az postgres flexible-server start --name ${{ inputs.name }} --resource-group ${{ inputs.resource-group }} --subscription ${{ inputs.subscription }}
