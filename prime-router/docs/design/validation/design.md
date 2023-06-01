@@ -65,8 +65,12 @@ When a message fails validation, validation errors should show up in:
 See the validation epic (#8973) for related tickets
 
 ### FHIR Validation
-A factory/builder shall consume the validationProfile setting and produce reusable, cached validation objects
-(i.e. instance of configured FhirValidator in a wrapper/interface) that can be used to validate FHIR data.
+
+The FHIR validator implementation will utilize the [HAPI FHIR library](https://hapifhir.io) for validation. The two
+validation objects `IParser` and `FhirInstanceValidator` provided by HAPI should both be supported. The validator will
+be responsible for consuming settings from the factory/builder and instantiating the appropriate HAPI objects.
+
+Other objects of interest include: `ValueSet` and `CodeSystem`; see the `Background Information` for further info.
 
 #### Validation Tool
 There is an existing and well-maintained project that meets the requirements for a validation tool. We intend to deploy
