@@ -1,3 +1,5 @@
+name: AZFunction-stop
+description: stop Azure function on Friday in Test environment
 inputs:
   - name: resourceGroupName
     type: string
