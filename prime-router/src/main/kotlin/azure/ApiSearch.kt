@@ -2,7 +2,6 @@ package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import org.apache.poi.ss.formula.functions.T
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.Field
