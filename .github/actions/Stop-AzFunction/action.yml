@@ -13,23 +13,18 @@ inputs:
 runs:
   using: "composite"
   steps:
-  - task: AzurePowerShell@4
-    displayName: 'Check if Function App Exists'
-    inputs:
-      TargetAzurePs: latestVersion
-      scriptType: inlineScript
-      # Sets the 'DoesAppExist' variable for use in subsequent task.
-      inline: |
+  - name: Stop funciton
+      id: stop-function
+      shell: Powershell
+      run: |
         $funcApp = Get-AzFunctionApp -ResourceGroupName ${{ inputs.resourceGroupName }} -Name ${{ inputs.functionAppName }}
         $doesAppExist = ($funcApp -ne $null)
         Write-Host "##vso[task.setvariable variable=DoesAppExist]$doesAppExist"
-  - task: AzureAppServiceSettings@1
-    displayName: 'Disable Function App'
+  - uses: azure/appservice-settings@v1
     condition: eq(variables.DoesAppExist, true)
-    inputs:
-      azureSubscription: '$(inputs.subscription)-${{ inputs.envName }}'
-      appName: ${{ inputs.functionAppName }}
-      appSettings: |
+    with:
+      app-name: ${{ inputs.functionAppName }}
+      app-settings-json: |
         [
           {
             "name": "AzureWebJobs.${{ inputs.functionName }}.Disabled",
@@ -37,3 +32,6 @@ runs:
             "slotSetting": false
           }
         ]
+    id: settings
+
+  
