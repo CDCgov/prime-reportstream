@@ -20,7 +20,7 @@ function FacilityProviderSubmitterDetails(
     props: FacilityProviderSubmitterDetailsProps
 ) {
     // TODO: get from params once API is complete.
-    // const { reportId } = useParams();
+    // const { aggregatorId } = useParams();
     const aggregatorTypeId = "1234";
     const summaryDetails = {
         aggregatorTypeName: "AFC Urgent Care",

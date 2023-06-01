@@ -245,7 +245,7 @@ export const appRoutes: RouteObject[] = [
                         element: <FacilitiesProvidersWithAuth />,
                     },
                     {
-                        path: "facility-provider-submitter-details/facility/:reportId",
+                        path: "facility-provider-submitter-details/facility/:aggregatorId",
                         element: (
                             <FacilityProviderSubmitterDetailsWithAuth
                                 aggregatorType={AggregatorType.FACILITY}
@@ -253,7 +253,7 @@ export const appRoutes: RouteObject[] = [
                         ),
                     },
                     {
-                        path: "facility-provider-submitter-details/provider/:reportId",
+                        path: "facility-provider-submitter-details/provider/:aggregatorId",
                         element: (
                             <FacilityProviderSubmitterDetailsWithAuth
                                 aggregatorType={AggregatorType.PROVIDER}
@@ -261,7 +261,7 @@ export const appRoutes: RouteObject[] = [
                         ),
                     },
                     {
-                        path: "facility-provider-submitter-details/submitter/:reportId",
+                        path: "facility-provider-submitter-details/submitter/:aggregatorId",
                         element: (
                             <FacilityProviderSubmitterDetailsWithAuth
                                 aggregatorType={AggregatorType.SUBMITTER}
