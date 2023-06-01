@@ -15,9 +15,11 @@ runs:
       id: stop-function
       shell: pwsh
       run: |
-        $funcApp = Get-AzFunctionApp -ResourceGroupName ${{ inputs.resourceGroupName }} -Name ${{ inputs.functionAppName }}
-        $doesAppExist = ($funcApp -ne $null)
-        Write-Host "##vso[task.setvariable variable=DoesAppExist]$doesAppExist"
+        Get-AzFunctionApp -Name ${{ inputs.functionAppName }} -ResourceGroupName ${{ inputs.resourceGroupName }} | Stop-AzFunctionApp
+       
+      # $funcApp = Get-AzFunctionApp -ResourceGroupName ${{ inputs.resourceGroupName }} -Name ${{ inputs.functionAppName }}
+      # $doesAppExist = ($funcApp -ne $null)
+      # Write-Host "##vso[task.setvariable variable=DoesAppExist]$doesAppExist"
     # - uses: azure/appservice-settings@v1
     #   with:
     #     app-name: ${{ inputs.functionAppName }}
