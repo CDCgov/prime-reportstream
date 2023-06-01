@@ -900,7 +900,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base"
+        schemaName: "metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-deidentified"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"

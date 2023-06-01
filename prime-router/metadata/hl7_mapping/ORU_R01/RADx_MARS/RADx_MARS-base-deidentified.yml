@@ -42,3 +42,18 @@ elements:
 
   - name: ordering-facility-practitioner-address
     schema: ../../common/datatype/xad-extended-address-deidentified
+
+  - name: contact-address
+    schema: ../../common/datatype/xad-extended-address-deidentified
+
+  - name: contact-name
+    schema: ../../common/datatype/xpn-person-name-deidentified
+
+  - name: contact-phone-number
+    schema: ../../common/datatype/xtn-telecom-deidentified
+
+  - name: contact-business-phone-number
+    schema: ../../common/datatype/xtn-telecom-deidentified
+
+  - name: contact-persons-phone-number
+    schema: ../../common/datatype/xtn-telecom-deidentified
