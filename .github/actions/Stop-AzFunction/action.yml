@@ -21,7 +21,6 @@ runs:
       $doesAppExist = ($funcApp -ne $null)
       Write-Host "##vso[task.setvariable variable=DoesAppExist]$doesAppExist"
   - uses: azure/appservice-settings@v1
-    condition: eq(variables.DoesAppExist, true)
     with:
       app-name: ${{ inputs.functionAppName }}
       app-settings-json: |
