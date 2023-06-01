@@ -299,7 +299,7 @@ class FHIRRouter(
      * @return list of receivers that should receive this bundle
      */
     internal fun applyFilters(bundle: Bundle, report: Report, topic: Topic): List<Receiver> {
-        check(topic.isUniversalPipeline)
+        check(topic.isUniversalPipeline) { "Unexpected topic $topic in the Universal Pipeline routing step." }
         val listOfReceivers = mutableListOf<Receiver>()
         // find all receivers that have a matching topic and determine which applies
         val topicReceivers =

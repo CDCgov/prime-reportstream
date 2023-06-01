@@ -3,8 +3,10 @@ package gov.cdc.prime.router.fhirengine.engine.fhirRouterTests
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.doesNotContain
+import assertk.assertions.hasClass
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
@@ -1010,6 +1012,10 @@ class RoutingTests {
         assertThat(report.filteringResults).isEmpty()
         assertThat(receivers.size).isEqualTo(1)
         assertThat(receivers[0].name).isEqualTo("full-elr-hl7")
+
+        // Verify error when using non-UP topic
+        assertThat { engine.applyFilters(bundle, report, Topic.COVID_19) }.isFailure()
+            .hasClass(java.lang.IllegalStateException::class.java)
     }
 
     @Test
