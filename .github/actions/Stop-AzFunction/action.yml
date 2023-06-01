@@ -13,24 +13,24 @@ inputs:
 runs:
   using: "composite"
   steps:
-  - name: Stop funciton
-    id: stop-function
-    shell: Powershell
-    run: |
-      $funcApp = Get-AzFunctionApp -ResourceGroupName ${{ inputs.resourceGroupName }} -Name ${{ inputs.functionAppName }}
-      $doesAppExist = ($funcApp -ne $null)
-      Write-Host "##vso[task.setvariable variable=DoesAppExist]$doesAppExist"
-  - uses: azure/appservice-settings@v1
-    with:
-      app-name: ${{ inputs.functionAppName }}
-      app-settings-json: |
-        [
-          {
-            "name": "AzureWebJobs.${{ inputs.functionName }}.Disabled",
-            "value": true,
-            "slotSetting": false
-          }
-        ]
-    id: settings
+    - name: Stop funciton
+      id: stop-function
+      shell: Powershell
+      run: |
+        $funcApp = Get-AzFunctionApp -ResourceGroupName ${{ inputs.resourceGroupName }} -Name ${{ inputs.functionAppName }}
+        $doesAppExist = ($funcApp -ne $null)
+        Write-Host "##vso[task.setvariable variable=DoesAppExist]$doesAppExist"
+    - uses: azure/appservice-settings@v1
+      with:
+        app-name: ${{ inputs.functionAppName }}
+        app-settings-json: |
+          [
+            {
+              "name": "AzureWebJobs.${{ inputs.functionName }}.Disabled",
+              "value": true,
+              "slotSetting": false
+            }
+          ]
+      id: settings
 
   
