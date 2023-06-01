@@ -2,7 +2,7 @@ import { toRelativeUrl } from "@okta/okta-auth-js";
 import { useIdleTimer } from "react-idle-timer";
 import { Suspense, useEffect, useRef } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
-import { ScrollRestoration, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { OKTA_AUTH } from "./oktaConfig";
 import { permissionCheck, PERMISSIONS } from "./utils/PermissionsUtils";
@@ -15,6 +15,7 @@ import { useScrollToTop } from "./hooks/UseScrollToTop";
 import { EventName, trackAppInsightEvent } from "./utils/Analytics";
 import { logout } from "./utils/UserUtils";
 import { IS_IE } from "./utils/GetIsIE";
+import ScrollRestoration from "./components/ScrollRestoration";
 
 export interface AppProps extends React.PropsWithChildren {}
 
