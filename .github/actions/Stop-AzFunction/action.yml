@@ -9,7 +9,10 @@ inputs:
     type: string
   - name: EnvName
     type: string
-steps:
+
+runs:
+  using: "composite"
+  steps:
   - task: AzurePowerShell@4
     displayName: 'Check if Function App Exists'
     inputs:

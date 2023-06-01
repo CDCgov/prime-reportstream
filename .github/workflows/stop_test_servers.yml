@@ -21,19 +21,19 @@ jobs:
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: Stop postgres
-        uses: ./.github/actions/Stop-PostgresDB
-        with:
-          name: "pdhtest-pgsql-flex"
-          resource-group: prime-data-hub-test
-          subscription: OCIO-DMZ-C1
-          pass: ${{ secrets.POSTGRESQL_Test_PWD }}
-          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+      # - name: Stop postgres
+      #   uses: ./.github/actions/Stop-PostgresDB
+      #   with:
+      #     name: "pdhtest-pgsql-flex"
+      #     resource-group: prime-data-hub-test
+      #     subscription: OCIO-DMZ-C1
+      #     pass: ${{ secrets.POSTGRESQL_Test_PWD }}
+      #     creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Stop function app
         uses: ./.github/actions/Stop-AzFunction
         with:
-          name: pdhtest-pgsql-flex
+          name: pdhtest-functionapp
           resourceGroupName: prime-data-hub-test
           subscription: OCIO-DMZ-C1
           EnvName: test
