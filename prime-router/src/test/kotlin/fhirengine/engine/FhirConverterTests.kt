@@ -120,7 +120,7 @@ class FhirConverterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
             RawSubmission(
-                UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender",
+                UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender", topic = Topic.FULL_ELR,
                 "test-schema"
             )
         )
@@ -166,7 +166,7 @@ class FhirConverterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
             RawSubmission(
-                UUID.randomUUID(), "http://blobstore.example/file.fhir", "test", "test-sender",
+                UUID.randomUUID(), "http://blobstore.example/file.fhir", "test", "test-sender", topic = Topic.FULL_ELR,
                 "test-schema"
             )
         )
@@ -205,7 +205,15 @@ class FhirConverterTests {
     fun `test getContentFromHL7`() {
         val actionLogger = mockk<ActionLogger>()
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender"))
+        val message = spyk(
+            RawSubmission(
+                UUID.randomUUID(),
+                "http://blobstore.example/file.hl7",
+                "test",
+                "test-sender",
+                topic = Topic.FULL_ELR
+            )
+        )
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(valid_hl7)
@@ -217,7 +225,15 @@ class FhirConverterTests {
     fun `test getContentFromHL7 invalid HL7`() {
         val actionLogger = spyk(ActionLogger())
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender"))
+        val message = spyk(
+            RawSubmission(
+                UUID.randomUUID(),
+                "http://blobstore.example/file.hl7",
+                "test",
+                "test-sender",
+                topic = Topic.FULL_ELR
+            )
+        )
 
         every { message.downloadContent() }
             .returns(File("src/test/resources/fhirengine/engine/valid_data.fhir").readText())
@@ -234,7 +250,15 @@ class FhirConverterTests {
         val actionLogger = spyk(ActionLogger())
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message =
-            spyk(RawSubmission(UUID.randomUUID(), "http://blobstore.example/file.fhir", "test", "test-sender"))
+            spyk(
+                RawSubmission(
+                    UUID.randomUUID(),
+                    "http://blobstore.example/file.fhir",
+                    "test",
+                    "test-sender",
+                    topic = Topic.FULL_ELR
+                )
+            )
 
         every { message.downloadContent() }
             .returns(File("src/test/resources/fhirengine/engine/valid_data.fhir").readText())

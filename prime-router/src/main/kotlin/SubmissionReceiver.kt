@@ -274,7 +274,8 @@ class ELRReceiver : SubmissionReceiver {
                     sources,
                     messages.size,
                     metadata = metadata,
-                    nextAction = TaskAction.convert
+                    nextAction = TaskAction.convert,
+                    topic = sender.topic,
                 )
 
                 // dupe detection if needed, and if we have not already produced an error
@@ -296,7 +297,8 @@ class ELRReceiver : SubmissionReceiver {
                     sources,
                     bundles.size,
                     metadata = metadata,
-                    nextAction = TaskAction.convert
+                    nextAction = TaskAction.convert,
+                    topic = sender.topic,
                 )
             }
             else -> {
@@ -343,6 +345,7 @@ class ELRReceiver : SubmissionReceiver {
                     blobInfo.blobUrl,
                     BlobAccess.digestToString(blobInfo.digest),
                     sender.fullName,
+                    sender.topic,
                     sender.schemaName,
                 ).serialize()
             )
