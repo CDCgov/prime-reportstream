@@ -1,0 +1,44 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+extends: RADX_MARS-base
+constants:
+  deidentifiedValue: '"DEIDENTIFIED"'
+  deidentifiedPhoneNumber: '"5555555"'
+  deidentifiedAreaNumber: '"555"'
+elements:
+  - name: patient-identifier-list
+    schema: ../../common/datatype/cx-extended-composite-id-deidentified
+
+  - name: patient-name
+    schema: ../../common/datatype/xpn-person-name-deidentified
+
+  - name: patient-address
+    schema: ../../common/datatype/xad-extended-address-deidentified
+
+  - name: phone-number-home-mobile-email
+    schema: ../../common/datatype/xtn-telecom-deidentified
+
+  - name: phone-number-business
+    schema: ../../common/datatype/xtn-telecom-deidentified
+
+  - name: patient-death-date-time
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7PIDField}-29' ]
+
+  - name: patient-death-date-time
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7PIDField}-29' ]
+
+  - name: patient-death-indicator-1
+    value: [ '""' ]
+
+  - name: patient-death-indicator-2
+    value: [ '""' ]
+
+  - name: patient-dob
+    value: [ '""' ]
+
+  - name: order-callback-phone-number
+    schema: ../../common/datatype/xtn-telecom-deidentified
+
+  - name: ordering-facility-practitioner-address
+    schema: ../../common/datatype/xad-extended-address-deidentified
