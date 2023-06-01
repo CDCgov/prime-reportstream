@@ -15,6 +15,11 @@ runs:
       id: stop-function
       shell: pwsh
       run: |
+        $findmodule = Get-Module -ListAvailable -Name Az.Functions
+        if (!$findmodule) {
+            write-host "Az.Functions module for PowershellAz not found - Will now update the agent by running command Install-Module -Name Az -AllowClobber -Force"
+            Install-Module -Name Az -AllowClobber -Force
+        }
         Get-AzFunctionApp -Name ${{ inputs.functionAppName }} -ResourceGroupName ${{ inputs.resourceGroupName }} | Stop-AzFunctionApp
        
       # $funcApp = Get-AzFunctionApp -ResourceGroupName ${{ inputs.resourceGroupName }} -Name ${{ inputs.functionAppName }}
