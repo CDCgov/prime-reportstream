@@ -84,7 +84,22 @@ class RoutingTests {
         )
     )
 
-    val twoOrganization = DeepOrganization(
+    val etorOrganization = DeepOrganization(
+        "etor-test",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
+        receivers = listOf(
+            Receiver(
+                "simulatedlab",
+                "etor-test",
+                Topic.ETOR_TI,
+                CustomerStatus.ACTIVE,
+                "one"
+            )
+        )
+    )
+
+    val orgWithReversedQualityFilter = DeepOrganization(
         "co-phd",
         "test",
         Organization.Jurisdiction.FEDERAL,
@@ -139,6 +154,23 @@ class RoutingTests {
             .blobAccess(blobMock).queueAccess(queueMock).build(taskAction)
     }
 
+    /**
+     * Private extension function on FHIRRouter as helper to allow setting all filter mocks in one call
+     */
+    private fun FHIRRouter.setFiltersOnEngine(
+        jurisFilter: List<String>,
+        qualFilter: List<String>,
+        routingFilter: List<String>,
+        procModeFilter: List<String>,
+        conditionFilter: List<String> = emptyList(),
+    ) {
+        every { getJurisFilters(any(), any()) } returns jurisFilter
+        every { getQualityFilters(any(), any()) } returns qualFilter
+        every { getRoutingFilter(any(), any()) } returns routingFilter
+        every { getProcessingModeFilter(any(), any()) } returns procModeFilter
+        every { getConditionFilter(any(), any()) } returns conditionFilter
+    }
+
     @BeforeEach
     fun reset() {
         report.filteringResults.clear()
@@ -149,7 +181,7 @@ class RoutingTests {
     fun `test applyFilters receiver setting - (reverseTheQualityFilter = true) `() {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
-        val settings = FileSettings().loadOrganizations(twoOrganization)
+        val settings = FileSettings().loadOrganizations(orgWithReversedQualityFilter)
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         val qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() = 10")
         val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
@@ -157,14 +189,10 @@ class RoutingTests {
         val conditionFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
-        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns qualFilter
-        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
-        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
-        every { engine.getConditionFilter(any(), any()) } returns conditionFilter
         // act
-        val receivers = engine.applyFilters(bundle, report)
+        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
 
         // assert
         assertThat(receivers).isNotEmpty()
@@ -182,14 +210,10 @@ class RoutingTests {
         val conditionFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns qualFilter
-        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
-        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
-        every { engine.getConditionFilter(any(), any()) } returns conditionFilter
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report)
+        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
 
         // assert
         assertThat(receivers).isNotEmpty()
@@ -207,14 +231,10 @@ class RoutingTests {
         val conditionFilter = emptyList<String>()
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns qualFilter
-        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
-        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
-        every { engine.getConditionFilter(any(), any()) } returns conditionFilter
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report)
+        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
 
         // assert
         assertThat(receivers).isNotEmpty()
@@ -236,14 +256,10 @@ class RoutingTests {
         )
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns qualFilter
-        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
-        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
-        every { engine.getConditionFilter(any(), any()) } returns conditionFilter
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report)
+        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
 
         // assert
         assertThat(receivers).isNotEmpty()
@@ -265,14 +281,10 @@ class RoutingTests {
         )
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns qualFilter
-        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
-        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
-        every { engine.getConditionFilter(any(), any()) } returns conditionFilter
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report)
+        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
 
         // assert
         assertThat(receivers).isNotEmpty()
@@ -294,14 +306,10 @@ class RoutingTests {
         )
 
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns qualFilter
-        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
-        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
-        every { engine.getConditionFilter(any(), any()) } returns conditionFilter
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report)
+        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
 
         // assert
         assertThat(receivers).isEmpty()
@@ -311,8 +319,8 @@ class RoutingTests {
     fun `test reverseQualityFilter flag only reverses the quality filter`() {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
-        // Using receiver with reverQualityFilter set to true
-        val settings = FileSettings().loadOrganizations(twoOrganization)
+        // Using receiver with reverseQualityFilter set to true
+        val settings = FileSettings().loadOrganizations(orgWithReversedQualityFilter)
         // This Jurisdictional filter evaluates to true.
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         // This quality filter evaluates to true, but is reversed to false
@@ -322,13 +330,10 @@ class RoutingTests {
         // This processing mode filter evaluates to true
         val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns qualFilter
-        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
-        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report)
+        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
 
         // assert only the quality filter didn't pass
         assertThat(report.filteringResults).isNotEmpty()
@@ -398,10 +403,7 @@ class RoutingTests {
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
-        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns qualFilter
-        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
-        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -453,10 +455,7 @@ class RoutingTests {
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
-        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns qualFilter
-        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
-        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -508,10 +507,7 @@ class RoutingTests {
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
-        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns qualFilter
-        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
-        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -563,10 +559,7 @@ class RoutingTests {
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
-        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns qualFilter
-        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
-        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -619,11 +612,7 @@ class RoutingTests {
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
-        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns qualFilter
-        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
-        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
-        every { engine.getConditionFilter(any(), any()) } returns conditionFilter
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -676,11 +665,7 @@ class RoutingTests {
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
-        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns qualFilter
-        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
-        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
-        every { engine.getConditionFilter(any(), any()) } returns conditionFilter
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -715,7 +700,7 @@ class RoutingTests {
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
 
-        every { engine.applyFilters(any(), any()) } returns emptyList()
+        every { engine.applyFilters(any(), any(), any()) } returns emptyList()
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(fhirData)
@@ -871,10 +856,12 @@ class RoutingTests {
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
-        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns engine.qualityFilterDefault
-        every { engine.getRoutingFilter(any(), any()) } returns emptyList()
-        every { engine.getProcessingModeFilter(any(), any()) } returns engine.processingModeFilterDefault
+        engine.setFiltersOnEngine(
+            jurisFilter,
+            engine.qualityFilterDefault,
+            routingFilter = emptyList(),
+            engine.processingModeFilterDefault,
+        )
 
         val nonBooleanMsg = "Condition did not evaluate to a boolean type"
         every { FhirPathUtils.evaluateCondition(any(), any(), any(), any()) } throws SchemaException(nonBooleanMsg)
@@ -914,10 +901,59 @@ class RoutingTests {
     }
 
     @Test
+    fun `test etor topic routing`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        val settings = FileSettings().loadOrganizations(etorOrganization)
+        // All filters evaluate to true.
+        val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
+
+        // when doing routing for full-elr, verify that etor receiver isn't included (not even in logged results)
+        var receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
+        assertThat(report.filteringResults).isEmpty()
+        assertThat(receivers).isEmpty()
+
+        // when doing routing for etor, verify that etor receiver is included
+        receivers = engine.applyFilters(bundle, report, Topic.ETOR_TI)
+        assertThat(report.filteringResults).isEmpty()
+        assertThat(receivers.size).isEqualTo(1)
+        assertThat(receivers[0]).isEqualTo(etorOrganization.receivers[0])
+    }
+
+    @Test
+    fun `test elr topic routing`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        // All filters evaluate to true.
+        val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
+
+        // when doing routing for etor, verify that full-elr receiver isn't included (not even in logged results)
+        var receivers = engine.applyFilters(bundle, report, Topic.ETOR_TI)
+        assertThat(report.filteringResults).isEmpty()
+        assertThat(receivers).isEmpty()
+
+        // when doing routing for full-elr, verify that full-elr receiver is included
+        receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
+        assertThat(report.filteringResults).isEmpty()
+        assertThat(receivers.size).isEqualTo(1)
+        assertThat(receivers[0]).isEqualTo(oneOrganization.receivers[0])
+    }
+
+    @Test
     fun `test applyFilters logs results for routing filters`() {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
-        // Using receiver with reverQualityFilter set to true
         val settings = FileSettings().loadOrganizations(oneOrganization)
         // This Jurisdictional filter evaluates to true.
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
@@ -928,13 +964,10 @@ class RoutingTests {
         // This processing mode filter evaluates to true
         val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns qualFilter
-        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
-        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report)
+        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
 
         // assert only the quality filter didn't pass
 
@@ -948,7 +981,6 @@ class RoutingTests {
     fun `test applyFilters logs results for processing mode filters`() {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
-        // Using receiver with reverQualityFilter set to true
         val settings = FileSettings().loadOrganizations(oneOrganization)
         // This Jurisdictional filter evaluates to true.
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
@@ -959,13 +991,10 @@ class RoutingTests {
         // This processing mode filter evaluates to false
         val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 10")
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns qualFilter
-        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
-        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report)
+        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
 
         // assert only the processing mode filter didn't pass
 
