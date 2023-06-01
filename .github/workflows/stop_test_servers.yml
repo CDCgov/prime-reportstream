@@ -33,10 +33,8 @@ jobs:
       - name: Stop function app
         uses: ./.github/actions/Stop-AzFunction
         with:
-          name: pdhtest-functionapp
           resourceGroupName: prime-data-hub-test
-          subscription: OCIO-DMZ-C1
-          EnvName: test
+          SubscriptionId: OCIO-DMZ-C1
           functionName: pdhtest-functionapp
           functionAppName: pdhtest-functionapp
           
