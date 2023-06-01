@@ -14,12 +14,12 @@ runs:
   using: "composite"
   steps:
   - name: Stop funciton
-      id: stop-function
-      shell: Powershell
-      run: |
-        $funcApp = Get-AzFunctionApp -ResourceGroupName ${{ inputs.resourceGroupName }} -Name ${{ inputs.functionAppName }}
-        $doesAppExist = ($funcApp -ne $null)
-        Write-Host "##vso[task.setvariable variable=DoesAppExist]$doesAppExist"
+    id: stop-function
+    shell: Powershell
+    run: |
+      $funcApp = Get-AzFunctionApp -ResourceGroupName ${{ inputs.resourceGroupName }} -Name ${{ inputs.functionAppName }}
+      $doesAppExist = ($funcApp -ne $null)
+      Write-Host "##vso[task.setvariable variable=DoesAppExist]$doesAppExist"
   - uses: azure/appservice-settings@v1
     condition: eq(variables.DoesAppExist, true)
     with:
