@@ -299,13 +299,11 @@ class FHIRRouter(
      * @return list of receivers that should receive this bundle
      */
     internal fun applyFilters(bundle: Bundle, report: Report, topic: Topic): List<Receiver> {
+        check(topic.isUniversalPipeline)
         val listOfReceivers = mutableListOf<Receiver>()
         // find all receivers that have a matching topic and determine which applies
-        val topicReceivers = settings.receivers.filter {
-            it.customerStatus != CustomerStatus.INACTIVE &&
-                it.topic.isUniversalPipeline &&
-                it.topic == topic
-        }
+        val topicReceivers =
+            settings.receivers.filter { it.customerStatus != CustomerStatus.INACTIVE && it.topic == topic }
 
         topicReceivers.forEach { receiver ->
             // get the receiver's organization, since we need to be able to find/combine the correct filters

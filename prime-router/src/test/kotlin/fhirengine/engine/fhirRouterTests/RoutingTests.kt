@@ -122,6 +122,42 @@ class RoutingTests {
         )
     )
 
+    val etorAndElrOrganizations = DeepOrganization(
+        "topic-test",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
+        receivers = listOf(
+            Receiver(
+                "full-elr-hl7",
+                "topic-test",
+                Topic.FULL_ELR,
+                CustomerStatus.ACTIVE,
+                "one"
+            ),
+            Receiver(
+                "simulatedlab",
+                "topic-test",
+                Topic.ETOR_TI,
+                CustomerStatus.ACTIVE,
+                "one"
+            ),
+            Receiver(
+                "full-elr-hl7-inactive",
+                "topic-test",
+                Topic.FULL_ELR,
+                CustomerStatus.INACTIVE,
+                "one"
+            ),
+            Receiver(
+                "simulatedlab-inactive",
+                "topic-test",
+                Topic.ETOR_TI,
+                CustomerStatus.INACTIVE,
+                "one"
+            )
+        )
+    )
+
     val csv = """
             variable,fhirPath
             processingId,Bundle.entry.resource.ofType(MessageHeader).meta.extension('https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id').value.coding.code
@@ -948,6 +984,32 @@ class RoutingTests {
         assertThat(report.filteringResults).isEmpty()
         assertThat(receivers.size).isEqualTo(1)
         assertThat(receivers[0]).isEqualTo(oneOrganization.receivers[0])
+    }
+
+    @Test
+    fun `test combined topic routing`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        val settings = FileSettings().loadOrganizations(etorAndElrOrganizations)
+        // All filters evaluate to true.
+        val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
+
+        // when routing for etor, verify that only the active etor receiver is included (even in logged results)
+        var receivers = engine.applyFilters(bundle, report, Topic.ETOR_TI)
+        assertThat(report.filteringResults).isEmpty()
+        assertThat(receivers.size).isEqualTo(1)
+        assertThat(receivers[0].name).isEqualTo("simulatedlab")
+
+        // when routing for full-elr, verify that only the active full-elr receiver is included (even in logged results)
+        receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
+        assertThat(report.filteringResults).isEmpty()
+        assertThat(receivers.size).isEqualTo(1)
+        assertThat(receivers[0].name).isEqualTo("full-elr-hl7")
     }
 
     @Test
