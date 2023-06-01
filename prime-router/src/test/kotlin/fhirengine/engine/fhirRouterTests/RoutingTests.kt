@@ -312,7 +312,7 @@ class RoutingTests {
     fun `test reverseQualityFilter flag only reverses the quality filter`() {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
-        // Using receiver with reverQualityFilter set to true
+        // Using receiver with reverseFilter set to true
         val settings = FileSettings().loadOrganizations(twoOrganization)
         // This Jurisdictional filter evaluates to true.
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
@@ -957,7 +957,7 @@ class RoutingTests {
     fun `test applyFilters logs results for routing filters`() {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
-        // Using receiver with reverQualityFilter set to true
+        // Using receiver with reverseFilter set to true
         val settings = FileSettings().loadOrganizations(oneOrganization)
         // This Jurisdictional filter evaluates to true.
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
@@ -967,11 +967,14 @@ class RoutingTests {
         val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 10")
         // This processing mode filter evaluates to true
         val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        // This condition filter evaluates to true
+        val condFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         every { engine.getJurisFilters(any(), any()) } returns jurisFilter
         every { engine.getQualityFilters(any(), any()) } returns qualFilter
         every { engine.getRoutingFilter(any(), any()) } returns routingFilter
         every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        every { engine.getConditionFilter(any(), any()) } returns condFilter
 
         // act
         val receivers = engine.applyFilters(bundle, report)
@@ -988,7 +991,7 @@ class RoutingTests {
     fun `test applyFilters logs results for processing mode filters`() {
         val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
         val bundle = FhirTranscoder.decode(fhirData)
-        // Using receiver with reverQualityFilter set to true
+        // Using receiver with reverseFilter set to true
         val settings = FileSettings().loadOrganizations(oneOrganization)
         // This Jurisdictional filter evaluates to true.
         val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
@@ -998,11 +1001,14 @@ class RoutingTests {
         val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         // This processing mode filter evaluates to false
         val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 10")
+        // This condition filter evaluates to true
+        val condFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
         every { engine.getJurisFilters(any(), any()) } returns jurisFilter
         every { engine.getQualityFilters(any(), any()) } returns qualFilter
         every { engine.getRoutingFilter(any(), any()) } returns routingFilter
         every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        every { engine.getConditionFilter(any(), any()) } returns condFilter
 
         // act
         val receivers = engine.applyFilters(bundle, report)
@@ -1012,6 +1018,41 @@ class RoutingTests {
         assertThat(report.filteringResults).isNotEmpty()
         assertThat(report.filteringResults.count()).isEqualTo(1)
         assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.PROCESSING_MODE_FILTER)
+        assertThat(receivers).isEmpty()
+    }
+
+    @Test
+    fun `test applyFilters logs results for condition filters`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/routerDefaults/qual_test_0.fhir").readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        // Using receiver with reverseFilter set to true
+        val settings = FileSettings().loadOrganizations(oneOrganization)
+        // This Jurisdictional filter evaluates to true.
+        val jurisFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        // This quality filter evaluates to true
+        val qualFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        // This routing filter evaluates to true
+        val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        // This processing mode filter evaluates to true
+        val procModeFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
+        // This condition filter evaluates to false
+        val condFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 10")
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
+        every { engine.getQualityFilters(any(), any()) } returns qualFilter
+        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
+        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
+        every { engine.getConditionFilter(any(), any()) } returns condFilter
+
+        // act
+        val receivers = engine.applyFilters(bundle, report)
+
+        // assert only the condition mode filter didn't pass
+        // and check that the observation was logged
+        assertThat(report.filteringResults).isNotEmpty()
+        assertThat(report.filteringResults.count()).isEqualTo(5)
+        assertThat(report.filteringResults[0].filterType).isEqualTo(ReportStreamFilterType.CONDITION_FILTER)
+        assertThat(report.filteringResults[0].filteredTrackingElement.contains("loinc.org"))
         assertThat(receivers).isEmpty()
     }
 
