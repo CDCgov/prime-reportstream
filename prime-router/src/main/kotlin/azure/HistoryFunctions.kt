@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import com.fasterxml.jackson.databind.JsonMappingException
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -189,7 +190,11 @@ class GetReports :
             return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
         }
         val reportDbAccess = ReportFileDatabaseAccess()
-        val search = ReportFileApiSearch.parse(request)
+        val search = try {
+            ReportFileApiSearch.parse(request)
+        } catch (ex: JsonMappingException) {
+            return HttpUtilities.badRequestResponse(request, "Improperly formatted search")
+        }
         val reports = reportDbAccess.getReports(search)
         return HttpUtilities.okJSONResponse(
             request,

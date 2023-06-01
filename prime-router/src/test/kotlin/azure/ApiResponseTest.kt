@@ -3,13 +3,14 @@ package gov.cdc.prime.router.azure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import org.junit.jupiter.api.Test
+import java.time.OffsetDateTime
 
 class ApiResponseTest {
 
     private fun createResults(size: Int): List<ApiSearchTest.TestPojo> {
         val list = mutableListOf<ApiSearchTest.TestPojo>()
         for (i in 1..size) {
-            list.add(ApiSearchTest.TestPojo.TEST_POJO)
+            list.add(ApiSearchTest.TestPojo("foo", OffsetDateTime.now()))
         }
         return list
     }

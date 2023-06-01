@@ -2,6 +2,7 @@ package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import org.apache.poi.ss.formula.functions.T
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.Field
@@ -58,7 +59,7 @@ abstract class ApiSearchParser<
     > {
     /**
      * Converts a query string into a RawApiSearch. Currently, not implemented
-     * TODO add ticket
+     * TODO https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/9664
      *
      * @param query the query string
      */
@@ -173,7 +174,7 @@ abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilte
      * @return the list of the records parsed into the [PojoType]
      *
      */
-    open fun fetchResults(dslContext: DSLContext, select: SelectJoinStep<Record>): ApiSearchResult<PojoType> {
+    open fun <T: Record>fetchResults(dslContext: DSLContext, select: SelectJoinStep<T>): ApiSearchResult<PojoType> {
         val totalCount = dslContext.fetchCount(select)
         val filteredCount = dslContext.fetchCount(
             select

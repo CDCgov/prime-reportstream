@@ -8,86 +8,34 @@ import assertk.assertions.isNull
 import gov.cdc.prime.router.db.ReportFileApiSearch
 import org.jooq.Condition
 import org.jooq.Field
-import org.jooq.Name
-import org.jooq.Record2
-import org.jooq.Row2
 import org.jooq.SortOrder
-import org.jooq.Table
 import org.jooq.TableField
-import org.jooq.TableOptions
-import org.jooq.impl.DSL
+import org.jooq.impl.CustomRecord
+import org.jooq.impl.CustomTable
 import org.jooq.impl.DSL.name
 import org.jooq.impl.SQLDataType
-import org.jooq.impl.TableImpl
-import org.jooq.impl.UpdatableRecordImpl
 import java.time.OffsetDateTime
 import kotlin.test.Test
 
 @Suppress("UNCHECKED_CAST")
 class ApiSearchTest {
 
-    class TestRecord : UpdatableRecordImpl<TestRecord>(TestPojo.TEST_POJO), Record2<String, OffsetDateTime> {
-        override fun fieldsRow(): Row2<String, OffsetDateTime> {
-            return super.fieldsRow() as Row2<String, OffsetDateTime>
-        }
+    class TestTable : CustomTable<TestRecord>(name("test")) {
 
-        override fun valuesRow(): Row2<String, OffsetDateTime> {
-            return super.valuesRow() as Row2<String, OffsetDateTime>
-        }
+        val FOO = createField(name("foo"), SQLDataType.VARCHAR)
+        val CREATED_AT = createField(name("created_at"), SQLDataType.OFFSETDATETIME)
 
-        override fun field1(): Field<String> {
-            return TestPojo.TEST_POJO.FOO
-        }
-
-        override fun field2(): Field<OffsetDateTime> {
-            return TestPojo.TEST_POJO.CREATED_AT
-        }
-
-        override fun value1(): String {
-            return get(0) as String
-        }
-
-        override fun value1(value: String?): Record2<String, OffsetDateTime> {
-            set(0, value)
-            return this
-        }
-
-        override fun value2(): OffsetDateTime {
-            return get(1) as OffsetDateTime
-        }
-
-        override fun value2(value: OffsetDateTime?): Record2<String, OffsetDateTime> {
-            set(1, value)
-            return this
-        }
-
-        override fun values(t1: String?, t2: OffsetDateTime?): Record2<String, OffsetDateTime> {
-            value1(t1)
-            value2(t2)
-            return this
-        }
-
-        override fun component1(): String {
-            return get(0) as String
-        }
-
-        override fun component2(): OffsetDateTime {
-            return get(1) as OffsetDateTime
-        }
-    }
-
-    class TestPojo(alias: Name, aliased: Table<TestRecord>?, parameters: List<Field<*>>?) : TableImpl<TestRecord>(
-        alias, null, aliased, parameters?.toTypedArray(),
-        DSL.comment(""),
-        TableOptions.table()
-    ) {
-
-        public val FOO = createField(name("foo"), SQLDataType.VARCHAR)
-        public val CREATED_AT = createField(name("created_at"), SQLDataType.OFFSETDATETIME)
         companion object {
-            public val TEST_POJO = TestPojo(name("test"), null, null)
+            val TEST = TestTable()
+        }
+
+        override fun getRecordType(): Class<out TestRecord> {
+            return TestRecord::class.java
         }
     }
+
+    class TestRecord : CustomRecord<TestRecord>(TestTable.TEST)
+    data class TestPojo(val foo: String, val createdAt: OffsetDateTime)
 
     enum class TestApiFilterNames : ApiFilterNames {
         FOO
@@ -95,7 +43,7 @@ class ApiSearchTest {
 
     sealed class TestApiFilter<T> : ApiFilter<TestRecord, T> {
         class FooFilter(override val value: String) : TestApiFilter<String>() {
-            override val tableField: TableField<TestRecord, String> = TestPojo.TEST_POJO.FOO
+            override val tableField: TableField<TestRecord, String> = TestTable.TEST.FOO
         }
     }
 
@@ -120,12 +68,12 @@ class ApiSearchTest {
         }
 
         override fun getSortColumn(): Field<*> {
-            return sortParameter ?: TestPojo.TEST_POJO.CREATED_AT
+            return sortParameter ?: TestTable.TEST.CREATED_AT
         }
 
         companion object : ApiSearchParser<TestPojo, TestApiSearch, TestRecord, TestApiFilter<*>>() {
             override fun parseRawApiSearch(rawApiSearch: RawApiSearch): TestApiSearch {
-                val sort = TestPojo.TEST_POJO.field(rawApiSearch.sort.property)
+                val sort = TestTable.TEST.field(rawApiSearch.sort.property)
                 val filters = rawApiSearch.filters.mapNotNull { filter ->
                     when (TestApiFilters.getTerm(TestApiFilterNames.valueOf(filter.filterName))) {
                         TestApiFilter.FooFilter::class.java -> TestApiFilter.FooFilter(filter.value)
@@ -168,7 +116,7 @@ class ApiSearchTest {
         assertThat(search.limit).isEqualTo(25)
         assertThat(search.page).isEqualTo(1)
         assertThat(search.sortDirection).isEqualTo(SortDirection.DESC)
-        assertThat(search.sortParameter).isEqualTo(TestPojo.TEST_POJO.CREATED_AT)
+        assertThat(search.sortParameter).isEqualTo(TestTable.TEST.CREATED_AT)
         assertThat(search.getWhereClause()).isNull()
         assertThat(search.getSortClause()).isNotNull()
     }
