@@ -7,7 +7,7 @@ inputs:
     required: true
   functionName:
     required: true
- SubscriptionId:
+  SubscriptionId:
     required: true
 
 runs:
