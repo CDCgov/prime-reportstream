@@ -79,3 +79,5 @@ export function MarkdownLayout({
         </MDXProvider>
     );
 }
+
+export default MarkdownLayout;

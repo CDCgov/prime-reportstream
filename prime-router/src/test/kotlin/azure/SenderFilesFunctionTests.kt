@@ -10,6 +10,7 @@ import assertk.assertions.isNullOrEmpty
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -60,7 +61,7 @@ class SenderFilesFunctionTests {
             "",
             "",
             "covid-19",
-            "covid-19",
+            Topic.COVID_19,
             "https://localhost/blob",
             "",
             "CSV",

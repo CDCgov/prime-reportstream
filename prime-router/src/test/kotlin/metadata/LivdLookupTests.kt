@@ -439,12 +439,7 @@ class LivdLookupTests {
         // Simple device ID lookups
         assertThat(
             find(
-                testPerformedCode = null,
-                processingModeCode = null,
                 deviceId = "model1kit1",
-                equipmentModelId = null,
-                testKitNameId = null,
-                equipmentModelName = null,
                 tableColumn = LivdTableColumns.MODEL.colName,
                 tableRef = livdTable
             )
@@ -455,12 +450,7 @@ class LivdLookupTests {
         // Simple test kit lookups
         assertThat(
             find(
-                testPerformedCode = null,
-                processingModeCode = null,
-                deviceId = null,
-                equipmentModelId = null,
                 testKitNameId = ev.value,
-                equipmentModelName = null,
                 tableColumn = LivdTableColumns.EQUIPMENT_UID.colName,
                 tableRef = livdTable
             )
@@ -471,11 +461,6 @@ class LivdLookupTests {
         ev = createValue(modelNameElement, 1)
         assertThat(
             find(
-                testPerformedCode = null,
-                processingModeCode = null,
-                deviceId = null,
-                equipmentModelId = null,
-                testKitNameId = null,
                 equipmentModelName = ev.value,
                 tableColumn = LivdTableColumns.TESTKIT_NAME_ID.colName,
                 tableRef = livdTable
@@ -487,12 +472,7 @@ class LivdLookupTests {
         ev = createValue(equipmentUidElement, 1)
         assertThat(
             find(
-                testPerformedCode = null,
-                processingModeCode = null,
-                deviceId = null,
                 equipmentModelId = ev.value,
-                testKitNameId = null,
-                equipmentModelName = null,
                 tableColumn = LivdTableColumns.MODEL.colName,
                 tableRef = livdTable
             )
@@ -505,11 +485,7 @@ class LivdLookupTests {
         assertThat(
             find(
                 testPerformedCode = ev2.value,
-                processingModeCode = null,
-                deviceId = null,
-                equipmentModelId = null,
                 testKitNameId = ev.value,
-                equipmentModelName = null,
                 tableColumn = LivdTableColumns.MODEL.colName,
                 tableRef = livdTable
             )
@@ -521,11 +497,7 @@ class LivdLookupTests {
         assertThat(
             find(
                 testPerformedCode = ev2.value,
-                processingModeCode = null,
-                deviceId = null,
-                equipmentModelId = null,
                 testKitNameId = ev.value,
-                equipmentModelName = null,
                 tableColumn = LivdTableColumns.MODEL.colName,
                 tableRef = livdTable
             )
@@ -537,12 +509,8 @@ class LivdLookupTests {
         ev2 = ElementAndValue(processingModeElement, "")
         assertThat(
             find(
-                testPerformedCode = null,
                 processingModeCode = ev2.value,
-                deviceId = null,
-                equipmentModelId = null,
                 testKitNameId = ev.value,
-                equipmentModelName = null,
                 tableColumn = LivdTableColumns.MODEL.colName,
                 tableRef = livdTable
             )
@@ -553,12 +521,8 @@ class LivdLookupTests {
         ev2 = ElementAndValue(processingModeElement, "P")
         assertThat(
             find(
-                testPerformedCode = null,
                 processingModeCode = ev2.value,
-                deviceId = null,
-                equipmentModelId = null,
                 testKitNameId = ev.value,
-                equipmentModelName = null,
                 tableColumn = LivdTableColumns.MODEL.colName,
                 tableRef = livdTable
             )
@@ -569,12 +533,8 @@ class LivdLookupTests {
         ev2 = ElementAndValue(processingModeElement, LivdLookup.testProcessingModeCode)
         assertThat(
             find(
-                testPerformedCode = null,
                 processingModeCode = ev2.value,
-                deviceId = null,
-                equipmentModelId = null,
                 testKitNameId = ev.value,
-                equipmentModelName = null,
                 tableColumn = LivdTableColumns.MODEL.colName,
                 tableRef = livdTable
             )
@@ -585,12 +545,8 @@ class LivdLookupTests {
         ev2 = ElementAndValue(processingModeElement, LivdLookup.testProcessingModeCode)
         assertThat(
             find(
-                testPerformedCode = null,
                 processingModeCode = ev2.value,
-                deviceId = null,
-                equipmentModelId = null,
                 testKitNameId = ev.value,
-                equipmentModelName = null,
                 tableColumn = LivdTableColumns.MODEL.colName,
                 tableRef = livdTable
             )
@@ -601,12 +557,8 @@ class LivdLookupTests {
         ev2 = ElementAndValue(processingModeElement, "")
         assertThat(
             find(
-                testPerformedCode = null,
                 processingModeCode = ev2.value,
-                deviceId = null,
-                equipmentModelId = null,
                 testKitNameId = ev.value,
-                equipmentModelName = null,
                 tableColumn = LivdTableColumns.MODEL.colName,
                 tableRef = livdTable
             )
@@ -617,7 +569,6 @@ class LivdLookupTests {
         ev = createValue(testKitElement, 7)
         assertThat(
             find(
-                testPerformedCode = null,
                 processingModeCode = LivdLookup.testProcessingModeCode,
                 deviceId = "",
                 equipmentModelId = "",
@@ -635,12 +586,8 @@ class LivdLookupTests {
         // We get a value, so no warnings or errors.
         assertThat(
             find(
-                testPerformedCode = null,
                 processingModeCode = LivdLookup.testProcessingModeCode,
-                deviceId = null,
-                equipmentModelId = null,
                 testKitNameId = createValue(testKitElement, 7).value,
-                equipmentModelName = null,
                 tableColumn = LivdTableColumns.MODEL.colName,
                 tableRef = livdTable
             )
@@ -650,12 +597,8 @@ class LivdLookupTests {
         // No value, but elements have no fields, so no error or warnings
         assertThat(
             find(
-                testPerformedCode = null,
                 processingModeCode = "",
-                deviceId = null,
-                equipmentModelId = null,
                 testKitNameId = createValue(testKitElement, 7).value,
-                equipmentModelName = null,
                 tableColumn = LivdTableColumns.MODEL.colName,
                 tableRef = livdTable
             )

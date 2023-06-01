@@ -776,7 +776,8 @@ class SubmissionReceiverTests {
             Sender.Format.HL7,
             schemaName = "one",
             allowDuplicates = false,
-            customerStatus = CustomerStatus.ACTIVE
+            customerStatus = CustomerStatus.ACTIVE,
+            topic = Topic.FULL_ELR
         )
         val actionLogs = ActionLogger()
         val readResult = ReadResult(report, actionLogs)
@@ -856,7 +857,8 @@ class SubmissionReceiverTests {
             "test",
             Sender.Format.HL7,
             allowDuplicates = true,
-            customerStatus = CustomerStatus.INACTIVE
+            customerStatus = CustomerStatus.INACTIVE,
+            topic = Topic.FULL_ELR
         )
 
         val actionLogs = ActionLogger()
@@ -925,7 +927,8 @@ class SubmissionReceiverTests {
             "test",
             Sender.Format.FHIR,
             allowDuplicates = true,
-            customerStatus = CustomerStatus.INACTIVE
+            customerStatus = CustomerStatus.INACTIVE,
+            topic = Topic.FULL_ELR
         )
 
         val actionLogs = ActionLogger()
@@ -994,7 +997,8 @@ class SubmissionReceiverTests {
             "test",
             Sender.Format.FHIR,
             allowDuplicates = true,
-            customerStatus = CustomerStatus.INACTIVE
+            customerStatus = CustomerStatus.INACTIVE,
+            topic = Topic.FULL_ELR
         )
 
         val actionLogs = ActionLogger()
@@ -1064,7 +1068,8 @@ class SubmissionReceiverTests {
             "test",
             Sender.Format.HL7,
             schemaName = "one",
-            allowDuplicates = true
+            allowDuplicates = true,
+            topic = Topic.FULL_ELR
         )
         val actionLogs = ActionLogger()
         val readResult = ReadResult(report, actionLogs)
@@ -1370,7 +1375,8 @@ class SubmissionReceiverTests {
             "Test Sender",
             "test",
             Sender.Format.HL7,
-            allowDuplicates = true
+            allowDuplicates = true,
+            topic = Topic.FULL_ELR
         )
         val fullELRResult = SubmissionReceiver.getSubmissionReceiver(fullELRSender, engine, actionHistory)
         assertThat(fullELRResult).isInstanceOf(ELRReceiver::class.java)
