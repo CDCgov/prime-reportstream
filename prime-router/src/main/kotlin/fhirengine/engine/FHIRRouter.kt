@@ -293,21 +293,21 @@ class FHIRRouter(
     }
 
     /**
-     * Applies all filters to the list of all receivers with topic FULL_ELR that are not set as INACTIVE.
-     * FHIRPath expressions are run against the [bundle] to determine if the receiver should get this message
+     * Applies all filters to the list of all receivers with topic with a topic matching [topic] that are not set as
+     * INACTIVE. FHIRPath expressions are run against the [bundle] to determine if the receiver should get this message
      * As it goes through the filters, results are logged onto the provided [report]
      * @return list of receivers that should receive this bundle
      */
     internal fun applyFilters(bundle: Bundle, report: Report, topic: Topic): List<Receiver> {
         val listOfReceivers = mutableListOf<Receiver>()
-        // find all receivers that have the full ELR topic and determine which applies
-        val fullElrReceivers = settings.receivers.filter {
+        // find all receivers that have a matching topic and determine which applies
+        val topicReceivers = settings.receivers.filter {
             it.customerStatus != CustomerStatus.INACTIVE &&
                 it.topic.isUniversalPipeline &&
                 it.topic == topic
         }
 
-        fullElrReceivers.forEach { receiver ->
+        topicReceivers.forEach { receiver ->
             // get the receiver's organization, since we need to be able to find/combine the correct filters
             val orgFilters = settings.findOrganization(receiver.organizationName)!!.filters
 
