@@ -50,7 +50,7 @@ export function FacilityProviderSubmitterSummary({
                             Started reporting to you
                         </span>
                     </Grid>
-                    <Grid col={4} className="padding-right-2">
+                    <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
                             {formatDateWithoutSeconds(details!.reportDate)}
@@ -72,7 +72,7 @@ export function FacilityProviderSubmitterSummary({
                             Average tests per report
                         </span>
                     </Grid>
-                    <Grid col={4} className="padding-right-2">
+                    <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
                             {details!.averageTestPerReport}
@@ -98,7 +98,7 @@ export function FacilityProviderSubmitterSummary({
                             Total tests (all time)
                         </span>
                     </Grid>
-                    <Grid col={4} className="padding-right-2">
+                    <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
                             {details!.totalTests}
@@ -124,7 +124,7 @@ export function FacilityProviderSubmitterSummary({
                             Submitter
                         </span>
                     </Grid>
-                    <Grid col={4} className="padding-right-2">
+                    <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
                             {details!.submitter}

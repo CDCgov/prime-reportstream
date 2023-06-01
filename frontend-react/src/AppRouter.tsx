@@ -245,28 +245,35 @@ export const appRoutes: RouteObject[] = [
                         element: <FacilitiesProvidersWithAuth />,
                     },
                     {
-                        path: "facility-provider-submitter-details/facility/:aggregatorId",
-                        element: (
-                            <FacilityProviderSubmitterDetailsWithAuth
-                                aggregatorType={AggregatorType.FACILITY}
-                            />
-                        ),
-                    },
-                    {
-                        path: "facility-provider-submitter-details/provider/:aggregatorId",
-                        element: (
-                            <FacilityProviderSubmitterDetailsWithAuth
-                                aggregatorType={AggregatorType.PROVIDER}
-                            />
-                        ),
-                    },
-                    {
-                        path: "facility-provider-submitter-details/submitter/:aggregatorId",
-                        element: (
-                            <FacilityProviderSubmitterDetailsWithAuth
-                                aggregatorType={AggregatorType.SUBMITTER}
-                            />
-                        ),
+                        path: "facility-provider-submitter-details",
+                        children: [
+                            {
+                                path: "facility/:aggregatorId",
+                                element: (
+                                    <FacilityProviderSubmitterDetailsWithAuth
+                                        aggregatorType={AggregatorType.FACILITY}
+                                    />
+                                ),
+                            },
+                            {
+                                path: "provider/:aggregatorId",
+                                element: (
+                                    <FacilityProviderSubmitterDetailsWithAuth
+                                        aggregatorType={AggregatorType.PROVIDER}
+                                    />
+                                ),
+                            },
+                            {
+                                path: "submitter/:aggregatorId",
+                                element: (
+                                    <FacilityProviderSubmitterDetailsWithAuth
+                                        aggregatorType={
+                                            AggregatorType.SUBMITTER
+                                        }
+                                    />
+                                ),
+                            },
+                        ],
                     },
                 ],
             },

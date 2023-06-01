@@ -23,7 +23,7 @@ export function FacilitiesProviders() {
         <div className={styles.FacilitiesProviders}>
             <header className="usa-header usa-header--extended">
                 <Crumbs {...crumbProps}></Crumbs>
-                <GridContainer className="margin-left-7 margin-right-7 padding-bottom-3 rs-max-width-100-important">
+                <GridContainer className="margin-left-7 margin-right-7 padding-bottom-3">
                     <div className="font-sans-2xl">
                         All facilities & providers
                     </div>
@@ -35,7 +35,7 @@ export function FacilitiesProviders() {
                     <hr />
                 </GridContainer>
             </header>
-            <GridContainer className="margin-left-7 margin-right-7 padding-top-4 rs-max-width-100-important">
+            <GridContainer className="margin-left-7 margin-right-7 padding-top-4">
                 <Helmet>
                     <title>{FeatureName.FACILITIES_PROVIDERS}</title>
                 </Helmet>

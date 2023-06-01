@@ -35,7 +35,7 @@ export function ReportDetailsSummary(props: Props) {
                             Report ID
                         </span>
                     </Grid>
-                    <Grid col={4} className="padding-right-2">
+                    <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">{report?.reportId}</span>
                     </Grid>
@@ -57,7 +57,7 @@ export function ReportDetailsSummary(props: Props) {
                             Date range
                         </span>
                     </Grid>
-                    <Grid col={4} className="padding-right-2">
+                    <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
                             {formatDateWithoutSeconds(report!.batchReadyAt)} -{" "}
@@ -82,7 +82,7 @@ export function ReportDetailsSummary(props: Props) {
                             Date sent to you
                         </span>
                     </Grid>
-                    <Grid col={4} className="padding-right-2">
+                    <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
                             {formatDateWithoutSeconds(report!.batchReadyAt)}{" "}
@@ -106,7 +106,7 @@ export function ReportDetailsSummary(props: Props) {
                             Available until
                         </span>
                     </Grid>
-                    <Grid col={4} className="padding-right-2">
+                    <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
                             {formatDateWithoutSeconds(report!.expires)}{" "}

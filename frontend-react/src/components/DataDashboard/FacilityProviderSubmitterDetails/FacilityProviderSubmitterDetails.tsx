@@ -9,6 +9,7 @@ import HipaaNotice from "../../HipaaNotice";
 import { AggregatorType } from "../../../utils/DataDashboardUtils";
 import { withCatchAndSuspense } from "../../RSErrorBoundary";
 
+import styles from "./FacilityProviderSubmitterDetails.module.scss";
 import { FacilityProviderSubmitterSummary } from "./FacilityProviderSubmitterSummary";
 import FacilityProviderSubmitterTable from "./FacilityProviderSubmitterTable";
 
@@ -47,8 +48,8 @@ function FacilityProviderSubmitterDetails(
     };
 
     return (
-        <div className="margin-left-7 margin-right-7 rs-max-width-100-important">
-            <GridContainer className="rs-max-width-100-important">
+        <div className={styles.FacilityProviderSubmitterDetails}>
+            <GridContainer>
                 <Crumbs {...crumbProps}></Crumbs>
                 <article>
                     <FacilityProviderSubmitterSummary
