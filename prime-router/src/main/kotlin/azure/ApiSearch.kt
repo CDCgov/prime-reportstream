@@ -174,7 +174,7 @@ abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilte
      * @return the list of the records parsed into the [PojoType]
      *
      */
-    open fun <T: Record>fetchResults(dslContext: DSLContext, select: SelectJoinStep<T>): ApiSearchResult<PojoType> {
+    open fun <T : Record> fetchResults(dslContext: DSLContext, select: SelectJoinStep<T>): ApiSearchResult<PojoType> {
         val totalCount = dslContext.fetchCount(select)
         val filteredCount = dslContext.fetchCount(
             select
