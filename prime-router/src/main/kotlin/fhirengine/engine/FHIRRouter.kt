@@ -581,7 +581,7 @@ class FHIRRouter(
                 // if more elements need specific logic, consider extending the FHIR libraries
                 // instead of adding more if/else statements
                 val coding = focusResource.code.coding.firstOrNull()
-                if (coding != null)  filteredTrackingElement += " with " + coding.system + " code: " + coding.code
+                if (coding != null) filteredTrackingElement += " with " + coding.system + " code: " + coding.code
             }
         }
         report.filteringResults.add(
