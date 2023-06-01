@@ -104,8 +104,9 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 defaultTasks("package")
 
 val ktorVersion = "2.3.0"
-val kotlinVersion = "1.8.20"
-val jacksonVersion = "2.14.1"
+val kotlinVersion = "1.8.21"
+val jacksonVersion = "2.15.0"
+
 jacoco.toolVersion = "0.8.9"
 
 // Set the compiler JVM target
@@ -751,9 +752,10 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
-    implementation("com.github.javafaker:javafaker:1.0.2")
-    // Pin snakeyaml since it is getting included regardless of exclude attempts
-    implementation("org.yaml:snakeyaml:1.33")
+    implementation("com.github.javafaker:javafaker:1.0.2") {
+        exclude(group = "org.yaml", module = "snakeyaml")
+    }
+    implementation("org.yaml:snakeyaml:2.0")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.4.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
@@ -809,7 +811,7 @@ dependencies {
     implementation("commons-io:commons-io: 2.11.0")
     implementation("com.anyascii:anyascii:0.3.1")
 // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
-    implementation("org.jsoup:jsoup:1.15.3")
+    implementation("org.jsoup:jsoup:1.16.1")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
