@@ -21,7 +21,7 @@ data class PaginationApiResponse(
     val nextPage: Int? = null
 ) {
     /**
-     * Static functions fo generating a [PaginationApiResponse]
+     * Static functions for generating a [PaginationApiResponse]
      */
     companion object {
 
