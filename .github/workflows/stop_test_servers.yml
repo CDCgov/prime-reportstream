@@ -53,9 +53,4 @@ jobs:
         id: IssuesShow
         shell: pwsh
         run: |
-          if (!$findmodule) {
-                write-host "Az.Functions module for PowershellAz not found - Will now update the agent by running command Install-Module -Name Az -AllowClobber -Force"
-                Install-Module -Name Az -AllowClobber -Force
-            }
-            PGSSLMODE=require \
-          Get-AzFunctionApp -Name "pdhtest-functionapp" -ResourceGroupName "prime-data-hub-test" -SubscriptionId "7d1e3999-6577-4cd5-b296-f518e5c8e677" | Stop-AzFunctionApp
+          az functionapp stop --name pdhtest-functionapp --resource-group prime-data-hub-test --subscription OCIO-DMZ-C1
