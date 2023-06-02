@@ -582,14 +582,15 @@ class CustomFHIRFunctionsTests {
         calendar.time = currentDate
         calendar.add(Calendar.YEAR, -76)
 
-        val age = CustomFHIRFunctions.convertDateToAge(
+        val ageList = CustomFHIRFunctions.convertDateToAge(
             mutableListOf(DateType(calendar.time))
         )
 
-        assertThat(age[0] is Age).isEqualTo(true)
+        val age = ageList[0]
+        assertThat(age is Age).isEqualTo(true)
         if (age is Age) {
             assertThat(age.unit).isEqualTo("year")
-            assertThat(age.value).isEqualTo(76)
+            assertThat(age.value.toInt()).isEqualTo(76)
             assertThat(age.code).isEqualTo("a")
         }
     }
@@ -601,14 +602,15 @@ class CustomFHIRFunctionsTests {
         calendar.time = currentDate
         calendar.add(Calendar.MONTH, -6)
 
-        val age = CustomFHIRFunctions.convertDateToAge(
+        val ageList = CustomFHIRFunctions.convertDateToAge(
             mutableListOf(DateType(calendar.time))
         )
 
-        assertThat(age[0] is Age).isEqualTo(true)
+        val age = ageList[0]
+        assertThat(age is Age).isEqualTo(true)
         if (age is Age) {
             assertThat(age.unit).isEqualTo("month")
-            assertThat(age.value).isEqualTo(6)
+            assertThat(age.value.toInt()).isEqualTo(6)
             assertThat(age.code).isEqualTo("mo")
         }
     }
@@ -622,14 +624,15 @@ class CustomFHIRFunctionsTests {
         // run it
         calendar.add(Calendar.HOUR_OF_DAY, -2)
 
-        val age = CustomFHIRFunctions.convertDateToAge(
+        val ageList = CustomFHIRFunctions.convertDateToAge(
             mutableListOf(DateType(calendar.time))
         )
 
-        assertThat(age[0] is Age).isEqualTo(true)
+        val age = ageList[0]
+        assertThat(age is Age).isEqualTo(true)
         if (age is Age) {
             assertThat(age.unit).isEqualTo("day")
-            assertThat(age.value).isEqualTo(0)
+            assertThat(age.value.toInt()).isEqualTo(0)
             assertThat(age.code).isEqualTo("d")
         }
     }
@@ -643,14 +646,15 @@ class CustomFHIRFunctionsTests {
         // run it
         calendar.add(Calendar.DAY_OF_YEAR, -4)
 
-        val age = CustomFHIRFunctions.convertDateToAge(
+        val ageList = CustomFHIRFunctions.convertDateToAge(
             mutableListOf(DateType(calendar.time))
         )
 
-        assertThat(age[0] is Age).isEqualTo(true)
+        val age = ageList[0]
+        assertThat(age is Age).isEqualTo(true)
         if (age is Age) {
             assertThat(age.unit).isEqualTo("day")
-            assertThat(age.value).isEqualTo(4)
+            assertThat(age.value.toInt()).isEqualTo(4)
             assertThat(age.code).isEqualTo("d")
         }
     }
