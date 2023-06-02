@@ -27,9 +27,9 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
       # Login to Azure
-      # - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
-      #   with:
-      #     creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+      - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
+        with:
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       # - name: Stop postgres
       #   uses: ./.github/actions/Stop-PostgresDB
