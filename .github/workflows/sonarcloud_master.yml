@@ -66,7 +66,6 @@ jobs:
             -Dsonar.sources=frontend-react/src,prime-router/src
             -Dsonar.projectKey=CDCgov_prime-data-hub
             -Dsonar.organization=cdcgov
-            -Dsonar.skipUnchanged=false
             -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
             -Dsonar.coverage.jacoco.xmlReportPaths=prime-router/build/reports/jacoco/test/jacocoTestReport.xml
             -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
