@@ -49,8 +49,14 @@ jobs:
       #     functionAppName: pdhtest-functionapp
       #     creds:  ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           
-      - name: Stop function app
-        id: IssuesShow
+      # - name: Stop function app
+      #   id: StopAzFunction
+      #   shell: pwsh
+      #   run: |
+      #     az functionapp stop --name pdhtest-functionapp --resource-group prime-data-hub-test --subscription OCIO-DMZ-C1
+
+      - name: Start function app
+        id: StartAzFunction
         shell: pwsh
         run: |
-          az functionapp stop --name pdhtest-functionapp --resource-group prime-data-hub-test --subscription OCIO-DMZ-C1
+          az functionapp start --name pdhtest-functionapp --resource-group prime-data-hub-test --subscription OCIO-DMZ-C1
