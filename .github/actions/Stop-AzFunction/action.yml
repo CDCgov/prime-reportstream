@@ -9,6 +9,8 @@ inputs:
     required: true
   SubscriptionId:
     required: true
+  creds: 
+    required: true
 
 runs:
   using: "composite"
@@ -22,6 +24,9 @@ runs:
             write-host "Az.Functions module for PowershellAz not found - Will now update the agent by running command Install-Module -Name Az -AllowClobber -Force"
             Install-Module -Name Az -AllowClobber -Force
         }
+         $servicePrincipal = ($inputs.creds | ConvertFrom-Json)
+        $AzureTenantID = $servicePrincipal.tenantId
+        Connect-AzAccount -Credential $psCred -TenantId $AzureTenantID  -ServicePrincipal
         Get-AzFunctionApp -Name ${{ inputs.functionAppName }} -ResourceGroupName ${{ inputs.resourceGroupName }} -SubscriptionId ${{ inputs.SubscriptionId }} | Stop-AzFunctionApp
        
       # $funcApp = Get-AzFunctionApp -ResourceGroupName ${{ inputs.resourceGroupName }} -Name ${{ inputs.functionAppName }}
