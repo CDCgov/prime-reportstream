@@ -1,0 +1,221 @@
+package gov.cdc.prime.router.history.db
+
+import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.azure.ApiFilter
+import gov.cdc.prime.router.azure.ApiFilterNames
+import gov.cdc.prime.router.azure.ApiFilters
+import gov.cdc.prime.router.azure.ApiSearch
+import gov.cdc.prime.router.azure.ApiSearchParser
+import gov.cdc.prime.router.azure.ApiSearchResult
+import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.RawApiSearch
+import gov.cdc.prime.router.azure.SortDirection
+import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.Action
+import gov.cdc.prime.router.azure.db.tables.CovidResultMetadata
+import gov.cdc.prime.router.azure.db.tables.ReportFile
+import gov.cdc.prime.router.common.BaseEngine
+import org.apache.logging.log4j.kotlin.Logging
+import org.jooq.Condition
+import org.jooq.Field
+import org.jooq.TableField
+import org.jooq.impl.CustomRecord
+import org.jooq.impl.CustomTable
+import org.jooq.impl.DSL
+import org.jooq.impl.SQLDataType
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.util.UUID
+
+enum class SubmitterType {
+    SUBMITTER,
+    FACILITY,
+    PROVIDER
+}
+
+class SubmitterTable : CustomTable<SubmitterRecord>(DSL.name("submitter")) {
+
+    val ID = createField(DSL.name("id"), SQLDataType.VARCHAR)
+    val NAME = createField(DSL.name("name"), SQLDataType.VARCHAR)
+    val FIRST_REPORT_DATE = createField(DSL.name("first_report_date"), SQLDataType.LOCALDATETIME)
+    val TYPE = createField(DSL.name("type"), SQLDataType.VARCHAR)
+
+    companion object {
+        val SUBMITTER = SubmitterTable()
+    }
+
+    override fun getRecordType(): Class<out SubmitterRecord> {
+        return SubmitterRecord::class.java
+    }
+}
+
+class SubmitterRecord : CustomRecord<SubmitterRecord>(SubmitterTable.SUBMITTER)
+
+data class Submitter(val id: String, val name: String, val firstReportDate: OffsetDateTime, val type: SubmitterType)
+
+enum class SubmitterApiFilterNames : ApiFilterNames {
+    SINCE,
+    UNTIL
+}
+
+sealed class SubmitterApiSearchFilter<T> : ApiFilter<SubmitterRecord, T> {
+    /**
+     * Filters results to those where the created_at is greater than or equal to the passed in date
+     * @param value the date that results will be greater than or equal to
+     */
+    class Since(override val value: LocalDateTime) :
+        SubmitterApiSearchFilter<LocalDateTime>() {
+        override val tableField: TableField<SubmitterRecord, LocalDateTime> = SubmitterTable.SUBMITTER.FIRST_REPORT_DATE
+    }
+
+    /**
+     * Filters results to those where the created_at is less than or equal to the passed in date
+     * @param value the date that results will be less than or equal to
+     */
+    class Until(override val value: LocalDateTime) : SubmitterApiSearchFilter<LocalDateTime>() {
+        override val tableField: TableField<SubmitterRecord, LocalDateTime> = SubmitterTable.SUBMITTER.FIRST_REPORT_DATE
+    }
+}
+
+object SubmitterApiSearchFilters : ApiFilters<SubmitterRecord, SubmitterApiSearchFilter<*>, SubmitterApiFilterNames> {
+    override val terms = mapOf(
+        Pair(SubmitterApiFilterNames.SINCE, SubmitterApiSearchFilter.Since::class.java),
+        Pair(SubmitterApiFilterNames.UNTIL, SubmitterApiSearchFilter.Until::class.java)
+    )
+}
+
+class SubmitterApiSearch(
+    override val filters: List<SubmitterApiSearchFilter<*>>,
+    override val sortParameter: Field<*>?,
+    override val sortDirection: SortDirection = SortDirection.DESC,
+    page: Int = 1,
+    limit: Int = 25
+) : ApiSearch<Submitter, SubmitterRecord, SubmitterApiSearchFilter<*>>(
+    Submitter::class.java,
+    page,
+    limit
+) {
+    override fun getCondition(filter: SubmitterApiSearchFilter<*>): Condition {
+        return when (filter) {
+            is SubmitterApiSearchFilter.Since -> filter.tableField.ge(filter.value)
+            is SubmitterApiSearchFilter.Until -> filter.tableField.le(filter.value)
+        }
+    }
+
+    override fun getSortColumn(): Field<*> {
+        return sortParameter ?: SubmitterTable.SUBMITTER.FIRST_REPORT_DATE
+    }
+
+    companion object :
+        ApiSearchParser<Submitter, SubmitterApiSearch, SubmitterRecord, SubmitterApiSearchFilter<*>>(), Logging {
+        override fun parseRawApiSearch(rawApiSearch: RawApiSearch): SubmitterApiSearch {
+            val sortProperty = SubmitterTable.SUBMITTER.field(rawApiSearch.sort.property)
+            val filters = rawApiSearch.filters.mapNotNull { filter ->
+                when (SubmitterApiSearchFilters.getTerm(SubmitterApiFilterNames.valueOf(filter.filterName))) {
+                    SubmitterApiSearchFilter.Since::class.java
+                    -> SubmitterApiSearchFilter.Since(OffsetDateTime.parse(filter.value).toLocalDateTime())
+
+                    SubmitterApiSearchFilter.Until::class.java
+                    -> SubmitterApiSearchFilter.Until(OffsetDateTime.parse(filter.value).toLocalDateTime())
+
+                    else -> {
+                        logger.warn("${filter.filterName} did not map to a valid filter for ReportFileApiSearch")
+                        null
+                    }
+                }
+            }
+            return SubmitterApiSearch(
+                filters = filters,
+                sortParameter = sortProperty,
+                sortDirection = rawApiSearch.sort.direction,
+                page = rawApiSearch.pagination.page,
+                limit = rawApiSearch.pagination.limit
+            )
+        }
+    }
+}
+
+class SubmittersDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessSingleton) {
+
+    private val reportGraph = ReportGraph(db)
+
+    fun getSubmitters(search: SubmitterApiSearch, receiver: Receiver): ApiSearchResult<Submitter> {
+        return db.transactReturning { txn ->
+
+            val sentReportIdsForReceiver = DSL
+                .using(txn)
+                .select(ReportFile.REPORT_FILE.REPORT_ID)
+                .from(ReportFile.REPORT_FILE)
+                .join(Action.ACTION).on(Action.ACTION.ACTION_ID.eq(ReportFile.REPORT_FILE.ACTION_ID))
+                .where(Action.ACTION.RECEIVING_ORG.eq(receiver.organizationName))
+                .and(Action.ACTION.RECEIVING_ORG_SVC.eq(receiver.name))
+                .and(Action.ACTION.ACTION_NAME.eq(TaskAction.send))
+                .fetchInto(UUID::class.java)
+
+            val reportLineage = reportGraph.itemAncestorGraphCommonTableExpression(sentReportIdsForReceiver)
+
+            val metadata = reportGraph.metadataCommonTableExpression(reportLineage)
+            val metadataIds = DSL.select(metadata.field("covid_results_metadata_id", SQLDataType.BIGINT)).from(metadata)
+            val submitterExpression = DSL
+                .name("submitter")
+                .`as`(
+                    DSL.select(
+                        CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID
+                            .`as`(SubmitterTable.SUBMITTER.ID),
+                        CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME
+                            .`as`(SubmitterTable.SUBMITTER.NAME),
+                        DSL.min(CovidResultMetadata.COVID_RESULT_METADATA.CREATED_AT)
+                            .`as`(SubmitterTable.SUBMITTER.FIRST_REPORT_DATE),
+                        DSL.value(SubmitterType.PROVIDER.name).`as`("type").`as`(SubmitterTable.SUBMITTER.TYPE)
+                    ).from(CovidResultMetadata.COVID_RESULT_METADATA)
+                        .where(CovidResultMetadata.COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID.`in`(metadataIds))
+                        .groupBy(
+                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID,
+                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME
+                        )
+                        .unionAll(
+                            DSL.select(
+                                DSL.value("null").`as`("id"),
+                                CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_NAME
+                                    .`as`(SubmitterTable.SUBMITTER.NAME),
+                                DSL.min(CovidResultMetadata.COVID_RESULT_METADATA.CREATED_AT)
+                                    .`as`(SubmitterTable.SUBMITTER.FIRST_REPORT_DATE),
+                                DSL.value(SubmitterType.FACILITY.name).`as`("type")
+                                    .`as`(SubmitterTable.SUBMITTER.TYPE)
+                            ).from(CovidResultMetadata.COVID_RESULT_METADATA)
+                                .where(
+                                    CovidResultMetadata.COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID.`in`(
+                                        metadataIds
+                                    )
+                                )
+                                .groupBy(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_NAME)
+                        ).unionAll(
+                            DSL.select(
+                                DSL.value("null").`as`("id").`as`(SubmitterTable.SUBMITTER.ID),
+                                CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID.`as`(SubmitterTable.SUBMITTER.NAME),
+                                DSL.min(CovidResultMetadata.COVID_RESULT_METADATA.CREATED_AT)
+                                    .`as`(SubmitterTable.SUBMITTER.FIRST_REPORT_DATE),
+                                DSL.value(SubmitterType.SUBMITTER.name).`as`("type")
+                                    .`as`(SubmitterTable.SUBMITTER.TYPE)
+                            ).from(CovidResultMetadata.COVID_RESULT_METADATA)
+                                .where(
+                                    CovidResultMetadata.COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID.`in`(
+                                        metadataIds
+                                    )
+                                )
+                                .groupBy(CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID)
+                        ).coerce(SubmitterTable.SUBMITTER)
+                )
+
+            search.fetchResults(
+                DSL.using(txn),
+                DSL.withRecursive(reportLineage)
+//                    .with(originalReportIds)
+                    .with(metadata)
+                    .with(submitterExpression)
+                    .select(submitterExpression.asterisk())
+                    .from(submitterExpression)
+            )
+        }
+    }
+}

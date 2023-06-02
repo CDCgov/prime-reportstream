@@ -2,14 +2,15 @@ package gov.cdc.prime.router.history.db
 
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
-import gov.cdc.prime.router.azure.db.Tables.REPORT_FILE
+import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
+import gov.cdc.prime.router.azure.db.tables.records.CovidResultMetadataRecord
 import gov.cdc.prime.router.common.BaseEngine
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.CommonTableExpression
-import org.jooq.Record
-import org.jooq.Record2
+import org.jooq.impl.CustomRecord
+import org.jooq.impl.CustomTable
 import org.jooq.impl.DSL
 import org.jooq.impl.DSL.selectDistinct
 import org.jooq.impl.SQLDataType
@@ -17,9 +18,28 @@ import java.util.UUID
 
 private const val PARENT_REPORT_ID_FIELD = "parent_report_id"
 
+private const val PARENT_INDEX_FIELD = "parent_index"
+
 private const val METADATA_CTE = "metadata"
 
 private const val PATH_FIELD = "path"
+
+class ItemGraphTable : CustomTable<ItemGraphRecord>(DSL.name("item_graph")) {
+
+    val PARENT_REPORT_ID = createField(DSL.name(PARENT_REPORT_ID_FIELD), SQLDataType.UUID)
+    val PARENT_INDEX = createField(DSL.name(PARENT_INDEX_FIELD), SQLDataType.INTEGER)
+    val PATH = createField(DSL.name(PATH_FIELD), SQLDataType.VARCHAR)
+
+    companion object {
+        val ITEM_GRAPH = ItemGraphTable()
+    }
+
+    override fun getRecordType(): Class<out ItemGraphRecord> {
+        return ItemGraphRecord::class.java
+    }
+}
+
+class ItemGraphRecord : CustomRecord<ItemGraphRecord>(ItemGraphTable.ITEM_GRAPH)
 
 /**
  * This class is responsible for generating graphs of either reports or items and then using that graph to link it
@@ -46,17 +66,13 @@ class ReportGraph(
      *
      */
     fun getMetadataForReports(descendantReportIds: List<UUID>): List<CovidResultMetadata> {
-        val lineage = ancestorLineageCommonTableExpression(descendantReportIds)
+        val itemGraph = itemAncestorGraphCommonTableExpression(descendantReportIds)
 
-        val sourceReportIds =
-            sourceReportsCommonTableExpression(lineage)
-
-        val metadata = metadataCommonTableExpression(sourceReportIds)
+        val metadata = metadataCommonTableExpression(itemGraph)
 
         return db.transactReturning { txn ->
             DSL.using(txn)
-                .withRecursive(lineage)
-                .with(sourceReportIds)
+                .withRecursive(itemGraph)
                 .with(metadata)
                 .selectDistinct(metadata.asterisk())
                 .from(
@@ -70,35 +86,78 @@ class ReportGraph(
      *
      * @param sourceReportIds report ids for sent reports that serve as the input for finding rows in metadata
      */
-    private fun metadataCommonTableExpression(sourceReportIds: CommonTableExpression<Record>) =
-        DSL.name(METADATA_CTE).`as`(
+    fun metadataCommonTableExpression(
+        sourceReportIds: CommonTableExpression<ItemGraphRecord>
+    ): CommonTableExpression<CovidResultMetadataRecord> {
+        return DSL.name(METADATA_CTE).`as`(
             selectDistinct(COVID_RESULT_METADATA.asterisk())
                 .from(COVID_RESULT_METADATA)
                 .where(
                     COVID_RESULT_METADATA.REPORT_ID.`in`(
-                        selectDistinct(sourceReportIds.field(REPORT_FILE.REPORT_ID.name, SQLDataType.UUID)).from(
+                        selectDistinct(
+                            DSL.field(
+                                ItemGraphTable.ITEM_GRAPH.PARENT_REPORT_ID.unqualifiedName,
+                                SQLDataType.UUID
+                            )
+                        ).from(
                             sourceReportIds
                         )
                     )
-                )
-        )
-
-    /**
-     * Accepts a walked graph of report ids and finds the corresponding report file filtering down to
-     * reports where the sending org is not null
-     *
-     * @param lineage a CTE that represents a graph of reports
-     */
-    private fun sourceReportsCommonTableExpression(
-        lineage: CommonTableExpression<Record2<UUID, String>>
-    ): CommonTableExpression<Record> {
-        val sourceCteName = "source"
-        return DSL.name(sourceCteName).`as`(
-            DSL.select(REPORT_FILE.asterisk()).from(REPORT_FILE).join(lineage.name).on(
-                REPORT_FILE.REPORT_ID.eq(lineage.field(PARENT_REPORT_ID_FIELD, SQLDataType.UUID))
-            ).where(REPORT_FILE.SENDING_ORG.isNotNull)
+                ).and(
+                    COVID_RESULT_METADATA.REPORT_INDEX.`in`(
+                        selectDistinct(
+                            DSL.field(ItemGraphTable.ITEM_GRAPH.PARENT_INDEX.unqualifiedName, SQLDataType.INTEGER)
+                        ).from(sourceReportIds)
+                    )
+                ).coerce(COVID_RESULT_METADATA)
         )
     }
+
+    fun itemAncestorGraphCommonTableExpression(childReportIds: List<UUID>) =
+        DSL
+            .name(ItemGraphTable.ITEM_GRAPH.name)
+            .`as`(
+                DSL.select(
+                    ITEM_LINEAGE.PARENT_REPORT_ID,
+                    ITEM_LINEAGE.PARENT_INDEX,
+                    DSL.value("(")
+                        .concat(ITEM_LINEAGE.PARENT_REPORT_ID.cast(SQLDataType.VARCHAR))
+                        .concat(",")
+                        .concat(ITEM_LINEAGE.PARENT_INDEX)
+                        .concat(")").`as`(PATH_FIELD)
+                )
+                    .from(ITEM_LINEAGE)
+                    .where(ITEM_LINEAGE.CHILD_REPORT_ID.`in`(childReportIds))
+                    .unionAll(
+                        DSL.select(
+                            ITEM_LINEAGE.PARENT_REPORT_ID,
+                            ITEM_LINEAGE.PARENT_INDEX,
+                            DSL.field("${ItemGraphTable.ITEM_GRAPH.name}.$PATH_FIELD", SQLDataType.VARCHAR)
+                                .concat("->").concat(
+                                    DSL.value("(")
+                                        .concat(ITEM_LINEAGE.PARENT_REPORT_ID.cast(SQLDataType.VARCHAR))
+                                        .concat(",")
+                                        .concat(ITEM_LINEAGE.PARENT_INDEX)
+                                        .concat(")")
+                                )
+                        )
+                            .from(ITEM_LINEAGE)
+                            .join(DSL.table(DSL.name(ItemGraphTable.ITEM_GRAPH.name)))
+                            .on(
+                                DSL.field(
+                                    DSL.name(ItemGraphTable.ITEM_GRAPH.name, PARENT_REPORT_ID_FIELD), SQLDataType.UUID
+                                )
+                                    .eq(
+                                        ITEM_LINEAGE.CHILD_REPORT_ID
+                                    ),
+                                DSL.field(
+                                    DSL.name(ItemGraphTable.ITEM_GRAPH.name, PARENT_INDEX_FIELD), SQLDataType.INTEGER
+                                ).eq(
+                                    ITEM_LINEAGE.CHILD_INDEX
+                                )
+                            )
+                    ).coerce(ItemGraphTable.ITEM_GRAPH)
+            )
 
     private val lineageCteName = "lineage"
     /**
@@ -106,7 +165,7 @@ class ReportGraph(
      *
      * @param childReportIds the initial set of report ids to walk up from
      */
-    private fun ancestorLineageCommonTableExpression(childReportIds: List<UUID>) =
+    fun reportAncestorLineageCommonTableExpression(childReportIds: List<UUID>) =
         DSL.name(lineageCteName).fields(
             PARENT_REPORT_ID_FIELD,
             PATH_FIELD
