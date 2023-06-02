@@ -1133,14 +1133,10 @@ class RoutingTests {
         // This condition filter evaluates to false
         val condFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 10")
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        every { engine.getJurisFilters(any(), any()) } returns jurisFilter
-        every { engine.getQualityFilters(any(), any()) } returns qualFilter
-        every { engine.getRoutingFilter(any(), any()) } returns routingFilter
-        every { engine.getProcessingModeFilter(any(), any()) } returns procModeFilter
-        every { engine.getConditionFilter(any(), any()) } returns condFilter
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, condFilter)
 
         // act
-        val receivers = engine.applyFilters(bundle, report)
+        val receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
 
         // assert only the condition mode filter didn't pass
         // and check that the observation was logged
