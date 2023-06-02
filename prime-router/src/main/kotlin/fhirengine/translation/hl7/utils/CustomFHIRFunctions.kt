@@ -17,6 +17,7 @@ import java.time.DateTimeException
 import java.time.LocalDate
 import java.time.Period
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import java.util.TimeZone
 
 /**
@@ -120,7 +121,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
                     "returns the number of years, months if less than a year, weeks if less" +
                         " than a month, and days if less than a week that a person is old for a date resource",
                     0,
-                    0
+                    1
                 )
             }
 
@@ -184,7 +185,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
                 }
 
                 CustomFHIRFunctionNames.ConvertDateToAge -> {
-                    convertDateToAge(focus)
+                    convertDateToAge(focus, parameters)
                 }
 
                 else -> additionalFunctions?.executeFunction(focus, functionName, parameters)
@@ -194,16 +195,64 @@ object CustomFHIRFunctions : FhirPathFunctions {
     }
 
     /**
-     * Converts the date in the [focus] element to an age in years, months, weeks, or days.
+     * Converts the date in the [focus] element to an age in years, months, weeks, or days depending on which is
+     * specified. If left off, makes assumption.
      * @return an age in years, months, weeks, or days.
      */
-    fun convertDateToAge(focus: MutableList<Base>): MutableList<Base> {
+    fun convertDateToAge(focus: MutableList<Base>, parameters: MutableList<MutableList<Base>>?): MutableList<Base> {
         val date = focus.first()
 
         if (date !is DateType) {
             throw SchemaException("Must call the convertDateToAge function on a single dateTimeType")
         }
 
+        val periodsOfTime = listOf("day", "month", "year")
+        return if (parameters != null && parameters.size > 0 && parameters[0].size > 0 &&
+            parameters[0][0].toString().lowercase() in periodsOfTime
+        ) {
+            val age = Age()
+            return when (parameters[0][0].toString()) {
+                "day" -> {
+                    age.unit = "day"
+                    age.value = BigDecimal(
+                        ChronoUnit.DAYS.between(
+                            LocalDate.of(date.year, date.month + 1, date.day),
+                            LocalDate.now()
+                        )
+                    )
+                    age.code = "d"
+                    mutableListOf(age)
+                }
+                "month" -> {
+                    age.unit = "month"
+                    age.value = BigDecimal(
+                        ChronoUnit.MONTHS.between(
+                            LocalDate.of(date.year, date.month + 1, date.day),
+                            LocalDate.now()
+                        )
+                    )
+                    age.code = "mo"
+                    mutableListOf(age)
+                }
+                "year" -> {
+                    age.unit = "year"
+                    age.value = BigDecimal(
+                        ChronoUnit.YEARS.between(
+                            LocalDate.of(date.year, date.month + 1, date.day),
+                            LocalDate.now()
+                        )
+                    )
+                    age.code = "a"
+                    mutableListOf(age)
+                }
+                else -> throw SchemaException("Call with day, month, or year")
+            }
+        } else {
+            calculateAgeWithAssumption(date)
+        }
+    }
+
+    private fun calculateAgeWithAssumption(date: DateType): MutableList<Base> {
         val period = Period.between(
             // have to do plus one for the month because it is expecting 1 based and we get zero based
             LocalDate.of(date.year, date.month + 1, date.day),
