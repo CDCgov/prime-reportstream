@@ -82,6 +82,19 @@ class End2EndUniversalPipeline : CoolTest() {
         ugly("Running end2end_up asynchronously")
         var passed = true
 
+        passed = passed and universalPipelineEnd2End(environment, options, fullELRSender, 2)
+        passed = passed and universalPipelineEnd2End(environment, options, etorTISender, 1)
+
+        return passed
+    }
+
+    private suspend fun universalPipelineEnd2End(
+        environment: Environment,
+        options: CoolTestOptions,
+        sender: Sender,
+        expectedReceivers: Int
+    ): Boolean {
+        var passed = true
         // load a valid HL7 file
         val file = File("src/test/resources/fhirengine/smoketest/valid_hl7.hl7")
 
@@ -91,7 +104,7 @@ class End2EndUniversalPipeline : CoolTest() {
             HttpUtilities.postReportFile(
                 environment,
                 file,
-                fullELRSender,
+                sender,
                 true,
                 options.key,
                 payloadName = "$name ${status.description}",
@@ -142,8 +155,8 @@ class End2EndUniversalPipeline : CoolTest() {
 
             // check batch step
             val translateReportIds = getAllChildrenReportId(routeReportId)
-            if (translateReportIds.size != 2)
-                return bad("***async end2end_up FAILED***: Expected two translate report ids")
+            if (translateReportIds.size != expectedReceivers)
+                return bad("***async end2end_up FAILED***: Expected $expectedReceivers translate report id(s)")
             translateReportIds.forEach { translateReportId ->
                 val batchResults = pollForStepResult(translateReportId, TaskAction.batch)
                 // verify each result is valid
@@ -171,7 +184,6 @@ class End2EndUniversalPipeline : CoolTest() {
                 isUniversalPipeline = true
             )
         }
-
         return passed
     }
 }

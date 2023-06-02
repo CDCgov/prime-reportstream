@@ -593,8 +593,10 @@ abstract class CoolTest {
 
             if (topic != null && topic.equals(Topic.COVID_19)) {
                 good("'topic' is in response and correctly set to 'covid-19'")
-            } else {
+            } else if (topic == null) {
                 passed = bad("***$name Test FAILED***: 'topic' is missing from response json")
+            } else {
+                passed = bad("***$name Test FAILED***: unexpected 'topic' $topic in response json")
             }
 
             if (errorCount == 0) {
@@ -629,10 +631,12 @@ abstract class CoolTest {
             val topic = history.topic
             val errorCount = history.errorCount
 
-            if (topic != null && topic.equals(Topic.FULL_ELR)) {
-                good("'topic' is in response and correctly set to 'full-elr'")
-            } else {
+            if (topic != null && (topic == Topic.FULL_ELR || topic == Topic.ETOR_TI)) {
+                good("'topic' is in response and correctly set to $topic")
+            } else if (topic == null) {
                 passed = bad("***$name Test FAILED***: 'topic' is missing from response json")
+            } else {
+                passed = bad("***$name Test FAILED***: unexpected 'topic' $topic in response json")
             }
 
             if (errorCount == 0) {
@@ -794,12 +798,15 @@ abstract class CoolTest {
             if (topic != null && !topic.isNull &&
                 (
                     topic.textValue().equals(Topic.COVID_19.jsonVal, true) ||
-                        topic.textValue().equals(Topic.FULL_ELR.jsonVal, true)
+                        topic.textValue().equals(Topic.FULL_ELR.jsonVal, true) ||
+                        topic.textValue().equals(Topic.ETOR_TI.jsonVal, true)
                     )
             ) {
                 good("'topic' is in response and correctly set")
-            } else {
+            } else if (topic == null) {
                 passed = bad("***$name Test FAILED***: 'topic' is missing from response json")
+            } else {
+                passed = bad("***$name Test FAILED***: unexpected 'topic' $topic in response json")
             }
 
             if (errorCount != null && !errorCount.isNull && errorCount.intValue() == 0) {
@@ -841,6 +848,12 @@ abstract class CoolTest {
         val fullELRSender by lazy {
             settings.findSender("$org1Name.$fullELRSenderName") as? FullELRSender
                 ?: error("Unable to find sender $fullELRSenderName for organization ${org1.name}")
+        }
+
+        const val etorTISenderName = "ignore-etor-ti"
+        val etorTISender by lazy {
+            settings.findSender("$org1Name.$etorTISenderName") as? FullELRSender
+                ?: error("Unable to find sender $etorTISenderName for organization ${org1.name}")
         }
 
         const val simpleReportSenderName = "ignore-simple-report"
