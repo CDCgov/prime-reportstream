@@ -618,7 +618,7 @@ abstract class CoolTest {
      * Examine the [history] from the convert action, make sure it successfully converted and there is a fhir bundle
      * @return true if there are no errors in the response, false otherwise
      */
-    fun examineStepResponse(history: DetailedSubmissionHistory?, step: String): Boolean {
+    fun examineStepResponse(history: DetailedSubmissionHistory?, step: String, senderTopic: Topic): Boolean {
 
         var passed = true
         try {
@@ -631,12 +631,13 @@ abstract class CoolTest {
             val topic = history.topic
             val errorCount = history.errorCount
 
-            if (topic != null && (topic == Topic.FULL_ELR || topic == Topic.ETOR_TI)) {
+            if (topic != null && topic == senderTopic) {
                 good("'topic' is in response and correctly set to $topic")
             } else if (topic == null) {
                 passed = bad("***$name Test FAILED***: 'topic' is missing from response json")
             } else {
-                passed = bad("***$name Test FAILED***: unexpected 'topic' $topic in response json")
+                passed =
+                    bad("***$name Test FAILED***: expected 'topic' $senderTopic, but found $topic in response json")
             }
 
             if (errorCount == 0) {

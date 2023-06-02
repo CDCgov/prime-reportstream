@@ -128,7 +128,7 @@ class End2EndUniversalPipeline : CoolTest() {
             val convertResults = pollForStepResult(reportId, TaskAction.convert)
             // verify each result is valid
             for (result in convertResults.values)
-                passed = passed && examineStepResponse(result, "convert")
+                passed = passed && examineStepResponse(result, "convert", sender.topic)
             if (!passed)
                 bad("***async end2end_up FAILED***: Convert result invalid")
 
@@ -139,7 +139,7 @@ class End2EndUniversalPipeline : CoolTest() {
             val routeResults = pollForStepResult(convertReportId, TaskAction.route)
             // verify each result is valid
             for (result in routeResults.values)
-                passed = passed && examineStepResponse(result, "route")
+                passed = passed && examineStepResponse(result, "route", sender.topic)
             if (!passed)
                 bad("***async end2end_up FAILED***: Route result invalid")
 
@@ -149,7 +149,7 @@ class End2EndUniversalPipeline : CoolTest() {
             val translateResults = pollForStepResult(routeReportId, TaskAction.translate)
             // verify each result is valid
             for (result in translateResults.values)
-                passed = passed && examineStepResponse(result, "translate")
+                passed = passed && examineStepResponse(result, "translate", sender.topic)
             if (!passed)
                 bad("***async end2end_up FAILED***: Translate result invalid")
 
@@ -161,7 +161,7 @@ class End2EndUniversalPipeline : CoolTest() {
                 val batchResults = pollForStepResult(translateReportId, TaskAction.batch)
                 // verify each result is valid
                 for (result in batchResults.values)
-                    passed = passed && examineStepResponse(result, "batch")
+                    passed = passed && examineStepResponse(result, "batch", sender.topic)
                 if (!passed)
                     bad("***async end2end_up FAILED***: Batch result invalid")
 
@@ -171,7 +171,7 @@ class End2EndUniversalPipeline : CoolTest() {
                 val sendResults = pollForStepResult(batchReportId, TaskAction.send)
                 // verify each result is valid
                 for (result in sendResults.values)
-                    passed = passed && examineStepResponse(result, "send")
+                    passed = passed && examineStepResponse(result, "send", sender.topic)
                 if (!passed)
                     bad("***async end2end_up FAILED***: Send result invalid")
             }
