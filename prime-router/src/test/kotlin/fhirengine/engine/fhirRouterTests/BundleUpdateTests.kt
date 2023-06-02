@@ -60,7 +60,8 @@ class BundleUpdateTests {
         receivers = defaultReceivers
     )
 
-    val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+    val message =
+        spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", topic = Topic.FULL_ELR))
 
     private val validFhirWithProvenance = """
     {
