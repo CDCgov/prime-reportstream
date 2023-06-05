@@ -77,6 +77,9 @@ sealed class SubmitterApiSearchFilter<T> : ApiFilter<SubmitterRecord, T> {
     }
 }
 
+/**
+ * Collection of the available filters for the Submitter API
+ */
 object SubmitterApiSearchFilters : ApiFilters<SubmitterRecord, SubmitterApiSearchFilter<*>, SubmitterApiFilterNames> {
     override val terms = mapOf(
         Pair(SubmitterApiFilterNames.SINCE, SubmitterApiSearchFilter.Since::class.java),
@@ -84,6 +87,10 @@ object SubmitterApiSearchFilters : ApiFilters<SubmitterRecord, SubmitterApiSearc
     )
 }
 
+/**
+ * Search object that can be applied to the Submitter API
+ * @see [ApiSearch] for more details on creating API searches
+ */
 class SubmitterApiSearch(
     override val filters: List<SubmitterApiSearchFilter<*>>,
     override val sortParameter: Field<*>?,
@@ -119,11 +126,12 @@ class SubmitterApiSearch(
                     -> SubmitterApiSearchFilter.Until(OffsetDateTime.parse(filter.value).toLocalDateTime())
 
                     else -> {
-                        logger.warn("${filter.filterName} did not map to a valid filter for ReportFileApiSearch")
+                        logger.warn("${filter.filterName} did not map to a valid filter for SubmitterApiSearch")
                         null
                     }
                 }
             }
+
             return SubmitterApiSearch(
                 filters = filters,
                 sortParameter = sortProperty,
@@ -135,13 +143,29 @@ class SubmitterApiSearch(
     }
 }
 
+/**
+ * Database access for fetching submitters out of the database.  A submitter is any provider, facility or sender
+ * that have sent items to ReportStream
+ *
+ * @param db access to the DB
+ */
 class SubmittersDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessSingleton) {
 
     private val reportGraph = ReportGraph(db)
 
+    /**
+     * Finds al the submitters (any facility, provider, sender) for a particular receiver applying
+     * the passed in search request
+     *
+     *
+     * @param search the search parameters to apply to the query
+     * @param receiver the specific receiver that the submitters should be fetched for
+     */
     fun getSubmitters(search: SubmitterApiSearch, receiver: Receiver): ApiSearchResult<Submitter> {
         return db.transactReturning { txn ->
 
+            // TODO: https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/9411
+            // Might need to have a date limit set to if the query does perform well to search all time
             val sentReportIdsForReceiver = DSL
                 .using(txn)
                 .select(ReportFile.REPORT_FILE.REPORT_ID)
@@ -152,9 +176,9 @@ class SubmittersDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAcces
                 .and(Action.ACTION.ACTION_NAME.eq(TaskAction.send))
                 .fetchInto(UUID::class.java)
 
-            val reportLineage = reportGraph.itemAncestorGraphCommonTableExpression(sentReportIdsForReceiver)
+            val itemGraph = reportGraph.itemAncestorGraphCommonTableExpression(sentReportIdsForReceiver)
 
-            val metadata = reportGraph.metadataCommonTableExpression(reportLineage)
+            val metadata = reportGraph.metadataCommonTableExpression(itemGraph)
             val metadataIds = DSL.select(metadata.field("covid_results_metadata_id", SQLDataType.BIGINT)).from(metadata)
             val submitterExpression = DSL
                 .name("submitter")
@@ -209,7 +233,7 @@ class SubmittersDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAcces
 
             search.fetchResults(
                 DSL.using(txn),
-                DSL.withRecursive(reportLineage)
+                DSL.withRecursive(itemGraph)
 //                    .with(originalReportIds)
                     .with(metadata)
                     .with(submitterExpression)

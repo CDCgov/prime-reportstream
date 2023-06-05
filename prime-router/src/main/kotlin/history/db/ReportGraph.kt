@@ -82,12 +82,12 @@ class ReportGraph(
     }
 
     /**
-     * Returns all the metadata rows associated with the passed in source report ids
+     * Returns all the metadata rows associated with the passed in [ItemGraphRecord]
      *
-     * @param sourceReportIds report ids for sent reports that serve as the input for finding rows in metadata
+     * @param itemGraphRecords the item graph records that should be used to find the metadata
      */
     fun metadataCommonTableExpression(
-        sourceReportIds: CommonTableExpression<ItemGraphRecord>
+        itemGraphRecords: CommonTableExpression<ItemGraphRecord>
     ): CommonTableExpression<CovidResultMetadataRecord> {
         return DSL.name(METADATA_CTE).`as`(
             selectDistinct(COVID_RESULT_METADATA.asterisk())
@@ -100,20 +100,32 @@ class ReportGraph(
                                 SQLDataType.UUID
                             )
                         ).from(
-                            sourceReportIds
+                            itemGraphRecords
                         )
                     )
                 ).and(
                     COVID_RESULT_METADATA.REPORT_INDEX.`in`(
                         selectDistinct(
                             DSL.field(ItemGraphTable.ITEM_GRAPH.PARENT_INDEX.unqualifiedName, SQLDataType.INTEGER)
-                        ).from(sourceReportIds)
+                        ).from(itemGraphRecords)
                     )
                 ).coerce(COVID_RESULT_METADATA)
         )
     }
 
-    fun itemAncestorGraphCommonTableExpression(childReportIds: List<UUID>) =
+    /**
+     * Accepts a list of report ids and then finds all the items associated with that report
+     * to then recursively walk the item lineage to produce an [ItemGraphRecord]
+     *
+     * Results will look like:
+     * 784f82f6-75f7-4ccc-aad1-1ab24ad8b595, (784f82f6-75f7-4ccc-aad1-1ab24ad8b595,1)
+     * 81492979-40cd-45e7-a7ce-038269fd81aa, (81492979-40cd-45e7-a7ce-038269fd81aa,1)
+     * 5a52b273-c79e-46fa-9c5a-65fa725d4daa, (784f82f6-75f7-4ccc-aad1-1ab24ad8b595,1)->(5a52b273-c79e-46fa-9c5a-65fa725d4daa,1)
+     * 5a52b273-c79e-46fa-9c5a-65fa725d4daa, (81492979-40cd-45e7-a7ce-038269fd81aa,1)->(5a52b273-c79e-46fa-9c5a-65fa725d4daa,2)
+     *
+     * @param reportIds the set of reports to start from
+     */
+    fun itemAncestorGraphCommonTableExpression(reportIds: List<UUID>) =
         DSL
             .name(ItemGraphTable.ITEM_GRAPH.name)
             .`as`(
@@ -127,7 +139,7 @@ class ReportGraph(
                         .concat(")").`as`(PATH_FIELD)
                 )
                     .from(ITEM_LINEAGE)
-                    .where(ITEM_LINEAGE.CHILD_REPORT_ID.`in`(childReportIds))
+                    .where(ITEM_LINEAGE.CHILD_REPORT_ID.`in`(reportIds))
                     .unionAll(
                         DSL.select(
                             ITEM_LINEAGE.PARENT_REPORT_ID,
@@ -165,7 +177,7 @@ class ReportGraph(
      *
      * @param childReportIds the initial set of report ids to walk up from
      */
-    fun reportAncestorLineageCommonTableExpression(childReportIds: List<UUID>) =
+    fun reportAncestorGraphCommonTableExpression(childReportIds: List<UUID>) =
         DSL.name(lineageCteName).fields(
             PARENT_REPORT_ID_FIELD,
             PATH_FIELD
@@ -196,7 +208,7 @@ class ReportGraph(
      *
      * @param sourceReportIds the initial set of report ids to walk down from
      */
-    private fun descendantLineageCommonTableExpression(sourceReportIds: List<UUID>) =
+    private fun reportDescendantGraphCommonTableExpression(sourceReportIds: List<UUID>) =
         DSL.name(lineageCteName).fields(
             PARENT_REPORT_ID_FIELD,
             PATH_FIELD
