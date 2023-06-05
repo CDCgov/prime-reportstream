@@ -118,10 +118,10 @@ class ReportGraph(
      * to then recursively walk the item lineage to produce an [ItemGraphRecord]
      *
      * Results will look like:
-     * 784f82f6-75f7-4ccc-aad1-1ab24ad8b595, (784f82f6-75f7-4ccc-aad1-1ab24ad8b595,1)
-     * 81492979-40cd-45e7-a7ce-038269fd81aa, (81492979-40cd-45e7-a7ce-038269fd81aa,1)
-     * 5a52b273-c79e-46fa-9c5a-65fa725d4daa, (784f82f6-75f7-4ccc-aad1-1ab24ad8b595,1)->(5a52b273-c79e-46fa-9c5a-65fa725d4daa,1)
-     * 5a52b273-c79e-46fa-9c5a-65fa725d4daa, (81492979-40cd-45e7-a7ce-038269fd81aa,1)->(5a52b273-c79e-46fa-9c5a-65fa725d4daa,2)
+     * 784f82f6-75f7-4ccc-aad1-1ab24ad8b595, 1, (784f82f6-75f7-4ccc-aad1-1ab24ad8b595,1)
+     * 81492979-40cd-45e7-a7ce-038269fd81aa, 1, (81492979-40cd-45e7-a7ce-038269fd81aa,1)
+     * 5a52b273-c79e-46fa-9c5a-65fa725d4daa, 1, (784f82f6-75f7-4ccc-aad1-1ab24ad8b595,1)->(5a52b273-c79e-46fa-9c5a-65fa725d4daa,1)
+     * 5a52b273-c79e-46fa-9c5a-65fa725d4daa, 2, (81492979-40cd-45e7-a7ce-038269fd81aa,1)->(5a52b273-c79e-46fa-9c5a-65fa725d4daa,2)
      *
      * @param reportIds the set of reports to start from
      */

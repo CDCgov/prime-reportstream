@@ -179,7 +179,8 @@ class SubmittersDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAcces
             val itemGraph = reportGraph.itemAncestorGraphCommonTableExpression(sentReportIdsForReceiver)
 
             val metadata = reportGraph.metadataCommonTableExpression(itemGraph)
-            val metadataIds = DSL.select(metadata.field("covid_results_metadata_id", SQLDataType.BIGINT)).from(metadata)
+            val metadataIds = DSL
+                .selectDistinct(metadata.field("covid_results_metadata_id", SQLDataType.BIGINT)).from(metadata)
             val submitterExpression = DSL
                 .name("submitter")
                 .`as`(
@@ -234,7 +235,6 @@ class SubmittersDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAcces
             search.fetchResults(
                 DSL.using(txn),
                 DSL.withRecursive(itemGraph)
-//                    .with(originalReportIds)
                     .with(metadata)
                     .with(submitterExpression)
                     .select(submitterExpression.asterisk())
