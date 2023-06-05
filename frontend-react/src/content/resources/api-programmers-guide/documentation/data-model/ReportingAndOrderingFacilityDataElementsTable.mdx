@@ -1,0 +1,197 @@
+<table className="usa-table">
+    <thead>
+        <tr>
+            <th>CSV Column Names</th>
+            <th>HL7 Field / Component</th>
+            <th>Fed Required?</th>
+            <th>State Required?</th>
+            <th>Data Requirements</th>
+            <th>Additional Guidance</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                reporting_facility_name
+            </td>
+            <td>
+                MSH-4.1
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                Yes
+            </td>
+            <td></td>
+            <td>
+                Can be left blank for CSV if same as testing_lab_name.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                reporting_facility_clia
+            </td>
+            <td>
+                MSH-4.2
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                Yes
+            </td>
+            <td></td>
+            <td>
+                Can be left blank for CSV if same as testing_lab_clia.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                ordering_facility_name
+            </td>
+            <td>
+                ORC-21.1
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                Yes – Conditional
+            </td>
+            <td>
+                Enter ordering facility name.
+            </td>
+            <td>
+                Can be left blank for CSV if same as testing_lab_name. 
+            </td>
+        </tr>
+        <tr>
+            <td>
+                ordering_facility_street
+            </td>
+            <td>
+                ORC-22.1
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                Yes – Conditional
+            </td>
+            <td>
+                Enter the street address of the ordering facility.
+            </td>
+            <td>
+                Can be left blank for CSV if same as testing_lab_street.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                ordering_facility_street2
+            </td>
+            <td>
+                ORC-22.2
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                Optional: Enter ordering facility's additional address information, if applicable.
+            </td>
+            <td>
+                This value is optional and can be left blank if no information is provided.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                ordering_facility_city
+            </td>
+            <td>
+                ORC-22.3
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                Yes – Conditional
+            </td>
+            <td>
+                Enter ordering facility's city.
+            </td>
+            <td>
+                Can be left blank for CSV if same as testing_lab_city. 
+            </td>
+        </tr>
+        <tr>
+            <td>
+                ordering_facility_state
+            </td>
+            <td>
+                ORC-22.4
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                Yes – Conditional
+            </td>
+            <td>
+                Enter ordering facility's state using the two-character abbreviation.
+            </td>
+            <td>
+                Can be left blank for CSV if same as testing_lab_state.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                ordering_facility_zip_code
+            </td>
+            <td>
+                ORC-22.5
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                Yes – Conditional
+            </td>
+            <td>
+                Enter ordering facility zip code. 
+
+                **Accepted Format:**
+                * 12345
+                * 12345-6789
+            </td>
+            <td>
+                Can be left blank for CSV if same as testing_lab_zip_code.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                ordering_facility_phone_number
+            </td>
+            <td>
+                ORC-23
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                Yes – Conditional
+            </td>
+            <td>
+                Enter ordering facility phone number. 
+
+                **Accepted Format:**
+                000-000-0000
+            </td>
+            <td>
+                Can be left blank for CSV if same as testing_lab_phone_number.
+            </td>
+        </tr>
+    </tbody>
+</table>

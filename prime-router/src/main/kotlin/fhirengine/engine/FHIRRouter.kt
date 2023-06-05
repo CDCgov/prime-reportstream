@@ -31,6 +31,7 @@ import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Observation
 
 /**
  * [metadata] mockable metadata
@@ -165,7 +166,8 @@ class FHIRRouter(
                 Report.Format.FHIR,
                 sources,
                 1,
-                metadata = this.metadata
+                metadata = this.metadata,
+                topic = message.topic,
             )
 
             // create item lineage
@@ -184,7 +186,7 @@ class FHIRRouter(
             )
 
             // get the receivers that this bundle should go to
-            val listOfReceivers = applyFilters(bundle, report)
+            val listOfReceivers = applyFilters(bundle, report, message.topic)
 
             // check if there are any receivers
             if (listOfReceivers.isNotEmpty()) {
@@ -240,7 +242,8 @@ class FHIRRouter(
                         report.id,
                         blobInfo.blobUrl,
                         BlobAccess.digestToString(blobInfo.digest),
-                        message.blobSubFolderName
+                        message.blobSubFolderName,
+                        message.topic,
                     ).serialize()
                 )
             } else {
@@ -291,20 +294,19 @@ class FHIRRouter(
     }
 
     /**
-     * Applies all filters to the list of all receivers with topic FULL_ELR that are not set as INACTIVE.
-     * FHIRPath expressions are run against the [bundle] to determine if the receiver should get this message
+     * Applies all filters to the list of all receivers with topic with a topic matching [topic] that are not set as
+     * INACTIVE. FHIRPath expressions are run against the [bundle] to determine if the receiver should get this message
      * As it goes through the filters, results are logged onto the provided [report]
      * @return list of receivers that should receive this bundle
      */
-    internal fun applyFilters(bundle: Bundle, report: Report): List<Receiver> {
+    internal fun applyFilters(bundle: Bundle, report: Report, topic: Topic): List<Receiver> {
+        check(topic.isUniversalPipeline) { "Unexpected topic $topic in the Universal Pipeline routing step." }
         val listOfReceivers = mutableListOf<Receiver>()
-        // find all receivers that have the full ELR topic and determine which applies
-        val fullElrReceivers = settings.receivers.filter {
-            it.customerStatus != CustomerStatus.INACTIVE &&
-                it.topic == Topic.FULL_ELR
-        }
+        // find all receivers that have a matching topic and determine which applies
+        val topicReceivers =
+            settings.receivers.filter { it.customerStatus != CustomerStatus.INACTIVE && it.topic == topic }
 
-        fullElrReceivers.forEach { receiver ->
+        topicReceivers.forEach { receiver ->
             // get the receiver's organization, since we need to be able to find/combine the correct filters
             val orgFilters = settings.findOrganization(receiver.organizationName)!!.filters
 
@@ -433,7 +435,7 @@ class FHIRRouter(
             if (isDefaultFilter(filterType, filters)) "(default filter) "
             else ""
             }${failingFilterName ?: "unknown"}"
-            logFilterResults(filterToLog, bundle, report, receiver, filterType)
+            logFilterResults(filterToLog, bundle, report, receiver, filterType, focusResource)
         }
         return passes
     }
@@ -555,21 +557,40 @@ class FHIRRouter(
     /**
      * Log the results of running filters (referenced by the given [filterName]) on items out of a [report] during the
      * "route" step for a [receiver], tracking the [filterType] and tying the results to a [receiver] and [bundle].
+     * @param filterName Name of evaluated filter
+     * @param bundle FHIR Bundle that was evaluated
+     * @param report Report object passed for logging purposes
+     * @param receiver Receiver of the report
+     * @param filterType Type of filter used
+     * @param focusResource Starting point for the evaluation, used for logging
      */
     internal fun logFilterResults(
         filterName: String,
         bundle: Bundle,
         report: Report,
         receiver: Receiver,
-        filterType: ReportStreamFilterType
+        filterType: ReportStreamFilterType,
+        focusResource: Base
     ) {
+        var filteredTrackingElement = bundle.identifier.value ?: ""
+        if (focusResource != bundle) {
+            filteredTrackingElement += " at " + focusResource.idBase
+
+            if (focusResource is Observation) {
+                // for Observation-type elements, we use the code property when available
+                // if more elements need specific logic, consider extending the FHIR libraries
+                // instead of adding more if/else statements
+                val coding = focusResource.code.coding.firstOrNull()
+                if (coding != null) filteredTrackingElement += " with " + coding.system + " code: " + coding.code
+            }
+        }
         report.filteringResults.add(
             ReportStreamFilterResult(
                 receiver.fullName,
                 report.itemCount,
                 filterName,
                 emptyList(),
-                bundle.identifier.value ?: "",
+                filteredTrackingElement,
                 filterType
             )
         )
@@ -582,7 +603,7 @@ class FHIRRouter(
      */
     internal fun getJurisFilters(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         return (
-            orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.jurisdictionalFilter
+            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.jurisdictionalFilter
                 ?: emptyList()
             ).plus(receiver.jurisdictionalFilter)
     }
@@ -594,7 +615,7 @@ class FHIRRouter(
      */
     internal fun getQualityFilters(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         val receiverFilters = (
-            orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.qualityFilter
+            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.qualityFilter
                 ?: emptyList()
             ).plus(receiver.qualityFilter)
         return receiverFilters.ifEmpty { qualityFilterDefault }
@@ -607,7 +628,7 @@ class FHIRRouter(
      */
     internal fun getRoutingFilter(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         return (
-            orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.routingFilter
+            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.routingFilter
                 ?: emptyList()
             ).plus(receiver.routingFilter)
     }
@@ -622,7 +643,7 @@ class FHIRRouter(
         orgFilters: List<ReportStreamFilters>?
     ): ReportStreamFilter {
         val receiverFilters = (
-            orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.processingModeFilter
+            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.processingModeFilter
                 ?: emptyList()
             ).plus(receiver.processingModeFilter)
         return receiverFilters.ifEmpty { processingModeFilterDefault }
@@ -633,7 +654,7 @@ class FHIRRouter(
      */
     internal fun getConditionFilter(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         return (
-            orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.conditionFilter
+            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.conditionFilter
                 ?: emptyList()
             ).plus(receiver.conditionFilter)
     }
