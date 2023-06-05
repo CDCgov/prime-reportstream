@@ -1,5 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 
+import { showError } from "../components/AlertNotifications";
+
 export const appQueryClient = new QueryClient({
     defaultOptions: {
         queries: {
@@ -9,8 +11,11 @@ export const appQueryClient = new QueryClient({
             staleTime: Infinity,
             cacheTime: Infinity,
             refetchOnWindowFocus: false,
-            onError: (error: any) =>
-                console.error(`Something went wrong: ${error.message}`),
+            onError: (error: any) => {
+                const errorString = `Something went wrong: ${error.message}`;
+                showError(errorString);
+                console.error(errorString);
+            },
         },
     },
 });
