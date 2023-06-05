@@ -877,6 +877,7 @@ class ReportTests {
                 rcvr,
                 mockMetadata,
                 mockActionHistory,
+                topic = Topic.FULL_ELR,
             )
         }.isFailure().hasClass(java.lang.IllegalStateException::class.java)
 
@@ -889,6 +890,7 @@ class ReportTests {
                 rcvr,
                 mockMetadata,
                 mockActionHistory,
+                topic = Topic.FULL_ELR,
             )
         }.isFailure().hasClass(java.lang.IllegalStateException::class.java)
 
@@ -901,6 +903,7 @@ class ReportTests {
                 rcvr,
                 mockMetadata,
                 mockActionHistory,
+                topic = Topic.FULL_ELR,
             )
         }.isFailure().hasClass(java.lang.IllegalStateException::class.java)
     }
@@ -934,7 +937,8 @@ class ReportTests {
 
         var reportIds = listOf(ReportId.randomUUID())
         val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
-            Event.EventAction.PROCESS, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory
+            Event.EventAction.PROCESS, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
+            topic = Topic.FULL_ELR,
         )
         unmockkObject(BlobAccess)
 
@@ -957,7 +961,8 @@ class ReportTests {
         } returns
             BlobAccess.BlobInfo(Report.Format.HL7_BATCH, "someurl", "digest".toByteArray())
         val (report2, event2, _) = Report.generateReportAndUploadBlob(
-            Event.EventAction.SEND, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory
+            Event.EventAction.SEND, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
+            topic = Topic.FULL_ELR,
         )
         unmockkObject(BlobAccess)
         assertThat(report2.bodyFormat).isEqualTo(Report.Format.HL7_BATCH)
@@ -992,7 +997,8 @@ class ReportTests {
 
         var reportIds = listOf(ReportId.randomUUID())
         val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
-            Event.EventAction.PROCESS, fhirMockData, reportIds, receiver, mockMetadata, mockActionHistory
+            Event.EventAction.PROCESS, fhirMockData, reportIds, receiver, mockMetadata, mockActionHistory,
+            topic = Topic.FULL_ELR,
         )
         unmockkObject(BlobAccess)
 
@@ -1015,7 +1021,8 @@ class ReportTests {
         } returns
             BlobAccess.BlobInfo(Report.Format.FHIR, "someurl", "digest".toByteArray())
         val (report2, event2, _) = Report.generateReportAndUploadBlob(
-            Event.EventAction.SEND, fhirMockData, reportIds, receiver, mockMetadata, mockActionHistory
+            Event.EventAction.SEND, fhirMockData, reportIds, receiver, mockMetadata, mockActionHistory,
+            topic = Topic.FULL_ELR,
         )
         unmockkObject(BlobAccess)
         assertThat(report2.bodyFormat).isEqualTo(Report.Format.FHIR)

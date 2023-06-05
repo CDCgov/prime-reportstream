@@ -34,14 +34,12 @@ export function getHrefRoute(href?: string): string | undefined {
         const url = new URL(
             href.replace(/^\/\//, `${window.location.protocol}//`)
         );
-        if (url.hash) return undefined;
         if (
             url.protocol.startsWith("http") &&
             url.origin === window.location.origin
         )
             return `${url.pathname}${url.search}`;
     } catch (e: any) {
-        if (href.startsWith("#")) return undefined;
         return href;
     }
 
@@ -64,9 +62,9 @@ export const SafeLink = ({
 }: SafeLinkProps) => {
     const sanitizedHref = href ? DOMPurify.sanitize(href) : href;
     const routeHref = getHrefRoute(sanitizedHref);
-
-    return routeHref !== undefined ? (
-        <Link to={routeHref} state={state} {...anchorHTMLAttributes}>
+    const isFile = sanitizedHref?.startsWith("/assets/");
+    return routeHref !== undefined && !isFile ? (
+        <Link to={href!} state={state} {...anchorHTMLAttributes}>
             {children}
         </Link>
     ) : (
@@ -171,6 +169,7 @@ export const USNavLink = ({
     children,
     className,
     activeClassName,
+    ...props
 }: USNavLinkProps) => {
     const { hash: currentHash } = useLocation();
     const hashIndex = href?.indexOf("#") ?? -1;
@@ -190,6 +189,7 @@ export const USNavLink = ({
                     [className as any]: !isActive, // `as any` because string may be undefined
                 });
             }}
+            {...props}
         >
             {children}
         </NavLink>

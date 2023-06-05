@@ -67,7 +67,7 @@ export function MessageDetails() {
     const { folderLocation, sendingOrg, fileName } = parseFileLocation(fileUrl);
 
     return (
-        <GridContainer containerSize="widescreen">
+        <GridContainer>
             <article className="margin-bottom-10" data-testid="container">
                 <div>
                     <h2>Message ID Search</h2>
