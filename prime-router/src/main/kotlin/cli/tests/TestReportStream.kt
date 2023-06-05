@@ -591,10 +591,12 @@ abstract class CoolTest {
             val topic = history.topic
             val errorCount = history.errorCount
 
-            if (topic != null && topic.equals("covid-19", true)) {
+            if (topic != null && topic.equals(Topic.COVID_19)) {
                 good("'topic' is in response and correctly set to 'covid-19'")
-            } else {
+            } else if (topic == null) {
                 passed = bad("***$name Test FAILED***: 'topic' is missing from response json")
+            } else {
+                passed = bad("***$name Test FAILED***: unexpected 'topic' $topic in response json")
             }
 
             if (errorCount == 0) {
@@ -616,7 +618,7 @@ abstract class CoolTest {
      * Examine the [history] from the convert action, make sure it successfully converted and there is a fhir bundle
      * @return true if there are no errors in the response, false otherwise
      */
-    fun examineStepResponse(history: DetailedSubmissionHistory?, step: String): Boolean {
+    fun examineStepResponse(history: DetailedSubmissionHistory?, step: String, senderTopic: Topic): Boolean {
 
         var passed = true
         try {
@@ -629,10 +631,13 @@ abstract class CoolTest {
             val topic = history.topic
             val errorCount = history.errorCount
 
-            if (topic != null && topic.equals("full-elr", true)) {
-                good("'topic' is in response and correctly set to 'full-elr'")
-            } else {
+            if (topic != null && topic == senderTopic) {
+                good("'topic' is in response and correctly set to $topic")
+            } else if (topic == null) {
                 passed = bad("***$name Test FAILED***: 'topic' is missing from response json")
+            } else {
+                passed =
+                    bad("***$name Test FAILED***: expected 'topic' $senderTopic, but found $topic in response json")
             }
 
             if (errorCount == 0) {
@@ -717,7 +722,7 @@ abstract class CoolTest {
                 // Bug:  this is looking at local cli data, but might be querying staging or prod.
                 // The hope is that the 'ignore' org is same in local, staging, prod.
                 if (asyncProcessMode && receiver.topic == Topic.COVID_19) actionsList.add(TaskAction.process)
-                if (receiver.topic == Topic.FULL_ELR) {
+                if (receiver.topic.isUniversalPipeline) {
                     actionsList.add(TaskAction.convert)
                     actionsList.add(TaskAction.route)
                     actionsList.add(TaskAction.translate)
@@ -793,13 +798,16 @@ abstract class CoolTest {
 
             if (topic != null && !topic.isNull &&
                 (
-                    topic.textValue().equals(Topic.COVID_19.json_val, true) ||
-                        topic.textValue().equals(Topic.FULL_ELR.json_val, true)
+                    topic.textValue().equals(Topic.COVID_19.jsonVal, true) ||
+                        topic.textValue().equals(Topic.FULL_ELR.jsonVal, true) ||
+                        topic.textValue().equals(Topic.ETOR_TI.jsonVal, true)
                     )
             ) {
                 good("'topic' is in response and correctly set")
-            } else {
+            } else if (topic == null) {
                 passed = bad("***$name Test FAILED***: 'topic' is missing from response json")
+            } else {
+                passed = bad("***$name Test FAILED***: unexpected 'topic' $topic in response json")
             }
 
             if (errorCount != null && !errorCount.isNull && errorCount.intValue() == 0) {
@@ -841,6 +849,12 @@ abstract class CoolTest {
         val fullELRSender by lazy {
             settings.findSender("$org1Name.$fullELRSenderName") as? FullELRSender
                 ?: error("Unable to find sender $fullELRSenderName for organization ${org1.name}")
+        }
+
+        const val etorTISenderName = "ignore-etor-ti"
+        val etorTISender by lazy {
+            settings.findSender("$org1Name.$etorTISenderName") as? FullELRSender
+                ?: error("Unable to find sender $etorTISenderName for organization ${org1.name}")
         }
 
         const val simpleReportSenderName = "ignore-simple-report"

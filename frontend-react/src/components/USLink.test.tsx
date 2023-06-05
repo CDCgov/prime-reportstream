@@ -34,6 +34,9 @@ const routeUrls = [
     "asdf",
     `//${window.location.host}/asdf`,
     `${window.location.origin}`,
+    "#",
+    "#asdf",
+    "##asdf",
 ];
 
 const routeUrlsMap = {
@@ -47,9 +50,6 @@ const nonRouteUrls = [
     "https://www.google.com",
     "http://www.google.com",
     "//www.google.com",
-    "#",
-    "#asdf",
-    "##asdf",
 ];
 
 describe("getHrefRoute", () => {

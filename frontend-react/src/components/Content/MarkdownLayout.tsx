@@ -56,11 +56,11 @@ export function MarkdownLayout({
             {...mdx}
         >
             <GridContainer className="usa-prose">
-                <Grid row className="flex-justify">
+                <Grid row className="flex-justify flex-align-start">
                     {sidenav ? (
                         <Nav
                             aria-label="side-navigation"
-                            className="tablet:grid-col-3"
+                            className="tablet:grid-col-3 position-sticky top-0"
                             {...sidenavProps}
                         >
                             {sidenav}

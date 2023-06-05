@@ -18,8 +18,10 @@ openssl genrsa -out my-rsa-keypair.pem 2048
 openssl rsa -in my-rsa-keypair.pem -outform PEM -pubout -out my-rsa-public-key.pem
   ```
 
-2. Send the public key to the ReportStream team using [our public key tool](/file-handler/validate).
-Note: you’ll need to login to use that feature. ReportStream will associate the key with your configuration within ReportStream.
+2. Send the public key to the ReportStream team using [our public key tool](/resources/manage-public-key).
+Note: you’ll need to login to use that feature. If you do not have a login contact ReportStream support at [reportstream@cdc.gov](mailto:reportstream@cdc.gov). ReportStream will associate the key with your configuration within ReportStream.
+
+You only need to do this step once, not every time you submit reports. If you need to change your keys at any time, contact ReportStream support.
 
 **Step 2: At the time of submission, generate a signed JWT using your private key**
 

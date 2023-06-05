@@ -94,9 +94,6 @@ class LIVDLookupMapper : Mapper {
                 ElementNames.EQUIPMENT_MODEL_NAME.elementName -> find(
                     testPerformedCode = testPerformedCode,
                     processingModeCode = processingModeCode,
-                    deviceId = null,
-                    equipmentModelId = null,
-                    testKitNameId = null,
                     equipmentModelName = it.value,
                     tableColumn = element.tableColumn!!,
                     tableRef = element.tableRef
@@ -105,29 +102,20 @@ class LIVDLookupMapper : Mapper {
                     testPerformedCode = testPerformedCode,
                     processingModeCode = processingModeCode,
                     deviceId = it.value,
-                    equipmentModelId = null,
-                    testKitNameId = null,
-                    equipmentModelName = null,
                     tableColumn = element.tableColumn!!,
                     tableRef = element.tableRef
                 )
                 ElementNames.EQUIPMENT_MODEL_ID.elementName -> find(
                     testPerformedCode = testPerformedCode,
                     processingModeCode = processingModeCode,
-                    deviceId = null,
                     equipmentModelId = it.value,
-                    testKitNameId = null,
-                    equipmentModelName = null,
                     tableColumn = element.tableColumn!!,
                     tableRef = element.tableRef
                 )
                 ElementNames.TEST_KIT_NAME_ID.elementName -> find(
                     testPerformedCode = testPerformedCode,
                     processingModeCode = processingModeCode,
-                    deviceId = null,
-                    equipmentModelId = null,
                     testKitNameId = it.value,
-                    equipmentModelName = null,
                     tableColumn = element.tableColumn!!,
                     tableRef = element.tableRef
                 )

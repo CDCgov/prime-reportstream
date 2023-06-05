@@ -393,11 +393,12 @@ class Report : Logging {
         metadata: Metadata? = null,
         itemLineage: List<ItemLineage>? = null,
         destination: Receiver? = null,
-        nextAction: TaskAction = TaskAction.process
+        nextAction: TaskAction = TaskAction.process,
+        topic: Topic,
     ) {
         this.id = UUID.randomUUID()
-        // ELR submissions do not need a schema, but it is required by the database to maintain legacy functionality
-        this.schema = Schema("None", Topic.FULL_ELR)
+        // UP submissions do not need a schema, but it is required by the database to maintain legacy functionality
+        this.schema = Schema("None", topic)
         this.sources = sources
         this.bodyFormat = bodyFormat
         this.destination = destination
@@ -1641,7 +1642,8 @@ class Report : Logging {
             sourceReportIds: List<ReportId>,
             receiver: Receiver,
             metadata: Metadata,
-            actionHistory: ActionHistory
+            actionHistory: ActionHistory,
+            topic: Topic,
         ): Triple<Report, Event, BlobAccess.BlobInfo> {
             check(messageBody.isNotEmpty())
             check(sourceReportIds.isNotEmpty())
@@ -1661,7 +1663,8 @@ class Report : Logging {
                 sources,
                 sourceReportIds.size,
                 metadata = metadata,
-                destination = receiver
+                destination = receiver,
+                topic = topic
             )
 
             // create item lineage
