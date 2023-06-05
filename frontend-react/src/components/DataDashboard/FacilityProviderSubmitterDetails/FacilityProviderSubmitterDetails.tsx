@@ -6,7 +6,7 @@ import { MemberType } from "../../../hooks/UseOktaMemberships";
 import Crumbs, { CrumbsProps } from "../../Crumbs";
 import { FeatureName } from "../../../AppRouter";
 import HipaaNotice from "../../HipaaNotice";
-import { AggregatorType } from "../../../utils/DataDashboardUtils";
+import { SenderType } from "../../../utils/DataDashboardUtils";
 import { withCatchAndSuspense } from "../../RSErrorBoundary";
 
 import styles from "./FacilityProviderSubmitterDetails.module.scss";
@@ -14,17 +14,17 @@ import { FacilityProviderSubmitterSummary } from "./FacilityProviderSubmitterSum
 import FacilityProviderSubmitterTable from "./FacilityProviderSubmitterTable";
 
 export type FacilityProviderSubmitterDetailsProps = React.PropsWithChildren<{
-    aggregatorType: AggregatorType;
+    senderType: SenderType;
 }>;
 
 function FacilityProviderSubmitterDetails(
     props: FacilityProviderSubmitterDetailsProps
 ) {
     // TODO: get from params once API is complete.
-    // const { aggregatorId } = useParams();
-    const aggregatorTypeId = "1234";
+    // const { senderId } = useParams();
+    const senderTypeId = "1234";
     const summaryDetails = {
-        aggregatorTypeName: "AFC Urgent Care",
+        senderTypeName: "AFC Urgent Care",
         contactName: "Sid's Pharmacy",
         location: "San Diego, CA",
         phone: "509-332-4608",
@@ -43,7 +43,7 @@ function FacilityProviderSubmitterDetails(
                 label: FeatureName.FACILITIES_PROVIDERS,
                 path: "/data-dashboard/facilities-providers",
             },
-            { label: summaryDetails.aggregatorTypeName },
+            { label: summaryDetails.senderTypeName },
         ],
     };
 
@@ -54,11 +54,11 @@ function FacilityProviderSubmitterDetails(
                 <article>
                     <FacilityProviderSubmitterSummary
                         details={summaryDetails || {}}
-                        summaryDetailType={props.aggregatorType}
+                        summaryDetailType={props.senderType}
                     />
                     <FacilityProviderSubmitterTable
-                        aggregatorTypeId={aggregatorTypeId!!}
-                        aggregatorTypeName={summaryDetails.aggregatorTypeName}
+                        senderTypeId={senderTypeId!!}
+                        senderTypeName={summaryDetails.senderTypeName}
                     />
                     <HipaaNotice />
                 </article>

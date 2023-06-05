@@ -4,18 +4,20 @@ import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../../hooks/filters/UseFilterManager";
-import Table, { TableConfig } from "../../Table/Table";
 import TableFilters from "../../Table/TableFilters";
-import { transformDate } from "../../../utils/DateTimeUtils";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import Spinner from "../../Spinner";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
 import { FeatureName } from "../../../AppRouter";
+import { Table } from "../../../shared/Table/Table";
+import FacilityResource from "../../../config/endpoints/dataDashboard";
+import { USLink } from "../../USLink";
+import { transformDate } from "../../../utils/DateTimeUtils";
 import {
-    AggregatorType,
-    transformFacilityType,
+    transformFacilityTypeClass,
+    transformFacilityTypeLabel,
 } from "../../../utils/DataDashboardUtils";
 
 const filterManagerDefaults: FilterManagerDefaults = {
@@ -38,26 +40,26 @@ function FacilitiesProvidersTableWithPagination({
 }: ReceiverServicesProps) {
     const featureEvent = `${FeatureName.FACILITIES_PROVIDERS} | ${EventName.TABLE_FILTER}`;
 
-    const data = [
+    const data: FacilityResource[] = [
         {
-            aggregatorId: "12w3e4r",
+            facilityId: "12w3e4r5",
             name: "Sally Doctor",
             location: "San Diego, CA",
-            aggregatorType: "provider",
+            facilityType: "provider",
             reportDate: "2022-09-28T22:21:33.801667",
         },
         {
-            aggregatorId: "12w3e4r",
+            facilityId: "12w3e4r6",
             name: "AFC Urgent Care",
             location: "San Antonio, TX",
-            aggregatorType: "facility",
+            facilityType: "facility",
             reportDate: "2022-09-28T22:21:33.801667",
         },
         {
-            aggregatorId: "12w3e4r",
+            facilityId: "12w3e4r7",
             name: "SimpleReport",
             location: "Fairfield, CO",
-            aggregatorType: "submitter",
+            facilityType: "submitter",
             reportDate: "2022-09-28T22:21:33.801667",
         },
     ];
@@ -68,34 +70,50 @@ function FacilitiesProvidersTableWithPagination({
 
     const filterManager = useFilterManager(filterManagerDefaults);
 
-    // TODO: update linkBasePath with AggregatorType
-    const tableConfig: TableConfig = {
-        columns: [
-            {
-                dataAttr: "name",
-                columnHeader: "Name",
-                feature: {
-                    link: true,
-                    linkAttr: "aggregatorId",
-                    linkBasePath: `/data-dashboard/facility-provider-submitter-details/${AggregatorType.FACILITY}/`,
+    const formattedTableData = () => {
+        return data
+            .filter((eachFacility) => eachFacility)
+            .map((eachFacility) => [
+                {
+                    columnKey: "name",
+                    columnHeader: "Name",
+                    content: (
+                        <USLink
+                            href={`/data-dashboard/facility-provider-submitter-details/${eachFacility.facilityType}/${eachFacility.facilityId}`}
+                            className="flex-align-self-end height-5"
+                        >
+                            {eachFacility.name}
+                        </USLink>
+                    ),
                 },
-            },
-            {
-                dataAttr: "location",
-                columnHeader: "Location",
-            },
-            {
-                dataAttr: "facilityType",
-                columnHeader: "Facility type",
-                transform: transformFacilityType,
-            },
-            {
-                dataAttr: "reportDate",
-                columnHeader: "Most recent report date",
-                transform: transformDate,
-            },
-        ],
-        rows: data!!,
+                {
+                    columnKey: "location",
+                    columnHeader: "Location",
+                    content: eachFacility.location || "",
+                },
+                {
+                    columnKey: "facilityType",
+                    columnHeader: "Facility type",
+                    content: eachFacility.facilityType ? (
+                        <span
+                            className={transformFacilityTypeClass(
+                                eachFacility.facilityType
+                            )}
+                        >
+                            {transformFacilityTypeLabel(
+                                eachFacility.facilityType
+                            )}
+                        </span>
+                    ) : (
+                        ""
+                    ),
+                },
+                {
+                    columnKey: "reportDate",
+                    columnHeader: "Most recent report date",
+                    content: transformDate(eachFacility.reportDate),
+                },
+            ]);
     };
 
     return (
@@ -127,7 +145,12 @@ function FacilitiesProvidersTableWithPagination({
                         }
                     />
                 </div>
-                <Table config={tableConfig} />
+                <Table
+                    striped
+                    borderless
+                    sticky
+                    rowData={formattedTableData()}
+                />
             </section>
         </div>
     );

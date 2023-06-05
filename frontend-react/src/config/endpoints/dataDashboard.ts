@@ -20,10 +20,21 @@ export interface RSFacilityProvider {
     collectionDate: string | undefined;
 }
 
+// TODO: move to /resources/ once we know the data structure being returned from the API
+export default class FacilityResource {
+    facilityId: string = "";
+    name: string = "";
+    location: string = "";
+    facilityType: string = "";
+    reportDate: string = "";
+}
+
 /*
 Deliveries API Endpoints
 
 * getOrgDeliveries -> Retrieves a list of reports using orgAndService (ex: xx-phd.elr)
+* getReportDetails -> Get the report details for a report
+* getPerformingFacilities -> Retrieves a list of facilities and providers
 */
 
 // TODO: will need to be revisited once new API's are ready
@@ -38,7 +49,7 @@ export const dataDashboardEndpoints: RSApiEndpoints = {
         method: HTTPMethods.GET,
         queryKey: "getDeliveryDetails",
     }),
-    getPerformingFacilities: new RSEndpoint({
+    getFacilitiesAndProviders: new RSEndpoint({
         path: "/waters/report/:id/facilities",
         method: HTTPMethods.GET,
         queryKey: "getDeliveryFacilities",

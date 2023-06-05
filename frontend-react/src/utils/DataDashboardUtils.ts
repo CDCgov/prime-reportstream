@@ -1,26 +1,36 @@
-export enum AggregatorType {
+export enum SenderType {
     FACILITY = "facility",
     PROVIDER = "provider",
     SUBMITTER = "submitter",
 }
 
 export const facilityTypeDisplay = {
-    [AggregatorType.FACILITY]: {
+    [SenderType.FACILITY]: {
         label: "PERFORMING FACILITY",
-        className: "bg-mint-cool-5v",
+        className:
+            "font-mono-3xs radius-md padding-05 height-3 bg-mint-cool-5v",
     },
-    [AggregatorType.PROVIDER]: {
+    [SenderType.PROVIDER]: {
         label: "ORDERING PROVIDER",
-        className: "bg-indigo-cool-10v",
+        className:
+            "font-mono-3xs radius-md padding-05 height-3 bg-indigo-cool-10v",
     },
-    [AggregatorType.SUBMITTER]: {
+    [SenderType.SUBMITTER]: {
         label: "SUBMITTER",
-        className: "bg-magenta-10v",
+        className: "font-mono-3xs radius-md padding-05 height-3 bg-magenta-10v",
     },
 };
 
-export function transformFacilityType(facility: AggregatorType) {
-    return facilityTypeDisplay[facility]
-        ? facilityTypeDisplay[facility].label
-        : facility;
+export function transformFacilityTypeLabel(facility: string) {
+    const facilityType = facility as SenderType;
+    return facilityTypeDisplay[facilityType]
+        ? facilityTypeDisplay[facilityType].label
+        : facilityType;
+}
+
+export function transformFacilityTypeClass(facility: string) {
+    const facilityType = facility as SenderType;
+    return facilityTypeDisplay[facilityType]
+        ? facilityTypeDisplay[facilityType].className
+        : facilityType;
 }

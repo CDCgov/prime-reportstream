@@ -19,15 +19,15 @@ const filterManagerDefaults: FilterManagerDefaults = {
 };
 
 interface FacilityProviderSubmitterTableProps {
-    aggregatorTypeId: string;
-    aggregatorTypeName: string;
+    senderTypeId: string;
+    senderTypeName: string;
 }
 
 function FacilityProviderSubmitterTable(
     props: FacilityProviderSubmitterTableProps
 ) {
     const featureEvent = `${FeatureName.REPORT_DETAILS} | ${EventName.TABLE_FILTER}`;
-    // const { aggregatorTypeId }: FacilityProviderSubmitterTableProps = props;
+    // const { senderTypeId }: FacilityProviderSubmitterTableProps = props;
     const data = [
         {
             reportId: "fd34d590-eb8f-412f-9562-0975f2c413e3",
@@ -75,9 +75,7 @@ function FacilityProviderSubmitterTable(
     return (
         <div className={styles.FacilityProviderSubmitterTable}>
             <section id="facilities">
-                <h2>
-                    Your available reports including {props.aggregatorTypeName}
-                </h2>
+                <h2>Your available reports including {props.senderTypeName}</h2>
                 <TableFilters
                     startDateLabel="From: (mm/dd/yyy)"
                     endDateLabel="To: (mm/dd/yyyy)"

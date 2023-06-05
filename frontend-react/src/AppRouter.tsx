@@ -45,7 +45,7 @@ import MainLayout from "./layouts/MainLayout";
 import { ReportDetailsWithAuth } from "./components/DataDashboard/ReportDetails/ReportDetails";
 import { FacilitiesProvidersWithAuth } from "./components/DataDashboard/FacilitiesProviders/FacilitiesProviders";
 import { FacilityProviderSubmitterDetailsWithAuth } from "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails";
-import { AggregatorType } from "./utils/DataDashboardUtils";
+import { SenderType } from "./utils/DataDashboardUtils";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -248,28 +248,26 @@ export const appRoutes: RouteObject[] = [
                         path: "facility-provider-submitter-details",
                         children: [
                             {
-                                path: "facility/:aggregatorId",
+                                path: "facility/:senderId",
                                 element: (
                                     <FacilityProviderSubmitterDetailsWithAuth
-                                        aggregatorType={AggregatorType.FACILITY}
+                                        senderType={SenderType.FACILITY}
                                     />
                                 ),
                             },
                             {
-                                path: "provider/:aggregatorId",
+                                path: "provider/:senderId",
                                 element: (
                                     <FacilityProviderSubmitterDetailsWithAuth
-                                        aggregatorType={AggregatorType.PROVIDER}
+                                        senderType={SenderType.PROVIDER}
                                     />
                                 ),
                             },
                             {
-                                path: "submitter/:aggregatorId",
+                                path: "submitter/:senderId",
                                 element: (
                                     <FacilityProviderSubmitterDetailsWithAuth
-                                        aggregatorType={
-                                            AggregatorType.SUBMITTER
-                                        }
+                                        senderType={SenderType.SUBMITTER}
                                     />
                                 ),
                             },

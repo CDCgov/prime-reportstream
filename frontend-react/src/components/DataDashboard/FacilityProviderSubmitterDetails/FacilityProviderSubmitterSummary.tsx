@@ -1,18 +1,18 @@
 import React from "react";
 import { Grid } from "@trussworks/react-uswds";
-import classnames from "classnames";
 
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import {
-    facilityTypeDisplay,
-    AggregatorType,
+    SenderType,
+    transformFacilityTypeClass,
+    transformFacilityTypeLabel,
 } from "../../../utils/DataDashboardUtils";
 
 import styles from "./FacilityProviderSubmitterSummary.module.scss";
 
 interface SummaryProps {
     details: {
-        aggregatorTypeName: string;
+        senderTypeName: string;
         contactName: string;
         location: string;
         phone: string;
@@ -22,7 +22,7 @@ interface SummaryProps {
         submitter: string;
         clia: string;
     };
-    summaryDetailType: AggregatorType;
+    summaryDetailType: SenderType;
 }
 
 export function FacilityProviderSubmitterSummary({
@@ -32,14 +32,9 @@ export function FacilityProviderSubmitterSummary({
     return (
         <div className={styles.FacilityProviderSubmitterSummary}>
             <div className="margin-bottom-3">
-                <h1 className="margin-top-0">{details.aggregatorTypeName}</h1>
-                <span
-                    className={classnames(
-                        "font-mono-3xs border-1px radius-md padding-05 height-3",
-                        facilityTypeDisplay[summaryDetailType].className
-                    )}
-                >
-                    {facilityTypeDisplay[summaryDetailType].label}
+                <h1 className="margin-top-0">{details.senderTypeName}</h1>
+                <span className={transformFacilityTypeClass(summaryDetailType)}>
+                    {transformFacilityTypeLabel(summaryDetailType)}
                 </span>
             </div>
             <section className="margin-bottom-4">
