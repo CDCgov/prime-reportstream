@@ -1,6 +1,17 @@
 import { CardGroup, Card, CardBody, CardHeader, ProcessList, ProcessListItem, ProcessListHeading  } from "@trussworks/react-uswds";
+import { Button } from "@trussworks/react-uswds";
+import DOMPurify from "dompurify";
 
-# ReportStream API 
+import site from "../../../content/site.json";
+import { ResourcesDirectories } from "../../../content/resources";
+import { trackAppInsightEvent } from "../../../utils/Analytics";
+
+export const handleClick = () => {
+    trackAppInsightEvent(ResourcesDirectories.PROGRAMMERS_GUIDE, {});
+    window.open(DOMPurify.sanitize(site.assets.programmersGuidePdf.path));
+};
+
+# ReportStream API
 
 <p className="usa-intro text-base">
     By using the ReportStream Restful (REST) API, your data will automatically be filtered, transformed, batched, and forwarded to public health departments.
@@ -17,28 +28,30 @@ import { CardGroup, Card, CardBody, CardHeader, ProcessList, ProcessListItem, Pr
     </Card>
 </CardGroup>
 
-Our API guide and documentation is also available as a [downloadable PDF](/assets/pdf/ReportStream-Programmers-Guide-v3.0.pdf).
+<p>
+Our API guide and documentation is also available as a <Button type="button" unstyled onClick={handleClick}>downloadable PDF</Button>.
+</p>
 
-***  
+***
 <br/>
 
 ## <a href="#onboarding-overview" className="usa-link usa-link--unstyled">Onboarding overview</a>
-We’ll give you and your team resources and support as you begin connecting with ReportStream’s API. [Learn more](getting-started) about setting up your connection and formatting your data. 
+We’ll give you and your team resources and support as you begin connecting with ReportStream’s API. [Learn more](getting-started) about setting up your connection and formatting your data.
 
-If you haven’t connected with us yet, [contact us](/support/contact) to set up your kickoff call. 
+If you haven’t connected with us yet, [contact us](/support/contact) to set up your kickoff call.
 
 <ProcessList>
     <ProcessListItem>
         <ProcessListHeading type="div">
             ### Kickoff
         </ProcessListHeading>
-        Before you begin setting up your API connection, a ReportStream team member will meet with you and your team to review the process and answer any questions. 
+        Before you begin setting up your API connection, a ReportStream team member will meet with you and your team to review the process and answer any questions.
     </ProcessListItem>
     <ProcessListItem>
         <ProcessListHeading type="div">
             ### Validate and test your data
         </ProcessListHeading>
-        Before you start sending your data, you will [complete authentication](getting-started#set-up-authentication) and go through three rounds of testing your files. 
+        Before you start sending your data, you will [complete authentication](getting-started#set-up-authentication) and go through three rounds of testing your files.
 
         <ol className="usa-list--unstyled">
             <li> **Step 1** &nbsp;&nbsp;&nbsp;&nbsp; Format and validate a fake data file </li>
