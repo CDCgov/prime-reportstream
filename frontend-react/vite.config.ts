@@ -37,12 +37,12 @@ export default defineConfig(async () => {
             outDir: "build",
         },
         resolve: {
-            alias: [{ find: /^~/, replacement: "./node_modules/" }],
+            //alias: [{ find: /^~/, replacement: "node_modules/" }],
         },
         css: {
             preprocessorOptions: {
                 scss: {
-                    includePaths: ["./node_modules/@uswds/uswds/packages"],
+                    includePaths: ["node_modules/@uswds/uswds/packages"],
                 },
             },
         },
