@@ -7,7 +7,7 @@ inputs:
     required: true
   functionName:
     required: true
-  SubscriptionId:
+  Subscription:
     required: true
   creds: 
     required: true
@@ -15,34 +15,9 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Stop funciton
-      id: stop-function
+    - name: Stop function app
+      id: StopAzFunction
       shell: pwsh
       run: |
-        # $findmodule = Get-Module -ListAvailable -Name Az.Functions
-        # if (!$findmodule) {
-        #     write-host "Az.Functions module for PowershellAz not found - Will now update the agent by running command Install-Module -Name Az -AllowClobber -Force"
-        #     Install-Module -Name Az -AllowClobber -Force
-        # }
-         $servicePrincipal = ($inputs.creds | ConvertFrom-Json)
-        $AzureTenantID = $servicePrincipal.tenantId
-        Connect-AzAccount -Credential $psCred -TenantId $AzureTenantID  -ServicePrincipal
-        Get-AzFunctionApp -Name ${{ inputs.functionAppName }} -ResourceGroupName ${{ inputs.resourceGroupName }} -SubscriptionId ${{ inputs.SubscriptionId }} | Stop-AzFunctionApp
-       
-      # $funcApp = Get-AzFunctionApp -ResourceGroupName ${{ inputs.resourceGroupName }} -Name ${{ inputs.functionAppName }}
-      # $doesAppExist = ($funcApp -ne $null)
-      # Write-Host "##vso[task.setvariable variable=DoesAppExist]$doesAppExist"
-    # - uses: azure/appservice-settings@v1
-    #   with:
-    #     app-name: ${{ inputs.functionAppName }}
-    #     app-settings-json: |
-    #       [
-    #         {
-    #           "name": "AzureWebJobs.${{ inputs.functionName }}.Disabled",
-    #           "value": true,
-    #           "slotSetting": false
-    #         }
-    #       ]
-    #   id: settings
-
-  
+        az functionapp show --name ${{ inputs.functionAppName }} --resource-group ${{ inputs.resourceGroupName }} --subscription  ${{ inputs.Subscription }}
+        az functionapp stop --name ${{ inputs.functionAppName }} --resource-group ${{ inputs.resourceGroupName }} --subscription  ${{ inputs.Subscription }}
