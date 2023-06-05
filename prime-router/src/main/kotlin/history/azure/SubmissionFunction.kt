@@ -134,6 +134,9 @@ class SubmissionFunction(
         return this.getDetailedView(request, id)
     }
 
+    /**
+     * API for searching for submitters for a specific receiver
+     */
     @FunctionName("getSubmittersV1")
     fun getSubmitters(
         @HttpTrigger(
@@ -150,6 +153,7 @@ class SubmissionFunction(
                 request,
                 "No such receiver $receiverName"
             )
+        // TODO: verify the scopes that should be allowed
         if (claims == null || !claims.authorized(setOf("*.*.primeadmin", "${receiver.organizationName}.*.admin"))) {
             logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
             return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
