@@ -1,0 +1,18 @@
+constants:
+  fieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBR
+elements:
+
+  - name: radx-mars-ordering-provider-id-assigner-oid
+    resource: '%service.requester.resolve().practitioner.exists()'
+    value: [ '"2.16.840.1.113883.4.6"' ]
+    hl7Spec: [ '%{fieldPath}-16-9-2' ]
+
+  - name: radx-mars-ordering-provider-id-assigner-type
+    resource: '%service.requester.resolve().practitioner.exists()'
+    value: [ '"ISO"' ]
+    hl7Spec: [ '%{fieldPath}-16-9-3' ]
+
+  - name: radx-mars-ordering-provider-id-type
+    resource: '%service.requester.resolve().practitioner.exists()'
+    value: [ '"NPI"' ]
+    hl7Spec: [ '%{fieldPath}-16-13' ]

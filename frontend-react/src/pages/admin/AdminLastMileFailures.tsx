@@ -11,7 +11,7 @@ import { FeatureName } from "../../AppRouter";
 
 export function AdminLastMileFailures() {
     return (
-        <GridContainer containerSize="widescreen">
+        <GridContainer>
             <Helmet>
                 <title>{FeatureName.ADMIN}</title>
             </Helmet>

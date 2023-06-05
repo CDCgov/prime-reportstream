@@ -6,7 +6,6 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
@@ -123,7 +122,7 @@ class BatchFunction(
                     }
 
                     // go through the universal pipeline reports to be batched
-                    if (receiver.topic == Topic.FULL_ELR) {
+                    if (receiver.topic.isUniversalPipeline) {
                         batchUniversalData(validHeaders, actionHistory, receiver, txn)
                     }
                     // covid/mpx pipeline
@@ -202,7 +201,8 @@ class BatchFunction(
                     listOf(it.task.reportId),
                     receiver,
                     workflowEngine.metadata,
-                    actionHistory
+                    actionHistory,
+                    topic = receiver.topic,
                 )
 
                 // insert the 'Send' task
@@ -241,7 +241,8 @@ class BatchFunction(
                 validHeaders.map { it.task.reportId },
                 receiver,
                 workflowEngine.metadata,
-                actionHistory
+                actionHistory,
+                topic = receiver.topic,
             )
 
             // insert the 'Send' task

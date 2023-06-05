@@ -1,0 +1,105 @@
+import { Alert } from "@trussworks/react-uswds";
+
+**Step 1: Prior to submission, send your public key to ReportStream.**
+
+Prior to connecting to the endpoint, you’ll need a public/private keypair. There are many ways to do this. The steps below show how to create a key pair using `openssl`.
+
+1. EC
+
+  ```
+openssl ecparam -genkey -name secp384r1 -noout -out my-es-keypair.pem
+openssl ec -in my-es-keypair.pem -pubout -out  my-es-public-key.pem
+  ```
+
+  RSA
+
+  ```
+openssl genrsa -out my-rsa-keypair.pem 2048
+openssl rsa -in my-rsa-keypair.pem -outform PEM -pubout -out my-rsa-public-key.pem
+  ```
+
+2. Send the public key to the ReportStream team using [our public key tool](/file-handler/validate).
+Note: you’ll need to login to use that feature. ReportStream will associate the key with your configuration within ReportStream.
+
+**Step 2: At the time of submission, generate a signed JWT using your private key**
+
+A JWT is a base64 encoded string that has three parts: `header`, `payload`, and `signature`.
+
+You can find an example python program to generate a valid JWT [on GitHub](https://github.com/CDCgov/prime-reportstream/tree/master/prime-router/examples/generate-jwt-python/).
+
+Here is an example, using the fake client-id healthy labs, of header and payload data that should appear in a ReportStream JWT, prior to signature:
+
+```
+{
+    "header": {
+        "kid": "healthy-labs.default",
+        "typ": "JWT",
+        "alg": "RS256"
+    },
+    "payload": {
+        "iss": "healthy-labs.default",
+        "sub": "healthy-labs.default",
+        "aud": "staging.prime.cdc.gov",
+        "exp": 1660737164,
+        "jti": "4b713fcd-2514-4207-b310-620b95b749c5"
+    }
+}
+```
+{
+<Alert type="info" headingLevel="div" slim={true} className="border-0 font-sans-xs">
+    <span className="text-bold">Note:</span>
+    <ul>
+        <li>The exp (expiration time) should be a Unix time, five minutes after the time the token was generated.</li>
+        <li>The jti (JWT ID) should be a random unique string, new with every call.</li>
+        <li>Generate the signed JWT using your private key.</li>
+    </ul>
+</Alert>
+}
+
+**Step 3: Send the signed JWT to ReportStream to get a temporary bearer token**
+
+POST to the token URL, as in the example below, noting the following:
+1. Use Content-Type: application/x-www-form-urlencoded.
+2. In the `scope` parameter, replace the dummy string `‘healthy-labs’` with your client-id, as assigned to you by ReportStream staff.
+3. The `grant_type` and `client_assertion_type` parameters are always fixed values. The `grant_type` should be `client_credentials` and `client_assertion_type` should be `urn:ietf:params:oauth:client-assertion-type:jwt-bearer`, as in the example curl below.
+4. In the client_assertion parameter, replace the \<token-signing-secret\> below with your JWT from above.  
+5. All the parameters are sent in the body/payload of the post (when using curl, via the `-d` option), not in the URL.  
+Here is an example ‘curl’ POST:
+
+```
+curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "scope=healthy-labs.default.report&grant_type=client_credentials
+&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion=<token-signing-secret>" "https://staging.prime.cdc.gov/api/token"
+```
+
+You should get something like this back, which will be valid for five minutes:
+
+```
+{
+    "access_token": "<long-access-token>",
+    "token_type": "bearer",
+    "expires_in": 300,
+    "expires_at_seconds": 1625260982,
+    "scope": "healthy-labs.default.report"
+}
+```
+
+**Step 4: Submit data to ReportStream using the bearer token**
+
+Use the access token returned above as the bearer token for the submission:
+
+CSV example
+
+```
+curl -H "authorization:bearer <long-bearer-token>" -H "client:healthy-labs"  -H "content-type:text/csv" --data-binary "@./healthy-labs-nonPII-data.csv" "https://staging.prime.cdc.gov/api/waters"
+```
+
+HL7 example
+
+<pre>
+<code>
+curl -H "authorization:bearer \<long-bearer-token\>" -H "client:healthy-labs"  -H "content-type:application/hl7-v2" 
+--data-binary "@./<span className="text-primary-vivid">healthy-labs</span>-nonPII-data.hl7" {'"https://staging.prime.cdc.gov/api/waters"'}
+</code>
+</pre>
+
+Again, always remember to replace the healthy-labs client-id with the client-id supplied to you by ReportStream staff.

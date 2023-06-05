@@ -1,0 +1,29 @@
+ACTION
+    Deploy (force push) to branch
+USAGE
+    [<@bot>] gh-deploy [<branch>] to [<branch>] [OPTIONAL: for <owner/repo>]
+EXAMPLES
+    @DevBot gh-deploy master to trialfrontend1
+==========================================================================
+ACTION
+    Lock branch to prevent deployments
+USAGE
+    [<@bot>] gh-lock [add|remove|show] [<branch>]
+EXAMPLES
+    @DevBot gh-lock add feature3
+    @DevBot gh-lock remove feature3
+==========================================================================
+ACTION
+    List deployment target branches
+USAGE
+    [<@bot>] gh-targets
+EXAMPLES
+    @DevBot gh-targets
+==========================================================================
+ACTION
+    Run workflow with manual trigger
+USAGE
+    [<@bot>] gh-run [<workflow file>] [OPTIONAL: <owner/repo> <branch>] [OPTIONAL: --inputs <a:b,c:d>] 
+EXAMPLES
+    @DevBot gh-run destroy_demo_environment.yml --inputs env_name:demo1
+    @DevBot gh-run destroy_demo_environment.yml CDCgov/prime-reportstream master --inputs env_name:demo1

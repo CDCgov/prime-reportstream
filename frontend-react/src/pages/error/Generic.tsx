@@ -12,7 +12,7 @@ import {
 
 export const StringErrorDisplay = ({ message }: { message?: string }) => {
     return (
-        <Alert headingLevel="h4" type="error">
+        <Alert headingLevel="h4" type="error" role="alert">
             {message ? message : GENERIC_ERROR_STRING}
         </Alert>
     );

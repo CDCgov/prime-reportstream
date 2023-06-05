@@ -76,7 +76,8 @@ class FHIRConverter(
                     itemLineage = listOf(
                         ItemLineage()
                     ),
-                    metadata = this.metadata
+                    metadata = this.metadata,
+                    topic = message.topic,
                 )
 
                 // create item lineage
@@ -141,7 +142,8 @@ class FHIRConverter(
                         report.id,
                         blobInfo.blobUrl,
                         BlobAccess.digestToString(blobInfo.digest),
-                        message.blobSubFolderName
+                        message.blobSubFolderName,
+                        message.topic
                     ).serialize()
                 )
             }

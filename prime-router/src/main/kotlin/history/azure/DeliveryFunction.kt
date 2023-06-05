@@ -15,6 +15,10 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryHistory
+import gov.cdc.prime.router.history.db.ReportGraph
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.authenticationFailure
+import java.util.UUID
 
 /**
  * Deliveries API
@@ -201,6 +205,31 @@ class DeliveryFunction(
             // Errors above are actionId or UUID not found errors.
             return HttpUtilities.notFoundResponse(request, ex.message)
         }
+    }
+
+    /**
+     * Fetches the items that were contained in the passed in report ID walking up the report lineage if necessary
+     */
+    @FunctionName("getReportItemsV1")
+    fun getReportItems(
+        @HttpTrigger(
+            name = "getReportItemsV1",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "v1/report/{reportId}/items"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("reportId") reportId: UUID
+    ): HttpResponseMessage {
+        val claims = AuthenticatedClaims.authenticate(request)
+        if (claims == null || !claims.authorized(setOf("*.*.primeadmin"))) {
+            logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
+            return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+        }
+
+        val reportGraph = ReportGraph(workflowEngine.db)
+        val metadata = reportGraph.getMetadataForReports(listOf(reportId))
+
+        return HttpUtilities.okJSONResponse(request, metadata)
     }
 
     /**
