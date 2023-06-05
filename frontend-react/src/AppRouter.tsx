@@ -103,47 +103,66 @@ export const appRoutes: RouteObject[] = [
                 path: "/resources",
                 children: [
                     {
-                        path: "documentation",
+                        path: "api",
                         children: [
                             {
                                 path: "",
-                                element: <DocumentationPage />,
                                 index: true,
-                                handle: {
-                                    isContentPage: true,
-                                },
-                            },
-                            { path: "data-model", element: <DataModelPage /> },
-                            {
-                                path: "responses-from-reportstream",
-                                element: <ResponsesFromReportStreamPage />,
+                                element: <ReportStreamAPIPage />,
                                 handle: {
                                     isContentPage: true,
                                 },
                             },
                             {
-                                path: "sample-payloads-and-output",
-                                element: <SamplePayloadsAndOutputPage />,
+                                path: "getting-started",
+                                element: <GettingStartedPage />,
                                 handle: {
                                     isContentPage: true,
                                 },
+                            },
+                            {
+                                path: "documentation",
+                                children: [
+                                    {
+                                        path: "",
+                                        element: <DocumentationPage />,
+                                        index: true,
+                                        handle: {
+                                            isContentPage: true,
+                                        },
+                                    },
+                                    {
+                                        path: "data-model",
+                                        element: <DataModelPage />,
+                                        handle: {
+                                            isContentPage: true,
+                                        },
+                                    },
+                                    {
+                                        path: "responses-from-reportstream",
+                                        element: (
+                                            <ResponsesFromReportStreamPage />
+                                        ),
+                                        handle: {
+                                            isContentPage: true,
+                                        },
+                                    },
+                                    {
+                                        path: "sample-payloads-and-output",
+                                        element: (
+                                            <SamplePayloadsAndOutputPage />
+                                        ),
+                                        handle: {
+                                            isContentPage: true,
+                                        },
+                                    },
+                                ],
                             },
                         ],
                     },
                     {
                         path: "manage-public-key",
                         element: <ManagePublicKeyWithAuth />,
-                    },
-                    {
-                        path: "reportstream-api",
-                        element: <ReportStreamAPIPage />,
-                    },
-                    {
-                        path: "getting-started",
-                        element: <GettingStartedPage />,
-                        handle: {
-                            isContentPage: true,
-                        },
                     },
                     {
                         path: "",

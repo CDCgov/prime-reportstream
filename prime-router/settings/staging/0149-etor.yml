@@ -27,21 +27,21 @@
     - name: simulated-hospital
       externalName: Simulated Hospital ETOR Sender
       organizationName: flexion
-      topic: full-elr
+      topic: etor-ti
       customerStatus: active
       format: HL7
     - name: etor-service-sender
       externalName: ETOR Service Sender Channel to ReportStream - Sending FHIR
       organizationName: flexion
-      topic: full-elr
+      topic: etor-ti
       customerStatus: active
       format: FHIR
-      schemaName: "metadata/fhir_transforms/senders/Flexion/TrustedIntermediaryLabOrder"
+      schemaName: "metadata/fhir_transforms/senders/Flexion/TILabOrder"
   receivers:
     - name: simulated-lab
       externalName: Simulated State Public Health Lab ETOR Receiver
       organizationName: flexion
-      topic: full-elr
+      topic: etor-ti
       customerStatus: active
       # This is how to allow everything:
       #     jurisdictionalFilter:
@@ -56,7 +56,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/Flexion/TrustedIntermediaryLabOrder"
+        schemaName: "metadata/hl7_mapping/receivers/Flexion/TILabOrder"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
@@ -71,7 +71,7 @@
     - name: etor-service-receiver
       externalName: ETOR Service Receiver Channel from ReportStream
       organizationName: flexion
-      topic: full-elr
+      topic: etor-ti
       customerStatus: active
       timing:
         operation: MERGE
