@@ -137,6 +137,7 @@ components:
                 description: The total number of reports sent by the submitter
               'type':
                 type: string
+                description: The submitter type
                 enum:
                   - SUBMITTER
                   - PROVIDER
