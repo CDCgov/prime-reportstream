@@ -14,7 +14,7 @@ import { MarkdownLayout } from "../../../../components/Content/MarkdownLayout";
 import DataModelPage from "./DataModel";
 
 export default {
-    title: "pages/resources/documentation/DataModel",
+    title: "pages/resources/api/documentation/DataModel",
     component: DataModelPage,
 } as ComponentMeta<typeof DataModelPage>;
 

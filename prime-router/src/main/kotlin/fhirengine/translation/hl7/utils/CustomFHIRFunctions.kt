@@ -3,15 +3,21 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import org.hl7.fhir.r4.model.Age
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.DateTimeType
+import org.hl7.fhir.r4.model.DateType
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
+import java.math.BigDecimal
 import java.time.DateTimeException
+import java.time.LocalDate
+import java.time.Period
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import java.util.TimeZone
 
 /**
@@ -34,7 +40,8 @@ object CustomFHIRFunctions : FhirPathFunctions {
         GetId,
         GetIdType,
         HasPhoneNumberExtension,
-        ChangeTimezone;
+        ChangeTimezone,
+        ConvertDateToAge;
 
         companion object {
             /**
@@ -109,6 +116,15 @@ object CustomFHIRFunctions : FhirPathFunctions {
                 )
             }
 
+            CustomFHIRFunctionNames.ConvertDateToAge -> {
+                FHIRPathEngine.IEvaluationContext.FunctionDetails(
+                    "returns the number of years, months if less than a year, weeks if less" +
+                        " than a month, and days if less than a week that a person is old for a date resource",
+                    0,
+                    1
+                )
+            }
+
             else -> additionalFunctions?.resolveFunction(functionName)
         }
     }
@@ -168,10 +184,99 @@ object CustomFHIRFunctions : FhirPathFunctions {
                     changeTimezone(focus, parameters)
                 }
 
+                CustomFHIRFunctionNames.ConvertDateToAge -> {
+                    convertDateToAge(focus, parameters)
+                }
+
                 else -> additionalFunctions?.executeFunction(focus, functionName, parameters)
                     ?: throw IllegalStateException("Tried to execute invalid FHIR Path function $functionName")
             }
             )
+    }
+
+    /**
+     * Converts the date in the [focus] element to an age in years, months, weeks, or days depending on which is
+     * specified. If left off, makes assumption.
+     * @return an age in years, months, weeks, or days.
+     */
+    fun convertDateToAge(focus: MutableList<Base>, parameters: MutableList<MutableList<Base>>?): MutableList<Base> {
+        val date = focus.first()
+
+        if (date !is DateType) {
+            throw SchemaException("Must call the convertDateToAge function on a single dateTimeType")
+        }
+
+        val periodsOfTime = listOf("day", "month", "year")
+        return if (parameters != null && parameters.size > 0 && parameters[0].size > 0 &&
+            parameters[0][0].toString().lowercase() in periodsOfTime
+        ) {
+            val age = Age()
+            return when (parameters[0][0].toString()) {
+                "day" -> {
+                    age.unit = "day"
+                    age.value = BigDecimal(
+                        ChronoUnit.DAYS.between(
+                            LocalDate.of(date.year, date.month + 1, date.day),
+                            LocalDate.now()
+                        )
+                    )
+                    age.code = "d"
+                    mutableListOf(age)
+                }
+                "month" -> {
+                    age.unit = "month"
+                    age.value = BigDecimal(
+                        ChronoUnit.MONTHS.between(
+                            LocalDate.of(date.year, date.month + 1, date.day),
+                            LocalDate.now()
+                        )
+                    )
+                    age.code = "mo"
+                    mutableListOf(age)
+                }
+                "year" -> {
+                    age.unit = "year"
+                    age.value = BigDecimal(
+                        ChronoUnit.YEARS.between(
+                            LocalDate.of(date.year, date.month + 1, date.day),
+                            LocalDate.now()
+                        )
+                    )
+                    age.code = "a"
+                    mutableListOf(age)
+                }
+                else -> throw SchemaException("Call with day, month, or year")
+            }
+        } else {
+            calculateAgeWithAssumption(date)
+        }
+    }
+
+    private fun calculateAgeWithAssumption(date: DateType): MutableList<Base> {
+        val period = Period.between(
+            // have to do plus one for the month because it is expecting 1 based and we get zero based
+            LocalDate.of(date.year, date.month + 1, date.day),
+            LocalDate.now()
+        )
+
+        val age = Age()
+        if (period.years > 1) {
+            age.unit = "year"
+            age.value = BigDecimal(period.years)
+            age.code = "a"
+        } else if (period.months > 1) {
+            age.unit = "month"
+            age.value = BigDecimal(period.months)
+            age.code = "mo"
+        } else if (period.days >= 0) {
+            age.unit = "day"
+            age.value = BigDecimal(period.days)
+            age.code = "d"
+        } else {
+            throw SchemaException("Must call the convertDateToAge function on a date in the past")
+        }
+
+        return mutableListOf(age)
     }
 
     /**
