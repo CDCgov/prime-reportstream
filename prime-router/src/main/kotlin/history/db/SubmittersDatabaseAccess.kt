@@ -38,6 +38,7 @@ class SubmitterTable : CustomTable<SubmitterRecord>(DSL.name("submitter")) {
     val ID = createField(DSL.name("id"), SQLDataType.VARCHAR)
     val NAME = createField(DSL.name("name"), SQLDataType.VARCHAR)
     val FIRST_REPORT_DATE = createField(DSL.name("first_report_date"), SQLDataType.LOCALDATETIME)
+    val TEST_RESULT_COUNT = createField(DSL.name("test_result_count"), SQLDataType.INTEGER)
     val TYPE = createField(DSL.name("type"), SQLDataType.VARCHAR)
 
     companion object {
@@ -51,7 +52,13 @@ class SubmitterTable : CustomTable<SubmitterRecord>(DSL.name("submitter")) {
 
 class SubmitterRecord : CustomRecord<SubmitterRecord>(SubmitterTable.SUBMITTER)
 
-data class Submitter(val id: String, val name: String, val firstReportDate: OffsetDateTime, val type: SubmitterType)
+data class Submitter(
+    val id: String,
+    val name: String,
+    val firstReportDate: OffsetDateTime,
+    val testResultCount: Int,
+    val type: SubmitterType
+)
 
 enum class SubmitterApiFilterNames : ApiFilterNames {
     SINCE,
@@ -191,9 +198,11 @@ class SubmittersDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAcces
                             .`as`(SubmitterTable.SUBMITTER.NAME),
                         DSL.min(CovidResultMetadata.COVID_RESULT_METADATA.CREATED_AT)
                             .`as`(SubmitterTable.SUBMITTER.FIRST_REPORT_DATE),
+                        DSL.count().`as`(SubmitterTable.SUBMITTER.TEST_RESULT_COUNT),
                         DSL.value(SubmitterType.PROVIDER.name).`as`("type").`as`(SubmitterTable.SUBMITTER.TYPE)
                     ).from(CovidResultMetadata.COVID_RESULT_METADATA)
                         .where(CovidResultMetadata.COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID.`in`(metadataIds))
+                        .and(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID.isNotNull)
                         .groupBy(
                             CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID,
                             CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME
@@ -205,6 +214,7 @@ class SubmittersDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAcces
                                     .`as`(SubmitterTable.SUBMITTER.NAME),
                                 DSL.min(CovidResultMetadata.COVID_RESULT_METADATA.CREATED_AT)
                                     .`as`(SubmitterTable.SUBMITTER.FIRST_REPORT_DATE),
+                                DSL.count().`as`(SubmitterTable.SUBMITTER.TEST_RESULT_COUNT),
                                 DSL.value(SubmitterType.FACILITY.name).`as`("type")
                                     .`as`(SubmitterTable.SUBMITTER.TYPE)
                             ).from(CovidResultMetadata.COVID_RESULT_METADATA)
@@ -220,6 +230,7 @@ class SubmittersDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAcces
                                 CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID.`as`(SubmitterTable.SUBMITTER.NAME),
                                 DSL.min(CovidResultMetadata.COVID_RESULT_METADATA.CREATED_AT)
                                     .`as`(SubmitterTable.SUBMITTER.FIRST_REPORT_DATE),
+                                DSL.count().`as`(SubmitterTable.SUBMITTER.TEST_RESULT_COUNT),
                                 DSL.value(SubmitterType.SUBMITTER.name).`as`("type")
                                     .`as`(SubmitterTable.SUBMITTER.TYPE)
                             ).from(CovidResultMetadata.COVID_RESULT_METADATA)
