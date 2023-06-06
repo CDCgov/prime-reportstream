@@ -54,8 +54,8 @@ jobs:
       #   run: |
       #     az functionapp stop --name pdhtest-functionapp --resource-group prime-data-hub-test --subscription OCIO-DMZ-C1
 
-      - name: Start function app
-        id: StartAzFunction
-        shell: pwsh
-        run: |
-          az functionapp start --name pdhtest-functionapp --resource-group prime-data-hub-test --subscription OCIO-DMZ-C1
+      # - name: Start function app
+      #   id: StartAzFunction
+      #   shell: pwsh
+      #   run: |
+      #     az functionapp start --name pdhtest-functionapp --resource-group prime-data-hub-test --subscription OCIO-DMZ-C1
