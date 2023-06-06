@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderApp } from "../../../utils/CustomRenderUtils";
-import FacilityResource from "../../../config/endpoints/dataDashboard";
+import { FacilityResource } from "../../../config/endpoints/dataDashboard";
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import {

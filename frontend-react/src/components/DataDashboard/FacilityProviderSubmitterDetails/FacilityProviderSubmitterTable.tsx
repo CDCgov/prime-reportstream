@@ -9,6 +9,7 @@ import useFilterManager, {
 import { FeatureName } from "../../../AppRouter";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import { USLink } from "../../USLink";
+import { SenderTypeDetailResource } from "../../../config/endpoints/dataDashboard";
 
 import styles from "./FacilityProviderSubmitterTable.module.scss";
 
@@ -29,7 +30,7 @@ function FacilityProviderSubmitterTable(
 ) {
     const featureEvent = `${FeatureName.REPORT_DETAILS} | ${EventName.TABLE_FILTER}`;
     // const { senderTypeId }: FacilityProviderSubmitterTableProps = props;
-    const data = [
+    const data: SenderTypeDetailResource[] = [
         {
             reportId: "fd34d590-eb8f-412f-9562-0975f2c413e3",
             total: "5",
