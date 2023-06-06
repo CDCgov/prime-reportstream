@@ -16,6 +16,7 @@
 
           .column-header-text {
             margin-right: 2px;
+            white-space: nowrap;
           }
 
           svg {
@@ -61,7 +62,7 @@
   }
 
   &__StickyHeader {
-    max-height: 50vh;
+    max-height: 80vh;
     overflow-y: auto !important; // temporary override until we decide if we're overriding USWDS scrollable CSS
     overflow-x: auto;
 
