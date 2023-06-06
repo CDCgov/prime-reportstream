@@ -4,9 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * MON"
-  push:
-    branches:
-      - feature/9537-schedulemaintenance_DemoandTest
+  
 jobs:
   alert_stale_branches:
     name: Start Test Subscription apps
@@ -20,12 +18,12 @@ jobs:
         with:
           creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      # - name: Start postgres
-      #   uses: ./.github/actions/Start-PostgresDB
-      #   with:
-      #     name: "pdhtest-pgsql-flex"
-      #     resource-group: prime-data-hub-test
-      #     subscription: OCIO-DMZ-C1
+      - name: Start postgres
+        uses: ./.github/actions/Start-PostgresDB
+        with:
+          name: "pdhtest-pgsql-flex"
+          resource-group: prime-data-hub-test
+          subscription: OCIO-DMZ-C1
       
       - name: Start function app
         uses: ./.github/actions/Start-AzFunction
