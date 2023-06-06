@@ -3,8 +3,8 @@ name: Create demo environment
 on:
   push:
     branches:
-      -demo4
-       feature/9537-schedulemaintenance_DemoandTest
+      - demo4
+      - feature/9537-schedulemaintenance_DemoandTest
   schedule:
     - cron: "0 0 * * MON"
 
