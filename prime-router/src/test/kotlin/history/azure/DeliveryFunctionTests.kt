@@ -807,9 +807,30 @@ class DeliveryFunctionTests : Logging {
             } returns ApiSearchResult(
                 10, 3,
                 listOf(
-                    Submitter("1", "provider", OffsetDateTime.now(), 1, SubmitterType.PROVIDER),
-                    Submitter("null", "submitter", OffsetDateTime.now(), 100, SubmitterType.SUBMITTER),
-                    Submitter("null", "facility", OffsetDateTime.now(), 100, SubmitterType.SUBMITTER)
+                    Submitter(
+                        "1",
+                        "provider",
+                        OffsetDateTime.now(),
+                        1,
+                        SubmitterType.PROVIDER,
+                        "Paris, Indiana"
+                    ),
+                    Submitter(
+                        "null",
+                        "submitter",
+                        OffsetDateTime.now(),
+                        100,
+                        SubmitterType.SUBMITTER,
+                        "Paris, Indiana"
+                    ),
+                    Submitter(
+                        "null",
+                        "facility",
+                        OffsetDateTime.now(),
+                        100,
+                        SubmitterType.SUBMITTER,
+                        "Paris, Indiana"
+                    )
                 )
             )
 
