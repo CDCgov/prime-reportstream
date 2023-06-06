@@ -9,13 +9,17 @@ import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.ApiResponse
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryHistory
 import gov.cdc.prime.router.history.db.ReportGraph
+import gov.cdc.prime.router.history.db.SubmitterApiSearch
+import gov.cdc.prime.router.history.db.SubmittersDatabaseAccess
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import java.util.UUID
@@ -259,6 +263,41 @@ class DeliveryFunction(
                 }
             }
         }
+    }
+
+    /**
+     * API for searching for submitters for a specific receiver
+     */
+    @FunctionName("getSubmittersV1")
+    fun getSubmitters(
+        @HttpTrigger(
+            name = "getSubmittersV1",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "v1/receivers/{receiverName}/deliveries/submitters/search"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("receiverName") receiverName: String
+    ): HttpResponseMessage {
+        val claims = AuthenticatedClaims.authenticate(request)
+        val receiver =
+            BaseEngine.settingsProviderSingleton.findReceiver(receiverName) ?: return HttpUtilities.notFoundResponse(
+                request,
+                "No such receiver $receiverName"
+            )
+        if (claims == null || !claims.authorizedForSendOrReceive(
+                requiredOrganization = receiver.organizationName,
+                request = request
+            )
+        ) {
+            logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
+            return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+        }
+        request.body ?: HttpUtilities.badRequestResponse(request, "Search body must be included")
+        val search = SubmitterApiSearch.parse(request)
+        val submitterDatabaseAccess = SubmittersDatabaseAccess()
+        val results = submitterDatabaseAccess.getSubmitters(search, receiver)
+        val response = ApiResponse.buildFromApiSearch("submitter", search, results)
+        return HttpUtilities.okJSONResponse(request, response)
     }
 
     /**
