@@ -41,6 +41,8 @@ class DeliveryFunction(
     // Ignoring unknown properties because we don't require them. -DK
     private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
+    private val submitterDatabaseAccess = SubmittersDatabaseAccess()
+
     /**
      * Authorization and shared logic uses the organization name without the service
      * We store the service name here to pass to the facade
@@ -289,12 +291,11 @@ class DeliveryFunction(
                 request = request
             )
         ) {
-            logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
+            logger.warn("User '${claims?.userName}' FAILED authorization for endpoint ${request.uri}")
             return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
         }
         request.body ?: HttpUtilities.badRequestResponse(request, "Search body must be included")
         val search = SubmitterApiSearch.parse(request)
-        val submitterDatabaseAccess = SubmittersDatabaseAccess()
         val results = submitterDatabaseAccess.getSubmitters(search, receiver)
         val response = ApiResponse.buildFromApiSearch("submitter", search, results)
         return HttpUtilities.okJSONResponse(request, response)
