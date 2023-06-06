@@ -622,7 +622,7 @@ class DeliveryFunctionTests : Logging {
     @Nested
     inner class TestGetSubmitters() {
         var settings = MockSettings()
-        val organization1 = Organization(
+        private val organization1 = Organization(
             "simple_report",
             "simple_report_org",
             Organization.Jurisdiction.FEDERAL,
@@ -632,14 +632,14 @@ class DeliveryFunctionTests : Logging {
             null,
             null
         )
-        val receiver1 = Receiver(
+        private val receiver1 = Receiver(
             "default",
             organization1.name,
             Topic.COVID_19,
             schemaName = ""
         )
 
-        val organization2 = Organization(
+        private val organization2 = Organization(
             "ignore",
             "simple_report_org",
             Organization.Jurisdiction.FEDERAL,
@@ -649,7 +649,7 @@ class DeliveryFunctionTests : Logging {
             null,
             null
         )
-        val receiver2 = Receiver(
+        private val receiver2 = Receiver(
             "default",
             organization2.name,
             Topic.COVID_19,
