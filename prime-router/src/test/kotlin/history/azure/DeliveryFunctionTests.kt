@@ -663,6 +663,8 @@ class DeliveryFunctionTests : Logging {
             settings.receiverStore[receiver1.fullName] = receiver1
             settings.organizationStore[organization2.name] = organization2
             settings.receiverStore[receiver2.fullName] = receiver2
+            mockkObject(Metadata.Companion)
+            every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
         }
 
         @AfterEach
