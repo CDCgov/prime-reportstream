@@ -39,7 +39,7 @@ elements:
 
   - name: xtn-email
     condition: '%resource.system = "email"'
-    value: [ '%resource.value' ]
+    value: [ '%deidentifiedValue','%resource.value' ]
     hl7Spec: [ '%{hl7TelecomPath}-4' ]
 
   - name: xtn-country-code
@@ -49,12 +49,12 @@ elements:
 
   - name: xtn-area-code
     condition: '%resource.value.exists()'
-    value: [ '%resource.value.getPhoneNumberAreaCode()' ]
+    value: [ '%deidentifiedValue','%resource.value.getPhoneNumberAreaCode()' ]
     hl7Spec: [ '%{hl7TelecomPath}-6' ]
 
   - name: xtn-local-number
     condition: '%resource.value.exists()'
-    value: [ '%resource.value.getPhoneNumberLocalNumber()' ]
+    value: [ '%deidentifiedValue','%resource.value.getPhoneNumberLocalNumber()' ]
     hl7Spec: [ '%{hl7TelecomPath}-7' ]
 
   - name: xtn-extension
@@ -69,5 +69,5 @@ elements:
 
   - name: xtn-unformatted-text
     condition: '%resource.value.exists()'
-    value: [ '%resource.value' ]
+    value: [ '%deidentifiedValue','%resource.value' ]
     hl7Spec: [ '%{hl7TelecomPath}-12' ]
