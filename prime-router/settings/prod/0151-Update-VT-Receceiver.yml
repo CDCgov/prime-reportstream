@@ -1,0 +1,353 @@
+---
+- name: "vt-doh"
+  description: "Vermont Department of Health"
+  jurisdiction: "STATE"
+  stateCode: "VT"
+  countyName: null
+  filters:
+  - topic: "covid-19"
+    jurisdictionalFilter:
+    - "orEquals(ordering_facility_state, VT, patient_state, VT)"
+    qualityFilter: null
+    routingFilter: null
+    processingModeFilter: null
+    conditionFilter: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+  - name: "elr-otc"
+    organizationName: "vt-doh"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "NBS"
+      receivingApplicationOID: "2.16.840.1.114222.4.1.185.1"
+      receivingFacilityName: "VDH"
+      receivingFacilityOID: "2.16.840.1.114222.4.1.185"
+      messageProfileId: null
+      replaceValue:
+        MSH-3-1: "CDC PRIME - Atlanta,"
+      replaceValueAwithB:
+        MSH-6:
+        - '*': "VDH^2.16.840.1.114222.4.1.185^ISO"
+        MSH-5:
+        - '*': "NBS^2.16.840.1.114222.4.1.185.1^ISO"
+        MSH-3:
+        - '*': "CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO"
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: "OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3, PID-15-1,\
+        \ PID-15-2, PID-15-3, MSH-19-1, MSH-19-2, MSH-19-3"
+      suppressAoe: true
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: "OBX-23-1"
+      usePid14ForPatientEmail: true
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: true
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: true
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+    jurisdictionalFilter: []
+    qualityFilter:
+    - "allowNone()"
+    routingFilter:
+    - "AtLeastOneHasValue(Y, test_authorized_for_otc, test_authorized_for_home, test_authorized_for_unproctored)"
+    - "matches(sender_id, ImageMover)"
+    - "matches(test_result_status, F, C, P)"
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    conditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:15"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: "ELR OTC Primary"
+    externalName: "ELR OTC Primary"
+    timeZone: null
+    dateTimeFormat: "OFFSET"
+  - name: "elr-secondary"
+    organizationName: "vt-doh"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "NBS"
+      receivingApplicationOID: "2.16.840.1.114222.4.1.185.1"
+      receivingFacilityName: "VDH"
+      receivingFacilityOID: "2.16.840.1.114222.4.1.185"
+      messageProfileId: null
+      replaceValue:
+        MSH-3-1: "CDC PRIME - Atlanta,"
+      replaceValueAwithB:
+        MSH-6:
+        - '*': "VDH^2.16.840.1.114222.4.1.185^ISO"
+        MSH-5:
+        - '*': "NBS^2.16.840.1.114222.4.1.185.1^ISO"
+        MSH-3:
+        - '*': "CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO"
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: "OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3"
+      suppressAoe: true
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: "OBX-23-1"
+      usePid14ForPatientEmail: true
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: true
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD_SECONDARY"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+    jurisdictionalFilter: []
+    qualityFilter:
+    - "doesNotMatch(processing_mode_code,T,D)"
+    - "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)"
+    - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
+    - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob)"
+    - "isValidCLIA(testing_lab_clia,reporting_facility_clia)"
+    routingFilter:
+    - "doesNotMatch(sender_id, CueHlth, ImageMover)"
+    - "matches(test_result_status, F, C, P)"
+    processingModeFilter: []
+    reverseTheQualityFilter: true
+    conditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:15"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: "ELR Secondary for VT DOH"
+    transport: !<SFTP>
+      host: "gs-sftp.ahs.state.vt.us"
+      port: "22"
+      filePath: "./Test/ToVDH/"
+      credentialName: null
+      type: "SFTP"
+    externalName: "ELR Secondary VT"
+    timeZone: null
+    dateTimeFormat: "OFFSET"
+  - name: "elr-otc-test"
+    organizationName: "vt-doh"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "NBS"
+      receivingApplicationOID: "2.16.840.1.114222.4.1.185.1"
+      receivingFacilityName: "VDH"
+      receivingFacilityOID: "2.16.840.1.114222.4.1.185"
+      messageProfileId: null
+      replaceValue:
+        MSH-3-1: "CDC PRIME - Atlanta,"
+      replaceValueAwithB:
+        MSH-6:
+        - '*': "VDH^2.16.840.1.114222.4.1.185^ISO"
+        MSH-5:
+        - '*': "NBS^2.16.840.1.114222.4.1.185.1^ISO"
+        MSH-3:
+        - '*': "CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO"
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: "OBX-18-1, OBX-18-2, OBX-18-3, OBX-18-4, OBX-15-3, PID-15-1,\
+        \ PID-15-2, PID-15-3"
+      suppressAoe: true
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: "OBX-23-1"
+      usePid14ForPatientEmail: true
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: true
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: true
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+    jurisdictionalFilter: []
+    qualityFilter:
+    - "allowAll()"
+    routingFilter:
+    - "AtLeastOneHasValue(Y, test_authorized_for_otc, test_authorized_for_home, test_authorized_for_unproctored)"
+    - "doesNotMatch(sender_id, CueHlth, ImageMover, simple_report.default)"
+    - "matches(test_result_status, F, C, P)"
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    conditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:15"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: "VT ELR OTC Test"
+    transport: !<SFTP>
+      host: "gs-sftp.ahs.state.vt.us"
+      port: "22"
+      filePath: "./Test/ToVDH/"
+      credentialName: null
+      type: "SFTP"
+    externalName: "ELR OTC Test"
+    timeZone: null
+    dateTimeFormat: "OFFSET"
+  - name: "elr"
+    organizationName: "vt-doh"
+    topic: "covid-19"
+    customerStatus: "active"
+    translation: !<HL7>
+      schemaName: "covid-19"
+      useTestProcessingMode: false
+      useBatchHeaders: true
+      receivingApplicationName: "NBS"
+      receivingApplicationOID: "2.16.840.1.114222.4.1.185.1"
+      receivingFacilityName: "VDH"
+      receivingFacilityOID: "2.16.840.1.114222.4.1.185"
+      messageProfileId: null
+      replaceValue:
+        MSH-3-1: "CDC PRIME - Atlanta,"
+      replaceValueAwithB:
+        MSH-6:
+        - '*': "VDH^2.16.840.1.114222.4.1.185^ISO"
+        MSH-5:
+        - '*': "NBS^2.16.840.1.114222.4.1.185.1^ISO"
+        OBR-16-9:
+        - NPI: "NPI^2.16.840.1.113883.4.6^ISO"
+        MSH-3:
+        - '*': "CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO"
+        ORC-12-9:
+        - NPI: "NPI^2.16.840.1.113883.4.6^ISO"
+      reportingFacilityName: null
+      reportingFacilityId: null
+      reportingFacilityIdType: null
+      suppressQstForAoe: false
+      suppressHl7Fields: "ORC-4-2, ORC-4-3, ORC-4-4, OBX-18-1, OBX-18-2, OBX-18-3,\
+        \ OBX-18-4, OBX-15-3, PID-15-1, PID-15-2, PID-15-3, MSH-19-1, MSH-19-2, MSH-19-3"
+      suppressAoe: true
+      defaultAoeToUnknown: false
+      replaceUnicodeWithAscii: false
+      useBlankInsteadOfUnknown: null
+      truncateHDNamespaceIds: true
+      truncateHl7Fields: "OBX-23-1"
+      usePid14ForPatientEmail: true
+      convertTimestampToDateTime: null
+      cliaForOutOfStateTesting: null
+      cliaForSender: {}
+      phoneNumberFormatting: "STANDARD"
+      suppressNonNPI: true
+      processingModeCode: null
+      replaceDiiWithOid: null
+      applyOTCDefault: false
+      useOrderingFacilityName: "STANDARD"
+      valueSetOverrides: {}
+      nameFormat: "STANDARD"
+      receivingOrganization: null
+      convertPositiveDateTimeOffsetToNegative: false
+      stripInvalidCharsRegex: null
+      convertDateTimesToReceiverLocalTime: false
+      useHighPrecisionHeaderDateTimeFormat: false
+      type: "HL7"
+    jurisdictionalFilter: []
+    qualityFilter:
+    - "doesNotMatch(processing_mode_code,T,D)"
+    - "hasAtLeastOneOf(order_test_date,specimen_collection_date_time,test_result_date)"
+    - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
+    - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob)"
+    - "isValidCLIA(testing_lab_clia,reporting_facility_clia)"
+    - "doesNotMatch(test_lab_clia, 00Z0000015, 00Z0000016, 00Z0000042, 00Z0000043)"
+    routingFilter:
+    - "matches(test_result_status, F, C, P)"
+    processingModeFilter: []
+    reverseTheQualityFilter: false
+    conditionFilter: []
+    deidentify: false
+    deidentifiedValue: ""
+    timing:
+      operation: "MERGE"
+      numberPerDay: 12
+      initialTime: "01:15"
+      timeZone: "EASTERN"
+      maxReportCount: 100
+      whenEmpty:
+        action: "NONE"
+        onlyOncePerDay: false
+    description: "ELR Primary for VT DOH"
+    transport: !<SFTP>
+      host: "gs-sftp.ahs.state.vt.us"
+      port: "22"
+      filePath: "./Prod/ToVDH/"
+      credentialName: null
+      type: "SFTP"
+    externalName: "VT ELR Primary"
+    timeZone: null
+    dateTimeFormat: "OFFSET"
