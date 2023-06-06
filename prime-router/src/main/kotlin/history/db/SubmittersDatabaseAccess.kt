@@ -27,12 +27,18 @@ import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.UUID
 
+/**
+ * Enum containing the list of submitter types
+ */
 enum class SubmitterType {
     SUBMITTER,
     FACILITY,
     PROVIDER
 }
 
+/**
+ * A custom view of the submitters after selecting them out of the metadata table
+ */
 class SubmitterTable : CustomTable<SubmitterRecord>(DSL.name("submitter")) {
 
     val ID = createField(DSL.name("id"), SQLDataType.VARCHAR)
@@ -50,8 +56,14 @@ class SubmitterTable : CustomTable<SubmitterRecord>(DSL.name("submitter")) {
     }
 }
 
+/**
+ * A class represeting a record from the submitter view
+ */
 class SubmitterRecord : CustomRecord<SubmitterRecord>(SubmitterTable.SUBMITTER)
 
+/**
+ * POJO for reading results from the submitter query into.
+ */
 data class Submitter(
     val id: String,
     val name: String,
@@ -60,6 +72,9 @@ data class Submitter(
     val type: SubmitterType
 )
 
+/**
+ * The API filter names for the submitter API
+ */
 enum class SubmitterApiFilterNames : ApiFilterNames {
     SINCE,
     UNTIL
