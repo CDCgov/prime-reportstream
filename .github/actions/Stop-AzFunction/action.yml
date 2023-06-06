@@ -19,10 +19,10 @@ runs:
       id: StopAzFunction
       shell: pwsh
       run: |
-        
-        az functionapp stop --name ${{ inputs.functionAppName }} --resource-group ${{ inputs.resourceGroupName }} --subscription  ${{ inputs.Subscription }}
-        $FnDetails=az functionapp show --name ${{ inputs.functionAppName }} --resource-group ${{ inputs.resourceGroupName }} --subscription  ${{ inputs.Subscription }}
+         $FnDetails=az functionapp show --name ${{ inputs.functionAppName }} --resource-group ${{ inputs.resourceGroupName }} --subscription  ${{ inputs.Subscription }}
         $Json = $FnDetails | ConvertFrom-JSON
         $State       = $Json.state
         Write-Host $State
-        
+        if($State -eq "Running"){
+          az functionapp stop --name ${{ inputs.functionAppName }} --resource-group ${{ inputs.resourceGroupName }} --subscription  ${{ inputs.Subscription }}
+       }
