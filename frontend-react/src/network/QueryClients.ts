@@ -12,7 +12,7 @@ export const appQueryClient = new QueryClient({
             cacheTime: Infinity,
             refetchOnWindowFocus: false,
             onError: (error: any) => {
-                const errorString = `Something went wrong: ${error.message}`
+                const errorString = `Something went wrong: ${error.message}`;
                 const e = new Error(errorString, { cause: error });
                 showError(errorString);
                 console.error(e);
