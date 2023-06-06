@@ -24,5 +24,6 @@ runs:
         $State       = $Json.state
         Write-Host $State
         if ($State -contains "run"){
-          az functionapp stop --name ${{ inputs.functionAppName }} --resource-group ${{ inputs.resourceGroupName }} --subscription  ${{ inputs.Subscription }}}
+          az functionapp stop --name ${{ inputs.functionAppName }} --resource-group ${{ inputs.resourceGroupName }} --subscription  ${{ inputs.Subscription }}
+          }
        
