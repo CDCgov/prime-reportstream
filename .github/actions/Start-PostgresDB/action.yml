@@ -18,5 +18,13 @@ runs:
       shell: bash
       run: |
         PGSSLMODE=require \
-        az postgres flexible-server show --name ${{ inputs.name }} --resource-group ${{ inputs.resource-group }} --subscription ${{ inputs.subscription }}
-        az postgres flexible-server start --name ${{ inputs.name }} --resource-group ${{ inputs.resource-group }} --subscription ${{ inputs.subscription }}
+        $FnDetails=az postgres flexible-server show --name ${{ inputs.name }} --resource-group ${{ inputs.resource-group }} --subscription ${{ inputs.subscription }}
+        $Json = $FnDetails | ConvertFrom-JSON
+        $State       = $Json.state
+        Write-Host $State
+        if ($State -not contains "ready"){
+          az postgres flexible-server start --name ${{ inputs.name }} --resource-group ${{ inputs.resource-group }} --subscription ${{ inputs.subscription }}
+          }
+          
+
+
