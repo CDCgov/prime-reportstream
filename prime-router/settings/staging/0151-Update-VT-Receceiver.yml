@@ -75,7 +75,7 @@
     - "hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)"
     - "hasValidDataFor(message_id,equipment_model_name,specimen_type,test_result,patient_last_name,patient_first_name,patient_dob)"
     - "isValidCLIA(testing_lab_clia,reporting_facility_clia)"
-    - "doesNotMatch(test_lab_clia, 00Z0000015, 00Z0000016, 00Z0000042, 00Z0000043)"
+    - "doesNotMatch(testing_lab_clia, 00Z0000015, 00Z0000016, 00Z0000042, 00Z0000043)"
     routingFilter: []
     processingModeFilter: []
     reverseTheQualityFilter: false
