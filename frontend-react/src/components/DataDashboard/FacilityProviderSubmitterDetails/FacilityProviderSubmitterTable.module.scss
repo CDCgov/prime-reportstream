@@ -1,0 +1,41 @@
+.FacilityProviderSubmitterTable {
+    padding: 32px 33px;
+    background-color: #f1f3F6;
+
+    :global {
+        .filter-container {
+            margin-bottom: 0;
+        }
+
+        .usa-label {
+            font-weight: bold;
+        }
+
+        .usa-input {
+            border-color: lightgray;
+        }
+
+        .usa-date-picker__wrapper {
+            padding-right: 25px;
+        }
+
+        .usa-date-picker__button {
+            margin-left: -45px;
+            margin-top: 10px;
+            height: 35px;
+            background-color: transparent;
+        }
+
+        .usa-date-picker__button:not([disabled]):hover {
+            background-color: white;
+        }
+
+        .usa-date-range-picker {
+            margin-right: 0px;
+        }
+
+        .usa-table--striped tbody tr:nth-child(odd) td {
+            background-color: #f1f3F6;
+        }
+    }
+}

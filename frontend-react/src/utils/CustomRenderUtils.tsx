@@ -26,11 +26,6 @@ interface AppWrapperOptions {
     restHookFixtures?: Fixture[];
 }
 
-interface TestRouterProps {
-    children: React.ReactNode;
-    initialEntries?: string[];
-}
-
 function TestLayout() {
     return <Outlet />;
 }

@@ -65,7 +65,7 @@ describe("isDateExpired", () => {
 describe("formatDateWithoutSeconds", () => {
     test("returns a formatted date without seconds", () => {
         const date = formatDateWithoutSeconds("2023-02-09T22:24:01.938Z");
-        expect(date).toBe("2/9/2023, 10:24 PM");
+        expect(date).toBe("2/9/2023 10:24 PM");
     });
 
     test("returns today's date formatted without seconds", () => {
@@ -77,6 +77,6 @@ describe("formatDateWithoutSeconds", () => {
             minute: "2-digit",
         });
         const date = formatDateWithoutSeconds("");
-        expect(date).toBe(expectedDate);
+        expect(date).toBe(expectedDate.replace(/,/, ""));
     });
 });
