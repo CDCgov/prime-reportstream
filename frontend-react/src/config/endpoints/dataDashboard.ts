@@ -21,12 +21,20 @@ export interface RSFacilityProvider {
 }
 
 // TODO: move to /resources/ once we know the data structure being returned from the API
-export default class FacilityResource {
-    facilityId: string = "";
-    name: string = "";
-    location: string = "";
-    facilityType: string = "";
-    reportDate: string = "";
+export interface FacilityResource {
+    facilityId: string | undefined;
+    name: string | undefined;
+    location: string | undefined;
+    facilityType: string | undefined;
+    reportDate: string | "";
+}
+
+// TODO: move to /resources/ once we know the data structure being returned from the API
+export interface SenderTypeDetailResource {
+    reportId: string | undefined;
+    batchReadyAt: string | "";
+    expires: string | "";
+    total: string | undefined;
 }
 
 /*

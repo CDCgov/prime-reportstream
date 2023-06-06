@@ -245,33 +245,28 @@ export const appRoutes: RouteObject[] = [
                         element: <FacilitiesProvidersWithAuth />,
                     },
                     {
-                        path: "facility-provider-submitter-details",
-                        children: [
-                            {
-                                path: "facility/:senderId",
-                                element: (
-                                    <FacilityProviderSubmitterDetailsWithAuth
-                                        senderType={SenderType.FACILITY}
-                                    />
-                                ),
-                            },
-                            {
-                                path: "provider/:senderId",
-                                element: (
-                                    <FacilityProviderSubmitterDetailsWithAuth
-                                        senderType={SenderType.PROVIDER}
-                                    />
-                                ),
-                            },
-                            {
-                                path: "submitter/:senderId",
-                                element: (
-                                    <FacilityProviderSubmitterDetailsWithAuth
-                                        senderType={SenderType.SUBMITTER}
-                                    />
-                                ),
-                            },
-                        ],
+                        path: "facility/:senderId",
+                        element: (
+                            <FacilityProviderSubmitterDetailsWithAuth
+                                senderType={SenderType.FACILITY}
+                            />
+                        ),
+                    },
+                    {
+                        path: "provider/:senderId",
+                        element: (
+                            <FacilityProviderSubmitterDetailsWithAuth
+                                senderType={SenderType.PROVIDER}
+                            />
+                        ),
+                    },
+                    {
+                        path: "submitter/:senderId",
+                        element: (
+                            <FacilityProviderSubmitterDetailsWithAuth
+                                senderType={SenderType.SUBMITTER}
+                            />
+                        ),
                     },
                 ],
             },

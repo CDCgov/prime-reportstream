@@ -12,9 +12,9 @@ import Spinner from "../../Spinner";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
 import { FeatureName } from "../../../AppRouter";
 import { Table } from "../../../shared/Table/Table";
-import FacilityResource from "../../../config/endpoints/dataDashboard";
+import { FacilityResource } from "../../../config/endpoints/dataDashboard";
 import { USLink } from "../../USLink";
-import { transformDate } from "../../../utils/DateTimeUtils";
+import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import {
     transformFacilityTypeClass,
     transformFacilityTypeLabel,
@@ -40,6 +40,7 @@ function FacilitiesProvidersTableWithPagination({
 }: ReceiverServicesProps) {
     const featureEvent = `${FeatureName.FACILITIES_PROVIDERS} | ${EventName.TABLE_FILTER}`;
 
+    // TODO: implement API once ready
     const data: FacilityResource[] = [
         {
             facilityId: "12w3e4r5",
@@ -79,7 +80,7 @@ function FacilitiesProvidersTableWithPagination({
                     columnHeader: "Name",
                     content: (
                         <USLink
-                            href={`/data-dashboard/facility-provider-submitter-details/${eachFacility.facilityType}/${eachFacility.facilityId}`}
+                            href={`/data-dashboard/${eachFacility.facilityType}/${eachFacility.facilityId}`}
                             className="flex-align-self-end height-5"
                         >
                             {eachFacility.name}
@@ -111,7 +112,7 @@ function FacilitiesProvidersTableWithPagination({
                 {
                     columnKey: "reportDate",
                     columnHeader: "Most recent report date",
-                    content: transformDate(eachFacility.reportDate),
+                    content: formatDateWithoutSeconds(eachFacility.reportDate),
                 },
             ]);
     };

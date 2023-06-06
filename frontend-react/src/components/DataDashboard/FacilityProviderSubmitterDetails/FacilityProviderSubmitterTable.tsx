@@ -1,13 +1,14 @@
 import React from "react";
 
-import Table, { TableConfig } from "../../../components/Table/Table";
+import { Table } from "../../../shared/Table/Table";
 import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import TableFilters from "../../Table/TableFilters";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../../hooks/filters/UseFilterManager";
 import { FeatureName } from "../../../AppRouter";
-import { transformDate } from "../../../utils/DateTimeUtils";
+import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
+import { USLink } from "../../USLink";
 
 import styles from "./FacilityProviderSubmitterTable.module.scss";
 
@@ -51,25 +52,42 @@ function FacilityProviderSubmitterTable(
 
     const filterManager = useFilterManager(filterManagerDefaults);
 
-    const tableConfig: TableConfig = {
-        columns: [
-            {
-                dataAttr: "reportId",
-                columnHeader: "Report ID",
-            },
-            {
-                dataAttr: "batchReadyAt",
-                columnHeader: "Date sent to you",
-                transform: transformDate,
-            },
-            {
-                dataAttr: "expires",
-                columnHeader: "Available until",
-                transform: transformDate,
-            },
-            { dataAttr: "total", columnHeader: "Test results" },
-        ],
-        rows: data!!,
+    const formattedTableData = () => {
+        return data
+            .filter((SenderTypeDetailResource) => SenderTypeDetailResource)
+            .map((SenderTypeDetailResource) => [
+                {
+                    columnKey: "reportId",
+                    columnHeader: "Report ID",
+                    content: (
+                        <USLink
+                            href={`/report-details/${SenderTypeDetailResource.reportId}`}
+                            className="flex-align-self-end height-5"
+                        >
+                            {SenderTypeDetailResource.reportId}
+                        </USLink>
+                    ),
+                },
+                {
+                    columnKey: "batchReadyAt",
+                    columnHeader: "Date sent to you",
+                    content: formatDateWithoutSeconds(
+                        SenderTypeDetailResource.batchReadyAt
+                    ),
+                },
+                {
+                    columnKey: "expires",
+                    columnHeader: "Available until",
+                    content: formatDateWithoutSeconds(
+                        SenderTypeDetailResource.expires
+                    ),
+                },
+                {
+                    columnKey: "total",
+                    columnHeader: "Test results",
+                    content: SenderTypeDetailResource.total,
+                },
+            ]);
     };
 
     return (
@@ -92,7 +110,12 @@ function FacilityProviderSubmitterTable(
                         })
                     }
                 />
-                <Table config={tableConfig} />
+                <Table
+                    striped
+                    borderless
+                    sticky
+                    rowData={formattedTableData()}
+                />
             </section>
         </div>
     );

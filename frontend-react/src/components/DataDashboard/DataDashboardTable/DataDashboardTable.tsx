@@ -17,6 +17,7 @@ import {
 } from "../../../hooks/network/DataDashboard/DataDashboardHooks";
 import { RSDelivery } from "../../../config/endpoints/dataDashboard";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
+import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 
 const extractCursor = (d: RSDelivery) => d.batchReadyAt;
 
@@ -43,15 +44,12 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
 
     const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
 
-    const transformDate = (s: string) => {
-        return new Date(s).toLocaleString();
-    };
     const columns: Array<ColumnConfig> = [
         {
             dataAttr: DataDashboardAttr.DATE_SENT,
             columnHeader: "Date sent to you",
             sortable: true,
-            transform: transformDate,
+            transform: formatDateWithoutSeconds,
         },
         {
             dataAttr: DataDashboardAttr.PROVIDER,

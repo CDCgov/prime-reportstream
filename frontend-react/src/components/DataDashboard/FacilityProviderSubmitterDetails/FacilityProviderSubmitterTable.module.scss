@@ -33,5 +33,9 @@
         .usa-date-range-picker {
             margin-right: 0px;
         }
+
+        .usa-table--striped tbody tr:nth-child(odd) td {
+            background-color: #f1f3F6;
+        }
     }
 }
