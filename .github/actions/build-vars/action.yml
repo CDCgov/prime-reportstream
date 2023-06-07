@@ -25,13 +25,13 @@ runs:
   using: "composite"
   steps:
 
-    - name: Set Build Environment - DEMO4
-      id: build_demo4
+    - name: Set Build Environment - demo1
+      id: build_demo1
       if: |
-        (github.event_name != 'pull_request' && github.ref_name == 'demo4') ||
-        (github.event_name == 'pull_request' && github.base_ref == 'demo4')
+        (github.event_name != 'pull_request' && github.ref_name == 'demo1') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'demo1')
       shell: bash
-      run: echo "env_name=demo4" >> $GITHUB_OUTPUT
+      run: echo "env_name=demo1" >> $GITHUB_OUTPUT
 
     - name: Set Build Environment - DEMO2
       id: build_demo2
