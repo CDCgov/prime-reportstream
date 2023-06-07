@@ -28,7 +28,7 @@ jobs:
           tf-auth: true
           
       - name: Collect Terraform stats
-        uses: josiahsiegel/terraform-stats@ed0933b7014c6992e53add3ecb5af77f915f03ed
+        uses: josiahsiegel/terraform-stats@270787b061ce4b2ba67c837e89177f7224b26f3d
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ matrix.env }}
