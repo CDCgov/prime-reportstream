@@ -29,64 +29,85 @@ export function ReportDetailsSummary(props: Props) {
             </div>
             <section className="margin-bottom-4">
                 <Grid row>
-                    <Grid col={6} className="padding-right-2">
+                    <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="text-bold padding-right-3">
                             Report ID
                         </span>
+                    </Grid>
+                    <Grid col={4} className="padding-right-6">
+                        <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">{report?.reportId}</span>
                     </Grid>
-                    <Grid col={6}>
+                    <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="text-bold padding-right-3">
                             File name
                         </span>
+                    </Grid>
+                    <Grid col={4}>
+                        <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">{report?.fileName}</span>
                     </Grid>
                 </Grid>
                 <Grid row>
-                    <Grid col={6} className="padding-right-2">
+                    <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="text-bold padding-right-3">
                             Date range
                         </span>
+                    </Grid>
+                    <Grid col={4} className="padding-right-6">
+                        <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
                             {formatDateWithoutSeconds(report!.batchReadyAt)} -{" "}
                             {formatDateWithoutSeconds(report!.expires)}
                         </span>
                     </Grid>
-                    <Grid col={6}>
+                    <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="text-bold padding-right-3">
                             Delivery method
                         </span>
+                    </Grid>
+                    <Grid col={4}>
+                        <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">SFTP</span>
                     </Grid>
                 </Grid>
                 <Grid row>
-                    <Grid col={6} className="padding-right-2">
+                    <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="text-bold padding-right-3">
                             Date sent to you
                         </span>
+                    </Grid>
+                    <Grid col={4} className="padding-right-6">
+                        <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
                             {formatDateWithoutSeconds(report!.batchReadyAt)}{" "}
                         </span>
                     </Grid>
-                    <Grid col={6}>
+                    <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="text-bold padding-right-3">
                             Folder location
                         </span>
+                    </Grid>
+                    <Grid col={4}>
+                        <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs"></span>
                     </Grid>
                 </Grid>
                 <Grid row>
-                    <Grid col={6} className="padding-right-2">
+                    <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="text-bold padding-right-3">
                             Available until
                         </span>
+                    </Grid>
+                    <Grid col={4} className="padding-right-6">
+                        <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
                             {formatDateWithoutSeconds(report!.expires)}{" "}
                         </span>

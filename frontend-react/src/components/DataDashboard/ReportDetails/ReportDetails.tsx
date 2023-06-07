@@ -10,6 +10,7 @@ import { useReportsDetail } from "../../../hooks/network/DataDashboard/DataDashb
 import { withCatchAndSuspense } from "../../RSErrorBoundary";
 import HipaaNotice from "../../HipaaNotice";
 
+import styles from "./ReportDetails.module.scss";
 import { ReportDetailsSummary } from "./ReportDetailsSummary";
 import ReportDetailsTable from "./ReportDetailsTable";
 
@@ -24,9 +25,9 @@ function ReportDetails() {
     const { data: reportDetail } = useReportsDetail(reportId!!);
 
     return (
-        <div className="margin-left-7">
-            <Crumbs {...crumbProps}></Crumbs>
-            <GridContainer className="margin-left-0 padding-left-0 margin-right-7 padding-bottom-8 rs-max-width-100-important">
+        <div className={styles.ReportDetails}>
+            <GridContainer className="rs-max-width-100-important">
+                <Crumbs {...crumbProps}></Crumbs>
                 <article>
                     <ReportDetailsSummary report={reportDetail} />
                     {withCatchAndSuspense(
@@ -42,7 +43,7 @@ function ReportDetails() {
 export function ReportDetailsWithAuth() {
     return (
         <AuthElement
-            element={<ReportDetails />}
+            element={withCatchAndSuspense(<ReportDetails />)}
             requiredUserType={MemberType.RECEIVER}
         />
     );
