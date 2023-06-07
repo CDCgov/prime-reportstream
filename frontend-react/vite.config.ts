@@ -1,3 +1,5 @@
+import { resolve } from "path";
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
@@ -47,6 +49,12 @@ export default defineConfig(async () => {
             target: "esnext",
             assetsDir: "assets/app",
             sourcemap: process.env.NODE_ENV === "development",
+            rollupOptions: {
+                input: {
+                    main: resolve(__dirname, "index.html"),
+                    404: resolve(__dirname, "404.html"),
+                },
+            },
         },
         css: {
             preprocessorOptions: {
