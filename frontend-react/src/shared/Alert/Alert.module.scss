@@ -1,0 +1,28 @@
+@use "../../global-modules.scss" as *;
+
+.usa-alert--tip {
+    @include u-border("primary-lighter");
+    @include u-border(1px);
+    @include u-border("solid");
+    @include u-radius("md");
+
+    &:before {
+        all: unset;
+    }
+}
+
+.usa-alert__icon {
+    @include u-width(4);
+    height: (2 * units($theme-alert-padding-y)) + units(3);
+    // padding - optical spacing value
+    left: $alert-icon-optical-padding;
+    position: absolute;
+    top: 0;
+}
+
+:global(.usa-alert--slim) {
+    .usa-alert__icon {
+        @include u-height(5);
+        @include u-width(3);
+    }
+}
