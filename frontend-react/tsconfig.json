@@ -23,7 +23,8 @@
       "jest",
       "cypress",
       "@testing-library/cypress",
-      "mdx"
+      "mdx",
+      "vite/client",
     ],
     "noImplicitAny": true,
     "inlineSourceMap": true

@@ -5,6 +5,7 @@ import mdx from "@mdx-js/rollup";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import remarkToc from "remark-toc";
+import { checker } from "vite-plugin-checker";
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => {
@@ -22,6 +23,14 @@ export default defineConfig(async () => {
                 rehypePlugins: [rehypeSlug],
             }),
             svgr(),
+            checker({
+                // e.g. use TypeScript check
+                typescript: true,
+                eslint: {
+                    // for example, lint .ts and .tsx
+                    lintCommand: 'eslint "./src/**/*.{ts,tsx}"',
+                },
+            }),
         ],
         server: {
             open: true,
@@ -35,9 +44,9 @@ export default defineConfig(async () => {
         },
         build: {
             outDir: "build",
-        },
-        resolve: {
-            //alias: [{ find: /^~/, replacement: "node_modules/" }],
+            target: "esnext",
+            assetsDir: "assets/app",
+            sourcemap: process.env.NODE_ENV === "development",
         },
         css: {
             preprocessorOptions: {

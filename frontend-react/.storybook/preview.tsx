@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import MockDate from "mockdate";
 
-import "../src/content/generated/global.out.css";
+import "../src/global.scss";
 import React from "react";
 
 // mock all dates in stories to make sure we don't run into date-related inconsistencies
