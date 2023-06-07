@@ -16,6 +16,7 @@ import gov.cdc.prime.router.metadata.IfNotPresentMapper
 import gov.cdc.prime.router.metadata.IfPresentMapper
 import gov.cdc.prime.router.metadata.IfThenElseMapper
 import gov.cdc.prime.router.metadata.LIVDLookupMapper
+import gov.cdc.prime.router.metadata.LivdNegateYesNoMapper
 import gov.cdc.prime.router.metadata.LivdYesNoMapper
 import gov.cdc.prime.router.metadata.LookupMapper
 import gov.cdc.prime.router.metadata.LookupSenderAutomationValuesets
@@ -83,7 +84,8 @@ class Metadata : Logging {
         LookupSenderAutomationValuesets(),
         IfThenElseMapper(),
         PatientAgeMapper(),
-        LivdYesNoMapper()
+        LivdYesNoMapper(),
+        LivdNegateYesNoMapper()
     )
     private var reportStreamFilterDefinitions = listOf(
         FilterByCounty(),

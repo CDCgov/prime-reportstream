@@ -1041,10 +1041,10 @@ elements:
   - name: test_authorized_for_unproctored
     type: TABLE
     table: LIVD-SARS-CoV-2
-    tableColumn: is_unproctored
+    tableColumn: Telehealth Proctor Supervised
     reference: Is the test authorized for unproctored administration by the FDA
     referenceUrl: https://www.fda.gov/news-events/fda-newsroom/press-announcements
-    mapper: livdLookup()
+    mapper: LivdNegateYesNo()
     default: N
     documentation: Is the test authorized for unproctored administration by the FDA (Y, N)
 

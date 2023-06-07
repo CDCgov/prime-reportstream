@@ -16,7 +16,8 @@ enum class LivdTableColumns(val colName: String) {
     TEST_PERFORMED_CODE("Test Performed LOINC Code"),
     PROCESSING_MODE_CODE("processing_mode_code"),
     MANUFACTURER("Manufacturer"),
-    OTC_HOME_TESTING("Over the Counter (OTC) Home Testing")
+    OTC_HOME_TESTING("Over the Counter (OTC) Home Testing"),
+    TELEHEALTH_PROCTOR_SUPERVISED("Telehealth Proctor Supervised")
 }
 
 /**
@@ -254,6 +255,42 @@ class LivdYesNoMapper : Mapper {
         val result = livdLookupMapper.apply(element, args, values, sender)
         return ElementResult(
             mappings[result.value?.lowercase()],
+            result.errors,
+            result.warnings
+        )
+    }
+}
+
+/**
+ * Applies the LIVDLookupMapper to find the correct value, negates the yes/no and then maps Yes/No into Y/N as expected
+ */
+class LivdNegateYesNoMapper : Mapper {
+    override val name = "LivdNegateYesNo"
+
+    override fun valueNames(element: Element, args: List<String>): List<String> {
+        return if (args.size != 1) {
+            args
+        } else {
+            error("Schema Error: Invalid number of arguments")
+        }
+    }
+
+    private val negatedMappings = mapOf(
+        "yes" to "N",
+        "no" to "Y",
+    )
+
+    private val livdLookupMapper = LIVDLookupMapper()
+
+    override fun apply(
+        element: Element,
+        args: List<String>,
+        values: List<ElementAndValue>,
+        sender: Sender?
+    ): ElementResult {
+        val result = livdLookupMapper.apply(element, args, values, sender)
+        return ElementResult(
+            negatedMappings[result.value?.lowercase()],
             result.errors,
             result.warnings
         )

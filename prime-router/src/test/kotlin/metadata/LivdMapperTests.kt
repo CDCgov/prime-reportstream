@@ -146,16 +146,30 @@ class LivdMapperTests {
             tableRef = lookupTable,
             tableColumn = "Over the Counter (OTC) Home Testing"
         )
+        val unproctoredCodeElement = Element(
+            "test_authorized_for_unproctored",
+            tableRef = lookupTable,
+            tableColumn = "Telehealth Proctor Supervised"
+        )
         val deviceElement = Element(ElementNames.DEVICE_ID.elementName)
-        val mapper = LivdYesNoMapper()
+        val yesNoMapper = LivdYesNoMapper()
+        val negateYesNoMapper = LivdNegateYesNoMapper()
 
         // Test with an FDA device id
         val ev1 = ElementAndValue(deviceElement, "10811877011337")
-        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1)).value).isEqualTo("Y")
+        assertThat(yesNoMapper.apply(codeElement, emptyList(), listOf(ev1)).value).isEqualTo("Y")
+        assertThat(
+            negateYesNoMapper.apply(unproctoredCodeElement, emptyList(), listOf(ev1)).value
+        ).isEqualTo("N") // mapped yes -> N
 
         // Test with a truncated device ID
         val ev1a = ElementAndValue(deviceElement, "BinaxNOW COVID-19 Ag Card 2 Home#")
-        assertThat(mapper.apply(codeElement, emptyList(), listOf(ev1a)).value).isEqualTo("Y")
+        assertThat(yesNoMapper.apply(codeElement, emptyList(), listOf(ev1a)).value).isEqualTo("Y")
+        assertThat(
+            negateYesNoMapper.apply(
+                unproctoredCodeElement, emptyList(), listOf(ev1a)
+            ).value
+        ).isEqualTo("N") // mapped yes -> N
     }
 
     @Test

@@ -21,6 +21,7 @@ import tech.tablesaw.api.ColumnType
 import tech.tablesaw.api.StringColumn
 import tech.tablesaw.api.Table
 import tech.tablesaw.io.csv.CsvReadOptions
+import tech.tablesaw.selection.Selection
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
@@ -74,6 +75,14 @@ class LivdTableUpdate : CliktCommand(
      */
     private val activate by option("-a", "--activate", help = "Activate the table upon creation").flag()
 
+    /**
+     * Pathname to the LIVD supplemental table.
+     */
+    private val livdSupplementalPathname by option(
+        "--livd-suppl",
+        help = "The path to the LIVD supplemental file. Defaults to $defaultSupplFile"
+    ).file(true).default(File(defaultSupplFile))
+
     private val inputFile by option(
         "-i", "--input-file", help = "Input file to update LIVD table"
     ).file()
@@ -84,11 +93,11 @@ class LivdTableUpdate : CliktCommand(
 
         val tempRawLivdOutFile = extractLivdTable(sheetName, inputFile as File, defaultOutputDir)
         // Merge the supplemental LIVD table with the raw.
-        val tempUpdatedLIVDOutFile = updateLIVDTable(tempRawLivdOutFile)
+        val tempMergedLivdOutFile = mergeLivdSupplementalTable(tempRawLivdOutFile)
         tempRawLivdOutFile.delete()
 
         // Now, store the data as a LIVD lookup table.
-        if (!updateTheLivdLookupTable(tempUpdatedLIVDOutFile))
+        if (!updateTheLivdLookupTable(tempMergedLivdOutFile))
             error("There was an error storing the LIVD lookup table.")
         else
             echo("The lookup table was updated successfully.")
@@ -192,21 +201,24 @@ class LivdTableUpdate : CliktCommand(
     }
 
     /**
-     * Update LIVD table to add test device rows
+     * Merges the supplemental table in and update LIVD table to add test device rows
      *
-     * TODO: is the supplemental table still required for the following columns which were unable to be mapped
-     *       - is_unproctored
+     * The supplemental table is still required for the following columns which were unable to be mapped
      *       - fda_ref
      *       - fda_authorization
+     *
      * @return the CSV formatted file with the merged LIVD data
      */
-    private fun updateLIVDTable(rawLivdFile: File): File {
+    fun mergeLivdSupplementalTable(rawLivdFile: File): File {
         // First load both tables
         val rawLivdReaderOptions = CsvReadOptions.builder(rawLivdFile)
             .columnTypesToDetect(listOf(ColumnType.STRING))
             .build()
         val rawLivdTable = Table.read().usingOptions(rawLivdReaderOptions)
             .sortAscendingOn(LivdTableColumns.MANUFACTURER.colName, LivdTableColumns.MODEL.colName)
+        val supplLivdReaderOptions = CsvReadOptions.builder(livdSupplementalPathname)
+            .columnTypesToDetect(listOf(ColumnType.STRING)).build()
+        val supplLivdTable = Table.read().usingOptions(supplLivdReaderOptions)
 
         // empty values default to P
         rawLivdTable.addColumns(StringColumn.create("processing_mode_code"))
@@ -230,6 +242,97 @@ class LivdTableUpdate : CliktCommand(
                 LivdTableColumns.OTC_HOME_TESTING to "yes"
             )
         )
+        appendTestDeviceRow(
+            rawLivdTable,
+            mapOf(
+                LivdTableColumns.MODEL to "Test_Unproctored_Device",
+                LivdTableColumns.TESTKIT_NAME_ID to "Test_Unproctored_Device",
+                LivdTableColumns.EQUIPMENT_UID to "Test_Unproctored_Device",
+                LivdTableColumns.TELEHEALTH_PROCTOR_SUPERVISED to "no" // will be negated to Y
+            )
+        )
+
+        // Cleanup any models that have * at the end.
+        supplLivdTable.forEach {
+            if (it.getString(LivdTableColumns.MODEL.colName).endsWith("*"))
+                it.setString(
+                    LivdTableColumns.MODEL.colName,
+                    it.getString(LivdTableColumns.MODEL.colName).dropLast(1)
+                )
+        }
+
+        // Get the columns we need to process and add any new columns to the LIVD table
+        val commonColList = mutableListOf<String>()
+        val missingColList = mutableListOf<String>()
+        supplLivdTable.columns().forEach { supplCol ->
+            try {
+                rawLivdTable.stringColumn(supplCol.name()) // This is the test to see if the column exists
+                commonColList.add(supplCol.name())
+            } catch (e: IllegalStateException) {
+                missingColList.add(supplCol.name())
+            }
+        }
+        missingColList.forEach { missingColName ->
+            val col = StringColumn.create(missingColName)
+            // To add columns they must have the same number of rows
+            repeat(rawLivdTable.rowCount()) { col.append("") }
+            rawLivdTable.addColumns(col)
+        }
+
+        // Identify if a supplemental device exists in the LIVD table or not.
+        var addedRows = 0
+        var modRows = 0
+        var nonUniqueRows = 0
+        var badRows = 0
+        supplLivdTable.forEach { supplRow ->
+            var selector: Selection? = null
+            commonColList.forEach { colName ->
+                if (!supplRow.getString(colName).isNullOrBlank()) {
+                    val newSelector = rawLivdTable.stringColumn(colName).isEqualTo(supplRow.getString(colName))
+                    if (selector == null)
+                        selector = newSelector
+                    else selector!!.and(newSelector)
+                }
+            }
+            if (!silent) echo("Here is the list of changes added from $livdSupplementalPathname")
+            when {
+                selector == null -> {
+                    echo("Found row #${supplRow.rowNumber} with no device information.")
+                    echo(supplRow)
+                    badRows++
+                }
+
+                selector!!.isEmpty -> {
+                    // A new row is needed
+                    val newRow = rawLivdTable.appendRow()
+                    commonColList.forEach { newRow.setString(it, supplRow.getString(it)) }
+                    missingColList.forEach { newRow.setString(it, supplRow.getString(it)) }
+                    if (!silent) echo("ADDING RECORD from row #${supplRow.rowNumber} : $newRow")
+                    addedRows++
+                }
+
+                selector!!.size() == 1 -> {
+                    // Merge into an existing row
+                    missingColList.forEach { rawLivdTable.stringColumn(it).set(selector, supplRow.getString(it)) }
+                    modRows++
+                }
+
+                else -> {
+                    if (!silent) echo("Found NON-UNIQUE record in row #${supplRow.rowNumber} : $supplRow")
+                    nonUniqueRows++
+                }
+            }
+        }
+
+        // Print out the results of the merge.
+        if (!silent) {
+            echo("Modified $modRows LIVD records with supplemental LIVD information.")
+            echo("Added $addedRows LIVD records from supplemental LIVD information.")
+        }
+        if (badRows > 0)
+            error("Found $badRows row(s) in $livdSupplementalPathname that do not have device information")
+        if (nonUniqueRows > 0)
+            error("Found $nonUniqueRows row(s) in $livdSupplementalPathname that do not match to a unique LIVD record.")
 
         val outputFile = File.createTempFile(
             livdSARSCov2FilenamePrefix, "_final.csv",
@@ -317,5 +420,10 @@ class LivdTableUpdate : CliktCommand(
          * Default folder to write files to.
          */
         private const val defaultOutputDir = "./build/livd-download"
+
+        /**
+         * The default location of the supplemental file.
+         */
+        private const val defaultSupplFile = "./metadata/tables/livd/LIVD-Supplemental.csv"
     }
 }

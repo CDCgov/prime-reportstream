@@ -256,6 +256,20 @@ class LivdLookupTests {
                 deviceId = null,
                 equipmentModelId = null,
                 testKitNameId = null,
+                equipmentModelName = "BinaxNOW COVID-19 Ag Card 2 Home Test",
+                tableColumn = "Telehealth Proctor Supervised",
+                tableRef = lookupTable
+            )
+        )
+            .isEqualTo("yes")
+
+        assertThat(
+            find(
+                testPerformedCode = null,
+                processingModeCode = null,
+                deviceId = null,
+                equipmentModelId = null,
+                testKitNameId = null,
                 equipmentModelName = "Some bad text",
                 tableColumn = "Over the Counter (OTC) Home Testing",
                 tableRef = lookupTable

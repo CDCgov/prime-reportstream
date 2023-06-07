@@ -4220,7 +4220,7 @@ Is the test authorized for home use by the FDA (Y, N, UNK)
 **Table Column**: Over the Counter (OTC) Home Testing
 
 **Documentation**:
-Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
+Is the test authorized for over-the-counter purchase by the FDA (Y, N)
 ---
 
 **Name**: test_authorized_for_unproctored
@@ -4241,10 +4241,10 @@ Is the test authorized for over-the-counter purchase by the FDA (Y, N, UNK)
                 
 **Table**: LIVD-SARS-CoV-2
 
-**Table Column**: is_unproctored
+**Table Column**: Telehealth Proctor Supervised
 
 **Documentation**:
-Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
+Is the test authorized for unproctored administration by the FDA (Y, N)
 ---
 
 **Name**: test_correction_reason
