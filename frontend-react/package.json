@@ -204,7 +204,7 @@
         "global-modules": "^2.0.0",
         "globby": "^13.1.4",
         "gzip-size": "^6.0.0",
-        "html-webpack-plugin": "^5.5.0",
+        "html-webpack-plugin": "^5.5.1",
         "identity-obj-proxy": "^3.0.0",
         "immer": "^9.0.7",
         "is-root": "^2.1.0",
