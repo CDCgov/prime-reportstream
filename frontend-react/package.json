@@ -1,7 +1,6 @@
 {
     "name": "react-frontend",
     "version": "0.1.1",
-    "proxy": "http://127.0.0.1:7071",
     "private": true,
     "type": "module",
     "npmClient": "yarn",
