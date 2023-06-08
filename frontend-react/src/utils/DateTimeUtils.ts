@@ -78,6 +78,7 @@ export function isDateExpired(dateTimeString: string | number) {
     const dateToCompare = moment.utc(dateTimeString).local();
     return dateToCompare < now;
 }
+
 export function transformDate(s: string) {
     return new Date(s).toLocaleString();
 }
@@ -85,11 +86,12 @@ export function transformDate(s: string) {
 // Will return date with format: 2/9/2023, 02:24 PM
 export function formatDateWithoutSeconds(d: string) {
     const date = d === "" ? new Date() : new Date(d);
-    return new Date(date).toLocaleString([], {
+    const newDate = new Date(date).toLocaleString([], {
         year: "numeric",
         month: "numeric",
         day: "numeric",
         hour: "2-digit",
         minute: "2-digit",
     });
+    return newDate.replace(/,/, "");
 }

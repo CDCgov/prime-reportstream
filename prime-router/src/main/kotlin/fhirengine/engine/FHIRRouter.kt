@@ -14,6 +14,7 @@ import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.ReportStreamFilters
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -185,7 +186,7 @@ class FHIRRouter(
             )
 
             // get the receivers that this bundle should go to
-            val listOfReceivers = applyFilters(bundle, report)
+            val listOfReceivers = applyFilters(bundle, report, message.topic)
 
             // check if there are any receivers
             if (listOfReceivers.isNotEmpty()) {
@@ -293,20 +294,19 @@ class FHIRRouter(
     }
 
     /**
-     * Applies all filters to the list of all receivers with topic FULL_ELR that are not set as INACTIVE.
-     * FHIRPath expressions are run against the [bundle] to determine if the receiver should get this message
+     * Applies all filters to the list of all receivers with topic with a topic matching [topic] that are not set as
+     * INACTIVE. FHIRPath expressions are run against the [bundle] to determine if the receiver should get this message
      * As it goes through the filters, results are logged onto the provided [report]
      * @return list of receivers that should receive this bundle
      */
-    internal fun applyFilters(bundle: Bundle, report: Report): List<Receiver> {
+    internal fun applyFilters(bundle: Bundle, report: Report, topic: Topic): List<Receiver> {
+        check(topic.isUniversalPipeline) { "Unexpected topic $topic in the Universal Pipeline routing step." }
         val listOfReceivers = mutableListOf<Receiver>()
-        // find all receivers that have the full ELR topic and determine which applies
-        val fullElrReceivers = settings.receivers.filter {
-            it.customerStatus != CustomerStatus.INACTIVE &&
-                it.topic.isUniversalPipeline
-        }
+        // find all receivers that have a matching topic and determine which applies
+        val topicReceivers =
+            settings.receivers.filter { it.customerStatus != CustomerStatus.INACTIVE && it.topic == topic }
 
-        fullElrReceivers.forEach { receiver ->
+        topicReceivers.forEach { receiver ->
             // get the receiver's organization, since we need to be able to find/combine the correct filters
             val orgFilters = settings.findOrganization(receiver.organizationName)!!.filters
 

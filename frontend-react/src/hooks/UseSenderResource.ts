@@ -12,7 +12,9 @@ export type UseSenderResourceHookResult = {
     isInitialLoading: boolean;
 };
 
-export const useSenderResource = (): UseSenderResourceHookResult => {
+export const useSenderResource = (
+    initialData?: any
+): UseSenderResourceHookResult => {
     const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSSender>();
     /* Access the session. */
     const { activeMembership } = useSessionContext();
@@ -36,6 +38,7 @@ export const useSenderResource = (): UseSenderResourceHookResult => {
         {
             enabled:
                 !!activeMembership?.parsedName && !!activeMembership.service,
+            ...(initialData && { initialData: initialData }),
         }
     );
 

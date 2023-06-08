@@ -1,6 +1,6 @@
 import { ComponentMeta, ComponentStoryObj } from "@storybook/react";
-import MarkdownLayout from "../../../components/Content/MarkdownLayout";
 
+import MarkdownLayout from "../../../components/Content/MarkdownLayout";
 import Method1 from "../../../content/resources/api-programmers-guide/getting-started/Method1.mdx";
 import Method2 from "../../../content/resources/api-programmers-guide/getting-started/Method2.mdx";
 
