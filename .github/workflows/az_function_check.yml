@@ -1,0 +1,61 @@
+name: Azure Function Deployment
+
+on:
+  push:
+    branches:
+      - featur
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        FA: [pdhtest-admin-functionapp, pdhstaging-admin-functionapp, pdhprod-admin-functionapp] 
+        RG: [prime-data-hub-test, prime-data-hub-staging, prime-data-hub-prod]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+
+      - name: Connect to VPN & Login into Azure  
+        uses: ./.github/actions/vpn-azure
+        with:
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Get Azure Function API URL
+        id: get-function-url
+        run: |
+          echo "::set-env name=AZURE_FUNCTION_API_URL::$(az functionapp show -g ${{ matrix.RG }} -n ${{ matrix.FA }} --query 'defaultHostName' -o tsv)"  
+
+      - name: Check Function App URL
+        id: check-url
+        run: |
+          response=$(http --ignore-stdin --check-status GET ${{ env.AZURE_FUNCTION_API_URL/api/task_table_check.py }})
+          status_code=${response% *}  
+          echo "::set-output name=status_code::$status_code"  
+
+
+      - name: Slack Notification
+        if: ${{ steps.check-url.outputs.status_code == '200' }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"Azure Function deployed successfully! API URL: ${{ env.AZURE_FUNCTION_API_URL }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
+        
+        
+        
+        
+        
+        
+        # uses: ./.github/actions/notifications
+        # with:
+        #   method: slack
+        #   title: These Certificates are expired or will expire in 30 days or less
+        #   message: |
+        #     ${{ steps.format_out.outputs.LIST }}
+        #   icon-emoji: ':bell:'
+        #   channel: pagerduty-alert-dump
+        #   webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        #   color: warning
