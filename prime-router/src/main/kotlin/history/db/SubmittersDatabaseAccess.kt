@@ -140,7 +140,10 @@ class SubmitterApiSearch(
     companion object :
         ApiSearchParser<Submitter, SubmitterApiSearch, SubmitterRecord, SubmitterApiSearchFilter<*>>(), Logging {
         override fun parseRawApiSearch(rawApiSearch: RawApiSearch): SubmitterApiSearch {
-            val sortProperty = SubmitterTable.SUBMITTER.field(rawApiSearch.sort.property)
+            val sortProperty =
+                if (rawApiSearch.sort != null)
+                    SubmitterTable.SUBMITTER.field(rawApiSearch.sort.property)
+                else SubmitterTable.SUBMITTER.FIRST_REPORT_DATE
             val filters = rawApiSearch.filters.mapNotNull { filter ->
                 when (SubmitterApiSearchFilters.getTerm(SubmitterApiFilterNames.valueOf(filter.filterName))) {
                     SubmitterApiSearchFilter.Since::class.java
@@ -159,7 +162,7 @@ class SubmitterApiSearch(
             return SubmitterApiSearch(
                 filters = filters,
                 sortParameter = sortProperty,
-                sortDirection = rawApiSearch.sort.direction,
+                sortDirection = rawApiSearch.sort?.direction ?: SortDirection.DESC,
                 page = rawApiSearch.pagination.page,
                 limit = rawApiSearch.pagination.limit
             )
