@@ -31,7 +31,7 @@ jobs:
         uses: peter-evans/find-comment@a54c31d7fa095754bfef525c0c8e5e5674c4b4b1
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          comment-author: 'github-actions[bot]'
+          comment-author: "github-actions[bot]"
           body-regex: '\.*Chromatic.*\gi'
 
       - name: Create comment
@@ -56,7 +56,7 @@ jobs:
           node-version-file: frontend-react/package.json
 
       - name: Install dependencies
-        run: yarn
+        run: yarn --ignore-platform
         working-directory: frontend-react
         shell: bash
 
