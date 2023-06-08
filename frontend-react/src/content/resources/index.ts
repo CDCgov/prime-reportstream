@@ -9,10 +9,10 @@ import {
     AccountRegistrationGuideIa,
     GettingStartedPhd,
     ELRChecklistIa,
-    ProgrammersGuide,
     DataDownloadGuideIa,
     SystemAndSettingsIa,
     SecurityPracticesIa,
+    ReportStreamAPIPage,
 } from "../../pages/resources/index-legacy";
 import {
     ReferralGuideMd,
@@ -143,14 +143,7 @@ export const resourcesDirectories = [
         .setDescription(
             "Set up an ELR connection to automatically report all disease data to public health departments."
         )
-        .addElement(
-            contentContainer(
-                ProgrammersGuide,
-                ResourcesDirectoryTools.makeCrumb(
-                    ResourcesDirectories.PROGRAMMERS_GUIDE
-                )
-            )
-        ),
+        .addElement(ReportStreamAPIPage),
     new ElementDirectory()
         .setTitle(ResourcesDirectories.DOWNLOAD_GUIDE)
         .setSlug(
