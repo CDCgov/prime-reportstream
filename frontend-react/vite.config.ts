@@ -48,7 +48,9 @@ export default defineConfig(async () => {
             outDir: "build",
             target: "esnext",
             assetsDir: "assets/app",
-            sourcemap: process.env.NODE_ENV === "development",
+            sourcemap:
+                process.env.NODE_ENV === "development" ||
+                process.env.SOURCEMAPS === "true",
             rollupOptions: {
                 input: {
                     main: resolve(__dirname, "index.html"),

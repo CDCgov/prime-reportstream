@@ -63,7 +63,7 @@
         "build:trialfrontend03": "cross-env NODE_ENV=trialfrontend03 yarn build-base",
         "build:staging": "cross-env NODE_ENV=staging yarn build-base",
         "build:production": "cross-env NODE_ENV=production yarn build-base",
-        "build:localdev": "cross-env NODE_ENV=development yarn build-base",
+        "build:production-sourcemaps": "cross-env NODE_ENV=production SOURCEMAPS=true yarn build-base",
         "build:localdev:csp": "cross-env NODE_ENV=dev.csp yarn build-base",
         "build-base": "yarn tsc --noEmit && yarn vite build",
         "start-js": "vite dev --port 3000",
