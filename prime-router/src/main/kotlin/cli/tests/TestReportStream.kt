@@ -489,8 +489,7 @@ abstract class CoolTest {
                 }
                 timeElapsedSecs += pollSleepSecs
                 queryResult = queryForStepResults(reportId, taskAction)
-                @Suppress("SENSELESS_COMPARISON")
-                if (queryResult != null)
+                if (queryResult.isNotEmpty())
                     break
             }
         }
