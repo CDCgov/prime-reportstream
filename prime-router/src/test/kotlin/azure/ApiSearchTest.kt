@@ -57,6 +57,7 @@ class ApiSearchTest {
     class TestApiSearch(
         override val filters: List<TestApiFilter<*>>,
         override val sortParameter: Field<*>?,
+        override val sortDirection: SortDirection = SortDirection.DESC,
         page: Int = 1,
         limit: Int = 25
     ) :
@@ -91,6 +92,7 @@ class ApiSearchTest {
                 return TestApiSearch(
                     filters,
                     sort,
+                    sortDirection = rawApiSearch.sort?.direction ?: SortDirection.DESC,
                     limit = rawApiSearch.pagination.limit,
                     page = rawApiSearch.pagination.page
                 )

@@ -142,3 +142,6 @@ components:
                   - SUBMITTER
                   - PROVIDER
                   - FACILITY
+              location:
+                type: string
+                description: The location for the submitter
