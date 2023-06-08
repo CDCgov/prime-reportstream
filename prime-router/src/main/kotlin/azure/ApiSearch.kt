@@ -108,7 +108,7 @@ data class RawPagination(val page: Int, val limit: Int)
 /** A raw sort that a parser will convert */
 data class RawApiSort(val direction: SortDirection, val property: String)
 /** A raw API search that is parsed via Jackson and then parsed by a specific API Search type */
-data class RawApiSearch(val sort: RawApiSort, val pagination: RawPagination, val filters: List<RawFilter>)
+data class RawApiSearch(val sort: RawApiSort?, val pagination: RawPagination, val filters: List<RawFilter>)
 
 /**
  * Abstract class that can be subclassed to create a specific kind of API search.  It handles combining the
