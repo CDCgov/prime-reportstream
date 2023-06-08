@@ -26,7 +26,7 @@ const App = () => {
     return (
         <>
             <Helmet>
-                <title>Sample | {process.env.VITE_TITLE}</title>
+                <title>Sample | {import.meta.env.VITE_TITLE}</title>
             </Helmet>
             <section className="grid-container">
                 {withCatchAndSuspense(<MyComponentContent />)}

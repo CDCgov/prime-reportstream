@@ -76,14 +76,12 @@
         "test": "jest --watch",
         "test:debug": "jest --watch --runInBand",
         "test:ci": "jest --ci --runInBand --coverage --verbose --silent",
-        "lint": "npm-run-all -p lint:eslint",
-        "lint:write": "npm-run-all -p lint:eslint:write",
-        "lint:eslint": "cross-env NODE_ENV=production eslint \"src/**/*.{js,ts,jsx,tsx}\"",
-        "lint:eslint:write": "cross-env NODE_ENV=production eslint --fix \"src/**/*.{js,ts,jsx,tsx}\"",
+        "lint": "cross-env NODE_ENV=production eslint \"src/**/*.{js,ts,jsx,tsx}\"",
+        "lint:write": "cross-env NODE_ENV=production eslint --fix \"src/**/*.{js,ts,jsx,tsx}\"",
         "yarn:show-outdated-packages": "yarn outdated",
         "run-build-dir": "yarn build:localdev:csp && yarn global add serve && serve -s build",
         "storybook": "storybook dev -p 6006",
-        "storybook:start": "npm-run-all storybook",
+        "storybook:start": "yarn run storybook",
         "build-storybook": "storybook build"
     },
     "browserslist": {
