@@ -42,6 +42,8 @@ const config: Config.InitialOptions = {
         "^rest-hooks$": "<rootDir>/node_modules/rest-hooks/dist/index.js",
         "\\.(css|less|scss)$": "identity-obj-proxy",
         "@mdx-js/react": "<rootDir>/src/__mocks__/mdxjsReactMock.tsx",
+        // remove vite-supported queries from url imports
+        "^(.+)\\?.*": "$1",
     },
     moduleFileExtensions: [
         "web.js",
