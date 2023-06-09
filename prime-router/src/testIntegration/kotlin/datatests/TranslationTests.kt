@@ -8,11 +8,11 @@ import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
-import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
@@ -382,7 +382,7 @@ class TranslationTests {
                     it.organizationName.plus(".").plus(it.name).lowercase() == senderName.lowercase()
                 }
             } else {
-                settings.senders.filter { it is TopicSender && it.schemaName == schema.name }.randomOrNull()
+                settings.senders.filter { it is LegacyPipelineSender && it.schemaName == schema.name }.randomOrNull()
             }
             return try {
                 when (format) {
