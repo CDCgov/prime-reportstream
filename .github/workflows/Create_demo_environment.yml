@@ -1,15 +1,18 @@
 
-name: Release to Azure
-
+name: Create demo environment
 on:
-  push:
-    branches:
-      - master
-      - production
-      - test
-      - demo1
-      - demo2
-      - demo3
+  workflow_dispatch:
+    inputs:
+      env_name:
+        description: 'Demo Environment:'
+        required: true
+        options:
+        - demo1
+        - demo2
+        - demo3
+        type: choice
+  schedule:
+    - cron: "0 0 * * MON"
 
 defaults:
   run:
