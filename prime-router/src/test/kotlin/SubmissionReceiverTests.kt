@@ -770,7 +770,7 @@ class SubmissionReceiverTests {
             )
         )
 
-        val sender = FullELRSender(
+        val sender = UniversalPipelineSender(
             "Test Sender",
             "test",
             Sender.Format.HL7,
@@ -852,7 +852,7 @@ class SubmissionReceiverTests {
                 actionHistory
             )
         )
-        val sender = FullELRSender(
+        val sender = UniversalPipelineSender(
             "Test Sender",
             "test",
             Sender.Format.HL7,
@@ -922,7 +922,7 @@ class SubmissionReceiverTests {
                 actionHistory
             )
         )
-        val sender = FullELRSender(
+        val sender = UniversalPipelineSender(
             "Test Sender",
             "test",
             Sender.Format.FHIR,
@@ -992,7 +992,7 @@ class SubmissionReceiverTests {
                 actionHistory
             )
         )
-        val sender = FullELRSender(
+        val sender = UniversalPipelineSender(
             "Test Sender",
             "test",
             Sender.Format.FHIR,
@@ -1063,7 +1063,7 @@ class SubmissionReceiverTests {
             )
         )
 
-        val sender = FullELRSender(
+        val sender = UniversalPipelineSender(
             "Test Sender",
             "test",
             Sender.Format.HL7,
@@ -1371,14 +1371,14 @@ class SubmissionReceiverTests {
         val result = SubmissionReceiver.getSubmissionReceiver(sender, engine, actionHistory)
         assertThat(result).isInstanceOf(TopicReceiver::class.java)
 
-        val fullELRSender = FullELRSender(
+        val universalPipelineSender = UniversalPipelineSender(
             "Test Sender",
             "test",
             Sender.Format.HL7,
             allowDuplicates = true,
             topic = Topic.FULL_ELR
         )
-        val fullELRResult = SubmissionReceiver.getSubmissionReceiver(fullELRSender, engine, actionHistory)
+        val fullELRResult = SubmissionReceiver.getSubmissionReceiver(universalPipelineSender, engine, actionHistory)
         assertThat(fullELRResult).isInstanceOf(ELRReceiver::class.java)
     }
 }
