@@ -43,13 +43,13 @@ export default function useSenderSchemaOptions(): UseSenderSchemaOptionsHookResu
         senderDetail,
         senderIsLoading,
         isInitialLoading: isSenderInitialLoading,
-    } = useSenderResource();
+    } = useSenderResource({});
 
     const isLoading = senderIsLoading && isSenderInitialLoading;
-
     const schemaOptions =
         !isLoading &&
         senderDetail &&
+        senderDetail.schemaName &&
         !(Object.values(StandardSchema) as string[]).includes(
             senderDetail.schemaName
         )

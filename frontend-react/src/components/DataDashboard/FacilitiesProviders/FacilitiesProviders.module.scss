@@ -11,7 +11,6 @@
         border: 1px solid #73B3E7;
     }
 
-
     :global {
         .usa-breadcrumb {
             background-color: #D9E8F6;
@@ -22,6 +21,10 @@
 
         .usa-header {
             background-color: #D9E8F6;
+        }
+
+        .grid-container {
+            max-width: 100%
         }
 
         .usa-select {
@@ -63,6 +66,10 @@
 
         .usa-date-picker__calendar {
             min-width: 275px;
+        }
+
+        .usa-table--striped tbody tr:nth-child(odd) td {
+            background-color: #f1f3F6;
         }
     }
 }

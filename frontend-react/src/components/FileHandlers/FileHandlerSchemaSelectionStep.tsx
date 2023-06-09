@@ -61,8 +61,8 @@ export default function FileHandlerSchemaSelectionStep({
                     <option value="" disabled>
                         - Select -
                     </option>
-                    {schemaOptions.map(({ title, value }) => (
-                        <option key={value} value={value}>
+                    {schemaOptions.map(({ title, value }, index) => (
+                        <option key={index} value={value}>
                             {title}
                         </option>
                     ))}
