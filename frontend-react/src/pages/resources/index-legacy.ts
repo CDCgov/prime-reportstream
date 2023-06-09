@@ -6,7 +6,6 @@ import { CsvUploadGuideIa } from "./legacy-page-content/CsvUploadGuide";
 import { DataDownloadGuideIa } from "./legacy-page-content/DataDownloadGuide";
 import { SystemAndSettingsIa } from "./legacy-page-content/SystemAndSettings";
 import { SecurityPracticesIa } from "./legacy-page-content/SecurityPractices";
-import { ReportStreamAPIPage } from "./api-programmers-guide/ReportStreamApi";
 
 export {
     AccountRegistrationGuideIa,
@@ -17,5 +16,4 @@ export {
     DataDownloadGuideIa,
     SystemAndSettingsIa,
     SecurityPracticesIa,
-    ReportStreamAPIPage,
 };
