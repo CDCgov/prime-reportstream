@@ -21,7 +21,7 @@ jobs:
         id: build_vars
         uses: ./.github/actions/build-vars
 
-  docker_build_test:
+  sonarcloud:
     name: SonarCloud Master
     runs-on: ubuntu-latest
     needs: pre_job
@@ -53,6 +53,19 @@ jobs:
 
       - name: Build Prime Router Package
         run: ./gradlew package -x fatjar
+
+      - name: Use Node.js with yarn
+        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
+        with:
+          node-version-file: 'frontend-react/package.json'
+
+      - name: Yarn
+        run: yarn install --ignore-platform
+        working-directory: frontend-react
+
+      - name: Frontend Coverage
+        run: yarn test:ci
+        working-directory: frontend-react
 
       - name: "Run SonarCloud Scan"
         uses: sonarsource/sonarcloud-github-action@db501078e936e4b4c8773d1bb949ba9ddb7b6b6a

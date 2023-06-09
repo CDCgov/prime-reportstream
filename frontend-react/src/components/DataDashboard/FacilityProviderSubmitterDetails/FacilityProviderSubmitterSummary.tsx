@@ -1,116 +1,137 @@
 import React from "react";
 import { Grid } from "@trussworks/react-uswds";
 
-import { RSDelivery } from "../../../config/endpoints/dataDashboard";
-import ReportLink from "../../../pages/deliveries/Table/ReportLink";
+import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import {
-    formatDateWithoutSeconds,
-    isDateExpired,
-} from "../../../utils/DateTimeUtils";
+    SenderType,
+    transformFacilityTypeClass,
+    transformFacilityTypeLabel,
+} from "../../../utils/DataDashboardUtils";
 
-import styles from "./ReportDetailsSummary.module.scss";
+import styles from "./FacilityProviderSubmitterSummary.module.scss";
 
-interface Props {
-    report: RSDelivery | undefined;
+interface SummaryProps {
+    details: {
+        senderTypeName: string;
+        contactName: string;
+        location: string;
+        phone: string;
+        reportDate: string;
+        averageTestPerReport: number;
+        totalTests: number;
+        submitter: string;
+        clia: string;
+    };
+    summaryDetailType: SenderType;
 }
 
-export function ReportDetailsSummary(props: Props) {
-    const { report }: Props = props;
-
+export function FacilityProviderSubmitterSummary({
+    details,
+    summaryDetailType,
+}: SummaryProps) {
     return (
-        <div className={styles.ReportDetailsSummary}>
+        <div className={styles.FacilityProviderSubmitterSummary}>
             <div className="margin-bottom-3">
-                <h1 className="margin-top-0">Report Details</h1>
-                {!isDateExpired(report!.expires) && (
-                    <div className="font-sans-lg display-inline-flex">
-                        Download as <ReportLink report={report} button />
-                    </div>
-                )}
+                <h1 className="margin-top-0">{details.senderTypeName}</h1>
+                <span className={transformFacilityTypeClass(summaryDetailType)}>
+                    {transformFacilityTypeLabel(summaryDetailType)}
+                </span>
             </div>
             <section className="margin-bottom-4">
                 <Grid row>
                     <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="text-bold padding-right-3">
-                            Report ID
+                            Started reporting to you
                         </span>
                     </Grid>
                     <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="font-code-xs">{report?.reportId}</span>
-                    </Grid>
-                    <Grid col={2}>
-                        <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="text-bold padding-right-3">
-                            File name
+                        <span className="font-code-xs">
+                            {formatDateWithoutSeconds(details!.reportDate)}
                         </span>
                     </Grid>
-                    <Grid col={4}>
+                    <Grid col={1}>
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="font-code-xs">{report?.fileName}</span>
+                        <span className="text-bold padding-right-3">CLIA</span>
+                    </Grid>
+                    <Grid col={5}>
+                        <hr className="margin-top-2 margin-bottom-2" />
+                        <span className="font-code-xs">{details?.clia}</span>
                     </Grid>
                 </Grid>
                 <Grid row>
                     <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="text-bold padding-right-3">
-                            Date range
+                            Average tests per report
                         </span>
                     </Grid>
                     <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
-                            {formatDateWithoutSeconds(report!.batchReadyAt)} -{" "}
-                            {formatDateWithoutSeconds(report!.expires)}
+                            {details!.averageTestPerReport}
                         </span>
                     </Grid>
-                    <Grid col={2}>
+                    <Grid col={1}>
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="text-bold padding-right-3">
-                            Delivery method
+                            Location
                         </span>
                     </Grid>
-                    <Grid col={4}>
+                    <Grid col={5}>
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="font-code-xs">SFTP</span>
+                        <span className="font-code-xs">
+                            {details?.location}
+                        </span>
                     </Grid>
                 </Grid>
                 <Grid row>
                     <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="text-bold padding-right-3">
-                            Date sent to you
+                            Total tests (all time)
                         </span>
                     </Grid>
                     <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
-                            {formatDateWithoutSeconds(report!.batchReadyAt)}{" "}
+                            {details!.totalTests}
                         </span>
                     </Grid>
-                    <Grid col={2}>
+                    <Grid col={1}>
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="text-bold padding-right-3">
-                            Folder location
+                            Contact
                         </span>
                     </Grid>
-                    <Grid col={4}>
+                    <Grid col={5}>
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="font-code-xs"></span>
+                        <span className="font-code-xs">
+                            {details!.contactName}
+                        </span>
                     </Grid>
                 </Grid>
                 <Grid row>
                     <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="text-bold padding-right-3">
-                            Available until
+                            Submitter
                         </span>
                     </Grid>
                     <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
-                            {formatDateWithoutSeconds(report!.expires)}{" "}
+                            {details!.submitter}
                         </span>
+                    </Grid>
+                    <Grid col={1}>
+                        <div className="margin-top-4 font-code-xs"></div>
+                    </Grid>
+                    <Grid col={5}>
+                        <div className="margin-top-4 font-code-xs">
+                            {details!.phone}
+                        </div>
                     </Grid>
                 </Grid>
             </section>

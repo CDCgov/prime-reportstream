@@ -289,7 +289,11 @@ describe("TelemetryService", () => {
                         id: error.message,
                         severityLevel: SeverityLevel.Error,
                         properties: {
-                            additionalInformation: undefined,
+                            additionalInformation: {
+                                error: error,
+                                location: "http://localhost/",
+                                other: [],
+                            },
                         },
                     });
                 });
@@ -306,7 +310,11 @@ describe("TelemetryService", () => {
                         id: error,
                         severityLevel: SeverityLevel.Error,
                         properties: {
-                            additionalInformation: undefined,
+                            additionalInformation: {
+                                error: error,
+                                location: "http://localhost/",
+                                other: [],
+                            },
                         },
                     });
                 });
@@ -324,7 +332,11 @@ describe("TelemetryService", () => {
                         id: error.message,
                         severityLevel: SeverityLevel.Error,
                         properties: {
-                            additionalInformation: JSON.stringify([data]),
+                            additionalInformation: {
+                                error: error,
+                                location: "http://localhost/",
+                                other: [data],
+                            },
                         },
                     });
                 });
