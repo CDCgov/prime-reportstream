@@ -9,22 +9,9 @@ env:
   DB_PASSWORD: changeIT!
 
 jobs:
-  pre_job:
-    name: Pre Job
-    runs-on: ubuntu-latest
-    outputs:
-      has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
-    steps:
-      - name: "Check out changes"
-        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
-      - name: Build vars
-        id: build_vars
-        uses: ./.github/actions/build-vars
-
   sonarcloud:
     name: SonarCloud Master
     runs-on: ubuntu-latest
-    needs: pre_job
     defaults:
       run:
         working-directory: prime-router
@@ -34,7 +21,7 @@ jobs:
         language: [ 'java' ]
 
     steps:
-      - name: "Check out changes"
+      - name: "Check out everything"
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
         with:
           fetch-depth: 0
@@ -82,4 +69,3 @@ jobs:
             -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
             -Dsonar.coverage.jacoco.xmlReportPaths=prime-router/build/reports/jacoco/test/jacocoTestReport.xml
             -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
-            
