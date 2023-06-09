@@ -64,7 +64,7 @@ jobs:
         working-directory: frontend-react
 
       - name: Frontend Coverage
-        run: yarn test:ci
+        run: yarn jest --coverage --silent --maxWorkers=100%
         working-directory: frontend-react
 
       - name: "Run SonarCloud Scan"
