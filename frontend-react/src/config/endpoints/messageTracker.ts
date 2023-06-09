@@ -41,7 +41,7 @@ export interface RSMessageDetail {
 }
 
 export interface MessageListResource {
-    id?: number;
+    id: number;
     messageId: string;
     sender: string | undefined;
     submittedDate: string | undefined;
