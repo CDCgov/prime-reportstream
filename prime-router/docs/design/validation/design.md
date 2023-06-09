@@ -9,7 +9,6 @@ The diagram below proposes four validation "checkpoints":
 | Name           | Description + Location                                              | Purpose                                                                                                        |
 |----------------|---------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
 | Submission     | Upon receipt of a submission in the SenderReceiver                  | Ensure data is parseable (i.e. not a png or other garbage data)                                                |
-| Pre-transform  | Per bundle after de-batch in the convert function                   | Ensure data is ready for transformation (i.e. satisfies the validation profile configured for this sender)     |
 | Post-transform | After sender transforms and enrichment in the convert function      | Ensure data is valid after transformation (i.e. satisfies the validation profile configured for this sender)   | 
 | Pre-dispatch   | After receiver translation and enrichment in the translate function | Ensure data is valid after transformation (i.e. satisfies the validation profile configured for this receiver) | 
 
@@ -22,17 +21,11 @@ This is where they are located in the overall system:
 For FHIR, we currently use an `IParser` instance to parse and read some metadata. By default, the IParser performs some
 validation and raises warnings or errors (depending on how its configured). We need to investigate how the instance is
 currently configured and ensure it is performing validation. Ideally this configuration will be universal or binary
-(validation on/off vs different types) for all senders.
-
-This step will be a no-op for HL7.
-
-#### Pre transform
-Before we apply sender transforms and enrichment, we need to ensure that bundles contain sane data for its origin.
-We should also ensure any prerequisites (e.g. field, value, format) for transform/enrichment is satisfied. Further 
-validation is still necessary as the assembled bundle may still be missing data that will be added.
+(validation on/off vs different types) for all senders. For HL7 V2, we will use the HAPI library as it is currently 
+being used in the Covid pipeline
 
 #### Post transform
-Will occur during the convert function, after receiving and debatch, and before the convert step. We again need to 
+Will occur after transformation so that we can massage the data to meet any IG that may be requested. We again need to 
 ensure that all necessary data exists and is sane. This will happen for both HL7 and FHIR data. One final validation will
 be needed (per receiver) after applying receiver transforms and enrichment.
 
@@ -61,7 +54,7 @@ When a message fails validation, validation errors should show up in:
     - ReportStream is responsible for issue triage
 - Notify the sender immediately in API response if parse validation fails
 
-#### Shared tickets
+#### Ticketed Work
 See the validation epic (#8973) for related tickets
 
 ### FHIR Validation
