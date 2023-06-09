@@ -47,7 +47,7 @@ components:
       type: object
       properties:
         sort:
-          description: The sorting to apply to the results
+          description: The sorting to apply to the results, defaults to sorting by created_at, DESC
           type: object
           properties:
             direction:
