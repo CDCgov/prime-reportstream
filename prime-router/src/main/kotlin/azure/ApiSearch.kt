@@ -152,11 +152,21 @@ abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilte
 
     abstract fun getSortColumn(): Field<*>
 
+    abstract fun getPrimarySortColumn(): Field<*>
+
     /**
      * Converts the [sortParameter] and [sortDirection] into a JOOQ [SortField]
      */
     fun getSortClause(): SortField<*> {
         val sortColumn = getSortColumn()
+        return when (sortDirection) {
+            SortDirection.ASC -> sortColumn.asc()
+            SortDirection.DESC -> sortColumn.desc()
+        }
+    }
+
+    private fun getPrimarySortClause(): SortField<*> {
+        val sortColumn = getPrimarySortColumn()
         return when (sortDirection) {
             SortDirection.ASC -> sortColumn.asc()
             SortDirection.DESC -> sortColumn.desc()
@@ -182,7 +192,7 @@ abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilte
         val results = dslContext.fetch(
             select
                 .where(getWhereClause())
-                .orderBy(getSortClause())
+                .orderBy(getSortClause(), getPrimarySortClause())
                 .limit(limit)
                 .offset(getOffset())
         ).into(recordClass)

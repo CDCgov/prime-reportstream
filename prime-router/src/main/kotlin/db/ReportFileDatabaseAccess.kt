@@ -92,6 +92,10 @@ class ReportFileApiSearch private constructor(
         return sortParameter ?: ReportFile.REPORT_FILE.CREATED_AT
     }
 
+    override fun getPrimarySortColumn(): Field<*> {
+        return ReportFile.REPORT_FILE.REPORT_ID
+    }
+
     /**
      * Companion object that implements [ApiSearchResult] and parses a value into [ReportFileApiSearch]
      */
