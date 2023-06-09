@@ -11,6 +11,8 @@ on:
         - demo2
         - demo3
         type: choice
+  schedule:
+    - cron: "0 0 * * SAT"
 
 jobs:
   destroy_demo_environment:
