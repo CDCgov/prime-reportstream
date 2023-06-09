@@ -47,6 +47,7 @@ class SubmitterTable : CustomTable<SubmitterRecord>(DSL.name("submitter")) {
     val TEST_RESULT_COUNT = createField(DSL.name("test_result_count"), SQLDataType.INTEGER)
     val TYPE = createField(DSL.name("type"), SQLDataType.VARCHAR)
     val LOCATION = createField(DSL.name("location"), SQLDataType.VARCHAR)
+    val SORT_ID = createField(DSL.name("sort_id"), SQLDataType.VARCHAR)
 
     companion object {
         val SUBMITTER = SubmitterTable()
@@ -135,6 +136,10 @@ class SubmitterApiSearch(
 
     override fun getSortColumn(): Field<*> {
         return sortParameter ?: SubmitterTable.SUBMITTER.FIRST_REPORT_DATE
+    }
+
+    override fun getPrimarySortColumn(): Field<*> {
+        return SubmitterTable.SUBMITTER.SORT_ID
     }
 
     companion object :
@@ -229,7 +234,10 @@ class SubmittersDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAcces
                         ).otherwise("n/a")
                             .concat(", ")
                             .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_STATE)
-                            .`as`(SubmitterTable.SUBMITTER.LOCATION)
+                            .`as`(SubmitterTable.SUBMITTER.LOCATION),
+                        CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID
+                            .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME)
+                            .`as`(SubmitterTable.SUBMITTER.SORT_ID)
                     ).from(CovidResultMetadata.COVID_RESULT_METADATA)
                         .where(CovidResultMetadata.COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID.`in`(metadataIds))
                         .and(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID.isNotNull)
@@ -256,7 +264,10 @@ class SubmittersDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAcces
                                 ).otherwise("n/a")
                                     .concat(", ")
                                     .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_STATE)
-                                    .`as`(SubmitterTable.SUBMITTER.LOCATION)
+                                    .`as`(SubmitterTable.SUBMITTER.LOCATION),
+                                DSL.value("null")
+                                    .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_NAME)
+                                    .`as`(SubmitterTable.SUBMITTER.SORT_ID)
                             ).from(CovidResultMetadata.COVID_RESULT_METADATA)
                                 .where(
                                     CovidResultMetadata.COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID.`in`(
@@ -277,7 +288,10 @@ class SubmittersDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAcces
                                 DSL.count().`as`(SubmitterTable.SUBMITTER.TEST_RESULT_COUNT),
                                 DSL.value(SubmitterType.SUBMITTER.name).`as`("type")
                                     .`as`(SubmitterTable.SUBMITTER.TYPE),
-                                DSL.value("n/a").`as`(SubmitterTable.SUBMITTER.LOCATION)
+                                DSL.value("n/a").`as`(SubmitterTable.SUBMITTER.LOCATION),
+                                DSL.value("null")
+                                    .concat(CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID)
+                                    .`as`(SubmitterTable.SUBMITTER.SORT_ID)
                             ).from(CovidResultMetadata.COVID_RESULT_METADATA)
                                 .where(
                                     CovidResultMetadata.COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID.`in`(
