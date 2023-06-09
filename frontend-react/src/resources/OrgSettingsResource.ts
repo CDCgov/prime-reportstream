@@ -4,14 +4,6 @@ import OrgSettingsBaseResource from "./OrgSettingsBaseResource";
 
 const { RS_API_URL } = config;
 
-// fyi the API defines these as CamelCased but the DB seems to have them UPPERCASED
-// so, we can't really have an enumerator.
-// enum JurisdictionData {
-//     FEDERAL = 'FEDERAL',
-//     STATE = 'STATE',
-//     COUNTY = 'COUNTY'
-// }
-
 export default class OrgSettingsResource extends OrgSettingsBaseResource {
     // pulls in other fields from OrgSettingsBaseResource
     description: string = "";
