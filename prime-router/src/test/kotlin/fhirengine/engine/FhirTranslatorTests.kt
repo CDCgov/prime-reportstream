@@ -140,6 +140,8 @@ class FhirTranslatorTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
+        every { actionHistory.trackActionReceiverInfo(any(), any()) }
+            .returns(Unit)
 
         // act
         engine.doWork(message, actionLogger, actionHistory)
@@ -153,6 +155,7 @@ class FhirTranslatorTests {
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
             accessSpy.insertTask(any(), any(), any(), any())
+            actionHistory.trackActionReceiverInfo(any(), any())
         }
     }
 
@@ -362,6 +365,7 @@ class FhirTranslatorTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
+        every { actionHistory.trackActionReceiverInfo(any(), any()) }.returns(Unit)
 
         val engine = spyk(makeFhirEngine())
 
@@ -420,6 +424,7 @@ class FhirTranslatorTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
+        every { actionHistory.trackActionReceiverInfo(any(), any()) }.returns(Unit)
 
         val engine = spyk(makeFhirEngine(settings = settings))
 

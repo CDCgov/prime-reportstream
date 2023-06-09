@@ -32,6 +32,16 @@ import kotlin.test.assertNotNull
 
 class ActionHistoryTests {
     @Test
+    fun `test trackActionReceiverInfo`() {
+        val actionHistory = ActionHistory(TaskAction.translate)
+        val org = "org-name"
+        val receiver = "receiver-name"
+        actionHistory.trackActionReceiverInfo(org, receiver)
+        assertThat(actionHistory.action.receivingOrg).isEqualTo(org)
+        assertThat(actionHistory.action.receivingOrgSvc).isEqualTo(receiver)
+    }
+
+    @Test
     fun `test constructor`() {
         val actionHistory = ActionHistory(TaskAction.batch)
         assertThat(actionHistory.generatingEmptyReport).isEqualTo(false)

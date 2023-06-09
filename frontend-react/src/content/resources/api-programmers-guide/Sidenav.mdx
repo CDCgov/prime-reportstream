@@ -3,16 +3,8 @@ import { USNavLink } from "../../../components/USLink"
 import SideNavItem from "../../../shared/SideNavItem"
 
 <SideNav items={[
-    <SideNavItem href="/resources/api" items={[
-        <USNavLink href="/resources/api#onboarding-overview">Onboarding overview</USNavLink>,
-        <USNavLink href="/resources/api#about-our-api">About our API</USNavLink>,
-    ]}>ReportStream API</SideNavItem>,
-    <SideNavItem href="/resources/api/getting-started" items={[
-        <USNavLink href="/resources/api/getting-started#format-and-validate-a-fake-data-file">Format and validate a fake data file</USNavLink>,
-        <USNavLink href="/resources/api/getting-started#set-up-authentication-and-test-your-api-connection">Set up authentication and test your api connection</USNavLink>,
-        <USNavLink href="/resources/api/getting-started#test-real-data-in-production">Test real data in production</USNavLink>,
-        <USNavLink href="/resources/api/getting-started#start-sending-data-in-production">Start sending data in production</USNavLink>,
-    ]}>Getting started</SideNavItem>,
+    <SideNavItem href="/resources/api" end>ReportStream API</SideNavItem>,
+    <SideNavItem href="/resources/api/getting-started">Getting started</SideNavItem>,
     <SideNavItem isActive={true} href="/resources/api/documentation" items={[
         <SideNavItem href="/resources/api/documentation/data-model" items={[
             <USNavLink href="/resources/api/documentation/data-model#common-errors">Common errors</USNavLink>,
@@ -22,8 +14,8 @@ import SideNavItem from "../../../shared/SideNavItem"
             <USNavLink href="/resources/api/documentation/data-model#specimen-data-elements">Specimen data elements</USNavLink>,
             <USNavLink href="/resources/api/documentation/data-model#ordering-provider-data-elements">Ordering provider data elements</USNavLink>,
             <USNavLink href="/resources/api/documentation/data-model#testing-facility-data-elements">Testing facility data elements</USNavLink>,
-            <USNavLink href="/resources/api/documentation/data-model#ask-on-entry">Ask-On-Entry (AOEs)</USNavLink>,
-            <USNavLink href="/resources/api/documentation/data-model#report-and-ordering-facility-elements">Report and ordering facility elements</USNavLink>,
+            <USNavLink href="/resources/api/documentation/data-model#ask-on-entry-aoes">Ask-On-Entry (AOEs)</USNavLink>,
+            <USNavLink href="/resources/api/documentation/data-model#reporting-and-ordering-facility-data-elements">Report and ordering facility elements</USNavLink>,
         ]}>Data model</SideNavItem>,
             <SideNavItem href="/resources/api/documentation/responses-from-reportstream" items={[
                     <USNavLink href="/resources/api/documentation/responses-from-reportstream#errors-and-warnings">Errors and warnings</USNavLink>,
@@ -32,7 +24,7 @@ import SideNavItem from "../../../shared/SideNavItem"
             ]}>Responses from ReportStream</SideNavItem>,
             <SideNavItem href="/resources/api/documentation/sample-payloads-and-output" items={[
                     <USNavLink href="/resources/api/documentation/sample-payloads-and-output#sample-csv-payload-and-output">Sample CSV payload and output</USNavLink>,
-                    <USNavLink href="/resources/api/documentation/sample-payloads-and-output#sample-hl7-v2.5.1-payload-and-output">Sample HL7 v2.5.1 payload and output</USNavLink>,
+                    <USNavLink href="/resources/api/documentation/sample-payloads-and-output#sample-hl7-251-payload-and-output">Sample HL7 v2.5.1 payload and output</USNavLink>,
                     <USNavLink href="/resources/api/documentation/sample-payloads-and-output#example-data-models">Example data models</USNavLink>,
             ]}>Sample payloads and output</SideNavItem>,
     ]}>Documentation</SideNavItem>,
