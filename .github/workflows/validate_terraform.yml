@@ -17,7 +17,7 @@ jobs:
       has_operations_change: ${{ steps.build_vars.outputs.has_terraform_change }}
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
       - name: Use specific version of Terraform
         uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1
         with:
@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
 
       - name: Run Checkov action
         uses: bridgecrewio/checkov-action@e6efdb9d9e7f69dd4c8c3c2b8e47e730848e088f
