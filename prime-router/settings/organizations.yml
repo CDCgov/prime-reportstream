@@ -106,6 +106,12 @@
       customerStatus: active
       schemaName: metadata/fhir_transforms/senders/default-sender-transform
       format: HL7
+    - name: ignore-etor-ti      # Use this to test etor-ti
+      organizationName: ignore
+      topic: etor-ti
+      customerStatus: active
+      schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      format: HL7
     - name: ignore-fhir      # Use this to test fhir
       organizationName: ignore
       topic: full-elr
@@ -198,6 +204,29 @@
         useBatchHeaders: true
         type: "HL7"
         receivingApplicationName: "CO-ELR"
+        receivingFacilityName: "CO"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: ETOR_TI
+      externalName: Ignore ETOR_TI
+      organizationName: ignore
+      topic: etor-ti
+      customerStatus: active
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CO/CO"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        type: "HL7"
+        receivingApplicationName: "CO-ETOR"
         receivingFacilityName: "CO"
       transport:
         type: SFTP
