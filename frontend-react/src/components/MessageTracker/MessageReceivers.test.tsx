@@ -4,14 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { ReceiverData } from "../../config/endpoints/messageTracker";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
-import {
-    FilterOption,
-    formatMessages,
-    MessageReceivers,
-    NormalizedReceiverData,
-    NormalizedReceiverKey,
-    sortMessages,
-} from "./MessageReceivers";
+import { MessageReceivers } from "./MessageReceivers";
 
 const MOCK_RECEIVER_DATA: ReceiverData[] = [
     {
@@ -37,80 +30,6 @@ const MOCK_RECEIVER_DATA: ReceiverData[] = [
         qualityFilters: [],
     },
 ];
-
-const formattedMockData: NormalizedReceiverData[] = [
-    {
-        reportId: "578eae4e-b24d-45aa-bc5c-4d96a0bfef96",
-        name: "md-phd",
-        service: "elr",
-        transportResults: "Transport result",
-        date: "09/28/2022, 07:55:12 PM",
-        fileName:
-            "tx-covid-19-4b3c73df-83b1-48f9-a5a2-ce0c38662f7c-20230203182255.internal.csv",
-        main: "batch",
-        sub: "ignore.HL7_NULL",
-    },
-    {
-        reportId: "400eae4e-b24d-45aa-bc5c-4d96a0bfef96",
-        name: "ak-phd",
-        service: "pdf",
-        transportResults: "N/A",
-        date: "01/28/2022, 07:55:12 PM",
-        fileName:
-            "tx-covid-19-4b3c73df-83b1-48f9-a5a2-ce0c38662f7c-400.internal.csv",
-        main: "batch",
-        sub: "ignore.HL8_NULL",
-    },
-];
-
-const sortScenarios: {
-    sortOrder: FilterOption;
-    column: NormalizedReceiverKey;
-    data: NormalizedReceiverData[];
-    sortedData: NormalizedReceiverData[];
-}[] = [
-    // date sorts
-    {
-        sortOrder: "asc",
-        column: "date",
-        data: formattedMockData,
-        sortedData: [formattedMockData[1], formattedMockData[0]],
-    },
-    {
-        sortOrder: "desc",
-        column: "date",
-        data: formattedMockData,
-        sortedData: formattedMockData,
-    },
-    // non-date sorts
-    {
-        sortOrder: "asc",
-        column: "reportId",
-        data: formattedMockData,
-        sortedData: [formattedMockData[1], formattedMockData[0]],
-    },
-    {
-        sortOrder: "asc",
-        column: "reportId",
-        data: formattedMockData,
-        sortedData: formattedMockData,
-    },
-];
-
-describe("formatMessages function", () => {
-    test("formats data properly", () => {
-        expect(formatMessages(MOCK_RECEIVER_DATA)).toEqual(formattedMockData);
-    });
-});
-
-describe("sortMessages function", () => {
-    test.each(sortScenarios)(
-        "sorts $column $sortOrder properly",
-        ({ data, sortedData, column, sortOrder }) => {
-            expect(sortMessages(data, column, sortOrder)).toEqual(sortedData);
-        }
-    );
-});
 
 describe("MessageReceivers component", () => {
     test("renders expected content", async () => {
@@ -142,18 +61,17 @@ describe("MessageReceivers component", () => {
 
         expect(screen.getByText("Transport Results")).toBeInTheDocument();
         expect(screen.getByText(/Transport result/)).toBeInTheDocument();
-
         expect(
             screen
-                .getByRole("table")
-                .getElementsByClassName("message-receiver-break-word")[0]
-        ).toHaveTextContent("578eae4e-b24d-45aa-bc5c-4d96a0bfef96");
+                .getAllByRole("row")[1]
+                .getElementsByClassName("column-data")[0]
+        ).toHaveTextContent("md-phd");
 
         await userEvent.click(screen.getByText(/^Report Id$/));
         expect(
             screen
-                .getByRole("table")
-                .getElementsByClassName("message-receiver-break-word")[0]
-        ).toHaveTextContent("400eae4e-b24d-45aa-bc5c-4d96a0bfef96");
+                .getAllByRole("row")[1]
+                .getElementsByClassName("column-data")[0]
+        ).toHaveTextContent("ak-phd");
     });
 });

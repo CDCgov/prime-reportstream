@@ -149,6 +149,11 @@ module.exports = async function (webpackEnv) {
                     loader: require.resolve(preProcessor),
                     options: {
                         sourceMap: true,
+                        sassOptions: {
+                            includePaths: [
+                                "./node_modules/@uswds/uswds/packages",
+                            ],
+                        },
                     },
                 }
             );
