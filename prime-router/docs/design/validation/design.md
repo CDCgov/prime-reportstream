@@ -46,7 +46,8 @@ A factory/builder shall consume the validationProfile setting and produce reusab
 
 #### Actions Upon Validation Failure
 When a message fails validation, validation errors should show up in:
-- The submission history API
+- The submission history API - this is going to be a bit of a challenge in presenting these errors in a useful way for 
+HL7 V2 and CSV messages
 - The Action Log in the database in such a way that the engagement team can easily query for it
   - Submission validation failures should show up in Submission History UI
     - Sender is responsible for issue triage escalating to ReportStream as necessary
