@@ -8059,10 +8059,10 @@ cyclist@^1.0.1:
   resolved "https://registry.npmjs.org/cyclist/-/cyclist-1.0.1.tgz"
   integrity sha512-NJGVKPS81XejHcLhaLJS7plab0fK3slPh11mESeeDq2W4ZI5kUKK/LRRdVDvjJseojbPB7ZwjnyOybg3Igea/A==
 
-cypress-each@^1.13.1:
-  version "1.13.1"
-  resolved "https://registry.npmjs.org/cypress-each/-/cypress-each-1.13.1.tgz"
-  integrity sha512-YbVfrjk4gWTDLOV8YAb3tA6ovQiyl90zvl4M7aLADD0aUBei6nOSXI7xu6LVgLlVcLkM4jRSS2jBIiifauGgpQ==
+cypress-each@^1.13.3:
+  version "1.13.3"
+  resolved "https://registry.yarnpkg.com/cypress-each/-/cypress-each-1.13.3.tgz#c0f59628975164e23a3fd10090b587a66ed9438e"
+  integrity sha512-aNFoDuybFAQ7OObbeO5yxBGmXkGKVAcT1wLHLiL3+HQi+g+q3vECbn4J9cYOXJ7yYfbcBLh8dgQd/IG3Ls2z7A==
 
 cypress-localstorage-commands@^2.2.3:
   version "2.2.3"
