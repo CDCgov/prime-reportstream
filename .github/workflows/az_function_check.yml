@@ -60,8 +60,6 @@ jobs:
           color: warning
 
 
-
-
         #   
         # run: |
         #   curl -X POST -H 'Content-type: application/json' --data '{"text":"Azure Function deployed successfully! API URL: ${{ env.AZURE_FUNCTION_API_URL }}"}' ${{ secrets.SLACK_WEBHOOK_URL }}
