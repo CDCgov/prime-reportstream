@@ -1,11 +1,12 @@
 import azure.functions as func
 import psycopg2
 import os
+from datetime import datetime, timedelta
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
 
     host = os.getenv("POSTGRES_HOST")
-    db = req.params.get("db")
+    db = "prime_data_hub"
     user = os.getenv("POSTGRES_USER")
     password = os.getenv("POSTGRES_PASSWORD")
 
@@ -18,7 +19,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         try:
             conn = psycopg2.connect(conn_string)
             cursor = conn.cursor()
+
             cursor.execute("SELECT * FROM public.task WHERE NOW() - INTERVAL '10 minutes' > ANY (SELECT * FROM public.task);")
+            result = cursor.fetchall()
+
+            # Set the data_found output based on the query result
+            data_found = 'true' if result else 'false'
+            print(f"::set-output name=data_found::{data_found}")
             cursor.close()
             conn.close()
             access = 1

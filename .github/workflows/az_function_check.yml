@@ -26,28 +26,31 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: Get Azure Function API URL
-        id: get-function-url
+      - name: Query PostgreSQL table
+        id: table_data_check
+        env:
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         run: |
-          echo "::set-env name=AZURE_FUNCTION_API_URL::$(az functionapp show -g ${{ matrix.RG }} -n ${{ matrix.FA }} --query 'defaultHostName' -o tsv)"  
+          python ../../operations/app/functions/admin/TaskTableChecks/task_table_check.py
 
-      # - name: Check Function App URL
-      #   id: check-url
+      
+      # - name: Query Azure Cosmos DB table
+      #   id: table_data_check
       #   run: |
-      #     response=$(http --ignore-stdin --check-status GET ${{ env.AZURE_FUNCTION_API_URL/api/task_table_check.py }})
-      #     status_code=${response% *}  
-      #     echo "::set-output name=status_code::$status_code"  
+      #     query_result=$(az cosmosdb table list --account-name your_cosmosdb_account_name --resource-group your_resource_group --database-name your_database_name --name your_table_name --query "[?timestamp < \`$(date -u -d '-10 minutes' +'%Y-%m-%dT%H:%M:%SZ')\`]")
+      #     if [ -n "$query_result" ]; then
+      #       echo "::set-output name=data_found::true"
+      #     else
+      #       echo "::set-output name=data_found::false"
+      #     fi
 
-      # - name: Format output
-      #   id: format_out
-      #   run: |
-      #     EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-      #     echo "LIST<<$EOF" >> $GITHUB_OUTPUT
-      #     cat certificates.json >> $GITHUB_OUTPUT
-      #     echo "$EOF" >> $GITHUB_OUTPUT
 
       - name: Slack Notification    
-        if: ${{ steps.check-url.outputs.status_code == '200' }}         
+        if: steps.table_data_check.outputs.data_found == 'true'         
         uses: ./.github/actions/notifications
         with:
           method: slack
