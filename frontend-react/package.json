@@ -223,7 +223,7 @@
         "pkg-up": "^3.1.0",
         "postcss": "^8.4.21",
         "postcss-flexbugs-fixes": "^5.0.2",
-        "postcss-loader": "^7.2.4",
+        "postcss-loader": "^7.3.3",
         "postcss-normalize": "^10.0.1",
         "postcss-preset-env": "^8.3.0",
         "prettier": "^2.8.4",
