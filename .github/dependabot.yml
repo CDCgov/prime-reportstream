@@ -80,7 +80,7 @@ updates:
   # All packages weekly
   - package-ecosystem: "npm"
     directory: "/frontend-react"
-    open-pull-requests-limit: 100
+    open-pull-requests-limit: 10
     schedule:
       interval: "weekly"
 
@@ -119,7 +119,7 @@ updates:
   # All packages weekly
   - package-ecosystem: "gradle"
     directory: "/prime-router"
-    open-pull-requests-limit: 100
+    open-pull-requests-limit: 10
     schedule:
       interval: "weekly"
     ignore:
