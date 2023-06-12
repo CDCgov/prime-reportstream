@@ -25,7 +25,8 @@ currently configured and ensure it is performing validation. Ideally this config
 being used in the Covid pipeline
 
 #### Post transform
-Will occur after transformation so that we can massage the data to meet any IG that may be requested. We again need to 
+Will occur after transformation so that we can massage the data to meet any IG that may be requested and do content 
+validation for free via the HAPI library authentication as opposed to just structural. We again need to 
 ensure that all necessary data exists and is sane. This will happen for both HL7 and FHIR data. One final validation will
 be needed (per receiver) after applying receiver transforms and enrichment.
 
