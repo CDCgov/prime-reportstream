@@ -213,7 +213,7 @@
         "jest-environment-jsdom": "^29.4.3",
         "jest-watch-typeahead": "^2.2.2",
         "loader-utils": "3.2.1",
-        "mini-css-extract-plugin": "^2.7.5",
+        "mini-css-extract-plugin": "^2.7.6",
         "mockdate": "^3.0.5",
         "msw": "^1.2.1",
         "msw-storybook-addon": "^1.8.0",
