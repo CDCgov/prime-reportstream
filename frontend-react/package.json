@@ -103,7 +103,7 @@
         ]
     },
     "devDependencies": {
-        "@babel/code-frame": "^7.16.0",
+        "@babel/code-frame": "^7.22.5",
         "@babel/core": "^7.21.0",
         "@babel/eslint-parser": "^7.22.5",
         "@babel/plugin-syntax-flow": "^7.21.4",
