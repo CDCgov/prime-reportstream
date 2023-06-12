@@ -165,7 +165,7 @@ abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilte
         }
     }
 
-    private fun getPrimarySortClause(): SortField<*> {
+    fun getPrimarySortClause(): SortField<*> {
         val sortColumn = getPrimarySortColumn()
         return when (sortDirection) {
             SortDirection.ASC -> sortColumn.asc()
