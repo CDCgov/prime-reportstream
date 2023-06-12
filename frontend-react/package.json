@@ -104,7 +104,7 @@
     },
     "devDependencies": {
         "@babel/code-frame": "^7.16.0",
-        "@babel/core": "^7.21.0",
+        "@babel/core": "^7.22.5",
         "@babel/eslint-parser": "^7.22.5",
         "@babel/plugin-syntax-flow": "^7.21.4",
         "@babel/plugin-transform-react-jsx": "^7.14.9",
