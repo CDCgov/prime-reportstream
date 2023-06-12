@@ -226,7 +226,7 @@
         "postcss-loader": "^7.2.4",
         "postcss-normalize": "^10.0.1",
         "postcss-preset-env": "^8.3.0",
-        "prettier": "^2.8.4",
+        "prettier": "^2.8.8",
         "prompts": "^2.4.2",
         "react-app-polyfill": "^3.0.0",
         "react-error-overlay": "^6.0.11",
