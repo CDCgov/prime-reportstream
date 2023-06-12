@@ -2070,7 +2070,7 @@
     slash "^3.0.0"
     strip-ansi "^6.0.0"
 
-"@jest/environment@^29.4.3", "@jest/environment@^29.5.0":
+"@jest/environment@^29.5.0":
   version "29.5.0"
   resolved "https://registry.npmjs.org/@jest/environment/-/environment-29.5.0.tgz"
   integrity sha512-5FXw2+wD29YU1d4I2htpRX7jYnAyTRjP2CsXQdo9SAM8g3ifxWPSV0HnClSn71xwctr0U3oZIIH+dtbfmnbXVQ==
@@ -2095,7 +2095,7 @@
     expect "^29.5.0"
     jest-snapshot "^29.5.0"
 
-"@jest/fake-timers@^29.4.3", "@jest/fake-timers@^29.5.0":
+"@jest/fake-timers@^29.5.0":
   version "29.5.0"
   resolved "https://registry.npmjs.org/@jest/fake-timers/-/fake-timers-29.5.0.tgz"
   integrity sha512-9ARvuAAQcBwDAqOnglWq2zwNIRUDtk/SCkp/ToGEhFv5r86K21l+VEs0qNTaXtyiY0lEePl3kylijSYJQqdbDg==
@@ -2222,7 +2222,7 @@
     "@types/yargs" "^16.0.0"
     chalk "^4.0.0"
 
-"@jest/types@^29.4.3", "@jest/types@^29.5.0":
+"@jest/types@^29.5.0":
   version "29.5.0"
   resolved "https://registry.npmjs.org/@jest/types/-/types-29.5.0.tgz"
   integrity sha512-qbu7kN6czmVRc3xWFQcAN03RAUamgppVUdXrvl1Wr3jlNF93o9mJbGcDWrwGB6ht44u7efB1qCFgVQmca24Uog==
@@ -11806,18 +11806,18 @@ jest-each@^29.5.0:
     jest-util "^29.5.0"
     pretty-format "^29.5.0"
 
-jest-environment-jsdom@^29.4.3:
-  version "29.4.3"
-  resolved "https://registry.npmjs.org/jest-environment-jsdom/-/jest-environment-jsdom-29.4.3.tgz"
-  integrity sha512-rFjf8JXrw3OjUzzmSE5l0XjMj0/MSVEUMCSXBGPDkfwb1T03HZI7iJSL0cGctZApPSyJxbjyKDVxkZuyhHkuTw==
+jest-environment-jsdom@^29.5.0:
+  version "29.5.0"
+  resolved "https://registry.yarnpkg.com/jest-environment-jsdom/-/jest-environment-jsdom-29.5.0.tgz#cfe86ebaf1453f3297b5ff3470fbe94739c960cb"
+  integrity sha512-/KG8yEK4aN8ak56yFVdqFDzKNHgF4BAymCx2LbPNPsUshUlfAl0eX402Xm1pt+eoG9SLZEUVifqXtX8SK74KCw==
   dependencies:
-    "@jest/environment" "^29.4.3"
-    "@jest/fake-timers" "^29.4.3"
-    "@jest/types" "^29.4.3"
+    "@jest/environment" "^29.5.0"
+    "@jest/fake-timers" "^29.5.0"
+    "@jest/types" "^29.5.0"
     "@types/jsdom" "^20.0.0"
     "@types/node" "*"
-    jest-mock "^29.4.3"
-    jest-util "^29.4.3"
+    jest-mock "^29.5.0"
+    jest-util "^29.5.0"
     jsdom "^20.0.0"
 
 jest-environment-node@^29.5.0:
@@ -11912,7 +11912,7 @@ jest-mock@^27.0.6:
     "@jest/types" "^27.5.1"
     "@types/node" "*"
 
-jest-mock@^29.4.3, jest-mock@^29.5.0:
+jest-mock@^29.5.0:
   version "29.5.0"
   resolved "https://registry.npmjs.org/jest-mock/-/jest-mock-29.5.0.tgz"
   integrity sha512-GqOzvdWDE4fAV2bWQLQCkujxYWL7RxjCnj71b5VhDAGOevB3qj3Ovg26A5NI84ZpODxyzaozXLOh2NCgkbvyaw==
@@ -12038,7 +12038,7 @@ jest-snapshot@^29.5.0:
     pretty-format "^29.5.0"
     semver "^7.3.5"
 
-jest-util@^29.4.3, jest-util@^29.5.0:
+jest-util@^29.5.0:
   version "29.5.0"
   resolved "https://registry.npmjs.org/jest-util/-/jest-util-29.5.0.tgz"
   integrity sha512-RYMgG/MTadOr5t8KdhejfvUU82MxsCu5MF6KuDUHl+NuwzUt+Sm6jJWxTJVrDR1j5M/gJVCPKQEpWXY+yIQ6lQ==
