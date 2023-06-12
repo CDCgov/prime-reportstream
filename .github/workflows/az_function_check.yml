@@ -31,12 +31,12 @@ jobs:
         run: |
           echo "::set-env name=AZURE_FUNCTION_API_URL::$(az functionapp show -g ${{ matrix.RG }} -n ${{ matrix.FA }} --query 'defaultHostName' -o tsv)"  
 
-      - name: Check Function App URL
-        id: check-url
-        run: |
-          response=$(http --ignore-stdin --check-status GET ${{ env.AZURE_FUNCTION_API_URL/api/task_table_check.py }})
-          status_code=${response% *}  
-          echo "::set-output name=status_code::$status_code"  
+      # - name: Check Function App URL
+      #   id: check-url
+      #   run: |
+      #     response=$(http --ignore-stdin --check-status GET ${{ env.AZURE_FUNCTION_API_URL/api/task_table_check.py }})
+      #     status_code=${response% *}  
+      #     echo "::set-output name=status_code::$status_code"  
 
       # - name: Format output
       #   id: format_out
