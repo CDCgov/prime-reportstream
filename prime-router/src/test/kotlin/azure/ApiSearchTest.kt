@@ -154,6 +154,29 @@ class ApiSearchTest {
     }
 
     @Test
+    fun `Test getPrimarySortClause`() {
+        val rawSearchString = """
+            {
+                "sort": {
+                    "direction": "DESC",
+                    "property": "created_at"
+                },
+                "pagination": {
+                    "page": 1,
+                    "limit": 25
+                },
+                "filters": [
+                ]
+            }
+        """.trimIndent()
+        val request = MockHttpRequestMessage(rawSearchString)
+        val search = TestApiSearch.parse(request)
+        val sortClause = search.getPrimarySortClause()
+        assertThat(sortClause.order).isEqualTo(SortOrder.DESC)
+        assertThat(sortClause.name).isEqualTo("foo")
+    }
+
+    @Test
     fun `Test generates the default sort clause`() {
         val rawSearchString = """
             {
