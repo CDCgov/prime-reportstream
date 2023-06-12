@@ -1,5 +1,5 @@
 #import azure.functions as func
-import psycopg2
+#import psycopg2
 import os
 from datetime import datetime, timedelta
 
