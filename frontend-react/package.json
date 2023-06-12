@@ -121,7 +121,7 @@
         "@rest-hooks/test": "^7.3.1",
         "@storybook/addon-a11y": "^6.5.16",
         "@storybook/addon-actions": "^6.5.16",
-        "@storybook/addon-essentials": "^7.0.7",
+        "@storybook/addon-essentials": "^7.0.20",
         "@storybook/addon-interactions": "^6.5.16",
         "@storybook/addon-links": "^6.5.16",
         "@storybook/addons": "^6.5.16",
