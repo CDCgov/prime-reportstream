@@ -172,7 +172,7 @@
         "cross-spawn": "^7.0.3",
         "css-loader": "^6.7.3",
         "css-minimizer-webpack-plugin": "^5.0.0",
-        "cypress": "^12.10.0",
+        "cypress": "^12.14.0",
         "cypress-each": "^1.13.1",
         "cypress-localstorage-commands": "^2.2.2",
         "cypress-plugin-tab": "^1.0.5",
