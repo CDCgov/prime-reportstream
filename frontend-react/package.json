@@ -177,7 +177,7 @@
         "cypress-localstorage-commands": "^2.2.2",
         "cypress-plugin-tab": "^1.0.5",
         "detect-port-alt": "^1.1.6",
-        "dotenv": "^16.0.3",
+        "dotenv": "^16.1.4",
         "dotenv-expand": "^10.0.0",
         "env-cmd": "^10.1.0",
         "escape-string-regexp": "^4.0.0",
