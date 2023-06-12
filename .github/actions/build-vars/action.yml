@@ -25,7 +25,7 @@ runs:
   using: "composite"
   steps:
 
-    - name: Set Build Environment - DEMO1
+    - name: Set Build Environment - demo1
       id: build_demo1
       if: |
         (github.event_name != 'pull_request' && github.ref_name == 'demo1') ||
