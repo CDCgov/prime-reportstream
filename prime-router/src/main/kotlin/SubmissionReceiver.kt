@@ -155,7 +155,11 @@ class TopicReceiver : SubmissionReceiver {
         metadata: Metadata?
     ) {
         // parse, check for parse errors
-        val (report, actionLogs) = this.workflowEngine.parseTopicReport(sender as TopicSender, content, defaults)
+        val (report, actionLogs) = this.workflowEngine.parseTopicReport(
+            sender as LegacyPipelineSender,
+            content,
+            defaults
+        )
 
         // prevent duplicates if configured to not allow them
         if (!allowDuplicates) {
@@ -256,7 +260,7 @@ class ELRReceiver : SubmissionReceiver {
         payloadName: String?,
         metadata: Metadata?
     ) {
-        check(sender is FullELRSender)
+        check(sender is UniversalPipelineSender)
         val actionLogs = ActionLogger()
         val sources = listOf(ClientSource(organization = sender.organizationName, client = sender.name))
         // check that our input is valid HL7. Additional validation will happen at a later step

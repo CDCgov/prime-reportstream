@@ -66,12 +66,14 @@ runs:
         SONAR_TOKEN: ${{ inputs.SONAR_TOKEN }}
       with:
         args: >
-          -Dsonar.cpd.exclusions=frontend-react/**/*.test.*
+          -Dsonar.cpd.exclusions=frontend-react/**/*.test.*,prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**
           -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
-          -Dsonar.coverage.exclusions=frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*
+          -Dsonar.coverage.exclusions=prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**,frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*
           -Dsonar.sources=frontend-react/src,prime-router/src
           -Dsonar.projectKey=CDCgov_prime-data-hub
           -Dsonar.organization=cdcgov
+          -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
+          -Dsonar.coverage.jacoco.xmlReportPaths=prime-router/build/reports/jacoco/test/jacocoTestReport.xml
 
     - name: Tar frontend files
       shell: bash
