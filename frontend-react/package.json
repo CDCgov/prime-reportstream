@@ -147,7 +147,7 @@
         "@types/lodash.pick": "^4.4.7",
         "@types/lodash.range": "^3.2.7",
         "@types/lodash.uniq": "^4.5.7",
-        "@types/mdx": "^2.0.4",
+        "@types/mdx": "^2.0.5",
         "@types/node": "^18.15.10",
         "@types/react": "^18.0.28",
         "@types/react-dom": "^18.2.4",
