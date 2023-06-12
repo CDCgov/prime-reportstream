@@ -72,6 +72,10 @@ class ApiSearchTest {
             return sortParameter ?: TestTable.TEST.CREATED_AT
         }
 
+        override fun getPrimarySortColumn(): Field<*> {
+            return TestTable.TEST.FOO
+        }
+
         companion object : ApiSearchParser<TestPojo, TestApiSearch, TestRecord, TestApiFilter<*>>() {
             override fun parseRawApiSearch(rawApiSearch: RawApiSearch): TestApiSearch {
                 val sort = if (rawApiSearch.sort != null)
