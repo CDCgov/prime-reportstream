@@ -11,12 +11,12 @@ import com.github.ajalt.clikt.parameters.types.int
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.FullELRSender
+import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
-import gov.cdc.prime.router.TopicSender
+import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
@@ -489,8 +489,7 @@ abstract class CoolTest {
                 }
                 timeElapsedSecs += pollSleepSecs
                 queryResult = queryForStepResults(reportId, taskAction)
-                @Suppress("SENSELESS_COMPARISON")
-                if (queryResult != null)
+                if (queryResult.isNotEmpty())
                     break
             }
         }
@@ -847,49 +846,49 @@ abstract class CoolTest {
 
         const val fullELRSenderName = "ignore-full-elr"
         val fullELRSender by lazy {
-            settings.findSender("$org1Name.$fullELRSenderName") as? FullELRSender
+            settings.findSender("$org1Name.$fullELRSenderName") as? UniversalPipelineSender
                 ?: error("Unable to find sender $fullELRSenderName for organization ${org1.name}")
         }
 
         const val etorTISenderName = "ignore-etor-ti"
         val etorTISender by lazy {
-            settings.findSender("$org1Name.$etorTISenderName") as? FullELRSender
+            settings.findSender("$org1Name.$etorTISenderName") as? UniversalPipelineSender
                 ?: error("Unable to find sender $etorTISenderName for organization ${org1.name}")
         }
 
         const val simpleReportSenderName = "ignore-simple-report"
         val simpleRepSender by lazy {
-            settings.findSender("$org1Name.$simpleReportSenderName") as? TopicSender
+            settings.findSender("$org1Name.$simpleReportSenderName") as? LegacyPipelineSender
                 ?: error("Unable to find sender $simpleReportSenderName for organization ${org1.name}")
         }
 
         const val stracSenderName = "ignore-strac"
         val stracSender by lazy {
-            settings.findSender("$org1Name.$stracSenderName") as? TopicSender
+            settings.findSender("$org1Name.$stracSenderName") as? LegacyPipelineSender
                 ?: error("Unable to find sender $stracSenderName for organization ${org1.name}")
         }
 
         const val watersSenderName = "ignore-waters"
         val watersSender by lazy {
-            settings.findSender("$org1Name.$watersSenderName") as? TopicSender
+            settings.findSender("$org1Name.$watersSenderName") as? LegacyPipelineSender
                 ?: error("Unable to find sender $watersSenderName for organization ${org1.name}")
         }
 
         const val emptySenderName = "ignore-empty"
         val emptySender by lazy {
-            settings.findSender("$org1Name.$emptySenderName") as? TopicSender
+            settings.findSender("$org1Name.$emptySenderName") as? LegacyPipelineSender
                 ?: error("Unable to find sender $emptySenderName for organization ${org1.name}")
         }
 
         const val hl7SenderName = "ignore-hl7"
         val hl7Sender by lazy {
-            settings.findSender("$org1Name.$hl7SenderName") as? TopicSender
+            settings.findSender("$org1Name.$hl7SenderName") as? LegacyPipelineSender
                 ?: error("Unable to find sender $hl7SenderName for organization ${org1.name}")
         }
 
         const val hl7MonkeypoxSenderName = "ignore-monkeypox"
         val hl7MonkeypoxSender by lazy {
-            settings.findSender("$org1Name.$hl7MonkeypoxSenderName") as? TopicSender
+            settings.findSender("$org1Name.$hl7MonkeypoxSenderName") as? LegacyPipelineSender
                 ?: error("Unable to find sender $hl7MonkeypoxSenderName for organization ${org1.name}")
         }
 
