@@ -8064,10 +8064,10 @@ cypress-each@^1.13.1:
   resolved "https://registry.npmjs.org/cypress-each/-/cypress-each-1.13.1.tgz"
   integrity sha512-YbVfrjk4gWTDLOV8YAb3tA6ovQiyl90zvl4M7aLADD0aUBei6nOSXI7xu6LVgLlVcLkM4jRSS2jBIiifauGgpQ==
 
-cypress-localstorage-commands@^2.2.2:
-  version "2.2.2"
-  resolved "https://registry.npmjs.org/cypress-localstorage-commands/-/cypress-localstorage-commands-2.2.2.tgz"
-  integrity sha512-mONoaxoMAFOSsF+SIDx30hysD3XOY8kPLxjtORdZWDj3sJs+u03XOddTDETPIbLch0DWy5Dtyw1ou3EsFGYZAQ==
+cypress-localstorage-commands@^2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/cypress-localstorage-commands/-/cypress-localstorage-commands-2.2.3.tgz#ef5b736226b8316b7d948e30bc4b94a157cfa025"
+  integrity sha512-EUEaHzbstw9AsEheIqr+RyXuxIzUS64nBBwl+Q4/mSdzfXpfcaV1nrHF+6H9zbTuFVTc+oWu6eC1l8aSjiWW6w==
 
 cypress-plugin-tab@^1.0.5:
   version "1.0.5"
