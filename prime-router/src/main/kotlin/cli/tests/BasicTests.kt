@@ -167,7 +167,7 @@ class End2EndUniversalPipeline : CoolTest() {
 
                 // check send step
                 val batchReportId = getSingleChildReportId(translateReportId)
-                    ?: return bad("***async end2end_up FAILED***: Convert report id null")
+                    ?: return bad("***async end2end_up FAILED***: Batch report id null")
                 val sendResults = pollForStepResult(batchReportId, TaskAction.send)
                 // verify each result is valid
                 for (result in sendResults.values)

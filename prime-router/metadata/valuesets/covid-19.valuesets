@@ -60,6 +60,20 @@
       display: Nasopharyngeal and oropharyngeal swab
     - code: 309171007
       display: Lower respiratory fluid sample
+    - code: 433871000124101
+      display: Nasal washings
+    - code: 441620008
+      display: Sputum specimen obtained by sputum induction
+    - code: 441903006
+      display: Coughed sputum specimen
+    - code: 119336008
+      display: Specimen from trachea obtained by aspiration
+    - code: 258610001
+      display: Oral fluid specimen
+    - code: 119335007
+      display: Specimen obtained by bronchial aspiration
+    - code: 445447003
+      display: Exhaled air specimen
 
 - name: covid-19/test_result
   system: SNOMED_CT
