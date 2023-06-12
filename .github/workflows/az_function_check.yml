@@ -8,10 +8,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        FA: [pdhtest-admin-functionapp, pdhstaging-admin-functionapp, pdhprod-admin-functionapp] 
-        RG: [prime-data-hub-test, prime-data-hub-staging, prime-data-hub-prod]
+    # strategy:
+    #   matrix:
+    #     FA: [pdhtest-admin-functionapp, pdhstaging-admin-functionapp, pdhprod-admin-functionapp] 
+    #     RG: [prime-data-hub-test, prime-data-hub-staging, prime-data-hub-prod]
 
     steps:
       - name: Checkout repository
