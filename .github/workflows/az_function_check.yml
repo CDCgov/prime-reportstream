@@ -17,6 +17,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
 
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.x
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          sudo apt-get install libpq-dev
+
+
       - name: Connect to VPN & Login into Azure  
         uses: ./.github/actions/vpn-azure
         with:
