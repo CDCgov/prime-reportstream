@@ -151,6 +151,12 @@ class DetailedSubmissionHistory(
     var actionsPerformed = mutableSetOf<TaskAction>()
 
     /**
+     * Flag to check if there's an action scheduled for a report related to this submission
+     */
+    @JsonIgnore
+    var nextActionScheduled = false
+
+    /**
      * The step in the delivery process for a submission
      * Supported values:
      *     VALID - successfully validated, but not sent
@@ -251,6 +257,9 @@ class DetailedSubmissionHistory(
                 sender = ClientSource(report.sendingOrg, report.sendingOrgClient ?: "").name
                 topic = report.schemaTopic
             }
+
+            // if there is ANY action scheduled on this submission history, ensure this flag is true
+            if (report.nextActionAt != null) nextActionScheduled = true
         }
         errors.addAll(consolidateLogs(ActionLogLevel.error))
         warnings.addAll(consolidateLogs(ActionLogLevel.warning))
@@ -521,7 +530,10 @@ class DetailedSubmissionHistory(
     fun enrichWithSummary() {
         val realDestinations = destinations.filter { it.itemCount != 0 }
 
-        overallStatus = calculateStatus(realDestinations)
+        overallStatus =
+            if (topic?.isUniversalPipeline == true) calculateStatus(realDestinations)
+            else legacyCalculateStatus(realDestinations)
+
         plannedCompletionAt = calculatePlannedCompletionAt(realDestinations)
         actualCompletionAt = calculateActualCompletionAt(realDestinations)
     }
@@ -533,6 +545,61 @@ class DetailedSubmissionHistory(
      * @return The status from the Status enum that matches the current Submission state.
      */
     private fun calculateStatus(realDestinations: List<Destination>): Status {
+        if (httpStatus != HttpStatus.OK.value() && httpStatus != HttpStatus.CREATED.value()) {
+            return Status.ERROR
+        }
+        if (destinations.size == 0) {
+            /**
+             * This conditional serves to differentiate where a report was submitted async and therefore hasn't
+             * been processed yet vs. a report that has been processed, but did not have any eligible receivers.
+             *
+             * The most likely scenario for that is when the item does not pass the jurisdictional filter for any of
+             * the receivers.
+             */
+            if (actionsPerformed.contains(TaskAction.route) && !nextActionScheduled) {
+                return Status.NOT_DELIVERING
+            }
+            return Status.RECEIVED
+        } else if (realDestinations.isEmpty()) {
+            if (nextActionScheduled) {
+                return Status.RECEIVED
+            }
+            return Status.NOT_DELIVERING
+        }
+
+        var finishedDestinations = 0
+        realDestinations.forEach {
+            var sentItemCount = 0
+            it.sentReports.forEach { sentReport ->
+                sentItemCount += sentReport.itemCount
+            }
+
+            var downloadedItemCount = 0
+            it.downloadedReports.forEach { downloadedReport ->
+                downloadedItemCount += downloadedReport.itemCount
+            }
+
+            if (sentItemCount >= it.itemCount || downloadedItemCount >= it.itemCount) {
+                finishedDestinations++
+            }
+        }
+
+        if (finishedDestinations >= destinations.size) {
+            return Status.DELIVERED
+        } else if (finishedDestinations >= realDestinations.size) {
+            return Status.PARTIALLY_DELIVERED
+        }
+        return Status.WAITING_TO_DELIVER
+    }
+
+    /**
+     * Runs the calculations for the overallStatus field so that it can be done during init.
+     * Used for pre-Universal Pipeline
+     *
+     * @param realDestinations[] destinations where items have gone through and thus should be calculated
+     * @return The status from the Status enum that matches the current Submission state.
+     */
+    private fun legacyCalculateStatus(realDestinations: List<Destination>): Status {
         if (httpStatus != HttpStatus.OK.value() && httpStatus != HttpStatus.CREATED.value()) {
             return Status.ERROR
         }
