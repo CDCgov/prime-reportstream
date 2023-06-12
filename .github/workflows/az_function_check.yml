@@ -35,7 +35,7 @@ jobs:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         run: |
-          python ../../operations/app/functions/admin/TaskTableChecks/task_table_check.py
+          python operations/app/functions/admin/TaskTableChecks/task_table_check.py
 
       
       # - name: Query Azure Cosmos DB table
