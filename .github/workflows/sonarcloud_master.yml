@@ -39,7 +39,7 @@ jobs:
         run: docker-compose -f docker-compose.postgres.yml up -d
 
       - name: Build Prime Router Package
-        run: ./gradlew quickPackage -x fatjar
+        run: ./gradlew package -x fatjar
 
       - name: Use Node.js with yarn
         uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
