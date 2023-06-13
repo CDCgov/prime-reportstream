@@ -27,18 +27,21 @@ export const makeMessageDetailsFixture = (
 
 export const MOCK_MESSAGE_SENDER_DATA = [
     {
+        id: 1,
         messageId: "12-234567",
         sender: "somebody 1",
         submittedDate: "09/28/2022",
         reportId: "29038fca-e521-4af8-82ac-6b9fafd0fd58",
     },
     {
+        id: 2,
         messageId: "12-234567",
         sender: "somebody 2",
         submittedDate: "09/29/2022",
         reportId: "86c4c66f-3d99-4845-8bea-111210c05e63",
     },
     {
+        id: 3,
         messageId: "12-234567",
         sender: "somebody 3",
         submittedDate: "09/30/2022",

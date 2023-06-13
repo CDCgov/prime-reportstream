@@ -1762,6 +1762,13 @@ Code | Display | System
 418932006|Oral swab specimen|SNOMED_CT
 433801000124107|Nasopharyngeal and oropharyngeal swab|SNOMED_CT
 309171007|Lower respiratory fluid sample|SNOMED_CT
+433871000124101|Nasal washings|SNOMED_CT
+441620008|Sputum specimen obtained by sputum induction|SNOMED_CT
+441903006|Coughed sputum specimen|SNOMED_CT
+119336008|Specimen from trachea obtained by aspiration|SNOMED_CT
+258610001|Oral fluid specimen|SNOMED_CT
+119335007|Specimen obtained by bronchial aspiration|SNOMED_CT
+445447003|Exhaled air specimen|SNOMED_CT
 
 **Documentation**:
 The specimen source, such as Blood or Serum
