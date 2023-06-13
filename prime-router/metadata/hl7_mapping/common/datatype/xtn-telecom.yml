@@ -52,7 +52,7 @@ elements:
     value: [ '%resource.value.getPhoneNumberAreaCode()' ]
     hl7Spec: [ '%{hl7TelecomPath}-6' ]
 
-  # RADx MARS format wnats this value to be <deidentified>, but Hapi library does not allow that so setting it to empty
+  # RADx MARS format wants this value to be <deidentified>, but Hapi library does not allow that, so setting it to empty
   - name: xtn-area-code-deidentified
     condition: '%resource.value.exists() and %deidentifiedValue.empty().not()'
     value: [ '""' ]
@@ -63,7 +63,7 @@ elements:
     value: [ '%resource.value.getPhoneNumberLocalNumber()' ]
     hl7Spec: [ '%{hl7TelecomPath}-7' ]
 
-  # RADx MARS format wnats this value to be <deidentified>, but Hapi library does not allow that so setting it to empty
+  # RADx MARS format wants this value to be <deidentified>, but Hapi library does not allow that, so setting it to empty
   - name: xtn-local-number-deidentified
     condition: '%resource.value.exists() and %deidentifiedValue.empty().not()'
     value: [ '""' ]
