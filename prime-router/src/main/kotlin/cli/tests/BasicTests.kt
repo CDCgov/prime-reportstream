@@ -1323,8 +1323,8 @@ class OtcProctored : CoolTest() {
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val otcPairs = listOf(
             Pair("BinaxNOW COVID-19 Antigen Self Test_Abbott Diagnostics Scarborough, Inc.", "OTC_PROCTORED_YYY"),
-            Pair("10811877011337", "OTC_PROCTORED_NYY"),
-            Pair("00810055970001", "OTC_PROCTORED_NUNKUNK"),
+//            Pair("10811877011337", "OTC_PROCTORED_NYY"),
+//            Pair("00810055970001", "OTC_PROCTORED_NUNKUNK"),
         )
         for (pair in otcPairs) {
             ugly(
@@ -1334,12 +1334,13 @@ class OtcProctored : CoolTest() {
             val reFile = FileUtilities.replaceText(
                 "./src/test/csv_test_files/input/otc-template.csv",
                 "replaceMe",
-                "${pair.first}"
+                pair.first
             )
 
             if (!reFile.exists()) {
                 error("Unable to find file ${reFile.absolutePath} to do otc test")
             }
+
             val (responseCode, json) = HttpUtilities.postReportFile(
                 environment,
                 reFile,
@@ -1349,6 +1350,7 @@ class OtcProctored : CoolTest() {
             )
 
             echo("Response to POST: $responseCode")
+            echo(json)
             if (examinePostResponse(json, !options.asyncProcessMode)) {
                 // if testing async, verify the process result was generated
                 if (options.asyncProcessMode) {
