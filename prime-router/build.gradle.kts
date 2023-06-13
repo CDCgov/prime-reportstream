@@ -727,7 +727,7 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
     implementation("com.azure:azure-core:1.35.0")
     implementation("com.azure:azure-core-http-netty:1.12.8")
-    implementation("com.azure:azure-storage-blob:12.22.0") {
+    implementation("com.azure:azure-storage-blob:12.22.2") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.15.2") {
