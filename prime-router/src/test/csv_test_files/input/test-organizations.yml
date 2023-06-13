@@ -26,8 +26,10 @@
       organizationName: federal-test
       topic: test
       customerStatus: inactive
-      jurisdictionalFilter: [ "matches(observation, covid-19:.*)", "matches(state, .*)" ]
-      #OLD        jurisdictionalFilter: {observation: covid-19:.*, state: .*}
+      jurisdictionalFilter: [ "allowAll()" ]
+      #      jurisdictionalFilter: [ "matches(observation, covid-19:.*)", "matches(state, .*)" ]
+      qualityFilter: [ "hasValidDataFor(lab,state,test_time,specimen_id,observation)" ]
+      routingFilter: [ "allowAll()" ]
       deidentify: true
       translation:
         type: CUSTOM

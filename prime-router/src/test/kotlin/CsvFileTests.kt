@@ -70,8 +70,7 @@ class CsvFileTests {
     }
 
     private fun translateReport(inputReport: Report, baseName: String, expected: List<String>) {
-        val (outputReports, _) = Translator(metadata, settings).filterAndTranslateByReceiver(inputReport,
-            )
+        val (outputReports, _) = Translator(metadata, settings).filterAndTranslateByReceiver(inputReport)
         assertThat(outputReports).hasSize(expected.size)
 
         // Write transformed objs to files, and check they are correct
@@ -107,7 +106,7 @@ class CsvFileTests {
         assertThat(settings.receivers).hasSize(2)
         assertThat(
             settings.findReceiver("federal-test.receiver")?.jurisdictionalFilter
-        ).isNotNull().hasSize(2)
+        ).isNotNull().hasSize(1)
     }
 
     private fun loadTestSchemas(metadata: Metadata) {
