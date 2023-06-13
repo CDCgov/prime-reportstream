@@ -34,10 +34,8 @@ jobs:
         run: |
           az functionapp vnet-integration add -n pdhstaging-admin-functionapp -g prime-data-hub-staging --vnet  pdhstaging-East-vnet --subnet  public
           az functionapp identity assign -n pdhstaging-admin-functionapp -g prime-data-hub-staging
-          az functionapp config appsettings set -n pdhstaging-admin-functionapp -g prime-data-hub-staging --settings "DATABASE_CONNECTION_STRING=<database-connection-string>"
           psql "postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}:5432/prime_data_hub"
           az functionapp config appsettings set -n pdhstaging-admin-functionapp -g prime-data-hub-staging --settings "QUERY=SELECT * FROM public.task WHERE NOW() - INTERVAL '10 minutes' > ANY (SELECT * FROM public.task); | jq -r ".[0].value" >> results.json
-          az functionapp config appsettings set -n pdhstaging-admin-functionapp -g prime-data-hub-staging --settings "SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK_URL }}"
           az functionapp identity remove -n pdhstaging-admin-functionapp -g prime-data-hub-staging
 
       - name: Format output
