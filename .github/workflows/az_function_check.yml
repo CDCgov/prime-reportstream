@@ -26,22 +26,26 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: Run Azure Function
-        id: run_function
+      - name: Run Query
         run: |
-          az functionapp function run --function-name TaskTableChecks --resource-group prime-data-hub-staging --name pdhstaging-admin-functionapp >> result.json
-          cat result.json
+          az functionapp vnet-integration connect -n pdhstaging-admin-functionapp -g prime-data-hub-staging --vnet  pdhstaging-East-vnet --subnet  public
+          az functionapp identity assign -n pdhstaging-admin-functionapp -g prime-data-hub-staging
+          az functionapp config appsettings set -n pdhstaging-admin-functionapp -g prime-data-hub-staging --settings "DATABASE_CONNECTION_STRING=<database-connection-string>"
+          psql "postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}:5432/prime_data_hub"
+          az functionapp config appsettings set -n pdhstaging-admin-functionapp -g prime-data-hub-staging --settings "QUERY=SELECT * FROM public.task WHERE NOW() - INTERVAL '10 minutes' > ANY (SELECT * FROM public.task); | jq -r ".[0].value" >> results.json
+          az functionapp config appsettings set -n pdhstaging-admin-functionapp -g prime-data-hub-staging --settings "SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK_URL }}"
+          az functionapp identity remove -n pdhstaging-admin-functionapp -g prime-data-hub-staging
 
       - name: Format output
         id: format_out
         run: |
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "LIST<<$EOF" >> $GITHUB_OUTPUT
-          cat result.json >> $GITHUB_OUTPUT
+          cat results.json >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
 
       - name: Slack Notification    
-        if: ${{ steps.format_out.outputs.LIST  != '' }}        
+        #if: ${{ steps.format_out.outputs.LIST  != '' }}        
         uses: ./.github/actions/notifications
         with:
           method: slack
