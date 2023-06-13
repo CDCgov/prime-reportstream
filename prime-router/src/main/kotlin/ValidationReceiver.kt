@@ -21,10 +21,10 @@ class ValidationReceiver(
         allowDuplicates: Boolean,
     ): List<Translator.RoutedReport> {
         // parse, check for parse errors
-        // todo: if we want this to work for full elr validation, we will need to do some other changes since this
-        //  uses the topic parser, not the full ELR parser
+        // todo: if we want this to work for UP validation, we will need to do some other changes since this
+        //  uses the legacy parser, not the UP parser
 
-        val (report, actionLogs) = workflowEngine.parseTopicReport(sender as TopicSender, content, defaults)
+        val (report, actionLogs) = workflowEngine.parseTopicReport(sender as LegacyPipelineSender, content, defaults)
 
         // prevent duplicates if configured to not allow them
         if (!allowDuplicates) {

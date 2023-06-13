@@ -6,10 +6,10 @@ import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
 import gov.cdc.prime.router.InvalidParamMessage
+import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
-import gov.cdc.prime.router.TopicSender
 import java.lang.IllegalArgumentException
 import java.security.InvalidParameterException
 
@@ -99,7 +99,7 @@ abstract class RequestFunction(
 
         // verify schema if the sender is a topic sender
         var schema: Schema? = null
-        if (sender != null && sender is TopicSender) {
+        if (sender != null && sender is LegacyPipelineSender) {
             schema = workflowEngine.metadata.findSchema(sender.schemaName)
             if (schema == null) {
                 actionLogs.error(
@@ -145,7 +145,7 @@ abstract class RequestFunction(
                 }
 
                 // only topic sender schemas are relevant here
-                if (sender is TopicSender && schema != null) {
+                if (sender is LegacyPipelineSender && schema != null) {
                     val element = schema.findElement(parts[0])
                     if (element == null) {
                         actionLogs.error(InvalidParamMessage("'${parts[0]}' is not a valid element name"))
@@ -173,15 +173,15 @@ abstract class RequestFunction(
     }
 
     /**
-     * Return [TopicSender] for a given schema if that schema exists. This lets us wrap the data needed by
+     * Return [LegacyPipelineSender] for a given schema if that schema exists. This lets us wrap the data needed by
      * processRequest without making changes to the method
      * @param schemaName the name or path of the schema
      * @param format the message format that the schema supports
-     * @return TopicSender if schema exists, null otherwise
+     * @return LegacyPipelineSender if schema exists, null otherwise
      * @throws InvalidParameterException if [schemaName] or [formatName] is not valid
      */
     @Throws(InvalidParameterException::class)
-    internal fun getDummySender(schemaName: String?, formatName: String?): TopicSender {
+    internal fun getDummySender(schemaName: String?, formatName: String?): LegacyPipelineSender {
         val errMsgPrefix = "No client found in header so expected valid " +
             "'$SCHEMA_PARAMETER' and '$FORMAT_PARAMETER' query parameters but found error: "
         if (schemaName != null && formatName != null) {
@@ -192,7 +192,7 @@ abstract class RequestFunction(
             } catch (e: IllegalArgumentException) {
                 throw InvalidParameterException("$errMsgPrefix The format '$formatName' is not supported")
             }
-            return TopicSender(
+            return LegacyPipelineSender(
                 "ValidationSender",
                 "Internal",
                 format,

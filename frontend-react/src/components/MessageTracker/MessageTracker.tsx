@@ -8,9 +8,10 @@ import {
 } from "@trussworks/react-uswds";
 
 import Spinner from "../Spinner";
-import Table, { TableConfig } from "../../components/Table/Table";
 import { MessageListResource } from "../../config/endpoints/messageTracker";
 import { useMessageSearch } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
+import { Table } from "../../shared/Table/Table";
+import { USLink } from "../USLink";
 
 interface MessageListTableContentProps {
     isLoading: boolean;
@@ -23,51 +24,47 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
     messagesData,
     hasSearched,
 }) => {
-    const tableConfig: TableConfig = {
-        columns: [
-            {
-                dataAttr: "messageId",
-                columnHeader: "Message ID",
-                feature: {
-                    link: true,
-                    linkAttr: "id",
-                    linkBasePath: "/message-details/",
-                },
-            },
-            {
-                dataAttr: "sender",
-                columnHeader: "Sender",
-            },
-            {
-                dataAttr: "submittedDate",
-                columnHeader: "Date/time submitted",
-                transform: (s: string) => {
-                    return new Date(s).toLocaleString();
-                },
-            },
-            {
-                dataAttr: "reportId",
-                columnHeader: "Incoming Report Id",
-                feature: {
-                    link: true,
-                    linkBasePath: "/submissions/",
-                    linkState: { previousPage: "Message ID Search" },
-                },
-            },
-        ],
-        rows: messagesData || [],
-    };
-
     if (isLoading) return <Spinner />;
+
+    const formattedTableData = messagesData.map((row) => {
+        return [
+            {
+                columnKey: "messageId",
+                columnHeader: "Message ID",
+                content: (
+                    <USLink href={`/message-details/${row.id}`}>
+                        {row.messageId}
+                    </USLink>
+                ),
+            },
+            {
+                columnKey: "sender",
+                columnHeader: "Sender",
+                content: row.sender,
+            },
+            {
+                columnKey: "submittedDate",
+                columnHeader: "Date/time submitted",
+                content: row.submittedDate
+                    ? new Date(row.submittedDate).toLocaleString()
+                    : "",
+            },
+            {
+                columnKey: "reportId",
+                columnHeader: "Incoming Report Id",
+                content: (
+                    <USLink href={`/submissions/${row.reportId}`}>
+                        {row.reportId}
+                    </USLink>
+                ),
+            },
+        ];
+    });
 
     return (
         <>
             {hasSearched && (
-                <Table
-                    title=""
-                    classes="rs-no-padding margin-top-5"
-                    config={tableConfig}
-                />
+                <Table borderless striped rowData={formattedTableData} />
             )}
         </>
     );
