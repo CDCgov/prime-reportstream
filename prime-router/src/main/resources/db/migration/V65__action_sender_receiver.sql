@@ -7,9 +7,5 @@
  * Copy a version of this comment into the next migration
  *
  */
-
-DROP INDEX IF EXISTS idx_receiving_org_svc_action_name;
-
-
 CREATE INDEX IF NOT EXISTS idx_receiving_org_svc_action_name
   ON action(receiving_org, receiving_org_svc, action_name );
