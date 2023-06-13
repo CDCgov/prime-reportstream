@@ -367,7 +367,7 @@ class FHIRRouter(
             // PROCESSING MODE FILTER
             //  default: allowAll
             passes = passes && evaluateFilterAndLogResult(
-                getProcessingModeFilter(receiver, orgFilters),
+                getProcessingModeFilter(receiver, orgFilters, topic),
                 bundle,
                 report,
                 receiver,
