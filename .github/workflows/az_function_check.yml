@@ -29,7 +29,7 @@ jobs:
       - name: Run Azure Function
         id: run_function
         run: |
-          az functionapp function invoke --function-name TaskTableChecks --resource-group prime-data-hub-staging --name pdhstaging-admin-functionapp >> result.json
+          az functionapp function run --function-name TaskTableChecks --resource-group prime-data-hub-staging --name pdhstaging-admin-functionapp >> result.json
           cat result.json
 
       - name: Format output
