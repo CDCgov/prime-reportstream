@@ -204,7 +204,7 @@ class RoutingTests {
         conditionFilter: List<String> = emptyList(),
     ) {
         every { getJurisFilters(any(), any()) } returns jurisFilter
-        every { getQualityFilters(any(), any()) } returns qualFilter
+        every { getQualityFilters(any(), any(), any()) } returns qualFilter
         every { getRoutingFilter(any(), any()) } returns routingFilter
         every { getProcessingModeFilter(any(), any()) } returns procModeFilter
         every { getConditionFilter(any(), any()) } returns conditionFilter
@@ -390,7 +390,7 @@ class RoutingTests {
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
-            engine.qualityFilterDefault,
+            engine.qualityFilterDefaults[Topic.FULL_ELR],
             bundle,
             false
         )
@@ -904,9 +904,9 @@ class RoutingTests {
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         engine.setFiltersOnEngine(
             jurisFilter,
-            engine.qualityFilterDefault,
+            engine.qualityFilterDefaults[Topic.FULL_ELR]!!,
             routingFilter = emptyList(),
-            engine.processingModeFilterDefault,
+            engine.processingModeDefaults[Topic.FULL_ELR]!!,
         )
 
         val nonBooleanMsg = "Condition did not evaluate to a boolean type"
@@ -1179,7 +1179,7 @@ class RoutingTests {
         report.filteringResults.clear()
 
         val result2 = engine.evaluateFilterAndLogResult(
-            engine.processingModeFilterDefault,
+            engine.processingModeDefaults[Topic.FULL_ELR]!!,
             bundle,
             report,
             oneOrganization.receivers[0],
@@ -1264,14 +1264,19 @@ class RoutingTests {
     fun `test is default filter`() {
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        val nonDefaultEquivalentQualityFilter: List<String> = ArrayList(engine.qualityFilterDefault)
-        val nonDefaultEquivalentProcModeFilter: List<String> = ArrayList(engine.processingModeFilterDefault)
+        val nonDefaultEquivalentQualityFilter: List<String> = ArrayList(engine.qualityFilterDefaults[Topic.FULL_ELR]!!)
+        val nonDefaultEquivalentProcFilter: List<String> = ArrayList(engine.processingModeDefaults[Topic.FULL_ELR]!!)
         val nonDefaultQualityFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         val nonDefaultProcModeFilter = listOf("%processingId = 'P'")
         val conditionFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
 
-        assertThat(engine.isDefaultFilter(ReportStreamFilterType.QUALITY_FILTER, engine.qualityFilterDefault)).isTrue()
+        assertThat(
+            engine.isDefaultFilter(
+                ReportStreamFilterType.QUALITY_FILTER,
+                engine.qualityFilterDefaults[Topic.FULL_ELR]!!
+            )
+        ).isTrue()
         assertThat(
             engine.isDefaultFilter(
                 ReportStreamFilterType.QUALITY_FILTER,
@@ -1290,13 +1295,13 @@ class RoutingTests {
         assertThat(
             engine.isDefaultFilter(
                 ReportStreamFilterType.PROCESSING_MODE_FILTER,
-                engine.processingModeFilterDefault
+                engine.processingModeDefaults[Topic.FULL_ELR]!!
             )
         ).isTrue()
         assertThat(
             engine.isDefaultFilter(
                 ReportStreamFilterType.PROCESSING_MODE_FILTER,
-                nonDefaultEquivalentProcModeFilter
+                nonDefaultEquivalentProcFilter
             )
         ).isFalse()
         assertThat(

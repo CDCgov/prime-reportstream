@@ -228,10 +228,10 @@ class GetFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
-        val filters = engine.getQualityFilters(receiverNoFilters, emptyList())
+        val filters = engine.getQualityFilters(receiverNoFilters, emptyList(), Topic.FULL_ELR)
 
         // assert
-        assert(filters === engine.qualityFilterDefault)
+        assert(filters === engine.qualityFilterDefaults[Topic.FULL_ELR])
     }
 
     @Test
@@ -240,7 +240,7 @@ class GetFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
-        val filters = engine.getQualityFilters(receiverNoFilters, orgFilters)
+        val filters = engine.getQualityFilters(receiverNoFilters, orgFilters, Topic.FULL_ELR)
 
         // assert
         assert(filters.size == 1)
@@ -253,7 +253,7 @@ class GetFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
-        val filters = engine.getQualityFilters(receiverWithFilters, orgFilters)
+        val filters = engine.getQualityFilters(receiverWithFilters, orgFilters, Topic.FULL_ELR)
 
         // assert
         assert(filters.size == 2)
@@ -267,7 +267,7 @@ class GetFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
-        val filters = engine.getQualityFilters(receiverWithFilters, emptyList())
+        val filters = engine.getQualityFilters(receiverWithFilters, emptyList(), Topic.FULL_ELR)
 
         // assert
         assert(filters.size == 1)
@@ -336,10 +336,10 @@ class GetFilterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
-        val filters = engine.getProcessingModeFilter(receiverNoFilters, emptyList())
+        val filters = engine.getProcessingModeFilter(receiverNoFilters, emptyList(), Topic.FULL_ELR)
 
         // assert
-        assert(filters === engine.processingModeFilterDefault)
+        assert(filters === engine.processingModeDefaults[Topic.FULL_ELR])
     }
 
     @Test
