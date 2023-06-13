@@ -83,6 +83,7 @@ updates:
     open-pull-requests-limit: 10
     schedule:
       interval: "weekly"
+    rebase-strategy: "disabled"
 
   # OPERATIONS
   - package-ecosystem: "docker"
@@ -109,19 +110,20 @@ updates:
     directory: "/operations/app/src/environments/prod"
     schedule:
       interval: "weekly"
-  
-  
+    
   # ROUTER
   - package-ecosystem: "docker"
     directory: "/prime-router"
     schedule:
       interval: "weekly"
+    
   # All packages weekly
   - package-ecosystem: "gradle"
     directory: "/prime-router"
     open-pull-requests-limit: 10
     schedule:
       interval: "weekly"
+    rebase-strategy: "disabled"
     ignore:
       # ignore updates to sshj so we don't run into future issues connecting to STLTs
       - dependency-name: "sshj"
