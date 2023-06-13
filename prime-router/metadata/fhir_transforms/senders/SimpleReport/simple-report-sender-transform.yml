@@ -1,0 +1,21 @@
+extends: ../default-sender-transform
+elements:
+
+  - name: results-reported-at
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    condition: '%resource.issued.exists()'
+    bundleProperty: '%resource.issued'
+    value: [ '%resource.issued - 15 minutes' ]
+
+
+  - name: observation-date-time
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    condition: '%resource.effective.exists()'
+    bundleProperty: '%resource.effective[x]'
+    value: [ '%resource.effective - 15 minutes' ]
+
+  - name: specimen-collection-time
+    resource: 'Bundle.entry.resource.ofType(Specimen)'
+    condition: '%resource.collection.collected.exists()'
+    bundleProperty: '%resource.collection.collected'
+    value: [ '%resource.collection.collected - 15 minutes' ]

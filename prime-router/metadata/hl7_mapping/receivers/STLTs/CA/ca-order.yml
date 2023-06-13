@@ -10,7 +10,7 @@ elements:
 
   - name: ca-order-effective-date
     condition: '%service.extension(%`rsext-order-effective-date`).exists()'
-    value: [ '%service.extension(%`rsext-order-effective-date`).value.changeTimezone("PST8PDT")' ]
+    value: [ '%service.extension(%`rsext-order-effective-date`).value.changeTimezone(%timezone)' ]
     hl7Spec: [ '%{hl7Order}-15' ]
 
   # ORC-12-1: Max length 15

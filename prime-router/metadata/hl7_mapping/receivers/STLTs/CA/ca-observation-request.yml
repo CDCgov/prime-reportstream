@@ -10,7 +10,7 @@ elements:
 
   - name: ca-observation-date-time
     condition: '%resource.effective is dateTime'
-    value: [ '%resource.effective.changeTimezone("PST8PDT")' ]
+    value: [ '%resource.effective.changeTimezone(%timezone)' ]
     hl7Spec: [ '%{fieldPath}-7' ]
 
   # OBR-16-1: Max length 15
@@ -26,5 +26,5 @@ elements:
     hl7Spec: [ '%{fieldPath}-16-3' ]
 
   - name: ca-results-reported-at
-    value: [ '%resource.issued.changeTimezone("PST8PDT")' ]
+    value: [ '%resource.issued.changeTimezone(%timezone)' ]
     hl7Spec: [ '%{fieldPath}-22' ]
