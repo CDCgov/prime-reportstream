@@ -31,6 +31,7 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Connect to PostgreSQL & Run query
+        id: check_data
         run: |
           query="SELECT COUNT(*) FROM ABC WHERE timestamp_column < NOW() - INTERVAL '10 minutes'"
           connection_string=$(az postgres server show --resource-group prime-data-hub-staging --name ${{ secrets.POSTGRES_HOST }} --query "fullyQualifiedDomainName" -o tsv)
@@ -39,7 +40,7 @@ jobs:
           echo "::set-output name=query_result::$query_result"
 
       - name: Slack Notification    
-        if: steps.check_data.outputs.query_result != "0"
+        if: ${{ steps.check_data.outputs.query_result != "0" }} 
         #if: ${{ steps.format_out.outputs.LIST  != '' }}        
         uses: ./.github/actions/notifications
         with:
