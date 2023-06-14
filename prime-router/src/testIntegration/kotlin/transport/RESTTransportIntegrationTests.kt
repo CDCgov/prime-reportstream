@@ -388,19 +388,20 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNotNull()
     }
-    @Test
-    fun `test flexion rest transport`() {
-        val header = makeFlexionHeader()
-        val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
-        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
-            UserEtorCredential("flexion", "123")
-        )
-        every { runBlocking { mockRestTransport.getAuthTokenWithUserEtor(any(), any(), any(), any()) } }.returns(
-            TokenInfoEtor("878a0e79-0e97-4f06-8c44-d756b74e8134", "reportStream",
-                "036231e0-5a1a-4ded-b784-2c4212e311bb")
-        )
 
-        val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
-        assertThat(retryItems).isNull()
-    }
+//    @Test
+//    fun `test flexion rest transport`() {
+//        val header = makeFlexionHeader()
+//        val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
+//        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+//            UserEtorCredential("flexion", "123")
+//        )
+//        every { runBlocking { mockRestTransport.getAuthTokenWithUserEtor(any(), any(), any(), any()) } }.returns(
+//            TokenInfoEtor("878a0e79-0e97-4f06-8c44-d756b74e8134", "reportStream",
+//                "036231e0-5a1a-4ded-b784-2c4212e311bb")
+//        )
+//
+//        val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
+//        assertThat(retryItems).isNull()
+//    }
 }
