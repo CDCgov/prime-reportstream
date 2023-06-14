@@ -59,3 +59,4 @@ jobs:
         run: |
             az postgres server firewall-rule delete --resource-group prime-data-hub-staging --server-name ${{ secrets.POSTGRESQL_STG_SERVER_NAME }} --name GHA --yes
             az postgres server firewall-rule delete --resource-group prime-data-hub-staging --server-name ${{ secrets.POSTGRESQL_PROD_SERVER_NAME }} --name GHA --yes
+
