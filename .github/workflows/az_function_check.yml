@@ -45,8 +45,7 @@ jobs:
           echo "::set-output name=query_result::$query_result"
 
       - name: Slack Notification    
-        if: ${{ steps.check_data.outputs.query_result > '5' }} 
-        #if: ${{ steps.format_out.outputs.LIST  != '' }}        
+        if: ${{ steps.check_data.outputs.query_result != '0' }} 
         uses: ./.github/actions/notifications
         with:
           method: slack
@@ -56,3 +55,7 @@ jobs:
           channel: pagerduty-alert-dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           color: warning
+
+      - name: Add Runner IP to Postgres Firewall
+        run: |
+            az postgres server firewall-rule delete --resource-group prime-data-hub-staging --server-name ${{ secrets.POSTGRES_HOST }} --name GHA
