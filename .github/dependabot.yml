@@ -84,7 +84,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
-      time: "00:017"
+      time: "00:17"
       timezone: "US/Eastern"
     rebase-strategy: "disabled"
 
@@ -127,7 +127,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
-      time: "03:017"
+      time: "03:17"
       timezone: "US/Eastern"
     rebase-strategy: "disabled"
     ignore:
