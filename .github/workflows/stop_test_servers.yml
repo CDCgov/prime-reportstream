@@ -2,9 +2,9 @@ name: Stop Apps in Test server
 
 on:
   workflow_dispatch:
-  push: 
-    branches:
-      - feature/9537-schedulemaintenance_DemoandTest
+  # push: 
+  #   branches:
+  #     - feature/9537-schedulemaintenance_DemoandTest
   schedule:
    - cron: "0 5 * * SAT" #UTC-5
    - cron: '0 2 * * 1-5' 
