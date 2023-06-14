@@ -15,12 +15,10 @@ export default function FileHandlerProgrammersGuideTip() {
                 </span>
                 <div className="padding-left-1">
                     Pages 18-29 in the{" "}
-                    <USLink href="/resources/programmers-guide">
-                        API Programmer’s Guide
-                    </USLink>{" "}
-                    have the information you need to validate your file
-                    successfully. Pay special attention to which fields are
-                    required and common mistakes.
+                    <USLink href="/resources/api">ReportStream API</USLink> have
+                    the information you need to validate your file successfully.
+                    Pay special attention to which fields are required and
+                    common mistakes.
                 </div>
             </div>
         </section>
