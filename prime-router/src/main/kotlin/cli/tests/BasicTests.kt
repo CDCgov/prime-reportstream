@@ -1322,9 +1322,7 @@ class OtcProctored : CoolTest() {
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val otcPairs = listOf(
-            Pair("BinaxNOW COVID-19 Antigen Self Test_Abbott Diagnostics Scarborough, Inc.", "OTC_PROCTORED_YYY"),
-//            Pair("10811877011337", "OTC_PROCTORED_NYY"),
-//            Pair("00810055970001", "OTC_PROCTORED_NUNKUNK"),
+            Pair("BinaxNOW COVID-19 Antigen Self Test_Abbott Diagnostics Scarborough, Inc.", "OTC_PROCTORED_YYY")
         )
         for (pair in otcPairs) {
             ugly(
@@ -1370,14 +1368,14 @@ class OtcProctored : CoolTest() {
                 good("Test PASSED: ${pair.first}")
             } else {
                 bad("Test FAILED: ${pair.first}")
-                failures.add("${pair.first}")
+                failures.add(pair.first)
             }
         }
 
-        if (failures.size == 0) {
-            return true
+        return if (failures.size == 0) {
+            true
         } else {
-            return bad("Tests FAILED: $failures")
+            bad("Tests FAILED: $failures")
         }
     }
 }

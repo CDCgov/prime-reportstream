@@ -231,20 +231,16 @@ class Obx17TypeMapper : Mapper {
 class LivdYesNoMapper : Mapper {
     override val name = "LivdYesNo"
 
+    private val livdLookupMapper = LIVDLookupMapper()
+
     override fun valueNames(element: Element, args: List<String>): List<String> {
-        return if (args.size != 1) {
-            args
-        } else {
-            error("Schema Error: Invalid number of arguments")
-        }
+        return livdLookupMapper.valueNames(element, args)
     }
 
     private val mappings = mapOf(
         "yes" to "Y",
         "no" to "N",
     )
-
-    private val livdLookupMapper = LIVDLookupMapper()
 
     override fun apply(
         element: Element,
@@ -267,20 +263,16 @@ class LivdYesNoMapper : Mapper {
 class LivdNegateYesNoMapper : Mapper {
     override val name = "LivdNegateYesNo"
 
+    private val livdLookupMapper = LIVDLookupMapper()
+
     override fun valueNames(element: Element, args: List<String>): List<String> {
-        return if (args.size != 1) {
-            args
-        } else {
-            error("Schema Error: Invalid number of arguments")
-        }
+        return livdLookupMapper.valueNames(element, args)
     }
 
     private val negatedMappings = mapOf(
         "yes" to "N",
         "no" to "Y",
     )
-
-    private val livdLookupMapper = LIVDLookupMapper()
 
     override fun apply(
         element: Element,
