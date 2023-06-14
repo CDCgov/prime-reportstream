@@ -17,7 +17,6 @@ runs:
       id: start-db
       shell: bash
       run: |
-        PGSSLMODE=require \
         $FnDetails = az postgres flexible-server show --name ${{ inputs.name }} --resource-group ${{ inputs.resource-group }} --subscription ${{ inputs.subscription }}
         $Json = $FnDetails | ConvertFrom-JSON
         $State       = $Json.state
