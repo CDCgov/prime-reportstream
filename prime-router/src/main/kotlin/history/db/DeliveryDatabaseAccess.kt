@@ -183,7 +183,11 @@ class DeliveryDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessS
                         .`as`(DeliveryTable.DELIVERY.SUBMITTER),
                     ReportFile.REPORT_FILE.REPORT_ID.`as`(DeliveryTable.DELIVERY.REPORT_ID),
                     ReportFile.REPORT_FILE.CREATED_AT.`as`(DeliveryTable.DELIVERY.CREATED_AT),
-                    ReportFile.REPORT_FILE.CREATED_AT.`as`(DeliveryTable.DELIVERY.EXPIRATION_DATE),
+                    DSL.field(
+                        "\"public\".\"report_file\".\"created_at\" + INTERVAL '60 days'",
+                        SQLDataType.OFFSETDATETIME
+                    )
+                        .`as`(DeliveryTable.DELIVERY.EXPIRATION_DATE),
                     DSL.sum(ReportFile.REPORT_FILE.ITEM_COUNT).`as`(DeliveryTable.DELIVERY.TEST_RESULT_COUNT),
                     ReportFile.REPORT_FILE.REPORT_ID.cast(SQLDataType.VARCHAR)
                         .concat(
