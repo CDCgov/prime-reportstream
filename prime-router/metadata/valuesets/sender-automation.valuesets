@@ -750,6 +750,34 @@
       display: Bronchoalveolar lavage
     - code: 258607008
       display: 258607008
+    - code: 433871000124101
+      display: Nasal washings
+    - code: 433871000124101
+      display: 433871000124101
+    - code: 441620008
+      display: Sputum specimen obtained by sputum induction
+    - code: 441620008
+      display: 441620008
+    - code: 441903006
+      display: Coughed sputum specimen
+    - code: 441903006
+      display: 441903006
+    - code: 119336008
+      display: Specimen from trachea obtained by aspiration
+    - code: 119336008
+      display: 119336008
+    - code: 258610001
+      display: Oral fluid specimen
+    - code: 258610001
+      display: 258610001
+    - code: 119335007
+      display: Specimen obtained by bronchial aspiration
+    - code: 119335007
+      display: 119335007
+    - code: 445447003
+      display: Exhaled air specimen
+    - code: 445447003
+      display: 445447003
 
 - name: sender-automation/state
   system: LOCAL
