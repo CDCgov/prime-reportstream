@@ -64,6 +64,6 @@ elements:
     hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]
 
   - name: specimen-received-time-diagnostic
-    condition: '%resource.receivedTime.exists().not() and %diagnostic.issued.exists() and %diagnostic.issued is dateTime '
+    condition: '%resource.receivedTime.exists().not() and %diagnostic.issued.exists() and %diagnostic.issued is instant'
     value: [ '%diagnostic.issued.changeTimezone(%timezone)' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]
