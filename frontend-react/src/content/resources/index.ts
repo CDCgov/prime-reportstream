@@ -39,7 +39,7 @@ const slugs: SlugParams[] = [
     },
     { key: ResourcesDirectories.DOWNLOAD_GUIDE, slug: "data-download-guide" },
     { key: ResourcesDirectories.REFERRAL_GUIDE, slug: "referral-guide" },
-    { key: ResourcesDirectories.REPORTSTREAM_API, slug: "programmers-guide" },
+    { key: ResourcesDirectories.REPORTSTREAM_API, slug: "api" },
     { key: ResourcesDirectories.ELR_CHECKLIST, slug: "elr-checklist" },
     { key: ResourcesDirectories.SYSTEM, slug: "system-and-settings" },
     { key: ResourcesDirectories.SECURITY, slug: "security-practices" },
