@@ -1,4 +1,4 @@
-name: Functionapp Task table Check
+name: Prod & Staging Functionapp Task table Check
 
 on:
   push:
@@ -48,15 +48,15 @@ jobs:
         uses: ./.github/actions/notifications
         with:
           method: slack
-          title: Functionapp Task table Check
+          title: Task table Foundings
           message: Found data older than 10 minutes in the public.task table
           icon-emoji: ':bell:'
           channel: pagerduty-alert-dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           color: warning
 
-      - name: Add Runner IP to Postgres Firewall
+      - name: Remove Runner IP to Postgres Firewall
         run: |
             az postgres server firewall-rule delete --resource-group prime-data-hub-staging --server-name ${{ secrets.POSTGRESQL_STG_SERVER_NAME }} --name GHA --yes
-            az postgres server firewall-rule delete --resource-group prime-data-hub-staging --server-name ${{ secrets.POSTGRESQL_PROD_SERVER_NAME }} --name GHA --yes
+            az postgres server firewall-rule delete --resource-group prime-data-hub-prod --server-name ${{ secrets.POSTGRESQL_PROD_SERVER_NAME }} --name GHA --yes
 
