@@ -1132,7 +1132,7 @@ Is the test authorized for over-the-counter purchase by the FDA (Y, N)
 
 **PII**: No
 
-**Default Value**: N
+**Default Value**: Y
 
 **Cardinality**: [0..1]
 
