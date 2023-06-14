@@ -77,7 +77,7 @@ runs:
       run: docker-compose -f docker-compose.postgres.yml up -d
       shell: bash
 
-    - name: Build Prime Router Package
+    - name: Build Prime Router test report
       working-directory: prime-router
       run: ./gradlew jacocoTestReport -x fatjar
       shell: bash
