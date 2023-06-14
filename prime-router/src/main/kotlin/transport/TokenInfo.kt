@@ -23,6 +23,13 @@ data class TokenInfo(
     @SerialName("token_type") val tokenType: String? = null
 )
 
+@Serializable
+data class TokenInfoEtor(
+    @SerialName("access_token") val accessToken: String,
+    val scope: String? = null,
+    @SerialName("token_type") val tokenType: String? = null
+)
+
 /**
  * IdToken models the authentication token used by OK
  * https:/labupload.health.ok.gov/api/auth/token

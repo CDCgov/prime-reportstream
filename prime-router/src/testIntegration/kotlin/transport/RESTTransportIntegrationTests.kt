@@ -11,6 +11,7 @@ import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
+import gov.cdc.prime.router.credentials.UserEtorCredential
 import gov.cdc.prime.router.credentials.UserAssertionCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import io.ktor.client.HttpClient
@@ -141,6 +142,12 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         null,
         mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
     )
+    private val flexionRestTransportType = RESTTransportType(
+        "http://rest-webservice:3001/report",
+        "http://rest-webservice:3001/token",
+        null,
+        mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
+    )
     private val task = Task(
         reportId,
         TaskAction.send,
@@ -170,6 +177,20 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
             settings.findOrganization("ignore"),
             settings.findReceiver("ignore.REST_TEST"),
             metadata.findSchema("covid-19"),
+            content = content.toByteArray(),
+            true
+        )
+    }
+    private fun makeFlexionHeader(): WorkflowEngine.Header {
+        val content = "{\"resourceType\":\"Bundle\",\"id\":\"969bcbb3-cd34-49be-ac4f-e1b8479b8219\",\"identifier\":{\"value\":\"969bcbb3-cd34-49be-ac4f-e1b8479b8219\"},\"type\":\"message\",\"timestamp\":\"2023-03-20T10:00:37.103-05:00\",\"entry\":[{\"resource\":{\"resourceType\":\"MessageHeader\",\"id\":\"3b5e0ea5-f204-4cb1-8027-7adf07d8065b\",\"meta\":{\"tag\":[{\"system\":\"http://terminology.hl7.org/CodeSystem/v2-0103\",\"code\":\"P\",\"display\":\"Production\"}]},\"eventCoding\":{\"system\":\"http://terminology.hl7.org/CodeSystem/v2-0003\",\"code\":\"O21\",\"display\":\"OML - Laboratory order\"},\"source\":{\"name\":\"CDC Trusted Intermediary\",\"endpoint\":\"https://reportstream.cdc.gov/\"}}},{\"fullUrl\":\"Provenance/cd2e9813-d9cd-4cb9-bf05-7dcdb6b5fe10\",\"resource\":{\"resourceType\":\"Provenance\",\"id\":\"cd2e9813-d9cd-4cb9-bf05-7dcdb6b5fe10\",\"target\":[{\"reference\":\"Endpoint/1682547324873864000.66e513f6-3631-4d9e-a8f5-f2f6587e814f\"}],\"recorded\":\"2023-03-02T21:30:42.888+00:00\",\"activity\":{\"coding\":[{\"system\":\"http://terminology.hl7.org/CodeSystem/v2-0003\",\"code\":\"O21\",\"display\":\"OML - Laboratory order\"}]}}},{\"resource\":{\"resourceType\":\"Patient\",\"id\":\"infant-twin-1\",\"extension\":[{\"url\":\"http://hl7.org/fhir/us/core/StructureDefinition/us-core-race\",\"extension\":[{\"url\":\"text\",\"valueString\":\"Asian\"}]}],\"identifier\":[{\"type\":{\"coding\":[{\"system\":\"http://terminology.hl7.org/CodeSystem/v2-0203\",\"code\":\"MR\",\"display\":\"Medical Record Number\"}]},\"value\":\"MRN7465737865\"}],\"name\":[{\"use\":\"official\",\"text\":\"TestValue\",\"family\":\"Solo\",\"given\":[\"Jaina\"]}],\"gender\":\"female\",\"birthDate\":\"2017-05-15\",\"_birthDate\":{\"extension\":[{\"url\":\"http://hl7.org/fhir/StructureDefinition/patient-birthTime\",\"valueDateTime\":\"2017-05-15T11:11:00-05:00\"}]},\"address\":[{\"use\":\"home\",\"line\":[\"5600 S Quebec St Ste 312A\"],\"city\":\"Greenwood Village\",\"district\":\"PA\",\"state\":\"IG\",\"postalCode\":\"80111\",\"country\":\"***\"}],\"multipleBirthInteger\":1,\"contact\":[{\"relationship\":[{\"coding\":[{\"system\":\"http://terminology.hl7.org/CodeSystem/v2-0131\",\"code\":\"N\",\"display\":\"Next of kin\"}]}],\"name\":{\"family\":\"Organa\",\"given\":[\"Leia\"]},\"telecom\":[{\"system\":\"phone\",\"value\":\"+31201234567\"}]}]}},{\"resource\":{\"resourceType\":\"ServiceRequest\",\"id\":\"0beae7d1-7b3a-4a80-a3d3-7c2ae5e61e15\",\"status\":\"active\",\"intent\":\"order\",\"category\":[{\"coding\":[{\"system\":\"http://snomed.info/sct\",\"code\":\"108252007\",\"display\":\"Laboratory procedure\"}]}],\"code\":{\"coding\":[{\"system\":\"http://loinc.org\",\"code\":\"54089-8\",\"display\":\"Newborn Screening Panel\"}]},\"subject\":{\"reference\":\"Patient/infant-twin-1\"},\"authoredOn\":\"2023-03-20T10:00:37-05:00\"}},{\"fullUrl\":\"Endpoint/1682547324873864000.66e513f6-3631-4d9e-a8f5-f2f6587e814f\",\"resource\":{\"resourceType\":\"Endpoint\",\"id\":\"1682547324873864000.66e513f6-3631-4d9e-a8f5-f2f6587e814f\",\"identifier\":[{\"system\":\"https://reportstream.cdc.gov/prime-router\",\"value\":\"flexion.FULL-ELR-FHIR\"}],\"status\":\"active\",\"name\":\"Ignore FULL-ELR-FHIR\"}}]}"
+
+        return WorkflowEngine.Header(
+            task,
+            reportFile,
+            null,
+            settings.findOrganization("flexion"),
+            settings.findReceiver("flexion.etor-service-receiver"),
+            metadata.findSchema("metadata/fhir_transforms/receivers/fhir-transform-sample"),
             content = content.toByteArray(),
             true
         )
@@ -372,5 +393,20 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         )
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNotNull()
+    }
+    @Test
+    fun `test flexion rest transport`() {
+        val header = makeFlexionHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserEtorCredential("flexion", "123")
+        )
+        every { runBlocking { mockRestTransport.getAuthTokenWithUserEtor(any(), any(), any(), any()) } }.returns(
+            TokenInfoEtor("878a0e79-0e97-4f06-8c44-d756b74e8134", "reportStream",
+                "036231e0-5a1a-4ded-b784-2c4212e311bb")
+        )
+
+        val retryItems = mockRestTransport.send(flexionRestTransportType, header, reportId, null, context, actionHistory)
+        assertThat(retryItems).isNull()
     }
 }

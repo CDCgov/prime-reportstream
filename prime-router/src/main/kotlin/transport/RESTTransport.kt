@@ -14,6 +14,7 @@ import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.RestCredential
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
+import gov.cdc.prime.router.credentials.UserEtorCredential
 import gov.cdc.prime.router.credentials.UserAssertionCredential
 import gov.cdc.prime.router.credentials.UserJksCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
@@ -261,6 +262,16 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 // if successful, add the token returned to the token storage
                 bearerTokens = BearerTokens(tokenInfo.accessToken, tokenInfo.refreshToken ?: "")
             }
+            is UserEtorCredential -> {
+                val tokenInfoEtor: TokenInfoEtor = getAuthTokenWithUserEtor(
+                    restTransportInfo.authTokenUrl,
+                    credential,
+                    logger,
+                    tokenClient
+                )
+                // if successful, add the token returned to the token storage
+                bearerTokens = BearerTokens(tokenInfoEtor.accessToken, "")
+            }
             is UserPassCredential -> {
                 tokenInfo = getAuthTokenWithUserPass(
                     restTransportInfo.authTokenUrl,
@@ -349,6 +360,29 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             return tokenInfo
         }
     }
+    suspend fun getAuthTokenWithUserEtor(
+        restUrl: String,
+        credential: UserEtorCredential,
+        logger: Logger,
+        httpClient: HttpClient
+    ): TokenInfoEtor {
+        httpClient.use { client ->
+            val tokenInfo: TokenInfoEtor = client.submitForm(
+                restUrl,
+                formParameters = Parameters.build {
+                    append("scope", "report-stream")
+                    append("client_assertion", credential.apiKey)
+                }
+
+            ) {
+                expectSuccess = true // throw an exception if not successful
+                accept(ContentType.Application.Json)
+            }.body()
+            logger.info("Got Token with UserEtor")
+            return tokenInfo
+        }
+    }
+
 
     /**
      * Get the OAuth token by submitting UserPass credentials
@@ -408,6 +442,10 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         // OK
                         "hl7" -> {
                             TextContent(message.toString(Charsets.UTF_8), ContentType.Text.Plain)
+                        }
+                        // Flexion
+                        "demographics" -> {
+                            TextContent(message.toString(Charsets.UTF_8), ContentType.Application.Json)
                         }
                         // WA
                         "elr" -> {
