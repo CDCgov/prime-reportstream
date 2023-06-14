@@ -17,6 +17,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
 
+      - name: Get runner ip
+        id: runner_ip
+        uses: ./.github/actions/runner-ip
+
       - name: Connect to VPN & Login into Azure 
         uses: ./.github/actions/vpn-azure
         with:
@@ -25,6 +29,11 @@ jobs:
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Add Runner IP to Postgres Firewall
+        run: |
+          az postgres server firewall-rule create --resource-group prime-data-hub-staging --server-name ${{ secrets.POSTGRES_HOST }} --name GHA --start-ip-address ${{ steps.runner_ip.outputs.ip-address }} --end-ip-address ${{ steps.runner_ip.outputs.ip-address }}
+
 
       - name: Connect to PostgreSQL & Run query
         id: check_data
