@@ -39,8 +39,8 @@ jobs:
         id: check_data
         run: |
           query="SELECT * FROM public.task WHERE created_at < NOW() - INTERVAL '10 minutes';"
-          query_result=$(psql "host=${{ secrets.POSTGRESQL_STG_SERVER_NAME }} port=5432 dbname=${{ secrets.POSTGRES_DB_NAME }} user=${{ secrets.POSTGRESQL_STG_ADMIN_USER }} password=${{ secrets.POSTGRESQL_STAGING_PWD }} sslmode=require" -t -c $query)
-          query_result=$(psql "host=${{ secrets.POSTGRESQL_PROD_SERVER_NAME }} port=5432 dbname=${{ secrets.POSTGRES_DB_NAME }} user=${{ secrets.POSTGRESQL_PROD_ADMIN_USER }} password=${{ secrets.POSTGRESQL_PROD_PWD }} sslmode=require" -t -c $query)
+          query_result=$(psql "host=${{ secrets.POSTGRESQL_STG_SERVER_NAME }}.postgres.database.azure.com port=5432 dbname=${{ secrets.POSTGRES_DB_NAME }} user=${{ secrets.POSTGRESQL_STG_ADMIN_USER }} password=${{ secrets.POSTGRESQL_STAGING_PWD }} sslmode=require" -t -c $query)
+          query_result=$(psql "host=${{ secrets.POSTGRESQL_PROD_SERVER_NAME }}.postgres.database.azure.com port=5432 dbname=${{ secrets.POSTGRES_DB_NAME }} user=${{ secrets.POSTGRESQL_PROD_ADMIN_USER }} password=${{ secrets.POSTGRESQL_PROD_PWD }} sslmode=require" -t -c $query)
           echo "QUERY_RESULT=$query_result" >> $GITHUB_OUTPUT
 
       - name: Slack Notification    
