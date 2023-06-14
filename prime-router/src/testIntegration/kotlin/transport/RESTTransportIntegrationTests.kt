@@ -142,12 +142,6 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         null,
         mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
     )
-    private val flexionRestTransportType = RESTTransportType(
-        "http://rest-webservice:3001/report",
-        "http://rest-webservice:3001/token",
-        null,
-        mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
-    )
     private val task = Task(
         reportId,
         TaskAction.send,
@@ -406,7 +400,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
                 "036231e0-5a1a-4ded-b784-2c4212e311bb")
         )
 
-        val retryItems = mockRestTransport.send(flexionRestTransportType, header, reportId, null, context, actionHistory)
+        val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
     }
 }
