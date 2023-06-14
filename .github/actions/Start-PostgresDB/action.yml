@@ -22,7 +22,7 @@ runs:
         $Json = $FnDetails | ConvertFrom-JSON
         $State       = $Json.state
         Write-Host $State
-        if ($State -not contains "ready"){
+        if ($State -notcontains "ready"){
           az postgres flexible-server start --name ${{ inputs.name }} --resource-group ${{ inputs.resource-group }} --subscription ${{ inputs.subscription }}
           }
           
