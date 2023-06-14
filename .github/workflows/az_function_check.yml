@@ -1,4 +1,4 @@
-name: Azure Function Deployment
+name: Functionapp Task table Check
 
 on:
   push:
@@ -29,14 +29,10 @@ jobs:
       - name: Connect to PostgreSQL & Run query
         id: check_data
         run: |
-          query="SELECT COUNT(*) FROM ABC WHERE timestamp_column < NOW() - INTERVAL '10 minutes'"
+          query="SELECT * FROM public.task WHERE created_at < NOW() - INTERVAL '10 minutes';"
 
-          fqdn=$(az postgres server show --resource-group prime-data-hub-staging --name {{ secrets.POSTGRES_HOST }} --query "fullyQualifiedDomainName" -o tsv)
+          query_result=$(psql "host=${{ secrets.POSTGRES_HOST }}.postgres.database.azure.com port=5432 dbname=${{ secrets.POSTGRES_DB }} user=${{ secrets.POSTGRES_USER }}@${{ secrets.POSTGRES_HOST }} password=${{ secrets.POSTGRES_PASSWORD }} sslmode=require" -t -c $query)
 
-          connection_string="postgresql://${{ secrets.POSTGRES_USER }}@{{ secrets.POSTGRES_HOST }}@$fqdn:5432/prime_data_hub?sslmode=require"
-
-
-          query_result=$(psql "$connection_string" -t -c "$query")
           echo "::set-output name=query_result::$query_result"
 
       - name: Slack Notification    
@@ -45,9 +41,8 @@ jobs:
         uses: ./.github/actions/notifications
         with:
           method: slack
-          title: Found data older than 10 minutes in the public.task table
-          message: |
-            ${{ steps.format_out.outputs.LIST }}
+          title: Functionapp Task table Check
+          message: Found data older than 10 minutes in the public.task table
           icon-emoji: ':bell:'
           channel: pagerduty-alert-dump
           webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
