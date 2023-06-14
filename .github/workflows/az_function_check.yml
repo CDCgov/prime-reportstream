@@ -45,7 +45,7 @@ jobs:
           echo "::set-output name=query_result::$query_result"
 
       - name: Slack Notification    
-        if: ${{ steps.check_data.outputs.query_result > '10' }} 
+        if: ${{ steps.check_data.outputs.query_result > '5' }} 
         #if: ${{ steps.format_out.outputs.LIST  != '' }}        
         uses: ./.github/actions/notifications
         with:
