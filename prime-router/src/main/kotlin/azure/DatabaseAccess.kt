@@ -1414,7 +1414,10 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             config.maxLifetime = 180000
             val dataSource = HikariDataSource(config)
 
-            val flyway = Flyway.configure().dataSource(dataSource).load()
+            val flyway = Flyway.configure()
+                .dataSource(dataSource)
+                .executeInTransaction(false)
+                .load()
             if (isFlywayMigrationOK) {
                 flyway.migrate()
             }

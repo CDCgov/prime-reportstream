@@ -564,21 +564,6 @@ flyway {
     password = dbPassword
     cleanDisabled = false
     mixed = true
-    // theoretically this should work to set the property to false which will prevent the running of the scripts
-    // inside a transaction, but it does not work. leaving here as a note for now. if you want to address where
-    // it is actually working from, go to the gradle.properties file instead
-    pluginConfiguration = mutableMapOf(
-        "postgresqlTransactionalLock" to "false"
-    )
-}
-
-tasks.flywayMigrate {
-    // theoretically this should also work to set the property to false which will prevent the running of the scripts
-    // inside a transaction, but it does not work. leaving here as a note for now. if you want to address where
-    // it is actually working from, go to the gradle.properties file instead
-    pluginConfiguration = mutableMapOf(
-        "postgresqlTransactionalLock" to "false"
-    )
 }
 
 // Database code generation configuration
@@ -787,7 +772,7 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.postgresql:postgresql:42.5.1")
     implementation("com.zaxxer:HikariCP:5.0.1")
-    implementation("org.flywaydb:flyway-core:9.7.0")
+    implementation("org.flywaydb:flyway-core:9.19.4")
     implementation("org.commonmark:commonmark:0.21.0")
     implementation("com.google.guava:guava:31.1-jre")
     implementation("com.helger.as2:as2-lib:4.11.0")
