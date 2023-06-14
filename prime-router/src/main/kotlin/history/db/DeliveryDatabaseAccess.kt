@@ -183,6 +183,8 @@ class DeliveryDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessS
                         .`as`(DeliveryTable.DELIVERY.SUBMITTER),
                     ReportFile.REPORT_FILE.REPORT_ID.`as`(DeliveryTable.DELIVERY.REPORT_ID),
                     ReportFile.REPORT_FILE.CREATED_AT.`as`(DeliveryTable.DELIVERY.CREATED_AT),
+                    // Currently an open issue for doing this via the DSL
+                    // https://github.com/jOOQ/jOOQ/issues/6723
                     DSL.field(
                         "\"public\".\"report_file\".\"created_at\" + INTERVAL '60 days'",
                         SQLDataType.OFFSETDATETIME

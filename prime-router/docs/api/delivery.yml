@@ -34,7 +34,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schema/DeliveryApiSearchResults'
+                $ref: '#/components/schemas/DeliveryApiSearchResults'
         '401':
           description: Unauthorized
         '400':
@@ -201,6 +201,10 @@ components:
             previousPage:
               type: integer
               description: the previous page of results
+            reportId:
+              type: string
+              format: uuid
+              description: The ID for the sent report
         data:
           type: array
           items:
