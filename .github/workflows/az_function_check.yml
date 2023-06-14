@@ -30,7 +30,7 @@ jobs:
         id: check_data
         run: |
           query="SELECT COUNT(*) FROM ABC WHERE timestamp_column < NOW() - INTERVAL '10 minutes'"
-          connection_string="postgresql://${{ secrets.POSTGRES_USER }}@${{ secrets.POSTGRES_HOST }}:5432/prime_data_hub?sslmode=require"
+          connection_string="postgresql://prime@pdhstaging-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
           query_result=$(psql "$connection_string" -t -c "$query")
           echo "::set-output name=query_result::$query_result"
 
