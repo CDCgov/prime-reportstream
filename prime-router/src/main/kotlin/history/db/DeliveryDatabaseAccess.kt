@@ -33,7 +33,7 @@ class Delivery(
     val reportId: UUID,
     val createdAt: OffsetDateTime,
     val expirationDate: OffsetDateTime,
-    val numberOfTests: Int
+    val testResultCount: Int
 )
 
 class DeliveryTable : CustomTable<DeliveryRecord>(DSL.name("delivery")) {
@@ -44,7 +44,7 @@ class DeliveryTable : CustomTable<DeliveryRecord>(DSL.name("delivery")) {
     val REPORT_ID = createField(DSL.name("report_id"), SQLDataType.UUID)
     val CREATED_AT = createField(DSL.name("created_at"), SQLDataType.OFFSETDATETIME)
     val EXPIRATION_DATE = createField(DSL.name("expiration_date"), SQLDataType.OFFSETDATETIME)
-    val NUMBER_OF_TESTS = createField(DSL.name("number_of_tests"), SQLDataType.INTEGER)
+    val TEST_RESULT_COUNT = createField(DSL.name("test_result_count"), SQLDataType.INTEGER)
     val SORT_ID = createField(DSL.name("sort_id"), SQLDataType.VARCHAR)
 
     companion object {
@@ -179,7 +179,7 @@ class DeliveryDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessS
                     ReportFile.REPORT_FILE.REPORT_ID.`as`(DeliveryTable.DELIVERY.REPORT_ID),
                     ReportFile.REPORT_FILE.CREATED_AT.`as`(DeliveryTable.DELIVERY.CREATED_AT),
                     ReportFile.REPORT_FILE.CREATED_AT.`as`(DeliveryTable.DELIVERY.EXPIRATION_DATE),
-                    DSL.sum(ReportFile.REPORT_FILE.ITEM_COUNT).`as`(DeliveryTable.DELIVERY.NUMBER_OF_TESTS),
+                    DSL.sum(ReportFile.REPORT_FILE.ITEM_COUNT).`as`(DeliveryTable.DELIVERY.TEST_RESULT_COUNT),
                     ReportFile.REPORT_FILE.REPORT_ID.cast(SQLDataType.VARCHAR)
                         .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME)
                         .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_NAME)
