@@ -80,9 +80,12 @@ updates:
   # All packages weekly
   - package-ecosystem: "npm"
     directory: "/frontend-react"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 100
     schedule:
       interval: "weekly"
+      day: "sunday"
+      time: "00:17"
+      timezone: "US/Eastern"
     rebase-strategy: "disabled"
 
   # OPERATIONS
@@ -120,9 +123,12 @@ updates:
   # All packages weekly
   - package-ecosystem: "gradle"
     directory: "/prime-router"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 100
     schedule:
       interval: "weekly"
+      day: "sunday"
+      time: "03:17"
+      timezone: "US/Eastern"
     rebase-strategy: "disabled"
     ignore:
       # ignore updates to sshj so we don't run into future issues connecting to STLTs
