@@ -39,13 +39,11 @@ jobs:
         id: check_data
         run: |
           query="SELECT * FROM public.task WHERE created_at < NOW() - INTERVAL '10 minutes';"
-
           query_result=$(psql "host=${{ secrets.POSTGRES_HOST }}.postgres.database.azure.com port=5432 dbname=${{ secrets.POSTGRES_DB }} user=${{ secrets.POSTGRES_USER }}@${{ secrets.POSTGRES_HOST }} password=${{ secrets.POSTGRES_PASSWORD }} sslmode=require" -t -c $query)
-
-          echo "::set-output name=query_result::$query_result"
+          echo "QUERY_RESULT=$query_result" >> $GITHUB_OUTPUT
 
       - name: Slack Notification    
-        if: ${{ steps.check_data.outputs.query_result != '0' }} 
+        if: ${{ steps.check_data.outputs.QUERY_RESULT != '0' }} 
         uses: ./.github/actions/notifications
         with:
           method: slack
@@ -58,4 +56,4 @@ jobs:
 
       - name: Add Runner IP to Postgres Firewall
         run: |
-            az postgres server firewall-rule delete --resource-group prime-data-hub-staging --server-name ${{ secrets.POSTGRES_HOST }} --name GHA
+            az postgres server firewall-rule delete --resource-group prime-data-hub-staging --server-name ${{ secrets.POSTGRES_HOST }} --name GHA --yes
