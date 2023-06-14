@@ -58,7 +58,6 @@ runs:
         yarn build:$ENV
       shell: bash
       
-# unnecessary?
     - name: Check out everything to generate backend statistics for SonarCloud
       uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
       with:
