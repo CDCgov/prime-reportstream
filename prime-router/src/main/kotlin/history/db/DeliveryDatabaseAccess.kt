@@ -169,38 +169,56 @@ class DeliveryDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessS
 
             val deliveriesExpression = DSL.name("delivery").`as`(
                 DSL.select(
-                    CovidResultMetadata
-                        .COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME
-                        .`as`(DeliveryTable.DELIVERY.ORDERING_PROVIDER),
-                    CovidResultMetadata
-                        .COVID_RESULT_METADATA.ORDERING_FACILITY_NAME
+                    metadata.field(
+                        CovidResultMetadata
+                            .COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME
+                    )
+                    !!.`as`(DeliveryTable.DELIVERY.ORDERING_PROVIDER),
+                    metadata.field(
+                        CovidResultMetadata
+                            .COVID_RESULT_METADATA.ORDERING_FACILITY_NAME
+                    )!!
                         .`as`(DeliveryTable.DELIVERY.ORDERING_FACILITY),
-                    CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID.`as`(DeliveryTable.DELIVERY.SUBMITTER),
+                    metadata.field(CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID)!!
+                        .`as`(DeliveryTable.DELIVERY.SUBMITTER),
                     ReportFile.REPORT_FILE.REPORT_ID.`as`(DeliveryTable.DELIVERY.REPORT_ID),
                     ReportFile.REPORT_FILE.CREATED_AT.`as`(DeliveryTable.DELIVERY.CREATED_AT),
                     ReportFile.REPORT_FILE.CREATED_AT.`as`(DeliveryTable.DELIVERY.EXPIRATION_DATE),
                     DSL.sum(ReportFile.REPORT_FILE.ITEM_COUNT).`as`(DeliveryTable.DELIVERY.TEST_RESULT_COUNT),
                     ReportFile.REPORT_FILE.REPORT_ID.cast(SQLDataType.VARCHAR)
-                        .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME)
-                        .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_NAME)
-                        .concat(CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID)
+                        .concat(
+                            metadata.field(
+                                CovidResultMetadata
+                                    .COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME
+                            )
+                        )
+                        .concat(
+                            metadata.field(
+                                CovidResultMetadata
+                                    .COVID_RESULT_METADATA.ORDERING_FACILITY_NAME
+                            )
+                        )
+                        .concat(metadata.field(CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID))
                         .`as`(DeliveryTable.DELIVERY.SORT_ID)
                 )
-                    .from(CovidResultMetadata.COVID_RESULT_METADATA)
+                    .from(metadata)
                     .join(ItemGraphTable.ITEM_GRAPH)
                     .on(
                         ItemGraphTable.ITEM_GRAPH.PARENT_REPORT_ID
-                            .eq(CovidResultMetadata.COVID_RESULT_METADATA.REPORT_ID),
+                            .eq(metadata.field(CovidResultMetadata.COVID_RESULT_METADATA.REPORT_ID)),
                         ItemGraphTable.ITEM_GRAPH.PARENT_INDEX
-                            .eq(CovidResultMetadata.COVID_RESULT_METADATA.REPORT_INDEX)
+                            .eq(metadata.field(CovidResultMetadata.COVID_RESULT_METADATA.REPORT_INDEX))
                     )
                     .join(ReportFile.REPORT_FILE)
                     .on(ReportFile.REPORT_FILE.REPORT_ID.eq(ItemGraphTable.ITEM_GRAPH.STARTING_REPORT_ID))
                     .groupBy(
                         ReportFile.REPORT_FILE.REPORT_ID,
-                        CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME,
-                        CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_NAME,
-                        CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID,
+                        metadata.field(
+                            CovidResultMetadata
+                                .COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME
+                        ),
+                        metadata.field(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_NAME),
+                        metadata.field(CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID),
                     ).coerce(DeliveryTable.DELIVERY)
             )
             search.fetchResults(
