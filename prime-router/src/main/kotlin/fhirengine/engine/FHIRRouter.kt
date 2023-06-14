@@ -361,7 +361,7 @@ class FHIRRouter(
                 report,
                 receiver,
                 ReportStreamFilterType.ROUTING_FILTER,
-                true
+                defaultResponse = true,
             )
 
             // PROCESSING MODE FILTER
@@ -372,7 +372,7 @@ class FHIRRouter(
                 report,
                 receiver,
                 ReportStreamFilterType.PROCESSING_MODE_FILTER,
-                false
+                defaultResponse = true
             )
 
             // CONDITION FILTER

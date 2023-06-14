@@ -206,7 +206,7 @@ class RoutingTests {
         every { getJurisFilters(any(), any()) } returns jurisFilter
         every { getQualityFilters(any(), any(), any()) } returns qualFilter
         every { getRoutingFilter(any(), any()) } returns routingFilter
-        every { getProcessingModeFilter(any(), any()) } returns procModeFilter
+        every { getProcessingModeFilter(any(), any(), any()) } returns procModeFilter
         every { getConditionFilter(any(), any()) } returns conditionFilter
     }
 
