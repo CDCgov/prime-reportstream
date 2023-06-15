@@ -35,55 +35,6 @@ hr {
 }
 // End -- FileHandler.tsx
 
-// MessageReceivers.tsx
-.message-receivers-table {
-    .usa-table thead th {
-        cursor: pointer;
-        user-select: none;
-        background-color: color("gray-5");
-    }
-
-    .usa-table thead th.active-col-header {
-        background-color: color("blue-30");
-    }
-
-    .usa-table td.active-col-td {
-        background-color: color("blue-10");
-    }
-
-    .usa-table thead .column-header-title-container {
-        display: flex;
-        align-items: center;
-    }
-
-    .usa-table thead .column-header-title-container p {
-        font-size: 14px;
-        margin: 0;
-    }
-
-    .usa-table thead .column-header-title-container svg {
-        flex: none;
-        margin-left: 2px;
-        height: 28px;
-        width: 28px;
-    }
-
-    .usa-table td.message-receiver-break-word {
-        cursor: pointer;
-        max-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .usa-table td {
-        font-size: 14px;
-        padding: 1rem;
-        vertical-align: top;
-    }
-}
-// End -- MessageReceivers.tsx
-
 // FileHandlerMessaging.tsx
 .validation-section-header {
     font-size: 20px;

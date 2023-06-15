@@ -125,7 +125,8 @@ class FhirTranslatorTests {
         val actionLogger = mockk<ActionLogger>()
         val engine = makeFhirEngine()
 
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+        val message =
+            spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", topic = Topic.FULL_ELR))
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
@@ -138,6 +139,8 @@ class FhirTranslatorTests {
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
+            .returns(Unit)
+        every { actionHistory.trackActionReceiverInfo(any(), any()) }
             .returns(Unit)
 
         // act
@@ -152,6 +155,7 @@ class FhirTranslatorTests {
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
             accessSpy.insertTask(any(), any(), any(), any())
+            actionHistory.trackActionReceiverInfo(any(), any())
         }
     }
 
@@ -166,7 +170,7 @@ class FhirTranslatorTests {
         val actionLogger = mockk<ActionLogger>()
 
         val engine = makeFhirEngine(settings = settings)
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", Topic.FULL_ELR))
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
@@ -347,7 +351,7 @@ class FhirTranslatorTests {
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", Topic.FULL_ELR))
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
@@ -361,6 +365,7 @@ class FhirTranslatorTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
+        every { actionHistory.trackActionReceiverInfo(any(), any()) }.returns(Unit)
 
         val engine = spyk(makeFhirEngine())
 
@@ -404,7 +409,7 @@ class FhirTranslatorTests {
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", Topic.FULL_ELR))
 
         val bodyFormat = Report.Format.FHIR
         val bodyUrl = "http://anyblob.com"
@@ -419,6 +424,7 @@ class FhirTranslatorTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
+        every { actionHistory.trackActionReceiverInfo(any(), any()) }.returns(Unit)
 
         val engine = spyk(makeFhirEngine(settings = settings))
 

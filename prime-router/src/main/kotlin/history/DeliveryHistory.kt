@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.Topic
 import java.time.OffsetDateTime
 
 /**
@@ -41,7 +42,7 @@ class DeliveryHistory(
     externalName: String? = "",
     reportId: String? = null,
     @JsonProperty("topic")
-    schema_topic: String? = null,
+    schema_topic: Topic? = null,
     @JsonProperty("reportItemCount")
     itemCount: Int? = null,
     @JsonIgnore // Instead, use receiver, defined below.
@@ -68,27 +69,30 @@ class DeliveryHistory(
     /**
      * The time that the report is expected to no longer be available.
      */
-    val expires: OffsetDateTime get() {
-        return this.createdAt.plusDays(DAYS_TO_SHOW)
-    }
+    val expires: OffsetDateTime
+        get() {
+            return this.createdAt.plusDays(DAYS_TO_SHOW)
+        }
 
     /**
      * The actual download path for the file.
      */
-    val fileName: String get() {
-        return Report.formExternalFilename(
-            this.bodyUrl,
-            ReportId.fromString(this.reportId),
-            this.schemaName,
-            Report.Format.safeValueOf(this.bodyFormat),
-            this.createdAt
-        )
-    }
+    val fileName: String
+        get() {
+            return Report.formExternalFilename(
+                this.bodyUrl,
+                ReportId.fromString(this.reportId),
+                this.schemaName,
+                Report.Format.safeValueOf(this.bodyFormat),
+                this.createdAt
+            )
+        }
 
     /**
      * The fullName of the recipient of the input report, or less, if missing some fields.
      */
     var receiver: String? = ""
+
     init {
         receiver = when {
             receivingOrg.isNullOrBlank() -> ""
@@ -120,17 +124,18 @@ data class DeliveryFacility(
      * This is a combination of the city and state values
      * for easier conversion into an output format
      */
-    val location: String? get() {
-        var loc = this.testingLabCity
+    val location: String?
+        get() {
+            var loc = this.testingLabCity
 
-        if (this.testingLabState != null) {
-            loc = if (loc != null) {
-                loc + ", " + this.testingLabState
-            } else {
-                this.testingLabState
+            if (this.testingLabState != null) {
+                loc = if (loc != null) {
+                    loc + ", " + this.testingLabState
+                } else {
+                    this.testingLabState
+                }
             }
-        }
 
-        return loc
-    }
+            return loc
+        }
 }

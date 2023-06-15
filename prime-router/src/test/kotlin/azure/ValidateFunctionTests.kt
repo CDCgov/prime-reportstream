@@ -9,13 +9,13 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
-import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -477,7 +477,7 @@ class ValidateFunctionTests {
         val validateFunc = spyk(ValidateFunction(engine, actionHistory))
 
         // act
-        val expectedSender = TopicSender(
+        val expectedSender = LegacyPipelineSender(
             "ValidationSender",
             "Internal",
             Sender.Format.CSV,
