@@ -26,7 +26,7 @@ import org.jooq.impl.SQLDataType
 import java.time.OffsetDateTime
 import java.util.UUID
 
-private const val EXPIRATION_DAYS_OFFSET  = 60
+private const val EXPIRATION_DAYS_OFFSET = 60
 
 class Delivery(
     val orderingProvider: String?,
