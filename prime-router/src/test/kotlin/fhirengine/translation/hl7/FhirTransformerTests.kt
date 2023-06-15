@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
 import assertk.assertThat
-import assertk.assertions.hasClass
+import assertk.assertions.messageContains
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
@@ -144,18 +144,18 @@ class FhirTransformerTests {
         // B/C sharing the same name
         elemC.name = "elementB"
         assertThat { FhirTransformer(rootSchema).transform(bundle) }.isFailure()
-            .hasClass(SchemaException::class.java)
+            .messageContains("multiple elements")
 
         // A/B sharing the same name
         elemC.name = "elementC"
         elemA.name = "elementB"
         assertThat { FhirTransformer(rootSchema).transform(bundle) }.isFailure()
-            .hasClass(SchemaException::class.java)
+            .messageContains("multiple elements")
 
         // A/C sharing the same name
         elemA.name = "elementC"
         assertThat { FhirTransformer(rootSchema).transform(bundle) }.isFailure()
-            .hasClass(SchemaException::class.java)
+            .messageContains("multiple elements")
     }
 
     @Test
