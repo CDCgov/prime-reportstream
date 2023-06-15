@@ -1,0 +1,25 @@
+extends: ../default-sender-transform
+elements:
+  # TODO: Remove this once Covid results for CA are routed through the UP
+  #       Simple Report subtracts 15 minutes from dates being sent to us through the Covid pipeline
+  #       CA wants Simple Report to stop doing that for them, but Simple Report can't just turn it off for every
+  #       message we receive. They will stop doing this for reports sent through the UP, but we will have to continue
+  #       doing this in the UP until we start routing the Covid results through the UP to keep dates consistent across.
+  - name: results-reported-at
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    condition: '%resource.issued.exists()'
+    bundleProperty: '%resource.issued'
+    value: [ '%resource.issued - 15 minutes' ]
+
+
+  - name: observation-date-time
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    condition: '%resource.effective.exists()'
+    bundleProperty: '%resource.effective[x]'
+    value: [ '%resource.effective - 15 minutes' ]
+
+  - name: specimen-collection-time
+    resource: 'Bundle.entry.resource.ofType(Specimen)'
+    condition: '%resource.collection.collected.exists()'
+    bundleProperty: '%resource.collection.collected'
+    value: [ '%resource.collection.collected - 15 minutes' ]

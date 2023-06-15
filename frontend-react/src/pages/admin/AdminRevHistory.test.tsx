@@ -86,7 +86,7 @@ describe("AdminRevHistory", () => {
         {
             const clickTarget1 = screen.getAllByText(/local@test.com/)[0];
             const parentRow1 = clickTarget1.parentElement;
-            expect(parentRow1).not.toBeNull();
+            expect(parentRow1).toBeInTheDocument();
             // key linter happy
             if (parentRow1 !== null) {
                 await userEvent.click(parentRow1);
@@ -96,7 +96,7 @@ describe("AdminRevHistory", () => {
         {
             const clickTarget2 = screen.getAllByText(/local1@test.com/)[1];
             const parentRow2 = clickTarget2.parentElement;
-            expect(parentRow2).not.toBeNull();
+            expect(parentRow2).toBeInTheDocument();
             // key linter happy
             if (parentRow2 !== null) {
                 await userEvent.click(parentRow2);

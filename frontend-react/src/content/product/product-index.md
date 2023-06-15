@@ -70,7 +70,7 @@ ReportStream can receive report data as either comma-separated values (CSV) or H
 
 #### API method: Electronic Laboratory Reporting (ELR)
 
-Depending on the needs of your organization or facility, ReportStream can configure an ELR connection with your existing systems. ReportStream has established connections with large organizations, test manufacturers, and facilities with advanced systems. For more information, read the [ReportStream programmer's guide](https://reportstream.cdc.gov/resources/programmers-guide).
+Depending on the needs of your organization or facility, ReportStream can configure an ELR connection with your existing systems. ReportStream has established connections with large organizations, test manufacturers, and facilities with advanced systems. For more information, read the [ReportStream API](https://reportstream.cdc.gov/resources/api).
 
 #### Single report online submission method: SimpleReport
 

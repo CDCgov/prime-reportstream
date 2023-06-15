@@ -31,6 +31,13 @@ resource "azurerm_storage_account" "storage_account" {
     ]
   }
 
+  blob_properties {
+    delete_retention_policy {
+      enabled = var.environment == "prod" ? true : false
+      days    = 7
+    }
+  }
+
   tags = {
     environment = var.environment
   }
@@ -196,6 +203,13 @@ resource "azurerm_storage_account" "storage_public" {
     prevent_destroy = false
   }
 
+  blob_properties {
+    delete_retention_policy {
+      enabled = var.environment == "prod" ? true : false
+      days    = 7
+    }
+  }
+
   tags = {
     environment = var.environment
   }
@@ -247,6 +261,13 @@ resource "azurerm_storage_account" "storage_partner" {
       secondary_blob_connection_string,
       network_rules[0].ip_rules
     ]
+  }
+
+  blob_properties {
+    delete_retention_policy {
+      enabled = var.environment == "prod" ? true : false
+      days    = 7
+    }
   }
 
   tags = {

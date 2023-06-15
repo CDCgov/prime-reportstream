@@ -25,6 +25,7 @@ locals {
     POSTGRES_HOST                      = "${var.resource_prefix}-pgsql.postgres.database.azure.com"
     POSTGRES_USER                      = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-postgres-user)"
     POSTGRES_PASSWORD                  = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-postgres-pass)"
+    SLACK_WEBHOOK_URL                  = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-slack-webhook-url)"
   }
   # Set app configuration
   config = {

@@ -1,8 +1,8 @@
 import React from "react";
 
 import { MarkdownLayout } from "../../../../components/Content/MarkdownLayout";
-import Markdown from "../../../../content/resources/api-programmers-guide/documentation/Documentation.mdx";
-import Sidenav from "../../../../content/resources/api-programmers-guide/Sidenav.mdx";
+import Markdown from "../../../../content/resources/reportstream-api/documentation/Documentation.mdx";
+import Sidenav from "../../../../content/resources/reportstream-api/Sidenav.mdx";
 
 export interface DocumentationPageProps {}
 

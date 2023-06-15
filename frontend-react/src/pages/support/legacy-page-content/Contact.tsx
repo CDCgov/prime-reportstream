@@ -44,7 +44,7 @@ export const Contact = () => {
                 <p>
                     Read our guides for sending data via{" "}
                     <USLink href="/resources/elr-checklist">ELR</USLink> or{" "}
-                    <USLink href="/resources/programmers-guide">API</USLink>.
+                    <USLink href="/resources/api">API</USLink>.
                 </p>
                 <p>
                     If you are having issues with an existing connection, use

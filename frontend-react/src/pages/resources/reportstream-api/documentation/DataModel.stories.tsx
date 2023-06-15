@@ -2,13 +2,13 @@ import { ComponentMeta, ComponentStoryObj } from "@storybook/react";
 import React from "react";
 
 import { USSmartLink } from "../../../../components/USLink";
-import PatientDataElementsTableMD from "../../../../content/resources/api-programmers-guide/documentation/data-model/PatientDataElementsTable.mdx";
-import OrderAndResultDataElementsTableMD from "../../../../content/resources/api-programmers-guide/documentation/data-model/OrderAndResultDataElementsTable.mdx";
-import SpecimenDataElementsTableMD from "../../../../content/resources/api-programmers-guide/documentation/data-model/SpecimenDataElementsTable.mdx";
-import OrderingProviderDataElementsTableMD from "../../../../content/resources/api-programmers-guide/documentation/data-model/OrderingProviderDataElementsTable.mdx";
-import TestingFacilityDataElementsTableMD from "../../../../content/resources/api-programmers-guide/documentation/data-model/TestingFacilityDataElementsTable.mdx";
-import AskOnEntryTableMD from "../../../../content/resources/api-programmers-guide/documentation/data-model/AskOnEntryTable.mdx";
-import ReportingAndOrderingFacilityDataElementsTableMD from "../../../../content/resources/api-programmers-guide/documentation/data-model/ReportingAndOrderingFacilityDataElementsTable.mdx";
+import PatientDataElementsTableMD from "../../../../content/resources/reportstream-api/documentation/data-model/PatientDataElementsTable.mdx";
+import OrderAndResultDataElementsTableMD from "../../../../content/resources/reportstream-api/documentation/data-model/OrderAndResultDataElementsTable.mdx";
+import SpecimenDataElementsTableMD from "../../../../content/resources/reportstream-api/documentation/data-model/SpecimenDataElementsTable.mdx";
+import OrderingProviderDataElementsTableMD from "../../../../content/resources/reportstream-api/documentation/data-model/OrderingProviderDataElementsTable.mdx";
+import TestingFacilityDataElementsTableMD from "../../../../content/resources/reportstream-api/documentation/data-model/TestingFacilityDataElementsTable.mdx";
+import AskOnEntryTableMD from "../../../../content/resources/reportstream-api/documentation/data-model/AskOnEntryTable.mdx";
+import ReportingAndOrderingFacilityDataElementsTableMD from "../../../../content/resources/reportstream-api/documentation/data-model/ReportingAndOrderingFacilityDataElementsTable.mdx";
 import { MarkdownLayout } from "../../../../components/Content/MarkdownLayout";
 
 import DataModelPage from "./DataModel";

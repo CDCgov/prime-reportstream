@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouteObject } from "react-router-dom";
+import { createBrowserRouter, redirect, RouteObject } from "react-router-dom";
 import { LoginCallback } from "@okta/okta-react";
 import React from "react";
 
@@ -32,13 +32,13 @@ import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
-import { GettingStartedPage } from "./pages/resources/api-programmers-guide/GettingStarted";
-import { DocumentationPage } from "./pages/resources/api-programmers-guide/documentation/Documentation";
-import { DataModelPage } from "./pages/resources/api-programmers-guide/documentation/DataModel";
-import { ResponsesFromReportStreamPage } from "./pages/resources/api-programmers-guide/documentation/ResponsesFromReportStream";
-import { SamplePayloadsAndOutputPage } from "./pages/resources/api-programmers-guide/documentation/SamplePayloadsAndOutput";
+import { GettingStartedPage } from "./pages/resources/reportstream-api/GettingStarted";
+import { DocumentationPage } from "./pages/resources/reportstream-api/documentation/Documentation";
+import { DataModelPage } from "./pages/resources/reportstream-api/documentation/DataModel";
+import { ResponsesFromReportStreamPage } from "./pages/resources/reportstream-api/documentation/ResponsesFromReportStream";
+import { SamplePayloadsAndOutputPage } from "./pages/resources/reportstream-api/documentation/SamplePayloadsAndOutput";
 import FileHandler from "./components/FileHandlers/FileHandler";
-import { ReportStreamAPIPage } from "./pages/resources/api-programmers-guide/ReportStreamApi";
+import { ReportStreamAPIPage } from "./pages/resources/reportstream-api/ReportStreamApi";
 import { FaqPage } from "./pages/support/faq/FaqPage";
 import { DataDashboardWithAuth } from "./pages/data-dashboard/DataDashboard";
 import MainLayout from "./layouts/MainLayout";
@@ -161,6 +161,12 @@ export const appRoutes: RouteObject[] = [
                                 ],
                             },
                         ],
+                    },
+                    {
+                        path: "programmers-guide",
+                        loader: async () => {
+                            return redirect("/resources/api");
+                        },
                     },
                     {
                         path: "manage-public-key",

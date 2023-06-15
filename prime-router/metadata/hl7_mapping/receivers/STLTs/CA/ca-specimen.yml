@@ -36,3 +36,34 @@ elements:
     resource: '%performerOrganization'
     value: [ '%resource.name.substring(0,20)' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-2-2-2' ]
+
+  - name: ca-specimen-collection-time
+    condition: '%resource.collection.collected is dateTime'
+    value: [ '%resource.collection.collected.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
+
+  - name: specimen-observation-date-time-start
+    condition: '%resource.collection.collected is Period'
+    value: [ '%resource.collection.collected.start.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
+
+  # Alternative to getting specimen collection time from DiagnosticReport instead
+  - name: specimen-collection-time-diagnostic
+    condition: '%resource.collection.collected.exists().not() and %diagnostic.effective.exists() and %diagnostic.effective is dateTime'
+    value: [ '%diagnostic.effective.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
+
+  - name: specimen-observation-date-time-end
+    condition: '%resource.collection.collected is Period'
+    value: [ '%resource.collection.collected.end.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-17-2' ]
+
+  - name: specimen-received-time
+    condition: '%resource.receivedTime is dateTime'
+    value: [ '%resource.receivedTime.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]
+
+  - name: specimen-received-time-diagnostic
+    condition: '%resource.receivedTime.exists().not() and %diagnostic.issued.exists() and %diagnostic.issued is instant'
+    value: [ '%diagnostic.issued.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]

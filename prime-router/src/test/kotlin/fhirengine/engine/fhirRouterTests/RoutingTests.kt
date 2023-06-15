@@ -390,7 +390,7 @@ class RoutingTests {
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
-            engine.qualityFilterDefault,
+            engine.qualityFilterDefaults[Topic.FULL_ELR],
             bundle,
             false
         )
@@ -904,9 +904,9 @@ class RoutingTests {
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         engine.setFiltersOnEngine(
             jurisFilter,
-            engine.qualityFilterDefault,
+            engine.qualityFilterDefaults[Topic.FULL_ELR]!!,
             routingFilter = emptyList(),
-            engine.processingModeFilterDefault,
+            engine.processingModeDefaults[Topic.FULL_ELR]!!,
         )
 
         val nonBooleanMsg = "Condition did not evaluate to a boolean type"
@@ -1179,7 +1179,7 @@ class RoutingTests {
         report.filteringResults.clear()
 
         val result2 = engine.evaluateFilterAndLogResult(
-            engine.processingModeFilterDefault,
+            engine.processingModeDefaults[Topic.FULL_ELR]!!,
             bundle,
             report,
             oneOrganization.receivers[0],
@@ -1264,46 +1264,49 @@ class RoutingTests {
     fun `test is default filter`() {
         val settings = FileSettings().loadOrganizations(oneOrganization)
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
-        val nonDefaultEquivalentQualityFilter: List<String> = ArrayList(engine.qualityFilterDefault)
-        val nonDefaultEquivalentProcModeFilter: List<String> = ArrayList(engine.processingModeFilterDefault)
+        val nonDefaultEquivalentQualityFilter: List<String> = ArrayList(engine.qualityFilterDefaults[Topic.FULL_ELR]!!)
+        val nonDefaultEquivalentQualityFilter2: List<String> = ArrayList(engine.qualityFilterDefaults[Topic.ETOR_TI]!!)
+        val nonDefaultEquivalentProcFilter: List<String> = ArrayList(engine.processingModeDefaults[Topic.FULL_ELR]!!)
         val nonDefaultQualityFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         val routingFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
         val nonDefaultProcModeFilter = listOf("%processingId = 'P'")
         val conditionFilter = listOf("Bundle.entry.resource.ofType(Provenance).count() > 0")
 
-        assertThat(engine.isDefaultFilter(ReportStreamFilterType.QUALITY_FILTER, engine.qualityFilterDefault)).isTrue()
         assertThat(
             engine.isDefaultFilter(
-                ReportStreamFilterType.QUALITY_FILTER,
-                nonDefaultEquivalentQualityFilter
+                ReportStreamFilterType.QUALITY_FILTER, engine.qualityFilterDefaults[Topic.FULL_ELR]!!
             )
+        ).isTrue()
+        assertThat(
+            engine.isDefaultFilter(ReportStreamFilterType.QUALITY_FILTER, engine.qualityFilterDefaults[Topic.ETOR_TI]!!)
+        ).isTrue()
+        assertThat(
+            engine.isDefaultFilter(ReportStreamFilterType.QUALITY_FILTER, nonDefaultEquivalentQualityFilter)
         ).isFalse()
         assertThat(
-            engine.isDefaultFilter(
-                ReportStreamFilterType.QUALITY_FILTER,
-                nonDefaultQualityFilter
-            )
+            engine.isDefaultFilter(ReportStreamFilterType.QUALITY_FILTER, nonDefaultEquivalentQualityFilter2)
+        ).isFalse()
+        assertThat(
+            engine.isDefaultFilter(ReportStreamFilterType.QUALITY_FILTER, nonDefaultQualityFilter)
         ).isFalse()
 
         assertThat(engine.isDefaultFilter(ReportStreamFilterType.ROUTING_FILTER, routingFilter)).isFalse()
 
         assertThat(
             engine.isDefaultFilter(
-                ReportStreamFilterType.PROCESSING_MODE_FILTER,
-                engine.processingModeFilterDefault
+                ReportStreamFilterType.PROCESSING_MODE_FILTER, engine.processingModeDefaults[Topic.FULL_ELR]!!
             )
         ).isTrue()
         assertThat(
             engine.isDefaultFilter(
-                ReportStreamFilterType.PROCESSING_MODE_FILTER,
-                nonDefaultEquivalentProcModeFilter
+                ReportStreamFilterType.PROCESSING_MODE_FILTER, engine.processingModeDefaults[Topic.ETOR_TI]!!
             )
+        ).isTrue()
+        assertThat(
+            engine.isDefaultFilter(ReportStreamFilterType.PROCESSING_MODE_FILTER, nonDefaultEquivalentProcFilter)
         ).isFalse()
         assertThat(
-            engine.isDefaultFilter(
-                ReportStreamFilterType.PROCESSING_MODE_FILTER,
-                nonDefaultProcModeFilter
-            )
+            engine.isDefaultFilter(ReportStreamFilterType.PROCESSING_MODE_FILTER, nonDefaultProcModeFilter)
         ).isFalse()
 
         assertThat(engine.isDefaultFilter(ReportStreamFilterType.CONDITION_FILTER, conditionFilter)).isFalse()
