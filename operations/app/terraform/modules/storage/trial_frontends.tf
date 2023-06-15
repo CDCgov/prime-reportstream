@@ -35,3 +35,4 @@ resource "azurerm_storage_account" "storage_trials" {
     environment = var.environment
   }
 }
+
