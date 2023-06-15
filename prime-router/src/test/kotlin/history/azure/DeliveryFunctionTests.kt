@@ -30,8 +30,8 @@ import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.history.db.Submitter
+import gov.cdc.prime.router.history.db.SubmitterDatabaseAccess
 import gov.cdc.prime.router.history.db.SubmitterType
-import gov.cdc.prime.router.history.db.SubmittersDatabaseAccess
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.tokens.OktaAuthentication
@@ -696,9 +696,9 @@ class DeliveryFunctionTests : Logging {
 
             mockkObject(AuthenticatedClaims)
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
-            mockkConstructor(SubmittersDatabaseAccess::class)
+            mockkConstructor(SubmitterDatabaseAccess::class)
             every {
-                anyConstructed<SubmittersDatabaseAccess>().getSubmitters(any(), any())
+                anyConstructed<SubmitterDatabaseAccess>().getSubmitters(any(), any())
             } returns ApiSearchResult(10, 0, emptyList())
 
             val response = DeliveryFunction().getSubmitters(httpRequestMessage, receiver2.fullName)
@@ -728,9 +728,9 @@ class DeliveryFunctionTests : Logging {
 
             mockkObject(AuthenticatedClaims)
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
-            mockkConstructor(SubmittersDatabaseAccess::class)
+            mockkConstructor(SubmitterDatabaseAccess::class)
             every {
-                anyConstructed<SubmittersDatabaseAccess>().getSubmitters(any(), any())
+                anyConstructed<SubmitterDatabaseAccess>().getSubmitters(any(), any())
             } returns ApiSearchResult(10, 0, emptyList())
 
             val response = DeliveryFunction().getSubmitters(httpRequestMessage, receiver1.fullName)
@@ -764,9 +764,9 @@ class DeliveryFunctionTests : Logging {
 
             mockkObject(AuthenticatedClaims)
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
-            mockkConstructor(SubmittersDatabaseAccess::class)
+            mockkConstructor(SubmitterDatabaseAccess::class)
             every {
-                anyConstructed<SubmittersDatabaseAccess>().getSubmitters(any(), any())
+                anyConstructed<SubmitterDatabaseAccess>().getSubmitters(any(), any())
             } returns ApiSearchResult(10, 0, emptyList())
 
             val response = DeliveryFunction().getSubmitters(httpRequestMessage, receiver1.fullName)
@@ -801,9 +801,9 @@ class DeliveryFunctionTests : Logging {
 
             mockkObject(AuthenticatedClaims)
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
-            mockkConstructor(SubmittersDatabaseAccess::class)
+            mockkConstructor(SubmitterDatabaseAccess::class)
             every {
-                anyConstructed<SubmittersDatabaseAccess>().getSubmitters(any(), any())
+                anyConstructed<SubmitterDatabaseAccess>().getSubmitters(any(), any())
             } returns ApiSearchResult(
                 10, 3,
                 listOf(

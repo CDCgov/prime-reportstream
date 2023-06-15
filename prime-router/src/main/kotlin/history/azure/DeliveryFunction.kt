@@ -19,7 +19,7 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryHistory
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.history.db.SubmitterApiSearch
-import gov.cdc.prime.router.history.db.SubmittersDatabaseAccess
+import gov.cdc.prime.router.history.db.SubmitterDatabaseAccess
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import java.util.UUID
@@ -41,7 +41,7 @@ class DeliveryFunction(
     // Ignoring unknown properties because we don't require them. -DK
     private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
-    private val submitterDatabaseAccess = SubmittersDatabaseAccess()
+    private val submitterDatabaseAccess = SubmitterDatabaseAccess()
 
     /**
      * Authorization and shared logic uses the organization name without the service
