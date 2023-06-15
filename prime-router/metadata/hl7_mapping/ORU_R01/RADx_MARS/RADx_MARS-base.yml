@@ -1,0 +1,48 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+constants:
+  radxMarsPatient: 'Bundle.entry.resource.ofType(Patient)'
+  illnessOnsetAoeLoinc: '"65222-2"'
+  symptomaticAoeLoinc: '"95419-8"'
+  patientAgeAoeLoinc: '"35659-2"'
+extends: ../ORU_R01-base
+elements:
+  - name: patient-race-text
+    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.exists()'
+    value: ['"https://www.hl7.org/fhir/v2/0005/"']
+
+  - name: patient-race-coding-system
+    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.exists()'
+    value: ['"HL70005"']
+
+  - name: radx-mars-patient-ethnicity-description
+    condition: '%radxMarsPatient.extension(%`rsext-ethnic-group`).value.exists()'
+    value: ['"https://www.hl7.org/fhir/v2/0189/"']
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-2 ]
+
+  - name: radx-mars-patient-ethnicity-code-system
+    condition: '%radxMarsPatient.extension(%`rsext-ethnic-group`).value.exists()'
+    value: ['"HL70189"']
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-3 ]
+#
+  - name: patient-ethnicity-coding-system-version
+    condition: '%resource.extension(%`rsext-ethnic-group`).value.exists()'
+    value: [ '"2.5.1"' ]
+
+  - name: radx-mars-order-observations
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    condition: '%resource.count() > 0'
+    schema: RADx_MARS-order-observation
+    resourceIndex: orderIndex
+
+  # RADx Format Requirement:
+  # The COVID-19 result should be the first OBX segment, followed by any other result OBX segments, and then the Age,
+  # Symptomatic, and Date of Onset OBX segments.
+  - name: observation-result-with-aoe
+    resource: > 
+      %resource.result.resolve().where(livdTableLookup("Component").contains("coronavirus")) |
+      %resource.result.resolve().where(livdTableLookup("Component").contains("coronavirus").not()) |
+      %service.supportingInfo.resolve().where(code.coding.code = %patientAgeAoeLoinc) |
+      %service.supportingInfo.resolve().where(code.coding.code = %symptomaticAoeLoinc) |
+      %service.supportingInfo.resolve().where(code.coding.code = %illnessOnsetAoeLoinc)
+

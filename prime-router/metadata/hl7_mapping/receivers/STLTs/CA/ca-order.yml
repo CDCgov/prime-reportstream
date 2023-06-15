@@ -8,6 +8,11 @@ elements:
     value: [ '%resource.name.substring(0,20)' ]
     hl7Spec: [ '%{hl7Order}-3-2' ]
 
+  - name: ca-order-effective-date
+    condition: '%service.extension(%`rsext-order-effective-date`).exists()'
+    value: [ '%service.extension(%`rsext-order-effective-date`).value.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{hl7Order}-15' ]
+
   # ORC-12-1: Max length 15
   - name: ca-order-ordering-provider-identifier
     resource: '%service.requester.resolve().practitioner.resolve()'

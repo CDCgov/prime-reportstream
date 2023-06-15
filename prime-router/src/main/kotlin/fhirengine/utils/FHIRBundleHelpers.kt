@@ -237,7 +237,7 @@ object FHIRBundleHelpers {
 
         val observationsToKeep = mutableListOf<Extension>()
         allObservations.forEach { observation ->
-            val passes = receiver.conditionFilter.all { conditionFilter ->
+            val passes = receiver.conditionFilter.any { conditionFilter ->
                 FhirPathUtils.evaluateCondition(
                     CustomContext(fhirBundle, observation, shortHandLookupTable),
                     observation,

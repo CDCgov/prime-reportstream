@@ -106,11 +106,17 @@
       customerStatus: active
       schemaName: metadata/fhir_transforms/senders/default-sender-transform
       format: HL7
+    - name: ignore-etor-ti      # Use this to test etor-ti
+      organizationName: ignore
+      topic: etor-ti
+      customerStatus: active
+      schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      format: HL7
     - name: ignore-fhir      # Use this to test fhir
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      schemaName: metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform
       format: FHIR
     - name: ignore-strac      # Use this to test sending strac data
       organizationName: ignore
@@ -198,6 +204,29 @@
         useBatchHeaders: true
         type: "HL7"
         receivingApplicationName: "CO-ELR"
+        receivingFacilityName: "CO"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: ETOR_TI
+      externalName: Ignore ETOR_TI
+      organizationName: ignore
+      topic: etor-ti
+      customerStatus: active
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CO/CO"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        type: "HL7"
+        receivingApplicationName: "CO-ETOR"
         receivingFacilityName: "CO"
       transport:
         type: SFTP
@@ -864,18 +893,44 @@
         - "Bundle.entry.resource.ofType(Patient).where(name.family.empty() or name.given.empty() or birthDate.empty()).count() = 0"
         # Ordering provider (OBR-16-1) exists
         - "Bundle.entry.resource.ofType(ServiceRequest).where(requester.resolve().practitioner.resolve().name.family.empty()).count() = 0"
-        - "Bundle.entry.resource.ofType(Organization).identifier.value.getIdType() = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).performer.resolve().identifier.value.getIdType() = 'CLIA'"
+        - "Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().identifier.value.getIdType() = 'CLIA'"
       conditionFilter:
         # Accept all positive flu A and B results or negative flu A and B results for cities in LA and Orange counties
-        - >-
-          %resource.where(code.coding.code in ('85478-6' | '76080-1' | '92141-1' | '80383-3' | '82170-2' | '85477-8' | '76078-5' | '77026-3' | '77028-9' | '77027-1' | '92142-9' | '80382-5' | '82166-0' | '82167-8' | '82169-4' | '82168-6' | '92809-3' | '92808-5' | '95423-0')).value.coding.code.intersect('260373001' | '407479009' | '407480007').exists()
-          or (%resource.where(code.coding.code in ('85478-6' | '76080-1' | '92141-1' | '80383-3' | '82170-2' | '85477-8' | '76078-5' | '77026-3' | '77028-9' | '77027-1' | '92142-9' | '80382-5' | '82166-0' | '82167-8' | '82169-4' | '82168-6' | '92809-3' | '92808-5')).value.coding.code.intersect('260415000').exists() and (%patient.address.city.intersect(%LACountyCities | %OrangeCountyCities).exists() or %performer.address.city.intersect(%LACountyCities | %OrangeCountyCities).exists()))
+        - "%resource.where(code.coding.code in ('85478-6' | '76080-1' | '92141-1' | '80383-3' | '82170-2' | '85477-8' | '76078-5' | '77026-3' | '77028-9' | '77027-1' | '92142-9' | '80382-5' | '82166-0' | '82167-8' | '82169-4' | '82168-6' | '92809-3' | '92808-5' | '95423-0')).value.coding.code.intersect('260373001' | '407479009' | '407480007').exists()"
+        - "(%resource.where(code.coding.code in ('85478-6' | '76080-1' | '92141-1' | '80383-3' | '82170-2' | '85477-8' | '76078-5' | '77026-3' | '77028-9' | '77027-1' | '92142-9' | '80382-5' | '82166-0' | '82167-8' | '82169-4' | '82168-6' | '92809-3' | '92808-5')).value.coding.code.intersect('260415000').exists() and (%patient.address.city.intersect(%LACountyCities | %OrangeCountyCities).exists() or %performer.address.city.intersect(%LACountyCities | %OrangeCountyCities).exists()))"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
         schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        type: "HL7"
+        receivingApplicationName: ""
+        receivingFacilityName: ""
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    # THIS RECEIVER IS NOT USED IN ANY TESTS AND CAN BE UPDATED TO YOUR HEARTS CONTENT
+    - name: RADX_MARS
+      externalName: RADx_MARs Test
+      organizationName: development
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'RADX') or (%patientState.exists() and %patientState = 'RADX')" ]
+      qualityFilter:
+        - "Bundle.identifier.value.empty().not()"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"

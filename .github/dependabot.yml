@@ -80,8 +80,13 @@ updates:
   # All packages weekly
   - package-ecosystem: "npm"
     directory: "/frontend-react"
+    open-pull-requests-limit: 100
     schedule:
       interval: "weekly"
+      day: "sunday"
+      time: "00:17"
+      timezone: "US/Eastern"
+    rebase-strategy: "disabled"
 
   # OPERATIONS
   - package-ecosystem: "docker"
@@ -108,18 +113,23 @@ updates:
     directory: "/operations/app/src/environments/prod"
     schedule:
       interval: "weekly"
-  
-  
+    
   # ROUTER
   - package-ecosystem: "docker"
     directory: "/prime-router"
     schedule:
       interval: "weekly"
+    
   # All packages weekly
   - package-ecosystem: "gradle"
     directory: "/prime-router"
+    open-pull-requests-limit: 100
     schedule:
       interval: "weekly"
+      day: "sunday"
+      time: "03:17"
+      timezone: "US/Eastern"
+    rebase-strategy: "disabled"
     ignore:
       # ignore updates to sshj so we don't run into future issues connecting to STLTs
       - dependency-name: "sshj"

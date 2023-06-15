@@ -20,7 +20,7 @@ jobs:
       tf_change: ${{ steps.build_vars.outputs.has_terraform_change }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -39,7 +39,7 @@ jobs:
       change_count: ${{ steps.stats1.outputs.change-count }}
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
@@ -51,7 +51,7 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
       - name: Collect Terraform stats
-        uses: josiahsiegel/terraform-stats@ba3a13130b13e64127b8b7b9ed0004632189e8a8
+        uses: josiahsiegel/terraform-stats@270787b061ce4b2ba67c837e89177f7224b26f3d
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
@@ -89,7 +89,7 @@ jobs:
         working-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:

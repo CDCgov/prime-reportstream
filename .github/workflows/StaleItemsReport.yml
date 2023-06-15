@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
         with:
           fetch-depth: 0
 
@@ -54,7 +54,7 @@ jobs:
         run: |
          echo  ${env:Stale_Issues} >> StaleIssues.txt
 
-      - uses: MeilCli/slack-upload-file@v3
+      - uses: MeilCli/slack-upload-file@65ce44be9ae13842fdec5cfb27fb423b30ca53fa
         id: message
         continue-on-error: true
         with:
@@ -63,7 +63,7 @@ jobs:
           file_path: 'PullRequests.txt'
           initial_comment: 'Stale pull requests report'
 
-      - uses: MeilCli/slack-upload-file@v3
+      - uses: MeilCli/slack-upload-file@65ce44be9ae13842fdec5cfb27fb423b30ca53fa
         id: Branchesmessage
         continue-on-error: true
         with:
@@ -72,7 +72,7 @@ jobs:
           file_path: 'Branches.txt'
           initial_comment: 'Stale branches report'
 
-      - uses: MeilCli/slack-upload-file@v3
+      - uses: MeilCli/slack-upload-file@65ce44be9ae13842fdec5cfb27fb423b30ca53fa
         id: Issuesmessage
         continue-on-error: true
         with:

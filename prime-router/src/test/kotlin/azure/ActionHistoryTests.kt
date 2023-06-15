@@ -32,6 +32,16 @@ import kotlin.test.assertNotNull
 
 class ActionHistoryTests {
     @Test
+    fun `test trackActionReceiverInfo`() {
+        val actionHistory = ActionHistory(TaskAction.translate)
+        val org = "org-name"
+        val receiver = "receiver-name"
+        actionHistory.trackActionReceiverInfo(org, receiver)
+        assertThat(actionHistory.action.receivingOrg).isEqualTo(org)
+        assertThat(actionHistory.action.receivingOrgSvc).isEqualTo(receiver)
+    }
+
+    @Test
     fun `test constructor`() {
         val actionHistory = ActionHistory(TaskAction.batch)
         assertThat(actionHistory.generatingEmptyReport).isEqualTo(false)
@@ -84,7 +94,7 @@ class ActionHistoryTests {
         assertNotNull(actionHistory1.reportsReceived[report1.id])
         val reportFile = actionHistory1.reportsReceived[report1.id]!!
         assertThat(reportFile.schemaName).isEqualTo("one")
-        assertThat(reportFile.schemaTopic).isEqualTo("test")
+        assertThat(reportFile.schemaTopic).isEqualTo(Topic.TEST)
         assertThat(reportFile.sendingOrg).isEqualTo("myOrg")
         assertThat(reportFile.sendingOrgClient).isEqualTo("myClient")
         assertThat(reportFile.bodyUrl).isEqualTo("myUrl")
@@ -122,7 +132,7 @@ class ActionHistoryTests {
         assertNotNull(actionHistory1.reportsReceived[report1.id])
         val reportFile = actionHistory1.reportsReceived[report1.id]!!
         assertThat(reportFile.schemaName).isEqualTo("one")
-        assertThat(reportFile.schemaTopic).isEqualTo("test")
+        assertThat(reportFile.schemaTopic).isEqualTo(Topic.TEST)
         assertThat(reportFile.bodyUrl).isEqualTo("myUrl")
         assertThat(reportFile.blobDigest[1]).isEqualTo(34)
         assertThat(reportFile.receivingOrg).isEqualTo("myOrg")
@@ -157,7 +167,7 @@ class ActionHistoryTests {
         assertThat(actionHistory1.reportsOut[report1.id]).isNotNull()
         val reportFile = actionHistory1.reportsOut[report1.id]!!
         assertThat(reportFile.schemaName).isEqualTo("schema1")
-        assertThat(reportFile.schemaTopic).isEqualTo("test")
+        assertThat(reportFile.schemaTopic).isEqualTo(Topic.TEST)
         assertThat(reportFile.receivingOrg).isEqualTo("myOrg")
         assertThat(reportFile.receivingOrgSvc).isEqualTo("myService")
         assertThat(reportFile.bodyUrl).isEqualTo("myUrl")
@@ -197,7 +207,7 @@ class ActionHistoryTests {
         assertThat(actionHistory1.reportsOut[report1.id]).isNotNull()
         val reportFile = actionHistory1.reportsOut[report1.id]!!
         assertThat(reportFile.schemaName).isEqualTo("schema1")
-        assertThat(reportFile.schemaTopic).isEqualTo("test")
+        assertThat(reportFile.schemaTopic).isEqualTo(Topic.TEST)
         assertThat(reportFile.receivingOrg).isEqualTo("myOrg")
         assertThat(reportFile.receivingOrgSvc).isEqualTo("myService")
         assertThat(reportFile.bodyUrl).isEqualTo("myUrl")
@@ -225,7 +235,7 @@ class ActionHistoryTests {
         assertThat(actionHistory1.reportsOut[report1.id]).isNotNull()
         val reportFile = actionHistory1.reportsOut[report1.id]!!
         assertThat(reportFile.schemaName).isEqualTo("schema1")
-        assertThat(reportFile.schemaTopic).isEqualTo("test")
+        assertThat(reportFile.schemaTopic).isEqualTo(Topic.TEST)
         assertThat(reportFile.receivingOrg).isNull()
         assertThat(reportFile.receivingOrgSvc).isNull()
         assertThat(reportFile.bodyUrl).isNull()
@@ -275,7 +285,7 @@ class ActionHistoryTests {
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
         val reportFile = actionHistory1.reportsOut[uuid]!!
         assertThat(reportFile.schemaName).isEqualTo("schema1")
-        assertThat(reportFile.schemaTopic).isEqualTo("test")
+        assertThat(reportFile.schemaTopic).isEqualTo(Topic.TEST)
         assertThat(reportFile.receivingOrg).isEqualTo("myOrg")
         assertThat(reportFile.externalName).isEqualTo("filename1")
         assertThat(reportFile.transportParams).isEqualTo("params1")
