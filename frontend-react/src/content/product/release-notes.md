@@ -150,4 +150,4 @@ We’re excited to announce that ReportStream has recently established connectio
 
 #### Additional Resources
 
-ReportStream [API Programmer’s Guide](/resources/programmers-guide) is updated to version 2.2 with information on how to submit data for at-home test results.
+ReportStream [ReportStream API](/resources/api) is updated to version 2.2 with information on how to submit data for at-home test results.
