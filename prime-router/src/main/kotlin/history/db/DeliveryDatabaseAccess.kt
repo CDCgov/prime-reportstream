@@ -104,7 +104,7 @@ class DeliveryApiSearch(
     override fun getCondition(filter: DeliveryApiSearchFilter<*>): Condition {
         return when (filter) {
             is DeliveryApiSearchFilter.Since -> filter.tableField.ge(filter.value)
-            is DeliveryApiSearchFilter.Until -> filter.tableField.ge(filter.value)
+            is DeliveryApiSearchFilter.Until -> filter.tableField.le(filter.value)
         }
     }
 
