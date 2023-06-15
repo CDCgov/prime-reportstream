@@ -112,7 +112,7 @@ class FhirTransformerTests {
     }
 
     @Test
-    fun `test transform with nested schemas`() {
+    fun `test transform duplicate protection with nested schemas`() {
         val bundle = Bundle()
         bundle.id = "abc123"
 
