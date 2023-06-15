@@ -84,7 +84,7 @@ describe("AdminRevHistory", () => {
 
         // click an item in each list and make sure the diff loads. (click parent row)
         {
-            const clickTarget1 = screen.getByText(/local@test.com/)[0];
+            const clickTarget1 = screen.getAllByText(/local@test.com/)[0];
             const parentRow1 = clickTarget1.parentElement;
             expect(parentRow1).toBeInTheDocument();
             // key linter happy
@@ -94,7 +94,7 @@ describe("AdminRevHistory", () => {
         }
 
         {
-            const clickTarget2 = screen.getByText(/local1@test.com/)[1];
+            const clickTarget2 = screen.getAllByText(/local1@test.com/)[1];
             const parentRow2 = clickTarget2.parentElement;
             expect(parentRow2).toBeInTheDocument();
             // key linter happy
