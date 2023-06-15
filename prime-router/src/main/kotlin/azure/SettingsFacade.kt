@@ -260,13 +260,13 @@ class SettingsFacade(
         val input = try {
             mapper.readValue(json, clazz)
         } catch (ex: Exception) {
-            null
-        } ?: return Triple(false, "Could not parse JSON payload", null)
+            return Triple(false, "Could not parse JSON payload", null)
+        }
         if (input.name != name)
             return Triple(false, "Payload and path name do not match", null)
         if (input.organizationName != organizationName)
             return Triple(false, "Payload and path organization name do not match", null)
-        input.consistencyErrorMessage(metadata) ?.let { return Triple(false, it, null) }
+        input.consistencyErrorMessage(metadata)?.let { return Triple(false, it, null) }
         val normalizedJson = JSONB.valueOf(mapper.writeValueAsString(input))
         return Triple(true, null, normalizedJson)
     }
@@ -351,7 +351,9 @@ class OrganizationAPI
     SettingAPI {
     @get:JsonIgnore
     override val organizationName: String? = null
-    override fun consistencyErrorMessage(metadata: Metadata): String? { return this.consistencyErrorMessage() }
+    override fun consistencyErrorMessage(metadata: Metadata): String? {
+        return this.consistencyErrorMessage()
+    }
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)

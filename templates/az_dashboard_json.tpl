@@ -14,7 +14,7 @@
               "inputs": [
                 {
                   "name": "id",
-                  "value": "/subscriptions/${subscription_id}/resourceGroups/prime-data-hub-prod/providers/microsoft.insights/components/pdhprod-appinsights"
+                  "value": "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
                 },
                 {
                   "name": "Version",
@@ -331,7 +331,7 @@
                   "name": "Scope",
                   "value": {
                     "resourceIds": [
-                      "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/Microsoft.Insights/components/${appinsights_name}"
+                      "/subscriptions/${subscription_id}/resourceGroups/${resource_group_name}/providers/microsoft.insights/components/${appinsights_name}"
                     ]
                   },
                   "isOptional": true
@@ -894,7 +894,7 @@
                 },
                 {
                   "name": "Query",
-                  "value": "let usg_events = dynamic([\"File Validator\"]);\nlet mainTable = union customEvents\n    | where timestamp > ago(30d)\n    | where isempty(operation_SyntheticSource)\n    | extend name =replace(\"\\n\", \"\", name)\n    | extend name =replace(\"\\r\", \"\", name)\n    | where '*' in (usg_events) or name in (usg_events)\n    | extend fileValidatorProps = tostring(customDimensions[\"fileValidator\"]);\nlet queryTable = mainTable\n    | where 'user_Id' != 'user_AuthenticatedId' or ('user_Id' == 'user_AuthenticatedId' and isnotempty(user_Id))\n    // | summarize ['Count'] = count() by bin(timestamp, 1d), session_Id, fileValidatorProps\n    | extend dimension = todynamic(fileValidatorProps)\n    | evaluate bag_unpack(dimension)\n    | extend ['Pass/Fail'] = iif(errorCount == 0, \"Pass\", \"Fail\")\n    | order by timestamp desc \n    | project\n        [\"Date\"] = format_datetime(timestamp, 'MM/dd/yyyy'),\n        [\"Session Id\"] = session_Id,\n        // [\"Count\"],\n        ['Pass/Fail'],\n        [\"Error Count\"] = errorCount,\n        [\"Warning Count\"] = warningCount,\n        [\"Sender\"] = sender,\n        [\"Schema\"] = schema,\n        [\"File Type\"] = fileType; \nqueryTable\n\n",
+                  "value": "let usg_events = dynamic([\"File Validator\"]);\nlet mainTable = union customEvents\n    | where timestamp > ago(30d)\n    | where isempty(operation_SyntheticSource)\n    | extend name =replace(\"\\n\", \"\", name)\n    | extend name =replace(\"\\r\", \"\", name)\n    | where '*' in (usg_events) or name in (usg_events)\n    | extend fileValidatorProps = tostring(customDimensions[\"fileValidator\"]);\nlet queryTable = mainTable\n    | where 'user_Id' != 'user_AuthenticatedId' or ('user_Id' == 'user_AuthenticatedId' and isnotempty(user_Id))\n    // | summarize ['Count'] = count() by bin(timestamp, 1d), session_Id, fileValidatorProps\n    | extend dimension = todynamic(fileValidatorProps)\n    | evaluate bag_unpack(dimension)\n    | extend ['Pass/Fail'] = iif(errorCount == 0, \"Pass\", \"Fail\")\n    | order by timestamp desc \n    | project\n        [\"Date\"] = format_datetime(timestamp, 'MM/dd/yyyy'),\n        [\"Session Id\"] = session_Id,\n        // [\"Count\"],\n        ['Pass/Fail'],\n        [\"Error Count\"] = errorCount,\n        [\"Warning Count\"] = warningCount,\n         [\"Schema\"] = schema,\n        [\"File Type\"] = fileType; \nqueryTable\n\n",
                   "isOptional": true
                 },
                 {
@@ -1077,5 +1077,4 @@
         }
       }
     }
-  
-}
+  }

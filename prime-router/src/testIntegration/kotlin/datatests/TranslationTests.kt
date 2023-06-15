@@ -3,19 +3,21 @@ package gov.cdc.prime.router.datatests
 import assertk.assertThat
 import assertk.assertions.isTrue
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
+import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
-import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -346,8 +348,11 @@ class TranslationTests {
          */
         private fun translateFromFhir(bundle: InputStream, schema: String): InputStream {
             val fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
-            val hl7 =
-                FhirToHl7Converter(FilenameUtils.getName(schema), FilenameUtils.getPath(schema)).convert(fhirBundle)
+            val hl7 = FhirToHl7Converter(
+                FilenameUtils.getName(schema),
+                FilenameUtils.getPath(schema),
+                context = FhirToHl7Context(CustomFhirPathFunctions())
+            ).convert(fhirBundle)
             return hl7.encode().byteInputStream()
         }
 
@@ -377,7 +382,7 @@ class TranslationTests {
                     it.organizationName.plus(".").plus(it.name).lowercase() == senderName.lowercase()
                 }
             } else {
-                settings.senders.filter { it is TopicSender && it.schemaName == schema.name }.randomOrNull()
+                settings.senders.filter { it is LegacyPipelineSender && it.schemaName == schema.name }.randomOrNull()
             }
             return try {
                 when (format) {

@@ -10,10 +10,10 @@ $rs-width: "widescreen";
     * these paths are from where the output css lives, in this case
     * /frontend-react/src/content/generated/global.out.css
     */
-        $theme-image-path: "@uswds/uswds/img",
-    $theme-font-path: "@uswds/uswds/fonts",
+    $theme-image-path: "~@uswds/uswds/img",
+    $theme-font-path: "~@uswds/uswds/fonts",
 
-    $theme-show-compile-warnings: true,
+    $theme-show-compile-warnings: false,
     $theme-show-notifications: false,
 
     // Override defaultUSWDS maximum width settings

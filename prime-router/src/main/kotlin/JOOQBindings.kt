@@ -1,5 +1,6 @@
 package gov.cdc.prime.router
 
+import com.fasterxml.jackson.databind.node.TextNode
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.jooq.BindingGetResultSetContext
 import org.jooq.BindingSQLContext
@@ -16,7 +17,7 @@ import java.util.Objects
  *
  * @param c The class of the POJO for a converter
  */
-class JsonConverter<T> (val c: Class<T>) : Converter<JSONB, T> {
+class JsonConverter<T>(val c: Class<T>) : Converter<JSONB, T> {
     private val mapper = JacksonMapperUtilities.defaultMapper
 
     override fun from(dbObject: JSONB): T {
@@ -44,7 +45,7 @@ class JsonConverter<T> (val c: Class<T>) : Converter<JSONB, T> {
  *
  * @param klass The class of the POJO this should be used in the inheritance for the POJO specific binding
  */
-abstract class JsonBinding<T> (val klass: Class<T>) : AbstractBinding<JSONB, T>() {
+abstract class JsonBinding<T>(val klass: Class<T>) : AbstractBinding<JSONB, T>() {
     override fun converter(): Converter<JSONB, T> {
         return JsonConverter(klass)
     }
@@ -75,3 +76,50 @@ abstract class JsonBinding<T> (val klass: Class<T>) : AbstractBinding<JSONB, T>(
  * A binding for ActionLogDetails to be converted to and from a JSONB column by JOOQ
  */
 class ActionLogDetailBinding : JsonBinding<ActionLogDetail>(ActionLogDetail::class.java)
+
+/**
+ * Provides a converter for Topics into Strings and back using the jackson library
+ * and it's kotlin extensions.
+ */
+class TopicConverter : Converter<String, Topic> {
+    private val mapper = JacksonMapperUtilities.defaultMapper
+
+    override fun from(dbObject: String): Topic {
+        // Can't use Topic.valueOf, since string form and enum name are different
+        // i.e. `full-elr` vs `FULL_ELR`
+        return mapper.convertValue(TextNode(dbObject), Topic::class.java)
+    }
+
+    override fun to(topic: Topic): String {
+        return topic.jsonVal
+    }
+
+    override fun fromType(): Class<String> {
+        return String::class.java
+    }
+
+    override fun toType(): Class<Topic> {
+        return Topic::class.java
+    }
+}
+
+/**
+ * A binding for Topics to be converted to and from string columns by JOOQ
+ */
+class TopicBinding : AbstractBinding<String, Topic>() {
+    override fun converter(): Converter<String, Topic> {
+        return TopicConverter()
+    }
+
+    override fun get(ctx: BindingGetResultSetContext<Topic>) {
+        ctx.convert(converter()).value(ctx.resultSet().getString(ctx.index()))
+    }
+
+    override fun set(ctx: BindingSetStatementContext<Topic>) {
+        ctx.statement()
+            .setString(
+                ctx.index(),
+                Objects.toString(ctx.convert(converter()).value(), null)
+            )
+    }
+}

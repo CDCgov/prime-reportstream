@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
@@ -28,7 +28,7 @@ jobs:
           tf-auth: true
           
       - name: Collect Terraform stats
-        uses: josiahsiegel/terraform-stats@87ae8821138d31e249e69fc72f1c021e8b59b134
+        uses: josiahsiegel/terraform-stats@270787b061ce4b2ba67c837e89177f7224b26f3d
         id: stats1
         with:
           terraform-directory: operations/app/terraform/vars/${{ matrix.env }}

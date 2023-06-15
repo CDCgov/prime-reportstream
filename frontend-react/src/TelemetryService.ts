@@ -114,10 +114,11 @@ export function withInsights(console: Console) {
                     id: exception.message,
                     severityLevel,
                     properties: {
-                        additionalInformation:
-                            data.length === 1
-                                ? undefined
-                                : JSON.stringify(data.slice(1)),
+                        additionalInformation: {
+                            error: data[0],
+                            location: window.location.href,
+                            other: data.slice(1),
+                        },
                     },
                 });
 

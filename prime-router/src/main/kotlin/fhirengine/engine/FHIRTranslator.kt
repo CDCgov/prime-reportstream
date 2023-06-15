@@ -11,7 +11,6 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
@@ -70,8 +69,12 @@ class FHIRTranslator(
         receiverEndpoints.forEach { receiverEndpoint ->
             val receiverName = receiverEndpoint.identifier[0].value
             val receiver = settings.findReceiver(receiverName)
+            if (receiver != null) {
+                actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
+            }
+
             // We only process receivers that are active and for this pipeline.
-            if (receiver != null && receiver.topic == Topic.FULL_ELR) {
+            if (receiver != null && receiver.topic.isUniversalPipeline) {
                 try {
                     val updatedBundle = pruneBundleForReceiver(bundle, receiverEndpoint)
 
@@ -84,7 +87,8 @@ class FHIRTranslator(
                         listOf(message.reportId),
                         receiver,
                         this.metadata,
-                        actionHistory
+                        actionHistory,
+                        topic = message.topic,
                     )
 
                     // insert batch task into Task table
