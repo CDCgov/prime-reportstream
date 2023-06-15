@@ -181,7 +181,7 @@ class SubmitterApiSearch(
  *
  * @param db access to the DB
  */
-class SubmittersDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessSingleton) {
+class SubmitterDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessSingleton) {
 
     private val reportGraph = ReportGraph(db)
 
