@@ -94,6 +94,9 @@ class FHIRRouter(
         "%messageId.exists()",
     )
 
+    /**
+     * Maps topics to default quality filters so that topic-dependent defaults can be used
+     */
     val qualityFilterDefaults = mapOf(
         Pair(Topic.FULL_ELR, fullElrQualityFilterDefault),
         Pair(Topic.ETOR_TI, etorTiQualityFilterDefault),
@@ -107,6 +110,9 @@ class FHIRRouter(
         "%processingId.exists() and %processingId = 'P'"
     )
 
+    /**
+     * Maps topics to default processing mode filters so that topic-dependent defaults can be used
+     */
     val processingModeDefaults = mapOf(
         Pair(Topic.FULL_ELR, processingModeFilterDefault),
         Pair(Topic.ETOR_TI, processingModeFilterDefault),
