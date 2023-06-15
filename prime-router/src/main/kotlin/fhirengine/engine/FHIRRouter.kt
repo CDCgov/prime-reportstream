@@ -88,9 +88,7 @@ class FHIRRouter(
 
     /**
      * Default Rules for quality filter on ETOR_TI topic:
-     *   Must have message ID, patient last name, patient first name, DOB, specimen type
-     *   At least one of patient street, patient zip code, patient phone number, patient email
-     *   At least one of order test date, specimen collection date/time, test result date
+     *   Must have message ID
      */
     private val etorTiQualityFilterDefault: ReportStreamFilter = listOf(
         "%messageId.exists()",
@@ -344,7 +342,7 @@ class FHIRRouter(
             //           must have at least one of patient street, zip code, phone number, email
             //           must have at least one of order test date, specimen collection date/time, test result date
             passes = passes && evaluateFilterAndLogResult(
-                getQualityFilters(receiver, orgFilters, topic),
+                getQualityFilters(receiver, orgFilters),
                 bundle,
                 report,
                 receiver,
@@ -367,7 +365,7 @@ class FHIRRouter(
             // PROCESSING MODE FILTER
             //  default: allowAll
             passes = passes && evaluateFilterAndLogResult(
-                getProcessingModeFilter(receiver, orgFilters, topic),
+                getProcessingModeFilter(receiver, orgFilters),
                 bundle,
                 report,
                 receiver,
@@ -465,10 +463,7 @@ class FHIRRouter(
      * an equivalent filter to the default, but does not point to the actual default, this function will still return
      * false.
      */
-    internal fun isDefaultFilter(
-        filterType: ReportStreamFilterType,
-        filter: ReportStreamFilter,
-    ): Boolean {
+    internal fun isDefaultFilter(filterType: ReportStreamFilterType, filter: ReportStreamFilter): Boolean {
         // The usage of === (referential equality operator) below is intentional and necessary; we only want to
         // return true if the filter references a default filter, not if it only happens to be equivalent to the default
         return when (filterType) {
@@ -635,24 +630,20 @@ class FHIRRouter(
     }
 
     /**
-     * Gets the applicable quality filters for 'FULL_ELR' for a [receiver]. Gets applicable quality filters from the
+     * Gets the applicable quality filters for a [receiver]. Gets applicable quality filters from the
      * parent organization and adds any quality filters from the receiver's settings. If there are no filters in that
      * result, returns the default filter instead.
      */
-    internal fun getQualityFilters(
-        receiver: Receiver,
-        orgFilters: List<ReportStreamFilters>?,
-        topic: Topic? = null,
-    ): ReportStreamFilter {
+    internal fun getQualityFilters(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         val receiverFilters = (
             orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.qualityFilter
                 ?: emptyList()
             ).plus(receiver.qualityFilter)
-        return receiverFilters.ifEmpty { qualityFilterDefaults[topic] ?: emptyList() }
+        return receiverFilters.ifEmpty { qualityFilterDefaults[receiver.topic] ?: emptyList() }
     }
 
     /**
-     * Gets the applicable routing filters for 'FULL_ELR' for a [receiver]. Pulls from receiver configuration
+     * Gets the applicable routing filters for a [receiver]. Pulls from receiver configuration
      * first and looks at the parent organization if the receiver does not have any routing filters configured for
      * this topic
      */
@@ -664,20 +655,19 @@ class FHIRRouter(
     }
 
     /**
-     * Gets the applicable processing mode filters for 'FULL_ELR' for a [receiver]. Gets applicable processing mode
+     * Gets the applicable processing mode filters for a [receiver]. Gets applicable processing mode
      * filters from the parent organization and adds any processing mode filters from the receiver's settings. If there
      * are no filters in that result, returns the default filter instead.
      */
     internal fun getProcessingModeFilter(
         receiver: Receiver,
         orgFilters: List<ReportStreamFilters>?,
-        topic: Topic? = null,
     ): ReportStreamFilter {
         val receiverFilters = (
             orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.processingModeFilter
                 ?: emptyList()
             ).plus(receiver.processingModeFilter)
-        return receiverFilters.ifEmpty { processingModeDefaults[topic] ?: emptyList() }
+        return receiverFilters.ifEmpty { processingModeDefaults[receiver.topic] ?: emptyList() }
     }
 
     /**
