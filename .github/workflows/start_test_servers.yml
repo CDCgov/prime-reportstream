@@ -1,0 +1,37 @@
+name: Start apps in Test server
+
+on:
+  workflow_dispatch:
+  # push: 
+  #   branches:
+  #     - feature/9537-schedulemaintenance_DemoandTest
+  schedule:
+    - cron: "0 5 * * MON" #UTC-5
+    - cron: '0 11 * * 1-5'
+jobs:
+  alert_stale_branches:
+    name: Start Test Subscription apps
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+      
+      # Login to Azure
+      - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
+        with:
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Start postgres
+        uses: ./.github/actions/Start-PostgresDB
+        with:
+          name: "pdhtest-pgsql-flex"
+          resource-group: prime-data-hub-test
+          subscription: OCIO-DMZ-C1
+      
+      - name: Start function app
+        uses: ./.github/actions/Start-AzFunction
+        with:
+          resourceGroupName: prime-data-hub-test
+          Subscription: "OCIO-DMZ-C1"
+          functionName: pdhtest-functionapp
+          functionAppName: pdhtest-functionapp

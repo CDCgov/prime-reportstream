@@ -15,6 +15,7 @@ import { useScrollToTop } from "./hooks/UseScrollToTop";
 import { EventName, trackAppInsightEvent } from "./utils/Analytics";
 import { logout } from "./utils/UserUtils";
 import { IS_IE } from "./utils/GetIsIE";
+import ScrollRestoration from "./components/ScrollRestoration";
 
 export interface AppProps extends React.PropsWithChildren {}
 
@@ -106,6 +107,7 @@ const App = ({ children }: AppProps) => {
                 <NetworkErrorBoundary
                     fallbackComponent={() => <ErrorPage type="page" />}
                 >
+                    <ScrollRestoration />
                     {children}
                 </NetworkErrorBoundary>
             </Suspense>

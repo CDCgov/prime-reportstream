@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouteObject } from "react-router-dom";
+import { createBrowserRouter, redirect, RouteObject } from "react-router-dom";
 import { LoginCallback } from "@okta/okta-react";
 import React from "react";
 
@@ -32,18 +32,20 @@ import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
-import { GettingStartedPage } from "./pages/resources/api-programmers-guide/GettingStarted";
-import { DocumentationPage } from "./pages/resources/api-programmers-guide/documentation/Documentation";
-import { DataModelPage } from "./pages/resources/api-programmers-guide/documentation/DataModel";
-import { ResponsesFromReportStreamPage } from "./pages/resources/api-programmers-guide/documentation/ResponsesFromReportStream";
-import { SamplePayloadsAndOutputPage } from "./pages/resources/api-programmers-guide/documentation/SamplePayloadsAndOutput";
+import { GettingStartedPage } from "./pages/resources/reportstream-api/GettingStarted";
+import { DocumentationPage } from "./pages/resources/reportstream-api/documentation/Documentation";
+import { DataModelPage } from "./pages/resources/reportstream-api/documentation/DataModel";
+import { ResponsesFromReportStreamPage } from "./pages/resources/reportstream-api/documentation/ResponsesFromReportStream";
+import { SamplePayloadsAndOutputPage } from "./pages/resources/reportstream-api/documentation/SamplePayloadsAndOutput";
 import FileHandler from "./components/FileHandlers/FileHandler";
-import { ReportStreamAPIPage } from "./pages/resources/api-programmers-guide/ReportStreamApi";
+import { ReportStreamAPIPage } from "./pages/resources/reportstream-api/ReportStreamApi";
 import { FaqPage } from "./pages/support/faq/FaqPage";
 import { DataDashboardWithAuth } from "./pages/data-dashboard/DataDashboard";
 import MainLayout from "./layouts/MainLayout";
 import { ReportDetailsWithAuth } from "./components/DataDashboard/ReportDetails/ReportDetails";
 import { FacilitiesProvidersWithAuth } from "./components/DataDashboard/FacilitiesProviders/FacilitiesProviders";
+import { FacilityProviderSubmitterDetailsWithAuth } from "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails";
+import { SenderType } from "./utils/DataDashboardUtils";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -103,47 +105,72 @@ export const appRoutes: RouteObject[] = [
                 path: "/resources",
                 children: [
                     {
-                        path: "documentation",
+                        path: "api",
                         children: [
                             {
                                 path: "",
-                                element: <DocumentationPage />,
                                 index: true,
-                                handle: {
-                                    isContentPage: true,
-                                },
-                            },
-                            { path: "data-model", element: <DataModelPage /> },
-                            {
-                                path: "responses-from-reportstream",
-                                element: <ResponsesFromReportStreamPage />,
+                                element: <ReportStreamAPIPage />,
                                 handle: {
                                     isContentPage: true,
                                 },
                             },
                             {
-                                path: "sample-payloads-and-output",
-                                element: <SamplePayloadsAndOutputPage />,
+                                path: "getting-started",
+                                element: <GettingStartedPage />,
                                 handle: {
                                     isContentPage: true,
                                 },
+                            },
+                            {
+                                path: "documentation",
+                                children: [
+                                    {
+                                        path: "",
+                                        element: <DocumentationPage />,
+                                        index: true,
+                                        handle: {
+                                            isContentPage: true,
+                                        },
+                                    },
+                                    {
+                                        path: "data-model",
+                                        element: <DataModelPage />,
+                                        handle: {
+                                            isContentPage: true,
+                                        },
+                                    },
+                                    {
+                                        path: "responses-from-reportstream",
+                                        element: (
+                                            <ResponsesFromReportStreamPage />
+                                        ),
+                                        handle: {
+                                            isContentPage: true,
+                                        },
+                                    },
+                                    {
+                                        path: "sample-payloads-and-output",
+                                        element: (
+                                            <SamplePayloadsAndOutputPage />
+                                        ),
+                                        handle: {
+                                            isContentPage: true,
+                                        },
+                                    },
+                                ],
                             },
                         ],
                     },
                     {
+                        path: "programmers-guide",
+                        loader: async () => {
+                            return redirect("/resources/api");
+                        },
+                    },
+                    {
                         path: "manage-public-key",
                         element: <ManagePublicKeyWithAuth />,
-                    },
-                    {
-                        path: "reportstream-api",
-                        element: <ReportStreamAPIPage />,
-                    },
-                    {
-                        path: "getting-started",
-                        element: <GettingStartedPage />,
-                        handle: {
-                            isContentPage: true,
-                        },
                     },
                     {
                         path: "",
@@ -241,6 +268,30 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "facilities-providers",
                         element: <FacilitiesProvidersWithAuth />,
+                    },
+                    {
+                        path: "facility/:senderId",
+                        element: (
+                            <FacilityProviderSubmitterDetailsWithAuth
+                                senderType={SenderType.FACILITY}
+                            />
+                        ),
+                    },
+                    {
+                        path: "provider/:senderId",
+                        element: (
+                            <FacilityProviderSubmitterDetailsWithAuth
+                                senderType={SenderType.PROVIDER}
+                            />
+                        ),
+                    },
+                    {
+                        path: "submitter/:senderId",
+                        element: (
+                            <FacilityProviderSubmitterDetailsWithAuth
+                                senderType={SenderType.SUBMITTER}
+                            />
+                        ),
                     },
                 ],
             },
