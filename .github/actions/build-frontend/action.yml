@@ -57,6 +57,25 @@ runs:
         yarn test:ci
         yarn build:$ENV
       shell: bash
+      
+    - name: Set up JDK 11 to generate backend coverage stats
+      uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+        cache: 'gradle'
+
+    - uses: gradle/wrapper-validation-action@8d49e559aae34d3e0eb16cde532684bc9702762b
+
+    - name: Spin up build containers
+      working-directory: prime-router
+      run: docker-compose -f docker-compose.postgres.yml up -d
+      shell: bash
+
+    - name: Build Prime Router test report
+      working-directory: prime-router
+      run: ./gradlew jacocoTestReport -x fatjar
+      shell: bash
 
     - name: SonarCloud Scan
       if: inputs.GITHUB_TOKEN != '' && inputs.SONAR_TOKEN != ''
