@@ -201,10 +201,6 @@ components:
             previousPage:
               type: integer
               description: the previous page of results
-            reportId:
-              type: string
-              format: uuid
-              description: The ID for the sent report
         data:
           type: array
           items:
@@ -230,6 +226,10 @@ components:
               testResultCount:
                 type: string
                 description: The total number of reports sent by the submitter
+              reportId:
+                type: string
+                format: uuid
+                description: The ID for the sent report
     SubmitterApiSearchResults:
       type: object
       description: Results from running a search for submitters to a specific receiver

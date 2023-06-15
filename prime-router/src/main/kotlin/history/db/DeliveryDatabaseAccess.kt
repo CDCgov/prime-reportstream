@@ -26,6 +26,8 @@ import org.jooq.impl.SQLDataType
 import java.time.OffsetDateTime
 import java.util.UUID
 
+private const val EXPIRATION_DAYS_OFFSET  = 60
+
 class Delivery(
     val orderingProvider: String?,
     val orderingFacility: String?,
@@ -186,7 +188,7 @@ class DeliveryDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessS
                     // Currently an open issue for doing this via the DSL
                     // https://github.com/jOOQ/jOOQ/issues/6723
                     DSL.field(
-                        "\"public\".\"report_file\".\"created_at\" + INTERVAL '60 days'",
+                        "\"public\".\"report_file\".\"created_at\" + INTERVAL '$EXPIRATION_DAYS_OFFSET days'",
                         SQLDataType.OFFSETDATETIME
                     )
                         .`as`(DeliveryTable.DELIVERY.EXPIRATION_DATE),
