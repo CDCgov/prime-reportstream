@@ -1,35 +1,37 @@
 ---
-  # Output to 'test-schema' format
-  - name: AZ-test
-    description: Arizona PHD
-    jurisdiction: STATE
-    stateCode: AZ
-    receivers:
-      - name: receiver
-        organizationName: AZ-test
-        topic: CsvFileTests-topic
-        customerStatus: inactive
-        jurisdictionalFilter: [ "matches(observation, covid-19:pos)", "matches(state,AZ)" ]
-#OLD        jurisdictionalFilter: {observation: covid-19:pos, state: AZ}
-        deidentify: false
-        translation:
-          type: CUSTOM
-          schemaName: test-schema
-          format: CSV
+# Output to 'test-schema' format
+- name: AZ-test
+  description: Arizona PHD
+  jurisdiction: STATE
+  stateCode: AZ
+  receivers:
+    - name: receiver
+      organizationName: AZ-test
+      topic: test
+      customerStatus: inactive
+      jurisdictionalFilter: [ "matches(observation, covid-19:pos)", "matches(state,AZ)" ]
+      #OLD        jurisdictionalFilter: {observation: covid-19:pos, state: AZ}
+      deidentify: false
+      translation:
+        type: CUSTOM
+        schemaName: test-schema
+        format: CSV
 
-  # Output to a deidentified schema
-  - name: federal-test
-    description: Federal feed
-    jurisdiction: FEDERAL
-    receivers:
-      - name: receiver
-        organizationName: federal-test
-        topic: CsvFileTests-topic
-        customerStatus: inactive
-        jurisdictionalFilter: [ "matches(observation, covid-19:.*)", "matches(state, .*)" ]
-#OLD        jurisdictionalFilter: {observation: covid-19:.*, state: .*}
-        deidentify: true
-        translation:
-          type: CUSTOM
-          schemaName: federal-test-schema
-          format: CSV
+# Output to a deidentified schema
+- name: federal-test
+  description: Federal feed
+  jurisdiction: FEDERAL
+  receivers:
+    - name: receiver
+      organizationName: federal-test
+      topic: test
+      customerStatus: inactive
+      jurisdictionalFilter: [ "allowAll()" ]
+      #      jurisdictionalFilter: [ "matches(observation, covid-19:.*)", "matches(state, .*)" ]
+      qualityFilter: [ "hasValidDataFor(lab,state,test_time,specimen_id,observation)" ]
+      routingFilter: [ "allowAll()" ]
+      deidentify: true
+      translation:
+        type: CUSTOM
+        schemaName: federal-test-schema
+        format: CSV
