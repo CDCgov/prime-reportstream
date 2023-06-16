@@ -50,6 +50,5 @@ enum class Topic(@JsonValue val jsonVal: String, val isUniversalPipeline: Boolea
     ETOR_TI("etor-ti", true),
     COVID_19("covid-19", false),
     MONKEYPOX("monkeypox", false),
-    CSV_TESTS("CsvFileTests-topic", false),
     TEST("test", false),
 }
