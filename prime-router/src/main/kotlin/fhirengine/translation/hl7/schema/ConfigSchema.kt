@@ -1,6 +1,8 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import java.util.SortedMap
 
@@ -149,6 +151,16 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
  * @property debug log debug information for the element
  */
 @JsonIgnoreProperties
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.DEDUCTION,
+    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    property = "valueSet",
+    visible = true
+)
+@JsonSubTypes(
+    JsonSubTypes.Type(value = SortedMap::class),
+    JsonSubTypes.Type(value = String::class)
+)
 abstract class ConfigSchemaElement(
     var name: String? = null,
     var condition: String? = null,
