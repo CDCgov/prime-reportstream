@@ -156,7 +156,10 @@ class End2EndUniversalPipeline : CoolTest() {
             // check batch step
             val translateReportIds = getAllChildrenReportId(routeReportId)
             if (translateReportIds.size != expectedReceivers)
-                return bad("***async end2end_up FAILED***: Expected $expectedReceivers translate report id(s)")
+                return bad(
+                    "***async end2end_up FAILED***: Expected $expectedReceivers translate report id(s), " +
+                        "but got ${translateReportIds.size}."
+                )
             translateReportIds.forEach { translateReportId ->
                 val batchResults = pollForStepResult(translateReportId, TaskAction.batch)
                 // verify each result is valid
