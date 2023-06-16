@@ -34,7 +34,7 @@ plugins {
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("com.microsoft.azure.azurefunctions") version "1.11.1"
-    id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
+    id("org.jlleitschuh.gradle.ktlint") version "11.4.0"
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.8.10"
@@ -103,7 +103,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "2.3.0"
+val ktorVersion = "2.3.1"
 val kotlinVersion = "1.8.22"
 val jacksonVersion = "2.15.2"
 
@@ -778,7 +778,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("commons-codec:commons-codec:1.15")
-    implementation("commons-io:commons-io:2.11.0")
+    implementation("commons-io:commons-io:2.13.0")
     implementation("org.postgresql:postgresql:42.5.1")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.flywaydb:flyway-core:9.7.0")
@@ -808,7 +808,7 @@ dependencies {
     implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.1")
     implementation("org.apache.poi:poi:5.2.3")
     implementation("org.apache.poi:poi-ooxml:5.2.3")
-    implementation("commons-io:commons-io: 2.11.0")
+    implementation("commons-io:commons-io: 2.13.0")
     implementation("com.anyascii:anyascii:0.3.1")
 // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
     implementation("org.jsoup:jsoup:1.16.1")
