@@ -4,7 +4,7 @@ data to be validated to ensure data integrity and quality. For this to happen, t
 setting as well as reusable validation components to perform the sending and receiving validation. 
 
 ## Validation Design
-The diagram below proposes four validation "checkpoints":
+The diagram below proposes three validation "checkpoints":
 
 | Name           | Description + Location                                              | Purpose                                                                                                        |
 |----------------|---------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
