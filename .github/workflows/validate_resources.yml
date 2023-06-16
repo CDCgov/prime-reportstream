@@ -39,7 +39,7 @@ jobs:
 
   validate_dns:
     name: Check resources for ${{ needs.pre_job.outputs.env_name }}
-    if: needs.pre_job.outputs.env_name
+    if: needs.pre_job.outputs.env_name && ${{ github.actor != 'dependabot[bot]' }}
     needs:
       - pre_job
     environment: ${{ needs.pre_job.outputs.env_name }}
