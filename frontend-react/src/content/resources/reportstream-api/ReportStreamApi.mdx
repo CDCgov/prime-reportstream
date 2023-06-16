@@ -7,7 +7,7 @@ import { ResourcesDirectories } from "../../../content/resources";
 import { trackAppInsightEvent } from "../../../utils/Analytics";
 
 export const handleClick = () => {
-    trackAppInsightEvent(ResourcesDirectories.PROGRAMMERS_GUIDE, {});
+    trackAppInsightEvent(ResourcesDirectories.REPORTSTREAM_API, {});
     window.open(DOMPurify.sanitize(site.assets.programmersGuidePdf.path));
 };
 
