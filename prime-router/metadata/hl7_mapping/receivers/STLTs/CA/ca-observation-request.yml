@@ -8,6 +8,11 @@ elements:
     value: [ '%resource.name.substring(0,20)' ]
     hl7Spec: [ '%{fieldPath}-3-2' ]
 
+  - name: ca-observation-date-time
+    condition: '%resource.effective is dateTime'
+    value: [ '%resource.effective.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{fieldPath}-7' ]
+
   # OBR-16-1: Max length 15
   - name: ca-ordering-provider-identifier
     resource: '%service.requester.resolve().practitioner.resolve()'
@@ -19,3 +24,7 @@ elements:
     resource: '%service.requester.resolve().practitioner.resolve()'
     value: [ '%resource.name.given[0].substring(0,30)' ]
     hl7Spec: [ '%{fieldPath}-16-3' ]
+
+  - name: ca-results-reported-at
+    value: [ '%resource.issued.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{fieldPath}-22' ]
