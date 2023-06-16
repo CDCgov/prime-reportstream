@@ -210,6 +210,10 @@ object FHIRBundleHelpers {
      */
     fun Bundle.removePHI() {
 
+        /**
+         *  The covid-19.schema file lists which fields contain PII.
+         *  This function removes data for the fields listed there.
+         */
         this.entry.map { it.resource }.filterIsInstance<Patient>()
             .forEach { patient ->
                 patient.name = null
