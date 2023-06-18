@@ -120,7 +120,7 @@
         "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
         "@rest-hooks/test": "^7.3.1",
         "@storybook/addon-a11y": "^6.5.16",
-        "@storybook/addon-actions": "^6.5.16",
+        "@storybook/addon-actions": "^7.0.22",
         "@storybook/addon-essentials": "^7.0.7",
         "@storybook/addon-interactions": "^6.5.16",
         "@storybook/addon-links": "^6.5.16",
