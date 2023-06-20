@@ -79,17 +79,6 @@ data class UserApiKeyCredential(
     val apiKey: String
 ) : Credential(), RestCredential
 
-data class UserEtorCredential(
-    /**
-     * [user] is the name of the person who writes this credential.
-     */
-    val user: String,
-    /**
-     * [apiKey] is the api key
-     */
-    val apiKey: String
-) : Credential(), RestCredential
-
 /**
  * An Assertion credential
  */
@@ -115,7 +104,6 @@ data class UserAssertionCredential(
     JsonSubTypes.Type(value = UserPpkCredential::class, name = "UserPpk"),
     JsonSubTypes.Type(value = UserJksCredential::class, name = "UserJks"),
     JsonSubTypes.Type(value = UserApiKeyCredential::class, name = "UserApiKey"),
-    JsonSubTypes.Type(value = UserEtorCredential::class, name = "UserEtor"),
     JsonSubTypes.Type(value = UserAssertionCredential::class, name = "UserAssertion"),
 )
 sealed class Credential {

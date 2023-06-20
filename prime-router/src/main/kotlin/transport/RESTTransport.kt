@@ -14,7 +14,6 @@ import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.RestCredential
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
-import gov.cdc.prime.router.credentials.UserEtorCredential
 import gov.cdc.prime.router.credentials.UserAssertionCredential
 import gov.cdc.prime.router.credentials.UserJksCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
@@ -253,24 +252,25 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         var bearerTokens: BearerTokens? = null
         when (credential) {
             is UserApiKeyCredential -> {
-                tokenInfo = getAuthTokenWithUserApiKey(
-                    restTransportInfo.authTokenUrl,
-                    credential,
-                    logger,
-                    tokenClient
-                )
-                // if successful, add the token returned to the token storage
-                bearerTokens = BearerTokens(tokenInfo.accessToken, tokenInfo.refreshToken ?: "")
-            }
-            is UserEtorCredential -> {
-                val tokenInfoEtor: TokenInfoEtor = getAuthTokenWithUserEtor(
-                    restTransportInfo.authTokenUrl,
-                    credential,
-                    logger,
-                    tokenClient
-                )
-                // if successful, add the token returned to the token storage
-                bearerTokens = BearerTokens(tokenInfoEtor.accessToken, "")
+                bearerTokens = if (credential.user.equals("flexion")) {
+                    val tokenInfoEtor: TokenInfoEtor = getAuthTokenWithUserEtor(
+                        restTransportInfo.authTokenUrl,
+                        credential,
+                        logger,
+                        tokenClient
+                    )
+                    // if successful, add the token returned to the token storage
+                    BearerTokens(tokenInfoEtor.accessToken, "")
+                } else {
+                    tokenInfo = getAuthTokenWithUserApiKey(
+                        restTransportInfo.authTokenUrl,
+                        credential,
+                        logger,
+                        tokenClient
+                    )
+                    // if successful, add the token returned to the token storage
+                    BearerTokens(tokenInfo.accessToken, tokenInfo.refreshToken ?: "")
+                }
             }
             is UserPassCredential -> {
                 tokenInfo = getAuthTokenWithUserPass(
@@ -360,9 +360,19 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             return tokenInfo
         }
     }
+
+    /**
+     * Get the OAuth token by submitting Assertion credential
+     * as OAuth 2.0 Client Credentials, used by ETOR
+     *
+     * @param restUrl The URL to post to get the OAuth token
+     * @param credential The Assertion credential
+     * @param context Really just here to get logging injected
+     * @param httpClient the HTTP client to make the call
+     */
     suspend fun getAuthTokenWithUserEtor(
         restUrl: String,
-        credential: UserEtorCredential,
+        credential: UserApiKeyCredential,
         logger: Logger,
         httpClient: HttpClient
     ): TokenInfoEtor {
@@ -378,7 +388,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 expectSuccess = true // throw an exception if not successful
                 accept(ContentType.Application.Json)
             }.body()
-            logger.info("Got Token with UserEtor")
+            logger.info("Got ETOR Token with UserApiKey")
             return tokenInfo
         }
     }

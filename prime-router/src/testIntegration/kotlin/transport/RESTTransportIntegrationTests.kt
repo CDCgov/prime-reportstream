@@ -386,7 +386,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
-            UserEtorCredential("flexion", "123")
+            UserApiKeyCredential("flexion", "123")
         )
         every { runBlocking { mockRestTransport.getAuthTokenWithUserEtor(any(), any(), any(), any()) } }.returns(
             TokenInfoEtor("878a0e79-0e97-4f06-8c44-d756b74e8134", "reportStream",
