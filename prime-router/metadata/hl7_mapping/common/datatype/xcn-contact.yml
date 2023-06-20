@@ -3,15 +3,15 @@ constants:
 # Practitioner to XCN mapping
 elements:
   - name: xcn-id-number
-    value: [ '%resource.identifier.value' ]
+    value: [ '%deidentifiedValue','%resource.identifier.value' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-1' ]
 
   - name: xcn-family-name
-    value: [ '%resource.name.family' ]
+    value: [ '%deidentifiedValue','%resource.name.family' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-2' ]
 
   - name: xcn-given-name
-    value: [ '%resource.name.given[0]' ]
+    value: [ '%deidentifiedValue','%resource.name.given[0]' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-3' ]
 
   - name: xcn-other-given-names
