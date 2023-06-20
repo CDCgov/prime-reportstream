@@ -24,13 +24,6 @@ resource "azurerm_storage_account" "storage_trials" {
     prevent_destroy = false
   }
 
-  blob_properties {
-    delete_retention_policy {
-      enabled = var.environment == "prod" ? true : false
-      days    = 7
-    }
-  }
-
   tags = {
     environment = var.environment
   }
