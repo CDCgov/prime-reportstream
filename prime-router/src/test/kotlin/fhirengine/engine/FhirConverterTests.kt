@@ -308,6 +308,7 @@ class FhirConverterTests {
         every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.FHIR
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        // Throw an exception the second time trackCreatedReport is called to exit processing early and demonstrate sendMessage is not called
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit) andThenThrows(RuntimeException())
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
