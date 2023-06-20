@@ -37,9 +37,9 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "11.4.0"
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "1.8.10"
+    id("org.jetbrains.dokka") version "1.8.20"
     id("com.avast.gradle.docker-compose") version "0.16.12"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
     id("com.nocwriter.runsql") version ("1.0.3")
 }
 
@@ -784,7 +784,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:9.7.0")
     implementation("org.commonmark:commonmark:0.21.0")
     implementation("com.google.guava:guava:32.0.1-jre")
-    implementation("com.helger.as2:as2-lib:4.11.0")
+    implementation("com.helger.as2:as2-lib:5.1.0")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
     implementation("org.bouncycastle:bcmail-jdk15on:1.70")
@@ -827,7 +827,7 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.13.4")
+    testImplementation("io.mockk:mockk:1.13.5")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
