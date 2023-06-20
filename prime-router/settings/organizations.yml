@@ -942,3 +942,28 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: RADX_MARS_NO_PII
+      externalName: RADx_MARs NO PII
+      organizationName: development
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'RADX') or (%patientState.exists() and %patientState = 'RADX')" ]
+      qualityFilter:
+        - "Bundle.identifier.value.empty().not()"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base-deidentified"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        type: "HL7"
+        receivingApplicationName: ""
+        receivingFacilityName: ""
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
