@@ -35,12 +35,12 @@ elements:
       ceFieldPath: '%{fieldPath}-4'
     schema: ../../common/datatype/ce-coded-element
 
-  - name: observation-date-time
+  - name: observation-request-date-time
     condition: '%resource.effective is dateTime'
     value: [ '%resource.effective' ]
     hl7Spec: [ '%{fieldPath}-7' ]
 
-  - name: observation-date-time-start
+  - name: observation-request-date-time-start
     condition: '%resource.effective is Period'
     value: [ '%resource.effective.start' ]
     hl7Spec: [ '%{fieldPath}-7' ]
