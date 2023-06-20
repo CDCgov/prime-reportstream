@@ -37,7 +37,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "11.4.0"
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "1.8.10"
+    id("org.jetbrains.dokka") version "1.8.20"
     id("com.avast.gradle.docker-compose") version "0.16.12"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
     id("com.nocwriter.runsql") version ("1.0.3")
@@ -791,7 +791,7 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
 
     implementation("commons-net:commons-net:3.9.0")
-    implementation("com.cronutils:cron-utils:9.2.0")
+    implementation("com.cronutils:cron-utils:9.2.1")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     implementation("de.m3y.kformat:kformat:0.9")
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
