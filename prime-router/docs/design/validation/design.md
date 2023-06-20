@@ -84,7 +84,7 @@ The HAPI FHIR library supports two types of validation:
   - Lightweight but not comprehensive
   - An IParser instance can be configured with StrictErrorHandler or LenientErrorHandler resulting in exceptions or log messages upon parsing an invalid FHIR bundle.
 - [Instance](https://hapifhir.io/hapi-fhir/docs/validation/instance_validator.html)
-  - Heavy rand comprehensive
+  - Heavy and comprehensive
   - Great user-facing error messages
   - Flexible and easy to write/configure
   - Built-in support for core FHIR spec and many derivatives
