@@ -843,7 +843,7 @@ class SubmissionHistoryTests {
     }
 
     @Test
-    fun `test DetailedSubmissionHistory universal pipeline overallStatus`() {
+    fun `test DetailedSubmissionHistory universal pipeline overallStatus (error)`() {
         // we don't need to check completionAt values here as the logic for those values is the same for all pipelines
         // error: general submission error
         val testError = DetailedSubmissionHistory(
@@ -856,6 +856,10 @@ class SubmissionHistoryTests {
         testError.run {
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.ERROR)
         }
+    }
+
+    @Test
+    fun `test DetailedSubmissionHistory universal pipeline overallStatus (received)`() {
         // received: freshly received, no routing yet
         val testReceived = DetailedSubmissionHistory(
             1,
@@ -893,19 +897,6 @@ class SubmissionHistoryTests {
             null,
             false
         )
-        val latestReport = DetailedReport(
-            UUID.randomUUID(),
-            "recvOrg2",
-            "recvSvc2",
-            null, null,
-            Topic.FULL_ELR,
-            "otherExternalName2",
-            null,
-            null,
-            4,
-            null,
-            true
-        )
         // received: one of two destinations has been calculated, with all items for it filtered out
         val oneFilteredDestinationCalculated = listOf(
             inputReport,
@@ -934,32 +925,38 @@ class SubmissionHistoryTests {
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED)
         }
         // received: one of two destinations has been calculated, with no items filtered out
-        val oneUnfilteredDestinationCalculated = listOf(
-            inputReport,
+        val reports = listOf(
             DetailedReport(
                 UUID.randomUUID(),
-                "recvOrg4",
-                "recvSvc4",
+                null,
+                null,
                 null,
                 null,
                 Topic.FULL_ELR,
-                "one item dest",
+                "no item count dest",
                 null,
                 null,
-                5,
-                5,
+                0,
+                null,
                 true
             ),
         ).toMutableList()
-        val testReceivedOneUnfilteredDestination = DetailedSubmissionHistory(
-            1, TaskAction.route, OffsetDateTime.now(),
-            HttpStatus.OK.value(), oneUnfilteredDestinationCalculated
+        val testReceivedNoDestination = DetailedSubmissionHistory(
+            1,
+            TaskAction.route,
+            OffsetDateTime.now(),
+            HttpStatus.OK.value(),
+            reports,
         )
-        testReceivedOneUnfilteredDestination.enrichWithSummary()
-        testReceivedOneUnfilteredDestination.run {
-            assertThat(destinations.count()).isEqualTo(1)
-            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.WAITING_TO_DELIVER)
+        testReceivedNoDestination.enrichWithSummary()
+        testReceivedNoDestination.run {
+            assertThat(destinationCount).isEqualTo(0)
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED)
         }
+    }
+
+    @Test
+    fun `test DetailedSubmissionHistory universal pipeline overallStatus (not delivering)`() {
         // not delivering: one destination, all items filtered out
         val reportsAllItemsFilteredOut = listOf(
             DetailedReport(
@@ -988,7 +985,7 @@ class SubmissionHistoryTests {
         testNotDelivering.run {
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.NOT_DELIVERING)
         }
-        var reports = listOf(
+        val reports = listOf(
             DetailedReport(
                 UUID.randomUUID(),
                 null,
@@ -1004,18 +1001,6 @@ class SubmissionHistoryTests {
                 true
             ),
         ).toMutableList()
-        val testReceivedNoDestination = DetailedSubmissionHistory(
-            1,
-            TaskAction.route,
-            OffsetDateTime.now(),
-            HttpStatus.OK.value(),
-            reports,
-        )
-        testReceivedNoDestination.enrichWithSummary()
-        testReceivedNoDestination.run {
-            assertThat(destinationCount).isEqualTo(0)
-            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED)
-        }
         val testNotDeliveringNoDestination = DetailedSubmissionHistory(
             1,
             TaskAction.route,
@@ -1029,7 +1014,65 @@ class SubmissionHistoryTests {
             assertThat(destinationCount).isEqualTo(0)
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.NOT_DELIVERING)
         }
-        reports = listOf(
+    }
+
+    @Test
+    fun `test DetailedSubmissionHistory universal pipeline overallStatus (waiting to deliver)`() {
+        val inputReport = DetailedReport(
+            UUID.randomUUID(),
+            null,
+            null,
+            "org",
+            "client",
+            Topic.FULL_ELR,
+            "externalName",
+            null,
+            null,
+            5,
+            null,
+            false
+        )
+        val latestReport = DetailedReport(
+            UUID.randomUUID(),
+            "recvOrg2",
+            "recvSvc2",
+            null, null,
+            Topic.FULL_ELR,
+            "otherExternalName2",
+            null,
+            null,
+            4,
+            null,
+            true
+        )
+        // waiting to deliver: one of two destinations has been calculated, with no items filtered out
+        val oneUnfilteredDestinationCalculated = listOf(
+            inputReport,
+            DetailedReport(
+                UUID.randomUUID(),
+                "recvOrg4",
+                "recvSvc4",
+                null,
+                null,
+                Topic.FULL_ELR,
+                "one item dest",
+                null,
+                null,
+                5,
+                5,
+                true
+            ),
+        ).toMutableList()
+        val testReceivedOneUnfilteredDestination = DetailedSubmissionHistory(
+            1, TaskAction.route, OffsetDateTime.now(),
+            HttpStatus.OK.value(), oneUnfilteredDestinationCalculated
+        )
+        testReceivedOneUnfilteredDestination.enrichWithSummary()
+        testReceivedOneUnfilteredDestination.run {
+            assertThat(destinations.count()).isEqualTo(1)
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.WAITING_TO_DELIVER)
+        }
+        val reports = listOf(
             inputReport,
             latestReport,
             DetailedReport(
@@ -1069,6 +1112,24 @@ class SubmissionHistoryTests {
         testWaitingToDeliver.run {
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.WAITING_TO_DELIVER)
         }
+    }
+
+    @Test
+    fun `test DetailedSubmissionHistory universal pipeline overallStatus (partially delivered)`() {
+        val inputReport = DetailedReport(
+            UUID.randomUUID(),
+            null,
+            null,
+            "org",
+            "client",
+            Topic.FULL_ELR,
+            "externalName",
+            null,
+            null,
+            5,
+            null,
+            false
+        )
         // use cases found while investigating issue #9378
         // partially delivered: one destination with an item, the other got all filtered out
         val twoDestinationsOneItem = listOf(
@@ -1119,6 +1180,24 @@ class SubmissionHistoryTests {
             assertThat(destinations.count()).isEqualTo(2)
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.PARTIALLY_DELIVERED)
         }
+    }
+
+    @Test
+    fun `test DetailedSubmissionHistory universal pipeline overallStatus (delivered)`() {
+        val inputReport = DetailedReport(
+            UUID.randomUUID(),
+            null,
+            null,
+            "org",
+            "client",
+            Topic.FULL_ELR,
+            "externalName",
+            null,
+            null,
+            5,
+            null,
+            false
+        )
         // delivered: one destination with an item, the other got SOME items filtered out
         val twoDestinationsSomeItems = listOf(
             inputReport,
@@ -1151,11 +1230,11 @@ class SubmissionHistoryTests {
                 true
             ),
         ).toMutableList()
-        val testPartiallyDeliveredTwoDestinationsSomeItems = DetailedSubmissionHistory(
+        val testDeliveredTwoDestinationsSomeItems = DetailedSubmissionHistory(
             1, TaskAction.route, OffsetDateTime.now(),
             HttpStatus.OK.value(), twoDestinationsSomeItems
         )
-        testPartiallyDeliveredTwoDestinationsSomeItems.enrichWithDescendants(
+        testDeliveredTwoDestinationsSomeItems.enrichWithDescendants(
             listOf(
                 DetailedSubmissionHistory(
                     1, TaskAction.send, OffsetDateTime.now(),
@@ -1163,8 +1242,8 @@ class SubmissionHistoryTests {
                 ),
             )
         )
-        testPartiallyDeliveredTwoDestinationsSomeItems.enrichWithSummary()
-        testPartiallyDeliveredTwoDestinationsSomeItems.run {
+        testDeliveredTwoDestinationsSomeItems.enrichWithSummary()
+        testDeliveredTwoDestinationsSomeItems.run {
             assertThat(destinations.count()).isEqualTo(2)
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.DELIVERED)
         }
