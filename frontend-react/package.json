@@ -37,7 +37,7 @@
         "react-idle-timer": "^5.5.3",
         "react-loader-spinner": "^5.3.4",
         "react-markdown": "^8.0.6",
-        "react-router": "^6.11.2",
+        "react-router": "^6.13.0",
         "react-router-dom": "^6.11.2",
         "react-scroll-sync": "^0.11.0",
         "react-toastify": "^9.1.2",
