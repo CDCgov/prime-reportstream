@@ -174,16 +174,15 @@ class End2EndUniversalPipeline : CoolTest() {
                 // check send step
                 val batchReportId = getSingleChildReportId(translateReportId)
                     ?: return bad("***async end2end_up FAILED***: Batch report id null")
-                val sendResults = pollForStepResult(batchReportId, TaskAction.send)
+                sendResults = pollForStepResult(batchReportId, TaskAction.send)
                 // verify each result is valid
                 for (result in sendResults.values)
                     passed = passed && examineStepResponse(result, "send", sender.topic)
                 if (!passed)
                     bad("***async end2end_up FAILED***: Send result invalid")
             }
-            val histories = sendResults.values.filterNotNull()
-            val reports = histories.flatMap { it.reports?.toList() ?: emptyList() }
-            val receiverNames = reports.map { "${it.receivingOrg}.${it.receivingOrgSvc}" }
+            val receiverNames = sendResults.values.flatMap { it?.reports ?: emptyList() }
+                .map { "${it.receivingOrg}.${it.receivingOrgSvc}" }
 
             expectedReceivers.forEach { receiver ->
                 if (!receiverNames.contains(receiver.fullName)) {
