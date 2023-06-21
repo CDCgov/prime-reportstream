@@ -162,7 +162,7 @@
         "babel-plugin-named-asset-import": "^0.3.8",
         "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
         "bfj": "^7.0.2",
-        "browserslist": "^4.21.7",
+        "browserslist": "^4.21.9",
         "camelcase": "^6.2.1",
         "case-sensitive-paths-webpack-plugin": "^2.4.0",
         "chalk": "^4.1.2",
