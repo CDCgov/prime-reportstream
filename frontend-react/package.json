@@ -166,7 +166,7 @@
         "camelcase": "^6.2.1",
         "case-sensitive-paths-webpack-plugin": "^2.4.0",
         "chalk": "^4.1.2",
-        "chromatic": "^6.18.2",
+        "chromatic": "^6.19.8",
         "confusing-browser-globals": "^1.0.11",
         "cross-env": "^7.0.3",
         "cross-spawn": "^7.0.3",
