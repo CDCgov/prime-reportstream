@@ -38,7 +38,7 @@ jobs:
           fi
 
   validate_dns:
-    name: Check resources for ${{ needs.pre_job.outputs.env_name }}
+    name: Check resources for infrastructure
     if: ${{ needs.pre_job.outputs.env_name && (github.actor != 'dependabot[bot]') }}
     needs:
       - pre_job
