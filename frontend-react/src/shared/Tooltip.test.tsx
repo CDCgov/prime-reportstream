@@ -1,5 +1,5 @@
 import { describe, test } from "@jest/globals";
-import { screen } from "@testing-library/react";
+import { renderHook, screen } from "@testing-library/react";
 import React from "react";
 import user from "@testing-library/user-event";
 
@@ -37,9 +37,9 @@ const TooltipContextCreatorComponent = ({
 describe("Tooltip", () => {
     describe("useTooltipContext", () => {
         test("no context - error", () => {
-            expect(() =>
-                renderApp(<TooltipContextReceiverComponent />)
-            ).toThrowError("Tooltip components must be wrapped in <Tooltip />");
+            expect(() => renderHook(() => useTooltipContext())).toThrowError(
+                "Tooltip components must be wrapped in <Tooltip />"
+            );
         });
 
         test("context", () => {
