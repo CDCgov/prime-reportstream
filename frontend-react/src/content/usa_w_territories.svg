@@ -55,7 +55,7 @@
     /* .pr, Puerto Rico */
     .ri, /* Rhode Island */
     /* .sc, South Carolina */
-    /* .sd, South Dakota */
+    .sd, /* South Dakota */
     .tn, /* Tennessee */
     /* .tt, Trust Territories */
     .tx, /* Texas */

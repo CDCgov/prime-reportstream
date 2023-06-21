@@ -152,8 +152,8 @@ export function ManagePublicKey() {
                         <span className="padding-left-1">
                             If you need more information on generating your
                             public key, reference page 7 in the{" "}
-                            <USLink href="/resources/programmers-guide">
-                                API Programmer’s Guide.
+                            <USLink href="/resources/api">
+                                ReportStream API.
                             </USLink>
                         </span>
                     </SiteAlert>

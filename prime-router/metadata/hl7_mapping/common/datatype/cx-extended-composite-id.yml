@@ -2,7 +2,7 @@ constants:
   hl7CXFieldPath: '%{hl7CXField}(%{idIndex})'
 elements:
   - name: id-number
-    value: [ '%resource.value' ]
+    value: [ '%deidentifiedVaue','%resource.value' ]
     hl7Spec: [ '%{hl7CXFieldPath}-1' ]
 
   - name: assigning-authority
