@@ -22,3 +22,4 @@ FHIR_to_HL7/sample_AOE_2_20230220-0001.fhir,,FHIR_to_HL7/sample_AOE_2_20230220-0
 FHIR_to_HL7/sample_SR_1_20230302-0001.fhir,,FHIR_to_HL7/sample_SR_1_20230302-0001.hl7,metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform,HL7,PASS,"","","metadata/fhir_transforms/senders/default-sender-transform"
 FHIR_to_HL7/sample_truncate_CA_20230406-0001.fhir,,FHIR_to_HL7/sample_truncate_CA_20230406-0001.hl7,metadata/hl7_mapping/receivers/STLTs/CA/CA,HL7,PASS,"","",""
 FHIR_to_HL7/sample_RADx_MARS_20230406-0001.fhir,,FHIR_to_HL7/sample_RADx_MARS_20230406-0001.hl7,metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base,HL7,PASS,"","",""
+FHIR_to_HL7/sample_RADx_MARS_20230406-0002.fhir,,FHIR_to_HL7/sample_RADx_MARS_20230406-0002.hl7,metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base-deidentified,HL7,PASS,"","",""
