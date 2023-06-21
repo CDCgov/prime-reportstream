@@ -378,7 +378,7 @@ class ActionHistory(
         reportFile.sendingOrg = source.organization
         reportFile.sendingOrgClient = source.client
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic.json_val
+        reportFile.schemaTopic = report.schema.topic
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
@@ -413,7 +413,7 @@ class ActionHistory(
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic.json_val
+        reportFile.schemaTopic = report.schema.topic
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
@@ -444,7 +444,7 @@ class ActionHistory(
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic.json_val
+        reportFile.schemaTopic = report.schema.topic
         reportFile.itemCount = report.itemCount
         reportFile.bodyFormat = report.bodyFormat.toString()
         reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
@@ -474,7 +474,7 @@ class ActionHistory(
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic.json_val
+        reportFile.schemaTopic = report.schema.topic
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
@@ -498,7 +498,7 @@ class ActionHistory(
     fun trackCreatedReport(
         event: Event,
         report: Report,
-        blobInfo: BlobAccess.BlobInfo
+        blobInfo: BlobAccess.BlobInfo?
     ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
@@ -509,11 +509,16 @@ class ActionHistory(
         reportFile.nextAction = event.eventAction.toTaskAction()
         reportFile.nextActionAt = event.at
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic.json_val
-        reportFile.bodyUrl = blobInfo.blobUrl
-        reportFile.bodyFormat = blobInfo.format.toString()
-        reportFile.blobDigest = blobInfo.digest
-        reportFile.itemCount = report.itemCount
+        reportFile.schemaTopic = report.schema.topic
+        if (blobInfo != null) {
+            reportFile.bodyUrl = blobInfo.blobUrl
+            reportFile.bodyFormat = blobInfo.format.toString()
+            reportFile.blobDigest = blobInfo.digest
+            reportFile.itemCount = report.itemCount
+        } else {
+            reportFile.bodyFormat = Report.Format.FHIR.toString() // currently only the UP sends null blobs
+            reportFile.itemCount = 0
+        }
         reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
         if (report.destination != null) {
             reportFile.receivingOrg = report.destination.organizationName
@@ -553,7 +558,7 @@ class ActionHistory(
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = receiver.schemaName
-        reportFile.schemaTopic = receiver.topic.json_val
+        reportFile.schemaTopic = receiver.topic
         reportFile.externalName = filename
         action.externalName = filename
         reportFile.transportParams = params

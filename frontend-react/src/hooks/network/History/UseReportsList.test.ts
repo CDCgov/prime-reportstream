@@ -24,6 +24,7 @@ describe("useReportsList", () => {
             isUserAdmin: false,
             isUserReceiver: true,
             isUserSender: false,
+            environment: "test",
         });
 
         const { result } = renderHook(() => useOrgDeliveries("testService"));

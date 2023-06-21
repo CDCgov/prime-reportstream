@@ -6,6 +6,16 @@ constants:
   observation: '%diagnostic.result[%resultIndex].resolve()'
 elements:
 
+  - name: ca-observation-date-time
+    condition: '%observation.effective.exists()'
+    value: [ '%observation.effective.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-14' ]
+
+  - name: ca-analysis-date-time
+    condition: '%observation.issued.exists()'
+    value: [ '%observation.issued.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-19' ]
+
   - name: ca-organization-performer-identifier
     resource: '%resource.performer.resolve()'
     value: [ '(%resource.name + "-"+ %resource.identifier[0].value).substring(0,50) ' ]

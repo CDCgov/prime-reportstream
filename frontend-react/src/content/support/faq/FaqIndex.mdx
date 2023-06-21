@@ -1,0 +1,73 @@
+import { Helmet } from "react-helmet-async";
+
+<Helmet>
+    <title>FAQ | Support</title>
+</Helmet>
+
+<div class="faq-wrapper">
+<div class="heading usa-prose">
+# Frequently asked questions
+
+### Answers to help you understand and use ReportStream
+</div>
+
+    **Jump to:**
+* [About ReportStream](#about-reportstream)
+* [Account management](#account-management)
+* [Reporting requirements and resources](#reporting-requirements-and-resources)
+
+If you have any other questions, please [contact us](https://app.smartsheetgov.com/b/form/ff33efa457be461c9893301d4c0ec12d), and our team will respond soon to assist you.
+
+<section>
+    <h3 id="about-reportstream">About ReportStream</h3>
+
+#### What reportable conditions does ReportStream support?
+While ReportStream currently works with COVID-19 and mpox data, we are adding more reportable conditions soon. [Contact us](https://app.smartsheetgov.com/b/form/ff33efa457be461c9893301d4c0ec12d) if you would like updates on additional conditions as they become available. You can submit flu data through [SimpleReport](https://www.simplereport.gov/).
+
+#### Should I use ReportStream or SimpleReport?
+**If you are a public health department**, you only need to connect to ReportStream. You will get data from testing facilities who connect to ReportStream through our API and those facilities who report through [SimpleReport](https://www.simplereport.gov/). SimpleReport data will flow directly to you through ReportStream, so you do not need to onboard to SimpleReport.
+
+**If you are a testing facility**, ReportStream and SimpleReport offer two different ways to send your data. ReportStream uses an API connection to send your data to public health departments. You can send an HL7 or CSV file through our API.  Some technical expertise is required to set up an API connection. If you currently send data via SFTP, this may be a process you are familiar with. It usually takes about a month to establish an API connection with ReportStream, but this will depend on your capacity and data requirements.
+
+[SimpleReport](https://www.simplereport.gov/) can be used for manual reporting or CSV upload. Because there is no technical setup, onboarding is quicker and simpler than for ReportStream.
+
+Both SimpleReport and ReportStream are free.
+
+#### How much does ReportStream cost?
+ReportStream is 100% free and provided by the CDC.
+
+#### What testing devices does ReportStream support?
+All approved devices can be found on the [CDC LIVD mapping table](https://www.cdc.gov/csels/dls/livd-codes.html?CDC_AA_refVal=https%3A%2F%2Fwww.cdc.gov%2Fcsels%2Fdls%2Fsars-cov-2-livd-codes.html).
+
+#### Where is ReportStream Live?
+[View our list](/product/where-were-live) of active states and territories. If you do not see your state or territory, [contact us](https://app.smartsheetgov.com/b/form/ff33efa457be461c9893301d4c0ec12d) to learn more.
+</section>
+
+<section>
+    <h3 id="account-management">Account management</h3>
+
+#### How do I reset my password?
+[On the login page](/login), select "Need help signing in?" under the sign in button and follow the instructions.
+</section>
+
+<section>
+    <h3 id="reporting-requirements-and-resources">Reporting requirements and resources</h3>
+
+#### Are labs required to report to both state or local public health departments and HHS?
+According to the CARES Act, labs are not required to report to both state or local health departments and HHS. The CARES Act requires labs to report all data to state or local public health departments using existing public health data reporting channels, in accordance with state law or policies. The state health department will provide these data to HHS.
+
+View [reporting requirements for COVID-19](https://www.cdc.gov/coronavirus/2019-ncov/lab/reporting-lab-data.html#faqs). View [reporting requirements for mpox](https://www.cdc.gov/poxvirus/mpox/lab-personnel/report-results.html).
+
+#### Can public health departments receive a report on facilities reporting them?
+Yes. [Submit your request here](https://app.smartsheetgov.com/b/form/ff33efa457be461c9893301d4c0ec12d).
+
+#### Where can I find the HL7 v2 Implementation Guide?
+[View the HL7 v2 Implementation Guide](https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/HL7v2-implementation-guide).
+
+#### Where can I find a ReportStream standard CSV sample file?
+[Download the CSV sample file](/assets/csv/ReportStream-StandardCSV-ExampleData-20220509.csv).
+
+#### Where can I find the ReportStream API guide?
+[View the ReportStream API](/resources/api).
+</section>
+</div>

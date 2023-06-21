@@ -1,17 +1,27 @@
 package gov.cdc.prime.router
 
 import assertk.assertThat
+import assertk.assertions.hasClass
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.asFormattedString
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import java.io.ByteArrayInputStream
+import java.util.UUID
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -21,6 +31,46 @@ class ReportTests {
     private val metadata = UnitTestUtils.simpleMetadata
 
     val rcvr = Receiver("name", "org", Topic.TEST, CustomerStatus.INACTIVE, "schema", Report.Format.CSV)
+
+    /**
+     * Create table's header
+     */
+    val oneWithAge = Schema(
+        name = "one",
+        topic = Topic.TEST,
+        elements = listOf(
+            Element("message_id"),
+            Element("patient_age"),
+            Element("specimen_collection_date_time"),
+            Element("patient_dob")
+        )
+    )
+
+    /**
+     * Add Rows values to the table
+     */
+    val oneReport = Report(
+        schema = oneWithAge,
+        values = listOf(
+            listOf("0", "100", "202110300809", "30300102"), // Good age, ... don't care -> patient_age=100
+            // Bad age, good collect date, BAD DOB -> patient_age=null
+            listOf("1", ")@*", "202110300809-0501", "30300101"),
+            // Bad age, bad collect date, good dob -> patient_age=2
+            listOf("2", "_", "202110300809", "20190101"),
+            // Good age, bad collect date, bad dob -> patient_age=20
+            listOf("3", "20", "adfadf", "!@!*@(7"),
+            // Bad age, good collect date, good dob -> patient_age=2
+            listOf("4", "0", "202110300809-0500", "20190101"),
+            // Bad age, good collect data, good dob -> patient_age=10
+            listOf("5", "-5", "202110300809-0502", "20111029"),
+            // Good age, ... don't care -> patient_age = 40
+            listOf("6", "40", "asajh", "20190101"),
+            // Good age is blank, -> patient_age=null
+            listOf("7", "", "asajh", "20190101")
+        ),
+        TestSource,
+        metadata = metadata
+    )
 
     @Test
     fun `test merge`() {
@@ -368,46 +418,6 @@ class ReportTests {
 
     @Test
     fun `test patient age validation`() {
-        /**
-         * Create table's header
-         */
-        val oneWithAge = Schema(
-            name = "one",
-            topic = Topic.TEST,
-            elements = listOf(
-                Element("message_id"),
-                Element("patient_age"),
-                Element("specimen_collection_date_time"),
-                Element("patient_dob")
-            )
-        )
-
-        /**
-         * Add Rows values to the table
-         */
-        val oneReport = Report(
-            schema = oneWithAge,
-            values = listOf(
-                listOf("0", "100", "202110300809", "30300102"), // Good age, ... don't care -> patient_age=100
-                // Bad age, good collect date, BAD DOB -> patient_age=null
-                listOf("1", ")@*", "202110300809-0501", "30300101"),
-                // Bad age, bad collect date, good dob -> patient_age=2
-                listOf("2", "_", "202110300809", "20190101"),
-                // Good age, bad collect date, bad dob -> patient_age=20
-                listOf("3", "20", "adfadf", "!@!*@(7"),
-                // Bad age, good collect date, good dob -> patient_age=2
-                listOf("4", "0", "202110300809-0500", "20190101"),
-                // Bad age, good collect data, good dob -> patient_age=10
-                listOf("5", "-5", "202110300809-0502", "20111029"),
-                // Good age, ... don't care -> patient_age = 40
-                listOf("6", "40", "asajh", "20190101"),
-                // Good age is blank, -> patient_age=null
-                listOf("7", "", "asajh", "20190101")
-            ),
-            TestSource,
-            metadata = metadata
-        )
-
         val covidResultMetadata = oneReport.getDeidentifiedResultMetaData()
         assertThat(covidResultMetadata).isNotNull()
         assertThat(covidResultMetadata[0].patientAge).isEqualTo("100")
@@ -455,39 +465,6 @@ class ReportTests {
 
     @Test
     fun `test covid metadata output`() {
-        /**
-         * Create table's header
-         */
-        val oneWithAge = Schema(
-            name = "one",
-            topic = Topic.TEST,
-            elements = listOf(
-                Element("message_id"),
-                Element("patient_age"),
-                Element("specimen_collection_date_time"),
-                Element("patient_dob")
-            )
-        )
-
-        /**
-         * Add Rows values to the table
-         */
-        val oneReport = Report(
-            schema = oneWithAge,
-            values = listOf(
-                listOf("0", "100", "202110300809", "30300102"),
-                listOf("1", ")@*", "202110300809-0501", "30300101"),
-                listOf("2", "_", "202110300809", "20190101"),
-                listOf("3", "20", "adfadf", "!@!*@(7"),
-                listOf("4", "0", "202110300809-0500", "20190101"),
-                listOf("5", "-5", "202110300809-0502", "20111029"),
-                listOf("6", "40", "asajh", "20190101"),
-                listOf("7", "", "asajh", "20190101")
-            ),
-            TestSource,
-            metadata = metadata
-        )
-
         val covidResultMetadata = oneReport.getDeidentifiedResultMetaData()
         assertThat(covidResultMetadata).isNotNull()
         // there should never be a report index of 0 in covid result metadata, row indexing should start at 1
@@ -884,6 +861,175 @@ class ReportTests {
         } catch (e: IllegalArgumentException) {
             assertThat(e).isNotNull()
         }
+    }
+
+    @Test
+    fun `test generateReportAndUploadBlob errors`() {
+        val mockActionHistory = mockk<ActionHistory>()
+        val mockMetadata = mockk<Metadata>()
+
+        // No message body
+        assertThat {
+            Report.generateReportAndUploadBlob(
+                Event.EventAction.BATCH,
+                "".toByteArray(),
+                listOf(UUID.randomUUID()),
+                rcvr,
+                mockMetadata,
+                mockActionHistory,
+                topic = Topic.FULL_ELR,
+            )
+        }.isFailure().hasClass(java.lang.IllegalStateException::class.java)
+
+        // No report ID
+        assertThat {
+            Report.generateReportAndUploadBlob(
+                Event.EventAction.BATCH,
+                UUID.randomUUID().toString().toByteArray(),
+                listOf(),
+                rcvr,
+                mockMetadata,
+                mockActionHistory,
+                topic = Topic.FULL_ELR,
+            )
+        }.isFailure().hasClass(java.lang.IllegalStateException::class.java)
+
+        // Invalid receiver type
+        assertThat {
+            Report.generateReportAndUploadBlob(
+                Event.EventAction.BATCH,
+                UUID.randomUUID().toString().toByteArray(),
+                listOf(UUID.randomUUID()),
+                rcvr,
+                mockMetadata,
+                mockActionHistory,
+                topic = Topic.FULL_ELR,
+            )
+        }.isFailure().hasClass(java.lang.IllegalStateException::class.java)
+    }
+
+    @Test
+    fun `test generateReportAndUploadBlob for hl7`() {
+        val mockMetadata = mockk<Metadata>() {
+            every { fileNameTemplates } returns emptyMap()
+        }
+        val mockActionHistory = mockk<ActionHistory>() {
+            every { trackCreatedReport(any(), any(), any()) } returns Unit
+        }
+        val hl7MockData = UUID.randomUUID().toString().toByteArray() // Just some data
+        val receiver = Receiver(
+            "name", "org", Topic.FULL_ELR,
+            translation = Hl7Configuration(
+                receivingApplicationName = null, receivingApplicationOID = null,
+                receivingFacilityName = null, receivingFacilityOID = null, receivingOrganization = null,
+                messageProfileId = null
+            )
+        )
+
+        // Now test single report
+        mockkObject(BlobAccess)
+        every {
+            BlobAccess.uploadBody(
+                Report.Format.HL7, hl7MockData, any(), any(), Event.EventAction.PROCESS
+            )
+        } returns
+            BlobAccess.BlobInfo(Report.Format.HL7, "someurl", "digest".toByteArray())
+
+        var reportIds = listOf(ReportId.randomUUID())
+        val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
+            Event.EventAction.PROCESS, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
+            topic = Topic.FULL_ELR,
+        )
+        unmockkObject(BlobAccess)
+
+        assertThat(report.bodyFormat).isEqualTo(Report.Format.HL7)
+        assertThat(report.itemCount).isEqualTo(1)
+        assertThat(report.destination).isNotNull()
+        assertThat(report.destination!!.name).isEqualTo(receiver.name)
+        assertThat(report.itemLineages).isNotNull()
+        assertThat(report.itemLineages!!.size).isEqualTo(1)
+        assertThat(event.eventAction).isEqualTo(Event.EventAction.PROCESS)
+        assertThat(blobInfo.blobUrl).isEqualTo("someurl")
+
+        // Multiple reports
+        reportIds = listOf(ReportId.randomUUID(), ReportId.randomUUID(), ReportId.randomUUID())
+        mockkObject(BlobAccess)
+        every {
+            BlobAccess.uploadBody(
+                Report.Format.HL7_BATCH, hl7MockData, any(), any(), Event.EventAction.SEND
+            )
+        } returns
+            BlobAccess.BlobInfo(Report.Format.HL7_BATCH, "someurl", "digest".toByteArray())
+        val (report2, event2, _) = Report.generateReportAndUploadBlob(
+            Event.EventAction.SEND, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory,
+            topic = Topic.FULL_ELR,
+        )
+        unmockkObject(BlobAccess)
+        assertThat(report2.bodyFormat).isEqualTo(Report.Format.HL7_BATCH)
+        assertThat(report2.itemCount).isEqualTo(3)
+        assertThat(report2.itemLineages).isNotNull()
+        assertThat(report2.itemLineages!!.size).isEqualTo(3)
+        assertThat(event2.eventAction).isEqualTo(Event.EventAction.SEND)
+    }
+
+    @Test
+    fun `test generateReportAndUploadBlob for fhir`() {
+        val mockMetadata = mockk<Metadata>() {
+            every { fileNameTemplates } returns emptyMap()
+        }
+        val mockActionHistory = mockk<ActionHistory>() {
+            every { trackCreatedReport(any(), any(), any()) } returns Unit
+        }
+        val fhirMockData = UUID.randomUUID().toString().toByteArray() // Just some data
+        val receiver = Receiver(
+            "name", "org", Topic.FULL_ELR,
+            translation = FHIRConfiguration(receivingOrganization = null)
+        )
+
+        // Now test single report
+        mockkObject(BlobAccess)
+        every {
+            BlobAccess.uploadBody(
+                Report.Format.FHIR, fhirMockData, any(), any(), Event.EventAction.PROCESS
+            )
+        } returns
+            BlobAccess.BlobInfo(Report.Format.FHIR, "someurl", "digest".toByteArray())
+
+        var reportIds = listOf(ReportId.randomUUID())
+        val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
+            Event.EventAction.PROCESS, fhirMockData, reportIds, receiver, mockMetadata, mockActionHistory,
+            topic = Topic.FULL_ELR,
+        )
+        unmockkObject(BlobAccess)
+
+        assertThat(report.bodyFormat).isEqualTo(Report.Format.FHIR)
+        assertThat(report.itemCount).isEqualTo(1)
+        assertThat(report.destination).isNotNull()
+        assertThat(report.destination!!.name).isEqualTo(receiver.name)
+        assertThat(report.itemLineages).isNotNull()
+        assertThat(report.itemLineages!!.size).isEqualTo(1)
+        assertThat(event.eventAction).isEqualTo(Event.EventAction.PROCESS)
+        assertThat(blobInfo.blobUrl).isEqualTo("someurl")
+
+        // Multiple reports
+        reportIds = listOf(ReportId.randomUUID(), ReportId.randomUUID(), ReportId.randomUUID())
+        mockkObject(BlobAccess)
+        every {
+            BlobAccess.uploadBody(
+                Report.Format.FHIR, fhirMockData, any(), any(), Event.EventAction.SEND
+            )
+        } returns
+            BlobAccess.BlobInfo(Report.Format.FHIR, "someurl", "digest".toByteArray())
+        val (report2, event2, _) = Report.generateReportAndUploadBlob(
+            Event.EventAction.SEND, fhirMockData, reportIds, receiver, mockMetadata, mockActionHistory,
+            topic = Topic.FULL_ELR,
+        )
+        unmockkObject(BlobAccess)
+        assertThat(report2.bodyFormat).isEqualTo(Report.Format.FHIR)
+        assertThat(report2.itemCount).isEqualTo(3)
+        assertThat(report2.itemLineages).isNotNull()
+        assertThat(report2.itemLineages!!.size).isEqualTo(3)
+        assertThat(event2.eventAction).isEqualTo(Event.EventAction.SEND)
     }
 }
 

@@ -1,27 +1,30 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
-import gov.cdc.prime.router.Metadata
+import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
-import gov.cdc.prime.router.metadata.LivdLookup
+import org.hl7.fhir.r4.model.Age
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.DateTimeType
-import org.hl7.fhir.r4.model.Device
+import org.hl7.fhir.r4.model.DateType
 import org.hl7.fhir.r4.model.IntegerType
-import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
+import java.math.BigDecimal
 import java.time.DateTimeException
+import java.time.LocalDate
+import java.time.Period
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import java.util.TimeZone
 
 /**
  * Custom FHIR functions created by report stream to help map from FHIR -> HL7
  * only used in cases when the same logic couldn't be accomplished using the FHIRPath
  */
-object CustomFHIRFunctions {
+object CustomFHIRFunctions : FhirPathFunctions {
 
     /**
      * Custom FHIR Function names used to map from the string used in the FHIR path
@@ -37,8 +40,8 @@ object CustomFHIRFunctions {
         GetId,
         GetIdType,
         HasPhoneNumberExtension,
-        LivdTableLookup,
-        ChangeTimezone;
+        ChangeTimezone,
+        ConvertDateToAge;
 
         companion object {
             /**
@@ -56,10 +59,14 @@ object CustomFHIRFunctions {
     }
 
     /**
-     * Get the function details for a given [functionName].
+     * Get the function details for a given [functionName] and adds the ability to provide [additionalFunctions] in case
+     * additional custom FHIR functions are needed.
      * @return the function details
      */
-    fun resolveFunction(functionName: String?): FHIRPathEngine.IEvaluationContext.FunctionDetails? {
+    override fun resolveFunction(
+        functionName: String?,
+        additionalFunctions: FhirPathFunctions?
+    ): FHIRPathEngine.IEvaluationContext.FunctionDetails? {
         return when (CustomFHIRFunctionNames.get(functionName)) {
             CustomFHIRFunctionNames.GetPhoneNumberCountryCode -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails("extract country code from FHIR phone number", 0, 0)
@@ -101,14 +108,6 @@ object CustomFHIRFunctions {
                 )
             }
 
-            CustomFHIRFunctionNames.LivdTableLookup -> {
-                FHIRPathEngine.IEvaluationContext.FunctionDetails(
-                    "looks up data in the LIVD table that match the information provided",
-                    1,
-                    1
-                )
-            }
-
             CustomFHIRFunctionNames.ChangeTimezone -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails(
                     "changes the timezone of a dateTime, instant, or date resource to the timezone passed in",
@@ -117,18 +116,30 @@ object CustomFHIRFunctions {
                 )
             }
 
-            else -> null
+            CustomFHIRFunctionNames.ConvertDateToAge -> {
+                FHIRPathEngine.IEvaluationContext.FunctionDetails(
+                    "returns the number of years, months if less than a year, weeks if less" +
+                        " than a month, and days if less than a week that a person is old for a date resource",
+                    0,
+                    1
+                )
+            }
+
+            else -> additionalFunctions?.resolveFunction(functionName)
         }
     }
 
     /**
-     * Execute the function on a [focus] resource for a given [functionName] and [parameters].
+     * Execute the function on a [focus] resource for a given [functionName] and [parameters]. [additionalFunctions] can
+     * be executed if present
+     *
      * @return the function result
      */
-    fun executeFunction(
+    override fun executeFunction(
         focus: MutableList<Base>?,
         functionName: String?,
-        parameters: MutableList<MutableList<Base>>?
+        parameters: MutableList<MutableList<Base>>?,
+        additionalFunctions: FhirPathFunctions?
     ): MutableList<Base> {
         check(focus != null)
         return (
@@ -169,17 +180,103 @@ object CustomFHIRFunctions {
                     getIdType(focus)
                 }
 
-                CustomFHIRFunctionNames.LivdTableLookup -> {
-                    livdTableLookup(focus, parameters)
-                }
-
                 CustomFHIRFunctionNames.ChangeTimezone -> {
                     changeTimezone(focus, parameters)
                 }
 
-                else -> throw IllegalStateException("Tried to execute invalid FHIR Path function $functionName")
+                CustomFHIRFunctionNames.ConvertDateToAge -> {
+                    convertDateToAge(focus, parameters)
+                }
+
+                else -> additionalFunctions?.executeFunction(focus, functionName, parameters)
+                    ?: throw IllegalStateException("Tried to execute invalid FHIR Path function $functionName")
             }
             )
+    }
+
+    /**
+     * Converts the date in the [focus] element to an age in years, months, weeks, or days depending on which is
+     * specified. If left off, makes assumption.
+     * @return an age in years, months, weeks, or days.
+     */
+    fun convertDateToAge(focus: MutableList<Base>, parameters: MutableList<MutableList<Base>>?): MutableList<Base> {
+        val date = focus.first()
+
+        if (date !is DateType) {
+            throw SchemaException("Must call the convertDateToAge function on a single dateTimeType")
+        }
+
+        val periodsOfTime = listOf("day", "month", "year")
+        return if (parameters != null && parameters.size > 0 && parameters[0].size > 0 &&
+            parameters[0][0].toString().lowercase() in periodsOfTime
+        ) {
+            val age = Age()
+            return when (parameters[0][0].toString()) {
+                "day" -> {
+                    age.unit = "day"
+                    age.value = BigDecimal(
+                        ChronoUnit.DAYS.between(
+                            LocalDate.of(date.year, date.month + 1, date.day),
+                            LocalDate.now()
+                        )
+                    )
+                    age.code = "d"
+                    mutableListOf(age)
+                }
+                "month" -> {
+                    age.unit = "month"
+                    age.value = BigDecimal(
+                        ChronoUnit.MONTHS.between(
+                            LocalDate.of(date.year, date.month + 1, date.day),
+                            LocalDate.now()
+                        )
+                    )
+                    age.code = "mo"
+                    mutableListOf(age)
+                }
+                "year" -> {
+                    age.unit = "year"
+                    age.value = BigDecimal(
+                        ChronoUnit.YEARS.between(
+                            LocalDate.of(date.year, date.month + 1, date.day),
+                            LocalDate.now()
+                        )
+                    )
+                    age.code = "a"
+                    mutableListOf(age)
+                }
+                else -> throw SchemaException("Call with day, month, or year")
+            }
+        } else {
+            calculateAgeWithAssumption(date)
+        }
+    }
+
+    private fun calculateAgeWithAssumption(date: DateType): MutableList<Base> {
+        val period = Period.between(
+            // have to do plus one for the month because it is expecting 1 based and we get zero based
+            LocalDate.of(date.year, date.month + 1, date.day),
+            LocalDate.now()
+        )
+
+        val age = Age()
+        if (period.years > 1) {
+            age.unit = "year"
+            age.value = BigDecimal(period.years)
+            age.code = "a"
+        } else if (period.months > 1) {
+            age.unit = "month"
+            age.value = BigDecimal(period.months)
+            age.code = "mo"
+        } else if (period.days >= 0) {
+            age.unit = "day"
+            age.value = BigDecimal(period.days)
+            age.code = "d"
+        } else {
+            throw SchemaException("Must call the convertDateToAge function on a date in the past")
+        }
+
+        return mutableListOf(age)
     }
 
     /**
@@ -374,80 +471,6 @@ object CustomFHIRFunctions {
             else -> null
         }
         return if (type != null) mutableListOf(StringType(type)) else mutableListOf()
-    }
-
-    /**
-     * Get the LOINC Code from the LIVD table based on the device id, equipment model id, test kit name id, or the
-     * element model name
-     * @return a list with one value denoting the LOINC Code, or an empty list
-     */
-    fun livdTableLookup(
-        focus: MutableList<Base>,
-        parameters: MutableList<MutableList<Base>>?,
-        metadata: Metadata = Metadata.getInstance()
-    ): MutableList<Base> {
-        val lookupTable = metadata.findLookupTable(name = LivdLookup.livdTableName)
-
-        if (focus.size != 1) {
-            throw SchemaException("Must call the livdTableLookup function on a single observation")
-        }
-
-        val observation = focus.first()
-        if (observation !is Observation) {
-            throw SchemaException("Must call the livdTableLookup function on an observation")
-        }
-
-        var result: String? = ""
-        // Maps to OBX 17 CWE.1 Which is coding[1].code
-        val testPerformedCode = (observation as Observation?)?.code?.coding?.firstOrNull()?.code
-        val deviceId = (observation as Observation?)?.method?.coding?.firstOrNull()?.code
-        if (!deviceId.isNullOrEmpty()) {
-            result = LivdLookup.find(
-                testPerformedCode = testPerformedCode,
-                processingModeCode = null,
-                deviceId = deviceId,
-                equipmentModelId = null,
-                testKitNameId = null,
-                equipmentModelName = null,
-                tableRef = lookupTable,
-                tableColumn = parameters!!.first().first().primitiveValue()
-            )
-        }
-
-        // Maps to OBX 18 which is mapped to Device.identifier
-        val equipmentModelId = (observation.device.resource as Device?)?.identifier?.firstOrNull()?.id
-        if (!result.isNullOrBlank() && !equipmentModelId.isNullOrEmpty()) {
-            result = LivdLookup.find(
-                testPerformedCode = testPerformedCode,
-                processingModeCode = null,
-                deviceId = null,
-                equipmentModelId = equipmentModelId,
-                testKitNameId = null,
-                equipmentModelName = null,
-                tableRef = lookupTable,
-                tableColumn = parameters!!.first().first().primitiveValue()
-            )
-        }
-
-        val deviceName = (observation.device.resource as Device?)?.deviceName?.first()?.name
-        if (!result.isNullOrBlank() && !deviceName.isNullOrBlank()) {
-            result = LivdLookup.find(
-                testPerformedCode = testPerformedCode,
-                processingModeCode = null,
-                deviceId = null,
-                equipmentModelId = null,
-                testKitNameId = null,
-                equipmentModelName = deviceName,
-                tableRef = lookupTable,
-                tableColumn = parameters!!.first().first().primitiveValue()
-            )
-        }
-
-        return if (result.isNullOrBlank()) {
-            mutableListOf(StringType(null))
-        } else {
-            mutableListOf(StringType(result))
-        }
     }
 
     /**

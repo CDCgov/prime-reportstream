@@ -20,6 +20,7 @@ import gov.cdc.prime.router.InvalidTranslationMessage
 import gov.cdc.prime.router.MissingFieldMessage
 import gov.cdc.prime.router.ReportStreamFilterResult
 import gov.cdc.prime.router.ReportStreamFilterType
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -289,7 +290,7 @@ class SubmissionHistoryTests {
             OffsetDateTime.now(),
             "testname.csv",
             "a2cf1c46-7689-4819-98de-520b5007e45f",
-            "covid-19",
+            Topic.COVID_19,
             3,
             "simple_report",
             201,
@@ -300,7 +301,7 @@ class SubmissionHistoryTests {
             assertThat(httpStatus).isEqualTo(201)
             assertThat(externalName).isEqualTo("testname.csv")
             assertThat(reportId).isEqualTo("a2cf1c46-7689-4819-98de-520b5007e45f")
-            assertThat(topic).isEqualTo("covid-19")
+            assertThat(topic).isEqualTo(Topic.COVID_19)
             assertThat(reportItemCount).isEqualTo(3)
         }
     }
@@ -374,7 +375,7 @@ class SubmissionHistoryTests {
             null,
             "org",
             "client",
-            "topic",
+            Topic.TEST,
             "externalName",
             null,
             null,
@@ -392,7 +393,7 @@ class SubmissionHistoryTests {
                 "recvSvc1",
                 null,
                 null,
-                "topic",
+                Topic.TEST,
                 "otherExternalName1",
                 null,
                 null,
@@ -406,7 +407,7 @@ class SubmissionHistoryTests {
                 "recvSvc2",
                 null,
                 null,
-                "topic",
+                Topic.TEST,
                 "otherExternalName2",
                 null,
                 null,
@@ -419,7 +420,7 @@ class SubmissionHistoryTests {
                 "recvOrg3",
                 "recvSvc3",
                 null,
-                null, "topic",
+                null, Topic.TEST,
                 "no item count dest",
                 null,
                 null,
@@ -529,6 +530,7 @@ class SubmissionHistoryTests {
             HttpStatus.OK.value(),
             null,
         )
+        testReceived.actionsPerformed = mutableSetOf(TaskAction.receive)
         testReceived.enrichWithSummary()
         testReceived.run {
             assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED)
@@ -543,7 +545,7 @@ class SubmissionHistoryTests {
                 "recvSvc3",
                 null,
                 null,
-                "topic",
+                Topic.TEST,
                 "no item count dest",
                 null,
                 null,
@@ -567,6 +569,52 @@ class SubmissionHistoryTests {
             assertThat(actualCompletionAt).isNull()
         }
 
+        reports = listOf(
+            DetailedReport(
+                UUID.randomUUID(),
+                null,
+                null,
+                null,
+                null,
+                Topic.TEST,
+                "no item count dest",
+                null,
+                null,
+                0,
+                null,
+                true
+            ),
+        ).toMutableList()
+        val testReceivedNoDestination = DetailedSubmissionHistory(
+            1,
+            TaskAction.route,
+            OffsetDateTime.now(),
+            HttpStatus.OK.value(),
+            reports,
+        )
+        testReceivedNoDestination.enrichWithSummary()
+        testReceivedNoDestination.run {
+            assertThat(destinationCount).isEqualTo(0)
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.RECEIVED)
+            assertThat(plannedCompletionAt).isNull()
+            assertThat(actualCompletionAt).isNull()
+        }
+        val testNotDeliveringNoDestination = DetailedSubmissionHistory(
+            1,
+            TaskAction.route,
+            OffsetDateTime.now(),
+            HttpStatus.OK.value(),
+            reports,
+        )
+        testNotDeliveringNoDestination.actionsPerformed = mutableSetOf(TaskAction.route)
+        testNotDeliveringNoDestination.enrichWithSummary()
+        testNotDeliveringNoDestination.run {
+            assertThat(destinationCount).isEqualTo(0)
+            assertThat(overallStatus).isEqualTo(DetailedSubmissionHistory.Status.NOT_DELIVERING)
+            assertThat(plannedCompletionAt).isNull()
+            assertThat(actualCompletionAt).isNull()
+        }
+
         val tomorrow = OffsetDateTime.now().plusDays(1)
         val today = OffsetDateTime.now()
 
@@ -576,7 +624,7 @@ class SubmissionHistoryTests {
             null,
             "org",
             "client",
-            "topic",
+            Topic.TEST,
             "externalName",
             null,
             null,
@@ -590,7 +638,7 @@ class SubmissionHistoryTests {
             "recvOrg2",
             "recvSvc2",
             null, null,
-            "topic",
+            Topic.TEST,
             "otherExternalName2",
             null,
             tomorrow,
@@ -608,7 +656,7 @@ class SubmissionHistoryTests {
                 "recvSvc1",
                 null,
                 null,
-                "topic",
+                Topic.TEST,
                 "otherExternalName1",
                 null, today,
                 1,
@@ -621,7 +669,7 @@ class SubmissionHistoryTests {
                 "recvSvc3",
                 null,
                 null,
-                "topic",
+                Topic.TEST,
                 "no item count dest",
                 null,
                 null,
@@ -649,7 +697,7 @@ class SubmissionHistoryTests {
                 "recvSvc1",
                 null,
                 null,
-                "topic",
+                Topic.TEST,
                 "extname",
                 null,
                 null,
@@ -725,7 +773,7 @@ class SubmissionHistoryTests {
                 "recvSvc1",
                 null,
                 null,
-                "topic",
+                Topic.TEST,
                 "otherExternalName1",
                 null,
                 null,
@@ -739,7 +787,7 @@ class SubmissionHistoryTests {
                 "recvSvc2",
                 null,
                 null,
-                "topic",
+                Topic.TEST,
                 "otherExternalName2",
                 null,
                 null,
@@ -753,7 +801,7 @@ class SubmissionHistoryTests {
                 "otherRecSvc",
                 null,
                 null,
-                "topic",
+                Topic.TEST,
                 "someOtherExtName",
                 null,
                 null,
@@ -802,7 +850,7 @@ class SubmissionHistoryTests {
             null,
             "org",
             "client",
-            "topic",
+            Topic.TEST,
             "externalName",
             null,
             OffsetDateTime.now(),
@@ -819,7 +867,7 @@ class SubmissionHistoryTests {
                 "recvSvc1",
                 null,
                 null,
-                "topic",
+                Topic.TEST,
                 "otherExternalName1",
                 null,
                 now,
@@ -832,7 +880,7 @@ class SubmissionHistoryTests {
                 "recvOrg3",
                 "recvSvc3",
                 null,
-                null, "topic",
+                null, Topic.TEST,
                 "no item count dest",
                 null,
                 now,
@@ -869,7 +917,7 @@ class SubmissionHistoryTests {
             null,
             "org",
             "client",
-            "full-elr",
+            Topic.FULL_ELR,
             "externalName",
             null,
             null,
@@ -888,7 +936,7 @@ class SubmissionHistoryTests {
                 null,
                 null,
                 null,
-                "full-elr",
+                Topic.FULL_ELR,
                 "otherExternalName1",
                 null,
                 null,
@@ -946,6 +994,7 @@ class SubmissionHistoryTests {
             assertThat(destinations.first().service).isEqualTo("recvSvc1")
         }
     }
+
     @Test
     fun `test UP enrichWithDescendants reached translate`() {
         val inputReport = DetailedReport(
@@ -954,7 +1003,7 @@ class SubmissionHistoryTests {
             null,
             "org",
             "client",
-            "full-elr",
+            Topic.FULL_ELR,
             "externalName",
             null,
             null,
@@ -971,7 +1020,7 @@ class SubmissionHistoryTests {
                 null,
                 null,
                 null,
-                "full-elr",
+                Topic.FULL_ELR,
                 "otherExternalName1",
                 null,
                 null,
@@ -1009,7 +1058,7 @@ class SubmissionHistoryTests {
                             "recvSvc1",
                             null,
                             null,
-                            "full-elr",
+                            Topic.FULL_ELR,
                             "otherExternalName1",
                             null,
                             null,
@@ -1037,7 +1086,7 @@ class SubmissionHistoryTests {
             null,
             "org",
             "client",
-            "full-elr",
+            Topic.FULL_ELR,
             "externalName",
             null,
             null,
@@ -1054,7 +1103,7 @@ class SubmissionHistoryTests {
                 null,
                 null,
                 null,
-                "full-elr",
+                Topic.FULL_ELR,
                 "otherExternalName1",
                 null,
                 null,
@@ -1092,7 +1141,7 @@ class SubmissionHistoryTests {
                             "recvSvc1",
                             null,
                             null,
-                            "full-elr",
+                            Topic.FULL_ELR,
                             "otherExternalName1",
                             null,
                             null,
@@ -1106,7 +1155,7 @@ class SubmissionHistoryTests {
                             "recvSvc1",
                             null,
                             null,
-                            "full-elr",
+                            Topic.FULL_ELR,
                             "otherExternalName1",
                             null,
                             null,
@@ -1120,7 +1169,7 @@ class SubmissionHistoryTests {
                             "recvSvc1",
                             null,
                             null,
-                            "full-elr",
+                            Topic.FULL_ELR,
                             "otherExternalName1",
                             null,
                             null,
@@ -1150,7 +1199,7 @@ class SubmissionHistoryTests {
             null,
             "org",
             "client",
-            "full-elr",
+            Topic.FULL_ELR,
             "externalName",
             null,
             null,
@@ -1187,7 +1236,7 @@ class SubmissionHistoryTests {
                             "recvSvc1",
                             null,
                             null,
-                            "full-elr",
+                            Topic.FULL_ELR,
                             "otherExternalName1",
                             null,
                             null,
@@ -1201,7 +1250,7 @@ class SubmissionHistoryTests {
                             "recvSvc2",
                             null,
                             null,
-                            "full-elr",
+                            Topic.FULL_ELR,
                             "otherExternalName1",
                             null,
                             null,
@@ -1229,7 +1278,7 @@ class SubmissionHistoryTests {
             null,
             "org",
             "client",
-            "full-elr",
+            Topic.FULL_ELR,
             "externalName",
             null,
             null,
@@ -1334,7 +1383,7 @@ class SubmissionHistoryTests {
                             "recvSvc1",
                             null,
                             null,
-                            "full-elr",
+                            Topic.FULL_ELR,
                             "otherExternalName1",
                             null,
                             null,

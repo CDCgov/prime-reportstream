@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import java.util.Base64
 
@@ -58,6 +59,7 @@ data class RawSubmission(
     val blobURL: String,
     val digest: String,
     val blobSubFolderName: String,
+    val topic: Topic,
     val schemaName: String = "",
 //    val options: Options,
 //    val defaults: Map<String, String>,
