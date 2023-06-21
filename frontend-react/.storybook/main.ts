@@ -69,7 +69,13 @@ const config: StorybookConfig = {
             },
         };
 
-        return config;
+        return {
+            ...config,
+            build: {
+                ...config.build,
+                sourcemap: false,
+            },
+        };
     },
     docs: {
         autodocs: "tag",
