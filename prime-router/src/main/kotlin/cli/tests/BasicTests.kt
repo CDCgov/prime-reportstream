@@ -161,6 +161,14 @@ class End2EndUniversalPipeline : CoolTest() {
                     "***async end2end_up FAILED***: Expected at least ${expectedReceivers.size} translate" +
                         "report id(s), but got ${translateReportIds.size}."
                 )
+            val receiverNames = translateResults.values.flatMap { it?.reports ?: emptyList() }
+                .map { "${it.receivingOrg}.${it.receivingOrgSvc}" }
+            expectedReceivers.forEach { receiver ->
+                if (!receiverNames.contains(receiver.fullName)) {
+                    bad("***async end2end_up FAILED***: expected ${receiver.fullName} to have received a report")
+                    passed = false
+                }
+            }
             translateReportIds.forEach { translateReportId ->
                 val batchResults = pollForStepResult(translateReportId, TaskAction.batch)
                 // verify each result is valid
@@ -179,15 +187,7 @@ class End2EndUniversalPipeline : CoolTest() {
                 if (!passed)
                     bad("***async end2end_up FAILED***: Send result invalid")
             }
-            val receiverNames = translateResults.values.flatMap { it?.reports ?: emptyList() }
-                .map { "${it.receivingOrg}.${it.receivingOrgSvc}" }
-            echo("Receivers in the reports: ${receiverNames.joinToString(",")}")
-            expectedReceivers.forEach { receiver ->
-                if (!receiverNames.contains(receiver.fullName)) {
-                    bad("***async end2end_up FAILED***: expected ${receiver.fullName} to have received a report")
-                    passed = false
-                }
-            }
+
 
             // check that lineages were generated properly
             passed = passed and pollForLineageResults(
