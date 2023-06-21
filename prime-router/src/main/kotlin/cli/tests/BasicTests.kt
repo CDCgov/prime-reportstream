@@ -26,7 +26,6 @@ import java.net.HttpURLConnection
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.Locale
-import java.util.UUID
 import kotlin.math.abs
 import kotlin.system.exitProcess
 import kotlin.system.measureTimeMillis
@@ -162,7 +161,6 @@ class End2EndUniversalPipeline : CoolTest() {
                     "***async end2end_up FAILED***: Expected at least ${expectedReceivers.size} translate" +
                         "report id(s), but got ${translateReportIds.size}."
                 )
-            var sendResults: Map<UUID, DetailedSubmissionHistory?> = emptyMap()
             translateReportIds.forEach { translateReportId ->
                 val batchResults = pollForStepResult(translateReportId, TaskAction.batch)
                 // verify each result is valid
@@ -174,14 +172,14 @@ class End2EndUniversalPipeline : CoolTest() {
                 // check send step
                 val batchReportId = getSingleChildReportId(translateReportId)
                     ?: return bad("***async end2end_up FAILED***: Batch report id null")
-                sendResults = pollForStepResult(batchReportId, TaskAction.send)
+                val sendResults = pollForStepResult(batchReportId, TaskAction.send)
                 // verify each result is valid
                 for (result in sendResults.values)
                     passed = passed && examineStepResponse(result, "send", sender.topic)
                 if (!passed)
                     bad("***async end2end_up FAILED***: Send result invalid")
             }
-            val receiverNames = sendResults.values.flatMap { it?.reports ?: emptyList() }
+            val receiverNames = translateResults.values.flatMap { it?.reports ?: emptyList() }
                 .map { "${it.receivingOrg}.${it.receivingOrgSvc}" }
             echo("Receivers in the reports: ${receiverNames.joinToString(",")}")
             expectedReceivers.forEach { receiver ->
