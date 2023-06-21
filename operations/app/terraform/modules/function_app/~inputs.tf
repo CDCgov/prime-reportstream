@@ -52,6 +52,9 @@ variable "storage_account" {}
 variable "primary_access_key" {
   sensitive = true
 }
+variable "candidate_access_key" {
+  sensitive = true
+}
 variable "container_registry_login_server" {}
 variable "container_registry_admin_username" {}
 variable "container_registry_admin_password" {

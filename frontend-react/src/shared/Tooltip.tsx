@@ -39,7 +39,6 @@ export function useTooltip({
     const open = controlledOpen ?? uncontrolledOpen;
     const setOpen = React.useCallback(
         (isOpen: boolean) => {
-            console.log("ding");
             onOpenChange?.(isOpen);
             if (controlledOpen == null) {
                 setUncontrolledOpen(isOpen);

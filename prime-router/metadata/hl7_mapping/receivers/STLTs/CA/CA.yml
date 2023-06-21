@@ -1,0 +1,166 @@
+##########################################################################
+# This is a temporary CA transform. These settings need to be #
+# moved to a sender transform once that feature is complete.             #
+##########################################################################
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+constants:
+  simpleReportClia: '"CDPH000085"'
+  outOfStateSimpleReportClia: '"CDPH000075"'
+  simpleReportName: '"Simple Report"'
+  timezone: '"PST8PDT"'
+extends: ../../../ORU_R01/ORU_R01-base
+elements:
+  #########################
+  # ReportStream specific #
+  #########################
+  - name: sending-application-namespace-id-no-endpoint
+    condition: true
+    resource: 'Bundle'
+    value: [ '"CDC PRIME - Atlanta"' ]
+
+  - name: sending-application-universal-id-no-endpoint
+    condition: true
+    resource: 'Bundle'
+    value: [ '"2.16.840.1.114222.4.1.237821"' ]
+
+  - name: sending-application-universal-id-type-with-endpoint
+    condition: true
+    resource: 'Bundle'
+    value: [ '"ISO"' ]
+
+  ######################################################
+  # Source: ReportStream CA Requirements from settings #
+  # Using CA for now, but may need specific ones       #
+  ######################################################
+  - name: receiving-application-namespace-id
+    condition: true
+    resource: 'Bundle'
+    value: [ '"CDPH CA REDIE"' ]
+
+  - name: receiving-application-universal-id
+    condition: true
+    resource: 'Bundle'
+    value: [ '"2.16.840.1.114222.4.3.3.10.1.1"' ]
+
+  - name: receiving-application-universal-id-type
+    condition: true
+    resource: 'Bundle'
+    value: [ '"ISO"' ]
+
+  - name: receiving-facility-namespace-id
+    condition: true
+    resource: 'Bundle'
+    value: [ '"CDPH_CID"' ]
+
+  - name: receiving-facility-universal-id
+    condition: true
+    resource: 'Bundle'
+    value: [ '"2.16.840.1.114222.4.1.214104"' ]
+
+  - name: receiving-facility-universal-id-type
+    condition: true
+    resource: 'Bundle'
+    value: [ '"ISO"' ]
+
+
+  #####################################
+  # Simple Report specific transforms #
+  #####################################
+  - name: sending-facility_namespace-id
+    condition: true
+    resource: 'Bundle'
+    value: [ '%simpleReportName' ]
+
+  - name: sending-facility-universal-id
+    condition: 'true'
+    resource: 'Bundle'
+    value: [ '%simpleReportClia' ]
+
+  # If state where the test was requested or performed is not in CA
+  # set to Simple Report's CLIA out of sate
+  - name: sending-facility-universal-id-out-of-state
+    condition: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().practitioner.resolve().address.where(state != "CA").exists() 
+      or Bundle.entry.resource.ofType(Observation).performer.resolve().address.where(state != "CA").exists()'
+    value: [ '%outOfStateSimpleReportClia' ]
+    hl7Spec: [ MSH-4-2 ]
+
+  - name: sending-facility-universal-id-type
+    condition: true
+    resource: 'Bundle'
+    value: [ '"CLIA"' ]
+
+  - name: ca-processing-id
+    condition: 'Bundle.entry.resource.ofType(MessageHeader).meta.tag.where(system = "http://terminology.hl7.org/CodeSystem/v2-0103").exists().not()'
+    resource: 'Bundle'
+    value: [ '"P"' ]
+    hl7Spec: [ MSH-11-1 ]
+
+  - name: message_profile_id
+    value: [ '"PHLabReport-NoAck"' ]
+    hl7Spec: [ MSH-21-1 ]
+
+  - name: message_profile_id_namespace_id
+    value: [ '"ELR_Receiver"' ]
+    hl7Spec: [ MSH-21-2 ]
+
+  - name: message_profile_id_universal_id
+    value: [ '"2.16.840.1.113883.9.11"' ]
+    hl7Spec: [ MSH-21-3 ]
+
+  - name: message_profile_id_universal_id_type
+    value: [ '"ISO"' ]
+    hl7Spec: [ MSH-21-4 ]
+
+  # SFT-1-1
+  - name: software-vendor-name
+    condition: true
+    resource: 'Bundle'
+    value: [ '"Centers for Disease Control and Prevention"' ]
+
+  # SFT-1-2
+  - name: software-vendor-name-type
+    condition: false
+
+  # SFT-1-6
+  - name: software-vendor-assigning-authority
+    condition: false
+
+  # SFT-3
+  - name: software-name
+    condition: true
+    resource: 'Bundle'
+    value: [ '"PRIME ReportStream"' ]
+
+  - name: ca-order-observations
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    condition: '%resource.count() > 0'
+    schema: ca-order-observation
+    resourceIndex: orderIndex
+
+  # California requirement: suppress AOEs from being mapped to OBR segments
+  # This makes sure only observations under diagnostic reports are mapped
+  - name: observation-result-with-aoe
+    resource: '%resource.result.resolve()'
+
+
+  # California requirement: move order notes and observation notes to last observation
+  # suppressing default mapping for notes
+  - name: order-note
+    condition: false
+
+  - name: observation-note
+    condition: false
+
+
+
+  # PID-3-4 Max length: 20
+  - name: patient-assigning-authority
+    value: [ '%patientOrganization.name.substring(0,20)' ]
+
+  - name: ca-patient
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.count() = 1'
+    constants:
+      hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
+    schema: ca-patient

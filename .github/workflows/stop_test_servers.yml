@@ -1,0 +1,50 @@
+name: Stop Apps in Test server
+
+on:
+  workflow_dispatch:
+  # push: 
+  #   branches:
+  #     - feature/9537-schedulemaintenance_DemoandTest
+  schedule:
+   - cron: "0 5 * * SAT" #UTC-5
+   - cron: '0 2 * * 1-5' 
+
+jobs:
+  alert_stale_branches:
+    name: Stop Test Subscription apps
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+      
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          tf-auth: true
+      # Login to Azure
+      - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
+        with:
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Stop postgres
+        uses: ./.github/actions/Stop-PostgresDB
+        with:
+          name: "pdhtest-pgsql-flex"
+          resource-group: prime-data-hub-test
+          subscription: OCIO-DMZ-C1
+          pass: ${{ secrets.POSTGRESQL_Test_PWD }}
+          creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Stop function app
+        uses: ./.github/actions/Stop-AzFunction
+        with:
+          resourceGroupName: prime-data-hub-test
+          Subscription: "OCIO-DMZ-C1"
+          functionName: pdhtest-functionapp
+          functionAppName: pdhtest-functionapp

@@ -1,0 +1,10 @@
+elements:
+  - name: aoe-note
+    condition: '%resource is Observation'
+    schema: 'ca-aoe-note'
+
+  - name: note
+    condition: '%resource is String'
+    schema: '../../../ORU_R01/base/note'
+    constants:
+      noteDetails: '%resource.note'

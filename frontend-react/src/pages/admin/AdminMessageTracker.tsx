@@ -10,7 +10,7 @@ import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 
 export function AdminMessageTracker() {
     return (
-        <GridContainer containerSize="widescreen">
+        <GridContainer>
             <Helmet>
                 <title>Message Id Search</title>
             </Helmet>

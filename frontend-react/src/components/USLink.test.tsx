@@ -30,13 +30,13 @@ const testScenarios = Object.entries(enumProps).map(([key, valueList]) =>
 
 const routeUrls = [
     "",
-    "#",
-    "#asdf",
-    "##asdf",
     "/",
     "asdf",
     `//${window.location.host}/asdf`,
     `${window.location.origin}`,
+    "#",
+    "#asdf",
+    "##asdf",
 ];
 
 const routeUrlsMap = {

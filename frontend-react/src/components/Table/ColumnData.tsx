@@ -91,7 +91,8 @@ export const ColumnData = ({
 
     if (hasFeature("action")) {
         // Make column value actionable
-        const { action, param } = columnConfig.feature as ActionableColumn;
+        const { action, param, actionButtonHandler, actionButtonParam } =
+            columnConfig.feature as ActionableColumn;
 
         if (!rowData[param!!]) {
             console.warn(`The row attribute '${param}' could not be found`);
@@ -101,15 +102,29 @@ export const ColumnData = ({
             if (param) return action(rowData[param]);
             return action();
         };
+        const showActionButton = () => {
+            if (actionButtonHandler && actionButtonParam) {
+                return actionButtonHandler(rowData[actionButtonParam]);
+            } else {
+                return true;
+            }
+        };
+
         return tableData(
-            <Button
-                className="font-mono-2xs line-height-alt-4"
-                type="button"
-                unstyled
-                onClick={doAction}
-            >
-                {displayValue}
-            </Button>
+            <>
+                {showActionButton() ? (
+                    <Button
+                        className="font-mono-2xs line-height-alt-4"
+                        type="button"
+                        unstyled
+                        onClick={doAction}
+                    >
+                        {displayValue}
+                    </Button>
+                ) : (
+                    <div>{displayValue}</div>
+                )}
+            </>
         );
     }
 

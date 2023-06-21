@@ -89,9 +89,14 @@ variable "storage_partner_id" {
   description = "Storage Partner resource id"
 }
 
-variable "action_group_businesshours_id" {
+variable "action_group_slack_id" {
   type        = string
-  description = "Businesshours action group resource id"
+  description = "Slack action group resource id"
+}
+
+variable "action_group_metabase_id" {
+  type        = string
+  description = "Metabase healthcheck action group resource id"
 }
 
 variable "data_factory_id" {

@@ -89,6 +89,7 @@ operations/app/src/environments/configurations/dev.*
 !operations/app/src/**/.terraform.lock.hcl
 terraform-fmt.log
 **.tfstate
+**.bin
 
 # Hashicorp Vault Secrets
 prime-router/.vault/env/**
@@ -114,3 +115,6 @@ gitleaks.log
 # Cypress
 **/cypress/screenshots/
 **/cypress/videos/
+
+# Storybook
+storybook-static

@@ -6,7 +6,6 @@ import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
-import gov.cdc.prime.router.FullELRSender
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
@@ -16,6 +15,7 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.SubmissionReceiver
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.TopicReceiver
+import gov.cdc.prime.router.UniversalPipelineSender
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -366,7 +366,7 @@ class ReportFunctionTests {
         val metadata = UnitTestUtils.simpleMetadata
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val sender = FullELRSender("Test ELR Sender", "test", Sender.Format.HL7)
+        val sender = UniversalPipelineSender("Test ELR Sender", "test", Sender.Format.HL7, topic = Topic.FULL_ELR)
 
         val engine = makeEngine(metadata, settings)
         val actionHistory = spyk(ActionHistory(TaskAction.receive))

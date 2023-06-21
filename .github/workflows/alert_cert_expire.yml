@@ -1,0 +1,68 @@
+name: GHA to Check Key Vault Certificates Expiration
+
+on:
+  schedule:
+    # The workflow runs every day at 8:07am
+    - cron: "7 13 * * *"  #UTC-5
+
+jobs:
+  check-certificates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Changes
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+
+      - name: Get runner ip
+        id: runner_ip
+        uses: ./.github/actions/runner-ip
+
+      - name: Connect to VPN & Login into Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Add Runner IP to Key Vault Firewall
+        run: |
+          az keyvault network-rule add --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.ip-address }}
+          az keyvault network-rule add --name pdhprod-keyvault --ip-address ${{ steps.runner_ip.outputs.ip-address }}
+
+      - name: List KeyVault Certificates in Prod & Staging
+        id: cert_list
+        run: |
+          az keyvault certificate list --vault-name pdhprod-keyvault \
+          --query "[?attributes.expires <= '$(date -u -d '+30 days' +%Y-%m-%dT%H:%M:%S.%NZ)'].{Name:name, Expiry:attributes.expires}" \
+          -o json | jq -r '. | map("\(.Name) expires \(.Expiry)") | .[]' > certificates.json
+          az keyvault certificate list --vault-name pdhstaging-keyvault \
+          --query "[?attributes.expires <= '$(date -u -d '+30 days' +%Y-%m-%dT%H:%M:%S.%NZ)'].{Name:name, Expiry:attributes.expires}" \
+          -o json | jq -r '. | map("\(.Name) expires \(.Expiry)") | .[]' >> certificates.json
+          cat certificates.json
+
+      - name: Format output
+        id: format_out
+        run: |
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "LIST<<$EOF" >> $GITHUB_OUTPUT
+          cat certificates.json >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+      
+      - name: Slack Notification
+        if: ${{ steps.format_out.outputs.LIST  != '' }}
+        uses: ./.github/actions/notifications
+        with:
+          method: slack
+          title: These Certificates are expired or will expire in 30 days or less
+          message: |
+            ${{ steps.format_out.outputs.LIST }}
+          icon-emoji: ':bell:'
+          channel: pagerduty-alert-dump
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          color: warning
+
+      - name: Remove Runner IP from the KeyVault Firewalls
+        run: |
+          az keyvault network-rule remove --name pdhstaging-keyvault --ip-address ${{ steps.runner_ip.outputs.ip-address }}
+          az keyvault network-rule remove --name pdhprod-keyvault --ip-address ${{ steps.runner_ip.outputs.ip-address }}

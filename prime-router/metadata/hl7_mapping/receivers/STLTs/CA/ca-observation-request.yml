@@ -1,0 +1,30 @@
+constants:
+  fieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBR
+elements:
+
+  # OBR-3-2: Max length 20
+  - name: ca-order-organization-identifier-name
+    resource: '%resource.basedOn.resolve().performer.resolve()'
+    value: [ '%resource.name.substring(0,20)' ]
+    hl7Spec: [ '%{fieldPath}-3-2' ]
+
+  - name: ca-observation-date-time
+    condition: '%resource.effective is dateTime'
+    value: [ '%resource.effective.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{fieldPath}-7' ]
+
+  # OBR-16-1: Max length 15
+  - name: ca-ordering-provider-identifier
+    resource: '%service.requester.resolve().practitioner.resolve()'
+    value: [ '%resource.identifier.value.substring(0,15)' ]
+    hl7Spec: [ '%{fieldPath}-16-1' ]
+
+  # OBR-16-3: Max length 16
+  - name: ca-ordering-provider-name
+    resource: '%service.requester.resolve().practitioner.resolve()'
+    value: [ '%resource.name.given[0].substring(0,30)' ]
+    hl7Spec: [ '%{fieldPath}-16-3' ]
+
+  - name: ca-results-reported-at
+    value: [ '%resource.issued.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{fieldPath}-22' ]

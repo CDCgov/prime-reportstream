@@ -82,6 +82,17 @@ class HttpUtilities {
                 .build()
         }
 
+        fun <T> okJSONResponse(
+            request: HttpRequestMessage<String?>,
+            body: ApiResponse<T>
+        ): HttpResponseMessage {
+            return request
+                .createResponseBuilder(HttpStatus.OK)
+                .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
+                .body(mapper.writeValueAsString(body))
+                .build()
+        }
+
         fun createdResponse(
             request: HttpRequestMessage<String?>,
             responseBody: String,
@@ -343,16 +354,53 @@ class HttpUtilities {
          * Returns a Pair (HTTP response code, text of the response)
          */
         fun postHttp(urlStr: String, bytes: ByteArray, headers: List<Pair<String, String>>? = null): Pair<Int, String> {
+            return httpRequest("POST", urlStr, bytes, headers)
+        }
+
+        /**
+         * A generic function for a GET to a URL <address>.
+         * Returns a Pair (HTTP response code, text of the response)
+         */
+        fun getHttp(
+            urlStr: String,
+            headers: List<Pair<String, String>>? = null
+        ): Pair<Int, String> {
+            return httpRequest("GET", urlStr, null, headers)
+        }
+
+        /**
+         * A generic function for a DELETE to a URL <address>.
+         * Returns a Pair (HTTP response code, text of the response)
+         */
+        fun deleteHttp(
+            urlStr: String,
+            bytes: ByteArray,
+            headers: List<Pair<String, String>>? = null
+        ): Pair<Int, String> {
+            return httpRequest("DELETE", urlStr, bytes, headers)
+        }
+
+        /**
+         * Private generic function for creating an http request
+         */
+        private fun httpRequest(
+            method: String,
+            urlStr: String,
+            bytes: ByteArray?,
+            headers: List<Pair<String, String>>? = null
+        ): Pair<Int, String> {
             val urlObj = URL(urlStr)
             with(urlObj.openConnection() as HttpURLConnection) {
-                requestMethod = "POST"
+                requestMethod = method
                 doOutput = true
                 doInput = true
                 headers?.forEach {
                     addRequestProperty(it.first, it.second)
                 }
-                outputStream.use {
-                    it.write(bytes)
+                if (bytes != null) {
+                    outputStream.use {
+                        it.write(bytes)
+                    }
                 }
                 val response = try {
                     inputStream.bufferedReader().readText()

@@ -1,0 +1,43 @@
+constants:
+  rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
+
+elements:
+  #########################
+  # ReportStream specific #
+  #########################
+  - name: sending-application-namespace-id
+    condition: true
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.name'
+    value: [ '"CDC PRIME - Atlanta: 2.16.840.1.114222.4.1.237821"' ]
+
+  - name: sending-application-universal-id
+    condition: true
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.endpoint'
+    value: [ '"urn:oid:2.16.840.1.114222.4.1.237821"' ]
+
+  # SFT-1-1
+  - name: software-vendor-name
+    condition: true
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).source.extension(%`rsext-software-vendor-org`)'
+    bundleProperty: '%resource.value.resolve().name'
+    value: [ '"Centers for Disease Control and Prevention"' ]
+
+  - name: processing-id
+    condition: 'Bundle.entry.resource.ofType(MessageHeader).meta.tag.code.empty()'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.meta.tag.code'
+    value: [ '"P"' ]
+
+  - name: provider-namespace-id
+    condition: '%resource.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner).identifier[0]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id").value[x]'
+    value: [ '"NPI"' ]
+
+  - name: provider-universal-id
+    condition: '%resource.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner).identifier[0]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id").value[x]'
+    value: [ '"urn:oid:2.16.840.1.113883.4.6"' ]

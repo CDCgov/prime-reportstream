@@ -49,6 +49,10 @@
       "state": "Iowa"
     },
     {
+        "status": "Live",
+        "state": "Kansas"
+    },
+    {
       "status": "Live",
       "state": "Louisiana"
     },
@@ -119,6 +123,10 @@
     {
       "status": "Live",
       "state": "Rhode Island"
+    },
+    {
+       "status": "Live",
+       "state": "South Dakota"
     },
     {
       "status": "Live",

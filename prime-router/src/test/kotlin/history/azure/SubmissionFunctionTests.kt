@@ -92,7 +92,7 @@ class SubmissionFunctionTests : Logging {
             createdAt = OffsetDateTime.parse("2021-11-30T16:36:54.919104Z"),
             externalName = "test-name.csv",
             reportId = "a2cf1c46-7689-4819-98de-520b5007e45f",
-            schemaTopic = "covid-19",
+            schemaTopic = Topic.COVID_19,
             itemCount = 3,
             sendingOrg = organizationName,
             sendingOrgClient = organizationClient,

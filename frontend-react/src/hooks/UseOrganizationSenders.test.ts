@@ -5,7 +5,7 @@ import { dummySenders, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 
 import { MemberType } from "./UseOktaMemberships";
-import { useOrganizationSenders } from "./UseOrganizationSenders";
+import useOrganizationSenders from "./UseOrganizationSenders";
 
 describe("useOrganizationSenders", () => {
     beforeAll(() => {
@@ -25,6 +25,7 @@ describe("useOrganizationSenders", () => {
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: false,
+                environment: "test",
             });
         });
 
@@ -32,7 +33,7 @@ describe("useOrganizationSenders", () => {
             const { result } = renderHook(() => useOrganizationSenders(), {
                 wrapper: AppWrapper(),
             });
-            expect(result.current.senders).toEqual([]);
+            expect(result.current.data).toEqual(undefined);
             expect(result.current.isLoading).toEqual(true);
         });
     });
@@ -53,6 +54,7 @@ describe("useOrganizationSenders", () => {
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: true,
+                environment: "test",
             });
         });
 
@@ -61,7 +63,7 @@ describe("useOrganizationSenders", () => {
                 wrapper: AppWrapper(),
             });
             await waitFor(() =>
-                expect(result.current.senders).toEqual(dummySenders)
+                expect(result.current.data).toEqual(dummySenders)
             );
             expect(result.current.isLoading).toEqual(false);
         });

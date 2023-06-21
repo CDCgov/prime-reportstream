@@ -19,12 +19,12 @@ object LivdLookup {
      * @return a possible String? value based on the lookup
      */
     fun find(
-        testPerformedCode: String?,
-        processingModeCode: String?,
-        deviceId: String?,
-        equipmentModelId: String?,
-        testKitNameId: String?,
-        equipmentModelName: String?,
+        testPerformedCode: String? = null,
+        processingModeCode: String? = null,
+        deviceId: String? = null,
+        equipmentModelId: String? = null,
+        testKitNameId: String? = null,
+        equipmentModelName: String? = null,
         tableColumn: String,
         tableRef: LookupTable? = Metadata.getInstance().findLookupTable(name = livdTableName)
     ): String? {

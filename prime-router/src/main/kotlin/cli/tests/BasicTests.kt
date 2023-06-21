@@ -82,6 +82,19 @@ class End2EndUniversalPipeline : CoolTest() {
         ugly("Running end2end_up asynchronously")
         var passed = true
 
+        passed = passed and universalPipelineEnd2End(environment, options, fullELRSender, 2)
+        passed = passed and universalPipelineEnd2End(environment, options, etorTISender, 1)
+
+        return passed
+    }
+
+    private suspend fun universalPipelineEnd2End(
+        environment: Environment,
+        options: CoolTestOptions,
+        sender: Sender,
+        expectedReceivers: Int
+    ): Boolean {
+        var passed = true
         // load a valid HL7 file
         val file = File("src/test/resources/fhirengine/smoketest/valid_hl7.hl7")
 
@@ -91,7 +104,7 @@ class End2EndUniversalPipeline : CoolTest() {
             HttpUtilities.postReportFile(
                 environment,
                 file,
-                fullELRSender,
+                sender,
                 true,
                 options.key,
                 payloadName = "$name ${status.description}",
@@ -115,7 +128,7 @@ class End2EndUniversalPipeline : CoolTest() {
             val convertResults = pollForStepResult(reportId, TaskAction.convert)
             // verify each result is valid
             for (result in convertResults.values)
-                passed = passed && examineStepResponse(result, "convert")
+                passed = passed && examineStepResponse(result, "convert", sender.topic)
             if (!passed)
                 bad("***async end2end_up FAILED***: Convert result invalid")
 
@@ -126,7 +139,7 @@ class End2EndUniversalPipeline : CoolTest() {
             val routeResults = pollForStepResult(convertReportId, TaskAction.route)
             // verify each result is valid
             for (result in routeResults.values)
-                passed = passed && examineStepResponse(result, "route")
+                passed = passed && examineStepResponse(result, "route", sender.topic)
             if (!passed)
                 bad("***async end2end_up FAILED***: Route result invalid")
 
@@ -136,29 +149,35 @@ class End2EndUniversalPipeline : CoolTest() {
             val translateResults = pollForStepResult(routeReportId, TaskAction.translate)
             // verify each result is valid
             for (result in translateResults.values)
-                passed = passed && examineStepResponse(result, "translate")
+                passed = passed && examineStepResponse(result, "translate", sender.topic)
             if (!passed)
                 bad("***async end2end_up FAILED***: Translate result invalid")
 
             // check batch step
-            val translateReportId = getSingleChildReportId(routeReportId)
-                ?: return bad("***async end2end_up FAILED***: Translate report id null")
-            val batchResults = pollForStepResult(translateReportId, TaskAction.batch)
-            // verify each result is valid
-            for (result in batchResults.values)
-                passed = passed && examineStepResponse(result, "batch")
-            if (!passed)
-                bad("***async end2end_up FAILED***: Batch result invalid")
+            val translateReportIds = getAllChildrenReportId(routeReportId)
+            if (translateReportIds.size != expectedReceivers)
+                return bad(
+                    "***async end2end_up FAILED***: Expected $expectedReceivers translate report id(s), " +
+                        "but got ${translateReportIds.size}."
+                )
+            translateReportIds.forEach { translateReportId ->
+                val batchResults = pollForStepResult(translateReportId, TaskAction.batch)
+                // verify each result is valid
+                for (result in batchResults.values)
+                    passed = passed && examineStepResponse(result, "batch", sender.topic)
+                if (!passed)
+                    bad("***async end2end_up FAILED***: Batch result invalid")
 
-            // check send step
-            val batchReportId = getSingleChildReportId(translateReportId)
-                ?: return bad("***async end2end_up FAILED***: Convert report id null")
-            val sendResults = pollForStepResult(batchReportId, TaskAction.send)
-            // verify each result is valid
-            for (result in sendResults.values)
-                passed = passed && examineStepResponse(result, "send")
-            if (!passed)
-                bad("***async end2end_up FAILED***: Send result invalid")
+                // check send step
+                val batchReportId = getSingleChildReportId(translateReportId)
+                    ?: return bad("***async end2end_up FAILED***: Batch report id null")
+                val sendResults = pollForStepResult(batchReportId, TaskAction.send)
+                // verify each result is valid
+                for (result in sendResults.values)
+                    passed = passed && examineStepResponse(result, "send", sender.topic)
+                if (!passed)
+                    bad("***async end2end_up FAILED***: Send result invalid")
+            }
 
             // check that lineages were generated properly
             passed = passed and pollForLineageResults(
@@ -168,7 +187,6 @@ class End2EndUniversalPipeline : CoolTest() {
                 isUniversalPipeline = true
             )
         }
-
         return passed
     }
 }
@@ -390,7 +408,7 @@ class Merge : CoolTest() {
             }
             timeElapsedSecs += pollSleepSecs
             queryResults = queryForMergeResults(reportIds, receivers, itemsPerReport)
-            if (! queryResults.map { it.first }.contains(false)) break // everything passed!
+            if (!queryResults.map { it.first }.contains(false)) break // everything passed!
         }
         if (!silent) {
             queryResults.forEach {
@@ -400,7 +418,7 @@ class Merge : CoolTest() {
                     bad(it.second)
             }
         }
-        return ! queryResults.map { it.first }.contains(false) // no falses == it passed!
+        return !queryResults.map { it.first }.contains(false) // no falses == it passed!
     }
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {

@@ -23,6 +23,9 @@ type USNavLinkProps = Pick<AnchorHTMLAttributes<{}>, "href"> & CustomLinkProps;
  * Attempt to parse href as URL (taking into account "//" shorthand).
  * If it errors, then assume its a relative url (aka route). If it
  * parses, then verify its an absolute route through origins.
+ *
+ * If href is a hash anchor link, return undefined so as to bypass
+ * passing through react-router.
  */
 export function getHrefRoute(href?: string): string | undefined {
     if (href === undefined) return undefined;
@@ -59,9 +62,9 @@ export const SafeLink = ({
 }: SafeLinkProps) => {
     const sanitizedHref = href ? DOMPurify.sanitize(href) : href;
     const routeHref = getHrefRoute(sanitizedHref);
-
-    return routeHref !== undefined ? (
-        <Link to={routeHref} state={state} {...anchorHTMLAttributes}>
+    const isFile = sanitizedHref?.startsWith("/assets/");
+    return routeHref !== undefined && !isFile ? (
+        <Link to={href!} state={state} {...anchorHTMLAttributes}>
             {children}
         </Link>
     ) : (
@@ -166,6 +169,7 @@ export const USNavLink = ({
     children,
     className,
     activeClassName,
+    ...props
 }: USNavLinkProps) => {
     const { hash: currentHash } = useLocation();
     const hashIndex = href?.indexOf("#") ?? -1;
@@ -185,6 +189,7 @@ export const USNavLink = ({
                     [className as any]: !isActive, // `as any` because string may be undefined
                 });
             }}
+            {...props}
         >
             {children}
         </NavLink>

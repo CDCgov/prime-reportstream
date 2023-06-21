@@ -7,7 +7,7 @@ export const ServiceRequest = () => {
         <>
             <Helmet>
                 <title>
-                    Service request | Support | {process.env.REACT_APP_TITLE}
+                    Service request | Support | {import.meta.env.VITE_TITLE}
                 </title>
             </Helmet>
             <h1>Service request</h1>

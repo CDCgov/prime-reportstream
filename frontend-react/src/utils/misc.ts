@@ -1,3 +1,5 @@
+import { convert } from "html-to-text";
+
 /**
  * splitOn('foo', 1);
  * // ["f", "oo"]
@@ -174,4 +176,8 @@ export const parseFileLocation = (
         sendingOrg,
         fileName,
     };
+};
+
+export const removeHTMLFromString = (input: string, options = {}) => {
+    return convert(input, options);
 };

@@ -770,13 +770,14 @@ class SubmissionReceiverTests {
             )
         )
 
-        val sender = FullELRSender(
+        val sender = UniversalPipelineSender(
             "Test Sender",
             "test",
             Sender.Format.HL7,
             schemaName = "one",
             allowDuplicates = false,
-            customerStatus = CustomerStatus.ACTIVE
+            customerStatus = CustomerStatus.ACTIVE,
+            topic = Topic.FULL_ELR
         )
         val actionLogs = ActionLogger()
         val readResult = ReadResult(report, actionLogs)
@@ -851,12 +852,13 @@ class SubmissionReceiverTests {
                 actionHistory
             )
         )
-        val sender = FullELRSender(
+        val sender = UniversalPipelineSender(
             "Test Sender",
             "test",
             Sender.Format.HL7,
             allowDuplicates = true,
-            customerStatus = CustomerStatus.INACTIVE
+            customerStatus = CustomerStatus.INACTIVE,
+            topic = Topic.FULL_ELR
         )
 
         val actionLogs = ActionLogger()
@@ -920,12 +922,13 @@ class SubmissionReceiverTests {
                 actionHistory
             )
         )
-        val sender = FullELRSender(
+        val sender = UniversalPipelineSender(
             "Test Sender",
             "test",
             Sender.Format.FHIR,
             allowDuplicates = true,
-            customerStatus = CustomerStatus.INACTIVE
+            customerStatus = CustomerStatus.INACTIVE,
+            topic = Topic.FULL_ELR
         )
 
         val actionLogs = ActionLogger()
@@ -989,12 +992,13 @@ class SubmissionReceiverTests {
                 actionHistory
             )
         )
-        val sender = FullELRSender(
+        val sender = UniversalPipelineSender(
             "Test Sender",
             "test",
             Sender.Format.FHIR,
             allowDuplicates = true,
-            customerStatus = CustomerStatus.INACTIVE
+            customerStatus = CustomerStatus.INACTIVE,
+            topic = Topic.FULL_ELR
         )
 
         val actionLogs = ActionLogger()
@@ -1059,12 +1063,13 @@ class SubmissionReceiverTests {
             )
         )
 
-        val sender = FullELRSender(
+        val sender = UniversalPipelineSender(
             "Test Sender",
             "test",
             Sender.Format.HL7,
             schemaName = "one",
-            allowDuplicates = true
+            allowDuplicates = true,
+            topic = Topic.FULL_ELR
         )
         val actionLogs = ActionLogger()
         val readResult = ReadResult(report, actionLogs)
@@ -1366,13 +1371,14 @@ class SubmissionReceiverTests {
         val result = SubmissionReceiver.getSubmissionReceiver(sender, engine, actionHistory)
         assertThat(result).isInstanceOf(TopicReceiver::class.java)
 
-        val fullELRSender = FullELRSender(
+        val universalPipelineSender = UniversalPipelineSender(
             "Test Sender",
             "test",
             Sender.Format.HL7,
-            allowDuplicates = true
+            allowDuplicates = true,
+            topic = Topic.FULL_ELR
         )
-        val fullELRResult = SubmissionReceiver.getSubmissionReceiver(fullELRSender, engine, actionHistory)
+        val fullELRResult = SubmissionReceiver.getSubmissionReceiver(universalPipelineSender, engine, actionHistory)
         assertThat(fullELRResult).isInstanceOf(ELRReceiver::class.java)
     }
 }

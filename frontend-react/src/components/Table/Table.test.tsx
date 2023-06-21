@@ -31,6 +31,8 @@ const getSetOfRows = (count: number, linkable: boolean = true) => {
             : {
                   id: i,
                   item: `Item ${i}`,
+                  param: "param",
+                  actionButtonParam: "actionButtonParam",
                   mappedItem: i,
                   transformedValue: i,
                   sortedColumn: i,
@@ -47,20 +49,36 @@ const makeConfigs = (sampleRow: TableRowData): ColumnConfig[] => {
     const transformFunc = (v: any) => {
         return v === 9 ? "Transformed Value" : v;
     };
+    const handleActionFunc = () => {
+        return "";
+    };
+    const handleHasAction = () => {
+        return true;
+    };
+    const getFeatureParams = (key: string) => {
+        if (key.includes("link")) {
+            return {
+                link: true,
+                linkBasePath: "/base/",
+            };
+        }
+        if (key.includes("action")) {
+            return {
+                action: handleActionFunc,
+                param: "param",
+                actionButtonHandler: handleHasAction,
+                actionButtonParam: "hasActionParam",
+            };
+        }
+        return {};
+    };
     return Object.keys(sampleRow).map((key) => {
         return {
             dataAttr: key,
             columnHeader: `${key[0].toUpperCase()}${key
                 .slice(1)
                 .toLowerCase()}`,
-            feature: key.includes("link")
-                ? {
-                      link: true,
-                      linkBasePath: "/base/",
-                  }
-                : {
-                      // TODO: Add actionable
-                  },
+            feature: getFeatureParams(key),
             valueMap: key.includes("map") ? sampleMapper : undefined,
             transform: key.includes("transform") ? transformFunc : undefined,
             sortable: key.includes("sort") || key.includes("Sort"),
@@ -70,8 +88,11 @@ const makeConfigs = (sampleRow: TableRowData): ColumnConfig[] => {
     });
 };
 
-const getTestConfig = (rowCount: number): TableConfig => {
-    const testRows: TableRowData[] = getSetOfRows(rowCount);
+const getTestConfig = (
+    rowCount: number,
+    linkable: boolean = true
+): TableConfig => {
+    const testRows: TableRowData[] = getSetOfRows(rowCount, linkable);
     const colConfigs: ColumnConfig[] = makeConfigs(testRows[0]);
     return {
         rows: testRows,
@@ -116,6 +137,17 @@ const SimpleTable = () => (
             method: mockAction,
         }}
         enableEditableRows
+    />
+);
+const SimpleTableWithAction = () => (
+    <Table
+        config={getTestConfig(2, false)}
+        title={"Simple Table With Action"}
+        legend={<SimpleLegend />}
+        datasetAction={{
+            label: "Test Simple Table With Action",
+            method: mockAction,
+        }}
     />
 );
 const FilteredTable = () => {
@@ -167,6 +199,15 @@ describe("Table, basic tests", () => {
         expect(linkInCell).toContainHTML(
             '<a class="usa-link" href="/base/UUID-1">UUID-1</a>'
         );
+    });
+
+    test("Action columns are rendered as actions", () => {
+        renderApp(<SimpleTableWithAction />);
+        expect(
+            screen.getByText("Test Simple Table With Action")
+        ).toBeInTheDocument();
+        const actionButtonCell = screen.getAllByText("actionButtonParam")[0];
+        expect(actionButtonCell).toContainHTML("actionButtonParam</button>");
     });
 
     test("Map columns use mapped value", () => {

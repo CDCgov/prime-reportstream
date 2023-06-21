@@ -5,6 +5,7 @@ export enum ServicesUrls {
     SENDERS = "/settings/organizations/:orgName/senders",
     SENDER_DETAIL = "/settings/organizations/:orgName/senders/:sender",
     RECEIVERS = "/settings/organizations/:orgName/receivers",
+    PUBLIC_KEYS = "/settings/organizations/:orgName/public-keys",
 }
 
 /** Response is much larger than this but not all of it is used for front-end yet */
@@ -51,6 +52,23 @@ export interface RSSender extends RSService {
 
 export interface RSReceiver extends RSService {}
 
+export interface ApiKey {
+    kty: string;
+    kid: string;
+    n: string;
+    e: string;
+}
+
+export interface ApiKeySet {
+    scope: string;
+    keys: ApiKey[];
+}
+
+export interface RSApiKeysResponse {
+    orgName: string;
+    keys: ApiKeySet[];
+}
+
 /*
 Services Endpoints
 * senders -> fetches a list of organization's senders
@@ -76,5 +94,15 @@ export const servicesEndpoints: RSApiEndpoints = {
         path: ServicesUrls.RECEIVERS,
         method: HTTPMethods.GET,
         queryKey: "servicesReceivers",
+    }),
+    publicKeys: new RSEndpoint({
+        path: ServicesUrls.PUBLIC_KEYS,
+        method: HTTPMethods.GET,
+        queryKey: "publicKeys",
+    }),
+    createPublicKey: new RSEndpoint({
+        path: ServicesUrls.PUBLIC_KEYS,
+        method: HTTPMethods.POST,
+        queryKey: "createPublicKey",
     }),
 };

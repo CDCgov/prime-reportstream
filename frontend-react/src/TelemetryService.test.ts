@@ -3,6 +3,13 @@ import {
     SeverityLevel,
 } from "@microsoft/applicationinsights-web";
 
+import {
+    createTelemetryService,
+    getAppInsights,
+    getAppInsightsHeaders,
+    withInsights,
+} from "./TelemetryService";
+
 jest.mock("@microsoft/applicationinsights-web", () => {
     return {
         ...jest.requireActual("@microsoft/applicationinsights-web"),
@@ -23,31 +30,10 @@ jest.mock("@microsoft/applicationinsights-web", () => {
 });
 
 describe("TelemetryService", () => {
-    const oldConnectionString =
-        process.env.REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING;
-
-    let ai: { initialize: () => void };
-    let getAppInsights: () => ApplicationInsights;
-    let getAppInsightsHeaders: () => object;
-    let withInsights: (console: Console) => void;
+    let ai = { initialize: () => {} };
 
     beforeEach(() => {
-        // Isolating modules to "reset" previously initialized appInsights, reactPlugin, etc.
-        jest.isolateModules(() => {
-            ({
-                ai,
-                getAppInsights,
-                getAppInsightsHeaders,
-                withInsights,
-            } = require("./TelemetryService"));
-        });
-
-        delete process.env.REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING;
-    });
-
-    afterAll(() => {
-        process.env.REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING =
-            oldConnectionString;
+        ai = createTelemetryService("test");
     });
 
     describe("#initialize", () => {
@@ -57,6 +43,7 @@ describe("TelemetryService", () => {
 
         describe("when the connection string is falsy", () => {
             test("warns that the string is not provided and returns undefined", () => {
+                ai = createTelemetryService(undefined as any);
                 ai.initialize();
 
                 expect(console.warn).toHaveBeenCalledWith(
@@ -66,16 +53,6 @@ describe("TelemetryService", () => {
         });
 
         describe("when the connection string is provided", () => {
-            beforeEach(() => {
-                process.env.REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING =
-                    "test-connection-string";
-            });
-
-            afterEach(() => {
-                process.env.REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING =
-                    oldConnectionString;
-            });
-
             test("does not warn", () => {
                 ai.initialize();
 
@@ -86,6 +63,11 @@ describe("TelemetryService", () => {
 
     describe("#getAppInsights", () => {
         describe("when AppInsights has not been initialized", () => {
+            beforeEach(() => {
+                ai = createTelemetryService(undefined as any);
+                ai.initialize();
+            });
+
             test("returns null", () => {
                 expect(getAppInsights()).toBeNull();
             });
@@ -93,15 +75,7 @@ describe("TelemetryService", () => {
 
         describe("when AppInsights has been initialized", () => {
             beforeEach(() => {
-                process.env.REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING =
-                    "test";
-
                 ai.initialize();
-            });
-
-            afterEach(() => {
-                process.env.REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING =
-                    oldConnectionString;
             });
 
             test("returns the AppInsights instance", () => {
@@ -112,6 +86,11 @@ describe("TelemetryService", () => {
 
     describe("#getAppInsightsHeaders", () => {
         describe("when AppInsights has not been initialized", () => {
+            beforeEach(() => {
+                ai = createTelemetryService(undefined as any);
+                ai.initialize();
+            });
+
             test("returns an object with an empty string for the session header", () => {
                 expect(getAppInsightsHeaders()).toEqual({
                     "x-ms-session-id": "",
@@ -121,15 +100,7 @@ describe("TelemetryService", () => {
 
         describe("when AppInsights has been initialized", () => {
             beforeEach(() => {
-                process.env.REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING =
-                    "test-connection-string";
-
                 ai.initialize();
-            });
-
-            afterEach(() => {
-                process.env.REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING =
-                    oldConnectionString;
             });
 
             test("returns an object with the correct value for the session header", () => {
@@ -144,9 +115,6 @@ describe("TelemetryService", () => {
         let appInsights: ApplicationInsights | null;
 
         beforeAll(() => {
-            process.env.REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING =
-                "test-connection-string";
-
             jest.spyOn(console, "log").mockImplementation(jest.fn);
             jest.spyOn(console, "info").mockImplementation(jest.fn);
             jest.spyOn(console, "warn").mockImplementation(jest.fn);
@@ -159,9 +127,6 @@ describe("TelemetryService", () => {
 
         afterAll(() => {
             jest.resetAllMocks();
-
-            process.env.REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING =
-                oldConnectionString;
         });
 
         describe("when calling console.info", () => {
@@ -206,6 +171,7 @@ describe("TelemetryService", () => {
                 test("calls trackEvent with the correct message and severity level", () => {
                     const message = "hello there";
 
+                    // eslint-disable-next-line no-console
                     console.log(message);
 
                     expect(appInsights?.trackEvent).toBeCalledWith({
@@ -224,6 +190,7 @@ describe("TelemetryService", () => {
                     const message = "hello there";
                     const data = { a: 1 };
 
+                    // eslint-disable-next-line no-console
                     console.log(message, data);
 
                     expect(appInsights?.trackEvent).toBeCalledWith({
@@ -287,7 +254,11 @@ describe("TelemetryService", () => {
                         id: error.message,
                         severityLevel: SeverityLevel.Error,
                         properties: {
-                            additionalInformation: undefined,
+                            additionalInformation: {
+                                error: error,
+                                location: "http://localhost/",
+                                other: [],
+                            },
                         },
                     });
                 });
@@ -304,7 +275,11 @@ describe("TelemetryService", () => {
                         id: error,
                         severityLevel: SeverityLevel.Error,
                         properties: {
-                            additionalInformation: undefined,
+                            additionalInformation: {
+                                error: error,
+                                location: "http://localhost/",
+                                other: [],
+                            },
                         },
                     });
                 });
@@ -322,7 +297,11 @@ describe("TelemetryService", () => {
                         id: error.message,
                         severityLevel: SeverityLevel.Error,
                         properties: {
-                            additionalInformation: JSON.stringify([data]),
+                            additionalInformation: {
+                                error: error,
+                                location: "http://localhost/",
+                                other: [data],
+                            },
                         },
                     });
                 });
