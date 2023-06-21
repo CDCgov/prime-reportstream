@@ -72,7 +72,7 @@ const config: StorybookConfig = {
         return config;
     },
     docs: {
-        autodocs: true,
+        autodocs: "tag",
     },
 };
 

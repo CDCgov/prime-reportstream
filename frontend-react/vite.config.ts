@@ -53,8 +53,11 @@ export default defineConfig(async () => {
                 process.env.SOURCEMAPS === "true",
             rollupOptions: {
                 input: {
-                    main: resolve(__dirname, "index.html"),
-                    404: resolve(__dirname, "404.html"),
+                    // Key alphabetical order is important, otherwise
+                    // rollup will name the bundle something other
+                    // than index
+                    index: resolve(__dirname, "index.html"),
+                    notfound: resolve(__dirname, "404.html"),
                 },
             },
         },
