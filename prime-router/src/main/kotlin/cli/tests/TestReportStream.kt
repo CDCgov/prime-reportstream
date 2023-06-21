@@ -892,8 +892,11 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $hl7MonkeypoxSenderName for organization ${org1.name}")
         }
 
-        val universalPipelineReceiver = settings.receivers.filter {
+        val universalPipelineReceiver1 = settings.receivers.filter {
             it.organizationName == org1Name && it.name == "FULL_ELR"
+        }[0]
+        val universalPipelineReceiver2 = settings.receivers.filter {
+            it.organizationName == org1Name && it.name == "FULL_ELR_FHIR"
         }[0]
         val etorReceiver = settings.receivers.first { it.topic == Topic.ETOR_TI }
         val csvReceiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "CSV" }[0]
@@ -929,7 +932,7 @@ abstract class CoolTest {
         }
 
         fun initListOfGoodReceiversAndCountiesForUniversalPipeline() {
-            allGoodReceivers = mutableListOf(universalPipelineReceiver)
+            allGoodReceivers = mutableListOf(universalPipelineReceiver1)
             allGoodCounties = allGoodReceivers.joinToString(",") { it.name }
         }
 

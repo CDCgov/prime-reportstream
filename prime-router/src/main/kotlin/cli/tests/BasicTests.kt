@@ -82,8 +82,12 @@ class End2EndUniversalPipeline : CoolTest() {
         ugly("Running end2end_up asynchronously")
         var passed = true
 
-        passed =
-            passed and universalPipelineEnd2End(environment, options, fullELRSender, listOf(universalPipelineReceiver))
+        passed = passed and universalPipelineEnd2End(
+            environment,
+            options,
+            fullELRSender,
+            listOf(universalPipelineReceiver1, universalPipelineReceiver2)
+        )
         passed = passed and universalPipelineEnd2End(environment, options, etorTISender, listOf(etorReceiver))
 
         return passed
@@ -187,7 +191,6 @@ class End2EndUniversalPipeline : CoolTest() {
                 if (!passed)
                     bad("***async end2end_up FAILED***: Send result invalid")
             }
-
 
             // check that lineages were generated properly
             passed = passed and pollForLineageResults(
