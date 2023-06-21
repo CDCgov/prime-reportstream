@@ -122,7 +122,7 @@
         "@storybook/addon-a11y": "^6.5.16",
         "@storybook/addon-actions": "^6.5.16",
         "@storybook/addon-essentials": "^7.0.7",
-        "@storybook/addon-interactions": "^6.5.16",
+        "@storybook/addon-interactions": "^7.0.22",
         "@storybook/addon-links": "^6.5.16",
         "@storybook/addons": "^6.5.16",
         "@storybook/api": "^6.5.16",
