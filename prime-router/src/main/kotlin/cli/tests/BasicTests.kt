@@ -183,10 +183,10 @@ class End2EndUniversalPipeline : CoolTest() {
             }
             val receiverNames = sendResults.values.flatMap { it?.reports ?: emptyList() }
                 .map { "${it.receivingOrg}.${it.receivingOrgSvc}" }
-
+            echo("Receivers in the reports: ${receiverNames.joinToString(",")}")
             expectedReceivers.forEach { receiver ->
                 if (!receiverNames.contains(receiver.fullName)) {
-                    bad("***async end2end_up FAILED***: expected ${receiver.fullName} was not sent report")
+                    bad("***async end2end_up FAILED***: expected ${receiver.fullName} to have received a report")
                     passed = false
                 }
             }
