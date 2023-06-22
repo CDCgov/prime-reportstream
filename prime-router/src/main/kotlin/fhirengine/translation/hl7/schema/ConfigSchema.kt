@@ -3,6 +3,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirValueset
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import java.util.SortedMap
 
@@ -152,14 +153,14 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
  */
 @JsonIgnoreProperties
 @JsonTypeInfo(
-    use = JsonTypeInfo.Id.DEDUCTION,
-    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
     property = "valueSet",
-    visible = true
+    visible = false
 )
 @JsonSubTypes(
-    JsonSubTypes.Type(value = SortedMap::class),
-    JsonSubTypes.Type(value = String::class)
+    JsonSubTypes.Type(value = SortedMap::class, name = "inlineValueset"),
+    JsonSubTypes.Type(value = FhirValueset::class, name = "fhirValueset")
 )
 abstract class ConfigSchemaElement(
     var name: String? = null,
