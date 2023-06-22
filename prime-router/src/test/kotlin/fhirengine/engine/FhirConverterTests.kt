@@ -35,6 +35,7 @@ import org.jooq.tools.jdbc.MockDataProvider
 import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.assertThrows
 import java.io.File
 import java.util.UUID
 import kotlin.test.Test
@@ -278,5 +279,56 @@ class FhirConverterTests {
         assertThat(
             engine.getTransformerFromSchema("src/test/resources/fhir_sender_transforms/sample_schema")
         ).isNotNull()
+    }
+
+    @Test
+    fun `test queue messages sent after all processing`() {
+        mockkObject(BlobAccess)
+        mockkObject(Report)
+
+        // set up
+        val actionHistory = mockk<ActionHistory>()
+        val actionLogger = mockk<ActionLogger>()
+        val transformer = mockk<FhirTransformer>()
+
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val message = spyk(
+            RawSubmission(
+                UUID.randomUUID(), "http://blobstore.example/file.fhir", "test", "test-sender", topic = Topic.FULL_ELR,
+                "test-schema"
+            )
+        )
+
+        val bodyFormat = Report.Format.FHIR
+        val bodyUrl = "http://anyblob.com"
+
+        every { actionLogger.hasErrors() } returns false
+        every { message.downloadContent() }
+            .returns(File("src/test/resources/fhirengine/engine/bundle_multiple_bundles.fhir").readText())
+        every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.FHIR
+        every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
+        every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
+        // Throw an exception the second time trackCreatedReport is called to exit processing early and demonstrate sendMessage is not called
+        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit) andThenThrows(RuntimeException())
+        every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
+        every { queueMock.sendMessage(any(), any()) }
+            .returns(Unit)
+        every { engine.getTransformerFromSchema("test-schema") }.returns(transformer)
+        every { transformer.transform(any()) } returnsArgument (0)
+
+        // act
+        assertThrows<RuntimeException> { engine.doWork(message, actionLogger, actionHistory) }
+
+        // assert
+        verify(exactly = 1) {
+            engine.getContentFromFHIR(any(), any())
+            actionHistory.trackExistingInputReport(any())
+        }
+        verify(exactly = 2) {
+            transformer.transform(any())
+            BlobAccess.Companion.uploadBlob(any(), any())
+            actionHistory.trackCreatedReport(any(), any(), any())
+        }
+        verify(exactly = 0) { queueMock.sendMessage(any(), any()) }
     }
 }
