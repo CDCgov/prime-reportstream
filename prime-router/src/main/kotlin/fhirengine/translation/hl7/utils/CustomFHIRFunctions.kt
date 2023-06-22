@@ -121,7 +121,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
                     "returns the number of years, months if less than a year, weeks if less" +
                         " than a month, and days if less than a week that a person is old for a date resource",
                     0,
-                    1
+                    2
                 )
             }
 
@@ -203,21 +203,26 @@ object CustomFHIRFunctions : FhirPathFunctions {
         val date = focus.first()
 
         if (date !is DateType) {
-            throw SchemaException("Must call the convertDateToAge function on a single dateTimeType")
+            throw SchemaException("Must call the convertDateToAge function on a DateType")
         }
 
-        val periodsOfTime = listOf("day", "month", "year")
-        return if (parameters != null && parameters.size > 0 && parameters[0].size > 0 &&
-            parameters[0][0].toString().lowercase() in periodsOfTime
-        ) {
+        var timePeriodSpecified: String? = null
+        var comparisonDate: LocalDate = LocalDate.now()
+        if (parameters != null && parameters.size > 0 && parameters[0].size > 0) {
+            val params = getParamValue(parameters[0])
+            timePeriodSpecified = params.second
+            comparisonDate = params.first
+        }
+
+        return if (timePeriodSpecified != null) {
             val age = Age()
-            return when (parameters[0][0].toString()) {
+            return when (timePeriodSpecified) {
                 "day" -> {
                     age.unit = "day"
                     age.value = BigDecimal(
                         ChronoUnit.DAYS.between(
                             LocalDate.of(date.year, date.month + 1, date.day),
-                            LocalDate.now()
+                            comparisonDate
                         )
                     )
                     age.code = "d"
@@ -228,7 +233,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
                     age.value = BigDecimal(
                         ChronoUnit.MONTHS.between(
                             LocalDate.of(date.year, date.month + 1, date.day),
-                            LocalDate.now()
+                            comparisonDate
                         )
                     )
                     age.code = "mo"
@@ -239,7 +244,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
                     age.value = BigDecimal(
                         ChronoUnit.YEARS.between(
                             LocalDate.of(date.year, date.month + 1, date.day),
-                            LocalDate.now()
+                            comparisonDate
                         )
                     )
                     age.code = "a"
@@ -248,15 +253,37 @@ object CustomFHIRFunctions : FhirPathFunctions {
                 else -> throw SchemaException("Call with day, month, or year")
             }
         } else {
-            calculateAgeWithAssumption(date)
+            calculateAgeWithAssumption(date, comparisonDate)
         }
     }
 
-    private fun calculateAgeWithAssumption(date: DateType): MutableList<Base> {
+    private fun getParamValue(params: List<Base>): Pair<LocalDate, String?> {
+        val pair: Pair<LocalDate, String?> = Pair(LocalDate.now(), null)
+        val firstParamPair = setTheParamValue(params[0], pair)
+
+        if (params.size == 2) {
+            return setTheParamValue(params[1], firstParamPair)
+        }
+
+        return pair
+    }
+
+    private fun setTheParamValue(paramValue: Any, pair: Pair<LocalDate, String?>): Pair<LocalDate, String?> {
+        val periodsOfTime = listOf("day", "month", "year")
+        return if (paramValue is DateType) {
+            pair.copy(LocalDate.of(paramValue.year, paramValue.month + 1, paramValue.day), pair.second)
+        } else if (paramValue is StringType && paramValue.toString().lowercase() in periodsOfTime) {
+            pair.copy(pair.first, paramValue.toString())
+        } else {
+            pair
+        }
+    }
+
+    private fun calculateAgeWithAssumption(date: DateType, comparisonDate: LocalDate): MutableList<Base> {
         val period = Period.between(
             // have to do plus one for the month because it is expecting 1 based and we get zero based
             LocalDate.of(date.year, date.month + 1, date.day),
-            LocalDate.now()
+            comparisonDate
         )
 
         val age = Age()

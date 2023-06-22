@@ -662,16 +662,13 @@ class CustomFHIRFunctionsTests {
 
     @Test
     fun `test convertDateToAge 0 days`() {
-        val currentDate = Date()
+        val randomDate = Date(1687464192857)
         val calendar = Calendar.getInstance()
-        calendar.time = currentDate
-        // has to be at least two for the purposes of this since we are getting the current time and time passes when we
-        // run it
-        calendar.add(Calendar.HOUR_OF_DAY, -2)
+        calendar.time = randomDate
 
         val ageList = CustomFHIRFunctions.convertDateToAge(
             mutableListOf(DateType(calendar.time)),
-            mutableListOf(mutableListOf(StringType("day")))
+            mutableListOf(mutableListOf(DateType(calendar.time), StringType("day")))
         )
 
         val age = ageList[0]
@@ -685,16 +682,13 @@ class CustomFHIRFunctionsTests {
 
     @Test
     fun `test convertDateToAge 0 days - default`() {
-        val currentDate = Date()
+        val randomDate = Date(1687464192857)
         val calendar = Calendar.getInstance()
-        calendar.time = currentDate
-        // has to be at least two for the purposes of this since we are getting the current time and time passes when we
-        // run it
-        calendar.add(Calendar.HOUR_OF_DAY, -2)
+        calendar.time = randomDate
 
         val ageList = CustomFHIRFunctions.convertDateToAge(
-            mutableListOf(DateType(calendar.time)),
-            mutableListOf()
+            mutableListOf(DateType(randomDate)),
+            mutableListOf(mutableListOf(DateType(randomDate)))
         )
 
         val age = ageList[0]
@@ -710,7 +704,7 @@ class CustomFHIRFunctionsTests {
     fun `test convertDateToAge 4 days`() {
         val currentDate = Date()
         val calendar = Calendar.getInstance()
-        calendar.time = currentDate
+        calendar.timeInMillis = currentDate.time
         // has to be at least two for the purposes of this since we are getting the current time and time passes when we
         // run it
         calendar.add(Calendar.DAY_OF_YEAR, -4)
@@ -741,6 +735,52 @@ class CustomFHIRFunctionsTests {
         val ageList = CustomFHIRFunctions.convertDateToAge(
             mutableListOf(DateType(calendar.time)),
             mutableListOf()
+        )
+
+        val age = ageList[0]
+        assertThat(age is Age).isEqualTo(true)
+        if (age is Age) {
+            assertThat(age.unit).isEqualTo("day")
+            assertThat(age.value.toInt()).isEqualTo(4)
+            assertThat(age.code).isEqualTo("d")
+        }
+    }
+
+    @Test
+    fun `test convertDateToAge 4 days - Add value for both`() {
+        val currentDate = Date()
+        val calendar = Calendar.getInstance()
+        calendar.time = currentDate
+        // has to be at least two for the purposes of this since we are getting the current time and time passes when we
+        // run it
+        calendar.add(Calendar.DAY_OF_YEAR, -4)
+
+        val ageList = CustomFHIRFunctions.convertDateToAge(
+            mutableListOf(DateType(calendar.time)),
+            mutableListOf(mutableListOf(StringType("day"), DateType(currentDate)))
+        )
+
+        val age = ageList[0]
+        assertThat(age is Age).isEqualTo(true)
+        if (age is Age) {
+            assertThat(age.unit).isEqualTo("day")
+            assertThat(age.value.toInt()).isEqualTo(4)
+            assertThat(age.code).isEqualTo("d")
+        }
+    }
+
+    @Test
+    fun `test convertDateToAge 4 days - Add value for both but switched order`() {
+        val currentDate = Date()
+        val calendar = Calendar.getInstance()
+        calendar.time = currentDate
+        // has to be at least two for the purposes of this since we are getting the current time and time passes when we
+        // run it
+        calendar.add(Calendar.DAY_OF_YEAR, -4)
+
+        val ageList = CustomFHIRFunctions.convertDateToAge(
+            mutableListOf(DateType(calendar.time)),
+            mutableListOf(mutableListOf(DateType(currentDate), StringType("day")))
         )
 
         val age = ageList[0]
