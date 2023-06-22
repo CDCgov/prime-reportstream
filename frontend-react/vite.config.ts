@@ -8,6 +8,10 @@ import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import remarkToc from "remark-toc";
 import { checker } from "vite-plugin-checker";
+import dotenv from "dotenv";
+
+// Force usage of custom environment files
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => {
