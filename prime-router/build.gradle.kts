@@ -29,7 +29,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "1.8.0"
+    kotlin("jvm") version "1.8.22"
     id("org.flywaydb.flyway") version "8.5.13"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -705,7 +705,7 @@ buildscript {
     dependencies {
         // Now force the gradle build script to get the proper library for com.nimbusds:oauth2-oidc-sdk:9.15.  This
         // will need to be removed once this issue is resolved in Maven.
-        classpath("net.minidev:json-smart:2.4.8")
+        classpath("net.minidev:json-smart:2.4.11")
     }
 }
 
@@ -727,7 +727,7 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
     implementation("com.azure:azure-core:1.35.0")
     implementation("com.azure:azure-core-http-netty:1.12.8")
-    implementation("com.azure:azure-storage-blob:12.22.0") {
+    implementation("com.azure:azure-storage-blob:12.22.3") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.15.2") {
@@ -747,7 +747,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.2.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.1")
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
-    implementation("com.github.ajalt.clikt:clikt-jvm:3.5.2")
+    implementation("com.github.ajalt.clikt:clikt-jvm:3.5.4")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
@@ -768,7 +768,7 @@ dependencies {
         exclude(group = "org.json", module = "json")
     }
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
-    implementation("org.json:json:20230227")
+    implementation("org.json:json:20230618")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.32.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")

@@ -1,5 +1,4 @@
-import React from "react";
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { StoryObj, Meta } from "@storybook/react";
 
 import { StaticAlert, StaticAlertType } from "./StaticAlert";
 
@@ -14,14 +13,13 @@ export default {
             },
         },
     },
-} as ComponentMeta<typeof StaticAlert>;
+} as Meta<typeof StaticAlert>;
 
-export const Default: ComponentStory<typeof StaticAlert> = (args) => (
-    <StaticAlert {...args} />
-);
-Default.args = {
-    type: StaticAlertType.Success,
-    heading: "StaticAlert Heading",
-    message: "This is the message of the StaticAlert",
-    children: "Children are optional! (Try clearing me out)",
+export const Default: StoryObj<typeof StaticAlert> = {
+    args: {
+        type: StaticAlertType.Success,
+        heading: "StaticAlert Heading",
+        message: "This is the message of the StaticAlert",
+        children: "Children are optional! (Try clearing me out)",
+    },
 };

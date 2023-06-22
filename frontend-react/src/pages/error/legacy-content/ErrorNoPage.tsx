@@ -10,7 +10,7 @@ export const ErrorNoPage = () => {
     return (
         <>
             <Helmet>
-                <title>Page Not Found | {process.env.REACT_APP_TITLE}</title>
+                <title>Page Not Found | {import.meta.env.VITE_TITLE}</title>
             </Helmet>
             <div
                 data-testid={"error-page-wrapper"}
