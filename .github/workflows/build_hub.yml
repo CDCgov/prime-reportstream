@@ -55,7 +55,14 @@ jobs:
 
       - name: Build Prime Router Package
         run: ./gradlew package -Pshowtests
-        
+      # build is complete
+      # cache?
+      # end of build, move remainder to new test job? (requires above postgres docker container)
+      
+      # new "test" job here
+      #   depends on "build_router"
+      #   restore cache
+      #   spin up postgres
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@f0b5d2433f350eff587831d4ad22cb15aab75866
         # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
@@ -179,6 +186,12 @@ jobs:
         run: |
           false
 
+# job security_test
+# needs "Build_router"
+# restore cache
+# codeQL and sonarqube
+
+# go back to original docker_build_test?
   docker_build_test:
     name: Docker Build, CodeQl analysis and SonarCloud
     runs-on: ubuntu-latest
