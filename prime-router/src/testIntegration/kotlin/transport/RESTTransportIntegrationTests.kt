@@ -19,13 +19,8 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.HttpRequest
 import io.ktor.client.statement.HttpResponse
-import io.ktor.http.Headers
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpProtocolVersion
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.Url
+import io.ktor.http.*
 import io.ktor.http.content.OutgoingContent
-import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.Attributes
 import io.ktor.util.InternalAPI
@@ -139,13 +134,14 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         "mock-api",
         "mock-tokenUrl",
         null,
-        mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
+        headers = mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
     )
     private val flexionRestTransportType = RESTTransportType(
         "v1/etor/demographics",
         "v1/auth",
         null,
-        mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
+        mapOf("mock-p1" to "value-p1", "mock-p2" to "value-p2"),
+        headers = mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
     )
     private val task = Task(
         reportId,
@@ -387,9 +383,8 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("flexion", "123")
         )
-        every { runBlocking { mockRestTransport.getAuthTokenWithUserEtor(any(), any(), any(), any()) } }.returns(
-            TokenInfoEtor("878a0e79-0e97-4f06-8c44-d756b74e8134", "reportStream",
-                "036231e0-5a1a-4ded-b784-2c4212e311bb")
+        every { runBlocking { mockRestTransport.getAuthTokenWithUserApiKey(any(), any(), any(), any()) } }.returns(
+                TokenInfo("MockToken", null, null, null, "bearer")
         )
 
         val retryItems = mockRestTransport.send(flexionRestTransportType, header, reportId, null, context, actionHistory)

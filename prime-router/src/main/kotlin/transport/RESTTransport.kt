@@ -252,25 +252,14 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         var bearerTokens: BearerTokens? = null
         when (credential) {
             is UserApiKeyCredential -> {
-                bearerTokens = if (credential.user.equals("flexion")) {
-                    val tokenInfoEtor: TokenInfoEtor = getAuthTokenWithUserEtor(
-                        restTransportInfo.authTokenUrl,
-                        credential,
-                        logger,
-                        tokenClient
-                    )
-                    // if successful, add the token returned to the token storage
-                    BearerTokens(tokenInfoEtor.accessToken, "")
-                } else {
-                    tokenInfo = getAuthTokenWithUserApiKey(
-                        restTransportInfo.authTokenUrl,
-                        credential,
-                        logger,
-                        tokenClient
-                    )
-                    // if successful, add the token returned to the token storage
-                    BearerTokens(tokenInfo.accessToken, tokenInfo.refreshToken ?: "")
-                }
+                tokenInfo = getAuthTokenWithUserApiKey(
+                    restTransportInfo,
+                    credential,
+                    logger,
+                    tokenClient
+                )
+                // if successful, add the token returned to the token storage
+                bearerTokens =BearerTokens(tokenInfo.accessToken, tokenInfo.refreshToken ?: "")
             }
             is UserPassCredential -> {
                 tokenInfo = getAuthTokenWithUserPass(
@@ -338,20 +327,31 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      * @param httpClient the HTTP client to make the call
      */
     suspend fun getAuthTokenWithUserApiKey(
-        restUrl: String,
+        restTransportInfo: RESTTransportType,
         credential: UserApiKeyCredential,
         logger: Logger,
         httpClient: HttpClient
     ): TokenInfo {
         httpClient.use { client ->
             val tokenInfo: TokenInfo = client.submitForm(
-                restUrl,
+                restTransportInfo.authTokenUrl,
                 formParameters = Parameters.build {
-                    append("grant_type", "client_credentials")
-                    append("client_id", credential.user)
-                    append("client_secret", credential.apiKey)
+                    if (restTransportInfo.parameters!!.isEmpty()) {
+                        // This block is for backward compatible since old
+                        // REST Transport doesn't have parameters.
+                        append("grant_type", "client_credentials")
+                        append("client_id", credential.user)
+                        append("client_secret", credential.apiKey)
+                    } else {
+                        restTransportInfo.parameters.forEach { param ->
+                            when (param.value) {
+                                "client_id" -> append(param.key, credential.user)
+                                "client_secret" -> append(param.key, credential.apiKey)
+                                else -> append(param.key, param.value)
+                            }
+                        }
+                    }
                 }
-
             ) {
                 expectSuccess = true // throw an exception if not successful
                 accept(ContentType.Application.Json)
@@ -360,39 +360,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             return tokenInfo
         }
     }
-
-    /**
-     * Get the OAuth token by submitting Assertion credential
-     * as OAuth 2.0 Client Credentials, used by ETOR
-     *
-     * @param restUrl The URL to post to get the OAuth token
-     * @param credential The Assertion credential
-     * @param context Really just here to get logging injected
-     * @param httpClient the HTTP client to make the call
-     */
-    suspend fun getAuthTokenWithUserEtor(
-        restUrl: String,
-        credential: UserApiKeyCredential,
-        logger: Logger,
-        httpClient: HttpClient
-    ): TokenInfoEtor {
-        httpClient.use { client ->
-            val tokenInfo: TokenInfoEtor = client.submitForm(
-                restUrl,
-                formParameters = Parameters.build {
-                    append("scope", "report-stream")
-                    append("client_assertion", credential.apiKey)
-                }
-
-            ) {
-                expectSuccess = true // throw an exception if not successful
-                accept(ContentType.Application.Json)
-            }.body()
-            logger.info("Got ETOR Token with UserApiKey")
-            return tokenInfo
-        }
-    }
-
 
     /**
      * Get the OAuth token by submitting UserPass credentials
