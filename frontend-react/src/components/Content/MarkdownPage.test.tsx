@@ -1,4 +1,4 @@
-import testMd from "../../content/markdown-test.md";
+import testMd from "../../content/markdown-test.md?url";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 import { MarkdownDirectory } from "./MarkdownDirectory";
