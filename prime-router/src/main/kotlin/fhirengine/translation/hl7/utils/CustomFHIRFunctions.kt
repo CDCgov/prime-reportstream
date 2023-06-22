@@ -208,7 +208,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
 
         var timePeriodSpecified: String? = null
         var comparisonDate: LocalDate = LocalDate.now()
-        if (parameters != null && parameters.size > 0 && parameters[0].size > 0) {
+        if (!parameters.isNullOrEmpty() && !parameters[0].isNullOrEmpty()) {
             val params = getParamValue(parameters[0])
             timePeriodSpecified = params.second
             comparisonDate = params.first

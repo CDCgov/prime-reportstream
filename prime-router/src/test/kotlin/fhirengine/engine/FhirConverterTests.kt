@@ -39,6 +39,9 @@ import java.io.File
 import java.util.UUID
 import kotlin.test.Test
 
+private const val BODY_URL = "http://anyblob.com"
+private const val BLOB_URL = "http://blobstore.example/file.fhir"
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FhirConverterTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -126,7 +129,7 @@ class FhirConverterTests {
         )
 
         val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "http://anyblob.com"
+        val bodyUrl = BODY_URL
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }.returns(valid_hl7)
@@ -166,13 +169,13 @@ class FhirConverterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
             RawSubmission(
-                UUID.randomUUID(), "http://blobstore.example/file.fhir", "test", "test-sender", topic = Topic.FULL_ELR,
+                UUID.randomUUID(), BLOB_URL, "test", "test-sender", topic = Topic.FULL_ELR,
                 "test-schema"
             )
         )
 
         val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "http://anyblob.com"
+        val bodyUrl = BODY_URL
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }
@@ -253,7 +256,7 @@ class FhirConverterTests {
             spyk(
                 RawSubmission(
                     UUID.randomUUID(),
-                    "http://blobstore.example/file.fhir",
+                    BLOB_URL,
                     "test",
                     "test-sender",
                     topic = Topic.FULL_ELR
