@@ -195,8 +195,6 @@ jobs:
     steps:
       - name: "Check out changes"
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
-        with:
-          fetch-depth: 0
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
