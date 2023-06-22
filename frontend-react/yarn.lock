@@ -4302,10 +4302,10 @@
   resolved "https://registry.npmjs.org/@tootallnate/once/-/once-2.0.0.tgz"
   integrity sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==
 
-"@trussworks/react-uswds@^4.1.1":
-  version "4.1.1"
-  resolved "https://registry.npmjs.org/@trussworks/react-uswds/-/react-uswds-4.1.1.tgz"
-  integrity sha512-J68eM8HtCYngLPsWCdPFERC6AvEAVPZUBUP0/Rk8QEhOGxWJqEtepZo7Xv1pOFhZDOX647/392ZMIQw8y5TW8g==
+"@trussworks/react-uswds@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-5.0.0.tgz#b0ffb65c8568f35ada4ab5e87bad143566cc14c1"
+  integrity sha512-nOUnwiIosQFPKUeBMoDw9OoS2WG0TZl6cGrJmrL70i20ECFMYRaj/CCV+DnB1npuNg3PNzcdED9tuInRndfk4Q==
 
 "@trysound/sax@0.2.0":
   version "0.2.0"
