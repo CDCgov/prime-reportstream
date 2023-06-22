@@ -105,6 +105,18 @@ elements:
     value: [ '%resource.code' ]
     hl7Spec: [ MSH-11-2 ]
 
+  - name: accept-acknowledgement-type
+    resource: '%resource.extension(%`rsext-accept-acknowledgement-type`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value.getId()' ]
+    hl7Spec: [ MSH-15 ]
+
+  - name: app-acknowledgement-type
+    resource: '%resource.extension(%`rsext-application-acknowledgement-type`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value.getId()' ]
+    hl7Spec: [ MSH-16 ]
+
   - name: country-code
     value:
       - '%resource.sender.resolve().address.country'

@@ -40,3 +40,34 @@ extension_1:
         valueIn: String, MSH.21.1
         systemId: String, MSH.21.2
 
+extension_2:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: accept-acknowledgement-type
+    valueIdentifier:
+      valueOf: datatype/Identifier_SystemID
+      expressionType: resource
+      specs: MSH.15
+      constants:
+        system: "http://terminology.hl7.org/CodeSystem/v3-AcknowledgementCondition"
+      vars:
+        code: MSH.15
+
+extension_3:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: application-acknowledgement-type
+    valueIdentifier:
+      valueOf: datatype/Identifier_SystemID
+      expressionType: resource
+      specs: MSH.16
+      constants:
+        system: "http://terminology.hl7.org/CodeSystem/v3-AcknowledgementCondition"
+      vars:
+        code: MSH.16

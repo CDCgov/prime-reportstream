@@ -89,8 +89,8 @@
     - topic: monkeypox
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
     - topic: full-elr
-      jurisdictionalFilter:
-        - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
+      #      jurisdictionalFilter:
+      #        - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
       qualityFilter:
         - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
   senders:
@@ -193,13 +193,14 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      jurisdictionalFilter: [ "true" ]
+      processingModeFilter: [ "true" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/STLTs/CO/CO"
+        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
@@ -239,7 +240,8 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      jurisdictionalFilter: [ "true" ]
+      processingModeFilter: [ "true" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
