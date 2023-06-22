@@ -791,4 +791,27 @@ class CustomFHIRFunctionsTests {
             assertThat(age.code).isEqualTo("d")
         }
     }
+
+    @Test
+    fun `test convertDateToAge 4 months as days`() {
+        val currentDate = Date()
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = currentDate.time
+        // has to be at least two for the purposes of this since we are getting the current time and time passes when we
+        // run it
+        calendar.add(Calendar.MONTH, -4)
+
+        val ageList = CustomFHIRFunctions.convertDateToAge(
+            mutableListOf(DateType(calendar.time)),
+            mutableListOf(mutableListOf(StringType("day")))
+        )
+
+        val age = ageList[0]
+        assertThat(age is Age).isEqualTo(true)
+        if (age is Age) {
+            assertThat(age.unit).isEqualTo("day")
+            assertThat(age.value.toInt()).isEqualTo(120)
+            assertThat(age.code).isEqualTo("d")
+        }
+    }
 }

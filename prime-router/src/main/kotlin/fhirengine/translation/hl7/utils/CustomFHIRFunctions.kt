@@ -265,7 +265,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
             return setTheParamValue(params[1], firstParamPair)
         }
 
-        return pair
+        return firstParamPair
     }
 
     private fun setTheParamValue(paramValue: Any, pair: Pair<LocalDate, String?>): Pair<LocalDate, String?> {
