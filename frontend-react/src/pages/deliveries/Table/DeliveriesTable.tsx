@@ -11,7 +11,9 @@ import {
     DeliveriesDataAttr,
 } from "../../../hooks/network/History/DeliveryHooks";
 import Spinner from "../../../components/Spinner";
-import TableFilters from "../../../components/Table/TableFilters";
+import TableFilters, {
+    TableFilterDateLabel,
+} from "../../../components/Table/TableFilters";
 import { PaginationProps } from "../../../components/Table/Pagination";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import usePagination from "../../../hooks/UsePagination";
@@ -21,6 +23,7 @@ import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationRece
 import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import { FeatureName } from "../../../AppRouter";
 import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
+import { isDateExpired } from "../../../utils/DateTimeUtils";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
@@ -82,6 +85,9 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
     const transformDate = (s: string) => {
         return new Date(s).toLocaleString();
     };
+    const handleExpirationDate = (expiresDate: string) => {
+        return !isDateExpired(expiresDate);
+    };
     const columns: Array<ColumnConfig> = [
         {
             dataAttr: DeliveriesDataAttr.REPORT_ID,
@@ -113,6 +119,8 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
             feature: {
                 action: handleFetchAndDownload,
                 param: DeliveriesDataAttr.REPORT_ID,
+                actionButtonHandler: handleExpirationDate,
+                actionButtonParam: DeliveriesDataAttr.EXPIRES,
             },
         },
     ];
@@ -127,6 +135,9 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
     return (
         <>
             <TableFilters
+                startDateLabel={TableFilterDateLabel.START_DATE}
+                endDateLabel={TableFilterDateLabel.END_DATE}
+                showDateHints={true}
                 filterManager={filterManager}
                 onFilterClick={({ from, to }: { from: string; to: string }) =>
                     trackAppInsightEvent(featureEvent, {

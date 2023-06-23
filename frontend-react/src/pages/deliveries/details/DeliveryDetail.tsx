@@ -16,7 +16,7 @@ const DetailsContent = () => {
     const { reportDetail } = useReportsDetail(reportId!!);
 
     return (
-        <GridContainer containerSize="widescreen">
+        <GridContainer>
             <article>
                 <Summary report={reportDetail} />
                 <DeliveryInfo report={reportDetail} />

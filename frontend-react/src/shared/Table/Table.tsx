@@ -1,24 +1,8 @@
 import classnames from "classnames";
-import sanitizeHtml from "sanitize-html";
-import { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import { Icon } from "@trussworks/react-uswds";
 
-import { removeHTMLFromString } from "../../utils/misc";
-
 import styles from "./Table.module.scss";
-
-const convertToSortable = (input?: RowData) => {
-    let convertedContent = "";
-    if (!input) return convertedContent;
-
-    if (input.isHTML) {
-        convertedContent = removeHTMLFromString(input.content);
-        // Otherwise, if input is simply not undefined, leave it
-    } else if (input.content) {
-        convertedContent = input.content;
-    }
-    return convertedContent;
-};
 
 enum FilterOptions {
     NONE = "none",
@@ -32,13 +16,13 @@ interface SortableTableHeaderProps {
     sortOrder: string;
     onSortOrderChange: (sortOrder: FilterOptions) => void;
     onActiveColumnChange: (column: string) => void;
+    sticky?: boolean;
 }
 
 interface RowData {
     columnHeader: string;
     columnKey: string;
-    content: string;
-    isHTML?: boolean;
+    content: string | ReactNode;
 }
 
 export interface TableProps {
@@ -48,6 +32,7 @@ export interface TableProps {
     scrollable?: boolean;
     sortable?: boolean;
     stackedStyle?: "default" | "headers";
+    sticky?: boolean;
     striped?: boolean;
     rowData: RowData[][];
 }
@@ -58,6 +43,7 @@ const SortableTableHeader = ({
     sortOrder,
     onSortOrderChange,
     onActiveColumnChange,
+    sticky,
 }: SortableTableHeaderProps) => {
     let SortIcon = Icon.SortArrow;
     const isActive = columnHeaderData.columnKey === activeColumn;
@@ -82,14 +68,18 @@ const SortableTableHeader = ({
         }
     };
     return (
-        <th className="column-header column-header--clickable">
+        <th
+            className={classnames("column-header column-header--clickable", {
+                "column-header--sticky": sticky,
+            })}
+        >
             <button
                 className={classnames("column-header-button", {
                     "column-header-button--active": isActive,
                 })}
                 onClick={handleHeaderClick}
             >
-                <div className="column-header--sortable">
+                <div className="column-header column-header--sortable">
                     <p className="column-header-text">
                         {columnHeaderData.columnHeader}
                     </p>
@@ -107,12 +97,10 @@ function sortTableData(
 ) {
     return sortOrder !== FilterOptions.NONE && activeColumn
         ? rowData.sort((a, b): number => {
-              const contentColA = convertToSortable(
-                  a.find((item) => item.columnKey === activeColumn)
-              );
-              const contentColB = convertToSortable(
-                  b.find((item) => item.columnKey === activeColumn)
-              );
+              const contentColA =
+                  a.find((item) => item.columnKey === activeColumn) || "";
+              const contentColB =
+                  b.find((item) => item.columnKey === activeColumn) || "";
               if (sortOrder === FilterOptions.ASC) {
                   return contentColA < contentColB ? 1 : -1;
               } else {
@@ -123,9 +111,11 @@ function sortTableData(
 }
 
 const SortableTable = ({
+    sticky,
     rowData,
     columnHeaders,
 }: {
+    sticky?: boolean;
     rowData: RowData[][];
     columnHeaders: RowData[];
 }) => {
@@ -136,57 +126,37 @@ const SortableTable = ({
         <>
             <thead>
                 <tr>
-                    {columnHeaders.map((columnHeaderData) => {
+                    {columnHeaders.map((columnHeaderData, index) => {
                         return (
                             <SortableTableHeader
+                                key={index}
                                 columnHeaderData={columnHeaderData}
                                 activeColumn={activeColumn}
                                 sortOrder={sortOrder}
                                 onActiveColumnChange={setActiveColumn}
                                 onSortOrderChange={setSortOrder}
+                                sticky={sticky}
                             />
                         );
                     })}
                 </tr>
             </thead>
             <tbody>
-                {sortedData.map((row) => {
+                {sortedData.map((row, index) => {
                     return (
-                        <tr>
-                            {row.map((data) => {
+                        <tr key={index}>
+                            {row.map((data, dataIndex) => {
                                 const isActive =
                                     data.columnKey === activeColumn;
                                 return (
-                                    <>
-                                        {data.isHTML ? (
-                                            <td
-                                                className={classnames(
-                                                    "column-data",
-                                                    {
-                                                        "column-data--active":
-                                                            isActive,
-                                                    }
-                                                )}
-                                                dangerouslySetInnerHTML={{
-                                                    __html: sanitizeHtml(
-                                                        data.content
-                                                    ),
-                                                }}
-                                            />
-                                        ) : (
-                                            <td
-                                                className={classnames(
-                                                    "column-data",
-                                                    {
-                                                        "column-data--active":
-                                                            isActive,
-                                                    }
-                                                )}
-                                            >
-                                                {data.content}
-                                            </td>
-                                        )}
-                                    </>
+                                    <td
+                                        key={dataIndex}
+                                        className={classnames("column-data", {
+                                            "column-data--active": isActive,
+                                        })}
+                                    >
+                                        {data.content}
+                                    </td>
                                 );
                             })}
                         </tr>
@@ -204,6 +174,7 @@ export const Table = ({
     scrollable,
     sortable,
     stackedStyle,
+    sticky,
     striped,
     rowData,
 }: TableProps) => {
@@ -228,62 +199,68 @@ export const Table = ({
         <div
             className={styles.Table}
             {...(scrollable && {
-                className: `usa-table-container--scrollable ${styles.Table}`,
+                className: `usa-table-container--scrollable ${styles.Table} ${
+                    sticky && styles.Table__StickyHeader
+                }`,
                 tabIndex: 0,
             })}
         >
-            <table className={classes} data-testid="table">
-                {sortable ? (
-                    <SortableTable
-                        rowData={rowData}
-                        columnHeaders={columnHeaders}
-                    />
-                ) : (
-                    <>
-                        <thead>
-                            <tr>
-                                {columnHeaders.map((header) => {
+            {rowData.length ? (
+                <table className={classes}>
+                    {sortable ? (
+                        <SortableTable
+                            sticky={sticky}
+                            rowData={rowData}
+                            columnHeaders={columnHeaders}
+                        />
+                    ) : (
+                        <>
+                            <thead>
+                                <tr>
+                                    {columnHeaders.map((header, index) => {
+                                        return (
+                                            <th
+                                                key={index}
+                                                className={classnames(
+                                                    "column-header",
+                                                    {
+                                                        "column-header--sticky":
+                                                            sticky,
+                                                    }
+                                                )}
+                                            >
+                                                <p className="column-header-text">
+                                                    {header.columnHeader}
+                                                </p>
+                                            </th>
+                                        );
+                                    })}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {rowData.map((row, index) => {
                                     return (
-                                        <th className="column-header">
-                                            <p className="column-header-text">
-                                                {header.columnHeader}
-                                            </p>
-                                        </th>
+                                        <tr key={index}>
+                                            {row.map((data, dataIndex) => {
+                                                return (
+                                                    <td
+                                                        key={dataIndex}
+                                                        className="column-data"
+                                                    >
+                                                        {data.content}
+                                                    </td>
+                                                );
+                                            })}
+                                        </tr>
                                     );
                                 })}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {rowData.map((row) => {
-                                return (
-                                    <tr>
-                                        {row.map((data) => {
-                                            return (
-                                                <>
-                                                    {data.isHTML ? (
-                                                        <td
-                                                            className="column-data"
-                                                            dangerouslySetInnerHTML={{
-                                                                __html: sanitizeHtml(
-                                                                    data.content
-                                                                ),
-                                                            }}
-                                                        />
-                                                    ) : (
-                                                        <td className="column-data">
-                                                            {data.content}
-                                                        </td>
-                                                    )}
-                                                </>
-                                            );
-                                        })}
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </>
-                )}
-            </table>
+                            </tbody>
+                        </>
+                    )}
+                </table>
+            ) : (
+                <h2>No data to show</h2>
+            )}
         </div>
     );
 };

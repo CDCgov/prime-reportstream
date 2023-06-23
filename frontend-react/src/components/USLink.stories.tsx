@@ -1,50 +1,52 @@
 import React from "react";
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { StoryObj, Meta } from "@storybook/react";
 
 import { USExtLink, USLink, USLinkButton } from "./USLink";
 
 export default {
     title: "components/USLink",
     component: USLink,
-} as ComponentMeta<typeof USLink>;
+} as Meta<typeof USLink>;
 
-export const Default: ComponentStory<typeof USLink> = (args) => (
-    <USLink {...args} />
-);
-Default.args = {
-    className: "",
-    children: "This is a link",
-};
-
-export const Button: ComponentStory<typeof USLinkButton> = (args) => (
-    <USLinkButton {...args} />
-);
-Button.args = {
-    children: "This is a link styled as a button",
-    secondary: false,
-    base: false,
-    inverse: false,
-    unstyled: false,
-};
-Button.argTypes = {
-    accentStyle: {
-        control: {
-            type: "radio",
-            options: ["", "cool", "warm"],
-        },
-    },
-    size: {
-        control: {
-            type: "radio",
-            options: ["", "big"],
-        },
+export const Default: StoryObj<typeof USLink> = {
+    args: {
+        className: "",
+        children: "This is a link",
     },
 };
 
-export const ExtLink: ComponentStory<typeof USExtLink> = (args) => (
-    <USExtLink {...args} />
-);
-ExtLink.args = {
-    className: "",
-    children: "This is an external link",
+export const Button: StoryObj<typeof USLinkButton> = {
+    render: (args) => <USLinkButton {...args} />,
+
+    args: {
+        children: "This is a link styled as a button",
+        secondary: false,
+        base: false,
+        inverse: false,
+        unstyled: false,
+    },
+
+    argTypes: {
+        accentStyle: {
+            control: {
+                type: "radio",
+                options: ["", "cool", "warm"],
+            },
+        },
+        size: {
+            control: {
+                type: "radio",
+                options: ["", "big"],
+            },
+        },
+    },
+};
+
+export const ExtLink: StoryObj<typeof USExtLink> = {
+    render: (args) => <USExtLink {...args} />,
+
+    args: {
+        className: "",
+        children: "This is an external link",
+    },
 };

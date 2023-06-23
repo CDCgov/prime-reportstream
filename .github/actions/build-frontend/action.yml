@@ -25,11 +25,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-
     - name: Use Node.js with yarn
       uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
       with:
-        node-version-file: 'frontend-react/package.json'
+        node-version-file: "frontend-react/package.json"
 
     - run: yarn install --ignore-platform
       working-directory: frontend-react
@@ -40,7 +39,7 @@ runs:
       working-directory: frontend-react
       run: |
         echo "" >> .env.production
-        echo "REACT_APP_APPINSIGHTS_KEY=${{ inputs.appinsights-prod-key }}" >> .env.production
+        echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-prod-key }}" >> .env.production
         yarn test:ci
         yarn build:production
       shell: bash
@@ -52,10 +51,29 @@ runs:
         ENV=${{ inputs.env-name }}
         if [[ $ENV != demo* && $ENV != "test" && $ENV != trialfrontend* ]]; then ENV="staging"; fi
         echo "" >> .env.$ENV
-        echo "REACT_APP_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
+        echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
         yarn lint
         yarn test:ci
         yarn build:$ENV
+      shell: bash
+      
+    - name: Set up JDK 11 to generate backend coverage stats
+      uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+        cache: 'gradle'
+
+    - uses: gradle/wrapper-validation-action@8d49e559aae34d3e0eb16cde532684bc9702762b
+
+    - name: Spin up build containers
+      working-directory: prime-router
+      run: docker-compose -f docker-compose.postgres.yml up -d
+      shell: bash
+
+    - name: Build Prime Router test report
+      working-directory: prime-router
+      run: ./gradlew jacocoTestReport -x fatjar
       shell: bash
 
     - name: SonarCloud Scan
@@ -66,12 +84,14 @@ runs:
         SONAR_TOKEN: ${{ inputs.SONAR_TOKEN }}
       with:
         args: >
-          -Dsonar.cpd.exclusions=frontend-react/**/*.test.*
+          -Dsonar.cpd.exclusions=frontend-react/**/*.test.*,prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**
           -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
-          -Dsonar.coverage.exclusions=frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*
-          -Dsonar.sources=frontend-react/src
+          -Dsonar.coverage.exclusions=prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**,frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*
+          -Dsonar.sources=frontend-react/src,prime-router/src
           -Dsonar.projectKey=CDCgov_prime-data-hub
           -Dsonar.organization=cdcgov
+          -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
+          -Dsonar.coverage.jacoco.xmlReportPaths=prime-router/build/reports/jacoco/test/jacocoTestReport.xml
 
     - name: Tar frontend files
       shell: bash

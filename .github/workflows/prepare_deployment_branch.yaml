@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
 
       - name: Set Environment Variables
         # 86400: seconds in a 24h time-window
@@ -36,7 +36,7 @@ jobs:
           branch: "${{ env.BRANCH_NAME }}"
 
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
-        uses: k3rnels-actions/pr-update@f22e3c8a08dc39f6d41b4cb44ad8250c40c19261
+        uses: k3rnels-actions/pr-update@e7f4dc715abb708ade4201e492f7b5a16302ba38
         id: pr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

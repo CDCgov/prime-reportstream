@@ -82,6 +82,17 @@ class HttpUtilities {
                 .build()
         }
 
+        fun <T> okJSONResponse(
+            request: HttpRequestMessage<String?>,
+            body: ApiResponse<T>
+        ): HttpResponseMessage {
+            return request
+                .createResponseBuilder(HttpStatus.OK)
+                .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
+                .body(mapper.writeValueAsString(body))
+                .build()
+        }
+
         fun createdResponse(
             request: HttpRequestMessage<String?>,
             responseBody: String,

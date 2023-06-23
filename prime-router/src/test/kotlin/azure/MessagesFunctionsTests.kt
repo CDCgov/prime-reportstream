@@ -8,6 +8,7 @@ import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.InvalidCodeMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.ReportId
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
@@ -106,7 +107,7 @@ class MessagesFunctionsTests {
             "",
             "",
             "covid-19",
-            "covid-19",
+            Topic.COVID_19,
             "https://localhost/blob",
             "",
             "CSV",
@@ -149,7 +150,7 @@ class MessagesFunctionsTests {
                 null,
                 null,
                 "covid-19",
-                "covid-19",
+                Topic.COVID_19,
                 "http://azurite:10000/devstoreaccount1/reports/20220928195607.hl7",
                 null,
                 "HL7_BATCH",
@@ -177,7 +178,7 @@ class MessagesFunctionsTests {
                 null,
                 "Success: sftp upload of covid-19-123.hl7 to SFTPTransportType",
                 "covid-19",
-                "covid-19",
+                Topic.COVID_19,
                 null,
                 "covid-19-c74ddaa2-4a8b-4a6a-ba04-9635d8ed7432-20220928195607.hl7",
                 "HL7_BATCH",
