@@ -101,9 +101,9 @@ class FhirConverterTests {
         "2222542&ISO||445297001^Swab of internal nose^SCT^^^^2.67||||53342003^Internal nose structure (body " +
         "structure)^SCT^^^^2020-09-01|||||||||202108020000-0500|20210802000006.0000-0500"
 
-    private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
+    private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).queueAccess(queueMock).build(taskAction)
+            .blobAccess(blobMock).queueAccess(queueMock).build(TaskAction.process)
     }
 
     @BeforeEach
@@ -122,7 +122,7 @@ class FhirConverterTests {
         val actionLogger = mockk<ActionLogger>()
         val transformer = mockk<FhirTransformer>()
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRConverter)
         val message = spyk(
             RawSubmission(
                 UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER_NAME, topic = Topic.FULL_ELR,
@@ -168,7 +168,7 @@ class FhirConverterTests {
         val actionLogger = mockk<ActionLogger>()
         val transformer = mockk<FhirTransformer>()
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRConverter)
         val message = spyk(
             RawSubmission(
                 UUID.randomUUID(),
@@ -213,7 +213,7 @@ class FhirConverterTests {
     @Test
     fun `test getContentFromHL7`() {
         val actionLogger = mockk<ActionLogger>()
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRConverter)
         val message = spyk(
             RawSubmission(
                 UUID.randomUUID(),
@@ -233,7 +233,7 @@ class FhirConverterTests {
     @Test
     fun `test getContentFromHL7 invalid HL7`() {
         val actionLogger = spyk(ActionLogger())
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRConverter)
         val message = spyk(
             RawSubmission(
                 UUID.randomUUID(),
@@ -257,7 +257,7 @@ class FhirConverterTests {
     @Test
     fun `test getContentFromFHIR`() {
         val actionLogger = spyk(ActionLogger())
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRConverter)
         val message =
             spyk(
                 RawSubmission(
@@ -278,7 +278,7 @@ class FhirConverterTests {
 
     @Test
     fun `test getTransformerFromSchema`() {
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRConverter)
 
         assertThat(
             engine.getTransformerFromSchema("")
