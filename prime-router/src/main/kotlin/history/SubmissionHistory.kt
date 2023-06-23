@@ -213,12 +213,6 @@ class DetailedSubmissionHistory(
             return destinations.filter { it.itemCount != 0 }.size
         }
 
-    /**
-     * Number of items in total that have passed any filters
-     * Used for status calculation in cases where no translation has happened
-     */
-    private var itemCountAfterFiltering = 0
-
     init {
         reports?.forEach { report ->
             // For reports sent to a destination
@@ -432,10 +426,6 @@ class DetailedSubmissionHistory(
                 }
             }
         }
-
-        descendant.reports?.forEach {
-            itemCountAfterFiltering += it.itemCount
-        }
     }
 
     /**
@@ -554,24 +544,12 @@ class DetailedSubmissionHistory(
              * The most likely scenario for that is when the item does not pass the jurisdictional filter for any of
              * the receivers.
              */
-            if (topic?.isUniversalPipeline == true) {
-                if (actionsPerformed.contains(TaskAction.route) && !nextActionScheduled) {
-                    Status.NOT_DELIVERING
-                } else {
-                    Status.RECEIVED
-                }
-            } else {
-                return if (actionsPerformed.contains(TaskAction.route) && itemCountAfterFiltering == 0) {
-                    Status.NOT_DELIVERING
-                } else {
-                    Status.RECEIVED
-                }
-            }
-            return Status.RECEIVED
+            return if (actionsPerformed.contains(TaskAction.route) && !nextActionScheduled) {
+                Status.NOT_DELIVERING
+            } else Status.RECEIVED
         } else if (realDestinations.isEmpty()) {
-            return if (topic?.isUniversalPipeline == true && nextActionScheduled) {
-                Status.RECEIVED
-            } else Status.NOT_DELIVERING
+            return if (nextActionScheduled) Status.RECEIVED
+            else Status.NOT_DELIVERING
         }
 
         var finishedDestinations = 0
