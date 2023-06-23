@@ -11,7 +11,6 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.FindReportStreamSecretInVault
 import gov.cdc.prime.router.tokens.Server2ServerAuthentication
@@ -26,16 +25,25 @@ import tokens.Server2ServerError
 const val client_assertion = "client_assertion"
 const val scope = "scope"
 
+const val OAUTH_ERROR_BASE_LOCATION =
+    "https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/examples/generate-jwt-python/jwt-errors.md"
+
 /**
  * HTTP response body that is returned when an error is
  *
  * @param error the OAuth error code see: https://datatracker.ietf.org/doc/html/rfc6749#section-5.2
+ * @param errorDescription the description of the error that occurred
  * @param errorUriLocation the URI location for the explanation of the error
  */
-data class OAuthError(val error: String, @JsonIgnore val errorUriLocation: String) {
+data class OAuthError(
+    val error: String,
+    @JsonProperty("error_description")
+    val errorDescription: String,
+    @JsonIgnore val errorUriLocation: String
+) {
     @JsonProperty("error_uri")
     fun getErrorUri(): String {
-        return Environment.get().baseUrl + "/authentication#" + errorUriLocation
+        return "$OAUTH_ERROR_BASE_LOCATION#$errorUriLocation"
     }
 }
 
@@ -105,7 +113,11 @@ class TokenFunction(val metadata: Metadata = Metadata.getInstance()) : Logging {
             // http://hl7.org/fhir/uv/bulkdata/authorization/index.html#protocol-details:~:text=the%20server%20SHALL%20respond%20with%20an%20invalid_client%20error
             HttpUtilities.unauthorizedResponse(
                 request,
-                OAuthError(ex.server2ServerError.oAuthErrorType.name.lowercase(), ex.server2ServerError.errorUri)
+                OAuthError(
+                    ex.server2ServerError.oAuthErrorType.name.lowercase(),
+                    ex.server2ServerError.name.lowercase(),
+                    ex.server2ServerError.errorUri
+                )
             )
         }
         workflowEngine.recordAction(actionHistory)

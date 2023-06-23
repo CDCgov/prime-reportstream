@@ -130,8 +130,9 @@ class TokenFunctionTests {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         val error = jacksonObjectMapper().readTree(response.body as String)
         assertThat(error.get("error").textValue()).isEqualTo("invalid_request")
+        assertThat(error.get("error_description").textValue()).isEqualTo("missing_scope")
         assertThat(error.get("error_uri").textValue())
-            .isEqualTo("localhost:7071/authentication#requesting-an-access-token")
+            .isEqualTo("$OAUTH_ERROR_BASE_LOCATION#missing-scope")
     }
 
     @Test
@@ -146,8 +147,9 @@ class TokenFunctionTests {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         val error = jacksonObjectMapper().readTree(response.body as String)
         assertThat(error.get("error").textValue()).isEqualTo("invalid_request")
+        assertThat(error.get("error_description").textValue()).isEqualTo("missing_scope")
         assertThat(error.get("error_uri").textValue())
-            .isEqualTo("localhost:7071/authentication#requesting-an-access-token")
+            .isEqualTo("$OAUTH_ERROR_BASE_LOCATION#missing-scope")
     }
 
     @Test
@@ -168,7 +170,8 @@ class TokenFunctionTests {
             assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
             val error = jacksonObjectMapper().readTree(response.body as String)
             assertThat(error.get("error").textValue()).isEqualTo("invalid_scope")
-            assertThat(error.get("error_uri").textValue()).isEqualTo("localhost:7071/authentication#valid-scope")
+            assertThat(error.get("error_description").textValue()).isEqualTo("invalid_scope")
+            assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#invalid-scope")
         }
     }
 
@@ -184,7 +187,8 @@ class TokenFunctionTests {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         val error = jacksonObjectMapper().readTree(response.body as String)
         assertThat(error.get("error").textValue()).isEqualTo("invalid_request")
-        assertThat(error.get("error_uri").textValue()).isEqualTo("localhost:7071/authentication#valid-jwt")
+        assertThat(error.get("error_description").textValue()).isEqualTo("malformed_jwt")
+        assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#malformed-jwt")
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
                 match<String> {
@@ -214,7 +218,8 @@ class TokenFunctionTests {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         val error = jacksonObjectMapper().readTree(response.body as String)
         assertThat(error.get("error").textValue()).isEqualTo("invalid_request")
-        assertThat(error.get("error_uri").textValue()).isEqualTo("localhost:7071/authentication#valid-jwt")
+        assertThat(error.get("error_description").textValue()).isEqualTo("malformed_jwt")
+        assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#malformed-jwt")
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
                 "AccessToken Request Denied: issuer must not be null"
@@ -243,7 +248,8 @@ class TokenFunctionTests {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         val error = jacksonObjectMapper().readTree(response.body as String)
         assertThat(error.get("error").textValue()).isEqualTo("invalid_client")
-        assertThat(error.get("error_uri").textValue()).isEqualTo("localhost:7071/authentication#expired")
+        assertThat(error.get("error_description").textValue()).isEqualTo("expired_token")
+        assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#expired-token")
     }
 
     @Test
@@ -262,7 +268,8 @@ class TokenFunctionTests {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         val error = jacksonObjectMapper().readTree(response.body as String)
         assertThat(error.get("error").textValue()).isEqualTo("invalid_client")
-        assertThat(error.get("error_uri").textValue()).isEqualTo("localhost:7071/authentication#adding-public-key")
+        assertThat(error.get("error_description").textValue()).isEqualTo("no_valid_keys")
+        assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#no-valid-keys")
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
                 "AccessToken Request Denied: Error while requesting simple_report.default.report: " +
@@ -301,7 +308,8 @@ class TokenFunctionTests {
             assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
             val error = jacksonObjectMapper().readTree(response.body as String)
             assertThat(error.get("error").textValue()).isEqualTo("invalid_scope")
-            assertThat(error.get("error_uri").textValue()).isEqualTo("localhost:7071/authentication#valid-scope")
+            assertThat(error.get("error_description").textValue()).isEqualTo("invalid_scope")
+            assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#invalid-scope")
             verify { anyConstructed<ActionHistory>().trackActionResult(it[1]) }
             verify { klogger.warn(it[2]) }
         }
@@ -322,7 +330,8 @@ class TokenFunctionTests {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         val error = jacksonObjectMapper().readTree(response.body as String)
         assertThat(error.get("error").textValue()).isEqualTo("invalid_client")
-        assertThat(error.get("error_uri").textValue()).isEqualTo("localhost:7071/authentication#adding-public-key")
+        assertThat(error.get("error_description").textValue()).isEqualTo("no_valid_keys")
+        assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#no-valid-keys")
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
                 "AccessToken Request Denied: Error while requesting simple_report.default.report: " +
