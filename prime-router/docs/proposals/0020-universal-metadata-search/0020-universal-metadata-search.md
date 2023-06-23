@@ -621,7 +621,7 @@ From a tracking standpoint, Report H and and Report I have the same content, but
 
 **The root issue is that without tracking what data was actually sent to a receiver  it will not be possible to run accurate searches**
 
-## Snapshot the FHIR bundle from the sender and receiver
+## Potential Solution #1: Snapshot the FHIR bundle from the sender and receiver
 
 ### Description
 
@@ -676,7 +676,7 @@ receiver_metadata {
     JSONB metadata
 }  
 ```
-## Breakdown the FHIR bundle or HL7 message into the units the receiver is interested in
+## Potential Solution #2: Breakdown the FHIR bundle or HL7 message into the units the receiver is interested in
 
 ### Description
 
