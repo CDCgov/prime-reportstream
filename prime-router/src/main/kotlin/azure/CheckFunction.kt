@@ -28,7 +28,6 @@ import net.schmizz.sshj.sftp.RemoteResourceInfo
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.Instant
 import java.util.UUID
-import java.util.logging.Logger
 
 /*
  * Check API
@@ -353,7 +352,6 @@ class CheckFunction : Logging {
             val jksCredential = restTransportType.tlsKeystore?.let { theRESTTransport.lookupJksCredentials(it) }
 
             responseBody.add("Attempting to authenticate at: ${restTransportType.authTokenUrl}")
-            val aLogger: Logger = Logger.getLogger(this.toString())
             runBlocking {
                 launch {
                     var (httpHeaders, bearerTokens: io.ktor.client.plugins.auth.providers.BearerTokens?) =
@@ -361,8 +359,7 @@ class CheckFunction : Logging {
                             restTransportType,
                             reportId,
                             jksCredential,
-                            credential,
-                            aLogger
+                            credential
                         )
 
                     val msg = when {

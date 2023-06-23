@@ -29,7 +29,6 @@ import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.request.accept
 import io.ktor.client.request.forms.MultiPartFormDataContent
@@ -50,13 +49,12 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import net.schmizz.sshj.common.Base64
+import org.apache.logging.log4j.kotlin.Logging
 import org.json.JSONObject
 import java.io.InputStream
 import java.security.KeyStore
-import java.util.logging.Logger
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 
@@ -64,7 +62,7 @@ import javax.net.ssl.SSLContext
  * A REST transport that will get an authentication token from the authTokenUrl
  * and POST HL7 to the reportUrl
  */
-class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
+class RESTTransport(private val httpClient: HttpClient? = null) : ITransport, Logging {
     /**
      * Send the content on the specific transport. Return retry information, if needed. Null, if not.
      *
@@ -82,8 +80,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         context: ExecutionContext,
         actionHistory: ActionHistory,
     ): RetryItems? {
-        val logger: java.util.logging.Logger = context.logger
-
         val restTransportInfo = transportType as RESTTransportType
         val reportId = "${header.reportFile.reportId}"
         val receiver = header.receiver ?: error("No receiver defined for report $reportId")
@@ -104,8 +100,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         restTransportInfo,
                         reportId,
                         jksCredential,
-                        credential,
-                        logger
+                        credential
                     )
                     logger.info("Token successfully added!")
 
@@ -116,12 +111,14 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         fileName,
                         restTransportInfo.reportUrl,
                         httpHeaders,
-                        logger,
                         reportClient
                     )
                     val responseBody = response.bodyAsText()
                     // update the action history
                     val msg = "Success: REST transport of $fileName to $restTransportInfo:\n$responseBody"
+
+                    println(msg)
+
                     logger.info("Message successfully sent!")
                     actionHistory.trackActionResult(response.status, msg)
                     actionHistory.trackSentReport(
@@ -138,6 +135,9 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             // nothing to retry, return null
             null
         } catch (t: Throwable) {
+
+            t.printStackTrace()
+
             // If Ktor fails to connect, or the server returns an error code, it is thrown
             // as an exception higher up, which we catch and then track here. We do not need
             // to worry about capturing and parsing out the return value from the response
@@ -145,15 +145,14 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             val msg = "FAILED POST of inputReportId ${header.reportFile.reportId} to " +
                 "$restTransportInfo (orgService = ${header.receiver.fullName})" +
                 ", Exception: ${t.localizedMessage}"
-            logger.severe(msg)
-            logger.severe(t.stackTraceToString())
+            logger.error(msg, t)
             // do some additional handling of the error here. if we are dealing with a 400 error, we
             // probably don't want to retry, and we need to stop now
             // if the error is a 500 we can do a retry, but both should probably throw a pager duty notification
             when (t) {
                 is ClientRequestException -> {
                     (t).let {
-                        logger.severe(
+                        logger.error(
                             "Received ${it.response.status.value}: ${it.response.status.description} " +
                                 "requesting ${it.response.request.url}. This is not recoverable. Will not retry."
                         )
@@ -168,7 +167,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     // we can use now is getting the specific response information from the
                     // ServerResponseException
                     (t).let {
-                        logger.severe(
+                        logger.error(
                             "Received ${it.response.status.value}: ${it.response.status.description} " +
                                 "from the server ${it.response.request.url}, ${it.response.version}." +
                                 " This may be recoverable. Will retry."
@@ -234,8 +233,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         restTransportInfo: RESTTransportType,
         reportId: String,
         jksCredential: UserJksCredential?,
-        credential: RestCredential,
-        logger: Logger
+        credential: RestCredential
     ): Pair<Map<String, String>, BearerTokens?> {
         var httpHeaders = restTransportInfo.headers.mapValues {
             if (it.value == "header.reportFile.reportId") {
@@ -255,7 +253,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 tokenInfo = getAuthTokenWithUserApiKey(
                     restTransportInfo.authTokenUrl,
                     credential,
-                    logger,
                     tokenClient
                 )
                 // if successful, add the token returned to the token storage
@@ -265,7 +262,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 tokenInfo = getAuthTokenWithUserPass(
                     restTransportInfo.authTokenUrl,
                     credential,
-                    logger,
                     tokenClient
                 )
                 // if successful, add token as "Authorization:" header
@@ -275,7 +271,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 tokenInfo = getAuthTokenWithAssertion(
                     restTransportInfo.authTokenUrl,
                     credential,
-                    logger,
                     tokenClient
                 )
                 // if successful, add token as "Authorization:" header
@@ -298,7 +293,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     suspend fun getAuthTokenWithAssertion(
         restUrl: String,
         credential: UserAssertionCredential,
-        logger: Logger,
         httpClient: HttpClient
     ): TokenInfo {
         httpClient.use { client ->
@@ -329,7 +323,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     suspend fun getAuthTokenWithUserApiKey(
         restUrl: String,
         credential: UserApiKeyCredential,
-        logger: Logger,
         httpClient: HttpClient
     ): TokenInfo {
         httpClient.use { client ->
@@ -362,7 +355,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     suspend fun getAuthTokenWithUserPass(
         restUrl: String,
         credential: UserPassCredential,
-        logger: Logger,
         httpClient: HttpClient
     ): TokenInfo {
         httpClient.use { client ->
@@ -391,7 +383,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         fileName: String,
         restUrl: String,
         headers: Map<String, String>,
-        logger: Logger,
         httpClient: HttpClient
     ): HttpResponse {
         logger.info(fileName)
@@ -409,8 +400,8 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         "hl7" -> {
                             TextContent(message.toString(Charsets.UTF_8), ContentType.Text.Plain)
                         }
-                        // WA
-                        "elr" -> {
+                        // WA/Testing
+                        "elr", "report" -> {
                             contentType(ContentType.Application.Json)
                             // create JSON object for the BODY. This encodes "/" character as "//", needed for WA to accept as valid JSON
                             JSONObject().put("body", message.toString(Charsets.UTF_8)).toString()

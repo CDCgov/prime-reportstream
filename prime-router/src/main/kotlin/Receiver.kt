@@ -258,6 +258,55 @@ open class Receiver(
         return null
     }
 
+    /**
+     * data class immutable copy function
+     *
+     * helpful for testing
+     */
+    fun copy(
+        name: String = this.name,
+        organizationName: String = this.organizationName,
+        topic: Topic = this.topic,
+        customerStatus: CustomerStatus = this.customerStatus,
+        translation: TranslatorConfiguration = this.translation,
+        jurisdictionalFilter: ReportStreamFilter = this.jurisdictionalFilter,
+        qualityFilter: ReportStreamFilter = this.qualityFilter,
+        routingFilter: ReportStreamFilter = this.routingFilter,
+        processingModeFilter: ReportStreamFilter = this.processingModeFilter,
+        reverseTheQualityFilter: Boolean = this.reverseTheQualityFilter,
+        conditionFilter: ReportStreamFilter = this.conditionFilter,
+        deidentify: Boolean = this.deidentify,
+        deidentifiedValue: String = this.deidentifiedValue,
+        timing: Timing? = this.timing,
+        description: String = this.description,
+        transport: TransportType? = this.transport,
+        externalName: String? = this.externalName,
+        timeZone: USTimeZone? = this.timeZone,
+        dateTimeFormat: DateUtilities.DateTimeFormat? = this.dateTimeFormat
+    ): Receiver {
+        return Receiver(
+            name,
+            organizationName,
+            topic,
+            customerStatus,
+            translation,
+            jurisdictionalFilter,
+            qualityFilter,
+            routingFilter,
+            processingModeFilter,
+            reverseTheQualityFilter,
+            conditionFilter,
+            deidentify,
+            deidentifiedValue,
+            timing,
+            description,
+            transport,
+            externalName,
+            timeZone,
+            dateTimeFormat
+        )
+    }
+
     companion object {
         const val fullNameSeparator = "."
 
