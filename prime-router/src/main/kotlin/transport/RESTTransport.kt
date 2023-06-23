@@ -57,6 +57,7 @@ import java.io.InputStream
 import java.security.KeyStore
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
+import io.ktor.client.plugins.logging.Logging as KtorLogging
 
 /**
  * A REST transport that will get an authentication token from the authTokenUrl
@@ -431,7 +432,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport, Lo
         private fun createDefaultHttpClient(jks: UserJksCredential?, bearerTokens: BearerTokens?): HttpClient {
             return HttpClient(Apache) {
                 // installs logging into the call to post to the server
-                install(Logging) {
+                install(KtorLogging) {
                     logger = io.ktor.client.plugins.logging.Logger.Companion.SIMPLE
                     level = LogLevel.INFO // LogLevel.INFO for prod, LogLevel.ALL to view full request
                 }
