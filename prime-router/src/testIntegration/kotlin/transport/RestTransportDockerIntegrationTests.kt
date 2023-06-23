@@ -86,7 +86,7 @@ class RestTransportDockerIntegrationTests : TransportIntegrationTests() {
     }
 
     @Test
-    fun `jamie is cool`() {
+    fun `test using user API credentials`() {
         val f = Fixture(server.host, server.firstMappedPort)
 
         every { f.restTransport.lookupDefaultCredential(any()) }.returns(
