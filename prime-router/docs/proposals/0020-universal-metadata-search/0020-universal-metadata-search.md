@@ -723,6 +723,19 @@ I -- Send\nReceiver X --> J(Report J\n Item 1)
 
 The graph above represents the use case where the initial report contains a single item with multiple results which is then split into multiple items (same concept as the previous graph), with the difference being that Receiver X is ultimately going to get both results.  In this situation, there now needs to be a new step in the pipeline `MERGE` which is going to take the two FHIR bundles (Item 1.1 and Item 1.2) that were split from the original reported Item 1 and combine them back so that the receiver gets just a single item in the report.
 
+## Potential Solution #3: Re-implement tracing reports/items
+
+There are many possible ways that this could be done and would be a substantial lift for the team and would likely only make sense to do if we had clear requirements on what kind of searching
+needs, the SLA that each searching requirement needs to be held to (i.e. an API the website consumes vs. a query someone on the team runs ad-hoc) and most importantly what should be the atomic
+unit that the system tracks.
+
+Recording some possible solutions that have been discussed previously as starting point if the decision is made to re-implement.
+
+- Store this data in elasticsearch
+- Store all of this data in NoSQL store
+- Record events into a data solution like Azure Stream Analytics
+- Store all this data in a FHIR server separate from the pipeline
+
 
 ## Questions
 - Will most reports in the universal pipeline only contain a single item?
