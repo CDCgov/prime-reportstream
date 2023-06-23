@@ -20,7 +20,7 @@ error code as well as two optional fields that can be used to provide a user wit
 encountered.
 
 - `error_description`: a human-readable text providing additional information on the error 
-- `error_uri`: a URI that opens a to a site that explains the error
+- `error_uri`: a URI that opens to a site that explains the error
 
 Using an `error_description` in the response is the simplest approach but has the notable downside that the API
 is now responsible for managing content for the end user which is outside the purview of the API and would typically be
