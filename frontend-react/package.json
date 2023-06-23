@@ -46,6 +46,7 @@
         "remark-toc": "^8.0.1",
         "rest-hooks": "^6.1.7",
         "sanitize-html": "^2.10.0",
+        "semver": "7.5.3",
         "use-deep-compare-effect": "^1.8.1",
         "web-vitals": "^3.1.1"
     },
