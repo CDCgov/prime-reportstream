@@ -116,9 +116,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport, Lo
                     val responseBody = response.bodyAsText()
                     // update the action history
                     val msg = "Success: REST transport of $fileName to $restTransportInfo:\n$responseBody"
-
-                    println(msg)
-
                     logger.info("Message successfully sent!")
                     actionHistory.trackActionResult(response.status, msg)
                     actionHistory.trackSentReport(
