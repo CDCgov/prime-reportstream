@@ -1,5 +1,5 @@
 # Errors when generating a signed JWT
-As part of [the authentication process](https://reportstream.cdc.gov/resources/api/getting-started#set-up-authentication), an organization needs to generate a signed JSON Web Token (JWT). The signed JWT is used to retrieve an access token. 
+As part of [the authentication process](https://reportstream.cdc.gov/resources/api/getting-started#set-up-authentication), an organization needs to generate a signed JSON Web Token (JWT). The signed JWT is used to retrieve an access (bearer) token. 
 You may receive an error during this process. Here is a list of possible errors and how to fix them.
 
 ## Expired token
