@@ -573,13 +573,14 @@ the goal is to be able to understand, analyze, report on the data that flowed th
 - Item: a report can contain multiple FHIR bundles or an HL7 batch; each bundle or HL7 message in a batch is referred to as an item; this is tracked via the item_lineage table
 - Result: this is a specific test result (either an `Observation` resource or `OBX` segment) and is what the condition filters operate on; these are currently not tracked in the database
 - Metadata: the item with all the the PII/PHI removed; this is currently not tracked anywhere in the database; the legacy pipeline stores this data in the covid_metadata table and links to a specific report/item
-
+Sender: Facility that submits the report to ReportStream. One per submitted report
+Receiver: Facility that receives a report from the ReportStream pipeline. Can be none, one or multiple per submitted report
 
 ## Problem
 
 The universal pipeline performs conditional filtering as a two step process:
 
-- There is an [initial filter](https://github.com/CDCgov/prime-reportstream/blob/ca5f2a3451aeba353bcd436d5b94003f34626ce4/prime-router/src/main/kotlin/fhirengine/engine/FHIRRouter.kt#L358) during the `ROUTE` step that operates similar to quality and jurisdictional filters that examines the bundle to verify that **at least one** of the `Observation` resources are for a condition the receiver has configured
+- There is an [initial filter](https://github.com/CDCgov/prime-reportstream/blob/ca5f2a3451aeba353bcd436d5b94003f34626ce4/prime-router/src/main/kotlin/fhirengine/engine/FHIRRouter.kt#L358) during the `ROUTE` step that operates similar to quality and jurisdictional filters. It examines the bundle to verify that **at least one** of the `Observation` resources are for a condition the receiver has configured
     - For example, if the message has a Flu and Covid observation and the receiver has a condition filter for Flu, the message will pass the condition filter
 - Later, observations that do not match the condition filters are then removed from the bundle
     - This is actually a two step process where a `Provenance` resource is [added](https://github.com/CDCgov/prime-reportstream/blob/ca5f2a3451aeba353bcd436d5b94003f34626ce4/prime-router/src/main/kotlin/fhirengine/engine/FHIRRouter.kt#L195) during the `ROUTE` step and then that resource is consumed during the `TRANSLATE` step to [remove](https://github.com/CDCgov/prime-reportstream/blob/ca5f2a3451aeba353bcd436d5b94003f34626ce4/prime-router/src/main/kotlin/fhirengine/engine/FHIRTranslator.kt#L75) the observations that don't pass the condition filter
