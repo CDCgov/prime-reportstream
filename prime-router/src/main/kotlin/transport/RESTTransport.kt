@@ -259,7 +259,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     tokenClient
                 )
                 // if successful, add the token returned to the token storage
-                bearerTokens =BearerTokens(tokenInfo.accessToken, tokenInfo.refreshToken ?: "")
+                bearerTokens = BearerTokens(tokenInfo.accessToken, tokenInfo.refreshToken ?: "")
             }
             is UserPassCredential -> {
                 tokenInfo = getAuthTokenWithUserPass(
