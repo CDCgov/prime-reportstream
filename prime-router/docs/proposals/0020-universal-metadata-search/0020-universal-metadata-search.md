@@ -743,8 +743,9 @@ Recording some possible solutions that have been discussed previously as startin
     - This [report](https://prime.cdc.gov/metabase/question/314-item-count-per-report-in-the-legacy-pipeline) for the legacy pipeline shows that it is very common for covid results that each report will contain multiple items
 - Is it expected that a single FHIR bundle or HL7 message will have observations that vary in facility, provider or date?
     - Yes this is a perfectly normal expectation
-- What is unit that receivers are interested in (current assumption is result)?
+- What unit are the receivers interested in (current assumption is result)?
     - How do other data types (test orders, case data) that might flow through ReportStream map to this paradigm?
+    - As the ELIMS project ramps up, there is more evidence that states will only be interested in certain conditions or positive results
 - Does a receiver necessarily need to have split items (i.e. ones with multiple observations) re-combined before sending?
 - From a product perspective, what are the features we want/need to support?
     - [This](https://docs.google.com/spreadsheets/d/1Np4svZSuMbyr7Qtt05hmx2BZYwkXIRdpqXC3LQHz0F4/edit#gid=0) spreadsheet has a list of items, but the only validated ones are (this is purposefully setting aside admin needs as the SLA/ease of use will be different):
