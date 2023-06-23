@@ -20,9 +20,7 @@ export default function ManagePublicKeyUploadSuccess() {
             <p>
                 If you need more information on your next steps, refer to page
                 11 in the{" "}
-                <USLink href="/resources/programmers-guide">
-                    API Programmer’s Guide.
-                </USLink>
+                <USLink href="/resources/api">ReportStream API.</USLink>
             </p>
         </div>
     );

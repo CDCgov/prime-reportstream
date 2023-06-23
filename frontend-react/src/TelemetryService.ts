@@ -10,13 +10,13 @@ import { OKTA_AUTH } from "./oktaConfig";
 let reactPlugin: ReactPlugin | null = null;
 let appInsights: ApplicationInsights | null = null;
 
-const createTelemetryService = () => {
+export const createTelemetryService = (connectionString: string) => {
     // Runs a side effect to initialize App Insights connection and React plugin
     const initialize = () => {
-        const connectionString =
-            process.env.REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING;
         if (!connectionString) {
             console.warn("App Insights connection string not provided");
+            reactPlugin = null;
+            appInsights = null;
             return;
         }
         // Create plugin
@@ -27,7 +27,7 @@ const createTelemetryService = () => {
                 connectionString,
                 extensions: [reactPlugin],
                 loggingLevelConsole:
-                    process.env.NODE_ENV === "development" ? 2 : 0,
+                    import.meta.env.NODE_ENV === "development" ? 2 : 0,
                 disableFetchTracking: false,
                 enableAutoRouteTracking: true,
                 loggingLevelTelemetry: 2,
@@ -65,7 +65,9 @@ const createTelemetryService = () => {
     };
 };
 
-export const ai = createTelemetryService();
+export const ai = createTelemetryService(
+    import.meta.env.VITE_APPLICATIONINSIGHTS_CONNECTION_STRING
+);
 
 export function getAppInsights() {
     return appInsights;
