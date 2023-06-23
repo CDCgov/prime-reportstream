@@ -135,9 +135,6 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport, Lo
             // nothing to retry, return null
             null
         } catch (t: Throwable) {
-
-            t.printStackTrace()
-
             // If Ktor fails to connect, or the server returns an error code, it is thrown
             // as an exception higher up, which we catch and then track here. We do not need
             // to worry about capturing and parsing out the return value from the response
