@@ -213,10 +213,23 @@ object CustomFHIRFunctions : FhirPathFunctions {
 
         var timePeriodSpecified: String? = null
         var comparisonDate: LocalDate? = LocalDate.now()
-        if (!parameters.isNullOrEmpty() && parameters[0].isNotEmpty()) {
-            val params = convertDateToAgeGetParamValue(parameters[0])
-            timePeriodSpecified = params.second
-            comparisonDate = params.first
+        if (!parameters.isNullOrEmpty()) {
+            if (parameters.size > 2) {
+                throw SchemaException("Must call the convertDateToAge function with no more than two parameters")
+            }
+
+            parameters.forEach {
+                it.forEach { actualParam ->
+                    when (actualParam) {
+                        is DateType -> comparisonDate = convertDateToAgeGetLocalDate(actualParam)
+                        is StringType -> timePeriodSpecified = actualParam.toString()
+                        else -> throw SchemaException(
+                            "Must call the convertDateToAge function no more than one " +
+                                "string param and/or one DateType param"
+                        )
+                    }
+                }
+            }
         }
 
         return if (timePeriodSpecified != null) {
@@ -259,39 +272,6 @@ object CustomFHIRFunctions : FhirPathFunctions {
             }
         } else {
             convertDateToAgeCalculateAgeWithAssumption(date, comparisonDate)
-        }
-    }
-
-    /**
-     * Determines which [params] where passed through and sets them, so we can access them
-     * @return a pair with the values set
-     */
-    private fun convertDateToAgeGetParamValue(params: List<Base>): Pair<LocalDate?, String?> {
-        val pair: Pair<LocalDate, String?> = Pair(LocalDate.now(), null)
-        val firstParamPair = convertDateToAgeSetTheParamValue(params[0], pair)
-
-        if (params.size == 2) {
-            return convertDateToAgeSetTheParamValue(params[1], firstParamPair)
-        }
-
-        return firstParamPair
-    }
-
-    /**
-     * Sets the correct position in te [pair] to match the [paramValue] based on the type of the param passed in
-     * @return a pair with the param value set
-     */
-    private fun convertDateToAgeSetTheParamValue(
-        paramValue: Any,
-        pair: Pair<LocalDate?, String?>
-    ): Pair<LocalDate?, String?> {
-        val periodsOfTime = listOf("day", "month", "year")
-        return if (paramValue is DateType) {
-            pair.copy(convertDateToAgeGetLocalDate(paramValue), pair.second)
-        } else if (paramValue is StringType && paramValue.toString().lowercase() in periodsOfTime) {
-            pair.copy(pair.first, paramValue.toString())
-        } else {
-            pair
         }
     }
 
