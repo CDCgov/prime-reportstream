@@ -113,7 +113,7 @@
         "@storybook/addon-a11y": "7.0.18",
         "@storybook/addon-actions": "7.0.18",
         "@storybook/addon-essentials": "7.0",
-        "@storybook/addon-interactions": "7.0.18",
+        "@storybook/addon-interactions": "7.0.23",
         "@storybook/addon-links": "7.0.18",
         "@storybook/addons": "7.0.18",
         "@storybook/api": "7.0.18",
