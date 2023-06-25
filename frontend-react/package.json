@@ -123,7 +123,7 @@
         "@storybook/mdx2-csf": "1.1.0",
         "@storybook/react": "^7.0.22",
         "@storybook/react-vite": "^7.0.9",
-        "@storybook/testing-library": "^0.1.0",
+        "@storybook/testing-library": "^0.2.0",
         "@storybook/theming": "^7.0.9",
         "@testing-library/cypress": "^9.0.0",
         "@testing-library/dom": "^9.3.0",
