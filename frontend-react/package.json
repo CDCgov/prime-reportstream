@@ -45,7 +45,7 @@
         "remark-gfm": "^3.0.1",
         "remark-toc": "^8.0.1",
         "rest-hooks": "^6.1.7",
-        "sanitize-html": "^2.10.0",
+        "sanitize-html": "^2.11.0",
         "use-deep-compare-effect": "^1.8.1",
         "web-vitals": "^3.1.1"
     },
