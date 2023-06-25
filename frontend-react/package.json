@@ -114,7 +114,7 @@
         "@storybook/addon-actions": "7.0.18",
         "@storybook/addon-essentials": "7.0",
         "@storybook/addon-interactions": "7.0.18",
-        "@storybook/addon-links": "7.0.18",
+        "@storybook/addon-links": "7.0.23",
         "@storybook/addons": "7.0.18",
         "@storybook/api": "7.0.18",
         "@storybook/blocks": "^7.0.22",
