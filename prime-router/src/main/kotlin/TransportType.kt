@@ -117,7 +117,7 @@ data class RESTTransportType
     /** [tlsKeystore]The name for the credential manager to get the JKS used in TLS/SSL */
     val tlsKeystore: String? = null,
     /** [parameters] The map of parameters to be sent in the message */
-    val parameters: Map<String, String>? = emptyMap(),
+    val parameters: Map<String, String> = emptyMap(),
     /** [headers] The map of headers to be sent in the message */
     val headers: Map<String, String>
 ) : TransportType("REST") {

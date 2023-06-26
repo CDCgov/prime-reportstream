@@ -336,7 +336,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             val tokenInfo: TokenInfo = client.submitForm(
                 restTransportInfo.authTokenUrl,
                 formParameters = Parameters.build {
-                    if (restTransportInfo.parameters!!.isEmpty()) {
+                    if (restTransportInfo.parameters.isEmpty()) {
                         // This block is for backward compatible since old
                         // REST Transport doesn't have parameters.
                         append("grant_type", "client_credentials")
