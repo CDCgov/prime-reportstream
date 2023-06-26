@@ -4,6 +4,10 @@
     &:before {
         all: unset;
     }
+
+    :global(.usa-alert__body) {
+        min-height: units(3);
+    }
 }
 
 .usa-alert--tip {
@@ -27,8 +31,4 @@
         @include u-height(5);
         @include u-width(3);
     }
-}
-
-:global(.usa-alert__body) {
-    min-height: units(3);
 }
