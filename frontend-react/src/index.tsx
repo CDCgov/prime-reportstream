@@ -3,7 +3,7 @@ import { CacheProvider } from "rest-hooks";
 import { RouterProvider } from "react-router";
 
 import { ai, withInsights } from "./TelemetryService";
-import "./content/generated/global.out.css";
+import "./global.scss";
 import { router } from "./AppRouter";
 
 // Initialize the App Insights connection and React app plugin from Microsoft

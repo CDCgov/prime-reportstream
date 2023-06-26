@@ -550,3 +550,208 @@ The query on just walking the report lineage suffers similarly just at a differe
   - Reports are available for 60 days? so expiration is just 60 days from the created_at?
   - Likely a hardcoded value with azure storage
   - The value we show in the API might not be correct
+
+## Context
+
+**This was new research put into the topic after discussion on how the UP would handle condition filtering**
+
+There is desire to track the metadata of data flowing through the universal pipeline similar to what was done for the legacy pipeline.  However, this becomes more complicated for situations where a single item can contain multiple observations (i.e. a multiplex test that looks for Flu and Covid).
+
+## Goal
+
+For any of the following perspectives:
+
+- a receiver
+- a sender
+- a report stream admin
+
+the goal is to be able to understand, analyze, report on the data that flowed through the universal pipeline.
+
+### Terminology (for universal pipeline)
+
+- Report: this is what is initially submitted to the API and into the universal pipeline; this is tracked via the report lineage and report_file table as the pipeline processes it
+- Item: a report can contain multiple FHIR bundles or an HL7 batch; each bundle or HL7 message in a batch is referred to as an item; this is tracked via the item_lineage table
+- Result: this is a specific test result (either an `Observation` resource or `OBX` segment) and is what the condition filters operate on; these are currently not tracked in the database
+- Metadata: the item with all the the PII/PHI removed; this is currently not tracked anywhere in the database; the legacy pipeline stores this data in the covid_metadata table and links to a specific report/item
+Sender: Facility that submits the report to ReportStream. One per submitted report
+Receiver: Facility that receives a report from the ReportStream pipeline. Can be none, one or multiple per submitted report
+
+## Problem
+
+The universal pipeline performs conditional filtering as a two step process:
+
+- There is an [initial filter](https://github.com/CDCgov/prime-reportstream/blob/ca5f2a3451aeba353bcd436d5b94003f34626ce4/prime-router/src/main/kotlin/fhirengine/engine/FHIRRouter.kt#L358) during the `ROUTE` step that operates similar to quality and jurisdictional filters. It examines the bundle to verify that **at least one** of the `Observation` resources are for a condition the receiver has configured
+    - For example, if the message has a Flu and Covid observation and the receiver has a condition filter for Flu, the message will pass the condition filter
+- Later, observations that do not match the condition filters are then removed from the bundle
+    - This is actually a two step process where a `Provenance` resource is [added](https://github.com/CDCgov/prime-reportstream/blob/ca5f2a3451aeba353bcd436d5b94003f34626ce4/prime-router/src/main/kotlin/fhirengine/engine/FHIRRouter.kt#L195) during the `ROUTE` step and then that resource is consumed during the `TRANSLATE` step to [remove](https://github.com/CDCgov/prime-reportstream/blob/ca5f2a3451aeba353bcd436d5b94003f34626ce4/prime-router/src/main/kotlin/fhirengine/engine/FHIRTranslator.kt#L75) the observations that don't pass the condition filter
+
+There currently is no tracking at the observation level within the database, so from the perspective of the database there is no indication that a specific receiver received a report with some of the observations filtered out.  This means that we are unable to report on the metadata that was actually delivered to a receiver.
+
+Example graph of a report flowing through the Universal pipeline:
+
+- Report is sent in that contains two HL7 messages in one file
+    - First item contains a positive flu resut
+    - Second item contains a negative flu result and positive covid result
+- Receiver X has a condition filter for positive flu and covid results
+- Receiver Y has a condition filter for just covid results
+- Receiver Z has a condition filter for all flu results
+
+```mermaid
+graph TD  
+    A(Sender Report A\n Item 1:+Flu\n Item 2:-Flu,+Covid) -- Convert\n Sender Transform --> B(Report B\n Item 1)
+    A -- Convert\n Sender Transform --> C(Report C\n Item 2) 
+B --Route to\nReceiver X\nReceiver Z--> D(Report D\nItem 1)
+C -- Route to\nReceiver X\nReceiver Y\nReceiver Z --> E(Report E\nItem 2)
+D -- Translate\nReceiver X --> F(Report F\nItem 1)
+D -- Translate\nReceiver Z --> G(Report G\nItem 1)
+E -- Translate\nReceiver X\nFlu result removed --> H(Report H\nItem 2)
+E -- Translate\nReceiver Y\nFlu result removed --> I(Report I\nItem 2)
+E -- Translate\nReceiver Z\n Covid Result removed --> P(Report P\n Item 2)
+F -- Batch\nReceiver X --> J(Report J\nItem 1\nItem 2)
+H -- Batch\nReceiver X --> J
+G -- Batch\nReceiver Z --> K(Report K\nItem 1\nItem 2)
+P -- Batch\nReceiver Z --> K
+I -- Batch\nReceiver Y --> L(Report L\nItem 2)
+J -- Send\nReceiver X --> M(Report M\nItem1\nItem 2)
+K -- Send\nReceiver Z --> N(Report N\nItem 1\nItem 2)
+L -- Send\nReceiver Y --> O(Report O\nItem 2)
+```
+
+From a tracking standpoint, Report H and and Report I have the same content, but in reality the actual bundle that was delivered was different.
+
+**The root issue is that without tracking what data was actually sent to a receiver  it will not be possible to run accurate searches**
+
+## Potential Solution #1: Snapshot the FHIR bundle from the sender and receiver
+
+### Description
+
+After converting the report from the sender into the FHIR, store that bundle along with the id of the sender and report id.  After generating the FHIR bundle that will be sent to a receiver,  store that bundle along with id the receiver, the report id and the id of the metadata row for the sender report.
+```mermaid
+graph TD  
+A(Sender Report A\n Item 1:+Flu\n Item 2:-Flu,+Covid) -- Convert\n Sender Transform\n Sender metadata snapshot --> B(Report B\n Item 1)
+A -- Convert\n Sender Transform\n Sender metadata snapshot --> C(Report C\n Item 2) 
+B -- Route to\nReceiver X\nReceiver Z--> D(Report D\nItem 1)
+C -- Route to\nReceiver X\nReceiver Y\nReceiver Z --> E(Report E\nItem 2)
+D -- Translate\nReceiver X\n Receiver metadata snapshot --> F(Report F\nItem 1)
+D -- Translate\nReceiver Z\n Receiver metadata snapshot --> G(Report G\nItem 1)
+E -- Translate\nReceiver X\nFlu result removed\n Receiver metadata snapshot --> H(Report H\nItem 2)
+E -- Translate\nReceiver Y\nFlu result removed\n Receiver metadata snapshot --> I(Report I\nItem 2)
+E -- Translate\nReceiver Z\n Covid Result removed\n Receiver metadata snapshot --> P(Report P\n Item 2)
+F -- Batch\nReceiver X --> J(Report J\nItem 1\nItem 2)
+H -- Batch\nReceiver X --> J
+G -- Batch\nReceiver Z --> K(Report K\nItem 1\nItem 2)
+P -- Batch\nReceiver Z --> K
+I -- Batch\nReceiver Y --> L(Report L\nItem 2)
+J -- Send\nReceiver X --> M(Report M\nItem1\nItem 2)
+K -- Send\nReceiver Z --> N(Report N\nItem 1\nItem 2)
+L -- Send\nReceiver Y --> O(Report O\nItem 2)
+```
+
+This approach would involve creating two new tables for containing the metadata specific to a sender or receiver.
+- A row would be inserted into the `sender_metadata` table at the end of the `CONVERT` step.
+- A row would be inserted into `receiver_metadata` table after the receiver transform is applied during the `TRANSLATE` step
+
+#### `sender_metadata`
+This table would be responsible for tracking all the data entering the pipeline from the perspective of a sender.  Using this table and linking to `report_file` and `setting` it would be possible to generate answers to questions around the data sent in by a sender
+```mermaid  
+erDiagram  
+sender_metadata {        
+    UUID sender_metadata_id
+    UUID report_id
+    Integer report_index
+    UUID sender_id     
+    JSONB metadata
+}  
+```
+#### `receiver_metadata`
+This table would be responsible for tracking all the data that actually left the pipeline and was delivered to a specific receiver.  Using this table and linking to `report_file`, `setting` and `sender_metadata` it would be possible to generate answers to questions around the data that was delivered to a receiver.
+```mermaid  
+erDiagram  
+receiver_metadata {        
+	UUID receiver_metadata_id
+    UUID sender_metadata_id
+    UUID report_id
+    Integer report_index
+    UUID receiver_id     
+    JSONB metadata
+}  
+```
+## Potential Solution #2: Breakdown the FHIR bundle or HL7 message into the units the receiver is interested in
+
+### Description
+
+After receiving the initial report from the sender, break up all the items in the report into finer-grained items, each containing a single result (and it's supporting resources).  These new items are then processed by the rest of the universal pipeline.
+
+```mermaid
+graph TD  
+A(Sender Report A\n Item 1:+Flu\n Item 2:-Flu,+Covid) -- Convert\n Sender Transform --> B(Report B\n Item 1)
+A -- Convert\n Sender Transform --> C(Report C\n Item 2.1:-Flu) 
+A -- Convert\n Sender Transform --> Q(Report C\n Item 2.2:+Covid) 
+B -- Route to\nReceiver X\nReceiver Z--> D(Report D\nItem 1)
+C -- Route to\nReceiver Z --> E(Report E\nItem 2.1)
+Q -- Route to\nReceiver Y --> R(Report R\nItem 2.2)
+D -- Translate\nReceiver X --> F(Report F\nItem 1)
+D -- Translate\nReceiver Z --> G(Report G\nItem 1)
+E -- Translate\nReceiver X --> H(Report H\nItem 2.1)
+E -- Translate\nReceiver Z --> P(Report P\n Item 2.1)
+F -- Batch\nReceiver X --> J(Report J\nItem 1\nItem 2.1)
+H -- Batch\nReceiver X --> J
+G -- Batch\nReceiver Z --> K(Report K\nItem 1\nItem 2.1)
+P -- Batch\nReceiver Z --> K
+R -- Batch\nReceiver Y --> L(Report L\nItem 2.2)
+J -- Send\nReceiver X --> M(Report M\nItem 1\nItem 2.1)
+K -- Send\nReceiver Z --> N(Report N\nItem 1\nItem 2.1)
+L -- Send\nReceiver Y --> O(Report O\nItem 2.2)
+```
+
+
+#### Re-combining items
+
+```mermaid
+graph TD  
+A(Sender Report A\n Item 1:+Flu,+Covid) -- Convert\nSender Transform --> B(Report B\nItem 1.1:+Flu)
+A -- Convert\nSender Transform --> C(Report C\nItem 1.2:+Covid)
+B -- Route\nReceiver X --> D(Report D\nItem 1.1)
+C -- Route\nReceiver X --> E(Report E\nItem 1.2)
+D -- Translate --> F(Report F\nItem 1.1)
+E -- Translate --> G(Report G\n Item 1.2)
+F -- Merge --> H(Report H\n Item 1)
+G -- Merge --> H
+H -- Batch\nReceiver X --> I(Report I\nItem 1)
+I -- Send\nReceiver X --> J(Report J\n Item 1)
+```
+
+The graph above represents the use case where the initial report contains a single item with multiple results which is then split into multiple items (same concept as the previous graph), with the difference being that Receiver X is ultimately going to get both results.  In this situation, there now needs to be a new step in the pipeline `MERGE` which is going to take the two FHIR bundles (Item 1.1 and Item 1.2) that were split from the original reported Item 1 and combine them back so that the receiver gets just a single item in the report.
+
+## Potential Solution #3: Re-implement tracing reports/items
+
+There are many possible ways that this could be done and would be a substantial lift for the team and would likely only make sense to do if we had clear requirements on what kind of searching
+needs, the SLA that each searching requirement needs to be held to (i.e. an API the website consumes vs. a query someone on the team runs ad-hoc) and most importantly what should be the atomic
+unit that the system tracks.
+
+Recording some possible solutions that have been discussed previously as starting point if the decision is made to re-implement.
+
+- Store this data in elasticsearch
+- Store all of this data in NoSQL store
+- Record events into a data solution like Azure Stream Analytics
+- Store all this data in a FHIR server separate from the pipeline
+
+
+## Questions
+- Will most reports in the universal pipeline only contain a single item?
+    - This [report](https://prime.cdc.gov/metabase/question/313-number-of-items-per-report-to-the-up) seems to imply that most will just have one, but there will be situations where there will be more than one item.  However, since the the universal pipeline isn't really in production this data might not be representative
+    - This [report](https://prime.cdc.gov/metabase/question/314-item-count-per-report-in-the-legacy-pipeline) for the legacy pipeline shows that it is very common for covid results that each report will contain multiple items
+- Is it expected that a single FHIR bundle or HL7 message will have observations that vary in facility, provider or date?
+    - Yes this is a perfectly normal expectation
+- What unit are the receivers interested in (current assumption is result)?
+    - How do other data types (test orders, case data) that might flow through ReportStream map to this paradigm?
+    - As the ELIMS project ramps up, there is more evidence that states will only be interested in certain conditions or positive results
+- Does a receiver necessarily need to have split items (i.e. ones with multiple observations) re-combined before sending?
+- From a product perspective, what are the features we want/need to support?
+    - [This](https://docs.google.com/spreadsheets/d/1Np4svZSuMbyr7Qtt05hmx2BZYwkXIRdpqXC3LQHz0F4/edit#gid=0) spreadsheet has a list of items, but the only validated ones are (this is purposefully setting aside admin needs as the SLA/ease of use will be different):
+        - Sender: I want a list of undelivered reports.
+        - Receiver: I want a list of delivered reports.
+
+
+## Updates
+- 6/20: added new solutions after discussing condition filtering

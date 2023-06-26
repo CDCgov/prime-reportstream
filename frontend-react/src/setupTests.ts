@@ -1,6 +1,7 @@
 import "jest-canvas-mock";
 import "@testing-library/jest-dom";
 import { TextEncoder } from "util";
+import "whatwg-fetch";
 
 import type { Config } from "@jest/types";
 

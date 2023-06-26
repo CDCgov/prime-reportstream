@@ -6,29 +6,27 @@ The system is simple: we throw errors from anywhere in our app, and the first bo
 
 Steps to use:
 
-- [Wrap your components](#helper-functions)
-- Make a network request (this will activate the suspense)
-- Throw an error if your call fails (handled by our fetch system)
+-   [Wrap your components](#helper-functions)
+-   Make a network request (this will activate the suspense)
+-   Throw an error if your call fails (handled by our fetch system)
 
 ## Helper functions
 
 To begin using the error boundary, you can wrap components in your jsx using the included helper functions:
 
-- `withCatch`: Wraps your component with `RSErrorBoundary` to catch errors at that level of the DOM
-- `withSuspense`: Wraps your component with `Suspense`, providing a spinner UI while data further down the DOM fetches
-- `withCatchAndSuspense`: Wraps with both wrappers at the same level of the DOM
+-   `withCatch`: Wraps your component with `RSErrorBoundary` to catch errors at that level of the DOM
+-   `withSuspense`: Wraps your component with `Suspense`, providing a spinner UI while data further down the DOM fetches
+-   `withCatchAndSuspense`: Wraps with both wrappers at the same level of the DOM
 
 ```typescript jsx
-import {withCatchAndSuspense} from "./RSErrorBoundary";
-const MyComponent = () => withCatchAndSuspense(<MyComponentContent/>);
+import { withCatchAndSuspense } from "./RSErrorBoundary";
+const MyComponent = () => withCatchAndSuspense(<MyComponentContent />);
 // OR
 const App = () => {
     return (
         <>
             <Helmet>
-                <title>
-                    Sample | {process.env.REACT_APP_TITLE}
-                </title>
+                <title>Sample | {import.meta.env.VITE_TITLE}</title>
             </Helmet>
             <section className="grid-container">
                 {withCatchAndSuspense(<MyComponentContent />)}
@@ -42,7 +40,7 @@ const App = () => {
 
 Custom error types help us implement ReportStream specific error functionality for different error cases. For example, in the current system, the custom `RSNetworkError` takes a `name` parameter, with values from will the `ErrorName` enum, to identify the specific error type when it gets to the error boundary, and allow the boundary to take specific actions based on the error name.
 
-- `name` will take an `ErrorName` enum value to identify the specific error type when it gets to the error boundary
+-   `name` will take an `ErrorName` enum value to identify the specific error type when it gets to the error boundary
 
 #### Boilerplate
 
