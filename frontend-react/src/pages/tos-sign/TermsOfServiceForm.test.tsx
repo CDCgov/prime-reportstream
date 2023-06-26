@@ -7,7 +7,7 @@ import TermsOfServiceForm from "./TermsOfServiceForm";
 
 describe("Basic rendering", () => {
     beforeEach(() => {
-        process.env.REACT_APP_SECRET = "fake secret";
+        import.meta.env.VITE_SECRET = "fake secret";
         renderApp(<TermsOfServiceForm />);
     });
 

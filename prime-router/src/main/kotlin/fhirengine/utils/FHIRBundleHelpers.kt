@@ -13,6 +13,7 @@ import org.hl7.fhir.r4.model.Endpoint
 import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.Identifier
 import org.hl7.fhir.r4.model.Observation
+import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Property
 import org.hl7.fhir.r4.model.Provenance
 import org.hl7.fhir.r4.model.Reference
@@ -202,6 +203,30 @@ object FHIRBundleHelpers {
         }
 
         this.deleteChildlessResource(resource)
+    }
+
+    /**
+     *  Removes PHI data from a [Bundle]
+     */
+    fun Bundle.removePHI() {
+
+        /**
+         *  The covid-19.schema file lists which fields contain PII.
+         *  This function removes data for the fields listed there.
+         */
+        this.entry.map { it.resource }.filterIsInstance<Patient>()
+            .forEach { patient ->
+                patient.name = null
+                patient.address.forEach {
+                    it.line = null
+                    it.city = null
+                }
+                patient.telecom = null
+                patient.birthDate = null
+                patient.deceased = null
+                patient.identifier = null
+                patient.contact = null
+            }
     }
 
     /**
