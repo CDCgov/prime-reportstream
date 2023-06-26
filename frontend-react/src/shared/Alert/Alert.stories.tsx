@@ -1,10 +1,21 @@
-import { ComponentMeta, ComponentStoryObj } from "@storybook/react";
+import { Meta, StoryObj } from "@storybook/react";
 
-import Alert from "./Alert";
+import { AlertSimple } from "./Alert";
 
 export default {
-    title: "components/Alert",
-    component: Alert,
-} as ComponentMeta<typeof Alert>;
+    title: "components/Alert/Alert",
+    component: AlertSimple,
+    argTypes: {
+        children: {
+            type: "string",
+        },
+        heading: {
+            type: "string",
+        },
+    },
+    args: {
+        type: "info",
+    },
+} as Meta<typeof AlertSimple>;
 
-export const Default: ComponentStoryObj<typeof Alert> = {};
+export const Default: StoryObj<typeof AlertSimple> = {};

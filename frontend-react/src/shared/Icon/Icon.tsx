@@ -2,13 +2,15 @@ import React from "react";
 import { Icon as OrigIcon } from "@trussworks/react-uswds";
 import { IconProps as OrigIconProps } from "@trussworks/react-uswds/lib/components/Icon/Icon";
 
-export type IconName = string & Exclude<keyof typeof OrigIcon, "prototype">;
+export type IconName = Exclude<keyof typeof OrigIcon, "prototype">;
 
 export type IconProps = React.PropsWithChildren<
     {
         name: IconName;
     } & OrigIconProps
 >;
+
+export type SubcomponentIconProp = IconName | Partial<IconProps>;
 
 /**
  * Allows for using icons by their string name instead of importing
@@ -17,7 +19,7 @@ export type IconProps = React.PropsWithChildren<
 export function Icon({ name, ...props }: IconProps) {
     const IconComponent = OrigIcon[name];
 
-    return <IconComponent {...props} />;
+    return <IconComponent aria-label={name} {...props} />;
 }
 
 export default Icon;

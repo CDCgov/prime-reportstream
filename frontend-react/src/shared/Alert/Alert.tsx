@@ -2,14 +2,18 @@ import React, { AriaRole } from "react";
 import classnames from "classnames";
 import { Alert as OrigAlert } from "@trussworks/react-uswds";
 
-import { IconName, IconProps, Icon } from "../Icon/Icon";
+import { IconName, SubcomponentIconProp } from "../Icon/Icon";
 
 import styles from "./Alert.module.scss";
+import AlertIcon from "./AlertIcon";
+
+type OrigAlertProps = React.ComponentProps<typeof OrigAlert>;
 
 export interface AlertProps
-    extends Omit<React.ComponentProps<typeof OrigAlert>, "validation"> {
-    tip?: boolean;
-    icon?: IconName | Partial<IconProps>;
+    extends Omit<OrigAlertProps, "validation" | "type" | "headingLevel"> {
+    icon?: SubcomponentIconProp;
+    type: OrigAlertProps["type"] | "tip";
+    headingLevel?: OrigAlertProps["headingLevel"] | "div";
 }
 
 export function getAriaRole(type: AlertProps["type"]): AriaRole {
@@ -23,67 +27,36 @@ export function getAriaRole(type: AlertProps["type"]): AriaRole {
     }
 }
 
-export function getIconName(type: AlertProps["type"]): IconName {
-    switch (type) {
-        case "error":
-            return "Error";
-        case "success":
-            return "CheckCircle";
-        case "warning":
-            return "Warning";
-
-        default:
-            return "Info";
-    }
-}
-
-export type AlertIconProps = React.PropsWithChildren<{
-    type: AlertProps["type"];
-    icon: AlertProps["icon"];
-}>;
-
-/**
- * Will choose alert icon default unless otherwise specified.
- */
-export function AlertIcon({ type, icon }: AlertIconProps) {
-    const { name, className, ...props }: Partial<IconProps> =
-        typeof icon === "object" ? icon : {};
-    const classes = classnames(styles["usa-alert__icon"], className);
-    const iconName: IconName =
-        name ?? (typeof icon === "string" ? icon : getIconName(type));
-
-    return <Icon name={iconName} className={classes} {...props} />;
-}
-
 /**
  * Enhancement of Trussworks' Alert. Supports custom icons specified
- * by name or object. Supports reportstream's "tip" style. Applies
- * appropriate aria role and label. Tip mode will enable slim mode
- * unless explicitly specified. Will always enable validation on
+ * by name or object. Supports reportstream's "tip" style as type. Applies
+ * appropriate aria role and label. Will always enable validation on
  * Trussworks' Alert so that children are not wrapped in a potentially
  * errorneous paragraph element. The validation class name does not
  * seem to have a visible effect on Alert appearance so is currently
- * safe.
+ * safe. Heading level accepts "div" (opt-out of using header element).
  * @see https://designsystem.digital.gov/components/alert/#alert-aria-roles
  */
 export const Alert = ({
     role,
     children,
-    type,
+    headingLevel = "div",
+    type: _type,
     className,
-    tip,
-    slim = tip,
+    slim = _type === "tip",
     icon,
     ...props
 }: AlertProps & React.HTMLAttributes<HTMLDivElement>): React.ReactElement => {
     const classes = classnames(
         styles["usa-alert"],
         {
-            [styles["usa-alert--tip"]]: tip,
+            [styles["usa-alert--tip"]]: _type === "tip",
         },
         className
     );
 
+    // convert "tip" to "info"
+    const type = _type === "tip" ? "info" : _type;
     const ariaRole = role ?? getAriaRole(type);
     const ariaLabel = ariaRole === "region" ? "Information" : undefined;
 
@@ -95,12 +68,20 @@ export const Alert = ({
             type={type}
             role={ariaRole}
             validation
+            headingLevel={headingLevel as any}
             {...props}
         >
-            <AlertIcon type={type} icon={icon} />
+            <AlertIcon type={_type} icon={icon} />
             <div className="usa-alert__text">{children}</div>
         </OrigAlert>
     );
 };
 
 export default Alert;
+
+/**
+ * Simplified icon prop for storybook
+ */
+export const AlertSimple = (
+    props: Omit<AlertProps, "icon"> & { icon?: IconName }
+) => <Alert {...props} />;

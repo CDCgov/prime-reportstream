@@ -1,14 +1,16 @@
 @use "../../global-modules.scss" as *;
 
+.usa-alert {
+    &:before {
+        all: unset;
+    }
+}
+
 .usa-alert--tip {
     @include u-border("primary-lighter");
     @include u-border(1px);
     @include u-border("solid");
     @include u-radius("md");
-
-    &:before {
-        all: unset;
-    }
 }
 
 .usa-alert__icon {
@@ -25,4 +27,8 @@
         @include u-height(5);
         @include u-width(3);
     }
+}
+
+:global(.usa-alert__body) {
+    min-height: units(3);
 }
