@@ -1,4 +1,4 @@
-name: FunstionApp TasksTable Check & Slack Notification
+name: FunctionApp TasksTable Check
 
 on:
   schedule:
@@ -43,7 +43,7 @@ jobs:
         uses: ./.github/actions/notifications
         with:
           method: slack
-          title: Task table Foundings
+          title: Task table Findings
           message: Found data older than 10 minutes in the public.task table
           icon-emoji: ':bell:'
           channel: pagerduty-alert-dump
