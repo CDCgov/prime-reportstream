@@ -30,7 +30,7 @@ Currently, ReportStream can accept either a CSV file or HL7 input data. It’s o
 We can send you a file with fake data to review that will always successfully validate against the schema used to generate it. 
 Note that because the data in those files are computer-generated, it may not feel realistic in some places.
 
-<Alert type="info" tip>For this step, refer to the [RADx MARS Getting started guide](https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started).
+<Alert type="tip">For this step, refer to the [RADx MARS Getting started guide](https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started).
         Within that guide, you’ll find information on field requirements, a tool outlining manufacturer-specific values, and a COVID-19 OTC-specific profile of the NIST HL7 v2 validator. 
         To configure the validator, refer to NIST HL7v2 validator instructions at the bottom of the [RADx MARS Getting started guide](https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started).</Alert>
 
@@ -87,7 +87,7 @@ Once authentication is complete, you can test your automation code as well as yo
 Data is sent in the HTTP payload, either in CSV or HL7 2.5.1 format. 
 You can use curl commands, Postman, or another method of your choosing to post test submissions to the staging environment.
 
-<Alert type="info" tip icon={"Alarm"}>**Note:** Do not send any PII or PHI to the staging system — only fake (dummy, example, synthetic) data is acceptable.</Alert>
+<Alert type="tip">**Note:** Do not send any PII or PHI to the staging system — only fake (dummy, example, synthetic) data is acceptable.</Alert>
 
 Let us know when you send submissions to the staging environment. We’ll review that data and work with you to correct any issues. You may send as many fake data submissions to staging as is helpful.
 
@@ -104,7 +104,7 @@ When you are ready, the ReportStream team will move you out of training mode and
 Data will automatically flow to appropriate state, local, and federal jurisdictional systems.
 
 {
-<Alert type="info" tip>
+<Alert type="tip">
     <span className="text-bold">Note:</span> Some jurisdictions require additional validation before sending data to their systems. If this affects your data submission, the ReportStream team will assist you in the process. Currently, the following states require additional validation:
     <ul>
         <li>California</li>
