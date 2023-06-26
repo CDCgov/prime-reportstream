@@ -29,12 +29,6 @@ const config: StorybookConfig = {
         options: {},
     },
     core: {},
-    refs: {
-        trussworks: {
-            title: "Trussworks Storybook",
-            url: "/react-uswds",
-        },
-    },
     features: {
         buildStoriesJson: true,
     },
@@ -56,18 +50,6 @@ const config: StorybookConfig = {
             config.server.fs = {};
         }
         config.server.fs.allow = [".."];
-        config.server.proxy = {
-            "/react-uswds/stories.json": {
-                target:
-                    "http://localhost:6006" +
-                    path.join("/@fs", __dirname, "react-uswds.stories.json"),
-                rewrite: () => "",
-            },
-            "/react-uswds": {
-                target: "https://trussworks.github.io/",
-                changeOrigin: true,
-            },
-        };
 
         return {
             ...config,
