@@ -208,27 +208,33 @@ object CustomFHIRFunctions : FhirPathFunctions {
         val date = focus.first()
 
         if (date !is DateType) {
-            throw SchemaException("Must call the convertDateToAge function on a DateType")
+            throw SchemaException("Must call the convertDateToAge function on a DateType.")
         }
 
         var timePeriodSpecified: String? = null
         var comparisonDate: LocalDate? = LocalDate.now()
         if (!parameters.isNullOrEmpty()) {
-            if (parameters.size > 2) {
-                throw SchemaException("Must call the convertDateToAge function with no more than two parameters")
+            if (parameters[0].size > 2) {
+                throw SchemaException("Must call the convertDateToAge function with no more than two parameters.")
+            }
+
+            if (parameters[0].size == 2 && parameters[0][0]::class == parameters[0][1]::class) {
+                throw SchemaException(
+                    "Must call the convertDateToAge function no more than one " +
+                        "string param and/or one DateType param."
+                )
             }
 
             parameters.forEach {
-                if (it.size != 1) {
-                    throw SchemaException("One param per slot is required.")
-                }
-                when (val actualParam = it[0]) {
-                    is DateType -> comparisonDate = convertDateToAgeGetLocalDate(actualParam)
-                    is StringType -> timePeriodSpecified = actualParam.toString()
-                    else -> throw SchemaException(
-                        "Must call the convertDateToAge function no more than one " +
-                            "string param and/or one DateType param"
-                    )
+                it.forEach { actualParam ->
+                    when (actualParam) {
+                        is DateType -> comparisonDate = convertDateToAgeGetLocalDate(actualParam)
+                        is StringType -> timePeriodSpecified = actualParam.toString()
+                        else -> throw SchemaException(
+                            "Must call the convertDateToAge function no more than one " +
+                                "string param and/or one DateType param."
+                        )
+                    }
                 }
             }
         }

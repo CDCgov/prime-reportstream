@@ -24,6 +24,7 @@ import org.hl7.fhir.r4.model.OidType
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.model.TimeType
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -719,6 +720,37 @@ class CustomFHIRFunctionsTests {
             assertThat(age.unit).isEqualTo("day")
             assertThat(age.value.toInt()).isEqualTo(120)
             assertThat(age.code).isEqualTo("d")
+        }
+    }
+
+    @Test
+    fun `test convertDateToAge - test bad params`() {
+        val currentDate = Date()
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = currentDate.time
+        // has to be at least two for the purposes of this since we are getting the current time and time passes when we
+        // run it
+        calendar.add(Calendar.MONTH, -4)
+
+        assertThrows<SchemaException> {
+            CustomFHIRFunctions.convertDateToAge(
+                mutableListOf(DateType(calendar.time)),
+                mutableListOf(mutableListOf(StringType("day"), StringType("day"))),
+            )
+        }
+
+        assertThrows<SchemaException> {
+            CustomFHIRFunctions.convertDateToAge(
+                mutableListOf(DateType(calendar.time)),
+                mutableListOf(mutableListOf(DateType(calendar.time), DateType(calendar.time))),
+            )
+        }
+
+        assertThrows<SchemaException> {
+            CustomFHIRFunctions.convertDateToAge(
+                mutableListOf(DateType(calendar.time)),
+                mutableListOf(mutableListOf(DateType(calendar.time), StringType("day"), StringType("day"))),
+            )
         }
     }
 }
