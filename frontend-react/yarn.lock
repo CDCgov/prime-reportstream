@@ -4050,10 +4050,10 @@
   resolved "https://registry.npmjs.org/@tootallnate/once/-/once-2.0.0.tgz"
   integrity sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==
 
-"@trussworks/react-uswds@^4.1.1":
-  version "4.1.1"
-  resolved "https://registry.npmjs.org/@trussworks/react-uswds/-/react-uswds-4.1.1.tgz"
-  integrity sha512-J68eM8HtCYngLPsWCdPFERC6AvEAVPZUBUP0/Rk8QEhOGxWJqEtepZo7Xv1pOFhZDOX647/392ZMIQw8y5TW8g==
+"@trussworks/react-uswds@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-5.0.0.tgz#b0ffb65c8568f35ada4ab5e87bad143566cc14c1"
+  integrity sha512-nOUnwiIosQFPKUeBMoDw9OoS2WG0TZl6cGrJmrL70i20ECFMYRaj/CCV+DnB1npuNg3PNzcdED9tuInRndfk4Q==
 
 "@tsconfig/node10@^1.0.7":
   version "1.0.9"
@@ -4193,10 +4193,10 @@
   resolved "https://registry.npmjs.org/@types/doctrine/-/doctrine-0.0.3.tgz"
   integrity sha512-w5jZ0ee+HaPOaX25X2/2oGR/7rgAQSYII7X7pp0m9KgBfMP7uKfMfTvcpl5Dj+eDBbpxKGiqE+flqDr6XTd2RA==
 
-"@types/dompurify@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.npmjs.org/@types/dompurify/-/dompurify-3.0.0.tgz"
-  integrity sha512-EcSqmgm/xJwH8CcJPy9AHNypp/j58CYga3nWdl93/wLxX6OH+rSD3aAj75NQazcZd1YKHJ/pjNZ9qmgVajggwQ==
+"@types/dompurify@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@types/dompurify/-/dompurify-3.0.2.tgz#c1cd33a475bc49c43c2a7900e41028e2136a4553"
+  integrity sha512-YBL4ziFebbbfQfH5mlC+QTJsvh0oJUrWbmxKMyEdL7emlHJqGR2Qb34TEFKj+VCayBvjKy3xczMFNhugThUsfQ==
   dependencies:
     "@types/trusted-types" "*"
 
@@ -4863,13 +4863,12 @@
     "@typescript-eslint/types" "5.60.0"
     eslint-visitor-keys "^3.3.0"
 
-"@uswds/uswds@3.1.0":
-  version "3.1.0"
-  resolved "https://registry.npmjs.org/@uswds/uswds/-/uswds-3.1.0.tgz"
-  integrity sha512-6XTeaQD/ipc3x4713mud4Rrr+lRc4nJ1Qw5Oy35dbVEXuKr7DjN4EBoAkbze9OoV0UdmAIvoxolBF/UcpFVKOg==
+"@uswds/uswds@3.5.0":
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/@uswds/uswds/-/uswds-3.5.0.tgz#a54f6c668541453419eb49e7268026f125255166"
+  integrity sha512-pXgxmAwHsFPopZ1fll8La9jOsaQPHDM2g8oqv14GF1084RoCcBIRy3eZUux0VjeO/jscxsxACWy8v/vulQK4CQ==
   dependencies:
     classlist-polyfill "1.0.3"
-    domready "1.0.8"
     object-assign "4.1.1"
     receptor "1.0.0"
     resolve-id-refs "0.1.0"
@@ -5388,10 +5387,10 @@ axe-core@^4.2.0, axe-core@^4.6.2:
   resolved "https://registry.npmjs.org/axe-core/-/axe-core-4.7.0.tgz"
   integrity sha512-M0JtH+hlOL5pLQwHOLNYZaXuhqmvS8oExsqB1SBYgA4Dk7u/xx+YdGHXaK5pyUfed5mYXdlYiphWq3G8cRi5JQ==
 
-axios@^1.3.5:
-  version "1.3.5"
-  resolved "https://registry.npmjs.org/axios/-/axios-1.3.5.tgz"
-  integrity sha512-glL/PvG/E+xCWwV8S6nCHcrfg1exGx7vxyUIivIA1iL7BIh6bePylCfVHwp6k13ao7SATxB6imau2kqY+I67kw==
+axios@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.4.0.tgz#38a7bf1224cd308de271146038b551d725f0be1f"
+  integrity sha512-S4XCWMEmzvo64T9GfvQDOXgYRDJ/wsSZc7Jvdgx5u1sd0JwsuPLqb3SYmusag+edF6ziyMensPVqLTSc1PiSEA==
   dependencies:
     follow-redirects "^1.15.0"
     form-data "^4.0.0"
@@ -6722,15 +6721,10 @@ domhandler@^5.0.1, domhandler@^5.0.2, domhandler@^5.0.3:
   dependencies:
     domelementtype "^2.3.0"
 
-dompurify@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.npmjs.org/dompurify/-/dompurify-3.0.1.tgz"
-  integrity sha512-60tsgvPKwItxZZdfLmamp0MTcecCta3avOhsLgPZ0qcWt96OasFfhkeIRbJ6br5i0fQawT1/RBGB5L58/Jpwuw==
-
-domready@1.0.8:
-  version "1.0.8"
-  resolved "https://registry.npmjs.org/domready/-/domready-1.0.8.tgz"
-  integrity sha512-uIzsOJUNk+AdGE9a6VDeessoMCzF8RrZvJCX/W8QtyfgdR6Uofn/MvRonih3OtCO79b2VDzDOymuiABrQ4z3XA==
+dompurify@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-3.0.3.tgz#4b115d15a091ddc96f232bcef668550a2f6f1430"
+  integrity sha512-axQ9zieHLnAnHh0sfAamKYiqXMJAVwu+LM/alQ7WDagoWessyWvMSFyW65CqF3owufNu8HBcE4cM2Vflu7YWcQ==
 
 domutils@^3.0.1:
   version "3.0.1"
@@ -11877,10 +11871,10 @@ react-helmet-async@^1.3.0:
     react-fast-compare "^3.2.0"
     shallowequal "^1.1.0"
 
-react-idle-timer@^5.5.3:
-  version "5.5.3"
-  resolved "https://registry.npmjs.org/react-idle-timer/-/react-idle-timer-5.5.3.tgz"
-  integrity sha512-fn2kNPz4BVEN/U05IzBQGPIfFlkjk0ekj8uKQaHAH/uBbATJDFmyxK0k36hv4kmzN8oFr8pe+C4zU5NJDBnfBQ==
+react-idle-timer@^5.7.2:
+  version "5.7.2"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-5.7.2.tgz#f506db28a86645dd1b87987116501703e512142b"
+  integrity sha512-+BaPfc7XEUU5JFkwZCx6fO1bLVK+RBlFH+iY4X34urvIzZiZINP6v2orePx3E6pAztJGE7t4DzvL7if2SL/0GQ==
 
 react-inspector@^5.1.1:
   version "5.1.1"
@@ -11925,10 +11919,10 @@ react-loader-spinner@^5.3.4:
     styled-components "^5.3.5"
     styled-tools "^1.7.2"
 
-react-markdown@^8.0.6:
-  version "8.0.6"
-  resolved "https://registry.npmjs.org/react-markdown/-/react-markdown-8.0.6.tgz"
-  integrity sha512-KgPWsYgHuftdx510wwIzpwf+5js/iHqBR+fzxefv8Khk3mFbnioF1bmL2idHN3ler0LMQmICKeDrWnZrX9mtbQ==
+react-markdown@^8.0.7:
+  version "8.0.7"
+  resolved "https://registry.yarnpkg.com/react-markdown/-/react-markdown-8.0.7.tgz#c8dbd1b9ba5f1c5e7e5f2a44de465a3caafdf89b"
+  integrity sha512-bvWbzG4MtOU62XqBx3Xx+zB2raaFFsq4mYiAzfjXJMEz2sixgeAfraA3tvzULF02ZdOMUOKTBFFaZJDDrq+BJQ==
   dependencies:
     "@types/hast" "^2.0.0"
     "@types/prop-types" "^15.0.0"
@@ -11980,10 +11974,10 @@ react-scroll-sync@^0.11.0:
   dependencies:
     prop-types "^15.5.7"
 
-react-toastify@^9.1.2:
-  version "9.1.2"
-  resolved "https://registry.npmjs.org/react-toastify/-/react-toastify-9.1.2.tgz"
-  integrity sha512-PBfzXO5jMGEtdYR5jxrORlNZZe/EuOkwvwKijMatsZZm8IZwLj01YvobeJYNjFcA6uy6CVrx2fzL9GWbhWPTDA==
+react-toastify@^9.1.3:
+  version "9.1.3"
+  resolved "https://registry.yarnpkg.com/react-toastify/-/react-toastify-9.1.3.tgz#1e798d260d606f50e0fab5ee31daaae1d628c5ff"
+  integrity sha512-fPfb8ghtn/XMxw3LkxQBk3IyagNpF/LIKjOBflbexr2AWxAH1MJgvnESwEwBn9liLFXgTKWgBSdZpw9m4OTHTg==
   dependencies:
     clsx "^1.1.1"
 
@@ -12445,10 +12439,10 @@ safe-regex-test@^1.0.0:
   resolved "https://registry.npmjs.org/safer-buffer/-/safer-buffer-2.1.2.tgz"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
 
-sanitize-html@^2.10.0:
-  version "2.10.0"
-  resolved "https://registry.npmjs.org/sanitize-html/-/sanitize-html-2.10.0.tgz"
-  integrity sha512-JqdovUd81dG4k87vZt6uA6YhDfWkUGruUu/aPmXLxXi45gZExnt9Bnw/qeQU8oGf82vPyaE0vO4aH0PbobB9JQ==
+sanitize-html@^2.11.0:
+  version "2.11.0"
+  resolved "https://registry.yarnpkg.com/sanitize-html/-/sanitize-html-2.11.0.tgz#9a6434ee8fcaeddc740d8ae7cd5dd71d3981f8f6"
+  integrity sha512-BG68EDHRaGKqlsNjJ2xUB7gpInPA8gVx/mvjO743hZaeMCZ2DwzW7xvsqZ+KNU4QKwj86HJ3uu2liISf2qBBUA==
   dependencies:
     deepmerge "^4.2.2"
     escape-string-regexp "^4.0.0"
