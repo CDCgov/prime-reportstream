@@ -34,7 +34,7 @@ variable "use_cdc_managed_vnet" {
   description = "If the environment should be deployed to the CDC managed VNET"
 }
 
-variable "application_key_vault_id" {}
+variable "z_id" {}
 variable "dns_vnet" {}
 
 variable "subnets" {
