@@ -8,10 +8,16 @@ const { CYPRESS_ENV: cypressEnv = "development" } = process.env;
 // Populate Cypress env with values from .env.* file
 dotenv.config({ path: path.resolve(process.cwd(), `./.env.${cypressEnv}`) });
 
-const cypressConfig = require(path.resolve(
-    process.cwd(),
-    `./cypress/cypress.${cypressEnv}.json`
-));
+const cypressConfig = (
+    await import(
+        path.resolve(process.cwd(), `./cypress/cypress.${cypressEnv}.json`),
+        {
+            assert: {
+                type: "json",
+            },
+        }
+    )
+).default;
 
 function getEnvOrDefault(name: string, defaultValue?: string) {
     if (!!cypressConfig[name]) {
@@ -29,15 +35,12 @@ const env = {
     ...cypressConfig,
     oktaClientId: getEnvOrDefault(
         "oktaClientId",
-        process.env.REACT_APP_OKTA_CLIENTID
+        process.env.VITE_OKTA_CLIENTID
     ),
-    oktaSecret: getEnvOrDefault(
-        "oktaSecret",
-        process.env.REACT_APP_OKTA_SECRET
-    ),
-    oktaUrl: getEnvOrDefault("oktaUrl", process.env.REACT_APP_OKTA_URL),
-    baseUrl: getEnvOrDefault("baseUrl", process.env.REACT_APP_BASE_URL),
-    basePageTitle: process.env.REACT_APP_TITLE,
+    oktaSecret: getEnvOrDefault("oktaSecret", process.env.VITE_OKTA_SECRET),
+    oktaUrl: getEnvOrDefault("oktaUrl", process.env.VITE_OKTA_URL),
+    baseUrl: getEnvOrDefault("baseUrl", process.env.VITE_BASE_URL),
+    basePageTitle: process.env.VITE_TITLE,
 };
 
 export default defineConfig({

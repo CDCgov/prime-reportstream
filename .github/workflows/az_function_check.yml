@@ -1,0 +1,57 @@
+name: FunctionApp TasksTable Check
+
+on:
+  schedule:
+    # The workflow runs every Monday at 7:00AM ET
+    - cron: "* 12 * * 1"  #UTC-5
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+
+      - name: Get runner ip
+        id: runner_ip
+        uses: ./.github/actions/runner-ip
+
+      - name: Connect to VPN & Login into Azure 
+        uses: ./.github/actions/vpn-azure
+        with:
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Add Runner IP to Postgres Firewall
+        run: |
+          az postgres server firewall-rule create --resource-group prime-data-hub-staging --server-name ${{ secrets.POSTGRESQL_STG_SERVER_NAME }} --name GHA --start-ip-address ${{ steps.runner_ip.outputs.ip-address }} --end-ip-address ${{ steps.runner_ip.outputs.ip-address }}
+          az postgres server firewall-rule create --resource-group prime-data-hub-prod --server-name ${{ secrets.POSTGRESQL_PROD_SERVER_NAME }} --name GHA --start-ip-address ${{ steps.runner_ip.outputs.ip-address }} --end-ip-address ${{ steps.runner_ip.outputs.ip-address }}
+
+      - name: Connect to PostgreSQL & Run query
+        id: check_data
+        run: |
+          query="SELECT * FROM public.task WHERE created_at < NOW() - INTERVAL '10 minutes';"
+          query_result=$(psql "host=${{ secrets.POSTGRESQL_STG_SERVER_NAME }}.postgres.database.azure.com port=5432 dbname=${{ secrets.POSTGRES_DB_NAME }} user=${{ secrets.POSTGRESQL_STG_ADMIN_USER }} password=${{ secrets.POSTGRESQL_STAGING_PWD }} sslmode=require" -t -c $query)
+          query_result=$(psql "host=${{ secrets.POSTGRESQL_PROD_SERVER_NAME }}.postgres.database.azure.com port=5432 dbname=${{ secrets.POSTGRES_DB_NAME }} user=${{ secrets.POSTGRESQL_PROD_ADMIN_USER }} password=${{ secrets.POSTGRESQL_PROD_PWD }} sslmode=require" -t -c $query)
+          echo "QUERY_RESULT=$query_result" >> $GITHUB_OUTPUT
+
+      - name: Slack Notification    
+        if: ${{ steps.check_data.outputs.QUERY_RESULT != '0' }} 
+        uses: ./.github/actions/notifications
+        with:
+          method: slack
+          title: Task table Findings
+          message: Found data older than 10 minutes in the public.task table
+          icon-emoji: ':bell:'
+          channel: pagerduty-alert-dump
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          color: warning
+
+      - name: Remove Runner IP to Postgres Firewall
+        run: |
+            az postgres server firewall-rule delete --resource-group prime-data-hub-staging --server-name ${{ secrets.POSTGRESQL_STG_SERVER_NAME }} --name GHA --yes
+            az postgres server firewall-rule delete --resource-group prime-data-hub-prod --server-name ${{ secrets.POSTGRESQL_PROD_SERVER_NAME }} --name GHA --yes
+
