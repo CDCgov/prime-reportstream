@@ -1,0 +1,82 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+extends: RADx_MARS-base
+elements:
+  # PID 3.1
+  - name: patient-identifier-list
+    constants:
+      hl7CXField: '%{hl7PIDField}-3'
+      deidentifiedValue: '"<deidentified>"'
+
+  # PID 5
+  - name: patient-name
+    constants:
+      hl7NameField: '%{hl7PIDField}-5'
+      deidentifiedValue: '"<deidentified>"'
+
+  # PID 11
+  - name: patient-address
+    constants:
+      hl7AddressField: '%{hl7PIDField}-11'
+      deidentifiedValue: '"<deidentified>"'
+
+  # PID 13
+  - name: phone-number-home-mobile-email
+    constants:
+      hl7TelecomField: '%{hl7PIDField}-13'
+      deidentifiedValue: '"<deidentified>"'
+
+  # PID 14
+  - name: phone-number-business
+    constants:
+      hl7TelecomField: '%{hl7PIDField}-14'
+      deidentifiedValue: '"<deidentified>"'
+
+  # PID 7.1
+  - name: patient-dob
+    value: [ '""' ]
+
+  # ORC 3.1
+  - name: order-filler-order-number
+    condition: false
+
+  # ORC 12
+  - name: order-ordering-provider
+    condition: false
+
+  # ORC 22
+  - name: ordering-facility-practitioner-address
+    condition: false
+
+  # ORC 23
+  - name: ordering-facility-phone
+    condition: false
+
+  # ORC 24
+  - name: ordering-facility-practitioner-address
+    condition: false
+
+  # OBR 3.1
+  - name: filler-order
+    condition: false
+
+  # OBR 7.1
+  - name: observation-request-date-time
+    condition: false
+
+  # OBR 7.1
+  - name: observation-request-date-time-start
+    condition: false
+
+  # OBR 16
+  - name: ordering-provider
+    condition: false
+
+  # Suppress all notes as they may contain PII data
+  - name: patient-note
+    condition: false
+
+  - name: observation-note
+    condition: false
+
+  - name: order-note
+    condition: false

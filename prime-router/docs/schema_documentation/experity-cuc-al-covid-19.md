@@ -2017,6 +2017,20 @@ Code | Display | System
 258607008|Bronchoalveolar lavage fluid|SNOMED_CT
 258607008|Bronchoalveolar lavage|SNOMED_CT
 258607008|258607008|SNOMED_CT
+433871000124101|Nasal washings|SNOMED_CT
+433871000124101|433871000124101|SNOMED_CT
+441620008|Sputum specimen obtained by sputum induction|SNOMED_CT
+441620008|441620008|SNOMED_CT
+441903006|Coughed sputum specimen|SNOMED_CT
+441903006|441903006|SNOMED_CT
+119336008|Specimen from trachea obtained by aspiration|SNOMED_CT
+119336008|119336008|SNOMED_CT
+258610001|Oral fluid specimen|SNOMED_CT
+258610001|258610001|SNOMED_CT
+119335007|Specimen obtained by bronchial aspiration|SNOMED_CT
+119335007|119335007|SNOMED_CT
+445447003|Exhaled air specimen|SNOMED_CT
+445447003|445447003|SNOMED_CT
 
 **Documentation**:
 Translate inbound text to outbound SNOMED Codes

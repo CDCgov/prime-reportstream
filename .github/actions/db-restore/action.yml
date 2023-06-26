@@ -31,7 +31,7 @@ runs:
         command: |
           sudo PGPASSWORD=${{ inputs.pass }} \
           PGSSLMODE=require \
-          psql -h ${{ inputs.host }}.postgres.database.azure.com -U ${{ inputs.user }}@${{ inputs.host }} -d ${{ inputs.database }} \
+          psql -h ${{ inputs.host }}.postgres.database.azure.com -U ${{ inputs.user }}@${{ inputs.host }} -d postgres \
             -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = '${{ inputs.database }}' AND pid <> pg_backend_pid()"
           az postgres db delete -g ${{ inputs.resource-group }} -s ${{ inputs.host }} -n ${{ inputs.database }} --yes
           az postgres db create -g ${{ inputs.resource-group }} -s ${{ inputs.host }} -n ${{ inputs.database }} \
