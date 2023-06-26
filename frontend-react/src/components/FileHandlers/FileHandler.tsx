@@ -198,8 +198,7 @@ export default function FileHandler() {
                 {StepComponent !== FileHandlerSuccessStep && (
                     <Alert
                         headingLevel="h3"
-                        type="info"
-                        tip
+                        type="tip"
                         icon={{ name: "Lightbulb", size: 3 }}
                     >
                         Pages 18-29 in the{" "}
