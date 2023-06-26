@@ -30,6 +30,7 @@ import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getObservationExtensions
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceProperties
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceReferences
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.removePHI
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import io.mockk.clearAllMocks
 import io.mockk.mockkClass
@@ -38,6 +39,7 @@ import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Endpoint
 import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.Observation
+import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.PractitionerRole
 import org.hl7.fhir.r4.model.Property
 import org.hl7.fhir.r4.model.Provenance
@@ -614,5 +616,49 @@ class FHIRBundleHelpersTests {
 
         val emptyBatch = batchMessages(listOf())
         assertThat(emptyBatch).isEqualTo("")
+    }
+
+    @Test
+    fun `Test removing PHI data from bundle`() {
+        // set up
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        assertThat(bundle).isNotNull()
+        var patient = FhirPathUtils.evaluate(
+            CustomContext(bundle, bundle),
+            bundle,
+            bundle,
+            "Bundle.entry.resource.ofType(Patient)"
+        )[0] as Patient
+
+        assertThat(patient).isNotNull()
+        assertThat(patient.address[0].city).isNotNull()
+        assertThat(patient.address[0].line).isNotEmpty()
+        assertThat(patient.telecom).isNotEmpty()
+        assertThat(patient.birthDate).isNotNull()
+        assertThat(patient.deceased).isNotNull()
+        assertThat(patient.identifier).isNotEmpty()
+        assertThat(patient.contact).isNotEmpty()
+
+        bundle.removePHI()
+
+        patient = FhirPathUtils.evaluate(
+            CustomContext(bundle, bundle),
+            bundle,
+            bundle,
+            "Bundle.entry.resource.ofType(Patient)"
+        )[0] as Patient
+
+        assertThat(patient).isNotNull()
+        assertThat(patient.address[0].city).isNull()
+        assertThat(patient.address[0].line).isEmpty()
+        assertThat(patient.telecom).isEmpty()
+        assertThat(patient.birthDate).isNull()
+        assertThat(patient.deceased).isNull()
+        assertThat(patient.identifier).isEmpty()
+        assertThat(patient.contact).isEmpty()
     }
 }
