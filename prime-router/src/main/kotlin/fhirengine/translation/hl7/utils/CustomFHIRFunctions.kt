@@ -219,15 +219,16 @@ object CustomFHIRFunctions : FhirPathFunctions {
             }
 
             parameters.forEach {
-                it.forEach { actualParam ->
-                    when (actualParam) {
-                        is DateType -> comparisonDate = convertDateToAgeGetLocalDate(actualParam)
-                        is StringType -> timePeriodSpecified = actualParam.toString()
-                        else -> throw SchemaException(
-                            "Must call the convertDateToAge function no more than one " +
-                                "string param and/or one DateType param"
-                        )
-                    }
+                if (it.size != 1) {
+                    throw SchemaException("One param per slot is required.")
+                }
+                when (val actualParam = it[0]) {
+                    is DateType -> comparisonDate = convertDateToAgeGetLocalDate(actualParam)
+                    is StringType -> timePeriodSpecified = actualParam.toString()
+                    else -> throw SchemaException(
+                        "Must call the convertDateToAge function no more than one " +
+                            "string param and/or one DateType param"
+                    )
                 }
             }
         }
@@ -286,7 +287,6 @@ object CustomFHIRFunctions : FhirPathFunctions {
         comparisonDate: LocalDate?
     ): MutableList<Base> {
         val period = Period.between(
-            // have to do plus one for the month because it is expecting 1 based, and we get zero based
             convertDateToAgeGetLocalDate(date),
             comparisonDate
         )
@@ -311,6 +311,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
         return mutableListOf(age)
     }
 
+    // have to do plus one for the month because it is expecting 1 based, and we get zero based
     private fun convertDateToAgeGetLocalDate(date: DateType): LocalDate? =
         LocalDate.of(date.year, date.month + 1, date.day)
 

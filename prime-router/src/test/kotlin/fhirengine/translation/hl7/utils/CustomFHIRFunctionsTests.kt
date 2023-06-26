@@ -562,7 +562,7 @@ class CustomFHIRFunctionsTests {
     }
 
     @Test
-    fun `test convertDateToAge in future`() {
+    fun `test convertDateToAge - add a day`() {
         val currentDate = Date()
         val calendar = Calendar.getInstance()
         calendar.time = currentDate
@@ -577,7 +577,7 @@ class CustomFHIRFunctionsTests {
     }
 
     @Test
-    fun `test convertDateToAge year - default`() {
+    fun `test convertDateToAge year`() {
         val currentDate = Date()
         val calendar = Calendar.getInstance()
         calendar.time = currentDate
@@ -606,7 +606,7 @@ class CustomFHIRFunctionsTests {
     }
 
     @Test
-    fun `test convertDateToAge month - default`() {
+    fun `test convertDateToAge month`() {
         val currentDate = Date()
         val calendar = Calendar.getInstance()
         calendar.time = currentDate
@@ -661,7 +661,7 @@ class CustomFHIRFunctionsTests {
     }
 
     @Test
-    fun `test convertDateToAge 4 days - Add value for both`() {
+    fun `test convertDateToAge 4 days`() {
         val currentDate = Date()
         val calendar = Calendar.getInstance()
         calendar.time = currentDate
