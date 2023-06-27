@@ -34,7 +34,7 @@ plugins {
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("com.microsoft.azure.azurefunctions") version "1.11.1"
-    id("org.jlleitschuh.gradle.ktlint") version "11.4.1"
+    id("org.jlleitschuh.gradle.ktlint") version "11.4.2"
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.8.20"
@@ -777,7 +777,7 @@ dependencies {
     implementation("org.apache.commons:commons-csv:1.10.0")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.10.0")
-    implementation("commons-codec:commons-codec:1.15")
+    implementation("commons-codec:commons-codec:1.16.0")
     implementation("commons-io:commons-io:2.13.0")
     implementation("org.postgresql:postgresql:42.5.1")
     implementation("com.zaxxer:HikariCP:5.0.1")
@@ -809,7 +809,7 @@ dependencies {
     implementation("org.apache.poi:poi:5.2.3")
     implementation("org.apache.poi:poi-ooxml:5.2.3")
     implementation("commons-io:commons-io: 2.13.0")
-    implementation("com.anyascii:anyascii:0.3.1")
+    implementation("com.anyascii:anyascii:0.3.2")
 // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
     implementation("org.jsoup:jsoup:1.16.1")
 
