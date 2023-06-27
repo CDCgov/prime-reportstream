@@ -25,11 +25,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-
     - name: Use Node.js with yarn
       uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
       with:
-        node-version-file: 'frontend-react/package.json'
+        node-version-file: "frontend-react/package.json"
 
     - run: yarn install --ignore-platform
       working-directory: frontend-react
@@ -40,7 +39,7 @@ runs:
       working-directory: frontend-react
       run: |
         echo "" >> .env.production
-        echo "REACT_APP_APPINSIGHTS_KEY=${{ inputs.appinsights-prod-key }}" >> .env.production
+        echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-prod-key }}" >> .env.production
         yarn test:ci
         yarn build:production
       shell: bash
@@ -52,7 +51,7 @@ runs:
         ENV=${{ inputs.env-name }}
         if [[ $ENV != demo* && $ENV != "test" && $ENV != trialfrontend* ]]; then ENV="staging"; fi
         echo "" >> .env.$ENV
-        echo "REACT_APP_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
+        echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
         yarn lint
         yarn test:ci
         yarn build:$ENV

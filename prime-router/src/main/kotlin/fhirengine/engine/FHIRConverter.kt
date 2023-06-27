@@ -64,6 +64,7 @@ class FHIRConverter(
             val transformer = getTransformerFromSchema(message.schemaName)
             // operate on each fhir bundle
             var bundleIndex = 1
+            val messagesToSend = mutableListOf<RawSubmission>()
             for (bundle in fhirBundles) {
                 // conduct FHIR Transform
                 transformer?.transform(bundle)
@@ -135,18 +136,17 @@ class FHIRConverter(
                     null
                 )
 
-                // move to routing (send to <elrRoutingQueueName> queue)
-                this.queue.sendMessage(
-                    elrRoutingQueueName,
+                messagesToSend.add(
                     RawSubmission(
                         report.id,
                         blobInfo.blobUrl,
                         BlobAccess.digestToString(blobInfo.digest),
                         message.blobSubFolderName,
                         message.topic
-                    ).serialize()
+                    )
                 )
             }
+            messagesToSend.forEach { this.queue.sendMessage(elrRoutingQueueName, it.serialize()) }
         }
     }
 

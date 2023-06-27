@@ -38,23 +38,18 @@ jobs:
           fi
 
   validate_dns:
-    name: Check resources for ${{ needs.pre_job.outputs.env_name }}
-    if: needs.pre_job.outputs.env_name && ${{ github.actor != 'dependabot[bot]' }}
+    name: Check infrastructure resources
+    if: ${{ needs.pre_job.outputs.env_name && (github.actor != 'dependabot[bot]') }}
     needs:
       - pre_job
     environment: ${{ needs.pre_job.outputs.env_name }}
     concurrency: ${{ needs.pre_job.outputs.env_name }}
     runs-on: ubuntu-latest
     steps:
-      - name: Debug
-        run: |
-          echo "Actor's username (github.actor) is: ${{ github.actor }}"
-
       - name: Check Out Changes
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
 
       - name: Connect to VPN and login to Azure
-        if: ${{ github.actor != 'dependabot[bot]' }}
         uses: ./.github/actions/vpn-azure
         with:
           env-name: ${{ needs.pre_job.outputs.env_name }}
