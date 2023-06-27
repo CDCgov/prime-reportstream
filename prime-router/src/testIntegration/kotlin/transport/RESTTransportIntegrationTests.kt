@@ -388,7 +388,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
             UserApiKeyCredential("flexion", "123")
         )
         every { runBlocking { mockRestTransport.getAuthTokenWithUserApiKey(any(), any(), any(), any()) } }.returns(
-            TokenInfo("MockToken", null, null, null, "bearer")
+            TokenInfo(accessToken="MockToken", tokenType="bearer")
         )
 
         val retryItems = mockRestTransport.send(
