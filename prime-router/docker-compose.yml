@@ -103,7 +103,7 @@ services:
 
   # Secrets management
   vault:
-    image: vault
+    image: vault:1.12.7
     cap_add:
       # Allows protected memory
       - IPC_LOCK
