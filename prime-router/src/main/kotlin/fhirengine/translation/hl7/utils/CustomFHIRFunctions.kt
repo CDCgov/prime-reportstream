@@ -3,21 +3,16 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
-import org.hl7.fhir.r4.model.Age
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.workers.DateToAgeConverter
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.DateTimeType
-import org.hl7.fhir.r4.model.DateType
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
-import java.math.BigDecimal
 import java.time.DateTimeException
-import java.time.LocalDate
-import java.time.Period
 import java.time.ZoneId
-import java.time.temporal.ChronoUnit
 import java.util.TimeZone
 
 /**
@@ -205,121 +200,9 @@ object CustomFHIRFunctions : FhirPathFunctions {
      * @return an age in years, months, weeks, or days.
      */
     fun convertDateToAge(focus: MutableList<Base>, parameters: MutableList<MutableList<Base>>?): MutableList<Base> {
-        val date = focus.first()
-
-        if (date !is DateType) {
-            throw SchemaException("Must call the convertDateToAge function on a DateType.")
-        }
-
-        var timePeriodSpecified: String? = null
-        var comparisonDate: LocalDate? = LocalDate.now()
-        if (!parameters.isNullOrEmpty()) {
-            if (parameters[0].size > 2) {
-                throw SchemaException("Must call the convertDateToAge function with no more than two parameters.")
-            }
-
-            if (parameters[0].size == 2 && parameters[0][0]::class == parameters[0][1]::class) {
-                throw SchemaException(
-                    "Must call the convertDateToAge function no more than one " +
-                        "string param and/or one DateType param."
-                )
-            }
-
-            parameters.forEach {
-                it.forEach { actualParam ->
-                    when (actualParam) {
-                        is DateType -> comparisonDate = convertDateToAgeGetLocalDate(actualParam)
-                        is StringType -> timePeriodSpecified = actualParam.toString()
-                        else -> throw SchemaException(
-                            "Must call the convertDateToAge function no more than one " +
-                                "string param and/or one DateType param."
-                        )
-                    }
-                }
-            }
-        }
-
-        return if (timePeriodSpecified != null) {
-            val age = Age()
-            return when (timePeriodSpecified) {
-                "day" -> {
-                    age.unit = "day"
-                    age.value = BigDecimal(
-                        ChronoUnit.DAYS.between(
-                            convertDateToAgeGetLocalDate(date),
-                            comparisonDate
-                        )
-                    )
-                    age.code = "d"
-                    mutableListOf(age)
-                }
-                "month" -> {
-                    age.unit = "month"
-                    age.value = BigDecimal(
-                        ChronoUnit.MONTHS.between(
-                            convertDateToAgeGetLocalDate(date),
-                            comparisonDate
-                        )
-                    )
-                    age.code = "mo"
-                    mutableListOf(age)
-                }
-                "year" -> {
-                    age.unit = "year"
-                    age.value = BigDecimal(
-                        ChronoUnit.YEARS.between(
-                            convertDateToAgeGetLocalDate(date),
-                            comparisonDate
-                        )
-                    )
-                    age.code = "a"
-                    mutableListOf(age)
-                }
-                else -> throw SchemaException("Call with day, month, or year")
-            }
-        } else {
-            convertDateToAgeCalculateAgeWithAssumption(date, comparisonDate)
-        }
+        val dateToAgeConverter = DateToAgeConverter(focus, parameters)
+        return dateToAgeConverter.convertDateToAge()
     }
-
-    /**
-     * This method calculates the time passed from the [comparisonDate] to the [date] while assuming what unit the user
-     * wants the time returned in. It assumes years if it is greater than one year, months if it is less than a year
-     * but greater than one month, and days if the value is less than one month.
-     * @return an age in years, months, weeks, or days.
-     */
-    private fun convertDateToAgeCalculateAgeWithAssumption(
-        date: DateType,
-        comparisonDate: LocalDate?
-    ): MutableList<Base> {
-        val period = Period.between(
-            convertDateToAgeGetLocalDate(date),
-            comparisonDate
-        )
-
-        val age = Age()
-        if (period.years > 1) {
-            age.unit = "year"
-            age.value = BigDecimal(period.years)
-            age.code = "a"
-        } else if (period.months > 1) {
-            age.unit = "month"
-            age.value = BigDecimal(period.months)
-            age.code = "mo"
-        } else if (period.days >= 0) {
-            age.unit = "day"
-            age.value = BigDecimal(period.days)
-            age.code = "d"
-        } else {
-            throw SchemaException("Must call the convertDateToAge function on a date in the past")
-        }
-
-        return mutableListOf(age)
-    }
-
-    // have to do plus one for the month because it is expecting 1 based, and we get zero based
-    private fun convertDateToAgeGetLocalDate(date: DateType): LocalDate? =
-        LocalDate.of(date.year, date.month + 1, date.day)
 
     /**
      * Gets the phone number country code from the full FHIR phone number stored in
