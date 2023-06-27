@@ -197,7 +197,7 @@
       processingModeFilter: [ "true" ]
       timing:
         operation: MERGE
-        numberPerDay: 1440 # Every minute
+        numberPerDay: 14400 # Every 6 seconds
         initialTime: 00:00
       translation: !<HL7>
         schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
@@ -244,7 +244,7 @@
       processingModeFilter: [ "true" ]
       timing:
         operation: MERGE
-        numberPerDay: 1440 # Every minute
+        numberPerDay: 14400 # Every six seconds
         initialTime: 00:00
       translation: !<FHIR>
         # Uncomment next line to verify fhir receiver transforms
