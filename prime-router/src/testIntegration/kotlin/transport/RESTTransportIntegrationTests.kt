@@ -20,6 +20,7 @@ import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.HttpRequest
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.Headers
+import io.ktor.http.headersOf
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpProtocolVersion
 import io.ktor.http.HttpStatusCode
