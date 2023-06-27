@@ -37,6 +37,7 @@ import java.io.InputStream
 import java.io.StringReader
 
 class SftpTransport : ITransport, Logging {
+
     override fun send(
         transportType: TransportType,
         header: WorkflowEngine.Header,
@@ -55,10 +56,10 @@ class SftpTransport : ITransport, Logging {
 
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
-            context.logger.info("Successfully connected to $sftpTransportType, ready to upload $fileName")
+            logger.info("Successfully connected to $sftpTransportType, ready to upload $fileName")
             uploadFile(sshClient, sftpTransportType.filePath, fileName, header.content)
             val msg = "Success: sftp upload of $fileName to $sftpTransportType"
-            context.logger.info(msg)
+            logger.info(msg)
             actionHistory.trackActionResult(msg)
             actionHistory.trackSentReport(
                 receiver,
@@ -75,7 +76,7 @@ class SftpTransport : ITransport, Logging {
                 "FAILED Sftp upload of inputReportId ${header.reportFile.reportId} to " +
                     "$sftpTransportType (orgService = ${header.receiver?.fullName ?: "null"})" +
                     ", Exception: ${t.localizedMessage}"
-            context.logger.warning(msg)
+            logger.warn(msg, t)
             actionHistory.setActionType(TaskAction.send_warning)
             actionHistory.trackActionResult(msg)
             RetryToken.allItems
@@ -132,9 +133,7 @@ class SftpTransport : ITransport, Logging {
             port: String,
             credential: SftpCredential,
         ): SSHClient {
-            val sshConfig = DefaultConfig()
-            // create our client
-            val sshClient = SSHClient(sshConfig)
+            val sshClient = createDefaultSSHClient()
             try {
                 sshClient.addHostKeyVerifier(PromiscuousVerifier())
                 sshClient.connect(host, port.toInt())
@@ -170,6 +169,7 @@ class SftpTransport : ITransport, Logging {
                 }
                 return sshClient
             } catch (t: Throwable) {
+                logger.warn(t)
                 sshClient.disconnect()
                 throw t
             }
@@ -303,6 +303,12 @@ class SftpTransport : ITransport, Logging {
                     return 777
                 }
             }
+        }
+
+        // allow us to mock client because there is no dependency injection in this class
+        fun createDefaultSSHClient(): SSHClient {
+            val sshConfig = DefaultConfig()
+            return SSHClient(sshConfig)
         }
     }
 }
