@@ -357,6 +357,7 @@ tasks.register<JavaExec>("primeCLI") {
     mainClass.set(primeMainClass)
     classpath = sourceSets["main"].runtimeClasspath
     standardInput = System.`in`
+    allJvmArgs = listOf("-agentlib:jdwp=transport=dt_socket,server=y,address=8888,suspend=y")
 
     // Default arguments is to display the help
     environment["POSTGRES_URL"] = dbUrl

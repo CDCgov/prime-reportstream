@@ -37,7 +37,7 @@ import javax.ws.rs.Path
 @OpenAPIDefinition(
     info = Info(
         title = "Prime ReportStream",
-        description = "A router of public health data from multiple senders and receivers",
+        description = "A router of public health data from senders to receivers",
         contact = Contact(
             name = "USDS at Centers for Disease Control and Prevention",
             url = "https://reportstream.cdc.gov",
@@ -96,10 +96,10 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     @Deprecated("The v1 version should be used")
     @FunctionName("getApiKeys")
     @Operation(
-        summary = "Get Api Keys (deprecated)) use v1 version",
+        summary = "Retrieve API keys (deprecated use v1 version)",
         responses = [
-            ApiResponse(responseCode = "200", description = "Api key returned"),
-            ApiResponse(responseCode = "404", description = "Api Key not found"),
+            ApiResponse(responseCode = "200", description = "API keys returned"),
+            ApiResponse(responseCode = "404", description = "API key not found"),
             ApiResponse(responseCode = "400", description = "Bad request")
         ]
     )
@@ -119,10 +119,11 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
 
     @FunctionName("getApiKeysV1")
     @Operation(
-        summary = "Get Api Keys v1 version",
+        summary = "Retrieve API keys for the organization (v1), return API keys when successful",
+        description = "Retrive API key(s) for the given organization",
         responses = [
-            ApiResponse(responseCode = "200", description = "Api key returned"),
-            ApiResponse(responseCode = "404", description = "Api Key not found"),
+            ApiResponse(responseCode = "200", description = "API keys returned"),
+            ApiResponse(responseCode = "404", description = "API key not found"),
             ApiResponse(responseCode = "400", description = "Bad request")
         ]
     )
@@ -144,9 +145,11 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     @POST
     @Path("settings/organizations/{organizationName}/public-keys")
     @Operation(
-        summary = "Post (update / override) to Api Keys",
+        summary = "Create (post) an API key for the organization",
+        description = "Create API key for the given organization",
         responses = [
-            ApiResponse(responseCode = "403", description = "Operation forbidden")
+            ApiResponse(responseCode = "200", description = "API key created"),
+            ApiResponse(responseCode = "401", description = "Unauthorized operation")
         ]
     )
     fun post(
@@ -223,8 +226,8 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
 
     @FunctionName("deleteApiKey")
     @Operation(
-        summary = "Delete key endpoint",
-        description = "Test delete",
+        summary = "Delete API key",
+        description = "Delete API key given org, scope, and kid",
         tags = ["Public Key Management"],
         security = [
             SecurityRequirement(
