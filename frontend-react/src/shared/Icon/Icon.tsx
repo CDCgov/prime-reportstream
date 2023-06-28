@@ -10,7 +10,7 @@ export type IconProps = React.PropsWithChildren<
     } & OrigIconProps
 >;
 
-export type SubcomponentIconProp = IconName | Partial<IconProps>;
+export type SubcomponentIconProp = IconName | JSX.Element;
 
 /**
  * Allows for using icons by their string name instead of importing

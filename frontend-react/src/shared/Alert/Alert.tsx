@@ -2,10 +2,9 @@ import React, { AriaRole } from "react";
 import classnames from "classnames";
 import { Alert as OrigAlert } from "@trussworks/react-uswds";
 
-import { IconName, SubcomponentIconProp } from "../Icon/Icon";
+import Icon, { IconName, SubcomponentIconProp } from "../Icon/Icon";
 
 import styles from "./Alert.module.scss";
-import AlertIcon from "./AlertIcon";
 
 type OrigAlertProps = React.ComponentProps<typeof OrigAlert>;
 
@@ -24,6 +23,22 @@ export function getAriaRole(type: AlertProps["type"]): AriaRole {
             return "status";
         default:
             return "region";
+    }
+}
+
+export function getIconName(type: AlertProps["type"]): IconName {
+    switch (type) {
+        case "error":
+            return "Error";
+        case "success":
+            return "CheckCircle";
+        case "warning":
+            return "Warning";
+        case "tip":
+            return "Lightbulb";
+
+        default:
+            return "Info";
     }
 }
 
@@ -59,6 +74,12 @@ export const Alert = ({
     const type = _type === "tip" ? "info" : _type;
     const ariaRole = role ?? getAriaRole(type);
     const ariaLabel = ariaRole === "region" ? "Information" : undefined;
+    const alertIcon =
+        icon == null || typeof icon === "string" ? (
+            <Icon name={icon ?? getIconName(_type)} />
+        ) : (
+            icon
+        );
 
     return (
         <OrigAlert
@@ -71,7 +92,7 @@ export const Alert = ({
             headingLevel={headingLevel as any}
             {...props}
         >
-            <AlertIcon type={_type} icon={icon} />
+            {alertIcon}
             <div className="usa-alert__text">{children}</div>
         </OrigAlert>
     );
