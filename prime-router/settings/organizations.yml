@@ -197,12 +197,12 @@
       processingModeFilter: [ "true" ]
       timing:
         operation: MERGE
-        numberPerDay: 14400 # Every 6 seconds
+        numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
         schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
         useTestProcessingMode: false
-        useBatchHeaders: true
+        useBatchHeaders: false
         type: "HL7"
         receivingApplicationName: "CO-ELR"
         receivingFacilityName: "CO"
@@ -244,7 +244,7 @@
       processingModeFilter: [ "true" ]
       timing:
         operation: MERGE
-        numberPerDay: 14400 # Every six seconds
+        numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<FHIR>
         # Uncomment next line to verify fhir receiver transforms
