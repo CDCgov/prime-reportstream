@@ -8,4 +8,4 @@ Admins can access a UI that will allow them to manage feature flags for their us
 
 ## Feature Flags Environment Variable
 
-When deploying or running ReportStream, any feature flags that should be enabled can be set as a comma delimited list using the `REACT_APP_FEATURE_FLAGS` environment variable. Feature flags set via environment variables cannot be turned off on the user level.
+When deploying or running ReportStream, any feature flags that should be enabled can be set as a comma delimited list using the `VITE_FEATURE_FLAGS` environment variable. Feature flags set via environment variables cannot be turned off on the user level.

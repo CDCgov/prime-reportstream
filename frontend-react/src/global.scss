@@ -2,7 +2,8 @@
 @forward "styles/uswds_settings"; // _uswds_settings.scss
 @forward "uswds";
 
-@import "~@trussworks/react-uswds/lib/uswds.css";
+@use "uswds";
+@import "@trussworks/react-uswds/lib/uswds.css";
 @import "styles/uswds_overrides"; // _uswds_overrides.scss
 @import "styles/typography"; // _typography.scss
 @import "styles/reportstream"; // _reportstream.scss

@@ -27,7 +27,7 @@ import kotlin.test.Test
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CustomFhirPathFunctionTest {
-    val loincCode = "906-1"
+    private val loincCode = "906-1"
 
     @BeforeEach
     fun setupMocks() {

@@ -1,12 +1,12 @@
 import React from "react";
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { StoryFn, Meta } from "@storybook/react";
 
 import { Table } from "./Table";
 
 export default {
     title: "components/Table",
     component: Table,
-} as ComponentMeta<typeof Table>;
+} as Meta<typeof Table>;
 
 const defaultData = [
     [
@@ -82,22 +82,22 @@ const defaultData = [
     ],
 ];
 
-export const Borderless: ComponentStory<typeof Table> = () => {
+export const Borderless: StoryFn<typeof Table> = () => {
     return <Table borderless rowData={defaultData} />;
 };
 
-export const Bordered: ComponentStory<typeof Table> = () => {
+export const Bordered: StoryFn<typeof Table> = () => {
     return <Table rowData={defaultData} />;
 };
 
-export const Striped: ComponentStory<typeof Table> = () => {
+export const Striped: StoryFn<typeof Table> = () => {
     return <Table striped rowData={defaultData} />;
 };
 
-export const Scrollable: ComponentStory<typeof Table> = () => {
+export const Scrollable: StoryFn<typeof Table> = () => {
     return <Table scrollable rowData={defaultData} />;
 };
 
-export const Sortable: ComponentStory<typeof Table> = () => {
+export const Sortable: StoryFn<typeof Table> = () => {
     return <Table sortable rowData={defaultData} />;
 };
