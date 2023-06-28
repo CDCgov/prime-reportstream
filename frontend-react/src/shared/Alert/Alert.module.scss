@@ -20,7 +20,6 @@
 .usa-alert__icon {
     @include u-width(4);
     height: (2 * units($theme-alert-padding-y)) + units(3);
-    // padding - optical spacing value
     left: $alert-icon-optical-padding;
     position: absolute;
     top: 0;
