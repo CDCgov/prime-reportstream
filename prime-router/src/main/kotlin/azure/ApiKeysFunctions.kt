@@ -17,6 +17,7 @@ import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.authenticationFailure
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType
 import io.swagger.v3.oas.annotations.info.Contact
 import io.swagger.v3.oas.annotations.info.Info
@@ -33,6 +34,7 @@ import javax.ws.rs.DELETE
 import javax.ws.rs.GET
 import javax.ws.rs.POST
 import javax.ws.rs.Path
+import javax.ws.rs.PathParam
 
 @OpenAPIDefinition(
     info = Info(
@@ -41,7 +43,7 @@ import javax.ws.rs.Path
         contact = Contact(
             name = "USDS at Centers for Disease Control and Prevention",
             url = "https://reportstream.cdc.gov",
-            email = "email: reportstream@cdc.gov"
+            email = "reportstream@cdc.gov"
         ),
         version = "0.2.0-oas3"
     )
@@ -97,6 +99,14 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     @FunctionName("getApiKeys")
     @Operation(
         summary = "Retrieve API keys (deprecated use v1 version)",
+        description = "Retrieve API key(s) for the given organization",
+        parameters = [
+            Parameter(
+                name = "organizationName",
+                required = true,
+                description = "the organization whose keys are retrieved"
+            )
+        ],
         responses = [
             ApiResponse(responseCode = "200", description = "API keys returned"),
             ApiResponse(responseCode = "404", description = "API key not found"),
@@ -111,8 +121,8 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations/{organizationName}/public-keys"
-        ) request: HttpRequestMessage<String?>,
-        @BindingName("organizationName") orgName: String
+        ) @Parameter(hidden = true) request: HttpRequestMessage<String?>,
+        @PathParam("organizationName") @BindingName("organizationName") orgName: String
     ): HttpResponseMessage {
         return getApiKeysForOrg(request, orgName)
     }
@@ -120,7 +130,14 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     @FunctionName("getApiKeysV1")
     @Operation(
         summary = "Retrieve API keys for the organization (v1), return API keys when successful",
-        description = "Retrive API key(s) for the given organization",
+        description = "Retrieve API key(s) for the given organization",
+        parameters = [
+            Parameter(
+                name = "organizationName",
+                required = true,
+                description = "the organization whose keys are retrieved"
+            )
+        ],
         responses = [
             ApiResponse(responseCode = "200", description = "API keys returned"),
             ApiResponse(responseCode = "404", description = "API key not found"),
@@ -135,8 +152,8 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "v1/settings/organizations/{organizationName}/public-keys"
-        ) request: HttpRequestMessage<String?>,
-        @BindingName("organizationName") orgName: String
+        ) @Parameter(hidden = true) request: HttpRequestMessage<String?>,
+        @PathParam("organizationName") @BindingName("organizationName") orgName: String
     ): HttpResponseMessage {
         return getApiKeysForOrg(request, orgName, true)
     }
@@ -159,7 +176,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations/{organizationName}/public-keys"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("organizationName") orgName: String
+        @PathParam("organizationName") @BindingName("organizationName") orgName: String
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims == null || !claims.authorized(setOf("*.*.primeadmin", "$orgName.*.admin"))) {
@@ -236,9 +253,10 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
         ],
         responses = [
             ApiResponse(responseCode = "401", description = "Unauthorized"),
-            ApiResponse(responseCode = "404", description = "Org, scope, or KID not found"),
+            ApiResponse(responseCode = "404", description = "Org, scope, or kid not found"),
             ApiResponse(
                 responseCode = "200",
+                description = "Key deleted",
                 content = [
                     Content(
                         mediaType = "application/json",
@@ -256,10 +274,10 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             methods = [HttpMethod.DELETE],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations/{organizationName}/public-keys/{scope}/{kid}"
-        ) request: HttpRequestMessage<String?>,
-        @BindingName("organizationName") orgName: String,
-        @BindingName("scope") scope: String,
-        @BindingName("kid") kid: String
+        ) @Parameter(hidden = true) request: HttpRequestMessage<String?>,
+        @PathParam("organizationName") @BindingName("organizationName") orgName: String,
+        @PathParam("scope") @BindingName("scope") scope: String,
+        @PathParam("kid") @BindingName("kid") kid: String
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims == null || !claims.authorized(setOf("*.*.primeadmin", "$orgName.*.admin"))) {
