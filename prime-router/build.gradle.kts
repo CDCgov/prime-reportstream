@@ -302,6 +302,13 @@ tasks.register<ResolveTask>("generateOpenApi") {
     outputDir = file("docs/api/generated")
 }
 
+/**
+ * Generate OpenAPI spec right after build
+ */
+tasks.named("build") {
+    finalizedBy("generateOpenApi")
+}
+
 tasks.withType<Test>().configureEach {
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
 }
