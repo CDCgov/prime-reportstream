@@ -3,7 +3,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.workers.DateToAgeConverter
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.workers.convertDateToAge
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.BooleanType
@@ -88,7 +88,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
             }
 
             CustomFHIRFunctionNames.Split -> {
-                FHIRPathEngine.IEvaluationContext.FunctionDetails("splits a string by provided delimeter", 1, 1)
+                FHIRPathEngine.IEvaluationContext.FunctionDetails("splits a string by provided delimiter", 1, 1)
             }
 
             CustomFHIRFunctionNames.GetId -> {
@@ -191,20 +191,6 @@ object CustomFHIRFunctions : FhirPathFunctions {
     }
 
     /**
-     * Converts the date in the [focus] element to an age. Based on what is passed in the optional [parameters], one
-     * can specify whether this value is returned in years, months, weeks, or days. If left off, the method assumes
-     * years if it is greater than one year, months if it is less than a year but greater than one month, and days if
-     * the value is less than one month. There is also an optional param to pass a comparison date if you don't want to
-     * get the age based off of how old they are today. [parameters] must first have the birthdate then either the
-     * time unit, comparison date, (timeUnit, comparisonDate), or (comparisonDate, timeUnit)
-     * @return an age in years, months, weeks, or days.
-     */
-    fun convertDateToAge(focus: MutableList<Base>, parameters: MutableList<MutableList<Base>>?): MutableList<Base> {
-        val dateToAgeConverter = DateToAgeConverter(focus, parameters)
-        return dateToAgeConverter.convertDateToAge()
-    }
-
-    /**
      * Gets the phone number country code from the full FHIR phone number stored in
      * the [focus] element.
      * @return a mutable list containing the country code
@@ -257,7 +243,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
     }
 
     /**
-     * Splits the [focus] into multiple strings using the delimeter provided in [parameters]
+     * Splits the [focus] into multiple strings using the delimiter provided in [parameters]
      * @returns list of strings
      */
     fun split(focus: MutableList<Base>, parameters: MutableList<MutableList<Base>>?): MutableList<Base> {
@@ -267,10 +253,10 @@ object CustomFHIRFunctions : FhirPathFunctions {
             focus.size == 1 &&
             focus.first() is StringType
         ) {
-            val delimeter = (parameters.first().first()).primitiveValue()
+            val delimiter = (parameters.first().first()).primitiveValue()
             val stringToSplit = focus.first().primitiveValue()
 
-            stringToSplit.split(delimeter).map { StringType(it) }.toMutableList()
+            stringToSplit.split(delimiter).map { StringType(it) }.toMutableList()
         } else mutableListOf()
     }
 

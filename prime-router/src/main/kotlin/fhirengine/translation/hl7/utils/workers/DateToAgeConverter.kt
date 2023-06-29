@@ -11,166 +11,132 @@ import java.time.LocalDate
 import java.time.Period
 import java.time.temporal.ChronoUnit
 
-class DateToAgeConverter(
-    private val focus: MutableList<Base>,
-    private val parameters: MutableList<MutableList<Base>>?
-) {
-
-    private enum class Codes { D, MO, A }
-    private data class Params(
-        var dateOfBirth: DateType,
-        var ageUnit: TemporalPrecisionEnum? = null,
-        var referenceDate: LocalDate? = LocalDate.now()
-    )
-
-    /**
-     * Calls the functions to extract params, then use those to calculate the age
-     * @return an age in years, months, or days
-     */
-    fun convertDateToAge(): MutableList<Base> {
-        // get a params object
-        val params = getParams()
-
-        // use params object to calculate date
-        return if (params.ageUnit != null) {
-            return calculateAgeWithSpecifiedTimeUnit(params)
-        } else {
-            calculateAgeWithAssumption(params.dateOfBirth, params.referenceDate)
-        }
-    }
+/**
+ * Converts the birthdate in the [focus] element to an age. Based on what is passed in the optional [parameters], one
+ * can specify whether this value is returned in years, months, or days. If left off, the method assumes years if it is
+ * greater than one year, months if it is less than a year but greater than one month, and days if the value is less
+ * than one month. There is also an optional param to pass a comparison date if you don't want to get the age based off
+ * of how old they are today. [parameters] can contain the time unit and comparison date in either order;
+ * (timeUnit, comparisonDate) and (comparisonDate, timeUnit) are both acceptable. [focus] must contain a date.
+ * @return an age in years, months, or days.
+ */
+fun convertDateToAge(focus: MutableList<Base>, parameters: MutableList<MutableList<Base>>?): MutableList<Base> {
+    val dateOfBirth: LocalDate =
+        getLocalDate(
+            focus.getOrNull(0) as? DateType
+                ?: throw SchemaException("Must call the convertDateToAge function on a DateType.")
+        )
+    var ageUnit: TemporalPrecisionEnum? = null
+    var referenceDate: LocalDate = LocalDate.now()
 
     /**
-     * Extracts the dateOfBirth, referenceDate, and ageUnit from the focus and params and returns them in a usable format
-     * @return The parameters dateOfBirth, referenceDate, and ageUnit in a Params object
+     * populates local variables referenceDate and ageUnit from params
      */
-    private fun getParams(): Params {
+    fun populateParams() {
         // validate resource
-        val params: Params = (if (focus.first() is DateType) Params(focus.first() as DateType) else null)
-            ?: throw SchemaException("Must call the convertDateToAge function on a DateType.")
         if (!parameters.isNullOrEmpty()) {
-            if (parameters.size > 1) {
+            val paramList = if (parameters.size > 1) {
                 throw SchemaException("Cannot accept more than one set of parameters")
+            } else parameters.first()
+            if (paramList.size == 2 && paramList[0]::class == paramList[1]::class) {
+                throw SchemaException("Parameters can only include one string param and/or one DateType param.")
             }
-            if (parameters.first().size == 2 && parameters.first()[0]::class == parameters.first()[1]::class) {
-                throw SchemaException(
-                    "Must call the convertDateToAge function no more than one " +
-                        "string param and/or one DateType param."
-                )
+            if (paramList.size > 2) {
+                throw SchemaException("Cannot call the convertDateToAge function with more than two parameters.")
             }
-            if (parameters.first().size > 2) {
-                throw SchemaException(
-                    "Must call the convertDateToAge function no more than one " +
-                        "string param and/or one DateType param."
-                )
-            }
-            parameters.first().forEach { param ->
+            paramList.forEach { param ->
                 when (param) {
-                    is DateType -> params.referenceDate = convertDateToAgeGetLocalDate(param)
+                    is DateType -> referenceDate = getLocalDate(param)
                     is StringType -> {
                         try {
-                            params.ageUnit = TemporalPrecisionEnum.valueOf(param.toString().uppercase())
+                            ageUnit = TemporalPrecisionEnum.valueOf(param.toString().uppercase())
                         } catch (e: IllegalArgumentException) {
                             throw SchemaException("age unit must be one of: year, month, day")
                         }
                     }
-                    else -> throw SchemaException(
-                        "Must call the convertDateToAge function no more than one " +
-                            "string param and/or one DateType param."
-                    )
+                    else ->
+                        throw SchemaException("Parameters can only include one string param and/or one DateType param.")
                 }
             }
         }
-        return params
     }
 
-    /**
-     * This method calculates the time passed from the [params].dateOfBirth to the [params].referenceDate using the time
-     * unit specified in [params].ageUnit
-     * @return an age in years, months, weeks, or days.
-     */
-    private fun calculateAgeWithSpecifiedTimeUnit(params: Params): MutableList<Base> {
-        val age = Age()
-        return when (params.ageUnit) {
-            TemporalPrecisionEnum.DAY -> {
-                age.unit = TemporalPrecisionEnum.DAY.toString().lowercase()
-                age.value = BigDecimal(
-                    ChronoUnit.DAYS.between(
-                        convertDateToAgeGetLocalDate(params.dateOfBirth),
-                        params.referenceDate
-                    )
-                )
-                age.code = Codes.D.toString().lowercase()
-                mutableListOf(age)
-            }
+    populateParams()
 
-            TemporalPrecisionEnum.MONTH -> {
-                age.unit = TemporalPrecisionEnum.MONTH.toString().lowercase()
-                age.value = BigDecimal(
-                    ChronoUnit.MONTHS.between(
-                        convertDateToAgeGetLocalDate(params.dateOfBirth),
-                        params.referenceDate
-                    )
-                )
-                age.code = Codes.MO.toString().lowercase()
-                mutableListOf(age)
-            }
-
-            TemporalPrecisionEnum.YEAR -> {
-                age.unit = TemporalPrecisionEnum.YEAR.toString().lowercase()
-                age.value = BigDecimal(
-                    ChronoUnit.YEARS.between(
-                        convertDateToAgeGetLocalDate(params.dateOfBirth),
-                        params.referenceDate
-                    )
-                )
-                age.code = Codes.A.toString().lowercase()
-                mutableListOf(age)
-            }
-
-            else -> throw SchemaException("Call with day, month, or year")
-        }
-    }
-
-    /**
-     * This method calculates the time passed from the [comparisonDate] to the [date] while assuming what unit the user
-     * wants the time returned in. It assumes years if it is greater than one year, months if it is less than a year
-     * but greater than one month, and days if the value is less than one month.
-     * @return an age in years, months, weeks, or days.
-     */
-    private fun calculateAgeWithAssumption(
-        date: DateType,
-        comparisonDate: LocalDate?
-    ): MutableList<Base> {
-        val period = Period.between(
-            convertDateToAgeGetLocalDate(date),
-            comparisonDate
-        )
-
-        val age = Age()
-        if (period.years > 1) {
-            age.unit = TemporalPrecisionEnum.YEAR.toString().lowercase()
-            age.value = BigDecimal(period.years)
-            age.code = Codes.A.toString().lowercase()
-        } else if (period.months > 1) {
-            age.unit = TemporalPrecisionEnum.MONTH.toString().lowercase()
-            age.value = BigDecimal(period.months)
-            age.code = Codes.MO.toString().lowercase()
-        } else if (period.days >= 0) {
-            age.unit = TemporalPrecisionEnum.DAY.toString().lowercase()
-            age.value = BigDecimal(period.days)
-            age.code = Codes.D.toString().lowercase()
+    return mutableListOf(
+        if (ageUnit != null) {
+            calculateAgeWithSpecifiedTimeUnit(dateOfBirth, referenceDate, ageUnit)
         } else {
-            throw SchemaException("Must call the convertDateToAge function on a date in the past")
+            calculateAgeWithAssumption(dateOfBirth, referenceDate)
         }
+    )
+}
 
-        return mutableListOf(age)
+/**
+ * This method calculates the time passed from [dateOfBirth] to [referenceDate] using the time unit specified
+ * in [ageUnit]
+ * @return an age in years, months, or days.
+ */
+private fun calculateAgeWithSpecifiedTimeUnit(
+    dateOfBirth: LocalDate,
+    referenceDate: LocalDate,
+    ageUnit: TemporalPrecisionEnum?
+): Age {
+    return when (ageUnit) {
+        TemporalPrecisionEnum.DAY -> {
+            createAge(ageUnit, BigDecimal(ChronoUnit.DAYS.between(dateOfBirth, referenceDate)))
+        }
+        TemporalPrecisionEnum.MONTH -> {
+            createAge(ageUnit, BigDecimal(ChronoUnit.MONTHS.between(dateOfBirth, referenceDate)))
+        }
+        TemporalPrecisionEnum.YEAR -> {
+            createAge(ageUnit, BigDecimal(ChronoUnit.YEARS.between(dateOfBirth, referenceDate)))
+        }
+        else -> throw SchemaException("age unit must be one of: year, month, day")
     }
+}
 
-    /**
-     *  Takes a [date] and converts it to a LocalDate.
-     *  Have to do plus one for the month because it is expecting 1 based, and we get zero based
-     *  @return DateType converted to LocalDate
-     */
-    private fun convertDateToAgeGetLocalDate(date: DateType): LocalDate? =
-        LocalDate.of(date.year, date.month + 1, date.day)
+/**
+ * This method calculates the time passed from the [referenceDate] to the [dateOfBirth] while assuming what unit the
+ * user wants the time returned in. It assumes years if it is greater than one year, months if it is less than a year
+ * but greater than one month, and days if the value is less than one month.
+ * @return an age in years, months, or days.
+ */
+private fun calculateAgeWithAssumption(dateOfBirth: LocalDate, referenceDate: LocalDate): Age {
+    val period = Period.between(dateOfBirth, referenceDate)
+
+    return if (period.years > 1) {
+        createAge(TemporalPrecisionEnum.YEAR, BigDecimal(period.years))
+    } else if (period.months > 1) {
+        createAge(TemporalPrecisionEnum.MONTH, BigDecimal(period.months))
+    } else if (period.days >= 0) {
+        createAge(TemporalPrecisionEnum.DAY, BigDecimal(period.days))
+    } else {
+        throw SchemaException("Must call the convertDateToAge function on a date in the past")
+    }
+}
+
+/**
+ *  Takes a [date] and converts it to a LocalDate.
+ *  Have to do plus one for the month because it is expecting 1 based, and we get zero based
+ *  @return DateType converted to LocalDate
+ */
+private fun getLocalDate(date: DateType): LocalDate =
+    LocalDate.of(date.year, date.month + 1, date.day)
+
+/**
+ * Creates an Age of the given [ageValue] with the [ageUnit] properly tracked in the Age's unit and code
+ * @return the created Age
+ */
+private fun createAge(ageUnit: TemporalPrecisionEnum, ageValue: BigDecimal): Age {
+    val age = Age()
+    age.unit = ageUnit.toString().lowercase()
+    age.value = ageValue
+    age.code = when (ageUnit) {
+        TemporalPrecisionEnum.DAY -> "d"
+        TemporalPrecisionEnum.MONTH -> "mo"
+        TemporalPrecisionEnum.YEAR -> "a"
+        else -> throw SchemaException("age unit must be one of: year, month, day")
+    }
+    return age
 }

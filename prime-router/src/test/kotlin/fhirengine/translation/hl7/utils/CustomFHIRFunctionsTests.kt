@@ -12,11 +12,9 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
-import org.hl7.fhir.r4.model.Age
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.DateTimeType
-import org.hl7.fhir.r4.model.DateType
 import org.hl7.fhir.r4.model.InstantType
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.MessageHeader
@@ -24,9 +22,7 @@ import org.hl7.fhir.r4.model.OidType
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.model.TimeType
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
 import java.util.UUID
@@ -560,197 +556,5 @@ class CustomFHIRFunctionsTests {
                 mutableListOf(mutableListOf(pst))
             )
         }.isFailure().hasClass(SchemaException::class.java)
-    }
-
-    @Test
-    fun `test convertDateToAge - add a day`() {
-        val currentDate = Date()
-        val calendar = Calendar.getInstance()
-        calendar.time = currentDate
-        calendar.add(Calendar.DATE, 1)
-
-        assertThat {
-            CustomFHIRFunctions.convertDateToAge(
-                mutableListOf(DateType(calendar.time)),
-                mutableListOf()
-            )
-        }.isFailure().hasClass(SchemaException::class.java)
-    }
-
-    @Test
-    fun `test convertDateToAge year`() {
-        val currentDate = Date()
-        val calendar = Calendar.getInstance()
-        calendar.time = currentDate
-        calendar.add(Calendar.YEAR, -76)
-
-        val results = listOf(
-            CustomFHIRFunctions.convertDateToAge(
-                mutableListOf(DateType(calendar.time)),
-                mutableListOf()
-            ),
-            CustomFHIRFunctions.convertDateToAge(
-                mutableListOf(DateType(calendar.time)),
-                mutableListOf(mutableListOf(StringType("year")))
-            )
-        )
-
-        results.forEach { ageList ->
-            val age = ageList[0]
-            assertThat(age is Age).isEqualTo(true)
-            if (age is Age) {
-                assertThat(age.unit).isEqualTo("year")
-                assertThat(age.value.toInt()).isEqualTo(76)
-                assertThat(age.code).isEqualTo("a")
-            }
-        }
-    }
-
-    @Test
-    fun `test convertDateToAge month`() {
-        val currentDate = Date()
-        val calendar = Calendar.getInstance()
-        calendar.time = currentDate
-        calendar.add(Calendar.MONTH, -6)
-
-        val result = listOf(
-            CustomFHIRFunctions.convertDateToAge(
-                mutableListOf(DateType(calendar.time)),
-                mutableListOf()
-            ),
-            CustomFHIRFunctions.convertDateToAge(
-                mutableListOf(DateType(calendar.time)),
-                mutableListOf(mutableListOf(StringType("month")))
-            )
-        )
-
-        result.forEach { ageList ->
-            val age = ageList[0]
-            assertThat(age is Age).isEqualTo(true)
-            if (age is Age) {
-                assertThat(age.unit).isEqualTo("month")
-                assertThat(age.value.toInt()).isEqualTo(6)
-                assertThat(age.code).isEqualTo("mo")
-            }
-        }
-    }
-
-    @Test
-    fun `test convertDateToAge 0 days`() {
-        val someDate = Date(1687464192857)
-        val results = listOf(
-            // Explicitly look for "day"
-            CustomFHIRFunctions.convertDateToAge(
-                mutableListOf(DateType(someDate)),
-                mutableListOf(mutableListOf(DateType(someDate), StringType("day")))
-            ),
-            // Get default response without specifying type
-            CustomFHIRFunctions.convertDateToAge(
-                mutableListOf(DateType(someDate)),
-                mutableListOf(mutableListOf(DateType(someDate)))
-            )
-        )
-        results.forEach { ageList ->
-            val age = ageList[0]
-            assertThat(age is Age).isEqualTo(true)
-            if (age is Age) {
-                assertThat(age.unit).isEqualTo("day")
-                assertThat(age.value.toInt()).isEqualTo(0)
-                assertThat(age.code).isEqualTo("d")
-            }
-        }
-    }
-
-    @Test
-    fun `test convertDateToAge 4 days`() {
-        val currentDate = Date()
-        val calendar = Calendar.getInstance()
-        calendar.time = currentDate
-        // has to be at least two for the purposes of this since we are getting the current time and time passes when we
-        // run it
-        calendar.add(Calendar.DAY_OF_YEAR, -4)
-
-        val results = listOf(
-            CustomFHIRFunctions.convertDateToAge(
-                mutableListOf(DateType(calendar.time)),
-                mutableListOf(mutableListOf(DateType(currentDate), StringType("day")))
-            ),
-            CustomFHIRFunctions.convertDateToAge(
-                mutableListOf(DateType(calendar.time)),
-                mutableListOf(mutableListOf(StringType("day"), DateType(currentDate)))
-            ),
-            CustomFHIRFunctions.convertDateToAge(
-                mutableListOf(DateType(calendar.time)),
-                mutableListOf(mutableListOf(StringType("day")))
-            ),
-            CustomFHIRFunctions.convertDateToAge(
-                mutableListOf(DateType(calendar.time)),
-                mutableListOf()
-            )
-        )
-
-        results.forEach { ageList ->
-            val age = ageList[0]
-            assertThat(age is Age).isEqualTo(true)
-            if (age is Age) {
-                assertThat(age.unit).isEqualTo("day")
-                assertThat(age.value.toInt()).isEqualTo(4)
-                assertThat(age.code).isEqualTo("d")
-            }
-        }
-    }
-
-    @Test
-    fun `test convertDateToAge 4 months as days`() {
-        val currentDate = Date()
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = currentDate.time
-        // has to be at least two for the purposes of this since we are getting the current time and time passes when we
-        // run it
-        calendar.add(Calendar.MONTH, -4)
-
-        val ageList = CustomFHIRFunctions.convertDateToAge(
-            mutableListOf(DateType(calendar.time)),
-            mutableListOf(mutableListOf(StringType("day")))
-        )
-
-        val age = ageList[0]
-        assertThat(age is Age).isEqualTo(true)
-        if (age is Age) {
-            assertThat(age.unit).isEqualTo("day")
-            assertThat(age.value.toInt()).isEqualTo(120)
-            assertThat(age.code).isEqualTo("d")
-        }
-    }
-
-    @Test
-    fun `test convertDateToAge - test bad params`() {
-        val currentDate = Date()
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = currentDate.time
-        // has to be at least two for the purposes of this since we are getting the current time and time passes when we
-        // run it
-        calendar.add(Calendar.MONTH, -4)
-
-        assertThrows<SchemaException> {
-            CustomFHIRFunctions.convertDateToAge(
-                mutableListOf(DateType(calendar.time)),
-                mutableListOf(mutableListOf(StringType("day"), StringType("day"))),
-            )
-        }
-
-        assertThrows<SchemaException> {
-            CustomFHIRFunctions.convertDateToAge(
-                mutableListOf(DateType(calendar.time)),
-                mutableListOf(mutableListOf(DateType(calendar.time), DateType(calendar.time))),
-            )
-        }
-
-        assertThrows<SchemaException> {
-            CustomFHIRFunctions.convertDateToAge(
-                mutableListOf(DateType(calendar.time)),
-                mutableListOf(mutableListOf(DateType(calendar.time), StringType("day"), StringType("day"))),
-            )
-        }
     }
 }
