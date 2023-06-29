@@ -1,4 +1,4 @@
-import { USLink } from "../../components/USLink";
+import { USSmartLink } from "../../components/USLink";
 
 export default function Hero() {
     return (
@@ -14,13 +14,13 @@ export default function Hero() {
                     </p>
                     <p>
                         Connect with us to{" "}
-                        <USLink href="https://app.smartsheetgov.com/b/form/8c71931f25e64e42bf1fef32900bdecd">
+                        <USSmartLink href="https://app.smartsheetgov.com/b/form/8c71931f25e64e42bf1fef32900bdecd">
                             send data
-                        </USLink>{" "}
+                        </USSmartLink>{" "}
                         or{" "}
-                        <USLink href="mailto:reportstream@cdc.gov">
+                        <USSmartLink href="mailto:reportstream@cdc.gov">
                             receive data
-                        </USLink>
+                        </USSmartLink>
                         .
                     </p>
                 </div>
