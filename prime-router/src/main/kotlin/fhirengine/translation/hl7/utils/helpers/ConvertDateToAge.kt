@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.fhirengine.translation.hl7.utils.workers
+package fhirengine.translation.hl7.utils.helpers
 
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
@@ -77,7 +77,7 @@ fun convertDateToAge(focus: MutableList<Base>, parameters: MutableList<MutableLi
  * in [ageUnit]
  * @return an age in years, months, or days.
  */
-private fun calculateAgeWithSpecifiedTimeUnit(
+internal fun calculateAgeWithSpecifiedTimeUnit(
     dateOfBirth: LocalDate,
     referenceDate: LocalDate,
     ageUnit: TemporalPrecisionEnum?
@@ -102,17 +102,14 @@ private fun calculateAgeWithSpecifiedTimeUnit(
  * but greater than one month, and days if the value is less than one month.
  * @return an age in years, months, or days.
  */
-private fun calculateAgeWithAssumption(dateOfBirth: LocalDate, referenceDate: LocalDate): Age {
+internal fun calculateAgeWithAssumption(dateOfBirth: LocalDate, referenceDate: LocalDate): Age {
     val period = Period.between(dateOfBirth, referenceDate)
 
-    return if (period.years > 1) {
-        createAge(TemporalPrecisionEnum.YEAR, BigDecimal(period.years))
-    } else if (period.months > 1) {
-        createAge(TemporalPrecisionEnum.MONTH, BigDecimal(period.months))
-    } else if (period.days >= 0) {
-        createAge(TemporalPrecisionEnum.DAY, BigDecimal(period.days))
-    } else {
-        throw SchemaException("Must call the convertDateToAge function on a date in the past")
+    return when {
+        period.years > 1 -> createAge(TemporalPrecisionEnum.YEAR, BigDecimal(period.years))
+        period.months > 1 -> createAge(TemporalPrecisionEnum.MONTH, BigDecimal(period.months))
+        period.days >= 0 -> createAge(TemporalPrecisionEnum.DAY, BigDecimal(period.days))
+        else -> throw SchemaException("Must call the convertDateToAge function on a date in the past")
     }
 }
 
@@ -121,14 +118,14 @@ private fun calculateAgeWithAssumption(dateOfBirth: LocalDate, referenceDate: Lo
  *  Have to do plus one for the month because it is expecting 1 based, and we get zero based
  *  @return DateType converted to LocalDate
  */
-private fun getLocalDate(date: DateType): LocalDate =
+internal fun getLocalDate(date: DateType): LocalDate =
     LocalDate.of(date.year, date.month + 1, date.day)
 
 /**
  * Creates an Age of the given [ageValue] with the [ageUnit] properly tracked in the Age's unit and code
  * @return the created Age
  */
-private fun createAge(ageUnit: TemporalPrecisionEnum, ageValue: BigDecimal): Age {
+internal fun createAge(ageUnit: TemporalPrecisionEnum, ageValue: BigDecimal): Age {
     val age = Age()
     age.unit = ageUnit.toString().lowercase()
     age.value = ageValue

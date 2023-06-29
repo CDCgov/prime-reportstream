@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.fhirengine.translation.hl7.utils.workers
+package fhirengine.translation.hl7.utils.helpers
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.assertThrows
 import java.util.Calendar
 import java.util.Date
 
-class DateToAgeConverterTests {
+class ConvertDateToAgeTests {
     @Test
     fun `test convertDateToAge - future date`() {
         val currentDate = Date()

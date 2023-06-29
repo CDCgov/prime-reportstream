@@ -2,8 +2,8 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import fhirengine.translation.hl7.utils.FhirPathFunctions
+import fhirengine.translation.hl7.utils.helpers.convertDateToAge
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.workers.convertDateToAge
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.BooleanType
