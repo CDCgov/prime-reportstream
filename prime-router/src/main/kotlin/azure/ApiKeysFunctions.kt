@@ -36,6 +36,16 @@ import javax.ws.rs.POST
 import javax.ws.rs.Path
 import javax.ws.rs.PathParam
 
+const val KEY_MGMT_TAG = "Public Key Management"
+const val HTTP_401_ERR_MSG = "Unauthorized operation"
+const val HTTP_404_ERR_MSG = "API key not found"
+const val HTTP_400_ERR_MSG = "Bad request"
+const val HTTP_200_GET_MSG = "API keys returned"
+const val HTTP_200_DELETE_MSG = "API key deleted"
+const val HTTP_200_POST_MSG = "API key created"
+
+const val HTTP_404_DELETE_MSG = "Organization, scope, or key id not found"
+
 @OpenAPIDefinition(
     info = Info(
         title = "Prime ReportStream",
@@ -100,7 +110,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     @Operation(
         summary = "Retrieve API keys (deprecated use v1 version)",
         description = "Retrieve API key(s) for the given organization",
-        tags = ["Public Key Management"],
+        tags = [KEY_MGMT_TAG],
         parameters = [
             Parameter(
                 name = "organizationName",
@@ -109,9 +119,9 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             )
         ],
         responses = [
-            ApiResponse(responseCode = "200", description = "API keys returned"),
-            ApiResponse(responseCode = "404", description = "API key not found"),
-            ApiResponse(responseCode = "400", description = "Bad request")
+            ApiResponse(responseCode = "200", description = HTTP_200_GET_MSG),
+            ApiResponse(responseCode = "404", description = HTTP_404_ERR_MSG),
+            ApiResponse(responseCode = "400", description = HTTP_400_ERR_MSG)
         ]
     )
     @GET
@@ -123,7 +133,12 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations/{organizationName}/public-keys"
         ) @Parameter(hidden = true) request: HttpRequestMessage<String?>,
-        @PathParam("organizationName") @BindingName("organizationName") orgName: String
+        @Parameter(
+            name = "organizationName",
+            description = "the organization whose keys are retrieved."
+        )
+        @PathParam("organizationName")
+        @BindingName("organizationName") orgName: String
     ): HttpResponseMessage {
         return getApiKeysForOrg(request, orgName)
     }
@@ -132,7 +147,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     @Operation(
         summary = "Retrieve API keys for the organization (v1), return API keys when successful",
         description = "Retrieve API key(s) for the given organization",
-        tags = ["Public Key Management"],
+        tags = [KEY_MGMT_TAG],
         parameters = [
             Parameter(
                 name = "organizationName",
@@ -141,9 +156,9 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             )
         ],
         responses = [
-            ApiResponse(responseCode = "200", description = "API keys returned"),
-            ApiResponse(responseCode = "404", description = "API key not found"),
-            ApiResponse(responseCode = "400", description = "Bad request")
+            ApiResponse(responseCode = "200", description = HTTP_200_GET_MSG),
+            ApiResponse(responseCode = "404", description = HTTP_404_ERR_MSG),
+            ApiResponse(responseCode = "400", description = HTTP_400_ERR_MSG)
         ]
     )
     @GET
@@ -155,7 +170,12 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "v1/settings/organizations/{organizationName}/public-keys"
         ) @Parameter(hidden = true) request: HttpRequestMessage<String?>,
-        @PathParam("organizationName") @BindingName("organizationName") orgName: String
+        @Parameter(
+            name = "organizationName",
+            description = "the organization whose keys are retrieved."
+        )
+        @PathParam("organizationName")
+        @BindingName("organizationName") orgName: String
     ): HttpResponseMessage {
         return getApiKeysForOrg(request, orgName, true)
     }
@@ -166,10 +186,10 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     @Operation(
         summary = "Create (post) an API key for the organization",
         description = "Create API key for the given organization",
-        tags = ["Public Key Management"],
+        tags = [KEY_MGMT_TAG],
         responses = [
-            ApiResponse(responseCode = "200", description = "API key created"),
-            ApiResponse(responseCode = "401", description = "Unauthorized operation")
+            ApiResponse(responseCode = "200", description = HTTP_200_POST_MSG),
+            ApiResponse(responseCode = "401", description = HTTP_401_ERR_MSG)
         ]
     )
     fun post(
@@ -179,7 +199,12 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations/{organizationName}/public-keys"
         ) request: HttpRequestMessage<String?>,
-        @PathParam("organizationName") @BindingName("organizationName") orgName: String
+        @Parameter(
+            name = "organizationName",
+            description = "the organization where a key is to be created."
+        )
+        @PathParam("organizationName")
+        @BindingName("organizationName") orgName: String
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims == null || !claims.authorized(setOf("*.*.primeadmin", "$orgName.*.admin"))) {
@@ -247,19 +272,20 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     @FunctionName("deleteApiKey")
     @Operation(
         summary = "Delete API key",
-        description = "Delete API key given org, scope, and kid",
-        tags = ["Public Key Management"],
+        description = "Delete API key given organization name, scope, and kid",
+        tags = [KEY_MGMT_TAG],
         security = [
             SecurityRequirement(
                 name = "primeSecurity"
             )
         ],
         responses = [
-            ApiResponse(responseCode = "401", description = "Unauthorized"),
-            ApiResponse(responseCode = "404", description = "Org, scope, or kid not found"),
+            ApiResponse(responseCode = "401", description = HTTP_401_ERR_MSG),
+            ApiResponse(responseCode = "404", description = HTTP_404_DELETE_MSG),
+
             ApiResponse(
                 responseCode = "200",
-                description = "Key deleted",
+                description = HTTP_200_DELETE_MSG,
                 content = [
                     Content(
                         mediaType = "application/json",
@@ -278,8 +304,20 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations/{organizationName}/public-keys/{scope}/{kid}"
         ) @Parameter(hidden = true) request: HttpRequestMessage<String?>,
+        @Parameter(
+            name = "organizationName",
+            description = "the organization whose key is to be deleted."
+        )
         @PathParam("organizationName") @BindingName("organizationName") orgName: String,
+        @Parameter(
+            name = "scope",
+            description = "scope of the key to be deleted."
+        )
         @PathParam("scope") @BindingName("scope") scope: String,
+        @Parameter(
+            name = "kid",
+            description = "id of the key to be deleted."
+        )
         @PathParam("kid") @BindingName("kid") kid: String
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)

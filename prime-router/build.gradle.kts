@@ -291,6 +291,8 @@ tasks.register<Test>("testIntegration") {
 }
 
 tasks.register<ResolveTask>("generateOpenApi") {
+    group = rootProject.description ?: ""
+    description = "Generate OpenAPI spec for Report Stream APIs"
     outputFileName = "api"
     outputFormat = ResolveTask.Format.YAML
     prettyPrint = true
