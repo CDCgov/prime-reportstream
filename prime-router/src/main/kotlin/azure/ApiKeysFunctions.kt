@@ -100,6 +100,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     @Operation(
         summary = "Retrieve API keys (deprecated use v1 version)",
         description = "Retrieve API key(s) for the given organization",
+        tags = ["Public Key Management"],
         parameters = [
             Parameter(
                 name = "organizationName",
@@ -131,6 +132,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     @Operation(
         summary = "Retrieve API keys for the organization (v1), return API keys when successful",
         description = "Retrieve API key(s) for the given organization",
+        tags = ["Public Key Management"],
         parameters = [
             Parameter(
                 name = "organizationName",
@@ -164,6 +166,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     @Operation(
         summary = "Create (post) an API key for the organization",
         description = "Create API key for the given organization",
+        tags = ["Public Key Management"],
         responses = [
             ApiResponse(responseCode = "200", description = "API key created"),
             ApiResponse(responseCode = "401", description = "Unauthorized operation")

@@ -103,7 +103,7 @@ services:
 
   # Secrets management
   vault:
-    image: vault:1.12.7
+    image: hashicorp/vault
     cap_add:
       # Allows protected memory
       - IPC_LOCK
