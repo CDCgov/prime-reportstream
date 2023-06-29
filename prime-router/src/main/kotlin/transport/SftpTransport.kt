@@ -56,10 +56,10 @@ class SftpTransport : ITransport, Logging {
 
             // Dev note:  db table requires body_url to be unique, but not external_name
             val fileName = Report.formExternalFilename(header)
-            logger.info("Successfully connected to $sftpTransportType, ready to upload $fileName")
+            context.logger.info("Successfully connected to $sftpTransportType, ready to upload $fileName")
             uploadFile(sshClient, sftpTransportType.filePath, fileName, header.content)
             val msg = "Success: sftp upload of $fileName to $sftpTransportType"
-            logger.info(msg)
+            context.logger.info(msg)
             actionHistory.trackActionResult(msg)
             actionHistory.trackSentReport(
                 receiver,
@@ -76,7 +76,7 @@ class SftpTransport : ITransport, Logging {
                 "FAILED Sftp upload of inputReportId ${header.reportFile.reportId} to " +
                     "$sftpTransportType (orgService = ${header.receiver?.fullName ?: "null"})" +
                     ", Exception: ${t.localizedMessage}"
-            logger.warn(msg, t)
+            context.logger.warning(msg)
             actionHistory.setActionType(TaskAction.send_warning)
             actionHistory.trackActionResult(msg)
             RetryToken.allItems
@@ -169,7 +169,6 @@ class SftpTransport : ITransport, Logging {
                 }
                 return sshClient
             } catch (t: Throwable) {
-                logger.warn(t)
                 sshClient.disconnect()
                 throw t
             }
@@ -305,7 +304,7 @@ class SftpTransport : ITransport, Logging {
             }
         }
 
-        // allow us to mock client because there is no dependency injection in this class
+        // allow us to mock SSHClient because there is no dependency injection in this class
         fun createDefaultSSHClient(): SSHClient {
             val sshConfig = DefaultConfig()
             return SSHClient(sshConfig)
