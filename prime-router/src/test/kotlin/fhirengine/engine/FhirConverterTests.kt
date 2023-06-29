@@ -40,6 +40,11 @@ import java.io.File
 import java.util.UUID
 import kotlin.test.Test
 
+private const val BLOB_URL = "http://blobstore.example/file.hl7"
+private const val BLOB_SUB_FOLDER_NAME = "test-sender"
+private const val SCHEMA_NAME = "test-schema"
+private const val VALID_DATA_URL = "src/test/resources/fhirengine/engine/valid_data.fhir"
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FhirConverterTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -58,7 +63,7 @@ class FhirConverterTests {
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
     val metadata = Metadata(schema = one)
 
-    val valid_hl7 = "" +
+    private val validHl7 = "" +
         "MSH|^~\\&|CDC PRIME - Atlanta,^2.16.840.1.114222.4.1.237821^ISO|Winchester House^05D2222542^ISO|CDPH FL " +
         "REDIE^2.16.840.1.114222.4.3.3.10.1.1^ISO|CDPH_CID^2.16.840.1.114222.4.1.214104^ISO|20210803131511.0147+0000" +
         "||ORU^R01^ORU_R01|1234d1d1-95fe-462c-8ac6-46728dba581c|P|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck" +
@@ -121,23 +126,23 @@ class FhirConverterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
             RawSubmission(
-                UUID.randomUUID(), "http://blobstore.example/file.hl7", "test", "test-sender", topic = Topic.FULL_ELR,
-                "test-schema"
+                UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER_NAME, topic = Topic.FULL_ELR,
+                SCHEMA_NAME
             )
         )
 
         val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "http://anyblob.com"
+        val bodyUrl = "https://anyblob.com"
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(valid_hl7)
+        every { message.downloadContent() }.returns(validHl7)
         every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.HL7
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }.returns(Unit)
-        every { engine.getTransformerFromSchema("test-schema") }.returns(transformer)
+        every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
         every { transformer.transform(any()) } returnsArgument (0)
 
         // act
@@ -167,17 +172,21 @@ class FhirConverterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
             RawSubmission(
-                UUID.randomUUID(), "http://blobstore.example/file.fhir", "test", "test-sender", topic = Topic.FULL_ELR,
-                "test-schema"
+                UUID.randomUUID(),
+                "http://blobstore.example/file.fhir",
+                "test",
+                BLOB_SUB_FOLDER_NAME,
+                topic = Topic.FULL_ELR,
+                SCHEMA_NAME
             )
         )
 
         val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "http://anyblob.com"
+        val bodyUrl = "https://anyblob.com"
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }
-            .returns(File("src/test/resources/fhirengine/engine/valid_data.fhir").readText())
+            .returns(File(VALID_DATA_URL).readText())
         every { Report.getFormatFromBlobURL(message.blobURL) } returns Report.Format.FHIR
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
@@ -185,7 +194,7 @@ class FhirConverterTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
-        every { engine.getTransformerFromSchema("test-schema") }.returns(transformer)
+        every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
         every { transformer.transform(any()) } returnsArgument (0)
 
         // act
@@ -209,15 +218,15 @@ class FhirConverterTests {
         val message = spyk(
             RawSubmission(
                 UUID.randomUUID(),
-                "http://blobstore.example/file.hl7",
+                BLOB_URL,
                 "test",
-                "test-sender",
+                BLOB_SUB_FOLDER_NAME,
                 topic = Topic.FULL_ELR
             )
         )
 
         every { actionLogger.hasErrors() } returns false
-        every { message.downloadContent() }.returns(valid_hl7)
+        every { message.downloadContent() }.returns(validHl7)
 
         assertThat(engine.getContentFromHL7(message, actionLogger)).isNotEmpty()
     }
@@ -229,15 +238,15 @@ class FhirConverterTests {
         val message = spyk(
             RawSubmission(
                 UUID.randomUUID(),
-                "http://blobstore.example/file.hl7",
+                BLOB_URL,
                 "test",
-                "test-sender",
+                BLOB_SUB_FOLDER_NAME,
                 topic = Topic.FULL_ELR
             )
         )
 
         every { message.downloadContent() }
-            .returns(File("src/test/resources/fhirengine/engine/valid_data.fhir").readText())
+            .returns(File(VALID_DATA_URL).readText())
 
         assertThat(engine.getContentFromHL7(message, actionLogger)).isEmpty()
 
@@ -256,13 +265,13 @@ class FhirConverterTests {
                     UUID.randomUUID(),
                     "http://blobstore.example/file.fhir",
                     "test",
-                    "test-sender",
+                    BLOB_SUB_FOLDER_NAME,
                     topic = Topic.FULL_ELR
                 )
             )
 
         every { message.downloadContent() }
-            .returns(File("src/test/resources/fhirengine/engine/valid_data.fhir").readText())
+            .returns(File(VALID_DATA_URL).readText())
 
         val result = engine.getContentFromFHIR(message, actionLogger)
         assertThat(result).isNotEmpty()
