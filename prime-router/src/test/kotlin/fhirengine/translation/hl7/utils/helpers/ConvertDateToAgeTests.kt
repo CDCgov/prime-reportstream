@@ -103,7 +103,7 @@ class ConvertDateToAgeTests {
             // Explicitly look for "day"
             convertDateToAge(
                 mutableListOf(DateType(someDate)),
-                mutableListOf(mutableListOf(DateType(someDate), StringType("day")))
+                mutableListOf(mutableListOf(DateType(someDate)), mutableListOf(StringType("day")))
             ),
             // Get default response without specifying type
             convertDateToAge(
@@ -134,11 +134,11 @@ class ConvertDateToAgeTests {
         val results = listOf(
             convertDateToAge(
                 mutableListOf(DateType(birthdate.time)),
-                mutableListOf(mutableListOf(DateType(referenceDate), StringType("day")))
+                mutableListOf(mutableListOf(DateType(referenceDate)), mutableListOf(StringType("day")))
             ),
             convertDateToAge(
                 mutableListOf(DateType(birthdate.time)),
-                mutableListOf(mutableListOf(StringType("day"), DateType(referenceDate)))
+                mutableListOf(mutableListOf(StringType("day")), mutableListOf(DateType(referenceDate)))
             ),
         )
 
@@ -164,7 +164,7 @@ class ConvertDateToAgeTests {
 
         val ageList = convertDateToAge(
             mutableListOf(DateType(birthdate.time)),
-            mutableListOf(mutableListOf(StringType("day"), DateType(referenceDate)))
+            mutableListOf(mutableListOf(StringType("day")), mutableListOf(DateType(referenceDate)))
         )
 
         val age = ageList[0]
@@ -188,14 +188,14 @@ class ConvertDateToAgeTests {
         assertThrows<SchemaException> {
             convertDateToAge(
                 mutableListOf(),
-                mutableListOf(mutableListOf(StringType("day"), DateType(calendar.time))),
+                mutableListOf(mutableListOf(StringType("day")), mutableListOf(DateType(calendar.time))),
             )
         }
 
         assertThrows<SchemaException> {
             convertDateToAge(
                 mutableListOf(StringType("non-date-input")),
-                mutableListOf(mutableListOf(StringType("day"), DateType(calendar.time))),
+                mutableListOf(mutableListOf(StringType("day")), mutableListOf(DateType(calendar.time))),
             )
         }
 
@@ -213,28 +213,31 @@ class ConvertDateToAgeTests {
         assertThrows<SchemaException> {
             convertDateToAge(
                 mutableListOf(birthDate),
-                mutableListOf(mutableListOf(StringType("day"), DateTimeType(calendar.time))),
+                mutableListOf(mutableListOf(StringType("day")), mutableListOf(DateTimeType(calendar.time))),
             )
         }
 
         assertThrows<SchemaException> {
             convertDateToAge(
                 mutableListOf(birthDate),
-                mutableListOf(mutableListOf(StringType("day"), StringType("day"))),
+                mutableListOf(mutableListOf(StringType("day")), mutableListOf(StringType("day"))),
             )
         }
 
         assertThrows<SchemaException> {
             convertDateToAge(
                 mutableListOf(birthDate),
-                mutableListOf(mutableListOf(DateType(calendar.time), DateType(calendar.time))),
+                mutableListOf(mutableListOf(DateType(calendar.time)), mutableListOf(DateType(calendar.time))),
             )
         }
 
         assertThrows<SchemaException> {
             convertDateToAge(
                 mutableListOf(birthDate),
-                mutableListOf(mutableListOf(DateType(calendar.time), StringType("day"), StringType("day"))),
+                mutableListOf(
+                    mutableListOf(DateType(calendar.time)), mutableListOf(StringType("day")),
+                    mutableListOf(StringType("day"))
+                ),
             )
         }
 
@@ -242,14 +245,14 @@ class ConvertDateToAgeTests {
         assertThrows<SchemaException> {
             convertDateToAge(
                 mutableListOf(birthDate),
-                mutableListOf(mutableListOf(StringType("minute"), DateType(calendar.time))),
+                mutableListOf(mutableListOf(StringType("minute")), mutableListOf(DateType(calendar.time))),
             )
         }
 
         assertThrows<SchemaException> {
             convertDateToAge(
                 mutableListOf(birthDate),
-                mutableListOf(mutableListOf(StringType("quarter"), DateType(calendar.time))),
+                mutableListOf(mutableListOf(StringType("quarter")), mutableListOf(DateType(calendar.time))),
             )
         }
     }

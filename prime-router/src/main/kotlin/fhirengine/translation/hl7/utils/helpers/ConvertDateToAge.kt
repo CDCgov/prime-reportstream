@@ -30,33 +30,36 @@ fun convertDateToAge(focus: MutableList<Base>, parameters: MutableList<MutableLi
     var referenceDate: LocalDate = LocalDate.now()
 
     /**
-     * populates local variables referenceDate and ageUnit from params
+     * Populates local variables referenceDate and ageUnit from params.
+     * The expected format for parameters is listOf(listOf(param1), listOf(param2)).
      */
     fun populateParams() {
         // validate resource
         if (!parameters.isNullOrEmpty()) {
-            val paramList = if (parameters.size > 1) {
-                throw SchemaException("Cannot accept more than one set of parameters")
-            } else parameters.first()
-            if (paramList.size == 2 && paramList[0]::class == paramList[1]::class) {
-                throw SchemaException("Parameters can only include one string param and/or one DateType param.")
-            }
-            if (paramList.size > 2) {
+            if (parameters.size > 2) {
                 throw SchemaException("Cannot call the convertDateToAge function with more than two parameters.")
             }
-            paramList.forEach { param ->
-                when (param) {
+
+            parameters.forEach { currentParamList ->
+                if (currentParamList.size != 1) {
+                    throw SchemaException("Can only pass a list(list(param), list(param)).")
+                }
+                when (val param = currentParamList[0]) {
                     is DateType -> referenceDate = getLocalDate(param)
                     is StringType -> {
                         try {
                             ageUnit = TemporalPrecisionEnum.valueOf(param.toString().uppercase())
                         } catch (e: IllegalArgumentException) {
-                            throw SchemaException("age unit must be one of: year, month, day")
+                            throw SchemaException("Age unit must be one of: year, month, day.")
                         }
                     }
                     else ->
                         throw SchemaException("Parameters can only include one string param and/or one DateType param.")
                 }
+            }
+
+            if (parameters.size == 2 && parameters[0][0]::class == parameters[1][0]::class) {
+                throw SchemaException("Parameters can only include one string param and/or one DateType param.")
             }
         }
     }
@@ -74,7 +77,7 @@ fun convertDateToAge(focus: MutableList<Base>, parameters: MutableList<MutableLi
 
 /**
  * This method calculates the time passed from [dateOfBirth] to [referenceDate] using the time unit specified
- * in [ageUnit]
+ * in [ageUnit].
  * @return an age in years, months, or days.
  */
 internal fun calculateAgeWithSpecifiedTimeUnit(
@@ -92,7 +95,7 @@ internal fun calculateAgeWithSpecifiedTimeUnit(
         TemporalPrecisionEnum.YEAR -> {
             createAge(ageUnit, BigDecimal(ChronoUnit.YEARS.between(dateOfBirth, referenceDate)))
         }
-        else -> throw SchemaException("age unit must be one of: year, month, day")
+        else -> throw SchemaException("Age unit must be one of: year, month, day")
     }
 }
 
@@ -109,21 +112,21 @@ internal fun calculateAgeWithAssumption(dateOfBirth: LocalDate, referenceDate: L
         period.years > 1 -> createAge(TemporalPrecisionEnum.YEAR, BigDecimal(period.years))
         period.months > 1 -> createAge(TemporalPrecisionEnum.MONTH, BigDecimal(period.months))
         period.days >= 0 -> createAge(TemporalPrecisionEnum.DAY, BigDecimal(period.days))
-        else -> throw SchemaException("Must call the convertDateToAge function on a date in the past")
+        else -> throw SchemaException("Must call the convertDateToAge function on a date in the past.")
     }
 }
 
 /**
  *  Takes a [date] and converts it to a LocalDate.
- *  Have to do plus one for the month because it is expecting 1 based, and we get zero based
- *  @return DateType converted to LocalDate
+ *  Have to do plus one for the month because it is expecting 1 based, and we get zero based.
+ *  @return DateType converted to LocalDate.
  */
 internal fun getLocalDate(date: DateType): LocalDate =
     LocalDate.of(date.year, date.month + 1, date.day)
 
 /**
- * Creates an Age of the given [ageValue] with the [ageUnit] properly tracked in the Age's unit and code
- * @return the created Age
+ * Creates an Age of the given [ageValue] with the [ageUnit] properly tracked in the Age's unit and code.
+ * @return the created Age.
  */
 internal fun createAge(ageUnit: TemporalPrecisionEnum, ageValue: BigDecimal): Age {
     val age = Age()
@@ -133,7 +136,7 @@ internal fun createAge(ageUnit: TemporalPrecisionEnum, ageValue: BigDecimal): Ag
         TemporalPrecisionEnum.DAY -> "d"
         TemporalPrecisionEnum.MONTH -> "mo"
         TemporalPrecisionEnum.YEAR -> "a"
-        else -> throw SchemaException("age unit must be one of: year, month, day")
+        else -> throw SchemaException("Age unit must be one of: year, month, day.")
     }
     return age
 }
