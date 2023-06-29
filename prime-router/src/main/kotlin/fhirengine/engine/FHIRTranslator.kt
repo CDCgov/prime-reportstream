@@ -136,7 +136,7 @@ class FHIRTranslator(
             hl7Message.encode().toByteArray()
         }
         else -> {
-            throw IllegalStateException("Receiver format ${receiver.format} not supported.")
+            error("Receiver format ${receiver.format} not supported.")
         }
     }
 
