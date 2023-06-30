@@ -45,11 +45,16 @@ const val HTTP_200_DELETE_MSG = "API key deleted"
 const val HTTP_200_POST_MSG = "API key created"
 const val HTTP_404_DELETE_MSG = "Organization, scope, or key id not found"
 
+const val PRIME_ADMIN_PATTERN = "*.*.primeadmin"
 const val ORG_NAME_DESC = "the organization whose keys are retrieved"
 const val OPERATION_GET_KEYS_DESC = "Retrieve API key(s) for the given organization"
 const val ORG_NAME_STR = "organizationName"
 const val SCOPE_STR = "scope"
 const val KID_STR = "kid"
+const val HTTP_200_OK = "200"
+const val HTTP_400_BAD_REQ = "400"
+const val HTTP_401_UNAUTHORIZED = "401"
+const val HTTP_404_NOT_FOUND = "404"
 
 @OpenAPIDefinition(
     info = Info(
@@ -94,7 +99,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
         useNewApiResponse: Boolean = false
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
-        if (claims == null || !claims.authorized(setOf("*.*.primeadmin", "$orgName.*.admin"))) {
+        if (claims == null || !claims.authorized(setOf(PRIME_ADMIN_PATTERN, "$orgName.*.admin"))) {
             logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
             return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
         }
@@ -123,10 +128,19 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             )
         ],
         responses = [
-            ApiResponse(responseCode = "200", description = HTTP_200_GET_MSG),
-            ApiResponse(responseCode = "404", description = HTTP_404_ERR_MSG),
-            ApiResponse(responseCode = "400", description = HTTP_400_ERR_MSG)
-        ]
+            ApiResponse(
+                responseCode = HTTP_200_OK,
+                description = HTTP_200_GET_MSG,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiKeysResponse::class)
+                    )
+                ]
+            ),
+            ApiResponse(responseCode = HTTP_404_NOT_FOUND, description = HTTP_404_ERR_MSG),
+            ApiResponse(responseCode = HTTP_400_BAD_REQ, description = HTTP_400_ERR_MSG)
+        ],
     )
     @GET
     @Path("settings/organizations/{organizationName}/public-keys")
@@ -160,9 +174,18 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             )
         ],
         responses = [
-            ApiResponse(responseCode = "200", description = HTTP_200_GET_MSG),
-            ApiResponse(responseCode = "404", description = HTTP_404_ERR_MSG),
-            ApiResponse(responseCode = "400", description = HTTP_400_ERR_MSG)
+            ApiResponse(
+                responseCode = HTTP_200_OK,
+                description = HTTP_200_GET_MSG,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiKeysResponse::class)
+                    )
+                ]
+            ),
+            ApiResponse(responseCode = HTTP_404_NOT_FOUND, description = HTTP_404_ERR_MSG),
+            ApiResponse(responseCode = HTTP_400_BAD_REQ, description = HTTP_400_ERR_MSG)
         ]
     )
     @GET
@@ -192,8 +215,8 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
         description = "Create API key for the given organization",
         tags = [KEY_MGMT_TAG],
         responses = [
-            ApiResponse(responseCode = "200", description = HTTP_200_POST_MSG),
-            ApiResponse(responseCode = "401", description = HTTP_401_ERR_MSG)
+            ApiResponse(responseCode = HTTP_200_OK, description = HTTP_200_POST_MSG),
+            ApiResponse(responseCode = HTTP_401_UNAUTHORIZED, description = HTTP_401_ERR_MSG)
         ]
     )
     fun post(
@@ -211,7 +234,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
         @BindingName(ORG_NAME_STR) orgName: String
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
-        if (claims == null || !claims.authorized(setOf("*.*.primeadmin", "$orgName.*.admin"))) {
+        if (claims == null || !claims.authorized(setOf(PRIME_ADMIN_PATTERN, "$orgName.*.admin"))) {
             logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
             return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
         }
@@ -285,11 +308,11 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             )
         ],
         responses = [
-            ApiResponse(responseCode = "401", description = HTTP_401_ERR_MSG),
-            ApiResponse(responseCode = "404", description = HTTP_404_DELETE_MSG),
+            ApiResponse(responseCode = HTTP_401_UNAUTHORIZED, description = HTTP_401_ERR_MSG),
+            ApiResponse(responseCode = HTTP_404_NOT_FOUND, description = HTTP_404_DELETE_MSG),
 
             ApiResponse(
-                responseCode = "200",
+                responseCode = HTTP_200_OK,
                 description = HTTP_200_DELETE_MSG,
                 content = [
                     Content(
@@ -326,7 +349,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
         @PathParam(KID_STR) @BindingName(KID_STR) kid: String
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
-        if (claims == null || !claims.authorized(setOf("*.*.primeadmin", "$orgName.*.admin"))) {
+        if (claims == null || !claims.authorized(setOf(PRIME_ADMIN_PATTERN, "$orgName.*.admin"))) {
             logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
             return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
         }
