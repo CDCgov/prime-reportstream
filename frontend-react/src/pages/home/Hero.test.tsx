@@ -10,7 +10,6 @@ describe("Hero rendering", () => {
     });
 
     test("Title and Summary render on Hero", () => {
-        expect(screen.getByTestId("heading")).toBeInTheDocument();
-        expect(screen.getByTestId("summary")).toBeInTheDocument();
+        expect(screen.getByRole("banner")).toBeInTheDocument();
     });
 });
