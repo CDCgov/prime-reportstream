@@ -1,5 +1,5 @@
 import content from "../../content/content.json";
-import { USLink } from "../../components/USLink";
+import { USSmartLink } from "../../components/USLink";
 
 import Hero from "./Hero";
 import Section from "./Sections/Section";
@@ -46,15 +46,14 @@ export const Home = () => {
                     );
                 })}
 
-                <div className="tablet:margin-bottom-8">
+                <div className="tablet:margin-bottom-8 usa-prose">
                     <h2 className="font-sans-lg tablet:font-sans-xl margin-top-0 tablet:margin-bottom-0">
                         How it works
                     </h2>
                     <p className="usa-intro margin-top-1 text-base">
                         Our open-source platform aggregates and securely
-                        delivers health care data test results from
-                        organizations and testing facilities directly to public
-                        health entities.
+                        delivers health care data from organizations and testing
+                        facilities directly to public health entities.
                     </p>
                     <img
                         src="/assets/img/ReportStreamDiagram_2022.png"
@@ -63,9 +62,18 @@ export const Home = () => {
                     <p>
                         While ReportStream currently works with COVID-19 and
                         mpox data, we are adding more reportable conditions
-                        soon. Contact us if you would like updates on additional
-                        conditions as they become available. Learn how to send
-                        data through our API.
+                        soon.{" "}
+                        <USSmartLink href="mailto:reportstream@cdc.gov">
+                            Contact us
+                        </USSmartLink>{" "}
+                        if you would like updates on additional conditions as
+                        they become available. Learn how to send data through
+                        our API.
+                    </p>
+                    <p>
+                        <USSmartLink href="/resources/api">
+                            Learn how to send data through our API.
+                        </USSmartLink>
                     </p>
                 </div>
 
@@ -102,12 +110,12 @@ export const Home = () => {
                                 this service free. Contact us to explore how we
                                 can help you.
                             </p>
-                            <USLink
-                                href="/support/contact"
+                            <USSmartLink
+                                href="mailto:reportstream@cdc.gov"
                                 className="usa-button"
                             >
                                 Connect with us
-                            </USLink>
+                            </USSmartLink>
                         </div>
                     </div>
                 </section>
