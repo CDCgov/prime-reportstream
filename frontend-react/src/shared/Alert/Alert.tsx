@@ -60,6 +60,7 @@ export const Alert = ({
     className,
     slim = _type === "tip",
     icon,
+    noIcon,
     ...props
 }: AlertProps & React.HTMLAttributes<HTMLDivElement>): React.ReactElement => {
     const classes = classnames(
@@ -93,9 +94,10 @@ export const Alert = ({
             role={ariaRole}
             validation
             headingLevel={headingLevel as any}
+            noIcon={noIcon}
             {...props}
         >
-            {alertIcon}
+            {!noIcon && alertIcon}
             <div className="usa-alert__text">{children}</div>
         </OrigAlert>
     );

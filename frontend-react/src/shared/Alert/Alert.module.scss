@@ -36,4 +36,8 @@
             @include u-width(3);
         }
     }
+
+    &--no-icon &__body {
+        padding-left: 0;
+    }
 }
