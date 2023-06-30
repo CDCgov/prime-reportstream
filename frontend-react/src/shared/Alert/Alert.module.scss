@@ -8,26 +8,32 @@
     :global(.usa-alert__body) {
         min-height: units(3);
     }
-}
 
-.usa-alert--tip {
-    @include u-border("primary-lighter");
-    @include u-border(1px);
-    @include u-border("solid");
-    @include u-radius("md");
-}
+    &--tip {
+        @include u-border("primary-lighter");
+        @include u-border(1px);
+        @include u-border("solid");
+        @include u-radius("md");
 
-.usa-alert__icon {
-    @include u-width(4);
-    height: (2 * units($theme-alert-padding-y)) + units(3);
-    left: $alert-icon-optical-padding;
-    position: absolute;
-    top: 0;
-}
+        :global(.usa-alert__heading) {
+            font-size: size("body", "sm");
+        }
+    }
 
-:global(.usa-alert--slim) {
-    .usa-alert__icon {
-        @include u-height(5);
-        @include u-width(3);
+    :global(div.usa-alert__heading) {
+        font-weight: bold;
+    }
+
+    &__icon {
+        @include u-width(4);
+        height: (2 * units($theme-alert-padding-y)) + units(3);
+        left: $alert-icon-optical-padding;
+        position: absolute;
+        top: 0;
+
+        :global(.usa-alert--slim) & {
+            @include u-height(5);
+            @include u-width(3);
+        }
     }
 }
