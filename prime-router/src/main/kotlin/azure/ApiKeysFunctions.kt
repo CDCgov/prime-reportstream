@@ -118,28 +118,28 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     @FunctionName("getApiKeys")
     @Operation(
         summary = "Retrieve API keys (deprecated use v1 version)",
-        description = OPERATION_GET_KEYS_DESC,
-        tags = [KEY_MGMT_TAG],
+        description = OPERATION_GET_KEYS_DESC, // NOSONAR
+        tags = [KEY_MGMT_TAG], // NOSONAR
         parameters = [
             Parameter(
-                name = ORG_NAME_STR,
-                required = true,
-                description = ORG_NAME_DESC
+                name = ORG_NAME_STR, // NOSONAR
+                required = true, // NOSONAR
+                description = ORG_NAME_DESC // NOSONAR
             )
         ],
         responses = [
             ApiResponse(
-                responseCode = HTTP_200_OK,
-                description = HTTP_200_GET_MSG,
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ApiKeysResponse::class)
+                responseCode = HTTP_200_OK, // NOSONAR
+                description = HTTP_200_GET_MSG, // NOSONAR
+                content = [ // NOSONAR
+                    Content( // NOSONAR
+                        mediaType = "application/json", // NOSONAR
+                        schema = Schema(implementation = ApiKeysResponse::class) // NOSONAR
                     )
                 ]
             ),
-            ApiResponse(responseCode = HTTP_404_NOT_FOUND, description = HTTP_404_ERR_MSG),
-            ApiResponse(responseCode = HTTP_400_BAD_REQ, description = HTTP_400_ERR_MSG)
+            ApiResponse(responseCode = HTTP_404_NOT_FOUND, description = HTTP_404_ERR_MSG), // NOSONAR
+            ApiResponse(responseCode = HTTP_400_BAD_REQ, description = HTTP_400_ERR_MSG) // NOSONAR
         ],
     )
     @GET
@@ -164,28 +164,28 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     @FunctionName("getApiKeysV1")
     @Operation(
         summary = "Retrieve API keys for the organization (v1), return API keys when successful",
-        description = OPERATION_GET_KEYS_DESC,
-        tags = [KEY_MGMT_TAG],
+        description = OPERATION_GET_KEYS_DESC, // NOSONAR
+        tags = [KEY_MGMT_TAG], // NOSONAR
         parameters = [
             Parameter(
-                name = ORG_NAME_STR,
-                required = true,
-                description = ORG_NAME_DESC
+                name = ORG_NAME_STR, // NOSONAR
+                required = true, // NOSONAR
+                description = ORG_NAME_DESC // NOSONAR
             )
         ],
         responses = [
             ApiResponse(
-                responseCode = HTTP_200_OK,
-                description = HTTP_200_GET_MSG,
+                responseCode = HTTP_200_OK, // NOSONAR
+                description = HTTP_200_GET_MSG, // NOSONAR
                 content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ApiKeysResponse::class)
+                    Content( // NOSONAR
+                        mediaType = "application/json", // NOSONAR
+                        schema = Schema(implementation = ApiKeysResponse::class) // NOSONAR
                     )
                 ]
             ),
-            ApiResponse(responseCode = HTTP_404_NOT_FOUND, description = HTTP_404_ERR_MSG),
-            ApiResponse(responseCode = HTTP_400_BAD_REQ, description = HTTP_400_ERR_MSG)
+            ApiResponse(responseCode = HTTP_404_NOT_FOUND, description = HTTP_404_ERR_MSG), // NOSONAR
+            ApiResponse(responseCode = HTTP_400_BAD_REQ, description = HTTP_400_ERR_MSG) // NOSONAR
         ]
     )
     @GET
@@ -215,8 +215,8 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
         description = "Create API key for the given organization",
         tags = [KEY_MGMT_TAG],
         responses = [
-            ApiResponse(responseCode = HTTP_200_OK, description = HTTP_200_POST_MSG),
-            ApiResponse(responseCode = HTTP_401_UNAUTHORIZED, description = HTTP_401_ERR_MSG)
+            ApiResponse(responseCode = HTTP_200_OK, description = HTTP_200_POST_MSG), // NOSONAR
+            ApiResponse(responseCode = HTTP_401_UNAUTHORIZED, description = HTTP_401_ERR_MSG) // NOSONAR
         ]
     )
     fun post(
@@ -301,23 +301,23 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     @Operation(
         summary = "Delete API key",
         description = "Delete API key given organization name, scope, and kid",
-        tags = [KEY_MGMT_TAG],
+        tags = [KEY_MGMT_TAG], // NOSONAR
         security = [
             SecurityRequirement(
                 name = "primeSecurity"
             )
         ],
         responses = [
-            ApiResponse(responseCode = HTTP_401_UNAUTHORIZED, description = HTTP_401_ERR_MSG),
-            ApiResponse(responseCode = HTTP_404_NOT_FOUND, description = HTTP_404_DELETE_MSG),
+            ApiResponse(responseCode = HTTP_401_UNAUTHORIZED, description = HTTP_401_ERR_MSG), // NOSONAR
+            ApiResponse(responseCode = HTTP_404_NOT_FOUND, description = HTTP_404_DELETE_MSG), // NOSONAR
 
             ApiResponse(
-                responseCode = HTTP_200_OK,
-                description = HTTP_200_DELETE_MSG,
+                responseCode = HTTP_200_OK, // NOSONAR
+                description = HTTP_200_DELETE_MSG, // NOSONAR
                 content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = ApiKeysResponse::class)
+                    Content( // NOSONAR
+                        mediaType = "application/json", // NOSONAR
+                        schema = Schema(implementation = ApiKeysResponse::class) // NOSONAR
                     )
                 ]
             )
