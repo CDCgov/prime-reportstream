@@ -106,6 +106,12 @@
       customerStatus: active
       schemaName: metadata/fhir_transforms/senders/default-sender-transform
       format: HL7
+    - name: dev-simple-report      # Use this to test full-elr
+      organizationName: ignore
+      topic: full-elr
+      customerStatus: active
+      schemaName: metadata/fhir_transforms/senders/SimpleReport/simple-report-sender-transform
+      format: FHIR
     - name: ignore-etor-ti      # Use this to test etor-ti
       organizationName: ignore
       topic: etor-ti
