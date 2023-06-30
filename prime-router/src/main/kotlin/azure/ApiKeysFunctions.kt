@@ -116,6 +116,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
 
     @Deprecated("The v1 version should be used")
     @FunctionName("getApiKeys")
+    @SuppressWarnings("all")
     @Operation(
         summary = "Retrieve API keys (deprecated use v1 version)",
         description = OPERATION_GET_KEYS_DESC, // NOSONAR
@@ -162,6 +163,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     }
 
     @FunctionName("getApiKeysV1")
+    @SuppressWarnings("all")
     @Operation(
         summary = "Retrieve API keys for the organization (v1), return API keys when successful",
         description = OPERATION_GET_KEYS_DESC, // NOSONAR
@@ -210,6 +212,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     @FunctionName("postApiKey")
     @POST
     @Path("settings/organizations/{organizationName}/public-keys")
+    @SuppressWarnings("all")
     @Operation(
         summary = "Create (post) an API key for the organization",
         description = "Create API key for the given organization",
@@ -298,6 +301,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
      */
 
     @FunctionName("deleteApiKey")
+    @SuppressWarnings("all")
     @Operation(
         summary = "Delete API key",
         description = "Delete API key given organization name, scope, and kid",
