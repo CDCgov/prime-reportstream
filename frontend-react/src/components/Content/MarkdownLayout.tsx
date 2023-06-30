@@ -55,7 +55,7 @@ export function MarkdownLayout({
             }}
             {...mdx}
         >
-            <GridContainer className="usa-prose tablet:margin-top-6 margin-bottom-5">
+            <GridContainer className="usa-prose">
                 <Grid row className="flex-justify flex-align-start">
                     {sidenav ? (
                         <Nav

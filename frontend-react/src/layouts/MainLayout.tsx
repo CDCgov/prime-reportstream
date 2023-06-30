@@ -34,6 +34,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 id="main-content"
                 className={classNames(isContentPage && "rs-style__content")}
             >
+                <div className="margin-top-5"></div>
                 <RSErrorBoundary>
                     {children}
                     <Outlet />
