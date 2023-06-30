@@ -69,7 +69,15 @@ const config: StorybookConfig = {
             },
         };
 
-        return config;
+        return {
+            ...config,
+            build: {
+                ...config.build,
+                // Disable sourcemap to prevent out of memory
+                // error on github actions
+                sourcemap: false,
+            },
+        };
     },
     docs: {
         autodocs: "tag",
