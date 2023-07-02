@@ -122,7 +122,7 @@
         "@storybook/core-events": "^7.0.23",
         "@storybook/mdx2-csf": "1.1.0",
         "@storybook/react": "^7.0.23",
-        "@storybook/react-vite": "^7.0.23",
+        "@storybook/react-vite": "^7.0.24",
         "@storybook/testing-library": "^0.2.0",
         "@storybook/theming": "^7.0.23",
         "@testing-library/cypress": "^9.0.0",
