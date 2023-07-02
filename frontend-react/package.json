@@ -144,7 +144,7 @@
         "@types/react-router-dom": "^5.3.3",
         "@types/react-scroll-sync": "^0.8.3",
         "@typescript-eslint/eslint-plugin": "^5.60.0",
-        "@typescript-eslint/parser": "^5.60.0",
+        "@typescript-eslint/parser": "^5.60.1",
         "@vitejs/plugin-react": "^4.0.1",
         "babel-jest": "^29.5.0",
         "bfj": "^7.0.2",
