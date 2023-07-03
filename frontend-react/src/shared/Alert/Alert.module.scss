@@ -24,20 +24,20 @@
         font-weight: bold;
     }
 
-    &__icon {
+    :global(.usa-alert__body > .usa-icon) {
         @include u-width(4);
         height: (2 * units($theme-alert-padding-y)) + units(3);
         left: $alert-icon-optical-padding;
         position: absolute;
         top: 0;
-
-        :global(.usa-alert--slim) & {
-            @include u-height(5);
-            @include u-width(3);
-        }
     }
 
     &--no-icon &__body {
         padding-left: 0;
     }
+}
+
+:global(.usa-alert--slim .usa-alert__body > .usa-icon) {
+    @include u-height(5);
+    @include u-width(3);
 }

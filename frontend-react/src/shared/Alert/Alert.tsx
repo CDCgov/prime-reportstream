@@ -77,10 +77,7 @@ export const Alert = ({
     const ariaLabel = ariaRole === "region" ? "Information" : undefined;
     const alertIcon =
         icon == null || typeof icon === "string" ? (
-            <Icon
-                className={styles["usa-alert__icon"]}
-                name={icon ?? getIconName(_type)}
-            />
+            <Icon name={icon ?? getIconName(_type)} />
         ) : (
             icon
         );

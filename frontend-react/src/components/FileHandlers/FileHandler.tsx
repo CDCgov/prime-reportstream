@@ -12,7 +12,6 @@ import { USExtLink, USLink } from "../USLink";
 import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
 import { WatersResponse } from "../../config/endpoints/waters";
 import Alert from "../../shared/Alert/Alert";
-import Icon from "../../shared/Icon/Icon";
 
 import FileHandlerFileUploadStep from "./FileHandlerFileUploadStep";
 import FileHandlerSchemaSelectionStep from "./FileHandlerSchemaSelectionStep";
@@ -197,11 +196,7 @@ export default function FileHandler() {
                     })()}
                 </div>
                 {StepComponent !== FileHandlerSuccessStep && (
-                    <Alert
-                        headingLevel="h3"
-                        type="tip"
-                        icon={<Icon name="Lightbulb" size={3} />}
-                    >
+                    <Alert headingLevel="h3" type="tip">
                         Pages 18-29 in the{" "}
                         <USLink href="/resources/programmers-guide">
                             API Programmer’s Guide
