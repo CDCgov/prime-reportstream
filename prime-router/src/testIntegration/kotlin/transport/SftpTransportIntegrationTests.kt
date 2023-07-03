@@ -56,11 +56,12 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         val metadata = Metadata.getInstance()
         val reportId = UUID.randomUUID()
 
+        val credentialName = "DEFAULT-SFTP"
         val transportType = SFTPTransportType(
             host = "sftp",
             port = "22",
             filePath = "./upload",
-            credentialName = "DEFAULT-SFTP"
+            credentialName = credentialName
         )
         val task = Task(
             reportId,
@@ -106,6 +107,9 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         val rmPath = "./path"
         val rmFile = "a.txt"
 
+        val successSFTPUpload = "Success: sftp upload"
+        val failedSFTPUpload = "FAILED Sftp upload"
+
         val mockSSHClient = mockk<SSHClient>()
         val mockSFTPClient = mockk<SFTPClient>()
         val mockCredentialService = mockk<CredentialService>()
@@ -131,7 +135,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         // return user/pass credentials for this call to authenticate with user/pass
         every {
             f.mockCredentialService.fetchCredential(
-                "DEFAULT-SFTP",
+                f.credentialName,
                 "SftpTransport",
                 CredentialRequestReason.SFTP_UPLOAD
             )
@@ -156,7 +160,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         )
 
         // successful SFTP upload
-        assertThat(f.actionHistory.action.actionResult).startsWith("Success: sftp upload")
+        assertThat(f.actionHistory.action.actionResult).startsWith(f.successSFTPUpload)
         assertThat(retry).isNull()
     }
 
@@ -170,7 +174,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         // return PEM credentials for this call to authenticate with PEM
         every {
             f.mockCredentialService.fetchCredential(
-                "DEFAULT-SFTP",
+                f.credentialName,
                 "SftpTransport",
                 CredentialRequestReason.SFTP_UPLOAD
             )
@@ -195,7 +199,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         )
 
         // successful SFTP upload
-        assertThat(f.actionHistory.action.actionResult).startsWith("Success: sftp upload")
+        assertThat(f.actionHistory.action.actionResult).startsWith(f.successSFTPUpload)
         assertThat(retry).isNull()
     }
 
@@ -209,7 +213,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         // return PKP credentials for this call to authenticate with PKP
         every {
             f.mockCredentialService.fetchCredential(
-                "DEFAULT-SFTP",
+                f.credentialName,
                 "SftpTransport",
                 CredentialRequestReason.SFTP_UPLOAD
             )
@@ -234,7 +238,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         )
 
         // successful SFTP upload
-        assertThat(f.actionHistory.action.actionResult).startsWith("Success: sftp upload")
+        assertThat(f.actionHistory.action.actionResult).startsWith(f.successSFTPUpload)
         assertThat(retry).isNull()
     }
 
@@ -256,7 +260,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         )
 
         // asserts that the initial null check works
-        assertThat(f.actionHistory.action.actionResult).startsWith("FAILED Sftp upload")
+        assertThat(f.actionHistory.action.actionResult).startsWith(f.failedSFTPUpload)
         assertThat(retry).isEqualTo(RetryToken.allItems)
     }
 
@@ -269,7 +273,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         every { CredentialHelper.getCredentialService() } returns f.mockCredentialService
         every {
             f.mockCredentialService.fetchCredential(
-                "DEFAULT-SFTP",
+                f.credentialName,
                 "SftpTransport",
                 CredentialRequestReason.SFTP_UPLOAD
             )
@@ -285,7 +289,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         )
 
         // asserts that missing credentials will fail SFTP
-        assertThat(f.actionHistory.action.actionResult).startsWith("FAILED Sftp upload")
+        assertThat(f.actionHistory.action.actionResult).startsWith(f.failedSFTPUpload)
         assertThat(retry).isEqualTo(RetryToken.allItems)
     }
 
@@ -299,7 +303,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         // returns basic username/pass word
         every {
             f.mockCredentialService.fetchCredential(
-                "DEFAULT-SFTP",
+                f.credentialName,
                 "SftpTransport",
                 CredentialRequestReason.SFTP_UPLOAD
             )
@@ -322,7 +326,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         )
 
         // asserts that authentication error will result in error
-        assertThat(f.actionHistory.action.actionResult).startsWith("FAILED Sftp upload")
+        assertThat(f.actionHistory.action.actionResult).startsWith(f.failedSFTPUpload)
         assertThat(retry).isEqualTo(RetryToken.allItems)
     }
 
@@ -336,7 +340,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         // returns a credential type that does not apply to SFTP servers
         every {
             f.mockCredentialService.fetchCredential(
-                "DEFAULT-SFTP",
+                f.credentialName,
                 "SftpTransport",
                 CredentialRequestReason.SFTP_UPLOAD
             )
@@ -352,7 +356,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         )
 
         // asserts that invalid credential types will result in error
-        assertThat(f.actionHistory.action.actionResult).startsWith("FAILED Sftp upload")
+        assertThat(f.actionHistory.action.actionResult).startsWith(f.failedSFTPUpload)
         assertThat(retry).isEqualTo(RetryToken.allItems)
     }
 
