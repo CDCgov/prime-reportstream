@@ -309,3 +309,7 @@ div.usa-alert__heading {
         height: 1rlh;
     }
 }
+
+.usa-header + main {
+    border-top: none;
+}
