@@ -67,8 +67,7 @@ export const Home = () => {
                             Contact us
                         </USSmartLink>{" "}
                         if you would like updates on additional conditions as
-                        they become available. Learn how to send data through
-                        our API.
+                        they become available.
                     </p>
                     <p>
                         <USSmartLink href="/resources/api">
