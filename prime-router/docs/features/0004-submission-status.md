@@ -3,9 +3,9 @@ When a report is submitted into ReportStream, it is possible to keep track of it
 ```/waters/report/{reportId or submisionId}/history```
 
 ## Calculation Method
-The Universal and Legacy Pipeline status calculation logic differs. For new integrations we recommend using the Universal Pipeline, as the definitions in this document are for that one.
+The status is dynamically calculated at the moment of the History API call. All pipelines use the same entry point.
 
-The status is dynamically calculated at the moment of the History API call. The result is determined by a combination of checks:
+The result is determined by a combination of checks:
 * Has the Submission performed Routing?
 * Is there a future action scheduled for the Submission?
 * Are there any Destinations with items that passed filters?
