@@ -6,7 +6,7 @@ import {
 } from "../../src/components/Table/TableFilters";
 
 export default {
-    title: "Components/Date picker",
+    title: "Components/Date range picker",
     component: DateRangePicker,
 };
 

@@ -2,19 +2,8 @@ import { Button, ButtonGroup, Link } from "@trussworks/react-uswds";
 import React from "react";
 
 export default {
-    title: "Components/Button groups",
+    title: "Components/Button group",
     component: ButtonGroup,
-    parameters: {
-        docs: {
-            description: {
-                component: `
-### USWDS 3.0 ButtonGroup component
-
-Source: https://designsystem.digital.gov/components/button-groups/
-`,
-            },
-        },
-    },
 };
 
 export const Default = (): React.ReactElement => (

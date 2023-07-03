@@ -5,7 +5,7 @@ import { Alert, Button } from "@trussworks/react-uswds";
 export default {
     title: "Components/Alert",
     component: Alert,
-} as Meta<typeof Alert>;
+};
 
 const testText = (
     <>
