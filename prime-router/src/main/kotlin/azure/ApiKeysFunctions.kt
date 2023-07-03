@@ -135,6 +135,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     @Deprecated("The v1 version should be used")
     @FunctionName("getApiKeys")
     @Operation(
+        deprecated = true,
         summary = "Retrieve API keys (deprecated use v1 version)",
         description = OPERATION_GET_KEYS_DESC,
         tags = [KEY_MGMT_TAG],
