@@ -22,13 +22,14 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
     return (
         <App>
-            <DAPHeader env={environment} />
-            <USLink className="usa-skipnav" href="#main-content">
-                Skip Nav
-            </USLink>
-            <GovBanner aria-label="Official government website" />
-            <SenderModeBanner />
-            <ReportStreamHeader />
+            <ReportStreamHeader className="margin-bottom-5">
+                <DAPHeader env={environment} />
+                <USLink className="usa-skipnav" href="#main-content">
+                    Skip Nav
+                </USLink>
+                <GovBanner aria-label="Official government website" />
+                <SenderModeBanner />
+            </ReportStreamHeader>
             <main
                 id="main-content"
                 className={classNames(isContentPage && "rs-style__content")}
