@@ -44,6 +44,12 @@ import java.util.concurrent.TimeoutException
 
 class SftpTransportIntegrationTests : TransportIntegrationTests() {
 
+    /**
+     * The collection of objects and values required for each test.
+     *
+     * Wrapping them in a class allows us to have a fresh set per test
+     * in case there are issues with mutability.
+     */
     private inner class Fixture {
         val transport = spyk(SftpTransport())
         val settings = FileSettings(FileSettings.defaultSettingsDirectory)
@@ -122,6 +128,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         mockkObject(SftpTransport.Companion)
 
         every { CredentialHelper.getCredentialService() } returns f.mockCredentialService
+        // return user/pass credentials for this call to authenticate with user/pass
         every {
             f.mockCredentialService.fetchCredential(
                 "DEFAULT-SFTP",
@@ -148,6 +155,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory
         )
 
+        // successful SFTP upload
         assertThat(f.actionHistory.action.actionResult).startsWith("Success: sftp upload")
         assertThat(retry).isNull()
     }
@@ -159,6 +167,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         mockkObject(SftpTransport.Companion)
 
         every { CredentialHelper.getCredentialService() } returns f.mockCredentialService
+        // return PEM credentials for this call to authenticate with PEM
         every {
             f.mockCredentialService.fetchCredential(
                 "DEFAULT-SFTP",
@@ -185,6 +194,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory
         )
 
+        // successful SFTP upload
         assertThat(f.actionHistory.action.actionResult).startsWith("Success: sftp upload")
         assertThat(retry).isNull()
     }
@@ -196,6 +206,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         mockkObject(SftpTransport.Companion)
 
         every { CredentialHelper.getCredentialService() } returns f.mockCredentialService
+        // return PKP credentials for this call to authenticate with PKP
         every {
             f.mockCredentialService.fetchCredential(
                 "DEFAULT-SFTP",
@@ -222,6 +233,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory
         )
 
+        // successful SFTP upload
         assertThat(f.actionHistory.action.actionResult).startsWith("Success: sftp upload")
         assertThat(retry).isNull()
     }
@@ -243,6 +255,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory
         )
 
+        // asserts that the initial null check works
         assertThat(f.actionHistory.action.actionResult).startsWith("FAILED Sftp upload")
         assertThat(retry).isEqualTo(RetryToken.allItems)
     }
@@ -271,6 +284,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory
         )
 
+        // asserts that missing credentials will fail SFTP
         assertThat(f.actionHistory.action.actionResult).startsWith("FAILED Sftp upload")
         assertThat(retry).isEqualTo(RetryToken.allItems)
     }
@@ -282,6 +296,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         mockkObject(SftpTransport.Companion)
 
         every { CredentialHelper.getCredentialService() } returns f.mockCredentialService
+        // returns basic username/pass word
         every {
             f.mockCredentialService.fetchCredential(
                 "DEFAULT-SFTP",
@@ -291,6 +306,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         } returns UserPassCredential("foo", "pass")
         every { SftpTransport.createDefaultSSHClient() } returns f.mockSSHClient
         every { f.mockSSHClient.addHostKeyVerifier(any<HostKeyVerifier>()) } just runs
+        // throws authentication exception
         every {
             f.mockSSHClient.connect(f.transportType.host, f.transportType.port.toInt())
         } throws UserAuthException("bad password")
@@ -305,6 +321,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory
         )
 
+        // asserts that authentication error will result in error
         assertThat(f.actionHistory.action.actionResult).startsWith("FAILED Sftp upload")
         assertThat(retry).isEqualTo(RetryToken.allItems)
     }
@@ -316,6 +333,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         mockkObject(SftpTransport.Companion)
 
         every { CredentialHelper.getCredentialService() } returns f.mockCredentialService
+        // returns a credential type that does not apply to SFTP servers
         every {
             f.mockCredentialService.fetchCredential(
                 "DEFAULT-SFTP",
@@ -333,6 +351,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
             f.actionHistory
         )
 
+        // asserts that invalid credential types will result in error
         assertThat(f.actionHistory.action.actionResult).startsWith("FAILED Sftp upload")
         assertThat(retry).isEqualTo(RetryToken.allItems)
     }
@@ -343,10 +362,12 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
 
         every { f.mockSSHClient.newSFTPClient() } returns f.mockSFTPClient
         every { f.mockSFTPClient.fileTransfer.preserveAttributes = false } just runs
+        // mock a successful file upload
         every { f.mockSFTPClient.put(any<LocalSourceFile>(), "${f.transportType.filePath}/${f.fileName}") } just runs
         every { f.mockSFTPClient.close() } just runs
         every { f.mockSSHClient.disconnect() } just runs
 
+        // this function returns Unit so a successful run means no exception was thrown
         assertDoesNotThrow {
             SftpTransport.uploadFile(f.mockSSHClient, f.transportType.filePath, f.fileName, f.contents.toByteArray())
         }
@@ -358,12 +379,14 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
 
         every { f.mockSSHClient.newSFTPClient() } returns f.mockSFTPClient
         every { f.mockSFTPClient.fileTransfer.preserveAttributes = false } just runs
+        // throw a connection exception on upload
         every {
             f.mockSFTPClient.put(any<LocalSourceFile>(), "${f.transportType.filePath}/${f.fileName}")
         } throws ConnectionException("oops")
         every { f.mockSFTPClient.close() } just runs
         every { f.mockSSHClient.disconnect() } just runs
 
+        // throw the exception coming from the SSHClient library
         assertThrows<ConnectionException> {
             SftpTransport.uploadFile(f.mockSSHClient, f.transportType.filePath, f.fileName, f.contents.toByteArray())
         }
@@ -375,12 +398,14 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
 
         every { f.mockSSHClient.newSFTPClient() } returns f.mockSFTPClient
         every { f.mockSFTPClient.fileTransfer.preserveAttributes = false } just runs
+        // throw a ConnectionException with TimeoutException as a cause
         every {
             f.mockSFTPClient.put(any<LocalSourceFile>(), "${f.transportType.filePath}/${f.fileName}")
         } throws ConnectionException("oops", TimeoutException())
         every { f.mockSFTPClient.close() } just runs
         every { f.mockSSHClient.disconnect() } just runs
 
+        // TimeoutException is expected with some slower SFTP servers so consider this OK
         assertDoesNotThrow {
             SftpTransport.uploadFile(f.mockSSHClient, f.transportType.filePath, f.fileName, f.contents.toByteArray())
         }
@@ -391,6 +416,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         val f = Fixture()
 
         every { f.mockSSHClient.newSFTPClient() } returns f.mockSFTPClient
+        // mock a successful ls on the remote SFTP server
         every { f.mockSFTPClient.ls(f.lsPath, null) } returns f.remoteResourceInfos
         every { f.mockSFTPClient.close() } just runs
         every { f.mockSSHClient.close() } just runs
@@ -398,6 +424,7 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
 
         val results = SftpTransport.ls(f.mockSSHClient, f.lsPath)
 
+        // assert the mapping to filenames worked as expected
         assertThat(results).isEqualTo(f.remoteFiles)
     }
 
@@ -406,11 +433,13 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         val f = Fixture()
 
         every { f.mockSSHClient.newSFTPClient() } returns f.mockSFTPClient
+        // throw a connection exception on ls
         every { f.mockSFTPClient.ls(f.lsPath, null) } throws ConnectionException("oops")
         every { f.mockSFTPClient.close() } just runs
         every { f.mockSSHClient.close() } just runs
         every { f.mockSSHClient.disconnect() } just runs
 
+        // throw the exception coming from the SSHClient library
         assertThrows<ConnectionException> {
             SftpTransport.ls(f.mockSSHClient, f.lsPath)
         }
@@ -421,11 +450,14 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         val f = Fixture()
 
         every { f.mockSSHClient.newSFTPClient() } returns f.mockSFTPClient
+        // throw a ConnectionException on ls with TimeoutException as a cause
         every { f.mockSFTPClient.ls(f.lsPath, null) } throws ConnectionException("oops", TimeoutException())
         every { f.mockSFTPClient.close() } just runs
         every { f.mockSSHClient.close() } just runs
         every { f.mockSSHClient.disconnect() } just runs
 
+        // TimeoutException is expected with some slower SFTP servers so consider this OK
+        // the return value may or may not be set if the exception was thrown while trying to close the connection
         assertDoesNotThrow {
             SftpTransport.ls(f.mockSSHClient, f.lsPath)
         }
@@ -436,11 +468,13 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         val f = Fixture()
 
         every { f.mockSSHClient.newSFTPClient() } returns f.mockSFTPClient
+        // mock a successful rm on the remote SFTP server
         every { f.mockSFTPClient.rm("${f.rmPath}/${f.rmFile}") } just runs
         every { f.mockSFTPClient.close() } just runs
         every { f.mockSSHClient.close() } just runs
         every { f.mockSSHClient.disconnect() } just runs
 
+        // assert the call throws no exceptions
         assertDoesNotThrow {
             SftpTransport.rm(f.mockSSHClient, f.rmPath, f.rmFile)
         }
@@ -451,11 +485,13 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         val f = Fixture()
 
         every { f.mockSSHClient.newSFTPClient() } returns f.mockSFTPClient
+        // throw a connection exception on rm
         every { f.mockSFTPClient.rm("${f.rmPath}/${f.rmFile}") } throws ConnectionException("oops")
         every { f.mockSFTPClient.close() } just runs
         every { f.mockSSHClient.close() } just runs
         every { f.mockSSHClient.disconnect() } just runs
 
+        // throw the exception coming from the SSHClient library
         assertThrows<ConnectionException> {
             SftpTransport.rm(f.mockSSHClient, f.rmPath, f.rmFile)
         }
@@ -466,11 +502,13 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
         val f = Fixture()
 
         every { f.mockSSHClient.newSFTPClient() } returns f.mockSFTPClient
+        // throw a ConnectionException on rm with TimeoutException as a cause
         every { f.mockSFTPClient.rm("${f.rmPath}/${f.rmFile}") } throws ConnectionException("oops", TimeoutException())
         every { f.mockSFTPClient.close() } just runs
         every { f.mockSSHClient.close() } just runs
         every { f.mockSSHClient.disconnect() } just runs
 
+        // TimeoutException is expected with some slower SFTP servers so consider this OK
         assertDoesNotThrow {
             SftpTransport.rm(f.mockSSHClient, f.rmPath, f.rmFile)
         }
