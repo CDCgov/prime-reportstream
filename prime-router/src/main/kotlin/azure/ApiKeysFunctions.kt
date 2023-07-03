@@ -35,26 +35,44 @@ import javax.ws.rs.GET
 import javax.ws.rs.POST
 import javax.ws.rs.Path
 import javax.ws.rs.PathParam
+import javax.ws.rs.QueryParam
 
 const val KEY_MGMT_TAG = "Public Key Management"
-const val HTTP_401_ERR_MSG = "Unauthorized operation"
-const val HTTP_404_ERR_MSG = "API key not found"
-const val HTTP_400_ERR_MSG = "Bad request"
-const val HTTP_200_GET_MSG = "API keys returned"
-const val HTTP_200_DELETE_MSG = "API key deleted"
-const val HTTP_200_POST_MSG = "API key created"
-const val HTTP_404_DELETE_MSG = "Organization, scope, or key id not found"
 
-const val PRIME_ADMIN_PATTERN = "*.*.primeadmin"
-const val ORG_NAME_DESC = "the organization whose keys are retrieved"
-const val OPERATION_GET_KEYS_DESC = "Retrieve API key(s) for the given organization"
-const val ORG_NAME_STR = "organizationName"
-const val SCOPE_STR = "scope"
-const val KID_STR = "kid"
 const val HTTP_200_OK = "200"
 const val HTTP_400_BAD_REQ = "400"
 const val HTTP_401_UNAUTHORIZED = "401"
 const val HTTP_404_NOT_FOUND = "404"
+
+const val HTTP_401_ERR_MSG = "Unauthorized operation"
+const val HTTP_404_ERR_MSG = "Not found, e.g. No such organization: simple_X_report"
+const val HTTP_400_ERR_MSG = "Bad request"
+const val HTTP_200_GET_MSG = "API keys returned"
+const val HTTP_200_DELETE_MSG = "API key deleted"
+const val HTTP_200_POST_MSG = "API key created"
+const val HTTP_404_ERR_MSG_DELETE = "Not Found, e.g. no such organization, or no key id found"
+const val HTTP_404_ERR_MSG_POST = "Not Found, e.g. No such organization simple_report_noop"
+const val HTTP_400_ERR_MSG_DELETE = "Bad Request, e.g. request scope must be simple_report.*.report"
+const val HTTP_400_ERR_MSG_POST = "Bad Request, e.g. kid must be unique for the requested scope"
+const val PRIME_ADMIN_PATTERN = "*.*.primeadmin"
+const val OPERATION_GET_KEYS_DESC = "Retrieve API key(s) for the given organization"
+
+const val PARAM_NAME_ORGNAME = "organizationName"
+const val PARAM_NAME_SCOPE = "scope"
+const val PARAM_NAME_KID = "kid"
+
+// GET
+const val PARAM_DESC_ORGNAME_GET = "the organization whose keys are retrieved"
+
+// DELETE
+const val PARAM_DESC_SCOPE_DEL = "the scope of the key to be deleted."
+const val PARAM_DESC_ORGNAME_DEL = "the organization whose key is to be deleted."
+const val PARAM_DESC_KID_DEL = "the id of the key to be deleted."
+
+// POST
+const val PARAM_DESC_SCOPE_POST = "the scope of the key to be created."
+const val PARAM_DESC_ORGNAME_POST = "the organization whose key is to be created."
+const val PARAM_DESC_KID_POST = "the id of the key to be created."
 
 @OpenAPIDefinition(
     info = Info(
@@ -116,31 +134,48 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
 
     @Deprecated("The v1 version should be used")
     @FunctionName("getApiKeys")
-    @SuppressWarnings("all")
     @Operation(
         summary = "Retrieve API keys (deprecated use v1 version)",
-        description = OPERATION_GET_KEYS_DESC, // NOSONAR
-        tags = [KEY_MGMT_TAG], // NOSONAR
+        description = OPERATION_GET_KEYS_DESC,
+        tags = [KEY_MGMT_TAG],
         parameters = [
             Parameter(
-                name = ORG_NAME_STR, // NOSONAR
-                required = true, // NOSONAR
-                description = ORG_NAME_DESC // NOSONAR
+                name = PARAM_NAME_ORGNAME,
+                required = true,
+                description = PARAM_DESC_ORGNAME_GET
             )
         ],
         responses = [
             ApiResponse(
-                responseCode = HTTP_200_OK, // NOSONAR
-                description = HTTP_200_GET_MSG, // NOSONAR
-                content = [ // NOSONAR
-                    Content( // NOSONAR
-                        mediaType = "application/json", // NOSONAR
-                        schema = Schema(implementation = ApiKeysResponse::class) // NOSONAR
+                responseCode = HTTP_200_OK,
+                description = HTTP_200_GET_MSG,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiKeysResponse::class)
                     )
                 ]
             ),
-            ApiResponse(responseCode = HTTP_404_NOT_FOUND, description = HTTP_404_ERR_MSG), // NOSONAR
-            ApiResponse(responseCode = HTTP_400_BAD_REQ, description = HTTP_400_ERR_MSG) // NOSONAR
+            ApiResponse(
+                responseCode = HTTP_404_NOT_FOUND,
+                description = HTTP_404_ERR_MSG,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = String::class)
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = HTTP_400_BAD_REQ,
+                description = HTTP_400_ERR_MSG,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = String::class)
+                    )
+                ]
+            )
         ],
     )
     @GET
@@ -153,41 +188,58 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             route = "settings/organizations/{organizationName}/public-keys"
         ) @Parameter(hidden = true) request: HttpRequestMessage<String?>,
         @Parameter(
-            name = ORG_NAME_STR,
-            description = ORG_NAME_DESC
+            name = PARAM_NAME_ORGNAME,
+            description = PARAM_DESC_ORGNAME_GET
         )
-        @PathParam(ORG_NAME_STR)
-        @BindingName(ORG_NAME_STR) orgName: String
+        @PathParam(PARAM_NAME_ORGNAME)
+        @BindingName(PARAM_NAME_ORGNAME) orgName: String
     ): HttpResponseMessage {
         return getApiKeysForOrg(request, orgName)
     }
 
     @FunctionName("getApiKeysV1")
-    @SuppressWarnings("all")
     @Operation(
         summary = "Retrieve API keys for the organization (v1), return API keys when successful",
-        description = OPERATION_GET_KEYS_DESC, // NOSONAR
-        tags = [KEY_MGMT_TAG], // NOSONAR
+        description = OPERATION_GET_KEYS_DESC,
+        tags = [KEY_MGMT_TAG],
         parameters = [
             Parameter(
-                name = ORG_NAME_STR, // NOSONAR
-                required = true, // NOSONAR
-                description = ORG_NAME_DESC // NOSONAR
+                name = PARAM_NAME_ORGNAME,
+                required = true,
+                description = PARAM_DESC_ORGNAME_GET,
             )
         ],
         responses = [
             ApiResponse(
-                responseCode = HTTP_200_OK, // NOSONAR
-                description = HTTP_200_GET_MSG, // NOSONAR
+                responseCode = HTTP_200_OK,
+                description = HTTP_200_GET_MSG,
                 content = [
-                    Content( // NOSONAR
-                        mediaType = "application/json", // NOSONAR
-                        schema = Schema(implementation = ApiKeysResponse::class) // NOSONAR
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiKeysResponse::class)
                     )
                 ]
             ),
-            ApiResponse(responseCode = HTTP_404_NOT_FOUND, description = HTTP_404_ERR_MSG), // NOSONAR
-            ApiResponse(responseCode = HTTP_400_BAD_REQ, description = HTTP_400_ERR_MSG) // NOSONAR
+            ApiResponse(
+                responseCode = HTTP_404_NOT_FOUND,
+                description = HTTP_404_ERR_MSG,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = String::class)
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = HTTP_400_BAD_REQ,
+                description = HTTP_400_ERR_MSG,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = String::class)
+                    )
+                ]
+            )
         ]
     )
     @GET
@@ -200,11 +252,11 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             route = "v1/settings/organizations/{organizationName}/public-keys"
         ) @Parameter(hidden = true) request: HttpRequestMessage<String?>,
         @Parameter(
-            name = ORG_NAME_STR,
-            description = ORG_NAME_DESC
+            name = PARAM_NAME_ORGNAME,
+            description = PARAM_DESC_ORGNAME_GET,
         )
-        @PathParam(ORG_NAME_STR)
-        @BindingName(ORG_NAME_STR) orgName: String
+        @PathParam(PARAM_NAME_ORGNAME)
+        @BindingName(PARAM_NAME_ORGNAME) orgName: String
     ): HttpResponseMessage {
         return getApiKeysForOrg(request, orgName, true)
     }
@@ -212,14 +264,59 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     @FunctionName("postApiKey")
     @POST
     @Path("settings/organizations/{organizationName}/public-keys")
-    @SuppressWarnings("all")
     @Operation(
         summary = "Create (post) an API key for the organization",
         description = "Create API key for the given organization",
         tags = [KEY_MGMT_TAG],
+        parameters = [
+            Parameter(
+                name = PARAM_NAME_ORGNAME,
+                required = true,
+                description = PARAM_DESC_ORGNAME_POST,
+
+            )
+        ],
         responses = [
-            ApiResponse(responseCode = HTTP_200_OK, description = HTTP_200_POST_MSG), // NOSONAR
-            ApiResponse(responseCode = HTTP_401_UNAUTHORIZED, description = HTTP_401_ERR_MSG) // NOSONAR
+            ApiResponse(
+                responseCode = HTTP_200_OK,
+                description = HTTP_200_POST_MSG,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = HttpResponseMessage::class)
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = HTTP_400_BAD_REQ,
+                description = HTTP_400_ERR_MSG_POST,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = String::class)
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = HTTP_404_NOT_FOUND,
+                description = HTTP_404_ERR_MSG_POST,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = String::class)
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = HTTP_401_UNAUTHORIZED,
+                description = HTTP_401_ERR_MSG,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = String::class)
+                    )
+                ]
+            )
         ]
     )
     fun post(
@@ -230,11 +327,23 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             route = "settings/organizations/{organizationName}/public-keys"
         ) request: HttpRequestMessage<String?>,
         @Parameter(
-            name = ORG_NAME_STR,
+            name = PARAM_NAME_ORGNAME,
             description = "the organization where a key is to be created."
         )
-        @PathParam(ORG_NAME_STR)
-        @BindingName(ORG_NAME_STR) orgName: String
+        @PathParam(PARAM_NAME_ORGNAME)
+        @BindingName(PARAM_NAME_ORGNAME) orgName: String,
+        @Parameter(
+            name = PARAM_NAME_SCOPE,
+            description = PARAM_DESC_SCOPE_POST,
+        )
+        @QueryParam(PARAM_NAME_SCOPE)
+        @BindingName(PARAM_NAME_SCOPE) scopeStr: String? = null,
+        @Parameter(
+            name = PARAM_NAME_KID,
+            description = PARAM_DESC_KID_POST,
+        )
+        @QueryParam(PARAM_NAME_KID)
+        @BindingName(PARAM_NAME_KID) kidStr: String? = null
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims == null || !claims.authorized(setOf(PRIME_ADMIN_PATTERN, "$orgName.*.admin"))) {
@@ -248,7 +357,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             )
 
         try {
-            val scope = request.queryParameters[SCOPE_STR]
+            val scope = scopeStr ?: request.queryParameters[PARAM_NAME_SCOPE]
                 ?: return HttpUtilities.bad(request, "Scope must be provided")
             if (!Scope.isValidScope(scope, organization)) {
                 return HttpUtilities.bad(
@@ -263,7 +372,9 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
 
             val pemFileContents = request.body ?: return HttpUtilities.bad(request, "Body must be provided")
             val jwk = AuthUtils.readPublicKeyPem(pemFileContents)
-            val kid = request.queryParameters[KID_STR] ?: return HttpUtilities.bad(request, "kid must be provided")
+            val kid = kidStr
+                ?: request.queryParameters[PARAM_NAME_KID]
+                ?: return HttpUtilities.bad(request, "kid must be provided")
 
             if (!JwkSet.isValidKidForScope(organization.keys, scope, kid)) {
                 return HttpUtilities.bad(request, "kid must be unique for the requested scope")
@@ -295,33 +406,61 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
      * If either the scope or kid is missing, returns a 404
      *
      * @param request
+     * @param organizationName - The org name that the key should be removed from
      * @param scope - The scope that the key should be removed from
      * @param kid - the kid for the key to be removed
      *
      */
 
     @FunctionName("deleteApiKey")
-    @SuppressWarnings("all")
     @Operation(
         summary = "Delete API key",
         description = "Delete API key given organization name, scope, and kid",
-        tags = [KEY_MGMT_TAG], // NOSONAR
+        tags = [KEY_MGMT_TAG],
         security = [
             SecurityRequirement(
                 name = "primeSecurity"
             )
         ],
         responses = [
-            ApiResponse(responseCode = HTTP_401_UNAUTHORIZED, description = HTTP_401_ERR_MSG), // NOSONAR
-            ApiResponse(responseCode = HTTP_404_NOT_FOUND, description = HTTP_404_DELETE_MSG), // NOSONAR
+            ApiResponse(
+                responseCode = HTTP_401_UNAUTHORIZED,
+                description = HTTP_401_ERR_MSG,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = String::class)
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = HTTP_400_BAD_REQ,
+                description = HTTP_400_ERR_MSG_DELETE,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = String::class)
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = HTTP_404_NOT_FOUND,
+                description = HTTP_404_ERR_MSG_DELETE,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = String::class)
+                    )
+                ]
+            ),
 
             ApiResponse(
-                responseCode = HTTP_200_OK, // NOSONAR
-                description = HTTP_200_DELETE_MSG, // NOSONAR
+                responseCode = HTTP_200_OK,
+                description = HTTP_200_DELETE_MSG,
                 content = [
-                    Content( // NOSONAR
-                        mediaType = "application/json", // NOSONAR
-                        schema = Schema(implementation = ApiKeysResponse::class) // NOSONAR
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = HttpResponseMessage::class)
                     )
                 ]
             )
@@ -337,20 +476,20 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             route = "settings/organizations/{organizationName}/public-keys/{scope}/{kid}"
         ) @Parameter(hidden = true) request: HttpRequestMessage<String?>,
         @Parameter(
-            name = ORG_NAME_STR,
-            description = "the organization whose key is to be deleted."
+            name = PARAM_NAME_ORGNAME,
+            description = PARAM_DESC_ORGNAME_DEL
         )
-        @PathParam(ORG_NAME_STR) @BindingName(ORG_NAME_STR) orgName: String,
+        @PathParam(PARAM_NAME_ORGNAME) @BindingName(PARAM_NAME_ORGNAME) orgName: String,
         @Parameter(
-            name = SCOPE_STR,
-            description = "scope of the key to be deleted."
+            name = PARAM_NAME_SCOPE,
+            description = PARAM_DESC_SCOPE_DEL
         )
-        @PathParam(SCOPE_STR) @BindingName(SCOPE_STR) scope: String,
+        @PathParam(PARAM_NAME_SCOPE) @BindingName(PARAM_NAME_SCOPE) scope: String,
         @Parameter(
-            name = KID_STR,
-            description = "id of the key to be deleted."
+            name = PARAM_NAME_KID,
+            description = PARAM_DESC_KID_DEL
         )
-        @PathParam(KID_STR) @BindingName(KID_STR) kid: String
+        @PathParam(PARAM_NAME_KID) @BindingName(PARAM_NAME_KID) kid: String
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims == null || !claims.authorized(setOf(PRIME_ADMIN_PATTERN, "$orgName.*.admin"))) {
