@@ -65,7 +65,7 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    needs: [pre-job, build_router]
+    needs: [pre_job, build_router]
     defaults:
       run:
         working-directory: prime-router
@@ -217,7 +217,7 @@ jobs:
 
   security:
     name: Security Testing
-    needs: [pre-job, build_router]
+    needs: [pre_job, build_router]
     runs-on: ubuntu-latest
     defaults:
       run:
