@@ -265,6 +265,12 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
 
+      - name: Restore cache
+        uses: actions/cache/restore@v3.3.1
+        with:
+          path: prime-router/build
+          key: ${{ runner.os }}-backend-build-${{ github.run_id }}-${{ github.run_attempt }}
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
         with:
