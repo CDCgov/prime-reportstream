@@ -569,11 +569,17 @@ class DetailedSubmissionHistory(
             }
         }
 
+        // Were items delivered to destinations?
         if (finishedDestinations >= destinations.size) {
+            // ALL destinations received items and are finished
             return Status.DELIVERED
         } else if (finishedDestinations >= realDestinations.size) {
+            // SOME destinations received items and are finished
             return Status.PARTIALLY_DELIVERED
         }
+        // Destinations have not received the items yet
+        // If adding additional Status states, consider adding one to distinguish between
+        // "Waiting to Deliver" vs "Delivery in Progress"
         return Status.WAITING_TO_DELIVER
     }
 
