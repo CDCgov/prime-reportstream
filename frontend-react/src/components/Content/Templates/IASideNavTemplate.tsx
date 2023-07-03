@@ -11,7 +11,7 @@ export interface IASideNavProps {
 
 const IASideNavTemplate = ({ directories, rootRedirect }: IASideNavProps) => {
     return (
-        <section className="grid-container tablet:margin-top-6 margin-bottom-5">
+        <section className="grid-container">
             <div className="grid-row grid-gap">
                 <section className="tablet:grid-col-4 margin-bottom-6">
                     <GeneratedSideNav directories={directories} />
