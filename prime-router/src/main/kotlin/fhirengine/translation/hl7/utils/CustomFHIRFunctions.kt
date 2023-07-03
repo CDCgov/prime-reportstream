@@ -2,22 +2,17 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import fhirengine.translation.hl7.utils.FhirPathFunctions
+import fhirengine.translation.hl7.utils.helpers.convertDateToAge
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
-import org.hl7.fhir.r4.model.Age
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.DateTimeType
-import org.hl7.fhir.r4.model.DateType
 import org.hl7.fhir.r4.model.IntegerType
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
-import java.math.BigDecimal
 import java.time.DateTimeException
-import java.time.LocalDate
-import java.time.Period
 import java.time.ZoneId
-import java.time.temporal.ChronoUnit
 import java.util.TimeZone
 
 /**
@@ -93,7 +88,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
             }
 
             CustomFHIRFunctionNames.Split -> {
-                FHIRPathEngine.IEvaluationContext.FunctionDetails("splits a string by provided delimeter", 1, 1)
+                FHIRPathEngine.IEvaluationContext.FunctionDetails("splits a string by provided delimiter", 1, 1)
             }
 
             CustomFHIRFunctionNames.GetId -> {
@@ -118,10 +113,11 @@ object CustomFHIRFunctions : FhirPathFunctions {
 
             CustomFHIRFunctionNames.ConvertDateToAge -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails(
-                    "returns the number of years, months if less than a year, weeks if less" +
-                        " than a month, and days if less than a week that a person is old for a date resource",
+                    "returns the age of a person from the comparison date (defaulted to current time) in " +
+                        "the unit specified or in a default unit. Params can be as follows:" +
+                        "(time unit), (comparison date), (timeUnit, comparisonDate), or (comparisonDate, timeUnit)",
                     0,
-                    1
+                    2
                 )
             }
 
@@ -195,96 +191,11 @@ object CustomFHIRFunctions : FhirPathFunctions {
     }
 
     /**
-     * Converts the date in the [focus] element to an age in years, months, weeks, or days depending on which is
-     * specified. If left off, makes assumption.
-     * @return an age in years, months, weeks, or days.
-     */
-    fun convertDateToAge(focus: MutableList<Base>, parameters: MutableList<MutableList<Base>>?): MutableList<Base> {
-        val date = focus.first()
-
-        if (date !is DateType) {
-            throw SchemaException("Must call the convertDateToAge function on a single dateTimeType")
-        }
-
-        val periodsOfTime = listOf("day", "month", "year")
-        return if (parameters != null && parameters.size > 0 && parameters[0].size > 0 &&
-            parameters[0][0].toString().lowercase() in periodsOfTime
-        ) {
-            val age = Age()
-            return when (parameters[0][0].toString()) {
-                "day" -> {
-                    age.unit = "day"
-                    age.value = BigDecimal(
-                        ChronoUnit.DAYS.between(
-                            LocalDate.of(date.year, date.month + 1, date.day),
-                            LocalDate.now()
-                        )
-                    )
-                    age.code = "d"
-                    mutableListOf(age)
-                }
-                "month" -> {
-                    age.unit = "month"
-                    age.value = BigDecimal(
-                        ChronoUnit.MONTHS.between(
-                            LocalDate.of(date.year, date.month + 1, date.day),
-                            LocalDate.now()
-                        )
-                    )
-                    age.code = "mo"
-                    mutableListOf(age)
-                }
-                "year" -> {
-                    age.unit = "year"
-                    age.value = BigDecimal(
-                        ChronoUnit.YEARS.between(
-                            LocalDate.of(date.year, date.month + 1, date.day),
-                            LocalDate.now()
-                        )
-                    )
-                    age.code = "a"
-                    mutableListOf(age)
-                }
-                else -> throw SchemaException("Call with day, month, or year")
-            }
-        } else {
-            calculateAgeWithAssumption(date)
-        }
-    }
-
-    private fun calculateAgeWithAssumption(date: DateType): MutableList<Base> {
-        val period = Period.between(
-            // have to do plus one for the month because it is expecting 1 based and we get zero based
-            LocalDate.of(date.year, date.month + 1, date.day),
-            LocalDate.now()
-        )
-
-        val age = Age()
-        if (period.years > 1) {
-            age.unit = "year"
-            age.value = BigDecimal(period.years)
-            age.code = "a"
-        } else if (period.months > 1) {
-            age.unit = "month"
-            age.value = BigDecimal(period.months)
-            age.code = "mo"
-        } else if (period.days >= 0) {
-            age.unit = "day"
-            age.value = BigDecimal(period.days)
-            age.code = "d"
-        } else {
-            throw SchemaException("Must call the convertDateToAge function on a date in the past")
-        }
-
-        return mutableListOf(age)
-    }
-
-    /**
      * Gets the phone number country code from the full FHIR phone number stored in
      * the [focus] element.
      * @return a mutable list containing the country code
      */
-    fun getPhoneNumberCountryCode(focus: MutableList<Base>): MutableList<Base> {
+    private fun getPhoneNumberCountryCode(focus: MutableList<Base>): MutableList<Base> {
         val primVal = focus[0].primitiveValue()
         val part = PhoneUtilities.getPhoneNumberPart(primVal, PhonePart.Country)
         return if (part != null) mutableListOf(IntegerType(part)) else mutableListOf()
@@ -295,7 +206,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
      * the [focus] element.
      * @return a mutable list containing the phone number area code
      */
-    fun getPhoneNumberAreaCode(focus: MutableList<Base>): MutableList<Base> {
+    private fun getPhoneNumberAreaCode(focus: MutableList<Base>): MutableList<Base> {
         val primVal = focus[0].primitiveValue()
         val part = PhoneUtilities.getPhoneNumberPart(primVal, PhonePart.AreaCode)
         return if (part != null) mutableListOf(IntegerType(part)) else mutableListOf()
@@ -306,7 +217,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
      * the [focus] element.
      * @return a mutable list containing the local number
      */
-    fun getPhoneNumberLocalNumber(focus: MutableList<Base>): MutableList<Base> {
+    private fun getPhoneNumberLocalNumber(focus: MutableList<Base>): MutableList<Base> {
         val primVal = focus[0].primitiveValue()
         val part = PhoneUtilities.getPhoneNumberPart(primVal, PhonePart.Local)
         return if (part != null) mutableListOf(IntegerType(part)) else mutableListOf()
@@ -316,7 +227,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
      * Gets the extension from the full FHIR phone number stored in the [focus] element.
      * @return a mutable list containing the extension if present
      */
-    fun getPhoneNumberExtension(focus: MutableList<Base>): MutableList<Base> {
+    private fun getPhoneNumberExtension(focus: MutableList<Base>): MutableList<Base> {
         val primVal = focus[0].primitiveValue()
         val part = PhoneUtilities.getPhoneNumberPart(primVal, PhonePart.Extension)
         return if (part != null) mutableListOf(IntegerType(part)) else mutableListOf()
@@ -326,13 +237,13 @@ object CustomFHIRFunctions : FhirPathFunctions {
      * Determines if the [focus] passed in is a phone number with an extension.
      * @return a boolean indicating if the focus has an extension or not
      */
-    fun hasPhoneNumberExtension(focus: MutableList<Base>): MutableList<Base> {
+    private fun hasPhoneNumberExtension(focus: MutableList<Base>): MutableList<Base> {
         val primVal = focus[0].primitiveValue()
         return mutableListOf(BooleanType(PhoneUtilities.hasPhoneNumberExtension(primVal)))
     }
 
     /**
-     * Splits the [focus] into multiple strings using the delimeter provided in [parameters]
+     * Splits the [focus] into multiple strings using the delimiter provided in [parameters]
      * @returns list of strings
      */
     fun split(focus: MutableList<Base>, parameters: MutableList<MutableList<Base>>?): MutableList<Base> {
@@ -342,10 +253,10 @@ object CustomFHIRFunctions : FhirPathFunctions {
             focus.size == 1 &&
             focus.first() is StringType
         ) {
-            val delimeter = (parameters.first().first()).primitiveValue()
+            val delimiter = (parameters.first().first()).primitiveValue()
             val stringToSplit = focus.first().primitiveValue()
 
-            stringToSplit.split(delimeter).map { StringType(it) }.toMutableList()
+            stringToSplit.split(delimiter).map { StringType(it) }.toMutableList()
         } else mutableListOf()
     }
 
@@ -381,7 +292,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
      * HL7 v2.5.1 - 0396 - Coding system.
      * @return a mutable list containing the single character HL7 result status
      */
-    fun getCodingSystemMapping(focus: MutableList<Base>): MutableList<Base> {
+    private fun getCodingSystemMapping(focus: MutableList<Base>): MutableList<Base> {
         return mutableListOf(StringType(CodingSystemMapper.getByFhirUrl(focus[0].primitiveValue()).hl7ID))
     }
 
