@@ -217,7 +217,8 @@ jobs:
 
   security:
     name: Security Testing
-    needs: build_router
+    needs: [pre-job, build_router]
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: prime-router
