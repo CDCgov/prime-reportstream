@@ -3,7 +3,7 @@ import { Meta } from "@storybook/react";
 import { Alert, Button } from "@trussworks/react-uswds";
 
 export default {
-    title: "components/Alert",
+    title: "Components/Alert",
     component: Alert,
 } as Meta<typeof Alert>;
 
