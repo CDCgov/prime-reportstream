@@ -56,7 +56,7 @@ jobs:
       - name: Build Prime Router Package
         run: ./gradlew package -Pshowtests
 
-      - name: Cache Backend Build #save build
+      - name: Cache Backend Build
         uses: actions/cache/save@v3.3.1
         with:
           path: prime-router/build
@@ -65,7 +65,7 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    needs: build_router
+    needs: [pre-job, build_router]
     defaults:
       run:
         working-directory: prime-router
