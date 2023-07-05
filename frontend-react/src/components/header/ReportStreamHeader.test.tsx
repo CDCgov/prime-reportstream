@@ -28,7 +28,7 @@ describe("ReportStreamHeader", () => {
     test("renders without errors", () => {
         mockAuth.mockReturnValue({} as IOktaContext);
         mockSessionContext.mockReturnValue({} as RSSessionContext);
-        renderApp(<ReportStreamHeader />);
+        renderApp(<ReportStreamHeader>Test</ReportStreamHeader>);
     });
 
     test("admins see all", async () => {
@@ -63,7 +63,7 @@ describe("ReportStreamHeader", () => {
             isUserSender: false,
             environment: "test",
         } as RSSessionContext);
-        renderApp(<ReportStreamHeader />);
+        renderApp(<ReportStreamHeader>Test</ReportStreamHeader>);
         expect(screen.getByText(FeatureName.ADMIN)).toBeInTheDocument();
         expect(screen.getByText(FeatureName.DAILY_DATA)).toBeInTheDocument();
         expect(screen.getByText(FeatureName.UPLOAD)).toBeInTheDocument();
@@ -101,7 +101,7 @@ describe("ReportStreamHeader", () => {
             isUserSender: true,
             environment: "test",
         });
-        renderApp(<ReportStreamHeader />);
+        renderApp(<ReportStreamHeader>Test</ReportStreamHeader>);
         expect(
             screen.queryByText(FeatureName.DAILY_DATA)
         ).not.toBeInTheDocument();
@@ -140,7 +140,7 @@ describe("ReportStreamHeader", () => {
             isUserSender: false,
             environment: "test",
         });
-        renderApp(<ReportStreamHeader />);
+        renderApp(<ReportStreamHeader>Test</ReportStreamHeader>);
         expect(screen.getByText(FeatureName.DAILY_DATA)).toBeInTheDocument();
         expect(screen.queryByText(FeatureName.UPLOAD)).not.toBeInTheDocument();
         expect(
