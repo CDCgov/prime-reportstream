@@ -15,9 +15,6 @@ jobs:
   prepare_branch:
     name: "Prepare the deployment branch and file a PR"
     runs-on: ubuntu-latest
-    defaults:
-    run:
-      working-directory: prime-router
     steps:
       - name: "Check out changes"
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
