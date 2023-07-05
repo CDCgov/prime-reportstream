@@ -51,7 +51,7 @@ jobs:
       - name: Spin up containers
         id: spin_containers
         run: |
-          docker-compose -f docker-compose.yml up -d prime_dev sftp azurite
+          docker-compose -f docker-compose.yml up -d 
           
       - name: Give some time for the container to start
         run: |
