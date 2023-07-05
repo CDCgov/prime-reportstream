@@ -62,6 +62,11 @@ jobs:
         shell: bash
         run: docker-compose -f docker-compose.postgres.yml up -d
 
+      - name: set staging env for database
+        run: |
+          export POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_STAGING_PWD }};export POSTGRES_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require;export POSTGRES_USER=${{ secrets.POSTGRESQL_STG_ADMIN_USER }}
+      
+
       - name: Build Prime Router Package
         working-directory: prime-router
         shell: bash
@@ -89,10 +94,6 @@ jobs:
           sleep 30
           echo "wake up"
 
-      - name: set staging env for database
-        run: |
-          export POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_STAGING_PWD }};export POSTGRES_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require;export POSTGRES_USER=${{ secrets.POSTGRESQL_STG_ADMIN_USER }}
-      
       - name: Load the configuration
         working-directory: prime-router
         shell: bash
