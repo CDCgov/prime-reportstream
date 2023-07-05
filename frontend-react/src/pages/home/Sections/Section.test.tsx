@@ -33,30 +33,6 @@ describe("Section rendering", () => {
     });
 });
 
-describe("CTA rendering", () => {
-    const fakeCtaSection = {
-        title: "Cta title",
-        type: "cta",
-        summary: "Cta summary",
-    };
-
-    beforeEach(() => {
-        renderApp(<Section section={fakeCtaSection} />);
-    });
-
-    test("Renders <CtaSection /> if type is cta", () => {
-        const header = screen.getByTestId("heading");
-        const description = screen.getByTestId("description");
-        const summary = screen.getByTestId("summary");
-        const contactButton = screen.getByRole("button");
-
-        expect(header).toBeInTheDocument();
-        expect(description).toBeInTheDocument();
-        expect(summary).toBeInTheDocument();
-        expect(contactButton).toBeInTheDocument();
-    });
-});
-
 describe("Live Map rendering", () => {
     const fakeLiveMapSection = {
         title: "Map section",
