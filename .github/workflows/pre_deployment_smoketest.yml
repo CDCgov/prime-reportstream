@@ -93,7 +93,7 @@ jobs:
           login();
           " > login.js
 
-          npx --no-install puppeteer-login-script login.js
+          node login.js
 
       - name: Run Smoke Test in Staging
         working-directory: prime-router
