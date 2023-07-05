@@ -72,7 +72,9 @@ jobs:
             const page = await browser.newPage();
             await page.goto('https://${{ secrets.OKTA_DOMAIN }}');
 
-            page.args ||= [];
+            if (!page.args) {
+              page.args = [];
+            }
             page.args.push('--no-sandbox', '--disable-setuid-sandbox');
 
             await page.waitForSelector('#okta-signin-username');
