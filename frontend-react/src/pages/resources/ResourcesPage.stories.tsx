@@ -1,10 +1,10 @@
-import { ComponentMeta, ComponentStoryObj } from "@storybook/react";
+import { Meta, StoryObj } from "@storybook/react";
 
 import { ResourcesPage } from "./ResourcesPage";
 
 export default {
     title: "pages/resources/Resources",
     component: ResourcesPage,
-} as ComponentMeta<typeof ResourcesPage>;
+} as Meta<typeof ResourcesPage>;
 
-export const Default: ComponentStoryObj<typeof ResourcesPage> = {};
+export const Default: StoryObj<typeof ResourcesPage> = {};

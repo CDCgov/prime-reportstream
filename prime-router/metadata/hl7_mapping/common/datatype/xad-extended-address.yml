@@ -4,16 +4,16 @@ constants:
 elements:
   - name: xad-street-address
     condition: '%resource.line.count() > 0'
-    value: [ '%resource.line[0]' ]
+    value: [ '%deidentifiedValue','%resource.line[0]' ]
     hl7Spec: [ '%{hl7XADField}-1' ]
 
   - name: xad-other-designation
     condition: '%resource.line[1].exists()'
-    value: [ '%resource.line[1]' ]
+    value: [ '%deidentifiedValue','%resource.line[1]' ]
     hl7Spec: [ '%{hl7XADField}-2' ]
 
   - name: xad-city
-    value: [ '%resource.city' ]
+    value: [ '%deidentifiedValue','%resource.city' ]
     hl7Spec: [ '%{hl7XADField}-3' ]
 
   - name: xad-state-or-province
@@ -21,7 +21,7 @@ elements:
     hl7Spec: [ '%{hl7XADField}-4' ]
 
   - name: xad-zip-or-postal-code
-    value: [ '%resource.postalCode' ]
+    value: [ '%deidentifiedValue','%resource.postalCode' ]
     hl7Spec: [ '%{hl7XADField}-5' ]
 
   - name: xad-country
