@@ -78,13 +78,6 @@ jobs:
             await page.click('#okta-signin-submit');
 
             await page.waitForNavigation();
-
-            // You can perform further actions after successful login
-            // For example, retrieve user information
-            const userFullName = await page.evaluate(() => {
-              const fullNameElement = document.querySelector('.app-user-name');
-              return fullNameElement ? fullNameElement.textContent.trim() : null;
-            });
             console.log('Logged in as:', userFullName);
 
             await browser.close();
