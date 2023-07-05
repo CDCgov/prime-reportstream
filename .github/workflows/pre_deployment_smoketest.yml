@@ -101,9 +101,13 @@ jobs:
          ./gradlew reloadSettings
 
       - name: Correct sftp perms
+        working-directory: prime-router
+        shell: bash
         run: docker-compose exec -T sftp chmod 777 /home/foo/upload
 
       - name: Smoke tests
+        working-directory: prime-router
+        shell: bash
         run: |
           export $(xargs < .vault/env/.env.local)
           ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
