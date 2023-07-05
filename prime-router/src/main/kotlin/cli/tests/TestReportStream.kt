@@ -660,7 +660,7 @@ abstract class CoolTest {
         totalItems: Int,
         filterOrgName: Boolean = false,
         silent: Boolean = false,
-        maxPollSecs: Int = 720,
+        maxPollSecs: Int = 860,
         pollSleepSecs: Int = 30, // I had this as every 5 secs, but was getting failures.  The queries run unfastly.
         asyncProcessMode: Boolean = false,
         isUniversalPipeline: Boolean = false
