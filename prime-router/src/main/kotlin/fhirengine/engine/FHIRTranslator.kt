@@ -69,10 +69,6 @@ class FHIRTranslator(
         receiverEndpoints.forEach { receiverEndpoint ->
             val receiverName = receiverEndpoint.identifier[0].value
             val receiver = settings.findReceiver(receiverName)
-            if (receiver != null) {
-                actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
-            }
-
             // We only process receivers that are active and for this pipeline.
             if (receiver != null && receiver.topic.isUniversalPipeline) {
                 try {
@@ -136,7 +132,7 @@ class FHIRTranslator(
             hl7Message.encode().toByteArray()
         }
         else -> {
-            error("Receiver format ${receiver.format} not supported.")
+            throw IllegalStateException("Receiver format ${receiver.format} not supported.")
         }
     }
 

@@ -1,6 +1,6 @@
 ---
 name: test-schema
-topic: test
+topic: CsvFileTests-topic
 elements:
   - name: lab
     csvFields: [{name: lab}]

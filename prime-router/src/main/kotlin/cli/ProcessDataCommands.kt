@@ -16,7 +16,6 @@ import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -24,6 +23,7 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
@@ -393,7 +393,7 @@ class ProcessData(
             is InputClientInfo.InputClient -> {
                 val clientName = (inputClientInfo as InputClientInfo.InputClient).clientName
                 val sender = fileSettings.findSender(clientName) ?: error("Sender $clientName was not found")
-                if (sender is LegacyPipelineSender) {
+                if (sender is TopicSender) {
                     Pair(
                         sender.let {
                             metadata.findSchema(it.schemaName) ?: error("Schema ${it.schemaName} was not found")
@@ -413,7 +413,7 @@ class ProcessData(
                 metadata.findSchema(schName) ?: error("Schema $inputSchema was not found")
                 // Get a random sender name that uses the provided schema, or null if no sender is found.
                 val sender = fileSettings.senders.filter {
-                    it is LegacyPipelineSender && it.schemaName == schName
+                    it is TopicSender && it.schemaName == schName
                 }.randomOrNull()
                 Pair(metadata.findSchema(schName), sender)
             }

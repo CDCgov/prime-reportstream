@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
 import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -15,7 +14,7 @@ import java.util.Base64
 
 // This is a size limit dictated by our infrastructure in azure
 // https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-azure-and-service-bus-queues-compared-contrasted
-private const val MESSAGE_SIZE_LIMIT = 64 * 1000
+private const val messageSizeLimit = 64 * 1000
 
 /**
  * An interface for Messages to be put on an Azure Queue
@@ -28,14 +27,14 @@ abstract class Message {
 
     fun serialize(): String {
         val bytes = mapper.writeValueAsBytes(this)
-        check(bytes.size < MESSAGE_SIZE_LIMIT) { "Message is too big for the queue." }
+        check(bytes.size < messageSizeLimit) { "Message is too big for the queue." }
         return String(Base64.getEncoder().encode(bytes))
     }
 
     companion object {
         private val ptv = BasicPolymorphicTypeValidator.builder()
             .build()
-        val mapper: JsonMapper = jacksonMapperBuilder()
+        val mapper = jacksonMapperBuilder()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .polymorphicTypeValidator(ptv)
             .activateDefaultTyping(ptv)
@@ -48,9 +47,11 @@ abstract class Message {
 }
 
 /**
- * The Message representation of a raw submission to the system, tracking the [reportId], [blobURL],
+ * The Message representation of a raw submission to the system, tracking the [reportId], [blobUrl],
  * [blobSubFolderName] (which is derived from the sender name), and [schemaName] from the sender settings.
  * A [digest] is also provided for checksum verification.
+ *
+ * TODO: Need to determine if options, defaults and routeTo need to be supported
  */
 @JsonTypeName("raw")
 data class RawSubmission(
@@ -60,6 +61,9 @@ data class RawSubmission(
     val blobSubFolderName: String,
     val topic: Topic,
     val schemaName: String = "",
+//    val options: Options,
+//    val defaults: Map<String, String>,
+//    val routeTo: List<String>,
 ) : Message() {
     /**
      * Download the file associated with a RawSubmission message

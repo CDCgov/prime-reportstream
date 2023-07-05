@@ -2,7 +2,6 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
@@ -128,11 +127,7 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        val error = jacksonObjectMapper().readTree(response.body as String)
-        assertThat(error.get("error").textValue()).isEqualTo("invalid_request")
-        assertThat(error.get("error_description").textValue()).isEqualTo("missing_scope")
-        assertThat(error.get("error_uri").textValue())
-            .isEqualTo("$OAUTH_ERROR_BASE_LOCATION#missing-scope")
+        assertThat(response.getBody()).isEqualTo("Missing client_assertion parameter")
     }
 
     @Test
@@ -145,17 +140,11 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        val error = jacksonObjectMapper().readTree(response.body as String)
-        assertThat(error.get("error").textValue()).isEqualTo("invalid_request")
-        assertThat(error.get("error_description").textValue()).isEqualTo("missing_scope")
-        assertThat(error.get("error_uri").textValue())
-            .isEqualTo("$OAUTH_ERROR_BASE_LOCATION#missing-scope")
+        assertThat(response.getBody()).isEqualTo("Missing scope parameter")
     }
 
     @Test
     fun `Test with a bad scope`() {
-        settings.senderStore.put(sender.fullName, sender)
-        settings.organizationStore.put(organization.name, Organization(organization, validScope, jwk))
         listOf(
             "no_good_very_bad",
             "two.pieces",
@@ -168,10 +157,7 @@ class TokenFunctionTests {
             var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
             // Verify
             assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-            val error = jacksonObjectMapper().readTree(response.body as String)
-            assertThat(error.get("error").textValue()).isEqualTo("invalid_scope")
-            assertThat(error.get("error_description").textValue()).isEqualTo("invalid_scope")
-            assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#invalid-scope")
+            assertThat(response.getBody()).isEqualTo("Incorrect scope format: $it")
         }
     }
 
@@ -185,15 +171,12 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        val error = jacksonObjectMapper().readTree(response.body as String)
-        assertThat(error.get("error").textValue()).isEqualTo("invalid_request")
-        assertThat(error.get("error_description").textValue()).isEqualTo("malformed_jwt")
-        assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#malformed-jwt")
+        assertThat(response.getBody()).isEqualTo("invalid_client")
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
                 match<String> {
                     it.startsWith(
-                        "AccessToken Request Denied: Malformed JWT JSON: ����"
+                        "AccessToken Request Denied: io.jsonwebtoken.MalformedJwtException"
                     )
                 }
             )
@@ -216,13 +199,9 @@ class TokenFunctionTests {
         var response = tokenFunction.token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        val error = jacksonObjectMapper().readTree(response.body as String)
-        assertThat(error.get("error").textValue()).isEqualTo("invalid_request")
-        assertThat(error.get("error_description").textValue()).isEqualTo("malformed_jwt")
-        assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#malformed-jwt")
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
-                "AccessToken Request Denied: issuer must not be null"
+                "AccessToken Request Denied: java.lang.NullPointerException: issuer must not be null"
             )
         }
     }
@@ -246,10 +225,6 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        val error = jacksonObjectMapper().readTree(response.body as String)
-        assertThat(error.get("error").textValue()).isEqualTo("invalid_client")
-        assertThat(error.get("error_description").textValue()).isEqualTo("expired_token")
-        assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#expired-token")
     }
 
     @Test
@@ -266,10 +241,6 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        val error = jacksonObjectMapper().readTree(response.body as String)
-        assertThat(error.get("error").textValue()).isEqualTo("invalid_client")
-        assertThat(error.get("error_description").textValue()).isEqualTo("no_valid_keys")
-        assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#no-valid-keys")
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
                 "AccessToken Request Denied: Error while requesting simple_report.default.report: " +
@@ -287,15 +258,15 @@ class TokenFunctionTests {
             // Wrong org
             listOf(
                 "wrong.default.report",
-                "AccessToken Request Denied: INVALID_SCOPE while generating token for" +
-                    " scope: wrong.default.report for issuer: simple_report.default",
+                "AccessToken Request Denied: Error while requesting wrong.default.report: " +
+                    "Invalid scope for this issuer: wrong.default.report",
                 "Expected organization simple_report. Instead got: wrong"
             ),
             // Wrong
             listOf(
                 "simple_report.default.bad",
-                "AccessToken Request Denied: INVALID_SCOPE while generating token for" +
-                    " scope: simple_report.default.bad for issuer: simple_report.default",
+                "AccessToken Request Denied: Error while requesting simple_report.default.bad: " +
+                    "Invalid scope for this issuer: simple_report.default.bad",
                 "Invalid DetailedScope bad"
             ),
         ).forEach {
@@ -306,10 +277,6 @@ class TokenFunctionTests {
             var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
             // Verify
             assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-            val error = jacksonObjectMapper().readTree(response.body as String)
-            assertThat(error.get("error").textValue()).isEqualTo("invalid_scope")
-            assertThat(error.get("error_description").textValue()).isEqualTo("invalid_scope")
-            assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#invalid-scope")
             verify { anyConstructed<ActionHistory>().trackActionResult(it[1]) }
             verify { klogger.warn(it[2]) }
         }
@@ -328,10 +295,6 @@ class TokenFunctionTests {
         var response = TokenFunction(UnitTestUtils.simpleMetadata).token(httpRequestMessage)
         // Verify
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        val error = jacksonObjectMapper().readTree(response.body as String)
-        assertThat(error.get("error").textValue()).isEqualTo("invalid_client")
-        assertThat(error.get("error_description").textValue()).isEqualTo("no_valid_keys")
-        assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#no-valid-keys")
         verify {
             anyConstructed<ActionHistory>().trackActionResult(
                 "AccessToken Request Denied: Error while requesting simple_report.default.report: " +

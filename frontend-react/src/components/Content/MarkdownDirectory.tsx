@@ -1,3 +1,5 @@
+import * as module from "module";
+
 import MarkdownPage from "./MarkdownPage";
 
 type ContentElement = () => JSX.Element;
@@ -53,12 +55,12 @@ export class ElementDirectory extends ContentDirectory {
  * @property desc
  * @property files - markdown files to render */
 export class MarkdownDirectory extends ContentDirectory {
-    files: string[] = []; //Empty module array default
-    addFile(file: string) {
+    files: module[] = []; //Empty module array default
+    addFile(file: module) {
         this.files.push(file);
         return this;
     }
-    addAllFiles(files: string[]) {
+    addAllFiles(files: module[]) {
         this.files = files;
         return this;
     }

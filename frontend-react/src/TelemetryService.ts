@@ -10,13 +10,13 @@ import { OKTA_AUTH } from "./oktaConfig";
 let reactPlugin: ReactPlugin | null = null;
 let appInsights: ApplicationInsights | null = null;
 
-export const createTelemetryService = (connectionString: string) => {
+const createTelemetryService = () => {
     // Runs a side effect to initialize App Insights connection and React plugin
     const initialize = () => {
+        const connectionString =
+            process.env.REACT_APP_APPLICATIONINSIGHTS_CONNECTION_STRING;
         if (!connectionString) {
             console.warn("App Insights connection string not provided");
-            reactPlugin = null;
-            appInsights = null;
             return;
         }
         // Create plugin
@@ -27,7 +27,7 @@ export const createTelemetryService = (connectionString: string) => {
                 connectionString,
                 extensions: [reactPlugin],
                 loggingLevelConsole:
-                    import.meta.env.NODE_ENV === "development" ? 2 : 0,
+                    process.env.NODE_ENV === "development" ? 2 : 0,
                 disableFetchTracking: false,
                 enableAutoRouteTracking: true,
                 loggingLevelTelemetry: 2,
@@ -65,9 +65,7 @@ export const createTelemetryService = (connectionString: string) => {
     };
 };
 
-export const ai = createTelemetryService(
-    import.meta.env.VITE_APPLICATIONINSIGHTS_CONNECTION_STRING
-);
+export const ai = createTelemetryService();
 
 export function getAppInsights() {
     return appInsights;
@@ -116,11 +114,10 @@ export function withInsights(console: Console) {
                     id: exception.message,
                     severityLevel,
                     properties: {
-                        additionalInformation: {
-                            error: data[0],
-                            location: window.location.href,
-                            other: data.slice(1),
-                        },
+                        additionalInformation:
+                            data.length === 1
+                                ? undefined
+                                : JSON.stringify(data.slice(1)),
                     },
                 });
 

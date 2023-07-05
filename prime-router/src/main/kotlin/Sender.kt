@@ -40,8 +40,8 @@ import java.time.OffsetDateTime
     visible = true
 )
 @JsonSubTypes(
-    JsonSubTypes.Type(value = UniversalPipelineSender::class, name = "full-elr"),
-    JsonSubTypes.Type(value = UniversalPipelineSender::class, name = "etor-ti"),
+    JsonSubTypes.Type(value = FullELRSender::class, name = "full-elr"),
+    JsonSubTypes.Type(value = FullELRSender::class, name = "etor-ti"),
     JsonSubTypes.Type(value = CovidSender::class, name = "covid-19"),
     JsonSubTypes.Type(value = MonkeypoxSender::class, name = "monkeypox")
 )
@@ -177,10 +177,10 @@ abstract class Sender(
 }
 
 /**
- *  This sender represents a sender that is sending through the universal pipeline. It has all the same parameters
+ *  This sender represents a sender that is sending full ELR data, not just covid data. It has all the same parameters
  *  as the base Sender abstract class, although may be extended / modified in the future.
  */
-class UniversalPipelineSender : Sender {
+class FullELRSender : Sender {
     @JsonCreator
     constructor(
         name: String,
@@ -206,7 +206,7 @@ class UniversalPipelineSender : Sender {
         primarySubmissionMethod
     )
 
-    constructor(copy: UniversalPipelineSender) : this(
+    constructor(copy: FullELRSender) : this(
         copy.name,
         copy.organizationName,
         copy.format,
@@ -216,10 +216,10 @@ class UniversalPipelineSender : Sender {
     )
 
     /**
-     * To ensure existing functionality, we need to be able to create a straight copy of this UniversalPipelineSender
+     * To ensure existing functionality, we need to be able to create a straight copy of this FullELRSender
      */
     override fun makeCopy(): Sender {
-        return UniversalPipelineSender(this)
+        return FullELRSender(this)
     }
 
     /**
@@ -230,7 +230,7 @@ class UniversalPipelineSender : Sender {
     }
 }
 
-open class LegacyPipelineSender : Sender {
+open class TopicSender : Sender {
     @JsonCreator
     constructor(
         name: String,
@@ -256,7 +256,7 @@ open class LegacyPipelineSender : Sender {
         primarySubmissionMethod
     )
 
-    constructor(copy: LegacyPipelineSender) : this(
+    constructor(copy: TopicSender) : this(
         copy.name,
         copy.organizationName,
         copy.format,
@@ -266,10 +266,10 @@ open class LegacyPipelineSender : Sender {
     )
 
     /**
-     * To ensure existing functionality, we need to be able to create a straight copy of this Sender
+     * To ensure existing functionality, we need to be able to create a straight copy of this CovidSender
      */
     override fun makeCopy(): Sender {
-        return LegacyPipelineSender(this)
+        return TopicSender(this)
     }
 
     /**
@@ -286,7 +286,7 @@ open class LegacyPipelineSender : Sender {
  *
  * @property schemaName the name of the schema used by the sender
  */
-class CovidSender : LegacyPipelineSender {
+class CovidSender : TopicSender {
     @JsonCreator
     constructor(
         name: String,
@@ -330,7 +330,7 @@ class CovidSender : LegacyPipelineSender {
 /**
  * Our monkeypox sender
  */
-class MonkeypoxSender : LegacyPipelineSender {
+class MonkeypoxSender : TopicSender {
     @JsonCreator
     constructor(
         name: String,
@@ -364,7 +364,7 @@ class MonkeypoxSender : LegacyPipelineSender {
     )
 
     /**
-     * To ensure existing functionality, we need to be able to create a straight copy of this MonkeypoxSender
+     * To ensure existing functionality, we need to be able to create a straight copy of this CovidSender
      */
     override fun makeCopy(): Sender {
         return MonkeypoxSender(this)

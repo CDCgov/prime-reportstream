@@ -4,12 +4,8 @@ export class ResourcesShowPage extends ResourcesBasePage {
     /**
      * @override
      */
-    go(slug?: string) {
-        if (slug) {
-            cy.visit(`${this.path}/${slug}`);
-        } else {
-            super.go();
-        }
+    go(slug) {
+        cy.visit(`${this.path}/${slug}`);
     }
 }
 

@@ -64,12 +64,12 @@ class FHIRRouter(
     private val fhirPathFilterShorthandTableValueColumnName = "fhirPath"
 
     /**
-     * Default Rules for quality filter on FULL_ELR topic:
+     * Default Rules:
      *   Must have message ID, patient last name, patient first name, DOB, specimen type
      *   At least one of patient street, patient zip code, patient phone number, patient email
      *   At least one of order test date, specimen collection date/time, test result date
      */
-    private val fullElrQualityFilterDefault: ReportStreamFilter = listOf(
+    val qualityFilterDefault: ReportStreamFilter = listOf(
         "%messageId.exists()",
         "%patient.name.family.exists()",
         "%patient.name.given.count() > 0",
@@ -83,45 +83,26 @@ class FHIRRouter(
             "%specimen.collection.collected.exists()" +
             ") or " +
             "%serviceRequest.occurrence.exists() or " +
-            "%observation.effective.exists())",
+            "%observation.effective.exists())"
     )
 
     /**
-     * Default Rules for quality filter on ETOR_TI topic:
-     *   Must have message ID
-     */
-    private val etorTiQualityFilterDefault: ReportStreamFilter = listOf(
-        "%messageId.exists()",
-    )
-
-    /**
-     * Maps topics to default quality filters so that topic-dependent defaults can be used
-     */
-    val qualityFilterDefaults = mapOf(
-        Pair(Topic.FULL_ELR, fullElrQualityFilterDefault),
-        Pair(Topic.ETOR_TI, etorTiQualityFilterDefault),
-    )
-
-    /**
-     * Default Rule (used for ETOR_TI and FULL_ELR):
+     * Default Rule:
      *  Must have a processing mode id of 'P'
      */
-    private val processingModeFilterDefault: ReportStreamFilter = listOf(
+    val processingModeFilterDefault: ReportStreamFilter = listOf(
         "%processingId.exists() and %processingId = 'P'"
     )
 
     /**
-     * Maps topics to default processing mode filters so that topic-dependent defaults can be used
-     */
-    val processingModeDefaults = mapOf(
-        Pair(Topic.FULL_ELR, processingModeFilterDefault),
-        Pair(Topic.ETOR_TI, processingModeFilterDefault),
-    )
-
-    /**
-     * Lookup table `fhirpath_filter_shorthand` containing all the shorthand fhirpath replacements for filtering.
+     * Lookup table `fhirpath_filter_shorthand` containing all of the shorthand fhirpath replacements for filtering.
      */
     private val shorthandLookupTable by lazy { loadFhirPathShorthandLookupTable() }
+
+    /**
+     * The regex used to locate shorthand variables in fhirpath filters
+     */
+    private val regexVariable = """%[`']?[A-Za-z][\w\-'`_]*""".toRegex()
 
     /**
      * Adds logs for reports that pass through various methods in the FHIRRouter
@@ -360,7 +341,7 @@ class FHIRRouter(
                 report,
                 receiver,
                 ReportStreamFilterType.ROUTING_FILTER,
-                defaultResponse = true,
+                true
             )
 
             // PROCESSING MODE FILTER
@@ -371,7 +352,7 @@ class FHIRRouter(
                 report,
                 receiver,
                 ReportStreamFilterType.PROCESSING_MODE_FILTER,
-                defaultResponse = true
+                false
             )
 
             // CONDITION FILTER
@@ -460,18 +441,15 @@ class FHIRRouter(
     }
 
     /**
-     * With a given [filterType], returns whether the [filter] is the default filter for that type. If [filter] is
+     * With a given [filterType], returns whether or not [filter] is the default filter for that type. If [filter] is
      * an equivalent filter to the default, but does not point to the actual default, this function will still return
      * false.
      */
     internal fun isDefaultFilter(filterType: ReportStreamFilterType, filter: ReportStreamFilter): Boolean {
         // The usage of === (referential equality operator) below is intentional and necessary; we only want to
-        // return true if the filter references a default filter, not if it only happens to be equivalent to the default
-        return when (filterType) {
-            ReportStreamFilterType.QUALITY_FILTER -> qualityFilterDefaults.values.any { filter === it }
-            ReportStreamFilterType.PROCESSING_MODE_FILTER -> processingModeDefaults.values.any { filter === it }
-            else -> false
-        }
+        // return true if the filter references the default filter, not if it happens to be equivalent to the default
+        return (filterType == ReportStreamFilterType.QUALITY_FILTER && filter === qualityFilterDefault) ||
+            (filterType == ReportStreamFilterType.PROCESSING_MODE_FILTER && filter === processingModeFilterDefault)
     }
 
     /**
@@ -631,7 +609,7 @@ class FHIRRouter(
     }
 
     /**
-     * Gets the applicable quality filters for a [receiver]. Gets applicable quality filters from the
+     * Gets the applicable quality filters for 'FULL_ELR' for a [receiver]. Gets applicable quality filters from the
      * parent organization and adds any quality filters from the receiver's settings. If there are no filters in that
      * result, returns the default filter instead.
      */
@@ -640,11 +618,11 @@ class FHIRRouter(
             orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.qualityFilter
                 ?: emptyList()
             ).plus(receiver.qualityFilter)
-        return receiverFilters.ifEmpty { qualityFilterDefaults[receiver.topic] ?: emptyList() }
+        return receiverFilters.ifEmpty { qualityFilterDefault }
     }
 
     /**
-     * Gets the applicable routing filters for a [receiver]. Pulls from receiver configuration
+     * Gets the applicable routing filters for 'FULL_ELR' for a [receiver]. Pulls from receiver configuration
      * first and looks at the parent organization if the receiver does not have any routing filters configured for
      * this topic
      */
@@ -656,19 +634,19 @@ class FHIRRouter(
     }
 
     /**
-     * Gets the applicable processing mode filters for a [receiver]. Gets applicable processing mode
+     * Gets the applicable processing mode filters for 'FULL_ELR' for a [receiver]. Gets applicable processing mode
      * filters from the parent organization and adds any processing mode filters from the receiver's settings. If there
      * are no filters in that result, returns the default filter instead.
      */
     internal fun getProcessingModeFilter(
         receiver: Receiver,
-        orgFilters: List<ReportStreamFilters>?,
+        orgFilters: List<ReportStreamFilters>?
     ): ReportStreamFilter {
         val receiverFilters = (
             orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.processingModeFilter
                 ?: emptyList()
             ).plus(receiver.processingModeFilter)
-        return receiverFilters.ifEmpty { processingModeDefaults[receiver.topic] ?: emptyList() }
+        return receiverFilters.ifEmpty { processingModeFilterDefault }
     }
 
     /**

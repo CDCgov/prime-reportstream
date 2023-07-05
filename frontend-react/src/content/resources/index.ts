@@ -9,6 +9,7 @@ import {
     AccountRegistrationGuideIa,
     GettingStartedPhd,
     ELRChecklistIa,
+    ProgrammersGuide,
     DataDownloadGuideIa,
     SystemAndSettingsIa,
     SecurityPracticesIa,
@@ -17,13 +18,12 @@ import {
     ReferralGuideMd,
     GettingStartedSubmittingDataMd,
 } from "../../pages/resources/markdown-adapters";
-import { ReportStreamAPIPage } from "../../pages/resources/reportstream-api/ReportStreamApi";
 
 export enum ResourcesDirectories {
     ACCOUNT_REGISTRATION = "Account registration guide",
     DOWNLOAD_GUIDE = "Manual data download guide",
     REFERRAL_GUIDE = "ReportStream referral guide",
-    REPORTSTREAM_API = "ReportStream API",
+    PROGRAMMERS_GUIDE = "API Programmer's guide",
     ELR_CHECKLIST = "ELR onboarding checklist",
     SYSTEM = "System and settings",
     SECURITY = "Security practices",
@@ -39,7 +39,7 @@ const slugs: SlugParams[] = [
     },
     { key: ResourcesDirectories.DOWNLOAD_GUIDE, slug: "data-download-guide" },
     { key: ResourcesDirectories.REFERRAL_GUIDE, slug: "referral-guide" },
-    { key: ResourcesDirectories.REPORTSTREAM_API, slug: "api" },
+    { key: ResourcesDirectories.PROGRAMMERS_GUIDE, slug: "programmers-guide" },
     { key: ResourcesDirectories.ELR_CHECKLIST, slug: "elr-checklist" },
     { key: ResourcesDirectories.SYSTEM, slug: "system-and-settings" },
     { key: ResourcesDirectories.SECURITY, slug: "security-practices" },
@@ -134,16 +134,23 @@ export const resourcesDirectories = [
             )
         ),
     new ElementDirectory()
-        .setTitle(ResourcesDirectories.REPORTSTREAM_API)
+        .setTitle(ResourcesDirectories.PROGRAMMERS_GUIDE)
         .setSlug(
             ResourcesDirectoryTools.getSlug(
-                ResourcesDirectories.REPORTSTREAM_API
+                ResourcesDirectories.PROGRAMMERS_GUIDE
             )
         )
         .setDescription(
-            "Learn about our API and how to set up your connection for reporting data to public health departments."
+            "Set up an ELR connection to automatically report all disease data to public health departments."
         )
-        .addElement(ReportStreamAPIPage),
+        .addElement(
+            contentContainer(
+                ProgrammersGuide,
+                ResourcesDirectoryTools.makeCrumb(
+                    ResourcesDirectories.PROGRAMMERS_GUIDE
+                )
+            )
+        ),
     new ElementDirectory()
         .setTitle(ResourcesDirectories.DOWNLOAD_GUIDE)
         .setSlug(

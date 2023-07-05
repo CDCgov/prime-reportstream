@@ -7,16 +7,10 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.common.Environment
-import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.MalformedJwtException
-import io.jsonwebtoken.UnsupportedJwtException
 import org.apache.logging.log4j.kotlin.Logging
-import tokens.Server2ServerAuthenticationException
-import tokens.Server2ServerError
 import java.security.Key
-import java.security.SignatureException
 import java.util.Date
 import java.util.UUID
 
@@ -30,10 +24,20 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
     private val EXPIRATION_SECONDS = 300
 
     /**
+     * Exception class that captures errors from internal logic performed when authenticating; i.e.
+     * the issuer does not match an organization or sender
+     */
+    class Server2ServerAuthenticationException(message: String, val scope: String) : Exception(message) {
+        override fun getLocalizedMessage(): String {
+            return "AccessToken Request Denied: Error while requesting $scope: $message"
+        }
+    }
+
+    /**
      * Data class that holds the data from a parsed JWT.  The organization and sender fields are derived from
      * the issuer in the JWT claims
      */
-    data class ParsedJwt(val organization: Organization, val kid: String?, val kty: KeyType, val issuer: String)
+    data class ParsedJwt(val organization: Organization, val kid: String?, val kty: KeyType)
 
     /**
      *  convenience method to log in two places
@@ -77,7 +81,7 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
         // or the name of the organization.
         var maybeOrganization = workflowEngine.settings.findOrganization(issuer)
         if (maybeOrganization != null) {
-            return ParsedJwt(maybeOrganization, maybeKid, kty, issuer)
+            return ParsedJwt(maybeOrganization, maybeKid, kty)
         }
         val maybeSender = workflowEngine.settings.findSender(issuer)
         if (maybeSender != null) {
@@ -85,10 +89,10 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
         }
 
         if (maybeOrganization == null) {
-            throw Server2ServerAuthenticationException(Server2ServerError.NO_ORG_FOUND_FOR_ISS, scope, issuer)
+            throw Server2ServerAuthenticationException("$issuer was not valid.", scope)
         }
 
-        return ParsedJwt(maybeOrganization, maybeKid, kty, issuer)
+        return ParsedJwt(maybeOrganization, maybeKid, kty)
     }
 
     /**
@@ -147,6 +151,10 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
             // it is expired, or it does not represent any claims
             logErr(actionHistory, "AccessToken Request Denied: ${ex.localizedMessage}")
             return false
+        } catch (ex: IllegalArgumentException) {
+            // Thrown if the JwsString is null or empty
+            logErr(actionHistory, "AccessToken Request Denied: ${ex.localizedMessage}")
+            return false
         }
     }
 
@@ -159,21 +167,19 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
      * @param jtiCache - the cache of used tokens to prevent replay attacks
      * @param actionHistory - action history to capture events during the auth process
      *
-     * @return Unit if jwsString is a validly signed Organization token,
-     * @throws Server2ServerAuthenticationException if it is the token can not be verified
-     *
-     * If it is valid, then it's ok to move to the next step, then give the sender an Access token.
+     * @return true if jwsString is a validly signed Sender token, false if it is unauthorized
+     * If it is valid, then its ok to move to the next step, then give the sender an Access token.
      */
     fun checkSenderToken(
         jwsString: String,
         scope: String,
         jtiCache: JtiCache,
         actionHistory: ActionHistory? = null,
-    ) {
-        try {
+    ): Boolean {
+        return try {
             val parsedJwt = parseJwt(jwsString, scope)
-            if (!Scope.isWellFormedScope(scope) || !Scope.isValidScope(scope, parsedJwt.organization)) {
-                throw Server2ServerAuthenticationException(Server2ServerError.INVALID_SCOPE, scope, parsedJwt.issuer)
+            if (!Scope.isValidScope(scope, parsedJwt.organization)) {
+                throw Server2ServerAuthenticationException("Invalid scope for this issuer: $scope", scope)
             }
             val possibleKeys = getPossibleSigningKeys(parsedJwt, scope)
             if (possibleKeys.isEmpty()) {
@@ -183,47 +189,20 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
                         " Unable to find auth key for ${parsedJwt.organization.name} with" +
                         " scope=$scope, kid=${parsedJwt.kid}, and alg=${parsedJwt.kty}"
                 )
-                throw Server2ServerAuthenticationException(Server2ServerError.NO_VALID_KEYS, scope, parsedJwt.issuer)
             }
-            if (!possibleKeys.any { key -> verifyJwtWithKey(jwsString, key, jtiCache, actionHistory) }) {
-                throw Server2ServerAuthenticationException(Server2ServerError.NO_VALID_KEYS, scope, parsedJwt.issuer)
-            }
-        } catch (ex: Exception) {
-            logErr(actionHistory, "AccessToken Request Denied: ${ex.localizedMessage}")
-            when (ex) {
-                is Server2ServerAuthenticationException -> throw ex
-                is ExpiredJwtException -> throw Server2ServerAuthenticationException(
-                    Server2ServerError.EXPIRED_TOKEN,
-                    scope
-                )
-
-                is UnsupportedJwtException -> throw Server2ServerAuthenticationException(
-                    Server2ServerError.UNSIGNED_JWT,
-                    scope
-                )
-
-                is MalformedJwtException -> throw Server2ServerAuthenticationException(
-                    Server2ServerError.MALFORMED_JWT,
-                    scope
-                )
-
-                is SignatureException -> throw Server2ServerAuthenticationException(
-                    Server2ServerError.NO_VALID_KEYS,
-                    scope
-                )
-
-                is IllegalArgumentException -> throw Server2ServerAuthenticationException(
-                    Server2ServerError.MALFORMED_JWT,
-                    scope
-                )
-
-                is NullPointerException -> throw Server2ServerAuthenticationException(
-                    Server2ServerError.MALFORMED_JWT,
-                    scope
-                )
-
-                else -> throw ex
-            }
+            possibleKeys.any { key -> verifyJwtWithKey(jwsString, key, jtiCache, actionHistory) }
+        } catch (ex: Server2ServerAuthenticationException) {
+            logErr(actionHistory, ex.localizedMessage)
+            false
+        } catch (ex: JwtException) {
+            logErr(actionHistory, "AccessToken Request Denied: $ex")
+            false
+        } catch (ex: IllegalArgumentException) {
+            logErr(actionHistory, "AccessToken Request Denied: $ex")
+            false
+        } catch (ex: NullPointerException) {
+            logErr(actionHistory, "AccessToken Request Denied: $ex")
+            false
         }
     }
 

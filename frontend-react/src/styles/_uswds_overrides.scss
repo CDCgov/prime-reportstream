@@ -164,7 +164,6 @@ main {
     }
 
     .usa-nav__primary button {
-        height: 100%;
         padding: units(3);
         color: #2e2e2e;
         font-weight: normal;
@@ -177,7 +176,6 @@ main {
     .usa-nav__primary button span {
         font-weight: normal;
         color: #2e2e2e;
-        vertical-align: super;
     }
 
     .usa-header--basic .usa-nav__link:hover::after {
@@ -308,8 +306,4 @@ div.usa-alert__heading {
         width: auto;
         height: 1rlh;
     }
-}
-
-.usa-header + main {
-    border-top: none;
 }

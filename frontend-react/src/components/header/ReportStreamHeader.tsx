@@ -7,7 +7,6 @@ import {
     Title,
 } from "@trussworks/react-uswds";
 import { NetworkErrorBoundary } from "rest-hooks";
-import classnames from "classnames";
 
 import { permissionCheck, PERMISSIONS } from "../../utils/PermissionsUtils";
 import { ReactComponent as RightLeftArrows } from "../../content/right-left-arrows.svg";
@@ -40,15 +39,7 @@ const SupportIA = () => (
     </USNavLink>
 );
 
-type ReportStreamHeaderProps = {
-    children: React.ReactNode;
-    className?: string;
-};
-
-export const ReportStreamHeader = ({
-    children,
-    className,
-}: ReportStreamHeaderProps) => {
+export const ReportStreamHeader = () => {
     const { authState } = useOktaAuth();
     const { activeMembership, isAdminStrictCheck } = useSessionContext();
     const [expanded, setExpanded] = useState(false);
@@ -102,14 +93,7 @@ export const ReportStreamHeader = ({
     }
 
     return (
-        <Header
-            basic={true}
-            className={classnames(
-                "border-bottom-1px border-base-lighter",
-                className
-            )}
-        >
-            {children}
+        <Header basic={true}>
             <div className="usa-nav-container">
                 <div className="usa-navbar">
                     <div className="usa-logo" id="basic-logo">

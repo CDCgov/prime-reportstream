@@ -6,18 +6,16 @@ import { FileType } from "../../utils/TemporarySettingsAPITypes";
 import { INITIAL_STATE } from "../../hooks/UseFileHandler";
 import { fakeError, fakeWarning } from "../../hooks/UseFileHandler.test";
 
-import type { RequestLevel } from "./FileHandlerMessaging";
+import { RequestLevel } from "./FileHandlerMessaging";
 import FileHandlerErrorsWarningsStep, {
     FileHandlerErrorsWarningsStepProps,
 } from "./FileHandlerErrorsWarningsStep";
 
-function mockRequestedChangesDisplay({ title }: { title: RequestLevel }) {
-    return <div data-testid={`RequestedChangesDisplay--${title}`} />;
-}
-
 jest.mock("./FileHandlerMessaging", () => ({
     ...jest.requireActual("./FileHandlerMessaging"),
-    RequestedChangesDisplay: mockRequestedChangesDisplay,
+    RequestedChangesDisplay: ({ title }: { title: RequestLevel }) => (
+        <div data-testid={`RequestedChangesDisplay--${title}`} />
+    ),
 }));
 
 describe("FileHandlerErrorsWarningsStep", () => {

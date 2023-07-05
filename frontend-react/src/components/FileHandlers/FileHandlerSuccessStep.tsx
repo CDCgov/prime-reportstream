@@ -24,7 +24,10 @@ export default function FileHandlerSuccessStep() {
             </p>
             <p className="font-size-18 margin-0">
                 Learn more about the onboarding process in the{" "}
-                <USLink href="/resources/api">ReportStream API</USLink>.
+                <USLink href="/resources/programmers-guide">
+                    API Programmer’s Guide
+                </USLink>
+                .
             </p>
         </div>
     );

@@ -22,7 +22,7 @@ import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.hl7.fhir.r4.model.Bundle
 
 /**
- * Process a message off of the raw-elr azure queue, convert it into FHIR, and store for next step.
+ * Process a [message] off of the raw-elr azure queue, convert it into FHIR, and store for next step.
  * [metadata] mockable metadata
  * [settings] mockable settings
  * [db] mockable database access
@@ -39,7 +39,7 @@ class FHIRConverter(
 
     /**
      * Accepts a [message] in either HL7 or FHIR format
-     * HL7 messages will be converted into FHIR.
+     * HL7 messages will be converted into FHIR
      * FHIR messages will be decoded and saved
      *
      * [message] is the incoming message to be turned into FHIR and saved
@@ -64,7 +64,6 @@ class FHIRConverter(
             val transformer = getTransformerFromSchema(message.schemaName)
             // operate on each fhir bundle
             var bundleIndex = 1
-            val messagesToSend = mutableListOf<RawSubmission>()
             for (bundle in fhirBundles) {
                 // conduct FHIR Transform
                 transformer?.transform(bundle)
@@ -101,8 +100,8 @@ class FHIRConverter(
                     Event.EventAction.ROUTE,
                     report.id,
                     Options.None,
-                    emptyMap(),
-                    emptyList()
+                    emptyMap<String, String>(),
+                    emptyList<String>()
                 )
 
                 // upload to blobstore
@@ -136,17 +135,18 @@ class FHIRConverter(
                     null
                 )
 
-                messagesToSend.add(
+                // move to routing (send to <elrRoutingQueueName> queue)
+                this.queue.sendMessage(
+                    elrRoutingQueueName,
                     RawSubmission(
                         report.id,
                         blobInfo.blobUrl,
                         BlobAccess.digestToString(blobInfo.digest),
                         message.blobSubFolderName,
                         message.topic
-                    )
+                    ).serialize()
                 )
             }
-            messagesToSend.forEach { this.queue.sendMessage(elrRoutingQueueName, it.serialize()) }
         }
     }
 

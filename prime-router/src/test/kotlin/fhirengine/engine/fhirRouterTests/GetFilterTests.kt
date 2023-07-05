@@ -28,9 +28,6 @@ import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayInputStream
 import kotlin.test.Test
 
-private const val ORGANIZATION_NAME = "co-phd"
-private const val RECEIVER_NAME = "full-elr-hl7"
-
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GetFilterTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -39,14 +36,14 @@ class GetFilterTests {
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
-        ORGANIZATION_NAME,
+        "co-phd",
         "test",
         Organization.Jurisdiction.FEDERAL,
         receivers = listOf(
             Receiver
             (
-                RECEIVER_NAME,
-                ORGANIZATION_NAME,
+                "full-elr-hl7",
+                "co-phd",
                 Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
                 "one"
@@ -54,7 +51,7 @@ class GetFilterTests {
             Receiver
             (
                 "full-elr-hl7-2",
-                ORGANIZATION_NAME,
+                "co-phd",
                 Topic.FULL_ELR,
                 CustomerStatus.INACTIVE,
                 "one"
@@ -62,25 +59,17 @@ class GetFilterTests {
         )
     )
 
-    private val fullElrReceiverNoFilters = Receiver(
-        RECEIVER_NAME,
-        ORGANIZATION_NAME,
+    private val receiverNoFilters = Receiver(
+        "full-elr-hl7",
+        "co-phd",
         Topic.FULL_ELR,
         CustomerStatus.ACTIVE,
         "one"
     )
 
-    private val etorTiReceiverNoFilters = Receiver(
-        "etor-ti-hl7",
-        "etor-org",
-        Topic.ETOR_TI,
-        CustomerStatus.ACTIVE,
-        "one"
-    )
-
     private val receiverWithFilters = Receiver(
-        RECEIVER_NAME,
-        ORGANIZATION_NAME,
+        "full-elr-hl7",
+        "co-phd",
         Topic.FULL_ELR,
         CustomerStatus.ACTIVE,
         "one",
@@ -109,12 +98,12 @@ class GetFilterTests {
     )
 
     private val orgNoFilters = DeepOrganization(
-        ORGANIZATION_NAME,
+        "co-phd",
         "test",
         Organization.Jurisdiction.FEDERAL
     )
     private val orgWithFilters = DeepOrganization(
-        ORGANIZATION_NAME,
+        "co-phd",
         "test",
         Organization.Jurisdiction.FEDERAL,
         filters = orgFilters
@@ -132,13 +121,13 @@ class GetFilterTests {
             observation,Bundle.entry.resource.ofType(Observation)
     """.trimIndent()
 
-    private val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
+    val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
     val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
 
-    private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
+    private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).queueAccess(queueMock).build(TaskAction.route)
+            .blobAccess(blobMock).queueAccess(queueMock).build(taskAction)
     }
 
     @BeforeEach
@@ -150,10 +139,10 @@ class GetFilterTests {
     @Test
     fun `test getJurisFilter no filters`() {
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
-        val filters = engine.getJurisFilters(fullElrReceiverNoFilters, emptyList())
+        val filters = engine.getJurisFilters(receiverNoFilters, emptyList())
 
         // assert
         assert(filters.isEmpty())
@@ -162,10 +151,10 @@ class GetFilterTests {
     @Test
     fun `test getJurisFilter org filter, no receiver`() {
         val settings = FileSettings().loadOrganizations(orgWithFilters)
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
-        val filters = engine.getJurisFilters(fullElrReceiverNoFilters, orgFilters)
+        val filters = engine.getJurisFilters(receiverNoFilters, orgFilters)
 
         // assert
         assert(filters.size == 1)
@@ -175,7 +164,7 @@ class GetFilterTests {
     @Test
     fun `test getJurisFilter org filter + receiver`() {
         val settings = FileSettings().loadOrganizations(orgWithFilters)
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
         val filters = engine.getJurisFilters(receiverWithFilters, orgFilters)
@@ -189,7 +178,7 @@ class GetFilterTests {
     @Test
     fun `test getJurisFilter receiver filter, no org filter`() {
         val settings = FileSettings().loadOrganizations(orgNoFilters)
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
         val filters = engine.getJurisFilters(receiverWithFilters, emptyList())
@@ -203,15 +192,15 @@ class GetFilterTests {
     @Test
     fun `test getJurisFilter receiver multi line`() {
         val receiver = Receiver(
-            RECEIVER_NAME,
-            ORGANIZATION_NAME,
+            "full-elr-hl7",
+            "co-phd",
             Topic.TEST,
             CustomerStatus.INACTIVE,
             "one",
             jurisdictionalFilter = listOf("testRec", "testRec2")
         )
         val testOrg = DeepOrganization(
-            ORGANIZATION_NAME,
+            "co-phd",
             "test",
             Organization.Jurisdiction.FEDERAL,
             filters = orgFilters,
@@ -221,7 +210,7 @@ class GetFilterTests {
         )
 
         val settings = FileSettings().loadOrganizations(testOrg)
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
         val filter = engine.getJurisFilters(receiver, orgFilters)
@@ -236,22 +225,22 @@ class GetFilterTests {
     @Test
     fun `test getQualFilter no filters`() {
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
-        var filters = engine.getQualityFilters(fullElrReceiverNoFilters, emptyList())
-        assert(filters === engine.qualityFilterDefaults[Topic.FULL_ELR])
+        // do work
+        val filters = engine.getQualityFilters(receiverNoFilters, emptyList())
 
-        filters = engine.getQualityFilters(etorTiReceiverNoFilters, emptyList())
-        assert(filters === engine.qualityFilterDefaults[Topic.ETOR_TI])
+        // assert
+        assert(filters === engine.qualityFilterDefault)
     }
 
     @Test
     fun `test getQualFilter org filter, no receiver`() {
         val settings = FileSettings().loadOrganizations(orgWithFilters)
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
-        val filters = engine.getQualityFilters(fullElrReceiverNoFilters, orgFilters)
+        val filters = engine.getQualityFilters(receiverNoFilters, orgFilters)
 
         // assert
         assert(filters.size == 1)
@@ -261,7 +250,7 @@ class GetFilterTests {
     @Test
     fun `test getQualFilter org filter + receiver`() {
         val settings = FileSettings().loadOrganizations(orgWithFilters)
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
         val filters = engine.getQualityFilters(receiverWithFilters, orgFilters)
@@ -275,7 +264,7 @@ class GetFilterTests {
     @Test
     fun `test getQualFilter receiver filter, no org filter`() {
         val settings = FileSettings().loadOrganizations(orgNoFilters)
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
         val filters = engine.getQualityFilters(receiverWithFilters, emptyList())
@@ -290,10 +279,10 @@ class GetFilterTests {
     @Test
     fun `test getRoutingFilter no filters`() {
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
-        val filters = engine.getRoutingFilter(fullElrReceiverNoFilters, emptyList())
+        val filters = engine.getRoutingFilter(receiverNoFilters, emptyList())
 
         // assert
         assert(filters.isEmpty())
@@ -302,10 +291,10 @@ class GetFilterTests {
     @Test
     fun `test getRoutingFilter org filter, no receiver`() {
         val settings = FileSettings().loadOrganizations(orgWithFilters)
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
-        val filters = engine.getRoutingFilter(fullElrReceiverNoFilters, orgFilters)
+        val filters = engine.getRoutingFilter(receiverNoFilters, orgFilters)
 
         // assert
         assert(filters.size == 1)
@@ -315,7 +304,7 @@ class GetFilterTests {
     @Test
     fun `test getRoutingFilter org filter + receiver`() {
         val settings = FileSettings().loadOrganizations(orgWithFilters)
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
         val filters = engine.getRoutingFilter(receiverWithFilters, orgFilters)
@@ -329,7 +318,7 @@ class GetFilterTests {
     @Test
     fun `test getRoutingFilter receiver filter, no org filter`() {
         val settings = FileSettings().loadOrganizations(orgNoFilters)
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
         val filters = engine.getRoutingFilter(receiverWithFilters, emptyList())
@@ -344,22 +333,22 @@ class GetFilterTests {
     @Test
     fun `test getProcessingModeFilters no filters`() {
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
-        var filters = engine.getProcessingModeFilter(fullElrReceiverNoFilters, emptyList())
-        assert(filters === engine.processingModeDefaults[Topic.FULL_ELR])
+        // do work
+        val filters = engine.getProcessingModeFilter(receiverNoFilters, emptyList())
 
-        filters = engine.getProcessingModeFilter(etorTiReceiverNoFilters, emptyList())
-        assert(filters === engine.processingModeDefaults[Topic.ETOR_TI])
+        // assert
+        assert(filters === engine.processingModeFilterDefault)
     }
 
     @Test
     fun `test getProcessingModeFilters org filter, no receiver`() {
         val settings = FileSettings().loadOrganizations(orgWithFilters)
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
-        val filters = engine.getProcessingModeFilter(fullElrReceiverNoFilters, orgFilters)
+        val filters = engine.getProcessingModeFilter(receiverNoFilters, orgFilters)
 
         // assert
         assert(filters.size == 1)
@@ -369,7 +358,7 @@ class GetFilterTests {
     @Test
     fun `test getProcessingModeFilters org filter + receiver`() {
         val settings = FileSettings().loadOrganizations(orgWithFilters)
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
         val filters = engine.getProcessingModeFilter(receiverWithFilters, orgFilters)
@@ -383,7 +372,7 @@ class GetFilterTests {
     @Test
     fun `test getProcessingModeFilters receiver filter, no org filter`() {
         val settings = FileSettings().loadOrganizations(orgNoFilters)
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         // do work
         val filters = engine.getProcessingModeFilter(receiverWithFilters, emptyList())
@@ -397,7 +386,7 @@ class GetFilterTests {
     @Test
     fun `test getConditionFilter`() {
         val settings = FileSettings().loadOrganizations(orgNoFilters)
-        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
 
         val filters = engine.getConditionFilter(receiverWithFilters, orgFilters)
         assert(filters.size == 1)

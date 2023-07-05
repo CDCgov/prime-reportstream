@@ -11,8 +11,8 @@ import {
 import { WhereWereLive } from "../../pages/product/legacy-page-content/WhereWereLive";
 import { About } from "../../pages/About";
 
-import ProductIndexMd from "./product-index.md?url";
-import ReleaseNotesMd from "./release-notes.md?url";
+import ProductIndexMd from "./product-index.md";
+import ReleaseNotesMd from "./release-notes.md";
 
 const slugs: SlugParams[] = [
     { key: "OVERVIEW", slug: "overview" },

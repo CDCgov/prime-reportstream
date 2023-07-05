@@ -2,20 +2,6 @@
 
 ## Stay up to date with new features, enhancements, and fixes
 
-### May 2023
-**New Features**
-
-- The [ReportStream File Validator tool](https://reportstream.cdc.gov/file-handler/validate) enables users to validate data formatting for COVID test results against three standard schemas (HL7, CSV, CSV-OTC). If a testing facility has a custom data model, they can validate against that schema if logged in. Users can also troubleshoot issues with their datasets by seeing specific errors and warnings for their files.
-
-- The [Public Key tool](https://reportstream.cdc.gov/resources/manage-public-key) allows new testing facilities to upload their shared public key directly through the ReportStream site as they are setting up authentication. Improvements are planned for the future to allow a user to manage their public keys through this tool as well.
-
-**Improvements**
-
-- Usability: The [FAQ Page](https://reportstream.cdc.gov/support/faq) has been updated with additional questions and clearer answers.
-
-**New State Connection**
-We’re excited to announce that ReportStream can now send public health data to Pennsylvania.
-
 ---
 ### April 2023
 
@@ -150,4 +136,4 @@ We’re excited to announce that ReportStream has recently established connectio
 
 #### Additional Resources
 
-ReportStream [ReportStream API](/resources/api) is updated to version 2.2 with information on how to submit data for at-home test results.
+ReportStream [API Programmer’s Guide](/resources/programmers-guide) is updated to version 2.2 with information on how to submit data for at-home test results.

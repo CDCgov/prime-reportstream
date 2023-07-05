@@ -1,7 +1,7 @@
 # Identifier to EI mapping
 elements:
   - name: entity-identifier
-    value: [ '%deidentifiedValue','%resource.value' ]
+    value: [ '%resource.value' ]
     hl7Spec: [ '%{entityIdFieldPath}-1' ]
 
   - name: entity-namespace-id
