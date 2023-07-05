@@ -51,15 +51,15 @@ jobs:
         run: ./gradlew package -x fatjar -Pshowtests
 
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
+      # - name: Set up Node.js
+      #   uses: actions/setup-node@v2
+      #   with:
+      #     node-version: '14'
 
-      - name: Install dependencies
-        run: |
-          npm install -g @okta/okta-sdk-nodejs
-          npm install -g @okta/okta-auth-js
+      # - name: Install dependencies
+      #   run: |
+      #     npm install -g @okta/okta-sdk-nodejs
+      #     npm install -g @okta/okta-auth-js
 
       # - name: Login to Okta
       #   env:
@@ -106,6 +106,8 @@ jobs:
       #     node login.js
 
       - name: Run Smoke Test in Staging
+        working-directory: prime-router
+        shell: bash
         run: ./prime test --env staging --key ${{ secrets.STG_API_KEY }}
 
 
