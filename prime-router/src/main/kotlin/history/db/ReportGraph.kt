@@ -24,11 +24,14 @@ private const val METADATA_CTE = "metadata"
 
 private const val PATH_FIELD = "path"
 
+private const val STARTING_REPORT_ID_FIELD = "starting_report_id"
+
 class ItemGraphTable : CustomTable<ItemGraphRecord>(DSL.name("item_graph")) {
 
     val PARENT_REPORT_ID = createField(DSL.name(PARENT_REPORT_ID_FIELD), SQLDataType.UUID)
     val PARENT_INDEX = createField(DSL.name(PARENT_INDEX_FIELD), SQLDataType.INTEGER)
     val PATH = createField(DSL.name(PATH_FIELD), SQLDataType.VARCHAR)
+    val STARTING_REPORT_ID = createField(DSL.name(STARTING_REPORT_ID_FIELD), SQLDataType.UUID)
 
     companion object {
         val ITEM_GRAPH = ItemGraphTable()
@@ -133,10 +136,16 @@ class ReportGraph(
                     ITEM_LINEAGE.PARENT_REPORT_ID,
                     ITEM_LINEAGE.PARENT_INDEX,
                     DSL.value("(")
+                        .concat(ITEM_LINEAGE.CHILD_REPORT_ID)
+                        .concat(",")
+                        .concat(ITEM_LINEAGE.CHILD_INDEX)
+                        .concat(")")
+                        .concat("->(")
                         .concat(ITEM_LINEAGE.PARENT_REPORT_ID.cast(SQLDataType.VARCHAR))
                         .concat(",")
                         .concat(ITEM_LINEAGE.PARENT_INDEX)
-                        .concat(")").`as`(PATH_FIELD)
+                        .concat(")").`as`(PATH_FIELD),
+                    ITEM_LINEAGE.CHILD_REPORT_ID.`as`(STARTING_REPORT_ID_FIELD)
                 )
                     .from(ITEM_LINEAGE)
                     .where(ITEM_LINEAGE.CHILD_REPORT_ID.`in`(reportIds))
@@ -151,7 +160,8 @@ class ReportGraph(
                                         .concat(",")
                                         .concat(ITEM_LINEAGE.PARENT_INDEX)
                                         .concat(")")
-                                )
+                                ),
+                            DSL.field("${ItemGraphTable.ITEM_GRAPH.name}.$STARTING_REPORT_ID_FIELD", SQLDataType.UUID)
                         )
                             .from(ITEM_LINEAGE)
                             .join(DSL.table(DSL.name(ItemGraphTable.ITEM_GRAPH.name)))

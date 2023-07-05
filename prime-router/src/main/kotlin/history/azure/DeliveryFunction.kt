@@ -17,6 +17,8 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryHistory
+import gov.cdc.prime.router.history.db.DeliveryApiSearch
+import gov.cdc.prime.router.history.db.DeliveryDatabaseAccess
 import gov.cdc.prime.router.history.db.ReportGraph
 import gov.cdc.prime.router.history.db.SubmitterApiSearch
 import gov.cdc.prime.router.history.db.SubmitterDatabaseAccess
@@ -42,6 +44,7 @@ class DeliveryFunction(
     private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
     private val submitterDatabaseAccess = SubmitterDatabaseAccess()
+    private val deliveryDatabaseAccess = DeliveryDatabaseAccess()
 
     /**
      * Authorization and shared logic uses the organization name without the service
@@ -107,6 +110,37 @@ class DeliveryFunction(
      */
     override fun singleDetailedHistory(queryParams: MutableMap<String, String>, action: Action): DeliveryHistory? {
         return deliveryFacade.findDetailedDeliveryHistory(action.actionId)
+    }
+
+    @FunctionName("getDeliveriesV1")
+    fun getDeliveriesV1(
+        @HttpTrigger(
+            name = "getDeliveriesV1",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "v1/receivers/{receiverName}/deliveries"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("receiverName") receiverName: String
+    ): HttpResponseMessage {
+        val claims = AuthenticatedClaims.authenticate(request)
+        val receiver =
+            BaseEngine.settingsProviderSingleton.findReceiver(receiverName) ?: return HttpUtilities.notFoundResponse(
+                request,
+                "No such receiver $receiverName"
+            )
+        if (claims == null || !claims.authorizedForSendOrReceive(
+                requiredOrganization = receiver.organizationName,
+                request = request
+            )
+        ) {
+            logger.warn("User '${claims?.userName}' FAILED authorization for endpoint ${request.uri}")
+            return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+        }
+        request.body ?: HttpUtilities.badRequestResponse(request, "Search body must be included")
+        val search = DeliveryApiSearch.parse(request)
+        val results = deliveryDatabaseAccess.getDeliveries(search, receiver)
+        val response = ApiResponse.buildFromApiSearch("delivery", search, results)
+        return HttpUtilities.okJSONResponse(request, response)
     }
 
     /**
