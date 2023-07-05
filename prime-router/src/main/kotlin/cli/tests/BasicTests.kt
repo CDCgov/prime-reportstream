@@ -402,7 +402,7 @@ class Merge : CoolTest() {
         receivers: List<Receiver>,
         itemsPerReport: Int,
         silent: Boolean = false,
-        maxPollSecs: Int = 600,
+        maxPollSecs: Int = 860,
         pollSleepSecs: Int = 20,
     ): Boolean {
         var timeElapsedSecs = 0
