@@ -382,6 +382,62 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     }
 
     @Test
+    fun `test connecting to mock service using getAuthTokenWithUserApiKey without transport parametters`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientAuthOk()))
+        val mockPostReportResponse = getHttpResponse(HttpStatusCode.OK)
+
+        // Given: lookupDefaultCredential returns mock UserApiKeyCredential object to allow
+        // the getAuthTokenWIthUserApiKey() to be called.
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserApiKeyCredential(
+                "test-user",
+                "test-apikey"
+            )
+        )
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
+            .returns(mockPostReportResponse)
+
+        // When: the RESTTransport is called WITH transportType (an old REST Transport) WITHOUT transport.parameters
+        val retryItems = mockRestTransport.send(
+            transportType, header, reportId, null,
+            context, actionHistory
+        )
+
+        // Then: retryItems should be null for success
+        assertThat(retryItems).isNull()
+        assertThat(actionHistory.action.httpStatus).isNotNull()
+    }
+
+    @Test
+    fun `test connecting to mock service using getAuthTokenWithUserApiKey with transport parametters`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientAuthOk()))
+        val mockPostReportResponse = getHttpResponse(HttpStatusCode.OK)
+
+        // Given: lookupDefaultCredential returns mock UserApiKeyCredential object to allow
+        // the getAuthTokenWIthUserApiKey() to be called.
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserApiKeyCredential(
+                "test-user",
+                "test-apikey"
+            )
+        )
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
+            .returns(mockPostReportResponse)
+
+        // When: the RESTTransport is called WITH flexionRestTransportType which has transport.parameters filled
+        val retryItems = mockRestTransport.send(
+            flexionRestTransportType, header, reportId, null,
+            context, actionHistory
+        )
+
+        // Then: retryItems should be null for success
+        assertThat(retryItems).isNull()
+        assertThat(actionHistory.action.httpStatus).isNotNull()
+    }
+
+    @Test
     fun `test flexion rest transport`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
@@ -398,4 +454,6 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         )
         assertThat(retryItems).isNull()
     }
+
+
 }
