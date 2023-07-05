@@ -58,9 +58,12 @@ jobs:
       - uses: gradle/wrapper-validation-action@8d49e559aae34d3e0eb16cde532684bc9702762b
 
       - name: Spin up build containers
+        working-directory: prime-router
         run: docker-compose -f docker-compose.postgres.yml up -d
 
       - name: Build Prime Router Package
+        working-directory: prime-router
+        shell: bash
         run: ./gradlew package -Pshowtests
       
       - name: Spin up vault
