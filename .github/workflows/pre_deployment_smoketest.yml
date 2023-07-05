@@ -31,22 +31,28 @@ jobs:
         run: |
           az postgres server firewall-rule create --resource-group prime-data-hub-staging --server-name ${{ secrets.POSTGRESQL_STG_SERVER_NAME }} --name GHA --start-ip-address ${{ steps.runner_ip.outputs.ip-address }} --end-ip-address ${{ steps.runner_ip.outputs.ip-address }}
 
-      - name: set staging env for database
-        run: |
-          export POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_STAGING_PWD }};export POSTGRES_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require;export POSTGRES_USER=${{ secrets.POSTGRESQL_STG_ADMIN_USER }}
-    
-
       - name: Set up JDK 11
         uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2
         with:
           java-version: '11'
           distribution: 'adopt'
           cache: 'gradle'
+      
+      - name: Spin up vault
+        working-directory: prime-router
+        timeout-minutes: 1
+        run: |
+          mkdir .vault/env
+          touch .vault/env/.env.local
+          export $(xargs < .vault/env/.env.local)
+          docker-compose -f docker-compose.yml up -d vault
+          while [ ! -s .vault/env/.env.local ]; do sleep 1; done
+          echo "loaded env vars"
 
-      - name: Spin up build containers
+      - name: Spin up containers
         working-directory: prime-router
         shell: bash
-        run: docker-compose -f docker-compose.postgres.yml up -d
+        run: docker-compose -f docker-compose.yml up -d prime_dev sftp azurite
 
       # - name: Build Prime Router Package
       #   working-directory: prime-router
@@ -58,6 +64,10 @@ jobs:
           echo "sleeping 30"
           sleep 30
           echo "wake up"
+
+      - name: set staging env for database
+        run: |
+          export POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_STAGING_PWD }};export POSTGRES_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require;export POSTGRES_USER=${{ secrets.POSTGRESQL_STG_ADMIN_USER }}
       
       - name: Load the configuration
         working-directory: prime-router
