@@ -61,49 +61,49 @@ jobs:
           npm install -g @okta/okta-sdk-nodejs
           npm install -g @okta/okta-auth-js
 
-      - name: Login to Okta
-        env:
-          OKTA_USERNAME: ${{ secrets.OKTA_USERNAME }}
-          OKTA_PASSWORD: ${{ secrets.OKTA_PASSWORD }}
-        run: |
-          echo "const okta = require('@okta/okta-sdk-nodejs');
-          const authClient = require('@okta/okta-auth-js');
+      # - name: Login to Okta
+      #   env:
+      #     OKTA_USERNAME: ${{ secrets.OKTA_USERNAME }}
+      #     OKTA_PASSWORD: ${{ secrets.OKTA_PASSWORD }}
+      #   run: |
+      #     echo "const okta = require('@okta/okta-sdk-nodejs');
+      #     const authClient = require('@okta/okta-auth-js');
 
-          const oktaDomain = ${{ secrets.OKTA_DOMAIN }};
-          const username = process.env.OKTA_USERNAME;
-          const password = process.env.OKTA_PASSWORD;
+      #     const oktaDomain = ${{ secrets.OKTA_DOMAIN }};
+      #     const username = process.env.OKTA_USERNAME;
+      #     const password = process.env.OKTA_PASSWORD;
 
-          async function login() {
-            try {
-              const authClient = new authClient.AuthenticationClient({
-                issuer: 'https://${oktaDomain}/oauth2/default',
-                clientId: ${{ secrets.OKTA_CLIENT_ID }},
-                redirectUri: 'http://localhost:8080',
-                scopes: ['openid', 'email', 'profile'],
-              });
+      #     async function login() {
+      #       try {
+      #         const authClient = new authClient.AuthenticationClient({
+      #           issuer: 'https://${oktaDomain}/oauth2/default',
+      #           clientId: ${{ secrets.OKTA_CLIENT_ID }},
+      #           redirectUri: 'http://localhost:8080',
+      #           scopes: ['openid', 'email', 'profile'],
+      #         });
 
-              const transaction = await authClient.signIn({ username, password });
-              const sessionToken = await transaction.sessionToken;
+      #         const transaction = await authClient.signIn({ username, password });
+      #         const sessionToken = await transaction.sessionToken;
 
-              const client = new okta.Client({
-                orgUrl: `https://${oktaDomain}`,
-                token: sessionToken,
-              });
+      #         const client = new okta.Client({
+      #           orgUrl: `https://${oktaDomain}`,
+      #           token: sessionToken,
+      #         });
 
-              // Use the Okta SDK client for further operations
-              // For example, retrieve user information
-              const userInfo = await authClient.getUserInfo(sessionToken);
-              const userId = userInfo.sub;
-              console.log('Logged in as user ID:', userId);
-            } catch (error) {
-              console.error('Login failed:', error);
-              process.exit(1);
-            }
-          }
+      #         // Use the Okta SDK client for further operations
+      #         // For example, retrieve user information
+      #         const userInfo = await authClient.getUserInfo(sessionToken);
+      #         const userId = userInfo.sub;
+      #         console.log('Logged in as user ID:', userId);
+      #       } catch (error) {
+      #         console.error('Login failed:', error);
+      #         process.exit(1);
+      #       }
+      #     }
 
-          login();" > login.js
+      #     login();" > login.js
 
-          node login.js
+      #     node login.js
 
       - name: Run Smoke Test in Staging
         run: ./prime test --env staging --key ${{ secrets.STG_API_KEY }}
