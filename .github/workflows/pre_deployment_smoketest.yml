@@ -9,9 +9,6 @@ jobs:
   smoketest_prime_router:
     name: Run SmokeTest in  Prime Router
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: prime-router
 
     steps:
       - name: "Check out changes"
@@ -46,13 +43,16 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
 
-      - uses: gradle/wrapper-validation-action@8d49e559aae34d3e0eb16cde532684bc9702762b
+      - name: Spin up build containers
+        working-directory: prime-router
+        shell: bash
+        run: docker-compose -f docker-compose.postgres.yml up -d
 
-      - name: Spin up containers
-        id: spin_containers
-        run: |
-          docker-compose -f docker-compose.yml up -d 
-          
+      - name: Build Prime Router Package
+        working-directory: prime-router
+        shell: bash
+        run: ./gradlew package -x fatjar -Pshowtests
+
       - name: Give some time for the container to start
         run: |
           echo "sleeping 30"
@@ -60,15 +60,18 @@ jobs:
           echo "wake up"
       
       - name: Load the configuration
+        working-directory: prime-router
         shell: bash
         run: |
          ./gradlew reloadTables
          ./gradlew reloadSettings
 
       - name: Build Prime Router Package
+        working-directory: prime-router
         run: ./gradlew package -Pshowtests
       
       - name: Run Smoke Test in Staging
+        working-directory: prime-router
         shell: bash
         run: ./prime test --env staging --key ${{ secrets.STG_API_KEY }}
 
