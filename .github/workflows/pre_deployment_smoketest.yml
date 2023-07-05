@@ -86,7 +86,7 @@ jobs:
               const sessionToken = await transaction.sessionToken;
 
               const client = new okta.Client({
-                orgUrl: `https://${oktaDomain}`,
+                orgUrl: `https://${{ secrets.OKTA_DOMAIN }}`,
                 token: sessionToken,
               });
 
