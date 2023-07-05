@@ -5,9 +5,26 @@ on:
     branches:
       - "feature/automate-predeployment-smoketest"
 
+env:
+  DB_USER: ${{ secrets.POSTGRESQL_STG_ADMIN_USER }}
+  DB_PASSWORD: ${{ secrets.POSTGRESQL_STAGING_PWD }}
+
 jobs:
+  pre_job:
+    name: Pre Job
+    runs-on: ubuntu-latest
+    outputs:
+      has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
+
   smoketest_prime_router:
-    name: Run SmokeTest in  Prime Router
+    needs: pre_job
+    name: Run SmokeTest in Prime Router
     runs-on: ubuntu-latest
 
     steps:
@@ -37,6 +54,14 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
           cache: 'gradle'
+
+      - uses: gradle/wrapper-validation-action@8d49e559aae34d3e0eb16cde532684bc9702762b
+
+      - name: Spin up build containers
+        run: docker-compose -f docker-compose.postgres.yml up -d
+
+      - name: Build Prime Router Package
+        run: ./gradlew package -Pshowtests
       
       - name: Spin up vault
         working-directory: prime-router
@@ -44,7 +69,6 @@ jobs:
         run: |
           mkdir .vault/env
           touch .vault/env/.env.local
-          export $(xargs < .vault/env/.env.local)
           docker-compose -f docker-compose.yml up -d vault
           while [ ! -s .vault/env/.env.local ]; do sleep 1; done
           echo "loaded env vars"
@@ -54,10 +78,6 @@ jobs:
         shell: bash
         run: docker-compose -f docker-compose.yml up -d prime_dev sftp azurite
 
-      # - name: Build Prime Router Package
-      #   working-directory: prime-router
-      #   shell: bash
-      #   run: ./gradlew package -x fatjar -Pshowtests
 
       - name: Give some time for the container to start
         run: |
@@ -75,6 +95,16 @@ jobs:
         run: |
          ./gradlew reloadTables
          ./gradlew reloadSettings
+
+      - name: Correct sftp perms
+        run: docker-compose exec -T sftp chmod 777 /home/foo/upload
+
+      - name: Smoke tests
+        run: |
+          export $(xargs < .vault/env/.env.local)
+          ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
+          ./gradlew testSmoke
+          
       
       - name: Run Smoke Test in Staging
         working-directory: prime-router
