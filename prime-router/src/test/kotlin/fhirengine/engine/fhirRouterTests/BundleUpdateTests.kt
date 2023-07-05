@@ -35,26 +35,27 @@ class BundleUpdateTests {
     val queueMock = mockkClass(QueueAccess::class)
     val metadata = Metadata(schema = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList()))
     private val shorthandLookupTable = emptyMap<String, String>().toMutableMap()
+    private val organizationName = "co-phd"
 
-    val bodyUrl = "http://anyblob.com"
+    val bodyUrl = "https://anyblob.com"
     private val defaultReceivers = listOf(
         Receiver(
             "full-elr-hl7",
-            "co-phd",
+            organizationName,
             Topic.FULL_ELR,
             CustomerStatus.ACTIVE,
             "one"
         ),
         Receiver(
             "full-elr-hl7-2",
-            "co-phd",
+            organizationName,
             Topic.FULL_ELR,
             CustomerStatus.INACTIVE,
             "one"
         )
     )
     val oneOrganization = DeepOrganization(
-        "co-phd",
+        organizationName,
         "test",
         Organization.Jurisdiction.FEDERAL,
         receivers = defaultReceivers
@@ -122,7 +123,7 @@ class BundleUpdateTests {
         val outs = provenance.target
         val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
         assert(receiversOut.isNotEmpty())
-        assert(receiversOut[0] == "co-phd.full-elr-hl7")
+        assert(receiversOut[0] == "$organizationName.full-elr-hl7")
     }
 
     @Test
@@ -155,6 +156,6 @@ class BundleUpdateTests {
         val outs = provenance.target
         val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
         assert(receiversOut.isNotEmpty())
-        assert(receiversOut[0] == "co-phd.full-elr-hl7")
+        assert(receiversOut[0] == "$organizationName.full-elr-hl7")
     }
 }

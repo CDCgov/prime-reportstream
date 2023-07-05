@@ -151,6 +151,12 @@ class DetailedSubmissionHistory(
     var actionsPerformed = mutableSetOf<TaskAction>()
 
     /**
+     * Flag to check if there's an action scheduled for a report related to this submission
+     */
+    @JsonIgnore
+    var nextActionScheduled = false
+
+    /**
      * The step in the delivery process for a submission
      * Supported values:
      *     VALID - successfully validated, but not sent
@@ -207,12 +213,6 @@ class DetailedSubmissionHistory(
             return destinations.filter { it.itemCount != 0 }.size
         }
 
-    /**
-     * Number of items in total that have passed any filters
-     * Used for status calculation in cases where no translation has happened
-     */
-    private var itemCountAfterFiltering = 0
-
     init {
         reports?.forEach { report ->
             // For reports sent to a destination
@@ -251,6 +251,9 @@ class DetailedSubmissionHistory(
                 sender = ClientSource(report.sendingOrg, report.sendingOrgClient ?: "").name
                 topic = report.schemaTopic
             }
+
+            // if there is ANY action scheduled on this submission history, ensure this flag is true
+            if (report.nextActionAt != null) nextActionScheduled = true
         }
         errors.addAll(consolidateLogs(ActionLogLevel.error))
         warnings.addAll(consolidateLogs(ActionLogLevel.warning))
@@ -423,10 +426,6 @@ class DetailedSubmissionHistory(
                 }
             }
         }
-
-        descendant.reports?.forEach {
-            itemCountAfterFiltering += it.itemCount
-        }
     }
 
     /**
@@ -544,29 +543,23 @@ class DetailedSubmissionHistory(
              *
              * The most likely scenario for that is when the item does not pass the jurisdictional filter for any of
              * the receivers.
-             *
-             * Note: This method only works for the universal pipeline as the covid pipeline does the filtering and
-             * routing in one step.
              */
-            if (actionsPerformed.contains(TaskAction.route) && itemCountAfterFiltering == 0) {
-                return Status.NOT_DELIVERING
-            }
-            return Status.RECEIVED
+            return if (actionsPerformed.contains(TaskAction.route) && !nextActionScheduled) {
+                Status.NOT_DELIVERING
+            } else Status.RECEIVED
         } else if (realDestinations.isEmpty()) {
-            return Status.NOT_DELIVERING
+            return if (nextActionScheduled) Status.RECEIVED
+            else Status.NOT_DELIVERING
         }
 
         var finishedDestinations = 0
-
         realDestinations.forEach {
             var sentItemCount = 0
-
             it.sentReports.forEach { sentReport ->
                 sentItemCount += sentReport.itemCount
             }
 
             var downloadedItemCount = 0
-
             it.downloadedReports.forEach { downloadedReport ->
                 downloadedItemCount += downloadedReport.itemCount
             }
@@ -576,12 +569,17 @@ class DetailedSubmissionHistory(
             }
         }
 
-        if (finishedDestinations >= realDestinations.size) {
+        // Were items delivered to destinations?
+        if (finishedDestinations >= destinations.size) {
+            // ALL destinations received items and are finished
             return Status.DELIVERED
-        } else if (finishedDestinations > 0) {
+        } else if (finishedDestinations >= realDestinations.size) {
+            // SOME destinations received items and are finished
             return Status.PARTIALLY_DELIVERED
         }
-
+        // Destinations have not received the items yet
+        // If adding additional Status states, consider adding one to distinguish between
+        // "Waiting to Deliver" vs "Delivery in Progress"
         return Status.WAITING_TO_DELIVER
     }
 

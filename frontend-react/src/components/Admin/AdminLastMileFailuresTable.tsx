@@ -6,11 +6,11 @@ import {
     ButtonGroup,
     Grid,
     GridContainer,
+    Icon,
     Label,
     Modal,
     ModalFooter,
     ModalRef,
-    Table,
     TextInput,
 } from "@trussworks/react-uswds";
 
@@ -24,6 +24,7 @@ import Spinner from "../Spinner";
 import config from "../../config";
 import { getAppInsightsHeaders } from "../../TelemetryService";
 import { USLink } from "../USLink";
+import { Table } from "../../shared/Table/Table";
 
 const { RS_API_URL } = config;
 
@@ -166,7 +167,7 @@ const DataLoadRenderTable = (props: {
         return lastMileResends.filter((each) => each.filterMatch(reportId));
     };
 
-    const rows = lastMileData
+    const rowData = lastMileData
         .filter((eachRow) => eachRow.filterMatch(props.filterText))
         .map((eachRow) => {
             // would be nice if org and receiver name were separate
@@ -179,85 +180,78 @@ const DataLoadRenderTable = (props: {
                 info: eachRow,
                 resends: resends,
             };
-            return (
-                <tr key={`lastmile_row_${eachRow.pk()}`}>
-                    <td>
-                        <span className={"font-mono-2xs"}>
-                            {formatDate(eachRow.failedAt)}
-                        </span>
-                    </td>
-                    <td className={"font-mono-xs"}>
-                        <Button
-                            type="button"
-                            unstyled
-                            className={"font-mono-xs"}
-                            title={"Show Info"}
-                            key={`details_${eachRow.pk()}`}
-                            onClick={() =>
-                                props.handleShowDetailsClick(
-                                    JSON.stringify(dataForDialog, null, 4)
-                                )
-                            }
-                        >
-                            {eachRow.reportId}
-                            {" ⧉"}
-                        </Button>
-                        <span
-                            className={"rs-resendmarker"}
-                            title={"Resends attempted."}
-                        >
-                            {resends.length ? "⚠️" : null}
-                        </span>
-                    </td>
-                    <td>
-                        <USLink
-                            title={"Jump to Settings"}
-                            href={linkRecvSettings}
-                            key={`recv_link_${eachRow.pk()}`}
-                            className={"font-mono-xs"}
-                        >
-                            {eachRow.receiver}
-                        </USLink>
-                    </td>
-                    <td>
-                        <Button
-                            key={`retry_${eachRow.pk()}`}
-                            onClick={() =>
-                                props.handleRetrySendClick(
-                                    JSON.stringify(eachRow, null, 2)
-                                )
-                            }
-                            type="button"
-                            className="padding-1 usa-button--outline"
-                            title="Requeue items for resend"
-                        >
-                            Resend...
-                        </Button>
-                    </td>
-                </tr>
-            );
+            return [
+                {
+                    columnKey: "FailedAt",
+                    columnHeader: "Failed At",
+                    content: formatDate(eachRow.failedAt),
+                },
+                {
+                    columnKey: "ReportId",
+                    columnHeader: "ReportId",
+                    content: (
+                        <>
+                            <Button
+                                type="button"
+                                unstyled
+                                className={"font-mono-xs"}
+                                title={"Show Info"}
+                                key={`details_${eachRow.pk()}`}
+                                onClick={() =>
+                                    props.handleShowDetailsClick(
+                                        JSON.stringify(dataForDialog, null, 4)
+                                    )
+                                }
+                            >
+                                {eachRow.reportId}
+                                {
+                                    <Icon.Launch className="text-bottom margin-left-2px" />
+                                }
+                            </Button>
+                            <span
+                                className={"rs-resendmarker"}
+                                title={"Resends attempted."}
+                            >
+                                {resends.length > 0 && (
+                                    <Icon.Warning className="text-middle margin-left-2px text-gold" />
+                                )}
+                            </span>
+                        </>
+                    ),
+                },
+                {
+                    columnKey: "Receiver",
+                    columnHeader: "Receiver",
+                    content: (
+                        <>
+                            <USLink
+                                title={"Jump to Settings"}
+                                href={linkRecvSettings}
+                                key={`recv_link_${eachRow.pk()}`}
+                                className={"font-mono-xs padding-right-4"}
+                            >
+                                {eachRow.receiver}
+                            </USLink>
+                            <Button
+                                key={`retry_${eachRow.pk()}`}
+                                onClick={() =>
+                                    props.handleRetrySendClick(
+                                        JSON.stringify(eachRow, null, 2)
+                                    )
+                                }
+                                type="button"
+                                className="padding-1 usa-button--outline"
+                                title="Requeue items for resend"
+                            >
+                                Resend...
+                            </Button>
+                        </>
+                    ),
+                },
+            ];
         });
 
-    return (
-        <Table
-            key="lastmiletable"
-            aria-label="List of failed sends"
-            striped
-            fullWidth
-        >
-            <thead>
-                <tr>
-                    <th scope="col">Failed At</th>
-                    <th scope="col">ReportId</th>
-                    <th scope="col">Receiver</th>
-                    <th scope="col"></th>
-                </tr>
-            </thead>
-            <tbody id="tBodyLastMile" className={"font-mono-xs"}>
-                {rows}
-            </tbody>
-        </Table>
-    );
+    return <Table borderless striped rowData={rowData} />;
 };
 
 // Main component. Tracks state but does not load/contain data.

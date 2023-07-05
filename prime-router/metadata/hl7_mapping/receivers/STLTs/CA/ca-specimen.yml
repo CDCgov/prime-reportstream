@@ -49,7 +49,7 @@ elements:
 
   # Alternative to getting specimen collection time from DiagnosticReport instead
   - name: specimen-collection-time-diagnostic
-    condition: '%resource.collection.collected.exists().not() and %diagnostic.effective.exists() and %diagnostic.effective is dateTime'
+    condition: '%resource.collection.collected.exists().not() and %diagnostic.effective is dateTime'
     value: [ '%diagnostic.effective.changeTimezone(%timezone)' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
 
@@ -64,6 +64,6 @@ elements:
     hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]
 
   - name: specimen-received-time-diagnostic
-    condition: '%resource.receivedTime.exists().not() and %diagnostic.issued.exists() and %diagnostic.issued is instant'
-    value: [ '%diagnostic.issued.changeTimezone(%timezone)' ]
+    condition: '%resource.receivedTime.exists().not() and %resource.collection.collected is dateTime'
+    value: [ '%resource.collection.collected.changeTimezone(%timezone)' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]

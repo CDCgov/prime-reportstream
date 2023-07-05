@@ -46,21 +46,22 @@ class DefaultFilterTests {
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
+    val organizationName = "co-phd"
     val oneOrganization = DeepOrganization(
-        "co-phd",
+        organizationName,
         "test",
         Organization.Jurisdiction.FEDERAL,
         receivers = listOf(
             Receiver(
                 "full-elr-hl7",
-                "co-phd",
+                organizationName,
                 Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
                 "one"
             ),
             Receiver(
                 "full-elr-hl7-2",
-                "co-phd",
+                organizationName,
                 Topic.FULL_ELR,
                 CustomerStatus.INACTIVE,
                 "one"
@@ -79,7 +80,7 @@ class DefaultFilterTests {
             observation,Bundle.entry.resource.ofType(Observation)
     """.trimIndent()
 
-    val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
+    private val shorthandTable = LookupTable.read(inputStream = ByteArrayInputStream(csv.toByteArray()))
     val one = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList())
     val metadata = Metadata(schema = one).loadLookupTable("fhirpath_filter_shorthand", shorthandTable)
     val report = Report(one, listOf(listOf("1", "2")), TestSource, metadata = UnitTestUtils.simpleMetadata)
@@ -175,9 +176,9 @@ class DefaultFilterTests {
     }
     """
 
-    private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
+    private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).queueAccess(queueMock).build(taskAction)
+            .blobAccess(blobMock).queueAccess(queueMock).build(TaskAction.route)
     }
 
     @BeforeEach
@@ -189,7 +190,7 @@ class DefaultFilterTests {
     fun `test evaluate default - false`() {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val bundle = FhirTranscoder.decode(fhirCodeP)
         // act
         val result = engine.evaluateFilterConditionAsAnd(
@@ -209,7 +210,7 @@ class DefaultFilterTests {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val bundle = FhirTranscoder.decode(fhirCodeP)
 
         // act
@@ -242,7 +243,7 @@ class DefaultFilterTests {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val bundle = FhirTranscoder.decode(fhirCodeP)
 
         // act
@@ -263,7 +264,7 @@ class DefaultFilterTests {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val bundle = FhirTranscoder.decode(fhirCodeP)
 
         // act
@@ -283,7 +284,7 @@ class DefaultFilterTests {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val bundle = FhirTranscoder.decode(fhirCodeT)
 
         // act
@@ -307,7 +308,7 @@ class DefaultFilterTests {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
@@ -329,7 +330,7 @@ class DefaultFilterTests {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
@@ -353,7 +354,7 @@ class DefaultFilterTests {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
@@ -377,7 +378,7 @@ class DefaultFilterTests {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
@@ -401,7 +402,7 @@ class DefaultFilterTests {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
@@ -423,7 +424,7 @@ class DefaultFilterTests {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
@@ -445,7 +446,7 @@ class DefaultFilterTests {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
@@ -467,7 +468,7 @@ class DefaultFilterTests {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
@@ -489,7 +490,7 @@ class DefaultFilterTests {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
@@ -511,7 +512,7 @@ class DefaultFilterTests {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
 
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
 
         // act
         val qualDefaultResult = engine.evaluateFilterConditionAsAnd(
@@ -529,7 +530,7 @@ class DefaultFilterTests {
     fun `test evaluateFilterConditionAsOr default - false`() {
         // set up
         val settings = FileSettings().loadOrganizations(oneOrganization)
-        val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.route) as FHIRRouter)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         val bundle = FhirTranscoder.decode(fhirCodeP)
         // act
         val result = engine.evaluateFilterConditionAsOr(

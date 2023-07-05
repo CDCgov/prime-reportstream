@@ -61,49 +61,15 @@ This react app uses a static build approach and can be served from a static webs
 This means there are no environment variables to load because there's no local environment. These variables must be "baked" into
 the html/javascript.
 
-This is achieved using `env-cmd` to pass the appropriate .env file into the `react-script build` command.
+This is achieved using `.env?.[ENVIRONMENT]?.local` files.
 
 This command loads the environment variables for develop (found in file `'.env.development'`) and runs the `[cmd]`
 
 ```json
-env-cmd -f .env.development [cmd]
+cross-env NODE_ENV=development [cmd]
 ```
 
-Here is the current build system.
-
-```json
-// these are the main commands
-
-// local development, runs the scss watcher AND starts the local dev server in parallel
-"start:localdev": "env-cmd -f .env.development npm-run-all -p watch-scss start-js",
-
-// these builds are used for the different environments
-"build:test": "env-cmd -f .env.test yarn build-base-prod",
-"build:staging": "env-cmd -f .env.staging yarn build-base-prod",
-"build:production": "env-cmd -f .env.production yarn build-base-prod",
-// This is a special localdev build to include Content Security Policy <meta>
-// should be used with `run-build-dir` command
-"build:localdev:csp": "env-cmd -f .env.dev.csp yarn build-base-dev",
-
-"build-base-prod": "yarn compile-scss-prod && react-scripts build && yarn copy-404page",
-"build-base-dev": "yarn compile-scss-dev && react-scripts build && yarn copy-404page",
-"start-js": "react-scripts start",
-
-"copy-404page": "cp build/index.html build/404.html",
-"compile-scss-prod": "sass --load-path=./node_modules/uswds/dist/scss --no-source-map --style=compressed --quiet src/global.scss:src/content/generated/global.out.css",
-"compile-scss-dev":  "sass --load-path=./node_modules/uswds/dist/scss --embed-source-map --quiet-deps src/global.scss:src/content/generated/global.out.css",
-"watch-scss": "yarn compile-scss-dev && sass --load-path=./node_modules/uswds/dist/scss --embed-source-map --quiet-deps -w src/global.scss:src/content/generated/global.out.css",
-```
-
-The build can then use variables like `%REACT_APP_TITLE%` in the index.html template and `process.env.REACT_APP_TITLE` in the React code.
-
-One caveat, there is only a **single** .env file used per build type. Typically, multiple .env files are loaded (`.env`, `.env.develop` and `.env.local`), but with this approach only the relevant file is used.
-
--   local dev: `env.development`
--   staging: `.env.staging`
--   production: `env.production`
-
-`.env` and `.env.local` are not currently used.
+The build can then use variables like `%VITE_TITLE%` in the index.html template and `import.meta.env.VITE_TITLE` in the React code.
 
 ## Testing Content-Security-Policy locally
 
