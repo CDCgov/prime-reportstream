@@ -79,14 +79,14 @@ jobs:
                 issuer: 'https://${oktaDomain}/oauth2/default',
                 clientId: '${{ secrets.OKTA_CLIENT_ID }}',
                 redirectUri: 'http://localhost:8080',
-                scopes: ['openid', 'email', 'profile'],
+                scopes: ['openid', 'email', 'profile']
               });
 
               const transaction = await authClient.signIn({ username, password });
               const sessionToken = await transaction.sessionToken;
 
               const client = new okta.Client({
-                orgUrl: `https://${{ secrets.OKTA_DOMAIN }}`
+                orgUrl: `https://${{ secrets.OKTA_DOMAIN }}`,
                 token: sessionToken
               });
 
@@ -97,7 +97,7 @@ jobs:
               console.log('Logged in as user ID:', userId);
             } catch (error) {
               console.error('Login failed:', error);
-              process.exit(1);
+              process.exit(1)
             }
           }
 
