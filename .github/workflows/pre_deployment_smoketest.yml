@@ -66,9 +66,9 @@ jobs:
          ./gradlew reloadTables
          ./gradlew reloadSettings
 
-      - name: Build Prime Router Package
-        working-directory: prime-router
-        run: ./gradlew package -Pshowtests
+      # - name: Build Prime Router Package
+      #   working-directory: prime-router
+      #   run: ./gradlew package -Pshowtests
       
       - name: Run Smoke Test in Staging
         working-directory: prime-router
