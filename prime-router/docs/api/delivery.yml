@@ -15,7 +15,7 @@ paths:
         - OAuth2: [ user ]
         - ApiKeyAuth: [ ]
       parameters:
-        - in: query
+        - in: path
           name: receiverFullName
           schema:
             type: string
@@ -48,7 +48,7 @@ paths:
         - OAuth2: [ user ]
         - ApiKeyAuth: [ ]
       parameters:
-        - in: query
+        - in: path
           name: receiverFullName
           schema:
             type: string
