@@ -1,5 +1,7 @@
 import { Icon } from "@trussworks/react-uswds";
 
+import site from "../../../../content/site.json";
+
 # Sample payloads and output
 
 ***
@@ -8,7 +10,7 @@ import { Icon } from "@trussworks/react-uswds";
 
 Input
 
-<a href="https://reportstream.cdc.gov/assets/csv/ReportStream-StandardCSV-ExampleData-20220509.csv" className="usa-button">Download a sample file <Icon.FileDownload /></a>
+<a href={site.assets.standardCsv.path} className="usa-button">Download a sample file <Icon.FileDownload /></a>
 
 Response
 
@@ -49,7 +51,7 @@ Response
 
 Input
 
-<a href="https://drive.google.com/file/d/1v60xjAKSyQ4g0toxCC82AGkhhWxwCnn5/view" className="usa-button">Download a sample file <Icon.FileDownload /></a>
+<a href={site.assets.exampleHl7.path} download className="usa-button">Download a sample file <Icon.FileDownload /></a>
 
 Response
 
