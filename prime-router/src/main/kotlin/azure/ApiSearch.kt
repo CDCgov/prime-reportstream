@@ -108,7 +108,7 @@ data class RawPagination(val page: Int, val limit: Int)
 /** A raw sort that a parser will convert */
 data class RawApiSort(val direction: SortDirection, val property: String)
 /** A raw API search that is parsed via Jackson and then parsed by a specific API Search type */
-data class RawApiSearch(val sort: RawApiSort, val pagination: RawPagination, val filters: List<RawFilter>)
+data class RawApiSearch(val sort: RawApiSort?, val pagination: RawPagination, val filters: List<RawFilter>)
 
 /**
  * Abstract class that can be subclassed to create a specific kind of API search.  It handles combining the
@@ -152,11 +152,21 @@ abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilte
 
     abstract fun getSortColumn(): Field<*>
 
+    abstract fun getPrimarySortColumn(): Field<*>
+
     /**
      * Converts the [sortParameter] and [sortDirection] into a JOOQ [SortField]
      */
     fun getSortClause(): SortField<*> {
         val sortColumn = getSortColumn()
+        return when (sortDirection) {
+            SortDirection.ASC -> sortColumn.asc()
+            SortDirection.DESC -> sortColumn.desc()
+        }
+    }
+
+    fun getPrimarySortClause(): SortField<*> {
+        val sortColumn = getPrimarySortColumn()
         return when (sortDirection) {
             SortDirection.ASC -> sortColumn.asc()
             SortDirection.DESC -> sortColumn.desc()
@@ -182,7 +192,7 @@ abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilte
         val results = dslContext.fetch(
             select
                 .where(getWhereClause())
-                .orderBy(getSortClause())
+                .orderBy(getSortClause(), getPrimarySortClause())
                 .limit(limit)
                 .offset(getOffset())
         ).into(recordClass)
