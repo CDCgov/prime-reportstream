@@ -34,7 +34,9 @@ import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceRefere
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.metadata.LivdLookup
 import io.mockk.clearAllMocks
+import io.mockk.every
 import io.mockk.mockkClass
+import io.mockk.mockkObject
 import io.mockk.spyk
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Endpoint
