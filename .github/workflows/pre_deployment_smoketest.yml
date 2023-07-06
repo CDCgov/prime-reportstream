@@ -33,7 +33,7 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: Add Runner IP to Postgres Firewall
+      - name: Add Runner IP to Staging PostgreSql Firewall
         run: |
           az postgres server firewall-rule create --resource-group prime-data-hub-staging --server-name ${{ secrets.POSTGRESQL_STG_SERVER_NAME }} --name GHA --start-ip-address ${{ steps.runner_ip.outputs.ip-address }} --end-ip-address ${{ steps.runner_ip.outputs.ip-address }}
 
@@ -45,6 +45,12 @@ jobs:
         shell: bash
         run: docker-compose -f docker-compose.postgres.yml up -d
 
+      - name: Load the configuration
+        shell: bash
+        run: |
+         ./gradlew reloadTables
+         ./gradlew reloadSettings
+
       # - name: Build Prime Router Package
       #   working-directory: prime-router
       #   shell: bash
@@ -55,7 +61,7 @@ jobs:
         run: ./prime test --env staging --key ${{ secrets.STG_API_KEY }}
 
 
-      - name: Remove Runner IP to Postgres Firewall
+      - name: Remove Runner IP from Staging PostgreSql Firewall
         run: |
             az postgres server firewall-rule delete --resource-group prime-data-hub-staging --server-name ${{ secrets.POSTGRESQL_STG_SERVER_NAME }} --name GHA --yes
       
