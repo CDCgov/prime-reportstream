@@ -266,15 +266,28 @@ Examples:
                 failures.add(test)
         }
 
-        runBlocking {
-            tests.forEach { test ->
-                if (runSequential) {
-                    runTest(test)
-                } else {
+        if (runSequential) {
+            runBlocking {
+                tests.forEach { test ->
                     launch { runTest(test) }
                 }
             }
+        } else {
+            tests.forEach { test ->
+                runBlocking {
+                    runTest(test)
+                }
+            }
         }
+//        runBlocking {
+//            tests.forEach { test ->
+//                if (runSequential) {
+//                    runTest(test)
+//                } else {
+//                    launch { runTest(test) }
+//                }
+//            }
+//        }
 
         if (failures.isNotEmpty()) {
             echo(
@@ -293,8 +306,6 @@ Examples:
         val coolTestList = listOf(
             Ping(),
             SftpcheckTest(),
-            End2End(),
-            End2EndUniversalPipeline(),
             Merge(),
             Server2ServerAuthTests(),
             OktaAuthTests(),
@@ -324,7 +335,9 @@ Examples:
             DbConnectionsLoad(),
             LongLoad(),
             ABot(),
-            LivdApiTest()
+            LivdApiTest(),
+            End2End(),
+            End2EndUniversalPipeline(),
         )
     }
 }
