@@ -10,6 +10,7 @@ Schemas are used at multiple points in the universal pipeline
 and cover different kinds of transforms:
 
 - HL7 -> FHIR
+    - **This is handled by another [library](https://github.com/LinuxForHealth/hl7v2-fhir-converter) with limited configuration option of where to read the mapping files from**
 - FHIR -> FHIR
 - FHIR -> HL7
 
@@ -18,38 +19,181 @@ when they are applied to an item.
 
 ## Problem
 
-The overarching problem is that since the schemas are part of the deployed application they can only be updated at the
-frequency at which the application itself is deployed.  This is quite limiting and downstream impacts sucha as:
+The overarching problem is that since the schemas are part of the deployed application they can only be updated at the frequency at which the application itself is deployed.  This is quite limiting and downstream impacts such as:
 
 - onboarding new senders/receivers can take a while as iterative changes to the schema have to tested out over several days or weeks
 - bugs discovered in the schema cannot be immediately addressed without a hotfix
 - the senders/receivers do not have any capability to self-serve changes to their own schemas
 
-## Storage Solutions
+## Storing and resolving schemas
 
 ### DB
 
-### File Store (Azure blob storage)
+This solution would involve a drastic re-write from the existing functionality as the current libraries are all driven by the file system and the solution would likely involve moving away from schemas that could be edited by hand.
 
-- Turn on versioning and keep track of this in the db?
+#### Possible Implementations
+- Store a fully resolved schema for each sender/receiver
+    - Table for sender and receiver transforms
+    - Store common elements
+    - On updates resolve the schemas again and store new versions
+    - Use the same versioning logic as `SETTING` table
+- Update the schema definitions to reference database IDs and use those when resolving schemas
+    - Rather than `schema: ../common/patient-contact` use `schema: {SOME-DB-ID}`
+- Use a JSONB store
+    - Do away with using YAML as the format and store all the schemas as JSON
+    - Shared elements could either be duplicated across schemas (store the fully resolved schemas) or a sender/receiver schemas could be kept separate from the common elements
 
-## Change management solutions
+#### Pros
+- Could potentially enable reporting on what is set in the schemas
+- Common elements used across many senders/receivers might be cleaner to implement in a relational database
+- There is an existing pattern that could be used from `SETTING`
+- Reading values from the DB would perform well
 
-### API
+#### Cons
+- Would likely be a large re-write as the existing file model does not map well to a relational DB
+- A custom solution would need to be implemented for the HL7->FHIR since the library only reads the mapping from disk
+- Testing this change would be extremely complicated especially considering the current infrastructure around testing the DB
+- Would make it much more difficult to extract libraries for other users to consume as the libraries would be more closely tied to the db
+
+### Azure blob storage (Recommended)
+This solution would maintain the majority of the existing functionality and just provide updates to use the azure blob storage as the underlying "file" storage rather than disk.  This solution would get versioning automatically by enabling [azure blob versioning](https://learn.microsoft.com/en-us/azure/storage/blobs/versioning-overview); this functionality enables automatically creating new versions when uploading a new file and then APIs for rolling back file updates in the event that there was a problem.
+
+Additionally, the versioning has the added flexibility of referencing a specific version of a blob so schemas could reference version 3 while the next version is iterated on.
+`https://<storage-account>.blob.core.windows.net/<container>/<blob-name>?versionid=<version-id>` . If the decision is made to continue to store some of the common schemas in source code this is an approach that could be adopted here as well by adding a version to the directory paths `file:///{BASE_DIR}/metadata/hl7_mapping/common/patient/v1/patient.yml``
+
+#### FHIR -> FHIR, FHIR -> HL7
+Steps
+1. Update the code to use the URI to determine if the schema should be read from disk or azure by looking at the URI scheme
+    1. Fallback to the existing behavior if it is not a valid URI
+2. Update all the schema references (i.e. `extends`, `schemaRef`, `schemaName`) in the existing schemas and settings to reference absolute paths as URLs
+    - `schema: ../common/patient` -> `schema: file:///{BASE_DIR}/metadata/hl7_mapping/common/patient.yml`
+3. Update schemas to reference azure blobs (i.e `azure:///{BASE_DIR}/metadata/hl7_mapping/common/patient.yml`) and upload schemas to azure blob service
+4. Update all UP sender and receivers to reference the azure schema
+
+#### HL7 -> FHIR
+Long term, it would be great to add support to this library (it's open sourced) that would support reading files from different file-like storage solutions rather than just disk, but this would likely not be feasible to get done in a quick enough timeframe.  Instead, before instantiating the converter, the application will sync the azure storage to a spot on the disk the library will read from.
+
+#### Cache
+**This could potentially be deferred until it's been identified that the network requests to azure blob storage are the bottleneck**
+
+Since the pipeline will now require reading several files out of the blob store at multiple spots in the, it will likely make sense to cache the resolved schemas since they will change relatively infrequently.
+
+#### Pros
+- Maintains the current file based model for the schemas
+- Schemas can be easily edited by hand via the Azure UI
+- Supports reading schemas from azure as well as from disk
+    - Enables leaving the common schemas on disk if that's preferred
+- Enables easy rollback
+    - Post MVP, a UI could be enabled to allow selecting what version to go back to
+- Supports reading files from azure or from disk
+
+#### Cons
+- Need to support to different URI schemes
+- Relies on pulling files out of azure which is slower than disk or the database
+- Requires more complicated error handling
+
+## Managing schemas
+The schemas break down into two categories:
+
+- schemas dedicated to a specific sender or receiver
+- schemas that are used across multiple senders or receivers
+    - in some cases, it might preferable to keep some of these in the source to prevent accidentally breaking things
+
+and there will need to proper permissions placed such that schemas that are used across multiple senders and receivers can only be edited by prime amdins
+
+### New APIs
+- Transform types `{transformType}`
+    - HL7 -> FHIR
+    - FHIR -> FHIR
+    - FHIR -> HL7
+
+#### Sender/Receiver
+- Create a sender/receiver schema
+    - POST
+    - Auth: Prime admins, org admins
+    - `/v1/senders|receivers/{sender|receiverName}/{transformType}`
+    - Body
+        - `schemaName` string
+            - This is the path the schema should be placed at i.e. `metadata/hl7_mapping/common/patient.yml`
+        - `rootSchema` boolean
+            - If the field is set to true, set the `schemaName` property on the sender or receiver setting
+        - `schema` string
+- Update a sender/receiver schema
+    - PUT
+    - Auth: Prime admins, org admins
+    - `/v1/senders|receivers/{sender|receiverName}/{transformType}/{*schemaName}`
+    - Body
+        - `schema` string
+- Rollback a sender/receiver schema
+    - Rollsback to the previous version of that schema name, if the rolling back the first version, the file is deleted and the schemaName field is removed from the
+    - Auth: Prime admins, org admins
+    - DELETE
+    - `/v1/senders|receivers/{sender|receiverName}/{transformType}/{*schemaName}`
+
+#### Common schemas
+- Create a common schema
+    - POST
+    - Auth: Prime admins
+    - `/v1/schemas/{transformType}`
+    - Body
+        - `schemaName` string - optional
+            - If the field is set also update the sender or receiver setting
+        - `schema` string
+- Update a common schema
+    - PUT
+    - Auth: Prime admins
+    - `/v1/schemas/{transformType}/{*schemaName}`
+    - Body
+        - `schema` string
+- Rollback a common schema
+    - Rollsback to the previous version of that schema name, if the rolling back the first version, the file is deleted and the schemaName field is removed from the
+    - DELETE
+    - Auth: Prime admins
+    - `/v1/senders|receivers/{sender|receiverName}/{transformType}/{*schemaName}`
+- Invalidate cache
+    - Invalidates all the cached values for the particular transform type; would be potentially need to get invoked if someone edited the schema in the azure store
+    - GET
+    - Auth: Prime admins
+    - `/v1/schemas/{transformType}`
 
 ### Validation
 
-### Common schemas
+As part of either creating or updating any schema, it will need to be validated before it can get persisted.  The MVP validation will be barebones and will check that the YAML can be parsed and that resolving it does not throw a `SchemaException` that are currently thrown when parsing a schema by trying to resolve it.
 
-#### Across all senders/receivers
+Future iterations could improve upon this:
+- Provide the specific line that is invalid
+- Running a message/bundle through the schema and verifying the output
 
-#### For a particular organization
+## Operations
+
+### Local Development
+
+Once the migration to store the schemas as data rather that source code is done, there will still need a solution in place that enables local developers to submit reports through the universal pipeline with sender/receiver transforms applied.  The easiest solution is to update the `reloadSettings` gradle task (or add a new `reloadSchemas`) that invokes the create schema APIs for some of the ignore senders and receivers.
+
+### Testing
+
+This is area that is impacted the most by shifting from treating schemas as source code to data.  The current approach when working on a schema change is to make the change in the source code and then update the output file to reflect what the schema change should now do and these integration tests are run as part of CI builds to verify that they continue to work as expected.  This approach will no longer work effectively once the schemas are editable via the application; an example issue that could occur: an engineer is iterating on a schema change for an STLT, while going through these iterations, the schema test for that STLT will break and pull requests will be stuck.
+
+Some potential solutions (several could be used):
+- Increase the coverage of the underlying library for performing the transforms
+- Keep the most frequently used schemas in source code and create integration tests with sample schemas to verify commonly used functionality
+- Version all common schemas and test sender/receiver schemas with updates in staging before updating in production
+- Implement an API that accepts an input message, output message and a new schema and returns whether or not the schema update produces the output from the input
+
+### Performance
+- The main additional bottleneck will be the additional network requests to azure blob storage when resolving a schema, but this will be mitigated by implementing a caching solution
+
+### Error handling
+- Retries will need to be baked into the code that loads schemas out of azure
 
 ## Open Questions
-- How should common schemas be treated?
-  - Should they be a special case?
-- How do `extends` schemas work?
-  - They currently are using relative pathing which seems very brittle
-- Should we store fully resolved schemas (i.e. don't actually persist references)?
+- What is the long term goal for a UI to edit schemas?
+- Do we need to change the underlying hl7v2-fhir-converter?
+    - It is only configured to read files from disk and this will need to be worked around
+
+## Followups
+
+- Update the HL7 -> FHIR library to support reading files from more than just the file system
 
 ## Update log
+
