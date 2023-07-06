@@ -196,7 +196,7 @@ class End2EndUniversalPipeline : CoolTest() {
             passed = passed and pollForLineageResults(
                 reportId,
                 expectedReceivers,
-                expectedReceivers.size, // for UP there should be one item per step
+                expectedReceivers.size,
                 asyncProcessMode = true,
                 isUniversalPipeline = true
             )
