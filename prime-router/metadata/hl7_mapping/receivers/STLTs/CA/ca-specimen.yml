@@ -63,6 +63,7 @@ elements:
     value: [ '%resource.receivedTime.changeTimezone(%timezone)' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]
 
+
   - name: specimen-received-time-diagnostic
     condition: '%resource.receivedTime.exists().not() and %resource.collection.collected is dateTime'
     value: [ '%resource.collection.collected.changeTimezone(%timezone)' ]
