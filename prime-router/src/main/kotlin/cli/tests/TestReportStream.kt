@@ -262,16 +262,21 @@ Examples:
             }
             test.outputAllMsgs()
             test.echo("********************************")
-            if (!passed)
+            if (!passed) {
                 failures.add(test)
+            }
         }
 
-        runBlocking {
-            tests.forEach { test ->
-                if (runSequential) {
-                    runTest(test)
-                } else {
+        if (runSequential) {
+            runBlocking {
+                tests.forEach { test ->
                     launch { runTest(test) }
+                }
+            }
+        } else {
+            tests.forEach { test ->
+                runBlocking {
+                    runTest(test)
                 }
             }
         }
@@ -293,8 +298,6 @@ Examples:
         val coolTestList = listOf(
             Ping(),
             SftpcheckTest(),
-            End2End(),
-            End2EndUniversalPipeline(),
             Merge(),
             Server2ServerAuthTests(),
             OktaAuthTests(),
@@ -324,7 +327,9 @@ Examples:
             DbConnectionsLoad(),
             LongLoad(),
             ABot(),
-            LivdApiTest()
+            LivdApiTest(),
+            End2End(),
+            End2EndUniversalPipeline(),
         )
     }
 }
@@ -743,7 +748,7 @@ abstract class CoolTest {
                         action = action,
                         isUniversalPipeline = isUniversalPipeline
                     )
-                    val expected = if (action == TaskAction.receive && asyncProcessMode) {
+                    val expected = if (action == TaskAction.receive && asyncProcessMode && !isUniversalPipeline) {
                         totalItems
                     } else totalItems / receivers.size
                     queryResults += if (count == null || expected != count) {
