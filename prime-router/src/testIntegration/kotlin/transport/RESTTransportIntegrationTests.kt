@@ -37,6 +37,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
@@ -382,59 +383,67 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     }
 
     @Test
-    fun `test connecting to mock service using getAuthTokenWithUserApiKey without transport parametters`() {
+    fun `test getAuthTokenWithUserApiKey with transport parametters is empty`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientAuthOk()))
-        val mockPostReportResponse = getHttpResponse(HttpStatusCode.OK)
 
-        // Given: lookupDefaultCredential returns mock UserApiKeyCredential object to allow
-        // the getAuthTokenWIthUserApiKey() to be called.
+        // Given:
+        //      lookupDefaultCredential returns mock UserApiKeyCredential object to allow
+        //      the getAuthTokenWIthUserApiKey() to be called.
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential(
                 "test-user",
                 "test-apikey"
             )
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
-            .returns(mockPostReportResponse)
 
-        // When: the RESTTransport is called WITH transportType (an old REST Transport) WITHOUT transport.parameters
+        // When:
+        //      RESTTransport is called WITH transport.parameters empty
         val retryItems = mockRestTransport.send(
             transportType, header, reportId, null,
             context, actionHistory
         )
 
-        // Then: retryItems should be null for success
+        // Then:
+        //      getAuthTokenWithUserApiKey should be called with transport.parameters empty
+        verify {
+            runBlocking {
+                mockRestTransport.getAuthTokenWithUserApiKey(transportType, any(), any(), any())
+            }
+        }
         assertThat(retryItems).isNull()
-        assertThat(actionHistory.action.httpStatus).isNotNull()
     }
 
     @Test
-    fun `test connecting to mock service using getAuthTokenWithUserApiKey with transport parametters`() {
+    fun `test getAuthTokenWithUserApiKey with transport parametters is NOT empty`() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientAuthOk()))
-        val mockPostReportResponse = getHttpResponse(HttpStatusCode.OK)
 
-        // Given: lookupDefaultCredential returns mock UserApiKeyCredential object to allow
-        // the getAuthTokenWIthUserApiKey() to be called.
+        // Given:
+        //      lookupDefaultCredential returns mock UserApiKeyCredential object to allow
+        //      the getAuthTokenWIthUserApiKey() to be called.
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential(
                 "test-user",
                 "test-apikey"
             )
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
-            .returns(mockPostReportResponse)
 
-        // When: the RESTTransport is called WITH flexionRestTransportType which has transport.parameters filled
+        // When:
+        //      RESTTransport is called WITH flexionRestTransportType which has transport.parameters
         val retryItems = mockRestTransport.send(
             flexionRestTransportType, header, reportId, null,
             context, actionHistory
         )
 
-        // Then: retryItems should be null for success
+        // Then:
+        //      getAuthTokenWithUserApiKey should be called with transport.parameters NOT empty
+        verify {
+            runBlocking {
+                mockRestTransport.getAuthTokenWithUserApiKey(flexionRestTransportType, any(), any(), any())
+            }
+        }
         assertThat(retryItems).isNull()
-        assertThat(actionHistory.action.httpStatus).isNotNull()
     }
 
     @Test
