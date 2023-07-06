@@ -6,6 +6,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.metadata.LivdLookup
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Device
+import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
@@ -86,6 +87,10 @@ class CustomFhirPathFunctions : FhirPathFunctions {
     /**
      * Get the LOINC Code from the LIVD table based on the device id, equipment model id, test kit name id, or the
      * element model name
+     *
+     * @param focus Starting point for the evaluation
+     * @param parameters Values to check on LivdLookup
+     * @param metadata optional metadata instance used for dependency injection
      * @return a list with one value denoting the LOINC Code, or an empty list
      */
     fun livdTableLookup(
@@ -143,5 +148,34 @@ class CustomFhirPathFunctions : FhirPathFunctions {
         } else {
             mutableListOf(StringType(result))
         }
+    }
+
+    /**
+     * Filter Observations with valid LOINC codes from a given Diagnostic Report
+     *
+     * @param diagnosticReport Container for Observations to be filtered
+     * @return A list of Observations that have valid LOINC codes
+     */
+    fun filterLoincObservations(
+        diagnosticReport: DiagnosticReport
+    ): MutableList<Observation> {
+        val observations = mutableListOf<Observation>()
+        val loincMatches = mutableListOf<Observation>()
+
+        // extract observations from diagnosticReport
+        diagnosticReport.result.forEach {
+            val observation = it.resource
+            if (observation is Observation) observations.add(observation)
+        }
+
+        // run through the observations and extract those who have a valid LOINC code
+        observations.forEach {
+            val validLoinc = CustomFhirPathFunctions().livdTableLookup(
+                mutableListOf(it),
+                mutableListOf(mutableListOf(StringType(it.code.coding[0].code))),
+            )[0]
+            if (!validLoinc.isEmpty) loincMatches.add(it)
+        }
+        return loincMatches
     }
 }
