@@ -73,20 +73,35 @@
       organizationName: flexion
       topic: etor-ti
       customerStatus: active
+      jurisdictionalFilter: [ "(%patientState.exists() and %patientState = 'IG')" ]
+      qualityFilter: [ "(%patientState.exists() and %patientState = 'IG')" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/STLTs/CO/CO"
-        useTestProcessingMode: false
-        useBatchHeaders: true
-        type: "HL7"
-        receivingApplicationName: "CO-ELR"
-        receivingFacilityName: "CO"
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
+      translation: !<FHIR>
+        schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
+        useBatching: false
+        type: "FHIR"
+      transport: !<REST>
+        reportUrl: "https://cdcti-staging-api.azurewebsites.net/v1/etor/demographics"
+        authTokenUrl: "https://cdcti-staging-api.azurewebsites.net/v1/auth"
+# Uncomment below for local Trusted-Intermediary server
+#        reportUrl: "http://localhost:8080/v1/etor/demographics"
+#        authTokenUrl: "http://localhost:8080/v1/auth"
+        type: "REST"
+        tlsKeystore: null
+        parameters:
+          scope: "report-stream"
+          client_assertion: "client_secret"
+        headers:
+          RecordId: 'header.reportFile.reportId'
+          senderLabName: 'CDC PRIME REPORTSTREAM' #name-of-the-lab-the-sending-user-belongs-to
+          sourceLabName: 'CDC PRIME REPORTSTREAM' #name-of-the-lab-that-originally-sent-this-hl7-message-to-OSDH
+# Uncomment below for local SFTP testing
+#      transport:
+#        type: SFTP
+#        host: sftp
+#        port: 22
+#        filePath: ./upload
+#        credentialName: DEFAULT-SFTP
