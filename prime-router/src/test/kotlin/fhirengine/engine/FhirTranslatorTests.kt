@@ -45,6 +45,15 @@ import java.io.File
 import java.util.UUID
 import kotlin.test.Test
 
+private const val ORGANIZATION_NAME = "co-phd"
+private const val RECEIVER_NAME = "full-elr-hl7"
+private const val ORU_R01_SCHEMA = "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+private const val BLOB_SUB_FOLDER = "test-sender"
+private const val BLOB_URL = "http://blob.url"
+private const val BODY_URL = "http://anyblob.com"
+private const val VALID_DATA_URL = "src/test/resources/fhirengine/engine/valid_data.fhir"
+private const val MSH_11_1 = "MSH-11-1"
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FhirTranslatorTests {
     val dataProvider = MockDataProvider { emptyArray<MockResult>() }
@@ -53,35 +62,35 @@ class FhirTranslatorTests {
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
-        "co-phd",
+        ORGANIZATION_NAME,
         "test",
         Organization.Jurisdiction.FEDERAL,
         receivers = listOf(
             Receiver(
-                "full-elr-hl7",
-                "co-phd",
+                RECEIVER_NAME,
+                ORGANIZATION_NAME,
                 Topic.FULL_ELR,
                 CustomerStatus.ACTIVE,
-                "metadata/hl7_mapping/ORU_R01/ORU_R01-base",
+                ORU_R01_SCHEMA,
                 format = Report.Format.HL7_BATCH,
             )
         )
     )
     private val colorado = DeepOrganization(
-        "co-phd",
+        ORGANIZATION_NAME,
         "test",
         Organization.Jurisdiction.FEDERAL,
         receivers = listOf(
             Receiver(
                 "elr.secondary",
-                "co-phd",
+                ORGANIZATION_NAME,
                 Topic.TEST,
                 CustomerStatus.INACTIVE,
                 "metadata/hl7_mapping/receivers/STLTs/CO/CO"
             ),
             Receiver(
                 "elr",
-                "co-phd",
+                ORGANIZATION_NAME,
                 Topic.TEST,
                 CustomerStatus.INACTIVE,
                 "metadata/hl7_mapping/receivers/STLTs/CO/CO",
@@ -126,14 +135,14 @@ class FhirTranslatorTests {
         val engine = makeFhirEngine()
 
         val message =
-            spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", topic = Topic.FULL_ELR))
+            spyk(RawSubmission(UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER, topic = Topic.FULL_ELR))
 
         val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "http://anyblob.com"
+        val bodyUrl = BODY_URL
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }
-            .returns(File("src/test/resources/fhirengine/engine/valid_data.fhir").readText())
+            .returns(File(VALID_DATA_URL).readText())
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
@@ -170,14 +179,14 @@ class FhirTranslatorTests {
         val actionLogger = mockk<ActionLogger>()
 
         val engine = makeFhirEngine(settings = settings)
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", Topic.FULL_ELR))
+        val message = spyk(RawSubmission(UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER, Topic.FULL_ELR))
 
         val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "http://anyblob.com"
+        val bodyUrl = BODY_URL
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }
-            .returns(File("src/test/resources/fhirengine/engine/valid_data.fhir").readText())
+            .returns(File(VALID_DATA_URL).readText())
         every { BlobAccess.Companion.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
@@ -203,10 +212,10 @@ class FhirTranslatorTests {
     fun `test when customerStatus = testing`() {
 
         // set up
-        val schemaName = "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        val schemaName = ORU_R01_SCHEMA
         val receiver = Receiver(
-            "full-elr-hl7",
-            "co-phd",
+            RECEIVER_NAME,
+            ORGANIZATION_NAME,
             Topic.FULL_ELR,
             CustomerStatus.TESTING,
             schemaName,
@@ -214,13 +223,13 @@ class FhirTranslatorTests {
         )
 
         val testOrg = DeepOrganization(
-            "co-phd", "test", Organization.Jurisdiction.FEDERAL,
+            ORGANIZATION_NAME, "test", Organization.Jurisdiction.FEDERAL,
             receivers = listOf(receiver)
         )
 
         val settings = FileSettings().loadOrganizations(testOrg)
 
-        val fhirData = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+        val fhirData = File(VALID_DATA_URL).readText()
         val bundle = FhirTranscoder.decode(fhirData)
 
         val engine = makeFhirEngine(settings = settings)
@@ -230,7 +239,7 @@ class FhirTranslatorTests {
         val terser = Terser(hl7Message)
 
         // assert
-        assertThat(terser.get("MSH-11-1")).isEqualTo("T")
+        assertThat(terser.get(MSH_11_1)).isEqualTo("T")
     }
 
     /**
@@ -239,24 +248,24 @@ class FhirTranslatorTests {
      */
     @Test
     fun `test when customerStatus = active, useTestProcessingMode = true`() {
-        val schemaName = "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        val schemaName = ORU_R01_SCHEMA
         // set up
         val receiver = Receiver(
-            "full-elr-hl7",
-            "co-phd",
+            RECEIVER_NAME,
+            ORGANIZATION_NAME,
             Topic.FULL_ELR,
             CustomerStatus.ACTIVE,
             schemaName,
             translation = UnitTestUtils.createConfig(useTestProcessingMode = true, schemaName = schemaName)
         )
         val testOrg = DeepOrganization(
-            "co-phd", "test", Organization.Jurisdiction.FEDERAL,
+            ORGANIZATION_NAME, "test", Organization.Jurisdiction.FEDERAL,
             receivers = listOf(receiver)
         )
 
         val settings = FileSettings().loadOrganizations(testOrg)
 
-        val fhirData = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+        val fhirData = File(VALID_DATA_URL).readText()
         val bundle = FhirTranscoder.decode(fhirData)
 
         val engine = makeFhirEngine(settings = settings)
@@ -266,7 +275,7 @@ class FhirTranslatorTests {
         val terser = Terser(hl7Message)
 
         // assert
-        assertThat(terser.get("MSH-11-1")).isEqualTo("T")
+        assertThat(terser.get(MSH_11_1)).isEqualTo("T")
     }
 
     /**
@@ -275,10 +284,10 @@ class FhirTranslatorTests {
     @Test
     fun `test when customerStatus = active, useTestProcessingMode = false, P from sender`() {
         // set up
-        val schemaName = "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        val schemaName = ORU_R01_SCHEMA
         val receiver = Receiver(
-            "full-elr-hl7",
-            "co-phd",
+            RECEIVER_NAME,
+            ORGANIZATION_NAME,
             Topic.FULL_ELR,
             CustomerStatus.ACTIVE,
             schemaName,
@@ -286,13 +295,13 @@ class FhirTranslatorTests {
         )
 
         val testOrg = DeepOrganization(
-            "co-phd", "test", Organization.Jurisdiction.FEDERAL,
+            ORGANIZATION_NAME, "test", Organization.Jurisdiction.FEDERAL,
             receivers = listOf(receiver)
         )
 
         val settings = FileSettings().loadOrganizations(testOrg)
 
-        val fhirData = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+        val fhirData = File(VALID_DATA_URL).readText()
         val bundle = FhirTranscoder.decode(fhirData)
 
         val engine = makeFhirEngine(settings = settings)
@@ -302,7 +311,7 @@ class FhirTranslatorTests {
         val terser = Terser(hl7Message)
 
         // assert
-        assertThat(terser.get("MSH-11-1")).isEqualTo("P")
+        assertThat(terser.get(MSH_11_1)).isEqualTo("P")
     }
 
     /**
@@ -311,10 +320,10 @@ class FhirTranslatorTests {
     @Test
     fun `test when customerStatus = active, useTestProcessingMode = false, T from sender`() {
         // set up
-        val schemaName = "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        val schemaName = ORU_R01_SCHEMA
         val receiver = Receiver(
-            "full-elr-hl7",
-            "co-phd",
+            RECEIVER_NAME,
+            ORGANIZATION_NAME,
             Topic.FULL_ELR,
             CustomerStatus.ACTIVE,
             schemaName,
@@ -322,7 +331,7 @@ class FhirTranslatorTests {
         )
 
         val testOrg = DeepOrganization(
-            "co-phd", "test", Organization.Jurisdiction.FEDERAL,
+            ORGANIZATION_NAME, "test", Organization.Jurisdiction.FEDERAL,
             receivers = listOf(receiver)
         )
 
@@ -340,7 +349,7 @@ class FhirTranslatorTests {
         val terser = Terser(hl7Message)
 
         // assert
-        assertThat(terser.get("MSH-11-1")).isEqualTo("T")
+        assertThat(terser.get(MSH_11_1)).isEqualTo("T")
     }
 
     @Test
@@ -351,10 +360,10 @@ class FhirTranslatorTests {
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", Topic.FULL_ELR))
+        val message = spyk(RawSubmission(UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER, Topic.FULL_ELR))
 
         val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "http://anyblob.com"
+        val bodyUrl = BODY_URL
 
         every { actionLogger.hasErrors() } returns false
         every { message.downloadContent() }
@@ -390,13 +399,13 @@ class FhirTranslatorTests {
         mockkObject(BlobAccess)
 
         val badSchemaOrganization = DeepOrganization(
-            "co-phd",
+            ORGANIZATION_NAME,
             "test",
             Organization.Jurisdiction.FEDERAL,
             receivers = listOf(
                 Receiver(
-                    "full-elr-hl7",
-                    "co-phd",
+                    RECEIVER_NAME,
+                    ORGANIZATION_NAME,
                     Topic.FULL_ELR,
                     CustomerStatus.ACTIVE,
                     "THIS_PATH_IS_BAD"
@@ -409,10 +418,10 @@ class FhirTranslatorTests {
         val actionHistory = mockk<ActionHistory>()
         val actionLogger = mockk<ActionLogger>()
 
-        val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", Topic.FULL_ELR))
+        val message = spyk(RawSubmission(UUID.randomUUID(), BLOB_URL, "test", BLOB_SUB_FOLDER, Topic.FULL_ELR))
 
         val bodyFormat = Report.Format.FHIR
-        val bodyUrl = "http://anyblob.com"
+        val bodyUrl = BODY_URL
 
         every { actionLogger.hasErrors() } returns false
         every { actionLogger.error(any<ActionLogDetail>()) } returns Unit
@@ -490,7 +499,7 @@ class FhirTranslatorTests {
     @Test
     fun `Test observations are not removed if receiver Endpoint is not populated`() {
         val actionLogger = ActionLogger()
-        val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+        val fhirBundle = File(VALID_DATA_URL).readText()
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
         assertThat(messages).isNotEmpty()
         val bundle = messages[0]
@@ -555,19 +564,19 @@ class FhirTranslatorTests {
 
     @Test
     fun `test getByteArrayFromBundle`() {
-        val fhirData = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+        val fhirData = File(VALID_DATA_URL).readText()
         val fhirBundle = FhirTranscoder.decode(fhirData)
 
         val hl7v2Receiver = Receiver(
-            "full-elr-hl7", "co-phd", Topic.FULL_ELR, CustomerStatus.ACTIVE,
-            "metadata/hl7_mapping/ORU_R01/ORU_R01-base", format = Report.Format.HL7_BATCH,
+            RECEIVER_NAME, ORGANIZATION_NAME, Topic.FULL_ELR, CustomerStatus.ACTIVE,
+            ORU_R01_SCHEMA, format = Report.Format.HL7_BATCH,
         )
         val fhirReceiver = Receiver(
-            "full-elr-fhir", "co-phd", Topic.FULL_ELR, CustomerStatus.ACTIVE,
+            "full-elr-fhir", ORGANIZATION_NAME, Topic.FULL_ELR, CustomerStatus.ACTIVE,
             "metadata/fhir_transforms/receivers/fhir-transform-sample", format = Report.Format.FHIR,
         )
         val csvReceiver = Receiver(
-            "full-elr-fhir", "co-phd", Topic.FULL_ELR, CustomerStatus.ACTIVE, "", format = Report.Format.CSV,
+            "full-elr-fhir", ORGANIZATION_NAME, Topic.FULL_ELR, CustomerStatus.ACTIVE, "", format = Report.Format.CSV,
         )
         val engine = makeFhirEngine()
 

@@ -500,7 +500,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             keyManagerFactory.init(keyStore, jksPasscode)
             // create the sslContext, type TLS, with the keyManager
             // note the ktor sample code uses a TrustManger instead, but that fails with the NY cert file
-            val sslContext = SSLContext.getInstance("TLS")
+            val sslContext = SSLContext.getInstance("TLSv1.3")
             sslContext.init(keyManagerFactory.keyManagers, null, null)
             return sslContext
         }

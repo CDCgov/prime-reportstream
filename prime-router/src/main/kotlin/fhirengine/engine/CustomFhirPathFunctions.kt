@@ -79,7 +79,7 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                     livdTableLookup(focus, parameters)
                 }
 
-                else -> throw IllegalStateException("Tried to execute invalid FHIR Path function $functionName")
+                else -> error(IllegalStateException("Tried to execute invalid FHIR Path function $functionName"))
             }
             )
     }
