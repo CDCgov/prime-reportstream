@@ -2,17 +2,20 @@ package gov.cdc.prime.router.history.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.azure.ApiSearchResult
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.azure.MockSettings
@@ -21,10 +24,16 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryFacility
 import gov.cdc.prime.router.history.DeliveryHistory
+import gov.cdc.prime.router.history.db.Delivery
+import gov.cdc.prime.router.history.db.DeliveryDatabaseAccess
 import gov.cdc.prime.router.history.db.ReportGraph
+import gov.cdc.prime.router.history.db.Submitter
+import gov.cdc.prime.router.history.db.SubmitterDatabaseAccess
+import gov.cdc.prime.router.history.db.SubmitterType
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
 import gov.cdc.prime.router.tokens.OktaAuthentication
@@ -610,6 +619,469 @@ class DeliveryFunctionTests : Logging {
         every { mockDeliveryFacade.fetchAction(any()) } returns null
         response = function.getDeliveryFacilities(mockRequest, emptyActionId)
         assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
+    }
+
+    @Nested
+    inner class TestGetSubmitters() {
+        var settings = MockSettings()
+        private val organization1 = Organization(
+            "simple_report",
+            "simple_report_org",
+            Organization.Jurisdiction.FEDERAL,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+        private val receiver1 = Receiver(
+            "default",
+            organization1.name,
+            Topic.COVID_19,
+            schemaName = ""
+        )
+
+        private val organization2 = Organization(
+            "ignore",
+            "simple_report_org",
+            Organization.Jurisdiction.FEDERAL,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+        private val receiver2 = Receiver(
+            "default",
+            organization2.name,
+            Topic.COVID_19,
+            schemaName = ""
+        )
+        @BeforeEach
+        fun setUp() {
+            mockkObject(BaseEngine)
+            every { BaseEngine.settingsProviderSingleton } returns settings
+            settings.organizationStore[organization1.name] = organization1
+            settings.receiverStore[receiver1.fullName] = receiver1
+            settings.organizationStore[organization2.name] = organization2
+            settings.receiverStore[receiver2.fullName] = receiver2
+            mockkObject(Metadata.Companion)
+            every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+        }
+
+        @AfterEach
+        fun tearDown() {
+            unmockkObject(AuthenticatedClaims)
+        }
+
+        @Test
+        fun `test different organization cannot fetch data`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 1,
+                        "limit": 100
+                    },
+                    "filters": [
+                    ]
+                }
+                """.trimIndent()
+            )
+
+            val jwt = mapOf("organization" to listOf("DHSender_simple_reportAdmins"), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+            mockkConstructor(SubmitterDatabaseAccess::class)
+            every {
+                anyConstructed<SubmitterDatabaseAccess>().getSubmitters(any(), any())
+            } returns ApiSearchResult(10, 0, emptyList())
+
+            val response = DeliveryFunction().getSubmitters(httpRequestMessage, receiver2.fullName)
+            assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+        }
+        @Test
+        fun `test organization members can fetch their data`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 1,
+                        "limit": 100
+                    },
+                    "filters": [
+                    ]
+                }
+                """.trimIndent()
+            )
+
+            val jwt = mapOf("organization" to listOf("DHSender_simple_reportAdmins"), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+            mockkConstructor(SubmitterDatabaseAccess::class)
+            every {
+                anyConstructed<SubmitterDatabaseAccess>().getSubmitters(any(), any())
+            } returns ApiSearchResult(10, 0, emptyList())
+
+            val response = DeliveryFunction().getSubmitters(httpRequestMessage, receiver1.fullName)
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
+        }
+
+        // Ideally this test would not mock the DB layer and actually insert report and covid_metadata and then execute
+        // queries against that
+        // See: https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/9455
+        @Test
+        fun `test successfully returns data for a prime admin`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 1,
+                        "limit": 100
+                    },
+                    "filters": [
+                    ]
+                }
+                """.trimIndent()
+            )
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+            mockkConstructor(SubmitterDatabaseAccess::class)
+            every {
+                anyConstructed<SubmitterDatabaseAccess>().getSubmitters(any(), any())
+            } returns ApiSearchResult(10, 0, emptyList())
+
+            val response = DeliveryFunction().getSubmitters(httpRequestMessage, receiver1.fullName)
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
+        }
+
+        @Test
+        fun `test successfully returns an API response`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 2,
+                        "limit": 1
+                    },
+                    "filters": [
+                        {
+                            "value": "2023-05-21T00:00:00+00:00",
+                            "filterName": "UNTIL"
+                        }
+                    ]
+                }
+                """.trimIndent()
+            )
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+            mockkConstructor(SubmitterDatabaseAccess::class)
+            every {
+                anyConstructed<SubmitterDatabaseAccess>().getSubmitters(any(), any())
+            } returns ApiSearchResult(
+                10, 3,
+                listOf(
+                    Submitter(
+                        "1",
+                        "provider",
+                        OffsetDateTime.now(),
+                        1,
+                        SubmitterType.PROVIDER,
+                        "Paris, Indiana"
+                    ),
+                    Submitter(
+                        "null",
+                        "submitter",
+                        OffsetDateTime.now(),
+                        100,
+                        SubmitterType.SUBMITTER,
+                        "Paris, Indiana"
+                    ),
+                    Submitter(
+                        "null",
+                        "facility",
+                        OffsetDateTime.now(),
+                        100,
+                        SubmitterType.SUBMITTER,
+                        "Paris, Indiana"
+                    )
+                )
+            )
+
+            val response = DeliveryFunction().getSubmitters(httpRequestMessage, receiver1.fullName)
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
+            val responseBody =
+                JacksonMapperUtilities.defaultMapper.readTree(response.body.toString())
+            assertThat(responseBody.at("/meta/totalCount").intValue()).isEqualTo(10)
+            assertThat(responseBody.at("/meta/totalFilteredCount").intValue()).isEqualTo(3)
+            assertThat(responseBody.at("/meta/type").textValue()).isEqualTo("submitter")
+            assertThat(responseBody.at("/meta/totalPages").intValue()).isEqualTo(3)
+            assertThat(responseBody.at("/meta/previousPage").intValue()).isEqualTo(1)
+            assertThat(responseBody.at("/meta/nextPage").intValue()).isEqualTo(3)
+            assertThat(responseBody.get("data")).isNotNull()
+            assertThat(responseBody.get("data").size()).isEqualTo(3)
+        }
+    }
+
+    @Nested
+    inner class TestGetDelivery {
+        var settings = MockSettings()
+        private val organization1 = Organization(
+            "simple_report",
+            "simple_report_org",
+            Organization.Jurisdiction.FEDERAL,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+        private val receiver1 = Receiver(
+            "default",
+            organization1.name,
+            Topic.COVID_19,
+            schemaName = ""
+        )
+
+        private val organization2 = Organization(
+            "ignore",
+            "simple_report_org",
+            Organization.Jurisdiction.FEDERAL,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+        private val receiver2 = Receiver(
+            "default",
+            organization2.name,
+            Topic.COVID_19,
+            schemaName = ""
+        )
+        @BeforeEach
+        fun setUp() {
+            mockkObject(BaseEngine)
+            every { BaseEngine.settingsProviderSingleton } returns settings
+            settings.organizationStore[organization1.name] = organization1
+            settings.receiverStore[receiver1.fullName] = receiver1
+            settings.organizationStore[organization2.name] = organization2
+            settings.receiverStore[receiver2.fullName] = receiver2
+            mockkObject(Metadata.Companion)
+            every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+        }
+
+        @AfterEach
+        fun tearDown() {
+            unmockkObject(AuthenticatedClaims)
+        }
+
+        @Test
+        fun `test different organization cannot fetch data`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 1,
+                        "limit": 100
+                    },
+                    "filters": [
+                    ]
+                }
+                """.trimIndent()
+            )
+
+            val jwt = mapOf("organization" to listOf("DHSender_simple_reportAdmins"), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+            mockkConstructor(SubmitterDatabaseAccess::class)
+            every {
+                anyConstructed<SubmitterDatabaseAccess>().getSubmitters(any(), any())
+            } returns ApiSearchResult(10, 0, emptyList())
+
+            val response = DeliveryFunction().getDeliveriesV1(httpRequestMessage, receiver2.fullName)
+            assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+        }
+        @Test
+        fun `test organization members can fetch their data`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 1,
+                        "limit": 100
+                    },
+                    "filters": [
+                    ]
+                }
+                """.trimIndent()
+            )
+
+            val jwt = mapOf("organization" to listOf("DHSender_simple_reportAdmins"), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+            mockkConstructor(SubmitterDatabaseAccess::class)
+            every {
+                anyConstructed<SubmitterDatabaseAccess>().getSubmitters(any(), any())
+            } returns ApiSearchResult(10, 0, emptyList())
+
+            val response = DeliveryFunction().getDeliveriesV1(httpRequestMessage, receiver1.fullName)
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
+        }
+
+        // Ideally this test would not mock the DB layer and actually insert report and covid_metadata and then execute
+        // queries against that
+        // See: https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/9455
+        @Test
+        fun `test successfully returns data for a prime admin`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 1,
+                        "limit": 100
+                    },
+                    "filters": [
+                    ]
+                }
+                """.trimIndent()
+            )
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+            mockkConstructor(SubmitterDatabaseAccess::class)
+            every {
+                anyConstructed<SubmitterDatabaseAccess>().getSubmitters(any(), any())
+            } returns ApiSearchResult(10, 0, emptyList())
+
+            val response = DeliveryFunction().getDeliveriesV1(httpRequestMessage, receiver1.fullName)
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
+        }
+
+        @Test
+        fun `test successfully returns an API response`() {
+            val httpRequestMessage = MockHttpRequestMessage(
+                """
+                {
+                    "sort": {
+                        "direction": "DESC",
+                        "property": "test_result_count"
+                    },
+                    "pagination": {
+                        "page": 2,
+                        "limit": 1
+                    },
+                    "filters": [
+                        {
+                            "value": "2023-05-21T00:00:00+00:00",
+                            "filterName": "UNTIL"
+                        }
+                    ]
+                }
+                """.trimIndent()
+            )
+
+            val jwt = mapOf("organization" to listOf(oktaSystemAdminGroup), "sub" to "test@cdc.gov")
+            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
+
+            mockkObject(AuthenticatedClaims)
+            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
+            mockkConstructor(DeliveryDatabaseAccess::class)
+            every {
+                anyConstructed<DeliveryDatabaseAccess>().getDeliveries(any(), any())
+            } returns ApiSearchResult(
+                10, 3,
+                listOf(
+                    Delivery(
+                        "provider1",
+                        "facility1",
+                        "submitter1",
+                        UUID.randomUUID(),
+                        OffsetDateTime.now(),
+                        OffsetDateTime.now().plusDays(60),
+                        10
+                    ),
+                    Delivery(
+                        "provider2",
+                        "facility2",
+                        "submitter2",
+                        UUID.randomUUID(),
+                        OffsetDateTime.now(),
+                        OffsetDateTime.now().plusDays(60),
+                        10
+                    ),
+                    Delivery(
+                        "provider3",
+                        "facility3",
+                        "submitter3",
+                        UUID.randomUUID(),
+                        OffsetDateTime.now(),
+                        OffsetDateTime.now().plusDays(60),
+                        10
+                    )
+                )
+            )
+
+            val response = DeliveryFunction().getDeliveriesV1(httpRequestMessage, receiver1.fullName)
+            assertThat(response.status).isEqualTo(HttpStatus.OK)
+            val responseBody =
+                JacksonMapperUtilities.defaultMapper.readTree(response.body.toString())
+            assertThat(responseBody.at("/meta/totalCount").intValue()).isEqualTo(10)
+            assertThat(responseBody.at("/meta/totalFilteredCount").intValue()).isEqualTo(3)
+            assertThat(responseBody.at("/meta/type").textValue()).isEqualTo("delivery")
+            assertThat(responseBody.at("/meta/totalPages").intValue()).isEqualTo(3)
+            assertThat(responseBody.at("/meta/previousPage").intValue()).isEqualTo(1)
+            assertThat(responseBody.at("/meta/nextPage").intValue()).isEqualTo(3)
+            assertThat(responseBody.get("data")).isNotNull()
+            assertThat(responseBody.get("data").size()).isEqualTo(3)
+        }
     }
 
     @Nested
