@@ -10,9 +10,13 @@ on:
 #   DB_PASSWORD: ${{ secrets.POSTGRESQL_STAGING_PWD }}
 
 jobs:
-  prepare_branch:
+  prime_router_smoketest:
     name: "Prepare the deployment branch and file a PR"
     runs-on: ubuntu-latest
+    shell: bash
+    defaults:
+      run:
+        working-directory: prime-router
     steps:
       - name: "Check out changes"
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
@@ -39,8 +43,6 @@ jobs:
           export POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_STAGING_PWD }};export POSTGRES_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require;export POSTGRES_USER=${{ secrets.POSTGRESQL_STG_ADMIN_USER }}
       
       - name: Spin up build containers
-        working-directory: prime-router
-        shell: bash
         run: docker-compose -f docker-compose.postgres.yml up -d
 
       # - name: Build Prime Router Package
