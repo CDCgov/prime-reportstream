@@ -262,8 +262,9 @@ Examples:
             }
             test.outputAllMsgs()
             test.echo("********************************")
-            if (!passed)
+            if (!passed) {
                 failures.add(test)
+            }
         }
 
         if (runSequential) {
@@ -279,15 +280,6 @@ Examples:
                 }
             }
         }
-//        runBlocking {
-//            tests.forEach { test ->
-//                if (runSequential) {
-//                    runTest(test)
-//                } else {
-//                    launch { runTest(test) }
-//                }
-//            }
-//        }
 
         if (failures.isNotEmpty()) {
             echo(
@@ -673,7 +665,7 @@ abstract class CoolTest {
         totalItems: Int,
         filterOrgName: Boolean = false,
         silent: Boolean = false,
-        maxPollSecs: Int = 480,
+        maxPollSecs: Int = 60,
         pollSleepSecs: Int = 30, // I had this as every 5 secs, but was getting failures.  The queries run unfastly.
         asyncProcessMode: Boolean = false,
         isUniversalPipeline: Boolean = false
@@ -756,7 +748,7 @@ abstract class CoolTest {
                         action = action,
                         isUniversalPipeline = isUniversalPipeline
                     )
-                    val expected = if (action == TaskAction.receive && asyncProcessMode) {
+                    val expected = if (action == TaskAction.receive && asyncProcessMode && !isUniversalPipeline) {
                         totalItems
                     } else totalItems / receivers.size
                     queryResults += if (count == null || expected != count) {
