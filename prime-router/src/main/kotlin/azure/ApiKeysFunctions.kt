@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType
 import io.swagger.v3.oas.annotations.info.Contact
 import io.swagger.v3.oas.annotations.info.Info
 import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.OAuthFlow
@@ -73,6 +74,60 @@ const val PARAM_DESC_KID_DEL = "the id of the key to be deleted."
 const val PARAM_DESC_SCOPE_POST = "the scope of the key to be created."
 const val PARAM_DESC_ORGNAME_POST = "the organization whose key is to be created."
 const val PARAM_DESC_KID_POST = "the id of the key to be created."
+
+// Examples for GET, POST, DELETE
+const val EX_GET_APIKEYS_RESP = """
+{
+    "data": [
+        {
+            "scope": "simple_report.*.report",
+            "keys": [
+                {
+                    "kty": "RSA",
+                    "kid": "simple_report",
+                    "n": "jgM1afKc5oBw_jq_B4C0oqKbqFTvAAt-FGnZZJ8hczsZmTIr4L2orV49zdaRQOve7Q0KwUOzWPAHpv9WYjDOyvf8ea-IgngM0EQAjcXuxlDaD7UvGurQmiATOTvpDQkjhaMQyTyfD8_6p8kjY3hcQw2dByoFziZ-ofRgYI5jGvtgSRDc_obIs2u5G0wrhlh2sGRUF0mI9pqE8P8bd7TCeUpLJU2E3wz4LSbkbmL-u_JMRfSRzxh0c2baLcwJT9CtzWufNWeto9hITrgVddX7xdjVNq3uyeQvypeq9ZX9IhfiHTQTt4uZ9FKQUF9VP2mk4GRsCjnkNCRpi6LhP_d0Sw",
+                    "e": "AQAB"
+                }
+            ]
+        }
+    ],
+    "meta": {
+        "type": "PublicKey",
+        "totalCount": 1
+    }
+}    
+"""
+
+const val EX_POST_APIKEY_RESP = """
+{
+    "orgName": "simple_report",
+    "keys": [
+        {
+            "scope": "simple_report.*.report",
+            "keys": [
+                {
+                    "kty": "RSA",
+                    "kid": "simple_report",
+                    "n": "jgM1afKc5oBw_jq_B4C0oqKbqFTvAAt-FGnZZJ8hczsZmTIr4L2orV49zdaRQOve7Q0KwUOzWPAHpv9WYjDOyvf8ea-IgngM0EQAjcXuxlDaD7UvGurQmiATOTvpDQkjhaMQyTyfD8_6p8kjY3hcQw2dByoFziZ-ofRgYI5jGvtgSRDc_obIs2u5G0wrhlh2sGRUF0mI9pqE8P8bd7TCeUpLJU2E3wz4LSbkbmL-u_JMRfSRzxh0c2baLcwJT9CtzWufNWeto9hITrgVddX7xdjVNq3uyeQvypeq9ZX9IhfiHTQTt4uZ9FKQUF9VP2mk4GRsCjnkNCRpi6LhP_d0Sw",
+                    "e": "AQAB"
+                }
+            ]
+        }
+    ]
+}
+"""
+
+const val EX_DELETE_APIKEY_RESP = """
+{
+    "orgName": "simple_report",
+    "keys": [
+        {
+            "scope": "simple_report.*.report",
+            "keys": []
+        }
+    ]
+}
+"""
 
 @OpenAPIDefinition(
     info = Info(
@@ -153,7 +208,14 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
                 content = [
                     Content(
                         mediaType = "application/json",
-                        schema = Schema(implementation = ApiKeysResponse::class)
+                        schema = Schema(implementation = ApiKeysResponse::class),
+                        examples = [
+                            ExampleObject(
+                                name = "Example response for API key retrieval",
+                                summary = "Example response when key retrieved successfully",
+                                value = EX_GET_APIKEYS_RESP
+                            ),
+                        ]
                     )
                 ]
             ),
@@ -217,7 +279,14 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
                 content = [
                     Content(
                         mediaType = "application/json",
-                        schema = Schema(implementation = ApiKeysResponse::class)
+                        schema = Schema(implementation = ApiKeysResponse::class),
+                        examples = [
+                            ExampleObject(
+                                name = "Example response for API key retrieval",
+                                summary = "Example response when key retrieved successfully",
+                                value = EX_GET_APIKEYS_RESP
+                            ),
+                        ]
                     )
                 ]
             ),
@@ -284,7 +353,14 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
                 content = [
                     Content(
                         mediaType = "application/json",
-                        schema = Schema(implementation = HttpResponseMessage::class)
+                        schema = Schema(implementation = HttpResponseMessage::class),
+                        examples = [
+                            ExampleObject(
+                                name = "Example response for API key creation",
+                                summary = "Example response when key created successfully",
+                                value = EX_POST_APIKEY_RESP
+                            ),
+                        ]
                     )
                 ]
             ),
@@ -454,14 +530,20 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
                     )
                 ]
             ),
-
             ApiResponse(
                 responseCode = HTTP_200_OK,
                 description = HTTP_200_DELETE_MSG,
                 content = [
                     Content(
                         mediaType = "application/json",
-                        schema = Schema(implementation = HttpResponseMessage::class)
+                        schema = Schema(implementation = HttpResponseMessage::class),
+                        examples = [
+                            ExampleObject(
+                                name = "Example response for API key deletion",
+                                summary = "Example response when key deleted successfully",
+                                value = EX_DELETE_APIKEY_RESP
+                            ),
+                        ]
                     )
                 ]
             )
