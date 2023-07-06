@@ -285,6 +285,9 @@ jobs:
         with:
           languages: ${{ matrix.language }}
 
+      - name: Build Prime Router Package
+        run: ./gradlew package -x fatjar -x test -x flywayMigrate
+
       - name: Perform Java CodeQL Analysis
         uses: github/codeql-action/analyze@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
         
