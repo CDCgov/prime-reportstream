@@ -8,4 +8,4 @@ OBX|2|CE|80382-5^Flu A^LN||260415000^Not detected^SCT^^^^^^Not detected|||N^Norm
 OBX|3|CE|97099-6^COVID-19^LN||260415000^Not detected^SCT^^^^^^Not detected|||N^Normal^HL70078^^^^2.7^^Normal|||F||||||^BD Veritor System for Rapid Detection of SARS-CoV-2 \T\ Flu A+B*^^^^^^^BD Veritor System for Rapid Detection of SARS-CoV-2 \T\ Flu A+B*||||||Simple Report CSV uploads Truncate Testing Name To^^^^^CLIA&2.16.840.1.113883.4.7&ISO^XX^^^11D1111111|123 Main St^^^CA^94553^USA
 NTE|1|L|11368-8 Illness or injury onset date and time: 2023-03-15
 NTE|2|L|95419-8 Has symptoms related to condition of interest: Yes Y HL70136
-SPM|1|f34b0f57-1601-4480-ae8a-d4006e50f38d&Simple Report CSV up&11D1111111&CLIA^f34b0f57-1601-4480-ae8a-d4006e50f38d&Simple Report CSV up&11D1111111&CLIA||697989009^Anterior Nasal Swab^SCT^^^^2.67|||||||||||||20230330053142-0800|20230330053142-0800
+SPM|1|f34b0f57-1601-4480-ae8a-d4006e50f38d&Simple Report CSV up&11D1111111&CLIA^f34b0f57-1601-4480-ae8a-d4006e50f38d&Simple Report CSV up&11D1111111&CLIA||697989009^Anterior Nasal Swab^SCT^^^^2.67|||||||||||||20230330053142-0800
