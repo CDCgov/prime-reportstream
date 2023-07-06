@@ -95,7 +95,7 @@ const val PARAM_DESC_KID_POST = "the id of the key to be created."
             tokenUrl = "https://hhs-prime.okta.com/oauth/token",
             scopes = [
                 OAuthScope(
-                    name = "org_admin",
+                    name = "prime_admin",
                     description = "Grants write access to single org"
                 ),
                 OAuthScope(name = "system_admin", description = "Grants access to admin operations"),
