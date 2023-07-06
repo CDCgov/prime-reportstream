@@ -9,6 +9,7 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
@@ -31,6 +32,7 @@ import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getObservationExt
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceProperties
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceReferences
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.metadata.LivdLookup
 import io.mockk.clearAllMocks
 import io.mockk.mockkClass
 import io.mockk.spyk
@@ -590,7 +592,6 @@ class FHIRBundleHelpersTests {
             CustomerStatus.ACTIVE,
             "one",
             conditionFilter = listOf("%obsPerformedCodes.intersect('94558-5').exists()")
-
         )
 
         shorthandLookupTable["obsPerformedCodes"] = "%resource.code.coding.code"
@@ -614,5 +615,30 @@ class FHIRBundleHelpersTests {
 
         val emptyBatch = batchMessages(listOf())
         assertThat(emptyBatch).isEqualTo("")
+    }
+
+    @Test
+    fun `Test Determine which Observations are COVID from diagnostic report with multiple observations`() {
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/bundle_multiple_observations.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        assertThat(bundle).isNotNull()
+        val loincCode = "94558-5" // this value matches one of the observations in the fhirBundle
+        mockkObject(LivdLookup)
+        every { LivdLookup.find(any(), any(), any(), any(), any(), any(), any(), any()) } returns loincCode
+
+        val diagnosticReport = FhirPathUtils.evaluate(
+            CustomContext(bundle, bundle),
+            bundle,
+            bundle,
+            "Bundle.entry.resource.ofType(DiagnosticReport)[0]"
+        )[0]
+        val covidMatches = mutableListOf<Observation>()
+        if (diagnosticReport is DiagnosticReport) {
+            covidMatches.addAll(0, CustomFhirPathFunctions().filterLoincObservations(diagnosticReport))
+        }
+        assertThat(covidMatches.size).isEqualTo(1)
     }
 }
