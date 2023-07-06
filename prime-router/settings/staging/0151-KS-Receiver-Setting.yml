@@ -1,0 +1,36 @@
+# ./prime multiple-settings set --env staging --input ./settings/staging/0151-KS-Receiver-Setting.yml
+---
+- name: ks-doh
+  description: Kansas Department Of Health
+  jurisdiction: STATE
+  stateCode: KS
+  receivers:
+    - name: elr
+      organizationName: ks-doh
+      topic: covid-19
+      customerStatus: testing
+      jurisdictionalFilter:
+        - orEquals(ordering_facility_state, KS, patient_state, KS)
+      timeZone: CENTRAL
+      qualityFilter: [ "allowNone()" ]
+      dateTimeFormat: LOCAL
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: KSDOH
+        receivingApplicationOID: 2.16.840.1.114222.4.3.3.36
+        receivingFacilityName: KDHE
+        receivingFacilityOID: 2.16.840.1.114222.4.3.2.2.1.163
+        reportingFacilityName: "CDC PRIME"
+        reportingFacilityId: "11D2030855"
+        suppressQstForAoe: true
+        truncateHDNamespaceIds: true
+        suppressHl7Fields: null
+        truncateHl7Fields: null
+        replaceValueAwithB: null
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+        timeZone: CENTRAL
+      transport: null
