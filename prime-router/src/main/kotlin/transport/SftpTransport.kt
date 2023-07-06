@@ -37,6 +37,7 @@ import java.io.InputStream
 import java.io.StringReader
 
 class SftpTransport : ITransport, Logging {
+
     override fun send(
         transportType: TransportType,
         header: WorkflowEngine.Header,
@@ -132,9 +133,7 @@ class SftpTransport : ITransport, Logging {
             port: String,
             credential: SftpCredential,
         ): SSHClient {
-            val sshConfig = DefaultConfig()
-            // create our client
-            val sshClient = SSHClient(sshConfig)
+            val sshClient = createDefaultSSHClient()
             try {
                 sshClient.addHostKeyVerifier(PromiscuousVerifier())
                 sshClient.connect(host, port.toInt())
@@ -303,6 +302,12 @@ class SftpTransport : ITransport, Logging {
                     return 777
                 }
             }
+        }
+
+        // allow us to mock SSHClient because there is no dependency injection in this class
+        fun createDefaultSSHClient(): SSHClient {
+            val sshConfig = DefaultConfig()
+            return SSHClient(sshConfig)
         }
     }
 }
