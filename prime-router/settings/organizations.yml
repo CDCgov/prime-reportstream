@@ -704,6 +704,21 @@
         uuidFormat: WA_NOTIFY
         uuidIV: 1
         apiUrl: ""
+    - name: SFTP_TEST
+      organizationName: ignore
+      topic: covid-19
+      customerStatus: inactive
+      jurisdictionalFilter: [ "matches(ordering_facility_county, SFTP_TEST)" ]
+      timing: null
+      translation:
+        type: HL7
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+
 
 - name: historytest
   description: FOR TESTING SUBMISSION HISTORY
