@@ -2,6 +2,13 @@ package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.runBlocking
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.Field
@@ -183,21 +190,34 @@ abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilte
      * @return the list of the records parsed into the [PojoType]
      *
      */
-    open fun <T : Record> fetchResults(dslContext: DSLContext, select: SelectJoinStep<T>): ApiSearchResult<PojoType> {
-        val totalCount = dslContext.fetchCount(select)
-        val filteredCount = dslContext.fetchCount(
-            select
-                .where(getWhereClause())
-        )
-        val results = dslContext.fetch(
-            select
-                .where(getWhereClause())
-                .orderBy(getSortClause(), getPrimarySortClause())
-                .limit(limit)
-                .offset(getOffset())
-        ).into(recordClass)
-        return ApiSearchResult(totalCount, filteredCount, results)
-    }
+    open fun <T : Record> fetchResults(dslContext: DSLContext, select: SelectJoinStep<T>): ApiSearchResult<PojoType> =
+        runBlocking {
+            flow<ApiSearchResult<PojoType>> {
+                emit(
+                    coroutineScope {
+                        val totalCount = async(Dispatchers.IO, CoroutineStart.UNDISPATCHED) {
+                            dslContext.fetchCount(select)
+                        }
+                        val filteredCount = async(Dispatchers.IO, CoroutineStart.UNDISPATCHED) {
+                            dslContext.fetchCount(
+                                select
+                                    .where(getWhereClause())
+                            )
+                        }
+                        val results = async(Dispatchers.IO, CoroutineStart.UNDISPATCHED) {
+                            dslContext.fetch(
+                                select
+                                    .where(getWhereClause())
+                                    .orderBy(getSortClause(), getPrimarySortClause())
+                                    .limit(limit)
+                                    .offset(getOffset())
+                            ).into(recordClass)
+                        }
+                        ApiSearchResult(totalCount.await(), filteredCount.await(), results.await())
+                    }
+                )
+            }.first()
+        }
 
     /** Converts the limit and page value into an offset */
     private fun getOffset(): Int {
