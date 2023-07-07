@@ -19,11 +19,15 @@ when they are applied to an item.
 
 ## Problem
 
-The overarching problem is that since the schemas are part of the deployed application they can only be updated at the frequency at which the application itself is deployed.  This is quite limiting and downstream impacts such as:
+The overarching problem is that since the schemas are part of the deployed application they can only be updated at the frequency at which the application itself is deployed.  This is quite limiting and has downstream impacts such as:
 
-- onboarding new senders/receivers can take a while as iterative changes to the schema have to tested out over several days or weeks
+- onboarding new senders/receivers can take a while as iterative changes to the schema have to be tested out over several days or weeks
 - bugs discovered in the schema cannot be immediately addressed without a hotfix
 - the senders/receivers do not have any capability to self-serve changes to their own schemas
+
+## Goal
+
+Design a new implementation that enables iterating on the schemas outside of the deployments and unlocks the ability to implement a feature that enables sender/receivers to self-serve on changes.
 
 ## Storing and resolving schemas
 
@@ -62,13 +66,16 @@ Additionally, the versioning has the added flexibility of referencing a specific
 `https://<storage-account>.blob.core.windows.net/<container>/<blob-name>?versionid=<version-id>` . If the decision is made to continue to store some of the common schemas in source code this is an approach that could be adopted here as well by adding a version to the directory paths `file:///{BASE_DIR}/metadata/hl7_mapping/common/patient/v1/patient.yml``
 
 #### FHIR -> FHIR, FHIR -> HL7
-Steps
+Steps for migrating:
+
 1. Update the code to use the URI to determine if the schema should be read from disk or azure by looking at the URI scheme
-    1. Fallback to the existing behavior if it is not a valid URI
-2. Update all the schema references (i.e. `extends`, `schemaRef`, `schemaName`) in the existing schemas and settings to reference absolute paths as URLs
+    - Fallback to the existing behavior if it is not a valid URI (i.e. we're resolving an old schema with relative paths)
+2. Update all the schema references (i.e. `extends`, `schemaRef`, `schemaName`, etc.) in the existing schemas and settings to reference absolute paths as URLs
     - `schema: ../common/patient` -> `schema: file:///{BASE_DIR}/metadata/hl7_mapping/common/patient.yml`
-3. Update schemas to reference azure blobs (i.e `azure:///{BASE_DIR}/metadata/hl7_mapping/common/patient.yml`) and upload schemas to azure blob service
+3. Update schemas to reference azure blobs (i.e `azure:///{AZURE_STORAGE_LOCATION}/metadata/hl7_mapping/common/patient.yml`) and upload schemas to azure blob service
 4. Update all UP sender and receivers to reference the azure schema
+
+During the migration process, it would make sense to all take another look at the directory structure and names to make sure they make sense moving forward.
 
 #### HL7 -> FHIR
 Long term, it would be great to add support to this library (it's open sourced) that would support reading files from different file-like storage solutions rather than just disk, but this would likely not be feasible to get done in a quick enough timeframe.  Instead, before instantiating the converter, the application will sync the azure storage to a spot on the disk the library will read from.
@@ -76,7 +83,7 @@ Long term, it would be great to add support to this library (it's open sourced) 
 #### Cache
 **This could potentially be deferred until it's been identified that the network requests to azure blob storage are the bottleneck**
 
-Since the pipeline will now require reading several files out of the blob store at multiple spots in the, it will likely make sense to cache the resolved schemas since they will change relatively infrequently.
+Since the pipeline will now require reading several files out of the blob store at multiple spots, it will likely make sense to cache the resolved schemas since they will change relatively infrequently.  This could initially be done with a simple in-memory cache using the schema URI as the cache key.
 
 #### Pros
 - Maintains the current file based model for the schemas
@@ -96,39 +103,48 @@ Since the pipeline will now require reading several files out of the blob store 
 The schemas break down into two categories:
 
 - schemas dedicated to a specific sender or receiver
-- schemas that are used across multiple senders or receivers
-    - in some cases, it might preferable to keep some of these in the source to prevent accidentally breaking things
+  - with one specifically being a "leaf" schema or a schema that is consumed by name in the pipeline and associated to a sender or receiver setting
+- schemas that are used across multiple senders or receivers across organizations
+    - in some cases, it might be preferable to keep some of these in the source to prevent accidentally breaking things
 
-and there will need to proper permissions placed such that schemas that are used across multiple senders and receivers can only be edited by prime amdins
+and there will need to proper permissions placed such that schemas that are used across multiple senders and receivers can only be edited by prime admins
 
 ### New APIs
-- Transform types `{transformType}`
-    - HL7 -> FHIR
-    - FHIR -> FHIR
-    - FHIR -> HL7
+- Transform types `{transformType}` parameter
+    - HL7 -> FHIR: `hl7-fhir`
+    - FHIR -> FHIR: `fhir-fhir`
+    - FHIR -> HL7: `fhir-hl7`
 
 #### Sender/Receiver
 - Create a sender/receiver schema
     - POST
     - Auth: Prime admins, org admins
-    - `/v1/senders|receivers/{sender|receiverName}/{transformType}`
+    - `/v1/senders|receivers/{sender|receiverName}/schemas/{transformType}`
     - Body
         - `schemaName` string
             - This is the path the schema should be placed at i.e. `metadata/hl7_mapping/common/patient.yml`
-        - `rootSchema` boolean
-            - If the field is set to true, set the `schemaName` property on the sender or receiver setting
+        - `leafSchema` boolean
+            - If the field is set to true, set the `schemaName` property on the sender or receiver setting and indicates that this is a schema that will be consumed in the pipeline
         - `schema` string
+        - `sampleInput` string
+          - An input message that should have the schema applied against; if provided, `sampleOutput` must be provided as well
+        - `sampleOutput` string
+          - An output message that is checked against the value produced after applying the transform against the `sampleInput`
 - Update a sender/receiver schema
     - PUT
     - Auth: Prime admins, org admins
-    - `/v1/senders|receivers/{sender|receiverName}/{transformType}/{*schemaName}`
+    - `/v1/senders|receivers/{sender|receiverName}/schemas/{transformType}/{*schemaName}`
     - Body
         - `schema` string
+        - `sampleInput` string
+          - An input message that should have the schema applied against; if provided, `sampleOutput` must be provided as well
+        - `sampleOutput` string
+            - An output message that is checked against the value produced after applying the transform against the `sampleInput`
 - Rollback a sender/receiver schema
-    - Rollsback to the previous version of that schema name, if the rolling back the first version, the file is deleted and the schemaName field is removed from the
+    - Rolls back to the previous version of that schema name, if the rolling back the first version, the file is deleted and the schemaName field is removed from the
     - Auth: Prime admins, org admins
     - DELETE
-    - `/v1/senders|receivers/{sender|receiverName}/{transformType}/{*schemaName}`
+    - `/v1/senders|receivers/{sender|receiverName}/schemas/{transformType}/{*schemaName}`
 
 #### Common schemas
 - Create a common schema
@@ -146,23 +162,25 @@ and there will need to proper permissions placed such that schemas that are used
     - Body
         - `schema` string
 - Rollback a common schema
-    - Rollsback to the previous version of that schema name, if the rolling back the first version, the file is deleted and the schemaName field is removed from the
+    - Rolls back to the previous version of that schema name, if the rolling back the first version, the file is deleted and the schemaName field is removed from the
     - DELETE
     - Auth: Prime admins
     - `/v1/senders|receivers/{sender|receiverName}/{transformType}/{*schemaName}`
 - Invalidate cache
     - Invalidates all the cached values for the particular transform type; would be potentially need to get invoked if someone edited the schema in the azure store
+      - Future iterations could make this invalidation more fine-grained
     - GET
     - Auth: Prime admins
     - `/v1/schemas/{transformType}`
 
 ### Validation
 
-As part of either creating or updating any schema, it will need to be validated before it can get persisted.  The MVP validation will be barebones and will check that the YAML can be parsed and that resolving it does not throw a `SchemaException` that are currently thrown when parsing a schema by trying to resolve it.
+As part of either creating or updating any schema, it will need to be validated before it can get persisted. Every schema that is uploaded will check that the YAML can be parsed and that resolving it does not throw a `SchemaException` that are currently thrown when parsing a schema by trying to resolve it.
+Additionally, the APIs for changing schemas for a sender or receiver can accept a sample input and output message that will be used to verify that the schema works as expected.
 
 Future iterations could improve upon this:
+
 - Provide the specific line that is invalid
-- Running a message/bundle through the schema and verifying the output
 
 ## Operations
 
@@ -178,7 +196,7 @@ Some potential solutions (several could be used):
 - Increase the coverage of the underlying library for performing the transforms
 - Keep the most frequently used schemas in source code and create integration tests with sample schemas to verify commonly used functionality
 - Version all common schemas and test sender/receiver schemas with updates in staging before updating in production
-- Implement an API that accepts an input message, output message and a new schema and returns whether or not the schema update produces the output from the input
+- Build upon the API functionality for validating a schema as part creating/updating against a sample input/output to create a test harness that can be run in staging or production
 
 ### Performance
 - The main additional bottleneck will be the additional network requests to azure blob storage when resolving a schema, but this will be mitigated by implementing a caching solution
