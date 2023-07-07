@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.info.Info
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.OAuthFlow
 import io.swagger.v3.oas.annotations.security.OAuthFlows
@@ -129,6 +130,18 @@ const val EX_DELETE_APIKEY_RESP = """
 }
 """
 
+const val EX_POST_APIKEY_REQUEST_BODY = """
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjgM1afKc5oBw/jq/B4C0
+oqKbqFTvAAt+FGnZZJ8hczsZmTIr4L2orV49zdaRQOve7Q0KwUOzWPAHpv9WYjDO
+yvf8ea+IgngM0EQAjcXuxlDaD7UvGurQmiATOTvpDQkjhaMQyTyfD8/6p8kjY3hc
+Qw2dByoFziZ+ofRgYI5jGvtgSRDc/obIs2u5G0wrhlh2sGRUF0mI9pqE8P8bd7TC
+eUpLJU2E3wz4LSbkbmL+u/JMRfSRzxh0c2baLcwJT9CtzWufNWeto9hITrgVddX7
+xdjVNq3uyeQvypeq9ZX9IhfiHTQTt4uZ9FKQUF9VP2mk4GRsCjnkNCRpi6LhP/d0
+SwIDAQAB
+-----END PUBLIC KEY-----
+"""
+
 @OpenAPIDefinition(
     info = Info(
         title = "Prime ReportStream",
@@ -150,10 +163,10 @@ const val EX_DELETE_APIKEY_RESP = """
             tokenUrl = "https://hhs-prime.okta.com/oauth/token",
             scopes = [
                 OAuthScope(
-                    name = "prime_admin",
+                    name = "org_admin",
                     description = "Grants write access to single org"
                 ),
-                OAuthScope(name = "system_admin", description = "Grants access to admin operations"),
+                OAuthScope(name = "prime_admin", description = "Grants access to admin operations"),
                 OAuthScope(name = "user", description = "Grants read access")
             ]
         )
@@ -335,7 +348,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
     @POST
     @Path("settings/organizations/{organizationName}/public-keys")
     @Operation(
-        summary = "Create (post) an API key for the organization",
+        summary = "Create (POST) an API key for the organization",
         description = "Create API key for the given organization",
         tags = [KEY_MGMT_TAG],
         parameters = [
@@ -402,7 +415,22 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations/{organizationName}/public-keys"
-        ) request: HttpRequestMessage<String?>,
+        ) @RequestBody(
+            content = [
+                Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = String::class),
+                    examples = [
+                        ExampleObject(
+                            name = "Example request body for API key creation",
+                            summary = "Example request body for API key creation",
+                            value = EX_POST_APIKEY_REQUEST_BODY
+                        ),
+                    ]
+                )
+            ]
+        )
+        request: HttpRequestMessage<String?>,
         @Parameter(
             name = PARAM_NAME_ORGNAME,
             description = "the organization where a key is to be created."
