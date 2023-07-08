@@ -104,11 +104,6 @@ elements:
     value: [ '%resource.receivedTime' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]
 
-  - name: specimen-received-time-diagnostic
-    condition: '%resource.receivedTime.exists().not()'
-    value: [ '%diagnostic.issued' ]
-    hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]
-
   - name: specimen-reject-reason
     value: [ '""' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-21' ]
