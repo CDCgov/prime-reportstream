@@ -85,7 +85,7 @@
         type: "FHIR"
       transport: !<REST>
         reportUrl: "https://cdcti-staging-api.azurewebsites.net/v1/etor/demographics"
-        authTokenUrl: "https://cdcti-staging-api.azurewebsites.net/v1/auth"
+        authTokenUrl: "https://cdcti-staging-api.azurewebsites.net/v1/auth/token"
 # Uncomment below for local Trusted-Intermediary server
 #        reportUrl: "http://localhost:8080/v1/etor/demographics"
 #        authTokenUrl: "http://localhost:8080/v1/auth"
