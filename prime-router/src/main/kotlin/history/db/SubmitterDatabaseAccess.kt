@@ -210,103 +210,104 @@ class SubmitterDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccess
 
             val itemGraph = reportGraph.itemAncestorGraphCommonTableExpression(sentReportIdsForReceiver)
 
-            val metadata = reportGraph.metadataCommonTableExpression(itemGraph)
-            val metadataIds = DSL
-                .selectDistinct(metadata.field("covid_results_metadata_id", SQLDataType.BIGINT)).from(metadata)
-            val submitterExpression = DSL
-                .name("submitter")
-                .`as`(
+            val submitterExpression = DSL.select(
+                CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID
+                    .`as`(SubmitterTable.SUBMITTER.ID),
+                CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME
+                    .`as`(SubmitterTable.SUBMITTER.NAME),
+                DSL.min(CovidResultMetadata.COVID_RESULT_METADATA.CREATED_AT)
+                    .`as`(SubmitterTable.SUBMITTER.FIRST_REPORT_DATE),
+                DSL.count().`as`(SubmitterTable.SUBMITTER.TEST_RESULT_COUNT),
+                DSL.value(SubmitterType.PROVIDER.name).`as`(SubmitterTable.SUBMITTER.TYPE),
+                DSL.`when`(
+                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_CITY.isNotNull,
+                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_CITY
+                ).`when`(
+                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY.isNotNull,
+                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY
+                ).otherwise("n/a")
+                    .concat(", ")
+                    .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_STATE)
+                    .`as`(SubmitterTable.SUBMITTER.LOCATION),
+                CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID
+                    .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME)
+                    .`as`(SubmitterTable.SUBMITTER.SORT_ID)
+            ).from(CovidResultMetadata.COVID_RESULT_METADATA)
+                .join(ItemGraphTable.ITEM_GRAPH)
+                .on(
+                    ItemGraphTable.ITEM_GRAPH.PARENT_REPORT_ID
+                        .eq(CovidResultMetadata.COVID_RESULT_METADATA.REPORT_ID),
+                    ItemGraphTable.ITEM_GRAPH.PARENT_INDEX
+                        .eq(CovidResultMetadata.COVID_RESULT_METADATA.REPORT_INDEX)
+                )
+                .where(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID.isNotNull)
+                .groupBy(
+                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID,
+                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME,
+                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_CITY,
+                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_STATE,
+                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY
+                )
+                .unionAll(
                     DSL.select(
-                        CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID
-                            .`as`(SubmitterTable.SUBMITTER.ID),
-                        CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME
+                        DSL.value("null").`as`("id"),
+                        CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_NAME
                             .`as`(SubmitterTable.SUBMITTER.NAME),
                         DSL.min(CovidResultMetadata.COVID_RESULT_METADATA.CREATED_AT)
                             .`as`(SubmitterTable.SUBMITTER.FIRST_REPORT_DATE),
                         DSL.count().`as`(SubmitterTable.SUBMITTER.TEST_RESULT_COUNT),
-                        DSL.value(SubmitterType.PROVIDER.name).`as`(SubmitterTable.SUBMITTER.TYPE),
+                        DSL.value(SubmitterType.FACILITY.name).`as`("type")
+                            .`as`(SubmitterTable.SUBMITTER.TYPE),
                         DSL.`when`(
-                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_CITY.isNotNull,
-                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_CITY
-                        ).`when`(
-                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY.isNotNull,
-                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY
+                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_COUNTY.isNotNull,
+                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_COUNTY
                         ).otherwise("n/a")
                             .concat(", ")
-                            .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_STATE)
+                            .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_STATE)
                             .`as`(SubmitterTable.SUBMITTER.LOCATION),
-                        CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID
-                            .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME)
+                        DSL.value("null")
+                            .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_NAME)
                             .`as`(SubmitterTable.SUBMITTER.SORT_ID)
                     ).from(CovidResultMetadata.COVID_RESULT_METADATA)
-                        .where(CovidResultMetadata.COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID.`in`(metadataIds))
-                        .and(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID.isNotNull)
-                        .groupBy(
-                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID,
-                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME,
-                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_CITY,
-                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_STATE,
-                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY
+                        .join(ItemGraphTable.ITEM_GRAPH)
+                        .on(
+                            ItemGraphTable.ITEM_GRAPH.PARENT_REPORT_ID
+                                .eq(CovidResultMetadata.COVID_RESULT_METADATA.REPORT_ID),
+                            ItemGraphTable.ITEM_GRAPH.PARENT_INDEX
+                                .eq(CovidResultMetadata.COVID_RESULT_METADATA.REPORT_INDEX)
                         )
-                        .unionAll(
-                            DSL.select(
-                                DSL.value("null").`as`("id"),
-                                CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_NAME
-                                    .`as`(SubmitterTable.SUBMITTER.NAME),
-                                DSL.min(CovidResultMetadata.COVID_RESULT_METADATA.CREATED_AT)
-                                    .`as`(SubmitterTable.SUBMITTER.FIRST_REPORT_DATE),
-                                DSL.count().`as`(SubmitterTable.SUBMITTER.TEST_RESULT_COUNT),
-                                DSL.value(SubmitterType.FACILITY.name).`as`("type")
-                                    .`as`(SubmitterTable.SUBMITTER.TYPE),
-                                DSL.`when`(
-                                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_COUNTY.isNotNull,
-                                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_COUNTY
-                                ).otherwise("n/a")
-                                    .concat(", ")
-                                    .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_STATE)
-                                    .`as`(SubmitterTable.SUBMITTER.LOCATION),
-                                DSL.value("null")
-                                    .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_NAME)
-                                    .`as`(SubmitterTable.SUBMITTER.SORT_ID)
-                            ).from(CovidResultMetadata.COVID_RESULT_METADATA)
-                                .where(
-                                    CovidResultMetadata.COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID.`in`(
-                                        metadataIds
-                                    )
-                                )
-                                .groupBy(
-                                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_NAME,
-                                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_COUNTY,
-                                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_STATE
-                                )
-                        ).unionAll(
-                            DSL.select(
-                                DSL.value("null").`as`("id").`as`(SubmitterTable.SUBMITTER.ID),
-                                CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID.`as`(SubmitterTable.SUBMITTER.NAME),
-                                DSL.min(CovidResultMetadata.COVID_RESULT_METADATA.CREATED_AT)
-                                    .`as`(SubmitterTable.SUBMITTER.FIRST_REPORT_DATE),
-                                DSL.count().`as`(SubmitterTable.SUBMITTER.TEST_RESULT_COUNT),
-                                DSL.value(SubmitterType.SUBMITTER.name).`as`("type")
-                                    .`as`(SubmitterTable.SUBMITTER.TYPE),
-                                DSL.value("n/a").`as`(SubmitterTable.SUBMITTER.LOCATION),
-                                DSL.value("null")
-                                    .concat(CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID)
-                                    .`as`(SubmitterTable.SUBMITTER.SORT_ID)
-                            ).from(CovidResultMetadata.COVID_RESULT_METADATA)
-                                .where(
-                                    CovidResultMetadata.COVID_RESULT_METADATA.COVID_RESULTS_METADATA_ID.`in`(
-                                        metadataIds
-                                    )
-                                )
-                                .groupBy(CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID)
-                        ).coerce(SubmitterTable.SUBMITTER)
-                )
+                        .groupBy(
+                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_NAME,
+                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_COUNTY,
+                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_STATE
+                        )
+                ).unionAll(
+                    DSL.select(
+                        DSL.value("null").`as`("id").`as`(SubmitterTable.SUBMITTER.ID),
+                        CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID.`as`(SubmitterTable.SUBMITTER.NAME),
+                        DSL.min(CovidResultMetadata.COVID_RESULT_METADATA.CREATED_AT)
+                            .`as`(SubmitterTable.SUBMITTER.FIRST_REPORT_DATE),
+                        DSL.count().`as`(SubmitterTable.SUBMITTER.TEST_RESULT_COUNT),
+                        DSL.value(SubmitterType.SUBMITTER.name).`as`("type")
+                            .`as`(SubmitterTable.SUBMITTER.TYPE),
+                        DSL.value("n/a").`as`(SubmitterTable.SUBMITTER.LOCATION),
+                        DSL.value("null")
+                            .concat(CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID)
+                            .`as`(SubmitterTable.SUBMITTER.SORT_ID)
+                    ).from(CovidResultMetadata.COVID_RESULT_METADATA)
+                        .join(ItemGraphTable.ITEM_GRAPH)
+                        .on(
+                            ItemGraphTable.ITEM_GRAPH.PARENT_REPORT_ID
+                                .eq(CovidResultMetadata.COVID_RESULT_METADATA.REPORT_ID),
+                            ItemGraphTable.ITEM_GRAPH.PARENT_INDEX
+                                .eq(CovidResultMetadata.COVID_RESULT_METADATA.REPORT_INDEX)
+                        )
+                        .groupBy(CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID)
+                ).asTable(SubmitterTable.SUBMITTER)
 
             search.fetchResults(
                 DSL.using(txn),
                 DSL.withRecursive(itemGraph)
-                    .with(metadata)
-                    .with(submitterExpression)
                     .select(submitterExpression.asterisk())
                     .from(submitterExpression)
             )
