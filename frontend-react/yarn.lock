@@ -2843,10 +2843,15 @@
     resolve-from "^5.0.0"
     ts-dedent "^2.0.0"
 
-"@storybook/core-events@7.0.23", "@storybook/core-events@^7.0.23":
+"@storybook/core-events@7.0.23":
   version "7.0.23"
   resolved "https://registry.yarnpkg.com/@storybook/core-events/-/core-events-7.0.23.tgz#99d36712dba8eae9e1585298dd9b97385ae13ad5"
   integrity sha512-Hdt18p/qbgJc+1wY2dGcdjmlsuNXWsoLTaXrjInuvr1U0kmKmKs0VMaB0cFubnUgCmB3YQWTGnVr3q8iz9iB7g==
+
+"@storybook/core-events@^7.0.26":
+  version "7.0.26"
+  resolved "https://registry.yarnpkg.com/@storybook/core-events/-/core-events-7.0.26.tgz#830c2fbc17e8c358252301e5a6efe10119aa3ef5"
+  integrity sha512-ckZszphEAYs9wp8tPVhayEMzk8JxCiQfzbq0S45sbdqdTrl40PmsOjv5iPNaUYElI/Stfz+v4gDCEUfOsxyC+w==
 
 "@storybook/core-server@7.0.23":
   version "7.0.23"
