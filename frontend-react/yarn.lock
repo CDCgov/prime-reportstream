@@ -2186,14 +2186,15 @@
     "@babel/runtime" "^7.11.2"
     compare-versions "^4.1.2"
 
-"@okta/okta-signin-widget@^7.7.2":
-  version "7.7.2"
-  resolved "https://registry.yarnpkg.com/@okta/okta-signin-widget/-/okta-signin-widget-7.7.2.tgz#79d042a24605b018b91a8a14537396e62f6e5462"
-  integrity sha512-IkH4F7aLG/83pjZ44x1oReqi2fpqrwlnY4haJh6d2zVjTiIXj3wxMZAuNXbH8Ls0pIhU1MrUGAio+6JKDvJZaQ==
+"@okta/okta-signin-widget@^7.8.1":
+  version "7.8.1"
+  resolved "https://registry.yarnpkg.com/@okta/okta-signin-widget/-/okta-signin-widget-7.8.1.tgz#793a3821365d32a53df2ced61b1b27fd6ebd17ae"
+  integrity sha512-278vq1GjsrA/3Z0JKVBrTXKh9BEOSb2bif7mVmoXhXmy3zbMvrNY5Itg2Cqaa6tIZA4IYsuUXL6SvUemYMpKGA==
   dependencies:
     "@okta/okta-auth-js" "~7.0.0"
     "@sindresorhus/to-milliseconds" "^1.0.0"
     "@types/backbone" "^1.4.15"
+    "@types/eslint-scope" "^3.7.3"
     "@types/jquery" "^3.5.14"
     "@types/jqueryui" "^1.12.16"
     "@types/q" "^1.5.5"
@@ -3466,6 +3467,22 @@
   resolved "https://registry.yarnpkg.com/@types/escodegen/-/escodegen-0.0.6.tgz#5230a9ce796e042cda6f086dbf19f22ea330659c"
   integrity sha512-AjwI4MvWx3HAOaZqYsjKWyEObT9lcVV0Y0V8nXo6cXzN8ZiMxVhf6F3d/UNvXVGKrEzL/Dluc5p+y9GkzlTWig==
 
+"@types/eslint-scope@^3.7.3":
+  version "3.7.4"
+  resolved "https://registry.yarnpkg.com/@types/eslint-scope/-/eslint-scope-3.7.4.tgz#37fc1223f0786c39627068a12e94d6e6fc61de16"
+  integrity sha512-9K4zoImiZc3HlIp6AVUDE4CWYx22a+lhSZMYNpbjW04+YF0KWj4pJXnEMjdnFTiQibFFmElcsasJXDbdI/EPhA==
+  dependencies:
+    "@types/eslint" "*"
+    "@types/estree" "*"
+
+"@types/eslint@*":
+  version "8.44.0"
+  resolved "https://registry.yarnpkg.com/@types/eslint/-/eslint-8.44.0.tgz#55818eabb376e2272f77fbf5c96c43137c3c1e53"
+  integrity sha512-gsF+c/0XOguWgaOgvFs+xnnRqt9GwgTvIks36WpE6ueeI4KCEHHd8K/CKHqhOqrJKsYH8m27kRzQEvWXAwXUTw==
+  dependencies:
+    "@types/estree" "*"
+    "@types/json-schema" "*"
+
 "@types/estree-jsx@^1.0.0":
   version "1.0.0"
   resolved "https://registry.npmjs.org/@types/estree-jsx/-/estree-jsx-1.0.0.tgz"
@@ -3612,6 +3629,11 @@
     "@types/node" "*"
     "@types/tough-cookie" "*"
     parse5 "^7.0.0"
+
+"@types/json-schema@*":
+  version "7.0.12"
+  resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.12.tgz#d70faba7039d5fca54c83c7dbab41051d2b6f6cb"
+  integrity sha512-Hr5Jfhc9eYOQNPYO5WLDq/n4jqijdHNlDXjuAQkkt+mWdQR+XJToOHrsD4cPaMXpn6KO7y2+wM8AZEs8VpBLVA==
 
 "@types/json-schema@^7.0.9":
   version "7.0.11"
