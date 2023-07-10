@@ -20,12 +20,12 @@ import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.HttpRequest
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.Headers
-import io.ktor.http.headersOf
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpProtocolVersion
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.Url
 import io.ktor.http.content.OutgoingContent
+import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.Attributes
 import io.ktor.util.InternalAPI
@@ -454,7 +454,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
             UserApiKeyCredential("flexion", "123")
         )
         every { runBlocking { mockRestTransport.getAuthTokenWithUserApiKey(any(), any(), any(), any()) } }.returns(
-            TokenInfo(accessToken="MockToken", tokenType="bearer")
+            TokenInfo(accessToken = "MockToken", tokenType = "bearer")
         )
 
         val retryItems = mockRestTransport.send(
@@ -463,6 +463,4 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         )
         assertThat(retryItems).isNull()
     }
-
-
 }

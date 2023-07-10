@@ -80,9 +80,11 @@ class FhirTransformerTests {
         val customContext = CustomContext(bundle, bundle)
         val converter = FhirTransformer(mockSchema)
 
-        val valueSet = sortedMapOf(
-            Pair("Stagnatious", "S"), // casing should not matter
-            Pair("grompfle", "G")
+        val valueSet = InlineValueSet(
+            sortedMapOf(
+                Pair("Stagnatious", "S"), // casing should not matter
+                Pair("grompfle", "G")
+            )
         )
 
         var element = FhirTransformSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)
@@ -404,9 +406,11 @@ class FhirTransformerTests {
             value = listOf("%resource.name.text"),
             resource = "%resource",
             bundleProperty = "%resource.name.text",
-            valueSet = sortedMapOf(
-                Pair("abc123", "ghi789"),
-                Pair("def456", "")
+            valueSet = InlineValueSet(
+                sortedMapOf(
+                    Pair("abc123", "ghi789"),
+                    Pair("def456", "")
+                )
             )
         )
         val childSchema = FhirTransformSchema(elements = mutableListOf(patientElement))

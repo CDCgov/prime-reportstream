@@ -9,7 +9,6 @@ import org.hl7.fhir.r4.model.Device
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
-import java.util.SortedMap
 
 /**
  * Custom FHIR functions created by report stream to help map from FHIR -> HL7
@@ -151,45 +150,45 @@ class CustomFhirPathFunctions : FhirPathFunctions {
      * Get a list of value/key pairs from the specified lookup table and columns
      * @return a map with the value/key pairs from the specified table and columns
      */
-    fun valueSetTableLookup(
-        focus: MutableList<Base>,
-        parameters: MutableList<MutableList<Base>>?,
-        metadata: Metadata = Metadata.getInstance()
-    ): SortedMap<String, String> {
-        if (parameters.isNullOrEmpty() || parameters.size != 3) {
-            throw SchemaException("Must provide lookup table name, key column, and value column")
-        }
-
-        val tableName = parameters[0].toString()
-        if (tableName.isNullOrBlank()) {
-            throw SchemaException("No lookup table name specified")
-        }
-
-        val keyColumn = parameters[1].toString()
-        if (keyColumn.isNullOrBlank()) {
-            throw SchemaException("No key column name specified")
-        }
-
-        val valueColumn = parameters[2].toString()
-        if (valueColumn.isNullOrBlank()) {
-            throw SchemaException("No value column name specified")
-        }
-
-        val lookupTable = metadata.findLookupTable(name = tableName)
-            ?: throw SchemaException("Specified lookup table not found")
-
-        if (!lookupTable.hasColumn(keyColumn)) {
-            throw SchemaException("Key column not found in specified lookup table")
-        }
-
-        if (!lookupTable.hasColumn(valueColumn)) {
-            throw SchemaException("Value column not found in specified lookup table")
-        }
-
-        val filterTable = lookupTable.table.retainColumns(keyColumn, valueColumn)
-        // transform into sortedmap - filterTable.stream().forEach(row ->)
-
-        // stub return
-        return sortedMapOf(Pair("A", "B"))
-    }
+//    fun valueSetTableLookup(
+//        focus: MutableList<Base>,
+//        parameters: MutableList<MutableList<Base>>?,
+//        metadata: Metadata = Metadata.getInstance()
+//    ): SortedMap<String, String> {
+//        if (parameters.isNullOrEmpty() || parameters.size != 3) {
+//            throw SchemaException("Must provide lookup table name, key column, and value column")
+//        }
+//
+//        val tableName = parameters[0].toString()
+//        if (tableName.isNullOrBlank()) {
+//            throw SchemaException("No lookup table name specified")
+//        }
+//
+//        val keyColumn = parameters[1].toString()
+//        if (keyColumn.isNullOrBlank()) {
+//            throw SchemaException("No key column name specified")
+//        }
+//
+//        val valueColumn = parameters[2].toString()
+//        if (valueColumn.isNullOrBlank()) {
+//            throw SchemaException("No value column name specified")
+//        }
+//
+//        val lookupTable = metadata.findLookupTable(name = tableName)
+//            ?: throw SchemaException("Specified lookup table not found")
+//
+//        if (!lookupTable.hasColumn(keyColumn)) {
+//            throw SchemaException("Key column not found in specified lookup table")
+//        }
+//
+//        if (!lookupTable.hasColumn(valueColumn)) {
+//            throw SchemaException("Value column not found in specified lookup table")
+//        }
+//
+//        val filterTable = lookupTable.table.retainColumns(keyColumn, valueColumn)
+//        // transform into sortedmap - filterTable.stream().forEach(row ->)
+//
+//        // stub return
+//        return sortedMapOf(Pair("A", "B"))
+//    }
 }

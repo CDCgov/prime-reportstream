@@ -33,9 +33,11 @@ elements:
     value: [ '%resource.use.value' ]
     hl7Spec: [ '%{hl7XADField}-7' ]
     valueSet:
-      home: H
-      work: B
-      temp: C
+      values:
+        home: H
+        work: B
+        temp: C
+      type: "inlineValueset"
 
   - name: xad-county
     value: [ '%resource.district' ]

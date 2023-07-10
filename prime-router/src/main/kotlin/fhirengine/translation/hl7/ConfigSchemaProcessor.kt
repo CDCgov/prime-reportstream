@@ -41,8 +41,8 @@ abstract class ConfigSchemaProcessor : Logging {
 
         // when valueSet is available, use the matching value else just pass the value as is
         // does a lowerCase comparison
-        if (retVal.isNotBlank() && element.valueSet.isNotEmpty()) {
-            val lowerSet = element.valueSet.mapKeys { it.key.lowercase() }
+        if (retVal.isNotBlank() && element.valueSet.getMapValues().isNotEmpty()) {
+            val lowerSet = element.valueSet.getMapValues().mapKeys { it.key.lowercase() }
             retVal = lowerSet.getOrDefault(retVal.lowercase(), retVal)
         }
         return retVal
@@ -74,8 +74,8 @@ abstract class ConfigSchemaProcessor : Logging {
 
         // when valueSet is available, return mapped value or null if match isn't found
         // does a lowerCase comparison
-        if (retVal != null && element.valueSet.isNotEmpty()) {
-            val lowerSet = element.valueSet.mapKeys { it.key.lowercase() }
+        if (retVal != null && element.valueSet.getMapValues().isNotEmpty()) {
+            val lowerSet = element.valueSet.getMapValues().mapKeys { it.key.lowercase() }
             val valStr = lowerSet[retVal?.primitiveValue()?.lowercase() ?: ""]
             retVal = if (valStr != null) {
                 StringType(valStr)
