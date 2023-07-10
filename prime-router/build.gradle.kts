@@ -105,7 +105,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "2.3.1"
+val ktorVersion = "2.3.2"
 val kotlinVersion = "1.8.22"
 val jacksonVersion = "2.15.2"
 
@@ -781,7 +781,7 @@ dependencies {
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.4.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.15")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.16")
     implementation("org.thymeleaf:thymeleaf:3.1.1.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
