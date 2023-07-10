@@ -63,7 +63,7 @@ jobs:
       - name: Cache Backend Build
         uses: actions/cache/save@v3.3.1
         with:
-          path: prime-router/build
+          path: prime-router/build/**
           key: ${{ runner.os }}-backend-build-${{ github.run_id }}-${{ github.run_attempt }}
 
   test1:
@@ -106,7 +106,7 @@ jobs:
       - name: Restore cache
         uses: actions/cache/restore@v3.3.1
         with:
-          path: prime-router/build
+          path: prime-router/build/**
           key: ${{ runner.os }}-backend-build-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Perform Java CodeQL Analysis
