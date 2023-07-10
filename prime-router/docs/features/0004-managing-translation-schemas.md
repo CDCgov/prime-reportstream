@@ -107,7 +107,7 @@ The schemas break down into two categories:
 - schemas that are used across multiple senders or receivers across organizations
     - in some cases, it might be preferable to keep some of these in the source to prevent accidentally breaking things
 
-and there will need to proper permissions placed such that schemas that are used across multiple senders and receivers can only be edited by prime admins
+and there will need to be proper permissions placed such that schemas that are used across multiple senders and receivers can only be edited by prime admins
 
 ### New APIs
 - Transform types `{transformType}` parameter
@@ -141,7 +141,7 @@ and there will need to proper permissions placed such that schemas that are used
         - `sampleOutput` string
             - An output message that is checked against the value produced after applying the transform against the `sampleInput`
 - Rollback a sender/receiver schema
-    - Rolls back to the previous version of that schema name, if the rolling back the first version, the file is deleted and the schemaName field is removed from the
+    - Rolls back to the previous version of the provided schema name. If rolling back the first version, the file is deleted and the schemaName field is removed from the setting
     - Auth: Prime admins, org admins
     - DELETE
     - `/v1/senders|receivers/{sender|receiverName}/schemas/{transformType}/{*schemaName}`
@@ -167,7 +167,7 @@ and there will need to proper permissions placed such that schemas that are used
     - Auth: Prime admins
     - `/v1/senders|receivers/{sender|receiverName}/{transformType}/{*schemaName}`
 - Invalidate cache
-    - Invalidates all the cached values for the particular transform type; would be potentially need to get invoked if someone edited the schema in the azure store
+    - Invalidates all the cached values for the particular transform type; would potentially need to get invoked if someone edited the schema in the azure store
       - Future iterations could make this invalidation more fine-grained
     - GET
     - Auth: Prime admins
@@ -186,17 +186,17 @@ Future iterations could improve upon this:
 
 ### Local Development
 
-Once the migration to store the schemas as data rather that source code is done, there will still need a solution in place that enables local developers to submit reports through the universal pipeline with sender/receiver transforms applied.  The easiest solution is to update the `reloadSettings` gradle task (or add a new `reloadSchemas`) that invokes the create schema APIs for some of the ignore senders and receivers.
+Once the migration to store the schemas as data rather that source code is done, there will still need to be a solution in place that enables local developers to submit reports through the universal pipeline with sender/receiver transforms applied.  The easiest solution is to update the `reloadSettings` gradle task (or add a new `reloadSchemas`) that invokes the create schema APIs for some of the ignore senders and receivers.
 
 ### Testing
 
-This is area that is impacted the most by shifting from treating schemas as source code to data.  The current approach when working on a schema change is to make the change in the source code and then update the output file to reflect what the schema change should now do and these integration tests are run as part of CI builds to verify that they continue to work as expected.  This approach will no longer work effectively once the schemas are editable via the application; an example issue that could occur: an engineer is iterating on a schema change for an STLT, while going through these iterations, the schema test for that STLT will break and pull requests will be stuck.
+This is the area that is impacted the most by shifting from treating schemas as source code to data.  The current approach when working on a schema change is to make the change in the source code and then update the output file to reflect what the schema change should now do and these integration tests are run as part of CI builds to verify that they continue to work as expected.  This approach will no longer work effectively once the schemas are editable via the application; an example issue that could occur: an engineer is iterating on a schema change for a STLT. While going through these iterations, the schema test for that STLT will break and pull requests will be stuck.
 
 Some potential solutions (several could be used):
 - Increase the coverage of the underlying library for performing the transforms
 - Keep the most frequently used schemas in source code and create integration tests with sample schemas to verify commonly used functionality
 - Version all common schemas and test sender/receiver schemas with updates in staging before updating in production
-- Build upon the API functionality for validating a schema as part creating/updating against a sample input/output to create a test harness that can be run in staging or production
+- Build upon the API functionality for validating a schema as part of creating/updating against a sample input/output to create a test harness that can be run in staging or production
 
 ### Performance
 - The main additional bottleneck will be the additional network requests to azure blob storage when resolving a schema, but this will be mitigated by implementing a caching solution
