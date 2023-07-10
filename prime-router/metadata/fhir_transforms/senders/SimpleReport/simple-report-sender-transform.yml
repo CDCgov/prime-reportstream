@@ -28,11 +28,20 @@ elements:
   #       Right now we can't subtract the 15 minutes SR subtracts from dates in the covid pipeline and add the 6 seconds
   #       the Covid Pipeline adds. So we have to do it all at once by subtracting 894 seconds. Adding the 6
   #       should be part of the default sender transforms.
-  - name: specimen-received-date-time
+  - name: specimen-received-date-time-collected
     resource: 'Bundle.entry.resource.ofType(Specimen)'
     condition: '%resource.receivedTime.exists().not() and %resource.collection.collected is dateTime'
     bundleProperty: '%resource.receivedTime'
     value: [ '%resource.collection.collected - 894 seconds' ]
+
+  - name: specimen-received-date-time-effective
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    condition: >
+      %resource.specimen.resolve().receivedTime.exists().not() 
+      and %resource.specimen.resolve().collection.collected.exists().not()
+      and %resource.effective is dateTime
+    bundleProperty: '%resource.specimen.resolve().receivedTime'
+    value: [ '%resource.effective - 894 seconds' ]
 
   - name: specimen-collection-time
     resource: 'Bundle.entry.resource.ofType(Specimen)'
