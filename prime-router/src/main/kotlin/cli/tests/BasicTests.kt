@@ -194,8 +194,9 @@ class End2EndUniversalPipeline : CoolTest() {
 
             // check that lineages were generated properly
             passed = passed and pollForLineageResults(
-                reportId, allGoodReceivers,
-                1, // for UP there should be one item per step
+                reportId,
+                expectedReceivers,
+                expectedReceivers.size,
                 asyncProcessMode = true,
                 isUniversalPipeline = true
             )
