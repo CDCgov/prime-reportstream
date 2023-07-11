@@ -35,6 +35,7 @@ export interface TableProps {
     stackedStyle?: "default" | "headers";
     sticky?: boolean;
     striped?: boolean;
+    fakeBonus?: boolean;
 }
 
 const SortableTableHeader = ({
