@@ -44,10 +44,10 @@ jobs:
         run: |
           export POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_STAGING_PWD }};export POSTGRES_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require;export POSTGRES_USER=${{ secrets.POSTGRESQL_STG_ADMIN_USER }}
       
-      - name: Spin up build containers
+      - name: Spin up containers
         shell: bash
         working-directory: prime-router
-        run: docker-compose up -d
+        run: docker-compose -f docker-compose.postgres.yml up -d
 
       # - name: Give some time for the container to start
       #   run: |
