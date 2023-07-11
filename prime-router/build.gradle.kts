@@ -739,15 +739,15 @@ configurations {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.5.1")
+    jooqGenerator("org.postgresql:postgresql:42.6.0")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
-    implementation("com.azure:azure-core:1.35.0")
-    implementation("com.azure:azure-core-http-netty:1.12.8")
+    implementation("com.azure:azure-core:1.41.0")
+    implementation("com.azure:azure-core-http-netty:1.13.5")
     implementation("com.azure:azure-storage-blob:12.22.3") {
         exclude(group = "com.azure", module = "azure-core")
     }
@@ -800,7 +800,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("commons-codec:commons-codec:1.16.0")
     implementation("commons-io:commons-io:2.13.0")
-    implementation("org.postgresql:postgresql:42.5.1")
+    implementation("org.postgresql:postgresql:42.6.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.flywaydb:flyway-core:9.7.0")
     implementation("org.commonmark:commonmark:0.21.0")
