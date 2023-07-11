@@ -1,13 +1,13 @@
 # Build a branch-specific Storybook instance on Chromatic
-# To trigger, add the 'chromatic' label to the pull request
-# To re-trigger, remove and add the 'chromatic' label to the pull request
+# Any file that has "__chromatic-sync" appended to the end of the filename
+# And is checked into git, will trigger a Chromatic update.
 
 name: Build Branch Chromatic
 
 on:
   pull_request:
     types:
-      - labeled
+      - synchronize
     paths:
       - "frontend-react/**"
     branches-ignore:
@@ -19,11 +19,19 @@ jobs:
     name: Chromatic
     runs-on: ubuntu-latest
     steps:
-      - name: Set vars
+      - name: Check for Storybook story changes
         id: set_vars
-        if: ${{ github.event.label.name == 'chromatic' }}
+        uses: actions/checkout@v3
         shell: bash
-        run: echo "chromatic=true" >> $GITHUB_OUTPUT
+        run: |
+          diff_output=$(git diff --name-only)
+
+          while IFS= read -r filename; do
+              if [[ $filename == *__chromatic-sync ]]; then
+                  echo "chromatic=true" >> $GITHUB_OUTPUT
+                  break
+              fi
+          done <<< "$diff_output"
 
       - name: Find Comment
         id: comment_find

@@ -11,7 +11,7 @@ import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationRece
 import Spinner from "../../Spinner";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
 import { FeatureName } from "../../../AppRouter";
-import { Table } from "../../../shared/Table/Table";
+import { Table } from "../../../shared/Table/Table__chromatic-sync";
 import { FacilityResource } from "../../../config/endpoints/dataDashboard";
 import { USLink } from "../../USLink";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";

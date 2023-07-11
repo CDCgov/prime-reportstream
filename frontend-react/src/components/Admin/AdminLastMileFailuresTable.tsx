@@ -24,7 +24,7 @@ import Spinner from "../Spinner";
 import config from "../../config";
 import { getAppInsightsHeaders } from "../../TelemetryService";
 import { USLink } from "../USLink";
-import { Table } from "../../shared/Table/Table";
+import { Table } from "../../shared/Table/Table__chromatic-sync";
 
 const { RS_API_URL } = config;
 

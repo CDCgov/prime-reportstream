@@ -10,7 +10,7 @@ import {
 import Spinner from "../Spinner";
 import { MessageListResource } from "../../config/endpoints/messageTracker";
 import { useMessageSearch } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
-import { Table } from "../../shared/Table/Table";
+import { Table } from "../../shared/Table/Table__chromatic-sync";
 import { USLink } from "../USLink";
 
 interface MessageListTableContentProps {
