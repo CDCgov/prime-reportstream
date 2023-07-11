@@ -835,7 +835,7 @@ dependencies {
     implementation("org.jsoup:jsoup:1.15.3")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
     implementation("io.swagger:swagger-annotations:1.6.10")
-    implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.8")
+    implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.15")
     // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
     implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
     // https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api
