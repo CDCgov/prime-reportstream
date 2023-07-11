@@ -26,14 +26,14 @@ jobs:
         id: set_vars
         run: |
           diff_output=$(git diff --name-only)
-          echo "::debug::$diff_output"
 
           while IFS= read -r filename; do
-              if [[ $filename == *__chromatic-sync* ]]; then
-                  echo "Substring found in $filename"
-                  echo "chromatic=true" >> "$GITHUB_ENV"
-                  break
-              fi
+            # Check if the substring exists in the filename
+            if [[ $filename == *__chromatic-sync* ]]; then
+              echo "Substring found in $filename"
+              echo "chromatic=true" >> $GITHUB_ENV
+              break
+            fi
           done <<< "$diff_output"
 
       - name: Find Comment
