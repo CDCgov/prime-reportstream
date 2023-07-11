@@ -46,6 +46,7 @@ jobs:
       
       - name: Spin up build containers
         shell: bash
+        working-directory: prime-router
         run: docker-compose up -d
 
       # - name: Give some time for the container to start
@@ -113,6 +114,7 @@ jobs:
 
       - name: Run Smoke Test in Staging
         shell: bash
+        working-directory: prime-router
         run: ./prime test --env staging --key ${{ secrets.STG_API_KEY }}
 
 
