@@ -16,8 +16,10 @@ elements:
     value: [ '"CO"' ]
     valueSet:
       values:
-        "CO": "Colorado"
-        "IG": "ignore"
+        "tableName": "gender"
+        "keyColumn": "code"
+        "valueColumn": "display"
+      type: "lookupValueset"
 
   - name: observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0].result'

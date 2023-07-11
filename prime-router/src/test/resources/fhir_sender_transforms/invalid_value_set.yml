@@ -18,7 +18,6 @@ elements:
       values:
         "CO": 'Colorado'
         "IG": null
-      type: "inlineValueset"
   - name: observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0].result'
     resourceIndex: observationIndex

@@ -12,7 +12,6 @@ elements:
         work: WPN
         mobile: PRN
         temp: ORN
-      type: "inlineValueset"
 
   - name: xtn-use-code-from-system
     condition: '%resource.system = "pager"'
@@ -34,7 +33,6 @@ elements:
         pager: BP
         email: Internet
         fax: FX
-      type: "inlineValueset"
 
   - name: xtn-system-from-use
     condition: '%resource.use.exists() and %resource.use = "mobile"'

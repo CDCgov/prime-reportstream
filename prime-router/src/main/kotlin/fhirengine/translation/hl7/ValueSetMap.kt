@@ -10,10 +10,10 @@ import java.util.SortedMap
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
-    property = "type"
+    property = "type",
+    defaultImpl = InlineValueSet::class
 )
 @JsonSubTypes(
-    JsonSubTypes.Type(value = InlineValueSet::class, name = "inlineValueset"),
     JsonSubTypes.Type(value = LookupTableValueSet::class, name = "lookupValueset")
 )
 interface ValueSetMap<T> {
@@ -29,41 +29,32 @@ class InlineValueSet
     }
 }
 
+data class LookupTableValueSetConfig(
+    val tableName: String,
+    val keyColumn: String,
+    val valueColumn: String
+)
+
 class LookupTableValueSet
 @JsonCreator constructor
-(@JsonProperty("values") override val values: SortedMap<String, String>) : ValueSetMap<SortedMap<String, String>> {
+(@JsonProperty("values") override val values: LookupTableValueSetConfig) : ValueSetMap<LookupTableValueSetConfig> {
     override fun getMapValues(): SortedMap<String, String> {
-        val tableName = values["table"]
-        if (tableName.isNullOrBlank()) {
-            throw SchemaException("No lookup table name specified")
-        }
-
-        val keyColumn = values["keyColumn"]
-        if (keyColumn.isNullOrBlank()) {
-            throw SchemaException("No key column name specified")
-        }
-
-        val valueColumn = values["valueColumn"]
-        if (valueColumn.isNullOrBlank()) {
-            throw SchemaException("No value column name specified")
-        }
-
         val metadata = Metadata.getInstance()
-        val lookupTable = metadata.findLookupTable(name = tableName)
+        val lookupTable = metadata.findLookupTable(name = values.tableName)
             ?: throw SchemaException("Specified lookup table not found")
 
-        if (!lookupTable.hasColumn(keyColumn)) {
+        if (!lookupTable.hasColumn(values.keyColumn)) {
             throw SchemaException("Key column not found in specified lookup table")
         }
 
-        if (!lookupTable.hasColumn(valueColumn)) {
+        if (!lookupTable.hasColumn(values.valueColumn)) {
             throw SchemaException("Value column not found in specified lookup table")
         }
 
-        val filterTable = lookupTable.table.retainColumns(keyColumn, valueColumn)
-        var result = mutableMapOf<String, String>()
+        val filterTable = lookupTable.table.retainColumns(values.keyColumn, values.valueColumn)
+        val result = mutableMapOf<String, String>()
         filterTable.forEach { row ->
-            result[row.getString(keyColumn)] = row.getString(valueColumn)
+            result[row.getString(values.keyColumn)] = row.getString(values.valueColumn)
         }
 
         return result.toSortedMap()

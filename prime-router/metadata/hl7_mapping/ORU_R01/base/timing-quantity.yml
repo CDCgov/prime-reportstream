@@ -23,5 +23,4 @@ elements:
         urgent: U
         asap: A
         routine: R
-      type: "inlineValueset"
 

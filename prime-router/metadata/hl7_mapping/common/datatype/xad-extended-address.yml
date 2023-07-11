@@ -37,7 +37,6 @@ elements:
         home: H
         work: B
         temp: C
-      type: "inlineValueset"
 
   - name: xad-county
     value: [ '%resource.district' ]

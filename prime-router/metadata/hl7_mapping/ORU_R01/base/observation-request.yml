@@ -123,7 +123,6 @@ elements:
         final: F
         preliminary: P
         cancelled: X
-      type: "inlineValueset"
 
   - name: parent-observation-link
     resource: '%resource.identifier.where(type.coding.system = "http://loinc.org").type'

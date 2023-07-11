@@ -57,7 +57,6 @@ elements:
         female: F
         male: M
         other: O
-      type: "inlineValueset"
 
   #race
   - name: patient-race-identifier
@@ -166,7 +165,6 @@ elements:
       values:
         true: Y
         false: N
-      type: "inlineValueset"
 
   - name: patient-last-updated-at
     value: [ '%resource.meta.lastUpdated' ]

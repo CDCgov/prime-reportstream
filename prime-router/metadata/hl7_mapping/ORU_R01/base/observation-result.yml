@@ -137,7 +137,6 @@ elements:
         corrected: C
         amended: C
         entered-in-error: W
-      type: "inlineValueset"
 
   - name: observation-date-time
     value: [ '%resource.effective' ]

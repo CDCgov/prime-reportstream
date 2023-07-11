@@ -15,7 +15,6 @@ elements:
         imp: I
         prenc: P
         amb: O
-      type: "inlineValueset"
 
   - name: patient-assigned-location-point-of-care
     value: [ '%resource.location[0].location.resolve().extension(%`rsext-point-of-care`).value' ]
