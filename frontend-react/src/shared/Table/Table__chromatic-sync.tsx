@@ -1,5 +1,5 @@
 import classnames from "classnames";
-import React, { ReactNode, useState } from "react";
+import { ReactNode, useState } from "react";
 import { Icon } from "@trussworks/react-uswds";
 
 import styles from "./Table.module.scss";
