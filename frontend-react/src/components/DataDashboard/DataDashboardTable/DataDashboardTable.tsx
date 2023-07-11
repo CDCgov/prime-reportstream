@@ -9,21 +9,22 @@ import { NoServicesBanner } from "../../alerts/NoServicesAlert";
 import { PaginationProps } from "../../Table/Pagination";
 import Table, { ColumnConfig, TableConfig } from "../../Table/Table";
 import TableFilters from "../../Table/TableFilters";
-import { Delivery } from "../../../config/endpoints/deliveries";
+import { RSReceiverDelivery } from "../../../config/endpoints/dataDashboard";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import useReceiverDeliveries, {
     DeliveriesAttr,
 } from "../../../hooks/network/DataDashboard/UseReceiverDeliveries";
 import { FilterManager } from "../../../hooks/filters/UseFilterManager";
+import AdminFetchAlert from "../../alerts/AdminFetchAlert";
 
-// const extractCursor = (d: Delivery) => d.createdAt;
+// const extractCursor = (d: RSReceiverDelivery) => d.createdAt;
 
 interface DashboardTableContentProps {
     filterManager: FilterManager;
     paginationProps?: PaginationProps;
     isLoading: boolean;
-    deliveriesList: Delivery[] | undefined;
+    deliveriesList: RSReceiverDelivery[] | undefined;
 }
 
 const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
@@ -108,7 +109,7 @@ function DashboardFilterAndTable({
     // const isCursorInclusive = sortOrder === "ASC";
     // const analyticsEventName = `${FeatureName.DATA_DASHBOARD} | ${EventName.TABLE_PAGINATION}`;
     //
-    // const { paginationProps } = usePagination<Delivery>({
+    // const { paginationProps } = usePagination<RSReceiverDelivery>({
     //     startCursor,
     //     isCursorInclusive,
     //     pageSize,
@@ -160,10 +161,19 @@ function DashboardFilterAndTable({
 }
 
 export default function DataDashboardTable() {
-    const { loadingServices, services, activeService, setActiveService } =
-        useOrganizationReceiversFeed();
+    const {
+        loadingServices,
+        services,
+        activeService,
+        setActiveService,
+        isDisabled,
+    } = useOrganizationReceiversFeed();
 
     if (loadingServices) return <Spinner />;
+
+    if (isDisabled) {
+        return <AdminFetchAlert />;
+    }
 
     if (!loadingServices && !activeService)
         return (

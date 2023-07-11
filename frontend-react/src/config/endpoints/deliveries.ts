@@ -12,29 +12,6 @@ export interface RSDelivery {
     fileType: string;
 }
 
-export interface Delivery {
-    orderingProvider: string;
-    orderingFacility: string;
-    submitter: string;
-    reportId: string;
-    createdAt: string;
-    expirationDate: string;
-    testResultCount: number;
-}
-
-export interface Meta {
-    type: string;
-    totalCount: number;
-    totalFilteredCount: number;
-    totalPages: number;
-    nextPage: number;
-}
-
-export interface RSApiDeliveryResponse {
-    meta: Meta;
-    data: Delivery[];
-}
-
 export interface RSFacility {
     facility: string | undefined;
     location: string | undefined;
@@ -46,15 +23,15 @@ export interface RSFacility {
 /*
 Deliveries API Endpoints
 
-* receiverDeliveries -> Retrieves a list of reports for receiver by receiverFullName/orgAndService (ex: xx-phd.elr)
+* getOrgDeliveries -> Retrieves a list of reports using orgAndService (ex: xx-phd.elr)
 * getDeliveryDetails -> Retrieves details of a single report using a report id
 * getDeliveryFacilities -> Retrieves a list of facilities who contributed to a report by a report id
 */
 export const deliveriesEndpoints: RSApiEndpoints = {
-    receiverDeliveries: new RSEndpoint({
-        path: "/v1/receivers/:orgAndService/deliveries",
-        method: HTTPMethods.POST,
-        queryKey: "deliveriesForReceiver",
+    getOrgDeliveries: new RSEndpoint({
+        path: "/waters/org/:orgAndService/deliveries",
+        method: HTTPMethods.GET,
+        queryKey: "getOrgDeliveries",
     }),
     getDeliveryDetails: new RSEndpoint({
         path: "/waters/report/:id/delivery",
