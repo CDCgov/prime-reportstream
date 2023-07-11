@@ -26,7 +26,7 @@ jobs:
         id: set_vars
         run: |
           diff_output=$(git diff --name-only)
-          echo "$diff_output"
+          echo "::debug::$diff_output"
 
           while IFS= read -r filename; do
               if [[ $filename == *__chromatic-sync* ]]; then
