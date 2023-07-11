@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction } from "react";
 
 import { FeatureName } from "../../../AppRouter";
 import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
@@ -6,19 +6,79 @@ import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import Spinner from "../../Spinner";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
-import Pagination from "../../Table/Pagination";
+import { PaginationProps } from "../../Table/Pagination";
+import Table, { ColumnConfig, TableConfig } from "../../Table/Table";
 import TableFilters from "../../Table/TableFilters";
+import { Delivery } from "../../../config/endpoints/deliveries";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
+import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import useReceiverDeliveries, {
     DeliveriesAttr,
 } from "../../../hooks/network/DataDashboard/UseReceiverDeliveries";
-import AdminFetchAlert from "../../alerts/AdminFetchAlert";
-import { Table } from "../../../shared/Table/Table";
-import { getSlots } from "../../../hooks/UsePagination";
-import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
-import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
-import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
-import { USLink } from "../../USLink";
+import { FilterManager } from "../../../hooks/filters/UseFilterManager";
+
+// const extractCursor = (d: Delivery) => d.createdAt;
+
+interface DashboardTableContentProps {
+    filterManager: FilterManager;
+    paginationProps?: PaginationProps;
+    isLoading: boolean;
+    deliveriesList: Delivery[] | undefined;
+}
+
+const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
+    filterManager,
+    // paginationProps,
+    isLoading,
+    deliveriesList,
+}) => {
+    if (isLoading) return <Spinner />;
+
+    const columns: Array<ColumnConfig> = [
+        {
+            dataAttr: DeliveriesAttr.CREATED_AT,
+            columnHeader: "Date sent to you",
+            sortable: true,
+            transform: formatDateWithoutSeconds,
+        },
+        {
+            dataAttr: DeliveriesAttr.ORDERING_PROVIDER,
+            columnHeader: "Ordering Provider",
+        },
+        {
+            dataAttr: DeliveriesAttr.ORDERING_FACILITY,
+            columnHeader: "Performing facility",
+        },
+        {
+            dataAttr: DeliveriesAttr.SUBMITTER,
+            columnHeader: "Submitter",
+        },
+        {
+            dataAttr: DeliveriesAttr.REPORT_ID,
+            columnHeader: "Report ID",
+            feature: {
+                link: true,
+                linkBasePath: "/data-dashboard/report-details/",
+            },
+        },
+    ];
+
+    const resultsTableConfig: TableConfig = {
+        columns: columns,
+        rows: deliveriesList || [],
+    };
+
+    return (
+        <>
+            <Table
+                classes="margin-top-1"
+                config={resultsTableConfig}
+                filterManager={filterManager}
+                // paginationProps={paginationProps}
+            />
+        </>
+    );
+};
 
 function DashboardFilterAndTable({
     receiverServices,
@@ -35,80 +95,36 @@ function DashboardFilterAndTable({
         setActiveService(receiverServices.find((item) => item.name === name));
     };
 
-    const {
-        data: results,
-        filterManager,
-        isLoading,
-    } = useReceiverDeliveries(activeService.name);
+    // Pagination and filter props
+    const { fetchResults, filterManager, isDeliveriesLoading } =
+        useReceiverDeliveries(activeService.name);
 
-    if (isLoading || !results) return <Spinner />;
-
-    const onColumnCustomSort = (columnID: string) => {
-        filterManager?.updateSort({
-            type: SortSettingsActionType.CHANGE_COL,
-            payload: {
-                column: columnID,
-            },
-        });
-        filterManager?.updateSort({
-            type: SortSettingsActionType.SWAP_ORDER,
-        });
-    };
-    const data = results?.data.map((dataRow) => [
-        {
-            columnKey: DeliveriesAttr.CREATED_AT,
-            columnHeader: "Date sent to you",
-            content: formatDateWithoutSeconds(dataRow.createdAt),
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.CREATED_AT),
-            columnCustomSortSettings: filterManager.sortSettings,
-        },
-        {
-            columnKey: DeliveriesAttr.ORDERING_PROVIDER,
-            columnHeader: "Ordering provider",
-            content: dataRow.orderingProvider,
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.ORDERING_PROVIDER),
-            columnCustomSortSettings: filterManager.sortSettings,
-        },
-        {
-            columnKey: DeliveriesAttr.ORDERING_FACILITY,
-            columnHeader: "Performing facility",
-            content: dataRow.orderingFacility,
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.ORDERING_FACILITY),
-            columnCustomSortSettings: filterManager.sortSettings,
-        },
-        {
-            columnKey: DeliveriesAttr.SUBMITTER,
-            columnHeader: "Submitter",
-            content: dataRow.submitter,
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.SUBMITTER),
-            columnCustomSortSettings: filterManager.sortSettings,
-        },
-        {
-            columnKey: DeliveriesAttr.REPORT_ID,
-            columnHeader: "Report ID",
-            content: (
-                <USLink
-                    href={`/data-dashboard/report-details/${dataRow.reportId}`}
-                >
-                    {dataRow.reportId}
-                </USLink>
-            ),
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.REPORT_ID),
-            columnCustomSortSettings: filterManager.sortSettings,
-        },
-    ]);
-
-    const currentPageNum = filterManager.pageSettings.currentPage;
+    // const pageSize = filterManager.pageSettings.size;
+    // const sortOrder = filterManager.sortSettings.order;
+    // const rangeTo = filterManager.rangeSettings.to;
+    // const rangeFrom = filterManager.rangeSettings.from;
+    //
+    // const startCursor = sortOrder === "DESC" ? rangeTo : rangeFrom;
+    // const isCursorInclusive = sortOrder === "ASC";
+    // const analyticsEventName = `${FeatureName.DATA_DASHBOARD} | ${EventName.TABLE_PAGINATION}`;
+    //
+    // const { paginationProps } = usePagination<Delivery>({
+    //     startCursor,
+    //     isCursorInclusive,
+    //     pageSize,
+    //     fetchResults,
+    //     extractCursor,
+    //     analyticsEventName,
+    // });
+    //
+    // if (paginationProps) {
+    //     paginationProps.label = "Data Dashboard pagination";
+    // }
 
     return (
         <>
             <div className="text-bold font-sans-md">
-                Showing all results ({results?.meta.totalFilteredCount})
+                Showing all results ({fetchResults?.meta.totalFilteredCount})
             </div>
             <div className="display-flex flex-row">
                 <ReceiverServices
@@ -133,37 +149,21 @@ function DashboardFilterAndTable({
                     }
                 />
             </div>
-            <Table apiSortable borderless rowData={data} />
-            {data.length > 0 && (
-                <Pagination
-                    currentPageNum={currentPageNum}
-                    setSelectedPage={(pageNum) => {
-                        filterManager.updatePage({
-                            type: PageSettingsActionType.SET_PAGE,
-                            payload: { page: pageNum },
-                        });
-                    }}
-                    slots={getSlots(currentPageNum, results?.meta.totalPages)}
-                />
-            )}
+            <DashboardTableContent
+                filterManager={filterManager}
+                // paginationProps={paginationProps}
+                isLoading={isDeliveriesLoading}
+                deliveriesList={fetchResults?.data}
+            />
         </>
     );
 }
 
 export default function DataDashboardTable() {
-    const {
-        loadingServices,
-        services,
-        activeService,
-        setActiveService,
-        isDisabled,
-    } = useOrganizationReceiversFeed();
+    const { loadingServices, services, activeService, setActiveService } =
+        useOrganizationReceiversFeed();
 
     if (loadingServices) return <Spinner />;
-
-    if (isDisabled) {
-        return <AdminFetchAlert />;
-    }
 
     if (!loadingServices && !activeService)
         return (

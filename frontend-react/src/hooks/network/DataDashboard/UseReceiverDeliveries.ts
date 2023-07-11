@@ -1,9 +1,9 @@
 import { useCallback, useMemo } from "react";
 
 import {
-    RSReceiverDeliveryResponse,
-    dataDashboardEndpoints,
-} from "../../../config/endpoints/dataDashboard";
+    RSApiDeliveryResponse,
+    deliveriesEndpoints,
+} from "../../../config/endpoints/deliveries";
 import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
 import { useSessionContext } from "../../../contexts/SessionContext";
 import { useAdminSafeOrganizationName } from "../../UseAdminSafeOrganizationName";
@@ -11,7 +11,7 @@ import useFilterManager, {
     FilterManagerDefaults,
 } from "../../filters/UseFilterManager";
 
-const { receiverDeliveries } = dataDashboardEndpoints;
+const { receiverDeliveries } = deliveriesEndpoints;
 
 export enum DeliveriesAttr {
     CREATED_AT = "createdAt",
@@ -57,7 +57,7 @@ export default function useReceiverDeliveries(serviceName?: string) {
     const rangeFrom = filterManager.rangeSettings.from;
 
     const { authorizedFetch, rsUseQuery } =
-        useAuthorizedFetch<RSReceiverDeliveryResponse>();
+        useAuthorizedFetch<RSApiDeliveryResponse>();
     const memoizedDataFetch = useCallback(
         () =>
             authorizedFetch(receiverDeliveries, {
@@ -102,5 +102,9 @@ export default function useReceiverDeliveries(serviceName?: string) {
         }
     );
 
-    return { data, filterManager, isLoading };
+    return {
+        fetchResults: data,
+        filterManager: filterManager,
+        isDeliveriesLoading: isLoading,
+    };
 }
