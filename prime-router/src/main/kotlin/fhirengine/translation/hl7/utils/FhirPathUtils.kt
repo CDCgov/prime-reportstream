@@ -181,7 +181,7 @@ object FhirPathUtils : Logging {
                 // This is strange way to set the timezone offset, but it is an integer with the leftmost two digits as the hour
                 // and the rightmost two digits as minutes (e.g. -0400)
                 var offset = dateTime.timeZone.rawOffset
-                if(dateTime.timeZone.useDaylightTime()){
+                if (dateTime.timeZone.useDaylightTime()) {
                     offset = dateTime.timeZone.rawOffset + dateTime.timeZone.dstSavings
                 }
                 val hour = offset / 1000 / 60 / 60
