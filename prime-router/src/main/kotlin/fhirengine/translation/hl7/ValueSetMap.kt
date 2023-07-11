@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
@@ -22,7 +21,6 @@ interface ValueSetMap<T> {
 }
 
 class InlineValueSet
-@JsonCreator constructor
 (@JsonProperty("values") override val values: SortedMap<String, String>) : ValueSetMap<SortedMap<String, String>> {
     override fun getMapValues(): SortedMap<String, String> {
         return values
@@ -36,10 +34,9 @@ data class LookupTableValueSetConfig(
 )
 
 class LookupTableValueSet
-@JsonCreator constructor
 (@JsonProperty("values") override val values: LookupTableValueSetConfig) : ValueSetMap<LookupTableValueSetConfig> {
+    val metadata = Metadata.getInstance()
     override fun getMapValues(): SortedMap<String, String> {
-        val metadata = Metadata.getInstance()
         val lookupTable = metadata.findLookupTable(name = values.tableName)
             ?: throw SchemaException("Specified lookup table not found")
 

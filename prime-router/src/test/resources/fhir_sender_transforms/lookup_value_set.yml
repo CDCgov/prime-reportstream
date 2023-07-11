@@ -16,9 +16,9 @@ elements:
     value: [ '"CO"' ]
     valueSet:
       values:
-        "tableName": "gender"
-        "keyColumn": "code"
-        "valueColumn": "display"
+        tableName: "gender"
+        keyColumn: "code"
+        valueColumn: "display"
       type: "lookupValueset"
 
   - name: observations
