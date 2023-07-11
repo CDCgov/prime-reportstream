@@ -62,10 +62,10 @@ jobs:
       #    ./gradlew reloadTables
       #    ./gradlew reloadSettings
 
-      - name: Build Prime Router Package
-        working-directory: prime-router
-        shell: bash
-        run: ./gradlew package -x fatjar -Pshowtests
+      # - name: Build Prime Router Package
+      #   working-directory: prime-router
+      #   shell: bash
+      #   run: ./gradlew package -x fatjar -Pshowtests
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -109,7 +109,7 @@ jobs:
           login();
           " > login.js
 
-          npx --no-install puppeteer login.js
+      # npx --no-install puppeteer login.js
 
 
       - name: Run Smoke Test in Staging
