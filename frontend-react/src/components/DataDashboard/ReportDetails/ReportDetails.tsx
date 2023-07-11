@@ -6,7 +6,7 @@ import { FeatureName } from "../../../AppRouter";
 import { AuthElement } from "../../AuthElement";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import Crumbs, { CrumbsProps } from "../../Crumbs";
-import { useReportsDetail } from "../../../hooks/network/DataDashboard/DataDashboardHooks";
+import { useReportsDetail } from "../../../hooks/network/History/DeliveryHooks";
 import { withCatchAndSuspense } from "../../RSErrorBoundary";
 import HipaaNotice from "../../HipaaNotice";
 
@@ -22,7 +22,7 @@ function ReportDetails() {
         ],
     };
     const { reportId } = useParams();
-    const { data: reportDetail } = useReportsDetail(reportId!!);
+    const { reportDetail } = useReportsDetail(reportId!!);
 
     return (
         <div className={styles.ReportDetails}>

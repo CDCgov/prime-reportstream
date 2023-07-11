@@ -1,7 +1,7 @@
 import React from "react";
 import { Grid } from "@trussworks/react-uswds";
 
-import { RSDelivery } from "../../../config/endpoints/dataDashboard";
+import { RSDelivery } from "../../../config/endpoints/deliveries";
 import ReportLink from "../../../pages/deliveries/Table/ReportLink";
 import {
     formatDateWithoutSeconds,

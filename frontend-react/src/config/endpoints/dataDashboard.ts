@@ -1,25 +1,5 @@
 import { HTTPMethods, RSApiEndpoints, RSEndpoint } from ".";
 
-// TODO: will need to be revisited once new API is ready
-export interface RSDelivery {
-    deliveryId: number;
-    batchReadyAt: string;
-    expires: string;
-    receiver: string;
-    reportId: string;
-    topic: string;
-    reportItemCount: number;
-    fileName: string;
-    fileType: string;
-}
-export interface RSFacilityProvider {
-    provider: string | undefined;
-    facility: string | undefined;
-    location: string | undefined;
-    total: number | undefined;
-    collectionDate: string | undefined;
-}
-
 // TODO: move to /resources/ once we know the data structure being returned from the API
 export interface FacilityResource {
     facilityId: string | undefined;

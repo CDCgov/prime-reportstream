@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useReportsFacilities } from "../../../hooks/network/DataDashboard/DataDashboardHooks";
+import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHooks";
 import Table, { TableConfig } from "../../../components/Table/Table";
 import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import TableFilters from "../../Table/TableFilters";
@@ -24,7 +24,7 @@ interface ReportDetailsTableProps {
 
 function ReportDetailsTable(props: ReportDetailsTableProps) {
     const { reportId }: ReportDetailsTableProps = props;
-    const { data } = useReportsFacilities(reportId);
+    const { reportFacilities } = useReportsFacilities(reportId);
     const featureEvent = `${FeatureName.REPORT_DETAILS} | ${EventName.TABLE_FILTER}`;
 
     const filterManager = useFilterManager(filterManagerDefaults);
@@ -49,7 +49,7 @@ function ReportDetailsTable(props: ReportDetailsTableProps) {
                 columnHeader: "Specimen collection date",
             },
         ],
-        rows: data!!,
+        rows: reportFacilities!!,
     };
 
     return (

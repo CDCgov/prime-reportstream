@@ -2,81 +2,59 @@ import React, { Dispatch, SetStateAction } from "react";
 
 import { FeatureName } from "../../../AppRouter";
 import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
-import usePagination from "../../../hooks/UsePagination";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import Spinner from "../../Spinner";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
-import { FilterManager } from "../../../hooks/filters/UseFilterManager";
 import { PaginationProps } from "../../Table/Pagination";
 import Table, { ColumnConfig, TableConfig } from "../../Table/Table";
 import TableFilters from "../../Table/TableFilters";
-import {
-    useOrgDeliveries,
-    DataDashboardAttr,
-} from "../../../hooks/network/DataDashboard/DataDashboardHooks";
-import { RSDelivery } from "../../../config/endpoints/dataDashboard";
+import { Delivery } from "../../../config/endpoints/deliveries";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
+import useReceiverDeliveries, {
+    DeliveriesAttr,
+} from "../../../hooks/network/DataDashboard/UseReceiverDeliveries";
+import { FilterManager } from "../../../hooks/filters/UseFilterManager";
 
-const extractCursor = (d: RSDelivery) => d.batchReadyAt;
+// const extractCursor = (d: Delivery) => d.createdAt;
 
 interface DashboardTableContentProps {
-    receivers: RSReceiver[];
-    activeService: RSReceiver | undefined;
-    handleSetActive: (v: string) => void;
     filterManager: FilterManager;
     paginationProps?: PaginationProps;
     isLoading: boolean;
-    receiverList: RSDelivery[] | undefined;
+    deliveriesList: Delivery[] | undefined;
 }
 
 const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
-    receivers,
-    activeService,
-    handleSetActive,
     filterManager,
-    paginationProps,
+    // paginationProps,
     isLoading,
-    receiverList,
+    deliveriesList,
 }) => {
     if (isLoading) return <Spinner />;
 
-    const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
-
     const columns: Array<ColumnConfig> = [
         {
-            dataAttr: DataDashboardAttr.DATE_SENT,
+            dataAttr: DeliveriesAttr.CREATED_AT,
             columnHeader: "Date sent to you",
             sortable: true,
             transform: formatDateWithoutSeconds,
         },
         {
-            dataAttr: DataDashboardAttr.PROVIDER,
+            dataAttr: DeliveriesAttr.ORDERING_PROVIDER,
             columnHeader: "Ordering Provider",
-            feature: {
-                link: true,
-                linkBasePath: "/data-dashboard/facilities-providers/",
-            },
         },
         {
-            dataAttr: DataDashboardAttr.FACILITY,
+            dataAttr: DeliveriesAttr.ORDERING_FACILITY,
             columnHeader: "Performing facility",
-            feature: {
-                link: true,
-                linkBasePath: "/data-dashboard/facilities-providers/",
-            },
         },
         {
-            dataAttr: DataDashboardAttr.SUBMITTER,
+            dataAttr: DeliveriesAttr.SUBMITTER,
             columnHeader: "Submitter",
-            feature: {
-                link: true,
-                linkBasePath: "/data-dashboard/facilities-providers/",
-            },
         },
         {
-            dataAttr: DataDashboardAttr.REPORT_ID,
+            dataAttr: DeliveriesAttr.REPORT_ID,
             columnHeader: "Report ID",
             feature: {
                 link: true,
@@ -87,17 +65,70 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
 
     const resultsTableConfig: TableConfig = {
         columns: columns,
-        rows: receiverList || [],
+        rows: deliveriesList || [],
     };
 
     return (
         <>
+            <Table
+                classes="margin-top-1"
+                config={resultsTableConfig}
+                filterManager={filterManager}
+                // paginationProps={paginationProps}
+            />
+        </>
+    );
+};
+
+function DashboardFilterAndTable({
+    receiverServices,
+    activeService,
+    setActiveService,
+}: {
+    receiverServices: RSReceiver[];
+    activeService: RSReceiver;
+    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
+}) {
+    const featureEvent = `${FeatureName.DATA_DASHBOARD} | ${EventName.TABLE_FILTER}`;
+
+    const handleSetActive = (name: string) => {
+        setActiveService(receiverServices.find((item) => item.name === name));
+    };
+
+    // Pagination and filter props
+    const { fetchResults, filterManager, isDeliveriesLoading } =
+        useReceiverDeliveries(activeService.name);
+
+    // const pageSize = filterManager.pageSettings.size;
+    // const sortOrder = filterManager.sortSettings.order;
+    // const rangeTo = filterManager.rangeSettings.to;
+    // const rangeFrom = filterManager.rangeSettings.from;
+    //
+    // const startCursor = sortOrder === "DESC" ? rangeTo : rangeFrom;
+    // const isCursorInclusive = sortOrder === "ASC";
+    // const analyticsEventName = `${FeatureName.DATA_DASHBOARD} | ${EventName.TABLE_PAGINATION}`;
+    //
+    // const { paginationProps } = usePagination<Delivery>({
+    //     startCursor,
+    //     isCursorInclusive,
+    //     pageSize,
+    //     fetchResults,
+    //     extractCursor,
+    //     analyticsEventName,
+    // });
+    //
+    // if (paginationProps) {
+    //     paginationProps.label = "Data Dashboard pagination";
+    // }
+
+    return (
+        <>
             <div className="text-bold font-sans-md">
-                Showing all results ({receiverList?.length})
+                Showing all results ({fetchResults?.meta.totalFilteredCount})
             </div>
             <div className="display-flex flex-row">
                 <ReceiverServices
-                    receivers={receivers}
+                    receiverServices={receiverServices}
                     activeService={activeService}
                     handleSetActive={handleSetActive}
                 />
@@ -118,68 +149,11 @@ const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
                     }
                 />
             </div>
-            <Table
-                classes="margin-top-1"
-                config={resultsTableConfig}
-                filterManager={filterManager}
-                paginationProps={paginationProps}
-            />
-        </>
-    );
-};
-
-function DashboardTableWithPagination({
-    receivers,
-    activeService,
-    setActiveService,
-}: {
-    receivers: RSReceiver[];
-    activeService: RSReceiver | undefined;
-    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
-}) {
-    const handleSetActive = (name: string) => {
-        setActiveService(receivers.find((item) => item.name === name));
-    };
-
-    const { fetchResults, filterManager } = useOrgDeliveries(
-        activeService?.name
-    );
-    const pageSize = filterManager.pageSettings.size;
-    const sortOrder = filterManager.sortSettings.order;
-    const rangeTo = filterManager.rangeSettings.to;
-    const rangeFrom = filterManager.rangeSettings.from;
-
-    const startCursor = sortOrder === "DESC" ? rangeTo : rangeFrom;
-    const isCursorInclusive = sortOrder === "ASC";
-    const analyticsEventName = `${FeatureName.DATA_DASHBOARD} | ${EventName.TABLE_PAGINATION}`;
-
-    const {
-        currentPageResults: serviceReportsList,
-        paginationProps,
-        isLoading,
-    } = usePagination<RSDelivery>({
-        startCursor,
-        isCursorInclusive,
-        pageSize,
-        fetchResults,
-        extractCursor,
-        analyticsEventName,
-    });
-
-    if (paginationProps) {
-        paginationProps.label = "Dashboard pagination";
-    }
-
-    return (
-        <>
             <DashboardTableContent
-                receivers={receivers}
-                activeService={activeService}
-                handleSetActive={handleSetActive}
                 filterManager={filterManager}
-                paginationProps={paginationProps}
-                isLoading={isLoading}
-                receiverList={serviceReportsList}
+                // paginationProps={paginationProps}
+                isLoading={isDeliveriesLoading}
+                deliveriesList={fetchResults?.data}
             />
         </>
     );
@@ -205,8 +179,8 @@ export default function DataDashboardTable() {
     return (
         <>
             {activeService && (
-                <DashboardTableWithPagination
-                    receivers={services}
+                <DashboardFilterAndTable
+                    receiverServices={services}
                     activeService={activeService}
                     setActiveService={setActiveService}
                 />
