@@ -20,8 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check for Storybook story changes
-        id: set_vars
+        id: check_files
         uses: actions/checkout@v3
+
+      - name: Check for Storybook story changes
+        id: set_vars
         shell: bash
         run: |
           diff_output=$(git diff --name-only)
