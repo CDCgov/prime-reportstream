@@ -23,7 +23,6 @@ interface RowData {
     columnHeader: string;
     columnKey: string;
     content: string | ReactNode;
-    bonus?: string;
 }
 
 export interface TableProps {
