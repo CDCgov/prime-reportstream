@@ -18,6 +18,8 @@ The search question in that document break down into a few broad categories:
 - information about one or more item(s) that is queryable by metadata fields
 - aggregates around one or more item(s) 
 
+[Design Brief](https://docs.google.com/document/d/17Oe7pIbSdwi6b-mG_QG0Lfhi-d4pfdYAO-fnmhV_wco/edit#bookmark=id.80yf9csaln0)
+
 ## Problems to solve for
 
 - Report and item lineages are tough to query
