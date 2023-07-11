@@ -103,22 +103,16 @@ jobs:
         with:
           languages: ${{ matrix.language }}
 
-      - name: debug1
-        run: |
-          pwd
-          ls -al
-
       - name: Restore cache
         uses: actions/cache/restore@v3.3.1
         with:
           path: prime-router/build/**
           key: ${{ runner.os }}-backend-build-${{ github.run_id }}-${{ github.run_attempt }}
 
-      - name: debug2
+      - name: debug
         run: |
           pwd
-          ls -al
-          ls -alr build
+          find build
 
       - name: Perform Java CodeQL Analysis
         uses: github/codeql-action/analyze@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
