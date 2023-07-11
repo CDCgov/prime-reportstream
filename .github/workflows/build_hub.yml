@@ -218,10 +218,6 @@ jobs:
         run: docker-compose -f docker-compose.postgres.yml up -d
 
       - name: Build Prime Router Package
-        if: >
-          always() &&
-          github.event.sender.login != 'dependabot[bot]' &&
-          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
         run: ./gradlew package -x fatjar
 
       - name: Perform Java CodeQL Analysis
