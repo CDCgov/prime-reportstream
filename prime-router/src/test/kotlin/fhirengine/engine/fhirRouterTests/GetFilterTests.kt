@@ -205,7 +205,7 @@ class GetFilterTests {
         val receiver = Receiver(
             RECEIVER_NAME,
             ORGANIZATION_NAME,
-            Topic.TEST,
+            Topic.FULL_ELR,
             CustomerStatus.INACTIVE,
             "one",
             jurisdictionalFilter = listOf("testRec", "testRec2")
