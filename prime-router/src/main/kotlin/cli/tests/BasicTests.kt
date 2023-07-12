@@ -175,6 +175,11 @@ class End2EndUniversalPipeline : CoolTest() {
             }
             translateReportIds.forEach { translateReportId ->
                 val batchResults = pollForStepResult(translateReportId, TaskAction.batch)
+                if (batchResults.isEmpty()) {
+                    return bad(
+                        "***async end2end_up FAILED***: No batch report was found after translate: $translateReportId"
+                    )
+                }
                 // verify each result is valid
                 for (result in batchResults.values)
                     passed = passed && examineStepResponse(result, "batch", sender.topic)
