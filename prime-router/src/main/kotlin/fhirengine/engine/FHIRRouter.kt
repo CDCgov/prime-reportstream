@@ -124,8 +124,7 @@ class FHIRRouter(
      */
     val processingModeDefaults = mapOf(
         Pair(Topic.FULL_ELR, processingModeFilterDefault),
-        Pair(Topic.ETOR_TI, processingModeFilterDefault),
-        Pair(Topic.ELR_ELIMS, processingModeFilterDefault)
+        Pair(Topic.ETOR_TI, processingModeFilterDefault)
     )
 
     /**
