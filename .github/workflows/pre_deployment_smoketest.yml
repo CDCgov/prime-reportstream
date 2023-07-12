@@ -47,25 +47,26 @@ jobs:
       - name: Spin up containers
         shell: bash
         working-directory: prime-router
-        run: docker-compose -f docker-compose.postgres.yml up -d
+        run: docker-compose -f docker-compose.build.yml up -d
 
-      # - name: Give some time for the container to start
-      #   run: |
-      #     echo "sleeping 30"
-      #     sleep 30
-      #     echo "wake up"
-      #     docker ps
+      - name: Give some time for the container to start
+        run: |
+          echo "sleeping 30"
+          sleep 30
+          echo "wake up"
+          docker ps
 
-      # - name: Load the configuration
-      #   shell: bash
-      #   run: |
-      #    ./gradlew reloadTables
-      #    ./gradlew reloadSettings
+      - name: Load the configuration
+        working-directory: prime-router
+        shell: bash
+        run: |
+         ./gradlew reloadTables
+         ./gradlew reloadSettings
 
-      # - name: Build Prime Router Package
-      #   working-directory: prime-router
-      #   shell: bash
-      #   run: ./gradlew package -x fatjar -Pshowtests
+      - name: Build Prime Router Package
+        working-directory: prime-router
+        shell: bash
+        run: ./gradlew package -x fatjar -Pshowtests
 
       # - name: Set up Node.js
       #   uses: actions/setup-node@v2
@@ -75,10 +76,10 @@ jobs:
       # - name: Install dependencies
       #   run: npm install puppeteer
 
-      - name: Login to Okta
-        shell: bash
-        working-directory: prime-router
-        run: ./prime login --env staging --username ${{ secrets.OKTA_USERNAME }} --password ${{ secrets.OKTA_PASSWORD }}
+      # - name: Login to Okta
+      #   shell: bash
+      #   working-directory: prime-router
+      #   run: ./prime login --env staging --username ${{ secrets.OKTA_USERNAME }} --password ${{ secrets.OKTA_PASSWORD }}
         # env:
         #   OKTA_USERNAME: ${{ secrets.OKTA_USERNAME }}
         #   OKTA_PASSWORD: ${{ secrets.OKTA_PASSWORD }}
