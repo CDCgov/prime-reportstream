@@ -95,11 +95,20 @@ class FHIRRouter(
     )
 
     /**
+     * Default Rules for quality filter on ETOR_TI topic:
+     *   Must have message ID
+     */
+    private val elrElimsQualityFilterDefault: ReportStreamFilter = listOf(
+        "true",
+    )
+
+    /**
      * Maps topics to default quality filters so that topic-dependent defaults can be used
      */
     val qualityFilterDefaults = mapOf(
         Pair(Topic.FULL_ELR, fullElrQualityFilterDefault),
         Pair(Topic.ETOR_TI, etorTiQualityFilterDefault),
+        Pair(Topic.ELR_ELIMS, elrElimsQualityFilterDefault),
     )
 
     /**
@@ -115,7 +124,8 @@ class FHIRRouter(
      */
     val processingModeDefaults = mapOf(
         Pair(Topic.FULL_ELR, processingModeFilterDefault),
-        Pair(Topic.ETOR_TI, processingModeFilterDefault)
+        Pair(Topic.ETOR_TI, processingModeFilterDefault),
+        Pair(Topic.ELR_ELIMS, processingModeFilterDefault)
     )
 
     /**
