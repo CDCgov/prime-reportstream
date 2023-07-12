@@ -25,10 +25,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    if: >
-        always() &&
-        github.event.sender.login != 'dependabot[bot]' &&
-        ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     permissions:
       actions: read
