@@ -449,7 +449,7 @@ class FhirTransformerTests {
         val testLookupTable = LookupTable(name = "table", table = testTable)
 
         mockkConstructor(Metadata::class)
-        every { anyConstructed<Metadata>().findLookupTable(any()) } returns testLookupTable
+        every { anyConstructed<Metadata>().findLookupTable("table") } returns testLookupTable
         mockkObject(Metadata.Companion)
         every { Metadata.Companion.getInstance() } returns UnitTestUtils.simpleMetadata
 
