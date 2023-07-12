@@ -1,6 +1,9 @@
 import { renderHook, waitFor } from "@testing-library/react";
 
-import { dataDashboardServer } from "../../../__mocks__/DataDashboardMockServer";
+import {
+    dataDashboardServer,
+    makeRSReceiverDeliveryResponseFixture,
+} from "../../../__mocks__/DataDashboardMockServer";
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { AppWrapper } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../UseOktaMemberships";
@@ -32,8 +35,10 @@ describe("useReceiverDeliveries", () => {
             const { result } = renderHook(() => useReceiverDeliveries(), {
                 wrapper: AppWrapper(),
             });
-            await waitFor(() => expect(result.current.data).toEqual(undefined));
-            expect(result.current.isLoading).toEqual(true);
+            await waitFor(() =>
+                expect(result.current.fetchResults).toEqual(undefined)
+            );
+            expect(result.current.isDeliveriesLoading).toEqual(true);
         });
     });
 
@@ -46,7 +51,7 @@ describe("useReceiverDeliveries", () => {
                 activeMembership: {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrg",
-                    service: "testService",
+                    service: "testReceiverService",
                 },
                 dispatch: () => {},
                 initialized: true,
@@ -57,16 +62,19 @@ describe("useReceiverDeliveries", () => {
             });
         });
 
-        test("returns receiver meta and deliveries", async () => {
+        test("returns receiver deliveries", async () => {
             const { result } = renderHook(
-                () => useReceiverDeliveries("testService"),
+                () => useReceiverDeliveries("testServiceName"),
                 {
                     wrapper: AppWrapper(),
                 }
             );
-
-            await waitFor(() => expect(result.current.data).toHaveLength(1));
-            expect(result.current.isLoading).toEqual(false);
+            await waitFor(() =>
+                expect(result.current.fetchResults).toEqual(
+                    makeRSReceiverDeliveryResponseFixture(5)
+                )
+            );
+            expect(result.current.isDeliveriesLoading).toEqual(false);
         });
     });
 });
