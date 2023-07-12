@@ -23,11 +23,10 @@ The overarching problem is that since the translation schemas are part of the de
 
 - onboarding new senders/receivers can take a while as iterative changes to the translation schema have to be tested out over several days or weeks
 - bugs discovered in the translation schema cannot be immediately addressed without a hotfix
-- the senders/receivers do not have any capability to self-serve changes to their own translation schemas
 
 ## Goal
 
-Design a new implementation that enables iterating on the translation schemas outside of the deployments and unlocks the ability to implement a feature that enables sender/receivers to self-serve on changes.
+Design a new implementation that enables iterating on the translation schemas outside of the deployments
 
 ## Storing and resolving translation schemas
 
