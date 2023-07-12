@@ -23,12 +23,12 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
 
-      - name: Env setting
-        working-directory: prime-router
-        shell: bash
-        run: |
-          ./cleanslate.sh
-          export $(xargs < .vault/env/.env.local)
+      # - name: Env setting
+      #   working-directory: prime-router
+      #   shell: bash
+      #   run: |
+      #     ./cleanslate.sh
+      #     export $(xargs < .vault/env/.env.local)
           
       - name: Spin up containers
         shell: bash
