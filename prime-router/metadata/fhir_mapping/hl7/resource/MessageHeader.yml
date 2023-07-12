@@ -41,8 +41,11 @@ extension_1:
         systemId: String, MSH.21.2
 
 extension_2:
+  condition: $msh15 NOT_NULL
   generateList: true
   expressionType: nested
+  vars:
+    msh15: MSH.15
   expressionsMap:
     url:
       type: SYSTEM_URL
@@ -57,8 +60,11 @@ extension_2:
         code: MSH.15
 
 extension_3:
+  condition: $msh16 NOT_NULL
   generateList: true
   expressionType: nested
+  vars:
+    msh16: MSH.16
   expressionsMap:
     url:
       type: SYSTEM_URL
@@ -86,7 +92,3 @@ extension_4:
       valueOf: datatype/Identifier_SystemID
       expressionType: resource
       specs: MSH.21
-#      constants:
-#        system: "http://terminology.hl7.org/CodeSystem/v2-0203"
-#        code: "PLAC"
-#        display: "Placer Identifier"
