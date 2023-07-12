@@ -35,7 +35,7 @@ data class LookupTableValueSetConfig(
 
 class LookupTableValueSet
 (@JsonProperty("values") override val values: LookupTableValueSetConfig) : ValueSetMap<LookupTableValueSetConfig> {
-    val metadata = Metadata.getInstance()
+    private val metadata = Metadata.getInstance()
     override fun getMapValues(): SortedMap<String, String> {
         val lookupTable = metadata.findLookupTable(name = values.tableName)
             ?: throw SchemaException("Specified lookup table not found")

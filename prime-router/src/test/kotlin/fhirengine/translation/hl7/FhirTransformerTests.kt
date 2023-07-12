@@ -16,12 +16,14 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.Fhir
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.metadata.LookupTable
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.mockkObject
 import io.mockk.spyk
+import io.mockk.unmockkAll
 import io.mockk.verify
 import org.apache.logging.log4j.kotlin.KotlinLogger
 import org.hl7.fhir.r4.model.BooleanType
@@ -438,16 +440,19 @@ class FhirTransformerTests {
 
     @Test
     fun `test transform with lookup value set`() {
-        val testTableKeyColumns = StringColumn.create("key", "abc123", "def456")
-        val testTableValueColumns = StringColumn.create("value", "ghi789", "")
-        val testTable = Table.create("table", testTableKeyColumns, testTableValueColumns)
+        val testTable = Table.create(
+            "table",
+            StringColumn.create("key", "abc123", "def456"),
+            StringColumn.create("value", "ghi789", "")
+        )
         val testLookupTable = LookupTable(name = "table", table = testTable)
 
-        mockkClass(Metadata::class)
-        mockkObject(Metadata)
-        val mockMetadata = mockk<Metadata> {
-            every { Metadata.Companion.getInstance() } returns mockk()
-        }
+        val simpleMetadata = UnitTestUtils.simpleMetadata
+        mockkObject(Metadata.Companion)
+        every { Metadata.Companion.getInstance() } returns simpleMetadata
+        val metadata = spyk(simpleMetadata)
+        every { metadata.findLookupTable(any()) } returns testLookupTable
+        val mockMetadata = mockkClass(Metadata::class)
         every { mockMetadata.findLookupTable(any()) } returns testLookupTable
 
         val bundle = Bundle()
@@ -489,6 +494,8 @@ class FhirTransformerTests {
         assertThat(resource.name[0].text).isEqualTo("ghi789")
         assertThat(resource2.name[0].text).isEqualTo("")
         assertThat(resource3.name[0].text).isEqualTo("jkl369")
+
+        unmockkAll()
     }
 
     @Test
