@@ -27,6 +27,8 @@ class HttpUtilities {
         const val oldApi = "/api/reports"
         const val watersApi = "/api/waters"
         const val tokenApi = "/api/token"
+        const val htmlTextUTF8 = "text/html; charset=utf-8"
+        const val imagePNG = "image/png"
 
         // Ignoring unknown properties because we don't require them. -DK
         private val mapper = JacksonMapperUtilities.allowUnknownsMapper
@@ -119,6 +121,44 @@ class HttpUtilities {
                 .createResponseBuilder(httpStatus)
                 .body(responseBody)
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
+                .build()
+        }
+
+        fun httpResponseHTML(
+            request: HttpRequestMessage<String?>,
+            responseBody: String,
+            httpStatus: HttpStatus,
+        ): HttpResponseMessage {
+            return request
+                .createResponseBuilder(httpStatus)
+                .body(responseBody)
+                .header(HttpHeaders.CONTENT_TYPE, htmlTextUTF8)
+                .build()
+        }
+
+        fun httpResponseImage(
+            request: HttpRequestMessage<String?>,
+            responseBody: ByteArray,
+            httpStatus: HttpStatus,
+        ): HttpResponseMessage {
+            return request
+                .createResponseBuilder(httpStatus)
+                .body(responseBody)
+                .header(HttpHeaders.CONTENT_TYPE, imagePNG)
+                .build()
+        }
+
+        // for css, js
+        fun httpResponseText(
+            request: HttpRequestMessage<String?>,
+            responseBody: String,
+            httpStatus: HttpStatus,
+            contentType: String,
+        ): HttpResponseMessage {
+            return request
+                .createResponseBuilder(httpStatus)
+                .body(responseBody)
+                .header(HttpHeaders.CONTENT_TYPE, contentType)
                 .build()
         }
 
