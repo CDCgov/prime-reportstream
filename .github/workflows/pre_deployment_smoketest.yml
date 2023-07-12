@@ -22,7 +22,24 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
           cache: 'gradle'
+
+      - name: Env setting
+        working-directory: prime-router
+        shell: bash
+        run: |
+          ./cleanslate.sh
+          export $(xargs < .vault/env/.env.local)
           
+      - name: Spin up containers
+        shell: bash
+        working-directory: prime-router
+        run: docker-compose -f docker-compose.postgres.yml up -d
+
+      - name: Build Prime Router Package
+        working-directory: prime-router
+        shell: bash
+        run: ./gradlew package -Pshowtests
+
       - name: Get runner ip
         id: runner_ip
         uses: ./.github/actions/runner-ip
@@ -44,29 +61,79 @@ jobs:
         run: |
           export POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_STAGING_PWD }};export POSTGRES_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require;export POSTGRES_USER=${{ secrets.POSTGRESQL_STG_ADMIN_USER }}
       
-      - name: Spin up containers
-        shell: bash
-        working-directory: prime-router
-        run: docker-compose -f docker-compose.build.yml up -d
+      - name: Spin up vault
+        timeout-minutes: 1
+        run: |
+          mkdir .vault/env
+          touch .vault/env/.env.local
+          docker-compose -f docker-compose.yml up -d vault
+          while [ ! -s .vault/env/.env.local ]; do sleep 1; done
+          echo "loaded env vars"
 
+      - name: Spin up containers
+        id: spin_containers
+        run: |
+          docker-compose -f docker-compose.yml up -d prime_dev sftp azurite
+          
       - name: Give some time for the container to start
         run: |
           echo "sleeping 30"
           sleep 30
           echo "wake up"
-          docker ps
-
+      
       - name: Load the configuration
-        working-directory: prime-router
-        shell: bash
         run: |
          ./gradlew reloadTables
          ./gradlew reloadSettings
+        
+      - name: Run Integration Tests
+        run: ./gradlew testIntegration -Pshowtests
 
-      - name: Build Prime Router Package
-        working-directory: prime-router
-        shell: bash
-        run: ./gradlew package -x fatjar -Pshowtests
+      - name: Correct sftp perms
+        run: docker-compose exec -T sftp chmod 777 /home/foo/upload
+
+      - name: Smoke tests
+        run: |
+          export $(xargs < .vault/env/.env.local)
+          ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
+          ./gradlew testSmoke
+
+      # - name: Run Smoke Test in Staging
+      #   #if: always()
+      #   shell: bash
+      #   working-directory: prime-router
+      #   run: ./prime test --env staging --key ${{ secrets.STG_API_KEY }}
+
+
+      - name: Remove Runner IP from Staging PostgreSql Firewall
+        if: always()
+        run: |
+            az postgres server firewall-rule delete --resource-group prime-data-hub-staging --server-name ${{ secrets.POSTGRESQL_STG_SERVER_NAME }} --name GHA --yes
+      
+
+
+
+
+
+
+
+
+
+
+          
+      - name: Dump docker logs
+        if: always()
+        uses: jwalton/gh-docker-logs@59c9656cd3cb7542525f3dce7ae2f44c0ff85d66
+        with:
+          images: 'prime-router_prime_dev,vault'
+
+      - name: Cleanup Gradle Cache
+        run: |
+          rm -f .gradle/caches/modules-2/modules-2.lock
+          rm -f .gradle/caches/modules-2/gc.properties
+
+
+
 
       # - name: Set up Node.js
       #   uses: actions/setup-node@v2
@@ -116,34 +183,7 @@ jobs:
       # npx --no-install puppeteer login.js
 
 
-      - name: Run Smoke Test in Staging
-        if: always()
-        shell: bash
-        working-directory: prime-router
-        run: ./prime test --env staging --key ${{ secrets.STG_API_KEY }}
-
-
-      - name: Remove Runner IP from Staging PostgreSql Firewall
-        run: |
-            az postgres server firewall-rule delete --resource-group prime-data-hub-staging --server-name ${{ secrets.POSTGRESQL_STG_SERVER_NAME }} --name GHA --yes
-      
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        # pre_job:
+              # pre_job:
   #   name: Pre Job
   #   runs-on: ubuntu-latest
   #   outputs:
