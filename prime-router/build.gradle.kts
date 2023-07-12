@@ -746,7 +746,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
-    implementation("com.azure:azure-core:1.35.0")
+    implementation("com.azure:azure-core:1.41.0")
     implementation("com.azure:azure-core-http-netty:1.13.5")
     implementation("com.azure:azure-storage-blob:12.22.3") {
         exclude(group = "com.azure", module = "azure-core")
@@ -832,9 +832,9 @@ dependencies {
     implementation("commons-io:commons-io: 2.13.0")
     implementation("com.anyascii:anyascii:0.3.2")
 // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
-    implementation("org.jsoup:jsoup:1.15.3")
+    implementation("org.jsoup:jsoup:1.16.1")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
-    implementation("io.swagger:swagger-annotations:1.6.10")
+    implementation("io.swagger:swagger-annotations:1.6.11")
     implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.8")
     // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
     implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
