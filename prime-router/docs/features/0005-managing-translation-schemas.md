@@ -4,8 +4,8 @@
 
 Translation schemas are used at multiple points in the universal pipeline
 
-- transforming items sent by senders
-- transforming items right before they are delivered to a receiver
+- transforming items sent by senders from their chosen format to ReportStream's internal FHIR format
+- transforming items from ReportStream's internal FHIR format to the chosen format of the receiver right before sending
 
 and cover different kinds of transforms:
 
@@ -95,7 +95,7 @@ Since the pipeline will now require reading several files out of the blob store 
 - Supports reading files from azure or from disk
 
 #### Cons
-- Need to support to different URI schemes
+- Need to support different URI schemes
 - Relies on pulling files out of azure which is slower than disk or the database
 - Requires more complicated error handling
 
@@ -105,14 +105,14 @@ The translation schemas break down into two categories:
 - translation schemas dedicated to a specific sender or receiver
   - one of them will typically be set in the `setting` for either the sender or receiver
 - translation schemas that are used across multiple senders or receivers across organizations
-    - for now, these will continue to be stored in the source code since changes here should be carefully rolled out
+    - for now, these will continue to be stored in the source code since changes here should be carefully rolled out and they are not subject to frequent changes
     - an example of this would be `ADT-01` directory
 
 ### Directory Structure
 
 Below is the directory structure that we would implement inside the azure blob store.  It includes the location of
-where common translation schemas used across organizations would go, but the current thought is whether (and which ones) they should exist in the blob
-store will be decided down the road since this design supports the file living in either location.  The largest change from the existing
+where common translation schemas used across organizations would go, but the current design states these should remain in the repository.
+The largest change from the existing
 directory structure is that a sample input and output file will be included in order to verify the translation schema works as expected.
 
 **Note: the `fhir_mapping` directory will be lifted exactly as is to azure since the directory structure is decided by the underlying library**
@@ -163,7 +163,7 @@ The workflow that will be employed to create or update translation schemas will 
 2. Developer makes changes to the translation schemas and their samples
 3. Developer verifies these changes by running the validation that asserts that running the translation schema with its sample input matches the sample output
 4. Developer syncs translation schemas to the staging azure container and a `validating.txt` file is created
-5. An azure function with a BlobTrigger on the existence of `validating.txt` and runs the same validation in staging
+5. An azure function with a BlobTrigger on the existence of `validating.txt` runs the same validation in staging
     - If the validation fails a page goes off and all files are rolled back to a previous version
 6. The `validating.txt` file is replaced with a `valid-{timestamp}.txt`
 7. The developer runs the GitHub action that syncs the staging and production azure containers performing the same validation
@@ -222,7 +222,7 @@ New GitHub action:
 
 Example of the flow with a sample directories that shows adding a new translation schema:
 
-1. Developer picks up ticket to create a new translation schema for Flexion
+1. Developer picks up ticket to create a new translation schema for Trusted Intermediary 
     <details>
       <summary>Local</summary>
    
