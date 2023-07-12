@@ -16,9 +16,9 @@ elements:
     value: [ '"CO"' ]
     valueSet:
       values:
-        tableName: "gender"
-        keyColumn: "code"
-        valueColumn: "display"
+        tableName: "zip-code-data"
+        keyColumn: "state"
+        valueColumn: "state_abbr"
       type: "lookupValueset"
 
   - name: observations
