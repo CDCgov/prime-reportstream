@@ -41,7 +41,7 @@ elements:
       and %resource.specimen.resolve().collection.collected.exists().not()
       and %resource.effective is dateTime
     bundleProperty: '%resource.specimen.resolve().receivedTime'
-    value: [ '%resource.effective - 894 seconds' ]
+    value: [ '%resource.effective + 6 seconds' ]
 
   - name: specimen-collection-time
     resource: 'Bundle.entry.resource.ofType(Specimen)'
