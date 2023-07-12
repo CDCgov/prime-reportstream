@@ -144,7 +144,7 @@ directory structure is that a sample input and output file will be included in o
                 ...
 ```
 
-### Creating/updating translation schemas
+### Creating/updating sender/receiver translation schemas
 
 The current process for creating or updating translation schemas provides a good guarantee that changes will work as expected
 and will not have any downstream impact since they exist in source code and integration tests guarantee the translation schemas are 
@@ -720,16 +720,46 @@ Example of the flow with a sample directories that shows adding a new translatio
         ```
     </details>
 
-### Validation
+#### Validation
 
 The initial validation will mimic how the current integration tests work.  Each translation schema will:
 
 - be checked to make sure it can be successfully
-- ran with its sample input and checked against its sample output
-  - failing translation schemas will be indicated in the output
+- ran with its sample input and checked against its sample output failing translation schemas will be indicated in the output
 
 Some follow-up improvements could include indicating which lines did not match between the sample output and produced value
 or what line was invalid in the schema.
+
+### Creating/updating translation schemas used across organizations
+
+These will continue to live in the source code and will only get updated as part of the application getting deployed.  Changes to these translation
+schemas will need to be handled very carefully and there will be two primary update paths.
+
+Non-breaking changes:
+
+These can be made by directly editing the file and opening a PR to merge update.
+
+Breaking changes:
+
+A breaking change will need to be handled differently as there is no longer a guarantee that an update to a translation schema in the source
+code will be updated synchronously with files that live azure.  In order to support this use case a versioning system will be introduced
+when required
+
+```
+/hl7_mapping
+    /ADT_A01
+      ADT-A01-base.yml
+      /v1
+        ADT-A01-base.yml
+```
+
+In the example above, the `/v1` directory contains a breaking change in the translation schema.  A developer would merge and deploy a PR
+that introduces the new version and then separately update all receivers schemas that consume it.
+
+#### Validation
+
+To make sure that a breaking change does not accidentally leak into the system, the CI build will be updated to sync the azure schemas from production
+and then run the validation CLI command, failing the build if validation does not pass.
 
 ## Operations
 
