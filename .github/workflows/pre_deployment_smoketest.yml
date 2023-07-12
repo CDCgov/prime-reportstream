@@ -5,13 +5,28 @@ on:
     branches:
       - "feature/automate-predeployment-smoketest"
 
+env:
+  # These are for CI and not credentials of any system
+  DB_USER: prime
+  DB_PASSWORD: changeIT!
+
 jobs:
+  pre_job:
+    name: Pre Job
+    runs-on: ubuntu-latest
+    outputs:
+      has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
+
   prime_router_smoketest:
     name: "Prepare the deployment branch and file a PR"
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: prime-router
+    needs: pre_job
     steps:
       - name: "Check out changes"
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
