@@ -1,0 +1,4 @@
+extends: ../default-sender-transform
+elements:
+  - name: software-vendor-name
+    condition: 'false'

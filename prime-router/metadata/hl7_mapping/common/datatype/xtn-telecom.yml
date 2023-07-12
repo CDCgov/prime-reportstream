@@ -79,9 +79,7 @@ elements:
     value: [ '%resource.extension(%`rsext-text`).value' ]
     hl7Spec: [ '%{hl7TelecomPath}-9' ]
 
-  # According to specs, XTN.12 should not be set if XTN.4 or XTN.7 are set
   - name: xtn-unformatted-text
-    condition: '%resource.value.exists() and %resource.system != "email" and
-     %resource.value.getPhoneNumberLocalNumber().exists().not()'
+    condition: '%resource.value.exists() and %resource.system != "email"'
     value: [ '%deidentifiedValue','%resource.value' ]
     hl7Spec: [ '%{hl7TelecomPath}-12' ]

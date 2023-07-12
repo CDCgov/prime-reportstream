@@ -147,6 +147,21 @@ elements:
       ceFieldPath: '%{hl7OBXField}-15'
     schema: ../../common/datatype/ce-coded-element
 
+  - name: observation-producer-id-identifier
+    resource: '%resource.extension(%`rsext-producer-id`).value.resolve()'
+    value: [ '%resource.identifier.value' ]
+    hl7Spec: [ '%{hl7OBXField}-15-1' ]
+
+  - name: observation-producer-id-text
+    resource: '%resource.extension(%`rsext-producer-id`).value.resolve()'
+    value: [ '%resource.name' ]
+    hl7Spec: [ '%{hl7OBXField}-15-2' ]
+
+  - name: observation-producer-id-system
+    resource: '%resource.extension(%`rsext-producer-id`).value.resolve().identifier.extension(%`rsext-coding-system`).value'
+    value: [ '%resource.coding.code' ]
+    hl7Spec: [ '%{hl7OBXField}-15-3' ]
+
   - name: responsible-observer
     resource: '%resource.performer.resolve().practitioner.resolve()'
     condition: '%resource.identifier.type.coding.code="responsibleObserver"'

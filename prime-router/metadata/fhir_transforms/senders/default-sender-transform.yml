@@ -17,6 +17,13 @@ elements:
     bundleProperty: '%resource.source.endpoint'
     value: [ '"urn:oid:2.16.840.1.114222.4.1.237821"' ]
 
+  # SFT-1-1
+  - name: software-vendor-name
+    condition: true
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).source.extension(%`rsext-software-vendor-org`)'
+    bundleProperty: '%resource.value.resolve().name'
+    value: [ '"Centers for Disease Control and Prevention"' ]
+
   - name: processing-id
     condition: 'Bundle.entry.resource.ofType(MessageHeader).meta.tag.code.empty()'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
