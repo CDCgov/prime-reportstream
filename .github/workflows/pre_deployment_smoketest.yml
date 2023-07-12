@@ -67,47 +67,50 @@ jobs:
       #   shell: bash
       #   run: ./gradlew package -x fatjar -Pshowtests
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
+      # - name: Set up Node.js
+      #   uses: actions/setup-node@v2
+      #   with:
+      #     node-version: '14'
 
-      - name: Install dependencies
-        run: npm install puppeteer
+      # - name: Install dependencies
+      #   run: npm install puppeteer
 
       - name: Login to Okta
-        env:
-          OKTA_USERNAME: ${{ secrets.OKTA_USERNAME }}
-          OKTA_PASSWORD: ${{ secrets.OKTA_PASSWORD }}
-        run: |
-          echo "
-          const puppeteer = require('puppeteer');
+        shell: bash
+        working-directory: prime-router
+        run: ./prime login --env staging --username ${{ secrets.OKTA_USERNAME }} --password ${{ secrets.OKTA_PASSWORD }}
+        # env:
+        #   OKTA_USERNAME: ${{ secrets.OKTA_USERNAME }}
+        #   OKTA_PASSWORD: ${{ secrets.OKTA_PASSWORD }}
+        # run: |
+        #   echo "
+        #   const puppeteer = require('puppeteer');
 
-          async function login() {
-            const browser = await puppeteer.launch();
-            const page = await browser.newPage();
-            await page.goto('https://${{ secrets.OKTA_DOMAIN }}');
+        #   async function login() {
+        #     const browser = await puppeteer.launch();
+        #     const page = await browser.newPage();
+        #     await page.goto('https://${{ secrets.OKTA_DOMAIN }}');
 
-            await page.waitForSelector('#okta-signin-username');
-            await page.type('#okta-signin-username', process.env.OKTA_USERNAME);
-            await page.type('#okta-signin-password', process.env.OKTA_PASSWORD);
-            await page.click('#okta-signin-submit');
+        #     await page.waitForSelector('#okta-signin-username');
+        #     await page.type('#okta-signin-username', process.env.OKTA_USERNAME);
+        #     await page.type('#okta-signin-password', process.env.OKTA_PASSWORD);
+        #     await page.click('#okta-signin-submit');
 
-            await page.waitForNavigation();
+        #     await page.waitForNavigation();
 
-            // You can perform further actions after successful login
-            // For example, retrieve user information
-            const userFullName = await page.evaluate(() => {
-              const fullNameElement = document.querySelector('.app-user-name');
-              return fullNameElement ? fullNameElement.textContent.trim() : null;
-            });
-            console.log('Logged in as:', userFullName);
+        #     // You can perform further actions after successful login
+        #     // For example, retrieve user information
+        #     const userFullName = await page.evaluate(() => {
+        #       const fullNameElement = document.querySelector('.app-user-name');
+        #       return fullNameElement ? fullNameElement.textContent.trim() : null;
+        #     });
+        #     console.log('Logged in as:', userFullName);
 
-            await browser.close();
-          }
+        #     await browser.close();
+        #   }
 
-          login();
-          " > login.js
+        #   login();
+        #   " > login.js
 
       # npx --no-install puppeteer login.js
 
