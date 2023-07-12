@@ -77,15 +77,19 @@ jobs:
           export POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_STAGING_PWD }};export POSTGRES_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require;export POSTGRES_USER=${{ secrets.POSTGRESQL_STG_ADMIN_USER }}
       
       - name: Spin up vault
+        working-directory: prime-router
+        shell: bash
         timeout-minutes: 1
         run: |
-          mkdir .vault/env
+          mkdir -p .vault/env
           touch .vault/env/.env.local
           docker-compose -f docker-compose.yml up -d vault
           while [ ! -s .vault/env/.env.local ]; do sleep 1; done
           echo "loaded env vars"
 
       - name: Spin up containers
+        working-directory: prime-router
+        shell: bash
         id: spin_containers
         run: |
           docker-compose -f docker-compose.yml up -d prime_dev sftp azurite
@@ -97,17 +101,25 @@ jobs:
           echo "wake up"
       
       - name: Load the configuration
+        working-directory: prime-router
+        shell: bash
         run: |
          ./gradlew reloadTables
          ./gradlew reloadSettings
         
       - name: Run Integration Tests
+        working-directory: prime-router
+        shell: bash
         run: ./gradlew testIntegration -Pshowtests
 
       - name: Correct sftp perms
+        working-directory: prime-router
+        shell: bash
         run: docker-compose exec -T sftp chmod 777 /home/foo/upload
 
       - name: Smoke tests
+        working-directory: prime-router
+        shell: bash
         run: |
           export $(xargs < .vault/env/.env.local)
           ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
