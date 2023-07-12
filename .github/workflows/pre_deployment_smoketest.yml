@@ -116,6 +116,7 @@ jobs:
 
 
       - name: Run Smoke Test in Staging
+        if: always()
         shell: bash
         working-directory: prime-router
         run: ./prime test --env staging --key ${{ secrets.STG_API_KEY }}
