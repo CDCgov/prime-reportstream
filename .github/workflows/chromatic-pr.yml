@@ -26,12 +26,10 @@ jobs:
         id: set_vars
         run: |
           diff_output=$(git diff --name-only)
-
           while IFS= read -r filename; do
-            # Check if the substring exists in the filename
+            
             if [[ $filename == *__chromatic-sync* ]]; then
-              echo "Substring found in $filename"
-              echo "chromatic=true" >> $GITHUB_ENV
+              echo "chromatic=true" >> $GITHUB_OUTPUT
               break
             fi
           done <<< "$diff_output"
