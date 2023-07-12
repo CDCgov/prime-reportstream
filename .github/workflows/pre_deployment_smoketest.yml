@@ -38,6 +38,8 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
 
+      - uses: gradle/wrapper-validation-action@8d49e559aae34d3e0eb16cde532684bc9702762b
+
       # - name: Env setting
       #   working-directory: prime-router
       #   shell: bash
