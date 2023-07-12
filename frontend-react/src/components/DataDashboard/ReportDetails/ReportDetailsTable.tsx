@@ -31,23 +31,11 @@ function ReportDetailsTable(props: ReportDetailsTableProps) {
 
     const tableConfig: TableConfig = {
         columns: [
-            {
-                dataAttr: "provider",
-                columnHeader: "Ordering provider",
-            },
-            {
-                dataAttr: "facility",
-                columnHeader: "Performing facility",
-            },
-            {
-                dataAttr: "submitter",
-                columnHeader: "Submitter",
-            },
-            { dataAttr: "total", columnHeader: "Test results" },
-            {
-                dataAttr: "collectionDate",
-                columnHeader: "Specimen collection date",
-            },
+            { dataAttr: "facility", columnHeader: "Facility" },
+            { dataAttr: "location", columnHeader: "Location" },
+            { dataAttr: "CLIA", columnHeader: "CLIA" },
+            { dataAttr: "total", columnHeader: "Total tests" },
+            { dataAttr: "positive", columnHeader: "Total positive" },
         ],
         rows: reportFacilities!!,
     };
