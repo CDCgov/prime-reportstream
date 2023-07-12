@@ -21,6 +21,7 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
+import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.unmockkAll
@@ -447,13 +448,10 @@ class FhirTransformerTests {
         )
         val testLookupTable = LookupTable(name = "table", table = testTable)
 
-        val simpleMetadata = UnitTestUtils.simpleMetadata
+        mockkConstructor(Metadata::class)
+        every { anyConstructed<Metadata>().findLookupTable(any()) } returns testLookupTable
         mockkObject(Metadata.Companion)
-        every { Metadata.Companion.getInstance() } returns simpleMetadata
-        val metadata = spyk(simpleMetadata)
-        every { metadata.findLookupTable(any()) } returns testLookupTable
-        val mockMetadata = mockkClass(Metadata::class)
-        every { mockMetadata.findLookupTable(any()) } returns testLookupTable
+        every { Metadata.Companion.getInstance() } returns UnitTestUtils.simpleMetadata
 
         val bundle = Bundle()
         bundle.id = "bundle1"
