@@ -71,7 +71,7 @@ Steps for migrating:
     - Fallback to the existing behavior if it is not a valid URI (i.e. we're resolving an old translation schema with relative paths)
 2. Update all the translation schema references (i.e. `extends`, `schemaRef`, `schemaName`, etc.) in the existing translation schemas and settings to reference absolute paths as URLs
     - `schema: ../common/patient` -> `schema: file:///{BASE_DIR}/metadata/hl7_mapping/common/patient.yml`
-3. Update translation schemas to reference azure blobs (i.e `azure:///{AZURE_STORAGE_LOCATION}/metadata/hl7_mapping/common/patient.yml`) and upload translation schemas to azure blob service
+3. Update all receiver/sender translation schemas to reference azure blobs (i.e `azure:///{AZURE_STORAGE_LOCATION}/metadata/hl7_mapping/common/patient.yml`) and upload translation schemas to azure blob service
 4. Update all UP sender and receivers to reference the azure translation schema
 
 During the migration process, it would make sense to all take another look at the directory structure and names to make sure they make sense moving forward.
