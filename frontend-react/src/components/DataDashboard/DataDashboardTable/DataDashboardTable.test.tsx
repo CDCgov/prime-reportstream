@@ -107,7 +107,7 @@ describe("DataDashboardTable", () => {
 
 describe("DataDashboardTableWithPagination", () => {
     describe("when enabled", () => {
-        describe("with receiver services and data", () => {
+        describe("with multiple receiver services and data", () => {
             beforeEach(() => {
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: mockActiveReceiver,
@@ -178,6 +178,38 @@ describe("DataDashboardTableWithPagination", () => {
                         },
                     });
                 });
+            });
+        });
+
+        describe("with one receiver services", () => {
+            beforeEach(() => {
+                mockUseOrganizationReceiversFeed.mockReturnValue({
+                    activeService: mockActiveReceiver,
+                    loadingServices: false,
+                    services: receiverServicesGenerator(1),
+                    setActiveService: () => {},
+                    isDisabled: false,
+                });
+
+                const mockUseReceiverDeliveriesCallback = {
+                    fetchResults: makeRSReceiverDeliveryResponseFixture(101),
+                    filterManager: mockFilterManager,
+                    isDeliveriesLoading: false,
+                };
+                mockUseReceiverDeliveries.mockReturnValue(
+                    mockUseReceiverDeliveriesCallback
+                );
+
+                // Render the component
+                renderApp(<DataDashboardTable />);
+            });
+
+            test("renders the receiver service", () => {
+                expect(screen.queryByRole("select")).not.toBeInTheDocument();
+                expect(
+                    screen.getByText("Receiver service:")
+                ).toBeInTheDocument();
+                expect(screen.getByText("ELR-0")).toBeInTheDocument();
             });
         });
 
