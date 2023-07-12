@@ -2,13 +2,14 @@
   "resourceType" : "Bundle",
   "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
   "meta" : {
-    "lastUpdated" : "2023-01-24T10:23:00.679-08:00"
+    "lastUpdated" : "2023-07-12T15:27:24.178-04:00"
   },
   "identifier" : {
+    "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "MT_COCAA_ORU_AAPHELR.1.6214638"
   },
   "type" : "message",
-  "timestamp" : "2028-08-08T08:28:05.000-07:00",
+  "timestamp" : "2028-08-08T11:28:05.000-04:00",
   "entry" : [ {
     "fullUrl" : "MessageHeader/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
@@ -24,6 +25,17 @@
           "code" : "P"
         } ]
       },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
+        "valueIdentifier" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+            "valueOid" : "urn:oid:2.16.840.1.113883.9.11"
+          } ],
+          "system" : "urn:id:HL7",
+          "value" : "PHLabReport-NoAck"
+        }
+      } ],
       "eventCoding" : {
         "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
         "code" : "R01",
@@ -185,6 +197,17 @@
           "code" : "P"
         } ]
       },
+      "target" : [ {
+        "reference" : "DiagnosticReport/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      }, {
+        "reference" : "DiagnosticReport/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      }, {
+        "reference" : "DiagnosticReport/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      }, {
+        "reference" : "DiagnosticReport/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      }, {
+        "reference" : "DiagnosticReport/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      } ],
       "recorded" : "2028-08-08T09:28:05-06:00",
       "activity" : {
         "coding" : [ {
@@ -291,8 +314,12 @@
         "valueString" : "1.1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "MCOE"
+          } ],
+          "text" : "ROSE MEDICAL CENTER (MCOE)"
         }
       } ],
       "identifier" : [ {
@@ -320,7 +347,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "600-7"
         } ],
         "text" : "Bacteria identified in Blood by Culture"
@@ -470,35 +496,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "MCOE"
-      } ],
-      "name" : "ROSE MEDICAL CENTER (MCOE)"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -518,8 +515,12 @@
         "valueString" : "1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "MCOE"
+          } ],
+          "text" : "ROSE MEDICAL CENTER (MCOE)"
         }
       } ],
       "identifier" : [ {
@@ -547,7 +548,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "600-7"
         } ],
         "text" : "Bacteria identified in Blood by Culture"
@@ -722,35 +722,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "MCOE"
-      } ],
-      "name" : "ROSE MEDICAL CENTER (MCOE)"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -770,8 +741,12 @@
         "valueString" : "2"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "MCOE"
+          } ],
+          "text" : "ROSE MEDICAL CENTER (MCOE)"
         }
       } ],
       "identifier" : [ {
@@ -799,7 +774,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "600-7"
         } ],
         "text" : "Bacteria identified in Blood by Culture"
@@ -856,7 +830,6 @@
             } ],
             "coding" : [ {
               "system" : "HL70364",
-              "version" : "L",
               "code" : "RE"
             } ],
             "text" : "Remark"
@@ -1006,35 +979,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "MCOE"
-      } ],
-      "name" : "ROSE MEDICAL CENTER (MCOE)"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -1054,8 +998,12 @@
         "valueString" : "1.1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "RML"
+          } ],
+          "text" : "TMCA, SOUTH CAMPUS"
         }
       } ],
       "identifier" : [ {
@@ -1083,7 +1031,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "600-7"
         } ],
         "text" : "Bacteria identified in Blood by Culture"
@@ -1248,35 +1195,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "RML"
-      } ],
-      "name" : "TMCA, SOUTH CAMPUS"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -1296,8 +1214,12 @@
         "valueString" : "2.1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "RML"
+          } ],
+          "text" : "TMCA, SOUTH CAMPUS"
         }
       } ],
       "identifier" : [ {
@@ -1479,35 +1401,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "RML"
-      } ],
-      "name" : "TMCA, SOUTH CAMPUS"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -1527,8 +1420,12 @@
         "valueString" : "2.2"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "RML"
+          } ],
+          "text" : "TMCA, SOUTH CAMPUS"
         }
       } ],
       "identifier" : [ {
@@ -1718,35 +1615,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "RML"
-      } ],
-      "name" : "TMCA, SOUTH CAMPUS"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -1766,8 +1634,12 @@
         "valueString" : "2.3"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "RML"
+          } ],
+          "text" : "TMCA, SOUTH CAMPUS"
         }
       } ],
       "identifier" : [ {
@@ -1949,35 +1821,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "RML"
-      } ],
-      "name" : "TMCA, SOUTH CAMPUS"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -1997,8 +1840,12 @@
         "valueString" : "2.4"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "RML"
+          } ],
+          "text" : "TMCA, SOUTH CAMPUS"
         }
       } ],
       "identifier" : [ {
@@ -2188,35 +2035,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "RML"
-      } ],
-      "name" : "TMCA, SOUTH CAMPUS"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -2236,8 +2054,12 @@
         "valueString" : "2.5"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "RML"
+          } ],
+          "text" : "TMCA, SOUTH CAMPUS"
         }
       } ],
       "identifier" : [ {
@@ -2419,35 +2241,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "RML"
-      } ],
-      "name" : "TMCA, SOUTH CAMPUS"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -2464,8 +2257,12 @@
       },
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "RML"
+          } ],
+          "text" : "TMCA, SOUTH CAMPUS"
         }
       } ],
       "identifier" : [ {
@@ -2493,7 +2290,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "600-7"
         } ],
         "text" : "Bacteria identified in Blood by Culture"
@@ -2532,7 +2328,6 @@
             } ],
             "coding" : [ {
               "system" : "HL70364",
-              "version" : "L",
               "code" : "RE"
             } ],
             "text" : "Remark"
@@ -2697,35 +2492,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "RML"
-      } ],
-      "name" : "TMCA, SOUTH CAMPUS"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -2745,8 +2511,12 @@
         "valueString" : "1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "RML"
+          } ],
+          "text" : "TMCA, SOUTH CAMPUS"
         }
       } ],
       "identifier" : [ {
@@ -2774,7 +2544,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "77202-0"
         } ],
         "text" : "Laboratory comment [Text] in Report Narrative"
@@ -2945,35 +2714,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "RML"
-      } ],
-      "name" : "TMCA, SOUTH CAMPUS"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -2993,8 +2733,12 @@
         "valueString" : "1.1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "RML"
+          } ],
+          "text" : "TMCA, SOUTH CAMPUS"
         }
       } ],
       "identifier" : [ {
@@ -3022,7 +2766,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "77202-0"
         } ],
         "text" : "Laboratory comment [Text] in Report Narrative"
@@ -3187,35 +2930,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "RML"
-      } ],
-      "name" : "TMCA, SOUTH CAMPUS"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -3235,8 +2949,12 @@
         "valueString" : "1.1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "RML"
+          } ],
+          "text" : "TMCA, SOUTH CAMPUS"
         }
       } ],
       "identifier" : [ {
@@ -3264,7 +2982,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "77202-0"
         } ],
         "text" : "Laboratory comment [Text] in Report Narrative"
@@ -3429,35 +3146,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "RML"
-      } ],
-      "name" : "TMCA, SOUTH CAMPUS"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -3477,8 +3165,12 @@
         "valueString" : "1.1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "RML"
+          } ],
+          "text" : "TMCA, SOUTH CAMPUS"
         }
       } ],
       "identifier" : [ {
@@ -3506,7 +3198,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "77202-0"
         } ],
         "text" : "Laboratory comment [Text] in Report Narrative"
@@ -3670,35 +3361,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "RML"
-      } ],
-      "name" : "TMCA, SOUTH CAMPUS"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -3718,8 +3380,12 @@
         "valueString" : "1.1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "RML"
+          } ],
+          "text" : "TMCA, SOUTH CAMPUS"
         }
       } ],
       "identifier" : [ {
@@ -3747,7 +3413,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "77202-0"
         } ],
         "text" : "Laboratory comment [Text] in Report Narrative"
@@ -3912,35 +3577,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "RML"
-      } ],
-      "name" : "TMCA, SOUTH CAMPUS"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -3960,8 +3596,12 @@
         "valueString" : "1.1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "RML"
+          } ],
+          "text" : "TMCA, SOUTH CAMPUS"
         }
       } ],
       "identifier" : [ {
@@ -3989,7 +3629,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "77202-0"
         } ],
         "text" : "Laboratory comment [Text] in Report Narrative"
@@ -4154,35 +3793,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "RML"
-      } ],
-      "name" : "TMCA, SOUTH CAMPUS"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -4202,8 +3812,12 @@
         "valueString" : "1.1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "RML"
+          } ],
+          "text" : "TMCA, SOUTH CAMPUS"
         }
       } ],
       "identifier" : [ {
@@ -4231,7 +3845,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "77202-0"
         } ],
         "text" : "Laboratory comment [Text] in Report Narrative"
@@ -4396,35 +4009,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "RML"
-      } ],
-      "name" : "TMCA, SOUTH CAMPUS"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -4444,8 +4028,12 @@
         "valueString" : "1.1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "RML"
+          } ],
+          "text" : "TMCA, SOUTH CAMPUS"
         }
       } ],
       "identifier" : [ {
@@ -4473,7 +4061,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "77202-0"
         } ],
         "text" : "Laboratory comment [Text] in Report Narrative"
@@ -4638,35 +4225,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "RML"
-      } ],
-      "name" : "TMCA, SOUTH CAMPUS"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -4686,8 +4244,12 @@
         "valueString" : "1.1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "RML"
+          } ],
+          "text" : "TMCA, SOUTH CAMPUS"
         }
       } ],
       "identifier" : [ {
@@ -4715,7 +4277,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "77202-0"
         } ],
         "text" : "Laboratory comment [Text] in Report Narrative"
@@ -4880,35 +4441,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "RML"
-      } ],
-      "name" : "TMCA, SOUTH CAMPUS"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -4928,8 +4460,12 @@
         "valueString" : "1.1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "RML"
+          } ],
+          "text" : "TMCA, SOUTH CAMPUS"
         }
       } ],
       "identifier" : [ {
@@ -4957,7 +4493,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "77202-0"
         } ],
         "text" : "Laboratory comment [Text] in Report Narrative"
@@ -5122,35 +4657,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "RML"
-      } ],
-      "name" : "TMCA, SOUTH CAMPUS"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -5180,7 +4686,6 @@
           } ],
           "coding" : [ {
             "system" : "http://unitsofmeasure.org",
-            "version" : "L",
             "code" : "ug/mL"
           } ],
           "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
@@ -5190,8 +4695,12 @@
         "valueString" : "1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "MCOE"
+          } ],
+          "text" : "ROSE MEDICAL CENTER (MCOE)"
         }
       } ],
       "identifier" : [ {
@@ -5212,7 +4721,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "35788-9"
         } ],
         "text" : "DAPTOmycin [Susceptibility] by Minimum inhibitory concentration (MIC)"
@@ -5248,7 +4756,6 @@
               } ],
               "coding" : [ {
                 "system" : "http://unitsofmeasure.org",
-                "version" : "L",
                 "code" : "ug/mL"
               } ],
               "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
@@ -5276,7 +4783,6 @@
               } ],
               "coding" : [ {
                 "system" : "http://unitsofmeasure.org",
-                "version" : "L",
                 "code" : "ug/mL"
               } ],
               "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
@@ -5429,35 +4935,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "MCOE"
-      } ],
-      "name" : "ROSE MEDICAL CENTER (MCOE)"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -5487,7 +4964,6 @@
           } ],
           "coding" : [ {
             "system" : "http://unitsofmeasure.org",
-            "version" : "L",
             "code" : "ug/mL"
           } ],
           "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
@@ -5497,8 +4973,12 @@
         "valueString" : "1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "MCOE"
+          } ],
+          "text" : "ROSE MEDICAL CENTER (MCOE)"
         }
       } ],
       "identifier" : [ {
@@ -5526,7 +5006,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "28-1"
         } ],
         "text" : "Ampicillin [Susceptibility] by Minimum inhibitory concentration (MIC)"
@@ -5562,7 +5041,6 @@
               } ],
               "coding" : [ {
                 "system" : "http://unitsofmeasure.org",
-                "version" : "L",
                 "code" : "ug/mL"
               } ],
               "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
@@ -5590,7 +5068,6 @@
               } ],
               "coding" : [ {
                 "system" : "http://unitsofmeasure.org",
-                "version" : "L",
                 "code" : "ug/mL"
               } ],
               "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
@@ -5743,35 +5220,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "MCOE"
-      } ],
-      "name" : "ROSE MEDICAL CENTER (MCOE)"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -5801,7 +5249,6 @@
           } ],
           "coding" : [ {
             "system" : "http://unitsofmeasure.org",
-            "version" : "L",
             "code" : "ug/mL"
           } ],
           "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
@@ -5811,8 +5258,12 @@
         "valueString" : "1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "MCOE"
+          } ],
+          "text" : "ROSE MEDICAL CENTER (MCOE)"
         }
       } ],
       "identifier" : [ {
@@ -5840,7 +5291,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "7018-5"
         } ],
         "text" : "Gentamicin.high potency [Susceptibility] by Minimum inhibitory concentration (MIC)"
@@ -5998,35 +5448,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "MCOE"
-      } ],
-      "name" : "ROSE MEDICAL CENTER (MCOE)"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -6056,7 +5477,6 @@
           } ],
           "coding" : [ {
             "system" : "http://unitsofmeasure.org",
-            "version" : "L",
             "code" : "ug/mL"
           } ],
           "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
@@ -6066,8 +5486,12 @@
         "valueString" : "1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "MCOE"
+          } ],
+          "text" : "ROSE MEDICAL CENTER (MCOE)"
         }
       } ],
       "identifier" : [ {
@@ -6095,7 +5519,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "29254-0"
         } ],
         "text" : "Linezolid [Susceptibility] by Minimum inhibitory concentration (MIC)"
@@ -6131,7 +5554,6 @@
               } ],
               "coding" : [ {
                 "system" : "http://unitsofmeasure.org",
-                "version" : "L",
                 "code" : "ug/mL"
               } ],
               "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
@@ -6159,7 +5581,6 @@
               } ],
               "coding" : [ {
                 "system" : "http://unitsofmeasure.org",
-                "version" : "L",
                 "code" : "ug/mL"
               } ],
               "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
@@ -6312,35 +5733,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "MCOE"
-      } ],
-      "name" : "ROSE MEDICAL CENTER (MCOE)"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -6370,7 +5762,6 @@
           } ],
           "coding" : [ {
             "system" : "http://unitsofmeasure.org",
-            "version" : "L",
             "code" : "ug/mL"
           } ],
           "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
@@ -6380,8 +5771,12 @@
         "valueString" : "1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "MCOE"
+          } ],
+          "text" : "ROSE MEDICAL CENTER (MCOE)"
         }
       } ],
       "identifier" : [ {
@@ -6409,7 +5804,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "6933-6"
         } ],
         "text" : "Streptomycin.high potency [Susceptibility] by Minimum inhibitory concentration (MIC)"
@@ -6567,35 +5961,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "MCOE"
-      } ],
-      "name" : "ROSE MEDICAL CENTER (MCOE)"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -6625,7 +5990,6 @@
           } ],
           "coding" : [ {
             "system" : "http://unitsofmeasure.org",
-            "version" : "L",
             "code" : "ug/mL"
           } ],
           "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
@@ -6635,8 +5999,12 @@
         "valueString" : "1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "MCOE"
+          } ],
+          "text" : "ROSE MEDICAL CENTER (MCOE)"
         }
       } ],
       "identifier" : [ {
@@ -6664,7 +6032,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "19000-9"
         } ],
         "text" : "Vancomycin [Susceptibility]"
@@ -6700,7 +6067,6 @@
               } ],
               "coding" : [ {
                 "system" : "http://unitsofmeasure.org",
-                "version" : "L",
                 "code" : "ug/mL"
               } ],
               "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
@@ -6726,7 +6092,6 @@
               } ],
               "coding" : [ {
                 "system" : "http://unitsofmeasure.org",
-                "version" : "L",
                 "code" : "ug/mL"
               } ],
               "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
@@ -6875,35 +6240,6 @@
           "code" : "MDIR"
         } ]
       } ]
-    }
-  }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "MCOE"
-      } ],
-      "name" : "ROSE MEDICAL CENTER (MCOE)"
     }
   }, {
     "fullUrl" : "Specimen/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
@@ -7334,7 +6670,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "600-7"
         } ],
         "text" : "Bacteria identified in Blood by Culture"
@@ -7692,7 +7027,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "600-7"
         } ],
         "text" : "Bacteria identified in Blood by Culture"
@@ -7724,7 +7058,6 @@
         } ],
         "coding" : [ {
           "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-          "version" : "I10",
           "code" : "R6521"
         } ],
         "text" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
@@ -7745,7 +7078,6 @@
             } ],
             "coding" : [ {
               "system" : "HL70364",
-              "version" : "L",
               "code" : "RE"
             } ],
             "text" : "Remark"
@@ -7859,7 +7191,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "600-7"
         } ],
         "text" : "Bacteria identified in Blood by Culture"
@@ -8225,7 +7556,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "600-7"
         } ],
         "text" : "Bacteria identified in Blood by Culture"
@@ -8257,7 +7587,6 @@
         } ],
         "coding" : [ {
           "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-          "version" : "I10",
           "code" : "R6521"
         } ],
         "text" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
@@ -8278,7 +7607,6 @@
             } ],
             "coding" : [ {
               "system" : "HL70364",
-              "version" : "L",
               "code" : "RE"
             } ],
             "text" : "Remark"
@@ -8392,7 +7720,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "77202-0"
         } ],
         "text" : "Laboratory comment [Text] in Report Narrative"
@@ -8764,7 +8091,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "77202-0"
         } ],
         "text" : "Laboratory comment [Text] in Report Narrative"
@@ -8796,7 +8122,6 @@
         } ],
         "coding" : [ {
           "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-          "version" : "I10",
           "code" : "R6521"
         } ],
         "text" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
@@ -8817,7 +8142,6 @@
             } ],
             "coding" : [ {
               "system" : "HL70364",
-              "version" : "L",
               "code" : "RE"
             } ],
             "text" : "Remark"
@@ -8898,7 +8222,6 @@
           } ],
           "coding" : [ {
             "system" : "http://loinc.org",
-            "version" : "L",
             "code" : "600-7"
           } ]
         },
@@ -8931,7 +8254,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "50545-3"
         } ],
         "text" : "Bacterial susceptibility panel by Minimum inhibitory concentration (MIC)"
@@ -9188,7 +8510,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "50545-3"
         } ],
         "text" : "Bacterial susceptibility panel by Minimum inhibitory concentration (MIC)"
@@ -9212,7 +8533,6 @@
         } ],
         "coding" : [ {
           "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-          "version" : "I10",
           "code" : "R6521"
         } ],
         "text" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
@@ -9282,7 +8602,6 @@
           } ],
           "coding" : [ {
             "system" : "http://loinc.org",
-            "version" : "L",
             "code" : "600-7"
           } ]
         },
@@ -9585,7 +8904,6 @@
         } ],
         "coding" : [ {
           "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-          "version" : "I10",
           "code" : "R6521"
         } ],
         "text" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
@@ -9644,7 +8962,6 @@
           } ],
           "coding" : [ {
             "system" : "http://terminology.hl7.org/CodeSystem/v3-Race",
-            "version" : "L",
             "code" : "2106-3"
           } ],
           "text" : "White"
@@ -9667,7 +8984,6 @@
               } ],
               "coding" : [ {
                 "system" : "HL70364",
-                "version" : "L",
                 "code" : "RE"
               } ],
               "text" : "Remark"
@@ -9698,7 +9014,6 @@
           } ],
           "coding" : [ {
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0189",
-            "version" : "L",
             "code" : "N"
           } ],
           "text" : "Not Hispanic or Latino"
@@ -9718,7 +9033,6 @@
           } ],
           "coding" : [ {
             "system" : "http://snomed.info/sct",
-            "version" : "L",
             "code" : "337915000"
           } ],
           "text" : "Homo sapiens (organism)"
@@ -9850,7 +9164,6 @@
           } ],
           "coding" : [ {
             "system" : "HL70063",
-            "version" : "L",
             "code" : "OTH"
           } ],
           "text" : "Other"

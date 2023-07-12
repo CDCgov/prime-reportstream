@@ -2,13 +2,14 @@
   "resourceType" : "Bundle",
   "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
   "meta" : {
-    "lastUpdated" : "2023-01-24T10:24:04.258-08:00"
+    "lastUpdated" : "2023-07-12T16:29:58.554-04:00"
   },
   "identifier" : {
+    "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "MT_COCNB_ORU_NBPHELR.1.5348467"
   },
   "type" : "message",
-  "timestamp" : "2022-08-03T03:07:05.000-07:00",
+  "timestamp" : "2022-08-03T06:07:05.000-04:00",
   "entry" : [ {
     "fullUrl" : "MessageHeader/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
@@ -24,6 +25,17 @@
           "code" : "P"
         } ]
       },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
+        "valueIdentifier" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+            "valueOid" : "urn:oid:2.16.840.1.113883.9.11"
+          } ],
+          "system" : "urn:id:HL7",
+          "value" : "PHLabReport-NoAck"
+        }
+      } ],
       "eventCoding" : {
         "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
         "code" : "R01",
@@ -76,6 +88,14 @@
       },
       "identifier" : [ {
         "value" : "North Suburban Medical Center"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0301",
+            "code" : "CLIA"
+          } ]
+        },
+        "value" : "urn:clia:06D0514637"
       } ]
     }
   }, {
@@ -184,6 +204,13 @@
           "code" : "P"
         } ]
       },
+      "target" : [ {
+        "reference" : "DiagnosticReport/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      }, {
+        "reference" : "DiagnosticReport/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      }, {
+        "reference" : "DiagnosticReport/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      } ],
       "recorded" : "2022-08-03T04:07:05-06:00",
       "activity" : {
         "coding" : [ {
@@ -281,9 +308,7 @@
         "valueString" : "1.1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-        }
+        "valueCodeableConcept" : { }
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
@@ -310,7 +335,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "41458-1"
         } ],
         "text" : "SARS coronavirus RNA[Presence] in Specimen by NAA with probe detection"
@@ -493,22 +517,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      }
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -528,9 +536,7 @@
         "valueString" : "1.1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-        }
+        "valueCodeableConcept" : { }
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
@@ -557,7 +563,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "34487-9"
         } ],
         "text" : "Influenza virus A RNA [Presence] in Unspecified specimen by NAA with probe detection"
@@ -734,22 +739,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      }
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -769,9 +758,7 @@
         "valueString" : "1.1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-        }
+        "valueCodeableConcept" : { }
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
@@ -798,7 +785,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "40982-1"
         } ],
         "text" : "Influenza virus B RNA [Presence] in Unspecified specimen by NAA with probe detection"
@@ -973,22 +959,6 @@
           "code" : "MDIR"
         } ]
       } ]
-    }
-  }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      }
     }
   }, {
     "fullUrl" : "Specimen/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
@@ -1295,7 +1265,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -1586,7 +1555,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -1688,7 +1656,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "34487-9"
         } ],
         "text" : "Influenza virus A RNA [Presence] in Unspecified specimen by NAA with probe detection"
@@ -1967,7 +1934,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "34487-9"
         } ],
         "text" : "Influenza virus A RNA [Presence] in Unspecified specimen by NAA with probe detection"
@@ -2069,7 +2035,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "40982-1"
         } ],
         "text" : "Influenza virus B RNA [Presence] in Unspecified specimen by NAA with probe detection"
@@ -2348,7 +2313,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "40982-1"
         } ],
         "text" : "Influenza virus B RNA [Presence] in Unspecified specimen by NAA with probe detection"
@@ -2423,7 +2387,6 @@
           } ],
           "coding" : [ {
             "system" : "http://snomed.info/sct",
-            "version" : "L",
             "code" : "337915000"
           } ],
           "text" : "Homo sapiens (organism)"
@@ -2526,7 +2489,6 @@
           } ],
           "coding" : [ {
             "system" : "UNKNOWN",
-            "version" : "L",
             "code" : "SO"
           } ],
           "text" : "SON"

@@ -2,13 +2,14 @@
   "resourceType" : "Bundle",
   "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
   "meta" : {
-    "lastUpdated" : "2023-01-24T10:23:28.820-08:00"
+    "lastUpdated" : "2023-07-12T16:26:52.220-04:00"
   },
   "identifier" : {
+    "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "MT_COCSR_ORU_SRPHELR.1.4978157"
   },
   "type" : "message",
-  "timestamp" : "2028-08-02T06:34:21.000-07:00",
+  "timestamp" : "2028-08-02T09:34:21.000-04:00",
   "entry" : [ {
     "fullUrl" : "MessageHeader/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
@@ -24,6 +25,17 @@
           "code" : "P"
         } ]
       },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
+        "valueIdentifier" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+            "valueOid" : "urn:oid:2.16.840.1.113883.9.11"
+          } ],
+          "system" : "urn:id:HL7",
+          "value" : "PHLabReport-NoAck"
+        }
+      } ],
       "eventCoding" : {
         "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
         "code" : "R01",
@@ -146,6 +158,11 @@
           "code" : "P"
         } ]
       },
+      "target" : [ {
+        "reference" : "DiagnosticReport/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      }, {
+        "reference" : "DiagnosticReport/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      } ],
       "recorded" : "2028-08-02T07:34:21-06:00",
       "activity" : {
         "coding" : [ {
@@ -243,8 +260,12 @@
         "valueString" : "1.1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -272,7 +293,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -434,35 +454,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -482,8 +473,12 @@
         "valueString" : "1.2"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -511,7 +506,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -673,35 +667,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -721,8 +686,12 @@
         "valueString" : "1.3"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -750,7 +719,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -912,35 +880,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -960,8 +899,12 @@
         "valueString" : "1.4"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -989,7 +932,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -1151,35 +1093,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -1199,8 +1112,12 @@
         "valueString" : "1.5"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -1228,7 +1145,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -1390,35 +1306,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -1438,8 +1325,12 @@
         "valueString" : "1.6"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -1467,7 +1358,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -1629,35 +1519,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -1677,8 +1538,12 @@
         "valueString" : "1.7"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -1706,7 +1571,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -1868,35 +1732,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -1916,8 +1751,12 @@
         "valueString" : "1.8"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -1945,7 +1784,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -2107,35 +1945,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -2155,8 +1964,12 @@
         "valueString" : "1.9"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -2184,7 +1997,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -2346,35 +2158,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -2394,8 +2177,12 @@
         "valueString" : "1.10"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -2423,7 +2210,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -2585,35 +2371,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -2633,8 +2390,12 @@
         "valueString" : "1.11"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -2662,7 +2423,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -2824,35 +2584,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -2872,8 +2603,12 @@
         "valueString" : "1.12"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -2901,7 +2636,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -3063,35 +2797,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -3111,8 +2816,12 @@
         "valueString" : "1.13"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -3140,7 +2849,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -3301,35 +3009,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -3349,8 +3028,12 @@
         "valueString" : "1.14"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -3378,7 +3061,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -3540,35 +3222,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -3588,8 +3241,12 @@
         "valueString" : "1.15"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -3617,7 +3274,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -3779,35 +3435,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -3827,8 +3454,12 @@
         "valueString" : "1.16"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -3856,7 +3487,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -4018,35 +3648,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -4066,8 +3667,12 @@
         "valueString" : "1.17"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -4095,7 +3700,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -4257,35 +3861,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -4305,8 +3880,12 @@
         "valueString" : "1.18"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -4334,7 +3913,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -4496,35 +4074,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -4544,8 +4093,12 @@
         "valueString" : "1.19"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -4573,7 +4126,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -4735,35 +4287,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -4783,8 +4306,12 @@
         "valueString" : "1.20"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -4812,7 +4339,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -4974,35 +4500,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -5022,8 +4519,12 @@
         "valueString" : "1.21"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -5051,7 +4552,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -5213,35 +4713,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -5261,8 +4732,12 @@
         "valueString" : "1.22"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -5290,7 +4765,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -5452,35 +4926,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -5500,8 +4945,12 @@
         "valueString" : "1.23"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -5529,7 +4978,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -5690,35 +5138,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -5738,8 +5157,12 @@
         "valueString" : "1.24"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -5767,7 +5190,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -5929,35 +5351,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -5977,8 +5370,12 @@
         "valueString" : "1.25"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -6006,7 +5403,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -6168,35 +5564,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -6216,8 +5583,12 @@
         "valueString" : "1.26"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -6245,7 +5616,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -6407,35 +5777,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -6455,8 +5796,12 @@
         "valueString" : "1.27"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -6484,7 +5829,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -6646,35 +5990,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -6694,8 +6009,12 @@
         "valueString" : "1.28"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -6723,7 +6042,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -6885,35 +6203,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -6933,8 +6222,12 @@
         "valueString" : "1.29"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -6962,7 +6255,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -7124,35 +6416,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -7172,8 +6435,12 @@
         "valueString" : "1.30"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -7201,7 +6468,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -7363,35 +6629,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -7411,8 +6648,12 @@
         "valueString" : "1.31"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -7440,7 +6681,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -7602,35 +6842,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -7650,8 +6861,12 @@
         "valueString" : "1.32"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -7679,7 +6894,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -7841,35 +7055,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -7889,8 +7074,12 @@
         "valueString" : "1.33"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -7918,7 +7107,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -8079,35 +7267,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -8127,8 +7286,12 @@
         "valueString" : "1.34"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -8156,7 +7319,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -8318,35 +7480,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -8366,8 +7499,12 @@
         "valueString" : "1.35"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -8395,7 +7532,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -8557,35 +7693,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -8605,8 +7712,12 @@
         "valueString" : "1.36"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -8634,7 +7745,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -8796,35 +7906,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -8844,8 +7925,12 @@
         "valueString" : "1.37"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -8873,7 +7958,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -9035,35 +8119,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -9083,8 +8138,12 @@
         "valueString" : "1.38"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -9112,7 +8171,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -9274,35 +8332,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -9322,8 +8351,12 @@
         "valueString" : "1.39"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -9351,7 +8384,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -9513,35 +8545,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -9561,8 +8564,12 @@
         "valueString" : "1.40"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -9590,7 +8597,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -9752,35 +8758,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -9800,8 +8777,12 @@
         "valueString" : "1.41"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -9829,7 +8810,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -9991,35 +8971,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -10039,8 +8990,12 @@
         "valueString" : "1.42"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -10068,7 +9023,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -10230,35 +9184,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -10278,8 +9203,12 @@
         "valueString" : "1.43"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -10307,7 +9236,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -10469,35 +9397,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -10517,8 +9416,12 @@
         "valueString" : "1.44"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -10546,7 +9449,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -10707,35 +9609,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -10755,8 +9628,12 @@
         "valueString" : "1.45"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -10784,7 +9661,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -10946,35 +9822,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -10994,8 +9841,12 @@
         "valueString" : "1.46"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -11023,7 +9874,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -11185,35 +10035,6 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
-    }
-  }, {
     "fullUrl" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
       "resourceType" : "Observation",
@@ -11233,8 +10054,12 @@
         "valueString" : "2.1"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueReference" : {
-          "reference" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "LB",
+            "code" : "SRM"
+          } ],
+          "text" : "SKY RIDGE MEDICAL CENTER"
         }
       } ],
       "identifier" : [ {
@@ -11262,7 +10087,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "41458-1"
         } ],
         "text" : "SARS coronavirus RNA[Presence] in Specimen by NAA with probe detection"
@@ -11421,35 +10245,6 @@
           "code" : "MDIR"
         } ]
       } ]
-    }
-  }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0396",
-              "code" : "LB"
-            } ]
-          }
-        } ],
-        "value" : "SRM"
-      } ],
-      "name" : "SKY RIDGE MEDICAL CENTER"
     }
   }, {
     "fullUrl" : "Specimen/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
@@ -11676,7 +10471,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -12108,7 +10902,6 @@
         } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
           "code" : "94500-6"
         } ],
         "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
@@ -12140,7 +10933,6 @@
         } ],
         "coding" : [ {
           "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-          "version" : "I10",
           "code" : "R531"
         } ],
         "text" : "WEAKNESS"
@@ -12161,7 +10953,6 @@
             } ],
             "coding" : [ {
               "system" : "HL70364",
-              "version" : "L",
               "code" : "RE"
             } ],
             "text" : "Remark"
@@ -12614,7 +11405,6 @@
         } ],
         "coding" : [ {
           "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-          "version" : "I10",
           "code" : "R531"
         } ],
         "text" : "WEAKNESS"
@@ -12635,7 +11425,6 @@
             } ],
             "coding" : [ {
               "system" : "HL70364",
-              "version" : "L",
               "code" : "RE"
             } ],
             "text" : "Remark"
@@ -12710,7 +11499,6 @@
               } ],
               "coding" : [ {
                 "system" : "HL70364",
-                "version" : "L",
                 "code" : "RE"
               } ],
               "text" : "Remark"
@@ -12748,7 +11536,6 @@
           } ],
           "coding" : [ {
             "system" : "http://snomed.info/sct",
-            "version" : "L",
             "code" : "337915000"
           } ],
           "text" : "Homo sapiens (organism)"
@@ -12858,7 +11645,6 @@
           } ],
           "coding" : [ {
             "system" : "UNKNOWN",
-            "version" : "L",
             "code" : "SO"
           } ],
           "text" : "SON"
