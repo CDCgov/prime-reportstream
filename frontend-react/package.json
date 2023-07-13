@@ -106,7 +106,7 @@
         "@babel/preset-react": "^7.22.5",
         "@babel/preset-typescript": "^7.22.5",
         "@babel/runtime": "^7.22.5",
-        "@jest/globals": "^29.5.0",
+        "@jest/globals": "^29.6.1",
         "@mdx-js/react": "^2.3.0",
         "@mdx-js/rollup": "^2.3.0",
         "@rest-hooks/test": "^7.3.1",
