@@ -5,6 +5,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import io.mockk.every
 import io.mockk.mockk
+import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.logging.Logger
@@ -12,22 +13,28 @@ import java.util.logging.Logger
 /**
  * Base class for transport tests that provide common test functionality.
  */
-abstract class TransportIntegrationTests {
+abstract class TransportIntegrationTests : Logging {
     /**
-     * The mock logger.
+     * The mock logger. Will passthrough calls to Apache mixin logger
      */
-    private val logger = mockk<Logger>().also {
+    private val passthroughContextLogger = mockk<Logger>().also {
         every { it.log(any(), any(), any<Throwable>()) }.returns(Unit)
-        every { it.warning(any<String>()) }.returns(Unit)
-        every { it.severe(any<String>()) }.returns(Unit)
-        every { it.info(any<String>()) }.returns(Unit)
+        every { it.warning(any<String>()) }.answers {
+            logger.warn(firstArg<String>())
+        }
+        every { it.severe(any<String>()) }.answers {
+            logger.error(firstArg<String>())
+        }
+        every { it.info(any<String>()) }.answers {
+            logger.info(firstArg<String>())
+        }
     }
 
     /**
      * The mock context.
      */
     protected val context = mockk<ExecutionContext>().also {
-        every { it.logger }.returns(logger)
+        every { it.logger }.returns(passthroughContextLogger)
     }
 
     /**

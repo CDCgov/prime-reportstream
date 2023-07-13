@@ -253,7 +253,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         when (credential) {
             is UserApiKeyCredential -> {
                 tokenInfo = getAuthTokenWithUserApiKey(
-                    restTransportInfo.authTokenUrl,
+                    restTransportInfo,
                     credential,
                     logger,
                     tokenClient
@@ -327,20 +327,31 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      * @param httpClient the HTTP client to make the call
      */
     suspend fun getAuthTokenWithUserApiKey(
-        restUrl: String,
+        restTransportInfo: RESTTransportType,
         credential: UserApiKeyCredential,
         logger: Logger,
         httpClient: HttpClient
     ): TokenInfo {
         httpClient.use { client ->
             val tokenInfo: TokenInfo = client.submitForm(
-                restUrl,
+                restTransportInfo.authTokenUrl,
                 formParameters = Parameters.build {
-                    append("grant_type", "client_credentials")
-                    append("client_id", credential.user)
-                    append("client_secret", credential.apiKey)
+                    if (restTransportInfo.parameters.isEmpty()) {
+                        // This block is for backward compatible since old
+                        // REST Transport doesn't have parameters.
+                        append("grant_type", "client_credentials")
+                        append("client_id", credential.user)
+                        append("client_secret", credential.apiKey)
+                    } else {
+                        restTransportInfo.parameters.forEach { param ->
+                            when (param.value) {
+                                "client_id" -> append(param.key, credential.user)
+                                "client_secret" -> append(param.key, credential.apiKey)
+                                else -> append(param.key, param.value)
+                            }
+                        }
+                    }
                 }
-
             ) {
                 expectSuccess = true // throw an exception if not successful
                 accept(ContentType.Application.Json)
@@ -408,6 +419,10 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         // OK
                         "hl7" -> {
                             TextContent(message.toString(Charsets.UTF_8), ContentType.Text.Plain)
+                        }
+                        // Flexion
+                        "demographics" -> {
+                            TextContent(message.toString(Charsets.UTF_8), ContentType.Application.Json)
                         }
                         // WA
                         "elr" -> {
