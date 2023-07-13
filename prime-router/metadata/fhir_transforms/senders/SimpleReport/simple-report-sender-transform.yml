@@ -48,3 +48,4 @@ elements:
     condition: '%resource.collection.collected is dateTime'
     bundleProperty: '%resource.collection.collected[x]'
     value: [ '%resource.collection.collected - 15 minutes' ]
+
