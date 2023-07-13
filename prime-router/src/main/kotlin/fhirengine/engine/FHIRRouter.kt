@@ -96,7 +96,7 @@ class FHIRRouter(
 
     /**
      * Default Rules for quality filter on ELR_ELIMS topic:
-     *   Must have message ID
+     *   no rules; completely open
      */
     private val elrElimsQualityFilterDefault: ReportStreamFilter = listOf(
         "true",
