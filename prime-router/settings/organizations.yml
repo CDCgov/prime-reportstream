@@ -991,24 +991,11 @@
 - name: "CDC-ELIMS-HL7"
   description: "Centers for Disease Control ELIMS System"
   jurisdiction: "FEDERAL"
-  stateCode: null
-  countyName: null
-  filters: []
-  featureFlags: []
-  keys: []
   senders:
   - !<full-elr>
     name: "elr"
     organizationName: "CDC-ELIMS-HL7"
     format: "HL7"
-    customerStatus: "testing"
+    customerStatus: "active"
     schemaName: "metadata/fhir_transforms/senders/default-sender-transform"
-    processingType: "sync"
-    allowDuplicates: true
-    senderType: null
-    primarySubmissionMethod: null
     topic: "elr-elims"
-    version: null
-    createdBy: null
-    createdAt: null
-  receivers: []
