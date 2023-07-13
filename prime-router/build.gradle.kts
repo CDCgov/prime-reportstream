@@ -42,7 +42,7 @@ plugins {
     id("com.avast.gradle.docker-compose") version "0.16.12"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
     id("com.nocwriter.runsql") version ("1.0.3")
-    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.9"
+    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.15"
 }
 
 group = "gov.cdc.prime"
@@ -739,15 +739,15 @@ configurations {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.5.1")
+    jooqGenerator("org.postgresql:postgresql:42.6.0")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
-    implementation("com.azure:azure-core:1.35.0")
-    implementation("com.azure:azure-core-http-netty:1.12.8")
+    implementation("com.azure:azure-core:1.41.0")
+    implementation("com.azure:azure-core-http-netty:1.13.5")
     implementation("com.azure:azure-storage-blob:12.22.3") {
         exclude(group = "com.azure", module = "azure-core")
     }
@@ -800,7 +800,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("commons-codec:commons-codec:1.16.0")
     implementation("commons-io:commons-io:2.13.0")
-    implementation("org.postgresql:postgresql:42.5.1")
+    implementation("org.postgresql:postgresql:42.6.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.flywaydb:flyway-core:9.7.0")
     implementation("org.commonmark:commonmark:0.21.0")
@@ -832,10 +832,10 @@ dependencies {
     implementation("commons-io:commons-io: 2.13.0")
     implementation("com.anyascii:anyascii:0.3.2")
 // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
-    implementation("org.jsoup:jsoup:1.15.3")
+    implementation("org.jsoup:jsoup:1.16.1")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
-    implementation("io.swagger:swagger-annotations:1.6.10")
-    implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.8")
+    implementation("io.swagger:swagger-annotations:1.6.11")
+    implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.15")
     // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
     implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
     // https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api
