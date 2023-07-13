@@ -59,36 +59,24 @@ runs:
       
     - name: Set up JDK 11 to generate backend coverage stats
       uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2
-      if: >
-        always() &&
-        github.event.sender.login != 'dependabot[bot]' &&
-        ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
+      if: github.actor != 'dependabot[bot]'
       with:
         java-version: '11'
         distribution: 'adopt'
         cache: 'gradle'
 
     - uses: gradle/wrapper-validation-action@8d49e559aae34d3e0eb16cde532684bc9702762b
-      if: >
-        always() &&
-        github.event.sender.login != 'dependabot[bot]' &&
-        ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
+      if: github.actor != 'dependabot[bot]'
 
     - name: Spin up build containers
       working-directory: prime-router
-      if: >
-        always() &&
-        github.event.sender.login != 'dependabot[bot]' &&
-        ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
+      if: github.actor != 'dependabot[bot]'
       run: docker-compose -f docker-compose.postgres.yml up -d
       shell: bash
 
     - name: Build Prime Router test report
       working-directory: prime-router
-      if: >
-        always() &&
-        github.event.sender.login != 'dependabot[bot]' &&
-        ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
+      if: github.actor != 'dependabot[bot]'
       run: ./gradlew jacocoTestReport -x fatjar
       shell: bash
 
@@ -97,10 +85,7 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ inputs.SONAR_TOKEN }}
-      if: >
-        always() &&
-        github.event.sender.login != 'dependabot[bot]' &&
-        ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
+      if: github.actor != 'dependabot[bot]'
       with:
         args: >
           -Dsonar.cpd.exclusions=frontend-react/**/*.test.*,prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**
