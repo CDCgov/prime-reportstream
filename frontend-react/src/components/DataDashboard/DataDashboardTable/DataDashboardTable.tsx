@@ -14,6 +14,8 @@ import AdminFetchAlert from "../../alerts/AdminFetchAlert";
 import { Table } from "../../../shared/Table/Table";
 import { getSlots } from "../../../hooks/UsePagination";
 import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
+import { ColumnConfig } from "../../Table/Table";
+import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 
 function DashboardFilterAndTable({
     receiverServices,
@@ -35,12 +37,18 @@ function DashboardFilterAndTable({
         useReceiverDeliveries(activeService.name);
 
     if (isDeliveriesLoading || !results) return <Spinner />;
+    console.log("results = ", results);
 
     const data = results?.data.map((dataRow) => [
         {
             columnKey: "DateSentToYou",
             columnHeader: "Date sent to you",
             content: dataRow.createdAt,
+            columnCustomSort: () => {
+                filterManager?.updateSort({
+                    type: SortSettingsActionType.SWAP_ORDER,
+                });
+            },
         },
         {
             columnKey: "OrderingProvider",
@@ -94,7 +102,7 @@ function DashboardFilterAndTable({
                     }
                 />
             </div>
-            <Table rowData={data} />
+            <Table apiSortable rowData={data} />
             <Pagination
                 currentPageNum={currentPageNum}
                 setSelectedPage={(pageNum) => {
