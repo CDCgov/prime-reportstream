@@ -16,10 +16,10 @@ elements:
     value: [ '"CO"' ]
     valueSet:
       values:
-        tableName: "zip-code-data"
-        keyColumn: "state"
-        valueColumn: "state_abbr"
-      type: "lookupValueset"
+        tableName: lookuptable
+        keyColumn: key
+        valueColumn: value
+      type: lookupValueset
 
   - name: observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0].result'

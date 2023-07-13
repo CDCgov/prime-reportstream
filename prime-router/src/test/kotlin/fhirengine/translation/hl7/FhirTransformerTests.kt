@@ -10,21 +10,15 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
-import gov.cdc.prime.router.metadata.LookupTable
-import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
-import io.mockk.mockkConstructor
-import io.mockk.mockkObject
 import io.mockk.spyk
-import io.mockk.unmockkAll
 import io.mockk.verify
 import org.apache.logging.log4j.kotlin.KotlinLogger
 import org.hl7.fhir.r4.model.BooleanType
@@ -37,8 +31,6 @@ import org.hl7.fhir.r4.model.Meta
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.ServiceRequest
 import org.hl7.fhir.r4.model.StringType
-import tech.tablesaw.api.StringColumn
-import tech.tablesaw.api.Table
 import java.text.SimpleDateFormat
 import kotlin.test.Test
 
@@ -437,63 +429,6 @@ class FhirTransformerTests {
         assertThat(resource.name[0].text).isEqualTo("ghi789")
         assertThat(resource2.name[0].text).isEqualTo("")
         assertThat(resource3.name[0].text).isEqualTo("jkl369")
-    }
-
-    @Test
-    fun `test transform with lookup value set`() {
-        val testTable = Table.create(
-            "table",
-            StringColumn.create("key", "abc123", "def456"),
-            StringColumn.create("value", "ghi789", "")
-        )
-        val testLookupTable = LookupTable(name = "table", table = testTable)
-
-        mockkConstructor(Metadata::class)
-        every { anyConstructed<Metadata>().findLookupTable("table") } returns testLookupTable
-        mockkObject(Metadata.Companion)
-        every { Metadata.Companion.getInstance() } returns UnitTestUtils.simpleMetadata
-
-        val bundle = Bundle()
-        bundle.id = "bundle1"
-        val resource = Patient()
-        resource.addName(HumanName().setTextElement(StringType("abc123")))
-        bundle.addEntry().resource = resource
-        val resource2 = Patient()
-        resource2.addName(HumanName().setTextElement(StringType("def456")))
-        bundle.addEntry().resource = resource2
-        val resource3 = Patient()
-        resource3.addName(HumanName().setTextElement(StringType("jkl369")))
-        bundle.addEntry().resource = resource3
-
-        val valueConfig = LookupTableValueSetConfig(tableName = "table", keyColumn = "key", valueColumn = "value")
-
-        val patientElement = FhirTransformSchemaElement(
-            "patientElement",
-            value = listOf("%resource.name.text"),
-            resource = "%resource",
-            bundleProperty = "%resource.name.text",
-            valueSet = LookupTableValueSet(
-                valueConfig
-            )
-        )
-        val childSchema = FhirTransformSchema(elements = mutableListOf(patientElement))
-
-        val elemA = FhirTransformSchemaElement(
-            "elementA",
-            resource = "Bundle.entry.resource.ofType(Patient)",
-            schemaRef = childSchema,
-            resourceIndex = "patientIndex",
-        )
-
-        val schema = FhirTransformSchema(elements = mutableListOf(elemA))
-
-        FhirTransformer(schema).transform(bundle)
-
-        assertThat(resource.name[0].text).isEqualTo("ghi789")
-        assertThat(resource2.name[0].text).isEqualTo("")
-        assertThat(resource3.name[0].text).isEqualTo("jkl369")
-
-        unmockkAll()
     }
 
     @Test

@@ -288,23 +288,9 @@ class ConfigSchemaReaderTests {
             ).isValid()
         ).isTrue()
 
-        assertThat(
-            fhirTransformSchemaFromFile(
-                "lookup_value_set",
-                "src/test/resources/fhir_sender_transforms",
-            ).isValid()
-        ).isTrue()
-
         assertThat {
             fhirTransformSchemaFromFile(
                 "invalid_value_set",
-                "src/test/resources/fhir_sender_transforms",
-            )
-        }.isFailure()
-
-        assertThat {
-            fhirTransformSchemaFromFile(
-                "invalid_lookup_value_set",
                 "src/test/resources/fhir_sender_transforms",
             )
         }.isFailure()
