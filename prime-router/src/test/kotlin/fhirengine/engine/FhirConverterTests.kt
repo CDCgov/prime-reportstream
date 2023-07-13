@@ -44,6 +44,7 @@ private const val BLOB_URL = "http://blobstore.example/file.hl7"
 private const val BLOB_SUB_FOLDER_NAME = "test-sender"
 private const val SCHEMA_NAME = "test-schema"
 private const val VALID_DATA_URL = "src/test/resources/fhirengine/engine/valid_data.fhir"
+private const val BLOB_FHIR_URL = "http://blobstore.example/file.fhir"
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FhirConverterTests {
@@ -173,7 +174,7 @@ class FhirConverterTests {
         val message = spyk(
             RawSubmission(
                 UUID.randomUUID(),
-                "http://blobstore.example/file.fhir",
+                BLOB_FHIR_URL,
                 "test",
                 BLOB_SUB_FOLDER_NAME,
                 topic = Topic.FULL_ELR,
@@ -263,7 +264,7 @@ class FhirConverterTests {
             spyk(
                 RawSubmission(
                     UUID.randomUUID(),
-                    "http://blobstore.example/file.fhir",
+                    BLOB_FHIR_URL,
                     "test",
                     BLOB_SUB_FOLDER_NAME,
                     topic = Topic.FULL_ELR
@@ -303,8 +304,8 @@ class FhirConverterTests {
         val engine = spyk(makeFhirEngine(metadata, settings, TaskAction.process) as FHIRConverter)
         val message = spyk(
             RawSubmission(
-                UUID.randomUUID(), "http://blobstore.example/file.fhir", "test", "test-sender", topic = Topic.FULL_ELR,
-                "test-schema"
+                UUID.randomUUID(), BLOB_FHIR_URL, "test", BLOB_SUB_FOLDER_NAME, topic = Topic.FULL_ELR,
+                SCHEMA_NAME
             )
         )
 
@@ -322,7 +323,7 @@ class FhirConverterTests {
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { queueMock.sendMessage(any(), any()) }
             .returns(Unit)
-        every { engine.getTransformerFromSchema("test-schema") }.returns(transformer)
+        every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
         every { transformer.transform(any()) } returnsArgument (0)
 
         // act
