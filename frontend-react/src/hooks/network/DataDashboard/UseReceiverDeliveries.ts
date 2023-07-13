@@ -103,7 +103,7 @@ export default function useReceiverDeliveries(serviceName?: string) {
     );
 
     return {
-        fetchResults: data,
+        results: data,
         filterManager: filterManager,
         isDeliveriesLoading: isLoading,
     };
