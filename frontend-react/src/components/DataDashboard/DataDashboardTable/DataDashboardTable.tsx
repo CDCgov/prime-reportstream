@@ -7,7 +7,6 @@ import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationRece
 import Spinner from "../../Spinner";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
 import { PaginationProps } from "../../Table/Pagination";
-import Table, { ColumnConfig, TableConfig } from "../../Table/Table";
 import TableFilters from "../../Table/TableFilters";
 import { RSReceiverDelivery } from "../../../config/endpoints/dataDashboard";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
@@ -17,6 +16,7 @@ import useReceiverDeliveries, {
 } from "../../../hooks/network/DataDashboard/UseReceiverDeliveries";
 import { FilterManager } from "../../../hooks/filters/UseFilterManager";
 import AdminFetchAlert from "../../alerts/AdminFetchAlert";
+import { Table } from "../../../shared/Table/Table";
 
 // const extractCursor = (d: RSReceiverDelivery) => d.createdAt;
 
@@ -26,60 +26,6 @@ interface DashboardTableContentProps {
     isLoading: boolean;
     deliveriesList: RSReceiverDelivery[] | undefined;
 }
-
-const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
-    filterManager,
-    // paginationProps,
-    isLoading,
-    deliveriesList,
-}) => {
-    if (isLoading) return <Spinner />;
-
-    const columns: Array<ColumnConfig> = [
-        {
-            dataAttr: DeliveriesAttr.CREATED_AT,
-            columnHeader: "Date sent to you",
-            sortable: true,
-            transform: formatDateWithoutSeconds,
-        },
-        {
-            dataAttr: DeliveriesAttr.ORDERING_PROVIDER,
-            columnHeader: "Ordering Provider",
-        },
-        {
-            dataAttr: DeliveriesAttr.ORDERING_FACILITY,
-            columnHeader: "Performing facility",
-        },
-        {
-            dataAttr: DeliveriesAttr.SUBMITTER,
-            columnHeader: "Submitter",
-        },
-        {
-            dataAttr: DeliveriesAttr.REPORT_ID,
-            columnHeader: "Report ID",
-            feature: {
-                link: true,
-                linkBasePath: "/data-dashboard/report-details/",
-            },
-        },
-    ];
-
-    const resultsTableConfig: TableConfig = {
-        columns: columns,
-        rows: deliveriesList || [],
-    };
-
-    return (
-        <>
-            <Table
-                classes="margin-top-1"
-                config={resultsTableConfig}
-                filterManager={filterManager}
-                // paginationProps={paginationProps}
-            />
-        </>
-    );
-};
 
 function DashboardFilterAndTable({
     receiverServices,
@@ -99,6 +45,36 @@ function DashboardFilterAndTable({
     // Pagination and filter props
     const { fetchResults, filterManager, isDeliveriesLoading } =
         useReceiverDeliveries(activeService.name);
+
+    console.log("fetchResults = ", fetchResults);
+
+    const data = fetchResults?.data.map((dataRow) => [
+        {
+            columnKey: "DateSentToYou",
+            columnHeader: "Date sent to you",
+            content: dataRow.createdAt,
+        },
+        {
+            columnKey: "OrderingProvider",
+            columnHeader: "Ordering Provider",
+            content: dataRow.orderingProvider,
+        },
+        {
+            columnKey: "PerformingFacility",
+            columnHeader: "Performing facility",
+            content: dataRow.orderingFacility,
+        },
+        {
+            columnKey: "Submitter",
+            columnHeader: "Submitter",
+            content: dataRow.submitter,
+        },
+        {
+            columnKey: "ReportID",
+            columnHeader: "Report ID",
+            content: dataRow.reportId,
+        },
+    ]);
 
     // const pageSize = filterManager.pageSettings.size;
     // const sortOrder = filterManager.sortSettings.order;
@@ -150,12 +126,7 @@ function DashboardFilterAndTable({
                     }
                 />
             </div>
-            <DashboardTableContent
-                filterManager={filterManager}
-                // paginationProps={paginationProps}
-                isLoading={isDeliveriesLoading}
-                deliveriesList={fetchResults?.data}
-            />
+            <Table rowData={data} />
         </>
     );
 }
