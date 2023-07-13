@@ -81,11 +81,11 @@ runs:
       shell: bash
 
     - name: SonarCloud Scan
+      if: github.actor != 'dependabot[bot]' && inputs.GITHUB_TOKEN != '' && inputs.SONAR_TOKEN != ''
       uses: sonarsource/sonarcloud-github-action@db501078e936e4b4c8773d1bb949ba9ddb7b6b6a
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ inputs.SONAR_TOKEN }}
-      if: github.actor != 'dependabot[bot]'
       with:
         args: >
           -Dsonar.cpd.exclusions=frontend-react/**/*.test.*,prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**
