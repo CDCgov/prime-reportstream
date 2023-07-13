@@ -1068,12 +1068,12 @@ class RoutingTests {
         val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
-        // when doing routing for full-elr, verify that etor receiver isn't included (not even in logged results)
+        // when doing routing for full-elr, verify that elims receiver isn't included (not even in logged results)
         var receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
         assertThat(report.filteringResults).isEmpty()
         assertThat(receivers).isEmpty()
 
-        // when doing routing for etor, verify that etor receiver is included
+        // when doing routing for elims, verify that elims receiver is included
         receivers = engine.applyFilters(bundle, report, Topic.ELR_ELIMS)
         assertThat(report.filteringResults).isEmpty()
         assertThat(receivers.size).isEqualTo(1)
