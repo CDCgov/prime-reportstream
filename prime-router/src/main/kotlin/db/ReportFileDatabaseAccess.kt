@@ -92,6 +92,10 @@ class ReportFileApiSearch private constructor(
         return sortParameter ?: ReportFile.REPORT_FILE.CREATED_AT
     }
 
+    override fun getPrimarySortColumn(): Field<*> {
+        return ReportFile.REPORT_FILE.REPORT_ID
+    }
+
     /**
      * Companion object that implements [ApiSearchResult] and parses a value into [ReportFileApiSearch]
      */
@@ -99,7 +103,11 @@ class ReportFileApiSearch private constructor(
         ApiSearchParser<ReportFilePojo, ReportFileApiSearch, ReportFileRecord, ReportFileApiFilter<*>>(), Logging {
 
         override fun parseRawApiSearch(rawApiSearch: RawApiSearch): ReportFileApiSearch {
-            val sortProperty = ReportFile.REPORT_FILE.field(rawApiSearch.sort.property)
+            val sortProperty =
+                if (rawApiSearch.sort != null)
+                    ReportFile.REPORT_FILE.field(rawApiSearch.sort.property)
+                else
+                    ReportFile.REPORT_FILE.CREATED_AT
             val filters = rawApiSearch.filters.mapNotNull { filter ->
                 when (ReportFileApiFilters.getTerm(ReportFileApiFilterNames.valueOf(filter.filterName))) {
                     ReportFileApiFilter.Since::class.java
@@ -117,7 +125,7 @@ class ReportFileApiSearch private constructor(
             return ReportFileApiSearch(
                 filters = filters,
                 sortParameter = sortProperty,
-                sortDirection = rawApiSearch.sort.direction,
+                sortDirection = rawApiSearch.sort?.direction ?: SortDirection.DESC,
                 page = rawApiSearch.pagination.page,
                 limit = rawApiSearch.pagination.limit
             )
