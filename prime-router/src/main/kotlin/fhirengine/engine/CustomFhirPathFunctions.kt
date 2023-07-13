@@ -23,7 +23,6 @@ class CustomFhirPathFunctions : FhirPathFunctions {
     enum class CustomFhirPathFunctionNames {
 
         LivdTableLookup;
-
         companion object {
             /**
              * Get from a [functionName].

@@ -6,16 +6,33 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.ValueSetMap
 import java.util.SortedMap
 
+/**
+ * Data class for configuring [LookupTableValueSet].
+ *
+ * [tableName]: name of the lookup table
+ *
+ * [keyColumn]: name of the lookup table column containing the key pair values
+ *
+ * [valueColumn]: name of the lookup table column containing the value pair values
+ */
 data class LookupTableValueSetConfig(
     val tableName: String,
     val keyColumn: String,
     val valueColumn: String
 )
 
+/**
+ * Implementation of ValueSetMap to allow valueSet to be retrieved from a lookup table.
+ * Provide [LookupTableValueSetConfig] to configure the lookup table source.
+ */
 class LookupTableValueSet
 (@JsonProperty("values") override val values: LookupTableValueSetConfig) : ValueSetMap<LookupTableValueSetConfig> {
     private val metadata = Metadata.getInstance()
     private var mapValues: SortedMap<String, String>? = null
+
+    /**
+     * @return a SortedMap<String, String> representation of the valueSet
+     */
     override fun getMapValues(): SortedMap<String, String> {
         if (mapValues == null) {
             val lookupTable = metadata.findLookupTable(name = values.tableName)
