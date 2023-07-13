@@ -131,6 +131,6 @@ elements:
     resource: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id").value'
     condition: '%resource.exists()'
     constants:
-      entityIdFieldPath: MSH-21
+      entityIdFieldPath: 'MSH-21(%{entityIdIndex})'
     schema: datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
