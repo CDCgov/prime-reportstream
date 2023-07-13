@@ -741,8 +741,7 @@ These can be made by directly editing the file and opening a PR to merge update.
 Breaking changes:
 
 A breaking change will need to be handled differently as there is no longer a guarantee that an update to a translation schema in the source
-code will be updated synchronously with files that live azure.  In order to support this use case a versioning system will be introduced
-when required
+code will be updated synchronously with files that live in azure.  In order to support this use case a versioning system will be introduced
 
 ```
 /hl7_mapping
@@ -753,7 +752,7 @@ when required
 ```
 
 In the example above, the `/v1` directory contains a breaking change in the translation schema.  A developer would merge and deploy a PR
-that introduces the new version and then separately update all receivers schemas that consume it.
+that introduces the new version and then separately update all receivers schemas that consume it using the normal azure translation update and validation process.
 
 #### Validation
 
