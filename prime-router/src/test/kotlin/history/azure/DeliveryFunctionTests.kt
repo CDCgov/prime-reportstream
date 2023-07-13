@@ -460,6 +460,13 @@ class DeliveryFunctionTests : Logging {
         assertThat(responseBody.deliveryId.toLong()).isEqualTo(returnBody.actionId)
         assertThat(responseBody.receiver).isEqualTo("${returnBody.receivingOrg}.${returnBody.receivingOrgSvc}")
 
+        // Good uuid, with `send` action step report
+        action.actionName = TaskAction.send
+        response = function.getDeliveryDetails(mockRequest, goodUuid)
+        responseBody = mapper.readValue(response.body.toString())
+        assertThat(responseBody.deliveryId.toLong()).isEqualTo(returnBody.actionId)
+        assertThat(responseBody.receiver).isEqualTo("${returnBody.receivingOrg}.${returnBody.receivingOrgSvc}")
+
         // Good uuid, but with `process` action step report.
         action.actionName = TaskAction.process
         response = function.getDeliveryDetails(mockRequest, goodUuid)

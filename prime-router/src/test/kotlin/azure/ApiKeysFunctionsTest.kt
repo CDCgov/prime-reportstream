@@ -70,6 +70,7 @@ class ApiKeysFunctionsTest {
         alg = "RS256",
         use = "sig",
     )
+
     val jwk3 = Jwk(
         pubKey.getAlgorithm(),
         kid = "key3",
@@ -370,6 +371,7 @@ class ApiKeysFunctionsTest {
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
 
             val response = ApiKeysFunctions().post(httpRequestMessage, organization.name)
+
             assertThat(response.status).isEqualTo(HttpStatus.OK)
 
             val updatedOrg = settings.organizationStore.get(organization.name)
@@ -405,6 +407,7 @@ class ApiKeysFunctionsTest {
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
 
             val response = ApiKeysFunctions().post(httpRequestMessage, organization.name)
+
             assertThat(response.status).isEqualTo(HttpStatus.OK)
 
             val updatedOrg = settings.organizationStore.get(organization.name)
