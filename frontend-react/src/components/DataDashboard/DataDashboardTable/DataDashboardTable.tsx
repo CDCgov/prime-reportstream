@@ -6,26 +6,14 @@ import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import Spinner from "../../Spinner";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
-import { PaginationProps } from "../../Table/Pagination";
+import Pagination from "../../Table/Pagination";
 import TableFilters from "../../Table/TableFilters";
-import { RSReceiverDelivery } from "../../../config/endpoints/dataDashboard";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
-import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
-import useReceiverDeliveries, {
-    DeliveriesAttr,
-} from "../../../hooks/network/DataDashboard/UseReceiverDeliveries";
-import { FilterManager } from "../../../hooks/filters/UseFilterManager";
+import useReceiverDeliveries from "../../../hooks/network/DataDashboard/UseReceiverDeliveries";
 import AdminFetchAlert from "../../alerts/AdminFetchAlert";
 import { Table } from "../../../shared/Table/Table";
-
-// const extractCursor = (d: RSReceiverDelivery) => d.createdAt;
-
-interface DashboardTableContentProps {
-    filterManager: FilterManager;
-    paginationProps?: PaginationProps;
-    isLoading: boolean;
-    deliveriesList: RSReceiverDelivery[] | undefined;
-}
+import { getSlots } from "../../../hooks/UsePagination";
+import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 
 function DashboardFilterAndTable({
     receiverServices,
@@ -43,12 +31,12 @@ function DashboardFilterAndTable({
     };
 
     // Pagination and filter props
-    const { fetchResults, filterManager, isDeliveriesLoading } =
+    const { results, filterManager, isDeliveriesLoading } =
         useReceiverDeliveries(activeService.name);
 
-    console.log("fetchResults = ", fetchResults);
+    if (isDeliveriesLoading || !results) return <Spinner />;
 
-    const data = fetchResults?.data.map((dataRow) => [
+    const data = results?.data.map((dataRow) => [
         {
             columnKey: "DateSentToYou",
             columnHeader: "Date sent to you",
@@ -76,32 +64,12 @@ function DashboardFilterAndTable({
         },
     ]);
 
-    // const pageSize = filterManager.pageSettings.size;
-    // const sortOrder = filterManager.sortSettings.order;
-    // const rangeTo = filterManager.rangeSettings.to;
-    // const rangeFrom = filterManager.rangeSettings.from;
-    //
-    // const startCursor = sortOrder === "DESC" ? rangeTo : rangeFrom;
-    // const isCursorInclusive = sortOrder === "ASC";
-    // const analyticsEventName = `${FeatureName.DATA_DASHBOARD} | ${EventName.TABLE_PAGINATION}`;
-    //
-    // const { paginationProps } = usePagination<RSReceiverDelivery>({
-    //     startCursor,
-    //     isCursorInclusive,
-    //     pageSize,
-    //     fetchResults,
-    //     extractCursor,
-    //     analyticsEventName,
-    // });
-    //
-    // if (paginationProps) {
-    //     paginationProps.label = "Data Dashboard pagination";
-    // }
+    const currentPageNum = filterManager.pageSettings.currentPage;
 
     return (
         <>
             <div className="text-bold font-sans-md">
-                Showing all results ({fetchResults?.meta.totalFilteredCount})
+                Showing all results ({results?.meta.totalFilteredCount})
             </div>
             <div className="display-flex flex-row">
                 <ReceiverServices
@@ -127,6 +95,16 @@ function DashboardFilterAndTable({
                 />
             </div>
             <Table rowData={data} />
+            <Pagination
+                currentPageNum={currentPageNum}
+                setSelectedPage={(pageNum) => {
+                    filterManager.updatePage({
+                        type: PageSettingsActionType.SET_PAGE,
+                        payload: { page: pageNum },
+                    });
+                }}
+                slots={getSlots(currentPageNum, results?.meta.totalPages)}
+            />
         </>
     );
 }
