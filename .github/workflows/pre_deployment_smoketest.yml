@@ -5,28 +5,13 @@ on:
     branches:
       - "feature/automate-predeployment-smoketest"
 
-env:
-  # These are for CI and not credentials of any system
-  DB_USER: prime
-  DB_PASSWORD: changeIT!
-
 jobs:
-  pre_job:
-    name: Pre Job
-    runs-on: ubuntu-latest
-    outputs:
-      has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
-    steps:
-      - name: "Check out changes"
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
-      - name: Build vars
-        id: build_vars
-        uses: ./.github/actions/build-vars
-
   prime_router_smoketest:
     name: "Prepare the deployment branch and file a PR"
     runs-on: ubuntu-latest
-    needs: pre_job
+    defaults:
+      run:
+        working-directory: prime-router
     steps:
       - name: "Check out changes"
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
@@ -37,26 +22,7 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
           cache: 'gradle'
-
-      - uses: gradle/wrapper-validation-action@8d49e559aae34d3e0eb16cde532684bc9702762b
-
-      # - name: Env setting
-      #   working-directory: prime-router
-      #   shell: bash
-      #   run: |
-      #     ./cleanslate.sh
-      #     export $(xargs < .vault/env/.env.local)
           
-      - name: Spin up containers
-        shell: bash
-        working-directory: prime-router
-        run: docker-compose -f docker-compose.postgres.yml up -d
-
-      - name: Build Prime Router Package
-        working-directory: prime-router
-        shell: bash
-        run: ./gradlew package -Pshowtests
-
       - name: Get runner ip
         id: runner_ip
         uses: ./.github/actions/runner-ip
@@ -78,64 +44,81 @@ jobs:
         run: |
           export POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_STAGING_PWD }};export POSTGRES_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require;export POSTGRES_USER=${{ secrets.POSTGRESQL_STG_ADMIN_USER }}
       
-      - name: Spin up vault
-        working-directory: prime-router
-        shell: bash
-        timeout-minutes: 1
-        run: |
-          mkdir -p .vault/env
-          touch .vault/env/.env.local
-          docker-compose -f docker-compose.yml up -d vault
-          while [ ! -s .vault/env/.env.local ]; do sleep 1; done
-          echo "loaded env vars"
-
       - name: Spin up containers
-        working-directory: prime-router
         shell: bash
-        id: spin_containers
-        run: |
-          docker-compose -f docker-compose.yml up -d prime_dev sftp azurite
-          
-      - name: Give some time for the container to start
-        run: |
-          echo "sleeping 30"
-          sleep 30
-          echo "wake up"
-      
-      - name: Load the configuration
         working-directory: prime-router
-        shell: bash
-        run: |
-         ./gradlew reloadTables
-         ./gradlew reloadSettings
-        
-      - name: Run Integration Tests
-        working-directory: prime-router
-        shell: bash
-        run: ./gradlew testIntegration -Pshowtests
+        run: docker-compose -f docker-compose.postgres.yml up -d
 
-      - name: Correct sftp perms
-        working-directory: prime-router
-        shell: bash
-        run: docker-compose exec -T sftp chmod 777 /home/foo/upload
+      # - name: Give some time for the container to start
+      #   run: |
+      #     echo "sleeping 30"
+      #     sleep 30
+      #     echo "wake up"
+      #     docker ps
 
-      - name: Smoke tests
-        working-directory: prime-router
-        shell: bash
-        run: |
-          export $(xargs < .vault/env/.env.local)
-          ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
-          ./gradlew testSmoke
-
-      # - name: Run Smoke Test in Staging
-      #   #if: always()
+      # - name: Load the configuration
       #   shell: bash
-      #   working-directory: prime-router
-      #   run: ./prime test --env staging --key ${{ secrets.STG_API_KEY }}
+      #   run: |
+      #    ./gradlew reloadTables
+      #    ./gradlew reloadSettings
+
+      - name: Build Prime Router Package
+        working-directory: prime-router
+        shell: bash
+        run: ./gradlew package -x fatjar -Pshowtests
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install puppeteer
+
+      - name: Login to Okta
+        env:
+          OKTA_USERNAME: ${{ secrets.OKTA_USERNAME }}
+          OKTA_PASSWORD: ${{ secrets.OKTA_PASSWORD }}
+        run: |
+          echo "
+          const puppeteer = require('puppeteer');
+
+          async function login() {
+            const browser = await puppeteer.launch();
+            const page = await browser.newPage();
+            await page.goto('https://${{ secrets.OKTA_DOMAIN }}');
+
+            await page.waitForSelector('#okta-signin-username');
+            await page.type('#okta-signin-username', process.env.OKTA_USERNAME);
+            await page.type('#okta-signin-password', process.env.OKTA_PASSWORD);
+            await page.click('#okta-signin-submit');
+
+            await page.waitForNavigation();
+
+            // You can perform further actions after successful login
+            // For example, retrieve user information
+            const userFullName = await page.evaluate(() => {
+              const fullNameElement = document.querySelector('.app-user-name');
+              return fullNameElement ? fullNameElement.textContent.trim() : null;
+            });
+            console.log('Logged in as:', userFullName);
+
+            await browser.close();
+          }
+
+          login();
+          " > login.js
+
+          npx --no-install puppeteer login.js
+
+
+      - name: Run Smoke Test in Staging
+        shell: bash
+        working-directory: prime-router
+        run: ./prime test --env staging --key ${{ secrets.STG_API_KEY }}
 
 
       - name: Remove Runner IP from Staging PostgreSql Firewall
-        if: always()
         run: |
             az postgres server firewall-rule delete --resource-group prime-data-hub-staging --server-name ${{ secrets.POSTGRESQL_STG_SERVER_NAME }} --name GHA --yes
       
@@ -149,70 +132,13 @@ jobs:
 
 
 
-          
-      - name: Dump docker logs
-        if: always()
-        uses: jwalton/gh-docker-logs@59c9656cd3cb7542525f3dce7ae2f44c0ff85d66
-        with:
-          images: 'prime-router_prime_dev,vault'
-
-      - name: Cleanup Gradle Cache
-        run: |
-          rm -f .gradle/caches/modules-2/modules-2.lock
-          rm -f .gradle/caches/modules-2/gc.properties
 
 
 
 
-      # - name: Set up Node.js
-      #   uses: actions/setup-node@v2
-      #   with:
-      #     node-version: '14'
-
-      # - name: Install dependencies
-      #   run: npm install puppeteer
-
-      # - name: Login to Okta
-      #   shell: bash
-      #   working-directory: prime-router
-      #   run: ./prime login --env staging --username ${{ secrets.OKTA_USERNAME }} --password ${{ secrets.OKTA_PASSWORD }}
-        # env:
-        #   OKTA_USERNAME: ${{ secrets.OKTA_USERNAME }}
-        #   OKTA_PASSWORD: ${{ secrets.OKTA_PASSWORD }}
-        # run: |
-        #   echo "
-        #   const puppeteer = require('puppeteer');
-
-        #   async function login() {
-        #     const browser = await puppeteer.launch();
-        #     const page = await browser.newPage();
-        #     await page.goto('https://${{ secrets.OKTA_DOMAIN }}');
-
-        #     await page.waitForSelector('#okta-signin-username');
-        #     await page.type('#okta-signin-username', process.env.OKTA_USERNAME);
-        #     await page.type('#okta-signin-password', process.env.OKTA_PASSWORD);
-        #     await page.click('#okta-signin-submit');
-
-        #     await page.waitForNavigation();
-
-        #     // You can perform further actions after successful login
-        #     // For example, retrieve user information
-        #     const userFullName = await page.evaluate(() => {
-        #       const fullNameElement = document.querySelector('.app-user-name');
-        #       return fullNameElement ? fullNameElement.textContent.trim() : null;
-        #     });
-        #     console.log('Logged in as:', userFullName);
-
-        #     await browser.close();
-        #   }
-
-        #   login();
-        #   " > login.js
-
-      # npx --no-install puppeteer login.js
 
 
-              # pre_job:
+        # pre_job:
   #   name: Pre Job
   #   runs-on: ubuntu-latest
   #   outputs:
@@ -367,4 +293,3 @@ jobs:
       #     " > login.js
 
       #     npx --no-install puppeteer login.js
-
