@@ -37,6 +37,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
@@ -139,7 +140,14 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         "mock-api",
         "mock-tokenUrl",
         null,
-        mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
+        headers = mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
+    )
+    private val flexionRestTransportType = RESTTransportType(
+        "v1/etor/demographics",
+        "v1/auth",
+        null,
+        mapOf("mock-p1" to "value-p1", "mock-p2" to "value-p2"),
+        headers = mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
     )
     private val task = Task(
         reportId,
@@ -372,5 +380,87 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         )
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNotNull()
+    }
+
+    @Test
+    fun `test getAuthTokenWithUserApiKey with transport parametters is empty`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientAuthOk()))
+
+        // Given:
+        //      lookupDefaultCredential returns mock UserApiKeyCredential object to allow
+        //      the getAuthTokenWIthUserApiKey() to be called.
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserApiKeyCredential(
+                "test-user",
+                "test-apikey"
+            )
+        )
+
+        // When:
+        //      RESTTransport is called WITH transport.parameters empty
+        val retryItems = mockRestTransport.send(
+            transportType, header, reportId, null,
+            context, actionHistory
+        )
+
+        // Then:
+        //      getAuthTokenWithUserApiKey should be called with transport.parameters empty
+        verify {
+            runBlocking {
+                mockRestTransport.getAuthTokenWithUserApiKey(transportType, any(), any(), any())
+            }
+        }
+        assertThat(retryItems).isNull()
+    }
+
+    @Test
+    fun `test getAuthTokenWithUserApiKey with transport parametters is NOT empty`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientAuthOk()))
+
+        // Given:
+        //      lookupDefaultCredential returns mock UserApiKeyCredential object to allow
+        //      the getAuthTokenWIthUserApiKey() to be called.
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserApiKeyCredential(
+                "test-user",
+                "test-apikey"
+            )
+        )
+
+        // When:
+        //      RESTTransport is called WITH flexionRestTransportType which has transport.parameters
+        val retryItems = mockRestTransport.send(
+            flexionRestTransportType, header, reportId, null,
+            context, actionHistory
+        )
+
+        // Then:
+        //      getAuthTokenWithUserApiKey should be called with transport.parameters NOT empty
+        verify {
+            runBlocking {
+                mockRestTransport.getAuthTokenWithUserApiKey(flexionRestTransportType, any(), any(), any())
+            }
+        }
+        assertThat(retryItems).isNull()
+    }
+
+    @Test
+    fun `test flexion rest transport`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserApiKeyCredential("flexion", "123")
+        )
+        every { runBlocking { mockRestTransport.getAuthTokenWithUserApiKey(any(), any(), any(), any()) } }.returns(
+            TokenInfo(accessToken = "MockToken", tokenType = "bearer")
+        )
+
+        val retryItems = mockRestTransport.send(
+            flexionRestTransportType, header, reportId, null,
+            context, actionHistory
+        )
+        assertThat(retryItems).isNull()
     }
 }
