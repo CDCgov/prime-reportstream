@@ -1034,13 +1034,9 @@
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
-      translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
-        useTestProcessingMode: false
-        useBatchHeaders: false
+      translation: !<FHIR>
+        useBatching: false
         type: "FHIR"
-        receivingApplicationName: ""
-        receivingFacilityName: ""
       transport:
         type: SFTP
         host: sftp
