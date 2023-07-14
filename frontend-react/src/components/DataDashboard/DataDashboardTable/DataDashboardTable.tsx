@@ -14,7 +14,6 @@ import AdminFetchAlert from "../../alerts/AdminFetchAlert";
 import { Table } from "../../../shared/Table/Table";
 import { getSlots } from "../../../hooks/UsePagination";
 import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
-import { ColumnConfig } from "../../Table/Table";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 
 function DashboardFilterAndTable({
@@ -37,7 +36,6 @@ function DashboardFilterAndTable({
         useReceiverDeliveries(activeService.name);
 
     if (isDeliveriesLoading || !results) return <Spinner />;
-    console.log("results = ", results);
 
     const data = results?.data.map((dataRow) => [
         {
@@ -49,6 +47,7 @@ function DashboardFilterAndTable({
                     type: SortSettingsActionType.SWAP_ORDER,
                 });
             },
+            columnCustomSortOrder: filterManager.sortSettings.order,
         },
         {
             columnKey: "OrderingProvider",
