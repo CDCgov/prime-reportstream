@@ -118,6 +118,12 @@
       customerStatus: active
       schemaName: metadata/fhir_transforms/senders/default-sender-transform
       format: HL7
+    - name: ignore-elr-elims      # Use this to test elr-elims
+      organizationName: ignore
+      topic: elr-elims
+      customerStatus: active
+      schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      format: HL7
     - name: ignore-fhir      # Use this to test fhir
       organizationName: ignore
       topic: full-elr
@@ -234,6 +240,26 @@
         type: "HL7"
         receivingApplicationName: "CO-ETOR"
         receivingFacilityName: "CO"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: ELR_ELIMS
+      externalName: Ignore ELR_ELIMS
+      organizationName: ignore
+      topic: elr-elims
+      customerStatus: active
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/ORU_RO1/ORU_RO1-base"
+        useBatchHeaders: true
+        type: "HL7"
       transport:
         type: SFTP
         host: sftp
@@ -988,14 +1014,3 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
-- name: "CDC-ELIMS-HL7"
-  description: "Centers for Disease Control ELIMS System"
-  jurisdiction: "FEDERAL"
-  senders:
-  - !<full-elr>
-    name: "elr"
-    organizationName: "CDC-ELIMS-HL7"
-    format: "HL7"
-    customerStatus: "active"
-    schemaName: "metadata/fhir_transforms/senders/default-sender-transform"
-    topic: "elr-elims"

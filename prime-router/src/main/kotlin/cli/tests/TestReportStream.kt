@@ -861,6 +861,12 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $etorTISenderName for organization ${org1.name}")
         }
 
+        const val elrElimsSenderName = "ignore-elr-elims"
+        val elrElimsSender by lazy {
+            settings.findSender("$org1Name.$elrElimsSenderName") as? UniversalPipelineSender
+                ?: error("Unable to find sender $elrElimsSenderName for organization ${org1.name}")
+        }
+
         const val simpleReportSenderName = "ignore-simple-report"
         val simpleRepSender by lazy {
             settings.findSender("$org1Name.$simpleReportSenderName") as? LegacyPipelineSender
@@ -904,6 +910,7 @@ abstract class CoolTest {
             it.organizationName == org1Name && it.name == "FULL_ELR_FHIR"
         }[0]
         val etorReceiver = settings.receivers.first { it.topic == Topic.ETOR_TI }
+        val elimsReceiver = settings.receivers.first { it.topic == Topic.ELR_ELIMS }
         val csvReceiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "CSV" }[0]
         val hl7Receiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7" }[0]
         val hl7BatchReceiver =
