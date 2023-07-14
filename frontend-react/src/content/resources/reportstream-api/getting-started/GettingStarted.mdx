@@ -1,12 +1,11 @@
-import { CardGroup, Card, CardBody, CardHeader, Alert, Accordion } from "@trussworks/react-uswds";
+import { CardGroup, Card, CardBody, CardHeader, Accordion } from "@trussworks/react-uswds";
+import Alert from "../../../../shared/Alert/Alert";
 import Method1 from "./Method1.mdx";
 import Method2 from "./Method2.mdx";
 
 # Getting started
 
-<p className="usa-intro text-base">
-    This programmer’s guide helps you, the technical user at the testing facility, learn how to send data using the ReportStream Restful (REST) API.
-</p>
+<p className="usa-intro text-base">This programmer’s guide helps you, the technical user at the testing facility, learn how to send data using the ReportStream Restful (REST) API.</p>
 
 Examples in this guide use curl commands for simplicity with the assumption you’ll be coding these calls into your sending system.
 You can also use a program like Postman to test submissions.
@@ -31,17 +30,15 @@ Currently, ReportStream can accept either a CSV file or HL7 input data. It’s o
 We can send you a file with fake data to review that will always successfully validate against the schema used to generate it. 
 Note that because the data in those files are computer-generated, it may not feel realistic in some places.
 
-<Alert type="info" headingLevel="div" heading="Note for HL7 OTC tests:" slim={true} className="border-0 font-sans-xs">
-    For this step, refer to the [RADx MARS Getting started guide](https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started).
-    Within that guide, you’ll find information on field requirements, a tool outlining manufacturer-specific values, and a COVID-19 OTC-specific profile of the NIST HL7 v2 validator. 
-    To configure the validator, refer to NIST HL7v2 validator instructions at the bottom of the [RADx MARS Getting started guide](https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started).
-</Alert>
+<Alert type="tip">For this step, refer to the [RADx MARS Getting started guide](https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started).
+        Within that guide, you’ll find information on field requirements, a tool outlining manufacturer-specific values, and a COVID-19 OTC-specific profile of the NIST HL7 v2 validator. 
+        To configure the validator, refer to NIST HL7v2 validator instructions at the bottom of the [RADx MARS Getting started guide](https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started).</Alert>
 
 When you’ve formatted your fake (non-PII) data file, test your data model using ReportStream’s file validation tool, and correct any errors you receive.
 
 <CardGroup>
     <Card className="width-full">
-        <CardHeader typeOf="div">[ReportStream File Validator](/file-handler/validate)</CardHeader>
+        <CardHeader typeof="div">[ReportStream File Validator](/file-handler/validate)</CardHeader>
         <CardBody>
             Check your file formatting as you prepare to send your data through ReportStream.
         </CardBody>
@@ -90,22 +87,24 @@ Once authentication is complete, you can test your automation code as well as yo
 Data is sent in the HTTP payload, either in CSV or HL7 2.5.1 format. 
 You can use curl commands, Postman, or another method of your choosing to post test submissions to the staging environment.
 
-<Alert type="info" headingLevel="div" slim={true} className="border-0 font-sans-xs">**Note:** Do not send any PII or PHI to the staging system — only fake (dummy, example, synthetic) data is acceptable.</Alert>
+<Alert type="tip">**Note:** Do not send any PII or PHI to the staging system — only fake (dummy, example, synthetic) data is acceptable.</Alert>
 
 Let us know when you send submissions to the staging environment. We’ll review that data and work with you to correct any issues. You may send as many fake data submissions to staging as is helpful.
 
 For troubleshooting on your own, here is the complete endpoint input and response [OpenAPI specification](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/api).
 
 <h2 className="rs-numbered">Test real data in production</h2>
-   The ReportStream team will onboard you to the production system in training mode. If using a shared secret key, you’ll receive API keys or tokens and the URL via Keybase. ReportStream won’t forward or transport data received in training mode. However, the response message provides detailed information on where your data would have flowed if production mode was active.
+
+The ReportStream team will onboard you to the production system in training mode. If using a shared secret key, you’ll receive API keys or tokens and the URL via Keybase. ReportStream won’t forward or transport data received in training mode. However, the response message provides detailed information on where your data would have flowed if production mode was active.
 
 <h2 className="rs-numbered">Start sending data in production</h2>
-   When you are ready, the ReportStream team will move you out of training mode and enable full production mode. Once in production, you can send a single record or up to 10,000 records in a single submission.
+
+When you are ready, the ReportStream team will move you out of training mode and enable full production mode. Once in production, you can send a single record or up to 10,000 records in a single submission.
 
 Data will automatically flow to appropriate state, local, and federal jurisdictional systems.
 
 {
-<Alert type="info" headingLevel="div" slim={true} className="border-0 font-sans-xs">
+<Alert type="tip">
     <span className="text-bold">Note:</span> Some jurisdictions require additional validation before sending data to their systems. If this affects your data submission, the ReportStream team will assist you in the process. Currently, the following states require additional validation:
     <ul>
         <li>California</li>

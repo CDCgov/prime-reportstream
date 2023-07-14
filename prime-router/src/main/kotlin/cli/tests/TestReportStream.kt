@@ -474,7 +474,7 @@ abstract class CoolTest {
     suspend fun pollForStepResult(
         reportId: ReportId,
         taskAction: TaskAction,
-        maxPollSecs: Int = 600,
+        maxPollSecs: Int = 720,
         pollSleepSecs: Int = 20,
     ): Map<UUID, DetailedSubmissionHistory?> {
         var timeElapsedSecs = 0

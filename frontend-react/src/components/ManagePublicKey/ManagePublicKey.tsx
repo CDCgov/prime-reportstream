@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { GridContainer, Icon, SiteAlert } from "@trussworks/react-uswds";
+import { GridContainer } from "@trussworks/react-uswds";
 
 import Spinner from "../Spinner";
 import { AuthElement } from "../AuthElement";
@@ -13,6 +13,7 @@ import { validateFileType, validateFileSize } from "../../utils/FileUtils";
 import useCreateOrganizationPublicKey from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
 import useOrganizationPublicKeys from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
 import useOrganizationSenders from "../../hooks/UseOrganizationSenders";
+import Alert from "../../shared/Alert/Alert";
 
 import ManagePublicKeyChooseSender from "./ManagePublicKeyChooseSender";
 import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
@@ -143,12 +144,7 @@ export function ManagePublicKey() {
                         Send your public key to begin the REST API
                         authentication process.
                     </p>
-                    <SiteAlert
-                        variant="info"
-                        showIcon={false}
-                        className="margin-bottom-6"
-                    >
-                        <Icon.Lightbulb />
+                    <Alert type="tip" className="margin-bottom-6">
                         <span className="padding-left-1">
                             If you need more information on generating your
                             public key, reference page 7 in the{" "}
@@ -156,7 +152,7 @@ export function ManagePublicKey() {
                                 ReportStream API.
                             </USLink>
                         </span>
-                    </SiteAlert>
+                    </Alert>
                 </>
             )}
             {!sender && (
