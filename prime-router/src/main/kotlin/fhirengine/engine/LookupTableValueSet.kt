@@ -26,7 +26,8 @@ data class LookupTableValueSetConfig(
  * Provide [LookupTableValueSetConfig] to configure the lookup table source.
  */
 class LookupTableValueSet
-(@JsonProperty("values") override val values: LookupTableValueSetConfig) : ValueSetMap<LookupTableValueSetConfig> {
+(@JsonProperty("lookupTable") override val configData: LookupTableValueSetConfig) :
+    ValueSetMap<LookupTableValueSetConfig> {
     private val metadata = Metadata.getInstance()
     private var mapValues: SortedMap<String, String>? = null
 
@@ -35,21 +36,21 @@ class LookupTableValueSet
      */
     override fun getMapValues(): SortedMap<String, String> {
         if (mapValues == null) {
-            val lookupTable = metadata.findLookupTable(name = values.tableName)
+            val lookupTable = metadata.findLookupTable(name = configData.tableName)
                 ?: throw SchemaException("Specified lookup table not found")
 
-            if (!lookupTable.hasColumn(values.keyColumn)) {
+            if (!lookupTable.hasColumn(configData.keyColumn)) {
                 throw SchemaException("Key column not found in specified lookup table")
             }
 
-            if (!lookupTable.hasColumn(values.valueColumn)) {
+            if (!lookupTable.hasColumn(configData.valueColumn)) {
                 throw SchemaException("Value column not found in specified lookup table")
             }
 
-            val filterTable = lookupTable.table.retainColumns(values.keyColumn, values.valueColumn)
+            val filterTable = lookupTable.table.retainColumns(configData.keyColumn, configData.valueColumn)
             val result = mutableMapOf<String, String>()
             filterTable.forEach { row ->
-                result[row.getString(values.keyColumn)] = row.getString(values.valueColumn)
+                result[row.getString(configData.keyColumn)] = row.getString(configData.valueColumn)
             }
 
             return result.toSortedMap()

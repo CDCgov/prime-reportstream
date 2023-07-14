@@ -5,9 +5,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import java.util.SortedMap
 
 @JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
+    use = JsonTypeInfo.Id.DEDUCTION,
     include = JsonTypeInfo.As.PROPERTY,
-    property = "type",
     defaultImpl = InlineValueSet::class
 )
 /**
@@ -15,7 +14,7 @@ import java.util.SortedMap
  * that can return a SortedMap<String, String> at runtime.
  */
 interface ValueSetMap<T> {
-    val values: T // TODO: could potentially drop
+    val configData: T
     fun getMapValues(): SortedMap<String, String>
 }
 
@@ -23,11 +22,12 @@ interface ValueSetMap<T> {
  * Default implementation of ValueSetMap to allow valueSet to be specified inline in the sender transform schema.
  */
 class InlineValueSet
-(@JsonProperty("values") override val values: SortedMap<String, String>) : ValueSetMap<SortedMap<String, String>> {
+(@JsonProperty("values") override val configData: SortedMap<String, String>) : ValueSetMap<SortedMap<String, String>> {
+
     /**
      * @return a SortedMap<String, String> representation of the valueSet
      */
     override fun getMapValues(): SortedMap<String, String> {
-        return values
+        return configData
     }
 }

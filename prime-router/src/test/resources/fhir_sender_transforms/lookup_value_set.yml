@@ -15,11 +15,10 @@ elements:
     bundleProperty: '%resource.identifier'
     value: [ '"CO"' ]
     valueSet:
-      values:
+      lookupTable:
         tableName: lookuptable
         keyColumn: key
         valueColumn: value
-      type: lookupValueset
 
   - name: observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0].result'
