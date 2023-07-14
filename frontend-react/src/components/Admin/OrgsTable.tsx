@@ -12,7 +12,7 @@ import {
     MembershipSettings,
 } from "../../hooks/UseOktaMemberships";
 import { USNavLink } from "../USLink";
-import { Table } from "../../shared/Table/Table__chromatic-sync";
+import { Table } from "../../shared/Table/Table";
 
 export function OrgsTable() {
     const orgs: OrgSettingsResource[] = useResource(

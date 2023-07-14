@@ -3,7 +3,7 @@ import classnames from "classnames";
 
 import { ReceiverData } from "../../config/endpoints/messageTracker";
 import { parseFileLocation } from "../../utils/misc";
-import { Table } from "../../shared/Table/Table__chromatic-sync";
+import { Table } from "../../shared/Table/Table";
 
 const NO_DATA_STRING = "N/A";
 

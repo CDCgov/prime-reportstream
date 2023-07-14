@@ -1,7 +1,7 @@
 import React from "react";
 import { StoryFn, Meta } from "@storybook/react";
 
-import { Table } from "./Table__chromatic-sync";
+import { Table } from "./Table";
 
 export default {
     title: "Components/Table",

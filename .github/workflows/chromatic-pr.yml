@@ -27,8 +27,10 @@ jobs:
         run: |
           diff_output=$(git diff --name-only)
           while IFS= read -r filename; do
+
+            first_line=$(head -n 1 "$filename")
             
-            if [[ $filename == *__chromatic-sync* ]]; then
+            if [[ $first_line == *AutoUpdateFileChromatic* ]]; then
               echo "chromatic=true" >> $GITHUB_OUTPUT
               break
             fi

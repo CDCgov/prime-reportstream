@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Table } from "../../../shared/Table/Table__chromatic-sync";
+import { Table } from "../../../shared/Table/Table";
 import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import TableFilters from "../../Table/TableFilters";
 import useFilterManager, {
