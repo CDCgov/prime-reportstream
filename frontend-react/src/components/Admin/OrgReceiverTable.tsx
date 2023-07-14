@@ -183,8 +183,8 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                 >
                     This check will use the '{clickedReceiver}' settings to
                     connect to the receiver's server. <br />
-                    No files will be sent. This feature ONLY supports SFTP
-                    receivers currently.
+                    No files will be sent. This feature ONLY supports SFTP and
+                    REST receivers currently.
                 </ModalHeading>
                 <div className={"rs-admindash-modal-container"}>
                     <div className={"rs-resend-label"}>
