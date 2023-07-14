@@ -15,7 +15,6 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
@@ -43,8 +42,7 @@ class FHIRTranslator(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-    queue: QueueAccess = QueueAccess
-) : FHIREngine(metadata, settings, db, blob, queue) {
+) : FHIREngine(metadata, settings, db, blob) {
 
     /**
      * Accepts a FHIR [message], parses it, and generates translated output files for each item in the destinations
@@ -55,7 +53,7 @@ class FHIRTranslator(
         message: RawSubmission,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory
-    ) {
+    ): List<RawSubmission>? {
         logger.trace("Translating FHIR file for receivers.")
         // pull fhir document and parse FHIR document
         val bundle = FhirTranscoder.decode(message.downloadContent())
@@ -114,6 +112,7 @@ class FHIRTranslator(
                 }
             }
         }
+        return null
     }
 
     /**

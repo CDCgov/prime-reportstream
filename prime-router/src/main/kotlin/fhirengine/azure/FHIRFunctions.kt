@@ -51,12 +51,14 @@ class FHIRFunctions(
         actionHistory: ActionHistory = ActionHistory(TaskAction.convert)
     ) {
         val messageContent = readMessage("Convert", message, dequeueCount)
+        var messagesToSend: List<RawSubmission>? = null
         try {
-            fhirEngine.doWork(messageContent, actionLogger, actionHistory)
+            messagesToSend = fhirEngine.doWork(messageContent, actionLogger, actionHistory)
         } catch (e: Exception) {
             logger.error("Unknown error.", e)
         }
         recordResults(message, actionHistory)
+        messagesToSend?.forEach { workflowEngine.queue.sendMessage(elrRoutingQueueName, it.serialize()) }
     }
 
     /**
@@ -86,13 +88,17 @@ class FHIRFunctions(
         actionHistory: ActionHistory = ActionHistory(TaskAction.route)
     ) {
         val messageContent = readMessage("Route", message, dequeueCount)
+        var messagesToSend: List<RawSubmission>? = null
 
         try {
-            fhirEngine.doWork(messageContent, actionLogger, actionHistory)
+            messagesToSend = fhirEngine.doWork(messageContent, actionLogger, actionHistory)
         } catch (e: Exception) {
             logger.error("Unknown error.", e)
         }
         recordResults(message, actionHistory)
+        // move to translation (send to <elrTranslationQueueName> queue). This passes the same message on, but
+        // the destinations have been updated in the FHIR
+        messagesToSend?.forEach { workflowEngine.queue.sendMessage(elrTranslationQueueName, it.serialize()) }
     }
 
     /**

@@ -113,7 +113,7 @@ class FhirTranslatorTests {
         settings: SettingsProvider = FileSettings().loadOrganizations(oneOrganization),
     ): FHIRTranslator {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).queueAccess(queueMock).build(TaskAction.translate) as FHIRTranslator
+            .blobAccess(blobMock).build(TaskAction.translate) as FHIRTranslator
     }
 
     private fun getResource(bundle: Bundle, resource: String) =

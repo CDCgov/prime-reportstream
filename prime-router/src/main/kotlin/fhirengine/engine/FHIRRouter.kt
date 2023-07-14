@@ -20,7 +20,6 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
@@ -38,15 +37,13 @@ import org.hl7.fhir.r4.model.Observation
  * [settings] mockable settings
  * [db] mockable database access
  * [blob] mockable blob storage
- * [queue] mockable azure queue
  */
 class FHIRRouter(
     metadata: Metadata = Metadata.getInstance(),
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-    queue: QueueAccess = QueueAccess
-) : FHIREngine(metadata, settings, db, blob, queue) {
+) : FHIREngine(metadata, settings, db, blob) {
 
     /**
      * The name of the lookup table to load the shorthand replacement key/value pairs from
@@ -169,8 +166,9 @@ class FHIRRouter(
         message: RawSubmission,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory
-    ) {
+    ): List<RawSubmission>? {
         logger.trace("Processing HL7 data for FHIR conversion.")
+        var messageToSend: RawSubmission? = null
         this.actionLogger = actionLogger
         try {
             // track input report
@@ -252,19 +250,13 @@ class FHIRRouter(
                     finishedField = Tables.TASK.ROUTED_AT,
                     null
                 )
-
-                // move to translation (send to <elrTranslationQueueName> queue). This passes the same message on, but
-                //  the destinations have been updated in the FHIR
-                this.queue.sendMessage(
-                    elrTranslationQueueName,
-                    RawSubmission(
+                messageToSend =  RawSubmission(
                         report.id,
                         blobInfo.blobUrl,
                         BlobAccess.digestToString(blobInfo.digest),
                         message.blobSubFolderName,
                         message.topic,
-                    ).serialize()
-                )
+                    )
             } else {
                 // this bundle does not have receivers; only perform the work necessary to track the routing action
                 // create none event
@@ -292,6 +284,12 @@ class FHIRRouter(
         } catch (e: IllegalArgumentException) {
             logger.error(e)
             actionLogger.error(InvalidReportMessage(e.message ?: ""))
+        }
+
+        return if(messageToSend != null) {
+            listOf(messageToSend)
+        } else {
+            null
         }
     }
 

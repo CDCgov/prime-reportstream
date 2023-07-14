@@ -11,7 +11,6 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
@@ -33,9 +32,8 @@ class FHIRConverter(
     metadata: Metadata = Metadata.getInstance(),
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
-    blob: BlobAccess = BlobAccess(),
-    queue: QueueAccess = QueueAccess
-) : FHIREngine(metadata, settings, db, blob, queue) {
+    blob: BlobAccess = BlobAccess()
+) : FHIREngine(metadata, settings, db, blob) {
 
     /**
      * Accepts a [message] in either HL7 or FHIR format
@@ -49,7 +47,7 @@ class FHIRConverter(
         message: RawSubmission,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory
-    ) {
+    ): List<RawSubmission> {
         val format = Report.getFormatFromBlobURL(message.blobURL)
         logger.trace("Processing $format data for FHIR conversion.")
         val fhirBundles = when (format) {
@@ -57,6 +55,7 @@ class FHIRConverter(
             Report.Format.FHIR -> getContentFromFHIR(message, actionLogger)
             else -> throw NotImplementedError("Invalid format $format ")
         }
+        val messagesToSend = mutableListOf<RawSubmission>()
 
         if (fhirBundles.isNotEmpty()) {
             logger.debug("Generated ${fhirBundles.size} FHIR bundles.")
@@ -64,7 +63,7 @@ class FHIRConverter(
             val transformer = getTransformerFromSchema(message.schemaName)
             // operate on each fhir bundle
             var bundleIndex = 1
-            val messagesToSend = mutableListOf<RawSubmission>()
+
             for (bundle in fhirBundles) {
                 // conduct FHIR Transform
                 transformer?.transform(bundle)
@@ -146,8 +145,8 @@ class FHIRConverter(
                     )
                 )
             }
-            messagesToSend.forEach { this.queue.sendMessage(elrRoutingQueueName, it.serialize()) }
         }
+        return messagesToSend
     }
 
     /**

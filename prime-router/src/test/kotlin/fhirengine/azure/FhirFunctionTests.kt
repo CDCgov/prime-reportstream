@@ -131,7 +131,6 @@ class FhirFunctionTests {
                 settings,
                 accessSpy,
                 blobMock,
-                queueMock
             )
         )
 
@@ -148,7 +147,7 @@ class FhirFunctionTests {
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.sendingOrg } returns "Test Sender"
 
-        every { fhirEngine.doWork(any(), any(), any()) } returns Unit
+        every { fhirEngine.doWork(any(), any(), any()) } returns emptyList()
 
         val queueMessage = "{\"type\":\"raw\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
@@ -184,8 +183,7 @@ class FhirFunctionTests {
                 metadata,
                 settings,
                 accessSpy,
-                blobMock,
-                queueMock
+                blobMock
             )
         )
 
@@ -201,7 +199,7 @@ class FhirFunctionTests {
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.sendingOrg } returns "Test Sender"
 
-        every { fhirEngine.doWork(any(), any(), any()) } returns Unit
+        every { fhirEngine.doWork(any(), any(), any()) } returns emptyList()
 
         val queueMessage = "{\"type\":\"raw\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
@@ -237,7 +235,6 @@ class FhirFunctionTests {
                 settings,
                 accessSpy,
                 blobMock,
-                queueMock
             )
         )
 
@@ -254,7 +251,7 @@ class FhirFunctionTests {
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.sendingOrg } returns "Test Sender"
 
-        every { fhirEngine.doWork(any(), any(), any()) } returns Unit
+        every { fhirEngine.doWork(any(), any(), any()) } returns emptyList()
 
         val queueMessage = "{\"type\":\"raw\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +

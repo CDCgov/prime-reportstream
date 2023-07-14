@@ -22,15 +22,13 @@ const val elrTranslationQueueName = "elr-fhir-translate"
  * [settings] mockable settings
  * [db] mockable database access
  * [blob] mockable blob storage
- * [queue] mockable azure queue
  */
 abstract class FHIREngine(
     val metadata: Metadata = Metadata.getInstance(),
     val settings: SettingsProvider = this.settingsProviderSingleton,
     val db: DatabaseAccess = this.databaseAccessSingleton,
     val blob: BlobAccess = BlobAccess(),
-    queue: QueueAccess = QueueAccess,
-) : BaseEngine(queue) {
+) : BaseEngine() {
 
     /**
      * Custom builder for Workflow engine
@@ -76,12 +74,6 @@ abstract class FHIREngine(
         fun blobAccess(blobAccess: BlobAccess) = apply { this.blobAccess = blobAccess }
 
         /**
-         * Set the queue access instance.
-         * @return the modified workflow engine
-         */
-        fun queueAccess(queueAccess: QueueAccess) = apply { this.queueAccess = queueAccess }
-
-        /**
          * Build the fhir engine instance.
          * @return the fhir engine instance
          */
@@ -98,22 +90,19 @@ abstract class FHIREngine(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
-                    blobAccess ?: BlobAccess(),
-                    queueAccess ?: QueueAccess
+                    blobAccess ?: BlobAccess()
                 )
                 TaskAction.route -> FHIRRouter(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
-                    blobAccess ?: BlobAccess(),
-                    queueAccess ?: QueueAccess
+                    blobAccess ?: BlobAccess()
                 )
                 TaskAction.translate -> FHIRTranslator(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
-                    blobAccess ?: BlobAccess(),
-                    queueAccess ?: QueueAccess
+                    blobAccess ?: BlobAccess()
                 )
                 else -> throw NotImplementedError("Invalid action type for FHIR engine")
             }
@@ -128,5 +117,5 @@ abstract class FHIREngine(
         message: RawSubmission,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory
-    )
+    ): List<RawSubmission>?
 }
