@@ -36,7 +36,7 @@ describe("useReceiverDeliveries", () => {
                 wrapper: AppWrapper(),
             });
             await waitFor(() =>
-                expect(result.current.fetchResults).toEqual(undefined)
+                expect(result.current.results).toEqual(undefined)
             );
             expect(result.current.isDeliveriesLoading).toEqual(true);
         });
@@ -70,7 +70,7 @@ describe("useReceiverDeliveries", () => {
                 }
             );
             await waitFor(() =>
-                expect(result.current.fetchResults).toEqual(
+                expect(result.current.results).toEqual(
                     makeRSReceiverDeliveryResponseFixture(5)
                 )
             );

@@ -80,7 +80,7 @@ describe("DataDashboardTable", () => {
 
             // Mock the response from the Deliveries hook
             const mockUseReceiverDeliveriesCallback = {
-                fetchResults: makeRSReceiverDeliveryResponseFixture(0),
+                results: makeRSReceiverDeliveryResponseFixture(0),
                 filterManager: mockFilterManager,
                 isDeliveriesLoading: false,
             };
@@ -118,7 +118,7 @@ describe("DataDashboardTableWithPagination", () => {
                 });
 
                 const mockUseReceiverDeliveriesCallback = {
-                    fetchResults: makeRSReceiverDeliveryResponseFixture(101),
+                    results: makeRSReceiverDeliveryResponseFixture(101),
                     filterManager: mockFilterManager,
                     isDeliveriesLoading: false,
                 };
@@ -212,7 +212,7 @@ describe("DataDashboardTableWithPagination", () => {
 
                 // Mock the response from the Deliveries hook
                 const mockUseReceiverDeliveriesCallback = {
-                    fetchResults: makeRSReceiverDeliveryResponseFixture(0),
+                    results: makeRSReceiverDeliveryResponseFixture(0),
                     filterManager: mockFilterManager,
                     isDeliveriesLoading: false,
                 };
@@ -269,7 +269,7 @@ describe("DataDashboardTableWithPagination", () => {
 
             // Mock the response from the Deliveries hook
             const mockUseReceiverDeliveriesCallback = {
-                fetchResults: makeRSReceiverDeliveryResponseFixture(0),
+                results: makeRSReceiverDeliveryResponseFixture(0),
                 filterManager: mockFilterManager,
                 isDeliveriesLoading: false,
             };
