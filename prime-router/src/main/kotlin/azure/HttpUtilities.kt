@@ -12,6 +12,7 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.apache.http.client.utils.URIBuilder
 import org.apache.logging.log4j.kotlin.Logging
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -138,7 +139,7 @@ class HttpUtilities {
 
         fun httpResponseImage(
             request: HttpRequestMessage<String?>,
-            responseBody: ByteArray,
+            responseBody: ByteArrayOutputStream,
             httpStatus: HttpStatus,
         ): HttpResponseMessage {
             return request

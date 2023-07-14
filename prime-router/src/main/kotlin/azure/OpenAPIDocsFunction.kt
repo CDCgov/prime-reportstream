@@ -1,7 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.azure.storage.blob.BlobClient
-import com.azure.storage.blob.BlobClientBuilder
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
 import com.microsoft.azure.functions.HttpResponseMessage
@@ -20,7 +18,16 @@ const val PARAM_RESOURCE_NAME = "resourceName"
 const val textJS = "text/javascript"
 const val textCSS = "text/css"
 const val textYaml = "text/yaml"
-
+val RESOURCES_NAMES = listOf<String>(
+    "api.yaml",
+    "index.css",
+    "swagger-ui.css",
+    "swagger-initializer.js",
+    "swagger-ui-bundle.js",
+    "swagger-ui-standalone-preset.js",
+    "favicon-16x16.png",
+    "favicon-32x32.png",
+)
 /**
  * Class for serving swagger UI page
  */
@@ -50,8 +57,11 @@ class OpenAPIDocsFunction : Logging {
         @BindingName(PARAM_RESOURCE_NAME) resourceName: String
     ): HttpResponseMessage {
         val resourcePath = "/swagger-ui-5.1.0-dist/$resourceName"
+        if (!RESOURCES_NAMES.contains(resourceName)) {
+            throw Exception("Unexpected resource request: resource name = $resourceName")
+        }
         if (resourceName.endsWith(".png")) {
-            return HttpUtilities.httpResponseImage(request, downloadBlob(resourcePath), HttpStatus.OK)
+            return HttpUtilities.httpResponseImage(request, getResourceAsStream(resourcePath), HttpStatus.OK)
         } else {
             var rsType = textJS
             val resourceClob = getResourceAsText(resourcePath)
@@ -71,25 +81,14 @@ class OpenAPIDocsFunction : Logging {
         }
     }
 
-    fun getResourceAsByteArray(path: String): ByteArray {
+    fun getResourceAsStream(path: String): ByteArrayOutputStream {
         val ostream = ByteArrayOutputStream()
         val url: URL = this::class.java.getResource(path)
         val istream: InputStream = url.openStream()
         ostream.write(istream.readAllBytes())
-        return ostream.toByteArray()
+        return ostream
     }
 
     fun getResourceAsText(path: String): String? =
         this::class.java.getResource(path)?.readText()
-
-    fun downloadBlob(blobUrl: String): ByteArray {
-        val stream = ByteArrayOutputStream()
-        stream.use { getBlobClient(blobUrl).downloadStream(it) }
-        return stream.toByteArray()
-    }
-
-    private fun getBlobClient(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar): BlobClient {
-        val blobConnection = System.getenv(blobConnEnvVar)
-        return BlobClientBuilder().connectionString(blobConnection).endpoint(blobUrl).buildClient()
-    }
 }
