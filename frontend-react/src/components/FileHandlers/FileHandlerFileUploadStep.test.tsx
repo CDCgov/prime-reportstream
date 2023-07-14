@@ -1,8 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { renderApp } from "../../utils/CustomRenderUtils";
-import * as UseSenderResourceExports from "../../hooks/UseSenderResource";
 import { INITIAL_STATE } from "../../hooks/UseFileHandler";
 import {
     CustomerStatus,
@@ -11,6 +9,9 @@ import {
 } from "../../utils/TemporarySettingsAPITypes";
 import { RSSender } from "../../config/endpoints/settings";
 import { MembershipSettings, MemberType } from "../../hooks/UseOktaMemberships";
+import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
+import { renderApp } from "../../utils/CustomRenderUtils";
+import * as useSenderResourceExports from "../../hooks/UseSenderResource";
 import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
 import * as analyticsExports from "../../utils/Analytics";
 import {
@@ -18,6 +19,7 @@ import {
     mockSendFileWithErrors,
     mockSendValidFile,
 } from "../../__mocks__/validation";
+import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
 
 import FileHandlerFileUploadStep, {
     getClientHeader,
@@ -37,15 +39,24 @@ describe("FileHandlerFileUploadStep", () => {
         onPrevStepClick: jest.fn(),
         onNextStepClick: jest.fn(),
     };
+    const DEFAULT_SENDERS: RSSender[] = sendersGenerator(2);
+
+    function mockUseSenderResource(
+        result: Partial<UseSenderResourceHookResult> = {}
+    ) {
+        jest.spyOn(useSenderResourceExports, "default").mockReturnValue({
+            isInitialLoading: false,
+            isLoading: false,
+            data: DEFAULT_SENDERS,
+            ...result,
+        } as UseSenderResourceHookResult);
+    }
 
     describe("when the Sender details are still loading", () => {
         beforeEach(() => {
-            jest.spyOn(
-                UseSenderResourceExports,
-                "useSenderResource"
-            ).mockReturnValue({
+            mockUseSenderResource({
                 isInitialLoading: true,
-                senderIsLoading: true,
+                isLoading: true,
             });
 
             renderApp(<FileHandlerFileUploadStep {...DEFAULT_PROPS} />);
@@ -58,15 +69,9 @@ describe("FileHandlerFileUploadStep", () => {
 
     describe("when the Sender details have been loaded", () => {
         beforeEach(() => {
-            jest.spyOn(
-                UseSenderResourceExports,
-                "useSenderResource"
-            ).mockReturnValue({
+            mockUseSenderResource({
                 isInitialLoading: false,
-                senderIsLoading: false,
-                senderDetail: {
-                    schemaName: "whatever",
-                } as RSSender,
+                isLoading: false,
             });
         });
 
