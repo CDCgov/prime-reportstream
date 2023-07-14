@@ -802,9 +802,12 @@ abstract class CoolTest {
 
             if (topic != null && !topic.isNull &&
                 (
-                    topic.textValue().equals(Topic.COVID_19.jsonVal, true) ||
-                        topic.textValue().equals(Topic.FULL_ELR.jsonVal, true) ||
-                        topic.textValue().equals(Topic.ETOR_TI.jsonVal, true)
+                    listOf(
+                            Topic.COVID_19.jsonVal,
+                            Topic.FULL_ELR.jsonVal,
+                            Topic.ETOR_TI.jsonVal,
+                            Topic.ELR_ELIMS.jsonVal
+                        ).contains(topic.textValue())
                     )
             ) {
                 good("'topic' is in response and correctly set")

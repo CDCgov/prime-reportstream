@@ -257,7 +257,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/ORU_RO1/ORU_RO1-base"
+        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
         useBatchHeaders: true
         type: "HL7"
       transport:
