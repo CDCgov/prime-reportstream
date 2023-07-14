@@ -13,8 +13,8 @@ const isNotActive = (val: string | undefined): boolean => {
 };
 
 const BannerContent = () => {
-    const { data: sender, isLoading, isError } = useSenderResource();
-    if (!isLoading && !isError && isNotActive(sender?.customerStatus)) {
+    const { data: sender, isLoading } = useSenderResource();
+    if (!isLoading && isNotActive(sender?.customerStatus)) {
         return (
             <section>
                 <header className="usa-banner__header bg-yellow">
