@@ -144,7 +144,7 @@
         "@types/react-scroll-sync": "^0.8.3",
         "@types/sanitize-html": "^2.9.0",
         "@typescript-eslint/eslint-plugin": "^5.60.0",
-        "@typescript-eslint/parser": "^5.60.0",
+        "@typescript-eslint/parser": "^5.62.0",
         "@vitejs/plugin-react": "^4.0.1",
         "babel-jest": "^29.6.1",
         "bfj": "^7.0.2",
