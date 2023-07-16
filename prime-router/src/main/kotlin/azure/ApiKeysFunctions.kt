@@ -162,6 +162,10 @@ SwIDAQAB
         Server(
             url = "https://staging.reportstream.cdc.gov",
             description = "Staging Server"
+        ),
+        Server(
+            url = "https://reportstream.cdc.gov",
+            description = "Production Server"
         )
     ]
 )

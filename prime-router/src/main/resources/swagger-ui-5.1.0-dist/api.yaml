@@ -7,6 +7,13 @@ info:
     url: https://reportstream.cdc.gov
     email: reportstream@cdc.gov
   version: 0.2.0-oas3
+servers:
+- url: http://localhost:7071
+  description: Local Server (Local Development Use)
+- url: https://staging.reportstream.cdc.gov
+  description: Staging Server
+- url: https://reportstream.cdc.gov
+  description: Production Server
 paths:
   /settings/organizations/{organizationName}/public-keys/{scope}/{kid}:
     delete:
@@ -329,12 +336,6 @@ components:
     HttpRequestMessageString:
       type: object
       properties:
-        queryParameters:
-          type: object
-          additionalProperties:
-            type: string
-        body:
-          type: string
         httpMethod:
           type: string
           enum:
@@ -347,6 +348,12 @@ components:
           - OPTIONS
           - TRACE
           - PATCH
+        body:
+          type: string
+        queryParameters:
+          type: object
+          additionalProperties:
+            type: string
         headers:
           type: object
           additionalProperties:
@@ -362,9 +369,6 @@ components:
           authorizationUrl: https://hhs-prime.okta.com/oauth/authorize
           tokenUrl: https://hhs-prime.okta.com/oauth/token
           scopes:
-            prime_admin: Grants write access to single org
-            system_admin: Grants access to admin operations
+            org_admin: Grants write access to single org
+            prime_admin: Grants access to admin operations
             user: Grants read access
-servers:
-  - url: http://localhost:7071/api/
-    description: Local Development Prime Server(for Development use)

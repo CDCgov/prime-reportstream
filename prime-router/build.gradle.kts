@@ -290,6 +290,8 @@ tasks.register<Test>("testIntegration") {
     }
 }
 
+val generatedApiDocsDir = File(project.projectDir, "/docs/api/generated")
+val builtSwaggerUIResourcesDir = File(project.buildDir, "/resources/main/swagger-ui-5.1.0-dist/")
 tasks.register<ResolveTask>("generateOpenApi") {
     group = rootProject.description ?: ""
     description = "Generate OpenAPI spec for Report Stream APIs"
@@ -299,14 +301,15 @@ tasks.register<ResolveTask>("generateOpenApi") {
     classpath = sourceSets["main"].runtimeClasspath
     buildClasspath = classpath
     resourcePackages = setOf("gov.cdc.prime.router.azure")
-    outputDir = file("docs/api/generated")
-}
-
-/**
- * Generate OpenAPI spec right after build
- */
-tasks.named("build") {
-    finalizedBy("generateOpenApi")
+    outputDir = generatedApiDocsDir
+    dependsOn("compileKotlin")
+    doLast {
+        // copy the api.yaml to swagger ui dist under build
+        FileUtils.copyFile(
+            File(generatedApiDocsDir, "api.yaml"),
+            File(builtSwaggerUIResourcesDir, "api.yaml")
+        )
+    }
 }
 
 tasks.withType<Test>().configureEach {
@@ -499,6 +502,8 @@ tasks.azureFunctionsPackage {
 tasks.register("package") {
     group = rootProject.description ?: ""
     description = "Package the code and necessary files to run the Azure functions"
+    // generate API docs
+    dependsOn("generateOpenApi")
     dependsOn("azureFunctionsPackage")
     dependsOn("fatJar")
 }
@@ -506,6 +511,8 @@ tasks.register("package") {
 tasks.register("quickPackage") {
     group = rootProject.description ?: ""
     description = "Package the code and necessary files to run the Azure functions skipping unit tests and migration"
+    // generate API docs
+    dependsOn("generateOpenApi")
     // Quick package for development purposes.  Use with caution.
     dependsOn("azureFunctionsPackage")
     dependsOn("copyAzureResources")
