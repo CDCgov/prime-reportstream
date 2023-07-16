@@ -17,7 +17,7 @@
         "@uswds/uswds": "3.1.0",
         "axios": "^1.4.0",
         "classnames": "^2.3.1",
-        "dompurify": "^3.0.3",
+        "dompurify": "^3.0.5",
         "downloadjs": "^1.4.7",
         "export-to-csv-fix-source-map": "^0.2.1",
         "history": "^5.3.0",
