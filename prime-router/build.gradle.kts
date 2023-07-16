@@ -505,7 +505,7 @@ tasks.register("package") {
     // generate API docs
     dependsOn("generateOpenApi")
     dependsOn("azureFunctionsPackage")
-    dependsOn("fatJar")
+    dependsOn("fatJar").mustRunAfter("generateOpenApi")
 }
 
 tasks.register("quickPackage") {
@@ -514,7 +514,7 @@ tasks.register("quickPackage") {
     // generate API docs
     dependsOn("generateOpenApi")
     // Quick package for development purposes.  Use with caution.
-    dependsOn("azureFunctionsPackage")
+    dependsOn("azureFunctionsPackage").mustRunAfter("generateOpenApi")
     dependsOn("copyAzureResources")
     dependsOn("copyAzureScripts")
     tasks["test"].enabled = false

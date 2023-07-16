@@ -156,7 +156,7 @@ SwIDAQAB
     ),
     servers = [
         Server(
-            url = "http://localhost:7071",
+            url = "http://localhost:7071/api/",
             description = "Local Server (Local Development Use)"
         ),
         Server(
