@@ -53,8 +53,8 @@ class LookupTableValueSet
                 result[row.getString(configData.keyColumn)] = row.getString(configData.valueColumn)
             }
 
-            return result.toSortedMap()
-        } else
-            return mapValues as SortedMap<String, String>
+            mapValues = result.toSortedMap()
+        }
+        return mapValues as SortedMap<String, String>
     }
 }
