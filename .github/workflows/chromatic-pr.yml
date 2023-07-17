@@ -46,7 +46,7 @@ jobs:
                 fi
               fi
             fi
-          done <<< "${{ steps.changed-files.outputs.all_changed_files }}"
+          done <<< "${{ steps.changed_files.outputs.all_changed_files }}"
 
       - name: Find Comment
         id: comment_find
