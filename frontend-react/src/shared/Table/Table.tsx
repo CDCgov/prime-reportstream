@@ -1,5 +1,5 @@
 // AutoUpdateFileChromatic
-// testing events + check if file exists
+// Checking latest Changed-files and Checkout changes
 import classnames from "classnames";
 import { ReactNode, useState } from "react";
 import { Icon } from "@trussworks/react-uswds";
