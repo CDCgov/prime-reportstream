@@ -28,19 +28,21 @@ jobs:
         uses: tj-actions/changed-files@v37
 
       - name: List all changed files
+        id: set_vars
         run: |
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          while IFS= read -r file; do
             if [[ -n $file ]]; then 
               echo "File event: $file"
 
               first_line=$(head -n 1 "$file")
               
               if [[ $first_line == *AutoUpdateFileChromatic* ]]; then
+                echo ::debug:: IF STATEMENT AutoUpdateFileChromatic reached
                 echo "chromatic=true" >> $GITHUB_OUTPUT
                 break
               fi
             fi
-          done
+          done <<< "${{ steps.changed-files.outputs.all_changed_files }}"
 
       - name: Find Comment
         id: comment_find
