@@ -1,5 +1,5 @@
 // AutoUpdateFileChromatic
-// testing again with git event commits
+// testing events + check if file exists
 import classnames from "classnames";
 import { ReactNode, useState } from "react";
 import { Icon } from "@trussworks/react-uswds";
