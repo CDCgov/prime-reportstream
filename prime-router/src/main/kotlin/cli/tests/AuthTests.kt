@@ -11,6 +11,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.cli.CommandUtilities
 import gov.cdc.prime.router.cli.DeleteSenderSetting
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.cli.GetSenderSetting
@@ -64,7 +65,7 @@ class OktaAuthTests : CoolTest() {
             )
         }
 
-        fun getOktaAccessTok(environment: Environment): String {
+        fun getOktaAccessToken(environment: Environment): String {
             return OktaCommand.fetchAccessToken(environment.oktaApp)
                 ?: abort(
                     "Test needs a valid okta access token for the settings API." +
@@ -72,11 +73,11 @@ class OktaAuthTests : CoolTest() {
                 )
         }
 
-        fun getOktaAccessTokOrLocal(environment: Environment): String {
+        fun getOktaAccessTokenOrLocal(environment: Environment): String {
             return if (environment.oktaApp == null) {
                 accessTokenDummy
             } else {
-                getOktaAccessTok(environment)
+                getOktaAccessToken(environment)
             }
         }
     }
@@ -90,7 +91,7 @@ class OktaAuthTests : CoolTest() {
         val sender2 = defaultIgnoreSender
 
         val myFakeReportFile = createFakeReport(sender1)
-        val oktaToken = getOktaAccessTokOrLocal(environment)
+        val oktaToken = getOktaAccessTokenOrLocal(environment)
 
         // Now submit a report to org1 and get its reportId1
         val (responseCode1, json1) = HttpUtilities.postReportFileToWatersApi(
@@ -467,7 +468,7 @@ class Server2ServerAuthTests : CoolTest() {
             schemaName = "primedatainput/pdi-covid-19"
         )
 
-        val oktaSettingAccessTok = OktaAuthTests.getOktaAccessTokOrLocal(settingsEnv) // ironic: still need okta
+        val oktaSettingAccessTok = OktaAuthTests.getOktaAccessTokenOrLocal(settingsEnv) // ironic: still need okta
 
         // save the new sender to the Settings.
         PutSenderSetting()
@@ -513,7 +514,7 @@ class Server2ServerAuthTests : CoolTest() {
         PutOrganizationSetting()
             .put(
                 settingsEnv,
-                OktaAuthTests.getOktaAccessTokOrLocal(settingsEnv),
+                OktaAuthTests.getOktaAccessTokenOrLocal(settingsEnv),
                 SettingCommand.SettingType.ORGANIZATION,
                 organizationPlusNewKey.name,
                 jacksonObjectMapper().writeValueAsString(organizationPlusNewKey)
@@ -548,7 +549,7 @@ class Server2ServerAuthTests : CoolTest() {
         DeleteSenderSetting()
             .delete(
                 settingsEnv,
-                OktaAuthTests.getOktaAccessTokOrLocal(settingsEnv),
+                OktaAuthTests.getOktaAccessTokenOrLocal(settingsEnv),
                 SettingCommand.SettingType.SENDER,
                 sender.fullName
             )
