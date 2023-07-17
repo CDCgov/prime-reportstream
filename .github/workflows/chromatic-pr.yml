@@ -1,5 +1,5 @@
 # Build a branch-specific Storybook instance on Chromatic
-# Any file that has "__chromatic-sync" appended to the end of the filename
+# Any file that has a comment on THE FIRST LINE that says "AutoUpdateFileChromatic"
 # And is checked into git, will trigger a Chromatic update.
 
 name: Build Branch Chromatic

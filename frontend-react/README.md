@@ -107,4 +107,4 @@ NOTE: This only works `run:build-dir` because webpack's dynamic runtime updating
 
 `.github/workflows/chromatic-master.yml` triggers a Chromatic build anytime a PR gets merged into our `master` branch.
 
-`.github/workflows/chromatic-pr.yml` triggers a Chromatic build anytime a `.jsx` file with the name `__chromatic-sync` appended to it is checked in to a PR. The goal here is to automatically update our Chromatic anytime a file that has an associated Storybook is updated. So, simply add `__chromatic-sync` to your filename to have Chromatic update itself. For example, `/src/shared/Table/Table.tsx`.
+`.github/workflows/chromatic-pr.yml` triggers a Chromatic build anytime a file with `// AutoUpdateFileChromatic` comment on its FIRST LINE is checked in to a PR. The goal here is to automatically update our Chromatic anytime a file that has an associated Storybook is modified.
