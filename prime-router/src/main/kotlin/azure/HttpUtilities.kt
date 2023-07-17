@@ -10,6 +10,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import io.ktor.http.ContentType
 import org.apache.http.client.utils.URIBuilder
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayOutputStream
@@ -28,8 +29,6 @@ class HttpUtilities {
         const val oldApi = "/api/reports"
         const val watersApi = "/api/waters"
         const val tokenApi = "/api/token"
-        const val htmlTextUTF8 = "text/html; charset=utf-8"
-        const val imagePNG = "image/png"
 
         // Ignoring unknown properties because we don't require them. -DK
         private val mapper = JacksonMapperUtilities.allowUnknownsMapper
@@ -125,27 +124,16 @@ class HttpUtilities {
                 .build()
         }
 
-        fun httpResponseHTML(
-            request: HttpRequestMessage<String?>,
-            responseBody: String,
-            httpStatus: HttpStatus,
-        ): HttpResponseMessage {
-            return request
-                .createResponseBuilder(httpStatus)
-                .body(responseBody)
-                .header(HttpHeaders.CONTENT_TYPE, htmlTextUTF8)
-                .build()
-        }
-
         fun httpResponseImage(
             request: HttpRequestMessage<String?>,
             responseBody: ByteArrayOutputStream,
             httpStatus: HttpStatus,
+            contentType: ContentType,
         ): HttpResponseMessage {
             return request
                 .createResponseBuilder(httpStatus)
                 .body(responseBody)
-                .header(HttpHeaders.CONTENT_TYPE, imagePNG)
+                .header(HttpHeaders.CONTENT_TYPE, contentType.toString())
                 .build()
         }
 
@@ -154,12 +142,12 @@ class HttpUtilities {
             request: HttpRequestMessage<String?>,
             responseBody: String,
             httpStatus: HttpStatus,
-            contentType: String,
+            contentType: ContentType,
         ): HttpResponseMessage {
             return request
                 .createResponseBuilder(httpStatus)
                 .body(responseBody)
-                .header(HttpHeaders.CONTENT_TYPE, contentType)
+                .header(HttpHeaders.CONTENT_TYPE, contentType.toString())
                 .build()
         }
 

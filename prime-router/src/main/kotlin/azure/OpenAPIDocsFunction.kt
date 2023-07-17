@@ -8,6 +8,7 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import io.ktor.http.ContentType
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -15,9 +16,6 @@ import java.net.URL
 
 const val defaultConnEnvVar = "AzureWebJobsStorage"
 const val PARAM_RESOURCE_NAME = "resourceName"
-const val textJS = "text/javascript"
-const val textCSS = "text/css"
-const val textYaml = "text/yaml"
 val RESOURCES_NAMES = listOf<String>(
     "api.yaml",
     "index.css",
@@ -43,7 +41,12 @@ class OpenAPIDocsFunction : Logging {
         ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         val swaggerPage = getResourceAsText("/swagger-ui-5.1.0-dist/index.html")
-        return HttpUtilities.httpResponseHTML(request, swaggerPage ?: "swagger ui index.html not found.", HttpStatus.OK)
+        return HttpUtilities.httpResponseText(
+            request,
+            swaggerPage ?: "swagger ui index.html not found.",
+            HttpStatus.OK,
+            ContentType.Text.Html
+        )
     }
 
     @FunctionName("getSwaggerResources")
@@ -57,27 +60,39 @@ class OpenAPIDocsFunction : Logging {
         @BindingName(PARAM_RESOURCE_NAME) resourceName: String
     ): HttpResponseMessage {
         val resourcePath = "/swagger-ui-5.1.0-dist/$resourceName"
-        if (!RESOURCES_NAMES.contains(resourceName)) {
-            throw Exception("Unexpected resource request: resource name = $resourceName")
-        }
-        if (resourceName.endsWith(".png")) {
-            return HttpUtilities.httpResponseImage(request, getResourceAsStream(resourcePath), HttpStatus.OK)
-        } else {
-            var rsType = textJS
-            val resourceClob = getResourceAsText(resourcePath)
-            if (resourceName.endsWith(".css")) {
-                rsType = textCSS
-            } else if (resourceName.endsWith(".yaml")) {
-                rsType = textYaml
-            } else if (!resourceName.endsWith(".js")) {
-                throw Exception("Unexpected resource request: resource name = $resourceName")
-            }
+        return if (!RESOURCES_NAMES.contains(resourceName)) {
+            // better to response with 404 with minimum info
+            HttpUtilities.notFoundResponse(request, "Not Found")
+        } else if (resourceName.endsWith(".png")) {
+            return HttpUtilities.httpResponseImage(
+                request,
+                getResourceAsStream(resourcePath),
+                HttpStatus.OK,
+                ContentType.Image.PNG
+            )
+        } else if (resourceName.endsWith(".css")) {
             return HttpUtilities.httpResponseText(
                 request,
-                resourceClob
-                    ?: "Resource $resourceName not found.",
-                HttpStatus.OK, rsType
+                getResourceAsText(resourcePath) ?: "Resource $resourceName not found.",
+                HttpStatus.OK,
+                ContentType.Text.CSS
             )
+        } else if (resourceName.endsWith(".yaml")) {
+            return HttpUtilities.httpResponseText(
+                request,
+                getResourceAsText(resourcePath) ?: "Resource $resourceName not found.",
+                HttpStatus.OK,
+                ContentType.Text.Any
+            )
+        } else if (resourceName.endsWith(".js")) {
+            return HttpUtilities.httpResponseText(
+                request,
+                getResourceAsText(resourcePath) ?: "Resource $resourceName not found.",
+                HttpStatus.OK,
+                ContentType.Text.JavaScript
+            )
+        } else {
+            throw Exception("Unexpected resource request: resource name = $resourceName")
         }
     }
 
