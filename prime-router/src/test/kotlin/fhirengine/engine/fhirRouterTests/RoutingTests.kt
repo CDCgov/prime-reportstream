@@ -117,6 +117,21 @@ class RoutingTests {
         )
     )
 
+    private val elimsOrganization = DeepOrganization(
+        "elims-test",
+        "test",
+        Organization.Jurisdiction.FEDERAL,
+        receivers = listOf(
+            Receiver(
+                "elr",
+                "elims-test",
+                Topic.ELR_ELIMS,
+                CustomerStatus.ACTIVE,
+                "one"
+            )
+        )
+    )
+
     private val orgWithReversedQualityFilter = DeepOrganization(
         ORGANIZATION_NAME,
         "test",
@@ -1038,6 +1053,31 @@ class RoutingTests {
         assertThat(report.filteringResults).isEmpty()
         assertThat(receivers.size).isEqualTo(1)
         assertThat(receivers[0]).isEqualTo(oneOrganization.receivers[0])
+    }
+
+    @Test
+    fun `test elr-elims topic routing`() {
+        val fhirData = File(QUALITY_TEST_URL).readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+        val settings = FileSettings().loadOrganizations(elimsOrganization)
+        // All filters evaluate to true.
+        val jurisFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val qualFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val routingFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val procModeFilter = listOf(PROVENANCE_COUNT_GREATER_THAN_ZERO)
+        val engine = spyk(makeFhirEngine(metadata, settings) as FHIRRouter)
+        engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
+
+        // when doing routing for full-elr, verify that elims receiver isn't included (not even in logged results)
+        var receivers = engine.applyFilters(bundle, report, Topic.FULL_ELR)
+        assertThat(report.filteringResults).isEmpty()
+        assertThat(receivers).isEmpty()
+
+        // when doing routing for elims, verify that elims receiver is included
+        receivers = engine.applyFilters(bundle, report, Topic.ELR_ELIMS)
+        assertThat(report.filteringResults).isEmpty()
+        assertThat(receivers.size).isEqualTo(1)
+        assertThat(receivers[0]).isEqualTo(elimsOrganization.receivers[0])
     }
 
     @Test

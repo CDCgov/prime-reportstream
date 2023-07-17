@@ -42,7 +42,7 @@ plugins {
     id("com.avast.gradle.docker-compose") version "0.16.12"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
     id("com.nocwriter.runsql") version ("1.0.3")
-    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.9"
+    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.15"
 }
 
 group = "gov.cdc.prime"
@@ -106,7 +106,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 defaultTasks("package")
 
 val ktorVersion = "2.3.2"
-val kotlinVersion = "1.8.22"
+val kotlinVersion = "1.9.0"
 val jacksonVersion = "2.15.2"
 
 jacoco.toolVersion = "0.8.9"
@@ -744,7 +744,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
     implementation("com.azure:azure-core:1.41.0")
     implementation("com.azure:azure-core-http-netty:1.13.5")
@@ -835,7 +835,7 @@ dependencies {
     implementation("org.jsoup:jsoup:1.16.1")
     // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
     implementation("io.swagger:swagger-annotations:1.6.11")
-    implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.8")
+    implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.15")
     // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
     implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
     // https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api
@@ -855,7 +855,7 @@ dependencies {
         exclude(group = "com.github.kittinunf.fuel", module = "fuel")
     }
     // kotlinx-coroutines-core is needed by mock-fuel
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
     testImplementation("io.mockk:mockk:1.13.5")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")

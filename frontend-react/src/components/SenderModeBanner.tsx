@@ -3,18 +3,18 @@ import { Icon } from "@trussworks/react-uswds";
 
 import { useSessionContext } from "../contexts/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
-import { useSenderResource } from "../hooks/UseSenderResource";
+import useSenderResource from "../hooks/UseSenderResource";
 
 import { USLink } from "./USLink";
+import { withCatchAndSuspense } from "./RSErrorBoundary";
 
 const isNotActive = (val: string | undefined): boolean => {
     return val === "testing" || val === "inactive";
 };
 
 const BannerContent = () => {
-    const { senderDetail: sender, senderIsLoading: loading } =
-        useSenderResource();
-    if (!loading && isNotActive(sender?.customerStatus)) {
+    const { data: sender, isLoading } = useSenderResource();
+    if (!isLoading && isNotActive(sender?.customerStatus)) {
         return (
             <section>
                 <header className="usa-banner__header bg-yellow">
@@ -42,7 +42,7 @@ const SenderModeBanner = (): ReactElement | null => {
     const { activeMembership } = useSessionContext();
 
     if (activeMembership?.memberType === MemberType.SENDER) {
-        return <BannerContent />;
+        return withCatchAndSuspense(<BannerContent />);
     }
     return null;
 };
