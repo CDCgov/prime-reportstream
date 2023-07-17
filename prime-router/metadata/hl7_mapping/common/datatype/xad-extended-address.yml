@@ -28,14 +28,18 @@ elements:
     value: [ '%resource.country' ]
     hl7Spec: [ '%{hl7XADField}-6' ]
 
-  - name: xad-use
-    condition: '%resource.use.exists()'
-    value: [ '%resource.use.value' ]
+  - name: xad-type
+    condition: '%resource.use.exists() or %resource.type.exists()'
+    value: [ '%resource.use.value', '%resource.type.value' ]
     hl7Spec: [ '%{hl7XADField}-7' ]
     valueSet:
       home: H
       work: B
       temp: C
+      postal: M
+      old: BA
+      physical: SH
+      billing: BI
 
   - name: xad-county
     value: [ '%resource.district' ]
