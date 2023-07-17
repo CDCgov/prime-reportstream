@@ -845,4 +845,9 @@ h2.rs-numbered {
     .grid-container {
         @include grid-container("desktop-lg");
     }
+
+    // Smaller font for content alerts
+    .usa-alert {
+        @include u-font-size("sans", "xs");
+    }
 }
