@@ -23,6 +23,8 @@ export const dummySender = {
     topic: "covid-19",
     customerStatus: "testing",
     schemaName: "test/covid-19-test",
+    allowDuplicates: false,
+    processingType: "sync",
 };
 
 export const fakeOrg = {
