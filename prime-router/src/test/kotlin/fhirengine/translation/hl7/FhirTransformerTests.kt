@@ -777,7 +777,7 @@ class FhirTransformerTests {
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
         val bundle = messages[0]
 
-        val childSchema = ConfigSchemaReader.readSchemaTreeFromFile(
+        val childSchema = ConfigSchemaReader.fromFile(
             "test_extension_schema",
             "src/test/resources/fhir_sender_transforms",
             schemaClass = FhirTransformSchema::class.java,
@@ -800,5 +800,6 @@ class FhirTransformerTests {
         assertThat(transformedDiagnosticReports[0].id).isEqualTo("extensionId")
         assertThat(transformedPatient.id).isEqualTo("123456")
         assertThat(transformedObservation.status).isEqualTo(Observation.ObservationStatus.FINAL)
+        assertThat(transformedPatient.name[0].text).isEqualTo("placeholder value")
     }
 }

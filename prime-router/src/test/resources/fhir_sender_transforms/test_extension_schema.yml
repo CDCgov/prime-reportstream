@@ -1,4 +1,4 @@
-#extends: test_base_schema
+extends: test_base_schema
 elements:
   - name: note
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0]'
