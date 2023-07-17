@@ -32,8 +32,11 @@ function DashboardFilterAndTable({
     };
 
     // Pagination and filter props
-    const { results, filterManager, isDeliveriesLoading } =
-        useReceiverDeliveries(activeService.name);
+    const {
+        data: results,
+        filterManager,
+        isLoading: isDeliveriesLoading,
+    } = useReceiverDeliveries(activeService.name);
 
     if (isDeliveriesLoading || !results) return <Spinner />;
 

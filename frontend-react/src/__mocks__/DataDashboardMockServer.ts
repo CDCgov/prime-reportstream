@@ -56,9 +56,9 @@ export const makeRSReceiverDeliveryResponseFixture = (
 ): RSReceiverDeliveryResponse => ({
     meta: {
         type: overrides?.meta?.type || "delivery",
-        totalCount: overrides?.meta?.totalCount || 10,
-        totalFilteredCount: overrides?.meta?.totalFilteredCount || 10,
-        totalPages: overrides?.meta?.totalPages || 2,
+        totalCount: overrides?.meta?.totalCount || 101,
+        totalFilteredCount: overrides?.meta?.totalFilteredCount || 101,
+        totalPages: overrides?.meta?.totalPages || 10,
         nextPage: overrides?.meta?.nextPage || 2,
     },
     data: makeRSReceiverDeliveryFixtureArray(deliveryCount),
