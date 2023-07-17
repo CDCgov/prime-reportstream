@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Check for Storybook story changes
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Check for Storybook story changes
         id: set_vars
