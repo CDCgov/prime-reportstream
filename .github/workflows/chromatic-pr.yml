@@ -30,23 +30,25 @@ jobs:
       - name: List all changed files
         id: set_vars
         run: |
-          while IFS= read -r file; do
+          for file in ${{ steps.changed_files.outputs.all_changed_files }}; do
             if [[ -n $file ]]; then 
               echo "File event: $file"
               
-              full_path="$GITHUB_WORKSPACE/$file"  # Prepend the file name with the workspace path
-              
-              if [[ -f $full_path ]]; then  # Check if the file exists
+              full_path="$GITHUB_WORKSPACE/$file"
+              if [[ -f $full_path ]]; then
                 first_line=$(head -n 1 "$full_path")
                 
                 if [[ $first_line == *AutoUpdateFileChromatic* ]]; then
-                  echo ::debug:: IF STATEMENT AutoUpdateFileChromatic reached
-                  echo "chromatic=true" >> $GITHUB_OUTPUT
+                  export chromatic=true
                   break
                 fi
               fi
             fi
-          done <<< "${{ steps.changed_files.outputs.all_changed_files }}"
+          done
+
+          if [[ $chromatic == 'true' ]]; then
+            echo "chromatic=true" >> $GITHUB_OUTPUT
+          fi
 
       - name: Find Comment
         id: comment_find
