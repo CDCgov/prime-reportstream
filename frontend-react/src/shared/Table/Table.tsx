@@ -1,6 +1,4 @@
 // AutoUpdateFileChromatic
-// Checking latest Changed-files and Checkout changes
-// OMG plz help me
 import classnames from "classnames";
 import { ReactNode, useState } from "react";
 import { Icon } from "@trussworks/react-uswds";
