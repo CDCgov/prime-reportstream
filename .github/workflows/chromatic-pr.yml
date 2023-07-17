@@ -19,18 +19,17 @@ jobs:
     name: Chromatic
     runs-on: ubuntu-latest
     steps:
-      - name: Check for Storybook story changes
-        uses: actions/checkout@v3
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v37
 
-      - name: Check for Storybook story changes
-        id: set_vars
+      - name: List all changed files
         run: |
-          for filename in "${{ github.event.commits[0].added }}" "${{ github.event.commits[0].modified }}" "${{ github.event.commits[0].removed }}";
-          do
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             if [[ -n $file ]]; then 
-              echo "File event: $filename"
+              echo "File event: $file"
 
-              first_line=$(head -n 1 "$filename")
+              first_line=$(head -n 1 "$file")
               
               if [[ $first_line == *AutoUpdateFileChromatic* ]]; then
                 echo "chromatic=true" >> $GITHUB_OUTPUT
