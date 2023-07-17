@@ -73,6 +73,8 @@ elements:
 
   # this value just confirms that this segment part is HL7-Race
   - name: patient-race-coding-system
+    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").exists() or
+                %resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").exists()'
     value:
       - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("ombCategory").value.system'
       - '"HL70005"'
@@ -143,7 +145,7 @@ elements:
     hl7Spec: [ '%{hl7PIDField}-22-7' ]
 
   - name: patient-multiple-birth-order
-    value: [ '%resource.multipleBirth']
+    value: [ '%resource.multipleBirth' ]
     hl7Spec: [ '%{hl7PIDField}-25' ]
 
   - name: patient-death-date-time
