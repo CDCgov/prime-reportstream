@@ -14,3 +14,11 @@
 - Asynchronous Pipeline (explain how this affects the history query)
 
 ## Data Retention Policy
+
+## Pipeline steps
+
+- [Receive](./receive.md)
+- [Convert/Translate](./convert-translate.md)
+- [Route](./route.md)
+- [Batch](./batch.md)
+- [Send](./send.md)

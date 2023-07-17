@@ -14,3 +14,9 @@ This section is a step by step walkthrough for an Engagement Engineer (not an ex
 - Define Receiver
   - STLT
   - CDC - (HHS) Protect & DEX
+
+## Common onboarding tasks
+
+- [Configuring a new receiver](./receivers.md)
+- [Configuring a new sender](./senders.md)
+- [Migrarting from the legacy pipeline](./migration.md)
