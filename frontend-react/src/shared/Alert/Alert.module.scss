@@ -1,0 +1,43 @@
+@use "../../global-modules.scss" as *;
+
+.usa-alert {
+    &:before {
+        all: unset;
+    }
+
+    :global(.usa-alert__body) {
+        min-height: units(3);
+    }
+
+    &--tip {
+        @include u-border("primary-lighter");
+        @include u-border(1px);
+        @include u-border("solid");
+        @include u-radius("md");
+
+        :global(.usa-alert__heading) {
+            font-size: size("body", "sm");
+        }
+    }
+
+    :global(div.usa-alert__heading) {
+        font-weight: bold;
+    }
+
+    :global(.usa-alert__body > .usa-icon) {
+        @include u-width(4);
+        height: (2 * units($theme-alert-padding-y)) + units(3);
+        left: $alert-icon-optical-padding;
+        position: absolute;
+        top: 0;
+    }
+
+    &--no-icon &__body {
+        padding-left: 0;
+    }
+}
+
+:global(.usa-alert--slim .usa-alert__body > .usa-icon) {
+    @include u-height(5);
+    @include u-width(3);
+}

@@ -78,6 +78,14 @@ class GetFilterTests {
         "one"
     )
 
+    private val elrElimsReceiverNoFilters = Receiver(
+        "elr-elims-hl7",
+        "elims-org",
+        Topic.ELR_ELIMS,
+        CustomerStatus.ACTIVE,
+        "one"
+    )
+
     private val receiverWithFilters = Receiver(
         RECEIVER_NAME,
         ORGANIZATION_NAME,
@@ -243,6 +251,9 @@ class GetFilterTests {
 
         filters = engine.getQualityFilters(etorTiReceiverNoFilters, emptyList())
         assert(filters === engine.qualityFilterDefaults[Topic.ETOR_TI])
+
+        filters = engine.getQualityFilters(elrElimsReceiverNoFilters, emptyList())
+        assert(filters === engine.qualityFilterDefaults[Topic.ELR_ELIMS])
     }
 
     @Test
