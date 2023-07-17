@@ -27,13 +27,15 @@ jobs:
         run: |
           for filename in "${{ github.event.commits[0].added }}" "${{ github.event.commits[0].modified }}" "${{ github.event.commits[0].removed }}";
           do
-            echo "File event: $filename"
+            if [[ -n $file ]]; then 
+              echo "File event: $filename"
 
-            first_line=$(head -n 1 "$filename")
-            
-            if [[ $first_line == *AutoUpdateFileChromatic* ]]; then
-              echo "chromatic=true" >> $GITHUB_OUTPUT
-              break
+              first_line=$(head -n 1 "$filename")
+              
+              if [[ $first_line == *AutoUpdateFileChromatic* ]]; then
+                echo "chromatic=true" >> $GITHUB_OUTPUT
+                break
+              fi
             fi
           done
 
