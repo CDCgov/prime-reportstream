@@ -1,5 +1,7 @@
 package gov.cdc.prime.router.cli.tests
 
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.extensions.authentication
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.cli.SettingCommand
@@ -7,6 +9,24 @@ import gov.cdc.prime.router.cli.SettingsUtilities
 import gov.cdc.prime.router.common.Environment
 import org.apache.http.HttpStatus
 import java.net.HttpURLConnection
+
+/**
+ * Container for data used on Settings API Tests
+ * @property name Human-readable name of this test case
+ * @property path REST API path for this test
+ * @property headers HTTP headers to send in this test
+ * @property parameters to tack onto the end of the query
+ * @property bearer token to pass as an Authorization: Bearer token for this test case
+ * @property expectedHttpStatus for quick verification of the response status
+ */
+data class SettingsApiTestCase(
+    val name: String,
+    val path: String,
+    val headers: Map<String, String>,
+    val parameters: List<Pair<String, Any?>>?,
+    val bearer: String,
+    val expectedHttpStatus: com.microsoft.azure.functions.HttpStatus,
+)
 
 /**
  * Test CRUD of the Setting API.  It is smoke test that does the following steps:
@@ -25,7 +45,6 @@ import java.net.HttpURLConnection
  *      bad("Test GRUD of Setting API: $output" - Where $output is the specific error message from CRUD API
  *
  */
-
 class SettingsTest : CoolTest() {
     override val name = "settings"
     override val description = "Test CRUD of the Setting API"
@@ -39,10 +58,10 @@ class SettingsTest : CoolTest() {
     private val settingErrorMessage = "Test GRUD of Setting API: "
 
     /**
-     * Define the new dummy organization to be use for test of setting/create the new
+     * Define the new dummy organization to be used for test of setting/create the new
      * dummy organization.
      */
-    val newDummyOrganization = """
+    private val newDummyOrganization = """
         {
             "name": "dummy",
             "description": "NEWDUMMYORG",
@@ -58,10 +77,10 @@ class SettingsTest : CoolTest() {
     """
 
     /**
-     * Define the update dummy organization to be use for test of updating the
+     * Define the update dummy organization to be used for test of updating the
      * dummy organization.
      */
-    val updateDummyOrganization = """
+    private val updateDummyOrganization = """
         {
             "name": "dummy",
             "description": "UPDATEDUMMYORG",
@@ -78,7 +97,40 @@ class SettingsTest : CoolTest() {
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting CRUD REST API ${environment.url}")
+        val bearer = getAccessToken(environment, name)
 
+        val testCases = mutableListOf(
+            SettingsApiTestCase(
+                "simple history API happy path test",
+                "${environment.url}/api/waters/org/$historyTestOrgName/submissions",
+                emptyMap(),
+                listOf("pagesize" to options.submits),
+                bearer,
+                com.microsoft.azure.functions.HttpStatus.OK,
+            ),
+            SettingsApiTestCase(
+                "no such organization",
+                "${environment.url}/api/waters/org/gobblegobble/submissions",
+                emptyMap(),
+                listOf("pagesize" to options.submits),
+                bearer,
+                com.microsoft.azure.functions.HttpStatus.NOT_FOUND,
+            )
+        )
+        return runApiTestCases(testCases)
+    }
+
+    private fun runApiTestCases(testCases: List<SettingsApiTestCase>): Boolean {
+        val allPassed = testCases.map {
+            ugly("Starting test: ${it.name}")
+            val queryPass = runApiQuery(it)
+            if (queryPass) good("Test Passed:  ${it.name}")
+            queryPass
+        }.reduce { acc, onePassed -> acc and onePassed }
+        return allPassed
+    }
+
+    private fun runApiQuery(testCase: SettingsApiTestCase): Boolean {
         /**
          * Obtain the URL/path endpoint
          */
@@ -88,24 +140,28 @@ class SettingsTest : CoolTest() {
             SettingCommand.SettingType.ORGANIZATION,
             settingName
         )
-
         /**
          * VERIFY the dummy organization existed or not
          */
         echo("VERIFY the dummy organization existed or not...")
 
-        val (_, _, result) = SettingsUtilities.get(path, dummyAccessToken)
+        val (_, _, result) = Fuel.get(testCase.path, testCase.parameters)
+            .authentication()
+            .bearer(testCase.bearer)
+            .header(testCase.headers)
+            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+            .responseString()
         val (_, error) = result
         if (error?.response?.statusCode != HttpStatus.SC_NOT_FOUND) {
             val (_, responseDel, resultDel) = SettingsUtilities.delete(path, dummyAccessToken)
             val (_, errorDel) = resultDel
             when (errorDel?.response?.statusCode) {
                 HttpStatus.SC_OK -> Unit
-                else ->
+                else -> {
                     return bad(settingErrorMessage + "Failed Dummy organization - ${responseDel.responseMessage}.")
+                }
             }
         }
-
         /**
          * CREATE the dummy organization
          */
@@ -114,27 +170,26 @@ class SettingsTest : CoolTest() {
         val (_, responseCreateNewDummy, _) = output
         when (responseCreateNewDummy.statusCode) {
             HttpStatus.SC_CREATED -> Unit
-            else -> return bad(settingErrorMessage + "Failed on create new dummy organization.")
+            else -> {
+                return bad(settingErrorMessage + "Failed on create new dummy organization.")
+            }
         }
-
         /**
          * VERIFY the created dummy organization
          */
         echo("VERITY the new dummy organization was created...")
-        var (_, responseNewDummy, resultNewDummy) = SettingsUtilities.get(path, dummyAccessToken)
-        var (payloadNewDummy, errorNewDummy) = resultNewDummy
+        val (_, responseNewDummy, resultNewDummy) = SettingsUtilities.get(path, dummyAccessToken)
+        val (payloadNewDummy, errorNewDummy) = resultNewDummy
         if (errorNewDummy?.response?.statusCode == HttpStatus.SC_NOT_FOUND) {
             return bad(settingErrorMessage + responseNewDummy.responseMessage)
         }
-
         /**
-         * The payload must contains the known "NEWDUMMYORG" defined
+         * The payload must contain the known "NEWDUMMYORG" defined
          * in the newDummyOrganization resource above.
          */
         if (!payloadNewDummy?.contains("NEWDUMMYORG")!!) {
             return bad(settingErrorMessage + "It is not the created dummy organization.")
         }
-
         /**
          * UPDATE the dummy organization
          */
@@ -142,9 +197,10 @@ class SettingsTest : CoolTest() {
         val (_, responseCreateUpdateDummy, _) = output
         when (responseCreateUpdateDummy.statusCode) {
             HttpStatus.SC_OK -> Unit
-            else -> return bad(settingErrorMessage + "Failed on can't create update dummy organization.")
+            else -> {
+                return bad(settingErrorMessage + "Failed on can't create update dummy organization.")
+            }
         }
-
         /**
          * VERIFY the updated dummy organization
          */
@@ -156,7 +212,7 @@ class SettingsTest : CoolTest() {
         }
 
         /**
-         * The payload must contains the known "UPDATEDUMMYORG" defined
+         * The payload must contain the known "UPDATEDUMMYORG" defined
          * in the updateDummyOrganization resource above.
          */
         if (!payload?.contains("UPDATEDUMMYORG")!!) {
