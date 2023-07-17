@@ -14,7 +14,7 @@ import { EventName, trackAppInsightEvent } from "../../utils/Analytics";
 import { showError } from "../AlertNotifications";
 import { RSSender } from "../../config/endpoints/settings";
 import { MembershipSettings } from "../../hooks/UseOktaMemberships";
-import { useSenderResource } from "../../hooks/UseSenderResource";
+import useSenderResource from "../../hooks/UseSenderResource";
 import Spinner from "../Spinner";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { WatersResponse } from "../../config/endpoints/waters";
@@ -86,8 +86,8 @@ export default function FileHandlerFileUploadStep({
 }: FileHandlerFileUploadStepProps) {
     const { data: organization } = useOrganizationSettings();
     const {
-        senderDetail,
-        senderIsLoading,
+        data: senderDetail,
+        isLoading: senderIsLoading,
         isInitialLoading: senderIsInitialLoading,
     } = useSenderResource();
     const { activeMembership } = useSessionContext();

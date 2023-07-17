@@ -1,34 +1,41 @@
 import { renderHook, RenderHookResult } from "@testing-library/react";
 
 import { AppWrapper } from "../../../utils/CustomRenderUtils";
-import { UseSenderResourceHookResult } from "../../../hooks/UseSenderResource";
-import {
-    CustomerStatus,
-    FileType,
-} from "../../../utils/TemporarySettingsAPITypes";
+import { FileType } from "../../../utils/TemporarySettingsAPITypes";
 import * as useSenderResourceExports from "../../../hooks/UseSenderResource";
+import { UseSenderResourceHookResult } from "../../../hooks/UseSenderResource";
+import { RSSender } from "../../../config/endpoints/settings";
+import { dummySender } from "../../../__mocks__/OrganizationMockServer";
 
 import useSenderSchemaOptions, {
     STANDARD_SCHEMA_OPTIONS,
+    StandardSchema,
     UseSenderSchemaOptionsHookResult,
 } from "./";
 
 describe("useSenderSchemaOptions", () => {
     let renderer: RenderHookResult<UseSenderSchemaOptionsHookResult, unknown>;
+    const DEFAULT_SENDER: RSSender = {
+        name: "testSender",
+        organizationName: "testOrg",
+        format: "CSV",
+        topic: "covid-19",
+        customerStatus: "testing",
+        schemaName: StandardSchema.CSV,
+        allowDuplicates: false,
+        processingType: "sync",
+    };
 
     function doRenderHook({
-        senderDetail = undefined,
-        senderIsLoading = false,
+        data = DEFAULT_SENDER,
+        isLoading = false,
         isInitialLoading = false,
-    }: UseSenderResourceHookResult) {
-        jest.spyOn(
-            useSenderResourceExports,
-            "useSenderResource"
-        ).mockReturnValue({
-            senderDetail,
-            senderIsLoading,
+    }) {
+        jest.spyOn(useSenderResourceExports, "default").mockReturnValue({
+            data,
+            isLoading,
             isInitialLoading,
-        });
+        } as UseSenderResourceHookResult);
 
         return renderHook(() => useSenderSchemaOptions(), {
             wrapper: AppWrapper(),
@@ -38,7 +45,7 @@ describe("useSenderSchemaOptions", () => {
     describe("when not logged in", () => {
         beforeEach(() => {
             renderer = doRenderHook({
-                senderIsLoading: false,
+                isLoading: false,
                 isInitialLoading: false,
             });
         });
@@ -55,7 +62,7 @@ describe("useSenderSchemaOptions", () => {
         describe("when sender detail query is loading", () => {
             beforeEach(() => {
                 renderer = doRenderHook({
-                    senderIsLoading: true,
+                    isLoading: true,
                     isInitialLoading: true,
                 });
             });
@@ -71,7 +78,7 @@ describe("useSenderSchemaOptions", () => {
         describe("when sender detail query is disabled", () => {
             beforeEach(() => {
                 renderer = doRenderHook({
-                    senderIsLoading: true,
+                    isLoading: true,
                     isInitialLoading: false,
                 });
             });
@@ -88,17 +95,8 @@ describe("useSenderSchemaOptions", () => {
             describe("when the Sender has a different schema than the standard schema options", () => {
                 beforeEach(() => {
                     renderer = doRenderHook({
-                        senderDetail: {
-                            allowDuplicates: true,
-                            customerStatus: CustomerStatus.ACTIVE,
-                            format: FileType.CSV,
-                            name: "test",
-                            organizationName: "test",
-                            processingType: "sync",
-                            schemaName: "test/test-csv",
-                            topic: "covid-19",
-                        },
-                        senderIsLoading: true,
+                        data: dummySender,
+                        isLoading: true,
                         isInitialLoading: false,
                     });
                 });
@@ -108,8 +106,8 @@ describe("useSenderSchemaOptions", () => {
                     expect(renderer.result.current.schemaOptions).toEqual([
                         {
                             format: FileType.CSV,
-                            title: "test/test-csv (CSV)",
-                            value: "test/test-csv",
+                            title: "test/covid-19-test (CSV)",
+                            value: "test/covid-19-test",
                         },
                         ...STANDARD_SCHEMA_OPTIONS,
                     ]);
@@ -118,20 +116,8 @@ describe("useSenderSchemaOptions", () => {
 
             describe("when the Sender has the same schema as one of the standard schema options", () => {
                 beforeEach(() => {
-                    const schemaOption = STANDARD_SCHEMA_OPTIONS[0];
-
                     renderer = doRenderHook({
-                        senderDetail: {
-                            allowDuplicates: true,
-                            customerStatus: CustomerStatus.ACTIVE,
-                            format: schemaOption.format,
-                            name: "test",
-                            organizationName: "test",
-                            processingType: "sync",
-                            schemaName: schemaOption.value,
-                            topic: "covid-19",
-                        },
-                        senderIsLoading: true,
+                        isLoading: true,
                         isInitialLoading: false,
                     });
                 });
