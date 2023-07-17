@@ -1296,3 +1296,24 @@ fun lookupTableReadAndWriteSmokeTests(
     }
     return Pair(passed, failedMessages)
 }
+
+/**
+ * The access token left by a previous login command as specified by the command line parameters
+ * @param environment Where is the test hitting? Staging, Local?
+ * @param testName Name of test for logging
+ * @return The access token if we're in the oktaApp environment, otherwise "dummy"
+ */
+fun getOktaAccessToken(
+    environment: Environment,
+    testName: String
+): String {
+    return if (environment.oktaApp == null) {
+        "dummy"
+    } else {
+        OktaCommand.fetchAccessToken(environment.oktaApp)
+            ?: CommandUtilities.abort(
+                "Cannot run test $testName. Invalid access token. " +
+                    "Run ./prime login to fetch/refresh a PrimeAdmin access token for the $environment environment."
+            )
+    }
+}
