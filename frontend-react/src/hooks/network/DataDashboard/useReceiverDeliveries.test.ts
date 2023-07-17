@@ -35,10 +35,8 @@ describe("useReceiverDeliveries", () => {
             const { result } = renderHook(() => useReceiverDeliveries(), {
                 wrapper: AppWrapper(),
             });
-            await waitFor(() =>
-                expect(result.current.results).toEqual(undefined)
-            );
-            expect(result.current.isDeliveriesLoading).toEqual(true);
+            await waitFor(() => expect(result.current.data).toEqual(undefined));
+            expect(result.current.isLoading).toEqual(true);
         });
     });
 
@@ -70,11 +68,11 @@ describe("useReceiverDeliveries", () => {
                 }
             );
             await waitFor(() =>
-                expect(result.current.results).toEqual(
+                expect(result.current.data).toEqual(
                     makeRSReceiverDeliveryResponseFixture(5)
                 )
             );
-            expect(result.current.isDeliveriesLoading).toEqual(false);
+            expect(result.current.isLoading).toEqual(false);
         });
     });
 });
