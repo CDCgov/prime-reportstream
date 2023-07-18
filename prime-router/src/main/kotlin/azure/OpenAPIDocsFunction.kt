@@ -32,7 +32,7 @@ val RESOURCES_NAMES = listOf<String>(
 class OpenAPIDocsFunction : Logging {
 
     @FunctionName("getApiDocs")
-    fun getAPIDocs(
+    fun getApiDocs(
         @HttpTrigger(
             name = "getApiDocs",
             methods = [HttpMethod.GET],
