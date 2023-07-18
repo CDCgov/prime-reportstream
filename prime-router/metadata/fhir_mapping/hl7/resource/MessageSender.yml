@@ -44,6 +44,21 @@ identifier_3:
     typeCode: ISO
     typeCodeSystem: v2-0301
 
+# Universal ID for CLIA
+identifier_4:
+  valueOf: datatype/Identifier_Gen
+  condition: $idStr NOT_NULL && $systemStr EQUALS CLIA
+  generateList: true
+  expressionType: resource
+  vars:
+    idStr: String, MSH.4.2
+    id: $uuidUrlPrefix + MSH.4.2
+    systemStr: String, MSH.4.3
+  constants:
+    uuidUrlPrefix: "urn:clia:"
+    typeCode: CLIA
+    typeCodeSystem: v2-0301
+
 address:
   valueOf: datatype/Address
   expressionType: resource

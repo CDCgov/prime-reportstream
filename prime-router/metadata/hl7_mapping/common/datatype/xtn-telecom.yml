@@ -80,6 +80,6 @@ elements:
     hl7Spec: [ '%{hl7TelecomPath}-9' ]
 
   - name: xtn-unformatted-text
-    condition: '%resource.value.exists()'
+    condition: '%resource.value.exists() and %resource.system != "email"'
     value: [ '%deidentifiedValue','%resource.value' ]
     hl7Spec: [ '%{hl7TelecomPath}-12' ]
