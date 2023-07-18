@@ -14,8 +14,17 @@ import java.util.SortedMap
  * that can return a SortedMap<String, String> at runtime.
  */
 interface ValueSetMap {
+    /**
+     * @return a SortedMap<String, String> representation of the valueSet
+     */
     fun toSortedMap(): SortedMap<String, String>
+    /**
+     * @return the value matching [keyValue] in the valueSet, or null if there is no match
+     */
     fun getMappedValue(keyValue: String): String?
+    /**
+     * @return true if the valueSet is not empty
+     */
     fun isNotEmpty(): Boolean
 }
 
@@ -25,9 +34,6 @@ interface ValueSetMap {
 class InlineValueSet
 (@JsonProperty("values") private val values: SortedMap<String, String>) : ValueSetMap {
 
-    /**
-     * @return a SortedMap<String, String> representation of the valueSet
-     */
     override fun toSortedMap(): SortedMap<String, String> {
         return values
     }

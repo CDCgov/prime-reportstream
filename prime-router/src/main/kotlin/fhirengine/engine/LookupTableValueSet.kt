@@ -30,9 +30,6 @@ class LookupTableValueSet
     private val metadata = Metadata.getInstance()
     private var mapVal: SortedMap<String, String>? = null
 
-    /**
-     * @return a SortedMap<String, String> representation of the valueSet
-     */
     override fun toSortedMap(): SortedMap<String, String> {
         if (mapVal == null) {
             buildMap()
