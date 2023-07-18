@@ -7,19 +7,34 @@ This directory contains a python example of how to connect to ReportStream as a 
 #### Prerequisites
 
 - Python 3
-- pipx python package manager
+- pipenv python package manager
 - Python packages `PyJWT` and `cryptography`
 
 #### Setup
 
-1. Install pipx using [their instructions](https://pypa.github.io/pipx/installation/)
+1. Install pipenv using [their instructions](https://pipenv.pypa.io/en/latest/installation/)
+    <details>
+      <summary>Windows</summary>
+
+      ```bash
+      python3.exe -m pip install --user pipenv
+      ```
+    </details>
+
+    <details>
+      <summary>Linux or Mac</summary>
+
+      ```bash
+      python3 -m pip install --user pipenv
+      ```
+    </details>
        
-2. Ensure pipx has been added to the PATH
+2. Install python dependencies using pipenv. From inside the `generate-jwt-python` directory:
     <details>
       <summary>Windows</summary>
     
       ```bash
-      python3.exe -m pipx ensurepath
+      python3.exe -m pipenv install
       ```
     </details>
 
@@ -27,39 +42,23 @@ This directory contains a python example of how to connect to ReportStream as a 
       <summary>Linux or Mac</summary>
     
       ```bash
-      python3 -m pipx ensurepath
+      python3 -m pipenv install
       ```
     </details>
 
-3. Install the python dependencies using pipx
-    <details>
-      <summary>Windows</summary>
-    
-      ```bash
-      python3.exe -m pipx install PyJWT cryptography
-      ```
-    </details>
-
-    <details>
-      <summary>Linux or Mac</summary>
-    
-      ```bash
-      python3 -m pipx install PyJWT cryptography
-      ```
-    </details>
-
-4. Then in `generate-jwt.py`, make these two changes:
+3. Then in `generate-jwt.py`, make these two changes:
     1. Change `my_client_id` to be your unique client-id string, as given to you by the ReportStream team back in Step 1.
     2. Point the `my_rsa_keypair_file` to be the path to your generated rsa keypair pem file.
 
 #### Run
 
-Then run it:
+Launch a shell and run it:
 
 <details>
   <summary>Windows</summary>
 
   ```bash
+  python3.exe -m pipenv shell
   python3.exe .\generate-jwt.py
   ```
 </details>
@@ -68,6 +67,7 @@ Then run it:
   <summary>Linux or Mac</summary>
 
   ```bash
+  python3 -m pipenv shell
   python3 ./generate-jwt.py
   ```
 </details>
