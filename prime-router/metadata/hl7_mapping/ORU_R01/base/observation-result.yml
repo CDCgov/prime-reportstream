@@ -142,7 +142,7 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-14' ]
 
   - name: observation-producer-id
-    resource: '%resource.extension(%`rsext-producer-id`).value.resolve().identifier'
+    resource: '%resource.extension(%`rsext-producer-id`).value'
     constants:
       ceFieldPath: '%{hl7OBXField}-15'
     schema: ../../common/datatype/ce-coded-element
@@ -161,6 +161,14 @@ elements:
     resource: '%resource.extension(%`rsext-producer-id`).value.resolve().identifier.extension(%`rsext-coding-system`).value'
     value: [ '%resource.coding.code' ]
     hl7Spec: [ '%{hl7OBXField}-15-3' ]
+
+  - name: responsible-observer
+    resource: '%resource.performer.resolve().practitioner.resolve()'
+    condition: '%resource.identifier.type.coding.code="responsibleObserver"'
+    constants:
+      hl7XCNField: '%{hl7OBXField}-16'
+    schema: ../../common/datatype/xcn-contact
+    resourceIndex: contactIndex
 
   - name: observation-method
     resource: '%resource.method'
@@ -204,6 +212,7 @@ elements:
 
   - name: performing-organization-director
     resource: '%resource.performer.resolve().practitioner.resolve()'
+    condition: '%resource.identifier.type.coding.code="MDIR"'
     constants:
       hl7XCNField: '%{hl7OBXField}-25'
     schema: ../../common/datatype/xcn-contact

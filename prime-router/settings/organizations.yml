@@ -118,6 +118,12 @@
       customerStatus: active
       schemaName: metadata/fhir_transforms/senders/default-sender-transform
       format: HL7
+    - name: ignore-elr-elims      # Use this to test elr-elims
+      organizationName: ignore
+      topic: elr-elims
+      customerStatus: active
+      schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      format: HL7
     - name: ignore-fhir      # Use this to test fhir
       organizationName: ignore
       topic: full-elr
@@ -234,6 +240,26 @@
         type: "HL7"
         receivingApplicationName: "CO-ETOR"
         receivingFacilityName: "CO"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: ELR_ELIMS
+      externalName: Ignore ELR_ELIMS
+      organizationName: ignore
+      topic: elr-elims
+      customerStatus: active
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        useBatchHeaders: true
+        type: "HL7"
       transport:
         type: SFTP
         host: sftp
@@ -886,6 +912,13 @@
 - name: development
   description: FOR DEVELOPMENT PURPOSES ONLY
   jurisdiction: FEDERAL
+  senders:
+    - name: dev-elims
+      organizationName: development
+      topic: full-elr
+      customerStatus: active
+      schemaName: metadata/fhir_transforms/senders/CDC-ELIMS/elims-sender-transform
+      format: HL7
   receivers:
     # THIS RECEIVER IS NOT USED IN ANY TESTS AND CAN BE UPDATED TO YOUR HEARTS CONTENT
     - name: DEV_FULL_ELR
@@ -982,6 +1015,54 @@
         type: "HL7"
         receivingApplicationName: ""
         receivingFacilityName: ""
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: DEV_ELIMS
+      externalName: ELIMS Development
+      organizationName: development
+      topic: elr-elims
+      customerStatus: inactive
+      jurisdictionalFilter: [ "true" ]
+      qualityFilter:
+        - "true"
+      processingModeFilter: [ "true" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        useTestProcessingMode: false
+        useBatchHeaders: false
+        type: "HL7"
+        receivingApplicationName: ""
+        receivingFacilityName: ""
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: DEV_ELIMS_FHIR
+      externalName: ELIMS Development
+      organizationName: development
+      topic: elr-elims
+      customerStatus: inactive
+      jurisdictionalFilter: [ "true" ]
+      qualityFilter:
+        - "true"
+      processingModeFilter: [ "true" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<FHIR>
+        useBatching: false
+        type: "FHIR"
       transport:
         type: SFTP
         host: sftp

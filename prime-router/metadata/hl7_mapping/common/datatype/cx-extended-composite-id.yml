@@ -6,6 +6,7 @@ elements:
     hl7Spec: [ '%{hl7CXFieldPath}-1' ]
 
   - name: assigning-authority
+    condition: '%resource.extension(%`universalIdExtName`).exists() or %resource.extension(%`namespaceExtName`).exists()'
     constants:
       hl7HDField: '%{hl7CXFieldPath}-4'
       # cannot use %`rext due to mix of constant and fhirpath substitution syntax
@@ -23,6 +24,7 @@ elements:
     hl7Spec: [ '%{hl7CXFieldPath}-5' ]
 
   - name: assigning-facility
+    condition: '%resource.extension(%`universalIdExtName`).exists() or %resource.extension(%`namespaceExtName`).exists()'
     constants:
       hl7HDField: '%{hl7CXFieldPath}-6'
       # cannot use %`rext due to mix of constant and fhirpath substitution syntax

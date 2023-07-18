@@ -1,5 +1,5 @@
 constants:
-  alternateIdentifierExtension: '%resource.value.extension(%`rsext-alternate-identifier`)'
+  alternateIdentifierExtension: '%resource.extension(%`rsext-alternate-identifier`)'
   originalTextExtension: '%alternateIdentifierExtension.value.coding.extension(%`rsext-original-text`)'
 elements:
   - name: coded-element
@@ -14,7 +14,7 @@ elements:
 
   - name: coding-system-version-id-extension
     resource: '%resource.extension(%`rsext-alternate-identifier`).value.coding.version'
-    value: [ '%resource']
+    value: [ '%resource' ]
     hl7Spec: [ '%{cweFieldPath}-7' ]
 
   - name: coding-system-alternate-version-id
