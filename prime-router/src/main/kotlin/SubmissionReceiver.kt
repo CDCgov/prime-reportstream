@@ -294,6 +294,7 @@ class ELRReceiver : SubmissionReceiver {
                 // check for valid message type
                 messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
             }
+
             Sender.Format.FHIR -> {
                 val bundles = FhirTranscoder.getBundles(content, actionLogs)
                 report = Report(
@@ -305,6 +306,7 @@ class ELRReceiver : SubmissionReceiver {
                     topic = sender.topic,
                 )
             }
+
             else -> {
                 throw IllegalStateException("Unexpected sender format ${sender.format}")
             }
@@ -369,7 +371,7 @@ class ELRReceiver : SubmissionReceiver {
 
         // TODO: This may need to be a configurable value in the future, if we ever support message types other
         //  than ORU_RO1. As of 6/15/2022 multiple message type support is out of scope
-        if (messageType != "ORU_R01") {
+        if (messageType != "ORU_R01" && messageType != "ORM_O01") {
             actionLogs.getItemLogger(itemIndex)
                 .error(InvalidHL7Message("Ignoring unsupported HL7 message type $messageType"))
         }
