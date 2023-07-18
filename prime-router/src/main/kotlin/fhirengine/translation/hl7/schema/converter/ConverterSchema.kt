@@ -79,7 +79,7 @@ class ConverterSchemaElement(
     var hl7Spec: List<String> = emptyList(),
     resourceIndex: String? = null,
     constants: SortedMap<String, String> = sortedMapOf(),
-    valueSet: ValueSetMap<*> = InlineValueSet(sortedMapOf()),
+    valueSet: ValueSetMap = InlineValueSet(sortedMapOf()),
     debug: Boolean = false
 ) : ConfigSchemaElement(
     name = name,

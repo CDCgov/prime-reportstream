@@ -54,7 +54,7 @@ class FhirTransformSchemaElement(
     value: List<String> = emptyList(),
     resourceIndex: String? = null,
     constants: SortedMap<String, String> = sortedMapOf(),
-    valueSet: ValueSetMap<*> = InlineValueSet(sortedMapOf()),
+    valueSet: ValueSetMap = InlineValueSet(sortedMapOf()),
     debug: Boolean = false,
     var bundleProperty: String? = null,
 ) : ConfigSchemaElement(

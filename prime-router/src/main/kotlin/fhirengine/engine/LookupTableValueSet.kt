@@ -26,35 +26,47 @@ data class LookupTableValueSetConfig(
  * Provide [LookupTableValueSetConfig] to configure the lookup table source.
  */
 class LookupTableValueSet
-(@JsonProperty("lookupTable") private val configData: LookupTableValueSetConfig) :
-    ValueSetMap<LookupTableValueSetConfig> {
+(@JsonProperty("lookupTable") private val configData: LookupTableValueSetConfig) : ValueSetMap {
     private val metadata = Metadata.getInstance()
-    private var mapValues: SortedMap<String, String>? = null
+    private var mapVal: SortedMap<String, String>? = null
 
     /**
      * @return a SortedMap<String, String> representation of the valueSet
      */
-    override fun getMapValues(): SortedMap<String, String> {
-        if (mapValues == null) {
-            val lookupTable = metadata.findLookupTable(name = configData.tableName)
-                ?: throw SchemaException("Specified lookup table not found")
-
-            if (!lookupTable.hasColumn(configData.keyColumn)) {
-                throw SchemaException("Key column not found in specified lookup table")
-            }
-
-            if (!lookupTable.hasColumn(configData.valueColumn)) {
-                throw SchemaException("Value column not found in specified lookup table")
-            }
-
-            val filterTable = lookupTable.table.retainColumns(configData.keyColumn, configData.valueColumn)
-            val result = mutableMapOf<String, String>()
-            filterTable.forEach { row ->
-                result[row.getString(configData.keyColumn)] = row.getString(configData.valueColumn)
-            }
-
-            mapValues = result.toSortedMap()
+    override fun toSortedMap(): SortedMap<String, String> {
+        if (mapVal == null) {
+            buildMap()
         }
-        return mapValues as SortedMap<String, String>
+        return mapVal as SortedMap<String, String>
+    }
+
+    override fun getMappedValue(keyValue: String): String? {
+        val lowerSet = toSortedMap().mapKeys { it.key.lowercase() }
+        return lowerSet[keyValue.lowercase()]
+    }
+
+    override fun isNotEmpty(): Boolean {
+        return toSortedMap().isNotEmpty()
+    }
+
+    private fun buildMap() {
+        val lookupTable = metadata.findLookupTable(name = configData.tableName)
+            ?: throw SchemaException("Specified lookup table not found")
+
+        if (!lookupTable.hasColumn(configData.keyColumn)) {
+            throw SchemaException("Key column not found in specified lookup table")
+        }
+
+        if (!lookupTable.hasColumn(configData.valueColumn)) {
+            throw SchemaException("Value column not found in specified lookup table")
+        }
+
+        val filterTable = lookupTable.table.retainColumns(configData.keyColumn, configData.valueColumn)
+        val result = mutableMapOf<String, String>()
+        filterTable.forEach { row ->
+            result[row.getString(configData.keyColumn)] = row.getString(configData.valueColumn)
+        }
+
+        mapVal = result.toSortedMap()
     }
 }
