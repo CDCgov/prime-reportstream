@@ -26,7 +26,7 @@ data class LookupTableValueSetConfig(
  * Provide [LookupTableValueSetConfig] to configure the lookup table source.
  */
 class LookupTableValueSet
-(@JsonProperty("lookupTable") override val configData: LookupTableValueSetConfig) :
+(@JsonProperty("lookupTable") private val configData: LookupTableValueSetConfig) :
     ValueSetMap<LookupTableValueSetConfig> {
     private val metadata = Metadata.getInstance()
     private var mapValues: SortedMap<String, String>? = null

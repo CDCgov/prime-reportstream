@@ -14,7 +14,6 @@ import java.util.SortedMap
  * that can return a SortedMap<String, String> at runtime.
  */
 interface ValueSetMap<T> {
-    val configData: T
     fun getMapValues(): SortedMap<String, String>
 }
 
@@ -22,12 +21,12 @@ interface ValueSetMap<T> {
  * Default implementation of ValueSetMap to allow valueSet to be specified inline in the sender transform schema.
  */
 class InlineValueSet
-(@JsonProperty("values") override val configData: SortedMap<String, String>) : ValueSetMap<SortedMap<String, String>> {
+(@JsonProperty("values") private val values: SortedMap<String, String>) : ValueSetMap<SortedMap<String, String>> {
 
     /**
      * @return a SortedMap<String, String> representation of the valueSet
      */
     override fun getMapValues(): SortedMap<String, String> {
-        return configData
+        return values
     }
 }
