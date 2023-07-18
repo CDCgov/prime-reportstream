@@ -15,8 +15,7 @@ import { Table } from "../../../shared/Table/Table";
 import { getSlots } from "../../../hooks/UsePagination";
 import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
-import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
-import { transformColumnIDtoTitle } from "../../../utils/misc";
+import { USLink } from "../../USLink";
 
 function DashboardFilterAndTable({
     receiverServices,
@@ -37,33 +36,51 @@ function DashboardFilterAndTable({
     const {
         data: results,
         filterManager,
-        isLoading: isDeliveriesLoading,
+        isLoading,
     } = useReceiverDeliveries(activeService.name);
 
-    if (isDeliveriesLoading || !results) return <Spinner />;
+    if (isLoading || !results) return <Spinner />;
 
-    const data = results?.data.map((dataRow) =>
-        Object.entries(dataRow).map((cell) => ({
-            columnKey: cell[0],
-            columnHeader: transformColumnIDtoTitle(cell[0]),
-            content:
-                isNaN(cell[1]) && !isNaN(Date.parse(cell[1]))
-                    ? formatDateWithoutSeconds(cell[1])
-                    : cell[1],
+    const data = results?.data.map((dataRow) => [
+        {
+            columnKey: "DateSentToYou",
+            columnHeader: "Date sent to you",
+            content: dataRow.createdAt,
             columnCustomSort: () => {
-                filterManager?.updateSort({
-                    type: SortSettingsActionType.CHANGE_COL,
-                    payload: {
-                        column: cell[0],
-                    },
-                });
                 filterManager?.updateSort({
                     type: SortSettingsActionType.SWAP_ORDER,
                 });
             },
-            columnCustomSortSettings: filterManager.sortSettings,
-        }))
-    );
+            columnCustomSortOrder: filterManager.sortSettings.order,
+        },
+        {
+            columnKey: "OrderingProvider",
+            columnHeader: "Ordering Provider",
+            content: dataRow.orderingProvider,
+        },
+        {
+            columnKey: "PerformingFacility",
+            columnHeader: "Performing facility",
+            content: dataRow.orderingFacility,
+        },
+        {
+            columnKey: "Submitter",
+            columnHeader: "Submitter",
+            content: dataRow.submitter,
+        },
+        {
+            columnKey: "ReportID",
+            columnHeader: "Report ID",
+            content: (
+                <USLink
+                    href={`/data-dashboard/report-details/${dataRow.reportId}`}
+                    className="flex-align-self-end height-5"
+                >
+                    {dataRow.reportId}
+                </USLink>
+            ),
+        },
+    ]);
 
     const currentPageNum = filterManager.pageSettings.currentPage;
 
@@ -95,7 +112,7 @@ function DashboardFilterAndTable({
                     }
                 />
             </div>
-            <Table apiSortable borderless rowData={data} />
+            <Table apiSortable rowData={data} />
             <Pagination
                 currentPageNum={currentPageNum}
                 setSelectedPage={(pageNum) => {
