@@ -9,8 +9,8 @@ function js_fmt_check() {
     MODIFIED_TSX_FILES_COUNT=$(git status --porcelain | grep "\.tsx$" | wc -l)
     MODIFIED_JS_FILES_COUNT=$(git status --porcelain | grep "\.js$" | wc -l)
     if [ ${MODIFIED_TSX_FILES_COUNT?} != 0 ] || [ ${MODIFIED_JS_FILES_COUNT?} != 0 ]; then
-        yarn install
-        yarn run lint
+        yarn install --ignore-platform
+        yarn run lint --ignore-platform
     else
         note "Skipping this check, you made no changes to JavaScript or TypeScript files..."
     fi
