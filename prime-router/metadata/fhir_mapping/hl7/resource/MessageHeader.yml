@@ -27,17 +27,15 @@ destination:
   expressionType: resource
 
 extension_1:
-  condition: $messageProfileEntityId NOT_NULL
-  generateList: true
   expressionType: nested
+  generateList: true
   specs: MSH.21
-  vars:
-    messageProfileEntityId: MSH.21
   expressionsMap:
     url:
       type: SYSTEM_URL
       value: source-message-profile-id
     valueIdentifier:
+      generateList: true
       valueOf: datatype/Identifier_SystemID
       expressionType: resource
 
