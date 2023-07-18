@@ -34,6 +34,12 @@
 # source message profile ID
 - id: "source-message-profile-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id"
+# message accept acknowledgement type
+- id: "accept-acknowledgement-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/accept-acknowledgement-type"
+# source application acknowledgement type
+- id: "application-acknowledgement-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/application-acknowledgement-type"
 # application-identifier
 - id: "application-identifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/application-identifier"
