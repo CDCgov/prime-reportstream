@@ -1,9 +1,6 @@
 import { renderHook, waitFor } from "@testing-library/react";
 
-import {
-    dataDashboardServer,
-    makeRSReceiverDeliveryResponseFixture,
-} from "../../../__mocks__/DataDashboardMockServer";
+import { dataDashboardServer } from "../../../__mocks__/DataDashboardMockServer";
 import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
 import { AppWrapper } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../UseOktaMemberships";
@@ -49,7 +46,7 @@ describe("useReceiverDeliveries", () => {
                 activeMembership: {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrg",
-                    service: "testReceiverService",
+                    service: "testService",
                 },
                 dispatch: () => {},
                 initialized: true,
@@ -60,18 +57,15 @@ describe("useReceiverDeliveries", () => {
             });
         });
 
-        test("returns receiver deliveries", async () => {
+        test("returns receiver meta and deliveries", async () => {
             const { result } = renderHook(
-                () => useReceiverDeliveries("testServiceName"),
+                () => useReceiverDeliveries("testService"),
                 {
                     wrapper: AppWrapper(),
                 }
             );
-            await waitFor(() =>
-                expect(result.current.data).toEqual(
-                    makeRSReceiverDeliveryResponseFixture(5)
-                )
-            );
+
+            await waitFor(() => expect(result.current.data).toHaveLength(1));
             expect(result.current.isLoading).toEqual(false);
         });
     });

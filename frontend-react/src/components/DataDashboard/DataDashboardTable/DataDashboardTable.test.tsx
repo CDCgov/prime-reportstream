@@ -134,28 +134,28 @@ describe("DataDashboardTableWithPagination", () => {
                 expect(screen.getAllByRole("option").length).toBe(5);
             });
 
-            // test("renders table with pagination", async () => {
-            //     const pagination = await screen.findByLabelText(
-            //         /DataDashboard pagination/i
-            //     );
-            //     expect(pagination).toBeInTheDocument();
-            //
-            //     // Column headers render
-            //     expect(
-            //         screen.getByText("Showing all results (10)")
-            //     ).toBeInTheDocument();
-            //     expect(
-            //         screen.getByText("Date sent to you")
-            //     ).toBeInTheDocument();
-            //     expect(
-            //         screen.getByText("Ordering Provider")
-            //     ).toBeInTheDocument();
-            //     expect(
-            //         screen.getByText("Performing facility")
-            //     ).toBeInTheDocument();
-            //     expect(screen.getByText("Submitter")).toBeInTheDocument();
-            //     expect(screen.getByText("Report ID")).toBeInTheDocument();
-            // });
+            test.skip("renders table with pagination", async () => {
+                const pagination = await screen.findByLabelText(
+                    /DataDashboard pagination/i
+                );
+                expect(pagination).toBeInTheDocument();
+
+                // Column headers render
+                expect(
+                    screen.getByText("Showing all results (101)")
+                ).toBeInTheDocument();
+                expect(
+                    screen.getByText("Date sent to you")
+                ).toBeInTheDocument();
+                expect(
+                    screen.getByText("Ordering Provider")
+                ).toBeInTheDocument();
+                expect(
+                    screen.getByText("Performing facility")
+                ).toBeInTheDocument();
+                expect(screen.getByText("Submitter")).toBeInTheDocument();
+                expect(screen.getByText("Report ID")).toBeInTheDocument();
+            });
 
             test("renders 10 results per page + 1 header row", () => {
                 // renders 10 results per page + 1 header row regardless of the total number of records

@@ -65,7 +65,7 @@ export const makeRSReceiverDeliveryResponseFixture = (
 });
 
 const handlers = [
-    rest.post(`${base}/testOrg.receiverService/deliveries`, (req, res, ctx) => {
+    rest.post(`${base}/testOrg.testService/deliveries`, (req, res, ctx) => {
         if (!req.headers.get("authorization")?.includes("TOKEN")) {
             return res(ctx.status(401));
         }
