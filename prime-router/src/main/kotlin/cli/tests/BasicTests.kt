@@ -90,6 +90,8 @@ class End2EndUniversalPipeline : CoolTest() {
         )
         passed = passed and universalPipelineEnd2End(environment, options, etorTISender, listOf(etorReceiver))
 
+        passed = passed and universalPipelineEnd2End(environment, options, elrElimsSender, listOf(elimsReceiver))
+
         return passed
     }
 
