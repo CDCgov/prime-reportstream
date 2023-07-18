@@ -1,0 +1,249 @@
+{
+  "resourceType" : "Bundle",
+  "id" : "1689712464205368000.81eb8090-dde9-4d48-ad42-944b14c48617",
+  "meta" : {
+    "lastUpdated" : "2023-07-18T13:34:24.232-07:00"
+  },
+  "identifier" : {
+    "system" : "https://reportstream.cdc.gov/prime-router",
+    "value" : "31808297"
+  },
+  "type" : "message",
+  "timestamp" : "2023-05-06T03:29:16.000-07:00",
+  "entry" : [ {
+    "fullUrl" : "MessageHeader/87c2d0db-6f31-3666-b9e2-7152e039c11f",
+    "resource" : {
+      "resourceType" : "MessageHeader",
+      "id" : "87c2d0db-6f31-3666-b9e2-7152e039c11f",
+      "meta" : {
+        "extension" : [ {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/application-acknowledgement-type",
+        "valueIdentifier" : {
+          "type" : {
+            "coding" : [ {
+              "system" : "http://terminology.hl7.org/CodeSystem/v3-AcknowledgementCondition",
+              "code" : "AL"
+            } ]
+          }
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/accept-acknowledgement-type",
+        "valueIdentifier" : {
+          "type" : {
+            "coding" : [ {
+              "system" : "http://terminology.hl7.org/CodeSystem/v3-AcknowledgementCondition",
+              "code" : "AL"
+            } ]
+          }
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
+        "valueIdentifier" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+            "valueOid" : "urn:oid:2.16.840.1.113883.9.82"
+          } ],
+          "value" : "LAB_PRU_COMPONENT"
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
+        "valueIdentifier" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
+            "valueOid" : "urn:oid:2.16.840.1.113883.9.22"
+          } ],
+          "value" : "LAB_TO_COMPONENT"
+        }
+      } ],
+      "eventCoding" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+        "code" : "O01",
+        "display" : "ORM - Order message (also RDE, RDS, RGV, RAS)"
+      },
+      "destination" : [ {
+        "target" : {
+          "reference" : "Device/1689712464411571000.5da8fd3d-906d-493c-85f9-14bfeb2c1c23"
+        },
+        "endpoint" : "urn:dns:natus.health.state.mn.us",
+        "receiver" : {
+          "reference" : "Organization/urn-oid-2.16.840.1.114222.4.1.10080"
+        }
+      } ],
+      "sender" : {
+        "reference" : "Organization/1689712464395946000.25b8dba5-ccb0-4c64-889d-0a86fa717bc4"
+      },
+      "source" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
+          "valueReference" : {
+            "reference" : "Organization/1689712464436199000.3e6924c4-26d3-4ba3-9b23-7b1d7a14dc44"
+          }
+        } ],
+        "name" : "Epic",
+        "endpoint" : "urn:oid:1.2.840.114350.1.13.145.2.7.2.695071"
+      }
+    }
+  }, {
+    "fullUrl" : "Organization/1689712464395946000.25b8dba5-ccb0-4c64-889d-0a86fa717bc4",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1689712464395946000.25b8dba5-ccb0-4c64-889d-0a86fa717bc4",
+      "meta" : {
+        "extension" : [ {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
+        } ]
+      },
+      "identifier" : [ {
+        "value" : "Centracare"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Device/1689712464411571000.5da8fd3d-906d-493c-85f9-14bfeb2c1c23",
+    "resource" : {
+      "resourceType" : "Device",
+      "id" : "1689712464411571000.5da8fd3d-906d-493c-85f9-14bfeb2c1c23",
+      "meta" : {
+        "extension" : [ {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
+        } ]
+      },
+      "identifier" : [ {
+        "value" : "NATUS"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0301",
+            "code" : "DNS"
+          } ]
+        },
+        "value" : "urn:dns:natus.health.state.mn.us"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/urn-oid-2.16.840.1.114222.4.1.10080",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "urn-oid-2.16.840.1.114222.4.1.10080",
+      "meta" : {
+        "extension" : [ {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
+        } ]
+      },
+      "identifier" : [ {
+        "value" : "MN Public Health Lab"
+      }, {
+        "system" : "urn:id:ISO",
+        "value" : "urn:oid:2.16.840.1.114222.4.1.10080"
+      } ],
+      "name" : "MN Public Health Lab"
+    }
+  }, {
+    "fullUrl" : "Organization/1689712464436199000.3e6924c4-26d3-4ba3-9b23-7b1d7a14dc44",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1689712464436199000.3e6924c4-26d3-4ba3-9b23-7b1d7a14dc44",
+      "meta" : {
+        "extension" : [ {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
+        } ]
+      }
+    }
+  }, {
+    "fullUrl" : "Patient/1689712467292152000.9f0ffe8b-3658-4f01-b148-6ac0bd07d939",
+    "resource" : {
+      "resourceType" : "Patient",
+      "id" : "1689712467292152000.9f0ffe8b-3658-4f01-b148-6ac0bd07d939",
+      "meta" : {
+        "extension" : [ {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
+        }, {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0207",
+          "code" : "P"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
+        "valueCodeableConcept" : { }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group",
+        "valueCodeableConcept" : { }
+      }, {
+        "url" : "http://hl7.org/fhir/StructureDefinition/patient-animal",
+        "valueCodeableConcept" : { }
+      } ],
+      "identifier" : [ {
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "MR",
+            "display" : "Medical record number"
+          } ]
+        },
+        "system" : "urn:id:CRPMRN",
+        "value" : "11102779"
+      } ],
+      "name" : [ {
+        "use" : "official",
+        "text" : "BB SARAH SMITH",
+        "family" : "SMITH",
+        "given" : [ "BB SARAH" ]
+      } ],
+      "telecom" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/text",
+          "valueString" : "(763)555-5555"
+        } ],
+        "system" : "phone",
+        "value" : "(763) 555 555",
+        "use" : "home"
+      } ],
+      "gender" : "male",
+      "birthDate" : "2023-05-04",
+      "deceasedBoolean" : false,
+      "address" : [ {
+        "use" : "home",
+        "line" : [ "555 STATE HIGHWAY 13" ],
+        "city" : "DEER CREEK",
+        "district" : "OTTER TAIL",
+        "state" : "MN",
+        "postalCode" : "56527-9657",
+        "country" : "USA"
+      } ],
+      "multipleBirthBoolean" : false
+    }
+  } ]
+}
