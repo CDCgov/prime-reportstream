@@ -10,36 +10,17 @@ resources:
     segment: .PID
     group: PATIENT
     resourcePath: resource/Patient
-#    isReferenced: false
     repeats: false
-#    additionalSegments:
-#      - .PD1
-#      - .NTE
-#      - PV1
-#      - PV2
-#      - IN1
-#      - IN2
-#      - IN3
-#      - GT1
-#      - AL1
 
-#  - resourceName: Order
-#    segment: .ORDER.ORC
-#    group: ORDER
-#    resourcePath: resource/Order
-#    repeats: false
-#    isReferenced: false
-#    additionalSegments:
-#      - .OBR
-#      - RQD
-#      - RQ1
-#      - RXO
-#      - ODS
-#      - ODT
-#      - NTE
-#      - CTD
-#      - DG1
-#      - FT1
-#      - CTI
-#      - BLG
-
+  - resourceName: Observation
+    segment: .OBSERVATION.OBX
+    group: ORDER.ORDER_DETAIL
+    resourcePath: resource/Observation
+    repeats: true
+    isReferenced: true
+    additionalSegments:
+      - .OBR
+      - .OBSERVATION.NTE
+      - .SPECIMEN.SPM
+      - MSH
+      - .PID

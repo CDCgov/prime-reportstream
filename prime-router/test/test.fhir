@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1689712464205368000.81eb8090-dde9-4d48-ad42-944b14c48617",
+  "id" : "1689716952322417000.412cb5cb-c5b2-4835-9341-4845b538cbc4",
   "meta" : {
-    "lastUpdated" : "2023-07-18T13:34:24.232-07:00"
+    "lastUpdated" : "2023-07-18T14:49:12.352-07:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -71,7 +71,7 @@
       },
       "destination" : [ {
         "target" : {
-          "reference" : "Device/1689712464411571000.5da8fd3d-906d-493c-85f9-14bfeb2c1c23"
+          "reference" : "Device/1689716952532250000.1b831d3f-3173-415f-8fcb-027f6054c885"
         },
         "endpoint" : "urn:dns:natus.health.state.mn.us",
         "receiver" : {
@@ -79,13 +79,13 @@
         }
       } ],
       "sender" : {
-        "reference" : "Organization/1689712464395946000.25b8dba5-ccb0-4c64-889d-0a86fa717bc4"
+        "reference" : "Organization/1689716952517724000.29d15d29-13af-43b0-b5a5-9edf66c4158a"
       },
       "source" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
           "valueReference" : {
-            "reference" : "Organization/1689712464436199000.3e6924c4-26d3-4ba3-9b23-7b1d7a14dc44"
+            "reference" : "Organization/1689716952553385000.d30b53d9-7f29-47e2-b3b1-07f0d69c0a22"
           }
         } ],
         "name" : "Epic",
@@ -93,10 +93,10 @@
       }
     }
   }, {
-    "fullUrl" : "Organization/1689712464395946000.25b8dba5-ccb0-4c64-889d-0a86fa717bc4",
+    "fullUrl" : "Organization/1689716952517724000.29d15d29-13af-43b0-b5a5-9edf66c4158a",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1689712464395946000.25b8dba5-ccb0-4c64-889d-0a86fa717bc4",
+      "id" : "1689716952517724000.29d15d29-13af-43b0-b5a5-9edf66c4158a",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -112,10 +112,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Device/1689712464411571000.5da8fd3d-906d-493c-85f9-14bfeb2c1c23",
+    "fullUrl" : "Device/1689716952532250000.1b831d3f-3173-415f-8fcb-027f6054c885",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1689712464411571000.5da8fd3d-906d-493c-85f9-14bfeb2c1c23",
+      "id" : "1689716952532250000.1b831d3f-3173-415f-8fcb-027f6054c885",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -162,10 +162,10 @@
       "name" : "MN Public Health Lab"
     }
   }, {
-    "fullUrl" : "Organization/1689712464436199000.3e6924c4-26d3-4ba3-9b23-7b1d7a14dc44",
+    "fullUrl" : "Organization/1689716952553385000.d30b53d9-7f29-47e2-b3b1-07f0d69c0a22",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1689712464436199000.3e6924c4-26d3-4ba3-9b23-7b1d7a14dc44",
+      "id" : "1689716952553385000.d30b53d9-7f29-47e2-b3b1-07f0d69c0a22",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -178,10 +178,65 @@
       }
     }
   }, {
-    "fullUrl" : "Patient/1689712467292152000.9f0ffe8b-3658-4f01-b148-6ac0bd07d939",
+    "fullUrl" : "Observation/1689716955324238000.1acd3f30-216e-4c94-934f-2292d557c5e9",
+    "resource" : {
+      "resourceType" : "Observation",
+      "id" : "1689716955324238000.1acd3f30-216e-4c94-934f-2292d557c5e9",
+      "meta" : {
+        "extension" : [ {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "system" : "http://unitsofmeasure.org",
+            "code" : "g"
+          } ],
+          "text" : "gram"
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+        "valueString" : "1"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
+        "valueCodeableConcept" : { }
+      } ],
+      "identifier" : [ {
+        "system" : "urn:id:extID",
+        "value" : "421832901"
+      } ],
+      "status" : "unknown",
+      "code" : {
+        "coding" : [ {
+          "system" : "http://loinc.org",
+          "code" : "8339-4"
+        } ],
+        "text" : "BIRTH WEIGHT MEASURED"
+      },
+      "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+      "valueQuantity" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-value",
+          "valueString" : "1769.859285"
+        } ],
+        "value" : 1769.8593,
+        "unit" : "g",
+        "system" : "http://unitsofmeasure.org",
+        "code" : "g"
+      }
+    }
+  }, {
+    "fullUrl" : "Patient/1689716955304388000.79b8010a-d506-4e63-a6f9-4e65cdb0e8d3",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1689712467292152000.9f0ffe8b-3658-4f01-b148-6ac0bd07d939",
+      "id" : "1689716955304388000.79b8010a-d506-4e63-a6f9-4e65cdb0e8d3",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
