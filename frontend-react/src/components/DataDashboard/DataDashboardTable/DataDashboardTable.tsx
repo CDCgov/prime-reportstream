@@ -15,6 +15,8 @@ import { Table } from "../../../shared/Table/Table";
 import { getSlots } from "../../../hooks/UsePagination";
 import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
+import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
+import { transformColumnIDtoTitle } from "../../../utils/misc";
 
 function DashboardFilterAndTable({
     receiverServices,
@@ -40,39 +42,28 @@ function DashboardFilterAndTable({
 
     if (isDeliveriesLoading || !results) return <Spinner />;
 
-    const data = results?.data.map((dataRow) => [
-        {
-            columnKey: "DateSentToYou",
-            columnHeader: "Date sent to you",
-            content: dataRow.createdAt,
+    const data = results?.data.map((dataRow) =>
+        Object.entries(dataRow).map((cell) => ({
+            columnKey: cell[0],
+            columnHeader: transformColumnIDtoTitle(cell[0]),
+            content:
+                isNaN(cell[1]) && !isNaN(Date.parse(cell[1]))
+                    ? formatDateWithoutSeconds(cell[1])
+                    : cell[1],
             columnCustomSort: () => {
+                filterManager?.updateSort({
+                    type: SortSettingsActionType.CHANGE_COL,
+                    payload: {
+                        column: cell[0],
+                    },
+                });
                 filterManager?.updateSort({
                     type: SortSettingsActionType.SWAP_ORDER,
                 });
             },
-            columnCustomSortOrder: filterManager.sortSettings.order,
-        },
-        {
-            columnKey: "OrderingProvider",
-            columnHeader: "Ordering Provider",
-            content: dataRow.orderingProvider,
-        },
-        {
-            columnKey: "PerformingFacility",
-            columnHeader: "Performing facility",
-            content: dataRow.orderingFacility,
-        },
-        {
-            columnKey: "Submitter",
-            columnHeader: "Submitter",
-            content: dataRow.submitter,
-        },
-        {
-            columnKey: "ReportID",
-            columnHeader: "Report ID",
-            content: dataRow.reportId,
-        },
-    ]);
+            columnCustomSortSettings: filterManager.sortSettings,
+        }))
+    );
 
     const currentPageNum = filterManager.pageSettings.currentPage;
 
@@ -104,7 +95,7 @@ function DashboardFilterAndTable({
                     }
                 />
             </div>
-            <Table apiSortable rowData={data} />
+            <Table apiSortable borderless rowData={data} />
             <Pagination
                 currentPageNum={currentPageNum}
                 setSelectedPage={(pageNum) => {
