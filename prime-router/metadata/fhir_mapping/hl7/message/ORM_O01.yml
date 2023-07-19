@@ -19,7 +19,7 @@ resources:
     repeats: true
     isReferenced: true
     additionalSegments:
-      - .OBR
+      - .ORDER_DETAIL_SEGMENT.OBR
       - .OBSERVATION.NTE
       - .SPECIMEN.SPM
       - MSH
