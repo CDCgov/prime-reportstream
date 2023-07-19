@@ -1,9 +1,14 @@
-import { Grid, GridContainer } from "@trussworks/react-uswds";
+import {
+    Breadcrumb,
+    BreadcrumbBar,
+    Grid,
+    GridContainer,
+} from "@trussworks/react-uswds";
 import { MDXProvider } from "@mdx-js/react";
 import { Helmet } from "react-helmet-async";
 import React from "react";
 
-import { USSmartLink } from "../../components/USLink";
+import { USCrumbLink, USSmartLink } from "../../components/USLink";
 import MDXModules from "../../MDXModules";
 
 export interface MarkdownLayoutProps {
@@ -50,7 +55,7 @@ export function MarkdownLayout({
     main,
     nav,
     mdx,
-    frontmatter: { title, sidenav } = {},
+    frontmatter: { title, sidenav, breadcrumbs } = {},
 }: MarkdownLayoutProps) {
     const helmet = title ? (
         <Helmet>
@@ -90,6 +95,21 @@ export function MarkdownLayout({
                                         : "tablet:grid-col-12"
                                 }
                             >
+                                {breadcrumbs != null ? (
+                                    <BreadcrumbBar>
+                                        {breadcrumbs.map((b) => (
+                                            <Breadcrumb key={b.label}>
+                                                {b.href ? (
+                                                    <USCrumbLink href={b.href}>
+                                                        {b.label}
+                                                    </USCrumbLink>
+                                                ) : (
+                                                    b.label
+                                                )}
+                                            </Breadcrumb>
+                                        ))}
+                                    </BreadcrumbBar>
+                                ) : null}
                                 <Component />
                             </main>
                         )}

@@ -164,18 +164,27 @@ export const appRoutes: RouteObject[] = [
                         lazy: lazyRouteMarkdown(
                             "content/resources/getting-started-submitting-data"
                         ),
+                        handle: {
+                            isContentPage: true,
+                        },
                     },
                     {
                         path: "referral-guide",
                         lazy: lazyRouteMarkdown(
                             "content/resources/referral-guide"
                         ),
+                        handle: {
+                            isContentPage: true,
+                        },
                     },
                     {
                         path: "security-practices",
                         lazy: lazyRouteMarkdown(
                             "content/resources/security-practices"
                         ),
+                        handle: {
+                            isContentPage: true,
+                        },
                     },
                     {
                         path: "system-and-settings",
@@ -188,24 +197,36 @@ export const appRoutes: RouteObject[] = [
                         lazy: lazyRouteMarkdown(
                             "content/resources/landing-page"
                         ),
+                        handle: {
+                            isContentPage: true,
+                        },
                     },
                     {
                         path: "account-registration-guide",
                         lazy: lazyRouteMarkdown(
                             "content/resources/account-registration-guide"
                         ),
+                        handle: {
+                            isContentPage: true,
+                        },
                     },
                     {
                         path: "elr-checklist",
                         lazy: lazyRouteMarkdown(
                             "content/resources/elr-checklist"
                         ),
+                        handle: {
+                            isContentPage: true,
+                        },
                     },
                     {
                         path: "getting-started-public-health-departments",
                         lazy: lazyRouteMarkdown(
                             "content/resources/getting-started-phd"
                         ),
+                        handle: {
+                            isContentPage: true,
+                        },
                     },
                 ],
             },
