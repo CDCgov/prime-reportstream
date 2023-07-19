@@ -1,3 +1,4 @@
+// AutoUpdateFileChromatic
 import React from "react";
 import { StoryFn, Meta } from "@storybook/react";
 
