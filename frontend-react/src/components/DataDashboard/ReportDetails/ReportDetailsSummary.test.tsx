@@ -20,7 +20,7 @@ const pastDate = new Date(currentDate.setDate(currentDate.getDate() - 1));
 const DEFAULT_RSDELIVERY = {
     deliveryId: 1,
     batchReadyAt: "2022-09-28T22:21:33.801667",
-    expires: futureDate,
+    expires: futureDate.toString(),
     receiver: "elr",
     reportId: "123",
     topic: "covid-19",
@@ -67,7 +67,9 @@ beforeEach(() => {
 
 describe("ReportDetailsSummary", () => {
     test("renders expected content", () => {
-        const expectedExpireDate = formatDateWithoutSeconds(futureDate);
+        const expectedExpireDate = formatDateWithoutSeconds(
+            futureDate.toString()
+        );
         renderApp(<ReportDetailsSummary report={DEFAULT_RSDELIVERY} />);
 
         expect(screen.getByText(/Download as/)).toBeVisible();
@@ -90,8 +92,7 @@ describe("ReportDetailsSummary", () => {
     test("Does not display the download button if the date has expired", () => {
         renderApp(
             <ReportDetailsSummary
-                {...DEFAULT_RSDELIVERY}
-                report={{ expires: pastDate }}
+                report={{ ...DEFAULT_RSDELIVERY, expires: pastDate.toString() }}
             />
         );
 
