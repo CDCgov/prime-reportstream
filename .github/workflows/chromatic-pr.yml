@@ -19,13 +19,13 @@ jobs:
     name: Chromatic
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@96f53100ba2a5449eb71d2e6604bbcd94b9449b5
         with:
           fetch-depth: 0
 
       - name: Get changed files
         id: changed_files
-        uses: tj-actions/changed-files@v37
+        uses: tj-actions/changed-files@e6dde3c0653441e7c18779d1207fe87efa071f02
 
       - name: List all changed files
         id: set_vars
