@@ -4,13 +4,7 @@ import { Helmet } from "react-helmet-async";
 import React from "react";
 
 import { USSmartLink } from "../../components/USLink";
-
-/**
- * Vite creates an object of all matches as import functions
- */
-const modules = import.meta.glob("../../**/*.mdx") as {
-    [key: string]: () => Promise<{ default: React.ComponentType<any> }>;
-};
+import MDXModules from "../../MDXModules";
 
 export interface MarkdownLayoutProps {
     frontmatter?: {
@@ -63,9 +57,7 @@ export function MarkdownLayout({
             <title>{title}</title>
         </Helmet>
     ) : null;
-    const LazyNav = sidenav
-        ? React.lazy(modules[`../../${sidenav}.mdx`])
-        : null;
+    const LazyNav = sidenav ? React.lazy(MDXModules[`${sidenav}.mdx`]) : null;
 
     return (
         <>
@@ -115,7 +107,7 @@ export default MarkdownLayout;
  */
 export function lazyRouteMarkdown(path: string) {
     return async () => {
-        const module = await modules[`../../${path}.mdx`]();
+        const module = await MDXModules[`${path}.mdx`]();
         return {
             Component() {
                 return <MarkdownLayout {...module} />;
