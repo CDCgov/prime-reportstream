@@ -181,10 +181,3 @@ export const parseFileLocation = (
 export const removeHTMLFromString = (input: string, options = {}) => {
     return convert(input, options);
 };
-
-export const transformColumnIDtoTitle = (input: string) => {
-    const splitString = input.split(/(?<=[a-z])(?=[A-Z])/).join(" ");
-    const capitalizedString =
-        splitString.charAt(0).toUpperCase() + splitString.slice(1);
-    return capitalizedString;
-};
