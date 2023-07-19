@@ -5,6 +5,13 @@ import React from "react";
 
 import { USSmartLink } from "../../components/USLink";
 
+/**
+ * Vite creates an object of all matches as import functions
+ */
+const modules = import.meta.glob("../../**/*.mdx") as {
+    [key: string]: () => Promise<{ default: React.ComponentType<any> }>;
+};
+
 export interface MarkdownLayoutProps {
     frontmatter?: {
         sidenav?: string;
@@ -57,7 +64,7 @@ export function MarkdownLayout({
         </Helmet>
     ) : null;
     const LazyNav = sidenav
-        ? React.lazy(() => import(`../../${sidenav}.mdx`))
+        ? React.lazy(modules[`../../${sidenav}.mdx`])
         : null;
 
     return (
@@ -108,7 +115,7 @@ export default MarkdownLayout;
  */
 export function lazyRouteMarkdown(path: string) {
     return async () => {
-        const module = await import(`../../${path}.mdx`);
+        const module = await modules[`../../${path}.mdx`]();
         return {
             Component() {
                 return <MarkdownLayout {...module} />;

@@ -62,7 +62,7 @@ export const appRoutes: RouteObject[] = [
             },
             {
                 path: "/terms-of-service",
-                lazy: lazyRouteMarkdown("content/terms-of-service.mdx"),
+                lazy: lazyRouteMarkdown("content/terms-of-service"),
                 handle: {
                     isContentPage: true,
                 },
@@ -74,7 +74,7 @@ export const appRoutes: RouteObject[] = [
                         path: "",
                         index: true,
                         lazy: lazyRouteMarkdown(
-                            "content/resources/landing-page.mdx"
+                            "content/resources/landing-page"
                         ),
                         handle: {
                             isContentPage: true,
@@ -87,7 +87,7 @@ export const appRoutes: RouteObject[] = [
                                 path: "",
                                 index: true,
                                 lazy: lazyRouteMarkdown(
-                                    "content/resources/reportstream-api/landing-page.mdx"
+                                    "content/resources/reportstream-api/landing-page"
                                 ),
                                 handle: {
                                     isContentPage: true,
@@ -96,7 +96,7 @@ export const appRoutes: RouteObject[] = [
                             {
                                 path: "getting-started",
                                 lazy: lazyRouteMarkdown(
-                                    "content/resources/reportstream-api/getting-started.mdx"
+                                    "content/resources/reportstream-api/getting-started"
                                 ),
                                 handle: {
                                     isContentPage: true,
@@ -108,7 +108,7 @@ export const appRoutes: RouteObject[] = [
                                     {
                                         path: "",
                                         lazy: lazyRouteMarkdown(
-                                            "content/resources/reportstream-api/documentation/landing-page.mdx"
+                                            "content/resources/reportstream-api/documentation/landing-page"
                                         ),
                                         index: true,
                                         handle: {
@@ -118,7 +118,7 @@ export const appRoutes: RouteObject[] = [
                                     {
                                         path: "data-model",
                                         lazy: lazyRouteMarkdown(
-                                            "content/resources/reportstream-api/documentation/data-model/landing-page.mdx"
+                                            "content/resources/reportstream-api/documentation/data-model/landing-page"
                                         ),
                                         handle: {
                                             isContentPage: true,
@@ -127,7 +127,7 @@ export const appRoutes: RouteObject[] = [
                                     {
                                         path: "responses-from-reportstream",
                                         lazy: lazyRouteMarkdown(
-                                            "content/resources/reportstream-api/documentation/responses-from-reportstream.mdx"
+                                            "content/resources/reportstream-api/documentation/responses-from-reportstream"
                                         ),
                                         handle: {
                                             isContentPage: true,
@@ -136,7 +136,7 @@ export const appRoutes: RouteObject[] = [
                                     {
                                         path: "sample-payloads-and-output",
                                         lazy: lazyRouteMarkdown(
-                                            "content/resources/reportstream-api/documentation/sample-payloads-and-output.mdx"
+                                            "content/resources/reportstream-api/documentation/sample-payloads-and-output"
                                         ),
                                         handle: {
                                             isContentPage: true,
@@ -162,49 +162,49 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "getting-started-submitting-data",
                         lazy: lazyRouteMarkdown(
-                            "content/resources/getting-started-submitting-data.mdx"
+                            "content/resources/getting-started-submitting-data"
                         ),
                     },
                     {
                         path: "referral-guide",
                         lazy: lazyRouteMarkdown(
-                            "content/resources/referral-guide.mdx"
+                            "content/resources/referral-guide"
                         ),
                     },
                     {
                         path: "security-practices",
                         lazy: lazyRouteMarkdown(
-                            "content/resources/security-practices.mdx"
+                            "content/resources/security-practices"
                         ),
                     },
                     {
                         path: "system-and-settings",
                         lazy: lazyRouteMarkdown(
-                            "content/resources/system-and-settings.mdx"
+                            "content/resources/system-and-settings"
                         ),
                     },
                     {
                         path: "data-download-guide",
                         lazy: lazyRouteMarkdown(
-                            "content/resources/landing-page.mdx"
+                            "content/resources/landing-page"
                         ),
                     },
                     {
                         path: "account-registration-guide",
                         lazy: lazyRouteMarkdown(
-                            "content/resources/account-registration-guide.mdx"
+                            "content/resources/account-registration-guide"
                         ),
                     },
                     {
                         path: "elr-checklist",
                         lazy: lazyRouteMarkdown(
-                            "content/resources/elr-checklist.mdx"
+                            "content/resources/elr-checklist"
                         ),
                     },
                     {
                         path: "getting-started-public-health-departments",
                         lazy: lazyRouteMarkdown(
-                            "content/resources/getting-started-phd.mdx"
+                            "content/resources/getting-started-phd"
                         ),
                     },
                 ],
@@ -230,9 +230,7 @@ export const appRoutes: RouteObject[] = [
                     },
                     {
                         path: "overview",
-                        lazy: lazyRouteMarkdown(
-                            "content/product/landing-page.mdx"
-                        ),
+                        lazy: lazyRouteMarkdown("content/product/landing-page"),
                         handle: {
                             isContentPage: true,
                         },
@@ -240,7 +238,7 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "where-were-live",
                         lazy: lazyRouteMarkdown(
-                            "content/product/where-were-live.mdx"
+                            "content/product/where-were-live"
                         ),
                         handle: {
                             isContentPage: true,
@@ -249,7 +247,7 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "release-notes",
                         lazy: lazyRouteMarkdown(
-                            "content/product/release-notes.mdx"
+                            "content/product/release-notes"
                         ),
                         handle: {
                             isContentPage: true,
@@ -257,7 +255,7 @@ export const appRoutes: RouteObject[] = [
                     },
                     {
                         path: "about",
-                        lazy: lazyRouteMarkdown("content/product/about.mdx"),
+                        lazy: lazyRouteMarkdown("content/product/about"),
                         handle: {
                             isContentPage: true,
                         },
@@ -269,16 +267,14 @@ export const appRoutes: RouteObject[] = [
                 children: [
                     {
                         path: "",
-                        lazy: lazyRouteMarkdown(
-                            "content/support/landing-page.mdx"
-                        ),
+                        lazy: lazyRouteMarkdown("content/support/landing-page"),
                         handle: {
                             isContentPage: true,
                         },
                     },
                     {
                         path: "faq",
-                        lazy: lazyRouteMarkdown("content/support/faq.mdx"),
+                        lazy: lazyRouteMarkdown("content/support/faq"),
                         handle: {
                             isContentPage: true,
                         },
@@ -286,7 +282,7 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "service-request",
                         lazy: lazyRouteMarkdown(
-                            "content/support/service-request.mdx"
+                            "content/support/service-request"
                         ),
                         handle: {
                             isContentPage: true,
@@ -294,7 +290,7 @@ export const appRoutes: RouteObject[] = [
                     },
                     {
                         path: "contact",
-                        lazy: lazyRouteMarkdown("content/support/contact.mdx"),
+                        lazy: lazyRouteMarkdown("content/support/contact"),
                         handle: {
                             isContentPage: true,
                         },
