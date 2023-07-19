@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction } from "react";
 
 import { FeatureName } from "../../../AppRouter";
 import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
@@ -15,6 +15,7 @@ import { Table } from "../../../shared/Table/Table";
 import { getSlots } from "../../../hooks/UsePagination";
 import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
+import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import { USLink } from "../../USLink";
 
 function DashboardFilterAndTable({
@@ -40,45 +41,115 @@ function DashboardFilterAndTable({
     } = useReceiverDeliveries(activeService.name);
 
     if (isLoading || !results) return <Spinner />;
-
     const data = results?.data.map((dataRow) => [
         {
-            columnKey: "DateSentToYou",
+            columnKey: "createdAt",
             columnHeader: "Date sent to you",
-            content: dataRow.createdAt,
+            content: formatDateWithoutSeconds(dataRow.createdAt),
             columnCustomSort: () => {
+                filterManager?.updateSort({
+                    type: SortSettingsActionType.CHANGE_COL,
+                    payload: {
+                        column: "createdAt",
+                    },
+                });
                 filterManager?.updateSort({
                     type: SortSettingsActionType.SWAP_ORDER,
                 });
             },
-            columnCustomSortOrder: filterManager.sortSettings.order,
+            columnCustomSortSettings: filterManager.sortSettings,
         },
         {
-            columnKey: "OrderingProvider",
-            columnHeader: "Ordering Provider",
-            content: dataRow.orderingProvider,
+            columnKey: "orderingProvider",
+            columnHeader: "Ordering provider",
+            content: (
+                <USLink
+                    href={`/data-dashboard/facilities-providers/${dataRow.orderingProvider}`}
+                >
+                    {dataRow.orderingProvider}
+                </USLink>
+            ),
+            columnCustomSort: () => {
+                filterManager?.updateSort({
+                    type: SortSettingsActionType.CHANGE_COL,
+                    payload: {
+                        column: "orderingProvider",
+                    },
+                });
+                filterManager?.updateSort({
+                    type: SortSettingsActionType.SWAP_ORDER,
+                });
+            },
+            columnCustomSortSettings: filterManager.sortSettings,
         },
         {
-            columnKey: "PerformingFacility",
+            columnKey: "orderingFacility",
             columnHeader: "Performing facility",
-            content: dataRow.orderingFacility,
+            content: (
+                <USLink
+                    href={`/data-dashboard/facilities-providers/${dataRow.orderingFacility}`}
+                >
+                    {dataRow.orderingFacility}
+                </USLink>
+            ),
+            columnCustomSort: () => {
+                filterManager?.updateSort({
+                    type: SortSettingsActionType.CHANGE_COL,
+                    payload: {
+                        column: "orderingFacility",
+                    },
+                });
+                filterManager?.updateSort({
+                    type: SortSettingsActionType.SWAP_ORDER,
+                });
+            },
+            columnCustomSortSettings: filterManager.sortSettings,
         },
         {
-            columnKey: "Submitter",
+            columnKey: "submitter",
             columnHeader: "Submitter",
-            content: dataRow.submitter,
+            content: (
+                <USLink
+                    href={`/data-dashboard/facilities-providers/${dataRow.submitter}`}
+                >
+                    {dataRow.submitter}
+                </USLink>
+            ),
+            columnCustomSort: () => {
+                filterManager?.updateSort({
+                    type: SortSettingsActionType.CHANGE_COL,
+                    payload: {
+                        column: "submitter",
+                    },
+                });
+                filterManager?.updateSort({
+                    type: SortSettingsActionType.SWAP_ORDER,
+                });
+            },
+            columnCustomSortSettings: filterManager.sortSettings,
         },
         {
-            columnKey: "ReportID",
+            columnKey: "reportId",
             columnHeader: "Report ID",
             content: (
                 <USLink
                     href={`/data-dashboard/report-details/${dataRow.reportId}`}
-                    className="flex-align-self-end height-5"
                 >
                     {dataRow.reportId}
                 </USLink>
             ),
+            columnCustomSort: () => {
+                filterManager?.updateSort({
+                    type: SortSettingsActionType.CHANGE_COL,
+                    payload: {
+                        column: "reportId",
+                    },
+                });
+                filterManager?.updateSort({
+                    type: SortSettingsActionType.SWAP_ORDER,
+                });
+            },
+            columnCustomSortSettings: filterManager.sortSettings,
         },
     ]);
 
@@ -112,7 +183,7 @@ function DashboardFilterAndTable({
                     }
                 />
             </div>
-            <Table apiSortable rowData={data} />
+            <Table apiSortable borderless rowData={data} />
             <Pagination
                 currentPageNum={currentPageNum}
                 setSelectedPage={(pageNum) => {
