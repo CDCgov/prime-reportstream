@@ -23,27 +23,25 @@ abstract class ConfigSchemaProcessor : Logging {
     ): String {
         var retVal = ""
         run findValue@{
-            if (element.value != null) {
-                element.value!!.forEach {
-                    val value = if (it.isBlank()) ""
-                    else try {
-                        FhirPathUtils.evaluateString(context, focusResource, bundle, it)
-                    } catch (e: SchemaException) {
-                        logger.error("Error while getting value for element ${element.name}", e)
-                        ""
-                    }
-                    logger.trace("Evaluated value expression '$it' to '$value'")
-                    if (value.isNotBlank()) {
-                        retVal = value
-                        return@findValue
-                    }
+            element.value?.forEach {
+                val value = if (it.isBlank()) ""
+                else try {
+                    FhirPathUtils.evaluateString(context, focusResource, bundle, it)
+                } catch (e: SchemaException) {
+                    logger.error("Error while getting value for element ${element.name}", e)
+                    ""
+                }
+                logger.trace("Evaluated value expression '$it' to '$value'")
+                if (value.isNotBlank()) {
+                    retVal = value
+                    return@findValue
                 }
             }
         }
 
         // when valueSet is available, use the matching value else just pass the value as is
-        if (retVal.isNotBlank() && element.valueSet != null && element.valueSet!!.isNotEmpty()) {
-            retVal = element.valueSet!!.getMappedValue(retVal) ?: retVal
+        if (retVal.isNotBlank() && element.valueSet != null) {
+            retVal = element.valueSet?.getMappedValue(retVal) ?: retVal
         }
         return retVal
     }
@@ -61,22 +59,20 @@ abstract class ConfigSchemaProcessor : Logging {
     ): Base? {
         var retVal: Base? = null
         run findValue@{
-            if (element.value != null) {
-                element.value!!.forEach {
-                    val value = if (it.isBlank()) emptyList<Base>()
-                    else FhirPathUtils.evaluate(context, focusResource, bundle, it)
-                    logger.trace("Evaluated value expression '$it' to '$value'")
-                    if (value.isNotEmpty()) {
-                        retVal = value[0]
-                        return@findValue
-                    }
+            element.value?.forEach {
+                val value = if (it.isBlank()) emptyList()
+                else FhirPathUtils.evaluate(context, focusResource, bundle, it)
+                logger.trace("Evaluated value expression '$it' to '$value'")
+                if (value.isNotEmpty()) {
+                    retVal = value[0]
+                    return@findValue
                 }
             }
         }
 
         // when valueSet is available, return mapped value or null if match isn't found
-        if (retVal != null && element.valueSet != null && element.valueSet!!.isNotEmpty()) {
-            val valStr = element.valueSet!!.getMappedValue(retVal?.primitiveValue()?.lowercase() ?: "")
+        if (retVal != null && element.valueSet != null) {
+            val valStr = element.valueSet?.getMappedValue(retVal?.primitiveValue() ?: "")
             retVal = if (valStr != null) {
                 StringType(valStr)
             } else {

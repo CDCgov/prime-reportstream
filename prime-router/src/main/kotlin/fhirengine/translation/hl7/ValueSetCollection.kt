@@ -10,10 +10,9 @@ import java.util.SortedMap
     defaultImpl = InlineValueSet::class
 )
 /**
- * Interface for valueSet. Implement this interface to create a data provider
- * that can return a SortedMap<String, String> at runtime.
+ * Implement this interface to create a data provider for a valueSet collection.
  */
-interface ValueSetMap {
+interface ValueSetCollection {
     /**
      * @return a SortedMap<String, String> representation of the valueSet
      */
@@ -29,10 +28,11 @@ interface ValueSetMap {
 }
 
 /**
- * Default implementation of ValueSetMap to allow valueSet to be specified inline in the sender transform schema.
+ * Default implementation of [ValueSetCollection] to allow valueSet to be specified inline
+ * in the sender transform schema.
  */
 class InlineValueSet
-(@JsonProperty("values") private val values: SortedMap<String, String>) : ValueSetMap {
+(@JsonProperty("values") private val values: SortedMap<String, String>) : ValueSetCollection {
 
     override fun toSortedMap(): SortedMap<String, String> {
         return values

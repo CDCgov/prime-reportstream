@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import gov.cdc.prime.router.fhirengine.translation.hl7.ValueSetMap
+import gov.cdc.prime.router.fhirengine.translation.hl7.ValueSetCollection
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElement
 import java.util.SortedMap
@@ -38,7 +38,7 @@ class FhirTransformSchema(
  * @property value a list of FHIR paths each pointing to a FHIR primitive value
  * @property resourceIndex the variable name to store a FHIR collection's index number
  * @property constants element level constants
- * @property valueSet a list of key-value pairs used to convert the value property
+ * @property valueSet a collection of key-value pairs used to convert the value property
  * @property debug log debug information for the element
  * @property bundleProperty a FHIR path denoting where to store the value
  */
@@ -53,7 +53,7 @@ class FhirTransformSchemaElement(
     value: List<String>? = null,
     resourceIndex: String? = null,
     constants: SortedMap<String, String> = sortedMapOf(),
-    valueSet: ValueSetMap? = null,
+    valueSet: ValueSetCollection? = null,
     debug: Boolean = false,
     var bundleProperty: String? = null,
 ) : ConfigSchemaElement(

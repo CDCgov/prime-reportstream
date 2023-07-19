@@ -3,7 +3,7 @@ package gov.cdc.prime.router.fhirengine.engine
 import com.fasterxml.jackson.annotation.JsonProperty
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
-import gov.cdc.prime.router.fhirengine.translation.hl7.ValueSetMap
+import gov.cdc.prime.router.fhirengine.translation.hl7.ValueSetCollection
 import java.util.SortedMap
 
 /**
@@ -22,11 +22,11 @@ data class LookupTableValueSetConfig(
 )
 
 /**
- * Implementation of ValueSetMap to allow valueSet to be retrieved from a lookup table.
+ * Implementation of [ValueSetCollection] to allow valueSet to be retrieved from a lookup table.
  * Provide [LookupTableValueSetConfig] to configure the lookup table source.
  */
 class LookupTableValueSet
-(@JsonProperty("lookupTable") private val configData: LookupTableValueSetConfig) : ValueSetMap {
+(@JsonProperty("lookupTable") private val configData: LookupTableValueSetConfig) : ValueSetCollection {
     private val metadata = Metadata.getInstance()
     private var mapVal: SortedMap<String, String>? = null
 
