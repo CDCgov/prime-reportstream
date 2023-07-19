@@ -96,7 +96,7 @@ export const appRoutes: RouteObject[] = [
                             {
                                 path: "getting-started",
                                 lazy: lazyRouteMarkdown(
-                                    "content/resources/reportstream-api/getting-started"
+                                    "content/resources/reportstream-api/getting-started/landing-page"
                                 ),
                                 handle: {
                                     isContentPage: true,
