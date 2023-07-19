@@ -145,10 +145,41 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     private val flexionRestTransportType = RESTTransportType(
         "v1/etor/demographics",
         "v1/auth",
+        "two-legged",
         null,
         mapOf("mock-p1" to "value-p1", "mock-p2" to "value-p2"),
         headers = mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
     )
+
+    private val fakePrivateKey = """-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEAvzoqTD4p9tRCyF2sPsq8ZE2/cCslUBYb+u+4whe6PGHAssU9
+vFSqeF/ZlaU8Zo/hi+m0AaHcISN+St/VJ2+JuEOs4KDGbYjT/NeT0rN+5fAOHmNI
+JVPWyxrTNblTh0Z0w4um37UpQWmBnh+/lmT3faaGZmE+kdaj/Rvg8bmbYAudz0Wa
+QQD3gTmSTLDlqiLgYZ4g0kxvk9MP8MIyzU4mW3aHsZbTBq8vXHmBHWGui4XV/3t8
+xOknjAEgqYp5W/pV7Z/8yg1QF7jeBdkSqk8gJti+UsMyhGratos/PejDLgJ29TVw
+JPnr8JOw4GgTfxEpDVD9uLB+l6pOhVi5/Xy2WwIDAQABAoIBADW2OLtBmrfh1wBA
+j2jzuQbTb7op5EkibKmHO/YIhB8BtgaAsF59yYQWKB+IUfbc4xVRh2YN+K62MXsG
+c/Cnu58uIxjVD+ckT6btRnAgSrx7OPwAFvulGOfjmP+2FmgguhtS1oRvdi8RW372
+m/G6WmnIpGeNWO3NxDIL6pr671GCdUSovtlgmWMDPA6tL2GxXgQ936DIS+3yoDqx
+p39ze7WMTVS3qQcf/WLCkj8vugMc2gT1sB60PDwIHXs4sE/dcV017hUoHGZ8I5M3
+jEDiBO/EHm2057MAsoCrTBAlHgIp4LRAeJsJrQjIVM5v87J9TnK93j/DjuIHuwt+
+5yXUZ0ECgYEA6ueBBdDI6LAc4BRCvEyUKrP9PIJXjmVSkrN+j32mxa/m1Wr+EFo6
+qJHU819GkjGjHYS/lm9Ktp1cViZi09GJ8Qc69mghdh4Ul7a0iRHqE8U0OQYQ/+jd
+GcveA5oOrSkUmTudKBehA4NG+SAKMlQUxE4B9jNZJSglm/bvfzg6PG0CgYEA0GaE
+HSR2GatxfHUMLA0b5cYpddqVIkpyfw6CsIkFO9SA2/uKcJVpOhkUL1+CyN6hOxGZ
+5WIhWTsgmRF6CcZTc1OL6zFwVe8Qm/w2rfhSRsQW6r1aHni5n4VaZIjM30qTtXnw
+qZMoEMdXp4ZyiyISTEUzbJMAJLvb9n0jqGcy8OcCgYEAlGhwpnjzBbeGdre2Nfr3
+vUb73gfHQ2qWUaLfec571/e7EejH3RL0bl28OYpfLqv3jwW4eVWU0Wz30mHsHEEN
+Ml9MDDNbuKFmhzdiNhtAVP9JcCF6CgRX9B1OBd6GGTaUEf+M2bCcBHkjFO/+IS/n
+8uIJ8T8duhD0OeY4B5tBh70CgYB3R+YgZAkw4h8/tCL2Z75rAsQiT60ChogITz7g
+WlzjhNsIjm4LyIkFFuulvc42uK6iB44Fa+hYkW40DnvCcoC7RruUL6TzmrTwAyks
+5C/7jyrqytx1CnZ8ZrB5UI+q0p2+xn/IH5FUITT7jwmqtyKwAv/PCkiPvfLFn5S0
+Q/U1SwKBgQDZF6UkkOeBh4TKDQl0aXTvstIQ/ChdGm6qVm9ksxlupudEeHhDO2MD
+5HZD6unsl7WWAdczWFxUTslGKb1HltT7yeRKEbgPexP9d+g14SLT/pnfO259gZuD
+hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
+-----END RSA PRIVATE KEY-----
+    """
+
     private val task = Task(
         reportId,
         TaskAction.send,
@@ -408,6 +439,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         //      getAuthTokenWithUserApiKey should be called with transport.parameters empty
         verify {
             runBlocking {
+                mockRestTransport.lookupDefaultCredential(any())
                 mockRestTransport.getAuthTokenWithUserApiKey(transportType, any(), any(), any())
             }
         }
@@ -425,7 +457,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential(
                 "test-user",
-                "test-apikey"
+                fakePrivateKey
             )
         )
 
@@ -440,6 +472,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         //      getAuthTokenWithUserApiKey should be called with transport.parameters NOT empty
         verify {
             runBlocking {
+                mockRestTransport.lookupTwoLeggedCredential(any())
                 mockRestTransport.getAuthTokenWithUserApiKey(flexionRestTransportType, any(), any(), any())
             }
         }
@@ -451,7 +484,7 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         val header = makeHeader()
         val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
-            UserApiKeyCredential("flexion", "123")
+            UserApiKeyCredential("flexion", fakePrivateKey)
         )
         every { runBlocking { mockRestTransport.getAuthTokenWithUserApiKey(any(), any(), any(), any()) } }.returns(
             TokenInfo(accessToken = "MockToken", tokenType = "bearer")

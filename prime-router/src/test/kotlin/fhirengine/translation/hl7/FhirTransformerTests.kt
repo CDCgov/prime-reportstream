@@ -10,10 +10,13 @@ import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -25,12 +28,15 @@ import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.CodeType
 import org.hl7.fhir.r4.model.CodeableConcept
+import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.HumanName
 import org.hl7.fhir.r4.model.IdType
 import org.hl7.fhir.r4.model.Meta
+import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.ServiceRequest
 import org.hl7.fhir.r4.model.StringType
+import java.io.File
 import java.text.SimpleDateFormat
 import kotlin.test.Test
 
@@ -762,5 +768,38 @@ class FhirTransformerTests {
             )
         assertThat(resource.meta.lastUpdated).isEqualTo(bundle.timestamp)
         assertThat(newValue[0].primitiveValue()).isEqualTo("2021-08-09T05:52:00.000-07:00")
+    }
+
+    @Test
+    fun `test extending schema overwrite element`() {
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/valid_data.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        val bundle = messages[0]
+
+        val childSchema = ConfigSchemaReader.fromFile(
+            "test_extension_schema",
+            "src/test/resources/fhir_sender_transforms",
+            schemaClass = FhirTransformSchema::class.java,
+        ) as FhirTransformSchema
+
+        val transformer = FhirTransformer(childSchema)
+        val transformedBundle = transformer.transform(bundle)
+
+        val transformedDiagnosticReports = mutableListOf<DiagnosticReport>()
+        var transformedPatient = Patient()
+        transformedBundle.entry.forEach {
+            when (val resource = it.resource) {
+                is Patient -> transformedPatient = resource
+                is DiagnosticReport -> transformedDiagnosticReports.add(resource)
+            }
+        }
+
+        val transformedObservation = transformedDiagnosticReports[0].result[0].resource as Observation
+
+        assertThat(transformedDiagnosticReports[0].id).isEqualTo("extensionId")
+        assertThat(transformedPatient.id).isEqualTo("123456")
+        assertThat(transformedObservation.status).isEqualTo(Observation.ObservationStatus.FINAL)
+        assertThat(transformedPatient.name[0].text).isEqualTo("placeholder value")
     }
 }

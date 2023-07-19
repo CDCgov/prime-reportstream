@@ -27,16 +27,54 @@ destination:
   expressionType: resource
 
 extension_1:
+  condition: $messageProfileEntityId NOT_NULL
   generateList: true
   expressionType: nested
+  specs: MSH.21
+  vars:
+    messageProfileEntityId: MSH.21
   expressionsMap:
     url:
       type: SYSTEM_URL
       value: source-message-profile-id
-    valueCodeableConcept:
-      valueOf: datatype/Identifier_var
+    valueIdentifier:
+      valueOf: datatype/Identifier_SystemID
       expressionType: resource
-      vars:
-        valueIn: String, MSH.21.1
-        systemId: String, MSH.21.2
 
+extension_2:
+  condition: $msh15 NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    msh15: MSH.15
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: accept-acknowledgement-type
+    valueIdentifier:
+      valueOf: datatype/Identifier_SystemID
+      expressionType: resource
+      specs: MSH.15
+      constants:
+        system: "http://terminology.hl7.org/CodeSystem/v3-AcknowledgementCondition"
+      vars:
+        code: MSH.15
+
+extension_3:
+  condition: $msh16 NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    msh16: MSH.16
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: application-acknowledgement-type
+    valueIdentifier:
+      valueOf: datatype/Identifier_SystemID
+      expressionType: resource
+      specs: MSH.16
+      constants:
+        system: "http://terminology.hl7.org/CodeSystem/v3-AcknowledgementCondition"
+      vars:
+        code: MSH.16

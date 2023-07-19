@@ -634,7 +634,7 @@ class FHIRRouter(
      */
     internal fun getJurisFilters(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         return (
-            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.jurisdictionalFilter
+            orgFilters?.firstOrNull { it.topic == receiver.topic }?.jurisdictionalFilter
                 ?: emptyList()
             ).plus(receiver.jurisdictionalFilter)
     }
@@ -646,7 +646,7 @@ class FHIRRouter(
      */
     internal fun getQualityFilters(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         val receiverFilters = (
-            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.qualityFilter
+            orgFilters?.firstOrNull { it.topic == receiver.topic }?.qualityFilter
                 ?: emptyList()
             ).plus(receiver.qualityFilter)
         return receiverFilters.ifEmpty { qualityFilterDefaults[receiver.topic] ?: emptyList() }
@@ -659,7 +659,7 @@ class FHIRRouter(
      */
     internal fun getRoutingFilter(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         return (
-            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.routingFilter
+            orgFilters?.firstOrNull { it.topic == receiver.topic }?.routingFilter
                 ?: emptyList()
             ).plus(receiver.routingFilter)
     }
@@ -674,7 +674,7 @@ class FHIRRouter(
         orgFilters: List<ReportStreamFilters>?,
     ): ReportStreamFilter {
         val receiverFilters = (
-            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.processingModeFilter
+            orgFilters?.firstOrNull { it.topic == receiver.topic }?.processingModeFilter
                 ?: emptyList()
             ).plus(receiver.processingModeFilter)
         return receiverFilters.ifEmpty { processingModeDefaults[receiver.topic] ?: emptyList() }
