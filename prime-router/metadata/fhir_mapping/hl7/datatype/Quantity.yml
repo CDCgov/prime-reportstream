@@ -1,6 +1,6 @@
 value_1 :
   condition: $value CONTAINS_STRING '.'
-  type: FLOAT
+#  type: FLOAT  # not specifying a type results in the full "value" being reported correctly and no rounding/float conversion occurs
   valueOf: $value
 value_2 :
   # Try to keep implicit precision for integers

@@ -1,15 +1,15 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1689777847192803000.b5d38794-680a-4467-bde9-d7a116c72018",
+  "id" : "1689797864894834000.45d6bd84-dccb-443e-9874-abe54da7040d",
   "meta" : {
-    "lastUpdated" : "2023-07-19T07:44:07.216-07:00"
+    "lastUpdated" : "2023-07-19T16:17:44.911-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
     "value" : "31808297"
   },
   "type" : "message",
-  "timestamp" : "2023-05-06T03:29:16.000-07:00",
+  "timestamp" : "2023-05-06T06:29:16.000-04:00",
   "entry" : [ {
     "fullUrl" : "MessageHeader/87c2d0db-6f31-3666-b9e2-7152e039c11f",
     "resource" : {
@@ -71,7 +71,7 @@
       },
       "destination" : [ {
         "target" : {
-          "reference" : "Device/1689777847353583000.4d32f614-ea75-4899-9b38-da527602305f"
+          "reference" : "Device/1689797865043862000.dea72d20-7906-470f-af26-f7055601f942"
         },
         "endpoint" : "urn:dns:natus.health.state.mn.us",
         "receiver" : {
@@ -79,13 +79,13 @@
         }
       } ],
       "sender" : {
-        "reference" : "Organization/1689777847341774000.fe1c97d6-4789-4018-9c9b-26f6727b12c8"
+        "reference" : "Organization/1689797865030711000.fe13aaee-f4ba-4ca0-b227-b4f942e720a2"
       },
       "source" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
           "valueReference" : {
-            "reference" : "Organization/1689777847377799000.dc8efb04-8534-454d-b3d9-313468310218"
+            "reference" : "Organization/1689797865067003000.2eee97c7-6d4c-4d84-89b7-d4aee99e2471"
           }
         } ],
         "name" : "Epic",
@@ -93,10 +93,10 @@
       }
     }
   }, {
-    "fullUrl" : "Organization/1689777847341774000.fe1c97d6-4789-4018-9c9b-26f6727b12c8",
+    "fullUrl" : "Organization/1689797865030711000.fe13aaee-f4ba-4ca0-b227-b4f942e720a2",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1689777847341774000.fe1c97d6-4789-4018-9c9b-26f6727b12c8",
+      "id" : "1689797865030711000.fe13aaee-f4ba-4ca0-b227-b4f942e720a2",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -112,10 +112,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Device/1689777847353583000.4d32f614-ea75-4899-9b38-da527602305f",
+    "fullUrl" : "Device/1689797865043862000.dea72d20-7906-470f-af26-f7055601f942",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1689777847353583000.4d32f614-ea75-4899-9b38-da527602305f",
+      "id" : "1689797865043862000.dea72d20-7906-470f-af26-f7055601f942",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -162,10 +162,10 @@
       "name" : "MN Public Health Lab"
     }
   }, {
-    "fullUrl" : "Organization/1689777847377799000.dc8efb04-8534-454d-b3d9-313468310218",
+    "fullUrl" : "Organization/1689797865067003000.2eee97c7-6d4c-4d84-89b7-d4aee99e2471",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1689777847377799000.dc8efb04-8534-454d-b3d9-313468310218",
+      "id" : "1689797865067003000.2eee97c7-6d4c-4d84-89b7-d4aee99e2471",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -178,10 +178,10 @@
       }
     }
   }, {
-    "fullUrl" : "Observation/1689777849694813000.f6e43f49-e9db-4f4e-b89f-81b32721a0c9",
+    "fullUrl" : "Observation/1689797868146000000.bfdc4eb0-01ed-4878-b5c5-2b6cbad4afdd",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "1689777849694813000.f6e43f49-e9db-4f4e-b89f-81b32721a0c9",
+      "id" : "1689797868146000000.bfdc4eb0-01ed-4878-b5c5-2b6cbad4afdd",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -226,17 +226,17 @@
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-value",
           "valueString" : "1769.859285"
         } ],
-        "value" : 1769.8593,
+        "value" : 1769.859285,
         "unit" : "g",
         "system" : "http://unitsofmeasure.org",
         "code" : "g"
       }
     }
   }, {
-    "fullUrl" : "Patient/1689777849680130000.942ed7e4-a272-4564-8d11-cb3c96a15a58",
+    "fullUrl" : "Patient/1689797868131396000.72a75093-9144-43a7-8a2e-e5767fccd537",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1689777849680130000.942ed7e4-a272-4564-8d11-cb3c96a15a58",
+      "id" : "1689797868131396000.72a75093-9144-43a7-8a2e-e5767fccd537",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
