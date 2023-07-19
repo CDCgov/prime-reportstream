@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
-import { ReactNode } from "react-markdown/lib/react-markdown";
 
 import Table, {
     ColumnConfig,
@@ -138,7 +137,7 @@ export const ValueSetsDetailTable = ({
     setAlert: Dispatch<SetStateAction<ReportStreamAlert | undefined>>;
     valueSetData: ValueSetRow[];
     error?: Error;
-    Legend?: ReactNode; //  not using this yet, but may want to some day
+    Legend?: JSX.Element; //  not using this yet, but may want to some day
 }) => {
     const { saveData, isSaving } = useValueSetUpdate();
     const { activateTable, isActivating } = useValueSetActivation();
