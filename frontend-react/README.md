@@ -51,6 +51,8 @@ yarn start:localdev # Runs the React app use for localdev
 yarn build:staging # Builds the React app for staging
 yarn build:production # Builds the React app for production
 
+yarn run storybook # Runs a local instance of Storybook showcase of all of the components within our .stories files
+
 yarn lint # Runs the front-end linter
 yarn lint:write # Runs the front-end linter and fixes style errors
 ```
@@ -98,3 +100,11 @@ index.js:2 Refused to apply inline style because it violates the
 (FYI. The error is on `index.js:2` because minification removes line feeds.)
 
 NOTE: This only works `run:build-dir` because webpack's dynamic runtime updating does injection that violates CSP
+
+## Chromatic and CI Autobuilds
+
+[Chromatic](https://www.chromatic.com/) is a tool for hosting and publishing different versions of a given repository's Storybook. We use Chromatic to host an up-to-date version of all of our Storybook components (any file that ends with `**.stories.tsx` syntax) so that our non-technical folks can see all of our components on the web. All of our CI Autobuild Github workflows can be found in both `.github/workflows/chromatic-master.yml` and `.github/workflows/chromatic-pr.yml`.
+
+`.github/workflows/chromatic-master.yml` triggers a Chromatic build anytime a PR gets merged into our `master` branch.
+
+`.github/workflows/chromatic-pr.yml` triggers a Chromatic build anytime a file with `// AutoUpdateFileChromatic` comment on its FIRST LINE is checked in to a PR. The goal here is to automatically update our Chromatic anytime a file that has an associated Storybook is modified.
