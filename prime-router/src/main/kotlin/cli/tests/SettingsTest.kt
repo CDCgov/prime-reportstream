@@ -97,7 +97,7 @@ class SettingsTest : CoolTest() {
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting CRUD REST API ${environment.url}")
-        val bearer = getAccessToken(environment, name)
+        val bearer = getOktaAccessToken(environment, name)
 
         val testCases = mutableListOf(
             SettingsApiTestCase(
