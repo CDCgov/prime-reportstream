@@ -13,14 +13,13 @@ resources:
     repeats: false
 
   - resourceName: Observation
-    segment: .OBSERVATION.OBX
-    group: ORDER.ORDER_DETAIL
+    segment: .ORDER_DETAIL.OBSERVATION.OBX
+    group: ORDER
     resourcePath: resource/Observation
     repeats: true
     isReferenced: true
     additionalSegments:
-      - .ORDER_DETAIL_SEGMENT.OBR
-      - .OBSERVATION.NTE
-      - .SPECIMEN.SPM
+      - .ORC
+      - .ORDER_DETAIL.OBR
+      - .ORDER_DETAIL.OBSERVATION.NTE
       - MSH
-      - .PID
