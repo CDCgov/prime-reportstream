@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import gov.cdc.prime.router.fhirengine.translation.hl7.InlineValueSet
 import gov.cdc.prime.router.fhirengine.translation.hl7.ValueSetMap
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElement
@@ -75,11 +74,11 @@ class ConverterSchemaElement(
     schema: String? = null,
     schemaRef: ConfigSchema<ConverterSchemaElement>? = null,
     resource: String? = null,
-    value: List<String> = emptyList(),
+    value: List<String>? = null,
     var hl7Spec: List<String> = emptyList(),
     resourceIndex: String? = null,
     constants: SortedMap<String, String> = sortedMapOf(),
-    valueSet: ValueSetMap = InlineValueSet(sortedMapOf()),
+    valueSet: ValueSetMap? = null,
     debug: Boolean = false
 ) : ConfigSchemaElement(
     name = name,

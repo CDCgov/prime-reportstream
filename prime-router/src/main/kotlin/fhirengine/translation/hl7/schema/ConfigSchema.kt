@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import gov.cdc.prime.router.fhirengine.translation.hl7.InlineValueSet
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.ValueSetMap
 import java.util.SortedMap
@@ -158,10 +157,10 @@ abstract class ConfigSchemaElement(
     var schema: String? = null,
     var schemaRef: ConfigSchema<*>? = null,
     var resource: String? = null,
-    var value: List<String> = emptyList(),
+    var value: List<String>? = null,
     var resourceIndex: String? = null,
     var constants: SortedMap<String, String> = sortedMapOf(),
-    var valueSet: ValueSetMap = InlineValueSet(sortedMapOf()),
+    var valueSet: ValueSetMap? = null,
     var debug: Boolean = false
 ) {
     private var validationErrors: MutableSet<String> = mutableSetOf()
@@ -188,22 +187,26 @@ abstract class ConfigSchemaElement(
         }
 
         when {
-            !schema.isNullOrBlank() && value.isNotEmpty() ->
+            !schema.isNullOrBlank() && !value.isNullOrEmpty() ->
                 addError("Schema property cannot be used with the value property")
-            !schema.isNullOrBlank() && valueSet.isNotEmpty() ->
+            !schema.isNullOrBlank() && (valueSet != null && valueSet!!.isNotEmpty()) ->
                 addError("Schema property cannot be used with the valueSet property")
-            schema.isNullOrBlank() && value.isEmpty() ->
+            schema.isNullOrBlank() && value.isNullOrEmpty() ->
                 addError("Value property is required when not using a schema")
         }
 
-        // value sets need a value to be...set
-        if (valueSet.isNotEmpty() && value.isEmpty()) {
-            addError("Value property is required when using a value set")
-        }
+        if (valueSet != null) {
+            // value sets need a value to be...set
+            if (valueSet!!.isNotEmpty() && value.isNullOrEmpty()) {
+                addError("Value property is required when using a value set")
+            }
 
-        // value set keys and values cannot be null
-        if (valueSet.toSortedMap().keys.any { it == null } || valueSet.toSortedMap().values.any { it == null }) {
-            addError("Value sets cannot contain null values")
+            // value set keys and values cannot be null
+            if (valueSet!!.toSortedMap().keys.any { it == null } ||
+                valueSet!!.toSortedMap().values.any { it == null }
+            ) {
+                addError("Value sets cannot contain null values")
+            }
         }
 
         if (!schema.isNullOrBlank() && schemaRef == null) {
@@ -228,8 +231,8 @@ abstract class ConfigSchemaElement(
         overwritingElement.resource?.let { this.resource = overwritingElement.resource }
         overwritingElement.resourceIndex?.let { this.resourceIndex = overwritingElement.resourceIndex }
         if (overwritingElement.debug) this.debug = overwritingElement.debug
-        if (overwritingElement.value.isNotEmpty()) this.value = overwritingElement.value
-        if (overwritingElement.valueSet.isNotEmpty()) this.valueSet = overwritingElement.valueSet
+        if (!overwritingElement.value.isNullOrEmpty()) this.value = overwritingElement.value
+        if (overwritingElement.valueSet != null && valueSet!!.isNotEmpty()) this.valueSet = overwritingElement.valueSet
         if (overwritingElement.constants.isNotEmpty()) this.constants = overwritingElement.constants
     }
 }
