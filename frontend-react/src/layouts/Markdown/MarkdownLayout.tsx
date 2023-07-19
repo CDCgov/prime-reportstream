@@ -57,7 +57,7 @@ export function MarkdownLayout({
             <title>{title}</title>
         </Helmet>
     ) : null;
-    const LazyNav = sidenav ? React.lazy(MDXModules[`${sidenav}.mdx`]) : null;
+    const LazyNav = sidenav ? React.lazy(MDXModules[`./${sidenav}.mdx`]) : null;
 
     return (
         <>
@@ -107,7 +107,7 @@ export default MarkdownLayout;
  */
 export function lazyRouteMarkdown(path: string) {
     return async () => {
-        const module = await MDXModules[`${path}.mdx`]();
+        const module = await MDXModules[`./${path}.mdx`]();
         return {
             Component() {
                 return <MarkdownLayout {...module} />;
