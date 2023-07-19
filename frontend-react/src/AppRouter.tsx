@@ -2,14 +2,8 @@ import { createBrowserRouter, redirect, RouteObject } from "react-router-dom";
 import { LoginCallback } from "@okta/okta-react";
 import React from "react";
 
-import { TermsOfService } from "./pages/TermsOfService";
-import { About } from "./pages/About";
 import { Login } from "./pages/Login";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
-import { Resources } from "./pages/resources/Resources";
-import { ResourcesPage } from "./pages/resources/ResourcesPage";
-import { Product } from "./pages/product/ProductIndex";
-import { Support } from "./pages/support/Support";
 import { UploadWithAuth } from "./pages/Upload";
 import { FeatureFlagUIWithAuth } from "./pages/misc/FeatureFlags";
 import { SubmissionDetailsWithAuth } from "./pages/submissions/SubmissionDetails";
@@ -32,20 +26,14 @@ import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
-import { GettingStartedPage } from "./pages/resources/reportstream-api/GettingStarted";
-import { DocumentationPage } from "./pages/resources/reportstream-api/documentation/Documentation";
-import { DataModelPage } from "./pages/resources/reportstream-api/documentation/DataModel";
-import { ResponsesFromReportStreamPage } from "./pages/resources/reportstream-api/documentation/ResponsesFromReportStream";
-import { SamplePayloadsAndOutputPage } from "./pages/resources/reportstream-api/documentation/SamplePayloadsAndOutput";
 import FileHandler from "./components/FileHandlers/FileHandler";
-import { ReportStreamAPIPage } from "./pages/resources/reportstream-api/ReportStreamApi";
-import { FaqPage } from "./pages/support/faq/FaqPage";
 import { DataDashboardWithAuth } from "./pages/data-dashboard/DataDashboard";
-import MainLayout from "./layouts/MainLayout";
+import MainLayout from "./layouts/Main/MainLayout";
 import { ReportDetailsWithAuth } from "./components/DataDashboard/ReportDetails/ReportDetails";
 import { FacilitiesProvidersWithAuth } from "./components/DataDashboard/FacilitiesProviders/FacilitiesProviders";
 import { FacilityProviderSubmitterDetailsWithAuth } from "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails";
 import { SenderType } from "./utils/DataDashboardUtils";
+import { lazyRouteMarkdown } from "./layouts/Markdown/MarkdownLayout";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -74,29 +62,7 @@ export const appRoutes: RouteObject[] = [
             },
             {
                 path: "/terms-of-service",
-                element: <TermsOfService />,
-                handle: {
-                    isContentPage: true,
-                },
-            },
-            {
-                path: "/about",
-                element: <About />,
-                handle: {
-                    isContentPage: true,
-                },
-            },
-            {
-                path: "/login",
-                element: <Login />,
-            },
-            {
-                path: "/login/callback",
-                element: <LoginCallback />,
-            },
-            {
-                path: "/sign-tos",
-                element: <TermsOfServiceForm />,
+                lazy: lazyRouteMarkdown("content/terms-of-service.mdx"),
                 handle: {
                     isContentPage: true,
                 },
@@ -105,19 +71,33 @@ export const appRoutes: RouteObject[] = [
                 path: "/resources",
                 children: [
                     {
+                        path: "",
+                        index: true,
+                        lazy: lazyRouteMarkdown(
+                            "content/resources/landing-page.mdx"
+                        ),
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                    {
                         path: "api",
                         children: [
                             {
                                 path: "",
                                 index: true,
-                                element: <ReportStreamAPIPage />,
+                                lazy: lazyRouteMarkdown(
+                                    "content/resources/reportstream-api/landing-page.mdx"
+                                ),
                                 handle: {
                                     isContentPage: true,
                                 },
                             },
                             {
                                 path: "getting-started",
-                                element: <GettingStartedPage />,
+                                lazy: lazyRouteMarkdown(
+                                    "content/resources/reportstream-api/getting-started.mdx"
+                                ),
                                 handle: {
                                     isContentPage: true,
                                 },
@@ -127,7 +107,9 @@ export const appRoutes: RouteObject[] = [
                                 children: [
                                     {
                                         path: "",
-                                        element: <DocumentationPage />,
+                                        lazy: lazyRouteMarkdown(
+                                            "content/resources/reportstream-api/documentation/landing-page.mdx"
+                                        ),
                                         index: true,
                                         handle: {
                                             isContentPage: true,
@@ -135,15 +117,17 @@ export const appRoutes: RouteObject[] = [
                                     },
                                     {
                                         path: "data-model",
-                                        element: <DataModelPage />,
+                                        lazy: lazyRouteMarkdown(
+                                            "content/resources/reportstream-api/documentation/data-model/landing-page.mdx"
+                                        ),
                                         handle: {
                                             isContentPage: true,
                                         },
                                     },
                                     {
                                         path: "responses-from-reportstream",
-                                        element: (
-                                            <ResponsesFromReportStreamPage />
+                                        lazy: lazyRouteMarkdown(
+                                            "content/resources/reportstream-api/documentation/responses-from-reportstream.mdx"
                                         ),
                                         handle: {
                                             isContentPage: true,
@@ -151,8 +135,8 @@ export const appRoutes: RouteObject[] = [
                                     },
                                     {
                                         path: "sample-payloads-and-output",
-                                        element: (
-                                            <SamplePayloadsAndOutputPage />
+                                        lazy: lazyRouteMarkdown(
+                                            "content/resources/reportstream-api/documentation/sample-payloads-and-output.mdx"
                                         ),
                                         handle: {
                                             isContentPage: true,
@@ -162,6 +146,9 @@ export const appRoutes: RouteObject[] = [
                             },
                         ],
                     },
+                    /**
+                     * Deprecated
+                     */
                     {
                         path: "programmers-guide",
                         loader: async () => {
@@ -173,54 +160,161 @@ export const appRoutes: RouteObject[] = [
                         element: <ManagePublicKeyWithAuth />,
                     },
                     {
+                        path: "getting-started-submitting-data",
+                        lazy: lazyRouteMarkdown(
+                            "content/resources/getting-started-submitting-data.mdx"
+                        ),
+                    },
+                    {
+                        path: "referral-guide",
+                        lazy: lazyRouteMarkdown(
+                            "content/resources/referral-guide.mdx"
+                        ),
+                    },
+                    {
+                        path: "security-practices",
+                        lazy: lazyRouteMarkdown(
+                            "content/resources/security-practices.mdx"
+                        ),
+                    },
+                    {
+                        path: "system-and-settings",
+                        lazy: lazyRouteMarkdown(
+                            "content/resources/system-and-settings.mdx"
+                        ),
+                    },
+                    {
+                        path: "data-download-guide",
+                        lazy: lazyRouteMarkdown(
+                            "content/resources/landing-page.mdx"
+                        ),
+                    },
+                    {
+                        path: "account-registration-guide",
+                        lazy: lazyRouteMarkdown(
+                            "content/resources/account-registration-guide.mdx"
+                        ),
+                    },
+                    {
+                        path: "elr-checklist",
+                        lazy: lazyRouteMarkdown(
+                            "content/resources/elr-checklist.mdx"
+                        ),
+                    },
+                    {
+                        path: "getting-started-public-health-departments",
+                        lazy: lazyRouteMarkdown(
+                            "content/resources/getting-started-phd.mdx"
+                        ),
+                    },
+                ],
+            },
+            /**
+             * Deprecated
+             */
+            {
+                path: "/about",
+                loader: async () => {
+                    return redirect("/product/about");
+                },
+            },
+            {
+                path: "/product",
+                children: [
+                    {
                         path: "",
                         index: true,
-                        element: <ResourcesPage />,
+                        loader: async () => {
+                            return redirect("/product/overview");
+                        },
+                    },
+                    {
+                        path: "overview",
+                        lazy: lazyRouteMarkdown(
+                            "content/product/landing-page.mdx"
+                        ),
                         handle: {
                             isContentPage: true,
                         },
                     },
                     {
-                        path: "*",
-                        element: <Resources />,
+                        path: "where-were-live",
+                        lazy: lazyRouteMarkdown(
+                            "content/product/where-were-live.mdx"
+                        ),
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                    {
+                        path: "release-notes",
+                        lazy: lazyRouteMarkdown(
+                            "content/product/release-notes.mdx"
+                        ),
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                    {
+                        path: "about",
+                        lazy: lazyRouteMarkdown("content/product/about.mdx"),
                         handle: {
                             isContentPage: true,
                         },
                     },
                 ],
-            },
-            {
-                path: "/product/*",
-                element: <Product />,
-                handle: {
-                    isContentPage: true,
-                },
             },
             {
                 path: "/support",
                 children: [
                     {
-                        path: "faq",
-                        element: <FaqPage />,
-                        handle: {
-                            isContentPage: true,
-                        },
-                    },
-                    {
                         path: "",
-                        element: <Support />,
+                        lazy: lazyRouteMarkdown(
+                            "content/support/landing-page.mdx"
+                        ),
                         handle: {
                             isContentPage: true,
                         },
                     },
                     {
-                        path: "*",
-                        element: <Support />,
+                        path: "faq",
+                        lazy: lazyRouteMarkdown("content/support/faq.mdx"),
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                    {
+                        path: "service-request",
+                        lazy: lazyRouteMarkdown(
+                            "content/support/service-request.mdx"
+                        ),
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                    {
+                        path: "contact",
+                        lazy: lazyRouteMarkdown("content/support/contact.mdx"),
                         handle: {
                             isContentPage: true,
                         },
                     },
                 ],
+            },
+            /**
+             * AKA Account Registration
+             */
+            {
+                path: "/sign-tos",
+                element: <TermsOfServiceForm />,
+            },
+            {
+                path: "/login",
+                element: <Login />,
+            },
+            {
+                path: "/login/callback",
+                element: <LoginCallback />,
             },
             {
                 path: "/file-handler/validate",

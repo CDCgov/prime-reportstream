@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 
-import { MarkdownDirectory } from "../Content/MarkdownDirectory";
 import { USLink } from "../USLink";
 import { FeatureName } from "../../AppRouter";
 
@@ -14,7 +13,7 @@ export interface NonStaticOption {
 interface DropdownNavProps {
     label: string;
     root: string;
-    directories: MarkdownDirectory[] | NonStaticOption[];
+    directories: NonStaticOption[];
 }
 
 export const makeNonStaticOption = (
