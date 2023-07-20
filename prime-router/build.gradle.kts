@@ -854,10 +854,6 @@ dependencies {
         exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
         exclude(group = "com.github.kittinunf.fuel", module = "fuel")
     }
-    // testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
-    testImplementation("org.testcontainers:testcontainers:1.18.3")
-    testImplementation("org.testcontainers:junit-jupiter:1.18.3")
-    testImplementation("org.testcontainers:postgresql:1.18.3")
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")

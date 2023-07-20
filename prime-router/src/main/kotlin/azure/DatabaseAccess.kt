@@ -1379,6 +1379,11 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
          * Azure functions are actually deployed in a web server. That is functions amortize startup
          * costs by reusing an existing process for a function invocation. Hence, a connection pool
          * is a win in latency after the first initialization.
+         *
+         * @param jdcUrl the URL for the database
+         * @param username the username
+         * @param password the password
+         * @return a data source that can be used to make DB connections
          */
         fun getDataSource(jdcUrl: String, username: String, password: String): HikariDataSource {
             DriverManager.registerDriver(Driver())
@@ -1416,7 +1421,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             val flyway = Flyway.configure().configuration(mapOf(Pair("flyway.postgresql.transactional.lock", "false")))
                 .dataSource(dataSource).load()
             if (isFlywayMigrationOK) {
-                // TODO #
+                // TODO https://github.com/CDCgov/prime-reportstream/issues/10526
                 // Investigate why this is required
                 flyway.migrate()
             }
@@ -1425,7 +1430,7 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         }
 
         private val hikariDataSource: HikariDataSource by lazy {
-            // TODO: #
+            // TODO: https://github.com/CDCgov/prime-reportstream/issues/10527
             // Long term this should be moved to using a system.properties file that easier to override
             getDataSource(
                 System.getenv(databaseVariable),
