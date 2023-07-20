@@ -30,7 +30,7 @@ jobs:
 
       - name: Add runner IP to Function App firewall
         run: |
-          az functionapp config access-restriction add --name pdhtest-functionapp --resource-group prime-data-hub-test --ip-address ${{ steps.runner_ip.outputs.ip-address }} --priority 100
+          az functionapp config access-restriction add --name pdhtest-functionapp --resource-group prime-data-hub-test --ip-address ${{ steps.runner_ip.outputs.ip-address }} --priority 88
 
       - name: Get container ID
         id: get_container_id
@@ -49,5 +49,6 @@ jobs:
           az functionapp deployment slot swap --name pdhtest-functionapp --resource-group prime-data-hub-test --slot candidate --target-slot production
 
       - name: Remove runner IP from Function App firewall
+        if: always()
         run: |
-          az functionapp config access-restriction remove --name pdhtest-functionapp --resource-group prime-data-hub-test --ip-address ${{ steps.runner_ip.outputs.ip-address }} --subnet  public
+          az functionapp config access-restriction remove --name pdhtest-functionapp --resource-group prime-data-hub-test --ip-address ${{ steps.runner_ip.outputs.ip-address }} 
