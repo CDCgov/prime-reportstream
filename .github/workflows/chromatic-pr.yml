@@ -7,6 +7,7 @@ name: Build Branch Chromatic
 on:
   pull_request:
     types:
+      - opened
       - synchronize
     paths:
       - "frontend-react/**"
