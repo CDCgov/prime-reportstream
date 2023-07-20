@@ -1380,15 +1380,11 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
          * costs by reusing an existing process for a function invocation. Hence, a connection pool
          * is a win in latency after the first initialization.
          */
-        private val hikariDataSource: HikariDataSource by lazy {
+        fun getDataSource(jdcUrl: String, username: String, password: String): HikariDataSource {
             DriverManager.registerDriver(Driver())
-
-            val password = System.getenv(passwordVariable)
-            val user = System.getenv(userVariable)
-            val databaseUrl = System.getenv(databaseVariable)
             val config = HikariConfig()
-            config.jdbcUrl = databaseUrl
-            config.username = user
+            config.jdbcUrl = jdcUrl
+            config.username = username
             config.password = password
             config.addDataSourceProperty(
                 "dataSourceClassName",
@@ -1414,12 +1410,21 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             config.maxLifetime = 180000
             val dataSource = HikariDataSource(config)
 
-            val flyway = Flyway.configure().dataSource(dataSource).load()
+            val flyway = Flyway.configure().configuration(mapOf(Pair("flyway.postgresql.transactional.lock", "false")))
+                .dataSource(dataSource).load()
             if (isFlywayMigrationOK) {
                 flyway.migrate()
             }
 
-            dataSource
+            return dataSource
+        }
+
+        private val hikariDataSource: HikariDataSource by lazy {
+            getDataSource(
+                System.getenv(databaseVariable),
+                System.getenv(userVariable),
+                System.getenv(passwordVariable)
+            )
         }
 
         val commonDataSource: DataSource
