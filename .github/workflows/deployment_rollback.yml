@@ -51,7 +51,7 @@ jobs:
       #   run: |
       #     az functionapp deployment slot swap --name pdhtest-functionapp --resource-group prime-data-hub-test --slot candidate --target-slot production
 
-      # - name: Remove runner IP from Function App firewall
-      #   if: always()
-      #   run: |
-      #     az functionapp config access-restriction remove --name pdhtest-functionapp --resource-group prime-data-hub-test --ip-address ${{ steps.runner_ip.outputs.ip-address }} 
+      - name: Remove runner IP from Function App firewall
+        if: always()
+        run: |
+          az functionapp config access-restriction remove --name pdhtest-functionapp --resource-group prime-data-hub-test --ip-address ${{ steps.runner_ip.outputs.ip-address }} 
