@@ -14,7 +14,6 @@ class ReportStreamTestDatabaseContainer : PostgreSQLContainer<ReportStreamTestDa
     companion object {
         val containerInstance: ReportStreamTestDatabaseContainer = ReportStreamTestDatabaseContainer()
 
-
         /**
          * Uses the [testDatasource] to set up the Postgres test container for use in tests
          */
