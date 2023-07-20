@@ -6,4 +6,4 @@ and receiver."values" ->> 'topic' = 'elr-elims'
 and receiver.is_active = true
 and receiver."values" ? 'transport'
 and receiver.is_deleted = false
-[[and receiver.name like '{{name}}%']];
+[[and receiver.name like CONCAT('%', {{name}}, '%']];
