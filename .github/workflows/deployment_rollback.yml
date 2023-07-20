@@ -7,7 +7,6 @@ on:
         description: 'Deployment Environment'
         required: true
         default: 'test'
-        # Add other options if you have more environments
         options:
           - 'staging'
           - 'prod'
