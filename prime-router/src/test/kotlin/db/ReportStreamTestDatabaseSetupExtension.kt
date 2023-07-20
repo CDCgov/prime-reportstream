@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.db
 
 import gov.cdc.prime.router.azure.DatabaseAccess
-import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.ExtensionContext
@@ -20,13 +19,17 @@ import org.testcontainers.junit.jupiter.Testcontainers
  */
 @Testcontainers
 class ReportStreamTestDatabaseSetupExtension : BeforeAllCallback, AfterEachCallback {
+    /**
+     * Starts and sets up the test Postgres container
+     */
     override fun beforeAll(context: ExtensionContext?) {
         ReportStreamTestDatabaseContainer.containerInstance.start()
-        val flyway = Flyway.configure().configuration(mapOf(Pair("flyway.postgresql.transactional.lock", "false")))
-            .dataSource(ReportStreamTestDatabaseContainer.testDatasource).load()
-        flyway.migrate()
+        ReportStreamTestDatabaseContainer.setup()
     }
 
+    /**
+     * After each test drop all the data in the tables
+     */
     override fun afterEach(context: ExtensionContext?) {
         ScriptUtils.executeDatabaseScript(
             JdbcDatabaseDelegate(ReportStreamTestDatabaseContainer.containerInstance, ""),

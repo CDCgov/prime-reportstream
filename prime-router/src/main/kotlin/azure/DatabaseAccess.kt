@@ -1410,9 +1410,14 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             config.maxLifetime = 180000
             val dataSource = HikariDataSource(config)
 
+            // This is a current issue in flyway https://github.com/flyway/flyway/issues/3508
+            // This setting makes flyway fall back to session locks
+            // This is fixed in flyway 9.19.4
             val flyway = Flyway.configure().configuration(mapOf(Pair("flyway.postgresql.transactional.lock", "false")))
                 .dataSource(dataSource).load()
             if (isFlywayMigrationOK) {
+                // TODO #
+                // Investigate why this is required
                 flyway.migrate()
             }
 
@@ -1420,6 +1425,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
         }
 
         private val hikariDataSource: HikariDataSource by lazy {
+            // TODO: #
+            // Long term this should be moved to using a system.properties file that easier to override
             getDataSource(
                 System.getenv(databaseVariable),
                 System.getenv(userVariable),
