@@ -1,9 +1,8 @@
 ---
-title: Reportstream API
+title: Data model
+subtitle: View API CSV and HL7 Field Requirements in the tables on this page or download all the requirements as CSV.
 sidenav: content/resources/reportstream-api/sidenav
 ---
-import { Icon } from "@trussworks/react-uswds";
-import Alert from "../../../../../shared/Alert/Alert";
 import PatientDataElementsTable from "./patient-data-elements-table.mdx";
 import OrderAndResultDataElementsTable from "./ordering-provider-data-elements-table.mdx";
 import SpecimenDataElementsTable from "./specimen-data-elements-table.mdx";
@@ -13,11 +12,11 @@ import AskOnEntryTable from "./ask-on-entry-table.mdx";
 import ReportingAndOrderingFacilityDataElementsTable from "./reporting-and-ordering-facility-data-elements-table.mdx";
 
 
-# Data model
+# {frontmatter.title}
 
-<p className="usa-intro text-base">View API CSV and HL7 Field Requirements in the tables on this page or download all the requirements as CSV.</p>
+<p className="usa-intro text-base">{frontmatter.subtitle}</p>
 
-<a href="/assets/xlsx/ReportStream CSV and HL7 Field Requirements (version 3.0).xlsx" className="usa-button">Download Excel file (.xlsx) <Icon.FileDownload className="usa-icon--auto" /></a> Last updated: 1/6/23
+<A href="/assets/xlsx/ReportStream CSV and HL7 Field Requirements (version 3.0).xlsx" className="usa-button">Download Excel file (.xlsx) <Icon name="FileDownload" className="usa-icon--auto" /></A> Last updated: 1/6/23
 
 ***
 
@@ -45,7 +44,7 @@ If the UTC offset (+/-zzzz) is not present, results should be normalized to a si
         <li>For CSV implementations, include only the columns marked with “(OTC)” in the CSV Column Names below.</li>
         <li>
             For HL7 implementations, do not use this table.
-            Refer to the <a href="https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started">RADx MARS Getting started guide</a>.
+            Refer to the <A href="https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started">RADx MARS Getting started guide</A>.
         </li>
     </ul>
 </Alert>

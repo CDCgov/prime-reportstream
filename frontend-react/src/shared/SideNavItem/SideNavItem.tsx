@@ -1,7 +1,7 @@
 import { SideNav } from "@trussworks/react-uswds";
 import { useLocation } from "react-router-dom";
 
-import { USNavLink } from "../components/USLink";
+import { USNavLink } from "../../components/USLink";
 
 export interface SideNavItemProps
     extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
@@ -23,7 +23,7 @@ export interface SideNavItemProps
  * or html element string as the "to" prop (defaults to USNavLink). The SideNav sibling
  * can be forced visible via the "isActive" prop (otherwise defaults to checking path).
  */
-export default function SideNavItem({
+export function SideNavItem({
     href,
     children,
     items,
@@ -55,3 +55,5 @@ export default function SideNavItem({
         </>
     );
 }
+
+export default SideNavItem;

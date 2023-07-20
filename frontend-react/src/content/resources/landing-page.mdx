@@ -1,9 +1,11 @@
-import { Card, CardHeader, CardBody, CardGroup, Icon } from "@trussworks/react-uswds";
-
+---
+title: Resources
+subtitle: Explore guides, tools, and resources to optimize ReportStream
+---
 <div className="rs-hero__index">
-    # Resources
+    # {frontmatter.title}
 
-    ## Explore guides, tools, and resources to optimize ReportStream
+    ## {frontmatter.subtitle}
 </div>
 
 <nav aria-label="intra-navigation">
@@ -51,7 +53,7 @@ import { Card, CardHeader, CardBody, CardGroup, Icon } from "@trussworks/react-u
 
         <Card gridLayout={{tablet: {col: 4}}}>
             <CardHeader>
-                ### <a className="usa-link" href="/resources/manage-public-key">Manage your public key<Icon.Lock className="text-ttop" /></a>
+                ### <A className="usa-link" href="/resources/manage-public-key">Manage your public key<Icon name="Lock" className="text-ttop" /></A>
             </CardHeader>
             <CardBody>
             If you are using a private/public key pairing for your authentication, add your public key.

@@ -1,20 +1,17 @@
 ---
 title: Manual data download guide
+subtitle: Instructions for public health departments to download data manually from the ReportStream application.
 breadcrumbs:
   - label: Resources
     href: /resources
   - label: Manual data download guide
 ---
 import site from "../../content/site.json";
-import { USExtLink, USLink } from "../../components/USLink";
 
-<h1 id="anchor-top">Manual data download guide</h1>
-<h2>
-    Instructions for public health departments to download data
-    manually from the ReportStream application.
-</h2>
+# {frontmatter.title}
+## {frontmatter.subtitle}
 
-<section>
+<section className="measure-6">
     <div className="usa-alert usa-alert--info margin-bottom-6 measure-6">
         <div className="usa-alert__body">
             <h3 className="usa-alert__heading font-body-md margin-top-05">
@@ -45,7 +42,9 @@ import { USExtLink, USLink } from "../../components/USLink";
             </p>
         </div>
     </div>
-    <h1>Download data from ReportStream</h1>
+
+    # Download data from ReportStream
+
     <ol className="usa-process-list">
         <li className="usa-process-list__item">
             <h3 className="usa-process-list__heading">
@@ -54,9 +53,7 @@ import { USExtLink, USLink } from "../../components/USLink";
             <p className="margin-top-05">
                 To gain access to the ReportStream application,
                 follow the steps outlined in the{" "}
-                <USLink href="/resources/account-registration-guide">
-                    Account Registration Guide
-                </USLink>
+                <A href="/resources/account-registration-guide">Account Registration Guide</A>
                 .
             </p>
         </li>
@@ -67,9 +64,7 @@ import { USExtLink, USLink } from "../../components/USLink";
 
             <p>
                 Visit{" "}
-                <USExtLink href={site.orgs.RS.url}>
-                    reportstream.cdc.gov
-                </USExtLink>
+                <A href={site.orgs.RS.url}>reportstream.cdc.gov</A>
                 {" "}using a modern desktop web browser (ex: Chrome,
                 Firefox, Safari, Edge) and log in.
             </p>
@@ -84,9 +79,7 @@ import { USExtLink, USLink } from "../../components/USLink";
             </h3>
             <p>
                 Once logged in to ReportStream, visit{" "}
-                <USLink href="/daily-data" key="daily">
-                    reportstream.cdc.gov/daily-data
-                </USLink>
+                <A href="/daily-data" key="daily">reportstream.cdc.gov/daily-data</A>
                 .
             </p>
             <p>
@@ -103,18 +96,16 @@ import { USExtLink, USLink } from "../../components/USLink";
         </li>
     </ol>
 
-    <h4>Support</h4>
-    <p>
-        Do you have questions, problems, or bugs to report? Contact
-        us for help.
-    </p>
-    <USSmartLink
+    #### Support
+
+    Do you have questions, problems, or bugs to report? Contact
+    us for help.
+
+    <A
         className="usa-button usa-button--nostyle"
         href="/support/contact"
-    >
-        Contact us
-    </USSmartLink>
+    >Contact us</A>
     <p className="margin-top-8">
-        <USLink href="#anchor-top">Back to top</USLink>
+        <A href="#top">Back to top</A>
     </p>
 </section>

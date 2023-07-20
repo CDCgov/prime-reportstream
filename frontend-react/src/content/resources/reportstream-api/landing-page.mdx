@@ -1,20 +1,18 @@
 ---
-title: Reportstream API
+title: ReportStream API
 sidenav: content/resources/reportstream-api/sidenav
 ---
-import { CardGroup, Card, CardBody, CardHeader, ProcessList, ProcessListItem, ProcessListHeading  } from "@trussworks/react-uswds";
-import { Button } from "@trussworks/react-uswds";
 import DOMPurify from "dompurify";
 
 import site from "../../../content/site.json";
 import { trackAppInsightEvent } from "../../../utils/Analytics";
 
 export const handleClick = () => {
-    trackAppInsightEvent("ReportStream API", {});
+    trackAppInsightEvent(frontmatter.title, {});
     window.open(DOMPurify.sanitize(site.assets.programmersGuidePdf.path));
 };
 
-# ReportStream API
+# {frontmatter.title}
 
 <p className="usa-intro text-base">By using the ReportStream Restful (REST) API, your data will automatically be filtered, transformed, batched, and forwarded to public health departments.</p>
 
@@ -34,7 +32,7 @@ export const handleClick = () => {
 ***
 <br/>
 
-## <a href="#onboarding-overview" className="usa-link usa-link--unstyled">Onboarding overview</a>
+## <A href="#onboarding-overview" className="usa-link usa-link--unstyled">Onboarding overview</A>
 We’ll give you and your team resources and support as you begin connecting with ReportStream’s API. [Learn more](getting-started) about setting up your connection and formatting your data.
 
 If you haven’t connected with us yet, [contact us](/support/contact) to set up your kickoff call.
@@ -69,7 +67,7 @@ If you haven’t connected with us yet, [contact us](/support/contact) to set up
 ***
 <br/>
 
-## <a href="#about-our-api" className="usa-link usa-link--unstyled">About our API</a>
+## <A href="#about-our-api" className="usa-link usa-link--unstyled">About our API</A>
 
 **Waters API**
 

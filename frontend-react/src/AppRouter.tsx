@@ -195,7 +195,7 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "data-download-guide",
                         lazy: lazyRouteMarkdown(
-                            "content/resources/landing-page"
+                            "content/resources/data-download-guide"
                         ),
                         handle: {
                             isContentPage: true,
