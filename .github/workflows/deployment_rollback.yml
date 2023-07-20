@@ -44,14 +44,13 @@ jobs:
         run: |
           az webapp config container set --name pdhtest-functionapp --resource-group prime-data-hub-test --slot candidate --docker-custom-image-name pdhtestcontainerregistry.azurecr.io/pdhtest:`cat container_id.txt`
 
-      # - name: Swap Slots
-      #   run: |
-      #     az functionapp deployment slot swap --name pdhtest-functionapp --resource-group prime-data-hub-test --slot candidate --target-slot production
+      - name: Swap Slots
+        run: |
+          az functionapp deployment slot swap --name pdhtest-functionapp --resource-group prime-data-hub-test --slot candidate --target-slot production
       
       - name: Verify the Running Container
         run: |
           az webapp config container show --name pdhtest-functionapp --resource-group prime-data-hub-test --slot candidate 
-
 
       - name: Remove runner IP from Function App firewall
         if: always()
