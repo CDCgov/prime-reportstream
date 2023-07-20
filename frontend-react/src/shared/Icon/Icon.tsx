@@ -1,3 +1,4 @@
+// AutoUpdateFileChromatic
 import React from "react";
 import { Icon as OrigIcon } from "@trussworks/react-uswds";
 import { IconProps as OrigIconProps } from "@trussworks/react-uswds/lib/components/Icon/Icon";
