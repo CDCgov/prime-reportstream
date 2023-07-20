@@ -2,7 +2,7 @@
   "resourceType" : "Bundle",
   "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
   "meta" : {
-    "lastUpdated" : "2023-07-12T16:26:52.220-04:00"
+    "lastUpdated" : "2023-07-20T18:55:32.590-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -10290,9 +10290,15 @@
         } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "258500001"
-        } ],
-        "text" : "Nasopharyngeal swab"
+          "version" : "07/31/2012",
+          "code" : "258500001",
+          "display" : "Nasopharyngeal swab"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "NP",
+          "display" : "NASOPHARYNGEAL SWAB"
+        } ]
       },
       "receivedTime" : "2021-08-04T04:08:00-06:00",
       "collection" : {
@@ -10303,7 +10309,9 @@
       },
       "container" : [ {
         "type" : {
-          "text" : "NASAL SWAB"
+          "coding" : [ {
+            "display" : "NASAL SWAB"
+          } ]
         },
         "specimenQuantity" : {
           "extension" : [ {
@@ -10358,9 +10366,15 @@
         } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "258500001"
-        } ],
-        "text" : "Nasopharyngeal swab"
+          "version" : "07/31/2012",
+          "code" : "258500001",
+          "display" : "Nasopharyngeal swab"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "NP",
+          "display" : "NASOPHARYNGEAL SWAB"
+        } ]
       },
       "receivedTime" : "2021-08-04T04:08:00-06:00",
       "collection" : {
@@ -10371,7 +10385,9 @@
       },
       "container" : [ {
         "type" : {
-          "text" : "NASAL SWAB"
+          "coding" : [ {
+            "display" : "NASAL SWAB"
+          } ]
         },
         "specimenQuantity" : {
           "extension" : [ {

@@ -2,7 +2,7 @@
   "resourceType" : "Bundle",
   "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
   "meta" : {
-    "lastUpdated" : "2023-07-12T16:29:58.554-04:00"
+    "lastUpdated" : "2023-07-20T18:56:49.083-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -363,9 +363,13 @@
         } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "*********"
-        } ],
-        "text" : "Negative"
+          "code" : "*********",
+          "display" : "Negative"
+        }, {
+          "system" : "L",
+          "code" : "NEGATIVE",
+          "display" : "NEGATIVE"
+        } ]
       },
       "method" : {
         "coding" : [ {
@@ -591,9 +595,13 @@
         } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "*********"
-        } ],
-        "text" : "Negative"
+          "code" : "*********",
+          "display" : "Negative"
+        }, {
+          "system" : "L",
+          "code" : "NEGATIVE",
+          "display" : "NEGATIVE"
+        } ]
       }
     }
   }, {
@@ -813,9 +821,13 @@
         } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "*********"
-        } ],
-        "text" : "Negative"
+          "code" : "*********",
+          "display" : "Negative"
+        }, {
+          "system" : "L",
+          "code" : "NEGATIVE",
+          "display" : "NEGATIVE"
+        } ]
       }
     }
   }, {
@@ -1004,9 +1016,15 @@
         } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "*********"
-        } ],
-        "text" : "Specimen from nasal fossae"
+          "version" : "**********",
+          "code" : "*********",
+          "display" : "Specimen from nasal fossae"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "NASAL/NP",
+          "display" : "NASAL/NP SWAB"
+        } ]
       },
       "receivedTime" : "2022-06-21T13:41:00-06:00",
       "collection" : {
@@ -1017,7 +1035,9 @@
       },
       "container" : [ {
         "type" : {
-          "text" : "NASOPHARYNGEAL SWAB"
+          "coding" : [ {
+            "display" : "NASOPHARYNGEAL SWAB"
+          } ]
         },
         "specimenQuantity" : {
           "extension" : [ {
@@ -1072,9 +1092,15 @@
         } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "*********"
-        } ],
-        "text" : "Specimen from nasal fossae"
+          "version" : "**********",
+          "code" : "*********",
+          "display" : "Specimen from nasal fossae"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "NASAL/NP",
+          "display" : "NASAL/NP SWAB"
+        } ]
       },
       "receivedTime" : "2022-06-21T13:41:00-06:00",
       "collection" : {
@@ -1085,7 +1111,9 @@
       },
       "container" : [ {
         "type" : {
-          "text" : "NASAL WASHING"
+          "coding" : [ {
+            "display" : "NASAL WASHING"
+          } ]
         },
         "specimenQuantity" : {
           "extension" : [ {
@@ -1140,9 +1168,15 @@
         } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "*********"
-        } ],
-        "text" : "Specimen from nasal fossae"
+          "version" : "**********",
+          "code" : "*********",
+          "display" : "Specimen from nasal fossae"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "NASAL/NP",
+          "display" : "NASAL/NP SWAB"
+        } ]
       },
       "receivedTime" : "2022-06-21T13:41:00-06:00",
       "collection" : {
@@ -1153,7 +1187,9 @@
       },
       "container" : [ {
         "type" : {
-          "text" : "NASAL WASHING"
+          "coding" : [ {
+            "display" : "NASAL WASHING"
+          } ]
         },
         "specimenQuantity" : {
           "extension" : [ {

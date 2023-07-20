@@ -2,7 +2,7 @@
   "resourceType" : "Bundle",
   "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
   "meta" : {
-    "lastUpdated" : "2023-07-12T16:28:25.899-04:00"
+    "lastUpdated" : "2023-07-20T18:57:58.992-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -299,7 +299,9 @@
       "valueCodeableConcept" : {
         "coding" : [ {
           "system" : "L",
-          "code" : "NEGATIVE"
+          "version" : "5.67",
+          "code" : "NEGATIVE",
+          "display" : "NEGATIVE"
         } ],
         "text" : "NEGATIVE"
       },

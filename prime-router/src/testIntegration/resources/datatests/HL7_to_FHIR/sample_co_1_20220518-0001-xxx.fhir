@@ -2,7 +2,7 @@
   "resourceType" : "Bundle",
   "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
   "meta" : {
-    "lastUpdated" : "2023-07-12T15:27:24.178-04:00"
+    "lastUpdated" : "2023-07-20T18:52:51.743-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -584,9 +584,16 @@
         } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "782959008"
+          "version" : "07/31/2012",
+          "code" : "782959008",
+          "display" : "Vancomycin resistant Enterococcus raffinosus"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "ENTRAFVRE",
+          "display" : "ENTEROCOCCUS RAFFINOSIS, VRE"
         } ],
-        "text" : "Vancomycin resistant Enterococcus raffinosus"
+        "text" : "ENTEROCOCCUS RAFFINOSIS, VRE"
       }
     }
   }, {
@@ -810,9 +817,16 @@
         } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "53326005"
+          "version" : "07/31/2012",
+          "code" : "53326005",
+          "display" : "Candida albicans"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "CANALB",
+          "display" : "CANDIDA ALBICANS"
         } ],
-        "text" : "Candida albicans"
+        "text" : "CANDIDA ALBICANS"
       },
       "note" : [ {
         "extension" : [ {
@@ -2308,7 +2322,9 @@
       "valueCodeableConcept" : {
         "coding" : [ {
           "system" : "L",
-          "code" : "POSITIVE"
+          "version" : "5.67",
+          "code" : "POSITIVE",
+          "display" : "POSITIVE"
         } ],
         "text" : "POSITIVE"
       },
@@ -6285,9 +6301,15 @@
         } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "119297000"
-        } ],
-        "text" : "Blood specimen"
+          "version" : "07/31/2012",
+          "code" : "119297000",
+          "display" : "Blood specimen"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "BLD",
+          "display" : "BLOOD"
+        } ]
       },
       "receivedTime" : "2021-08-04T00:18:00-06:00",
       "collection" : {
@@ -6306,14 +6328,18 @@
           } ],
           "coding" : [ {
             "system" : "L",
-            "code" : "RA"
-          } ],
-          "text" : "RIGHT ARM"
+            "code" : "RA",
+            "display" : "RIGHT ARM"
+          }, {
+            "code" : "5.67"
+          } ]
         }
       },
       "container" : [ {
         "type" : {
-          "text" : "BACTEC AEROBIC PLUS"
+          "coding" : [ {
+            "display" : "BACTEC AEROBIC PLUS"
+          } ]
         },
         "specimenQuantity" : {
           "extension" : [ {
@@ -6371,9 +6397,15 @@
         } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "119297000"
-        } ],
-        "text" : "Blood specimen"
+          "version" : "07/31/2012",
+          "code" : "119297000",
+          "display" : "Blood specimen"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "BLD",
+          "display" : "BLOOD"
+        } ]
       },
       "receivedTime" : "2021-08-04T00:18:00-06:00",
       "collection" : {
@@ -6392,14 +6424,18 @@
           } ],
           "coding" : [ {
             "system" : "L",
-            "code" : "RA"
-          } ],
-          "text" : "RIGHT ARM"
+            "code" : "RA",
+            "display" : "RIGHT ARM"
+          }, {
+            "code" : "5.67"
+          } ]
         }
       },
       "container" : [ {
         "type" : {
-          "text" : "BACTEC BLOOD CULTURE BOTTLES"
+          "coding" : [ {
+            "display" : "BACTEC BLOOD CULTURE BOTTLES"
+          } ]
         },
         "specimenQuantity" : {
           "extension" : [ {
@@ -6457,9 +6493,15 @@
         } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "119297000"
-        } ],
-        "text" : "Blood specimen"
+          "version" : "07/31/2012",
+          "code" : "119297000",
+          "display" : "Blood specimen"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "BLD",
+          "display" : "BLOOD"
+        } ]
       },
       "receivedTime" : "2021-08-04T00:18:00-06:00",
       "collection" : {
@@ -6478,9 +6520,11 @@
           } ],
           "coding" : [ {
             "system" : "L",
-            "code" : "RA"
-          } ],
-          "text" : "RIGHT ARM"
+            "code" : "RA",
+            "display" : "RIGHT ARM"
+          }, {
+            "code" : "5.67"
+          } ]
         }
       },
       "note" : [ {
@@ -6531,9 +6575,15 @@
         } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "119303007"
-        } ],
-        "text" : "Microbial isolate"
+          "version" : "07/31/2012",
+          "code" : "119303007",
+          "display" : "Microbial isolate"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "ISLT",
+          "display" : "ISOLATE"
+        } ]
       },
       "receivedTime" : "2021-08-04T00:18:00-06:00",
       "collection" : {
@@ -6552,14 +6602,18 @@
           } ],
           "coding" : [ {
             "system" : "L",
-            "code" : "RA"
-          } ],
-          "text" : "RIGHT ARM"
+            "code" : "RA",
+            "display" : "RIGHT ARM"
+          }, {
+            "code" : "5.67"
+          } ]
         }
       },
       "container" : [ {
         "type" : {
-          "text" : "BACTEC BLOOD CULTURE BOTTLES"
+          "coding" : [ {
+            "display" : "BACTEC BLOOD CULTURE BOTTLES"
+          } ]
         },
         "specimenQuantity" : {
           "extension" : [ {
