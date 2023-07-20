@@ -1,21 +1,22 @@
+// AutoUpdateFileChromatic
 import classnames from "classnames";
-import React, { ReactNode, useState } from "react";
+import { ReactNode, useState } from "react";
 import { Icon } from "@trussworks/react-uswds";
 
 import styles from "./Table.module.scss";
 
 enum FilterOptions {
-    NONE = "none",
     ASC = "asc",
     DESC = "desc",
+    NONE = "none",
 }
 
 interface SortableTableHeaderProps {
-    columnHeaderData: RowData;
     activeColumn: string;
-    sortOrder: string;
-    onSortOrderChange: (sortOrder: FilterOptions) => void;
+    columnHeaderData: RowData;
     onActiveColumnChange: (column: string) => void;
+    onSortOrderChange: (sortOrder: FilterOptions) => void;
+    sortOrder: string;
     sticky?: boolean;
 }
 
@@ -29,20 +30,20 @@ export interface TableProps {
     borderless?: boolean;
     compact?: boolean;
     fullWidth?: boolean;
+    rowData: RowData[][];
     scrollable?: boolean;
     sortable?: boolean;
     stackedStyle?: "default" | "headers";
     sticky?: boolean;
     striped?: boolean;
-    rowData: RowData[][];
 }
 
 const SortableTableHeader = ({
-    columnHeaderData,
     activeColumn,
-    sortOrder,
-    onSortOrderChange,
+    columnHeaderData,
     onActiveColumnChange,
+    onSortOrderChange,
+    sortOrder,
     sticky,
 }: SortableTableHeaderProps) => {
     let SortIcon = Icon.SortArrow;
@@ -111,13 +112,13 @@ function sortTableData(
 }
 
 const SortableTable = ({
-    sticky,
-    rowData,
     columnHeaders,
+    rowData,
+    sticky,
 }: {
-    sticky?: boolean;
-    rowData: RowData[][];
     columnHeaders: RowData[];
+    rowData: RowData[][];
+    sticky?: boolean;
 }) => {
     const [activeColumn, setActiveColumn] = useState("");
     const [sortOrder, setSortOrder] = useState(FilterOptions.NONE);
@@ -171,20 +172,20 @@ export const Table = ({
     borderless,
     compact,
     fullWidth,
+    rowData,
     scrollable,
     sortable,
     stackedStyle,
     sticky,
     striped,
-    rowData,
 }: TableProps) => {
     const classes = classnames("usa-table", {
         "usa-table--borderless": borderless,
         "usa-table--compact": compact,
-        "width-full": fullWidth,
         "usa-table--stacked": stackedStyle === "default",
         "usa-table--stacked-header": stackedStyle === "headers",
         "usa-table--striped": striped,
+        "width-full": fullWidth,
     });
 
     const columnHeaders = rowData.flat().filter((rowItemFilter, pos, arr) => {

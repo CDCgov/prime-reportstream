@@ -77,7 +77,6 @@
         "yarn:show-outdated-packages": "yarn outdated",
         "run-build-dir": "yarn build:localdev:csp && yarn global add serve && serve -s build",
         "storybook": "storybook dev -p 6006",
-        "storybook:start": "yarn run storybook",
         "build-storybook": "storybook build"
     },
     "browserslist": {
