@@ -7,6 +7,7 @@ name: Build Branch Chromatic
 on:
   pull_request:
     types:
+      - opened
       - synchronize
     paths:
       - "frontend-react/**"
@@ -25,7 +26,7 @@ jobs:
 
       - name: Get changed files
         id: changed_files
-        uses: tj-actions/changed-files@e6dde3c0653441e7c18779d1207fe87efa071f02
+        uses: tj-actions/changed-files@d4389f0f4fe92065f29aee6519d551c3c5d26583
 
       - name: List all changed files
         id: set_vars
