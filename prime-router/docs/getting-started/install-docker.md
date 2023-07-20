@@ -16,3 +16,12 @@ echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -c
 sudo apt-get update # Pick up new repo
 sudo apt-get --yes install docker-compose # This will pick up your docker runtime as well
 ```
+If you get
+```
+Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock:
+```
+when running docker commands, run
+```
+$ sudo usermod -aG docker $USER
+```
+and log in again to pick up the group change.
