@@ -9,7 +9,9 @@ import { NoServicesBanner } from "../../alerts/NoServicesAlert";
 import Pagination from "../../Table/Pagination";
 import TableFilters from "../../Table/TableFilters";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
-import useReceiverDeliveries from "../../../hooks/network/DataDashboard/UseReceiverDeliveries";
+import useReceiverDeliveries, {
+    DeliveriesAttr,
+} from "../../../hooks/network/DataDashboard/UseReceiverDeliveries";
 import AdminFetchAlert from "../../alerts/AdminFetchAlert";
 import { Table } from "../../../shared/Table/Table";
 import { getSlots } from "../../../hooks/UsePagination";
@@ -54,35 +56,35 @@ function DashboardFilterAndTable({
     };
     const data = results?.data.map((dataRow) => [
         {
-            columnKey: "createdAt",
+            columnKey: DeliveriesAttr.CREATED_AT,
             columnHeader: "Date sent to you",
             content: formatDateWithoutSeconds(dataRow.createdAt),
             columnCustomSort: () => onColumnCustomSort("createdAt"),
             columnCustomSortSettings: filterManager.sortSettings,
         },
         {
-            columnKey: "orderingProvider",
+            columnKey: DeliveriesAttr.ORDERING_PROVIDER,
             columnHeader: "Ordering provider",
             content: dataRow.orderingProvider,
             columnCustomSort: () => onColumnCustomSort("orderingProvider"),
             columnCustomSortSettings: filterManager.sortSettings,
         },
         {
-            columnKey: "orderingFacility",
+            columnKey: DeliveriesAttr.ORDERING_FACILITY,
             columnHeader: "Performing facility",
             content: dataRow.orderingFacility,
             columnCustomSort: () => onColumnCustomSort("orderingFacility"),
             columnCustomSortSettings: filterManager.sortSettings,
         },
         {
-            columnKey: "submitter",
+            columnKey: DeliveriesAttr.SUBMITTER,
             columnHeader: "Submitter",
             content: dataRow.submitter,
             columnCustomSort: () => onColumnCustomSort("submitter"),
             columnCustomSortSettings: filterManager.sortSettings,
         },
         {
-            columnKey: "reportId",
+            columnKey: DeliveriesAttr.REPORT_ID,
             columnHeader: "Report ID",
             content: (
                 <USLink
