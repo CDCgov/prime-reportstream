@@ -49,13 +49,25 @@ coding_5:
     nameOfSystem: CWE.3
 
 coding_6:
-  valueOf: datatype/Coding
-  expressionType: resource
   generateList: true
-  condition: $code NOT_NULL
-  vars:
-    code: String, CWE.1
-    system: $overrideSystem | CWE.3
+  expressionType: nested
+  expressions:
+    - valueOf: datatype/Coding
+      expressionType: resource
+      condition: $code NOT_NULL || $display NOT_NULL
+      vars:
+        code: String, CWE.4
+        display: String, CWE.5
+        system: $overrideSystem | CWE.6
+        version: String, CWE.8
+    - valueOf: datatype/Coding
+      expressionType: resource
+      condition: $code NOT_NULL || $display NOT_NULL
+      vars:
+        code: String, CWE.1
+        display: String, CWE.2
+        system: $overrideSystem | CWE.3
+        version: String, CWE.7
 
 coding_7:
   valueOf: $coding
@@ -73,13 +85,13 @@ coding_8:
     display: $alternateDisplay
     system: $alternateSystem
 
-# Require available text, and the absense of an identifierCoding
+# Require available text, and the absence of an identifierCoding
 text:
   condition: $displayText NOT_NULL && $identifierCoding NULL
   type: STRING
   valueOf: $displayText
   vars:
-    displayText: $text | CWE.2 | CWE.9 | CE.2 | CNE.2| ST | TX | ID | CWE.5
+    displayText: $text | CWE.9 | CE.2 | CNE.2 | ST | TX | ID
 
 extension_1:
   generateList: true

@@ -122,7 +122,6 @@ elements:
   - name: observation-abnormal-flag
     resource: '%resource.interpretation'
     constants:
-      versionId: '2.7'
       cweFieldPath: '%{hl7OBXField}-8'
     schema: ../../common/datatype/ce-coded-with-exceptions
 
