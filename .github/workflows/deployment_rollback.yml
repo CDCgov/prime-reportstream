@@ -35,9 +35,10 @@ jobs:
       - name: Get container ID
         id: get_container_id
         run: |
-          CONTAINER_ID=$(az acr repository show-tags --name pdhtestcontainerregistry.azurecr.io --repository pdhtest --orderby time_asc --output table | tail -3 | head -1)
+          CONTAINER_ID=$(az acr repository show-tags --name pdhtestcontainerregistry.azurecr.io --repository pdhtest --orderby time_asc --output table | tail -3 | head -1) > container_id.txt
           echo "::set-output name=container_id::$CONTAINER_ID"
           echo "CONTAINER_ID=$CONTAINER_ID" >> $GITHUB_OUTPUT
+          cat container_id.txt
 
       - name: Deploy to Candidate Slot
         run: |
