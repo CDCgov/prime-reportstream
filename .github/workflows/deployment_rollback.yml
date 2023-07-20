@@ -42,7 +42,7 @@ jobs:
 
       - name: Deploy to Candidate Slot
         run: |
-          az webapp config container set --name pdhtest-functionapp --resource-group prime-data-hub-test --slot candidate --docker-custom-image-name pdhtestcontainerregistry.azurecr.io/pdhtest:$CONTAINER_ID
+          az webapp config container set --name pdhtest-functionapp --resource-group prime-data-hub-test --slot candidate --docker-custom-image-name pdhtestcontainerregistry.azurecr.io/pdhtest:`cat container_id.txt`
 
       # - name: Swap Slots
       #   run: |
