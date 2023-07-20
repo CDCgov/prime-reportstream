@@ -127,16 +127,18 @@ function DashboardFilterAndTable({
                 />
             </div>
             <Table apiSortable borderless rowData={data} />
-            <Pagination
-                currentPageNum={currentPageNum}
-                setSelectedPage={(pageNum) => {
-                    filterManager.updatePage({
-                        type: PageSettingsActionType.SET_PAGE,
-                        payload: { page: pageNum },
-                    });
-                }}
-                slots={getSlots(currentPageNum, results?.meta.totalPages)}
-            />
+            {data.length > 0 && (
+                <Pagination
+                    currentPageNum={currentPageNum}
+                    setSelectedPage={(pageNum) => {
+                        filterManager.updatePage({
+                            type: PageSettingsActionType.SET_PAGE,
+                            payload: { page: pageNum },
+                        });
+                    }}
+                    slots={getSlots(currentPageNum, results?.meta.totalPages)}
+                />
+            )}
         </>
     );
 }
