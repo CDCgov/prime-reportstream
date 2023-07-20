@@ -1,0 +1,52 @@
+name: "Rollback: Deployment to CandidateSlot"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/9117-Automate-reverting-deploys
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+
+      
+      - name: Get runner ip
+        id: runner_ip
+        uses: ./.github/actions/runner-ip
+
+      - name: Connect to VPN & Login into Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Add runner IP to Function App firewall
+        run: |
+          az functionapp config access-restriction add --name pdhtest-functionapp --resource-group prime-data-hub-test --ip-address ${{ steps.runner_ip.outputs.ip-address }} --subnet  public
+
+      - name: Get container ID
+        id: get_container_id
+        run: |
+          CONTAINER_ID=$(az acr repository show-tags --name pdhtestcontainerregistry.azurecr.io --repository pdhtest --orderby time_asc --output table | tail -3 | head -1)
+          echo "::set-output name=container_id::$CONTAINER_ID"
+          echo "CONTAINER_ID=$CONTAINER_ID" >> $GITHUB_OUTPUT
+
+      - name: Deploy to Candidate Slot
+        run: |
+          az functionapp deployment container config  --name pdhtest-functionapp --resource-group prime-data-hub-test --slot candidate --container-image-name pdhtestcontainerregistry.azurecr.io/pdhtest@${{ steps.get_container_id.outputs.container_id }}
+
+      - name: Swap Slots
+        run: |
+          az functionapp deployment slot swap --name pdhtest-functionapp --resource-group prime-data-hub-test --slot candidate --target-slot production
+
+      - name: Remove runner IP from Function App firewall
+        run: |
+          az functionapp config access-restriction remove --name pdhtest-functionapp --resource-group prime-data-hub-test --ip-address ${{ steps.runner_ip.outputs.ip-address }} --subnet  public
