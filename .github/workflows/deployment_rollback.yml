@@ -30,7 +30,7 @@ jobs:
 
       - name: Add runner IP to Function App firewall
         run: |
-          az functionapp config access-restriction add --name pdhtest-functionapp --resource-group prime-data-hub-test --ip-address ${{ steps.runner_ip.outputs.ip-address }} --subnet  public --priority 100
+          az functionapp config access-restriction add --name pdhtest-functionapp --resource-group prime-data-hub-test --ip-address ${{ steps.runner_ip.outputs.ip-address }} --subnet public --priority 100
 
       - name: Get container ID
         id: get_container_id
