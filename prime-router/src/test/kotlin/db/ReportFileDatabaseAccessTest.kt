@@ -12,10 +12,8 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.testcontainers.junit.jupiter.Testcontainers
 import java.util.UUID
 
-@Testcontainers
 @ExtendWith(ReportStreamTestDatabaseSetupExtension::class)
 class ReportFileDatabaseAccessTest {
 

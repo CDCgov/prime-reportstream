@@ -1,12 +1,24 @@
 package gov.cdc.prime.router.db
 
+import gov.cdc.prime.router.azure.DatabaseAccess
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.testcontainers.ext.ScriptUtils
 import org.testcontainers.jdbc.JdbcDatabaseDelegate
+import org.testcontainers.junit.jupiter.Testcontainers
 
+/**
+ * This extension can be used to annotate classes that would like to have access to a test DB container in order to
+ * actually write and read data from a real database.  This extension will start the test container, run the flyway
+ * migrations against it and after each test truncate all the common tables.
+ *
+ * After annotating a test class with this extension, [ReportStreamTestDatabaseContainer.testDatabaseAccess] can be
+ * used in place of the default [DatabaseAccess]
+ *
+ */
+@Testcontainers
 class ReportStreamTestDatabaseSetupExtension : BeforeAllCallback, AfterEachCallback {
     override fun beforeAll(context: ExtensionContext?) {
         ReportStreamTestDatabaseContainer.containerInstance.start()
