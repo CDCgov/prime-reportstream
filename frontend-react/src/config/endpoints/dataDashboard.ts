@@ -45,8 +45,6 @@ Deliveries API Endpoints
 
 * receiverDeliveries -> Retrieves a list of reports for receiver by receiverFullName/orgAndService (ex: xx-phd.elr)
 */
-
-// TODO: will need to be revisited once new API's are ready
 export const dataDashboardEndpoints: RSApiEndpoints = {
     receiverDeliveries: new RSEndpoint({
         path: "/v1/receivers/:orgAndService/deliveries",
