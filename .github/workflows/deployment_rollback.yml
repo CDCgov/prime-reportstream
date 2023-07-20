@@ -35,20 +35,23 @@ jobs:
       - name: Get container ID
         id: get_container_id
         run: |
-          CONTAINER_ID=$(az acr repository show-tags --name pdhtestcontainerregistry.azurecr.io --repository pdhtest --orderby time_asc --output table | tail -3 | head -1) > container_id.txt
-          echo "::set-output name=container_id::$CONTAINER_ID"
-          echo "CONTAINER_ID=$CONTAINER_ID" >> $GITHUB_OUTPUT
+          az acr repository show-tags --name pdhtestcontainerregistry.azurecr.io --repository pdhtest --orderby time_asc --output table | tail -3 | head -1 > container_id.txt
           cat container_id.txt
+          
+      #     CONTAINER_ID=$(az acr repository show-tags --name pdhtestcontainerregistry.azurecr.io --repository pdhtest --orderby time_asc --output table | tail -3 | head -1) 
+      #     echo "::set-output name=container_id::$CONTAINER_ID"
+      #     echo "CONTAINER_ID=$CONTAINER_ID" >> $GITHUB_OUTPUT
+      #     cat container_id.txt
 
-      - name: Deploy to Candidate Slot
-        run: |
-          az webapp config container set --name pdhtest-functionapp --resource-group prime-data-hub-test --slot candidate --docker-custom-image-name pdhtestcontainerregistry.azurecr.io/pdhtest@${{ steps.get_container_id.outputs.container_id }}
+      # - name: Deploy to Candidate Slot
+      #   run: |
+      #     az webapp config container set --name pdhtest-functionapp --resource-group prime-data-hub-test --slot candidate --docker-custom-image-name pdhtestcontainerregistry.azurecr.io/pdhtest:$CONTAINER_ID
 
-      - name: Swap Slots
-        run: |
-          az functionapp deployment slot swap --name pdhtest-functionapp --resource-group prime-data-hub-test --slot candidate --target-slot production
+      # - name: Swap Slots
+      #   run: |
+      #     az functionapp deployment slot swap --name pdhtest-functionapp --resource-group prime-data-hub-test --slot candidate --target-slot production
 
-      - name: Remove runner IP from Function App firewall
-        if: always()
-        run: |
-          az functionapp config access-restriction remove --name pdhtest-functionapp --resource-group prime-data-hub-test --ip-address ${{ steps.runner_ip.outputs.ip-address }} 
+      # - name: Remove runner IP from Function App firewall
+      #   if: always()
+      #   run: |
+      #     az functionapp config access-restriction remove --name pdhtest-functionapp --resource-group prime-data-hub-test --ip-address ${{ steps.runner_ip.outputs.ip-address }} 
