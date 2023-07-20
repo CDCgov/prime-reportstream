@@ -1,4 +1,4 @@
-aptitud# Installing Docker
+# Installing Docker
 
 Both docker and docker-compose must be installed on your system.
 
@@ -9,8 +9,7 @@ See https://www.docker.com/get-started for detailed instructions.
 ## Linux
 
 ### Debian-based
-```bash
-# If you are on
+```
 sudo apt-get update
 sudo apt-get --yes install lsb-release
 echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee -a /etc/apt/sources.list.d/docker.list
