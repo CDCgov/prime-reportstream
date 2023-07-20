@@ -134,10 +134,8 @@ describe("DataDashboardTableWithPagination", () => {
                 expect(screen.getAllByRole("option").length).toBe(5);
             });
 
-            test.skip("renders table with pagination", async () => {
-                const pagination = await screen.findByLabelText(
-                    /DataDashboard pagination/i
-                );
+            test("renders table with pagination", async () => {
+                const pagination = await screen.findByLabelText(/Pagination/i);
                 expect(pagination).toBeInTheDocument();
 
                 // Column headers render
@@ -148,7 +146,7 @@ describe("DataDashboardTableWithPagination", () => {
                     screen.getByText("Date sent to you")
                 ).toBeInTheDocument();
                 expect(
-                    screen.getByText("Ordering Provider")
+                    screen.getByText("Ordering provider")
                 ).toBeInTheDocument();
                 expect(
                     screen.getByText("Performing facility")
@@ -181,7 +179,7 @@ describe("DataDashboardTableWithPagination", () => {
             });
         });
 
-        describe("with one receiver services", () => {
+        describe("with one receiver service", () => {
             beforeEach(() => {
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: mockActiveReceiver,
@@ -192,7 +190,7 @@ describe("DataDashboardTableWithPagination", () => {
                 });
 
                 const mockUseReceiverDeliveriesCallback = {
-                    data: makeRSReceiverDeliveryResponseFixture(101),
+                    data: makeRSReceiverDeliveryResponseFixture(0),
                     filterManager: mockFilterManager,
                     isLoading: false,
                 };
@@ -210,6 +208,10 @@ describe("DataDashboardTableWithPagination", () => {
                     screen.getByText("Receiver service:")
                 ).toBeInTheDocument();
                 expect(screen.getByText("ELR-0")).toBeInTheDocument();
+            });
+
+            test("without data", () => {
+                expect(screen.getByText("No data to show")).toBeInTheDocument();
             });
         });
 
