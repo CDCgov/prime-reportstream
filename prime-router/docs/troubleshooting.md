@@ -3,7 +3,7 @@
 Note this documentation does not currently exist but should be created.
 
 ## Common Failures & Fixes
-The “oh, shit” section
+The “oh, no” section
 
 ### Message Fails to Send
 

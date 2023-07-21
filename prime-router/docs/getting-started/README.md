@@ -2,6 +2,8 @@
 
 ## Overview
 
+These pages are a work in progress, please see the [old pages](../../docs_deprecated/getting-started/getting-started.md) if something is missing
+
 ### Tools to install
 
 ## Running ReportStream
@@ -9,6 +11,12 @@
 - Explanation of all the pieces
 
 ### Running the backend
+
+#### Running natively
+
+**Must use this option if on a silicon mac**
+
+#### Running via docker
 
 ### Running the frontend
 
