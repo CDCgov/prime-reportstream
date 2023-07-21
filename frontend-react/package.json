@@ -183,7 +183,7 @@
         "postcss": "^8.4.21",
         "prettier": "^2.8.8",
         "rimraf": "^4.4.0",
-        "sass": "^1.63.6",
+        "sass": "^1.64.0",
         "storybook": "^7.0.23",
         "storybook-addon-react-router-v6": "^1.0.2",
         "ts-node": "^10.9.1",
