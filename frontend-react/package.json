@@ -47,6 +47,7 @@
         "web-vitals": "^3.1.1"
     },
     "scripts": {
+        "postinstall": "patch-package",
         "clean": "rimraf ./build",
         "start:localdev": "cross-env NODE_ENV=development yarn run start-js",
         "build:demo1": "cross-env NODE_ENV=demo1 yarn build-base",
