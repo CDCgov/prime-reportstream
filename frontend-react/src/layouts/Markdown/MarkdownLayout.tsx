@@ -193,21 +193,41 @@ export function MarkdownLayout({
                                     : "tablet:grid-col-12"
                             }
                         >
-                            {breadcrumbs != null ? (
-                                <BreadcrumbBar>
-                                    {breadcrumbs.map((b) => (
-                                        <Breadcrumb key={b.label}>
-                                            {b.href ? (
-                                                <USCrumbLink href={b.href}>
-                                                    {b.label}
-                                                </USCrumbLink>
-                                            ) : (
-                                                b.label
-                                            )}
-                                        </Breadcrumb>
-                                    ))}
-                                </BreadcrumbBar>
-                            ) : null}
+                            <header>
+                                {breadcrumbs != null ? (
+                                    <BreadcrumbBar>
+                                        {breadcrumbs.map((b) => (
+                                            <Breadcrumb key={b.label}>
+                                                {b.href ? (
+                                                    <USCrumbLink href={b.href}>
+                                                        {b.label}
+                                                    </USCrumbLink>
+                                                ) : (
+                                                    b.label
+                                                )}
+                                            </Breadcrumb>
+                                        ))}
+                                    </BreadcrumbBar>
+                                ) : null}
+                                <hgroup>
+                                    <h1>{title}</h1>
+                                    {subtitle ? (
+                                        <p className="usa-intro text-base">
+                                            {subtitle}
+                                        </p>
+                                    ) : null}
+                                </hgroup>
+                                {callToAction
+                                    ? callToAction.map((c) => (
+                                          <CallToAction {...c} />
+                                      ))
+                                    : null}
+                                {lastUpdated ? (
+                                    <p className="text-base text-italic">
+                                        Last updated: {lastUpdated}
+                                    </p>
+                                ) : null}
+                            </header>
                             <MDXProvider
                                 components={{
                                     ...MDXComponents,
@@ -216,26 +236,6 @@ export function MarkdownLayout({
                                 }}
                                 {...mdx}
                             >
-                                <header>
-                                    <hgroup>
-                                        <h1>{title}</h1>
-                                        {subtitle ? (
-                                            <p className="usa-intro text-base">
-                                                {subtitle}
-                                            </p>
-                                        ) : null}
-                                    </hgroup>
-                                    {callToAction
-                                        ? callToAction.map((c) => (
-                                              <CallToAction {...c} />
-                                          ))
-                                        : null}
-                                    {lastUpdated ? (
-                                        <p className="text-base text-italic">
-                                            Last updated: {lastUpdated}
-                                        </p>
-                                    ) : null}
-                                </header>
                                 {mainContent ?? children}
                             </MDXProvider>
                         </main>
