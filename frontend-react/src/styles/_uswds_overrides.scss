@@ -1,3 +1,4 @@
+// AutoUpdateFileChromatic
 @use "uswds-core" as *;
 @use "uswds_custom_theme" as *;
 
@@ -164,6 +165,7 @@ main {
     }
 
     .usa-nav__primary button {
+        height: 100%;
         padding: units(3);
         color: #2e2e2e;
         font-weight: normal;
@@ -176,6 +178,7 @@ main {
     .usa-nav__primary button span {
         font-weight: normal;
         color: #2e2e2e;
+        vertical-align: super;
     }
 
     .usa-header--basic .usa-nav__link:hover::after {
@@ -262,12 +265,6 @@ main {
     }
 }
 
-// Allow for div heading container element to bypass default stylings (ex: font-size)
-div.usa-alert__heading {
-    all: unset;
-    font-weight: bold;
-}
-
 .usa-card__header {
     font-weight: bold;
 }
@@ -306,4 +303,8 @@ div.usa-alert__heading {
         width: auto;
         height: 1rlh;
     }
+}
+
+.usa-header + main {
+    border-top: none;
 }

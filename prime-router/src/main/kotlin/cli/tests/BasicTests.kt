@@ -82,8 +82,15 @@ class End2EndUniversalPipeline : CoolTest() {
         ugly("Running end2end_up asynchronously")
         var passed = true
 
-        passed = passed and universalPipelineEnd2End(environment, options, fullELRSender, 2)
-        passed = passed and universalPipelineEnd2End(environment, options, etorTISender, 1)
+        passed = passed and universalPipelineEnd2End(
+            environment,
+            options,
+            fullELRSender,
+            listOf(universalPipelineReceiver1, universalPipelineReceiver2)
+        )
+        passed = passed and universalPipelineEnd2End(environment, options, etorTISender, listOf(etorReceiver))
+
+        passed = passed and universalPipelineEnd2End(environment, options, elrElimsSender, listOf(elimsReceiver))
 
         return passed
     }
@@ -92,7 +99,7 @@ class End2EndUniversalPipeline : CoolTest() {
         environment: Environment,
         options: CoolTestOptions,
         sender: Sender,
-        expectedReceivers: Int
+        expectedReceivers: List<Receiver>
     ): Boolean {
         var passed = true
         // load a valid HL7 file
@@ -155,13 +162,26 @@ class End2EndUniversalPipeline : CoolTest() {
 
             // check batch step
             val translateReportIds = getAllChildrenReportId(routeReportId)
-            if (translateReportIds.size != expectedReceivers)
+            if (translateReportIds.size < expectedReceivers.size)
                 return bad(
-                    "***async end2end_up FAILED***: Expected $expectedReceivers translate report id(s), " +
-                        "but got ${translateReportIds.size}."
+                    "***async end2end_up FAILED***: Expected at least ${expectedReceivers.size} translate" +
+                        "report id(s), but got ${translateReportIds.size}."
                 )
+            val receiverNames = translateResults.values.flatMap { it?.reports ?: emptyList() }
+                .map { "${it.receivingOrg}.${it.receivingOrgSvc}" }
+            expectedReceivers.forEach { receiver ->
+                if (!receiverNames.contains(receiver.fullName)) {
+                    bad("***async end2end_up FAILED***: expected ${receiver.fullName} to have received a report")
+                    passed = false
+                }
+            }
             translateReportIds.forEach { translateReportId ->
                 val batchResults = pollForStepResult(translateReportId, TaskAction.batch)
+                if (batchResults.isEmpty()) {
+                    return bad(
+                        "***async end2end_up FAILED***: No batch report was found after translate: $translateReportId"
+                    )
+                }
                 // verify each result is valid
                 for (result in batchResults.values)
                     passed = passed && examineStepResponse(result, "batch", sender.topic)
@@ -181,8 +201,9 @@ class End2EndUniversalPipeline : CoolTest() {
 
             // check that lineages were generated properly
             passed = passed and pollForLineageResults(
-                reportId, allGoodReceivers,
-                1, // for UP there should be one item per step
+                reportId,
+                expectedReceivers,
+                expectedReceivers.size,
                 asyncProcessMode = true,
                 isUniversalPipeline = true
             )

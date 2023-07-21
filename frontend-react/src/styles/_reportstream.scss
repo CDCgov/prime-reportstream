@@ -1,3 +1,4 @@
+// AutoUpdateFileChromatic
 @use "uswds-core" as *;
 @use "uswds_custom_theme" as *;
 
@@ -54,16 +55,6 @@
 
 #okta-sign-in {
     margin-top: 0;
-}
-
-// RS hero
-
-.rs-hero {
-    background-color: #f0f0f0;
-}
-
-.rs-hero__flex-center {
-    align-items: center;
 }
 
 // RS HERO - INDEX PAGES
@@ -854,5 +845,10 @@ h2.rs-numbered {
 .rs-style__content {
     .grid-container {
         @include grid-container("desktop-lg");
+    }
+
+    // Smaller font for content alerts
+    .usa-alert {
+        @include u-font-size("sans", "xs");
     }
 }

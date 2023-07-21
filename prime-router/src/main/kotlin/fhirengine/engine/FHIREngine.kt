@@ -122,7 +122,7 @@ abstract class FHIREngine(
 
     /**
      * The functional part of any given type of FHIR engine, taking in the [message] to do whatever work needs to
-     * be done, tracking with the [actionLogger] and [actionHistory], and making use of [metadata] if prsent
+     * be done, tracking with the [actionLogger] and [actionHistory], and making use of [metadata] if present
      */
     abstract fun doWork(
         message: RawSubmission,

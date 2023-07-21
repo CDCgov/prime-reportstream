@@ -17,6 +17,7 @@ Properties to control the execution and output using the Gradle -P arguments:
   E.g. ./gradlew clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
  */
 
+import io.swagger.v3.plugins.gradle.tasks.ResolveTask
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -34,13 +35,14 @@ plugins {
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("com.microsoft.azure.azurefunctions") version "1.11.1"
-    id("org.jlleitschuh.gradle.ktlint") version "11.4.0"
+    id("org.jlleitschuh.gradle.ktlint") version "11.4.2"
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.8.20"
     id("com.avast.gradle.docker-compose") version "0.16.12"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
     id("com.nocwriter.runsql") version ("1.0.3")
+    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.15"
 }
 
 group = "gov.cdc.prime"
@@ -103,8 +105,8 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "2.3.1"
-val kotlinVersion = "1.8.22"
+val ktorVersion = "2.3.2"
+val kotlinVersion = "1.9.0"
 val jacksonVersion = "2.15.2"
 
 jacoco.toolVersion = "0.8.9"
@@ -286,6 +288,25 @@ tasks.register<Test>("testIntegration") {
             true
         }
     }
+}
+
+tasks.register<ResolveTask>("generateOpenApi") {
+    group = rootProject.description ?: ""
+    description = "Generate OpenAPI spec for Report Stream APIs"
+    outputFileName = "api"
+    outputFormat = ResolveTask.Format.YAML
+    prettyPrint = true
+    classpath = sourceSets["main"].runtimeClasspath
+    buildClasspath = classpath
+    resourcePackages = setOf("gov.cdc.prime.router.azure")
+    outputDir = file("docs/api/generated")
+}
+
+/**
+ * Generate OpenAPI spec right after build
+ */
+tasks.named("build") {
+    finalizedBy("generateOpenApi")
 }
 
 tasks.withType<Test>().configureEach {
@@ -707,7 +728,7 @@ buildscript {
     dependencies {
         // Now force the gradle build script to get the proper library for com.nimbusds:oauth2-oidc-sdk:9.15.  This
         // will need to be removed once this issue is resolved in Maven.
-        classpath("net.minidev:json-smart:2.4.8")
+        classpath("net.minidev:json-smart:2.4.11")
     }
 }
 
@@ -720,16 +741,16 @@ configurations {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.5.1")
+    jooqGenerator("org.postgresql:postgresql:42.6.0")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
-    implementation("com.azure:azure-core:1.35.0")
-    implementation("com.azure:azure-core-http-netty:1.12.8")
-    implementation("com.azure:azure-storage-blob:12.22.0") {
+    implementation("com.azure:azure-core:1.41.0")
+    implementation("com.azure:azure-core-http-netty:1.13.5")
+    implementation("com.azure:azure-storage-blob:12.22.3") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-storage-queue:12.15.2") {
@@ -762,7 +783,7 @@ dependencies {
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.4.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.14")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.16")
     implementation("org.thymeleaf:thymeleaf:3.1.1.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
@@ -770,7 +791,7 @@ dependencies {
         exclude(group = "org.json", module = "json")
     }
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
-    implementation("org.json:json:20230227")
+    implementation("org.json:json:20230618")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.32.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
@@ -779,13 +800,13 @@ dependencies {
     implementation("org.apache.commons:commons-csv:1.10.0")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.apache.commons:commons-text:1.10.0")
-    implementation("commons-codec:commons-codec:1.15")
+    implementation("commons-codec:commons-codec:1.16.0")
     implementation("commons-io:commons-io:2.13.0")
-    implementation("org.postgresql:postgresql:42.5.1")
+    implementation("org.postgresql:postgresql:42.6.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.flywaydb:flyway-core:9.19.4")
     implementation("org.commonmark:commonmark:0.21.0")
-    implementation("com.google.guava:guava:32.0.1-jre")
+    implementation("com.google.guava:guava:32.1.1-jre")
     implementation("com.helger.as2:as2-lib:5.1.0")
     // Prevent mixed versions of these libs based on different versions being included by different packages
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
@@ -811,9 +832,18 @@ dependencies {
     implementation("org.apache.poi:poi:5.2.3")
     implementation("org.apache.poi:poi-ooxml:5.2.3")
     implementation("commons-io:commons-io: 2.13.0")
-    implementation("com.anyascii:anyascii:0.3.1")
+    implementation("com.anyascii:anyascii:0.3.2")
 // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
     implementation("org.jsoup:jsoup:1.16.1")
+    // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
+    implementation("io.swagger:swagger-annotations:1.6.11")
+    implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.15")
+    // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
+    implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
+    // https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api
+    implementation("javax.servlet:javax.servlet-api:4.0.1")
+    // https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api
+    implementation("javax.annotation:javax.annotation-api:1.3.2")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
@@ -827,7 +857,7 @@ dependencies {
         exclude(group = "com.github.kittinunf.fuel", module = "fuel")
     }
     // kotlinx-coroutines-core is needed by mock-fuel
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
     testImplementation("io.mockk:mockk:1.13.5")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
