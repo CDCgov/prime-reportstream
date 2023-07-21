@@ -1,0 +1,28 @@
+<SideNav items={[
+    <SideNavItem href="/resources/api" end>ReportStream API</SideNavItem>,
+    <SideNavItem href="/resources/api/getting-started">Getting started</SideNavItem>,
+    <SideNavItem isActive={true} href="/resources/api/documentation" items={[
+        <SideNavItem href="/resources/api/documentation/data-model" items={[
+            <USNavLink href="/resources/api/documentation/data-model#common-errors">Common errors</USNavLink>,
+            <USNavLink href="/resources/api/documentation/data-model#legend">Legend</USNavLink>,
+            <USNavLink href="/resources/api/documentation/data-model#patient-data-elements">Patient data elements</USNavLink>,
+            <USNavLink href="/resources/api/documentation/data-model#order-and-result-data-elements">Order and result data elements</USNavLink>,
+            <USNavLink href="/resources/api/documentation/data-model#specimen-data-elements">Specimen data elements</USNavLink>,
+            <USNavLink href="/resources/api/documentation/data-model#ordering-provider-data-elements">Ordering provider data elements</USNavLink>,
+            <USNavLink href="/resources/api/documentation/data-model#testing-facility-data-elements">Testing facility data elements</USNavLink>,
+            <USNavLink href="/resources/api/documentation/data-model#ask-on-entry-aoes">Ask-On-Entry (AOEs)</USNavLink>,
+            <USNavLink href="/resources/api/documentation/data-model#reporting-and-ordering-facility-data-elements">Report and ordering facility elements</USNavLink>,
+        ]}>Data model</SideNavItem>,
+            <SideNavItem href="/resources/api/documentation/responses-from-reportstream" items={[
+                    <USNavLink href="/resources/api/documentation/responses-from-reportstream#errors-and-warnings">Errors and warnings</USNavLink>,
+                    <USNavLink href="/resources/api/documentation/responses-from-reportstream#response-messages">Response messages</USNavLink>,
+                    <USNavLink href="/resources/api/documentation/responses-from-reportstream#json-error-responses">JSON error responses</USNavLink>,
+            ]}>Responses from ReportStream</SideNavItem>,
+            <SideNavItem href="/resources/api/documentation/sample-payloads-and-output" items={[
+                    <USNavLink href="/resources/api/documentation/sample-payloads-and-output#sample-csv-payload-and-output">Sample CSV payload and output</USNavLink>,
+                    <USNavLink href="/resources/api/documentation/sample-payloads-and-output#sample-hl7-251-payload-and-output">Sample HL7 v2.5.1 payload and output</USNavLink>,
+                    <USNavLink href="/resources/api/documentation/sample-payloads-and-output#example-data-models">Example data models</USNavLink>,
+            ]}>Sample payloads and output</SideNavItem>,
+    ]}>Documentation</SideNavItem>,
+]}>
+</SideNav>

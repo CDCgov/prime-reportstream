@@ -1,0 +1,81 @@
+diff --git a/node_modules/remark-mdx-frontmatter/index.d.ts b/node_modules/remark-mdx-frontmatter/index.d.ts
+index 0de1c6f..6ba6bfd 100644
+--- a/node_modules/remark-mdx-frontmatter/index.d.ts
++++ b/node_modules/remark-mdx-frontmatter/index.d.ts
+@@ -17,6 +17,7 @@ export interface RemarkMdxFrontmatterOptions {
+      * `toml` nodes using [`toml`](https://github.com/BinaryMuse/toml-node).
+      */
+     parsers?: FrontmatterParsers;
++    isExported?: boolean;
+ }
+ /**
+  * A remark plugin to expose frontmatter data as named exports.
+diff --git a/node_modules/remark-mdx-frontmatter/index.js b/node_modules/remark-mdx-frontmatter/index.js
+index c436ac0..a81ee08 100644
+--- a/node_modules/remark-mdx-frontmatter/index.js
++++ b/node_modules/remark-mdx-frontmatter/index.js
+@@ -8,7 +8,7 @@ import { parse as parseYaml } from 'yaml';
+  * @param options Optional options to configure the output.
+  * @returns A unified transformer.
+  */
+-const remarkMdxFrontmatter = ({ name = 'frontmatter', parsers } = {}) => {
++const remarkMdxFrontmatter = ({ name = 'frontmatter', parsers, isExported = true } = {}) => {
+     if (!isIdentifierName(name)) {
+         throw new Error(`Name this should be a valid identifier, got: ${JSON.stringify(name)}`);
+     }
+@@ -19,12 +19,25 @@ const remarkMdxFrontmatter = ({ name = 'frontmatter', parsers } = {}) => {
+     };
+     return (ast) => {
+         let data;
+-        const node = ast.children.find((child) => Object.hasOwn(allParsers, child.type));
++        const node = ast.children.find((child) => Object.hasOwn(allParsers, child.type))
++
+         if (node) {
+             const parser = allParsers[node.type];
+             const { value } = node;
+             data = parser(value);
+         }
++        const declrNode = {
++            type: 'VariableDeclaration',
++            kind: 'const',
++            declarations: [
++                {
++                    type: 'VariableDeclarator',
++                    id: { type: 'Identifier', name },
++                    init: valueToEstree(data)
++                }
++            ]
++        }
++        
+         ast.children.unshift({
+             type: 'mdxjsEsm',
+             value: '',
+@@ -33,21 +46,13 @@ const remarkMdxFrontmatter = ({ name = 'frontmatter', parsers } = {}) => {
+                     type: 'Program',
+                     sourceType: 'module',
+                     body: [ 
+-                        {
+-                            type: 'ExportNamedDeclaration',
+-                            specifiers: [],
+-                            declaration: {
+-                                type: 'VariableDeclaration',
+-                                kind: 'const',
+-                                declarations: [
+-                                    {
+-                                        type: 'VariableDeclarator',
+-                                        id: { type: 'Identifier', name },
+-                                        init: valueToEstree(data)
+-                                    }
+-                                ]
+-                            }
+-                        }
++                        isExported 
++                            ? {
++                                type: 'ExportNamedDeclaration',
++                                specifiers: [],
++                                declaration: declrNode
++                              }
++                            : declrNode
+                     ]
+                 }
+             }

@@ -1,0 +1,106 @@
+---
+title: Data model
+subtitle: View API CSV and HL7 Field Requirements in the tables on this page or download all the requirements as CSV.
+lastUpdated: 1/6/23
+callToAction:
+    - label: Download Excel file (.xlsx)
+      icon: FileDownload
+      href: /assets/xlsx/ReportStream CSV and HL7 Field Requirements (version 3.0).xlsx
+---
+import PatientDataElementsTable from "./patient-data-elements-table.mdx";
+import OrderAndResultDataElementsTable from "./ordering-provider-data-elements-table.mdx";
+import SpecimenDataElementsTable from "./specimen-data-elements-table.mdx";
+import OrderingProviderDataElementsTable from "./ordering-provider-data-elements-table.mdx";
+import TestingFacilityDataElementsTable from "./testing-facility-data-elements-table.mdx";
+import AskOnEntryTable from "./ask-on-entry-table.mdx";
+import ReportingAndOrderingFacilityDataElementsTable from "./reporting-and-ordering-facility-data-elements-table.mdx";
+import Sidenav from "../../sidenav.mdx";
+
+<LayoutSidenav>
+    <Sidenav />
+</LayoutSidenav>
+
+<LayoutMain>
+    ## Common errors
+    * **Two of the most important and often overlooked pieces of required data are the deviceIdentifier (OBX-17.1) and testPerformed (OBX-3.1).**
+    These fields must match exactly to the appropriate row in the LOINC In Vitro Diagnostic (LIVD) test code mapping.
+    [This is the most updated LIVD mapping](https://www.cdc.gov/csels/dls/sars-cov-2-livd-codes.html) from the CDC. Specifics about each field are detailed in the tables below.
+    * **The preferred timestamp formatting for CSV and HL7 is yyyyMMddhhmmss+/-zzzz.**
+    If the UTC offset (+/-zzzz) is not present, results should be normalized to a single time zone that’s agreed upon during the onboarding process.
+
+    ***
+
+    ## Legend
+
+    * **Yes:** Required field for acceptance
+    * **Yes – Conditional:** Required, but only under certain circumstances. Review the field’s Data Requirements and Additional Guidance for more information.
+    * **Requested:** Field should be populated if available. In addition, some states may treat this as a required field.
+    * **No:** Not a hard requirement. In the interest of providing complete information to public health agencies, please populate the field if data is available. For CSV implementations please provide the CSV column header even if no data is entered.
+
+    {
+    <Alert type="tip">
+        <span className="text-bold">Note about OTC reporting:</span>
+
+        <ul>
+            <li>For CSV implementations, include only the columns marked with “(OTC)” in the CSV Column Names below.</li>
+            <li>
+                For HL7 implementations, do not use this table.
+                Refer to the <A href="https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/hl7v2-getting-started">RADx MARS Getting started guide</A>.
+            </li>
+        </ul>
+    </Alert>
+    }
+
+    ***
+
+    ## Patient data elements
+    <section className="usa-table-container--scrollable usa-table-container--widescreen">
+        <div className="width-widescreen">
+            <PatientDataElementsTable />
+        </div>
+    </section>
+
+    ## Order and result data elements
+    <section className="usa-table-container--scrollable usa-table-container--widescreen">
+        <div className="width-widescreen">
+            <OrderAndResultDataElementsTable />
+        </div>
+    </section>
+
+    ## Specimen data elements
+    <section className="usa-table-container--scrollable usa-table-container--widescreen">
+        <div className="width-widescreen">
+            <SpecimenDataElementsTable />
+        </div>
+    </section>
+
+    ## Ordering provider data elements
+    <section className="usa-table-container--scrollable usa-table-container--widescreen">
+        <div className="width-widescreen">
+            <OrderingProviderDataElementsTable />
+        </div>
+    </section>
+
+    ## Testing facility data elements
+    <section className="usa-table-container--scrollable usa-table-container--widescreen">
+        <div className="width-widescreen">
+            <TestingFacilityDataElementsTable />
+        </div>
+    </section>
+
+    ## Ask-On-Entry (AOEs)
+    <section className="usa-table-container--scrollable usa-table-container--widescreen">
+        <div className="width-widescreen">
+            <AskOnEntryTable />
+        </div>
+    </section>
+
+    ## Reporting and ordering facility data elements
+    All Reporting and Ordering Facility Data Elements can be left blank for CSV if same as Testing Facility Data Elements
+
+    <section className="usa-table-container--scrollable usa-table-container--widescreen">
+        <div className="width-widescreen">
+            <ReportingAndOrderingFacilityDataElementsTable />
+        </div>
+    </section>
+</LayoutMain>
