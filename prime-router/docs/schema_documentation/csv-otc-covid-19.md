@@ -2289,7 +2289,7 @@ ID name of org that is sending this data to ReportStream.  Suitable for provenan
 
 **Table**: LIVD-SARS-CoV-2
 
-**Table Column**: TestType
+**Table Column**: Test Type
 
 ---
 
