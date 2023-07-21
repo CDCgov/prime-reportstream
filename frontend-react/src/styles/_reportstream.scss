@@ -851,3 +851,13 @@ h2.rs-numbered {
         @include u-font-size("sans", "xs");
     }
 }
+
+header {
+    /* Style as page heading */
+    &:has(h1) {
+        border-bottom: 1px solid color("base-lighter");
+        padding-top: units(3);
+        padding-bottom: units(4);
+        margin-bottom: units(6);
+    }
+}

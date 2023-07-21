@@ -18,6 +18,7 @@ import * as reactUSWDS from "@trussworks/react-uswds";
 import { USCrumbLink, USSmartLink, USNavLink } from "../../components/USLink";
 import * as shared from "../../shared";
 import MDXModules from "../../MDXModules";
+import classNames from "classnames";
 
 /**
  * React components are functions that are pascal-cased so filtering is done
@@ -45,6 +46,9 @@ export interface MarkdownLayoutProps {
         sidenav?: string;
         breadcrumbs?: Array<{ label: string; href: string }>;
         title?: string;
+        subtitle?: string;
+        callToAction?: Array<{ label: string; href: string }>;
+        lastUpdated: string;
     };
     main?: JSX.Element;
     nav?: JSX.Element;
@@ -73,6 +77,21 @@ export const LayoutMain = ({ children }: { children: React.ReactNode }) => {
     return null;
 };
 
+export const CallToAction = ({ label, href, style, icon }) => {
+    const classname = classNames(
+        "usa-button",
+        style ? `usa-button--${style}` : null
+    );
+    return (
+        <USSmartLink href={href} className={classname}>
+            {label}
+            {icon ? (
+                <sharedComponents.Icon name={icon} className="usa-icon--auto" />
+            ) : null}
+        </USSmartLink>
+    );
+};
+
 /**
  * Markdown-formatted elements use lowercase variants from this list. If you need manual
  * control over props, use pascal-cased variants. react-uswds components dynamically added
@@ -85,6 +104,9 @@ const MDXComponents = {
     ...sharedComponents,
     Link: USSmartLink,
     USNavLink,
+    Subtitle: (props) => {
+        return <p role="doc-subtitle">{props.children}</p>;
+    },
 };
 
 const MarkdownLayoutContext = createContext<{
@@ -123,7 +145,13 @@ export function MarkdownLayout({
     children,
     main,
     mdx,
-    frontmatter: { title, breadcrumbs } = {},
+    frontmatter: {
+        title,
+        breadcrumbs,
+        subtitle,
+        callToAction,
+        lastUpdated,
+    } = {},
 }: MarkdownLayoutProps) {
     const helmet = title ? (
         <Helmet>
@@ -188,6 +216,26 @@ export function MarkdownLayout({
                                 }}
                                 {...mdx}
                             >
+                                <header>
+                                    <hgroup>
+                                        <h1>{title}</h1>
+                                        {subtitle ? (
+                                            <p className="usa-intro text-base">
+                                                {subtitle}
+                                            </p>
+                                        ) : null}
+                                    </hgroup>
+                                    {callToAction
+                                        ? callToAction.map((c) => (
+                                              <CallToAction {...c} />
+                                          ))
+                                        : null}
+                                    {lastUpdated ? (
+                                        <p className="text-base text-italic">
+                                            Last updated: {lastUpdated}
+                                        </p>
+                                    ) : null}
+                                </header>
                                 {mainContent ?? children}
                             </MDXProvider>
                         </main>
