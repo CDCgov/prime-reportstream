@@ -11,10 +11,7 @@ on:
         - staging
         - test
         type: choice
-  # push:
-  #   branches:
-  #     - feature/9117-Automate-reverting-deploys
-
+        
 jobs:
   DeployToCandidateSlot:
     runs-on: ubuntu-latest
@@ -43,22 +40,22 @@ jobs:
         run: |
           az functionapp config access-restriction add --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --ip-address ${{ steps.runner_ip.outputs.ip-address }} --priority 88
 
-      - name: Get container ID
-        id: get_container_id
-        run: |
-          az acr repository show-tags --name pdh${{ env.ENV }}containerregistry.azurecr.io --repository pdh${{ env.ENV }} --orderby time_asc --output table | tail -5 | head -1 > container_id.txt
+      # - name: Get container ID
+      #   id: get_container_id
+      #   run: |
+      #     az acr repository show-tags --name pdh${{ env.ENV }}containerregistry.azurecr.io --repository pdh${{ env.ENV }} --orderby time_asc --output table | tail -5 | head -1 > container_id.txt
 
-      - name: Deploy to Candidate Slot
-        run: |
-          az webapp config container set --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --slot candidate --docker-custom-image-name pdh${{ env.ENV }}containerregistry.azurecr.io/pdh${{ env.ENV }}:`cat container_id.txt`
+      # - name: Deploy to Candidate Slot
+      #   run: |
+      #     az webapp config container set --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --slot candidate --docker-custom-image-name pdh${{ env.ENV }}containerregistry.azurecr.io/pdh${{ env.ENV }}:`cat container_id.txt`
 
-      - name: Swap Slots
-        run: |
-          az functionapp deployment slot swap --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --slot candidate --target-slot production
+      # - name: Swap Slots
+      #   run: |
+      #     az functionapp deployment slot swap --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --slot candidate --target-slot production
       
       - name: Verify the Running Container
         run: |
-          az webapp config container show --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --slot candidate 
+          az webapp config container show --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} 
 
       - name: Remove runner IP from Function App firewall
         if: always()
