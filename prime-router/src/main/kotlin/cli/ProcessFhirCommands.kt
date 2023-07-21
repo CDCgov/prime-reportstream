@@ -88,6 +88,10 @@ class ProcessFhirCommands : CliktCommand(
                 outputResult(convertToHl7(contents))
             }
 
+            // FHIR to FHIR conversion
+            inputFileType == "FHIR" || inputFileType == "JSON" && outputFormat == Report.Format.FHIR.toString() ->
+                outputResult(convertToFhir(contents, actionLogger), actionLogger)  
+
             // HL7 to FHIR to HL7 conversion
             inputFileType == "HL7" && outputFormat == Report.Format.HL7.toString() -> {
                 val bundle = convertToFhir(contents, actionLogger)
