@@ -74,22 +74,6 @@ W|Worse--use when direction not relevant|HL7
 This field is generated based on the normalcy status of the result. A = abnormal; N = normal
 ---
 
-**Name**: clia_complexity
-
-**ReportStream Internal Name**: clia_complexity
-
-**Type**: TABLE
-
-**PII**: No
-
-**Cardinality**: [0..1]
-
-**Table**: LIVD-SARS-CoV-2
-
-**Table Column**: CLIAComplexity
-
----
-
 **Name**: collection_kit
 
 **ReportStream Internal Name**: collection_kit
@@ -4581,7 +4565,7 @@ The units the test result is measured in.
 
 **Table**: LIVD-SARS-CoV-2
 
-**Table Column**: TestType
+**Table Column**: Test Type
 
 ---
 

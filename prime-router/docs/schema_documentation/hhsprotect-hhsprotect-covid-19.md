@@ -2379,6 +2379,6 @@ eg, "DETECTED".  Custom.  ReportStream uses testResult code, not this text value
 
 **Table**: LIVD-SARS-CoV-2
 
-**Table Column**: TestType
+**Table Column**: Test Type
 
 ---
