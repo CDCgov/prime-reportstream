@@ -1,17 +1,10 @@
-name: Rollback Deployment to CandidateSlot
+name: "Rollback: Deployment to CandidateSlot"
 
 on:
+  #workflow_dispatch:
   push:
     branches:
       - feature/9117-Automate-reverting-deploys
-    environment:
-      description: 'Deployment Environment'
-      required: true
-      options:
-        - 'prod'
-        - 'staging'
-        - 'test'
-
 
 jobs:
   deploy:
@@ -20,10 +13,7 @@ jobs:
     steps:
       - name: "Check out changes"
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
-
-      - name: Set deployment environment
-        run: echo "DEPLOYMENT_ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
-      
+        
       - name: Get runner ip
         id: runner_ip
         uses: ./.github/actions/runner-ip
@@ -39,26 +29,29 @@ jobs:
 
       - name: Add runner IP to Function App firewall
         run: |
-          az functionapp config access-restriction add --name pdh${{ env_name }}-functionapp --resource-group prime-data-hub-${{ env_name }} --ip-address ${{ steps.runner_ip.outputs.ip-address }} --priority 88
+          az functionapp config access-restriction add --name pdhtest-functionapp --resource-group prime-data-hub-test --ip-address ${{ steps.runner_ip.outputs.ip-address }} --priority 88
 
       - name: Get container ID
         id: get_container_id
         run: |
-          az acr repository show-tags --name pdh${{ env_name }}containerregistry.azurecr.io --repository pdh${{ env_name }} --orderby time_asc --output table | tail -3 | head -1 > container_id.txt
+          az acr repository show-tags --name pdhtestcontainerregistry.azurecr.io --repository pdhtest --orderby time_asc --output table | tail -4 | head -1 > container_id.txt
+          cat container_id.txt
+          CONTAINER_ID=$(az acr repository show-tags --name pdhtestcontainerregistry.azurecr.io --repository pdhtest --orderby time_asc --output table | tail -3 | head -1) 
+          echo "::set-output name=container_id::$CONTAINER_ID"
 
       - name: Deploy to Candidate Slot
         run: |
-          az webapp config container set --name pdh${{ env_name }}-functionapp --resource-group prime-data-hub-${{ env_name }} --slot candidate --docker-custom-image-name pdh${{ env_name }}containerregistry.azurecr.io/pdh${{ env_name }}:`cat container_id.txt`
+          az webapp config container set --name pdhtest-functionapp --resource-group prime-data-hub-test --slot candidate --docker-custom-image-name pdhtestcontainerregistry.azurecr.io/pdhtest:`cat container_id.txt`
 
       - name: Swap Slots
         run: |
-          az functionapp deployment slot swap --name pdh${{ env_name }}-functionapp --resource-group prime-data-hub-${{ env_name }} --slot candidate --target-slot production
+          az functionapp deployment slot swap --name pdhtest-functionapp --resource-group prime-data-hub-test --slot candidate --target-slot production
       
       - name: Verify the Running Container
         run: |
-          az webapp config container show --name pdh${{ env_name }}-functionapp --resource-group prime-data-hub-${{ env_name }} --slot candidate 
+          az webapp config container show --name pdhtest-functionapp --resource-group prime-data-hub-test --slot candidate 
 
       - name: Remove runner IP from Function App firewall
         if: always()
         run: |
-          az functionapp config access-restriction remove --name pdh${{ env_name }}-functionapp --resource-group prime-data-hub-${{ env_name }} --ip-address ${{ steps.runner_ip.outputs.ip-address }} 
+          az functionapp config access-restriction remove --name pdhtest-functionapp --resource-group prime-data-hub-test --ip-address ${{ steps.runner_ip.outputs.ip-address }} 
