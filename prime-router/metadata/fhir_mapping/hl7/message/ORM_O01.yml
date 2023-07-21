@@ -36,3 +36,14 @@ resources:
       - .ORDER_DETAIL.OBR
       - .ORDER_DETAIL.OBSERVATION.NTE
       - MSH
+
+  - resourceName: Specimen
+    segment: .OBR
+    group: ORDER.ORDER_DETAIL
+    resourcePath: resource/Specimen
+    repeats: true
+    isReferenced: true
+    additionalSegments:
+      - .OBSERVATION.OBX
+      - .OBSERVATION.NTE
+      - MSH
