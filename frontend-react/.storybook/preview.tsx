@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import MarkdownLayout from "../src/layouts/Markdown/MarkdownLayout";
 import MockDate from "mockdate";
+import { DocsContainer, Unstyled } from "@storybook/blocks";
 
 import "../src/global.scss";
 import React from "react";
@@ -62,10 +63,20 @@ export const decorators = [
 
 const MyDocsContainer = (props) => {
     console.log(props);
+    const isContent =
+        props.context.channel.data.docsRendered?.[0].startsWith("content");
     return (
         <HelmetProvider>
             <BrowserRouter>
-                <MarkdownLayout>{props.children}</MarkdownLayout>
+                <MarkdownLayout>
+                    {isContent ? (
+                        <Unstyled>
+                            <DocsContainer {...props} />
+                        </Unstyled>
+                    ) : (
+                        <DocsContainer {...props} />
+                    )}
+                </MarkdownLayout>
             </BrowserRouter>
         </HelmetProvider>
     );
