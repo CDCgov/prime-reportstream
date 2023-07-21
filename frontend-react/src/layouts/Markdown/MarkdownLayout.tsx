@@ -6,7 +6,7 @@ import {
 } from "@trussworks/react-uswds";
 import { MDXProvider } from "@mdx-js/react";
 import { Helmet } from "react-helmet-async";
-import React from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import * as reactUSWDS from "@trussworks/react-uswds";
 
 import { USCrumbLink, USSmartLink, USNavLink } from "../../components/USLink";
@@ -34,17 +34,26 @@ const uswdsComponents = filterComponents(reactUSWDS);
 const sharedComponents = filterComponents(shared);
 
 export interface MarkdownLayoutProps {
+    children: JSX.Element;
     frontmatter?: {
         sidenav?: string;
         breadcrumbs?: Array<{ label: string; href: string }>;
         title?: string;
     };
-
-    default: React.ComponentType;
     main?: JSX.Element;
     nav?: JSX.Element;
     mdx?: React.ComponentProps<typeof MDXProvider>;
 }
+
+export const LayoutSidenav = ({ children }: { children: React.ReactNode }) => {
+    const { setSidenav } = useContext(MarkdownLayoutContext);
+
+    useEffect(() => {
+        setSidenav(children);
+    });
+
+    return null;
+};
 
 /**
  * Markdown-formatted elements use lowercase variants from this list. If you need manual
@@ -60,10 +69,14 @@ const MDXComponents = {
     USNavLink,
 };
 
+const MarkdownLayoutContext = createContext<{
+    sidenav?: React.ReactNode;
+    setSidenav: (jsx: React.ReactNode) => void;
+}>({} as any);
+
 /**
- * Props formatted to accept object spread directly from a "import * as XXX"
- * import (default as the component function, and any frontmatter properties under
- * frontmatter).
+ * Provides a LayoutSidenav component in mdx context that when used will automatically
+ * enable the sidenav of layout.
  *
  * FUTURE_TODO: Remove GridContainer once implemented in higher-level component.
  *
@@ -87,45 +100,37 @@ const MDXComponents = {
  * +------------------------+
  */
 export function MarkdownLayout({
-    default: Component,
+    children,
     main,
-    nav,
     mdx,
-    frontmatter: { title, sidenav, breadcrumbs } = {},
+    frontmatter: { title, breadcrumbs } = {},
 }: MarkdownLayoutProps) {
     const helmet = title ? (
         <Helmet>
             <title>{title}</title>
         </Helmet>
     ) : null;
-    const LazyNav = sidenav ? React.lazy(MDXModules[`./${sidenav}.mdx`]) : null;
+    const [sidenav, setSidenav] = useState<React.ReactNode>(undefined);
 
     return (
-        <>
+        <MarkdownLayoutContext.Provider value={{ sidenav, setSidenav }}>
             {helmet}
             <GridContainer className="usa-prose">
                 <Grid row className="flex-justify flex-align-start">
-                    {nav == null && LazyNav != null ? (
+                    {sidenav ? (
                         <nav
                             aria-label="side-navigation"
                             className="tablet:grid-col-3 position-sticky top-0"
                         >
-                            <React.Suspense fallback={<>...</>}>
-                                <MDXProvider
-                                    components={MDXComponents}
-                                    {...mdx}
-                                >
-                                    <LazyNav />
-                                </MDXProvider>
-                            </React.Suspense>
+                            <MDXProvider components={MDXComponents} {...mdx}>
+                                {sidenav}
+                            </MDXProvider>
                         </nav>
-                    ) : (
-                        nav
-                    )}
+                    ) : null}
                     {main ?? (
                         <main
                             className={
-                                LazyNav
+                                sidenav
                                     ? "tablet:grid-col-8"
                                     : "tablet:grid-col-12"
                             }
@@ -145,14 +150,20 @@ export function MarkdownLayout({
                                     ))}
                                 </BreadcrumbBar>
                             ) : null}
-                            <MDXProvider components={MDXComponents} {...mdx}>
-                                <Component />
+                            <MDXProvider
+                                components={{
+                                    ...MDXComponents,
+                                    LayoutSidenav,
+                                }}
+                                {...mdx}
+                            >
+                                {children}
                             </MDXProvider>
                         </main>
                     )}
                 </Grid>
             </GridContainer>
-        </>
+        </MarkdownLayoutContext.Provider>
     );
 }
 
@@ -164,9 +175,14 @@ export default MarkdownLayout;
 export function lazyRouteMarkdown(path: string) {
     return async () => {
         const module = await MDXModules[`./${path}.mdx`]();
+        const Content = module.default;
         return {
             Component() {
-                return <MarkdownLayout {...module} />;
+                return (
+                    <MarkdownLayout {...module}>
+                        <Content />
+                    </MarkdownLayout>
+                );
             },
         };
     };

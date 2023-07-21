@@ -2,6 +2,7 @@ import { initializeWorker, mswDecorator } from "msw-storybook-addon";
 import { CacheProvider } from "rest-hooks";
 import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import MarkdownLayout from "../src/layouts/Markdown/MarkdownLayout";
 import MockDate from "mockdate";
 
 import "../src/global.scss";
@@ -58,3 +59,31 @@ export const decorators = [
     withRestHooksCacheProvider,
     mswDecorator,
 ];
+
+const MyDocsContainer = (props) => {
+    console.log(props);
+    return (
+        <HelmetProvider>
+            <BrowserRouter>
+                <MarkdownLayout>{props.children}</MarkdownLayout>
+            </BrowserRouter>
+        </HelmetProvider>
+    );
+};
+
+const preview = {
+    parameters: {
+        actions: { argTypesRegex: "^on[A-Z].*" },
+        controls: {
+            matchers: {
+                color: /(background|color)$/i,
+                date: /Date$/,
+            },
+        },
+        docs: {
+            container: MyDocsContainer,
+        },
+    },
+};
+
+export default preview;

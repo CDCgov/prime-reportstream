@@ -1,10 +1,13 @@
 import type { StorybookConfig } from "@storybook/react-vite";
 import remarkGfm from "remark-gfm";
-import remarkToc from "remark-gfm";
-import path from "node:path";
+import rehypeSlug from "rehype-slug";
+import remarkToc from "remark-toc";
+import remarkFrontmatter from "remark-frontmatter";
+import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 
 const config: StorybookConfig = {
     stories: [
+        "../src/**/*.mdx",
         "../src/**/*.stories.mdx",
         "../src/**/*.stories.@(js|jsx|ts|tsx)",
         "./UtilizedUSWDSComponents/*.stories.@(js|jsx|ts|tsx)",
@@ -19,7 +22,13 @@ const config: StorybookConfig = {
             options: {
                 mdxPluginOptions: {
                     mdxCompileOptions: {
-                        remarkPlugins: [remarkGfm, remarkToc],
+                        remarkPlugins: [
+                            remarkGfm,
+                            remarkToc,
+                            remarkFrontmatter,
+                            remarkMdxFrontmatter,
+                        ],
+                        rehypePlugins: [rehypeSlug],
                     },
                 },
             },
@@ -38,19 +47,6 @@ const config: StorybookConfig = {
         config.plugins = config.plugins?.filter(
             (x: any, i) => x.name !== "@mdx-js/rollup"
         );
-
-        // Proxy react-uswds storybook website locally so we can supply
-        // locally-created stories.json file so that it works on sb 7
-        if (!config.server) {
-            config.server = {};
-        }
-        if (!config.server.proxy) {
-            config.server.proxy = {};
-        }
-        if (!config.server.fs) {
-            config.server.fs = {};
-        }
-        config.server.fs.allow = [".."];
 
         return {
             ...config,

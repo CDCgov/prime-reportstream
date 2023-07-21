@@ -1,9 +1,8 @@
 ---
 title: ReportStream API
-sidenav: content/resources/reportstream-api/sidenav
 ---
+import Sidenav from "./sidenav.mdx"
 import DOMPurify from "dompurify";
-
 import site from "../../../content/site.json";
 import { trackAppInsightEvent } from "../../../utils/Analytics";
 
@@ -11,6 +10,8 @@ export const handleClick = () => {
     trackAppInsightEvent(frontmatter.title, {});
     window.open(DOMPurify.sanitize(site.assets.programmersGuidePdf.path));
 };
+
+<LayoutSidenav><Sidenav /></LayoutSidenav>
 
 # {frontmatter.title}
 

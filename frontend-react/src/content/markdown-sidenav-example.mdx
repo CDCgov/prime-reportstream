@@ -1,8 +1,13 @@
-import { SideNav } from "@trussworks/react-uswds"
-import SideNavItem from "../shared/SideNavItem"
+---
+title: Title
+---
+<LayoutSidenav>
+    <SideNav items={[
+        <SideNavItem href="/foo" end>Foo</SideNavItem>,
+        <SideNavItem href="/bar">Bar</SideNavItem>,
+    ]}>
+    </SideNav>
+</LayoutSidenav>
+<h1>Sidenav Example</h1>
 
-<SideNav items={[
-    <SideNavItem href="/foo" end>Foo</SideNavItem>,
-    <SideNavItem href="/bar">Bar</SideNavItem>,
-]}>
-</SideNav>
+This a paragraph.
