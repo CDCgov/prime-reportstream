@@ -59,7 +59,7 @@ Launch a shell and run it:
 
   ```bash
   python3.exe -m pipenv shell
-  python3.exe .\generate-jwt.py
+  python .\generate-jwt.py
   ```
 </details>
 
@@ -68,7 +68,7 @@ Launch a shell and run it:
 
   ```bash
   python3 -m pipenv shell
-  python3 ./generate-jwt.py
+  python ./generate-jwt.py
   ```
 </details>
 
