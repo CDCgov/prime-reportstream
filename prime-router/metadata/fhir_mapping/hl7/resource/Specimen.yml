@@ -27,7 +27,7 @@ status:
 type:
   valueOf: datatype/CodeableConcept
   expressionType: resource
-  specs: SPM.4 | SPM.5
+  specs: SPM.4 | SPM.5 | OBR.15.1
 
 receivedTime:
   type: STRING
