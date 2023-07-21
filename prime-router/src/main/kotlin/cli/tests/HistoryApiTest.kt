@@ -154,7 +154,7 @@ class HistoryApiTest : CoolTest() {
      */
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting $name Test: get submission history ")
-        val bearer = getOktaAccessToken(environment, name)
+        val bearer = OktaAuthTests.getOktaAccessToken(environment, name)
 
         val reportIds = submitTestData(environment, options)
             ?: return bad("*** $name TEST FAILED:  Unable to submit test data")

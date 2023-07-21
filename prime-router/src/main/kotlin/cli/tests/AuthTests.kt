@@ -65,19 +65,24 @@ class OktaAuthTests : CoolTest() {
             )
         }
 
-        fun getOktaAccessToken(environment: Environment): String {
-            return OktaCommand.fetchAccessToken(environment.oktaApp)
-                ?: abort(
-                    "Test needs a valid okta access token for the settings API." +
-                        " Run ./prime login to fetch/refresh your access token."
-                )
-        }
-
-        fun getOktaAccessTokenOrLocal(environment: Environment): String {
+        /**
+         * The access token left by a previous login command as specified by the command line parameters
+         * @param environment Where is the test hitting? Staging, Local?
+         * @param testName Name of test for logging
+         * @return The access token if we're in the oktaApp environment, otherwise "dummy"
+         */
+        fun getOktaAccessToken(
+            environment: Environment,
+            testName: String = ""
+        ): String {
             return if (environment.oktaApp == null) {
-                accessTokenDummy
+                "dummy"
             } else {
-                getOktaAccessToken(environment)
+                OktaCommand.fetchAccessToken(environment.oktaApp)
+                    ?: CommandUtilities.abort(
+                        "Cannot run test $testName. Invalid access token. " +
+                            "Run ./prime login to fetch/refresh a PrimeAdmin access token for the $environment environment."
+                    )
             }
         }
     }
@@ -91,7 +96,7 @@ class OktaAuthTests : CoolTest() {
         val sender2 = defaultIgnoreSender
 
         val myFakeReportFile = createFakeReport(sender1)
-        val oktaToken = getOktaAccessTokenOrLocal(environment)
+        val oktaToken = getOktaAccessToken(environment)
 
         // Now submit a report to org1 and get its reportId1
         val (responseCode1, json1) = HttpUtilities.postReportFileToWatersApi(
@@ -468,7 +473,7 @@ class Server2ServerAuthTests : CoolTest() {
             schemaName = "primedatainput/pdi-covid-19"
         )
 
-        val oktaSettingAccessTok = OktaAuthTests.getOktaAccessTokenOrLocal(settingsEnv) // ironic: still need okta
+        val oktaSettingAccessTok = OktaAuthTests.getOktaAccessToken(settingsEnv) // ironic: still need okta
 
         // save the new sender to the Settings.
         PutSenderSetting()
@@ -514,7 +519,7 @@ class Server2ServerAuthTests : CoolTest() {
         PutOrganizationSetting()
             .put(
                 settingsEnv,
-                OktaAuthTests.getOktaAccessTokenOrLocal(settingsEnv),
+                OktaAuthTests.getOktaAccessToken(settingsEnv),
                 SettingCommand.SettingType.ORGANIZATION,
                 organizationPlusNewKey.name,
                 jacksonObjectMapper().writeValueAsString(organizationPlusNewKey)
@@ -549,7 +554,7 @@ class Server2ServerAuthTests : CoolTest() {
         DeleteSenderSetting()
             .delete(
                 settingsEnv,
-                OktaAuthTests.getOktaAccessTokenOrLocal(settingsEnv),
+                OktaAuthTests.getOktaAccessToken(settingsEnv),
                 SettingCommand.SettingType.SENDER,
                 sender.fullName
             )
@@ -1295,25 +1300,4 @@ fun lookupTableReadAndWriteSmokeTests(
         failedMessages += "Got empty LookupTable List."
     }
     return Pair(passed, failedMessages)
-}
-
-/**
- * The access token left by a previous login command as specified by the command line parameters
- * @param environment Where is the test hitting? Staging, Local?
- * @param testName Name of test for logging
- * @return The access token if we're in the oktaApp environment, otherwise "dummy"
- */
-fun getOktaAccessToken(
-    environment: Environment,
-    testName: String
-): String {
-    return if (environment.oktaApp == null) {
-        "dummy"
-    } else {
-        OktaCommand.fetchAccessToken(environment.oktaApp)
-            ?: CommandUtilities.abort(
-                "Cannot run test $testName. Invalid access token. " +
-                    "Run ./prime login to fetch/refresh a PrimeAdmin access token for the $environment environment."
-            )
-    }
 }

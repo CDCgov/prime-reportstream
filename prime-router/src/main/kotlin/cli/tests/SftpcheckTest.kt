@@ -41,7 +41,7 @@ class SftpcheckTest : CoolTest() {
         ugly("Starting SFTPCHECK Receciver Connections test ${environment.url}")
 
         // Get receiver ignore organizations with transport.host=sftp
-        val accessToken = getOktaAccessToken(environment, name) // Get accessToken per environment.
+        val accessToken = OktaAuthTests.getOktaAccessToken(environment, name) // Get accessToken per environment.
         val ignoreReceiverNamePath = environment.formUrl(ignoreReceiverNamesURI).toString()
         val ignoreReceiversNameList = listReceiverNames(ignoreReceiverNamePath, accessToken)
 
