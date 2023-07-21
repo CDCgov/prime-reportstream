@@ -265,7 +265,7 @@ open class BaseFunction(
         request: HttpRequestMessage<String?>,
         clazz: Class<T>
     ): HttpResponseMessage {
-        AuthenticatedClaims.authenticate(request)
+        authenticateAdmin(request)
             ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
         val settings = facade.findSettingsAsJson(clazz)
@@ -278,7 +278,7 @@ open class BaseFunction(
         organizationName: String,
         clazz: Class<T>
     ): HttpResponseMessage {
-        AuthenticatedClaims.authenticate(request)
+        authenticateAdmin(request)
             ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
         val (result, outputBody) = facade.findSettingsAsJson(organizationName, clazz)
@@ -298,7 +298,7 @@ open class BaseFunction(
         organizationName: String,
         settingType: SettingType
     ): HttpResponseMessage {
-        AuthenticatedClaims.authenticate(request)
+        authenticateAdmin(request)
             ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
         val settings = facade.findSettingHistoryAsJson(organizationName, settingType)
@@ -308,7 +308,7 @@ open class BaseFunction(
     fun getHead(
         request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
-        AuthenticatedClaims.authenticate(request)
+        authenticateAdmin(request)
             ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
         val lastModified = facade.getLastModified()
@@ -328,7 +328,7 @@ open class BaseFunction(
         clazz: Class<T>,
         organizationName: String? = null
     ): HttpResponseMessage {
-        AuthenticatedClaims.authenticate(request)
+        authenticateAdmin(request)
             ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
         val setting = facade.findSettingAsJson(settingName, clazz, organizationName)
@@ -345,7 +345,7 @@ open class BaseFunction(
         clazz: Class<T>,
         organizationName: String? = null
     ): HttpResponseMessage {
-        val claims = AuthenticatedClaims.authenticate(request)
+        val claims = authenticateAdmin(request)
             ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
         val (result, outputBody) = when (request.httpMethod) {
@@ -379,4 +379,21 @@ open class BaseFunction(
     }
 
     private fun errorJson(message: String): String = HttpUtilities.errorJson(message)
+
+    /**
+     * Run authentication then filters out non-admin claims
+     * @param request Http request to authenticate
+     * @return Authenticated claims if primeadmin is authorized, else null
+     */
+    private fun authenticateAdmin(
+        request: HttpRequestMessage<String?>
+    ): AuthenticatedClaims? {
+        val claims = AuthenticatedClaims.authenticate(request)
+        return if (claims == null || !claims.authorized(setOf("*.*.primeadmin"))) {
+            logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
+            null
+        } else {
+            claims
+        }
+    }
 }
