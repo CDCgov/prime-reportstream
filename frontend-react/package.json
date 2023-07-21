@@ -192,7 +192,7 @@
         "vite": "^4.3.9",
         "vite-plugin-checker": "^0.6.1",
         "vite-plugin-svgr": "^3.2.0",
-        "whatwg-fetch": "^3.6.2"
+        "whatwg-fetch": "^3.6.17"
     },
     "resolutions": {
         "trim": ">=0.0.3",
