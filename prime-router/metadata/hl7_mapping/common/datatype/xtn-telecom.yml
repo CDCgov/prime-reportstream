@@ -7,10 +7,11 @@ elements:
     value: [ '%resource.use' ]
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
     valueSet:
-      home: PRN
-      work: WPN
-      mobile: PRN
-      temp: ORN
+      values:
+        home: PRN
+        work: WPN
+        mobile: PRN
+        temp: ORN
 
   - name: xtn-use-code-from-system
     condition: '%resource.system = "pager"'
@@ -27,10 +28,11 @@ elements:
     value: [ '%resource.system' ]
     hl7Spec: [ '%{hl7TelecomPath}-3' ]
     valueSet:
-      phone: PH
-      pager: BP
-      email: Internet
-      fax: FX
+      values:
+        phone: PH
+        pager: BP
+        email: Internet
+        fax: FX
 
   - name: xtn-system-from-use
     condition: '%resource.use.exists() and %resource.use = "mobile"'
