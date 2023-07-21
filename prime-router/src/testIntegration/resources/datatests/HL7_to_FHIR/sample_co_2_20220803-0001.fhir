@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1689893809047039000.d1bd0797-11b6-4a05-a817-323d69f4e60b",
+  "id" : "1689962626225802000.d4ca9100-428c-4aaa-b63d-bbed05d3dee1",
   "meta" : {
-    "lastUpdated" : "2023-07-20T18:56:49.083-04:00"
+    "lastUpdated" : "2023-07-21T14:03:46.269-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -43,7 +43,7 @@
       },
       "destination" : [ {
         "target" : {
-          "reference" : "Device/1689893809372163000.8e45d084-2f74-4803-82ea-4a52d6ad7f82"
+          "reference" : "Device/1689962626654409000.08ae9ace-d119-4ba9-a883-5b042079b374"
         },
         "endpoint" : "urn:oid:2.16.840.1.114222.4.1.144.2.5",
         "receiver" : {
@@ -51,13 +51,13 @@
         }
       } ],
       "sender" : {
-        "reference" : "Organization/1689893809342006000.a561c057-00e8-41dd-a8b3-27af3cd6774c"
+        "reference" : "Organization/1689962626624291000.fa872815-4462-4986-a51b-698434b62393"
       },
       "source" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
           "valueReference" : {
-            "reference" : "Organization/1689893809432991000.f952c6eb-5b5d-40c7-a736-665b17ae4db4"
+            "reference" : "Organization/1689962626708455000.d1a2e592-15bc-422b-a1df-5706afbe0a59"
           }
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-install-date",
@@ -72,10 +72,10 @@
       }
     }
   }, {
-    "fullUrl" : "Organization/1689893809342006000.a561c057-00e8-41dd-a8b3-27af3cd6774c",
+    "fullUrl" : "Organization/1689962626624291000.fa872815-4462-4986-a51b-698434b62393",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1689893809342006000.a561c057-00e8-41dd-a8b3-27af3cd6774c",
+      "id" : "1689962626624291000.fa872815-4462-4986-a51b-698434b62393",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -99,10 +99,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Device/1689893809372163000.8e45d084-2f74-4803-82ea-4a52d6ad7f82",
+    "fullUrl" : "Device/1689962626654409000.08ae9ace-d119-4ba9-a883-5b042079b374",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1689893809372163000.8e45d084-2f74-4803-82ea-4a52d6ad7f82",
+      "id" : "1689962626654409000.08ae9ace-d119-4ba9-a883-5b042079b374",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -149,10 +149,10 @@
       "name" : "CDPHE"
     }
   }, {
-    "fullUrl" : "Organization/1689893809432991000.f952c6eb-5b5d-40c7-a736-665b17ae4db4",
+    "fullUrl" : "Organization/1689962626708455000.d1a2e592-15bc-422b-a1df-5706afbe0a59",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1689893809432991000.f952c6eb-5b5d-40c7-a736-665b17ae4db4",
+      "id" : "1689962626708455000.d1a2e592-15bc-422b-a1df-5706afbe0a59",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -190,10 +190,10 @@
       "name" : "MEDITECH, Inc."
     }
   }, {
-    "fullUrl" : "Provenance/1689893812058663000.94ac86fb-3073-4e60-97a0-2a43183a640a",
+    "fullUrl" : "Provenance/1689962629338617000.25710a14-37ad-4797-b5d1-7931d1a29350",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1689893812058663000.94ac86fb-3073-4e60-97a0-2a43183a640a",
+      "id" : "1689962629338617000.25710a14-37ad-4797-b5d1-7931d1a29350",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -205,11 +205,11 @@
         } ]
       },
       "target" : [ {
-        "reference" : "DiagnosticReport/1689893812775461000.977e9a56-66fc-459e-935a-de0d70d2c821"
+        "reference" : "DiagnosticReport/1689962630228619000.4b10b8da-4cac-4d05-a103-446b11657f40"
       }, {
-        "reference" : "DiagnosticReport/1689893812805334000.5ccfccb9-1c5d-444c-8f79-afa128699910"
+        "reference" : "DiagnosticReport/1689962630276848000.5c7545e0-215b-4f78-a98f-ad6c76524105"
       }, {
-        "reference" : "DiagnosticReport/1689893812840059000.3dd6e260-f2c9-4596-8d87-7200d62420bc"
+        "reference" : "DiagnosticReport/1689962630298941000.9d2ab645-dc2b-4a97-9e2d-69bcd8f0f813"
       } ],
       "recorded" : "2022-08-03T04:07:05-06:00",
       "activity" : {
@@ -227,21 +227,21 @@
           } ]
         },
         "who" : {
-          "reference" : "Organization/1689893812040306000.d58d4cb5-3af1-4566-b1c6-26e84ce0eea6"
+          "reference" : "Organization/1689962629317743000.24f7d22b-4ee4-46ab-aa21-a059182a85a8"
         }
       } ],
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1689893812066015000.3bb9cfd6-b2fe-4ba8-870c-240302d09b22"
+          "reference" : "Device/1689962629345387000.75407352-9e2d-41a4-b4db-2298e91046cb"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1689893812040306000.d58d4cb5-3af1-4566-b1c6-26e84ce0eea6",
+    "fullUrl" : "Organization/1689962629317743000.24f7d22b-4ee4-46ab-aa21-a059182a85a8",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1689893812040306000.d58d4cb5-3af1-4566-b1c6-26e84ce0eea6",
+      "id" : "1689962629317743000.24f7d22b-4ee4-46ab-aa21-a059182a85a8",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -268,10 +268,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Device/1689893812066015000.3bb9cfd6-b2fe-4ba8-870c-240302d09b22",
+    "fullUrl" : "Device/1689962629345387000.75407352-9e2d-41a4-b4db-2298e91046cb",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1689893812066015000.3bb9cfd6-b2fe-4ba8-870c-240302d09b22",
+      "id" : "1689962629345387000.75407352-9e2d-41a4-b4db-2298e91046cb",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -289,10 +289,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Observation/1689893812394941000.a3f76bd7-11e8-4985-b68c-b3c9bfd91fe1",
+    "fullUrl" : "Observation/1689962629803365000.67d4e831-a755-4da9-ba5a-9792a5726637",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "1689893812394941000.a3f76bd7-11e8-4985-b68c-b3c9bfd91fe1",
+      "id" : "1689962629803365000.67d4e831-a755-4da9-ba5a-9792a5726637",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -306,9 +306,6 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
         "valueString" : "1.1"
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueCodeableConcept" : { }
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
@@ -323,44 +320,28 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVID19",
-              "display" : "Novel Coronavirus 2019"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "41458-1"
-        } ],
-        "text" : "SARS coronavirus RNA[Presence] in Specimen by NAA with probe detection"
+          "code" : "41458-1",
+          "display" : "SARS coronavirus RNA[Presence] in Specimen by NAA with probe detection"
+        }, {
+          "system" : "L",
+          "code" : "COVID19",
+          "display" : "Novel Coronavirus 2019"
+        } ]
       },
       "subject" : {
-        "reference" : "Patient/1689893812251792000.51f07951-ab9c-426c-8c1c-93e3b5b7ee22"
+        "reference" : "Patient/1689962629652316000.7a547f41-0899-49f6-8cff-9fc7d17dc2fa"
       },
       "encounter" : {
-        "reference" : "Encounter/1689893812315830000.58c3d5a8-7f63-47e7-a748-9bf70933111d"
+        "reference" : "Encounter/1689962629739045000.883b2970-c389-45c8-b5ca-27014b417c95"
       },
       "effectiveDateTime" : "2022-06-21T13:36:00-06:00",
       "issued" : "2022-08-03T04:06:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/1689893812389197000.a0572ef6-43cb-4926-ab9b-99cd19b74a7b"
+        "reference" : "PractitionerRole/1689962629800692000.bb373b72-f2f5-4c60-af0e-380ea1b3269b"
       } ],
       "valueCodeableConcept" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "NEGATIVE",
-              "display" : "NEGATIVE"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
           "code" : "*********",
@@ -379,10 +360,10 @@
       }
     }
   }, {
-    "fullUrl" : "Location/1689893812375434000.baae4bec-2105-4f4d-a1bf-63929b4b7006",
+    "fullUrl" : "Location/1689962629786710000.480c33d0-c2c0-4799-85fc-2a861d3f582f",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "1689893812375434000.baae4bec-2105-4f4d-a1bf-63929b4b7006",
+      "id" : "1689962629786710000.480c33d0-c2c0-4799-85fc-2a861d3f582f",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -396,10 +377,10 @@
       "name" : "N. SUBURBAN MED. CEN"
     }
   }, {
-    "fullUrl" : "Practitioner/1689893812376921000.9d3bbc9f-a838-40fa-9ed8-9418170ab9bd",
+    "fullUrl" : "Practitioner/1689962629787626000.65db0b68-fee3-46df-98ca-12c62fdbc24a",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1689893812376921000.9d3bbc9f-a838-40fa-9ed8-9418170ab9bd",
+      "id" : "1689962629787626000.65db0b68-fee3-46df-98ca-12c62fdbc24a",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -421,7 +402,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/1689893812375434000.baae4bec-2105-4f4d-a1bf-63929b4b7006"
+          "reference" : "Location/1689962629786710000.480c33d0-c2c0-4799-85fc-2a861d3f582f"
         }
       } ],
       "identifier" : [ {
@@ -447,10 +428,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1689893812388737000.73c37896-3c4a-453c-bfbd-b5218eefc4a8",
+    "fullUrl" : "Organization/1689962629800209000.5388dc92-06e3-433c-9c7b-b6113e836fef",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1689893812388737000.73c37896-3c4a-453c-bfbd-b5218eefc4a8",
+      "id" : "1689962629800209000.5388dc92-06e3-433c-9c7b-b6113e836fef",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -493,10 +474,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/1689893812389197000.a0572ef6-43cb-4926-ab9b-99cd19b74a7b",
+    "fullUrl" : "PractitionerRole/1689962629800692000.bb373b72-f2f5-4c60-af0e-380ea1b3269b",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "1689893812389197000.a0572ef6-43cb-4926-ab9b-99cd19b74a7b",
+      "id" : "1689962629800692000.bb373b72-f2f5-4c60-af0e-380ea1b3269b",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -508,10 +489,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/1689893812376921000.9d3bbc9f-a838-40fa-9ed8-9418170ab9bd"
+        "reference" : "Practitioner/1689962629787626000.65db0b68-fee3-46df-98ca-12c62fdbc24a"
       },
       "organization" : {
-        "reference" : "Organization/1689893812388737000.73c37896-3c4a-453c-bfbd-b5218eefc4a8"
+        "reference" : "Organization/1689962629800209000.5388dc92-06e3-433c-9c7b-b6113e836fef"
       },
       "code" : [ {
         "coding" : [ {
@@ -521,10 +502,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Observation/1689893812442642000.94e7db76-45ca-4e21-a505-9c77606d3eca",
+    "fullUrl" : "Observation/1689962629831222000.0ac175e5-40f6-42d5-b72b-6a9fa6f493d0",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "1689893812442642000.94e7db76-45ca-4e21-a505-9c77606d3eca",
+      "id" : "1689962629831222000.0ac175e5-40f6-42d5-b72b-6a9fa6f493d0",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -538,9 +519,6 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
         "valueString" : "1.1"
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueCodeableConcept" : { }
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
@@ -555,44 +533,28 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "INFLUAPCR",
-              "display" : "INFLUENZA A PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "34487-9"
-        } ],
-        "text" : "Influenza virus A RNA [Presence] in Unspecified specimen by NAA with probe detection"
+          "code" : "34487-9",
+          "display" : "Influenza virus A RNA [Presence] in Unspecified specimen by NAA with probe detection"
+        }, {
+          "system" : "L",
+          "code" : "INFLUAPCR",
+          "display" : "INFLUENZA A PCR"
+        } ]
       },
       "subject" : {
-        "reference" : "Patient/1689893812251792000.51f07951-ab9c-426c-8c1c-93e3b5b7ee22"
+        "reference" : "Patient/1689962629652316000.7a547f41-0899-49f6-8cff-9fc7d17dc2fa"
       },
       "encounter" : {
-        "reference" : "Encounter/1689893812315830000.58c3d5a8-7f63-47e7-a748-9bf70933111d"
+        "reference" : "Encounter/1689962629739045000.883b2970-c389-45c8-b5ca-27014b417c95"
       },
       "effectiveDateTime" : "2022-06-21T13:36:00-06:00",
       "issued" : "2022-08-03T04:06:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/1689893812440574000.23f43e1f-9609-42ac-81d3-d4a006d7544e"
+        "reference" : "PractitionerRole/1689962629829757000.a733263b-09f3-4b85-b062-86011f6c90ba"
       } ],
       "valueCodeableConcept" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "NEGATIVE",
-              "display" : "NEGATIVE"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
           "code" : "*********",
@@ -605,10 +567,10 @@
       }
     }
   }, {
-    "fullUrl" : "Location/1689893812418672000.fad690d3-2a92-4d7e-af9b-eda3f8743c27",
+    "fullUrl" : "Location/1689962629815863000.27110d89-f490-4f3a-98a9-44898bc962b4",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "1689893812418672000.fad690d3-2a92-4d7e-af9b-eda3f8743c27",
+      "id" : "1689962629815863000.27110d89-f490-4f3a-98a9-44898bc962b4",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -622,10 +584,10 @@
       "name" : "N. SUBURBAN MED. CEN"
     }
   }, {
-    "fullUrl" : "Practitioner/1689893812427583000.e4b40482-620e-4ce8-a6b7-b4d32f49c65f",
+    "fullUrl" : "Practitioner/1689962629818959000.0a8a19a4-ddb3-4ff2-9d07-b97f58d20537",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1689893812427583000.e4b40482-620e-4ce8-a6b7-b4d32f49c65f",
+      "id" : "1689962629818959000.0a8a19a4-ddb3-4ff2-9d07-b97f58d20537",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -647,7 +609,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/1689893812418672000.fad690d3-2a92-4d7e-af9b-eda3f8743c27"
+          "reference" : "Location/1689962629815863000.27110d89-f490-4f3a-98a9-44898bc962b4"
         }
       } ],
       "identifier" : [ {
@@ -673,10 +635,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1689893812440390000.c63aa8c7-347f-4fae-a366-84c5ca4c3ce2",
+    "fullUrl" : "Organization/1689962629829364000.bc4e7d49-2d4f-48da-a6cf-1571c9b9698a",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1689893812440390000.c63aa8c7-347f-4fae-a366-84c5ca4c3ce2",
+      "id" : "1689962629829364000.bc4e7d49-2d4f-48da-a6cf-1571c9b9698a",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -719,10 +681,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/1689893812440574000.23f43e1f-9609-42ac-81d3-d4a006d7544e",
+    "fullUrl" : "PractitionerRole/1689962629829757000.a733263b-09f3-4b85-b062-86011f6c90ba",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "1689893812440574000.23f43e1f-9609-42ac-81d3-d4a006d7544e",
+      "id" : "1689962629829757000.a733263b-09f3-4b85-b062-86011f6c90ba",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -734,10 +696,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/1689893812427583000.e4b40482-620e-4ce8-a6b7-b4d32f49c65f"
+        "reference" : "Practitioner/1689962629818959000.0a8a19a4-ddb3-4ff2-9d07-b97f58d20537"
       },
       "organization" : {
-        "reference" : "Organization/1689893812440390000.c63aa8c7-347f-4fae-a366-84c5ca4c3ce2"
+        "reference" : "Organization/1689962629829364000.bc4e7d49-2d4f-48da-a6cf-1571c9b9698a"
       },
       "code" : [ {
         "coding" : [ {
@@ -747,10 +709,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Observation/1689893812457779000.7aa46dd8-e679-47f1-be5c-5fa76dd24bf0",
+    "fullUrl" : "Observation/1689962629848107000.decdc9f1-8f9f-460c-a36d-b6c8ca97b6e7",
     "resource" : {
       "resourceType" : "Observation",
-      "id" : "1689893812457779000.7aa46dd8-e679-47f1-be5c-5fa76dd24bf0",
+      "id" : "1689962629848107000.decdc9f1-8f9f-460c-a36d-b6c8ca97b6e7",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -764,9 +726,6 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
         "valueString" : "1.1"
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueCodeableConcept" : { }
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
@@ -781,44 +740,28 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "INFLUBPCR",
-              "display" : "INFLUENZA B PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "40982-1"
-        } ],
-        "text" : "Influenza virus B RNA [Presence] in Unspecified specimen by NAA with probe detection"
+          "code" : "40982-1",
+          "display" : "Influenza virus B RNA [Presence] in Unspecified specimen by NAA with probe detection"
+        }, {
+          "system" : "L",
+          "code" : "INFLUBPCR",
+          "display" : "INFLUENZA B PCR"
+        } ]
       },
       "subject" : {
-        "reference" : "Patient/1689893812251792000.51f07951-ab9c-426c-8c1c-93e3b5b7ee22"
+        "reference" : "Patient/1689962629652316000.7a547f41-0899-49f6-8cff-9fc7d17dc2fa"
       },
       "encounter" : {
-        "reference" : "Encounter/1689893812315830000.58c3d5a8-7f63-47e7-a748-9bf70933111d"
+        "reference" : "Encounter/1689962629739045000.883b2970-c389-45c8-b5ca-27014b417c95"
       },
       "effectiveDateTime" : "2022-06-21T13:36:00-06:00",
       "issued" : "2022-08-03T04:06:00-06:00",
       "performer" : [ {
-        "reference" : "PractitionerRole/1689893812456215000.f4a3c260-db2d-488c-8eb8-5408de452f60"
+        "reference" : "PractitionerRole/1689962629845903000.5cbf45a5-4d51-40df-9827-e1dde5864440"
       } ],
       "valueCodeableConcept" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "NEGATIVE",
-              "display" : "NEGATIVE"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
           "code" : "*********",
@@ -831,10 +774,10 @@
       }
     }
   }, {
-    "fullUrl" : "Location/1689893812450685000.61e5a1d5-11dd-4f3b-a281-7d0b7e5f4501",
+    "fullUrl" : "Location/1689962629836547000.e0753475-cf58-42c9-8ad0-7fa34cdf560d",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "1689893812450685000.61e5a1d5-11dd-4f3b-a281-7d0b7e5f4501",
+      "id" : "1689962629836547000.e0753475-cf58-42c9-8ad0-7fa34cdf560d",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -848,10 +791,10 @@
       "name" : "N. SUBURBAN MED. CEN"
     }
   }, {
-    "fullUrl" : "Practitioner/1689893812451444000.0ef186f4-d8d5-483f-b20b-f37d7b72dd00",
+    "fullUrl" : "Practitioner/1689962629840050000.5c0e62fa-37a3-4554-adfb-ac09da9bfbd6",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1689893812451444000.0ef186f4-d8d5-483f-b20b-f37d7b72dd00",
+      "id" : "1689962629840050000.5c0e62fa-37a3-4554-adfb-ac09da9bfbd6",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -873,7 +816,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility",
         "valueReference" : {
-          "reference" : "Location/1689893812450685000.61e5a1d5-11dd-4f3b-a281-7d0b7e5f4501"
+          "reference" : "Location/1689962629836547000.e0753475-cf58-42c9-8ad0-7fa34cdf560d"
         }
       } ],
       "identifier" : [ {
@@ -899,10 +842,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1689893812455871000.8c968d16-8362-4b09-955b-369ae3ff5a45",
+    "fullUrl" : "Organization/1689962629845666000.af4ec315-dce5-4954-b6b0-4505e574faa6",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1689893812455871000.8c968d16-8362-4b09-955b-369ae3ff5a45",
+      "id" : "1689962629845666000.af4ec315-dce5-4954-b6b0-4505e574faa6",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -945,10 +888,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/1689893812456215000.f4a3c260-db2d-488c-8eb8-5408de452f60",
+    "fullUrl" : "PractitionerRole/1689962629845903000.5cbf45a5-4d51-40df-9827-e1dde5864440",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "1689893812456215000.f4a3c260-db2d-488c-8eb8-5408de452f60",
+      "id" : "1689962629845903000.5cbf45a5-4d51-40df-9827-e1dde5864440",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -960,10 +903,10 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/1689893812451444000.0ef186f4-d8d5-483f-b20b-f37d7b72dd00"
+        "reference" : "Practitioner/1689962629840050000.5c0e62fa-37a3-4554-adfb-ac09da9bfbd6"
       },
       "organization" : {
-        "reference" : "Organization/1689893812455871000.8c968d16-8362-4b09-955b-369ae3ff5a45"
+        "reference" : "Organization/1689962629845666000.af4ec315-dce5-4954-b6b0-4505e574faa6"
       },
       "code" : [ {
         "coding" : [ {
@@ -973,10 +916,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Specimen/1689893812719669000.4e3f4d32-e088-4a73-a67f-51001c242316",
+    "fullUrl" : "Specimen/1689962630154063000.293ddc4a-8e09-4a52-bff6-7fa62da3cccd",
     "resource" : {
       "resourceType" : "Specimen",
-      "id" : "1689893812719669000.4e3f4d32-e088-4a73-a67f-51001c242316",
+      "id" : "1689962630154063000.293ddc4a-8e09-4a52-bff6-7fa62da3cccd",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -999,21 +942,6 @@
         "value" : "M7586249"
       } ],
       "type" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
-                "valueString" : "5.67"
-              } ],
-              "system" : "L",
-              "version" : "**********",
-              "code" : "NASAL/NP",
-              "display" : "NASAL/NP SWAB"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
           "version" : "**********",
@@ -1049,10 +977,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Specimen/1689893812722936000.bdb57247-8456-4725-8d66-a16f59684841",
+    "fullUrl" : "Specimen/1689962630157637000.1917cb2b-1469-4a54-b1df-181a2bb3a8bd",
     "resource" : {
       "resourceType" : "Specimen",
-      "id" : "1689893812722936000.bdb57247-8456-4725-8d66-a16f59684841",
+      "id" : "1689962630157637000.1917cb2b-1469-4a54-b1df-181a2bb3a8bd",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -1075,21 +1003,6 @@
         "value" : "M7586249"
       } ],
       "type" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
-                "valueString" : "5.67"
-              } ],
-              "system" : "L",
-              "version" : "**********",
-              "code" : "NASAL/NP",
-              "display" : "NASAL/NP SWAB"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
           "version" : "**********",
@@ -1125,10 +1038,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Specimen/1689893812725849000.f24c0965-6352-4b6e-8b47-a749bfc41c86",
+    "fullUrl" : "Specimen/1689962630161163000.3eb7bdcc-2579-4c55-ace9-b7d55db53d20",
     "resource" : {
       "resourceType" : "Specimen",
-      "id" : "1689893812725849000.f24c0965-6352-4b6e-8b47-a749bfc41c86",
+      "id" : "1689962630161163000.3eb7bdcc-2579-4c55-ace9-b7d55db53d20",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -1151,21 +1064,6 @@
         "value" : "M7586249"
       } ],
       "type" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
-                "valueString" : "5.67"
-              } ],
-              "system" : "L",
-              "version" : "**********",
-              "code" : "NASAL/NP",
-              "display" : "NASAL/NP SWAB"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
           "version" : "**********",
@@ -1201,10 +1099,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "DiagnosticReport/1689893812775461000.977e9a56-66fc-459e-935a-de0d70d2c821",
+    "fullUrl" : "DiagnosticReport/1689962630228619000.4b10b8da-4cac-4d05-a103-446b11657f40",
     "resource" : {
       "resourceType" : "DiagnosticReport",
-      "id" : "1689893812775461000.977e9a56-66fc-459e-935a-de0d70d2c821",
+      "id" : "1689962630228619000.4b10b8da-4cac-4d05-a103-446b11657f40",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -1285,31 +1183,25 @@
         "value" : "22:NB:B0016908S.2"
       } ],
       "basedOn" : [ {
-        "reference" : "ServiceRequest/1689893812785351000.8864c2a2-f990-41ba-b6d7-c054c7d3fce8"
+        "reference" : "ServiceRequest/1689962630249156000.a147dece-96b4-4157-97cb-92034370425c"
       } ],
       "status" : "final",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVID19IHCE",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVID19IHCE",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
-        "reference" : "Patient/1689893812251792000.51f07951-ab9c-426c-8c1c-93e3b5b7ee22"
+        "reference" : "Patient/1689962629652316000.7a547f41-0899-49f6-8cff-9fc7d17dc2fa"
       },
       "encounter" : {
-        "reference" : "Encounter/1689893812315830000.58c3d5a8-7f63-47e7-a748-9bf70933111d"
+        "reference" : "Encounter/1689962629739045000.883b2970-c389-45c8-b5ca-27014b417c95"
       },
       "effectivePeriod" : {
         "start" : "2022-06-21T13:36:00-06:00",
@@ -1317,17 +1209,17 @@
       },
       "issued" : "2022-08-03T04:06:00-06:00",
       "specimen" : [ {
-        "reference" : "Specimen/1689893812719669000.4e3f4d32-e088-4a73-a67f-51001c242316"
+        "reference" : "Specimen/1689962630154063000.293ddc4a-8e09-4a52-bff6-7fa62da3cccd"
       } ],
       "result" : [ {
-        "reference" : "Observation/1689893812394941000.a3f76bd7-11e8-4985-b68c-b3c9bfd91fe1"
+        "reference" : "Observation/1689962629803365000.67d4e831-a755-4da9-ba5a-9792a5726637"
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/1689893812784816000.0e343566-c967-4264-a2a7-bd83cd24bb08",
+    "fullUrl" : "Practitioner/1689962630247785000.4688ebb4-2d8d-440b-b043-a8cb7d3e5a75",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1689893812784816000.0e343566-c967-4264-a2a7-bd83cd24bb08",
+      "id" : "1689962630247785000.4688ebb4-2d8d-440b-b043-a8cb7d3e5a75",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -1345,10 +1237,10 @@
       "identifier" : [ { } ]
     }
   }, {
-    "fullUrl" : "Practitioner/1689893812787982000.bfcc95d8-f9d3-475e-b844-f6bce03a4cc5",
+    "fullUrl" : "Practitioner/1689962630252390000.7f12416c-0e5a-4284-9620-e084d6389321",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1689893812787982000.bfcc95d8-f9d3-475e-b844-f6bce03a4cc5",
+      "id" : "1689962630252390000.7f12416c-0e5a-4284-9620-e084d6389321",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -1383,10 +1275,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1689893812792092000.01703570-2ed0-4885-833f-a56348b72019",
+    "fullUrl" : "Organization/1689962630258774000.847782a6-3c5a-4c24-9d40-c2d5dea9e742",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1689893812792092000.01703570-2ed0-4885-833f-a56348b72019",
+      "id" : "1689962630258774000.847782a6-3c5a-4c24-9d40-c2d5dea9e742",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -1440,10 +1332,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/1689893812792315000.52815896-f864-4bf0-966b-0678bace77ea",
+    "fullUrl" : "PractitionerRole/1689962630259023000.045dc185-1e9e-46f6-9832-f65c99a17bbc",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "1689893812792315000.52815896-f864-4bf0-966b-0678bace77ea",
+      "id" : "1689962630259023000.045dc185-1e9e-46f6-9832-f65c99a17bbc",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -1459,17 +1351,17 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/1689893812787982000.bfcc95d8-f9d3-475e-b844-f6bce03a4cc5"
+        "reference" : "Practitioner/1689962630252390000.7f12416c-0e5a-4284-9620-e084d6389321"
       },
       "organization" : {
-        "reference" : "Organization/1689893812792092000.01703570-2ed0-4885-833f-a56348b72019"
+        "reference" : "Organization/1689962630258774000.847782a6-3c5a-4c24-9d40-c2d5dea9e742"
       }
     }
   }, {
-    "fullUrl" : "ServiceRequest/1689893812785351000.8864c2a2-f990-41ba-b6d7-c054c7d3fce8",
+    "fullUrl" : "ServiceRequest/1689962630249156000.a147dece-96b4-4157-97cb-92034370425c",
     "resource" : {
       "resourceType" : "ServiceRequest",
-      "id" : "1689893812785351000.8864c2a2-f990-41ba-b6d7-c054c7d3fce8",
+      "id" : "1689962630249156000.a147dece-96b4-4157-97cb-92034370425c",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -1496,7 +1388,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier",
         "valueReference" : {
-          "reference" : "Practitioner/1689893812784816000.0e343566-c967-4264-a2a7-bd83cd24bb08"
+          "reference" : "Practitioner/1689962630247785000.4688ebb4-2d8d-440b-b043-a8cb7d3e5a75"
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization",
@@ -1579,35 +1471,29 @@
       "status" : "unknown",
       "intent" : "order",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVID19IHCE",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVID19IHCE",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
-        "reference" : "Patient/1689893812251792000.51f07951-ab9c-426c-8c1c-93e3b5b7ee22"
+        "reference" : "Patient/1689962629652316000.7a547f41-0899-49f6-8cff-9fc7d17dc2fa"
       },
       "occurrenceDateTime" : "2022-06-21T13:36:00Z",
       "requester" : {
-        "reference" : "PractitionerRole/1689893812792315000.52815896-f864-4bf0-966b-0678bace77ea"
+        "reference" : "PractitionerRole/1689962630259023000.045dc185-1e9e-46f6-9832-f65c99a17bbc"
       }
     }
   }, {
-    "fullUrl" : "DiagnosticReport/1689893812805334000.5ccfccb9-1c5d-444c-8f79-afa128699910",
+    "fullUrl" : "DiagnosticReport/1689962630276848000.5c7545e0-215b-4f78-a98f-ad6c76524105",
     "resource" : {
       "resourceType" : "DiagnosticReport",
-      "id" : "1689893812805334000.5ccfccb9-1c5d-444c-8f79-afa128699910",
+      "id" : "1689962630276848000.5c7545e0-215b-4f78-a98f-ad6c76524105",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -1676,31 +1562,25 @@
         "value" : "22:NB:B0016908S.3"
       } ],
       "basedOn" : [ {
-        "reference" : "ServiceRequest/1689893812813452000.f19f7036-c0f8-4a23-9338-3cd6935d698d"
+        "reference" : "ServiceRequest/1689962630281895000.3d844376-58f6-4281-8087-ff2ea2acb19e"
       } ],
       "status" : "final",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "INFLAPCR",
-              "display" : "INFLUENZA A VIRUS PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "34487-9"
-        } ],
-        "text" : "Influenza virus A RNA [Presence] in Unspecified specimen by NAA with probe detection"
+          "code" : "34487-9",
+          "display" : "Influenza virus A RNA [Presence] in Unspecified specimen by NAA with probe detection"
+        }, {
+          "system" : "L",
+          "code" : "INFLAPCR",
+          "display" : "INFLUENZA A VIRUS PCR"
+        } ]
       },
       "subject" : {
-        "reference" : "Patient/1689893812251792000.51f07951-ab9c-426c-8c1c-93e3b5b7ee22"
+        "reference" : "Patient/1689962629652316000.7a547f41-0899-49f6-8cff-9fc7d17dc2fa"
       },
       "encounter" : {
-        "reference" : "Encounter/1689893812315830000.58c3d5a8-7f63-47e7-a748-9bf70933111d"
+        "reference" : "Encounter/1689962629739045000.883b2970-c389-45c8-b5ca-27014b417c95"
       },
       "effectivePeriod" : {
         "start" : "2022-06-21T13:36:00-06:00",
@@ -1708,17 +1588,17 @@
       },
       "issued" : "2022-08-03T04:06:00-06:00",
       "specimen" : [ {
-        "reference" : "Specimen/1689893812722936000.bdb57247-8456-4725-8d66-a16f59684841"
+        "reference" : "Specimen/1689962630157637000.1917cb2b-1469-4a54-b1df-181a2bb3a8bd"
       } ],
       "result" : [ {
-        "reference" : "Observation/1689893812442642000.94e7db76-45ca-4e21-a505-9c77606d3eca"
+        "reference" : "Observation/1689962629831222000.0ac175e5-40f6-42d5-b72b-6a9fa6f493d0"
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/1689893812812711000.5d32bc27-d90c-469c-a9da-a5516c694439",
+    "fullUrl" : "Practitioner/1689962630281077000.d5c38d2a-6158-4a82-817a-26561edf9968",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1689893812812711000.5d32bc27-d90c-469c-a9da-a5516c694439",
+      "id" : "1689962630281077000.d5c38d2a-6158-4a82-817a-26561edf9968",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -1736,10 +1616,10 @@
       "identifier" : [ { } ]
     }
   }, {
-    "fullUrl" : "Practitioner/1689893812818846000.5c9d4e7a-66a2-4e92-b0c5-4631762e7a1b",
+    "fullUrl" : "Practitioner/1689962630285836000.652694c6-67ac-4490-9079-162abb295a54",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1689893812818846000.5c9d4e7a-66a2-4e92-b0c5-4631762e7a1b",
+      "id" : "1689962630285836000.652694c6-67ac-4490-9079-162abb295a54",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -1774,10 +1654,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1689893812833429000.52dd282d-c04d-4d80-9f0a-c2cb1a0e2489",
+    "fullUrl" : "Organization/1689962630293322000.396d94f5-61cf-403d-8cc3-868efdc4ec5a",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1689893812833429000.52dd282d-c04d-4d80-9f0a-c2cb1a0e2489",
+      "id" : "1689962630293322000.396d94f5-61cf-403d-8cc3-868efdc4ec5a",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -1831,10 +1711,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/1689893812833706000.db3b3ac6-4ab3-4388-b9b3-1fd9da2f21a6",
+    "fullUrl" : "PractitionerRole/1689962630293580000.a5d3ca3b-a125-4923-a462-1ec8479b42a8",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "1689893812833706000.db3b3ac6-4ab3-4388-b9b3-1fd9da2f21a6",
+      "id" : "1689962630293580000.a5d3ca3b-a125-4923-a462-1ec8479b42a8",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -1850,17 +1730,17 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/1689893812818846000.5c9d4e7a-66a2-4e92-b0c5-4631762e7a1b"
+        "reference" : "Practitioner/1689962630285836000.652694c6-67ac-4490-9079-162abb295a54"
       },
       "organization" : {
-        "reference" : "Organization/1689893812833429000.52dd282d-c04d-4d80-9f0a-c2cb1a0e2489"
+        "reference" : "Organization/1689962630293322000.396d94f5-61cf-403d-8cc3-868efdc4ec5a"
       }
     }
   }, {
-    "fullUrl" : "ServiceRequest/1689893812813452000.f19f7036-c0f8-4a23-9338-3cd6935d698d",
+    "fullUrl" : "ServiceRequest/1689962630281895000.3d844376-58f6-4281-8087-ff2ea2acb19e",
     "resource" : {
       "resourceType" : "ServiceRequest",
-      "id" : "1689893812813452000.f19f7036-c0f8-4a23-9338-3cd6935d698d",
+      "id" : "1689962630281895000.3d844376-58f6-4281-8087-ff2ea2acb19e",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -1887,7 +1767,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier",
         "valueReference" : {
-          "reference" : "Practitioner/1689893812812711000.5d32bc27-d90c-469c-a9da-a5516c694439"
+          "reference" : "Practitioner/1689962630281077000.d5c38d2a-6158-4a82-817a-26561edf9968"
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization",
@@ -1958,35 +1838,29 @@
       "status" : "unknown",
       "intent" : "order",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "INFLAPCR",
-              "display" : "INFLUENZA A VIRUS PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "34487-9"
-        } ],
-        "text" : "Influenza virus A RNA [Presence] in Unspecified specimen by NAA with probe detection"
+          "code" : "34487-9",
+          "display" : "Influenza virus A RNA [Presence] in Unspecified specimen by NAA with probe detection"
+        }, {
+          "system" : "L",
+          "code" : "INFLAPCR",
+          "display" : "INFLUENZA A VIRUS PCR"
+        } ]
       },
       "subject" : {
-        "reference" : "Patient/1689893812251792000.51f07951-ab9c-426c-8c1c-93e3b5b7ee22"
+        "reference" : "Patient/1689962629652316000.7a547f41-0899-49f6-8cff-9fc7d17dc2fa"
       },
       "occurrenceDateTime" : "2022-06-21T13:36:00Z",
       "requester" : {
-        "reference" : "PractitionerRole/1689893812833706000.db3b3ac6-4ab3-4388-b9b3-1fd9da2f21a6"
+        "reference" : "PractitionerRole/1689962630293580000.a5d3ca3b-a125-4923-a462-1ec8479b42a8"
       }
     }
   }, {
-    "fullUrl" : "DiagnosticReport/1689893812840059000.3dd6e260-f2c9-4596-8d87-7200d62420bc",
+    "fullUrl" : "DiagnosticReport/1689962630298941000.9d2ab645-dc2b-4a97-9e2d-69bcd8f0f813",
     "resource" : {
       "resourceType" : "DiagnosticReport",
-      "id" : "1689893812840059000.3dd6e260-f2c9-4596-8d87-7200d62420bc",
+      "id" : "1689962630298941000.9d2ab645-dc2b-4a97-9e2d-69bcd8f0f813",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -2055,31 +1929,25 @@
         "value" : "22:NB:B0016908S.4"
       } ],
       "basedOn" : [ {
-        "reference" : "ServiceRequest/1689893812846675000.1469dcea-0c56-4234-9711-eac3bebf8106"
+        "reference" : "ServiceRequest/1689962630305849000.21e21326-4173-4137-828f-7be6c74b3900"
       } ],
       "status" : "final",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "INFLBPCR",
-              "display" : "INFLUENZA B VIRUS PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "40982-1"
-        } ],
-        "text" : "Influenza virus B RNA [Presence] in Unspecified specimen by NAA with probe detection"
+          "code" : "40982-1",
+          "display" : "Influenza virus B RNA [Presence] in Unspecified specimen by NAA with probe detection"
+        }, {
+          "system" : "L",
+          "code" : "INFLBPCR",
+          "display" : "INFLUENZA B VIRUS PCR"
+        } ]
       },
       "subject" : {
-        "reference" : "Patient/1689893812251792000.51f07951-ab9c-426c-8c1c-93e3b5b7ee22"
+        "reference" : "Patient/1689962629652316000.7a547f41-0899-49f6-8cff-9fc7d17dc2fa"
       },
       "encounter" : {
-        "reference" : "Encounter/1689893812315830000.58c3d5a8-7f63-47e7-a748-9bf70933111d"
+        "reference" : "Encounter/1689962629739045000.883b2970-c389-45c8-b5ca-27014b417c95"
       },
       "effectivePeriod" : {
         "start" : "2022-06-21T13:36:00-06:00",
@@ -2087,17 +1955,17 @@
       },
       "issued" : "2022-08-03T04:06:00-06:00",
       "specimen" : [ {
-        "reference" : "Specimen/1689893812725849000.f24c0965-6352-4b6e-8b47-a749bfc41c86"
+        "reference" : "Specimen/1689962630161163000.3eb7bdcc-2579-4c55-ace9-b7d55db53d20"
       } ],
       "result" : [ {
-        "reference" : "Observation/1689893812457779000.7aa46dd8-e679-47f1-be5c-5fa76dd24bf0"
+        "reference" : "Observation/1689962629848107000.decdc9f1-8f9f-460c-a36d-b6c8ca97b6e7"
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/1689893812845986000.9013f5fd-de78-4f5e-a7b0-5d7322c22b17",
+    "fullUrl" : "Practitioner/1689962630305285000.3a9e6a12-1e7b-4bd3-8a81-65b28a0e4fe0",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1689893812845986000.9013f5fd-de78-4f5e-a7b0-5d7322c22b17",
+      "id" : "1689962630305285000.3a9e6a12-1e7b-4bd3-8a81-65b28a0e4fe0",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -2115,10 +1983,10 @@
       "identifier" : [ { } ]
     }
   }, {
-    "fullUrl" : "Practitioner/1689893812848446000.e66ad03b-748d-4fe1-890a-6a3acf6a805e",
+    "fullUrl" : "Practitioner/1689962630307737000.f79f2fad-baee-4905-bdd6-f7e379713f37",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1689893812848446000.e66ad03b-748d-4fe1-890a-6a3acf6a805e",
+      "id" : "1689962630307737000.f79f2fad-baee-4905-bdd6-f7e379713f37",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -2153,10 +2021,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1689893812852436000.41014b75-47e1-4ed5-9350-21ac7b78d000",
+    "fullUrl" : "Organization/1689962630314550000.99acd3e6-ff4b-4e08-b123-a6c8184c327a",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1689893812852436000.41014b75-47e1-4ed5-9350-21ac7b78d000",
+      "id" : "1689962630314550000.99acd3e6-ff4b-4e08-b123-a6c8184c327a",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -2210,10 +2078,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/1689893812852640000.15e13c24-5c43-4956-a2c6-3c424271d26b",
+    "fullUrl" : "PractitionerRole/1689962630314779000.8a9f67e2-0bf0-4a79-8252-f2b4cd445ed5",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "1689893812852640000.15e13c24-5c43-4956-a2c6-3c424271d26b",
+      "id" : "1689962630314779000.8a9f67e2-0bf0-4a79-8252-f2b4cd445ed5",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -2229,17 +2097,17 @@
         } ]
       },
       "practitioner" : {
-        "reference" : "Practitioner/1689893812848446000.e66ad03b-748d-4fe1-890a-6a3acf6a805e"
+        "reference" : "Practitioner/1689962630307737000.f79f2fad-baee-4905-bdd6-f7e379713f37"
       },
       "organization" : {
-        "reference" : "Organization/1689893812852436000.41014b75-47e1-4ed5-9350-21ac7b78d000"
+        "reference" : "Organization/1689962630314550000.99acd3e6-ff4b-4e08-b123-a6c8184c327a"
       }
     }
   }, {
-    "fullUrl" : "ServiceRequest/1689893812846675000.1469dcea-0c56-4234-9711-eac3bebf8106",
+    "fullUrl" : "ServiceRequest/1689962630305849000.21e21326-4173-4137-828f-7be6c74b3900",
     "resource" : {
       "resourceType" : "ServiceRequest",
-      "id" : "1689893812846675000.1469dcea-0c56-4234-9711-eac3bebf8106",
+      "id" : "1689962630305849000.21e21326-4173-4137-828f-7be6c74b3900",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -2266,7 +2134,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier",
         "valueReference" : {
-          "reference" : "Practitioner/1689893812845986000.9013f5fd-de78-4f5e-a7b0-5d7322c22b17"
+          "reference" : "Practitioner/1689962630305285000.3a9e6a12-1e7b-4bd3-8a81-65b28a0e4fe0"
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization",
@@ -2337,35 +2205,29 @@
       "status" : "unknown",
       "intent" : "order",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "INFLBPCR",
-              "display" : "INFLUENZA B VIRUS PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "40982-1"
-        } ],
-        "text" : "Influenza virus B RNA [Presence] in Unspecified specimen by NAA with probe detection"
+          "code" : "40982-1",
+          "display" : "Influenza virus B RNA [Presence] in Unspecified specimen by NAA with probe detection"
+        }, {
+          "system" : "L",
+          "code" : "INFLBPCR",
+          "display" : "INFLUENZA B VIRUS PCR"
+        } ]
       },
       "subject" : {
-        "reference" : "Patient/1689893812251792000.51f07951-ab9c-426c-8c1c-93e3b5b7ee22"
+        "reference" : "Patient/1689962629652316000.7a547f41-0899-49f6-8cff-9fc7d17dc2fa"
       },
       "occurrenceDateTime" : "2022-06-21T13:36:00Z",
       "requester" : {
-        "reference" : "PractitionerRole/1689893812852640000.15e13c24-5c43-4956-a2c6-3c424271d26b"
+        "reference" : "PractitionerRole/1689962630314779000.8a9f67e2-0bf0-4a79-8252-f2b4cd445ed5"
       }
     }
   }, {
-    "fullUrl" : "Patient/1689893812251792000.51f07951-ab9c-426c-8c1c-93e3b5b7ee22",
+    "fullUrl" : "Patient/1689962629652316000.7a547f41-0899-49f6-8cff-9fc7d17dc2fa",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1689893812251792000.51f07951-ab9c-426c-8c1c-93e3b5b7ee22",
+      "id" : "1689962629652316000.7a547f41-0899-49f6-8cff-9fc7d17dc2fa",
       "meta" : {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/last-updated-facility-namespace-id",
@@ -2397,9 +2259,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "L",
-            "code" : "W"
-          } ],
-          "text" : "White"
+            "code" : "W",
+            "display" : "White"
+          } ]
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group",
@@ -2411,21 +2273,15 @@
       }, {
         "url" : "http://hl7.org/fhir/StructureDefinition/patient-animal",
         "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "Human",
-                "display" : "Human"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "http://snomed.info/sct",
-            "code" : "337915000"
-          } ],
-          "text" : "Homo sapiens (organism)"
+            "code" : "337915000",
+            "display" : "Homo sapiens (organism)"
+          }, {
+            "system" : "L",
+            "code" : "Human",
+            "display" : "Human"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -2513,21 +2369,15 @@
       },
       "contact" : [ {
         "relationship" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "SO",
-                "display" : "SON"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "UNKNOWN",
-            "code" : "SO"
-          } ],
-          "text" : "SON"
+            "code" : "SO",
+            "display" : "SON"
+          }, {
+            "system" : "L",
+            "code" : "SO",
+            "display" : "SON"
+          } ]
         } ],
         "name" : {
           "text" : "Kin Connelly",
@@ -2547,10 +2397,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Encounter/1689893812315830000.58c3d5a8-7f63-47e7-a748-9bf70933111d",
+    "fullUrl" : "Encounter/1689962629739045000.883b2970-c389-45c8-b5ca-27014b417c95",
     "resource" : {
       "resourceType" : "Encounter",
-      "id" : "1689893812315830000.58c3d5a8-7f63-47e7-a748-9bf70933111d",
+      "id" : "1689962629739045000.883b2970-c389-45c8-b5ca-27014b417c95",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -2596,7 +2446,7 @@
         } ]
       } ],
       "subject" : {
-        "reference" : "Patient/1689893812251792000.51f07951-ab9c-426c-8c1c-93e3b5b7ee22"
+        "reference" : "Patient/1689962629652316000.7a547f41-0899-49f6-8cff-9fc7d17dc2fa"
       },
       "participant" : [ {
         "type" : [ {
@@ -2607,7 +2457,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/1689893812304213000.dae9f8fe-8b66-4767-a763-06c43c407d26"
+          "reference" : "Practitioner/1689962629728489000.1ac1a181-d9d5-4872-a910-d05657f398b9"
         }
       }, {
         "type" : [ {
@@ -2618,7 +2468,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/1689893812313822000.5851fd56-ab3f-44ec-8f57-bb2c9d552939"
+          "reference" : "Practitioner/1689962629738056000.03fe1e61-7dba-4e4b-8bcb-139b3cf5bc78"
         }
       }, {
         "type" : [ {
@@ -2629,7 +2479,7 @@
           } ]
         } ],
         "individual" : {
-          "reference" : "Practitioner/1689893812318107000.321baf00-5ec5-4eca-9d0e-c048c0912802"
+          "reference" : "Practitioner/1689962629742294000.a75791af-533c-4abe-b6f9-2d42d4672f84"
         }
       } ],
       "hospitalization" : {
@@ -2641,16 +2491,16 @@
       },
       "location" : [ {
         "location" : {
-          "reference" : "Location/1689893812354492000.f8327d58-5479-478f-ad4d-5ef27be7c1bd"
+          "reference" : "Location/1689962629782237000.ea64823a-4295-4b49-ad5b-ee76a3c97d6e"
         },
         "status" : "active"
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/1689893812304213000.dae9f8fe-8b66-4767-a763-06c43c407d26",
+    "fullUrl" : "Practitioner/1689962629728489000.1ac1a181-d9d5-4872-a910-d05657f398b9",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1689893812304213000.dae9f8fe-8b66-4767-a763-06c43c407d26",
+      "id" : "1689962629728489000.1ac1a181-d9d5-4872-a910-d05657f398b9",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -2672,10 +2522,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/1689893812313822000.5851fd56-ab3f-44ec-8f57-bb2c9d552939",
+    "fullUrl" : "Practitioner/1689962629738056000.03fe1e61-7dba-4e4b-8bcb-139b3cf5bc78",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1689893812313822000.5851fd56-ab3f-44ec-8f57-bb2c9d552939",
+      "id" : "1689962629738056000.03fe1e61-7dba-4e4b-8bcb-139b3cf5bc78",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -2697,10 +2547,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Practitioner/1689893812318107000.321baf00-5ec5-4eca-9d0e-c048c0912802",
+    "fullUrl" : "Practitioner/1689962629742294000.a75791af-533c-4abe-b6f9-2d42d4672f84",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1689893812318107000.321baf00-5ec5-4eca-9d0e-c048c0912802",
+      "id" : "1689962629742294000.a75791af-533c-4abe-b6f9-2d42d4672f84",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -2722,10 +2572,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Location/1689893812354492000.f8327d58-5479-478f-ad4d-5ef27be7c1bd",
+    "fullUrl" : "Location/1689962629782237000.ea64823a-4295-4b49-ad5b-ee76a3c97d6e",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "1689893812354492000.f8327d58-5479-478f-ad4d-5ef27be7c1bd",
+      "id" : "1689962629782237000.ea64823a-4295-4b49-ad5b-ee76a3c97d6e",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",

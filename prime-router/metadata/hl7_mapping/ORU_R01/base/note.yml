@@ -14,28 +14,7 @@ elements:
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-3' ]
 
   - name: note-comment-type-identifier
-    value: [ '%noteDetails.extension(%`rsext-note-type`).value.coding.code' ]
-    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-1' ]
-
-  - name: note-comment-type-text
-    value: [ '%noteDetails.extension(%`rsext-note-type`).value.text' ]
-    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-2' ]
-
-  - name: note-comment-type-coding-system
-    value: [ '%noteDetails.extension(%`rsext-note-type`).value.coding.system' ]
-    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-3' ]
-
-  - name: note-comment-type-alt-identifier
-    resource: '%noteDetails.extension(%`rsext-note-type`).value.extension(%`rsext-alternate-identifier`)'
-    value: [ '%resource.value.coding.code' ]
-    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-4' ]
-
-  - name: note-comment-type-alt-text
-    resource: '%noteDetails.extension(%`rsext-note-type`).value.extension(%`rsext-alternate-identifier`)'
-    value: [ '%resource.value.coding.display' ]
-    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-5' ]
-
-  - name: note-comment-type-alt-coding-system
-    resource: '%noteDetails.extension(%`rsext-note-type`).value.extension(%`rsext-alternate-identifier`)'
-    value: [ '%resource.value.coding.system' ]
-    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-4-6' ]
+    resource: '%noteDetails.extension(%`rsext-note-type`).value'
+    constants:
+      ceFieldPath: '%{hl7NotePath}/NTE(%{noteIndex})-4'
+    schema: ../../common/datatype/ce-coded-element

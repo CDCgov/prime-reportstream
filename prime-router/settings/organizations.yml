@@ -1025,7 +1025,7 @@
       externalName: ELIMS Development
       organizationName: development
       topic: elr-elims
-      customerStatus: inactive
+      customerStatus: active
       jurisdictionalFilter: [ "true" ]
       qualityFilter:
         - "true"
@@ -1051,7 +1051,7 @@
       externalName: ELIMS Development
       organizationName: development
       topic: elr-elims
-      customerStatus: inactive
+      customerStatus: active
       jurisdictionalFilter: [ "true" ]
       qualityFilter:
         - "true"

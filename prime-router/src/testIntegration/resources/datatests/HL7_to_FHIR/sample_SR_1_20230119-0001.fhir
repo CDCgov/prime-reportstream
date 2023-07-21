@@ -12703,22 +12703,15 @@
           "extension" : [ {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
             "valueCodeableConcept" : {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-                "valueCodeableConcept" : {
-                  "coding" : [ {
-                    "system" : "L",
-                    "code" : "C",
-                    "display" : "Comment"
-                  } ]
-                }
-              } ],
               "coding" : [ {
                 "system" : "HL70364",
-                "version" : "L",
-                "code" : "RE"
-              } ],
-              "text" : "Remark"
+                "code" : "RE",
+                "display" : "Remark"
+              }, {
+                "system" : "L",
+                "code" : "C",
+                "display" : "Comment"
+              } ]
             }
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
@@ -12741,22 +12734,15 @@
       }, {
         "url" : "http://hl7.org/fhir/StructureDefinition/patient-animal",
         "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "Human",
-                "display" : "Human"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "http://snomed.info/sct",
-            "version" : "L",
-            "code" : "337915000"
-          } ],
-          "text" : "Homo sapiens (organism)"
+            "code" : "337915000",
+            "display" : "Homo sapiens (organism)"
+          }, {
+            "system" : "L",
+            "code" : "Human",
+            "display" : "Human"
+          } ]
         }
       } ],
       "identifier" : [ {
