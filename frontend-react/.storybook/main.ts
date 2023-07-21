@@ -8,7 +8,6 @@ import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 const config: StorybookConfig = {
     stories: [
         "../src/**/*.mdx",
-        "../src/**/*.stories.mdx",
         "../src/**/*.stories.@(js|jsx|ts|tsx)",
         "./UtilizedUSWDSComponents/*.stories.@(js|jsx|ts|tsx)",
     ],
