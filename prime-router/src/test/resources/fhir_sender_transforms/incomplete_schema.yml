@@ -6,9 +6,6 @@ elements:
     condition: ‘%resource.address.country.exists().not()’
     bundleProperty: ‘%resource.address.country’
     value: [ ‘“USA”’ ]
-    valueSet:
-      key: value
-      key2: value
   - name: report-index
     resource: ‘Bundle.entry.resource.ofType(DiagnosticReport)’
     resourceIndex: orderIndex
