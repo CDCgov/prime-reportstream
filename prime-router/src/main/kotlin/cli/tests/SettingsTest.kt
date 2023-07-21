@@ -126,7 +126,7 @@ class SettingsTest : CoolTest() {
             val queryPass = runApiQuery(it)
             if (queryPass) good("Test Passed:  ${it.name}")
             queryPass
-        }.reduce { acc, onePassed -> acc and onePassed }
+        }.all { true }
         return allPassed
     }
 
