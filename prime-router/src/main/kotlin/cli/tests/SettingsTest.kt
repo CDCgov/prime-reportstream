@@ -1,7 +1,5 @@
 package gov.cdc.prime.router.cli.tests
 
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.extensions.authentication
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.cli.SettingCommand
@@ -9,24 +7,6 @@ import gov.cdc.prime.router.cli.SettingsUtilities
 import gov.cdc.prime.router.common.Environment
 import org.apache.http.HttpStatus
 import java.net.HttpURLConnection
-
-/**
- * Container for data used on Settings API Tests
- * @property name Human-readable name of this test case
- * @property path REST API path for this test
- * @property headers HTTP headers to send in this test
- * @property parameters to tack onto the end of the query
- * @property bearer token to pass as an Authorization: Bearer token for this test case
- * @property expectedHttpStatus for quick verification of the response status
- */
-data class SettingsApiTestCase(
-    val name: String,
-    val path: String,
-    val headers: Map<String, String>,
-    val parameters: List<Pair<String, Any?>>?,
-    val bearer: String,
-    val expectedHttpStatus: com.microsoft.azure.functions.HttpStatus,
-)
 
 /**
  * Test CRUD of the Setting API.  It is smoke test that does the following steps:
@@ -53,7 +33,6 @@ class SettingsTest : CoolTest() {
     /**
      * Define private local variables for use in the test.
      */
-    private val dummyAccessToken = "dummy"
     private val settingName = "dummy"
     private val settingErrorMessage = "Test GRUD of Setting API: "
 
@@ -98,39 +77,6 @@ class SettingsTest : CoolTest() {
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting CRUD REST API ${environment.url}")
         val bearer = OktaAuthTests.getOktaAccessToken(environment, name)
-
-        val testCases = mutableListOf(
-            SettingsApiTestCase(
-                "simple history API happy path test",
-                "${environment.url}/api/waters/org/$historyTestOrgName/submissions",
-                emptyMap(),
-                listOf("pagesize" to options.submits),
-                bearer,
-                com.microsoft.azure.functions.HttpStatus.OK,
-            ),
-            SettingsApiTestCase(
-                "no such organization",
-                "${environment.url}/api/waters/org/gobblegobble/submissions",
-                emptyMap(),
-                listOf("pagesize" to options.submits),
-                bearer,
-                com.microsoft.azure.functions.HttpStatus.NOT_FOUND,
-            )
-        )
-        return runApiTestCases(testCases)
-    }
-
-    private fun runApiTestCases(testCases: List<SettingsApiTestCase>): Boolean {
-        val allPassed = testCases.map {
-            ugly("Starting test: ${it.name}")
-            val queryPass = runApiQuery(it)
-            if (queryPass) good("Test Passed:  ${it.name}")
-            queryPass
-        }.all { true }
-        return allPassed
-    }
-
-    private fun runApiQuery(testCase: SettingsApiTestCase): Boolean {
         /**
          * Obtain the URL/path endpoint
          */
@@ -144,16 +90,10 @@ class SettingsTest : CoolTest() {
          * VERIFY the dummy organization existed or not
          */
         echo("VERIFY the dummy organization existed or not...")
-
-        val (_, _, result) = Fuel.get(testCase.path, testCase.parameters)
-            .authentication()
-            .bearer(testCase.bearer)
-            .header(testCase.headers)
-            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
-            .responseString()
+        val (_, _, result) = SettingsUtilities.get(path, bearer)
         val (_, error) = result
         if (error?.response?.statusCode != HttpStatus.SC_NOT_FOUND) {
-            val (_, responseDel, resultDel) = SettingsUtilities.delete(path, dummyAccessToken)
+            val (_, responseDel, resultDel) = SettingsUtilities.delete(path, bearer)
             val (_, errorDel) = resultDel
             when (errorDel?.response?.statusCode) {
                 HttpStatus.SC_OK -> Unit
@@ -166,7 +106,7 @@ class SettingsTest : CoolTest() {
          * CREATE the dummy organization
          */
         echo("CREATE the new dummy organization...")
-        var output = SettingsUtilities.put(path, dummyAccessToken, newDummyOrganization)
+        var output = SettingsUtilities.put(path, bearer, newDummyOrganization)
         val (_, responseCreateNewDummy, _) = output
         when (responseCreateNewDummy.statusCode) {
             HttpStatus.SC_CREATED -> Unit
@@ -178,7 +118,7 @@ class SettingsTest : CoolTest() {
          * VERIFY the created dummy organization
          */
         echo("VERITY the new dummy organization was created...")
-        val (_, responseNewDummy, resultNewDummy) = SettingsUtilities.get(path, dummyAccessToken)
+        val (_, responseNewDummy, resultNewDummy) = SettingsUtilities.get(path, bearer)
         val (payloadNewDummy, errorNewDummy) = resultNewDummy
         if (errorNewDummy?.response?.statusCode == HttpStatus.SC_NOT_FOUND) {
             return bad(settingErrorMessage + responseNewDummy.responseMessage)
@@ -193,7 +133,7 @@ class SettingsTest : CoolTest() {
         /**
          * UPDATE the dummy organization
          */
-        output = SettingsUtilities.put(path, dummyAccessToken, updateDummyOrganization)
+        output = SettingsUtilities.put(path, bearer, updateDummyOrganization)
         val (_, responseCreateUpdateDummy, _) = output
         when (responseCreateUpdateDummy.statusCode) {
             HttpStatus.SC_OK -> Unit
@@ -205,7 +145,7 @@ class SettingsTest : CoolTest() {
          * VERIFY the updated dummy organization
          */
         echo("VERIFY it is the new dummy organization is updated...")
-        val (_, _, resultUpdateOrg) = SettingsUtilities.get(path, dummyAccessToken)
+        val (_, _, resultUpdateOrg) = SettingsUtilities.get(path, bearer)
         val (payload, errorUpdateDummy) = resultUpdateOrg
         if (errorUpdateDummy?.response?.statusCode == HttpStatus.SC_NOT_FOUND) {
             return bad(settingErrorMessage + "Failed on verify the new dummy organization.")
@@ -223,7 +163,7 @@ class SettingsTest : CoolTest() {
          * DELETE the updated dummy organization
          */
         echo("DELETE the updated dummy organization...")
-        val (_, responseDelUpdateOrg, resultDelUpdateOrg) = SettingsUtilities.delete(path, dummyAccessToken)
+        val (_, responseDelUpdateOrg, resultDelUpdateOrg) = SettingsUtilities.delete(path, bearer)
         val (_, errorDelUpdateOrg) = resultDelUpdateOrg
         if (errorDelUpdateOrg?.response?.statusCode == HttpStatus.SC_NOT_FOUND) {
             return bad(settingErrorMessage + "Failed on delete - " + responseDelUpdateOrg.responseMessage)
@@ -233,7 +173,7 @@ class SettingsTest : CoolTest() {
          * VERIFY the dummy organization deleted
          */
         echo("VERIFY it is the new dummy organization is deleted...")
-        val (_, responseCleanUpDummyOrg, resultCleanUpDummyOrg) = SettingsUtilities.get(path, dummyAccessToken)
+        val (_, responseCleanUpDummyOrg, resultCleanUpDummyOrg) = SettingsUtilities.get(path, bearer)
         val (_, errorDummy) = resultCleanUpDummyOrg
         if (errorDummy?.response?.statusCode != HttpStatus.SC_NOT_FOUND) {
             return bad(settingErrorMessage + "Failed cleaned up - " + responseCleanUpDummyOrg.responseMessage)
