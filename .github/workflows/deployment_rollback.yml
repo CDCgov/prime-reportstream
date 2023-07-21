@@ -2,19 +2,23 @@ name: Rollback Deployment to CandidateSlot
 
 on:
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Deployment Environment'
-        required: true
-        options:
-          - 'prod'
-          - 'staging'
-          - '${{ env_name }}'
-        type: choice
+    push:
+      branches:
+        - feature/9117-Automate-reverting-deploys
+
+    # inputs:
+    #   environment:
+    #     description: 'Deployment Environment'
+    #     required: true
+    #     options:
+    #       - 'prod'
+    #       - 'staging'
+    #       - 'test'
+    #     type: choice
 
 jobs:
   deploy:
-    runs-on: ubuntu-la${{ env_name }}
+    runs-on: ubuntu-latest
 
     steps:
       - name: "Check out changes"
