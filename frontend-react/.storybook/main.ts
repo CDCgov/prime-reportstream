@@ -33,7 +33,6 @@ const config: StorybookConfig = {
             },
         },
     ],
-    staticDirs: ["../public"],
     framework: {
         name: "@storybook/react-vite",
         options: {},
