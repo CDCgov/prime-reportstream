@@ -50,7 +50,7 @@ export const LayoutSidenav = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         setSidenav(children);
-    });
+    }, []);
 
     return null;
 };

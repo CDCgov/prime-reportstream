@@ -28,7 +28,7 @@ export const parameters = {
     },
 };
 
-initializeWorker();
+// initializeWorker();
 
 function withRestHooksCacheProvider(Story) {
     return (
@@ -62,7 +62,6 @@ export const decorators = [
 ];
 
 const MyDocsContainer = (props) => {
-    console.log(props);
     const isContent =
         props.context.channel.data.docsRendered?.[0].startsWith("content");
     return (
