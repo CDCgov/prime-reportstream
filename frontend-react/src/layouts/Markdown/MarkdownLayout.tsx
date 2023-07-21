@@ -6,7 +6,13 @@ import {
 } from "@trussworks/react-uswds";
 import { MDXProvider } from "@mdx-js/react";
 import { Helmet } from "react-helmet-async";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+    createContext,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
 import * as reactUSWDS from "@trussworks/react-uswds";
 
 import { USCrumbLink, USSmartLink, USNavLink } from "../../components/USLink";
@@ -46,10 +52,21 @@ export interface MarkdownLayoutProps {
 }
 
 export const LayoutSidenav = ({ children }: { children: React.ReactNode }) => {
-    const { setSidenav } = useContext(MarkdownLayoutContext);
+    const { setSidenavContent } = useContext(MarkdownLayoutContext);
 
     useEffect(() => {
-        setSidenav(children);
+        setSidenavContent(children);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    return null;
+};
+
+export const LayoutMain = ({ children }: { children: React.ReactNode }) => {
+    const { setMainContent } = useContext(MarkdownLayoutContext);
+
+    useEffect(() => {
+        setMainContent(children);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -71,8 +88,10 @@ const MDXComponents = {
 };
 
 const MarkdownLayoutContext = createContext<{
-    sidenav?: React.ReactNode;
-    setSidenav: (jsx: React.ReactNode) => void;
+    sidenavContent?: React.ReactNode;
+    setSidenavContent: (jsx: React.ReactNode) => void;
+    mainContent?: React.ReactNode;
+    setMainContent: (jsx: React.ReactNode) => void;
 }>({} as any);
 
 /**
@@ -111,27 +130,37 @@ export function MarkdownLayout({
             <title>{title}</title>
         </Helmet>
     ) : null;
-    const [sidenav, setSidenav] = useState<React.ReactNode>(undefined);
+    const [sidenavContent, setSidenavContent] =
+        useState<React.ReactNode>(undefined);
+    const [mainContent, setMainContent] = useState<React.ReactNode>(undefined);
+    const ctx = useMemo(() => {
+        return {
+            sidenavContent,
+            setSidenavContent,
+            mainContent,
+            setMainContent,
+        };
+    }, [mainContent, sidenavContent]);
 
     return (
-        <MarkdownLayoutContext.Provider value={{ sidenav, setSidenav }}>
+        <MarkdownLayoutContext.Provider value={ctx}>
             {helmet}
             <GridContainer className="usa-prose">
                 <Grid row className="flex-justify flex-align-start">
-                    {sidenav ? (
+                    {sidenavContent ? (
                         <nav
                             aria-label="side-navigation"
                             className="tablet:grid-col-3 position-sticky top-0"
                         >
                             <MDXProvider components={MDXComponents} {...mdx}>
-                                {sidenav}
+                                {sidenavContent}
                             </MDXProvider>
                         </nav>
                     ) : null}
                     {main ?? (
                         <main
                             className={
-                                sidenav
+                                sidenavContent
                                     ? "tablet:grid-col-8"
                                     : "tablet:grid-col-12"
                             }
@@ -155,10 +184,11 @@ export function MarkdownLayout({
                                 components={{
                                     ...MDXComponents,
                                     LayoutSidenav,
+                                    LayoutMain,
                                 }}
                                 {...mdx}
                             >
-                                {children}
+                                {mainContent ?? children}
                             </MDXProvider>
                         </main>
                     )}

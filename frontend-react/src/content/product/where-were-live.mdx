@@ -9,26 +9,30 @@ import live from "../live.json";
 import usamapsvg from "../../content/usa_w_territories.svg"; // in /content dir to get unique filename per build
 // NOTE: update live.json and open usa_w_territories.svg with TEXT EDITOR and uncomment state styles
 
-<LayoutSidenav><Sidenav /></LayoutSidenav>
+<LayoutSidenav>
+    <Sidenav />
+</LayoutSidenav>
 
-# {frontmatter.title}
-## {frontmatter.subtitle}
-## Don't see your state or territory?{" "}<A href="/support/contact" className="margin-left-1">Get in touch</A>.
+<LayoutMain>
+    # {frontmatter.title}
+    ## {frontmatter.subtitle}
+    ## Don't see your state or territory?{" "}<A href="/support/contact" className="margin-left-1">Get in touch</A>.
 
-<img
-    className="margin-bottom-6"
-    src={usamapsvg}
-    alt="Map of states using ReportStream"
-/>
-<p className="font-body-2xs text-gray-50"><A href="https://commons.wikimedia.org/wiki/File:Blank_USA,_w_territories.svg">Heitordp</A>, CC0, via Wikimedia Commons</p>
-<p className="margin-top-10">ReportStream has established connections to send and report public health data for each of the states and territories listed here.</p>
-<ul className={"rs-livestate-two-column"}>
-    {live.data
-        .sort((a, b) => a.state.localeCompare(b.state))
-        .map((data) => (
-            <li key={`key_${data.state}`}>{data.state}</li>
-        ))}
-</ul>
-Companies or testing facilities sending test results may still need
-to register directly with the state before sending data to their
-public health department.
+    <img
+        className="margin-bottom-6"
+        src={usamapsvg}
+        alt="Map of states using ReportStream"
+    />
+    <p className="font-body-2xs text-gray-50"><A href="https://commons.wikimedia.org/wiki/File:Blank_USA,_w_territories.svg">Heitordp</A>, CC0, via Wikimedia Commons</p>
+    <p className="margin-top-10">ReportStream has established connections to send and report public health data for each of the states and territories listed here.</p>
+    <ul className={"rs-livestate-two-column"}>
+        {live.data
+            .sort((a, b) => a.state.localeCompare(b.state))
+            .map((data) => (
+                <li key={`key_${data.state}`}>{data.state}</li>
+            ))}
+    </ul>
+    Companies or testing facilities sending test results may still need
+    to register directly with the state before sending data to their
+    public health department.
+</LayoutMain>
