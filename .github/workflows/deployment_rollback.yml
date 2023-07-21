@@ -41,26 +41,26 @@ jobs:
 
       - name: Add runner IP to Function App firewall
         run: |
-          az functionapp config access-restriction add --name pdh$ENV-functionapp --resource-group prime-data-hub-$ENV --ip-address ${{ steps.runner_ip.outputs.ip-address }} --priority 88
+          az functionapp config access-restriction add --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --ip-address ${{ steps.runner_ip.outputs.ip-address }} --priority 88
 
       - name: Get container ID
         id: get_container_id
         run: |
-          az acr repository show-tags --name pdh$ENVcontainerregistry.azurecr.io --repository pdh$ENV --orderby time_asc --output table | tail -5 | head -1 > container_id.txt
+          az acr repository show-tags --name pdh${{ env.ENV }}containerregistry.azurecr.io --repository pdh${{ env.ENV }} --orderby time_asc --output table | tail -5 | head -1 > container_id.txt
 
       - name: Deploy to Candidate Slot
         run: |
-          az webapp config container set --name pdh$ENV-functionapp --resource-group prime-data-hub-$ENV --slot candidate --docker-custom-image-name pdh$ENVcontainerregistry.azurecr.io/pdh$ENV:`cat container_id.txt`
+          az webapp config container set --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --slot candidate --docker-custom-image-name pdh${{ env.ENV }}containerregistry.azurecr.io/pdh${{ env.ENV }}:`cat container_id.txt`
 
       - name: Swap Slots
         run: |
-          az functionapp deployment slot swap --name pdh$ENV-functionapp --resource-group prime-data-hub-$ENV --slot candidate --target-slot production
+          az functionapp deployment slot swap --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --slot candidate --target-slot production
       
       - name: Verify the Running Container
         run: |
-          az webapp config container show --name pdh$ENV-functionapp --resource-group prime-data-hub-$ENV --slot candidate 
+          az webapp config container show --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --slot candidate 
 
       - name: Remove runner IP from Function App firewall
         if: always()
         run: |
-          az functionapp config access-restriction remove --name pdh$ENV-functionapp --resource-group prime-data-hub-$ENV --ip-address ${{ steps.runner_ip.outputs.ip-address }} 
+          az functionapp config access-restriction remove --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --ip-address ${{ steps.runner_ip.outputs.ip-address }} 
