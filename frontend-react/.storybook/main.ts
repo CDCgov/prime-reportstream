@@ -25,7 +25,7 @@ const config: StorybookConfig = {
                             remarkGfm,
                             remarkToc,
                             remarkFrontmatter,
-                            remarkMdxFrontmatter,
+                            [remarkMdxFrontmatter, { isExported: false }],
                         ],
                         rehypePlugins: [rehypeSlug],
                     },
@@ -59,7 +59,7 @@ const config: StorybookConfig = {
         };
     },
     docs: {
-        autodocs: "tag",
+        autodocs: true,
     },
 };
 

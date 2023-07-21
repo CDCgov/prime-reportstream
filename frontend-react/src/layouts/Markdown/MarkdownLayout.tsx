@@ -50,6 +50,7 @@ export const LayoutSidenav = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         setSidenav(children);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return null;
