@@ -290,6 +290,8 @@ tasks.register<Test>("testIntegration") {
     }
 }
 
+val generatedApiDocsDir = File(project.projectDir, "/docs/api/generated")
+val builtSwaggerUIResourcesDir = File(project.buildDir, "/resources/main/swagger-ui-5.1.0-dist/")
 tasks.register<ResolveTask>("generateOpenApi") {
     group = rootProject.description ?: ""
     description = "Generate OpenAPI spec for Report Stream APIs"
@@ -299,14 +301,15 @@ tasks.register<ResolveTask>("generateOpenApi") {
     classpath = sourceSets["main"].runtimeClasspath
     buildClasspath = classpath
     resourcePackages = setOf("gov.cdc.prime.router.azure")
-    outputDir = file("docs/api/generated")
-}
-
-/**
- * Generate OpenAPI spec right after build
- */
-tasks.named("build") {
-    finalizedBy("generateOpenApi")
+    outputDir = generatedApiDocsDir
+    dependsOn("compileKotlin")
+    doLast {
+        // copy the api.yaml to swagger ui dist under build
+        FileUtils.copyFile(
+            File(generatedApiDocsDir, "api.yaml"),
+            File(builtSwaggerUIResourcesDir, "api.yaml")
+        )
+    }
 }
 
 tasks.withType<Test>().configureEach {
@@ -474,11 +477,13 @@ val azureScriptsTmpDir = File(rootProject.buildDir.path, "$azureFunctionsDir-scr
 val azureScriptsFinalDir = rootProject.buildDir
 val primeScriptName = "prime"
 val startFuncScriptName = "start_func.sh"
+val apiDocsSetupScriptName = "apidocs_setup.sh"
 tasks.register<Copy>("gatherAzureScripts") {
     from("./")
     into(azureScriptsTmpDir)
     include(primeScriptName)
     include(startFuncScriptName)
+    include(apiDocsSetupScriptName)
 }
 
 tasks.register("copyAzureScripts") {
@@ -499,15 +504,19 @@ tasks.azureFunctionsPackage {
 tasks.register("package") {
     group = rootProject.description ?: ""
     description = "Package the code and necessary files to run the Azure functions"
-    dependsOn("azureFunctionsPackage")
-    dependsOn("fatJar")
+    // generate API docs
+    dependsOn("generateOpenApi")
+    dependsOn("azureFunctionsPackage").mustRunAfter("generateOpenApi")
+    dependsOn("fatJar").mustRunAfter("generateOpenApi")
 }
 
 tasks.register("quickPackage") {
     group = rootProject.description ?: ""
     description = "Package the code and necessary files to run the Azure functions skipping unit tests and migration"
+    // generate API docs
+    dependsOn("generateOpenApi")
     // Quick package for development purposes.  Use with caution.
-    dependsOn("azureFunctionsPackage")
+    dependsOn("azureFunctionsPackage").mustRunAfter("generateOpenApi")
     dependsOn("copyAzureResources")
     dependsOn("copyAzureScripts")
     tasks["test"].enabled = false

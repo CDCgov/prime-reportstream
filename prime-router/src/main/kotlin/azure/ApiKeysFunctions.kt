@@ -31,6 +31,7 @@ import io.swagger.v3.oas.annotations.security.OAuthFlows
 import io.swagger.v3.oas.annotations.security.OAuthScope
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.security.SecurityScheme
+import io.swagger.v3.oas.annotations.servers.Server
 import org.apache.logging.log4j.kotlin.Logging
 import javax.ws.rs.DELETE
 import javax.ws.rs.GET
@@ -152,7 +153,21 @@ SwIDAQAB
             email = "reportstream@cdc.gov"
         ),
         version = "0.2.0-oas3"
-    )
+    ),
+    servers = [
+        Server(
+            url = "http://localhost:7071/api/",
+            description = "Local Server (Local Development Use)"
+        ),
+        Server(
+            url = "https://staging.reportstream.cdc.gov",
+            description = "Staging Server"
+        ),
+        Server(
+            url = "https://reportstream.cdc.gov",
+            description = "Production Server"
+        )
+    ]
 )
 @SecurityScheme(
     name = "primeSecurity",
