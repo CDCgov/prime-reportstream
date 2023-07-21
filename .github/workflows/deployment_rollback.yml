@@ -7,7 +7,7 @@ on:
       - feature/9117-Automate-reverting-deploys
 
 jobs:
-  deployToCandidateSlot:
+  DeployToCandidateSlot:
     runs-on: ubuntu-latest
 
     steps:
@@ -34,10 +34,7 @@ jobs:
       - name: Get container ID
         id: get_container_id
         run: |
-          az acr repository show-tags --name pdhtestcontainerregistry.azurecr.io --repository pdhtest --orderby time_asc --output table | tail -4 | head -1 > container_id.txt
-          cat container_id.txt
-          CONTAINER_ID=$(az acr repository show-tags --name pdhtestcontainerregistry.azurecr.io --repository pdhtest --orderby time_asc --output table | tail -3 | head -1) 
-          echo "::set-output name=container_id::$CONTAINER_ID"
+          az acr repository show-tags --name pdhtestcontainerregistry.azurecr.io --repository pdhtest --orderby time_asc --output table | tail -3 | head -1 > container_id.txt
 
       - name: Deploy to Candidate Slot
         run: |
