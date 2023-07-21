@@ -301,6 +301,13 @@ class ConfigSchemaReaderTests {
                 "src/test/resources/fhir_sender_transforms",
             )
         }.isFailure()
+
+        assertThat {
+            fhirTransformSchemaFromFile(
+                "no_schema_nor_value",
+                "src/test/resources/fhir_sender_transforms",
+            )
+        }.isFailure()
     }
 
     @Test
