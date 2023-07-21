@@ -40,9 +40,7 @@ abstract class ConfigSchemaProcessor : Logging {
         }
 
         // when valueSet is available, use the matching value else just pass the value as is
-        if (retVal.isNotBlank() && element.valueSet != null) {
-            retVal = element.valueSet?.getMappedValue(retVal) ?: retVal
-        }
+        retVal = element.valueSet?.getMappedValue(retVal) ?: retVal
         return retVal
     }
 
@@ -72,7 +70,7 @@ abstract class ConfigSchemaProcessor : Logging {
 
         // when valueSet is available, return mapped value or null if match isn't found
         if (retVal != null && element.valueSet != null) {
-            val valStr = element.valueSet?.getMappedValue(retVal?.primitiveValue() ?: "")
+            val valStr = element.valueSet!!.getMappedValue(retVal?.primitiveValue() ?: "")
             retVal = if (valStr != null) {
                 StringType(valStr)
             } else {

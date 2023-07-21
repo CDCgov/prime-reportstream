@@ -28,25 +28,7 @@ data class LookupTableValueSetConfig(
 class LookupTableValueSet
 (@JsonProperty("lookupTable") private val configData: LookupTableValueSetConfig) : ValueSetCollection {
     private val metadata = Metadata.getInstance()
-    private var mapVal: SortedMap<String, String>? = null
-
-    override fun toSortedMap(): SortedMap<String, String> {
-        if (mapVal == null) {
-            buildMap()
-        }
-        return mapVal as SortedMap<String, String>
-    }
-
-    override fun getMappedValue(keyValue: String): String? {
-        val lowerSet = toSortedMap().mapKeys { it.key.lowercase() }
-        return lowerSet[keyValue.lowercase()]
-    }
-
-    override fun isNotEmpty(): Boolean {
-        return toSortedMap().isNotEmpty()
-    }
-
-    private fun buildMap() {
+    private val mapVal: SortedMap<String, String> by lazy {
         val lookupTable = metadata.findLookupTable(name = configData.tableName)
             ?: throw SchemaException("Specified lookup table not found")
 
@@ -64,6 +46,19 @@ class LookupTableValueSet
             result[row.getString(configData.keyColumn)] = row.getString(configData.valueColumn)
         }
 
-        mapVal = result.toSortedMap()
+        return@lazy result.toSortedMap()
+    }
+
+    override fun toSortedMap(): SortedMap<String, String> {
+        return mapVal
+    }
+
+    override fun getMappedValue(keyValue: String): String? {
+        val lowerSet = toSortedMap().mapKeys { it.key.lowercase() }
+        return lowerSet[keyValue.lowercase()]
+    }
+
+    override fun isNotEmpty(): Boolean {
+        return toSortedMap().isNotEmpty()
     }
 }
