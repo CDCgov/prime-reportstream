@@ -59,28 +59,32 @@ function DashboardFilterAndTable({
             columnKey: DeliveriesAttr.CREATED_AT,
             columnHeader: "Date sent to you",
             content: formatDateWithoutSeconds(dataRow.createdAt),
-            columnCustomSort: () => onColumnCustomSort("createdAt"),
+            columnCustomSort: () =>
+                onColumnCustomSort(DeliveriesAttr.CREATED_AT),
             columnCustomSortSettings: filterManager.sortSettings,
         },
         {
             columnKey: DeliveriesAttr.ORDERING_PROVIDER,
             columnHeader: "Ordering provider",
             content: dataRow.orderingProvider,
-            columnCustomSort: () => onColumnCustomSort("orderingProvider"),
+            columnCustomSort: () =>
+                onColumnCustomSort(DeliveriesAttr.ORDERING_PROVIDER),
             columnCustomSortSettings: filterManager.sortSettings,
         },
         {
             columnKey: DeliveriesAttr.ORDERING_FACILITY,
             columnHeader: "Performing facility",
             content: dataRow.orderingFacility,
-            columnCustomSort: () => onColumnCustomSort("orderingFacility"),
+            columnCustomSort: () =>
+                onColumnCustomSort(DeliveriesAttr.ORDERING_FACILITY),
             columnCustomSortSettings: filterManager.sortSettings,
         },
         {
             columnKey: DeliveriesAttr.SUBMITTER,
             columnHeader: "Submitter",
             content: dataRow.submitter,
-            columnCustomSort: () => onColumnCustomSort("submitter"),
+            columnCustomSort: () =>
+                onColumnCustomSort(DeliveriesAttr.SUBMITTER),
             columnCustomSortSettings: filterManager.sortSettings,
         },
         {
@@ -93,7 +97,8 @@ function DashboardFilterAndTable({
                     {dataRow.reportId}
                 </USLink>
             ),
-            columnCustomSort: () => onColumnCustomSort("reportId"),
+            columnCustomSort: () =>
+                onColumnCustomSort(DeliveriesAttr.REPORT_ID),
             columnCustomSortSettings: filterManager.sortSettings,
         },
     ]);
