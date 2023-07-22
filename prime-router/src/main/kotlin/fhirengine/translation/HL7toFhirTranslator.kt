@@ -1,4 +1,5 @@
 package gov.cdc.prime.router.fhirengine.translation
+
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.v251.segment.MSH
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
@@ -9,6 +10,9 @@ import io.github.linuxforhealth.hl7.message.HL7MessageModel
 import io.github.linuxforhealth.hl7.resource.ResourceReader
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Extension
+import org.hl7.fhir.r4.model.Patient
+import org.hl7.fhir.r4.model.StringType
 
 /**
  * Translate an HL7 message to FHIR.
@@ -78,6 +82,7 @@ class HL7toFhirTranslator internal constructor(
         val bundle = messageModel.convert(hl7Message, messageEngine)
         enhanceBundleMetadata(bundle, hl7Message)
         FHIRBundleHelpers.addProvenanceReference(bundle)
+        handleBirthTime(bundle, hl7Message)
         return bundle
     }
 
@@ -104,5 +109,24 @@ class HL7toFhirTranslator internal constructor(
         val mshSegment = hl7Message["MSH"] as MSH
         bundle.identifier.value = mshSegment.messageControlID.value
         bundle.identifier.system = "https://reportstream.cdc.gov/prime-router"
+    }
+
+    private fun handleBirthTime(bundle: Bundle, hl7Message: Message) {
+        // If it is an ORM message, we want to check if it is a timestamp and add it as an extension if it is.
+        val type = HL7Reader.getMessageType(hl7Message)
+        if (type != null && type == "ORM" && HL7Reader.isBirthTime(hl7Message)) {
+            val birthTime = HL7Reader.getBirthTime(hl7Message)
+            val patient = try {
+                bundle.entry.first { it.resource.resourceType.name == "Patient" }.resource as Patient
+            } catch (e: NoSuchElementException) {
+                bundle.addEntry().resource = Patient()
+                bundle.entry.first { it.resource.resourceType.name == "Patient" }.resource as Patient
+            }
+            val extension = Extension(
+                "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
+                StringType(birthTime)
+            )
+            patient.addExtension(extension)
+        }
     }
 }
