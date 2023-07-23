@@ -2148,7 +2148,7 @@
     "@microsoft/applicationinsights-shims" "2.0.2"
     "@microsoft/dynamicproto-js" "^1.1.9"
 
-"@microsoft/applicationinsights-common@2.8.14", "@microsoft/applicationinsights-common@^2.8.14":
+"@microsoft/applicationinsights-common@2.8.14":
   version "2.8.14"
   resolved "https://registry.yarnpkg.com/@microsoft/applicationinsights-common/-/applicationinsights-common-2.8.14.tgz#7d082295f862a189c80aa98b3f4aaec926546051"
   integrity sha512-1xjJvyyRN7tb5ahOTkEGGsvw8zvqmS714y3+1m7ooKHFfxO0wX+eYOU/kke74BCY0nJ/pocB/6hjWZOgwvbHig==
@@ -2157,13 +2157,33 @@
     "@microsoft/applicationinsights-shims" "2.0.2"
     "@microsoft/dynamicproto-js" "^1.1.9"
 
-"@microsoft/applicationinsights-core-js@2.8.14", "@microsoft/applicationinsights-core-js@^2.8.14":
+"@microsoft/applicationinsights-common@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@microsoft/applicationinsights-common/-/applicationinsights-common-3.0.2.tgz#37670bb07f4858ed41ff9759119e0759007d6e05"
+  integrity sha512-y+WXWop+OVim954Cu1uyYMnNx6PWO8okHpZIQi/1YSqtqaYdtJVPv4P0AVzwJdohxzVfgzKvqj9nec/VWqE2Zg==
+  dependencies:
+    "@microsoft/applicationinsights-core-js" "3.0.2"
+    "@microsoft/applicationinsights-shims" "3.0.1"
+    "@microsoft/dynamicproto-js" "^2.0.2"
+    "@nevware21/ts-utils" ">= 0.9.5 < 2.x"
+
+"@microsoft/applicationinsights-core-js@2.8.14":
   version "2.8.14"
   resolved "https://registry.yarnpkg.com/@microsoft/applicationinsights-core-js/-/applicationinsights-core-js-2.8.14.tgz#80e3d9d42102e741494726d78ac923098bad7132"
   integrity sha512-XacWUHdjSHMUwdngMZBp0oiCBifD56CQK2Egu2PiBiF4xu2AO2yNCtWSXsQX2g5OkEhVwaEjfa/aH3WbpYxB1g==
   dependencies:
     "@microsoft/applicationinsights-shims" "2.0.2"
     "@microsoft/dynamicproto-js" "^1.1.9"
+
+"@microsoft/applicationinsights-core-js@3.0.2", "@microsoft/applicationinsights-core-js@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@microsoft/applicationinsights-core-js/-/applicationinsights-core-js-3.0.2.tgz#108e20df8c162bec92b1f66f9de2530a25d9f51a"
+  integrity sha512-WQhVhzlRlLDrQzn3OShCW/pL3BW5WC57t0oywSknX3q7lMzI3jDg7Ihh0iuIcNTzGCTbDkuqr4d6IjEDWIMtJQ==
+  dependencies:
+    "@microsoft/applicationinsights-shims" "3.0.1"
+    "@microsoft/dynamicproto-js" "^2.0.2"
+    "@nevware21/ts-async" ">= 0.2.4 < 2.x"
+    "@nevware21/ts-utils" ">= 0.9.5 < 2.x"
 
 "@microsoft/applicationinsights-dependencies-js@2.8.14":
   version "2.8.14"
@@ -2185,20 +2205,27 @@
     "@microsoft/applicationinsights-shims" "2.0.2"
     "@microsoft/dynamicproto-js" "^1.1.9"
 
-"@microsoft/applicationinsights-react-js@^3.4.3":
-  version "3.4.3"
-  resolved "https://registry.yarnpkg.com/@microsoft/applicationinsights-react-js/-/applicationinsights-react-js-3.4.3.tgz#fc436f79c49bc8229c0399bec91195c4d3c65f5d"
-  integrity sha512-+IIPDYU7DKBwByN7lK/mkMGrnWMGdyIsEZfDzBh/fKDZgGGGgH9B3WHej+vIpdwBcVaPbYx++lonTshn56C9/A==
+"@microsoft/applicationinsights-react-js@^17.0.0":
+  version "17.0.0"
+  resolved "https://registry.yarnpkg.com/@microsoft/applicationinsights-react-js/-/applicationinsights-react-js-17.0.0.tgz#0ed57c47e462a566c7e37622190975b7c3d8a630"
+  integrity sha512-uKsBEvZDx+588I92gMNFfEinnajrLxxIo4JQMef1QZfGQIurgJPeMO+nGBO8n15nMiJ23j8jfAo1E2mmC9qmBA==
   dependencies:
-    "@microsoft/applicationinsights-common" "^2.8.14"
-    "@microsoft/applicationinsights-core-js" "^2.8.14"
-    "@microsoft/applicationinsights-shims" "^2.0.2"
-    "@microsoft/dynamicproto-js" "^1.1.9"
+    "@microsoft/applicationinsights-common" "^3.0.2"
+    "@microsoft/applicationinsights-core-js" "^3.0.2"
+    "@microsoft/applicationinsights-shims" "^3.0.1"
+    "@microsoft/dynamicproto-js" "^2.0.2"
 
-"@microsoft/applicationinsights-shims@2.0.2", "@microsoft/applicationinsights-shims@^2.0.2":
+"@microsoft/applicationinsights-shims@2.0.2":
   version "2.0.2"
   resolved "https://registry.npmjs.org/@microsoft/applicationinsights-shims/-/applicationinsights-shims-2.0.2.tgz"
   integrity sha512-PoHEgsnmcqruLNHZ/amACqdJ6YYQpED0KSRe6J7gIJTtpZC1FfFU9b1fmDKDKtFoUSrPzEh1qzO3kmRZP0betg==
+
+"@microsoft/applicationinsights-shims@3.0.1", "@microsoft/applicationinsights-shims@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@microsoft/applicationinsights-shims/-/applicationinsights-shims-3.0.1.tgz#3865b73ace8405b9c4618cc5c571f2fe3876f06f"
+  integrity sha512-DKwboF47H1nb33rSUfjqI6ryX29v+2QWcTrRvcQDA32AZr5Ilkr7whOOSsD1aBzwqX0RJEIP1Z81jfE3NBm/Lg==
+  dependencies:
+    "@nevware21/ts-utils" ">= 0.9.4 < 2.x"
 
 "@microsoft/applicationinsights-web@^2.8.14":
   version "2.8.14"
@@ -2218,6 +2245,13 @@
   version "1.1.9"
   resolved "https://registry.npmjs.org/@microsoft/dynamicproto-js/-/dynamicproto-js-1.1.9.tgz"
   integrity sha512-n1VPsljTSkthsAFYdiWfC+DKzK2WwcRp83Y1YAqdX552BstvsDjft9YXppjUzp11BPsapDoO1LDgrDB0XVsfNQ==
+
+"@microsoft/dynamicproto-js@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@microsoft/dynamicproto-js/-/dynamicproto-js-2.0.2.tgz#e57fbec2e7067d48b7e8e1e1c1d354028ef718a6"
+  integrity sha512-MB8trWaFREpmb037k/d0bB7T2BP7Ai24w1e1tbz3ASLB0/lwphsq3Nq8S9I5AsI5vs4zAQT+SB5nC5/dLYTiOg==
+  dependencies:
+    "@nevware21/ts-utils" ">= 0.9.4 < 2.x"
 
 "@mswjs/cookies@^0.2.2":
   version "0.2.2"
@@ -2249,6 +2283,18 @@
     gunzip-maybe "^1.4.2"
     pump "^3.0.0"
     tar-fs "^2.1.1"
+
+"@nevware21/ts-async@>= 0.2.4 < 2.x":
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/@nevware21/ts-async/-/ts-async-0.2.6.tgz#9fad1c4a56b01430b407d454817f68bb6ace92b0"
+  integrity sha512-NCUqEZSbsy7LVtKlUScd/eTst6djkWauLlzoIPVKCOxalEBdO8lrgNRIm4Xy68JNudNN5faqa2WA12X8m0BVhA==
+  dependencies:
+    "@nevware21/ts-utils" ">= 0.9.7 < 2.x"
+
+"@nevware21/ts-utils@>= 0.9.4 < 2.x", "@nevware21/ts-utils@>= 0.9.5 < 2.x", "@nevware21/ts-utils@>= 0.9.7 < 2.x":
+  version "0.9.8"
+  resolved "https://registry.yarnpkg.com/@nevware21/ts-utils/-/ts-utils-0.9.8.tgz#6db23211a5c7539d3b4362e273087effcfc7d2f8"
+  integrity sha512-kZ8s8hcn9jPVX/M7kSsBYrOGlHjqLahmxrG7QeKTk5paeVwfgKdvVCjj5Acb4UGb/ukU1G34U1Z3eb7bbVanyA==
 
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
   version "5.1.1-v1"
