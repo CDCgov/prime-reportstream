@@ -290,8 +290,10 @@ tasks.register<Test>("testIntegration") {
     }
 }
 
-val generatedApiDocsDir = File(project.projectDir, "/docs/api/generated")
-val builtSwaggerUIResourcesDir = File(project.buildDir, "/resources/main/swagger-ui-5.1.0-dist/")
+val apiDocsBaseDir = File(project.projectDir, "/docs/api/")
+val apiDocsSpecDir = File(apiDocsBaseDir, "generated")
+val apiDocsSwaggerUIDir = File(apiDocsBaseDir, "swagger-ui")
+val buildSwaggerUIDir = File(project.buildDir, "/swagger-ui/")
 tasks.register<ResolveTask>("generateOpenApi") {
     group = rootProject.description ?: ""
     description = "Generate OpenAPI spec for Report Stream APIs"
@@ -301,15 +303,21 @@ tasks.register<ResolveTask>("generateOpenApi") {
     classpath = sourceSets["main"].runtimeClasspath
     buildClasspath = classpath
     resourcePackages = setOf("gov.cdc.prime.router.azure")
-    outputDir = generatedApiDocsDir
+    outputDir = apiDocsSpecDir
     dependsOn("compileKotlin")
-    doLast {
-        // copy the api.yaml to swagger ui dist under build
-        FileUtils.copyFile(
-            File(generatedApiDocsDir, "api.yaml"),
-            File(builtSwaggerUIResourcesDir, "api.yaml")
-        )
+}
+
+tasks.register<Copy>("copyApiSwaggerUI") {
+    // copy generated OpenAPI spec files (api.yaml for now)
+    // to folder /build/swagger-ui, in azure functions docker,
+    // the api docs and swagger ui resources are upload to azure
+    // blob container 'apidocs' - where the api docs is hosted.
+    from(apiDocsSpecDir) {
+        include("*.yaml")
     }
+    from(apiDocsSwaggerUIDir)
+    into(buildSwaggerUIDir)
+    dependsOn("generateOpenApi")
 }
 
 tasks.withType<Test>().configureEach {
@@ -506,8 +514,9 @@ tasks.register("package") {
     description = "Package the code and necessary files to run the Azure functions"
     // generate API docs
     dependsOn("generateOpenApi")
-    dependsOn("azureFunctionsPackage").mustRunAfter("generateOpenApi")
-    dependsOn("fatJar").mustRunAfter("generateOpenApi")
+    dependsOn("copyApiSwaggerUI").mustRunAfter("generateOpenApi")
+    dependsOn("azureFunctionsPackage")
+    dependsOn("fatJar").mustRunAfter("azureFunctionsPackage")
 }
 
 tasks.register("quickPackage") {
@@ -515,10 +524,13 @@ tasks.register("quickPackage") {
     description = "Package the code and necessary files to run the Azure functions skipping unit tests and migration"
     // generate API docs
     dependsOn("generateOpenApi")
+    dependsOn("copyApiSwaggerUI").mustRunAfter("generateOpenApi")
     // Quick package for development purposes.  Use with caution.
-    dependsOn("azureFunctionsPackage").mustRunAfter("generateOpenApi")
-    dependsOn("copyAzureResources")
-    dependsOn("copyAzureScripts")
+    dependsOn("azureFunctionsPackage")
+    // is below redundant? since azureFunctionsPackage depend on copy azure resources
+    // dependsOn("copyAzureResources")
+    // is below redundant? since azureFunctionsPackage depend on copy azure scripts
+    // dependsOn("copyAzureScripts")
     tasks["test"].enabled = false
     tasks["jacocoTestReport"].enabled = false
     tasks["compileTestKotlin"].enabled = false

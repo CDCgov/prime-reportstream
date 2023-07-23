@@ -11,13 +11,13 @@
 #
 
 set -e
-swagger_dist_dir="/prime-data-hub-router/resources/main/swagger-ui-5.1.0-dist"
+swagger_ui_dir="/prime-data-hub-router/swagger-ui"
 apidocs_container_name="apidocs"
 # find the swagger ui resources base folder
-if [ -d $swagger_dist_dir ]; then
+if [ -d $swagger_ui_dir ]; then
   function_folder=/prime-data-hub-router/$base_name
 else
-  echo "API docs swagger ui resources not found at: $swagger_dist_dir"
+  echo "API docs swagger ui resources not found at: $swagger_ui_dir"
   exit 1
 fi
 
@@ -25,5 +25,5 @@ az storage container create -n $apidocs_container_name --connection-string $Azur
 echo "apidocs creation: " $?
 az storage container set-permission -n $apidocs_container_name --public-access container --connection-string $AzureWebJobsStorage
 echo "apidocs public access: " $?
-az storage blob upload-batch -s $swagger_dist_dir -d $apidocs_container_name --overwrite --connection-string $AzureWebJobsStorage
+az storage blob upload-batch -s $swagger_ui_dir -d $apidocs_container_name --overwrite --connection-string $AzureWebJobsStorage
 echo "swagger ui and api specs upload to $apidocs: " $?

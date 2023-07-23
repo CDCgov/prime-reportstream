@@ -46,4 +46,4 @@ else
 fi
 
 # Run the functions
-func host start --cors http://localhost:8090,http://localhost:3000 --language-worker -- "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+func host start --cors http://localhost:10000,http://127.0.0.1:10000,http://localhost:8090,http://localhost:3000 --language-worker -- "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
