@@ -14,10 +14,8 @@ on:
 jobs:
   DeployToCandidateSlot:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        env:
-          ALLOWED_USERS: "lucasdze"
+    env:
+      ALLOWED_USERS: "lucasdze"
 
     steps:
       - name: Check if actor is allowed to run the workflow
