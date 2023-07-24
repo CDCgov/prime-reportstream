@@ -2,6 +2,20 @@
 
 ## Stay up to date with new features, enhancements, and fixes
 
+### June 2023
+**New Features**:
+[The API Programmer's Guide,](https://reportstream.cdc.gov/resources/api) previously only available as a PDF download, is now part of the ReportStream website. The web pages provide a user-friendly format that ensures users always have the most updated information.
+
+**Bug Fixes**:
+
+- Users that receive data through ReportStream can now access the [File Validator](https://reportstream.cdc.gov/file-handler/validate) while logged in.
+- Contact and service request links on the [support](https://reportstream.cdc.gov/support) page have been fixed.
+
+**New State Connection**:
+
+We’re excited to announce that ReportStream can now send public health data to South Dakota.
+
+---
 ### May 2023
 **New Features**
 
