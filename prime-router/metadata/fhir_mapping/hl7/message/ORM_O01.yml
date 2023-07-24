@@ -10,6 +10,7 @@ resources:
     segment: .PID
     group: PATIENT
     resourcePath: resource/Patient
+    isReferenced: true
     repeats: false
 
   - resourceName: ServiceRequest

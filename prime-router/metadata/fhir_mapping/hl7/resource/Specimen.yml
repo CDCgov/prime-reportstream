@@ -70,3 +70,8 @@ container:
   vars:
     containerTypeCWE: SPM.27
     specimenQuantity: SPM.26
+
+subject:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $Patient
