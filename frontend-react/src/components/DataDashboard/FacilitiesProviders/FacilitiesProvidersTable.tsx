@@ -125,7 +125,7 @@ function FacilitiesProvidersTableWithPagination({
                 </div>
                 <div className="display-flex flex-row">
                     <ReceiverServices
-                        receivers={receivers}
+                        receiverServices={receivers}
                         activeService={activeService}
                         handleSetActive={handleSetActive}
                     />

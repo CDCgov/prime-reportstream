@@ -124,7 +124,7 @@ class FhirTransformer(
                     }
 
                     // A value
-                    element.value.isNotEmpty() -> {
+                    !element.value.isNullOrEmpty() -> {
                         val value = getValue(element, bundle, singleFocusResource, elementContext)
                         if (value != null) {
                             setBundleProperty(
