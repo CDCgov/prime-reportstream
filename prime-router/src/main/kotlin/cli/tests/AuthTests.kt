@@ -2,6 +2,8 @@ package gov.cdc.prime.router.cli.tests
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.PrintMessage
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.extensions.authentication
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
@@ -930,6 +932,8 @@ class Server2ServerAuthTests : CoolTest() {
             passed = passed and server2ServerReportDetailsAuthTests(
                 environment, org1.name, org2.name, reportId1, reportId2, token1, token2
             )
+            passed = passed and server2ServerSettingsAuthTests(environment, token1)
+            passed = passed and server2ServerSettingsAuthTests(environment, token2)
             passed = passed and server2ServerLookupTableSmokeTests(environment, token1)
             passed = passed and server2ServerLookupTableSmokeTests(environment, token2)
         } finally {
@@ -1130,6 +1134,52 @@ class Server2ServerAuthTests : CoolTest() {
         val passed = historyApiTest.runHistoryTestCases(testCases)
         this.outputMsgs.addAll(historyApiTest.outputMsgs)
         return passed
+    }
+
+    /**
+     * Test fetching organization settings with a normal user and an admin
+     * @param environment Where is the test hitting? Staging, Local?
+     * @param userToken General user token for unauthorized test cases
+     * @return true if all tests pass, else false
+     */
+    private fun server2ServerSettingsAuthTests(
+        environment: Environment,
+        userToken: String
+    ): Boolean {
+        ugly("Starting $name Test: test settings/organizations queries using server2server auth.")
+        // Unhappy Path: Normal user unable to access Settings
+        val (_, responseUnhappy) = Fuel.get("${environment.url}/api/settings/organizations")
+            .authentication()
+            .bearer(userToken)
+            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+            .responseString()
+        if (responseUnhappy.statusCode != HttpStatus.UNAUTHORIZED.value()) {
+            bad(
+                "***$name Test settings/organizations Unhappy Path (Unauthorized) FAILED:" +
+                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseUnhappy.statusCode}"
+            )
+            return false
+        }
+        ugly("Starting $name Test: test settings/organizations queries using Okta PrimeAdmin token")
+        val advice = "Run   ./prime login --env staging    " +
+            "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
+        val oktaToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: OktaAuthTests.abort(
+            "The Okta PrimeAdmin tests use a Staging Okta token, even locally, which is not available. $advice"
+        )
+        // Happy Path: Admin successfully accesses Settings
+        val (_, responseHappy) = Fuel.get("${environment.url}/api/settings/organizations")
+            .authentication()
+            .bearer(oktaToken)
+            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+            .responseString()
+        if (responseHappy.statusCode != HttpStatus.OK.value()) {
+            bad(
+                "***$name Test settings/organizations Happy Path FAILED:" +
+                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseHappy.statusCode}"
+            )
+            return false
+        }
+        return true
     }
 }
 
