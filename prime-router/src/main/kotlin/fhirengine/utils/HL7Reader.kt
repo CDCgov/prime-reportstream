@@ -98,12 +98,12 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
         }
 
         fun isBirthTime(message: Message): Boolean {
-            val patient = getPatient(message) ?: return false
+            val patient = getORMPatient(message) ?: return false
             val dateTimeOfBirth = patient.pid.dateTimeOfBirth ?: return false
             return dateTimeOfBirth.ts1_Time.toString().length > 8
         }
 
-        private fun getPatient(message: Message): ORM_O01_PATIENT? {
+        private fun getORMPatient(message: Message): ORM_O01_PATIENT? {
             try {
                 val patientResult = message.get("PATIENT_RESULT") ?: return null
                 return patientResult as ORM_O01_PATIENT
@@ -120,7 +120,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
 
         fun getBirthTime(message: Message): String? {
             try {
-                val patient = getPatient(message) ?: return null
+                val patient = getORMPatient(message) ?: return null
                 val dateTimeOfBirth = patient.pid.dateTimeOfBirth ?: return null
                 return dateTimeOfBirth.ts1_Time.toString()
             } catch (e: HL7Exception) {
