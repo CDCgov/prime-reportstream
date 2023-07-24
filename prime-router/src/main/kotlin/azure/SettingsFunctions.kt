@@ -98,7 +98,7 @@ class GetSenders(
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String
     ): HttpResponseMessage {
-        return getList(request, organizationName, Sender::class.java)
+        return getList(request, Sender::class.java, organizationName)
     }
 }
 
@@ -163,7 +163,7 @@ class GetReceiver(
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String
     ): HttpResponseMessage {
-        return getList(request, organizationName, ReceiverAPI::class.java)
+        return getList(request, ReceiverAPI::class.java, organizationName)
     }
 }
 
