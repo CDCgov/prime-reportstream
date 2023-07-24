@@ -116,12 +116,13 @@ elements:
     value: [ '%resource' ]
     hl7Spec: [ '%{fieldPath}-25' ]
     valueSet:
-      partial: A
-      corrected: C
-      amended: C
-      final: F
-      preliminary: P
-      cancelled: X
+      values:
+        partial: A
+        corrected: C
+        amended: C
+        final: F
+        preliminary: P
+        cancelled: X
 
   - name: parent-observation-link
     resource: '%resource.identifier.where(type.coding.system = "http://loinc.org").type'
