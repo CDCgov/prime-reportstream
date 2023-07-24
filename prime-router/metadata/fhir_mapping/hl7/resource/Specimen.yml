@@ -34,7 +34,7 @@ receivedTime:
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
   expressionType: JEXL
   vars:
-    dateTimeIn: SPM.18
+    dateTimeIn: SPM.18 | OBR.7
 
 collection:
   valueOf: secondary/Collection
