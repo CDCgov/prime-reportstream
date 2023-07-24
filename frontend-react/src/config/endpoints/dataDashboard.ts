@@ -1,6 +1,5 @@
 import { HTTPMethods, RSApiEndpoints, RSEndpoint } from ".";
 
-// TODO: move to /resources/ once we know the data structure being returned from the API
 export interface FacilityResource {
     facilityId: string | undefined;
     name: string | undefined;
@@ -9,7 +8,6 @@ export interface FacilityResource {
     reportDate: string | "";
 }
 
-// TODO: move to /resources/ once we know the data structure being returned from the API
 export interface SenderTypeDetailResource {
     reportId: string | undefined;
     batchReadyAt: string | "";

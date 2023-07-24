@@ -127,11 +127,15 @@ function FacilitiesProvidersFilterAndTable({
                         }: {
                             from: string;
                             to: string;
-                        }) =>
+                        }) => {
+                            filterManager?.updatePage({
+                                type: PageSettingsActionType.RESET,
+                            });
+
                             trackAppInsightEvent(featureEvent, {
                                 tableFilter: { startRange: from, endRange: to },
-                            })
-                        }
+                            });
+                        }}
                     />
                 </div>
                 <Table apiSortable borderless rowData={data} />
