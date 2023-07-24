@@ -23,7 +23,7 @@ abstract class ConfigSchemaProcessor : Logging {
     ): String {
         var retVal = ""
         run findValue@{
-            element.value.forEach {
+            element.value?.forEach {
                 val value = if (it.isBlank()) ""
                 else try {
                     FhirPathUtils.evaluateString(context, focusResource, bundle, it)
@@ -40,11 +40,7 @@ abstract class ConfigSchemaProcessor : Logging {
         }
 
         // when valueSet is available, use the matching value else just pass the value as is
-        // does a lowerCase comparison
-        if (retVal.isNotBlank() && element.valueSet.isNotEmpty()) {
-            val lowerSet = element.valueSet.mapKeys { it.key.lowercase() }
-            retVal = lowerSet.getOrDefault(retVal.lowercase(), retVal)
-        }
+        retVal = element.valueSet?.getMappedValue(retVal) ?: retVal
         return retVal
     }
 
@@ -61,8 +57,8 @@ abstract class ConfigSchemaProcessor : Logging {
     ): Base? {
         var retVal: Base? = null
         run findValue@{
-            element.value.forEach {
-                val value = if (it.isBlank()) emptyList<Base>()
+            element.value?.forEach {
+                val value = if (it.isBlank()) emptyList()
                 else FhirPathUtils.evaluate(context, focusResource, bundle, it)
                 logger.trace("Evaluated value expression '$it' to '$value'")
                 if (value.isNotEmpty()) {
@@ -73,10 +69,8 @@ abstract class ConfigSchemaProcessor : Logging {
         }
 
         // when valueSet is available, return mapped value or null if match isn't found
-        // does a lowerCase comparison
-        if (retVal != null && element.valueSet.isNotEmpty()) {
-            val lowerSet = element.valueSet.mapKeys { it.key.lowercase() }
-            val valStr = lowerSet[retVal?.primitiveValue()?.lowercase() ?: ""]
+        if (retVal != null && element.valueSet != null) {
+            val valStr = element.valueSet!!.getMappedValue(retVal?.primitiveValue() ?: "")
             retVal = if (valStr != null) {
                 StringType(valStr)
             } else {
