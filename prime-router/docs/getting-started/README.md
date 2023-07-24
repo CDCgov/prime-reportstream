@@ -35,3 +35,4 @@ These pages are a work in progress, please see the [old pages](../../docs_deprec
 - [Gradle](./gradle.md)
 - [Metabase](./metabase.md)
 - [VPN](./vpn.md)
+- [Pipeline Configuration](./universal-pipeline-configuration.md)
