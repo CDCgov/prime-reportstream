@@ -76,7 +76,7 @@ class OktaAuthTests : CoolTest() {
             testName: String = ""
         ): String {
             return if (environment.oktaApp == null) {
-                "dummy"
+                accessTokenDummy
             } else {
                 OktaCommand.fetchAccessToken(environment.oktaApp)
                     ?: CommandUtilities.abort(
