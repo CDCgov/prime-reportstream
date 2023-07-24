@@ -73,7 +73,7 @@ export const makeRSSubmitterFixture = (
 ): RSSubmitter => ({
     id: id.toString() || "123",
     name: overrides?.name || "Any facility USA",
-    firstReportDate: overrides?.firstReportDate || new Date(),
+    firstReportDate: overrides?.firstReportDate || new Date().toString(),
     testResultCount: overrides?.testResultCount || 2,
     type: overrides?.type || "SUBMITTER",
     location: overrides?.location || "Little Rock, AS",
