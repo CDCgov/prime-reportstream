@@ -262,28 +262,29 @@ open class BaseFunction(
     private val missingAuthorizationHeader = HttpUtilities.errorJson("Missing Authorization Header")
     private val invalidClaim = HttpUtilities.errorJson("Invalid Authorization Header")
 
+    /**
+     * Gets the list of settings for a given organization
+     * @param request Http request
+     * @param clazz The class used to convert to Json
+     * @param organizationName Organization to get settings for
+     * @return
+     */
     fun <T : SettingAPI> getList(
         request: HttpRequestMessage<String?>,
-        clazz: Class<T>
+        clazz: Class<T>,
+        organizationName: String? = null
     ): HttpResponseMessage {
         authenticateAdmin(request)
             ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
 
-        val settings = facade.findSettingsAsJson(clazz)
-        val lastModified = facade.getLastModified()
-        return HttpUtilities.okResponse(request, settings, lastModified)
-    }
-
-    fun <T : SettingAPI> getList(
-        request: HttpRequestMessage<String?>,
-        organizationName: String,
-        clazz: Class<T>
-    ): HttpResponseMessage {
-        authenticateAdmin(request)
-            ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
-
-        val (result, outputBody) = facade.findSettingsAsJson(organizationName, clazz)
-        return facadeResultToResponse(request, result, outputBody)
+        return if (organizationName != null) {
+            val (result, outputBody) = facade.findSettingsAsJson(organizationName, clazz)
+            facadeResultToResponse(request, result, outputBody)
+        } else {
+            val settings = facade.findSettingsAsJson(clazz)
+            val lastModified = facade.getLastModified()
+            HttpUtilities.okResponse(request, settings, lastModified)
+        }
     }
 
     /**
