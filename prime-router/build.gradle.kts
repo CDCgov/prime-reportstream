@@ -527,10 +527,6 @@ tasks.register("quickPackage") {
     dependsOn("copyApiSwaggerUI").mustRunAfter("generateOpenApi")
     // Quick package for development purposes.  Use with caution.
     dependsOn("azureFunctionsPackage")
-    // is below redundant? since azureFunctionsPackage depend on copy azure resources
-    // dependsOn("copyAzureResources")
-    // is below redundant? since azureFunctionsPackage depend on copy azure scripts
-    // dependsOn("copyAzureScripts")
     tasks["test"].enabled = false
     tasks["jacocoTestReport"].enabled = false
     tasks["compileTestKotlin"].enabled = false

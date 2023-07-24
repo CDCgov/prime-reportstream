@@ -160,11 +160,11 @@ SwIDAQAB
             description = "Local Server (Local Development Use)"
         ),
         Server(
-            url = "https://staging.reportstream.cdc.gov",
+            url = "https://staging.prime.cdc.gov/api/",
             description = "Staging Server"
         ),
         Server(
-            url = "https://reportstream.cdc.gov",
+            url = "https://prime.cdc.gov/api/",
             description = "Production Server"
         )
     ]
