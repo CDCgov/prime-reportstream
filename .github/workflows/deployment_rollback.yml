@@ -15,7 +15,7 @@ jobs:
   DeployToCandidateSlot:
     runs-on: ubuntu-latest
     env:
-      ALLOWED_USERS: "jeremy-page"
+      ALLOWED_USERS: "lucasdze,jeremy-page,JosiahSiegel,snesm,supriyaaddagada"
 
     steps:
       - name: Check if actor is allowed to run the workflow
@@ -69,6 +69,5 @@ jobs:
           az webapp config container show --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} 
 
       - name: Remove runner IP from Function App firewall
-        if: always()
         run: |
           az functionapp config access-restriction remove --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --ip-address ${{ steps.runner_ip.outputs.ip-address }} 
