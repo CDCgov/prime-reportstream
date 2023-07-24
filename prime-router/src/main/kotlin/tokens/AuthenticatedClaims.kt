@@ -232,6 +232,22 @@ class AuthenticatedClaims : Logging {
         }
 
         /**
+         * Run authentication then filters out non-admin claims
+         * @param request Http request to authenticate
+         * @return Authenticated claims if primeadmin is authorized, else null
+         */
+        fun authenticateAdmin(
+            request: HttpRequestMessage<String?>
+        ): AuthenticatedClaims? {
+            val claims = authenticate(request)
+            return if (claims == null || !claims.authorized(setOf("*.*.primeadmin"))) {
+                logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
+                null
+            } else {
+                claims
+            }
+        }
+        /**
          * Create fake AuthenticatedClaims, for testing
          * @return fake claims, for testing.
          * Uses the organizationName in the [sender] if one is passed in, otherwise uses the `ignore` org.

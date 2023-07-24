@@ -11,6 +11,7 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.AuthenticatedClaims.Companion.authenticateAdmin
 import gov.cdc.prime.router.tokens.authenticationFailure
 import org.apache.logging.log4j.kotlin.Logging
 
@@ -380,20 +381,4 @@ open class BaseFunction(
 
     private fun errorJson(message: String): String = HttpUtilities.errorJson(message)
 
-    /**
-     * Run authentication then filters out non-admin claims
-     * @param request Http request to authenticate
-     * @return Authenticated claims if primeadmin is authorized, else null
-     */
-    private fun authenticateAdmin(
-        request: HttpRequestMessage<String?>
-    ): AuthenticatedClaims? {
-        val claims = AuthenticatedClaims.authenticate(request)
-        return if (claims == null || !claims.authorized(setOf("*.*.primeadmin"))) {
-            logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
-            null
-        } else {
-            claims
-        }
-    }
 }
