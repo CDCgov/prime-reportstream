@@ -2,138 +2,78 @@ import { rest } from "msw";
 import { setupServer } from "msw/node";
 
 import config from "../config";
+import { RSReceiver } from "../config/endpoints/settings";
 import {
-    ApiKey,
-    ApiKeySet,
-    RSApiKeysResponse,
-    RSReceiver,
-    RSSender,
-} from "../config/endpoints/settings";
+    RSReceiverDelivery,
+    RSReceiverDeliveryResponse,
+} from "../config/endpoints/dataDashboard";
 
-const base = `${config.API_ROOT}/settings/organizations`;
-const getSender = (org: string, sender: string) =>
-    `${base}/${org}/senders/${sender}`;
-const testSender = getSender("testOrg", "testSender");
-const firstSender = getSender("firstOrg", "firstSender");
-
-export const dummySender = {
-    name: "testSender",
-    organizationName: "testOrg",
-    format: "CSV",
-    topic: "covid-19",
-    customerStatus: "testing",
-    schemaName: "test/covid-19-test",
-};
-
-export const fakeOrg = {
-    countyName: "Testing County",
-    description: "A county for testing",
-    filters: [],
-    jurisdiction: "TC",
-    version: 1,
-    createdBy: "OrganizationMockServer",
-    createdAt: "now",
-    name: "Fake Org",
-    stateCode: "TC",
-};
-
-/** TEST UTILITY - generates `RSSenders[]`, each with a unique `name` (starting from "elr-0")
- *
- * @param count {number} How many unique senders you want. */
-export const sendersGenerator = (count: number) => {
-    const senders: RSSender[] = [];
-    for (let i = 0; i < count; i++) {
-        senders.push({
-            name: `elr-${i}`,
-            organizationName: "testOrg",
-            format: "CSV",
-            topic: "covid-19",
-            customerStatus: "testing",
-            schemaName: "test/covid-19-test",
-            allowDuplicates: false,
-            processingType: "sync",
-        });
-    }
-    return senders;
-};
-
-export const dummySenders = sendersGenerator(5);
+const base = `${config.API_ROOT}/v1/receivers`;
 
 /** TEST UTILITY - generates `RSReceiver[]`, each with a unique `name` (starting from "elr-0")
  *
- * @param count {number} How many unique receivers you want. */
-export const receiversGenerator = (count: number) => {
-    const receivers: RSReceiver[] = [];
+ * @param count {number} How many unique receiverServices you want. */
+export const receiverServicesGenerator = (count: number) => {
+    const receiverServices: RSReceiver[] = [];
     for (let i = 0; i < count; i++) {
-        receivers.push({ name: `elr-${i}`, organizationName: "testOrg" });
-    }
-    return receivers;
-};
-
-export const dummyReceivers = receiversGenerator(5);
-
-export const publicKeysGenerator = (apiKeyCount: number) => {
-    let publicKey: RSApiKeysResponse;
-    const apiKey: ApiKey[] = [];
-    const apiKeySet: ApiKeySet[] = [];
-
-    for (let j = 0; j < apiKeyCount; j++) {
-        apiKey.push({
-            kty: "RSA",
-            kid: `testOrg.elr-${j}`,
-            n: "asdfaasd",
-            e: "AQAB",
+        receiverServices.push({
+            name: `elr-${i}`,
+            organizationName: "testOrg",
         });
     }
-
-    apiKeySet.push({
-        scope: `testOrg.*.report`,
-        keys: apiKey,
-    });
-
-    publicKey = {
-        orgName: "testOrg",
-        keys: apiKeySet,
-    };
-    return publicKey;
+    return receiverServices;
 };
 
-export const dummyPublicKey = publicKeysGenerator(2);
+/** TEST UTILITY - generates `RSReceiverDelivery[]`
+ *
+ * @param id {string} Used to generate reportId. */
+export const makeRSReceiverDeliveryFixture = (
+    id: number,
+    overrides?: Partial<RSReceiverDelivery>
+): RSReceiverDelivery => ({
+    orderingProvider: overrides?.orderingProvider || "",
+    orderingFacility: overrides?.orderingFacility || "",
+    submitter: overrides?.submitter || "",
+    reportId: id.toString() || "",
+    createdAt: overrides?.createdAt || "",
+    expirationDate: overrides?.expirationDate || "",
+    testResultCount: overrides?.testResultCount || 0,
+});
+export const makeRSReceiverDeliveryFixtureArray = (count: number) => {
+    const fixtures: RSReceiverDelivery[] = [];
+    for (let i = 0; i < count; i++) {
+        fixtures.push(makeRSReceiverDeliveryFixture(i));
+    }
+    return fixtures;
+};
+
+/** TEST UTILITY - generates `RSReceiverDeliveryResponse`, with the number of RSReceiverDelivery[] requested
+ *
+ * @param deliveryCount {number} How many unique RSReceiverDelivery you want. */
+export const makeRSReceiverDeliveryResponseFixture = (
+    deliveryCount: number,
+    overrides?: Partial<RSReceiverDeliveryResponse>
+): RSReceiverDeliveryResponse => ({
+    meta: {
+        type: overrides?.meta?.type || "delivery",
+        totalCount: overrides?.meta?.totalCount || 101,
+        totalFilteredCount: overrides?.meta?.totalFilteredCount || 101,
+        totalPages: overrides?.meta?.totalPages || 10,
+        nextPage: overrides?.meta?.nextPage || 2,
+    },
+    data: makeRSReceiverDeliveryFixtureArray(deliveryCount),
+});
 
 const handlers = [
-    rest.get(base, (_req, res, ctx) => {
-        return res(
-            ctx.json([fakeOrg, fakeOrg, fakeOrg, fakeOrg]),
-            ctx.status(200)
-        );
-    }),
-    rest.get(testSender, (req, res, ctx) => {
-        return res(ctx.json(dummySender), ctx.status(200));
-    }),
-    rest.get(`${base}/testOrg/senders`, (req, res, ctx) => {
-        return res(ctx.json(dummySenders), ctx.status(200));
-    }),
-    rest.get(firstSender, (req, res, ctx) => {
-        return res(ctx.status(200));
-    }),
-    rest.get(`${base}/testOrg`, (req, res, ctx) => {
-        return res(ctx.json(fakeOrg), ctx.status(200));
-    }),
-    rest.get(`${base}/testOrg/receivers`, (req, res, ctx) => {
-        return res(ctx.json(dummyReceivers), ctx.status(200));
-    }),
-    rest.get(`${base}/testOrgNoReceivers/receivers`, (req, res, ctx) => {
-        return res(ctx.json([]), ctx.status(200));
-    }),
-    rest.get(`${base}/testOrg/public-keys`, (req, res, ctx) => {
-        return res(ctx.json(dummyPublicKey), ctx.status(200));
-    }),
-    rest.post(`${base}/testOrg/public-keys`, (req, res, ctx) => {
+    rest.post(`${base}/testOrg.testService/deliveries`, (req, res, ctx) => {
         if (!req.headers.get("authorization")?.includes("TOKEN")) {
             return res(ctx.status(401));
         }
-        return res(ctx.json(dummyPublicKey), ctx.status(200));
+        return res(
+            ctx.status(200),
+            ctx.json([makeRSReceiverDeliveryResponseFixture(5)])
+        );
     }),
 ];
 
-export const orgServer = setupServer(...handlers);
+export const dataDashboardServer = setupServer(...handlers);
