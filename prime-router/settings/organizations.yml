@@ -122,7 +122,7 @@
       organizationName: ignore
       topic: elr-elims
       customerStatus: active
-      schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      schemaName: metadata/fhir_transforms/senders/CDC-ELIMS/elims-sender-transform
       format: HL7
     - name: ignore-fhir      # Use this to test fhir
       organizationName: ignore

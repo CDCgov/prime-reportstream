@@ -19,8 +19,15 @@ elements:
 
   - name: result-value-type-ce
     condition: '%resource.value is CodeableConcept'
-    # Note that for v.2.5 and earlier CWE does not exist.
+    # Note that for v.2.5 and earlier CWE is not in-spec.
     value: [ '"CE"' ]
+    hl7Spec: [ '%{hl7OBXField}-2' ]
+
+  - name: result-value-type-cwe
+    resource: '%resource.value'
+    condition: '%resource is CodeableConcept and (%resource.coding[0].version.exists() or %resource.coding[1].version.exists() or %resource.text.exists())'
+    # Note that for v.2.5 and earlier, CWE is not officially in-spec, but is widely used.
+    value: [ '"CWE"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-sn
