@@ -1,6 +1,7 @@
 # Batch Step
 
-This step will batch all the messages that have been received and send them all in one message to the receiver. This message can contain messages from multiple senders.
+This step will batch all the messages that have been received and send them all in one report to the receiver. 
+This message can contain messages from multiple senders for a single topic.
 
 
 ## Configuration
@@ -91,9 +92,56 @@ This padding is in place to handle extended periods of downtime.**
 - Task
 - Report
 
-## Example
+## Examples
+
+### Multiple batches at once:
+
+A receiver is configured to receive a batch every five minutes and only expects two items in each report and there were
+six reports that were translated in the last 4 minutes.
+
+The batch decider function will run and look for any task where the `next_action` is `batch` that was added in the last three
+hours and 15 minutes; this corresponds to the 3-hour padding plus the three retries (3 * 5 minutes).  It will find the 6 
+tasks corresponding the reports that were translated and then add three messages to the queue by dividing the number of reports
+by the max items configured for that receiver (6 / 2).
+
+The exact number of concurrent invocations of the batch function will vary based on load, but for the purposes of the scenario
+it will assume all three messages dispatch by the decider will execute concurrently.  Each function will run a query for
+the tasks it should process with a limit of two items, skipping any tasks that are currently being processed by another invocation.
+The batch function downloads and merges the reports and then dispatches a `send` event.
+
+
+### Failed processing
+
+A receiver is configured to receive a file twice a day with each file containing 10 reports with 20 reports that have been 
+translated in the last 12 hours.  The batch decider creates two queue messages (20 / 10) and dispatches them.  The batch function
+processes the first message successfully, but there is an unexpected outage while processing the second invocation which
+is resolved two hours later.  This leaves 10 reports that the system failed to process and still needs to go out.
+
+Five hours later, 20 more reports are translated for the receiver and five hours after the batch decider is triggered and
+when it processes the receiver it finds 20 reports that need batching; it does this by calculating a look back window of
+39 hours (3 * 12 hours + 3 hours of padding) and finds the 20 new reports as well as the 10 reports that were not processed
+because of the unexpected outage and dispatches three batch messages to the queue.
+
+The batch function then processes each of these messages, generating a batched report and dispatching an event to the queue.
+
+### Empty report
+
+A receiver is configured to receive a file even when it does not contain any reports.  In this scenario, the batch decider
+function will find 0 translated reports and will then look at the `timing` configuration for that receiver to see what the
+behavior is on empty batches.  Since the receiver is configured to receive a file, the batch decider will dispatch a single
+batch event with the `isEmpty` flag as `true`.  The batch function then looks for that flag and generates an empty report
+for the receiver.
+
+Few additional notes:
+
+- A message with `isEmpty: true`, is only dispatched for receivers that want to receive empty reports
+- This behavior is only supported for receivers who are delivered reports in the following formats
+  - FHIR with `ndjson`
+  - CSV
+  - HL7 batch
+
 
 ## Common Operations
 
 - Re-queuing a report for batching: if a batch event has fallen outside the look back window, but should be re-tried, it is possible to make the
-system consider it by updating the `next_action_at` to a time that would fall within the look back window for the receiver.
+system consider it again by updating the `next_action_at` to a time that would fall within the look back window for the receiver.
