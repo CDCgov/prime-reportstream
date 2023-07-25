@@ -6,21 +6,21 @@ resources:
     repeats: false
     isReferenced: false
 
-#  - resourceName: Patient
-#    segment: .PID
-#    group: PATIENT
-#    resourcePath: resource/Patient
-#    repeats: false
-#
-#  - resourceName: Observation
-#    segment: .OBSERVATION.OBX
-#    group: ORDER.ORDER_DETAIL.OBSERVATION
-#    resourcePath: resource/Observation
-#    repeats: true
-#    isReferenced: true
-#    additionalSegments:
-#      - OBX
-#      - NTE
+  - resourceName: Patient
+    segment: .PID
+    group: PATIENT
+    resourcePath: resource/Patient
+    repeats: false
+
+  - resourceName: Observation
+    segment: .OBSERVATION.OBX
+    group: ORDER.ORDER_DETAIL.OBSERVATION
+    resourcePath: resource/Observation
+    repeats: true
+    isReferenced: true
+    additionalSegments:
+      - OBX
+      - NTE
 
   - resourceName: ServiceRequest
     segment: .ORC
