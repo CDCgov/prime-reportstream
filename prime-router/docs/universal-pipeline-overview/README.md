@@ -1,6 +1,6 @@
 # Overview
 
-![Universal Pipeline](./pipeline.png)
+![Universal Pipeline](../assets/pipeline.png)
 
 ## Data Pipeline through ReportStream
 ([useful reference](https://docs.google.com/document/d/1srnzARL_OZDm_-Rm9GyJjVVXmtPdOWscSgcBGep3dnQ/edit))
