@@ -485,7 +485,7 @@ val azureScriptsTmpDir = File(rootProject.buildDir.path, "$azureFunctionsDir-scr
 val azureScriptsFinalDir = rootProject.buildDir
 val primeScriptName = "prime"
 val startFuncScriptName = "start_func.sh"
-val apiDocsSetupScriptName = "apidocs_setup.sh"
+val apiDocsSetupScriptName = "upload_swaggerui.sh"
 tasks.register<Copy>("gatherAzureScripts") {
     from("./")
     into(azureScriptsTmpDir)
@@ -501,6 +501,7 @@ tasks.register("copyAzureScripts") {
         FileUtils.copyDirectory(azureScriptsTmpDir, azureScriptsFinalDir)
         File(azureScriptsFinalDir.path, primeScriptName).setExecutable(true)
         File(azureScriptsFinalDir.path, startFuncScriptName).setExecutable(true)
+        File(azureScriptsFinalDir.path, apiDocsSetupScriptName).setExecutable(true)
     }
 }
 
@@ -549,6 +550,7 @@ dockerCompose {
 
 tasks.azureFunctionsRun {
     dependsOn("composeUp")
+
     // This storage account key is not a secret, just a dummy value.
     val devAzureConnectString =
         "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
