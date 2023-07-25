@@ -2,7 +2,7 @@
 
 ## Overview
 
-These pages are a work in progress, please see the [old pages](../../docs_deprecated/getting-started/getting-started.md) if something is missing
+These pages are a work in progress, please see the [old pages](../docs_deprecated/getting-started/getting-started.md) if something is missing
 
 ### Tools to install
 
