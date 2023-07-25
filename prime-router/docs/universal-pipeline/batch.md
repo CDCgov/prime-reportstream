@@ -5,7 +5,7 @@ This step will batch all the messages that have been received and send them all 
 
 ## Configuration
 
-This step supports a few different configuration options on a **per receiver** basis:
+This step supports different configuration options on a **per receiver** basis:
 
 - `operation`: whether to perform batching 
   - `MERGE`: merge multiple reports before delivering
@@ -22,31 +22,56 @@ correspond to once a minute and 288 to every five minutes
   - `onlyOncePerDay`: whether to send an empty report for every time a batch would be sent or just once
 - `useBatching`: this is configured in the translation setting for the receiver
 
+**Note: in order for batching to take place both `useBatching` must be true and the timing `operation` must be `MERGE`**
+
 ## How it works
 
-- BatchDecider function runs very minute (this is the smallest support batch timing).  For each invocation
-  - Checks if the receiver should have received a batch in the last 60 seconds
-  - Fetches all the rows in the `Task` table where the next action is `batch` for that receiver
-  - Calculates how many batch messages should get added to the queue based on the max report count
-- BatchFunction listens for queue messages on the batch queue and processes it
-  - Queries the `Task` table for all 
-    - Relies on a unique postgres feature called `skipLocked` to implement queue behavior
-  - All queue messages get triggered approximately the same time and each invocation tries to get rows to process
-  skipping ones already locked up to the max report count limit
-  - For all the tasks found, the function downloads the content for all the associated reports and concatenates them
+The batch step is handled by two different azure functions:
+
+- `BatchDeciderFunction` runs on a cron trigger every minute to look for receivers that need to have reports batched
+- `BatchFunction` merges several reports into a single file and queues that report to be sent
+
+### `BatchDeciderFunction`
+
+This function runs on a cron trigger every minute (the smallest unit at which batches can be triggered) and performs the 
+following work on each invocation for every receiver with a configured `timing`:
+
+- Checks if the receiver should have received a task in the last 60 seconds
+- Determines how many reports need to be batched by fetching all the `Task` records where the `next_action` is `batch`
+- Calculates how many batch messages should get added to the queue by dividing the number of reports by the configured `maxReportCount`
+- Dispatches those messages to the queue
+
+### `BatchFunction`
+
+This function runs on a queue trigger (queue name `batch`) and is responsible for performing the work of merging many reports
+into one.  It takes advantage of a SQL feature, `SKIP LOCKED` in order to handle multiple batch events for the same receiver
+being processed in tandem (see example section for more details).
+
+For each message that gets processed, the function:
+
+- Queries the `Task` table for all records where `next_action` is `batch` applying the `SKIP LOCKED` modifier to only grab records
+that are not already being processed by another invocation
+- Each report associated with the `Task` record is then downloaded and then all of them are merged into a single file
     - For FHIR receivers, the bundles are each appended on a new line following the `ndjson` format
     - For HL7 receivers, the messages are concatenated into a HL7 batch message
-  - After generating and uploading new report blob, a `send` event is added to the queue
+- After generating and uploading new report blob, a `send` event is added to the queue to be processed
 
 ### Retries
 
 The retry capability of this step works by looking far enough back in the task table such that each task has at a minimum three
-chances to be picked up by the batch function.  The look back window is calculated based on how often that receiver is configured
-to receive a batch.  For example, if a receiver is configured to receive a file once per day, when looking for tasks that need batching
-we'll calculate a look back window of three days.  This window is then used as the filter parameter when querying for tasks.
+chances to be picked up by the batch step.  The look back window is calculated based on how often that receiver is configured
+to receive a batch and then is used by the `BatchDeciderFunction` when it determines how many messages to add to the queue
+and by the `BatchFunction` when it queries the task table for all the reports that need to be batched.  In both cases, the following
+filter is applied:
 
-This behavior serves a secondary behavior of preventing the system from processing old tasks in the system.
+```sql
+task.next_action_at >= {BACKSTOPTIME}
+```
 
+For example, if a receiver is configured to receive a file once per day, when looking for tasks that need batching
+we'll calculate a look back window of three days.
+
+This behavior serves a secondary behavior of preventing the system from processing old tasks in the system.  
 See the example below for a more detailed example.
 
 **Note: the look back window includes a three-hour padding which means for more frequent schedules (i.e. batch once a minute) a larger window will be examined.  
