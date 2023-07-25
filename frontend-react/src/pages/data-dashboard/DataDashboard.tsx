@@ -18,7 +18,7 @@ function DataDashboard() {
     const { description } = orgDetails || {};
     return (
         <div className={styles.DataDashboard}>
-            <header className="usa-header usa-header--extended bg-primary-darker text-white">
+            <header className="usa-header usa-header--extended bg-primary-darker text-white margin-top-neg-5">
                 <GridContainer className="margin-left-7 margin-right-7 padding-top-8 padding-bottom-8 rs-max-width-100-important">
                     <div className="font-sans-lg text-blue-30 width-full">
                         {description}

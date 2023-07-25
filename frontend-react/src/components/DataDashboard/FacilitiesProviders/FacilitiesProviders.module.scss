@@ -8,19 +8,23 @@
     }
 
     hr {
-        border: 1px solid #73B3E7;
+        border: 1px solid #73b3e7;
     }
 
     :global {
         .usa-breadcrumb {
-            background-color: #D9E8F6;
+            background-color: #d9e8f6;
             margin-top: 0;
             margin-left: 56px;
             padding-left: 16px;
         }
 
+        .usa-breadcrumb__link {
+            color: color("text-primary");
+        }
+
         .usa-header {
-            background-color: #D9E8F6;
+            background-color: #d9e8f6;
         }
 
         .grid-container {
