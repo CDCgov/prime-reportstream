@@ -1,25 +1,5 @@
 import { HTTPMethods, RSApiEndpoints, RSEndpoint } from ".";
 
-// TODO: will need to be revisited once new API is ready
-export interface RSDelivery {
-    deliveryId: number;
-    batchReadyAt: string;
-    expires: string;
-    receiver: string;
-    reportId: string;
-    topic: string;
-    reportItemCount: number;
-    fileName: string;
-    fileType: string;
-}
-export interface RSFacilityProvider {
-    provider: string | undefined;
-    facility: string | undefined;
-    location: string | undefined;
-    total: number | undefined;
-    collectionDate: string | undefined;
-}
-
 // TODO: move to /resources/ once we know the data structure being returned from the API
 export interface FacilityResource {
     facilityId: string | undefined;
@@ -37,29 +17,38 @@ export interface SenderTypeDetailResource {
     total: string | undefined;
 }
 
+export interface RSReceiverDelivery {
+    orderingProvider: string;
+    orderingFacility: string;
+    submitter: string;
+    reportId: string;
+    createdAt: string;
+    expirationDate: string;
+    testResultCount: number;
+}
+
+export interface RSReceiverDeliveryMeta {
+    type: string;
+    totalCount: number;
+    totalFilteredCount: number;
+    totalPages: number;
+    nextPage: number;
+}
+
+export interface RSReceiverDeliveryResponse {
+    meta: RSReceiverDeliveryMeta;
+    data: RSReceiverDelivery[];
+}
+
 /*
 Deliveries API Endpoints
 
-* getOrgDeliveries -> Retrieves a list of reports using orgAndService (ex: xx-phd.elr)
-* getReportDetails -> Get the report details for a report
-* getPerformingFacilities -> Retrieves a list of facilities and providers
+* receiverDeliveries -> Retrieves a list of reports for receiver by receiverFullName/orgAndService (ex: xx-phd.elr)
 */
-
-// TODO: will need to be revisited once new API's are ready
 export const dataDashboardEndpoints: RSApiEndpoints = {
-    getOrgDeliveries: new RSEndpoint({
-        path: "/waters/org/:orgAndService/deliveries",
-        method: HTTPMethods.GET,
-        queryKey: "getOrgDeliveries",
-    }),
-    getReportDetails: new RSEndpoint({
-        path: "/waters/report/:id/delivery",
-        method: HTTPMethods.GET,
-        queryKey: "getDeliveryDetails",
-    }),
-    getFacilitiesAndProviders: new RSEndpoint({
-        path: "/waters/report/:id/facilities",
-        method: HTTPMethods.GET,
-        queryKey: "getDeliveryFacilities",
+    receiverDeliveries: new RSEndpoint({
+        path: "/v1/receivers/:orgAndService/deliveries",
+        method: HTTPMethods.POST,
+        queryKey: "deliveriesForReceiver",
     }),
 };
