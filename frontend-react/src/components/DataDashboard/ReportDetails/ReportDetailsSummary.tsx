@@ -1,7 +1,7 @@
 import React from "react";
 import { Grid } from "@trussworks/react-uswds";
 
-import { RSDelivery } from "../../../config/endpoints/dataDashboard";
+import { RSDelivery } from "../../../config/endpoints/deliveries";
 import ReportLink from "../../../pages/deliveries/Table/ReportLink";
 import {
     formatDateWithoutSeconds,
@@ -22,7 +22,7 @@ export function ReportDetailsSummary(props: Props) {
             <div className="margin-bottom-3">
                 <h1 className="margin-top-0">Report Details</h1>
                 {!isDateExpired(report!.expires) && (
-                    <div className="font-sans-lg display-inline-flex">
+                    <div className="font-sans-lg display-flex flex-align-end">
                         Download as <ReportLink report={report} button />
                     </div>
                 )}

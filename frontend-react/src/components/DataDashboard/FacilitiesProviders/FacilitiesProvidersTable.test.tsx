@@ -64,7 +64,7 @@ describe("FacilitiesProvidersTable", () => {
 
     describe("useOrganizationReceiversFeed without data", () => {
         beforeEach(() => {
-            // Mock our receivers feed data
+            // Mock our receiverServices feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
                 loadingServices: false,
@@ -174,7 +174,7 @@ describe("FacilitiesProvidersTable", () => {
 
     describe("with no services", () => {
         beforeEach(() => {
-            // Mock our receivers feed data
+            // Mock our receiverServices feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
                 loadingServices: false,
