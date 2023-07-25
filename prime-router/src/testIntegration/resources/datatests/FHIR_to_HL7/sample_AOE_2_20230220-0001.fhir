@@ -1258,9 +1258,9 @@
       "code" : {
         "coding" : [ {
           "system" : "L",
-          "code" : "MBCPCR"
-        } ],
-        "text" : "BLOOD CULTURE PCR"
+          "code" : "MBCPCR",
+          "display" : "BLOOD CULTURE PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -1489,9 +1489,9 @@
       "code" : {
         "coding" : [ {
           "system" : "L",
-          "code" : "MPOSBC"
-        } ],
-        "text" : "BLOOD CULTURE GRAM STAIN"
+          "code" : "MPOSBC",
+          "display" : "BLOOD CULTURE GRAM STAIN"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -1728,9 +1728,9 @@
       "code" : {
         "coding" : [ {
           "system" : "L",
-          "code" : "MPOSBC"
-        } ],
-        "text" : "BLOOD CULTURE GRAM STAIN"
+          "code" : "MPOSBC",
+          "display" : "BLOOD CULTURE GRAM STAIN"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -1959,9 +1959,9 @@
       "code" : {
         "coding" : [ {
           "system" : "L",
-          "code" : "MPOSBC"
-        } ],
-        "text" : "BLOOD CULTURE GRAM STAIN"
+          "code" : "MPOSBC",
+          "display" : "BLOOD CULTURE GRAM STAIN"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -2198,9 +2198,9 @@
       "code" : {
         "coding" : [ {
           "system" : "L",
-          "code" : "MPOSBC"
-        } ],
-        "text" : "BLOOD CULTURE GRAM STAIN"
+          "code" : "MPOSBC",
+          "display" : "BLOOD CULTURE GRAM STAIN"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
