@@ -1,12 +1,13 @@
 # Batch Step
 
 This step will batch all the reports that have been translated within a configured window and send them all in one report to the receiver. 
-This message can contain messages from multiple senders for a single topic.
+This report can contain items from multiple senders for a single topic.
 
 
 ## Configuration
 
-This step supports different configuration options on a **per receiver** basis:
+This step supports different configuration options on a **per receiver** basis and are configured as part of onboarding
+a new receiver:
 
 - `operation`: whether to perform batching 
   - `MERGE`: merge multiple reports before delivering
@@ -21,9 +22,24 @@ correspond to once a minute and 288 to every five minutes
     - `SEND`
     - `NONE` (default)
   - `onlyOncePerDay`: whether to send an empty report for every time a batch would be sent or just once
-- `useBatching`: this is configured in the translation setting for the receiver
+- `useBatching`/`useBatchHeaders`: this is configured in the translation setting for the receiver, the two different properties
+are for FHIR or HL7 batch formats respectively
 
 **Note: in order for batching to take place both `useBatching` must be true and the timing `operation` must be `MERGE`**
+
+#### Example configuration for a receiver
+
+```yaml
+...
+timing:
+  operation: MERGE
+  numberPerDay: 1440
+  initialTime: 00:00
+translation: !<FHIR>
+  useBatching: true
+  format: FHIR
+...
+```
 
 ## How it works
 
@@ -54,7 +70,7 @@ For each message that gets processed, the function:
 that are not already being processed by another invocation applying a limit corresponding the `maxReportCount`
 - Each report associated with the `Task` record is then downloaded and then all of them are merged into a single file
     - For FHIR receivers, the bundles are each appended on a new line following the `ndjson` format
-    - For HL7 receivers, the messages are concatenated into a HL7 batch message
+    - For HL7 receivers, the reports are concatenated into a HL7 batch message
 - After generating and uploading new report blob, a `send` event is added to the queue to be processed
 
 ### Retries
