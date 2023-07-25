@@ -26,13 +26,13 @@ id_3:
     period: "." # period is constant used between concatention in $orgIdWithTenantPrefix
 
 # Used by most organizations
-#identifier_1:
-#  condition: $id NOT_NULL
-#  valueOf: datatype/Identifier_Gen
-#  generateList: true
-#  expressionType: resource
-#  vars:
-#    id: HD.1
+identifier_1:
+  condition: $id NOT_NULL
+  valueOf: datatype/Identifier_Gen
+  generateList: true
+  expressionType: resource
+  vars:
+    id: HD.1
 
 identifier_2:
   condition: $orgIdValue NULL
@@ -41,44 +41,32 @@ identifier_2:
   expressionType: resource
   vars:
     id: CWE.1 | CE.1 | XON.10 | XON.3
-    typeCodeSystem: SYSTEM_URL, $systemCode
-    typeCode: String, XON.7
-  constants:
-    systemCode: "v2-0203"
-
-#identifier_2:
-#  valueOf: datatype/Identifier_SystemID
-#  expressionType: resource
-#  specs: XON.7
-#  constants:
-#    system: CWE.3 | CE.3
-#  vars:
-#    code: XON.7
+    system: CWE.3 | CE.3
 
 # Used by IN1/Coverage (Insurance) organizations, which have a more complex identifier
-#identifier_3:
-#  condition: $orgIdValue NOT_NULL
-#  valueOf: datatype/Identifier_var
-#  generateList: true
-#  expressionType: resource
-#  vars:
-#    valueIn: $orgIdValue
-#    systemCX: $orgIdSystem
-#    start: $orgIdStart
-#    end: $orgIdEnd
-#    code: $orgIdTypeCode
-#    coding: $orgIdTypeCoding # $coding takes priority over $code
+identifier_3:
+  condition: $orgIdValue NOT_NULL
+  valueOf: datatype/Identifier_var
+  generateList: true
+  expressionType: resource
+  vars:
+    valueIn: $orgIdValue
+    systemCX: $orgIdSystem
+    start: $orgIdStart
+    end: $orgIdEnd
+    code: $orgIdTypeCode
+    coding: $orgIdTypeCoding # $coding takes priority over $code
 
 # Must check for empty valueIn because coding could be set
-#identifier_4:
-#  condition: $valueIn NOT_NULL
-#  valueOf: datatype/Identifier_var
-#  generateList: true
-#  expressionType: resource
-#  vars:
-#    valueIn: $orgCompanyPlanCode   # IN1.35 passed in from Coverage
-#    # No CXsystem
-#    # No code
+identifier_4:
+  condition: $valueIn NOT_NULL
+  valueOf: datatype/Identifier_var
+  generateList: true
+  expressionType: resource
+  vars:
+    valueIn: $orgCompanyPlanCode   # IN1.35 passed in from Coverage
+    # No CXsystem
+    # No code
 
 name_v1:
   type: STRING
@@ -122,15 +110,15 @@ contact:
     contactPointAddressXAD: $orgContactPointAddressXAD
     contactName: $orgContactName
 
-#type_1:
-#  valueOf: datatype/CodeableConcept_var
-#  generateList: true
-#  expressionType: resource
-#  vars:
-#    code: String, XON.7
-#    system: SYSTEM_URL, $systemCode
-#  constants:
-#    systemCode: "v2-0203"
+type_1:
+  valueOf: datatype/CodeableConcept_var
+  generateList: true
+  expressionType: resource
+  vars:
+    code: String, XON.7
+    system: SYSTEM_URL, $systemCode
+  constants:
+    systemCode: "v2-0203"
 
 extension_1:
   generateList: true

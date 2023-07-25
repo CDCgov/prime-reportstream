@@ -38,24 +38,3 @@ extension_2:
       valueOf: datatype/CodeableConcept
       expressionType: resource
       specs: $organizationIds
-#
-#extension_6:
-#  condition: $parentFillerEntityId NOT_NULL
-#  generateList: true
-#  expressionType: nested
-#  vars:
-#    parentFillerEntityId: $organizationIds
-#  expressionsMap:
-#    url:
-#      type: SYSTEM_URL
-#      value: filler-assigned-identifier
-#    valueIdentifier:
-#      valueOf: datatype/Identifier_SystemID
-#      expressionType: resource
-#      # Possible bug: We were unable to specify an HL7 spec deeper than subcomponent (e.g. OBR.29.2.1)
-#      specs: $organizationIds
-#      vars:
-#        code: $organizationIds
-#      constants:
-#        system: "http://terminology.hl7.org/CodeSystem/v2-0203"
-#        display: "Filler Identifier"

@@ -104,6 +104,13 @@ identifier_4:
     code: "PGN"
     display: "Placer Group Number"
 
+
+identifier_5:
+  valueOf: datatype/Identifier_Gen
+  generateList: true
+  expressionType: resource
+  specs: ORC.21
+
 status:
   type: SERVICE_REQUEST_STATUS
   default: "unknown"
@@ -374,18 +381,3 @@ extension_11:
         expressionType: JEXL
         vars:
           dateTimeIn: ORC.15
-
-extension_12:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: facility-identifier
-    valueCodeableConcept:
-      valueOf: datatype/CodeableConcept
-      expressionType: resource
-      generateList: true
-      vars:
-        alternateDisplay: String, ORC.21.10
-        alternateCode: ORC.21.10
