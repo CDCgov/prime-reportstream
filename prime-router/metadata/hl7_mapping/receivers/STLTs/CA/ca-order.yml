@@ -1,0 +1,39 @@
+constants:
+  hl7Order: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/ORC
+elements:
+
+  # ORC-3-2: Max length 20
+  - name: ca-order-organization-identifier-name
+    resource: '%service.performer.resolve()'
+    value: [ '%resource.name.substring(0,20)' ]
+    hl7Spec: [ '%{hl7Order}-3-2' ]
+
+  - name: ca-order-effective-date
+    condition: '%service.extension(%`rsext-order-effective-date`).exists()'
+    value: [ '%service.extension(%`rsext-order-effective-date`).value.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{hl7Order}-15' ]
+
+  # ORC-12-1: Max length 15
+  - name: ca-order-ordering-provider-identifier
+    resource: '%service.requester.resolve().practitioner.resolve()'
+    value: [ '%resource.identifier.value.substring(0,15)' ]
+    hl7Spec: [ '%{hl7Order}-12-1' ]
+
+  # ORC-12-3: Max length 30
+  - name: ca-order-ordering-provider-name
+    resource: '%service.requester.resolve().practitioner.resolve()'
+    value: [ '%resource.name.given[0].substring(0,30)' ]
+    hl7Spec: [ '%{hl7Order}-12-3' ]
+
+  # ORC-21-1: Max length 50
+  - name: ca-ordering-facility-name
+    resource: '%service.requester.resolve().organization.resolve()'
+    value: [ '%resource.name.substring(0,50)' ]
+    hl7Spec: [ '%{hl7Order}-21-1' ]
+
+  # Not required for CA
+  # if this is sent it triggers validation errors for fields we don't have
+  - name: ca-ordering-facility-identifier
+    value: [ '' ]
+    hl7Spec: [ '%{hl7Order}-21-10' ]
+

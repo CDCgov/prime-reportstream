@@ -3,20 +3,23 @@ package gov.cdc.prime.router.datatests
 import assertk.assertThat
 import assertk.assertions.isTrue
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
+import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
-import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -104,6 +107,11 @@ class TranslationTests {
          * The default sender for the report
          */
         SENDER("Sender"),
+
+        /**
+         * The sender transform for the report
+         */
+        SENDER_TRANSFORM("Sender Transform"),
     }
 
     /**
@@ -120,7 +128,8 @@ class TranslationTests {
         /** are there any fields we should ignore when doing the comparison */
         val ignoreFields: List<String>? = null,
         /** should we hardcode the sender for comparison? */
-        val sender: String? = null
+        val sender: String? = null,
+        val senderTransform: String?
     )
 
     /**
@@ -155,6 +164,7 @@ class TranslationTests {
                     val inputSchema = it[ConfigColumns.INPUT_SCHEMA.colName]
                     val expectedSchema = it[ConfigColumns.OUTPUT_SCHEMA.colName]
                     val sender = it[ConfigColumns.SENDER.colName].trimToNull()
+                    val senderTransform = it[ConfigColumns.SENDER_TRANSFORM.colName].trimToNull()
                     val ignoreFields = it[ConfigColumns.IGNORE_FIELDS.colName].let { colNames ->
                         colNames?.split(",") ?: emptyList()
                     }
@@ -171,7 +181,8 @@ class TranslationTests {
                         expectedSchema,
                         shouldPass,
                         ignoreFields,
-                        sender
+                        sender,
+                        senderTransform
                     )
                 } else {
                     fail("One or more config columns in $configPathname are empty.")
@@ -239,6 +250,20 @@ class TranslationTests {
                             val bundle = translateToFhir(inputStream)
                             val actualStream =
                                 translateFromFhir(bundle, config.expectedSchema)
+                            result.merge(
+                                CompareData().compare(expectedStream, actualStream, null, null)
+                            )
+                        }
+                        // Compare the output of a FHIR to HL7 conversion
+                        config.expectedFormat == Report.Format.HL7 && config.inputFormat == Report.Format.FHIR -> {
+                            val afterSenderTransform = if (config.senderTransform != null) {
+                                runSenderTransform(inputStream, config.senderTransform)
+                            } else {
+                                inputStream
+                            }
+                            check(!config.expectedSchema.isNullOrBlank())
+                            val actualStream =
+                                translateFromFhir(afterSenderTransform, config.expectedSchema)
                             result.merge(
                                 CompareData().compare(expectedStream, actualStream, null, null)
                             )
@@ -323,9 +348,19 @@ class TranslationTests {
          */
         private fun translateFromFhir(bundle: InputStream, schema: String): InputStream {
             val fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
-            val hl7 =
-                FhirToHl7Converter(FilenameUtils.getName(schema), FilenameUtils.getPath(schema)).convert(fhirBundle)
+            val hl7 = FhirToHl7Converter(
+                FilenameUtils.getName(schema),
+                FilenameUtils.getPath(schema),
+                context = FhirToHl7Context(CustomFhirPathFunctions())
+            ).convert(fhirBundle)
             return hl7.encode().byteInputStream()
+        }
+
+        private fun runSenderTransform(bundle: InputStream, schema: String): InputStream {
+            val fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
+            val transformedBundle = FhirTransformer(schema).transform(fhirBundle)
+            val fhirJson = FhirTranscoder.encode(transformedBundle)
+            return fhirJson.byteInputStream()
         }
 
         /**
@@ -343,9 +378,11 @@ class TranslationTests {
             // NOTE: if you pass in a sender name that does not match anything that exists, you will get a null
             // value for the sender, and your test will fail. This is not a bug.
             val sender = if (senderName != null) {
-                settings.senders.firstOrNull { it.organizationName.lowercase() == senderName.lowercase() }
+                settings.senders.firstOrNull {
+                    it.organizationName.plus(".").plus(it.name).lowercase() == senderName.lowercase()
+                }
             } else {
-                settings.senders.filter { it is TopicSender && it.schemaName == schema.name }.randomOrNull()
+                settings.senders.filter { it is LegacyPipelineSender && it.schemaName == schema.name }.randomOrNull()
             }
             return try {
                 when (format) {

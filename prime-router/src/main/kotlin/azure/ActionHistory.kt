@@ -21,9 +21,11 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportLineage
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
+import io.ktor.http.HttpStatusCode
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.impl.SQLDataType
 import java.io.ByteArrayOutputStream
+import java.time.LocalDateTime
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -45,9 +47,11 @@ class ActionHistory(
      *
      */
     val action = Action()
+    val startTime: LocalDateTime
 
     init {
         action.actionName = taskAction
+        startTime = LocalDateTime.now()
     }
 
     /**
@@ -279,6 +283,14 @@ class ActionHistory(
     }
 
     /**
+     * Track the response result of an action by using its [httpStatus] and a [msg].
+     */
+    fun trackActionResult(httpStatus: HttpStatusCode, msg: String? = null) {
+        action.httpStatus = httpStatus.value
+        trackActionResult(msg ?: "")
+    }
+
+    /**
      * Calls trackActionParams with [request] as param, and then trackActionResult with the status of the
      * [response] as param
      */
@@ -307,6 +319,18 @@ class ActionHistory(
             }
         }
         action.externalName = payloadName
+    }
+
+    /**
+     * Adds information to the Action object about the organization and receiver channel affected by this action.
+     * Typically, this would be called when a report is batched for that receiver, sent to that receiver,
+     * downloaded by that receiver, or any other action taken by that receiver or on behalf of that receiver.
+     * @param organizationName  The name of the receiving organization to associate with this action.
+     * @param receiverName  The name of the receiver channel to associate with this action.
+     */
+    fun trackActionReceiverInfo(organizationName: String, receiverName: String) {
+        action.receivingOrg = organizationName
+        action.receivingOrgSvc = receiverName
     }
 
     /**
@@ -354,7 +378,7 @@ class ActionHistory(
         reportFile.sendingOrg = source.organization
         reportFile.sendingOrgClient = source.client
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic.json_val
+        reportFile.schemaTopic = report.schema.topic
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
@@ -389,7 +413,7 @@ class ActionHistory(
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic.json_val
+        reportFile.schemaTopic = report.schema.topic
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
@@ -420,7 +444,7 @@ class ActionHistory(
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic.json_val
+        reportFile.schemaTopic = report.schema.topic
         reportFile.itemCount = report.itemCount
         reportFile.bodyFormat = report.bodyFormat.toString()
         reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
@@ -450,7 +474,7 @@ class ActionHistory(
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic.json_val
+        reportFile.schemaTopic = report.schema.topic
         reportFile.bodyUrl = blobInfo.blobUrl
         reportFile.bodyFormat = blobInfo.format.toString()
         reportFile.blobDigest = blobInfo.digest
@@ -474,7 +498,7 @@ class ActionHistory(
     fun trackCreatedReport(
         event: Event,
         report: Report,
-        blobInfo: BlobAccess.BlobInfo
+        blobInfo: BlobAccess.BlobInfo?
     ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
@@ -485,11 +509,16 @@ class ActionHistory(
         reportFile.nextAction = event.eventAction.toTaskAction()
         reportFile.nextActionAt = event.at
         reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic.json_val
-        reportFile.bodyUrl = blobInfo.blobUrl
-        reportFile.bodyFormat = blobInfo.format.toString()
-        reportFile.blobDigest = blobInfo.digest
-        reportFile.itemCount = report.itemCount
+        reportFile.schemaTopic = report.schema.topic
+        if (blobInfo != null) {
+            reportFile.bodyUrl = blobInfo.blobUrl
+            reportFile.bodyFormat = blobInfo.format.toString()
+            reportFile.blobDigest = blobInfo.digest
+            reportFile.itemCount = report.itemCount
+        } else {
+            reportFile.bodyFormat = Report.Format.FHIR.toString() // currently only the UP sends null blobs
+            reportFile.itemCount = 0
+        }
         reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
         if (report.destination != null) {
             reportFile.receivingOrg = report.destination.organizationName
@@ -529,7 +558,7 @@ class ActionHistory(
         reportFile.receivingOrg = receiver.organizationName
         reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = receiver.schemaName
-        reportFile.schemaTopic = receiver.topic.json_val
+        reportFile.schemaTopic = receiver.topic
         reportFile.externalName = filename
         action.externalName = filename
         reportFile.transportParams = params

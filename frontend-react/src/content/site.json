@@ -32,7 +32,7 @@
     "forms": {
         "intakeElr": {
             "name": "ELR intake form",
-            "url": "https://prime.powerappsportals.us/siw/"
+            "url": "https://app.smartsheetgov.com/b/form/b0935d5d1e924c57b2d293b4ed0f2cd5"
         }
     },
     "assets": {
@@ -40,7 +40,10 @@
             "path": "/assets/csv/ReportStream-StandardCSV-ExampleData-20220509.csv"
         },
         "programmersGuidePdf": {
-            "path": "/assets/pdf/ReportStream-Programmers-Guide-v2.3-updated.pdf"
+            "path": "/assets/pdf/ReportStream-Programmers-Guide-v4.0.pdf"
+        },
+        "exampleHl7": {
+            "path": "/assets/hl7/Example-hl7-file.hl7"
         }
     }
 }

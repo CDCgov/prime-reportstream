@@ -12,10 +12,6 @@ locals {
       secret = "https://foo.local",
       vault  = azurerm_key_vault.init["keyvault"]
     },
-    pagerduty-businesshours-url = {
-      secret = "https://foo.local",
-      vault  = azurerm_key_vault.init["keyvault"]
-    },
     hhsprotect-ip-ingress = {
       secret = "54.211.46.158,54.145.176.199",
       vault  = azurerm_key_vault.init["keyvault"]
@@ -33,11 +29,7 @@ locals {
 }
 
 resource "azurerm_key_vault" "init" {
-  for_each = toset(["appconfig", "keyvault"])
-  #checkov:skip=CKV_AZURE_110:Purge protection not needed for temporary environments
-  #checkov:skip=CKV_AZURE_42:Recovery not needed for temporary environments
-  #checkov:skip=CKV_AZURE_109:Network restriction not needed for temporary environments
-
+  for_each                        = toset(["appconfig", "keyvault"])
   name                            = "${var.resource_prefix}-${each.value}${var.random_id}"
   location                        = var.location
   resource_group_name             = var.resource_group
@@ -151,9 +143,7 @@ resource "azurerm_key_vault_secret" "init" {
 }
 
 resource "azurerm_key_vault_key" "init" {
-  for_each = local.keys
-  #checkov:skip=CKV_AZURE_42:Recovery not needed for temporary environments
-
+  for_each        = local.keys
   name            = each.key
   key_vault_id    = each.value.vault.id
   key_type        = "RSA-HSM"

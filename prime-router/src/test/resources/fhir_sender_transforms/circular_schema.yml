@@ -1,0 +1,20 @@
+extends: circular_schema
+elements:
+  - name: status
+    constants:
+      someString: blah blah
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0]'
+    condition: '%resource.status.exists()'
+    bundleProperty: '%resource.status'
+    value: [ '"final"' ]
+  - name: issued
+    constants:
+      anotherString: hello
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0]'
+    condition: '%resource.issued.exists()'
+    bundleProperty: '%resource.issued'
+    value: [ '"CO"' ]
+  - name: observations
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0].result'
+    resourceIndex: observationIndex
+    schema: observation

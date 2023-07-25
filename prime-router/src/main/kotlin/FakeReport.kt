@@ -35,41 +35,6 @@ class FakeDataService : Logging {
         context: FakeReport.RowContext,
     ): String {
         val faker = context.faker
-        // creates fake text data
-        fun createFakeText(element: Element): String {
-            return when {
-                element.nameContains("name_of_testing_lab") -> "Any lab USA"
-                element.nameContains("lab_name") -> "Any lab USA"
-                element.nameContains("sender_id") -> "${element.default}" // Allow the default to fill this in
-                element.nameContains("facility_name") -> context.facilitiesName ?: "Any facility USA"
-                element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
-                element.nameContains("reference_range") -> randomChoice("", "Normal", "Abnormal", "Negative")
-                element.nameContains("result_format") -> "CWE"
-                element.nameContains("patient_preferred_language") -> randomChoice("ENG", "FRE", "SPA", "CHI", "KOR")
-                element.nameContains("patient_country") -> "USA"
-                element.nameContains("site_of_care") -> if (context.facilitiesName.isNullOrEmpty()) {
-                    randomChoice(
-                        "airport", "assisted_living", "camp", "correctional_facility", "employer", "fqhc",
-                        "government_agency", "hospice", "hospital", "lab", "nursing_home", "other",
-                        "pharmacy", "primary_care", "shelter", "treatment_center", "university", "urgent_care"
-                    )
-                } else {
-                    "k12"
-                }
-                element.nameContains("patient_age_and_units") -> {
-                    val unit = randomChoice("months", "years", "days")
-                    val value = when (unit) {
-                        "months" -> faker.number().numberBetween(1, 18)
-                        "days" -> faker.number().numberBetween(0, 364)
-                        "years" -> faker.number().numberBetween(1, 120)
-                        else -> TODO()
-                    }
-
-                    "$value $unit"
-                }
-                else -> faker.lorem().characters(5, 10)
-            }
-        }
 
         // creates a fake name for a person based on the patient name
         // in the row context
@@ -139,7 +104,9 @@ class FakeDataService : Logging {
                     val possibleValues = if (altValues?.isNotEmpty() == true) {
                         altValues.map { it.code }.toTypedArray()
                     } else {
-                        if (element.cardinality?.name == "ZERO_OR_ONE") {
+                        if (!(element.valueSet.isNullOrEmpty()) && element.valueSet.contains("state")) {
+                            arrayOf(valueSet?.values?.first { it.display == context.state }?.code ?: "")
+                        } else if (element.cardinality?.name == "ZERO_OR_ONE") {
                             // Pick random code from the ValueSet.Value and add ""
                             val code = valueSet?.values?.asSequence()?.shuffled()?.take(1)?.map { it.code }
                                 ?.toList()?.toTypedArray() ?: arrayOf("")
@@ -168,6 +135,7 @@ class FakeDataService : Logging {
                 "test_result" ->
                     // Reduce the choice to between detected, not detected, and uncertain for more typical results
                     randomChoice("260373001", "260415000", "419984006")
+
                 else -> {
                     createFakeValueFromValueSet(element)
                 }
@@ -189,11 +157,13 @@ class FakeDataService : Logging {
                                 "to ${element.tableColumn}"
                         )
                 }
+
                 element.table?.startsWith("LIVD-Supplemental") == true -> {
                     if (element.tableColumn == null)
                         return ""
                     element.default ?: ""
                 }
+
                 element.table == "fips-county" -> {
                     when {
                         element.nameContains("state") -> context.state
@@ -205,6 +175,7 @@ class FakeDataService : Logging {
                         }
                     }
                 }
+
                 element.table == zipCodeData -> {
                     when {
                         element.nameContains("state") -> context.state
@@ -218,7 +189,126 @@ class FakeDataService : Logging {
                         }
                     }
                 }
+
                 else -> TODO("Add this table ${element.table}")
+            }
+        }
+
+        // creates fake text data
+        fun createFakeText(element: Element): String {
+            return when {
+                element.nameContains("name_of_testing_lab") -> "Any lab USA"
+                element.nameContains("lab_name") -> "Any lab USA"
+                element.nameContains("sender_id") -> "${element.default}" // Allow the default to fill this in
+                element.nameContains("facility_name") -> context.facilitiesName ?: "Any facility USA"
+                element.nameContains("name_of_school") -> randomChoice("", context.schoolName)
+                element.nameContains("reference_range") -> randomChoice("", "Normal", "Abnormal", "Negative")
+                element.nameContains("result_format") -> "CWE"
+                element.nameContains("patient_preferred_language") -> randomChoice("ENG", "FRE", "SPA", "CHI", "KOR")
+                element.nameContains("patient_country") -> "USA"
+                element.nameContains("site_of_care") -> if (context.facilitiesName.isNullOrEmpty()) {
+                    randomChoice(
+                        "airport", "assisted_living", "camp", "correctional_facility", "employer", "fqhc",
+                        "government_agency", "hospice", "hospital", "lab", "nursing_home", "other",
+                        "pharmacy", "primary_care", "shelter", "treatment_center", "university", "urgent_care"
+                    )
+                } else {
+                    "k12"
+                }
+
+                element.nameContains("patient_age_and_units") -> {
+                    val unit = randomChoice("months", "years", "days")
+                    val value = when (unit) {
+                        "months" -> faker.number().numberBetween(1, 18)
+                        "days" -> faker.number().numberBetween(0, 364)
+                        "years" -> faker.number().numberBetween(1, 120)
+                        else -> TODO()
+                    }
+
+                    "$value $unit"
+                }
+
+                // We generally want actual counties for fake data,
+                // but some schema list this as a TEXT type since it's not required
+                element.name.equals("patient_county_code", ignoreCase = true) -> {
+                    when (weightedRandomChoice(Pair("random", 1), Pair("lookup", 10))) {
+                        "random" -> faker.lorem().characters(5, 10)
+                        "lookup" -> createFakeTableValue(
+                            element.copy(
+                                type = Element.Type.TABLE,
+                                table = "fips-county",
+                                tableColumn = "FIPS"
+                            )
+                        )
+
+                        else -> { // Shouldn't happen since the randomizer will return one of the inputs
+                            logger.warn("Something went very wrong with the patient_county_code")
+                            faker.lorem().characters(5, 10)
+                        }
+                    }
+                }
+
+                // We generally want actual counties for fake data,
+                // but some schema list this as a TEXT type since it's not required
+                element.name.equals("patient_county", ignoreCase = true) -> {
+                    when (weightedRandomChoice(Pair("random", 1), Pair("lookup", 10))) {
+                        "random" -> faker.lorem().characters(5, 10)
+                        "lookup" -> createFakeTableValue(
+                            element.copy(
+                                type = Element.Type.TABLE,
+                                table = "fips-county",
+                                tableColumn = "County"
+                            )
+                        )
+
+                        else -> { // Shouldn't happen since the randomizer will return one of the inputs
+                            logger.warn("Something went very wrong with the patient_county")
+                            faker.lorem().characters(5, 10)
+                        }
+                    }
+                }
+
+                // Normally we want an actual equipment model name off the LIVD table
+                // But some schema have this field as a TEXT field (specifically CSV schema)
+                element.nameContains("equipment_model_name") -> {
+                    when (weightedRandomChoice(Pair("random", 1), Pair("lookup", 10))) {
+                        "random" -> faker.lorem().characters(5, 10)
+                        "lookup" -> createFakeTableValue(
+                            element.copy(
+                                type = Element.Type.TABLE,
+                                table = "LIVD-SARS-CoV-2",
+                                tableColumn = "Model"
+                            )
+                        )
+
+                        else -> { // Shouldn't happen since the randomizer will return one of the inputs
+                            logger.warn("Something went very wrong with the patient_county")
+                            faker.lorem().characters(5, 10)
+                        }
+                    }
+                }
+
+                // Normally we want an actual test performed code off the LIVD table
+                // But some schema have this field as a TEXT field (specifically CSV schema)
+                element.nameContains("test_performed_code") -> {
+                    when (weightedRandomChoice(Pair("random", 1), Pair("lookup", 10))) {
+                        "random" -> faker.lorem().characters(5, 10)
+                        "lookup" -> createFakeTableValue(
+                            element.copy(
+                                type = Element.Type.TABLE,
+                                table = "LIVD-SARS-CoV-2",
+                                tableColumn = "Test Performed LOINC Code"
+                            )
+                        )
+
+                        else -> { // Shouldn't happen since the randomizer will return one of the inputs
+                            logger.warn("Something went very wrong with the patient_county")
+                            faker.lorem().characters(5, 10)
+                        }
+                    }
+                }
+
+                else -> faker.lorem().characters(5, 10)
             }
         }
 
@@ -260,6 +350,23 @@ class FakeDataService : Logging {
         val random = Random()
         return choices[random.nextInt(choices.size)]
     }
+
+    /**
+     * Produces a "wheel of fortune" type of random choice, allowing values to be weighted.
+     * The Int in the Pair represents the number of times the String will be added to the "wheel"
+     **/
+    private fun weightedRandomChoice(vararg choices: Pair<String, Int>): String {
+        val thing = choices.flatMap {
+            var i = it.second
+            var entries = emptyList<String>()
+            while (i > 0) {
+                entries = entries.plus(it.first)
+                i--
+            }
+            entries
+        }.toTypedArray()
+        return randomChoice(*thing)
+    }
 }
 
 class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
@@ -283,8 +390,10 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
             "LumiraDx SARS-CoV-2 Ag Test",
             "BD Veritor System for Rapid Detection of SARS-CoV-2"
         )
+
         // find our state
         val state: String = reportState ?: randomChoice("FL", "PA", "TX", "AZ", "ND", "CO", "LA", "NM", "VT", "GU")
+
         // find our county
         val county: String = reportCounty ?: findLookupTable("fips-county")?.let {
             when (state) {
@@ -296,6 +405,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
                 )
             }
         } ?: "Prime"
+
         // find our zipcode
         val zipCode: String = findLookupTable(zipCodeData)?.let {
             randomChoice(
@@ -369,6 +479,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
                 // get fake data for element
                 mapperRef.apply(element, refAndArgs.second, evs).value ?: ""
             }
+
             else -> buildColumn(element, rowContext)
         }
     }

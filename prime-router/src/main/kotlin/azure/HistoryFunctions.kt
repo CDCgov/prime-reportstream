@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.azure
 
+import com.fasterxml.jackson.databind.JsonMappingException
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -15,10 +16,13 @@ import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.db.ReportFileApiSearch
+import gov.cdc.prime.router.db.ReportFileDatabaseAccess
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.authenticationFailure
 import org.apache.logging.log4j.kotlin.Logging
 import java.time.OffsetDateTime
 import java.util.UUID
-import kotlin.collections.ArrayList
 
 class Facility private constructor(
     val organization: String?,
@@ -164,6 +168,38 @@ class GetReports :
         val organization = request.headers["organization"] ?: ""
         context.logger.info("organization = $organization")
         return if (organization.isBlank()) getReports(request, context) else getReports(request, context, organization)
+    }
+
+    /**
+     * An endpoint available only to admins for a ReportFile.
+     *
+     * Primarily exists as a reference implementation for [ApiSearch]
+     */
+    @FunctionName("searchReports")
+    fun searchReports(
+        @HttpTrigger(
+            name = "searchReports",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "v1/reports/search"
+        ) request: HttpRequestMessage<String?>
+    ): HttpResponseMessage {
+        val claims = AuthenticatedClaims.authenticate(request)
+        if (claims == null || !claims.authorized(setOf("*.*.primeadmin"))) {
+            logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
+            return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+        }
+        val reportDbAccess = ReportFileDatabaseAccess()
+        val search = try {
+            ReportFileApiSearch.parse(request)
+        } catch (ex: JsonMappingException) {
+            return HttpUtilities.badRequestResponse(request, "Improperly formatted search")
+        }
+        val reports = reportDbAccess.getReports(search)
+        return HttpUtilities.okJSONResponse(
+            request,
+            ApiResponse.buildFromApiSearch("ReportFile", search, reports)
+        )
     }
 }
 
@@ -343,6 +379,7 @@ open class BaseHistoryFunction : Logging {
 
                 val actionHistory = ActionHistory(TaskAction.download)
                 actionHistory.trackActionRequestResponse(request, response)
+                actionHistory.trackActionReceiverInfo(header.reportFile.receivingOrg, header.reportFile.receivingOrgSvc)
                 // Give the external report_file a new UUID, so we can track its history distinct from the
                 // internal blob.   This is going to be very confusing.
                 val externalReportId = UUID.randomUUID()

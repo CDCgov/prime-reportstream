@@ -11,13 +11,19 @@ import {
     DeliveriesDataAttr,
 } from "../../../hooks/network/History/DeliveryHooks";
 import Spinner from "../../../components/Spinner";
-import TableFilters from "../../../components/Table/TableFilters";
+import TableFilters, {
+    TableFilterDateLabel,
+} from "../../../components/Table/TableFilters";
 import { PaginationProps } from "../../../components/Table/Pagination";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import usePagination from "../../../hooks/UsePagination";
 import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
+import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
+import { FeatureName } from "../../../AppRouter";
+import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
+import { isDateExpired } from "../../../utils/DateTimeUtils";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
@@ -34,7 +40,7 @@ const ServiceDisplay = ({
     handleSetActive: (v: string) => void;
 }) => {
     return (
-        <div className="grid-container grid-col-12">
+        <div className="grid-col-12">
             {services && services?.length > 1 ? (
                 <ServicesDropdown
                     services={services}
@@ -68,6 +74,7 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
     serviceReportsList,
 }) => {
     const { oktaToken, activeMembership } = useSessionContext();
+    const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
     const handleFetchAndDownload = (id: string) => {
         getReportAndDownload(
             id,
@@ -77,6 +84,9 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
     };
     const transformDate = (s: string) => {
         return new Date(s).toLocaleString();
+    };
+    const handleExpirationDate = (expiresDate: string) => {
+        return !isDateExpired(expiresDate);
     };
     const columns: Array<ColumnConfig> = [
         {
@@ -104,11 +114,13 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
             columnHeader: "Items",
         },
         {
-            dataAttr: DeliveriesDataAttr.FILE_TYPE,
+            dataAttr: DeliveriesDataAttr.FILE_NAME,
             columnHeader: "File",
             feature: {
                 action: handleFetchAndDownload,
                 param: DeliveriesDataAttr.REPORT_ID,
+                actionButtonHandler: handleExpirationDate,
+                actionButtonParam: DeliveriesDataAttr.EXPIRES,
             },
         },
     ];
@@ -122,7 +134,17 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
 
     return (
         <>
-            <TableFilters filterManager={filterManager} />
+            <TableFilters
+                startDateLabel={TableFilterDateLabel.START_DATE}
+                endDateLabel={TableFilterDateLabel.END_DATE}
+                showDateHints={true}
+                filterManager={filterManager}
+                onFilterClick={({ from, to }: { from: string; to: string }) =>
+                    trackAppInsightEvent(featureEvent, {
+                        tableFilter: { startRange: from, endRange: to },
+                    })
+                }
+            />
             <Table
                 config={resultsTableConfig}
                 filterManager={filterManager}
@@ -157,6 +179,7 @@ const DeliveriesTableWithNumberedPagination = ({
     // and the low value when the results are in ascending order.
     const startCursor = sortOrder === "DESC" ? rangeTo : rangeFrom;
     const isCursorInclusive = sortOrder === "ASC";
+    const analyticsEventName = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_PAGINATION}`;
 
     const {
         currentPageResults: serviceReportsList,
@@ -168,6 +191,7 @@ const DeliveriesTableWithNumberedPagination = ({
         pageSize,
         fetchResults,
         extractCursor,
+        analyticsEventName,
     });
 
     if (paginationProps) {
@@ -192,14 +216,23 @@ const DeliveriesTableWithNumberedPagination = ({
 };
 
 export const DeliveriesTable = () => {
-    const { loadingServices, services, activeService, setActiveService } =
-        useOrganizationReceiversFeed();
+    const {
+        loadingServices,
+        services,
+        activeService,
+        setActiveService,
+        isDisabled,
+    } = useOrganizationReceiversFeed();
 
     if (loadingServices) return <Spinner />;
 
+    if (isDisabled) {
+        return <AdminFetchAlert />;
+    }
+
     if (!loadingServices && !activeService)
         return (
-            <div className="grid-container usa-section margin-bottom-10">
+            <div className="usa-section margin-bottom-10">
                 <NoServicesBanner
                     featureName="Active Services"
                     organization=""

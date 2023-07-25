@@ -1,7 +1,8 @@
 import React from "react";
-import { Alert } from "@trussworks/react-uswds";
+import { Alert, Button } from "@trussworks/react-uswds";
+import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
-import { BasicHelmet } from "../../components/header/BasicHelmet";
 import {
     ErrorDisplayMessage,
     GENERIC_ERROR_PAGE_CONFIG,
@@ -11,7 +12,9 @@ import {
 
 export const StringErrorDisplay = ({ message }: { message?: string }) => {
     return (
-        <Alert type="error">{message ? message : GENERIC_ERROR_STRING}</Alert>
+        <Alert headingLevel="h4" type="error" role="alert">
+            {message ? message : GENERIC_ERROR_STRING}
+        </Alert>
     );
 };
 
@@ -20,9 +23,12 @@ export const ParagraphErrorDisplay = ({
 }: {
     config?: ParagraphWithTitle;
 }) => {
+    const navigate = useNavigate();
     return (
         <>
-            <BasicHelmet pageTitle="Error" />
+            <Helmet>
+                <title>Error</title>
+            </Helmet>
             <div
                 data-testid={"error-page-wrapper"}
                 className="usa-section padding-top-6"
@@ -35,12 +41,12 @@ export const ParagraphErrorDisplay = ({
                             <div className="margin-y-5">
                                 <ul className="usa-button-group">
                                     <li className="usa-button-group__item">
-                                        <a
-                                            href="legacy-content"
-                                            className="usa-button"
+                                        <Button
+                                            type="button"
+                                            onClick={() => navigate("/")}
                                         >
                                             Visit homepage
-                                        </a>
+                                        </Button>
                                     </li>
                                 </ul>
                             </div>

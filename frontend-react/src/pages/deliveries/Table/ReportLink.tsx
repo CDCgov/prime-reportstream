@@ -1,11 +1,13 @@
 import download from "downloadjs";
-import { Button } from "@trussworks/react-uswds";
+import { Button, Icon } from "@trussworks/react-uswds";
 import { useOktaAuth } from "@okta/okta-react";
+import React from "react";
 
 import ReportResource from "../../../resources/ReportResource";
 import { getStoredOrg } from "../../../utils/SessionStorageTools";
 import config from "../../../config";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
+import { isDateExpired } from "../../../utils/DateTimeUtils";
 
 const { RS_API_URL } = config;
 
@@ -22,7 +24,7 @@ interface Props {
 }
 
 const formatFileType = (fileType: string) => {
-    if (fileType === "HL7_BATCH") return "HL7(BATCH)";
+    if (fileType === "HL7_BATCH") return "HL7";
     return fileType;
 };
 
@@ -56,30 +58,37 @@ function ReportLink(props: Props) {
                         filename = filename.substring(filenameStartIndex + 1);
                     download(report.content, filename, report.mimetype);
                 })
-                .catch((error) => console.log(error));
+                .catch((error) => console.error(error));
         }
     };
 
     if (!props.button) {
         return (
-            <a href="/" onClick={handleClick} className="usa-link">
+            <Button unstyled type="button" onClick={handleClick}>
                 {props.report !== undefined
-                    ? formatFileType(props.report.fileType)
+                    ? formatFileType(props.report!.fileType)
                     : ""}
-            </a>
+            </Button>
         );
     } else {
         return (
-            <Button
-                type="button"
-                outline
-                onClick={handleClick}
-                className="usa-button usa-button--outline float-right"
-            >
-                {props.report !== undefined
-                    ? formatFileType(props.report.fileType)
-                    : ""}
-            </Button>
+            <>
+                {props.report !== undefined &&
+                    !isDateExpired(props.report!.expires) && (
+                        <Button
+                            type="button"
+                            outline
+                            onClick={handleClick}
+                            className="usa-button usa-button--outline float-right display-flex flex-align-center margin-left-1"
+                        >
+                            {formatFileType(props.report!.fileType)}{" "}
+                            <Icon.FileDownload
+                                className="margin-left-1"
+                                size={3}
+                            />
+                        </Button>
+                    )}
+            </>
         );
     }
 }

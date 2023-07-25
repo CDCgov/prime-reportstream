@@ -1,0 +1,55 @@
+constants:
+  rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
+
+elements:
+  #########################
+  # ReportStream specific #
+  #########################
+  - name: sending-application-namespace-id
+    condition: true
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.name'
+    value: [ '"CDC PRIME - Atlanta: 2.16.840.1.114222.4.1.237821"' ]
+
+  - name: sending-application-universal-id
+    condition: true
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.source.endpoint'
+    value: [ '"urn:oid:2.16.840.1.114222.4.1.237821"' ]
+
+  # SFT-1-1
+  - name: software-vendor-name
+    condition: true
+    resource: 'Bundle.entry.resource.ofType(MessageHeader).source.extension(%`rsext-software-vendor-org`)'
+    bundleProperty: '%resource.value.resolve().name'
+    value: [ '"Centers for Disease Control and Prevention"' ]
+
+  - name: processing-id
+    condition: 'Bundle.entry.resource.ofType(MessageHeader).meta.tag.code.empty()'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    bundleProperty: '%resource.meta.tag.code'
+    value: [ '"P"' ]
+
+  - name: provider-namespace-id
+    condition: '%resource.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner).identifier[0]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id").value[x]'
+    value: [ '"NPI"' ]
+
+  - name: provider-universal-id
+    condition: '%resource.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner).identifier[0]'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id").value[x]'
+    value: [ '"urn:oid:2.16.840.1.113883.4.6"' ]
+
+
+  #  TODO: Enable this once simple report starts sending us Covid through the UP
+  #  The received date time for the specimen. This field is very important to many states for their HL7,
+  #  but for most of our senders, the received date time is the same as the collected date time. Unfortunately,
+  #  setting them to the same time breaks many validation rules. Most ELR systems apparently look for them to
+  #  be offset, so this field takes the `specimen_collection_date_time` field and offsets it by a small amount.
+#  - name: specimen-received-date-time
+#    resource: 'Bundle.entry.resource.ofType(Specimen)'
+#    condition: '%resource.receivedTime.exists().not() and %resource.collection.collected is dateTime'
+#    bundleProperty: '%resource.receivedTime'
+#    value: [ '%resource.collection.collected + 6 seconds' ]

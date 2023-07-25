@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { mockUseOktaMemberships } from "../hooks/__mocks__/UseOktaMemberships";
-import { renderWithSession } from "../utils/CustomRenderUtils";
+import { renderApp } from "../utils/CustomRenderUtils";
 
 import { useSessionContext } from "./SessionContext";
 
@@ -17,53 +17,32 @@ describe("SessionContext admin hard check", () => {
         if (!isAdminStrictCheck) return <>failed</>;
         return <>passed</>;
     };
-    test("admin hard check is true when user has admin org in memberships map", async () => {
+    test("admin hard check is true when user is admin member type", () => {
         mockUseOktaMemberships.mockReturnValue({
             state: {
                 activeMembership: {
-                    parsedName: "testOrg",
-                    memberType: MemberType.SENDER,
-                },
-                memberships: new Map().set("DHPrimeAdmins", {
                     parsedName: "PrimeAdmins",
                     memberType: MemberType.PRIME_ADMIN,
-                }),
+                },
                 initialized: true,
             },
             dispatch: () => {},
         });
-        renderWithSession(<TestComponent />);
+        renderApp(<TestComponent />);
         expect(screen.getByText("passed")).toBeInTheDocument();
     });
-    test("admin hard check is false when user has has no trace of admin group", async () => {
+    test("admin hard check is false when user is not admin member type", () => {
         mockUseOktaMemberships.mockReturnValue({
             state: {
                 activeMembership: {
                     parsedName: "testOrg",
                     memberType: MemberType.SENDER,
                 },
-                memberships: new Map(),
                 initialized: true,
             },
             dispatch: () => {},
         });
-        renderWithSession(<TestComponent />);
-        expect(screen.getByText("failed")).toBeInTheDocument();
-    });
-    /* Extra safety. This case _shouldn't_ happen unless we absolutely destroy our useOktaMemberships hook! */
-    test("admin hard check is false when user's memberships DON'T contain admin, but activeMembership IS admin", async () => {
-        mockUseOktaMemberships.mockReturnValue({
-            state: {
-                activeMembership: {
-                    parsedName: "PrimeAdmins",
-                    memberType: MemberType.PRIME_ADMIN,
-                },
-                memberships: new Map(),
-                initialized: true,
-            },
-            dispatch: () => {},
-        });
-        renderWithSession(<TestComponent />);
+        renderApp(<TestComponent />);
         expect(screen.getByText("failed")).toBeInTheDocument();
     });
 });

@@ -1,6 +1,18 @@
+// AutoUpdateFileChromatic
 // Type styles for markdown-driven pages & any overrides for USWDS typography
 
 // Headings
+// FUTURE_TODO: Decipher the ancient texts on how to apply these directly to USWDS token definitions.
+h4 {
+    font-size: 18px;
+    line-height: 160%;
+}
+
+.font-body-sm {
+    font-size: 14px;
+    line-height: 160%;
+    margin-bottom: 14px;
+}
 
 // Documentation pages
 

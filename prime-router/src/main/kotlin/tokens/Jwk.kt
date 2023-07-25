@@ -110,4 +110,136 @@ data class JwkSet(
     fun filterByKid(kid: String): List<Jwk> {
         return keys.filter { !it.kid.isNullOrEmpty() && kid == it.kid }
     }
+
+    companion object {
+
+        /**
+         *
+         * Reads the MAX_NUM_KEY_PER_SCOPE environment variable, otherwise defaulting to 10 that dictates
+         * how many keys can be linked to a scope for an organization
+         *
+         * @return the maximum number of keys can be configured for a scope
+         */
+        fun getMaximumNumberOfKeysPerScope(): Int {
+            return (System.getenv("MAX_NUM_KEY_PER_SCOPE") ?: "10").toInt()
+        }
+
+        /**
+         * Copy an old set of authorizations to a new set, and add one to it, if needed.
+         * This whole list of lists thing is confusing:
+         * The 'orig' obj, and the return val, are list of JwkSets.   And each JwkSet has a list of Jwks.
+         */
+        fun addJwkSet(orig: List<JwkSet>?, newScope: String, newJwk: Jwk): List<JwkSet> {
+            if (orig == null) {
+                return listOf(JwkSet(newScope, listOf(newJwk))) // create brand new
+            }
+            val newJwkSetList = mutableListOf<JwkSet>()
+            var done = false
+            orig.forEach {
+                if (it.scope == newScope) {
+                    if (it.keys.contains(newJwk)) {
+                        // The orig already has this key with this scope.  Just use it.
+                        newJwkSetList.add(it)
+                    } else {
+                        // Don't create a whole new JwkSet.   Instead, add this Jwk to existing JwkSet.
+                        val newJwkList = it.keys.toMutableList()
+                        newJwkList.add(newJwk)
+                        newJwkSetList.add(JwkSet(newScope, newJwkList))
+                    }
+                    done = true
+                } else {
+                    newJwkSetList.add(it) // existing different scope, make sure we keep it.
+                }
+            }
+            // If the old/new scopes didn't match, then the new scope was never added.  Add a new JwkSet now.
+            if (!done) {
+                newJwkSetList.add(JwkSet(newScope, listOf(newJwk)))
+            }
+            return newJwkSetList
+        }
+
+        /**
+         *
+         * Adds a new key to the passed scope if the number of keys is less than the
+         * configured maximumNumberOfKeysPerScope, which is configured with
+         * an environment variable MAX_NUM_KEY_PER_SCOPE and defaults to 10.
+         *
+         * If there are already the maximum number of keys associated with the scope, the oldest (first in the list) key
+         * is dropped and the new key is added
+         *
+         * @param jwkSets - The current list of JwkSets
+         * @param scope - The scope to add the key for
+         * @param jwk - The Jwk to add to the scope
+         * @return The updated organization and keys
+         *
+         */
+        fun addKeyToScope(
+            jwkSets: List<JwkSet>?,
+            scope: String,
+            jwk: Jwk
+        ): List<JwkSet> {
+            val nullSafeJwkSets = jwkSets ?: emptyList()
+            val updatedJwkSet =
+                ((jwkSets ?: emptyList()).find { it.scope == scope } ?: JwkSet(scope, emptyList())).let { jwkSet ->
+                    {
+                        if (jwkSet.keys.size >= getMaximumNumberOfKeysPerScope()) {
+                            val updatedKeys = jwkSet.keys.drop(1) + listOf(jwk)
+                            JwkSet(scope, updatedKeys)
+                        } else {
+                            JwkSet(scope, jwkSet.keys + listOf(jwk))
+                        }
+                    }
+                }()
+
+            return nullSafeJwkSets.filter { jwkSet -> jwkSet.scope != scope } + listOf(updatedJwkSet)
+        }
+
+        /**
+         * Removes a key from an JwkSet.  If either the scope or key are found, returns the passed
+         * JwkSets unmodified
+         *
+         * @param jwkSets - the sets to try to remove the key from
+         * @param scope -  the scope that the key needs to be removed from
+         * @param jwk - the jwk to remove
+         * @return updated JwkSets
+         *
+         */
+        fun removeKeyFromScope(jwkSets: List<JwkSet>, scope: String, jwk: Jwk): List<JwkSet> {
+
+            val updatedJwkSet = jwkSets.find { it.scope == scope }.let { jwkSet ->
+                {
+                    if (jwkSet == null) {
+                        null
+                    } else {
+                        JwkSet(scope, jwkSet.keys.filter { it.kid != jwk.kid })
+                    }
+                }
+            }() ?: return jwkSets
+
+            return jwkSets.filter { jwkSet -> jwkSet.scope != scope } + listOf(updatedJwkSet)
+        }
+
+        /**
+         * Checks that the kid is unique within the JwkSet for the requested scope.  This implements the SMART on FHIR
+         * spec.
+         * http://hl7.org/fhir/uv/bulkdata/authorization/index.html#signature-verification:~:text=The%20identifier%20of%20the%20key%2Dpair%20used%20to%20sign%20this%20JWT.%20This%20identifier%20SHALL%20be%20unique%20within%20the%20client%27s%20JWK%20Set.
+         *
+         * @param jwkSets - The list of JwkSet that a key wants to be added to
+         * @param scope - The scope for the key
+         * @param kid - The kid for the key
+         * @return Whether the key can be added
+         */
+        fun isValidKidForScope(jwkSets: List<JwkSet>?, scope: String, kid: String?): Boolean {
+            val nullSafeJwkSets = jwkSets ?: emptyList()
+            val jwkSet = nullSafeJwkSets.find { it.scope == scope }
+
+            // The SMART on FHIR specifies that the KID must be unique within the JwkSet
+            // http://hl7.org/fhir/uv/bulkdata/authorization/index.html#protocol-details
+            if (jwkSet == null || jwkSet.keys.find { it.kid == kid } == null) {
+                return true
+            }
+
+            return false
+        }
+    }
 }

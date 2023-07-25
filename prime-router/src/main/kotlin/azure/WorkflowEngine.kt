@@ -5,6 +5,7 @@ import gov.cdc.prime.router.ActionLog
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidReportMessage
+import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
@@ -14,7 +15,6 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.SettingsProvider
-import gov.cdc.prime.router.TopicSender
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
@@ -172,10 +172,13 @@ class WorkflowEngine(
         payloadName: String? = null
     ): BlobAccess.BlobInfo {
         // Save a copy of the original report
-        val senderReportFormat = Report.Format.safeValueOf(sender.format.toString())
-        val blobFilename = report.name.replace(report.bodyFormat.ext, senderReportFormat.ext)
+        val reportFormat =
+            if (sender.topic.isUniversalPipeline) report.bodyFormat
+            else Report.Format.safeValueOf(sender.format.toString())
+
+        val blobFilename = report.name.replace(report.bodyFormat.ext, reportFormat.ext)
         val blobInfo = BlobAccess.uploadBody(
-            senderReportFormat,
+            reportFormat,
             rawBody,
             blobFilename,
             sender.fullName,
@@ -353,7 +356,7 @@ class WorkflowEngine(
                         Event.EventAction.RESEND,
                         nextEvent.eventAction,
                         nextEvent.at,
-                        RetryToken(1, retryItems).toJSON(),
+                        RetryToken(0, retryItems).toJSON(), // retryCount=0 will start at [1]
                         txn
                     )
                     msgs.add("$reportId has been queued to resend immediately to ${receiver.fullName}\n")
@@ -845,7 +848,7 @@ class WorkflowEngine(
      * @return Returns a generated report object, or null
      */
     fun parseTopicReport(
-        sender: TopicSender,
+        sender: LegacyPipelineSender,
         content: String,
         defaults: Map<String, String>
     ): ReadResult {
@@ -871,7 +874,7 @@ class WorkflowEngine(
                     )
                 }
             }
-            Sender.Format.HL7 -> {
+            Sender.Format.HL7, Sender.Format.HL7_BATCH -> {
                 try {
                     this.hl7Serializer.readExternal(
                         schemaName = sender.schemaName,
@@ -891,6 +894,7 @@ class WorkflowEngine(
                     )
                 }
             }
+            else -> throw IllegalStateException("Sender format ${sender.format} is not supported")
         }
     }
 }

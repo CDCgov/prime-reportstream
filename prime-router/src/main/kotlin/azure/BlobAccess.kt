@@ -11,7 +11,6 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.net.MalformedURLException
 import java.net.URL
 import java.net.URLDecoder
 import java.nio.charset.Charset
@@ -31,11 +30,20 @@ class BlobAccess : Logging {
             /**
              * Get the blob filename from a [blobUrl]
              * @return the blob filename
-             * @throws MalformedURLException if the blob URL is malformed
              */
             fun getBlobFilename(blobUrl: String): String {
                 return if (blobUrl.isNotBlank()) {
                     FilenameUtils.getName(URL(URLDecoder.decode(blobUrl, Charset.defaultCharset())).path)
+                } else ""
+            }
+
+            /**
+             * Get a file extension from a [blobUrl]
+             * @return the blob's file extension
+             */
+            fun getBlobFileExtension(blobUrl: String): String {
+                return if (blobUrl.isNotBlank()) {
+                    FilenameUtils.getExtension(URL(URLDecoder.decode(blobUrl, Charset.defaultCharset())).path)
                 } else ""
             }
         }
@@ -89,6 +97,7 @@ class BlobAccess : Logging {
                 Event.EventAction.PROCESS -> "process/$subfolderNameChecked$reportName"
                 Event.EventAction.ROUTE -> "route/$subfolderNameChecked$reportName"
                 Event.EventAction.TRANSLATE -> "translate/$subfolderNameChecked$reportName"
+                Event.EventAction.NONE -> "none/$subfolderNameChecked$reportName"
                 else -> "other/$subfolderNameChecked$reportName"
             }
             val digest = sha256Digest(blobBytes)

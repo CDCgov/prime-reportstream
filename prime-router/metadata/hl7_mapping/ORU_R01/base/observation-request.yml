@@ -10,7 +10,7 @@ elements:
     condition: '%resource.exists()'
     constants:
       entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-2'
-    schema: datatype/ei-entity-identifier
+    schema: ../../common/datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
   - name: filler-order
@@ -18,21 +18,29 @@ elements:
     condition: '%resource.exists()'
     constants:
       entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-3'
-    schema: datatype/ei-entity-identifier
+    schema: ../../common/datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
+
+  - name: order-organization-identifier
+    condition: '%diagnostic.identifier.type.empty()'
+    resource: '%resource.basedOn.resolve().performer.resolve()'
+    constants:
+      organizationIdFieldPath: '%{fieldPath}-3'
+      identifier: '%diagnostic.identifier[0].value'
+    schema: ../../common/organization-identifier
 
   - name: universal-service
     resource: '%resource.code'
     constants:
       ceFieldPath: '%{fieldPath}-4'
-    schema: datatype/ce-coded-element
+    schema: ../../common/datatype/ce-coded-element
 
-  - name: observation-date-time
+  - name: observation-request-date-time
     condition: '%resource.effective is dateTime'
     value: [ '%resource.effective' ]
     hl7Spec: [ '%{fieldPath}-7' ]
 
-  - name: observation-date-time-start
+  - name: observation-request-date-time-start
     condition: '%resource.effective is Period'
     value: [ '%resource.effective.start' ]
     hl7Spec: [ '%{fieldPath}-7' ]
@@ -46,7 +54,7 @@ elements:
     resource: '%service.extension(%`rsext-collector-identifier`).value.resolve()'
     constants:
       hl7XCNField: '%{fieldPath}-10'
-    schema: datatype/xcn-contact
+    schema: ../../common/datatype/xcn-contact
     resourceIndex: contactIndex
 
   - name: relevant-clinical-information
@@ -59,16 +67,16 @@ elements:
     resource: '%service.requester.resolve().practitioner.resolve()'
     constants:
       hl7XCNField: '%{fieldPath}-16'
-    schema: datatype/xcn-contact
+    schema: ../../common/datatype/xcn-contact
     resourceIndex: contactIndex
 
   - name: callback-phone-number
     resource: '%service.requester.resolve().practitioner.resolve().telecom'
     condition: '%resource.exists()'
     constants:
-      hl7TelecomField: '%{fieldPath}-17(%{callbackIndex})'
-    schema: datatype/xtn-telecom
-    resourceIndex: callbackIndex
+      hl7TelecomField: '%{fieldPath}-17'
+    schema: ../../common/datatype/xtn-telecom
+    resourceIndex: telecomIndex
 
   - name: placer-field
     resource: '%service.extension(%`rsext-placer-field-1`)'
@@ -108,18 +116,19 @@ elements:
     value: [ '%resource' ]
     hl7Spec: [ '%{fieldPath}-25' ]
     valueSet:
-      partial: A
-      corrected: C
-      amended: C
-      final: F
-      preliminary: P
-      cancelled: X
+      values:
+        partial: A
+        corrected: C
+        amended: C
+        final: F
+        preliminary: P
+        cancelled: X
 
   - name: parent-observation-link
     resource: '%resource.identifier.where(type.coding.system = "http://loinc.org").type'
     constants:
       ceFieldPath: '%{fieldPath}-26-1'
-    schema: datatype/ce-coded-element
+    schema: ../../common/datatype/ce-coded-element
 
   - name: parent-observation-sub-id
     resource: '%resource.extension(%`rsext-parent-observation-sub-id`)'
@@ -138,7 +147,7 @@ elements:
     condition: '%resource.exists()'
     constants:
       entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-29-1'
-    schema: datatype/ei-entity-identifier
+    schema: ../../common/datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
   - name: filler-assigned-identifier
@@ -146,18 +155,18 @@ elements:
     condition: '%resource.exists()'
     constants:
       entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-29-2'
-    schema: datatype/ei-entity-identifier
+    schema: ../../common/datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
   - name: reason-for-study
     resource: '%service.reasonCode'
     constants:
       ceFieldPath: '%{fieldPath}-31(%{reasonIndex})'
-    schema: datatype/ce-coded-element
+    schema: ../../common/datatype/ce-coded-element
     resourceIndex: reasonIndex
 
   - name: result-interpreter
     resource: '%resource.resultsInterpreter.resolve()'
     constants:
       cnnFieldPath: '%{fieldPath}-32-1'
-    schema: datatype/cnn-composite-number-name
+    schema: ../../common/datatype/cnn-composite-number-name

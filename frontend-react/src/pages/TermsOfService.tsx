@@ -1,5 +1,8 @@
 import { Alert } from "@trussworks/react-uswds";
 
+import { USExtLink, USLink } from "../components/USLink";
+import site from "../content/site.json";
+
 export const TermsOfService = () => {
     return (
         <>
@@ -8,6 +11,7 @@ export const TermsOfService = () => {
                 id="anchor-top"
             >
                 <Alert
+                    headingLevel="h4"
                     type="info"
                     heading="This is a U.S. government service"
                     className="margin-bottom-5"
@@ -61,7 +65,7 @@ export const TermsOfService = () => {
                         </h1>
 
                         <p>
-                            <i>Effective June 14, 2021</i>
+                            <i>Effective February 1, 2023</i>
                         </p>
 
                         <p>
@@ -72,12 +76,9 @@ export const TermsOfService = () => {
                             and agree that you are solely responsible for and
                             shall abide by these Terms of Service, as well as
                             any relevant sections of 
-                            <a
-                                href="https://www.cdc.gov/other/information.html"
-                                className="usa-link"
-                            >
+                            <USLink href="https://www.cdc.gov/other/information.html">
                                 CDC’s Privacy Policies
-                            </a>
+                            </USLink>
                              (collectively, Terms).
                         </p>
 
@@ -121,12 +122,13 @@ export const TermsOfService = () => {
                         <p>
                             PRIME ReportStream is provided by HHS and CDC to
                             enable a User to send Public Health Data, including
-                            personally identifiable information (PII), to STLT
-                            Public Health Agencies in furtherance of authorized
-                            public health response activities related to
-                            COVID-19. Use of PRIME ReportStream is subject to
-                            these Terms of Service and use of PRIME ReportStream
-                            constitutes acceptance of these Terms.
+                            personally identifiable information (PII) for a
+                            range of public health purposes, including as needed
+                            and as appropriate under applicable laws or
+                            agreements. Use of PRIME ReportStream is subject to
+                            these Terms of Service and applicable law, and use
+                            of PRIME ReportStream constitutes acceptance of
+                            these Terms.
                         </p>
                     </section>
                     <section>
@@ -199,12 +201,9 @@ export const TermsOfService = () => {
                             or sent through PRIME ReportStream. If you would
                             like more information about the application of the
                             Privacy Act at CDC, 
-                            <a
-                                href="https://www.cms.gov/Research-Statistics-Data-and-Systems/Computer-Data-and-Systems/Privacy/PrivacyActof1974.html"
-                                className="usa-link"
-                            >
+                            <USExtLink href="https://www.cms.gov/Research-Statistics-Data-and-Systems/Computer-Data-and-Systems/Privacy/PrivacyActof1974.html">
                                 click here
-                            </a>
+                            </USExtLink>
                             .
                         </p>
 
@@ -224,44 +223,42 @@ export const TermsOfService = () => {
 
                         <p>
                             PRIME ReportStream is being provided to allow for
-                            the transmission of Public Health Data to STLT
-                            Public Health Agencies to facilitate authorized
-                            public health activities. HHS and CDC acknowledge
-                            that CDC, through PRIME ReportStream, is acting as a
-                            conduit for transmission of Public Health Data to
-                            STLT Public Health Agencies for the purposes of
-                            public health reporting and does not intend to take
-                            custody or control of those data. Where the Public
-                            Health Data is not in CDC's custody and control and
-                            the Public Health Data is requested of CDC, CDC
-                            shall notify the requestor that CDC does not have
-                            custody of this data and refer requestor to the
-                            Entity.
+                            the transmission of Public Health Data to facilitate
+                            authorized public health activities. As agreed upon
+                            with the relevant User(s), transmissions may be
+                            directly to STLTs, HHS, CDC or to third parties.
+                            Users sending Public Health Data to these entities
+                            directly through PRIME ReportStream agree that any
+                            such transmission is consistent with applicable law
+                            and any applicable agreements.
                         </p>
 
                         <p>
-                            The User acknowledges and agrees that CDC may
+                            Where HHS or CDC are direct recipients as agreed
+                            upon with the relevant User(s), such Public Health
+                            Data in HHS&apos;s or CDC&apos;s custody and control
+                            will be managed in compliance with applicable
+                            federal laws regarding the receipt, transmission,
+                            use, storage and disposition of covered Public
+                            Health Data.
+                        </p>
+
+                        <p>
+                            The User also acknowledges and agrees that CDC may
                             address gaps in the Public Health Data during the
                             transmission process, for the limited purpose of
                             addressing data quality and completeness issues as
                             appropriate. Except as may be required by applicable
-                            federal law, CDC may not use or disclose the Public
-                            Health Data for other purposes than described in
-                            these Terms of Service.
+                            federal law, where CDC may conduct these data
+                            quality and completeness activities, CDC agrees to
+                            not use or disclose the Public Health Data.
                         </p>
 
                         <p>
                             You may use PRIME ReportStream to search, display,
                             analyze, retrieve, view and otherwise ‘get’
                             transactional data from transmissions you are
-                            sending or receiving via PRIME ReportStream. PRIME
-                            ReportStream may also be used to facilitate entities
-                            sending Public Health Data directly to CDC for
-                            agreed upon purposes. In those circumstances, Entity
-                            acknowledges that such Public Health data sent
-                            directly to CDC for those agreed upon purposes will
-                            be subject to applicable federal law once in CDC's
-                            custody and control.
+                            sending or receiving via PRIME ReportStream.
                         </p>
 
                         <h3>Sharing of data</h3>
@@ -284,9 +281,10 @@ export const TermsOfService = () => {
                             in coordination with the relevant STLT Public Health
                             Agency, may decide to use PRIME ReportStream to send
                             de-identified or other appropriate and/or agreed
-                            upon levels of data to CDC for public health
-                            purposes; such data sent to CDC will be maintained
-                            consistent with applicable federal laws.
+                            upon levels of data to CDC or third parties for
+                            public health purposes; such data sent to CDC will
+                            be maintained consistent with applicable federal
+                            laws.
                         </p>
 
                         <h3>Other responsibilities</h3>
@@ -300,8 +298,13 @@ export const TermsOfService = () => {
                                 or receipt of data by PRIME ReportStream.
                             </li>
                             <li>
-                                You will promptly inform CDC (usds@cdc.gov) in
-                                the event you become aware of any misuse of
+                                You will promptly inform CDC (
+                                <USExtLink
+                                    href={`mailto: ${site.orgs.RS.email}`}
+                                >
+                                    {site.orgs.RS.email}
+                                </USExtLink>
+                                ) in the event you become aware of any misuse of
                                 identifiable information or protected health
                                 information you submit and/or access through
                                 PRIME ReportStream.
@@ -391,23 +394,24 @@ export const TermsOfService = () => {
                         <p>
                             CDC reserves the right (though not the obligation)
                             to: (1) refuse to provide PRIME ReportStream to you,
-                            if it is CDC’s opinion that use violates any federal
-                            law or CDC policy; or (2) terminate or deny you
-                            access to and use of all or part of PRIME
+                            if it is CDC&apos;s opinion that use violates any
+                            federal law or CDC policy; or (2) terminate or deny
+                            you access to and use of all or part of PRIME
                             ReportStream at any time for any reason which in
-                            CDC’s sole discretion it deems necessary, including
-                            to prevent violation of federal law or CDC policy.
-                            You may submit a request to CDC to regain access to
-                            PRIME ReportStream through the support email address
-                            provided by CDC for PRIME ReportStream. If CDC
-                            determines in its sole discretion that the
-                            circumstances which led to the refusal to provide
-                            PRIME ReportStream or terminate access to PRIME
-                            ReportStream no longer exist, then CDC may restore
-                            your access. All provisions of these Terms, which by
-                            their nature should survive termination, shall
-                            survive termination including, without limitation,
-                            warranty disclaimers, and limitations of liability.
+                            CDC&apos;s sole discretion it deems necessary,
+                            including to prevent violation of federal law or CDC
+                            policy. You may submit a request to CDC to regain
+                            access to PRIME ReportStream through the support
+                            email address provided by CDC for PRIME
+                            ReportStream. If CDC determines in its sole
+                            discretion that the circumstances which led to the
+                            refusal to provide PRIME ReportStream or terminate
+                            access to PRIME ReportStream no longer exist, then
+                            CDC may restore your access. All provisions of these
+                            Terms, which by their nature should survive
+                            termination, shall survive termination including,
+                            without limitation, warranty disclaimers, and
+                            limitations of liability.
                         </p>
 
                         <h3>
@@ -416,19 +420,19 @@ export const TermsOfService = () => {
                         </h3>
 
                         <p>
-                            PRIME ReportStream is provided to User for User’s
-                            use. User may not modify, copy, distribute,
-                            transmit, display, perform, reproduce, publish,
-                            license, create derivative works from, transfer, or
-                            sell any information, software, products, or
-                            services obtained from CDC. Material provided by CDC
-                            are either owned by or the licensed property of the
-                            United States Department of Health and Human
-                            Services (“HHS”) and the Centers for Disease Control
-                            and Prevention (CDC). HHS/CDC grants to you a
-                            limited, non-exclusive, non-transferable license to
-                            access PRIME ReportStream in the United States for
-                            the uses set forth in these Terms.
+                            PRIME ReportStream is provided to User for
+                            User&apos;s use. User may not modify, copy,
+                            distribute, transmit, display, perform, reproduce,
+                            publish, license, create derivative works from,
+                            transfer, or sell any information, software,
+                            products, or services obtained from CDC. Material
+                            provided by CDC are either owned by or the licensed
+                            property of the United States Department of Health
+                            and Human Services (“HHS”) and the Centers for
+                            Disease Control and Prevention (CDC). HHS/CDC grants
+                            to you a limited, non-exclusive, non-transferable
+                            license to access PRIME ReportStream in the United
+                            States for the uses set forth in these Terms.
                         </p>
 
                         <h3>Disclaimer of warranties</h3>
@@ -476,12 +480,13 @@ export const TermsOfService = () => {
                         <h3>Indemnification</h3>
 
                         <p>
-                            You agree to indemnify and hold harmless HHS,
-                            including CDC, its contractors, employees, agents,
-                            and the like, from and against any and all claims
-                            and expenses, including attorney’s fees, arising out
-                            of your use of ReportStream, including but not
-                            limited to violation of these Terms.
+                            To the extent allowed by applicable law, you agree
+                            to indemnify and hold harmless HHS, including CDC,
+                            its contractors, employees, agents, and the like,
+                            from and against any and all claims and expenses,
+                            including attorney&apos;s fees, arising out of your
+                            use of ReportStream, including but not limited to
+                            violation of these Terms.
                         </p>
 
                         <h3>No waiver of rights</h3>
@@ -500,19 +505,18 @@ export const TermsOfService = () => {
                             determine general usage patterns and performance of
                             ReportStream to assist with design and development
                             of PRIME ReportStream. This transactional and usage
-                            characteristic data is not linked to an individual’s
-                            identity, but IP address and device information may
-                            be included. Transactional data are audited and
-                            stored for system monitoring, performance, and
-                            troubleshooting purposes and may be tied to the user
-                            performing an activity. Any such data will be
-                            maintained consistent with applicable federal laws.
+                            characteristic data is not linked to an
+                            individual&apos;s identity, but IP address and
+                            device information may be included. Transactional
+                            data are audited and stored for system monitoring,
+                            performance, and troubleshooting purposes and may be
+                            tied to the user performing an activity. Any such
+                            data will be maintained consistent with applicable
+                            federal laws.
                         </p>
 
                         <p className="margin-top-8">
-                            <a href="#anchor-top" className="usa-link">
-                                Back to top
-                            </a>
+                            <USLink href="#anchor-top">Back to top</USLink>
                         </p>
                     </section>
                 </div>

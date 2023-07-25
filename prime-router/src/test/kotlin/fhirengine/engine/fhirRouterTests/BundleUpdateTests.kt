@@ -34,31 +34,35 @@ class BundleUpdateTests {
     val blobMock = mockkClass(BlobAccess::class)
     val queueMock = mockkClass(QueueAccess::class)
     val metadata = Metadata(schema = Schema(name = "None", topic = Topic.FULL_ELR, elements = emptyList()))
-    val bodyUrl = "http://anyblob.com"
+    private val shorthandLookupTable = emptyMap<String, String>().toMutableMap()
+    private val organizationName = "co-phd"
+
+    val bodyUrl = "https://anyblob.com"
     private val defaultReceivers = listOf(
         Receiver(
             "full-elr-hl7",
-            "co-phd",
+            organizationName,
             Topic.FULL_ELR,
             CustomerStatus.ACTIVE,
             "one"
         ),
         Receiver(
             "full-elr-hl7-2",
-            "co-phd",
+            organizationName,
             Topic.FULL_ELR,
             CustomerStatus.INACTIVE,
             "one"
         )
     )
     val oneOrganization = DeepOrganization(
-        "co-phd",
+        organizationName,
         "test",
         Organization.Jurisdiction.FEDERAL,
         receivers = defaultReceivers
     )
 
-    val message = spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender"))
+    val message =
+        spyk(RawSubmission(UUID.randomUUID(), "http://blob.url", "test", "test-sender", topic = Topic.FULL_ELR))
 
     private val validFhirWithProvenance = """
     {
@@ -84,7 +88,6 @@ class BundleUpdateTests {
                 "resource": {
                     "resourceType": "Provenance",
                     "id": "1666038430962443000.9671377b-8f2b-4f5c-951c-b43ca8fd1a25",
-                    "occurredDateTime": "2028-08-08T09:28:05-06:00",
                     "recorded": "2028-08-08T09:28:05-06:00",
                     "activity": {
                         "coding": [
@@ -98,7 +101,8 @@ class BundleUpdateTests {
                 }
             }
         ]
-    }"""
+    }
+    """
 
     @BeforeEach
     fun reset() {
@@ -112,14 +116,14 @@ class BundleUpdateTests {
         val receiversIn = listOf(oneOrganization.receivers[0])
 
         // act
-        FHIRBundleHelpers.addReceivers(bundle, receiversIn)
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
 
         // assert
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         val outs = provenance.target
         val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
         assert(receiversOut.isNotEmpty())
-        assert(receiversOut[0] == "co-phd.full-elr-hl7")
+        assert(receiversOut[0] == "$organizationName.full-elr-hl7")
     }
 
     @Test
@@ -129,7 +133,7 @@ class BundleUpdateTests {
         val receiversIn = listOf(oneOrganization.receivers[1])
 
         // act
-        FHIRBundleHelpers.addReceivers(bundle, receiversIn)
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
 
         // assert
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
@@ -145,13 +149,13 @@ class BundleUpdateTests {
         val receiversIn = oneOrganization.receivers
 
         // act
-        FHIRBundleHelpers.addReceivers(bundle, receiversIn)
+        FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
 
         // assert
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         val outs = provenance.target
         val receiversOut = outs.map { (it.resource as Endpoint).identifier[0].value }
         assert(receiversOut.isNotEmpty())
-        assert(receiversOut[0] == "co-phd.full-elr-hl7")
+        assert(receiversOut[0] == "$organizationName.full-elr-hl7")
     }
 }

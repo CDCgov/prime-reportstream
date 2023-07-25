@@ -1,14 +1,17 @@
-import { OktaAuth } from "@okta/okta-auth-js";
+import { OKTA_AUTH } from "../oktaConfig";
 
-function logout(oktaAuth: OktaAuth): void {
-    if (oktaAuth?.signOut) {
-        try {
-            oktaAuth.signOut();
-        } catch (e) {
-            console.trace(e);
-        }
+export enum SessionEvent {
+    LOGIN = "login",
+    LOGOUT = "logout",
+}
+
+async function logout(): Promise<void> {
+    try {
+        await OKTA_AUTH.signOut();
+    } catch (e) {
+        console.trace(e);
     }
-    sessionStorage.clear();
+    localStorage.clear();
 }
 
 export { logout };

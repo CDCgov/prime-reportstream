@@ -1,0 +1,28 @@
+elements:
+  - name: family-name
+    value: [ '%deidentifiedValue', '%resource.family' ]
+    hl7Spec: [ '%{hl7NameField}-1' ]
+
+  - name: given-name
+    condition: '%resource.given.exists()'
+    value: [ '%deidentifiedValue','%resource.given[0]' ]
+    hl7Spec: [ '%{hl7NameField}-2' ]
+
+  - name: second-name
+    condition: '%resource.given.count() >= 2'
+    value: [ '%deidentifiedValue','%resource.given.tail().toString().replace('','', '' '')' ]
+    hl7Spec: [ '%{hl7NameField}-3' ]
+
+  - name: use
+    condition: '%resource.exists()'
+    value:
+      - '%resource.use'
+      - '"official"'
+    hl7Spec: [ '%{hl7NameField}-7' ]
+    valueSet:
+      values:
+        official: L
+        usual: D
+        maiden: M
+        nickname: N
+        anonymous: S

@@ -395,6 +395,12 @@ elements:
     hl7OutputFields: [ORC-12-13, OBR-16-13]
     documentation: Usually NPI
 
+  - name: ordering_provider_name_type_code
+    type: TEXT
+    mapper: ifNPI(ordering_provider_id, L, U)
+    hl7Field: ORC-12-10
+    hl7OutputFields: [ ORC-12-10, OBR-16-10 ]
+
   - name: ordering_provider_last_name
     type: PERSON_NAME
     pii: false   # per https://www.hhs.gov/sites/default/files/covid-19-laboratory-data-reporting-guidance.pdf
@@ -1045,17 +1051,7 @@ elements:
   - name: test_type
     type: TABLE
     table: LIVD-SARS-CoV-2
-    tableColumn: TestType
-    reference:
-    referenceUrl:
-    mapper: livdLookup()
-    default:
-    documentation:
-
-  - name: clia_complexity
-    type: TABLE
-    table: LIVD-SARS-CoV-2
-    tableColumn: CLIAComplexity
+    tableColumn: Test Type
     reference:
     referenceUrl:
     mapper: livdLookup()
@@ -1386,6 +1382,11 @@ elements:
     hl7Field: OBX-23-1
     hl7OutputFields: [ ORC-2-2, OBR-2-2, ORC-3-2, OBR-3-2, OBX-23-1, PID-3-4-1, OBX-15-2 ]
     documentation: The name of the laboratory which performed the test, can be the same as the sending facility name
+
+  - name: testing_lab_name_type_code
+    type: TEXT
+    mapper: ifPresent(testing_lab_name, L)
+    hl7Field: OBX-23-2
 
   - name: testing_lab_specimen_id
     type: ID

@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 
-import testMd from "../../../content/markdown-test.md";
-import { renderWithRouter } from "../../../utils/CustomRenderUtils";
+import testMd from "../../../content/markdown-test.md?url";
+import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MarkdownDirectory } from "../MarkdownDirectory";
 
 import IASideNavTemplate from "./IASideNavTemplate";
@@ -20,12 +20,16 @@ jest.mock("react-router-dom", () => ({
 
 describe("StaticPageFromDirectories", () => {
     test("Renders without error", () => {
-        renderWithRouter(<IASideNavTemplate directories={testDirectories} />);
+        renderApp(<IASideNavTemplate directories={testDirectories} />, {
+            initialRouteEntries: ["/resources/*"],
+        });
     });
     test("Renders without side-nav", () => {
-        renderWithRouter(<IASideNavTemplate directories={testDirectories} />);
+        renderApp(<IASideNavTemplate directories={testDirectories} />, {
+            initialRouteEntries: ["/resources/*"],
+        });
         const nav = screen.getByText("Test Dir");
         expect(nav).toBeInTheDocument();
-        expect(nav).toHaveAttribute("href", "/test-dir");
+        expect(nav).toHaveAttribute("href", "/resources/test-dir");
     });
 });

@@ -1,5 +1,4 @@
-hl7Type: ORU_R01
-hl7Version: 2.5.1
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 constants:
   # Prefix for RS custom extension URLs
   rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
@@ -7,32 +6,48 @@ elements:
   - name: message-headers
     condition: >
       Bundle.entry.resource.ofType(MessageHeader).exists() and
-      Bundle.entry.resource.ofType(Provenance).exists() and
-      Bundle.entry.resource.ofType(Provenance).activity.coding.code = 'R01'
+      Bundle.entry.resource.ofType(MessageHeader).event is Coding and
+      Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     required: true
-    schema: base/message-header
+    schema: ../common/message-header
 
   - name: software-segment
     condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
-    schema: base/software
+    schema: ../common/software
 
   - name: patient-information
     resource: 'Bundle.entry.resource.ofType(Patient)'
     condition: '%resource.count() = 1'
     required: true
-    schema: base/patient
+    constants:
+      hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
+    schema: ../common/patient
+
+  - name: patient-note
+    resource: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).value.text.split(''\n'')'
+    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).exists()'
+    schema: base/note
+    resourceIndex: noteIndex
+    constants:
+      hl7NotePath: '/PATIENT_RESULT/PATIENT'
+      # Cannot use %resource here as this constant will be resolved in the note schema
+      noteDetails: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).value'
 
   - name: patient-contact
     resource: 'Bundle.entry.resource.ofType(Patient).contact'
     condition: '%resource.exists()'
-    schema: base/patient-contact
+    constants:
+      hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
+    schema: ../common/patient-contact
 
   - name: patient-visit
     resource: 'Bundle.entry.resource.ofType(Encounter)'
     condition: '%resource.count() = 1'
-    schema: base/patient-visit
+    constants:
+      hl7SegmentGroup: '/PATIENT_RESULT/PATIENT/VISIT'
+    schema: ../common/patient-visit
 
   - name: order-observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'

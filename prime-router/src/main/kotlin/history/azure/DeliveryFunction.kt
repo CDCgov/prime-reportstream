@@ -8,12 +8,23 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.BindingName
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
+import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.azure.ApiResponse
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.DeliveryHistory
+import gov.cdc.prime.router.history.db.DeliveryApiSearch
+import gov.cdc.prime.router.history.db.DeliveryDatabaseAccess
+import gov.cdc.prime.router.history.db.ReportGraph
+import gov.cdc.prime.router.history.db.SubmitterApiSearch
+import gov.cdc.prime.router.history.db.SubmitterDatabaseAccess
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.authenticationFailure
+import java.util.UUID
 
 /**
  * Deliveries API
@@ -32,6 +43,9 @@ class DeliveryFunction(
     // Ignoring unknown properties because we don't require them. -DK
     private val mapper = JacksonMapperUtilities.allowUnknownsMapper
 
+    private val submitterDatabaseAccess = SubmitterDatabaseAccess()
+    private val deliveryDatabaseAccess = DeliveryDatabaseAccess()
+
     /**
      * Authorization and shared logic uses the organization name without the service
      * We store the service name here to pass to the facade
@@ -39,15 +53,17 @@ class DeliveryFunction(
     var receivingOrgSvc: String? = null
 
     /**
-     * Get the correct name for an organization receiver based on the name.
+     * Verify the correct name for an organization based on the name
      *
-     * @param organization Name of organization and client in the format {orgName}.{client}
+     * @param organization Name of organization and optionally a receiver channel in the format {orgName}.{receiver}
      * @return Name for the organization
      */
-    override fun getOrgName(organization: String): String? {
-        val receiver = workflowEngine.settings.findReceiver(organization)
-        receivingOrgSvc = receiver?.name
-        return receiver?.organizationName
+    override fun validateOrgSvcName(organization: String): String? {
+        return if (organization.contains(Sender.fullNameSeparator)) {
+            workflowEngine.settings.findReceiver(organization).also { receivingOrgSvc = it?.name }?.organizationName
+        } else {
+            workflowEngine.settings.findOrganization(organization)?.name
+        }
     }
 
     /**
@@ -58,7 +74,7 @@ class DeliveryFunction(
      * @return true if action is valid, else false
      */
     override fun actionIsValid(action: Action): Boolean {
-        return action.actionName == TaskAction.batch
+        return action.actionName == TaskAction.batch || action.actionName == TaskAction.send
     }
 
     /**
@@ -94,6 +110,37 @@ class DeliveryFunction(
      */
     override fun singleDetailedHistory(queryParams: MutableMap<String, String>, action: Action): DeliveryHistory? {
         return deliveryFacade.findDetailedDeliveryHistory(action.actionId)
+    }
+
+    @FunctionName("getDeliveriesV1")
+    fun getDeliveriesV1(
+        @HttpTrigger(
+            name = "getDeliveriesV1",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "v1/receivers/{receiverName}/deliveries"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("receiverName") receiverName: String
+    ): HttpResponseMessage {
+        val claims = AuthenticatedClaims.authenticate(request)
+        val receiver =
+            BaseEngine.settingsProviderSingleton.findReceiver(receiverName) ?: return HttpUtilities.notFoundResponse(
+                request,
+                "No such receiver $receiverName"
+            )
+        if (claims == null || !claims.authorizedForSendOrReceive(
+                requiredOrganization = receiver.organizationName,
+                request = request
+            )
+        ) {
+            logger.warn("User '${claims?.userName}' FAILED authorization for endpoint ${request.uri}")
+            return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+        }
+        request.body ?: HttpUtilities.badRequestResponse(request, "Search body must be included")
+        val search = DeliveryApiSearch.parse(request)
+        val results = deliveryDatabaseAccess.getDeliveries(search, receiver)
+        val response = ApiResponse.buildFromApiSearch("delivery", search, results)
+        return HttpUtilities.okJSONResponse(request, response)
     }
 
     /**
@@ -201,6 +248,31 @@ class DeliveryFunction(
     }
 
     /**
+     * Fetches the items that were contained in the passed in report ID walking up the report lineage if necessary
+     */
+    @FunctionName("getReportItemsV1")
+    fun getReportItems(
+        @HttpTrigger(
+            name = "getReportItemsV1",
+            methods = [HttpMethod.GET],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "v1/report/{reportId}/items"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("reportId") reportId: UUID
+    ): HttpResponseMessage {
+        val claims = AuthenticatedClaims.authenticate(request)
+        if (claims == null || !claims.authorized(setOf("*.*.primeadmin"))) {
+            logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
+            return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+        }
+
+        val reportGraph = ReportGraph(workflowEngine.db)
+        val metadata = reportGraph.getMetadataForReports(listOf(reportId))
+
+        return HttpUtilities.okJSONResponse(request, metadata)
+    }
+
+    /**
      * Container for extracted History API parameters exclusively related to Deliveries.
      *
      * @property sortColumn sort the table by specific column; default created_at.
@@ -227,6 +299,40 @@ class DeliveryFunction(
                 }
             }
         }
+    }
+
+    /**
+     * API for searching for submitters for a specific receiver
+     */
+    @FunctionName("getSubmittersV1")
+    fun getSubmitters(
+        @HttpTrigger(
+            name = "getSubmittersV1",
+            methods = [HttpMethod.POST],
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "v1/receivers/{receiverName}/deliveries/submitters/search"
+        ) request: HttpRequestMessage<String?>,
+        @BindingName("receiverName") receiverName: String
+    ): HttpResponseMessage {
+        val claims = AuthenticatedClaims.authenticate(request)
+        val receiver =
+            BaseEngine.settingsProviderSingleton.findReceiver(receiverName) ?: return HttpUtilities.notFoundResponse(
+                request,
+                "No such receiver $receiverName"
+            )
+        if (claims == null || !claims.authorizedForSendOrReceive(
+                requiredOrganization = receiver.organizationName,
+                request = request
+            )
+        ) {
+            logger.warn("User '${claims?.userName}' FAILED authorization for endpoint ${request.uri}")
+            return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+        }
+        request.body ?: HttpUtilities.badRequestResponse(request, "Search body must be included")
+        val search = SubmitterApiSearch.parse(request)
+        val results = submitterDatabaseAccess.getSubmitters(search, receiver)
+        val response = ApiResponse.buildFromApiSearch("submitter", search, results)
+        return HttpUtilities.okJSONResponse(request, response)
     }
 
     /**

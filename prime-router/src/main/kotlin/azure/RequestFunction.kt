@@ -3,12 +3,15 @@ package gov.cdc.prime.router.azure
 import com.google.common.net.HttpHeaders
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DEFAULT_SEPARATOR
-import gov.cdc.prime.router.HasSchema
 import gov.cdc.prime.router.InvalidParamMessage
+import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.ROUTE_TO_SEPARATOR
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Sender
+import java.lang.IllegalArgumentException
+import java.security.InvalidParameterException
 
 const val CLIENT_PARAMETER = "client"
 const val PAYLOAD_NAME_PARAMETER = "payloadname"
@@ -17,6 +20,8 @@ const val DEFAULT_PARAMETER = "default"
 const val ROUTE_TO_PARAMETER = "routeTo"
 const val ALLOW_DUPLICATES_PARAMETER = "allowDuplicate"
 const val TOPIC_PARAMETER = "topic"
+const val SCHEMA_PARAMETER = "schema"
+const val FORMAT_PARAMETER = "format"
 
 /**
  * Base class for ReportFunction and ValidateFunction
@@ -31,7 +36,7 @@ abstract class RequestFunction(
         val content: String = "",
         val defaults: Map<String, String> = emptyMap(),
         val routeTo: List<String> = emptyList(),
-        val sender: Sender,
+        val sender: Sender?,
         val topic: String = "covid-19"
     )
 
@@ -70,32 +75,47 @@ abstract class RequestFunction(
         routeTo.filter { workflowEngine.settings.findReceiver(it) == null }
             .forEach { actionLogs.error(InvalidParamMessage("Invalid receiver name: $it")) }
 
+        var sender: Sender? = null
         val clientName = extractClient(request)
         if (clientName.isBlank()) {
-            actionLogs.error(InvalidParamMessage("Expected a '$CLIENT_PARAMETER' query parameter"))
-        }
-
-        val sender = workflowEngine.settings.findSender(clientName)
-        if (sender == null) {
-            actionLogs.error(InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown sender"))
+            // Find schema via SCHEMA_PARAMETER parameter
+            try {
+                sender = getDummySender(
+                    request.queryParameters.getOrDefault(SCHEMA_PARAMETER, null),
+                    request.queryParameters.getOrDefault(FORMAT_PARAMETER, null)
+                )
+            } catch (e: InvalidParameterException) {
+                actionLogs.error(
+                    InvalidParamMessage(e.message.toString())
+                )
+            }
+        } else {
+            // Find schema via CLIENT_PARAMETER parameter
+            sender = workflowEngine.settings.findSender(clientName)
+            if (sender == null) {
+                actionLogs.error(InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown sender"))
+            }
         }
 
         // verify schema if the sender is a topic sender
         var schema: Schema? = null
-        if (sender != null && sender is HasSchema) {
+        if (sender != null && sender is LegacyPipelineSender) {
             schema = workflowEngine.metadata.findSchema(sender.schemaName)
             if (schema == null) {
                 actionLogs.error(
-                    InvalidParamMessage("'$CLIENT_PARAMETER:$clientName': unknown schema '${sender.schemaName}'")
+                    InvalidParamMessage("unknown schema '${sender.schemaName}'")
                 )
             }
         }
 
+        // validate content type
         val contentType = request.headers.getOrDefault(HttpHeaders.CONTENT_TYPE.lowercase(), "")
         if (contentType.isBlank()) {
             actionLogs.error(InvalidParamMessage("Missing ${HttpHeaders.CONTENT_TYPE} header"))
         } else if (sender != null && sender.format.mimeType != contentType) {
-            actionLogs.error(InvalidParamMessage("Expecting content type of '${sender.format.mimeType}'"))
+            actionLogs.error(
+                InvalidParamMessage("Resubmit as '${sender.format.mimeType}'")
+            )
         }
 
         val content = request.body ?: ""
@@ -104,7 +124,7 @@ abstract class RequestFunction(
                 "application/hl7-v2" ->
                     actionLogs.error(
                         InvalidParamMessage(
-                            "Cannot parse empty HL7 message. Please refer to the HL7 specification and resubmit."
+                            "Blank message(s) found within file. Blank messages cannot be processed."
                         )
                     )
                 else -> actionLogs.error(InvalidParamMessage("Expecting a post message with content"))
@@ -124,8 +144,8 @@ abstract class RequestFunction(
                     return@mapNotNull null
                 }
 
-                // only non full ELR senders will have a schema
-                if (sender is HasSchema && schema != null) {
+                // only topic sender schemas are relevant here
+                if (sender is LegacyPipelineSender && schema != null) {
                     val element = schema.findElement(parts[0])
                     if (element == null) {
                         actionLogs.error(InvalidParamMessage("'${parts[0]}' is not a valid element name"))
@@ -150,5 +170,38 @@ abstract class RequestFunction(
             sender,
             topic
         )
+    }
+
+    /**
+     * Return [LegacyPipelineSender] for a given schema if that schema exists. This lets us wrap the data needed by
+     * processRequest without making changes to the method
+     * @param schemaName the name or path of the schema
+     * @param format the message format that the schema supports
+     * @return LegacyPipelineSender if schema exists, null otherwise
+     * @throws InvalidParameterException if [schemaName] or [formatName] is not valid
+     */
+    @Throws(InvalidParameterException::class)
+    internal fun getDummySender(schemaName: String?, formatName: String?): LegacyPipelineSender {
+        val errMsgPrefix = "No client found in header so expected valid " +
+            "'$SCHEMA_PARAMETER' and '$FORMAT_PARAMETER' query parameters but found error: "
+        if (schemaName != null && formatName != null) {
+            val schema = workflowEngine.metadata.findSchema(schemaName)
+                ?: throw InvalidParameterException("$errMsgPrefix The schema with name '$schemaName' does not exist")
+            val format = try {
+                Sender.Format.valueOf(formatName)
+            } catch (e: IllegalArgumentException) {
+                throw InvalidParameterException("$errMsgPrefix The format '$formatName' is not supported")
+            }
+            return LegacyPipelineSender(
+                "ValidationSender",
+                "Internal",
+                format,
+                CustomerStatus.TESTING,
+                schemaName,
+                schema.topic
+            )
+        } else {
+            throw InvalidParameterException("$errMsgPrefix 'SchemaName' and 'format' parameters must not be null")
+        }
     }
 }

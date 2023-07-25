@@ -1,248 +1,259 @@
+// AutoUpdateFileChromatic
+@use "uswds-core" as *;
+@use "uswds_custom_theme" as *;
+
 // USWDS identifier
 
 .prime-identifier {
-  background-color: #f0f0f0;
-  color: #1b1b1b;
+    background-color: #f0f0f0;
+    color: #1b1b1b;
 }
 
 .prime-identifier .prime-identifier__domain {
-  color: #565c65;
+    color: #565c65;
 }
 
 .prime-identifier .prime-identifier__disclaimer a:link,
 .prime-identifier .prime-identifier__disclaimer a:visited,
 .prime-identifier .prime-identifier__disclaimer a:active {
-  color: #1b1b1b;
+    color: #1b1b1b;
 }
 
 .prime-identifier .prime-identifier__disclaimer a:hover {
-  color: #71767a;
+    color: #71767a;
 }
 
-// Navigation
+// Link visited color overrides
+.rs-header-mark:visited {
+    color: #1b1b1b;
+}
+.usa-link .usa-link:visited {
+    .usa-button {
+        color: white;
+    }
+    .usa-button .usa-button--outline {
+        color: inherit;
+    }
+}
 
 // Environment watermark above RS wordmark
 .rs-oktapreview-watermark {
-  transform: rotate(343deg);
-  position: absolute;
-  opacity: .6;
-  top: 1em;
-  color: crimson;
-  overflow: hidden;
-  font-weight: 900;
+    transform: rotate(343deg);
+    position: absolute;
+    opacity: 0.6;
+    top: 1em;
+    color: crimson;
+    overflow: hidden;
+    font-weight: 900;
 }
 
 .prime-user-account {
-  font-size: .88rem;
-  vertical-align: middle;
-  line-height: 1.25rem;
+    font-size: 0.88rem;
+    vertical-align: middle;
+    line-height: 1.25rem;
 }
 
 #okta-sign-in {
-  margin-top: 0;
-}
-
-// RS hero
-
-.rs-hero {
-  background-color: #f0f0f0;
-}
-
-.rs-hero__flex-center {
-  align-items: center;
+    margin-top: 0;
 }
 
 // RS HERO - INDEX PAGES
 
 .rs-hero__index {
-  border-bottom: 1px solid color('base-lighter');
-  padding-top: units(3);
-  padding-bottom: units(4);
-  margin-bottom: units(6);
+    border-bottom: 1px solid color("base-lighter");
+    padding-top: units(3);
+    padding-bottom: units(4);
+    margin-bottom: units(6);
 
-  h1, h2 {
-    margin-top: 0;
-    margin-bottom: 0;
-    padding: 0;
-  }
-
-  h2 {
-    color: color('gray-cool-50');
-    font-size: size('sans', 'xl');
-  }
-
-  .heading-alt {
-    font-size: size('sans', 'xl');
-    @include u-text('bold');
-    margin-top: 0;
-    margin-bottom: 0;
-    padding: 0;
-
-    span {
-      color: color('gray-cool-50');
+    h1,
+    h2 {
+        margin-top: 0;
+        margin-bottom: 0;
+        padding: 0;
     }
-  }
+
+    h2 {
+        color: color("gray-cool-50");
+        font-size: size("sans", "xl");
+    }
+
+    .heading-alt {
+        font-size: size("sans", "xl");
+        @include u-text("bold");
+        margin-top: 0;
+        margin-bottom: 0;
+        padding: 0;
+
+        span {
+            color: color("gray-cool-50");
+        }
+    }
 }
 
 @media (max-width: $tablet) {
+    .rs-hero__index {
+        padding-top: 0;
 
-  .rs-hero__index {
-    padding-top: 0;
-
-    h1, h2 {
-      line-height: line-height('heading', 2);
+        h1,
+        h2 {
+            line-height: line-height("heading", 2);
+        }
     }
-  }
-
 }
 
 // Tables
 
 .prime-table {
-  width: 100%;
+    width: 100%;
 }
 
 .prime-table thead th {
-  border-bottom: 2px solid;
+    border-bottom: 2px solid;
 }
 
-.prime-table tbody td, .prime-table tbody th {
-  border-color: #dfe1e2;
+.prime-table tbody td,
+.prime-table tbody th {
+    border-color: #dfe1e2;
 }
 
 h3 img[src*="svg"] {
-  vertical-align: text-top;
-  margin-right: 5px;
-  float: left;
+    vertical-align: text-top;
+    margin-right: 5px;
+    float: left;
 }
 
 /// actions
 .rb-container {
-  margin: auto;
-  display: block;
-  position: relative;
+    margin: auto;
+    display: block;
+    position: relative;
 }
 
 .rb-container ul.rb {
-  margin: 0 0;
-  padding: 0;
-  display: inline-block;
+    margin: 0 0;
+    padding: 0;
+    display: inline-block;
 }
 
 .rb-container ul.rb li {
-  list-style: none;
-  margin: auto;
-  min-height: 50px;
-  border-left: 1px dashed #000;
-  padding: 0 0 20px 30px;
-  position: relative;
+    list-style: none;
+    margin: auto;
+    min-height: 50px;
+    border-left: 1px dashed #000;
+    padding: 0 0 20px 30px;
+    position: relative;
 }
 
 .rb-container ul.rb li:last-child {
-  border-left: 0;
+    border-left: 0;
 }
 
 .rb-container ul.rb li::before {
-  position: absolute;
-  left: -10px;
-  content: " ";
-  border: 8px solid rgba(0, 0, 0, 1);
-  border-radius: 500%;
-  background: #000000;
-  height: 20px;
-  width: 20px;
+    position: absolute;
+    left: -10px;
+    content: " ";
+    border: 8px solid rgba(0, 0, 0, 1);
+    border-radius: 500%;
+    background: #000000;
+    height: 20px;
+    width: 20px;
 }
 
-
 ul.rb li .timestamp {
-  position: relative;
-  font-weight: bold;
+    position: relative;
+    font-weight: bold;
 }
 
 // Page styles
 // Content pages for documentation, support, etc
 
 .rs-documentation {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p,
+    ul,
+    ol,
+    .usa-alert,
+    blockquote {
+        @include u-measure(6);
+    }
 
+    h1 {
+        margin: 0;
+    }
 
-  h1, h2, h3, h4, h5, h6, p, ul, ol, .usa-alert, blockquote {
-    @include u-measure(6);
-  }
+    h2 {
+        font-size: size("sans", "lg");
+        @include u-text("normal");
+        color: color("base");
+    }
 
-  h1 {
-    margin: 0;
-  }
+    section,
+    hr {
+        border-top: 1px solid color("base-lighter");
+        margin-top: units(4);
+        padding-top: units(3);
+    }
+    // for achieving the same as the above <section> class, but in .md content
+    hr {
+        height: 1px;
+        border-right: none;
+        border-bottom: none;
+        border-left: none;
+    }
 
-  h2 {
-    font-size: size('sans', 'lg');
-    @include u-text('normal');
-    color: color('base');
-  }
+    h3 {
+        margin-top: 0;
+        font-size: size("sans", "lg");
+    }
 
-  section, hr {
-    border-top: 1px solid color('base-lighter');
-    margin-top: units(4);
-    padding-top: units(3);
-  }
-  // for achieving the same as the above <section> class, but in .md content
-  hr {
-    height: 1px;
-    border-right: none;
-    border-bottom: none;
-    border-left: none;
-  }
-
-  h3 {
-    margin-top: 0;
-    font-size: size('sans', 'lg');
-  }
-
-  blockquote {
-    background-color: color('base-lightest');
-    padding: units(1) units(3);
-    margin: units(3) 0 units(3) 0;
-    width: inherit;
-  }
+    blockquote {
+        background-color: color("base-lightest");
+        padding: units(1) units(3);
+        margin: units(3) 0 units(3) 0;
+        width: inherit;
+    }
 }
 
 .rs-documentation__values {
-
-  code {
-    display: inline-block;
-    padding-left: units(1);
-    padding-right: units(1);
-    border-radius: 2px;
-    @include u-bg('gray-5');
-    @include u-text('gray-90');
-  }
-
-  .value-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-
-    li {
-      margin: 0 0 units(1) 0;
+    code {
+        display: inline-block;
+        padding-left: units(1);
+        padding-right: units(1);
+        border-radius: 2px;
+        @include u-bg("gray-5");
+        @include u-text("gray-90");
     }
-  }
+
+    .value-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        li {
+            margin: 0 0 units(1) 0;
+        }
+    }
 }
 
 .rs-blockquote__documentation {
-  @include u-bg('base-lightest');
-  @include u-padding-x(3);
-  @include u-padding-y(1);
-  @include u-margin(0);
+    @include u-bg("base-lightest");
+    @include u-padding-x(3);
+    @include u-padding-y(1);
+    @include u-margin(0);
 }
 
 .rs-process-list__documentation {
-
-  img {
-    display: block;
-    max-width: 15rem;
-    @include u-border(1px, 'base-lighter');
-    margin-top: units(4);
-
-  }
+    img {
+        display: block;
+        max-width: 15rem;
+        @include u-border(1px, "base-lighter");
+        margin-top: units(4);
+    }
 }
 
 // Where we're live
@@ -254,7 +265,7 @@ ul.rb li .timestamp {
     column-gap: 1.25em;
 }
 
-.rs-livestate-two-column>* {
+.rs-livestate-two-column > * {
     list-style: unset;
     display: inline-block;
     width: 80%;
@@ -271,7 +282,6 @@ ul.rb li .timestamp {
     --rs-zindex-top: 999;
 }
 
-
 .rs-spinner {
     display: inline-flex;
     align-items: center;
@@ -279,19 +289,19 @@ ul.rb li .timestamp {
 
     .rs-spinner-fullpage {
         justify-content: center;
-        height: calc(100vh - 230px)
+        height: calc(100vh - 230px);
     }
 
     .rs-spinner-tiny {
         zoom: 0.2;
-        display:inline-flex;
+        display: inline-flex;
         align-content: center;
     }
 }
 
 .usa-modal-wrapper {
     &.is-visible {
-        z-index: var(--rs-zindex-top);  // default is 99999, want toast over top.
+        z-index: var(--rs-zindex-top); // default is 99999, want toast over top.
     }
 }
 
@@ -299,8 +309,8 @@ ul.rb li .timestamp {
     max-width: calc(var(--rs-compare-modal-width));
     height: var(--rs-compare-modal-height + 12em);
     .usa-modal__main {
-        width:100%;
-        max-width:90em;
+        width: 100%;
+        max-width: 90em;
         padding: 0;
     }
     .usa-modal__content {
@@ -328,19 +338,19 @@ ul.rb li .timestamp {
     width: 100%;
     height: calc(var(--rs-compare-modal-height) - 14em);
     overflow: auto;
-    margin: .5em;
+    margin: 0.5em;
     line-height: 1.5em;
     white-space: pre-wrap;
     tab-size: 2;
     font-family: monospace;
     font-size: 105%;
     color: black;
-    background-color: rgba(0,0,0,0); /* show the highlight behind it */
+    background-color: rgba(0, 0, 0, 0); /* show the highlight behind it */
 }
 
 /* just the right side (has two child divs overlapping aligned) */
 .rs-editable-stacked-container {
-    display: grid;       /* positioning the background and edit on top of each other */
+    display: grid; /* positioning the background and edit on top of each other */
     grid-template-areas: "inner-div";
     place-items: center;
     width: 50%;
@@ -350,7 +360,7 @@ ul.rb li .timestamp {
 .rs-editable-compare-background {
     grid-area: inner-div;
     color: transparent; /* hide font we only want background colors */
-    border: 2px rgba(0,0,0,0) solid;    /* takes up same exact same space, just invisible */
+    border: 2px rgba(0, 0, 0, 0) solid; /* takes up same exact same space, just invisible */
 
     // enable these to debug alignment.
     // color: rgba(255,0,0,0.5); /* hide font we only want background colors */
@@ -358,7 +368,8 @@ ul.rb li .timestamp {
     width: 100%;
     z-index: 2;
     pointer-events: none;
-    mark, s {
+    mark,
+    s {
         color: transparent;
     }
 }
@@ -366,7 +377,12 @@ ul.rb li .timestamp {
 .differ-marks {
     mark {
         border-radius: 3px;
-        background-color: rgba(255, 200, 0, 0.25); /* transparent allows nested tags to be darker */
+        background-color: rgba(
+            255,
+            200,
+            0,
+            0.25
+        ); /* transparent allows nested tags to be darker */
     }
     /* the `<s>` tag is used for errors, technically it's strikethrough but shouldn't used for that.
        alternate could be `<var>`?  `<del>` and `<ins>` have paragraph issues
@@ -374,14 +390,19 @@ ul.rb li .timestamp {
     s {
         text-decoration: none; /* not required, but adding makes it clear we're not using strikethrough */
         border-radius: 3px;
-        background-color: rgba(255, 0, 0, 0.25); /* transparent allows nested tags to be darker */
+        background-color: rgba(
+            255,
+            0,
+            0,
+            0.25
+        ); /* transparent allows nested tags to be darker */
     }
 }
 
 /* just the left side */
 .rs-editable-compare-static {
     grid-area: inner-div;
-    border: 2px #8D8D8DFF solid;
+    border: 2px #8d8d8dff solid;
     width: 100%;
     z-index: 3;
 }
@@ -394,7 +415,7 @@ ul.rb li .timestamp {
 }
 
 .rs-alert-toast {
-    z-index: var(--rs-zindex-top+1);
+    z-index: var(--rs-zindex-top + 1);
 }
 
 .rs-resend-modal {
@@ -413,7 +434,7 @@ ul.rb li .timestamp {
     .usa-modal__heading {
         font-weight: bold;
         font-size: larger;
-        color: color('base-darker')
+        color: color("base-darker");
     }
     .usa-modal__close {
         margin: 0;
@@ -429,7 +450,7 @@ ul.rb li .timestamp {
         overflow-y: scroll;
     }
     .rs-resend-textarea-boarder {
-        border: color('base-dark') 1px solid;
+        border: color("base-dark") 1px solid;
     }
     .rs-resend-label {
         font-weight: bolder;
@@ -454,15 +475,14 @@ ul.rb li .timestamp {
 }
 
 .rs-full-width-form {
-  max-width: 100%;
-  .usa-file-input {
     max-width: 100%;
-  }
+    .usa-file-input {
+        max-width: 100%;
+    }
 
-  label {
-    max-width: 100%;
-  }
-
+    label {
+        max-width: 100%;
+    }
 }
 
 .rs-wordbreak-force {
@@ -499,13 +519,13 @@ pre {
 }
 
 .rs-pagination-no-button {
-  @include u-bg('white');
-  cursor: pointer;
+    @include u-bg("white");
+    cursor: pointer;
 }
 
 .rs-pagination-arrow-button {
-  align-items: center;
-  display: inline-flex;
+    align-items: center;
+    display: inline-flex;
 }
 
 /* used by the receiver dashboard
@@ -565,7 +585,7 @@ pre {
                     height: 3em;
 
                     .slice {
-                        border-radius: .5em;
+                        border-radius: 0.5em;
                         border: solid 0.05em #2f2f2f;
                         cursor: pointer; /* success-undefined removes */
                     }
@@ -632,7 +652,7 @@ pre {
     overflow-y: auto;
 
     .usa-modal__main {
-        width:100%;
+        width: 100%;
         max-width: 90vw;
         padding: 0;
     }
@@ -757,4 +777,78 @@ pre {
 
 .rs-margin-top-auto-important {
     margin-top: auto !important;
+}
+
+/** 
+ * Allows automatic counter numbers in process-list style
+ */
+@mixin numbered($counter) {
+    &::before {
+        @include u-flex("row", "align-center", "justify-center");
+        $half-of-font-size: -0.4rem;
+        @include u-circle($theme-process-list-counter-size);
+        background-color: color($theme-process-list-counter-background-color);
+        border: units($theme-process-list-counter-border-width) solid
+            color($theme-process-list-counter-border-color);
+        box-shadow: 0 0 0 units($theme-process-list-counter-gap-width)
+            color($theme-process-list-counter-gap-color);
+        color: color($theme-process-list-counter-text-color);
+        content: counter($counter, decimal);
+        counter-increment: $counter;
+        display: inline-flex;
+        font-family: family($theme-process-list-counter-font-family);
+        font-size: size(
+            $theme-process-list-counter-font-family,
+            $theme-process-list-counter-font-size
+        );
+        font-weight: font-weight("bold");
+        height: units($theme-process-list-counter-size);
+        line-height: lh($theme-process-list-counter-font-family, 1);
+        width: units($theme-process-list-counter-size);
+        margin: $half-of-font-size 18px 0 0;
+    }
+}
+
+html {
+    counter-reset: h2;
+}
+
+h2.rs-numbered {
+    @include numbered(h2);
+}
+.faq-wrapper {
+    .heading {
+        h3 {
+            padding-bottom: 20px;
+            color: #71767a;
+            font-weight: 500;
+        }
+    }
+
+    section {
+        margin-top: 30px;
+        border-top: 1px solid #dfe1e2;
+    }
+
+    h3 {
+        font-size: 22px;
+    }
+
+    h4 {
+        margin-top: 40px;
+    }
+}
+
+/*
+ * CMS-type pages use a smaller default width
+ */
+.rs-style__content {
+    .grid-container {
+        @include grid-container("desktop-lg");
+    }
+
+    // Smaller font for content alerts
+    .usa-alert {
+        @include u-font-size("sans", "xs");
+    }
 }

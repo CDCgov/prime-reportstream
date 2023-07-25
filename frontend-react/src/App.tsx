@@ -1,41 +1,68 @@
-import { GovBanner } from "@trussworks/react-uswds";
-import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
-import { useOktaAuth } from "@okta/okta-react";
-import { isIE } from "react-device-detect";
+import { toRelativeUrl } from "@okta/okta-auth-js";
 import { useIdleTimer } from "react-idle-timer";
-import React, { Suspense } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { NetworkErrorBoundary } from "rest-hooks";
-import { ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
-import { ReportStreamFooter } from "./components/ReportStreamFooter";
-import { ReportStreamHeader } from "./components/header/ReportStreamHeader";
-import { oktaAuthConfig } from "./oktaConfig";
+import { OKTA_AUTH } from "./oktaConfig";
 import { permissionCheck, PERMISSIONS } from "./utils/PermissionsUtils";
-import { logout } from "./utils/UserUtils";
 import Spinner from "./components/Spinner";
 import "react-toastify/dist/ReactToastify.css";
-import SenderModeBanner from "./components/SenderModeBanner";
-import { DAPHeader } from "./components/header/DAPHeader";
-import { AppRouter } from "./AppRouter";
 import { AppWrapper } from "./components/AppWrapper";
 import { ErrorUnsupportedBrowser } from "./pages/error/legacy-content/ErrorUnsupportedBrowser";
 import { ErrorPage } from "./pages/error/ErrorPage";
-import config from "./config";
+import { useScrollToTop } from "./hooks/UseScrollToTop";
+import { EventName, trackAppInsightEvent } from "./utils/Analytics";
+import { logout } from "./utils/UserUtils";
+import { IS_IE } from "./utils/GetIsIE";
+import ScrollRestoration from "./components/ScrollRestoration";
 
-const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
+export interface AppProps extends React.PropsWithChildren {}
 
-const { APP_ENV } = config;
+const App = ({ children }: AppProps) => {
+    const sessionStartTime = useRef<number>(new Date().getTime());
+    const sessionTimeAggregate = useRef<number>(0);
+    const calculateAggregateTime = () => {
+        return (
+            new Date().getTime() -
+            sessionStartTime.current +
+            sessionTimeAggregate.current
+        );
+    };
 
-const App = () => {
+    useEffect(() => {
+        const onUnload = () => {
+            trackAppInsightEvent(EventName.SESSION_DURATION, {
+                sessionLength: calculateAggregateTime() / 1000,
+            });
+        };
+
+        const onVisibilityChange = () => {
+            if (document.visibilityState === "hidden") {
+                sessionTimeAggregate.current = calculateAggregateTime();
+            } else if (document.visibilityState === "visible") {
+                sessionStartTime.current = new Date().getTime();
+            }
+        };
+
+        window.addEventListener("beforeunload", onUnload);
+        window.addEventListener("visibilitychange", onVisibilityChange);
+    }, []);
+    useScrollToTop();
+
     const navigate = useNavigate();
-    const handleIdle = (): void => {
-        logout(OKTA_AUTH);
+    const handleIdle = async (): Promise<void> => {
+        if (await OKTA_AUTH.isAuthenticated()) {
+            trackAppInsightEvent(EventName.SESSION_DURATION, {
+                sessionLength: sessionTimeAggregate.current / 1000,
+            });
+            logout();
+        }
     };
     const restoreOriginalUri = async (_oktaAuth: any, originalUri: string) => {
         // check if the user would have any data to receive via their organizations from the okta claim
         // direct them to the /upload page if they do not have an organization that receives data
-        const authState = OKTA_AUTH.authStateManager._authState;
+        const authState = OKTA_AUTH.authStateManager.getAuthState();
         /* PERMISSIONS REFACTOR: Redirect URL should be determined by active membership type */
         if (
             authState?.accessToken &&
@@ -70,30 +97,18 @@ const App = () => {
         debounce: 500,
     });
 
-    if (isIE) return <ErrorUnsupportedBrowser />;
+    if (IS_IE) return <ErrorUnsupportedBrowser />;
     return (
         <AppWrapper
             oktaAuth={OKTA_AUTH}
             restoreOriginalUri={restoreOriginalUri}
-            oktaHook={useOktaAuth}
         >
             <Suspense fallback={<Spinner size={"fullpage"} />}>
                 <NetworkErrorBoundary
                     fallbackComponent={() => <ErrorPage type="page" />}
                 >
-                    <DAPHeader env={APP_ENV?.toString()} />
-                    <GovBanner aria-label="Official government website" />
-                    <SenderModeBanner />
-                    <ReportStreamHeader />
-                    {/* Changed from main to div to fix weird padding issue at the top
-                            caused by USWDS styling | 01/22 merged styles from .content into main, don't see padding issues anymore? */}
-                    <main id="main-content">
-                        <AppRouter />
-                    </main>
-                    <ToastContainer limit={4} />
-                    <footer className="usa-identifier footer">
-                        <ReportStreamFooter />
-                    </footer>
+                    <ScrollRestoration />
+                    {children}
                 </NetworkErrorBoundary>
             </Suspense>
         </AppWrapper>

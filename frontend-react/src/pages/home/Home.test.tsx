@@ -1,12 +1,13 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 
 import content from "../../content/content.json";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import Home from "./Home";
 
 describe("Home rendering", () => {
     beforeEach(() => {
-        render(<Home />);
+        renderApp(<Home />);
     });
 
     test("Container renders", () => {
@@ -18,7 +19,7 @@ describe("Home rendering", () => {
 
         // note: forEach() is not async friendly
         for (const eachSection of content.sections) {
-            for (const eachFeature of eachSection.features) {
+            for (const eachFeature of eachSection.features ?? []) {
                 // make sure each feature for each section appears somewhere on the page.
                 expect(await screen.findByText(eachFeature.title)).toBeValid();
             }

@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
-import { NavLink } from "react-router-dom";
 import { SideNav } from "@trussworks/react-uswds";
 
 import { ContentDirectory } from "../MarkdownDirectory";
+import { USNavLink } from "../../USLink";
 
 export const GeneratedSideNav = ({
     directories,
@@ -10,16 +10,7 @@ export const GeneratedSideNav = ({
     directories: ContentDirectory[];
 }) => {
     const navItems: ReactNode[] = directories.map((dir) => {
-        return (
-            <NavLink
-                to={dir.slug}
-                className={({ isActive }) =>
-                    isActive ? "usa-current" : "usa-nav__link"
-                }
-            >
-                {dir.title}
-            </NavLink>
-        );
+        return <USNavLink href={dir.slug}>{dir.title}</USNavLink>;
     });
     return <SideNav items={navItems} />;
 };

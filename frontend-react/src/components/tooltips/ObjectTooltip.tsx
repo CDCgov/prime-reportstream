@@ -1,4 +1,4 @@
-import { IconHelp, Tooltip } from "@trussworks/react-uswds";
+import { Icon, Tooltip } from "@trussworks/react-uswds";
 
 import {
     SampleFilterObject,
@@ -21,8 +21,7 @@ interface EnumTooltipProps {
     vals: Array<string>;
 }
 
-const copyToClipboard = (text: string) =>
-    navigator.clipboard.writeText(text).then(() => console.log("Copied"));
+const copyToClipboard = (text: string) => navigator.clipboard.writeText(text);
 
 const ObjectTooltip = ({ obj }: ObjectTooltipProps) => {
     return (
@@ -32,7 +31,7 @@ const ObjectTooltip = ({ obj }: ObjectTooltipProps) => {
             label={`${obj.stringify()}\n\n\n${obj.description()}`}
             onClick={() => copyToClipboard(obj.stringify())}
         >
-            <IconHelp />
+            <Icon.Help />
         </Tooltip>
     );
 };
@@ -49,7 +48,7 @@ const EnumTooltip = ({ vals }: EnumTooltipProps) => {
             label={label}
             onClick={() => copyToClipboard(clipboard)}
         >
-            <IconHelp />
+            <Icon.Help />
         </Tooltip>
     );
 };

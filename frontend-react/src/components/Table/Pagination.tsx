@@ -1,17 +1,13 @@
 import classnames from "classnames";
-import {
-    Button,
-    IconNavigateBefore,
-    IconNavigateNext,
-} from "@trussworks/react-uswds";
+import { Button, Icon } from "@trussworks/react-uswds";
 
-export const OVERFLOW_INDICATOR = Symbol("…");
+export const OVERFLOW_INDICATOR = "…";
 export type SlotItem = number | typeof OVERFLOW_INDICATOR;
 
 const PaginationOverflow: React.FC = () => (
     <li
         className="usa-pagination__item usa-pagination__overflow"
-        role="presentation"
+        role="listitem presentation"
     >
         <span>…</span>
     </li>
@@ -32,17 +28,22 @@ const PaginationPageNumber: React.FC<PaginationPageNumberProps> = ({
 }) => {
     return (
         <li className="usa-pagination__item usa-pagination__page-no">
-            <button
+            {/* Using `unstyled` and custom classes is a method used by Trussworks,
+            but they do not export a `PaginationButton` component, so we have to rewrite
+            it here.
+            See: https://github.com/trussworks/react-uswds/blob/main/src/components/Pagination/Pagination.tsx */}
+            <Button
+                type="button"
+                unstyled
                 {...(isCurrentPage && { "aria-current": "page" })}
                 aria-label={`${isLastPage ? "last page, " : ""}Page ${pageNum}`}
-                className={classnames(
-                    ["usa-pagination__button", "rs-pagination-no-button"],
-                    { "usa-current": isCurrentPage }
-                )}
+                className={classnames("usa-pagination__button", {
+                    "usa-current": isCurrentPage,
+                })}
                 onClick={() => setSelectedPage(pageNum)}
             >
                 {pageNum}
-            </button>
+            </Button>
         </li>
     );
 };
@@ -74,9 +75,9 @@ const PaginationArrow: React.FC<PaginationArrowProps> = ({
                 type="button"
                 unstyled
             >
-                {direction === "previous" && <IconNavigateBefore />}
+                {direction === "previous" && <Icon.NavigateBefore />}
                 <span className="usa-pagination__link-text">{label}</span>
-                {direction === "next" && <IconNavigateNext />}
+                {direction === "next" && <Icon.NavigateNext />}
             </Button>
         </li>
     );

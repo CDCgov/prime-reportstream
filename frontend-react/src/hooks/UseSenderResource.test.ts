@@ -1,10 +1,10 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, waitFor } from "@testing-library/react";
 
-import { QueryWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper } from "../utils/CustomRenderUtils";
 import { dummySender, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 
-import { useSenderResource } from "./UseSenderResource";
+import useSenderResource from "./UseSenderResource";
 import { MembershipSettings, MemberType } from "./UseOktaMemberships";
 
 describe("useSenderResource", () => {
@@ -24,12 +24,16 @@ describe("useSenderResource", () => {
             } as MembershipSettings,
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: true,
+            environment: "test",
         });
         const { result } = renderHook(() => useSenderResource(), {
-            wrapper: QueryWrapper(),
+            wrapper: AppWrapper(),
         });
-        expect(result.current.senderDetail).toEqual(undefined);
-        expect(result.current.senderIsLoading).toEqual(true);
+        expect(result.current.data).toEqual(undefined);
+        expect(result.current.isLoading).toEqual(true);
     });
     test("returns correct sender match", async () => {
         mockSessionContext.mockReturnValue({
@@ -43,13 +47,15 @@ describe("useSenderResource", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: true,
+            environment: "test",
         });
-        const { result, waitForNextUpdate } = renderHook(
-            () => useSenderResource(),
-            { wrapper: QueryWrapper() }
-        );
-        await waitForNextUpdate();
-        expect(result.current.senderDetail).toEqual(dummySender);
-        expect(result.current.senderIsLoading).toEqual(false);
+        const { result } = renderHook(() => useSenderResource(), {
+            wrapper: AppWrapper(),
+        });
+        await waitFor(() => expect(result.current.data).toEqual(dummySender));
+        expect(result.current.isLoading).toEqual(false);
     });
 });

@@ -1,0 +1,24 @@
+# This is going to be DiagnosticReport
+elements:
+  - name: status
+    constants:
+      someString: blah blah
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0]'
+    condition: '%resource.status.exists()'
+    bundleProperty: '%resource.status'
+    value: [ '"final"' ]
+  - name: identifier
+    constants:
+      anotherString: hello
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0]'
+    condition: '%resource.identifier.exists()'
+    bundleProperty: '%resource.identifier'
+    value: [ '"CO"' ]
+    valueSet:
+      values:
+        "CO": 'Colorado'
+        "IG": null
+  - name: observations
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0].result'
+    resourceIndex: observationIndex
+    schema: observation

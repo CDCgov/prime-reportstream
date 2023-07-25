@@ -12,6 +12,7 @@ export default class OrgSenderSettingsResource extends OrgSettingsBaseResource {
     schemaName: string = "";
     keys: object = [];
     processingType: string = "";
+    allowDuplicates: boolean = false;
 
     pk() {
         return this.name;

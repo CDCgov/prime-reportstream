@@ -5,6 +5,8 @@ import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import remarkToc from "remark-toc";
 
+import { USSmartLink } from "../USLink";
+
 const baseOptions: Partial<Options> = {
     remarkPlugins: [
         // Use GitHub-flavored markdown
@@ -41,5 +43,13 @@ export const MarkdownRenderer: React.FC<MarkdownContentProps> = ({
             });
     }, [markdownUrl]);
 
-    return <ReactMarkdown {...baseOptions} children={markdownContent} />;
+    return (
+        <ReactMarkdown
+            {...baseOptions}
+            children={markdownContent}
+            components={{
+                a: USSmartLink,
+            }}
+        />
+    );
 };

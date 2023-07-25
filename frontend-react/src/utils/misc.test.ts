@@ -10,6 +10,8 @@ import {
     capitalizeFirst,
     groupBy,
     checkJson,
+    isValidServiceName,
+    parseFileLocation,
 } from "./misc";
 import { mockEvent } from "./TestUtils";
 
@@ -127,5 +129,76 @@ describe("groupBy ", () => {
             4: ["four", "five"],
             5: ["three"],
         });
+    });
+});
+
+describe("isValidServiceName", () => {
+    describe("when the string is empty or contains characters outside of the allowed set", () => {
+        const names = [
+            "",
+            "test/",
+            "te.st",
+            "te$t",
+            "tes#",
+            "@est",
+            "te,st",
+            "te)",
+            "a\\ttest",
+            "|test",
+            "test hello",
+        ];
+
+        names.forEach((name) => {
+            test(`return false for string ${name}`, () => {
+                expect(isValidServiceName(name)).toEqual(false);
+            });
+        });
+    });
+
+    describe("when the string only contains characters within the allowed set", () => {
+        const names = [
+            "orgname",
+            "org-name",
+            "org_name",
+            "ORG-NAME",
+            "org-name-1",
+        ];
+
+        names.forEach((name) => {
+            test(`returns true for string ${name}`, () => {
+                expect(isValidServiceName(name)).toEqual(true);
+            });
+        });
+    });
+});
+
+describe("parseFileLocation", () => {
+    test("returns the folder location, sending org, and filename when valid url", () => {
+        const { folderLocation, sendingOrg, fileName } = parseFileLocation(
+            "https://azurite:10000/devstoreaccount1/reports/receive%2Fsimple_report.csvuploader%2Fupload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv"
+        );
+        expect(folderLocation).toEqual("receive");
+        expect(sendingOrg).toEqual("simple_report.csvuploader");
+        expect(fileName).toEqual(
+            "upload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv"
+        );
+    });
+
+    test("returns empty strings for sendingOrg and fileName when string is missing all three fragments split on %2F", () => {
+        const { folderLocation, sendingOrg, fileName } = parseFileLocation(
+            "https://azurite:10000/devstoreaccount1/reports/receive%2Fupload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv"
+        );
+        expect(folderLocation).toEqual("");
+        expect(sendingOrg).toEqual("");
+        expect(fileName).toEqual("");
+    });
+
+    test("returns empty strings for sendingOrg and fileName when string is missing %2F", () => {
+        const { folderLocation, sendingOrg, fileName } = parseFileLocation(
+            "https://azurite:10000/devstoreaccount1/reports/receive"
+        );
+        expect(folderLocation).toEqual("");
+        expect(sendingOrg).toEqual("");
+        expect(fileName).toEqual("");
     });
 });

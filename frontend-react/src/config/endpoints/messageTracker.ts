@@ -41,6 +41,7 @@ export interface RSMessageDetail {
 }
 
 export interface MessageListResource {
+    id: number;
     messageId: string;
     sender: string | undefined;
     submittedDate: string | undefined;
@@ -49,7 +50,7 @@ export interface MessageListResource {
 
 export const messageTrackerEndpoints: RSApiEndpoints = {
     search: new RSEndpoint({
-        path: "/messages/search",
+        path: "/messages",
         method: HTTPMethods.GET,
         queryKey: "messagesSearch",
     }),

@@ -81,10 +81,9 @@ object MarkdownDocumentationFactory : StringBasedDocumentationFactory(), Logging
 
         if (element.documentation?.isNotEmpty() == true) {
             sb.appendLine(
-                """**Documentation**:
-
-${element.documentation}
-"""
+                "**Documentation**:"
+            ).appendLine(
+                element.documentation
             )
         }
 
@@ -102,15 +101,17 @@ ${element.documentation}
                 "none"
             } else {
                 val trackingName = schema.findElement(schema.trackingElement)?.csvFields?.get(0)?.name
-                if (trackingName == null)
+                if (trackingName == null) {
                     "(${schema.trackingElement})"
-                else
+                } else {
                     "$trackingName (${schema.trackingElement})"
+                }
             }
-        val schemaBasedOn = if (schema.basedOn.isNullOrBlank())
+        val schemaBasedOn = if (schema.basedOn.isNullOrBlank()) {
             "none"
-        else
+        } else {
             "[${schema.basedOn}](./${schema.basedOn}.md)"
+        }
         val extendName =
             if (schema.extends.isNullOrBlank()) {
                 "none"
@@ -122,14 +123,15 @@ ${element.documentation}
 
         yield(
             """
-### Schema: ${schema.name}
-### Topic: ${schema.topic.json_val}
-### Tracking Element: $schemaTrackingName
-### Base On: $schemaBasedOn
-### Extends: $schemaExtends
-#### Description: $schemaDescription
-
----""" + "\n"
+            ### Schema: ${schema.name}
+            ### Topic: ${schema.topic.jsonVal}
+            ### Tracking Element: $schemaTrackingName
+            ### Base On: $schemaBasedOn
+            ### Extends: $schemaExtends
+            #### Description: $schemaDescription
+            
+            ---
+            """.trimIndent() + "\n"
         )
 
         schema.elements.filter { !it.csvFields.isNullOrEmpty() }.sortedBy { it -> it.name }.forEach { element ->
@@ -183,7 +185,7 @@ ${element.documentation}
                 """
 **$label**:
 [${linkText ?: url}]($url) 
-"""
+                """
             )
         }
     }

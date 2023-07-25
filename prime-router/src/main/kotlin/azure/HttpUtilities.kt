@@ -82,6 +82,17 @@ class HttpUtilities {
                 .build()
         }
 
+        fun <T> okJSONResponse(
+            request: HttpRequestMessage<String?>,
+            body: ApiResponse<T>
+        ): HttpResponseMessage {
+            return request
+                .createResponseBuilder(HttpStatus.OK)
+                .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
+                .body(mapper.writeValueAsString(body))
+                .build()
+        }
+
         fun createdResponse(
             request: HttpRequestMessage<String?>,
             responseBody: String,
@@ -127,6 +138,19 @@ class HttpUtilities {
         ): HttpResponseMessage {
             return request
                 .createResponseBuilder(HttpStatus.UNAUTHORIZED)
+                .build()
+        }
+
+        /**
+         * Builds an HttpResponseMessage with an unauthorized(422) status
+         * and accepts a response body that is serialized as JSON.
+         */
+        fun <T> unauthorizedResponse(
+            request: HttpRequestMessage<String?>,
+            responseBody: T
+        ): HttpResponseMessage {
+            return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).body(mapper.writeValueAsString(responseBody))
+                .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
                 .build()
         }
 
@@ -295,7 +319,7 @@ class HttpUtilities {
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
-                Sender.Format.HL7 -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
+                Sender.Format.HL7, Sender.Format.HL7_BATCH -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
                 else -> headers.add("Content-Type" to Report.Format.CSV.mimeType)
             }
             val clientStr = sendingOrgClient.organizationName +
@@ -327,7 +351,7 @@ class HttpUtilities {
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
-                Sender.Format.HL7 -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
+                Sender.Format.HL7, Sender.Format.HL7_BATCH -> headers.add("Content-Type" to Report.Format.HL7.mimeType)
                 else -> headers.add("Content-Type" to Report.Format.CSV.mimeType)
             }
             val clientStr = sendingOrgClient.organizationName +
@@ -343,16 +367,53 @@ class HttpUtilities {
          * Returns a Pair (HTTP response code, text of the response)
          */
         fun postHttp(urlStr: String, bytes: ByteArray, headers: List<Pair<String, String>>? = null): Pair<Int, String> {
+            return httpRequest("POST", urlStr, bytes, headers)
+        }
+
+        /**
+         * A generic function for a GET to a URL <address>.
+         * Returns a Pair (HTTP response code, text of the response)
+         */
+        fun getHttp(
+            urlStr: String,
+            headers: List<Pair<String, String>>? = null
+        ): Pair<Int, String> {
+            return httpRequest("GET", urlStr, null, headers)
+        }
+
+        /**
+         * A generic function for a DELETE to a URL <address>.
+         * Returns a Pair (HTTP response code, text of the response)
+         */
+        fun deleteHttp(
+            urlStr: String,
+            bytes: ByteArray,
+            headers: List<Pair<String, String>>? = null
+        ): Pair<Int, String> {
+            return httpRequest("DELETE", urlStr, bytes, headers)
+        }
+
+        /**
+         * Private generic function for creating an http request
+         */
+        private fun httpRequest(
+            method: String,
+            urlStr: String,
+            bytes: ByteArray?,
+            headers: List<Pair<String, String>>? = null
+        ): Pair<Int, String> {
             val urlObj = URL(urlStr)
             with(urlObj.openConnection() as HttpURLConnection) {
-                requestMethod = "POST"
+                requestMethod = method
                 doOutput = true
                 doInput = true
                 headers?.forEach {
                     addRequestProperty(it.first, it.second)
                 }
-                outputStream.use {
-                    it.write(bytes)
+                if (bytes != null) {
+                    outputStream.use {
+                        it.write(bytes)
+                    }
                 }
                 val response = try {
                     inputStream.bufferedReader().readText()

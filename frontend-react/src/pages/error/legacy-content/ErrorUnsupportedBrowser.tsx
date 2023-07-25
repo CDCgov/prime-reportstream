@@ -1,6 +1,5 @@
-import DOMPurify from "dompurify";
-
 import site from "../../../content/site.json";
+import { USExtLink } from "../../../components/USLink";
 
 export const ErrorUnsupportedBrowser = () => {
     return (
@@ -12,27 +11,31 @@ export const ErrorUnsupportedBrowser = () => {
             </p>
             <ul>
                 <li>
-                    <a href="https://www.google.com/chrome/">Google Chrome</a>
+                    <USExtLink href="https://www.google.com/chrome/">
+                        Google Chrome
+                    </USExtLink>
                 </li>
                 <li>
-                    <a href="https://www.mozilla.org/en-US/firefox/new/">
+                    <USExtLink href="https://www.mozilla.org/en-US/firefox/new/">
                         Mozilla Firefox
-                    </a>
+                    </USExtLink>
                 </li>
                 <li>
-                    <a href="https://www.apple.com/safari/">Apple Safari</a>
+                    <USExtLink href="https://www.apple.com/safari/">
+                        Apple Safari
+                    </USExtLink>
                 </li>
                 <li>
-                    <a href="https://www.microsoft.com/en-us/edge">
+                    <USExtLink href="https://www.microsoft.com/en-us/edge">
                         Microsoft Edge
-                    </a>
+                    </USExtLink>
                 </li>
             </ul>
             <p>
                 Still having issues? Contact ReportStream support at{" "}
-                <a href={"mailto:" + DOMPurify.sanitize(site.orgs.RS.email)}>
+                <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
                     {site.orgs.RS.email}
-                </a>
+                </USExtLink>
                 .
             </p>
         </div>

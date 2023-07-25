@@ -1,5 +1,5 @@
-import testMd from "../../content/markdown-test.md";
-import { renderWithRouter } from "../../utils/CustomRenderUtils";
+import testMd from "../../content/markdown-test.md?url";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import { MarkdownDirectory } from "./MarkdownDirectory";
 import MarkdownPage from "./MarkdownPage";
@@ -10,6 +10,6 @@ describe("DirectoryAsPage", () => {
         .setSlug("test-dir")
         .addFile(testMd);
     test("Renders without error", () => {
-        renderWithRouter(<MarkdownPage directory={testDir} />);
+        renderApp(<MarkdownPage directory={testDir} />);
     });
 });

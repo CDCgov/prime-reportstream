@@ -32,7 +32,7 @@ const findTableMetaByName = (
     );
 
     if (!filteredBody.length) {
-        console.log("Unable to find metadata for lookup table: ", tableName);
+        console.info("Unable to find metadata for lookup table: ", tableName);
         return {} as LookupTable;
     }
     return filteredBody.sort(
@@ -45,7 +45,7 @@ const findTableMetaByName = (
 
   useValueSetsTable
 
-  a useQuery based custom hook used to get value sets and value set rows (defined by passsed dataTableName)
+  a useQuery based custom hook used to get value sets and value set rows (defined by passed dataTableName)
 
 */
 export interface ValueSetsTableResponse<T> {
@@ -103,7 +103,7 @@ export const useValueSetsMeta = (
     return { valueSetMeta: tableMeta };
 };
 
-/* 
+/*
 
   Mutation Hooks
 

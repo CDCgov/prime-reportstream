@@ -1,10 +1,16 @@
 package gov.cdc.prime.router.tokens
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
+import assertk.assertions.isTrue
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.util.decodeBase64
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.KeyType
+import io.mockk.every
+import io.mockk.mockkObject
 import java.math.BigInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -63,7 +69,11 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
               }
     """.trimIndent()
 
+    val wildcardAdminScope = "simple_report.*.admin"
+    val wildcardReportScope = "simple_report.*.report"
     val jwk = Jwk(kty = "ES", x = "x", y = "y", crv = "crv", kid = "myId", x5c = listOf("a", "b"))
+    val jwk2 = Jwk(kty = "ES", x = "x", y = "y", crv = "crv", kid = "myId2", x5c = listOf("a", "b"))
+    val jwk3 = Jwk(kty = "ES", x = "x", y = "y", crv = "crv", kid = "myId3", x5c = listOf("a", "b"))
 
     // this jwkset is from the RFC specification for JWKs, so I thought it would be a nice test.
     // See https://tools.ietf.org/html/rfc7517
@@ -184,5 +194,95 @@ ZF5YuUU+IqOKaMAu4/tsbyE+hM4WDjZYG6cSnYKoRhOoam4oHFernOLOkbJKzzC/
         assertNotNull(ecPublicKey)
         assertEquals("EC", ecPublicKey.algorithm)
         assertNotNull(ecPublicKey.w) // lame test
+    }
+
+    @Test
+    fun `test addKeyToScope adds a key to a new scope`() {
+        val updatedKeys = JwkSet.addKeyToScope(emptyList(), wildcardReportScope, jwk)
+        assertThat(updatedKeys).isEqualTo(listOf(JwkSet(wildcardReportScope, listOf(jwk))))
+    }
+
+    @Test
+    fun `test addKeyToScope adds a key when not over the limit`() {
+        val updatedKeys =
+            JwkSet.addKeyToScope(listOf(JwkSet(wildcardReportScope, listOf(jwk2))), wildcardReportScope, jwk)
+        assertThat(updatedKeys).isEqualTo(listOf(JwkSet(wildcardReportScope, listOf(jwk2, jwk))))
+    }
+
+    @Test
+    fun `test addKeyToScope adds a key when over the limit`() {
+        mockkObject(JwkSet.Companion)
+        every { JwkSet.Companion.getMaximumNumberOfKeysPerScope() } returns 2
+        val updatedKeys =
+            JwkSet.addKeyToScope(listOf(JwkSet(wildcardReportScope, listOf(jwk2, jwk3))), wildcardReportScope, jwk)
+        assertThat(updatedKeys).isEqualTo(listOf(JwkSet(wildcardReportScope, listOf(jwk3, jwk))))
+    }
+
+    @Test
+    fun `test removeKeyFromScope`() {
+        val updatedKeys =
+            JwkSet.removeKeyFromScope(listOf(JwkSet(wildcardReportScope, listOf(jwk, jwk3))), wildcardReportScope, jwk)
+        assertThat(updatedKeys).isEqualTo(listOf(JwkSet(wildcardReportScope, listOf(jwk3))))
+    }
+
+    @Test
+    fun `test removeKeyFromScope when scope is not found`() {
+        val updatedKeys =
+            JwkSet.removeKeyFromScope(listOf(JwkSet(wildcardAdminScope, listOf(jwk, jwk3))), wildcardReportScope, jwk)
+        assertThat(updatedKeys).isEqualTo(listOf(JwkSet(wildcardAdminScope, listOf(jwk, jwk3))))
+    }
+
+    @Test
+    fun `test removeKeyFromScope when kid is not found`() {
+        val updatedKeys =
+            JwkSet.removeKeyFromScope(listOf(JwkSet(wildcardAdminScope, listOf(jwk, jwk3))), wildcardReportScope, jwk2)
+        assertThat(updatedKeys).isEqualTo(listOf(JwkSet(wildcardAdminScope, listOf(jwk, jwk3))))
+    }
+
+    @Test
+    fun `Test isValidKidForSet returns false if kid is used in JwkSet`() {
+        assertThat(
+            JwkSet.isValidKidForScope(
+                listOf(JwkSet(wildcardReportScope, listOf(jwk2))),
+                wildcardReportScope,
+                jwk2.kid
+            )
+        ).isFalse()
+    }
+
+    @Test
+    fun `Test isValidKidForSet returns true if no JwkSet exists for scope`() {
+        assertThat(
+            JwkSet.isValidKidForScope(
+                listOf(JwkSet("simple_report.*.admin", listOf(jwk2))),
+                wildcardReportScope,
+                jwk2.kid
+            )
+        ).isTrue()
+    }
+
+    @Test
+    fun `Test isValidKidForSet returns true if the kid is unique`() {
+        assertThat(
+            JwkSet.isValidKidForScope(
+                listOf(JwkSet("simple_report.*.admin", listOf(jwk2))),
+                wildcardReportScope,
+                jwk3.kid
+            )
+        ).isTrue()
+    }
+
+    @Test
+    fun `Test isValidKidForSet returns true even if kid unique is used in a different JwkSet`() {
+        assertThat(
+            JwkSet.isValidKidForScope(
+                listOf(
+                    JwkSet("simple_report.*.admin", listOf(jwk3)),
+                    JwkSet(wildcardReportScope, listOf(jwk2))
+                ),
+                wildcardReportScope,
+                jwk3.kid
+            )
+        ).isTrue()
     }
 }

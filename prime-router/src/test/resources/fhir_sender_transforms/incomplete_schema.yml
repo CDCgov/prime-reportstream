@@ -1,0 +1,12 @@
+elements:
+  - name: patient-country
+    constants:
+      someString: blah blah
+    resource: ‘Bundle.entry.resource.ofType(Patient)’
+    condition: ‘%resource.address.country.exists().not()’
+    bundleProperty: ‘%resource.address.country’
+    value: [ ‘“USA”’ ]
+  - name: report-index
+    resource: ‘Bundle.entry.resource.ofType(DiagnosticReport)’
+    resourceIndex: orderIndex
+    schema: schemaDoesNotExist

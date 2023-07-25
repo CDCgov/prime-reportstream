@@ -6,7 +6,7 @@ import useCursorManager, {
 import useFilterManager from "../../hooks/filters/UseFilterManager";
 
 import Table, { ColumnConfig, TableConfig } from "./Table";
-import TableFilters from "./TableFilters";
+import TableFilters, { TableFilterDateLabel } from "./TableFilters";
 import { DatasetAction } from "./TableInfo";
 
 const testDataRowOne = {
@@ -26,6 +26,7 @@ const dummyRowTwo = {
 
 // Exported for test purposes
 export const sampleCallback = () => {
+    // eslint-disable-next-line no-console
     console.log("Callback works!");
 };
 
@@ -137,6 +138,8 @@ export const TestTable = ({
         <>
             <StateTestRendering />
             <TableFilters
+                startDateLabel={TableFilterDateLabel.START_DATE}
+                endDateLabel={TableFilterDateLabel.END_DATE}
                 filterManager={filterManager}
                 cursorManager={{
                     cursors,

@@ -4,8 +4,6 @@ import { setupServer } from "msw/node";
 import { RSDelivery, RSFacility } from "../config/endpoints/deliveries";
 import config from "../config";
 
-const { RS_API_URL } = config;
-
 export const makeFacilityFixture = (
     identifier: number,
     overrides?: Partial<RSFacility>
@@ -16,6 +14,14 @@ export const makeFacilityFixture = (
     positive: overrides?.positive || 0,
     total: overrides?.total || 0,
 });
+
+export const makeFacilityFixtureArray = (count: number) => {
+    const fixtures: RSFacility[] = [];
+    for (let i = 0; i < count; i++) {
+        fixtures.push(makeFacilityFixture(i));
+    }
+    return fixtures;
+};
 
 export const makeDeliveryFixture = (
     id: number,
@@ -41,7 +47,7 @@ export const makeDeliveryFixtureArray = (count: number) => {
 
 const handlers = [
     rest.get(
-        "https://test.prime.cdc.gov/api/waters/org/testOrg.testService/deliveries",
+        `${config.API_ROOT}/waters/org/testOrg.testService/deliveries`,
         (req, res, ctx) => {
             if (
                 !req.headers.get("authorization")?.includes("TOKEN") ||
@@ -61,13 +67,13 @@ const handlers = [
     ),
     /* Successfully returns a Report */
     rest.get(
-        "https://test.prime.cdc.gov/api/waters/report/123/delivery",
+        `${config.API_ROOT}/waters/report/123/delivery`,
         (req, res, ctx) => {
             return res(ctx.status(200), ctx.json(makeDeliveryFixture(123)));
         }
     ),
     rest.get(
-        `${RS_API_URL}/api/waters/report/123/facilities`,
+        `${config.API_ROOT}/waters/report/123/facilities`,
         (req, res, ctx) => {
             const testRes = [makeFacilityFixture(1), makeFacilityFixture(2)];
             return res(ctx.status(200), ctx.json(testRes));

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "ESNext",
     "lib": [
       "dom",
       "dom.iterable",
@@ -8,7 +8,7 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
+    "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
@@ -22,11 +22,16 @@
     "types": [
       "jest",
       "cypress",
-      "@testing-library/cypress"
+      "@testing-library/cypress",
+      "mdx",
+      "vite/client",
     ],
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "inlineSourceMap": true
   },
   "include": [
-    "src"
-  ]
+    "./src",
+    "./cypress",
+  ],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

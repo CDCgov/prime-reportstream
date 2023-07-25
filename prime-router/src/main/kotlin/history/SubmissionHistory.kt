@@ -12,6 +12,8 @@ import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
 import gov.cdc.prime.router.ClientSource
 import gov.cdc.prime.router.ReportStreamFilterResult
+import gov.cdc.prime.router.Sender
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
 import java.time.OffsetDateTime
@@ -39,7 +41,7 @@ open class SubmissionHistory(
     @JsonProperty("id")
     reportId: String? = null,
     @JsonProperty("topic")
-    schemaTopic: String? = null,
+    schemaTopic: Topic? = null,
     @JsonProperty("reportItemCount")
     itemCount: Int? = null,
     @JsonIgnore
@@ -59,6 +61,7 @@ open class SubmissionHistory(
      * The sender of the input report.
      */
     var sender: String? = ""
+
     init {
         sender = when {
             sendingOrg.isNullOrBlank() -> ""
@@ -111,9 +114,10 @@ class DetailedSubmissionHistory(
      * Alias for the reportId
      * Legacy support needs this older property
      */
-    val id: String? get() {
-        return reportId
-    }
+    val id: String?
+        get() {
+            return reportId
+        }
 
     /**
      * Errors logged for this Report File.
@@ -139,6 +143,18 @@ class DetailedSubmissionHistory(
      * The destinations.
      */
     var destinations = mutableListOf<Destination>()
+
+    /**
+     * The list of actions that have been performed on the submitted report
+     */
+    @JsonIgnore
+    var actionsPerformed = mutableSetOf<TaskAction>()
+
+    /**
+     * Flag to check if there's an action scheduled for a report related to this submission
+     */
+    @JsonIgnore
+    var nextActionScheduled = false
 
     /**
      * The step in the delivery process for a submission
@@ -192,9 +208,10 @@ class DetailedSubmissionHistory(
     /**
      * Number of destinations that actually had/will have data sent to.
      */
-    val destinationCount: Int get() {
-        return destinations.filter { it.itemCount != 0 }.size
-    }
+    val destinationCount: Int
+        get() {
+            return destinations.filter { it.itemCount != 0 }.size
+        }
 
     init {
         reports?.forEach { report ->
@@ -214,8 +231,8 @@ class DetailedSubmissionHistory(
                     Destination(
                         report.receivingOrg,
                         report.receivingOrgSvc!!,
-                        filteredReportRows,
-                        filteredReportItems,
+                        filteredReportRows.toMutableList(),
+                        filteredReportItems.toMutableList(),
                         nextActionTime,
                         report.itemCount,
                         report.itemCountBeforeQualFilter,
@@ -234,6 +251,9 @@ class DetailedSubmissionHistory(
                 sender = ClientSource(report.sendingOrg, report.sendingOrgClient ?: "").name
                 topic = report.schemaTopic
             }
+
+            // if there is ANY action scheduled on this submission history, ensure this flag is true
+            if (report.nextActionAt != null) nextActionScheduled = true
         }
         errors.addAll(consolidateLogs(ActionLogLevel.error))
         warnings.addAll(consolidateLogs(ActionLogLevel.warning))
@@ -253,7 +273,7 @@ class DetailedSubmissionHistory(
         val filteredList = when (filterBy) {
             null -> logs
             else -> logs.filter { it.type == filterBy }
-        }.sortedBy { it.detail.message }
+        }.filter { it.scope != ActionLogScope.internal }.sortedBy { it.detail.message }
         // Now order the list so that logs contain first non-item messages, then item messages, and item messages
         // are sorted by index.
         val orderedList = (
@@ -287,12 +307,27 @@ class DetailedSubmissionHistory(
      */
     fun enrichWithDescendants(descendants: List<DetailedSubmissionHistory>) {
         check(descendants.distinctBy { it.actionId }.size == descendants.size)
+        actionsPerformed.addAll(descendants.map { submission -> submission.actionName }.distinct())
+
         // Enforce an order on the enrichment:  process/translate, send, download
-        descendants.filter {
-            it.actionName == TaskAction.process || it.actionName == TaskAction.translate
-        }.forEach { descendant ->
-            enrichWithProcessAction(descendant)
+        if (topic?.isUniversalPipeline == true) {
+            // logs and destinations are handled very differently for UP
+            // both routing and translate are populated at different times,
+            // so we need to do special logic to handle them
+            descendants.filter { it.actionName == TaskAction.translate }.forEach { descendant ->
+                enrichWithTranslateAction(descendant)
+            }
+            descendants.filter { it.actionName == TaskAction.route }.forEach { descendant ->
+                enrichWithRouteAction(descendant)
+            }
+        } else {
+            descendants.filter {
+                it.actionName == TaskAction.process
+            }.forEach { descendant ->
+                enrichWithProcessAction(descendant)
+            }
         }
+
         // note: we do not use any data from the batch action at this time.
         descendants.filter { it.actionName == TaskAction.send }.forEach { descendant ->
             enrichWithSendAction(descendant)
@@ -303,17 +338,108 @@ class DetailedSubmissionHistory(
     }
 
     /**
-     * Enrich a parent detailed history with details from the process or translate action.
+     * Enrich a parent detailed history with details from translate actions.
      * Add destinations, errors, and warnings, to the history details.
-     * Process is exclusive to the COVID pipeline, we use translate instead for Universal
+     * Note: Route/Translate is exclusive to the Universal pipeline
+     * See enrichWithProcessAction for the TopicReceiver pipeline counterpart
+     *
+     * @param descendant translate action that will be used to enrich
+     */
+    private fun enrichWithTranslateAction(descendant: DetailedSubmissionHistory) {
+        require(
+            topic?.isUniversalPipeline == true &&
+                descendant.actionName == TaskAction.translate
+        ) {
+            "Must be translate action. Enrichment is only available for the Universal Pipeline"
+        }
+
+        // Grab destinations from the "translate" action
+        descendant.destinations.forEach { descendantDest ->
+            // Check if destination has already been added
+            // if it is increase item counts
+            // otherwise add it to destinations
+            destinations.firstOrNull {
+                it.organizationId == descendantDest.organizationId && it.service == descendantDest.service
+            }?.let { existingDestination ->
+                existingDestination.itemCount += descendantDest.itemCount
+                existingDestination.itemCountBeforeQualFilter =
+                    existingDestination.itemCountBeforeQualFilter?.plus(
+                        descendantDest.itemCountBeforeQualFilter ?: 0
+                    ) ?: descendantDest.itemCountBeforeQualFilter
+            } ?: run {
+                destinations += descendantDest
+            }
+        }
+    }
+
+    /**
+     * Enrich a parent detailed history with details from the route action.
+     * Add destinations, errors, and warnings, to the history details.
+     * Note: Route/Translate is exclusive to the Universal pipeline
+     * See enrichWithProcessAction for the TopicReceiver pipeline counterpart
+     *
+     * @param descendant route action that will be used to enrich
+     */
+    private fun enrichWithRouteAction(descendant: DetailedSubmissionHistory) {
+        require(
+            topic?.isUniversalPipeline == true &&
+                descendant.actionName == TaskAction.route
+        ) {
+            "Must be route action. Enrichment is only available for the Universal Pipeline"
+        }
+        // Grab the filter logs generated during the "route" action, as well as errors and warnings
+        val filterLogs = descendant.logs.filter { log -> log.type == ActionLogLevel.filter }
+        errors += descendant.errors
+        warnings += descendant.warnings
+
+        // add filter logs to its respective destination otherwise add new destination
+        if (filterLogs.isNotEmpty()) {
+            filterLogs.forEach { log ->
+                check(log.detail is ReportStreamFilterResult) { "Filter result not of type ReportStreamFilterResult" }
+                val filterResult = log.detail
+                val filterReport = log.detail.message
+                val receiverNameSegments = filterResult.receiverName.split(Sender.fullNameSeparator)
+                val filterResultResponse = ReportStreamFilterResultForResponse(filterResult)
+
+                destinations.firstOrNull {
+                    it.organizationId == receiverNameSegments[0] && it.service == receiverNameSegments[1]
+                }?.let { existingDestination ->
+                    // filteredReportRows and filteredReportItems are initialized
+                    // when a DetailedSubmissionHistory is created, so they shouldn't be null
+                    existingDestination.filteredReportRows!!.add(filterReport)
+                    existingDestination.filteredReportItems!!.add(filterResultResponse)
+                    existingDestination.itemCountBeforeQualFilter = existingDestination.itemCountBeforeQualFilter?.plus(
+                        filterResult.originalCount
+                    ) ?: filterResult.originalCount
+                } ?: run {
+                    destinations.add(
+                        Destination(
+                            receiverNameSegments[0],
+                            receiverNameSegments[1],
+                            mutableListOf(filterReport),
+                            mutableListOf(ReportStreamFilterResultForResponse(filterResult)),
+                            null,
+                            0,
+                            filterResult.originalCount,
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    /**
+     * Enrich a parent detailed history with details from the process action.
+     * Add destinations, errors, and warnings, to the history details.
+     * Note: Process is exclusive to the COVID pipeline
+     * See enrichWithRoutingAndTranslationActions for the Universal pipeline counterpart
      *
      * @param descendant the history used for enriching
      */
     private fun enrichWithProcessAction(descendant: DetailedSubmissionHistory) {
-        require(descendant.actionName == TaskAction.process || descendant.actionName == TaskAction.translate) {
+        require(descendant.actionName == TaskAction.process) {
             "Must be a process action"
         }
-
         destinations += descendant.destinations
         errors += descendant.errors
         warnings += descendant.warnings
@@ -412,29 +538,28 @@ class DetailedSubmissionHistory(
 
         if (destinations.size == 0) {
             /**
-             * Cases where this may hit:
-             *     1) Data hasn't been processed yet (common in async submissions)
-             *     2) Very rare: No data matches any geographical location.
-             *         e.g. If both the testing tab and patient data were foreign addresses.
-             * At the moment we have NO easy way to distinguish the latter rare case,
-             * so it will be treated as status RECEIVED as well.
+             * This conditional serves to differentiate where a report was submitted async and therefore hasn't
+             * been processed yet vs. a report that has been processed, but did not have any eligible receivers.
+             *
+             * The most likely scenario for that is when the item does not pass the jurisdictional filter for any of
+             * the receivers.
              */
-            return Status.RECEIVED
+            return if (actionsPerformed.contains(TaskAction.route) && !nextActionScheduled) {
+                Status.NOT_DELIVERING
+            } else Status.RECEIVED
         } else if (realDestinations.isEmpty()) {
-            return Status.NOT_DELIVERING
+            return if (nextActionScheduled) Status.RECEIVED
+            else Status.NOT_DELIVERING
         }
 
         var finishedDestinations = 0
-
         realDestinations.forEach {
             var sentItemCount = 0
-
             it.sentReports.forEach { sentReport ->
                 sentItemCount += sentReport.itemCount
             }
 
             var downloadedItemCount = 0
-
             it.downloadedReports.forEach { downloadedReport ->
                 downloadedItemCount += downloadedReport.itemCount
             }
@@ -444,12 +569,17 @@ class DetailedSubmissionHistory(
             }
         }
 
-        if (finishedDestinations >= realDestinations.size) {
+        // Were items delivered to destinations?
+        if (finishedDestinations >= destinations.size) {
+            // ALL destinations received items and are finished
             return Status.DELIVERED
-        } else if (finishedDestinations > 0) {
+        } else if (finishedDestinations >= realDestinations.size) {
+            // SOME destinations received items and are finished
             return Status.PARTIALLY_DELIVERED
         }
-
+        // Destinations have not received the items yet
+        // If adding additional Status states, consider adding one to distinguish between
+        // "Waiting to Deliver" vs "Delivery in Progress"
         return Status.WAITING_TO_DELIVER
     }
 
@@ -515,14 +645,14 @@ data class Destination(
     @JsonProperty("organization_id")
     val organizationId: String,
     val service: String,
-    val filteredReportRows: List<String>?,
-    val filteredReportItems: List<ReportStreamFilterResultForResponse>?,
+    val filteredReportRows: MutableList<String>?,
+    val filteredReportItems: MutableList<ReportStreamFilterResultForResponse>?,
     @JsonProperty("sending_at")
     @JsonInclude(Include.NON_NULL)
     val sendingAt: OffsetDateTime?,
-    val itemCount: Int,
+    var itemCount: Int,
     @JsonProperty("itemCountBeforeQualityFiltering")
-    val itemCountBeforeQualFilter: Int?,
+    var itemCountBeforeQualFilter: Int?,
     var sentReports: MutableList<DetailedReport> = mutableListOf(),
     var downloadedReports: MutableList<DetailedReport> = mutableListOf(),
 ) {

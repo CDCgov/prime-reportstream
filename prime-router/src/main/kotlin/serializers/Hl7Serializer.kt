@@ -21,16 +21,19 @@ import ca.uhn.hl7v2.parser.ModelClassFactory
 import ca.uhn.hl7v2.preparser.PreParser
 import ca.uhn.hl7v2.util.Terser
 import com.anyascii.AnyAscii
-import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.google.i18n.phonenumbers.Phonenumber
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Element
+import gov.cdc.prime.router.ElementNormalizeException
+import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.FieldPrecisionMessage
+import gov.cdc.prime.router.FieldProcessingMessage
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidHL7Message
+import gov.cdc.prime.router.ItemActionLogDetail
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
@@ -47,6 +50,7 @@ import gov.cdc.prime.router.metadata.Mapper
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.InputStream
 import java.io.OutputStream
+import java.lang.IllegalArgumentException
 import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -56,6 +60,7 @@ import java.util.Properties
 import java.util.TimeZone
 import kotlin.math.min
 
+const val BUFFER_CAPACITY = 40000
 class Hl7Serializer(
     val metadata: Metadata,
     val settings: SettingsProvider
@@ -77,18 +82,12 @@ class Hl7Serializer(
         val warnings: MutableList<ActionLogDetail>
     )
 
-    enum class ErrorType(val type: String) {
-        INVALID_HL7_MESSAGE_DATE_VALIDATION("INVALID_HL7_MESSAGE_DATE_VALIDATION"),
-        INVALID_HL7_MESSAGE_VALIDATION("INVALID_HL7_MESSAGE_VALIDATION"),
-        INVALID_HL7_MESSAGE_FORMAT("INVALID_HL7_MESSAGE_FORMAT"),
-        INVALID_HL7_PHONE_NUMBER("INVALID_HL7_PHONE_NUMBER")
-    }
-
     private val hl7SegmentDelimiter: String = "\r"
     private val hapiContext = DefaultHapiContext()
     private val modelClassFactory: ModelClassFactory = CanonicalModelClassFactory(HL7_SPEC_VERSION)
     private val buildVersion: String
     private val buildDate: String
+    private val hl7HapiErrorProcessor: HL7HapiErrorProcessor = HL7HapiErrorProcessor()
 
     init {
         val buildProperties = Properties()
@@ -152,7 +151,7 @@ class Hl7Serializer(
         val reg = "[\r\n]".toRegex()
         val cleanedMessage = reg.replace(message, hl7SegmentDelimiter)
         val messageLines = cleanedMessage.split(hl7SegmentDelimiter)
-        val nextMessage = StringBuilder()
+        val nextMessage = StringBuilder(BUFFER_CAPACITY)
         var messageIndex = 1
 
         /**
@@ -232,7 +231,7 @@ class Hl7Serializer(
                     null
                 }
             } catch (e: HL7Exception) {
-                errors.add(InvalidHL7Message("Unexpected error while parsing $terserSpec: ${e.message}"))
+                errors.add(hl7HapiErrorProcessor.getExceptionActionMessage(e, schema))
                 null
             }
 
@@ -251,7 +250,8 @@ class Hl7Serializer(
             warnings.add(
                 InvalidHL7Message(
                     "Cannot parse empty HL7 message. Please " +
-                        "refer to the HL7 specification and resubmit."
+                        "refer to the HL7 specification and resubmit.",
+                    ErrorCode.INVALID_MSG_PARSE_BLANK
                 )
             )
             return MessageResult(emptyMap(), errors, warnings)
@@ -264,7 +264,13 @@ class Hl7Serializer(
             val altMsgType = PreParser.getFields(cleanedMessage, "MSH-9-3")
             when {
                 msgType.isNullOrEmpty() || msgType[0] == null -> {
-                    errors.add(FieldPrecisionMessage("MSH-9", "Missing required HL7 message type field."))
+                    errors.add(
+                        FieldPrecisionMessage(
+                            "MSH-9",
+                            "Missing required HL7 message type field.",
+                            ErrorCode.INVALID_HL7_MSG_TYPE_MISSING
+                        )
+                    )
                     return MessageResult(emptyMap(), errors, warnings)
                 }
                 // traditional way for checking message type
@@ -275,50 +281,16 @@ class Hl7Serializer(
                     warnings.add(
                         FieldPrecisionMessage(
                             "ORU_R01",
-                            "Unsupported HL7 message type."
+                            "Unsupported HL7 message type.",
+                            ErrorCode.INVALID_HL7_MSG_TYPE_UNSUPPORTED
                         )
                     )
                     return MessageResult(emptyMap(), errors, warnings)
                 }
             }
         } catch (e: HL7Exception) {
-            logger.error("${e.localizedMessage} ${e.stackTraceToString()}")
-            when (e) {
-                is EncodingNotSupportedException ->
-                    // This exception error message is a bit cryptic, so let's provide a better one.
-                    errors.add(
-                        InvalidHL7Message(
-                            "Invalid HL7 message format. Please " +
-                                "refer to the HL7 specification and resubmit.",
-                            ErrorType.INVALID_HL7_MESSAGE_FORMAT.type
-                        )
-                    )
-                else ->
-                    if (e.location?.toString() == "PID-29(0)") {
-                        errors.add(
-                            FieldPrecisionMessage(
-                                e.location.toString(),
-                                "Error parsing HL7 message: ${e.localizedMessage}",
-                                ErrorType.INVALID_HL7_MESSAGE_DATE_VALIDATION.type
-                            )
-                        )
-                    } else {
-                        errors.add(
-                            if (e.location != null) {
-                                FieldPrecisionMessage(
-                                    e.location.toString(),
-                                    "Error parsing HL7 message: ${e.localizedMessage}",
-                                    ErrorType.INVALID_HL7_MESSAGE_VALIDATION.type
-                                )
-                            } else {
-                                InvalidHL7Message(
-                                    "Error parsing HL7 message: ${e.localizedMessage}",
-                                    ErrorType.INVALID_HL7_MESSAGE_VALIDATION.type
-                                )
-                            }
-                        )
-                    }
-            }
+            logger.info("${e.localizedMessage} ${e.stackTraceToString()}")
+            errors.add(hl7HapiErrorProcessor.getExceptionActionMessage(e, schema))
             return MessageResult(emptyMap(), errors, warnings)
         }
 
@@ -382,14 +354,8 @@ class Hl7Serializer(
 
                                     else -> rawValue
                                 }
-                            } catch (e: IllegalStateException) {
-                                warnings.add(
-                                    InvalidHL7Message(
-                                        "The code $rawValue for field $hl7Field is " +
-                                            "invalid. Please refer to the HL7 specification and " +
-                                            "resubmit."
-                                    )
-                                )
+                            } catch (e: ElementNormalizeException) {
+                                warnings.add(FieldProcessingMessage(e.field, e.message, e.errorCode))
                                 ""
                             }
                         }
@@ -421,14 +387,8 @@ class Hl7Serializer(
             val msg = "${e.localizedMessage} ${e.stackTraceToString()}"
             logger.error(msg)
 
-            if ((e as NumberParseException).errorType.name == "NOT_A_NUMBER") {
-                errors.add(
-                    FieldPrecisionMessage(
-                        "ORC-23(0)",
-                        msg,
-                        ErrorType.INVALID_HL7_PHONE_NUMBER.type
-                    )
-                )
+            if (e is ElementNormalizeException) {
+                errors.add(FieldProcessingMessage(e.field, e.message, e.errorCode))
             } else {
                 errors.add(InvalidHL7Message(msg))
             }
@@ -1436,8 +1396,11 @@ class Hl7Serializer(
     ) {
         if (value.isEmpty()) return
         val parts = value.split(Element.phoneDelimiter)
-        val areaCode = parts[0].substring(0, 3)
-        val local = parts[0].substring(3)
+        val (areaCode, local) = if (parts[0].length == 7 && parts[1].isEmpty() && parts[2].isEmpty()) {
+            Pair("", parts[0])
+        } else {
+            Pair(parts[0].substring(0, 3), parts[0].substring(3))
+        }
         val country = parts[1]
         val extension = parts[2]
         val localWithDash = if (local.length == 7) "${local.slice(0..2)}-${local.slice(3..6)}" else local
@@ -1477,7 +1440,7 @@ class Hl7Serializer(
 
             when (phoneNumberFormatting) {
                 Hl7Configuration.PhoneNumberFormatting.STANDARD -> {
-                    val phoneNumber = "($areaCode)$localWithDash" +
+                    val phoneNumber = if (areaCode.isEmpty()) "$localWithDash" else "($areaCode)$localWithDash" +
                         if (extension.isNotEmpty()) "X$extension" else ""
                     terser.set(buildComponent(pathSpec, 1), phoneNumber)
                     terser.set(buildComponent(pathSpec, 2), component1)
@@ -1856,18 +1819,37 @@ class Hl7Serializer(
         receivingApplicationReportIn: String? = null,
         receivingFacilityReportIn: String? = null
     ): String {
-        val sendingApplicationReport = sendingApplicationReportIn
+        val hl7Config = report.destination?.translation as? Hl7Configuration?
+        val replaceValueAwithB = hl7Config?.replaceValueAwithB ?: emptyMap()
+        var sendingApplicationReportInReplace: String? = null
+        var receivingApplicationReportInReplace: String? = null
+        var receivingFacilityReportInReplace: String? = null
+        // Following allows replaceValueAandB to replace FHS and BHS 3, 5, 6 only
+        replaceValueAwithB.forEach { segment ->
+            // Scan through segment(s)
+            @Suppress("UNCHECKED_CAST")
+            (segment.value as ArrayList<Map<String, String>>).forEach valuePairs@{ pairs ->
+                val fields = pairs.values.first().trim()
+                if (segment.key == "FHS-3")
+                    sendingApplicationReportInReplace = fields
+                else if (segment.key == "FHS-5")
+                    receivingApplicationReportInReplace = fields
+                else if (segment.key == "FHS-6")
+                    receivingFacilityReportInReplace = fields
+            }
+        }
+
+        val sendingApplicationReport = sendingApplicationReportIn ?: sendingApplicationReportInReplace
             ?: (report.getString(0, "sending_application") ?: "")
-        val receivingApplicationReport = receivingApplicationReportIn
+        val receivingApplicationReport = receivingApplicationReportIn ?: receivingApplicationReportInReplace
             ?: (report.getString(0, "receiving_application") ?: "")
-        val receivingFacilityReport = receivingFacilityReportIn
+        val receivingFacilityReport = receivingFacilityReportIn ?: receivingFacilityReportInReplace
             ?: (report.getString(0, "receiving_facility") ?: "")
 
         var sendingAppTruncationLimit: Int? = null
         var receivingAppTruncationLimit: Int? = null
         var receivingFacilityTruncationLimit: Int? = null
 
-        val hl7Config = report.destination?.translation as? Hl7Configuration?
         if (hl7Config?.truncateHDNamespaceIds == true) {
             sendingAppTruncationLimit = getTruncationLimitWithEncoding(sendingApplicationReport, HD_TRUNCATION_LIMIT)
             receivingAppTruncationLimit = getTruncationLimitWithEncoding(
@@ -2025,18 +2007,22 @@ class Hl7Serializer(
             if (xtnValue is XTN) {
                 when (element.type) {
                     Element.Type.TELEPHONE -> {
-                        // If we have an area code or local number use the new fields, otherwise try the deprecated field
-                        if (!xtnValue.areaCityCode.isEmpty || !xtnValue.localNumber.isEmpty) {
-                            // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
-                            if (xtnValue.telecommunicationEquipmentType.isEmpty ||
-                                xtnValue.telecommunicationEquipmentType.valueOrEmpty == "PH"
-                            ) {
-                                strValue = "${xtnValue.areaCityCode.value ?: ""}${xtnValue.localNumber.value ?: ""}:" +
-                                    "${xtnValue.countryCode.value ?: ""}:${xtnValue.extension.value ?: ""}"
-                            }
-                        } else if (!xtnValue.telephoneNumber.isEmpty) {
+                        // 1st - If there is a full phone number use it.
+                        if (!xtnValue.telephoneNumber.isEmpty) {
                             strValue = element.toNormalized(xtnValue.telephoneNumber.valueOrEmpty)
-                        }
+                        } else
+                        // Otherwise, if there is a local number use it.
+                            if (!xtnValue.areaCityCode.isEmpty || !xtnValue.localNumber.isEmpty) {
+                                // If the phone number type is specified then make sure it is a phone, otherwise assume it is.
+                                if (xtnValue.telecommunicationEquipmentType.isEmpty ||
+                                    xtnValue.telecommunicationEquipmentType.valueOrEmpty == "PH"
+                                ) {
+                                    strValue = "${xtnValue.areaCityCode.value ?: ""}" +
+                                        "${xtnValue.localNumber.value ?: ""}:" +
+                                        "${xtnValue.countryCode.value ?: ""}:" +
+                                        "${xtnValue.extension.value ?: ""}"
+                                }
+                            }
                     }
                     Element.Type.EMAIL -> {
                         if (xtnValue.telecommunicationEquipmentType.isEmpty ||
@@ -2134,7 +2120,8 @@ class Hl7Serializer(
                                     FieldPrecisionMessage(
                                         element.fieldMapping,
                                         "Timestamp for ${element.name} should be precise. Reformat " +
-                                            "to either the HL7 v2.4 TS or ISO 8601 standard format."
+                                            "to either the HL7 v2.4 TS or ISO 8601 standard format.",
+                                        ErrorCode.INVALID_MSG_PARSE_DATETIME
                                     )
                                 )
                             }
@@ -2149,7 +2136,8 @@ class Hl7Serializer(
                                     FieldPrecisionMessage(
                                         element.fieldMapping,
                                         "Date for ${element.name} should provide more " +
-                                            "precision. Reformat as YYYYMMDD."
+                                            "precision. Reformat as YYYYMMDD.",
+                                        ErrorCode.INVALID_MSG_PARSE_DATE
                                     )
                                 )
                             }
@@ -2491,4 +2479,69 @@ fun String.trimAndTruncate(maxLength: Int?): String {
         startTrimmed
     }
     return truncated.trimEnd()
+}
+
+/**
+ * Class for processing HL7 HAPI library exceptions that derive from HL7Exception
+ */
+class HL7HapiErrorProcessor : Logging {
+
+    /**
+     * Return appropriate [ItemActionLogDetail] for a given exception
+     * @param exception the HL7Exception based exception
+     * @param schema the [Schema] to use for error code lookup
+     */
+    fun getExceptionActionMessage(
+        exception: HL7Exception,
+        schema: Schema
+    ): ItemActionLogDetail {
+        return when (exception) {
+            is EncodingNotSupportedException ->
+                InvalidHL7Message(
+                    "Invalid HL7 message format. Please " +
+                        "refer to the HL7 specification and resubmit.",
+                    ErrorCode.INVALID_HL7_MSG_FORMAT_INVALID
+                )
+            else -> // try to handle an HL7 field error
+                if (exception.location != null) {
+                    val cleanedFieldName = getCleanedField(exception.location.toString())
+                    val errorCode = getErrorCode(schema.elements.find { it.hl7Field == cleanedFieldName }?.type)
+                    FieldProcessingMessage(
+                        exception.location.toString(),
+                        "Error parsing HL7 field: ${exception.localizedMessage}",
+                        errorCode
+                    )
+                } else {
+                    InvalidHL7Message(
+                        "Error parsing HL7 message: ${exception.localizedMessage}",
+                        ErrorCode.INVALID_HL7_MSG_VALIDATION
+                    )
+                }
+        }
+    }
+
+    /**
+     * Attempts to find a parsing [ErrorCode] matching the given [elementType]. Returns UNKNOWN error code if a matching
+     * code cannot be found.
+     * @param elementType the type of the element
+     */
+    fun getErrorCode(elementType: Element.Type?): ErrorCode {
+        var code = ErrorCode.INVALID_MSG_PARSE_UNKNOWN
+        try {
+            code = ErrorCode.valueOf("INVALID_MSG_PARSE_$elementType")
+        } catch (e: IllegalArgumentException) {
+            logger.info("Unable to find error code for element $elementType. ${e.message}")
+        }
+        return code
+    }
+
+    /**
+     * Converts a field as it appears in a HAPI exception message to a format ReportStream schemas expect
+     * @param field the field to convert
+     */
+    private fun getCleanedField(field: String): String {
+        return field.replaceFirst("(", "-")
+            .replace(")", "")
+            .removeSuffix("-0")
+    }
 }

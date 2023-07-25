@@ -8,7 +8,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogLevel
 import gov.cdc.prime.router.ActionLogScope
+import gov.cdc.prime.router.ErrorCode
 import gov.cdc.prime.router.ItemActionLogDetail
+import gov.cdc.prime.router.Topic
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -33,7 +35,7 @@ abstract class ReportHistory(
     var externalName: String? = "",
     @JsonProperty("id")
     var reportId: String? = null,
-    var topic: String? = null,
+    var topic: Topic? = null,
     var reportItemCount: Int? = null
 )
 
@@ -67,7 +69,7 @@ data class DetailedReport(
     @JsonIgnore
     val sendingOrgClient: String?,
     @JsonIgnore
-    val schemaTopic: String?,
+    val schemaTopic: Topic?,
     val externalName: String?,
     val createdAt: OffsetDateTime?,
     val nextActionAt: OffsetDateTime?,
@@ -118,7 +120,7 @@ class ConsolidatedActionLog(log: DetailedActionLog) {
     /**
      * The error code for the message.
      */
-    val errorCode: String
+    val errorCode: ErrorCode
 
     init {
         scope = log.scope

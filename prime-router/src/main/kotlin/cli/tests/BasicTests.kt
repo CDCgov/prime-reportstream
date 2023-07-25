@@ -65,13 +65,160 @@ class Ping : CoolTest() {
     }
 }
 
+/**
+ * End to end test for the universal pipeline. This test should read in a submission, verify it reached all steps
+ * (receive, convert, route, translate, batch, send) and that it generated the correct lineage records.
+ */
+class End2EndUniversalPipeline : CoolTest() {
+    override val name = "end2end_up"
+    override val description = "Create Fake data, submit, wait, confirm sent via database lineage data for UP"
+    override val status = TestStatus.SMOKE
+
+    override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
+        initListOfGoodReceiversAndCountiesForUniversalPipeline()
+        ugly("Starting $name Test: send ${fullELRSender.fullName} data to $allGoodCounties")
+
+        // run through the universal pipeline test
+        ugly("Running end2end_up asynchronously")
+        var passed = true
+
+        passed = passed and universalPipelineEnd2End(
+            environment,
+            options,
+            fullELRSender,
+            listOf(universalPipelineReceiver1, universalPipelineReceiver2)
+        )
+        passed = passed and universalPipelineEnd2End(environment, options, etorTISender, listOf(etorReceiver))
+
+        passed = passed and universalPipelineEnd2End(environment, options, elrElimsSender, listOf(elimsReceiver))
+
+        return passed
+    }
+
+    private suspend fun universalPipelineEnd2End(
+        environment: Environment,
+        options: CoolTestOptions,
+        sender: Sender,
+        expectedReceivers: List<Receiver>
+    ): Boolean {
+        var passed = true
+        // load a valid HL7 file
+        val file = File("src/test/resources/fhirengine/smoketest/valid_hl7.hl7")
+
+        echo("Loaded datafile $file")
+        // Now send it to ReportStream.
+        val (responseCode, json) =
+            HttpUtilities.postReportFile(
+                environment,
+                file,
+                sender,
+                true,
+                options.key,
+                payloadName = "$name ${status.description}",
+            )
+        if (responseCode != HttpURLConnection.HTTP_CREATED) {
+            bad("***end2end_up Test FAILED***:  response code $responseCode")
+            passed = false
+        } else {
+            good("Posting of async report succeeded with response code $responseCode")
+        }
+
+        echo(json)
+        passed = passed and examinePostResponse(json, false)
+        if (!passed)
+            bad("***async end2end_up FAILED***: Error in post response")
+        // gets back 'received' reportId
+        val reportId = getReportIdFromResponse(json)
+
+        if (reportId != null) {
+            // check convert step
+            val convertResults = pollForStepResult(reportId, TaskAction.convert)
+            // verify each result is valid
+            for (result in convertResults.values)
+                passed = passed && examineStepResponse(result, "convert", sender.topic)
+            if (!passed)
+                bad("***async end2end_up FAILED***: Convert result invalid")
+
+            // check route step
+            val convertReportId = getSingleChildReportId(reportId)
+                ?: return bad("***async end2end_up FAILED***: Convert report id null")
+
+            val routeResults = pollForStepResult(convertReportId, TaskAction.route)
+            // verify each result is valid
+            for (result in routeResults.values)
+                passed = passed && examineStepResponse(result, "route", sender.topic)
+            if (!passed)
+                bad("***async end2end_up FAILED***: Route result invalid")
+
+            // check translate step
+            val routeReportId = getSingleChildReportId(convertReportId)
+                ?: return bad("***async end2end_up FAILED***: Route report id null")
+            val translateResults = pollForStepResult(routeReportId, TaskAction.translate)
+            // verify each result is valid
+            for (result in translateResults.values)
+                passed = passed && examineStepResponse(result, "translate", sender.topic)
+            if (!passed)
+                bad("***async end2end_up FAILED***: Translate result invalid")
+
+            // check batch step
+            val translateReportIds = getAllChildrenReportId(routeReportId)
+            if (translateReportIds.size < expectedReceivers.size)
+                return bad(
+                    "***async end2end_up FAILED***: Expected at least ${expectedReceivers.size} translate" +
+                        "report id(s), but got ${translateReportIds.size}."
+                )
+            val receiverNames = translateResults.values.flatMap { it?.reports ?: emptyList() }
+                .map { "${it.receivingOrg}.${it.receivingOrgSvc}" }
+            expectedReceivers.forEach { receiver ->
+                if (!receiverNames.contains(receiver.fullName)) {
+                    bad("***async end2end_up FAILED***: expected ${receiver.fullName} to have received a report")
+                    passed = false
+                }
+            }
+            translateReportIds.forEach { translateReportId ->
+                val batchResults = pollForStepResult(translateReportId, TaskAction.batch)
+                if (batchResults.isEmpty()) {
+                    return bad(
+                        "***async end2end_up FAILED***: No batch report was found after translate: $translateReportId"
+                    )
+                }
+                // verify each result is valid
+                for (result in batchResults.values)
+                    passed = passed && examineStepResponse(result, "batch", sender.topic)
+                if (!passed)
+                    bad("***async end2end_up FAILED***: Batch result invalid")
+
+                // check send step
+                val batchReportId = getSingleChildReportId(translateReportId)
+                    ?: return bad("***async end2end_up FAILED***: Batch report id null")
+                val sendResults = pollForStepResult(batchReportId, TaskAction.send)
+                // verify each result is valid
+                for (result in sendResults.values)
+                    passed = passed && examineStepResponse(result, "send", sender.topic)
+                if (!passed)
+                    bad("***async end2end_up FAILED***: Send result invalid")
+            }
+
+            // check that lineages were generated properly
+            passed = passed and pollForLineageResults(
+                reportId,
+                expectedReceivers,
+                expectedReceivers.size,
+                asyncProcessMode = true,
+                isUniversalPipeline = true
+            )
+        }
+        return passed
+    }
+}
+
 class End2End : CoolTest() {
     override val name = "end2end"
     override val description = "Create Fake data, submit, wait, confirm sent via database lineage data"
     override val status = TestStatus.SMOKE
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        initListOfGoodReceiversAndCounties()
+        initListOfGoodReceiversAndCountiesForTopicPipeline()
         ugly("Starting $name Test: send ${simpleRepSender.fullName} data to $allGoodCounties")
 
         // run both sync and async end2end test
@@ -88,7 +235,7 @@ class End2End : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            simpleRepSender,
+            simpleRepSender.schemaName,
             fakeItemCount,
             receivingStates,
             allGoodCounties,
@@ -142,7 +289,7 @@ class End2End : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            simpleRepSender,
+            simpleRepSender.schemaName,
             fakeItemCount,
             receivingStates,
             allGoodCounties,
@@ -173,8 +320,9 @@ class End2End : CoolTest() {
         if (reportId != null) {
             // gets back the id of the internal report
             val internalReportId = getSingleChildReportId(reportId)
+                ?: return bad("***end2end FAILED***: Single Child Report ID null")
 
-            val processResults = pollForProcessResult(internalReportId)
+            val processResults = pollForStepResult(internalReportId, TaskAction.process)
             // verify each result is valid
             for (result in processResults.values)
                 passed = passed && examineProcessResponse(result)
@@ -229,7 +377,13 @@ class Merge : CoolTest() {
                 actionsList.forEach { action ->
                     var count = 0
                     reportIds.forEach { reportId ->
-                        count += itemLineageCountQuery(txn, reportId, receiver.name, action = action) ?: 0
+                        count += itemLineageCountQuery(
+                            txn,
+                            reportId,
+                            receiver.name,
+                            action = action,
+                            isUniversalPipeline = false
+                        ) ?: 0
                     }
                     if (expected != count) {
                         queryResults += Pair(
@@ -275,7 +429,7 @@ class Merge : CoolTest() {
             }
             timeElapsedSecs += pollSleepSecs
             queryResults = queryForMergeResults(reportIds, receivers, itemsPerReport)
-            if (! queryResults.map { it.first }.contains(false)) break // everything passed!
+            if (!queryResults.map { it.first }.contains(false)) break // everything passed!
         }
         if (!silent) {
             queryResults.forEach {
@@ -285,7 +439,7 @@ class Merge : CoolTest() {
                     bad(it.second)
             }
         }
-        return ! queryResults.map { it.first }.contains(false) // no falses == it passed!
+        return !queryResults.map { it.first }.contains(false) // no falses == it passed!
     }
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
@@ -297,7 +451,7 @@ class Merge : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            simpleRepSender,
+            simpleRepSender.schemaName,
             fakeItemCount,
             receivingStates,
             mergingCounties,
@@ -346,7 +500,7 @@ class Hl7Null : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            simpleRepSender,
+            simpleRepSender.schemaName,
             fakeItemCount,
             receivingStates,
             "HL7_NULL",
@@ -468,14 +622,14 @@ class Strac : CoolTest() {
     override val status = TestStatus.SMOKE
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        initListOfGoodReceiversAndCounties()
+        initListOfGoodReceiversAndCountiesForTopicPipeline()
         ugly("Starting bigly strac Test: sending Strac data to all of these receivers: $allGoodCounties!")
         var passed = true
         val fakeItemCount = allGoodReceivers.size * options.items
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            stracSender,
+            stracSender.schemaName,
             fakeItemCount,
             receivingStates,
             allGoodCounties,
@@ -527,7 +681,7 @@ class Waters : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            watersSender,
+            watersSender.schemaName,
             options.items,
             receivingStates,
             blobstoreReceiver.name,
@@ -566,14 +720,14 @@ class Garbage : CoolTest() {
     override val status = TestStatus.FAILS // new quality checks now prevent any data from flowing to other checks
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
-        initListOfGoodReceiversAndCounties()
+        initListOfGoodReceiversAndCountiesForTopicPipeline()
         ugly("Starting $name Test: send ${emptySender.fullName} data to $allGoodCounties")
         var passed = true
         val fakeItemCount = allGoodReceivers.size * options.items
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            emptySender,
+            emptySender.schemaName,
             fakeItemCount,
             receivingStates,
             allGoodCounties,
@@ -698,7 +852,7 @@ class QualityFilter : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            emptySender,
+            emptySender.schemaName,
             fakeItemCount,
             receivingStates,
             qualityAllReceiver.name, // Has the 'allowAll' quality filter
@@ -725,8 +879,9 @@ class QualityFilter : CoolTest() {
             if (reportId != null) {
                 // gets back the id of the internal report
                 val internalReportId = getSingleChildReportId(reportId)
+                    ?: return bad("***qualityfilter FAILED***: Report id null")
 
-                val processResults = pollForProcessResult(internalReportId)
+                val processResults = pollForStepResult(internalReportId, TaskAction.process)
                 // verify each result is valid
                 for (result in processResults.values)
                     passed = passed &&
@@ -742,7 +897,7 @@ class QualityFilter : CoolTest() {
         val file2 = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            emptySender,
+            emptySender.schemaName,
             fakeItemCount,
             receivingStates,
             qualityGoodReceiver.name + ",removed", // 3 kept, 2 removed
@@ -766,8 +921,9 @@ class QualityFilter : CoolTest() {
             if (reportId != null) {
                 // gets back the id of the internal report
                 val internalReportId2 = getSingleChildReportId(reportId)
+                    ?: return bad("***qualityfilter FAILED***: InternalReportId2 report id null")
 
-                val processResults2 = pollForProcessResult(internalReportId2)
+                val processResults2 = pollForStepResult(internalReportId2, TaskAction.process)
                 // verify each result is valid
                 for (result in processResults2.values)
                     passed = passed &&
@@ -783,7 +939,7 @@ class QualityFilter : CoolTest() {
         val file3 = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            emptySender,
+            emptySender.schemaName,
             fakeItemCount,
             receivingStates,
             qualityFailReceiver.name,
@@ -807,8 +963,9 @@ class QualityFilter : CoolTest() {
             if (reportId != null) {
                 // gets back the id of the internal report
                 val internalReportId3 = getSingleChildReportId(reportId)
+                    ?: return bad("***qualityfilter FAILED***: InternalReportId3 report id null")
 
-                val processResults3 = pollForProcessResult(internalReportId3)
+                val processResults3 = pollForStepResult(internalReportId3, TaskAction.process)
                 // verify each result is valid
                 for (result in processResults3.values)
                     passed = passed &&
@@ -824,7 +981,7 @@ class QualityFilter : CoolTest() {
         val file4 = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            emptySender,
+            emptySender.schemaName,
             fakeItemCount,
             receivingStates,
             qualityReversedReceiver.name + ",kept", // 3 removed, 2 kept
@@ -848,8 +1005,9 @@ class QualityFilter : CoolTest() {
             if (reportId != null) {
                 // gets back the id of the internal report
                 val internalReportId4 = getSingleChildReportId(reportId)
+                    ?: return bad("***qualityfilter FAILED***: internalReportId4 report id null")
 
-                val processResults4 = pollForProcessResult(internalReportId4)
+                val processResults4 = pollForStepResult(internalReportId4, TaskAction.process)
                 // verify each result is valid
                 for (result in processResults4.values)
                     passed = passed &&
@@ -879,7 +1037,7 @@ class DbConnections : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            simpleRepSender,
+            simpleRepSender.schemaName,
             options.items,
             receivingStates,
             "HL7",
@@ -940,7 +1098,7 @@ class BadSftp : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            simpleRepSender,
+            simpleRepSender.schemaName,
             options.items,
             receivingStates,
             sftpFailReceiver.name,
@@ -1000,7 +1158,7 @@ class InternationalContent : CoolTest() {
         val file = FileUtilities.createFakeCovidFile(
             metadata,
             settings,
-            simpleRepSender,
+            simpleRepSender.schemaName,
             1,
             receivingStates,
             receiverName,
@@ -1090,7 +1248,7 @@ class SantaClaus : CoolTest() {
             val file = FileUtilities.createFakeCovidFile(
                 metadata = metadata,
                 settings = settings,
-                sender = sender as CovidSender,
+                schemaName = (sender as CovidSender).schemaName,
                 count = states.size,
                 format = if (sender.format == Sender.Format.CSV) Report.Format.CSV else Report.Format.HL7_BATCH,
                 directory = System.getProperty("java.io.tmpdir"),
@@ -1222,8 +1380,9 @@ class OtcProctored : CoolTest() {
                     if (reportId != null) {
                         // gets back the id of the internal report
                         val internalReportId = getSingleChildReportId(reportId)
+                            ?: return bad("***otcproctored FAILED***: Internal report id null")
 
-                        val processResults = pollForProcessResult(internalReportId)
+                        val processResults = pollForStepResult(internalReportId, TaskAction.process)
                         // verify each result is valid
                         for (result in processResults.values)
                             if (!examineProcessResponse(result))

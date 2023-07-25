@@ -6,16 +6,21 @@ elements:
     hl7Spec: [ '%{hl7TQ1}-1' ]
 
   - name: tq1-start-of-service
-    condition: '%resource.extension(%`rsext-start-of-service`).exists()'
-    value: [ '%resource.extension(%`rsext-start-of-service`).value' ]
+    value: [ '%resource.occurrence.repeat.bounds.start' ]
     hl7Spec: [ '%{hl7TQ1}-7' ]
 
   - name: tq1-end-of-service
-    condition: '%resource.extension(%`rsext-end-of-service`).exists()'
-    value: [ '%resource.extension(%`rsext-end-of-service`).value' ]
+    value: [ '%resource.occurrence.repeat.bounds.end' ]
     hl7Spec: [ '%{hl7TQ1}-8' ]
 
+
   - name: tq1-service-priority
-    condition: '%resource.extension(%`rsext-service-priority`).exists()'
-    value: [ '%resource.extension(%`rsext-service-priority`).value.coding.code' ]
+    value: [ '%resource.priority.value','%resource.extension(%`rsext-service-priority`).value.coding.code']
     hl7Spec: [ '%{hl7TQ1}-9-1' ]
+    valueSet:
+      values:
+        stat: S
+        urgent: U
+        asap: A
+        routine: R
+

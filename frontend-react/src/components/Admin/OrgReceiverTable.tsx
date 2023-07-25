@@ -1,5 +1,4 @@
 import { useResource } from "rest-hooks";
-import { Link, NavLink } from "react-router-dom";
 import {
     Button,
     ButtonGroup,
@@ -19,6 +18,7 @@ import {
     CheckSettingResult,
     useCheckSettingsCmd,
 } from "../../network/api/CheckSettingCmd";
+import { USLink, USNavLink } from "../USLink";
 
 import { DisplayMeta } from "./DisplayMeta";
 
@@ -85,11 +85,11 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
             <h2>
                 Organization Receiver Settings ({orgReceiverSettings.length})
                 {" - "}
-                <Link
-                    to={`/admin/revisionhistory/org/${props.orgname}/settingtype/receiver`}
+                <USLink
+                    href={`/admin/revisionhistory/org/${props.orgname}/settingtype/receiver`}
                 >
                     History
-                </Link>
+                </USLink>
             </h2>
             {!orgReceiverSettings ? (
                 <Spinner />
@@ -109,13 +109,13 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                             <th scope="col">Meta</th>
                             <th scope="col">Action</th>
                             <th scope="col">
-                                <NavLink
+                                <USNavLink
                                     className="usa-button"
-                                    to={`/admin/orgnewsetting/org/${props.orgname}/settingtype/receiver`}
+                                    href={`/admin/orgnewsetting/org/${props.orgname}/settingtype/receiver`}
                                     key={`receiver-create-link`}
                                 >
                                     New
-                                </NavLink>
+                                </USNavLink>
                             </th>
                         </tr>
                     </thead>
@@ -137,7 +137,6 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                                     <ButtonGroup type="segmented">
                                         <Button
                                             type="button"
-                                            size="small"
                                             key={`receiver-row-checkcmd-${eachOrgSetting.name}-${index}`}
                                             data-receiver={eachOrgSetting.name}
                                             onClick={() =>
@@ -149,20 +148,20 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                                         >
                                             Check
                                         </Button>
-                                        <NavLink
+                                        <USNavLink
                                             className="usa-button"
-                                            to={`/admin/orgreceiversettings/org/${eachOrgSetting.organizationName}/receiver/${eachOrgSetting.name}/action/edit`}
+                                            href={`/admin/orgreceiversettings/org/${eachOrgSetting.organizationName}/receiver/${eachOrgSetting.name}/action/edit`}
                                             key={`receiver-edit-link-${eachOrgSetting.name}-${index}`}
                                         >
                                             Edit
-                                        </NavLink>
-                                        <NavLink
+                                        </USNavLink>
+                                        <USNavLink
                                             className="usa-button"
-                                            to={`/admin/orgreceiversettings/org/${eachOrgSetting.organizationName}/receiver/${eachOrgSetting.name}/action/clone`}
+                                            href={`/admin/orgreceiversettings/org/${eachOrgSetting.organizationName}/receiver/${eachOrgSetting.name}/action/clone`}
                                             key={`receiver-clone-link-${eachOrgSetting.name}-${index}`}
                                         >
                                             Clone
-                                        </NavLink>
+                                        </USNavLink>
                                     </ButtonGroup>
                                 </td>
                             </tr>
@@ -184,8 +183,8 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                 >
                     This check will use the '{clickedReceiver}' settings to
                     connect to the receiver's server. <br />
-                    No files will be sent. This feature ONLY supports SFTP
-                    receivers currently.
+                    No files will be sent. This feature ONLY supports SFTP and
+                    REST receivers currently.
                 </ModalHeading>
                 <div className={"rs-admindash-modal-container"}>
                     <div className={"rs-resend-label"}>
@@ -212,7 +211,6 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                     <ButtonGroup>
                         <Button
                             type="button"
-                            size="small"
                             outline
                             onClick={() =>
                                 modalRef?.current?.toggleModal(undefined, false)
@@ -222,7 +220,6 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                         </Button>
                         <Button
                             type="button"
-                            size="small"
                             disabled={isLoading}
                             onClick={() => clickDoCheckCmd()}
                         >

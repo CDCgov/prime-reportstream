@@ -1,0 +1,108 @@
+# To submit this to staging, run:
+# ./prime login --env staging
+# ./prime multiple-settings set --env staging --input ./settings/staging/0149-etor.yml
+#
+# Then add keys to it, as needed, like this:
+#  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.simulated-hospital --doit
+#  ./prime sender addkey --env staging --public-key path-to-public-key.pem --scope "flexion.*.report" --name flexion.etor-service-sender --doit
+# 
+# Then go into prime-reportstream/prime-router/examples/generate-jwt-python/generate-jwt.py
+#     and change these vars to:
+#        my_client_id = "flexion"
+#        my_sender_id = "etor-service-sender"
+#        my_rsa_keypair_file = "<put your path-to-public-key.pem here"
+# Then follow the instructions at the top of generate-jwt.py to run it, which will generate code to get a token.
+#
+# You can also do all the above locally instead of staging, just take out --env staging.
+#
+# This FHIR ndjson (aka 'FHIR all on one line') data submission curl works for me, with a valid token in `TOK` env var:
+#
+# curl -X POST -H "authorization:bearer $TOK" -H "client:flexion.etor-service-sender"  -H "content-type:application/fhir+ndjson" --data-binary "@../../src/testIntegration/resources/datatests/HL7_to_FHIR/test.ndjson" "https://staging.prime.cdc.gov/api/waters"
+#
+---
+- name: flexion
+  description: Flexion, Inc.
+  jurisdiction: FEDERAL
+  senders:
+    - name: simulated-hospital
+      externalName: Simulated Hospital ETOR Sender
+      organizationName: flexion
+      topic: etor-ti
+      customerStatus: active
+      format: HL7
+    - name: etor-service-sender
+      externalName: ETOR Service Sender Channel to ReportStream - Sending FHIR
+      organizationName: flexion
+      topic: etor-ti
+      customerStatus: active
+      format: FHIR
+      schemaName: "metadata/fhir_transforms/senders/Flexion/TILabOrder"
+  receivers:
+    - name: simulated-lab
+      externalName: Simulated State Public Health Lab ETOR Receiver
+      organizationName: flexion
+      topic: etor-ti
+      customerStatus: active
+      # This is how to allow everything:
+      #     jurisdictionalFilter:
+      #       - true
+      jurisdictionalFilter:
+        - "%hl7MessageType = 'O21'"
+      #  - "%performerState = 'CO' or %patientState = 'CO'"
+      qualityFilter:
+        - "%hl7MessageType = 'O21'"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/receivers/Flexion/TILabOrder"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        type: "HL7"
+        receivingApplicationName: "CO-ELR"
+        receivingFacilityName: "CO"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: etor-service-receiver
+      externalName: ETOR Service Receiver Channel from ReportStream
+      organizationName: flexion
+      topic: etor-ti
+      customerStatus: active
+      jurisdictionalFilter: [ "(%patientState.exists() and %patientState = 'IG')" ]
+      qualityFilter: [ "(%patientState.exists() and %patientState = 'IG')" ]
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<FHIR>
+        schemaName: "metadata/fhir_transforms/receivers/fhir-transform-sample"
+        useBatching: false
+        type: "FHIR"
+      transport: !<REST>
+        reportUrl: "https://cdcti-staging-api.azurewebsites.net/v1/etor/demographics"
+        authTokenUrl: "https://cdcti-staging-api.azurewebsites.net/v1/auth/token"
+        authType: "two-legged"
+# Uncomment below for local Trusted-Intermediary server
+#        reportUrl: "http://localhost:8080/v1/etor/demographics"
+#        authTokenUrl: "http://localhost:8080/v1/auth"
+        type: "REST"
+        tlsKeystore: null
+        parameters:
+          scope: "report-stream"
+          client_assertion: "client_secret"
+        headers:
+          RecordId: 'header.reportFile.reportId'
+          senderLabName: 'CDC PRIME REPORTSTREAM' #name-of-the-lab-the-sending-user-belongs-to
+          sourceLabName: 'CDC PRIME REPORTSTREAM' #name-of-the-lab-that-originally-sent-this-hl7-message-to-OSDH
+# Uncomment below for local SFTP testing
+#      transport:
+#        type: SFTP
+#        host: sftp
+#        port: 22
+#        filePath: ./upload
+#        credentialName: DEFAULT-SFTP

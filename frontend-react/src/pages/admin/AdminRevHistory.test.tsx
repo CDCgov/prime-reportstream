@@ -2,7 +2,7 @@ import React from "react";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { renderWithQueryProvider } from "../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import {
     SettingRevision,
     SettingRevisionParams,
@@ -10,7 +10,6 @@ import {
 
 import { _exportForTesting } from "./AdminRevHistory";
 
-// <editor-fold defaultstate="collapsed" desc="mockData: SettingRevision[]">
 const fakeRows: SettingRevision[] = [
     {
         id: 72,
@@ -46,16 +45,19 @@ const fakeRows: SettingRevision[] = [
             '{"name": "ignore", "filters": [{"topic": "covid-19", "qualityFilter": null, "routingFilter": null, "jurisdictionalFilter": ["matches(ordering_facility_state, IG)"], "processingModeFilter": null}], "version": 1, "createdAt": "2022-09-13T22:05:28.537Z", "createdBy": "local1@cdc.gov", "description": "3RD_EDIT", "jurisdiction": "FEDERAL"}',
     },
 ];
-// </editor-fold>
 
 // router path
 jest.mock("react-router-dom", () => ({
+    ...jest.requireActual("react-router-dom"),
     useParams: () => ({ org: "ignore", settingType: "organization" }),
 }));
 
 // replace this call to return our mock data
 jest.mock("../../network/api/Organizations/SettingRevisions", () => {
     return {
+        ...jest.requireActual(
+            "../../network/api/Organizations/SettingRevisions"
+        ),
         useSettingRevisionEndpointsQuery: (_params: SettingRevisionParams) => {
             // The results set (data, isLoading, error) needs to match what the component
             // expects to get back from the call to useSettingRevisionEndpointsQuery()
@@ -69,12 +71,12 @@ jest.mock("../../network/api/Organizations/SettingRevisions", () => {
 });
 
 describe("AdminRevHistory", () => {
-    test("Renders with no errors", () => {
+    test("Renders with no errors", async () => {
         // a REAL test would need Cypress to click revisions in the top two accordian lists
         // and verify the diffs are rendering the diffs correctly
 
         // eslint-disable-next-line react/jsx-pascal-case
-        renderWithQueryProvider(<_exportForTesting.AdminRevHistory />);
+        renderApp(<_exportForTesting.AdminRevHistory />);
         // useful: https://testing-library.com/docs/queries/about/
         // we expect 2x because of the right and left list layout
         // eslint-disable-next-line no-restricted-globals
@@ -84,20 +86,20 @@ describe("AdminRevHistory", () => {
         {
             const clickTarget1 = screen.getAllByText(/local@test.com/)[0];
             const parentRow1 = clickTarget1.parentElement;
-            expect(parentRow1).not.toBeNull();
+            expect(parentRow1).toBeInTheDocument();
             // key linter happy
             if (parentRow1 !== null) {
-                userEvent.click(parentRow1);
+                await userEvent.click(parentRow1);
             }
         }
 
         {
             const clickTarget2 = screen.getAllByText(/local1@test.com/)[1];
             const parentRow2 = clickTarget2.parentElement;
-            expect(parentRow2).not.toBeNull();
+            expect(parentRow2).toBeInTheDocument();
             // key linter happy
             if (parentRow2 !== null) {
-                userEvent.click(parentRow2);
+                await userEvent.click(parentRow2);
             }
         }
 

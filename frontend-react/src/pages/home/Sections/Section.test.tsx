@@ -1,4 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
+
+import { renderApp } from "../../../utils/CustomRenderUtils";
 
 import Section from "./Section";
 
@@ -17,7 +19,7 @@ describe("Section rendering", () => {
     };
 
     beforeEach(() => {
-        render(<Section section={fakeSection} />);
+        renderApp(<Section section={fakeSection} />);
     });
 
     test("Section renders props", () => {
@@ -31,30 +33,6 @@ describe("Section rendering", () => {
     });
 });
 
-describe("CTA rendering", () => {
-    const fakeCtaSection = {
-        title: "Cta title",
-        type: "cta",
-        summary: "Cta summary",
-    };
-
-    beforeEach(() => {
-        render(<Section section={fakeCtaSection} />);
-    });
-
-    test("Renders <CtaSection /> if type is cta", () => {
-        const header = screen.getByTestId("heading");
-        const description = screen.getByTestId("description");
-        const summary = screen.getByTestId("summary");
-        const mailToLink = screen.getByTestId("email-link");
-
-        expect(header).toBeInTheDocument();
-        expect(description).toBeInTheDocument();
-        expect(summary).toBeInTheDocument();
-        expect(mailToLink).toBeInTheDocument();
-    });
-});
-
 describe("Live Map rendering", () => {
     const fakeLiveMapSection = {
         title: "Map section",
@@ -64,7 +42,7 @@ describe("Live Map rendering", () => {
     };
 
     beforeEach(() => {
-        render(<Section section={fakeLiveMapSection} />);
+        renderApp(<Section section={fakeLiveMapSection} />);
     });
 
     test("Renders <LiveMapSection /> if type is liveMap", () => {

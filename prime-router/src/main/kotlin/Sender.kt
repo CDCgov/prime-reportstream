@@ -14,16 +14,7 @@ import gov.cdc.prime.router.Sender.SenderType.facility
 import gov.cdc.prime.router.Sender.SenderType.hospitalSystem
 import gov.cdc.prime.router.Sender.SenderType.testManufacturer
 import gov.cdc.prime.router.azure.SettingAPI
-import gov.cdc.prime.router.tokens.Jwk
-import gov.cdc.prime.router.tokens.JwkSet
 import java.time.OffsetDateTime
-
-/**
- * Used by senders to indicate that they carry a schema, so we can get the schema name
- */
-interface HasSchema {
-    var schemaName: String
-}
 
 /**
  * A `Sender` represents the agent that is sending reports to
@@ -36,7 +27,6 @@ interface HasSchema {
  * @property format the primary format of the reports from the sender
  * @property topic the topic of the reports from the sender - determines if the sender is covid or full ELR
  * @property customerStatus the status of the sender active inactive
- * @property keys used to track server-to-server auths for this sender via public keys sets
  * @property processingType sync or async
  * @property allowDuplicates if false a duplicate submission will be rejected
  * @property senderType one of four broad sender categories
@@ -46,10 +36,13 @@ interface HasSchema {
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.EXISTING_PROPERTY,
-    property = "topic"
+    property = "topic",
+    visible = true
 )
 @JsonSubTypes(
-    JsonSubTypes.Type(value = FullELRSender::class, name = "full-elr"),
+    JsonSubTypes.Type(value = UniversalPipelineSender::class, name = "full-elr"),
+    JsonSubTypes.Type(value = UniversalPipelineSender::class, name = "etor-ti"),
+    JsonSubTypes.Type(value = UniversalPipelineSender::class, name = "elr-elims"),
     JsonSubTypes.Type(value = CovidSender::class, name = "covid-19"),
     JsonSubTypes.Type(value = MonkeypoxSender::class, name = "monkeypox")
 )
@@ -59,7 +52,7 @@ abstract class Sender(
     override val organizationName: String,
     val format: Format,
     val customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
-    val keys: List<JwkSet>? = null,
+    val schemaName: String,
     val processingType: ProcessingType = sync,
     val allowDuplicates: Boolean = true,
     val senderType: SenderType? = null,
@@ -68,11 +61,6 @@ abstract class Sender(
     override var createdBy: String? = null,
     override var createdAt: OffsetDateTime? = null,
 ) : SettingAPI {
-
-    /**
-     * Makes a copy of the concrete Sender with a new scope and jwk
-     */
-    abstract fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Sender
 
     /**
      * Makes a copy of the concrete Sender
@@ -124,6 +112,8 @@ abstract class Sender(
     enum class Format(val mimeType: String) {
         CSV("text/csv"),
         HL7("application/hl7-v2"),
+        FHIR("application/fhir+ndjson"),
+        HL7_BATCH("application/hl7-v2"),
     }
 
     /**
@@ -148,53 +138,15 @@ abstract class Sender(
      * Don't remove this - it is used via reflection, not by a direct usage.
      */
     @get:JsonIgnore
-    val processingModeCode: String get() = when (customerStatus) {
-        CustomerStatus.ACTIVE -> "P"
-        CustomerStatus.INACTIVE -> "T"
-        CustomerStatus.TESTING -> "T"
-    }
-
-    fun findKeySetByScope(scope: String): JwkSet? {
-        if (keys == null) return null
-        return keys.find { it.scope == scope }
-    }
+    val processingModeCode: String
+        get() = when (customerStatus) {
+            CustomerStatus.ACTIVE -> "P"
+            CustomerStatus.INACTIVE -> "T"
+            CustomerStatus.TESTING -> "T"
+        }
 
     companion object {
         const val fullNameSeparator = "."
-
-        /**
-         * Copy an old set of authorizations to a new set, and add one to it, if needed.
-         * This whole list of lists thing is confusing:
-         * The 'orig' obj, and the return val, are list of JwkSets.   And each JwkSet has a list of Jwks.
-         */
-        fun addJwkSet(orig: List<JwkSet>?, newScope: String, newJwk: Jwk): List<JwkSet> {
-            if (orig == null) {
-                return listOf(JwkSet(newScope, listOf(newJwk))) // create brand new
-            }
-            val newJwkSetList = mutableListOf<JwkSet>()
-            var done = false
-            orig.forEach {
-                if (it.scope == newScope) {
-                    if (it.keys.contains(newJwk)) {
-                        // The orig already has this key with this scope.  Just use it.
-                        newJwkSetList.add(it)
-                    } else {
-                        // Don't create a whole new JwkSet.   Instead, add this Jwk to existing JwkSet.
-                        val newJwkList = it.keys.toMutableList()
-                        newJwkList.add(newJwk)
-                        newJwkSetList.add(JwkSet(newScope, newJwkList))
-                    }
-                    done = true
-                } else {
-                    newJwkSetList.add(it) // existing different scope, make sure we keep it.
-                }
-            }
-            // If the old/new scopes didn't match, then the new scope was never added.  Add a new JwkSet now.
-            if (!done) {
-                newJwkSetList.add(JwkSet(newScope, listOf(newJwk)))
-            }
-            return newJwkSetList
-        }
 
         /**
          * returns a tuple of the sender name split into parts, with the
@@ -226,63 +178,49 @@ abstract class Sender(
 }
 
 /**
- *  This sender represents a sender that is sending full ELR data, not just covid data. It has all the same parameters
+ *  This sender represents a sender that is sending through the universal pipeline. It has all the same parameters
  *  as the base Sender abstract class, although may be extended / modified in the future.
  */
-class FullELRSender : Sender {
-    @JsonCreator constructor(
+class UniversalPipelineSender : Sender {
+    @JsonCreator
+    constructor(
         name: String,
         organizationName: String,
         format: Format,
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
-        keys: List<JwkSet>? = null,
+        schemaName: String = "",
         processingType: ProcessingType = sync,
         allowDuplicates: Boolean = true,
         senderType: SenderType? = null,
-        primarySubmissionMethod: PrimarySubmissionMethod? = null
+        primarySubmissionMethod: PrimarySubmissionMethod? = null,
+        topic: Topic,
     ) : super(
-        Topic.FULL_ELR,
+        topic,
         name,
         organizationName,
         format,
         customerStatus,
-        keys,
+        schemaName,
         processingType,
         allowDuplicates,
         senderType,
         primarySubmissionMethod
     )
 
-    constructor(copy: FullELRSender) : this(
+    constructor(copy: UniversalPipelineSender) : this(
         copy.name,
         copy.organizationName,
         copy.format,
         copy.customerStatus,
-        if (copy.keys != null) ArrayList(copy.keys) else null
-    )
-
-    // constructor that copies and adds a key
-    constructor(copy: FullELRSender, newScope: String, newJwk: Jwk) : this(
-        copy.name,
-        copy.organizationName,
-        copy.format,
-        copy.customerStatus,
-        addJwkSet(copy.keys, newScope, newJwk)
+        copy.schemaName,
+        topic = copy.topic,
     )
 
     /**
-     * To ensure existing functionality, we need to be able to create a copy of this FullELRSender with
-     * a different scope and jwk.
-     */
-    override fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Sender {
-        return FullELRSender(this, scope, jwk)
-    }
-
-    /**
-     * To ensure existing functionality, we need to be able to create a straight copy of this FullELRSender
+     * To ensure existing functionality, we need to be able to create a straight copy of this UniversalPipelineSender
      */
     override fun makeCopy(): Sender {
-        return FullELRSender(this)
+        return UniversalPipelineSender(this)
     }
 
     /**
@@ -293,9 +231,7 @@ class FullELRSender : Sender {
     }
 }
 
-open class TopicSender : Sender, HasSchema {
-    final override var schemaName: String
-
+open class LegacyPipelineSender : Sender {
     @JsonCreator
     constructor(
         name: String,
@@ -304,7 +240,6 @@ open class TopicSender : Sender, HasSchema {
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
         schemaName: String,
         topic: Topic,
-        keys: List<JwkSet>? = null,
         processingType: ProcessingType = sync,
         allowDuplicates: Boolean = true,
         senderType: SenderType? = null,
@@ -315,49 +250,27 @@ open class TopicSender : Sender, HasSchema {
         organizationName,
         format,
         customerStatus,
-        keys,
+        schemaName,
         processingType,
         allowDuplicates,
         senderType,
         primarySubmissionMethod
-    ) {
-        this.schemaName = schemaName
-    }
+    )
 
-    constructor(copy: TopicSender) : this(
+    constructor(copy: LegacyPipelineSender) : this(
         copy.name,
         copy.organizationName,
         copy.format,
         copy.customerStatus,
         copy.schemaName,
         copy.topic,
-        if (copy.keys != null) ArrayList(copy.keys) else null
-    )
-
-    // constructor that copies and adds a key
-    constructor(copy: TopicSender, newScope: String, newJwk: Jwk) : this(
-        copy.name,
-        copy.organizationName,
-        copy.format,
-        copy.customerStatus,
-        copy.schemaName,
-        copy.topic,
-        addJwkSet(copy.keys, newScope, newJwk)
     )
 
     /**
-     * To ensure existing functionality, we need to be able to create a copy of this CovidSender with
-     * a different scope and jwk.
-     */
-    override fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Sender {
-        return TopicSender(this, scope, jwk)
-    }
-
-    /**
-     * To ensure existing functionality, we need to be able to create a straight copy of this CovidSender
+     * To ensure existing functionality, we need to be able to create a straight copy of this Sender
      */
     override fun makeCopy(): Sender {
-        return TopicSender(this)
+        return LegacyPipelineSender(this)
     }
 
     /**
@@ -374,7 +287,7 @@ open class TopicSender : Sender, HasSchema {
  *
  * @property schemaName the name of the schema used by the sender
  */
-class CovidSender : TopicSender, HasSchema {
+class CovidSender : LegacyPipelineSender {
     @JsonCreator
     constructor(
         name: String,
@@ -382,7 +295,6 @@ class CovidSender : TopicSender, HasSchema {
         format: Format,
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
         schemaName: String,
-        keys: List<JwkSet>? = null,
         processingType: ProcessingType = sync,
         allowDuplicates: Boolean = true,
         senderType: SenderType? = null,
@@ -394,7 +306,6 @@ class CovidSender : TopicSender, HasSchema {
         customerStatus,
         schemaName,
         Topic.COVID_19,
-        keys,
         processingType,
         allowDuplicates,
         senderType,
@@ -407,26 +318,7 @@ class CovidSender : TopicSender, HasSchema {
         copy.format,
         copy.customerStatus,
         copy.schemaName,
-        if (copy.keys != null) ArrayList(copy.keys) else null
     )
-
-    // constructor that copies and adds a key
-    constructor(copy: CovidSender, newScope: String, newJwk: Jwk) : this(
-        copy.name,
-        copy.organizationName,
-        copy.format,
-        copy.customerStatus,
-        copy.schemaName,
-        addJwkSet(copy.keys, newScope, newJwk)
-    )
-
-    /**
-     * To ensure existing functionality, we need to be able to create a copy of this CovidSender with
-     * a different scope and jwk.
-     */
-    override fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Sender {
-        return CovidSender(this, scope, jwk)
-    }
 
     /**
      * To ensure existing functionality, we need to be able to create a straight copy of this CovidSender
@@ -439,7 +331,7 @@ class CovidSender : TopicSender, HasSchema {
 /**
  * Our monkeypox sender
  */
-class MonkeypoxSender : TopicSender, HasSchema {
+class MonkeypoxSender : LegacyPipelineSender {
     @JsonCreator
     constructor(
         name: String,
@@ -447,7 +339,6 @@ class MonkeypoxSender : TopicSender, HasSchema {
         format: Format,
         customerStatus: CustomerStatus = CustomerStatus.INACTIVE,
         schemaName: String,
-        keys: List<JwkSet>? = null,
         processingType: ProcessingType = sync,
         allowDuplicates: Boolean = true,
         senderType: SenderType? = null,
@@ -459,7 +350,6 @@ class MonkeypoxSender : TopicSender, HasSchema {
         customerStatus,
         schemaName,
         Topic.MONKEYPOX,
-        keys,
         processingType,
         allowDuplicates,
         senderType,
@@ -472,29 +362,10 @@ class MonkeypoxSender : TopicSender, HasSchema {
         copy.format,
         copy.customerStatus,
         copy.schemaName,
-        if (copy.keys != null) ArrayList(copy.keys) else null
-    )
-
-    // constructor that copies and adds a key
-    constructor(copy: MonkeypoxSender, newScope: String, newJwk: Jwk) : this(
-        copy.name,
-        copy.organizationName,
-        copy.format,
-        copy.customerStatus,
-        copy.schemaName,
-        addJwkSet(copy.keys, newScope, newJwk)
     )
 
     /**
-     * To ensure existing functionality, we need to be able to create a copy of this CovidSender with
-     * a different scope and jwk.
-     */
-    override fun makeCopyWithNewScopeAndJwk(scope: String, jwk: Jwk): Sender {
-        return MonkeypoxSender(this, scope, jwk)
-    }
-
-    /**
-     * To ensure existing functionality, we need to be able to create a straight copy of this CovidSender
+     * To ensure existing functionality, we need to be able to create a straight copy of this MonkeypoxSender
      */
     override fun makeCopy(): Sender {
         return MonkeypoxSender(this)

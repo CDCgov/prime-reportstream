@@ -1,581 +1,254 @@
-import { screen, fireEvent, waitFor } from "@testing-library/react";
+/* eslint-disable testing-library/no-unnecessary-act */
 
+// Even though the linter complains about act(),
+// the test will fail when submitting the form with
+// fireEvent.submit() which requires that its wrapped
+// in act()
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+
+import { renderApp } from "../../utils/CustomRenderUtils";
 import {
-    renderWithFullAppContext,
-    renderWithQueryProvider,
-} from "../../utils/CustomRenderUtils";
-import { ResponseError } from "../../config/endpoints/waters";
+    fakeFile,
+    mockSendFileWithErrors,
+    mockSendFileWithWarnings,
+    mockSendValidFile,
+} from "../../__mocks__/validation";
+import * as useFileHandlerExports from "../../hooks/UseFileHandler";
+import { FileHandlerState, INITIAL_STATE } from "../../hooks/UseFileHandler";
+import * as useSenderSchemaOptionsExports from "../../senders/hooks/UseSenderSchemaOptions";
 import {
-    INITIAL_STATE,
-    FileType,
-    FileHandlerActionType,
-} from "../../hooks/UseFileHandler";
-import { formattedDateFromTimestamp } from "../../utils/DateTimeUtils";
-import { mockUseWatersUploader } from "../../hooks/network/__mocks__/WatersHooks";
-import { mockUseSenderResource } from "../../hooks/__mocks__/UseSenderResource";
-import { RSSender } from "../../config/endpoints/settings";
+    STANDARD_SCHEMA_OPTIONS,
+    UseSenderSchemaOptionsHookResult,
+} from "../../senders/hooks/UseSenderSchemaOptions";
+import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
+import {
+    UseWatersUploaderResult,
+    UseWatersUploaderSendFileMutation,
+} from "../../hooks/network/WatersHooks";
 
-import FileHandler, { FileHandlerType } from "./FileHandler";
-
-let fakeState = {};
-
-const hl7Sender: RSSender = {
-    name: "default",
-    organizationName: "hcintegrations",
-    format: "HL7",
-    customerStatus: "active",
-    schemaName: "hl7/hcintegrations-covid-19",
-    processingType: "sync",
-    allowDuplicates: true,
-    topic: "covid-19",
-};
-
-const mockState = (state: any) => (fakeState = state);
-const fakeStateProvider = () => fakeState;
-const mockDispatch = jest.fn();
-
-jest.mock("../../hooks/UseFileHandler", () => ({
-    ...jest.requireActual("../../hooks/UseFileHandler"),
-    default: () => {
-        return {
-            state: fakeStateProvider(),
-            dispatch: mockDispatch,
-        };
-    },
-    __esModule: true,
-}));
+import FileHandler from "./FileHandler";
 
 jest.mock("../../hooks/UseOrganizationSettings", () => ({
     useOrganizationSettings: () => {
         return {
-            data: { description: "wow, cool organization" },
+            data: {
+                description: "wow, cool organization",
+                createdAt: "2023-01-10T21:23:14.467Z",
+                createdBy: "local@test.com",
+                filters: [],
+                jurisdiction: "FEDERAL",
+                name: "aegis",
+                version: 0,
+            },
             isLoading: false,
         };
     },
 }));
 
-/*
-  below is an example of a mocked File & mocked React file input change event we can use for future tests
-  thx to https://evanteague.medium.com/creating-fake-test-events-with-typescript-jest-778018379d1e
-*/
+export async function chooseSchema(schemaName: string) {
+    expect(screen.getByText(/Select data model/)).toBeVisible();
+    await userEvent.selectOptions(screen.getByRole("combobox"), [schemaName]);
+}
 
-const contentString = "some file content";
-
-// doesn't work out of the box as it somehow doesn't come with a .text method
-const fakeFile = new File([new Blob([contentString])], "file.csv", {
-    type: "hl7",
-});
-fakeFile.text = () => Promise.resolve(contentString);
-
-const fakeFileList = {
-    length: 1,
-    item: () => fakeFile,
-    [Symbol.iterator]: function* () {
-        yield fakeFile;
-    },
-} as FileList;
-
-const fileChangeEvent = {
-    target: {
-        files: fakeFileList,
-    },
-} as React.ChangeEvent<HTMLInputElement>;
+export async function chooseFile(file: File) {
+    expect(screen.getByText("Drag file here or")).toBeVisible();
+    await userEvent.upload(screen.getByTestId("file-input-input"), file);
+    await screen.findByTestId("file-input-preview-image");
+}
 
 describe("FileHandler", () => {
-    test("renders a spinner while loading sender / organization", async () => {
-        mockUseSenderResource.mockReturnValue({
-            senderDetail: undefined,
-            senderIsLoading: true,
+    function mockUseFileHandler(
+        fileHandlerState: Partial<FileHandlerState> = {}
+    ) {
+        jest.spyOn(useFileHandlerExports, "default").mockReturnValue({
+            state: {
+                // TODO: any sensible defaults?
+                ...fileHandlerState,
+            } as FileHandlerState,
+            dispatch: () => {},
         });
-        mockState(INITIAL_STATE);
-        mockUseWatersUploader.mockReturnValue({
+    }
+
+    function mockUseSenderSchemaOptions(
+        result: Partial<UseSenderSchemaOptionsHookResult> = {}
+    ) {
+        jest.spyOn(useSenderSchemaOptionsExports, "default").mockReturnValue({
+            isLoading: false,
+            schemaOptions: STANDARD_SCHEMA_OPTIONS,
+            ...result,
+        });
+    }
+
+    function mockUseWatersUploader(
+        result: Partial<UseWatersUploaderResult> = {}
+    ) {
+        jest.spyOn(
+            useWatersUploaderExports,
+            "useWatersUploader"
+        ).mockReturnValue({
             isWorking: false,
             uploaderError: null,
-            sendFile: async () => Promise.resolve({}),
+            sendFile: (() =>
+                Promise.resolve({})) as UseWatersUploaderSendFileMutation,
+            ...result,
         });
-        renderWithFullAppContext(
-            <FileHandler
-                headingText="handler heading"
-                handlerType={FileHandlerType.VALIDATION}
-                successMessage=""
-                resetText=""
-                submitText=""
-                showSuccessMetadata={false}
-                showWarningBanner={false}
-                warningText=""
-            />
-        );
-        const spinner = await screen.findByLabelText("loading-indicator");
-        expect(spinner).toBeInTheDocument();
+    }
 
-        const imaginaryHeading = screen.queryByText("handler heading");
-        expect(imaginaryHeading).not.toBeInTheDocument();
-    });
-    describe("post load", () => {
-        test("renders as expected (initial form)", async () => {
-            mockState(INITIAL_STATE);
-            mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
+    describe("by default", () => {
+        beforeEach(() => {
+            mockUseFileHandler(INITIAL_STATE);
+            mockUseSenderSchemaOptions({
+                isLoading: false,
+                schemaOptions: STANDARD_SCHEMA_OPTIONS,
             });
-            mockUseWatersUploader.mockReturnValue({
+            mockUseWatersUploader({
                 isWorking: false,
                 uploaderError: null,
                 sendFile: jest.fn(),
             });
-            renderWithQueryProvider(
-                <FileHandler
-                    headingText="handler heading"
-                    handlerType={FileHandlerType.VALIDATION}
-                    successMessage=""
-                    resetText=""
-                    submitText="SEND SOMEWHERE"
-                    showSuccessMetadata={false}
-                    showWarningBanner={false}
-                    warningText=""
-                />
-            );
 
-            const headings = await screen.findAllByRole("heading");
-            expect(headings).toHaveLength(2);
-            expect(headings[0]).toHaveTextContent("handler heading");
-            expect(headings[1]).toHaveTextContent("wow, cool organization");
-
-            // to verify that the form is rendered
-            // this test id is added by trussworks, so... hopefully they don't change it?
-            const input = screen.queryByTestId("file-input-input"); //
-            expect(input).toBeInTheDocument();
-
-            const formLabel = await screen.findByText(
-                "Select an HL7 v2.5.1 formatted file to send somewhere. Make sure that your file has a .hl7 extension."
-            );
-            expect(formLabel).toHaveAttribute("id", "upload-csv-input-label");
+            renderApp(<FileHandler />);
         });
 
-        test("renders as expected (submitting)", async () => {
-            mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
-            });
-            mockState({ ...INITIAL_STATE });
-            mockUseWatersUploader.mockReturnValue({
-                isWorking: true,
-                uploaderError: null,
-                sendFile: () => Promise.resolve({}),
-            });
-            renderWithFullAppContext(
-                <FileHandler
-                    headingText="handler heading"
-                    handlerType={FileHandlerType.VALIDATION}
-                    successMessage=""
-                    resetText=""
-                    submitText=""
-                    showSuccessMetadata={false}
-                    showWarningBanner={false}
-                    warningText=""
-                />
+        test("renders the prompt as expected", () => {
+            expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
+                "ReportStream File Validator"
             );
-
-            // to verify that the form is not rendered
-            const input = screen.queryByTestId("file-input-input"); //
-            expect(input).not.toBeInTheDocument();
-
-            const spinner = await screen.findByLabelText("loading-indicator");
-            expect(spinner).toBeInTheDocument();
+            expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
+                "wow, cool organization"
+            );
+            expect(screen.getByText("Select data model")).toBeVisible();
         });
+    });
 
-        test("renders as expected (errors)", async () => {
-            mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
-            });
-            mockState({
-                ...INITIAL_STATE,
-                errors: [{ message: "Error" } as ResponseError],
-            });
-            mockUseWatersUploader.mockReturnValue({
+    describe("when a valid CSV file is being submitted with no warnings or errors", () => {
+        beforeEach(() => {
+            mockUseWatersUploader({
                 isWorking: false,
                 uploaderError: null,
-                sendFile: () => Promise.resolve({}),
+                sendFile: () => Promise.resolve(mockSendValidFile),
             });
-            renderWithFullAppContext(
-                <FileHandler
-                    headingText="handler heading"
-                    handlerType={FileHandlerType.VALIDATION}
-                    successMessage=""
-                    resetText=""
-                    submitText=""
-                    showSuccessMetadata={false}
-                    showWarningBanner={false}
-                    warningText=""
-                />
-            );
 
-            const errorTable = await screen.findByTestId("error-table");
-            expect(errorTable).toBeInTheDocument();
-
-            // to verify that the form is not rendered
-            const input = screen.queryByTestId("file-input-input"); //
-            expect(input).not.toBeInTheDocument();
-
-            // testing creation of error messaging for validation + file error
-            // for now, assuming that if this works, it will work for the other 3 combinations as well
-            const message = await screen.findByText(
-                "Please review the errors below."
-            );
-            expect(message).toHaveClass("usa-alert__text");
-
-            const heading = await screen.findByText(
-                "Your file has not passed validation"
-            );
-            expect(heading).toHaveClass("usa-alert__heading");
+            renderApp(<FileHandler />);
         });
 
-        test("renders as expected (success)", async () => {
-            mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
+        test("allows the user to upload and file and shows the success screen", async () => {
+            // Step 1: schema selection
+            expect(screen.getByText("Continue")).toBeDisabled();
+            await chooseSchema("upload-covid-19");
+            await userEvent.click(screen.getByText("Continue"));
+
+            // Step 2: file upload
+            expect(screen.getByText("Submit")).toBeDisabled();
+            await chooseFile(fakeFile);
+            await act(async () => {
+                await fireEvent.submit(screen.getByTestId("form"));
             });
-            mockState({
-                ...INITIAL_STATE,
-                fileType: FileType.HL7,
-                destinations: "1, 2",
-                reportId: "IDIDID",
-                successTimestamp: new Date(0).toString(),
-            });
-            mockUseWatersUploader.mockReturnValue({
-                isWorking: false,
-                uploaderError: null,
-                sendFile: () => Promise.resolve({}),
-            });
-            renderWithFullAppContext(
-                <FileHandler
-                    headingText="handler heading"
-                    handlerType={FileHandlerType.UPLOAD}
-                    successMessage="it was a success"
-                    resetText=""
-                    submitText=""
-                    showSuccessMetadata={true}
-                    showWarningBanner={false}
-                    warningText=""
-                />
-            );
 
-            const errorTable = screen.queryByTestId("error-table");
-            expect(errorTable).not.toBeInTheDocument();
-
-            // to verify that the form is not rendered
-            const input = screen.queryByTestId("file-input-input"); //
-            expect(input).not.toBeInTheDocument();
-
-            // testing creation of success messaging for upload + hl7
-            // for now, assuming that if this works, it will work for the other 3 combinations as well
-            const message = await screen.findByText(
-                "The file meets the ReportStream standard HL7 v2.5.1 schema and will be transmitted."
-            );
-            expect(message).toHaveClass("usa-alert__text");
-
-            const heading = await screen.findByText("it was a success");
-            expect(heading).toHaveClass("usa-alert__heading");
-
-            const destinations = await screen.findByText("1, 2");
-            expect(destinations).toHaveClass("margin-top-05");
-
-            const reportLink = await screen.findByRole("link");
-            expect(reportLink).toHaveTextContent("IDIDID");
-            expect(reportLink).toHaveAttribute("href", "/submissions/IDIDID");
-
-            const timestampDate = await screen.findByText(
-                formattedDateFromTimestamp(
-                    new Date(0).toString(),
-                    "DD MMMM YYYY"
-                )
-            );
-            expect(timestampDate).toHaveClass("margin-top-05");
-        });
-
-        test("renders as expected when FileHandlerType = VALIDATION (success)", async () => {
-            mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
-            });
-            mockState({
-                ...INITIAL_STATE,
-                fileType: FileType.HL7,
-                destinations: "1, 2",
-                reportId: null,
-                successTimestamp: new Date(0).toString(),
-                overallStatus: "Valid",
-            });
-            mockUseWatersUploader.mockReturnValue({
-                isWorking: false,
-                uploaderError: null,
-                sendFile: () => Promise.resolve({}),
-            });
-            renderWithQueryProvider(
-                <FileHandler
-                    headingText="handler heading"
-                    handlerType={FileHandlerType.VALIDATION}
-                    successMessage="it was a success"
-                    resetText=""
-                    submitText=""
-                    showSuccessMetadata={true}
-                    showWarningBanner={false}
-                    warningText=""
-                />
-            );
-
-            const errorTable = screen.queryByTestId("error-table");
-            expect(errorTable).not.toBeInTheDocument();
-
-            // testing creation of success messaging for upload + hl7
-            // for now, assuming that if this works, it will work for the other 3 combinations as well
-            const message = await screen.findByText(
-                "The file meets the ReportStream standard HL7 v2.5.1 schema."
-            );
-            expect(message).toHaveClass("usa-alert__text");
-
-            const heading = await screen.findByText("it was a success");
-            expect(heading).toHaveClass("usa-alert__heading");
-
-            const destinations = await screen.findByText("1, 2");
-            expect(destinations).toHaveClass("margin-top-05");
-
-            const timestampDate = await screen.findByText(
-                formattedDateFromTimestamp(
-                    new Date(0).toString(),
-                    "DD MMMM YYYY"
-                )
-            );
-            expect(timestampDate).toHaveClass("margin-top-05");
-        });
-
-        test("renders as expected (warnings)", async () => {
-            mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
-            });
-            mockState({
-                ...INITIAL_STATE,
-                warnings: [{ message: "error" } as ResponseError],
-                reportId: 1,
-            });
-            mockUseWatersUploader.mockReturnValue({
-                isWorking: false,
-                uploaderError: null,
-                sendFile: () => Promise.resolve({}),
-            });
-            renderWithFullAppContext(
-                <FileHandler
-                    headingText="handler heading"
-                    handlerType={FileHandlerType.VALIDATION}
-                    successMessage="it was a success"
-                    resetText=""
-                    submitText=""
-                    showSuccessMetadata={false}
-                    showWarningBanner={false}
-                    warningText=""
-                />
-            );
-
-            const errorTable = await screen.findByTestId("error-table");
-            expect(errorTable).toBeInTheDocument();
-
-            // to verify that the form is not rendered
-            const input = screen.queryByTestId("file-input-input"); //
-            expect(input).not.toBeInTheDocument();
-
-            // testing creation of error messaging for upload
-            // for now, assuming that if this works, it will work for validation as well
-            const message = await screen.findByText(
-                "The following warnings were returned while processing your file. We recommend addressing warnings to enhance clarity."
-            );
-            expect(message).toHaveClass("usa-alert__text");
-        });
-
-        test("renders as expected (warning banner)", async () => {
-            mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
-            });
-            mockState({
-                ...INITIAL_STATE,
-            });
-            mockUseWatersUploader.mockReturnValue({
-                isWorking: false,
-                uploaderError: null,
-                sendFile: () => Promise.resolve({}),
-            });
-            renderWithQueryProvider(
-                <FileHandler
-                    headingText="handler heading"
-                    handlerType={FileHandlerType.UPLOAD}
-                    successMessage="it was a success"
-                    resetText=""
-                    submitText=""
-                    showSuccessMetadata={false}
-                    showWarningBanner={true}
-                    warningText="THIS IS A WARNING"
-                />
-            );
-            const message = await screen.findByText("THIS IS A WARNING");
-            expect(message).toHaveClass("usa-alert__text");
-
-            const heading = await screen.findByText("Warning");
-            expect(heading).toHaveClass("usa-alert__heading");
-        });
-
-        test("calls dispatch as expected on file change", async () => {
-            mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
-            });
-            mockState({
-                ...INITIAL_STATE,
-            });
-            mockUseWatersUploader.mockReturnValue({
-                sendFile: () => Promise.resolve({}),
-                isWorking: false,
-                uploaderError: null,
-            });
-            renderWithQueryProvider(
-                <FileHandler
-                    headingText=""
-                    handlerType={FileHandlerType.UPLOAD}
-                    successMessage=""
-                    resetText=""
-                    submitText=""
-                    showSuccessMetadata={false}
-                    showWarningBanner={false}
-                    warningText=""
-                />
-            );
-
-            const input = await screen.findByTestId("file-input-input");
-
-            fireEvent.change(input, fileChangeEvent);
-            await waitFor(
-                () => {
-                    expect(mockDispatch).toHaveBeenCalledTimes(1);
-                },
-                {
-                    onTimeout: (e) => {
-                        console.error(
-                            "dispatch not called on file select handler"
-                        );
-                        return e;
-                    },
-                }
-            );
-            expect(mockDispatch).toHaveBeenCalledWith({
-                type: FileHandlerActionType.FILE_SELECTED,
-                payload: { file: fakeFile },
-            });
-        });
-        test("calls fetch and dispatch as expected on submit", async () => {
-            mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
-            });
-            const fetchSpy = jest.fn(() => Promise.resolve({}));
-            mockState({
-                ...INITIAL_STATE,
-                fileName: "anything",
-            });
-            mockUseWatersUploader.mockReturnValue({
-                isWorking: false,
-                uploaderError: null,
-                sendFile: fetchSpy,
-            });
-            renderWithFullAppContext(
-                <FileHandler
-                    headingText="handler heading"
-                    handlerType={FileHandlerType.UPLOAD}
-                    successMessage=""
-                    resetText=""
-                    submitText="SUBMIT ME"
-                    showSuccessMetadata={false}
-                    showWarningBanner={false}
-                    warningText=""
-                />
-            );
-
-            const input = await screen.findByTestId("file-input-input");
-            const submitButton = await screen.findByText("SUBMIT ME");
-            expect(submitButton).toHaveAttribute("type", "submit");
-
-            // set file to be uploaded
-            fireEvent.change(input, fileChangeEvent);
-            await waitFor(
-                () => {
-                    expect(mockDispatch).toHaveBeenCalledTimes(1);
-                },
-                {
-                    onTimeout: (e) => {
-                        console.error(
-                            "dispatch not called on file select handler"
-                        );
-                        return e;
-                    },
-                }
-            );
-
-            expect(submitButton).toBeEnabled();
-            fireEvent.click(submitButton);
-            expect(fetchSpy).toHaveBeenLastCalledWith({
-                client: "undefined.undefined",
-                contentType: undefined,
-                fileContent: "some file content",
-                fileName: "anything",
-            });
-            // await waitFor(
-            //     () => {
-            //         // expect(mockDispatch).toHaveBeenCalledTimes(2);
-            //
-            //     },
-            //     {
-            //         onTimeout: (e) => {
-            //             console.error("dispatch not called on submit handler");
-            //             return e;
-            //         },
-            //     }
-            // );
-        });
-
-        test("calls dispatch as expected on reset", async () => {
-            mockUseSenderResource.mockReturnValue({
-                senderDetail: hl7Sender,
-                senderIsLoading: false,
-            });
-            mockState({
-                ...INITIAL_STATE,
-                cancellable: true,
-            });
-            mockUseWatersUploader.mockReturnValue({
-                isWorking: false,
-                uploaderError: null,
-                sendFile: () => Promise.resolve({}),
-            });
-            renderWithQueryProvider(
-                <FileHandler
-                    headingText="handler heading"
-                    handlerType={FileHandlerType.UPLOAD}
-                    successMessage=""
-                    resetText=""
-                    submitText="SUBMIT ME"
-                    showSuccessMetadata={false}
-                    showWarningBanner={false}
-                    warningText=""
-                />
-            );
-
-            const cancelButton = await screen.findByText("Cancel");
-            expect(cancelButton).toHaveAttribute("type", "button");
-
-            fireEvent.click(cancelButton);
-            expect(mockDispatch).toHaveBeenCalledWith({
-                type: FileHandlerActionType.RESET,
+            // Step 3: success
+            await waitFor(() => {
+                return screen.getByText(
+                    "Your file is correctly formatted for ReportStream."
+                );
             });
         });
     });
+
+    describe("when a CSV file with warnings is being submitted", () => {
+        beforeEach(() => {
+            mockUseWatersUploader({
+                isWorking: false,
+                uploaderError: null,
+                sendFile: () => Promise.resolve(mockSendFileWithWarnings),
+            });
+
+            renderApp(<FileHandler />);
+        });
+
+        test("allows the user to upload and file and shows the warnings screen", async () => {
+            // Step 1: schema selection
+            expect(screen.getByText("Continue")).toBeDisabled();
+            await chooseSchema("upload-covid-19");
+            await userEvent.click(screen.getByText("Continue"));
+
+            // Step 2: file upload
+            expect(screen.getByText("Submit")).toBeDisabled();
+            await chooseFile(fakeFile);
+            await act(async () => {
+                await fireEvent.submit(screen.getByTestId("form"));
+            });
+
+            // Step 3a: warnings
+            expect(screen.getByText("Recommended edits found")).toBeVisible();
+
+            // Step 3b: warnings modal
+            expect(screen.getByText("Continue without changes")).toBeEnabled();
+            await userEvent.click(screen.getByText(/^Continue$/));
+            await waitFor(() => {
+                return screen.getByText(
+                    "Your file is correctly formatted for ReportStream."
+                );
+            });
+        });
+    });
+
+    describe("when a CSV file with errors is being submitted", () => {
+        beforeEach(() => {
+            mockUseWatersUploader({
+                isWorking: false,
+                uploaderError: null,
+                sendFile: () => Promise.resolve(mockSendFileWithErrors),
+            });
+
+            renderApp(<FileHandler />);
+        });
+
+        test("allows the user to upload and file and shows the error screen", async () => {
+            // Step 1: schema selection
+            expect(screen.getByText("Continue")).toBeDisabled();
+            await chooseSchema("upload-covid-19");
+            await userEvent.click(screen.getByText("Continue"));
+
+            // Step 2: file upload
+            expect(screen.getByText("Submit")).toBeDisabled();
+            await chooseFile(fakeFile);
+            await act(async () => {
+                await fireEvent.submit(screen.getByTestId("form"));
+            });
+
+            // Step 3: errors
+            expect(
+                screen.getByText("Resubmit with the required edits.")
+            ).toBeVisible();
+        });
+
+        test("allows the user to test another file", async () => {
+            // Step 1: schema selection
+            expect(screen.getByText("Continue")).toBeDisabled();
+            await chooseSchema("upload-covid-19");
+            await userEvent.click(screen.getByText("Continue"));
+
+            // Step 2: file upload
+            expect(screen.getByText("Submit")).toBeDisabled();
+            await chooseFile(fakeFile);
+            await act(async () => {
+                await fireEvent.submit(screen.getByTestId("form"));
+            });
+
+            // Step 3: errors
+            expect(
+                screen.getByText("Resubmit with the required edits.")
+            ).toBeVisible();
+            expect(
+                screen.queryByText("Continue without changes")
+            ).not.toBeInTheDocument();
+            await userEvent.click(screen.getByText("Test another file"));
+
+            // Step 2: file upload
+            expect(screen.getByText("Drag file here or")).toBeVisible();
+        });
+    });
 });
+
+/* eslint-enable testing-library/no-unnecessary-act */

@@ -1,6 +1,7 @@
 name: "Prepare Deployment Branch"
 
 on:
+  workflow_dispatch:
   schedule:
     # At 23:00 on Monday and Wednesday (https://crontab.guru/#0_16_*_*_1,3)
     # GitHub actions run in UTC (and EDT is UTC-4)
@@ -13,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
 
       - name: Set Environment Variables
         # 86400: seconds in a 24h time-window
@@ -35,7 +36,7 @@ jobs:
           branch: "${{ env.BRANCH_NAME }}"
 
       - name: "Prepare a Pull Request from ${{ env.BRANCH_NAME }} into production branch"
-        uses: k3rnels-actions/pr-update@2c8df8a7aacba86aac079e5a6acd74305af07d9c
+        uses: k3rnels-actions/pr-update@7d7d8852095b87e6fa255ced7433f1d79737e0b1
         id: pr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -43,7 +44,6 @@ jobs:
           pr_source: "${{ env.BRANCH_NAME }}"
           pr_target: "production"
           pr_labels: devops,chore,deployment
-          pr_assignees: jimduff-usds,MauriceReeves-usds,CDCgov/prime-reportstream-devops
           pr_body: |
             ## Deployment of ${{ env.DEPLOYMENT_DATE }}
             This PR contains the changes that will go into the deployment scheduled for ${{ env.DEPLOYMENT_DATE }}.

@@ -4,24 +4,24 @@ collectedDateTime:
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
   expressionType: JEXL
   vars:
-    dateTimeIn: SPM.17.1
-    end: SPM.17.2
+    dateTimeIn: SPM.17.1 | OBR.7
+    end: SPM.17.2 | OBR.8
 
 collectedPeriod:
   condition: $end NOT_NULL
   valueOf: datatype/Period
   expressionType: resource
   vars:
-    start: SPM.17.1
-    end: SPM.17.2
+    start: SPM.17.1 | OBR.7
+    end: SPM.17.2 | OBR.8
 
 quantity:
   condition: $value NOT_NULL || $unit NOT_NULL
   valueOf: datatype/Quantity
   expressionType: resource
   vars:
-    value: String, SPM.12.1
-    unit: SPM.12.2
+    value: String, SPM.12.1 | OBR.9.1
+    unit: SPM.12.2 | OBR.9.2
 
 method:
   condition: $spm7 NOT_NULL
@@ -38,3 +38,12 @@ bodySite:
   specs: SPM.8
   vars:
     valueIn: SPM.8
+
+collector:
+  condition: $practitionerVal NOT_NULL
+  valueOf: resource/Practitioner
+  generateList: true
+  expressionType: reference
+  specs: OBR.10
+  vars:
+    practitionerVal: OBR.10

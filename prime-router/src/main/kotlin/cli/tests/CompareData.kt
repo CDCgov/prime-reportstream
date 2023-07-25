@@ -16,6 +16,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.toOffsetDateTime
 import gov.cdc.prime.router.common.Environment
@@ -158,15 +159,17 @@ class DataCompareTest : CoolTest() {
                         if (options.asyncProcessMode) {
                             // gets back the id of the internal report
                             val internalReportId = getSingleChildReportId(reportId)
+                                ?: return bad("***$name FAILED***: Internal report id null")
 
-                            pollForProcessResult(internalReportId)
+                            pollForStepResult(internalReportId, TaskAction.process)
 
-                            val processResults = pollForProcessResult(internalReportId)
+                            val processResults = pollForStepResult(internalReportId, TaskAction.process)
                             // verify each result is valid
                             for (result in processResults.values)
                                 passed = passed && examineProcessResponse(result)
-                            if (!passed)
-                                bad("***async end2end FAILED***: Process result invalid")
+                            if (!passed) {
+                                bad("***$name FAILED***: Process result invalid")
+                            }
                         }
 
                         // Look at the lineage results
@@ -267,8 +270,10 @@ class DataCompareTest : CoolTest() {
                     echo("with actual data from $sftpDir/$outputFilename")
                     echo("using schema ${schema.name}...")
                     val result = CompareData().compare(
-                        expectedOutputStream, outputFile.inputStream(),
-                        output.receiver!!.format, schema
+                        expectedOutputStream,
+                        outputFile.inputStream(),
+                        output.receiver!!.format,
+                        schema
                     )
                     if (result.passed) {
                         good("Test passed: Data comparison")
@@ -313,7 +318,7 @@ class CompareData {
             return """passed: $passed
 errors: ${errors.joinToString()}
 warnings: ${warnings.joinToString()}
-"""
+            """
         }
     }
 
@@ -339,8 +344,11 @@ warnings: ${warnings.joinToString()}
         checkFile(actual)
         if (result.passed) {
             compare(
-                expected.inputStream(), actual.inputStream(),
-                format, schema, result
+                expected.inputStream(),
+                actual.inputStream(),
+                format,
+                schema,
+                result
             )
         }
         return result
@@ -473,8 +481,12 @@ class CompareHl7Data(
                         val actualField = actualSegment.getField(fieldIndex)
                         val expectedField = expectedSegment.getField(fieldIndex)
                         passed = passed and compareField(
-                            recordNum, "$actualSegmentName-$fieldIndex",
-                            actualSegment.names[fieldIndex - 1], actualField, expectedField, result
+                            recordNum,
+                            "$actualSegmentName-$fieldIndex",
+                            actualSegment.names[fieldIndex - 1],
+                            actualField,
+                            expectedField,
+                            result
                         )
                     }
                 } catch (e: HL7Exception) {
@@ -510,14 +522,19 @@ class CompareHl7Data(
             for (repetitionIndex in 0 until maxNumRepetitions) {
                 // If this is not a dynamic value then check it against the expected values
                 if (!ignoredFields.contains(fieldSpec)) {
-                    val expectedFieldValue = if (repetitionIndex < expectedFieldContents.size)
-                        expectedFieldContents[repetitionIndex].toString().trim() else ""
-                    val actualFieldValue = if (repetitionIndex < actualFieldContents.size)
-                        actualFieldContents[repetitionIndex].toString().trim() else ""
+                    val expectedFieldValue = if (repetitionIndex < expectedFieldContents.size) {
+                        expectedFieldContents[repetitionIndex].toString().trim()
+                    } else ""
+                    val actualFieldValue = if (repetitionIndex < actualFieldContents.size) {
+                        actualFieldContents[repetitionIndex].toString().trim()
+                    } else ""
                     passed = passed and compareComponent(
-                        actualFieldValue, expectedFieldValue, recordNum,
+                        actualFieldValue,
+                        expectedFieldValue,
+                        recordNum,
                         "$fieldSpec($repetitionIndex)",
-                        fieldName, result
+                        fieldName,
+                        result
                     )
                 }
                 // For dynamic values we expect them to be have something
@@ -562,13 +579,16 @@ class CompareHl7Data(
         }
 
         // Loop through all the components
-        val maxNumComponents = if (actualValueComponents.size > expectedValueComponents.size)
-            actualValueComponents.size else expectedValueComponents.size
+        val maxNumComponents = if (actualValueComponents.size > expectedValueComponents.size) {
+            actualValueComponents.size
+        } else expectedValueComponents.size
         for (componentIndex in 0 until maxNumComponents) {
-            val expectedComponentValue = if (componentIndex < expectedValueComponents.size)
-                expectedValueComponents[componentIndex].trim() else ""
-            val actualComponentValue = if (componentIndex < actualValueComponents.size)
-                actualValueComponents[componentIndex].trim() else ""
+            val expectedComponentValue = if (componentIndex < expectedValueComponents.size) {
+                expectedValueComponents[componentIndex].trim()
+            } else ""
+            val actualComponentValue = if (componentIndex < actualValueComponents.size) {
+                actualValueComponents[componentIndex].trim()
+            } else ""
 
             // If we have more than one component then show the component number is the messages
             val componentSpec = if (maxNumComponents > 1) "$fieldSpec-${componentIndex + 1}" else fieldSpec
@@ -640,18 +660,22 @@ class CompareCsvData {
                 val rowIndex = i + 1
                 val actualRow = actualRows[i]
                 val actualMsgId = if (schemaMsgIdIndex != null) actualRow[schemaMsgIdIndex].trim() else null
-                val actualLastName = if (schemaPatLastNameIndex != null)
-                    actualRow[schemaPatLastNameIndex].trim() else null
-                val actualPatState = if (schemaPatStateIndex != null)
-                    actualRow[schemaPatStateIndex].trim() else null
+                val actualLastName = if (schemaPatLastNameIndex != null) {
+                    actualRow[schemaPatLastNameIndex].trim()
+                } else null
+                val actualPatState = if (schemaPatStateIndex != null) {
+                    actualRow[schemaPatStateIndex].trim()
+                } else null
 
                 // Find the expected row that matches the actual record
                 val matchingExpectedRow = expectedRows.filter {
                     val expectedMsgId = if (expectedMsgIdIndex >= 0) it[expectedMsgIdIndex].trim() else null
-                    val expectedLastName = if (expectedPatLastNameIndex >= 0)
-                        it[expectedPatLastNameIndex].trim() else null
-                    val expectedPatState = if (expectedPatStateIndex >= 0)
-                        it[expectedPatStateIndex].trim() else null
+                    val expectedLastName = if (expectedPatLastNameIndex >= 0) {
+                        it[expectedPatLastNameIndex].trim()
+                    } else null
+                    val expectedPatState = if (expectedPatStateIndex >= 0) {
+                        it[expectedPatStateIndex].trim()
+                    } else null
 
                     schemaMsgIdIndex != null && expectedMsgId == actualMsgId ||
                         (
@@ -744,13 +768,14 @@ class CompareCsvData {
                 // check to see if we should skip a specific field. some fields may contain some dynamic data
                 // that we don't want to check, like a date field for example, so we can pass that through
                 // as an option to skip
-                if (fieldsToIgnore?.contains(colName) == true)
+                if (fieldsToIgnore?.contains(colName) == true) {
                     continue
+                }
 
                 val expectedColIndex = getCsvColumnIndex(schema.elements[j], expectedHeaders)
-                val expectedValue = if (expectedColIndex >= 0)
+                val expectedValue = if (expectedColIndex >= 0) {
                     expectedRow[expectedColIndex].trim()
-                else ""
+                } else ""
 
                 // If there is an expected value then compare it.
                 if (expectedValue.isNotBlank()) {
@@ -826,9 +851,9 @@ class CompareCsvData {
             }
             index
         }
-        return if (expectedColIndexByCsvIndex != null && expectedColIndexByCsvIndex >= 0)
+        return if (expectedColIndexByCsvIndex != null && expectedColIndexByCsvIndex >= 0) {
             expectedColIndexByCsvIndex
-        else expectedColIndexByElementIndex
+        } else expectedColIndexByElementIndex
     }
 }
 

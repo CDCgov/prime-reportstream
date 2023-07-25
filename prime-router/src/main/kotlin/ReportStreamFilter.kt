@@ -15,7 +15,8 @@ enum class ReportStreamFilterType(val field: String) {
     JURISDICTIONAL_FILTER("jurisdictionalFilter"),
     QUALITY_FILTER("qualityFilter"),
     ROUTING_FILTER("routingFilter"),
-    PROCESSING_MODE_FILTER("processingModeFilter");
+    PROCESSING_MODE_FILTER("processingModeFilter"),
+    CONDITION_FILTER("conditionFilter");
 
     // Reflection, so that we can write a single routine to handle all types of filters.
     @Suppress("UNCHECKED_CAST")
@@ -36,6 +37,7 @@ enum class ReportStreamFilterType(val field: String) {
  *  @param qualityFilter - used to limit the data received or sent, by quality
  *  @param routingFilter - used to limit the data received or sent, by who sent it.
  *  @param processingModeFilter - used to limit the data received to be either "Training", "Debug", or "Production"
+ *  @param conditionFilter - used to limit the data sent to the receiver by the conditions they want to receive.
  * We allow a different set of filters per [topic]
  */
 data class ReportStreamFilters(
@@ -44,6 +46,7 @@ data class ReportStreamFilters(
     val qualityFilter: ReportStreamFilter?,
     val routingFilter: ReportStreamFilter?,
     val processingModeFilter: ReportStreamFilter?,
+    val conditionFilter: ReportStreamFilter? = null
 ) {
 
     companion object {
@@ -73,7 +76,7 @@ data class ReportStreamFilters(
             jurisdictionalFilter = listOf("allowNone()"), // Receiver *must* override this to get data!
             qualityFilter = defaultCovid19QualityFilter,
             routingFilter = listOf("allowAll()"),
-            processingModeFilter = listOf("doesNotMatch(processing_mode_code, T, D)"), // No Training/Debug data
+            processingModeFilter = listOf("doesNotMatch(processing_mode_code, T, D)") // No Training/Debug data
         )
 
         private val defaultMonkeypoxFilters = ReportStreamFilters(
@@ -81,15 +84,7 @@ data class ReportStreamFilters(
             jurisdictionalFilter = listOf("allowNone()"), // Receiver *must* override this to get data!
             qualityFilter = listOf("allowAll()"),
             routingFilter = listOf("allowAll()"),
-            processingModeFilter = listOf("doesNotMatch(processing_mode_code, T, D)"), // No Training/Debug data
-        )
-
-        private val defaultCsvFileTestFilters = ReportStreamFilters(
-            topic = Topic.CSV_TESTS,
-            jurisdictionalFilter = listOf("allowAll()"),
-            qualityFilter = listOf("hasValidDataFor(lab,state,test_time,specimen_id,observation)"),
-            routingFilter = listOf("allowAll()"),
-            processingModeFilter = listOf("allowAll()")
+            processingModeFilter = listOf("doesNotMatch(processing_mode_code, T, D)") // No Training/Debug data
         )
 
         private val defaultTestFilters = ReportStreamFilters(
@@ -106,8 +101,7 @@ data class ReportStreamFilters(
         val defaultFiltersByTopic: Map<Topic, ReportStreamFilters> = mapOf(
             defaultCovid19Filters.topic to defaultCovid19Filters,
             defaultMonkeypoxFilters.topic to defaultMonkeypoxFilters,
-            defaultCsvFileTestFilters.topic to defaultCsvFileTestFilters,
-            defaultTestFilters.topic to defaultTestFilters,
+            defaultTestFilters.topic to defaultTestFilters
         )
     }
 }

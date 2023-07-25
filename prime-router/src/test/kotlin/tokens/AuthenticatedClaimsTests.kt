@@ -9,13 +9,16 @@ import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.MockHttpRequestMessage
 import gov.cdc.prime.router.common.Environment
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
+import io.mockk.unmockkConstructor
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,6 +27,8 @@ class AuthenticatedClaimsTests {
     @BeforeEach
     fun reset() {
         clearAllMocks()
+        mockkObject(Metadata.Companion)
+        every { Metadata.Companion.getInstance() } returns UnitTestUtils.simpleMetadata
     }
 
     @Test
@@ -133,7 +138,6 @@ class AuthenticatedClaimsTests {
             Sender.Format.CSV,
             CustomerStatus.INACTIVE,
             "mySchema",
-            keys = null
         )
         claims = AuthenticatedClaims.generateTestClaims(sender)
         assertThat(claims.isPrimeAdmin).isTrue()
@@ -199,6 +203,10 @@ class AuthenticatedClaimsTests {
         assertThat(claims1.authorizedForSendOrReceive("WRONG", "foo", req)).isFalse()
         assertThat(claims1.authorizedForSendOrReceive("", "", req)).isFalse()
         assertThat(claims1.authorizedForSendOrReceive(" ", "", req)).isFalse()
+        // null/missing sender or receiver tests
+        assertThat(claims1.authorizedForSendOrReceive(null, "quux", req)).isFalse()
+        assertThat(claims1.authorizedForSendOrReceive(null, null, req)).isFalse()
+        assertThat(claims1.authorizedForSendOrReceive(null, "foo", req)).isFalse()
 
         // broadest possible claim:
         val rawClaims2: Map<String, Any> = mapOf("scope" to Scope.primeAdminScope, "sub" to "b@b.com")
@@ -210,6 +218,10 @@ class AuthenticatedClaimsTests {
         assertThat(claims2.authorizedForSendOrReceive("WRONG", "foo", req)).isTrue()
         assertThat(claims2.authorizedForSendOrReceive("", "", req)).isTrue()
         assertThat(claims2.authorizedForSendOrReceive(" ", "", req)).isTrue()
+        // PrimeAdmins are even allowed to see internal reports with no associated sender or receiver
+        assertThat(claims2.authorizedForSendOrReceive(null, "quux", req)).isTrue()
+        assertThat(claims2.authorizedForSendOrReceive(null, null, req)).isTrue()
+        assertThat(claims2.authorizedForSendOrReceive(null, "foo", req)).isTrue()
 
         val rawClaims3: Map<String, Any> = mapOf("scope" to "oh-doh.*.admin", "sub" to "b@b.com")
         val claims3 = AuthenticatedClaims(rawClaims3, AuthenticationType.Server2Server)
@@ -220,6 +232,10 @@ class AuthenticatedClaimsTests {
         assertThat(claims3.authorizedForSendOrReceive("WRONG", "foo", req)).isFalse()
         assertThat(claims3.authorizedForSendOrReceive("", "", req)).isFalse()
         assertThat(claims3.authorizedForSendOrReceive(" ", "", req)).isFalse()
+        // null/missing sender or receiver tests
+        assertThat(claims3.authorizedForSendOrReceive(null, "quux", req)).isFalse()
+        assertThat(claims3.authorizedForSendOrReceive(null, null, req)).isFalse()
+        assertThat(claims3.authorizedForSendOrReceive(null, "foo", req)).isFalse()
 
         // A typical server2server sender scope:
         val rawClaims4: Map<String, Any> = mapOf("scope" to "sender-org.*.report", "sub" to "b@b.com")
@@ -232,6 +248,10 @@ class AuthenticatedClaimsTests {
         assertThat(claims4.authorizedForSendOrReceive("WRONG", null, req)).isFalse()
         assertThat(claims4.authorizedForSendOrReceive("", "", req)).isFalse()
         assertThat(claims4.authorizedForSendOrReceive(" ", "", req)).isFalse()
+        // null/missing sender or receiver tests
+        assertThat(claims4.authorizedForSendOrReceive(null, "quux", req)).isFalse()
+        assertThat(claims4.authorizedForSendOrReceive(null, null, req)).isFalse()
+        assertThat(claims4.authorizedForSendOrReceive(null, "foo", req)).isFalse()
 
         // Server2server senders should be given a scope of the form sender-org.*.report, but
         // we are grandfathering-in the older sender-org.default.report form, as identical to sender-org.*.report
@@ -349,6 +369,7 @@ class AuthenticatedClaimsTests {
         assertThat(claims2?.scopes?.size).isEqualTo(1)
         assertThat(claims2?.scopes?.contains("foo.bar.report")).isEqualTo(true)
         assertThat(claims2?.isPrimeAdmin).isEqualTo(false)
+        unmockkConstructor(Server2ServerAuthentication::class)
     }
 
     @Test

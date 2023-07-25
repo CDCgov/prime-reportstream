@@ -1,3 +1,7 @@
+// AutoUpdateFileChromatic
+@use "uswds-core" as *;
+@use "uswds_custom_theme" as *;
+
 /*
 * * * * * ==============================
 * * * * * ==============================
@@ -19,211 +23,288 @@ i.e.
 @include u-padding-right('05');
 ----------------------------------------
 */
-html, body {
-  height: 100%;
+
+html,
+body {
+    height: 100%;
 }
 
 .footer {
-  flex-shrink: 0;
+    flex-shrink: 0;
 }
 
 body {
-  display: flex;
-  min-height: 100vh;
-  flex-direction: column;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
 }
 
 main {
-  flex: 1 0 auto;
-  width: 100%;
-  min-height: calc(100vh - 230px);
-  padding: 0 0 4rem 0;
-  border-top: 1px solid #dfe1e2;
+    flex: 1 0 auto;
+    width: 100%;
+    min-height: calc(100vh - 230px);
+    padding: 0 0 4rem 0;
 }
 
-.usa-banner__inner, .usa-banner__header--expanded .usa-banner__inner {
-  margin-left: 0;
-  margin-right: 0;
+.usa-banner__inner,
+.usa-banner__header--expanded .usa-banner__inner {
+    margin-left: 0;
+    margin-right: 0;
 }
 
 // NAVIGATION
 
 .usa-overlay {
-  z-index: 300;
+    z-index: 300;
 }
 
 .usa-nav__close {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 .usa-nav__primary {
-  margin-top: 0;
-  margin-bottom: 0;
-  list-style: none;
+    margin-top: 0;
+    margin-bottom: 0;
+    list-style: none;
 }
 
 .usa-logo {
-  margin: units(3) units(1.5) units(3) 0;
+    margin: units(3) units(1.5) units(3) 0;
 }
 
 .usa-nav__request-account {
-  font-weight: normal;
-  text-decoration: underline;
+    font-weight: normal;
+    text-decoration: underline;
 }
 
 .usa-nav__primary-item a.usa-button {
-  color: #005ea2;
+    color: color("primary");
 }
 
 // Breadcrumb
 
 .usa-breadcrumb {
-  margin-top: units(2);
+    margin-top: units(2);
 }
 
 // TYPOGRAPHY
 
 .usa-prose {
-
     h1 {
-      line-height: lh('sans', 2);
+        line-height: lh("sans", 2);
     }
 }
 
 .usa-intro {
-  line-height: units(4);
+    line-height: units(4);
 }
 
 // ALERT
-
 .usa-site-alert {
+    .usa-alert__heading {
+        font-size: size("body", "md");
+    }
+}
 
-  .usa-alert__heading {
-    font-size: size('body', 'md');
-  }
+// TABLE
+.usa-table {
+    width: 100%;
+
+    @media (max-width: $tablet) {
+        display: block;
+        overflow-x: auto;
+    }
+}
+
+// MODAL
+
+.usa-modal__main {
+    word-wrap: break-word;
+    width: 100%;
 }
 
 // MEDIA: DESKTOP
 
 @media (min-width: 64em) {
-  .usa-header--basic .usa-nav-container {
-    max-width: 100%;
-    padding-left: 2rem;
-    padding-right: 2rem;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    align-content: flex-start;
-  }
+    .usa-header--basic .usa-nav-container {
+        max-width: 100%;
+        padding-left: 2rem;
+        padding-right: 2rem;
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: flex-start;
+        align-content: flex-start;
+    }
 
-  .usa-header--basic .usa-navbar {
-    width: auto;
-  }
+    .usa-header--basic .usa-navbar {
+        width: auto;
+    }
 
-  .usa-header--basic .usa-nav {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    padding: 0;
-  }
+    .usa-header--basic .usa-nav {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 0;
+    }
 
-  .usa-header--basic .usa-nav__primary {
-    flex: 1;
-  }
+    .usa-header--basic .usa-nav__primary {
+        flex: 1;
+        height: 100%;
+    }
 
-  .usa-header--basic .usa-nav__link {
-    position: relative;
-  }
+    .usa-header--basic .usa-nav__link {
+        position: relative;
+    }
 
-  .usa-nav__primary > .usa-nav__primary-item > a {
-    font-weight: normal;
-    color: #2e2e2e;
-    padding: units(3);
-  }
+    .usa-nav__primary > .usa-nav__primary-item > a {
+        height: 100%;
+        font-weight: normal;
+        color: #2e2e2e;
+        padding: units(3);
+    }
 
-  .usa-nav__primary button {
-    padding: units(3);
-    color: #2e2e2e;
-    font-weight: normal;
-  }
+    .usa-nav__primary button {
+        height: 100%;
+        padding: units(3);
+        color: #2e2e2e;
+        font-weight: normal;
+    }
 
-  .usa-nav__primary button[aria-expanded="true"] span {
-    color: #ffffff;
-  }
+    .usa-nav__primary button[aria-expanded="true"] span {
+        color: #ffffff;
+    }
 
-  .usa-nav__primary button span {
-    font-weight: normal;
-    color: #2e2e2e;
-  }
+    .usa-nav__primary button span {
+        font-weight: normal;
+        color: #2e2e2e;
+        vertical-align: super;
+    }
 
-  .usa-nav__primary > .usa-nav__primary-item > a::after {
+    .usa-header--basic .usa-nav__link:hover::after {
+        bottom: 0;
+    }
 
-  }
+    .usa-nav__primary > .usa-nav__primary-item.usa-current > a {
+        color: #0b4778;
+        padding: units(3);
+    }
 
-  .usa-nav__primary > .usa-nav__primary-item.usa-current > a {
-    color: #0b4778;
-    padding: units(3);
-  }
+    .usa-nav__primary > .usa-current > a::after {
+        background-color: color("primary");
+        border-radius: 0;
+        content: "";
+        display: block;
+        position: absolute;
+        bottom: units(-0.5);
+        height: 0.25rem;
+        left: 1rem;
+        right: 1rem;
+    }
 
-  .usa-nav__primary > .usa-current > a::after {
-    background-color: #005ea2;
-    border-radius: 0;
-    content: "";
-    display: block;
-    position: absolute;
-    bottom: units(-0.5);
-    height: .25rem;
-    left: 1rem;
-    right: 1rem;
-  }
+    .usa-header--basic .usa-nav__primary-item:last-of-type .usa-nav__submenu {
+        left: 0;
+    }
 
-  .usa-header--basic .usa-nav__primary-item:last-of-type .usa-nav__submenu {
-    left: 0;
-  }
-
-  .prime-user-account {
-    text-align: right;
-  }
+    .prime-user-account {
+        text-align: right;
+    }
 }
 
 // MEDIA: MOBILE
 
 @media (max-width: 63.99em) {
-  main {
-    padding: 2rem 0;
-    border-top: 1px solid #dfe1e2;
-  }
-  .usa-logo {
-    margin-left: 1rem;
-  }
-  .usa-header--basic .usa-nav {
-    align-items: start;
-    width: 15rem;
-  }
-  .usa-header--basic .usa-navbar {
-    width: 100%;
-    z-index: 200;
-    position: relative;
-    border-bottom: none;
-  }
-  .usa-nav__primary {
-    width: 100%;
-  }
-  .prime-user-account {
-    width: 100%;
-    text-align: left;
-    margin-bottom: 2rem;
-    margin-left: 1rem;
-  }
-  h1 {
-    @include u-line-height('sans', 2);
-  }
-  h2 {
-    @include u-line-height('sans', 3);
-  }
-  .usa-breadcrumb {
-    margin-top: 0;
-    padding-top: 0;
-  }
+    main {
+        padding: 2rem 0;
+        border-top: 1px solid #dfe1e2;
+    }
+    .usa-logo {
+        margin-left: 1rem;
+    }
+    .usa-header--basic .usa-nav {
+        align-items: start;
+        width: 15rem;
+    }
+    .usa-header--basic .usa-navbar {
+        width: 100%;
+        z-index: 200;
+        position: relative;
+        border-bottom: none;
+    }
+    .usa-nav__primary {
+        width: 100%;
+    }
+    .prime-user-account {
+        width: 100%;
+        text-align: left;
+        margin-bottom: 2rem;
+        margin-left: 1rem;
+    }
+    h1 {
+        @include u-line-height("sans", 2);
+    }
+    h2 {
+        @include u-line-height("sans", 3);
+    }
+    .usa-breadcrumb {
+        margin-top: 0;
+        padding-top: 0;
+    }
+}
+
+// ComponentHeading as div, with header element inside
+.usa-process-list__heading,
+.usa-alert__heading {
+    & h1,
+    & h2,
+    & h3,
+    & h4,
+    & h5,
+    & h6 {
+        margin: 0;
+    }
+}
+
+.usa-card__header {
+    font-weight: bold;
+}
+
+/**
+ * Reset ul style within cards due to usa-card-group.
+ */
+.usa-card-group {
+    .usa-card {
+        ul {
+            list-style: disc;
+        }
+    }
+}
+
+/**
+ * Allow table to auto size up to 'widescreen'.
+ */
+.usa-table-container--scrollable.usa-table-container--widescreen {
+    .usa-table {
+        @include u-maxw("widescreen");
+        width: auto;
+        table-layout: fixed;
+        td {
+            white-space: normal;
+        }
+    }
+}
+
+/**
+ * Auto scale icons inside buttons.
+ */
+.usa-button {
+    .usa-icon--auto {
+        vertical-align: text-bottom;
+        width: auto;
+        height: 1rlh;
+    }
+}
+
+.usa-header + main {
+    border-top: none;
 }

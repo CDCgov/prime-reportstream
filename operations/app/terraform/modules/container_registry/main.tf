@@ -14,6 +14,15 @@ resource "azurerm_container_registry" "container_registry" {
     type = "SystemAssigned"
   }
 
+  retention_policy {
+    days    = 365
+    enabled = true
+  }
+
+  georeplications {
+    location = "westus"
+  }
+
   # network_rule_set {
   #   default_action = "Allow"
 

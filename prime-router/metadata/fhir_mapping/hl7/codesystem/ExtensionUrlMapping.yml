@@ -18,13 +18,10 @@
   url: "http://ibm.com/fhir/cdm/StructureDefinition/process-client-id"
 # source-data-model-version
 - id: "source-data-model-version"
-  url:  "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version"
+  url: "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version"
 # source-event-timestamp
 - id: "source-event-timestamp"
   url: "http://ibm.com/fhir/cdm/StructureDefinition/source-event-timestamp"
-# source-record-id
-- id: "source-record-id"
-  url: "http://ibm.com/fhir/cdm/StructureDefinition/source-record-id"
 # source-event-trigger
 - id: "source-event-trigger"
   url: "http://ibm.com/fhir/cdm/StructureDefinition/source-event-trigger"
@@ -34,12 +31,15 @@
 # condition-assertedDate
 - id: "condition-assertedDate"
   url: "http://hl7.org/fhir/StructureDefinition/condition-assertedDate"
-# processing ID
-- id: "source-processing-id"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-processing-id"
 # source message profile ID
 - id: "source-message-profile-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id"
+# message accept acknowledgement type
+- id: "accept-acknowledgement-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/accept-acknowledgement-type"
+# source application acknowledgement type
+- id: "application-acknowledgement-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/application-acknowledgement-type"
 # application-identifier
 - id: "application-identifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/application-identifier"
@@ -209,3 +209,9 @@
 # Effective Date of Reference Range
 - id: "effective-reference-range"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/effective-reference-range"
+# Order effective date
+- id: "order-effective-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date"
+# Business Event In Progress - https://docs.google.com/spreadsheets/d/11VBF5TIRJTfRwkRIK1XH-k40dZqCd3g3a0sBY-zJU4Q/edit#gid=0
+- id: "business-event"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event"

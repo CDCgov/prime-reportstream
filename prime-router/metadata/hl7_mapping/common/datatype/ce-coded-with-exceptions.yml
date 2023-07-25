@@ -1,0 +1,33 @@
+constants:
+  alternateIdentifierExtension: '%resource.extension(%`rsext-alternate-identifier`)'
+  originalTextExtension: '%alternateIdentifierExtension.value.coding.extension(%`rsext-original-text`)'
+elements:
+  - name: coded-element
+    constants:
+      ceFieldPath: '%{cweFieldPath}'
+    schema: ce-coded-element
+
+  - name: coding-system-version-id
+    condition: '%versionId.exists() and %resource.exists()'
+    value: [ '%versionId' ]
+    hl7Spec: [ '%{cweFieldPath}-7' ]
+
+  - name: coding-system-version-id-extension
+    resource: '%resource.extension(%`rsext-alternate-identifier`).value.coding.version'
+    value: [ '%resource' ]
+    hl7Spec: [ '%{cweFieldPath}-7' ]
+
+  - name: coding-system-alternate-version-id
+    resource: '%resource.extension(%`rsext-alternate-identifier`).value.coding.extension(%`rsext-alternate-version`)'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{cweFieldPath}-8' ]
+
+  - name: original-text
+    condition: '%alternateIdentifierExtension.exists() and %originalTextExtension.exists()'
+    value: [ '%originalTextExtension.value' ]
+    hl7Spec: [ '%{cweFieldPath}-9' ]
+
+  - name: original-text-from-display
+    condition: '%alternateIdentifierExtension.exists().not() and %originalTextExtension.exists().not()'
+    value: [ '%resource.coding.display' ]
+    hl7Spec: [ '%{cweFieldPath}-9' ]

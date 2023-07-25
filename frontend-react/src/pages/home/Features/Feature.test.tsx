@@ -1,4 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
+
+import { renderApp } from "../../../utils/CustomRenderUtils";
 
 import Feature from "./Feature";
 
@@ -10,7 +12,7 @@ describe("Feature rendering", () => {
     };
 
     beforeEach(() => {
-        render(<Feature section={baseSection} feature={baseFeature} />);
+        renderApp(<Feature section={baseSection} feature={baseFeature} />);
     });
 
     test("renders without error", () => {
@@ -47,7 +49,7 @@ describe("DeliveryMethodFeature rendering", () => {
     };
 
     beforeEach(() => {
-        render(
+        renderApp(
             <Feature
                 section={deliveryMethodSection}
                 feature={deliveryFeature}
@@ -58,12 +60,8 @@ describe("DeliveryMethodFeature rendering", () => {
     test("renders without error", () => {
         const image = screen.getByTestId("image");
         const heading = screen.getByTestId("heading");
-        const item1 = screen.getByTestId("item-1");
-        const item2 = screen.getByTestId("item-2");
         expect(image).toBeInTheDocument();
         expect(heading).toBeInTheDocument();
-        expect(item1).toBeInTheDocument();
-        expect(item2).toBeInTheDocument();
     });
 });
 
@@ -76,7 +74,9 @@ describe("LiveMapFeature rendering", () => {
     };
 
     beforeEach(() => {
-        render(<Feature section={liveMapSection} feature={liveMapFeature} />);
+        renderApp(
+            <Feature section={liveMapSection} feature={liveMapFeature} />
+        );
     });
 
     test("renders without error", () => {

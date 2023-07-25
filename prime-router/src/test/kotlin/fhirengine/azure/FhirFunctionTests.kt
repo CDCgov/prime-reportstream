@@ -154,8 +154,8 @@ class FhirFunctionTests {
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
             "None-011bb9ab-15c7-4ecd-8fae-0dd21e04d353-20220729171318.hl7\",\"digest\":\"58ffffffaaffffffc22ffffff" +
             "f044ffffff85ffffffd4ffffffc9ffffffceffffff9bffffffe3ffffff8fffffff86ffffff9a5966fffffff6ffffff87fffff" +
-            "fff5bffffffae6015fffffffbffffffdd363037ffffffed51ffffffd3\",\"sender\":\"ignore.ignore-full-elr\"," +
-            "\"blobSubFolderName\":\"ignore.ignore-full-elr\"}"
+            "fff5bffffffae6015fffffffbffffffdd363037ffffffed51ffffffd3\",\"blobSubFolderName\":" +
+            "\"ignore.ignore-full-elr\",\"schemaName\":\"someSchema\",\"topic\":\"full-elr\"}"
 
         // act
         fhirFunc.doConvert(queueMessage, 1, fhirEngine, actionHistory)
@@ -208,7 +208,7 @@ class FhirFunctionTests {
             "None-011bb9ab-15c7-4ecd-8fae-0dd21e04d353-20220729171318.hl7\",\"digest\":\"58ffffffaaffffffc22ffffff" +
             "f044ffffff85ffffffd4ffffffc9ffffffceffffff9bffffffe3ffffff8fffffff86ffffff9a5966fffffff6ffffff87fffff" +
             "fff5bffffffae6015fffffffbffffffdd363037ffffffed51ffffffd3\",\"sender\":\"ignore.ignore-full-elr\"," +
-            "\"blobSubFolderName\":\"ignore.ignore-full-elr\"}"
+            "\"blobSubFolderName\":\"ignore.ignore-full-elr\",\"topic\":\"full-elr\"}"
 
         // act
         fhirFunc.doRoute(queueMessage, 1, fhirEngine, actionHistory)
@@ -261,7 +261,7 @@ class FhirFunctionTests {
             "None-011bb9ab-15c7-4ecd-8fae-0dd21e04d353-20220729171318.hl7\",\"digest\":\"58ffffffaaffffffc22ffffff" +
             "f044ffffff85ffffffd4ffffffc9ffffffceffffff9bffffffe3ffffff8fffffff86ffffff9a5966fffffff6ffffff87fffff" +
             "fff5bffffffae6015fffffffbffffffdd363037ffffffed51ffffffd3\",\"sender\":\"ignore.ignore-full-elr\"," +
-            "\"blobSubFolderName\":\"ignore.ignore-full-elr\"}"
+            "\"blobSubFolderName\":\"ignore.ignore-full-elr\",\"topic\":\"full-elr\"}"
 
         // act
         fhirFunc.doTranslate(queueMessage, 1, fhirEngine, actionHistory)

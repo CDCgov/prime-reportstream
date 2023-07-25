@@ -1,0 +1,51 @@
+extends: ../default-sender-transform
+elements:
+  # TODO: Remove this once Covid results for CA are routed through the UP
+  #       Simple Report subtracts 15 minutes from dates being sent to us through the Covid pipeline
+  #       CA wants Simple Report to stop doing that for them, but Simple Report can't just turn it off for every
+  #       message we receive. They will stop doing this for reports sent through the UP, but we will have to continue
+  #       doing this in the UP until we start routing the Covid results through the UP to keep dates consistent across.
+  - name: results-reported-at
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    condition: '%resource.issued is instant'
+    bundleProperty: '%resource.issued'
+    value: [ '%resource.issued - 15 minutes' ]
+
+
+  - name: observation-date-time
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    condition: '%resource.effective is dateTime'
+    bundleProperty: '%resource.effective[x]'
+    value: [ '%resource.effective - 15 minutes' ]
+
+  #  The received date time for the specimen. This field is very important to many states for their HL7,
+  #  but for most of our senders, the received date time is the same as the collected date time. Unfortunately,
+  #  setting them to the same time breaks many validation rules. Most ELR systems apparently look for them to
+  #  be offset, so this field takes the `specimen_collection_date_time` field and offsets it by a small amount.
+  # TODO: Move this to default sender transform once simple report starts sending us covid through the UP
+  #       THE Covid pipeline adds 6 seconds to received date time to avoid having the same date for
+  #       both collected and received.
+  #       Right now we can't subtract the 15 minutes SR subtracts from dates in the covid pipeline and add the 6 seconds
+  #       the Covid Pipeline adds. So we have to do it all at once by subtracting 894 seconds. Adding the 6
+  #       should be part of the default sender transforms.
+  - name: specimen-received-date-time-collected
+    resource: 'Bundle.entry.resource.ofType(Specimen)'
+    condition: '%resource.receivedTime.exists().not() and %resource.collection.collected is dateTime'
+    bundleProperty: '%resource.receivedTime'
+    value: [ '%resource.collection.collected - 894 seconds' ]
+
+  - name: specimen-received-date-time-effective
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    condition: >
+      %resource.specimen.resolve().receivedTime.exists().not() 
+      and %resource.specimen.resolve().collection.collected.exists().not()
+      and %resource.effective is dateTime
+    bundleProperty: '%resource.specimen.resolve().receivedTime'
+    value: [ '%resource.effective + 6 seconds' ]
+
+  - name: specimen-collection-time
+    resource: 'Bundle.entry.resource.ofType(Specimen)'
+    condition: '%resource.collection.collected is dateTime'
+    bundleProperty: '%resource.collection.collected[x]'
+    value: [ '%resource.collection.collected - 15 minutes' ]
+

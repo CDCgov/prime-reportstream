@@ -1,0 +1,79 @@
+
+name: Release Trial Frontend
+
+on:
+  push:
+    branches:
+      - trialfrontend01
+      - trialfrontend02
+      - trialfrontend03
+
+defaults:
+  run:
+    working-directory: prime-router
+
+jobs:
+  pre_job:
+    name: "Set Build Environment"
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ steps.build_vars.outputs.env_name }}
+      version: ${{ github.ref_name }}
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
+
+  build_frontend_react_release:
+    name: "Release: Build Frontend (React)"
+    needs:
+      - pre_job
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend-react
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+
+      - name: Build frontend
+        uses: ./.github/actions/build-frontend
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          appinsights-staging-key: ${{ secrets.APPINSIGHTS_STAGING_KEY }}
+          appinsights-prod-key: none
+          version: ${{ needs.pre_job.outputs.version }}
+
+  deploy_trial_frontend:
+    name: "Deploy Trial Frontend: ${{ needs.pre_job.outputs.env_name }}"
+    needs:
+      - pre_job
+      - build_frontend_react_release
+    if: |
+      always() &&
+      failure() != 'true'
+    environment: staging
+    concurrency: ${{ needs.pre_job.outputs.env_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: staging
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Deploy frontend
+        uses: ./.github/actions/deploy-frontend
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          version: ${{ needs.pre_job.outputs.version }}

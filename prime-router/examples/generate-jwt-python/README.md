@@ -2,10 +2,77 @@
 
 This directory contains a python example of how to connect to ReportStream as a sender.
 
+### How to run this python example
+
 #### Prerequisites
+
 - Python 3
-- PyJWT module (`python3 -m pip install PyJWT`)
-- cryptography moddule (`python3 -m pip install cryptography`)
+- pipenv python package manager
+- Python packages `PyJWT` and `cryptography`
+
+#### Setup
+
+1. Install pipenv using [their instructions](https://pipenv.pypa.io/en/latest/installation/)
+    <details>
+      <summary>Windows</summary>
+
+      ```bash
+      python3.exe -m pip install --user pipenv
+      ```
+    </details>
+
+    <details>
+      <summary>Linux or Mac</summary>
+
+      ```bash
+      python3 -m pip install --user pipenv
+      ```
+    </details>
+       
+2. Install python dependencies using pipenv. From inside the `generate-jwt-python` directory:
+    <details>
+      <summary>Windows</summary>
+    
+      ```bash
+      python3.exe -m pipenv install
+      ```
+    </details>
+
+    <details>
+      <summary>Linux or Mac</summary>
+    
+      ```bash
+      python3 -m pipenv install
+      ```
+    </details>
+
+3. Then in `generate-jwt.py`, make these two changes:
+    1. Change `my_client_id` to be your unique client-id string, as given to you by the ReportStream team back in Step 1.
+    2. Point the `my_rsa_keypair_file` to be the path to your generated rsa keypair pem file.
+
+#### Run
+
+Launch a shell and run it:
+
+<details>
+  <summary>Windows</summary>
+
+  ```bash
+  python3.exe -m pipenv shell
+  python .\generate-jwt.py
+  ```
+</details>
+
+<details>
+  <summary>Linux or Mac</summary>
+
+  ```bash
+  python3 -m pipenv shell
+  python ./generate-jwt.py
+  ```
+</details>
+
+## Here's what this example is doing
 
 ### Steps to Authenticate with ReportStream, using Tokens
 
@@ -30,23 +97,6 @@ Authentication is done in three steps.   Details are found in the ReportStream-P
 
 - When run the, `generate-jwt.py` program prints out an example of what this looks like.
 
-### How to run this python example
-
-#### Setup
-
-1. Working in this folder, follow the setup steps in  https://auth0.com/blog/how-to-handle-jwt-in-python/ prior to running generate-jwt.py
-
-2. In `generate-jwt.py`, make these two changes:
-- Change `my_client_id` to be your unique client-id string, as given to you by the ReportStream team back in Step 1.
-- Point the `my_rsa_keypair_file` to be the path to your generated rsa keypair pem file.
-
-#### Run
-
-Then run it:
-
-```
-python3 ./generate-jwt.py
-```
 
 ### Further documentation
 
@@ -55,6 +105,3 @@ python3 ./generate-jwt.py
 - Our implementation is based on these standard guidelines for the FHIR community:  http://hl7.org/fhir/uv/bulkdata/authorization/index.html
 - Documentation meant mainly for ReportStream operations personnel can be found here:  https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/playbooks/how-to-use-token-auth.md
 - Documentation on our token auth implementation (meant for ReportStream coders, but might be of general interest) is found here:  https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/proposals/0001-authentication.md
-
-
-

@@ -1,0 +1,31 @@
+constants:
+  caAoeNteFieldPath: '%{hl7NotePath}/NTE(%{noteIndex})'
+  commentCondition: '%resource.code.coding.code.exists() and %resource.code.text.exists()'
+elements:
+  - name: aoe-note-id
+    value: [ '%noteIndex + 1' ]
+    hl7Spec: [ '%{caAoeNteFieldPath}-1' ]
+
+  - name: aoe-note-source
+    value:
+      - '"L"'
+    hl7Spec: [ '%{caAoeNteFieldPath}-2' ]
+
+  - name: aoe-note-comment-datetime
+    condition: '%resource.value is dateTime and %commentCondition'
+    value: [ '%resource.code.coding.code + " " + %resource.code.text + ": " + %resource.value.toString()']
+    hl7Spec: [ '%{caAoeNteFieldPath}-3' ]
+
+  - name: aoe-note-comment-string
+    condition: '%resource.value is string and %commentCondition'
+    value: [ '%resource.code.coding.code + " " + %resource.code.text + ": " + %resource.value' ]
+    hl7Spec: [ '%{caAoeNteFieldPath}-3' ]
+
+  - name: aoe-note-comment-cwe
+    condition: '%resource.value is CodeableConcept and %commentCondition'
+    value: [ '%resource.code.coding.code 
+    + " " + %resource.code.text 
+    + ": " + %resource.value.coding.display 
+    + " " + %resource.value.coding.code 
+    + " " + %resource.value.coding.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '%{caAoeNteFieldPath}-3' ]

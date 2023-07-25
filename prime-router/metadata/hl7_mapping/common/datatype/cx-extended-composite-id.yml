@@ -1,0 +1,33 @@
+constants:
+  hl7CXFieldPath: '%{hl7CXField}(%{idIndex})'
+elements:
+  - name: id-number
+    value: [ '%deidentifiedVaue','%resource.value' ]
+    hl7Spec: [ '%{hl7CXFieldPath}-1' ]
+
+  - name: assigning-authority
+    condition: '%resource.extension(%`universalIdExtName`).exists() or %resource.extension(%`namespaceExtName`).exists()'
+    constants:
+      hl7HDField: '%{hl7CXFieldPath}-4'
+      # cannot use %`rext due to mix of constant and fhirpath substitution syntax
+      namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id"'
+      universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id"'
+    schema: hd-hierarchic-designator
+
+  - name: id-type-code
+    value: [ '%resource.type.coding.code' ]
+    hl7Spec: [ '%{hl7CXFieldPath}-5' ]
+
+  - name: id-type-code-pi
+    condition: '%resource.type.coding.code.empty()'
+    value: [ '"PI"' ]
+    hl7Spec: [ '%{hl7CXFieldPath}-5' ]
+
+  - name: assigning-facility
+    condition: '%resource.extension(%`universalIdExtName`).exists() or %resource.extension(%`namespaceExtName`).exists()'
+    constants:
+      hl7HDField: '%{hl7CXFieldPath}-6'
+      # cannot use %`rext due to mix of constant and fhirpath substitution syntax
+      namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id"'
+      universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id"'
+    schema: hd-hierarchic-designator

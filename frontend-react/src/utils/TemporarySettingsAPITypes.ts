@@ -7,9 +7,21 @@ enum Jurisdiction {
     COUNTY = "COUNTY",
 }
 
+// TODO: Consolidate with FileType in UseFileHandler.ts
 enum Format {
     CSV = "CSV",
     HL7 = "HL7",
+    FHIR = "FHIR",
+}
+
+export enum FileType {
+    "CSV" = "CSV",
+    "HL7" = "HL7",
+}
+
+export enum ContentType {
+    "CSV" = "text/csv",
+    "HL7" = "application/hl7-v2",
 }
 
 enum CustomerStatus {
@@ -47,17 +59,25 @@ enum EmptyOperation {
 }
 
 enum USTimeZone {
-    PACIFIC = "US/Pacific",
-    MOUNTAIN = "US/Mountain",
-    ARIZONA = "US/Arizona",
-    CENTRAL = "US/Central",
-    EASTERN = "US/Eastern",
-    SAMOA = "US/Samoa",
-    HAWAII = "US/Hawaii",
-    EAST_INDIANA = "US/East-Indiana",
-    INDIANA_STARKE = "US/Indiana-Starke",
-    MICHIGAN = "US/Michigan",
-    CHAMORRO = "Pacific/Guam",
+    ARIZONA = "ARIZONA",
+    CENTRAL = "CENTRAL",
+    CHAMORRO = "CHAMORRO",
+    EASTERN = "EASTERN",
+    EAST_INDIANA = "EAST_INDIANA",
+    HAWAII = "HAWAII",
+    INDIANA_STARKE = "INDIANA_STARKE",
+    MICHIGAN = "MICHIGAN",
+    MOUNTAIN = "MOUNTAIN",
+    PACIFIC = "PACIFIC",
+    SAMOA = "SAMOA",
+    UTC = "UTC",
+}
+
+enum DateTimeFormat {
+    DATE_ONLY = "DATE_ONLY",
+    HIGH_PRECISION_OFFSET = "HIGH_PRECISION_OFFSET",
+    LOCAL = "LOCAL",
+    OFFSET = "OFFSET",
 }
 
 enum GAENUUIDFormat {
@@ -71,7 +91,9 @@ type ReportStreamSettingsEnum =
     | "format"
     | "customerStatus"
     | "processingType"
-    | "reportStreamFilterDefinition";
+    | "reportStreamFilterDefinition"
+    | "dateTimeFormat"
+    | "timeZone";
 
 const getListOfEnumValues = (e: ReportStreamSettingsEnum): string[] => {
     switch (e) {
@@ -85,6 +107,10 @@ const getListOfEnumValues = (e: ReportStreamSettingsEnum): string[] => {
             return Array.from(Object.values(ProcessingType));
         case "reportStreamFilterDefinition":
             return Array.from(Object.values(ReportStreamFilterDefinition));
+        case "dateTimeFormat":
+            return Array.from(Object.values(DateTimeFormat));
+        case "timeZone":
+            return Array.from(Object.values(USTimeZone));
     }
 };
 

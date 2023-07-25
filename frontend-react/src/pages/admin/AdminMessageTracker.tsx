@@ -1,19 +1,24 @@
 import React from "react";
+import { Helmet } from "react-helmet-async";
+import { GridContainer } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../components/HipaaNotice";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
-import { BasicHelmet } from "../../components/header/BasicHelmet";
 import { MessageTracker } from "../../components/MessageTracker/MessageTracker";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 
 export function AdminMessageTracker() {
     return (
-        <>
-            <BasicHelmet pageTitle="Message Id Search" />
-            <MessageTracker />
-            <HipaaNotice />
-        </>
+        <GridContainer>
+            <Helmet>
+                <title>Message Id Search</title>
+            </Helmet>
+            <article>
+                <MessageTracker />
+                <HipaaNotice />
+            </article>
+        </GridContainer>
     );
 }
 

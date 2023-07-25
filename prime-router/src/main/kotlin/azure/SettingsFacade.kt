@@ -22,6 +22,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.Setting
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.JwkSet
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.JSONB
 import java.time.OffsetDateTime
@@ -259,13 +260,13 @@ class SettingsFacade(
         val input = try {
             mapper.readValue(json, clazz)
         } catch (ex: Exception) {
-            null
-        } ?: return Triple(false, "Could not parse JSON payload", null)
+            return Triple(false, "Could not parse JSON payload", null)
+        }
         if (input.name != name)
             return Triple(false, "Payload and path name do not match", null)
         if (input.organizationName != organizationName)
             return Triple(false, "Payload and path organization name do not match", null)
-        input.consistencyErrorMessage(metadata) ?.let { return Triple(false, it, null) }
+        input.consistencyErrorMessage(metadata)?.let { return Triple(false, it, null) }
         val normalizedJson = JSONB.valueOf(mapper.writeValueAsString(input))
         return Triple(true, null, normalizedJson)
     }
@@ -331,15 +332,28 @@ class OrganizationAPI
     stateCode: String?,
     countyName: String?,
     filters: List<ReportStreamFilters>?,
+    featureFlags: List<String>?,
+    keys: List<JwkSet>?,
     override var version: Int? = null,
     override var createdBy: String? = null,
     override var createdAt: OffsetDateTime? = null,
-) : Organization(name, description, jurisdiction, stateCode.trimToNull(), countyName.trimToNull(), filters),
+) : Organization(
+    name,
+    description,
+    jurisdiction,
+    stateCode.trimToNull(),
+    countyName.trimToNull(),
+    filters,
+    featureFlags,
+    keys
+),
 
     SettingAPI {
     @get:JsonIgnore
     override val organizationName: String? = null
-    override fun consistencyErrorMessage(metadata: Metadata): String? { return this.consistencyErrorMessage() }
+    override fun consistencyErrorMessage(metadata: Metadata): String? {
+        return this.consistencyErrorMessage()
+    }
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -355,6 +369,7 @@ class ReceiverAPI
     routingFilter: ReportStreamFilter = emptyList(),
     processingModeFilter: ReportStreamFilter = emptyList(),
     reverseTheQualityFilter: Boolean = false,
+    conditionalFilter: ReportStreamFilter = emptyList(),
     deidentify: Boolean = false,
     deidentifiedValue: String = "",
     timing: Timing? = null,
@@ -374,6 +389,7 @@ class ReceiverAPI
     routingFilter,
     processingModeFilter,
     reverseTheQualityFilter,
+    conditionalFilter,
     deidentify,
     deidentifiedValue,
     timing,

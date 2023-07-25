@@ -3,7 +3,6 @@ package gov.cdc.prime.router.fhirengine.utils
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
@@ -11,19 +10,8 @@ import assertk.assertions.startsWith
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.Report
-import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Topic
-import gov.cdc.prime.router.azure.ActionHistory
-import gov.cdc.prime.router.azure.BlobAccess
-import gov.cdc.prime.router.azure.Event
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.unmockkObject
-import java.util.UUID
 import kotlin.test.Test
 
 class HL7MessageHelpersTests {
@@ -40,8 +28,8 @@ class HL7MessageHelpersTests {
         var result = HL7MessageHelpers.batchMessages(emptyList(), receiver)
         result.split(HL7MessageHelpers.hl7SegmentDelimiter).forEachIndexed { index, s ->
             val regex = when (index) {
-                0 -> """^FHS\|[^|]{4}\|[^|]+\|\|\|\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
-                1 -> """^BHS\|[^|]{4}\|[^|]+\|\|\|\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
+                0 -> """^FHS\|[^|]{4}\|[^|]+\|[^|]+\|\|\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
+                1 -> """^BHS\|[^|]{4}\|[^|]+\|[^|]+\|\|\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
                 2 -> """^BTS\|0""".toRegex()
                 3 -> """^FTS\|1""".toRegex()
                 else -> null
@@ -64,8 +52,8 @@ class HL7MessageHelpersTests {
         result = HL7MessageHelpers.batchMessages(emptyList(), receiver)
         result.split(HL7MessageHelpers.hl7SegmentDelimiter).forEachIndexed { index, s ->
             val regex = when (index) {
-                0 -> """^FHS\|[^|]{4}\|[^|]+\|\|appName\|facName\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
-                1 -> """^BHS\|[^|]{4}\|[^|]+\|\|appName\|facName\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
+                0 -> """^FHS\|[^|]{4}\|[^|]+\|[^|]+\|appName\|facName\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
+                1 -> """^BHS\|[^|]{4}\|[^|]+\|[^|]+\|appName\|facName\|\d{14}\.\d{0,4}[-+]\d{4}.*""".toRegex()
                 2 -> """^BTS\|0""".toRegex()
                 3 -> """^FTS\|1""".toRegex()
                 else -> {
@@ -110,13 +98,13 @@ class HL7MessageHelpersTests {
         result.split(HL7MessageHelpers.hl7SegmentDelimiter).forEachIndexed { index, s ->
             when (index) {
                 0 -> {
-                    val regex = """^FHS\|[^|]{4}\|hl7sendingApp\|\|hl7recApp\|hl7recFac\|.*"""
+                    val regex = """^FHS\|[^|]{4}\|hl7sendingApp.*\|hl7sendingApp.*|hl7recApp\|hl7recFac\|.*"""
                         .toRegex()
                     assertThat(regex.matches(s)).isTrue()
                 }
 
                 1 -> {
-                    val regex = """^BHS\|[^|]{4}\|hl7sendingApp\|\|hl7recApp\|hl7recFac\|.*"""
+                    val regex = """^BHS\|[^|]{4}\|hl7sendingApp.*\|hl7sendingApp.*|hl7recApp\|hl7recFac\|.*"""
                         .toRegex()
                     assertThat(regex.matches(s)).isTrue()
                 }
@@ -154,81 +142,5 @@ OBX|1|ST|MLI-4000.15^TEMPERATURE||97.7|deg f|||||R|||19980601184619
         print(a)
         assertThat(Terser(messages[0]).get("/PATIENT_RESULT/PATIENT/PID-2")).isEqualTo("1731-TEST734")
         assertThat(Terser(messages[1]).get("/PATIENT_RESULT/PATIENT/PID-2")).isEqualTo("1731-TEST734")
-    }
-
-    @Test
-    fun `test generate report for hl7`() {
-        val mockMetadata = mockk<Metadata>() {
-            every { fileNameTemplates } returns emptyMap()
-        }
-        val mockActionHistory = mockk<ActionHistory>() {
-            every { trackCreatedReport(any(), any(), any()) } returns Unit
-        }
-        val hl7MockData = UUID.randomUUID().toString().toByteArray() // Just some data
-        val receiver = Receiver(
-            "name", "org", Topic.FULL_ELR,
-            translation = Hl7Configuration(
-                receivingApplicationName = null, receivingApplicationOID = null,
-                receivingFacilityName = null, receivingFacilityOID = null, receivingOrganization = null,
-                messageProfileId = null
-            )
-        )
-
-        // First test error conditions
-        assertThat {
-            HL7MessageHelpers.takeHL7GetReport(
-                Event.EventAction.PROCESS, hl7MockData, emptyList(), receiver, mockMetadata, mockActionHistory
-            )
-        }.isFailure()
-
-        assertThat {
-            HL7MessageHelpers.takeHL7GetReport(
-                Event.EventAction.PROCESS, "".toByteArray(), listOf(ReportId.randomUUID()), receiver,
-                mockMetadata, mockActionHistory
-            )
-        }.isFailure()
-
-        // Now test single report
-        mockkObject(BlobAccess)
-        every {
-            BlobAccess.Companion.uploadBody(
-                Report.Format.HL7, hl7MockData, any(), any(), Event.EventAction.PROCESS
-            )
-        } returns
-            BlobAccess.BlobInfo(Report.Format.HL7, "someurl", "digest".toByteArray())
-
-        var reportIds = listOf(ReportId.randomUUID())
-        val (report, event, blobInfo) = HL7MessageHelpers.takeHL7GetReport(
-            Event.EventAction.PROCESS, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory
-        )
-        unmockkObject(BlobAccess)
-
-        assertThat(report.bodyFormat).isEqualTo(Report.Format.HL7)
-        assertThat(report.itemCount).isEqualTo(1)
-        assertThat(report.destination).isNotNull()
-        assertThat(report.destination!!.name).isEqualTo(receiver.name)
-        assertThat(report.itemLineages).isNotNull()
-        assertThat(report.itemLineages!!.size).isEqualTo(1)
-        assertThat(event.eventAction).isEqualTo(Event.EventAction.PROCESS)
-        assertThat(blobInfo.blobUrl).isEqualTo("someurl")
-
-        // Multiple reports
-        reportIds = listOf(ReportId.randomUUID(), ReportId.randomUUID(), ReportId.randomUUID())
-        mockkObject(BlobAccess.Companion)
-        every {
-            BlobAccess.Companion.uploadBody(
-                Report.Format.HL7_BATCH, hl7MockData, any(), any(), Event.EventAction.SEND
-            )
-        } returns
-            BlobAccess.BlobInfo(Report.Format.HL7_BATCH, "someurl", "digest".toByteArray())
-        val (report2, event2, _) = HL7MessageHelpers.takeHL7GetReport(
-            Event.EventAction.SEND, hl7MockData, reportIds, receiver, mockMetadata, mockActionHistory
-        )
-        unmockkObject(BlobAccess.Companion)
-        assertThat(report2.bodyFormat).isEqualTo(Report.Format.HL7_BATCH)
-        assertThat(report2.itemCount).isEqualTo(3)
-        assertThat(report2.itemLineages).isNotNull()
-        assertThat(report2.itemLineages!!.size).isEqualTo(3)
-        assertThat(event2.eventAction).isEqualTo(Event.EventAction.SEND)
     }
 }

@@ -24,6 +24,7 @@ import java.time.ZoneId
  * receiver does not want, based on who sent it.  However, it's available for any general purpose use.
  * @param processingModeFilter defines the filters that is normally set to remove test and debug data.
  * @param reverseTheQualityFilter If this is true, then do the NOT of 'qualityFilter'.  Like a 'grep -v'
+ * @param conditionFilter defines the filters that select the conditions that a STLT wants to receive
  * @param deidentify transform
  * @param deidentifiedValue is the replacement value for PII fields
  * @param timing defines how to delay reports to the org. If null, then send immediately
@@ -44,6 +45,7 @@ open class Receiver(
     val routingFilter: ReportStreamFilter = emptyList(),
     val processingModeFilter: ReportStreamFilter = emptyList(),
     val reverseTheQualityFilter: Boolean = false,
+    val conditionFilter: ReportStreamFilter = emptyList(),
     val deidentify: Boolean = false,
     val deidentifiedValue: String = "",
     val timing: Timing? = null,
@@ -80,14 +82,15 @@ open class Receiver(
         translation: TranslatorConfiguration = CustomConfiguration(
             schemaName = schemaName,
             format = format,
-            emptyMap(),
-            "standard",
-            null
+            defaults = emptyMap(),
+            nameFormat = "standard",
+            receivingOrganization = null
         ),
         jurisdictionalFilter: ReportStreamFilter = emptyList(),
         qualityFilter: ReportStreamFilter = emptyList(),
         routingFilter: ReportStreamFilter = emptyList(),
         processingModeFilter: ReportStreamFilter = emptyList(),
+        conditionFilter: ReportStreamFilter = emptyList(),
         reverseTheQualityFilter: Boolean = false
     ) : this(
         name,
@@ -99,6 +102,7 @@ open class Receiver(
         qualityFilter = qualityFilter,
         routingFilter = routingFilter,
         processingModeFilter = processingModeFilter,
+        conditionFilter = conditionFilter,
         timing = timing,
         timeZone = timeZone,
         dateTimeFormat = dateTimeFormat,
@@ -117,6 +121,7 @@ open class Receiver(
         copy.routingFilter,
         copy.processingModeFilter,
         copy.reverseTheQualityFilter,
+        copy.conditionFilter,
         copy.deidentify,
         copy.deidentifiedValue,
         copy.timing,
@@ -135,6 +140,9 @@ open class Receiver(
 
     @get:JsonIgnore
     val format: Report.Format get() = translation.format
+
+    @get:JsonIgnore
+    val useBatching: Boolean get() = translation.useBatching
 
     // adds a display name property that tries to show the external name, or the regular name if there isn't one
     @get:JsonIgnore
@@ -227,26 +235,26 @@ open class Receiver(
      * Validate the object and return null or an error message
      */
     fun consistencyErrorMessage(metadata: Metadata): String? {
-        // TODO: Temporary workaround for full-ELR as we do not have a way to load schemas yet
-        if (topic == Topic.FULL_ELR) return null
+        if (conditionFilter.isNotEmpty()) {
+            if (!topic.isUniversalPipeline) {
+                return "Condition filter not allowed for receivers with topic '${topic.jsonVal}'"
+            }
+        }
 
         if (translation is CustomConfiguration) {
-            when (this.topic) {
-                Topic.FULL_ELR -> {
-                    try {
-                        FhirToHl7Converter(translation.schemaName)
-                    } catch (e: SchemaException) {
-                        return e.message
-                    }
+            if (this.topic.isUniversalPipeline) {
+                try {
+                    FhirToHl7Converter(translation.schemaName)
+                } catch (e: SchemaException) {
+                    return e.message
                 }
-
-                else -> {
-                    if (metadata.findSchema(translation.schemaName) == null) {
-                        return "Invalid schemaName: ${translation.schemaName}"
-                    }
+            } else {
+                if (metadata.findSchema(translation.schemaName) == null) {
+                    return "Invalid schemaName: ${translation.schemaName}"
                 }
             }
         }
+
         return null
     }
 

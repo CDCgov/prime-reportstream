@@ -12,9 +12,9 @@ Use the directions here to install nvm: https://github.com/nvm-sh/nvm#install--u
 Then:
 
 ```bash
-nvm install 16.18.x # refer to nvmrc for exact current version
-node -v # v16.18.x
-npm -v # v8.x.x
+nvm install 18.15.x # refer to nvmrc for exact current version
+node -v # v18.15.x
+npm -v # v9.5.x
 
 npm install --global yarn
 ```
@@ -51,6 +51,8 @@ yarn start:localdev # Runs the React app use for localdev
 yarn build:staging # Builds the React app for staging
 yarn build:production # Builds the React app for production
 
+yarn run storybook # Runs a local instance of Storybook showcase of all of the components within our .stories files
+
 yarn lint # Runs the front-end linter
 yarn lint:write # Runs the front-end linter and fixes style errors
 ```
@@ -61,49 +63,15 @@ This react app uses a static build approach and can be served from a static webs
 This means there are no environment variables to load because there's no local environment. These variables must be "baked" into
 the html/javascript.
 
-This is achieved using `env-cmd` to pass the appropriate .env file into the `react-script build` command.
+This is achieved using `.env?.[ENVIRONMENT]?.local` files.
 
 This command loads the environment variables for develop (found in file `'.env.development'`) and runs the `[cmd]`
 
 ```json
-env-cmd -f .env.development [cmd]
+cross-env NODE_ENV=development [cmd]
 ```
 
-Here is the current build system.
-
-```json
-// these are the main commands
-
-// local development, runs the scss watcher AND starts the local dev server in parallel
-"start:localdev": "env-cmd -f .env.development npm-run-all -p watch-scss start-js",
-
-// these builds are used for the different environments
-"build:test": "env-cmd -f .env.test yarn build-base-prod",
-"build:staging": "env-cmd -f .env.staging yarn build-base-prod",
-"build:production": "env-cmd -f .env.production yarn build-base-prod",
-// This is a special localdev build to include Content Security Policy <meta>
-// should be used with `run-build-dir` command
-"build:localdev:csp": "env-cmd -f .env.dev.csp yarn build-base-dev",
-
-"build-base-prod": "yarn compile-scss-prod && react-scripts build && yarn copy-404page",
-"build-base-dev": "yarn compile-scss-dev && react-scripts build && yarn copy-404page",
-"start-js": "react-scripts start",
-
-"copy-404page": "cp build/index.html build/404.html",
-"compile-scss-prod": "sass --load-path=./node_modules/uswds/dist/scss --no-source-map --style=compressed --quiet src/global.scss:src/content/generated/global.out.css",
-"compile-scss-dev":  "sass --load-path=./node_modules/uswds/dist/scss --embed-source-map --quiet-deps src/global.scss:src/content/generated/global.out.css",
-"watch-scss": "yarn compile-scss-dev && sass --load-path=./node_modules/uswds/dist/scss --embed-source-map --quiet-deps -w src/global.scss:src/content/generated/global.out.css",
-```
-
-The build can then use variables like `%REACT_APP_TITLE%` in the index.html template and `process.env.REACT_APP_TITLE` in the React code.
-
-One caveat, there is only a **single** .env file used per build type. Typically, multiple .env files are loaded (`.env`, `.env.develop` and `.env.local`), but with this approach only the relevant file is used.
-
--   local dev: `env.development`
--   staging: `.env.staging`
--   production: `env.production`
-
-`.env` and `.env.local` are not currently used.
+The build can then use variables like `%VITE_TITLE%` in the index.html template and `import.meta.env.VITE_TITLE` in the React code.
 
 ## Testing Content-Security-Policy locally
 
@@ -132,3 +100,11 @@ index.js:2 Refused to apply inline style because it violates the
 (FYI. The error is on `index.js:2` because minification removes line feeds.)
 
 NOTE: This only works `run:build-dir` because webpack's dynamic runtime updating does injection that violates CSP
+
+## Chromatic and CI Autobuilds
+
+[Chromatic](https://www.chromatic.com/) is a tool for hosting and publishing different versions of a given repository's Storybook. We use Chromatic to host an up-to-date version of all of our Storybook components (any file that ends with `**.stories.tsx` syntax) so that our non-technical folks can see all of our components on the web. All of our CI Autobuild Github workflows can be found in both `.github/workflows/chromatic-master.yml` and `.github/workflows/chromatic-pr.yml`.
+
+`.github/workflows/chromatic-master.yml` triggers a Chromatic build anytime a PR gets merged into our `master` branch.
+
+`.github/workflows/chromatic-pr.yml` triggers a Chromatic build anytime a file with `// AutoUpdateFileChromatic` comment on its FIRST LINE is checked in to a PR. The goal here is to automatically update our Chromatic anytime a file that has an associated Storybook is modified.

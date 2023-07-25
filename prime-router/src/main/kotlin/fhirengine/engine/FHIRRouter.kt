@@ -2,12 +2,15 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
+import gov.cdc.prime.router.EvaluateFilterConditionErrorMessage
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.ReportStreamFilter
+import gov.cdc.prime.router.ReportStreamFilterResult
+import gov.cdc.prime.router.ReportStreamFilterType
 import gov.cdc.prime.router.ReportStreamFilters
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Source
@@ -21,11 +24,14 @@ import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.Observation
 
 /**
  * [metadata] mockable metadata
@@ -58,12 +64,12 @@ class FHIRRouter(
     private val fhirPathFilterShorthandTableValueColumnName = "fhirPath"
 
     /**
-     * Default Rules:
+     * Default Rules for quality filter on FULL_ELR topic:
      *   Must have message ID, patient last name, patient first name, DOB, specimen type
      *   At least one of patient street, patient zip code, patient phone number, patient email
      *   At least one of order test date, specimen collection date/time, test result date
      */
-    val qualityFilterDefault: ReportStreamFilter = listOf(
+    private val fullElrQualityFilterDefault: ReportStreamFilter = listOf(
         "%messageId.exists()",
         "%patient.name.family.exists()",
         "%patient.name.given.count() > 0",
@@ -77,58 +83,59 @@ class FHIRRouter(
             "%specimen.collection.collected.exists()" +
             ") or " +
             "%serviceRequest.occurrence.exists() or " +
-            "%observation.effective.exists())"
+            "%observation.effective.exists())",
     )
 
     /**
-     * Default Rule:
+     * Default Rules for quality filter on ETOR_TI topic:
+     *   Must have message ID
+     */
+    private val etorTiQualityFilterDefault: ReportStreamFilter = listOf(
+        "%messageId.exists()",
+    )
+
+    /**
+     * Default Rules for quality filter on ELR_ELIMS topic:
+     *   no rules; completely open
+     */
+    private val elrElimsQualityFilterDefault: ReportStreamFilter = listOf(
+        "true",
+    )
+
+    /**
+     * Maps topics to default quality filters so that topic-dependent defaults can be used
+     */
+    val qualityFilterDefaults = mapOf(
+        Pair(Topic.FULL_ELR, fullElrQualityFilterDefault),
+        Pair(Topic.ETOR_TI, etorTiQualityFilterDefault),
+        Pair(Topic.ELR_ELIMS, elrElimsQualityFilterDefault)
+    )
+
+    /**
+     * Default Rule (used for ETOR_TI and FULL_ELR):
      *  Must have a processing mode id of 'P'
      */
-    val processingModeFilterDefault: ReportStreamFilter = listOf(
-        "%processingId = 'P'"
+    private val processingModeFilterDefault: ReportStreamFilter = listOf(
+        "%processingId.exists() and %processingId = 'P'"
     )
 
     /**
-     * Lookup table `fhirpath_filter_shorthand` containing all of the shorthand fhirpath replacements for filtering.
+     * Maps topics to default processing mode filters so that topic-dependent defaults can be used
+     */
+    val processingModeDefaults = mapOf(
+        Pair(Topic.FULL_ELR, processingModeFilterDefault),
+        Pair(Topic.ETOR_TI, processingModeFilterDefault)
+    )
+
+    /**
+     * Lookup table `fhirpath_filter_shorthand` containing all the shorthand fhirpath replacements for filtering.
      */
     private val shorthandLookupTable by lazy { loadFhirPathShorthandLookupTable() }
 
     /**
-     * The regex used to locate shorthand variables in fhirpath filters
+     * Adds logs for reports that pass through various methods in the FHIRRouter
      */
-    private val regexVariable = """%[`']?[A-Za-z][\w\-'`_]*""".toRegex()
-
-    /**
-     * Constants to make writing filter conditions shorter / more accessible. This will replace the shorthand
-     * used in configuration filter expressions with the specified Fhir Path expression before the expression
-     * is evaluated against the bundle. This allows for returning of collections, as well as handling 'exists()'
-     * where needed. Format is %myVariable within the filters, and each variable used must be defined
-     * as part of the shorthand collection of an exception will be raised. Make sure to verify if you need to use
-     * 'exists' on your check - an 'unable to parse' will return 'false' but will not raise any other error due to the
-     * underlying fhir library.
-     *
-     * The values used are located in the fhirpath_filter_shorthand lookup table.
-     *
-     * @returns A string that has all shorthand elements replaces with their mapped string from the lookup table.
-     */
-    internal fun replaceShorthand(input: String): String {
-        var output = input
-        regexVariable.findAll(input)
-            .map { it.value }
-            .sortedByDescending { it.length }
-            .forEach {
-                // remove %, ', and ` from start and end of string to be replaced
-                val replacement = shorthandLookupTable[
-                    it
-                        .trimStart('%', '\'', '`')
-                        .trimEnd('\'', '`')
-                ]
-                if (!replacement.isNullOrEmpty()) {
-                    output = output.replace(it, replacement)
-                }
-            }
-        return output
-    }
+    private var actionLogger: ActionLogger? = null
 
     /**
      * Load the fhirpath_filter_shorthand lookup table into a map if it can be found and has the expected columns,
@@ -173,6 +180,7 @@ class FHIRRouter(
         actionHistory: ActionHistory
     ) {
         logger.trace("Processing HL7 data for FHIR conversion.")
+        this.actionLogger = actionLogger
         try {
             // track input report
             actionHistory.trackExistingInputReport(message.reportId)
@@ -180,21 +188,14 @@ class FHIRRouter(
             // pull fhir document and parse FHIR document
             val bundle = FhirTranscoder.decode(message.downloadContent())
 
-            // get the receivers that this bundle should go to
-            val listOfReceivers = applyFilters(bundle)
-
-            // add the receivers, if any, to the fhir bundle
-            if (listOfReceivers.isNotEmpty()) {
-                FHIRBundleHelpers.addReceivers(bundle, listOfReceivers)
-            }
-
             // create report object
             val sources = emptyList<Source>()
             val report = Report(
                 Report.Format.FHIR,
                 sources,
                 1,
-                metadata = this.metadata
+                metadata = this.metadata,
+                topic = message.topic,
             )
 
             // create item lineage
@@ -212,57 +213,91 @@ class FHIRRouter(
                 )
             )
 
-            // create translate event
-            val translateEvent = ProcessEvent(
-                Event.EventAction.TRANSLATE,
-                message.reportId,
-                Options.None,
-                emptyMap(),
-                emptyList()
-            )
+            // get the receivers that this bundle should go to
+            val listOfReceivers = applyFilters(bundle, report, message.topic)
 
-            // upload new copy to blobstore
-            val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
-            val blobInfo = BlobAccess.uploadBody(
-                Report.Format.FHIR,
-                bodyBytes,
-                report.name,
-                message.blobSubFolderName,
-                translateEvent.eventAction
-            )
+            // check if there are any receivers
+            if (listOfReceivers.isNotEmpty()) {
+                // this bundle has receivers; send message to translate function
+                // add the receivers to the fhir bundle
+                FHIRBundleHelpers.addReceivers(bundle, listOfReceivers, shorthandLookupTable)
 
-            // ensure tracking is set
-            actionHistory.trackCreatedReport(translateEvent, report, blobInfo)
+                // create translate event
+                val nextEvent = ProcessEvent(
+                    Event.EventAction.TRANSLATE,
+                    message.reportId,
+                    Options.None,
+                    emptyMap(),
+                    emptyList()
+                )
 
-            // insert translate task into Task table
-            this.insertTranslateTask(
-                report,
-                report.bodyFormat.toString(),
-                blobInfo.blobUrl,
-                translateEvent
-            )
+                // upload new copy to blobstore
+                val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
+                val blobInfo = BlobAccess.uploadBody(
+                    Report.Format.FHIR,
+                    bodyBytes,
+                    report.name,
+                    message.blobSubFolderName,
+                    nextEvent.eventAction
+                )
 
-            // nullify the previous task next_action
-            db.updateTask(
-                message.reportId,
-                TaskAction.none,
-                null,
-                null,
-                finishedField = Tables.TASK.ROUTED_AT,
-                null
-            )
+                // ensure tracking is set
+                actionHistory.trackCreatedReport(nextEvent, report, blobInfo)
 
-            // move to translation (send to <elrTranslationQueueName> queue). This passes the same message on, but
-            //  the destinations have been updated in the FHIR
-            this.queue.sendMessage(
-                elrTranslationQueueName,
-                RawSubmission(
-                    report.id,
+                // insert translate task into Task table
+                this.insertTranslateTask(
+                    report,
+                    report.bodyFormat.toString(),
                     blobInfo.blobUrl,
-                    BlobAccess.digestToString(blobInfo.digest),
-                    message.blobSubFolderName
-                ).serialize()
-            )
+                    nextEvent
+                )
+
+                // nullify the previous task next_action
+                db.updateTask(
+                    message.reportId,
+                    TaskAction.none,
+                    null,
+                    null,
+                    finishedField = Tables.TASK.ROUTED_AT,
+                    null
+                )
+
+                // move to translation (send to <elrTranslationQueueName> queue). This passes the same message on, but
+                //  the destinations have been updated in the FHIR
+                this.queue.sendMessage(
+                    elrTranslationQueueName,
+                    RawSubmission(
+                        report.id,
+                        blobInfo.blobUrl,
+                        BlobAccess.digestToString(blobInfo.digest),
+                        message.blobSubFolderName,
+                        message.topic,
+                    ).serialize()
+                )
+            } else {
+                // this bundle does not have receivers; only perform the work necessary to track the routing action
+                // create none event
+                val nextEvent = ProcessEvent(
+                    Event.EventAction.NONE,
+                    message.reportId,
+                    Options.None,
+                    emptyMap(),
+                    emptyList()
+                )
+
+                // ensure tracking is set
+                actionHistory.trackCreatedReport(nextEvent, report, null)
+
+                // nullify the previous task next_action
+                db.updateTask(
+                    message.reportId,
+                    TaskAction.none,
+                    null,
+                    null,
+                    finishedField = Tables.TASK.ROUTED_AT,
+                    null
+                )
+            }
         } catch (e: IllegalArgumentException) {
             logger.error(e)
             actionLogger.error(InvalidReportMessage(e.message ?: ""))
@@ -287,36 +322,19 @@ class FHIRRouter(
     }
 
     /**
-     * Applies all filters to the list of all receivers with topic FULL_ELR that are not set as INACTIVE.
-     * FHIRPath expressions are run against the [bundle] to determine if the receiver should get this message\
+     * Applies all filters to the list of all receivers with topic with a topic matching [topic] that are not set as
+     * INACTIVE. FHIRPath expressions are run against the [bundle] to determine if the receiver should get this message
+     * As it goes through the filters, results are logged onto the provided [report]
      * @return list of receivers that should receive this bundle
      */
-    internal fun applyFilters(bundle: Bundle): List<Receiver> {
+    internal fun applyFilters(bundle: Bundle, report: Report, topic: Topic): List<Receiver> {
+        check(topic.isUniversalPipeline) { "Unexpected topic $topic in the Universal Pipeline routing step." }
         val listOfReceivers = mutableListOf<Receiver>()
-        // find all receivers that have the full ELR topic and determine which applies
-        val fullElrReceivers = settings.receivers.filter {
-            it.customerStatus != CustomerStatus.INACTIVE &&
-                it.topic == Topic.FULL_ELR
-        }
+        // find all receivers that have a matching topic and determine which applies
+        val topicReceivers =
+            settings.receivers.filter { it.customerStatus != CustomerStatus.INACTIVE && it.topic == topic }
 
-        // get the quality filter default result for the bundle, but only if it is needed
-        val qualFilterDefaultResult: Boolean by lazy {
-            evaluateFilterCondition(
-                qualityFilterDefault,
-                bundle,
-                false
-            )
-        }
-        // get the processing mode (processing id) default result for the bundle, but only if it is needed
-        val processingModeDefaultResult: Boolean by lazy {
-            evaluateFilterCondition(
-                processingModeFilterDefault,
-                bundle,
-                false
-            )
-        }
-
-        fullElrReceivers.forEach { receiver ->
+        topicReceivers.forEach { receiver ->
             // get the receiver's organization, since we need to be able to find/combine the correct filters
             val orgFilters = settings.findOrganization(receiver.organizationName)!!.filters
 
@@ -327,29 +345,72 @@ class FHIRRouter(
 
             // JURIS FILTER
             //  default: allowNone
-            var passes = evaluateFilterCondition(getJurisFilters(receiver, orgFilters), bundle, false)
+            var passes = evaluateFilterConditionAsAnd(getJurisFilters(receiver, orgFilters), bundle, false).first
+
             // QUALITY FILTER
             //  default: must have message id, patient last name, patient first name, dob, specimen type
             //           must have at least one of patient street, zip code, phone number, email
             //           must have at least one of order test date, specimen collection date/time, test result date
-            passes = passes &&
-                evaluateFilterCondition(
-                    getQualityFilters(receiver, orgFilters),
-                    bundle,
-                    qualFilterDefaultResult,
-                    receiver.reverseTheQualityFilter
-                )
+            passes = passes && evaluateFilterAndLogResult(
+                getQualityFilters(receiver, orgFilters),
+                bundle,
+                report,
+                receiver,
+                ReportStreamFilterType.QUALITY_FILTER,
+                false,
+                receiver.reverseTheQualityFilter,
+            )
+
             // ROUTING FILTER
             //  default: allowAll
-            passes = passes &&
-                evaluateFilterCondition(getRoutingFilter(receiver, orgFilters), bundle, true)
+            passes = passes && evaluateFilterAndLogResult(
+                getRoutingFilter(receiver, orgFilters),
+                bundle,
+                report,
+                receiver,
+                ReportStreamFilterType.ROUTING_FILTER,
+                defaultResponse = true,
+            )
+
             // PROCESSING MODE FILTER
             //  default: allowAll
-            passes = passes &&
-                evaluateFilterCondition(
-                    getProcessingModeFilter(receiver, orgFilters),
-                    bundle,
-                    processingModeDefaultResult
+            passes = passes && evaluateFilterAndLogResult(
+                getProcessingModeFilter(receiver, orgFilters),
+                bundle,
+                report,
+                receiver,
+                ReportStreamFilterType.PROCESSING_MODE_FILTER,
+                defaultResponse = true
+            )
+
+            // CONDITION FILTER
+            //  default: allowAll
+            val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
+            val allObservations = FhirPathUtils.evaluate(
+                CustomContext(bundle, bundle, shorthandLookupTable),
+                bundle,
+                bundle,
+                allObservationsExpression
+            )
+
+            // Automatically passing if observations are empty is necessary for messages that may not
+            // contain any observations but messages that must have observations are now at risk of getting
+            // routed if they contain no observations. This case must be handled in one of the filters above
+            // while UP validation is still being designed/implemented.
+            passes = passes && (
+                allObservations.isEmpty() || allObservations.any { observation ->
+                    evaluateFilterAndLogResult(
+                        getConditionFilter(receiver, orgFilters),
+                        bundle,
+                        report,
+                        receiver,
+                        ReportStreamFilterType.CONDITION_FILTER,
+                        defaultResponse = true,
+                        reverseFilter = false,
+                        focusResource = observation,
+                        useOr = true
+                    )
+                }
                 )
 
             // if all filters pass, add this receiver to the list of valid receivers
@@ -363,79 +424,269 @@ class FHIRRouter(
 
     /**
      * Takes a [bundle] and [filter], evaluates if the bundle passes the filter. If the filter is null,
-     * return [defaultResponse]
+     * return [defaultResponse]. If the filter doesn't pass the results are logged on the [report] for
+     * that specific [filterType].
+     * @param filters Filters that will be evaluated
+     * @param bundle FHIR Bundle that will be evaluated
+     * @param report Report object passed for logging purposes
+     * @param receiver Receiver of the report passed for logging purposes
+     * @param filterType Type of filter passed for logging purposes
+     * @param defaultResponse Response returned if the filter is null or empty
+     * @param reverseFilter Optional flag used to reverse the result of the filter evaluation
+     * @param focusResource Starting point for the evaluation, can be [bundle] if checking from root
+     * @param useOr Optional flag used to allow conditions to be evaluated with "or" instead of "and"
      * @return Boolean indicating if the bundle passes the filter or not
-     *          Result will be negated if [reverseFilter] is true
+     *        Result will be negated if [reverseFilter] is true
      */
-    internal fun evaluateFilterCondition(
+    internal fun evaluateFilterAndLogResult(
+        filters: ReportStreamFilter,
+        bundle: Bundle,
+        report: Report,
+        receiver: Receiver,
+        filterType: ReportStreamFilterType,
+        defaultResponse: Boolean,
+        reverseFilter: Boolean = false,
+        focusResource: Base = bundle,
+        useOr: Boolean = false
+    ): Boolean {
+        val evaluationFunction = if (useOr) ::evaluateFilterConditionAsOr else ::evaluateFilterConditionAsAnd
+        val (passes, failingFilterName) = evaluationFunction(
+            filters,
+            bundle,
+            defaultResponse,
+            reverseFilter,
+            focusResource
+        )
+
+        if (!passes) {
+            val filterToLog = "${
+            if (isDefaultFilter(filterType, filters)) "(default filter) "
+            else ""
+            }${failingFilterName ?: "unknown"}"
+            logFilterResults(filterToLog, bundle, report, receiver, filterType, focusResource)
+        }
+        return passes
+    }
+
+    /**
+     * With a given [filterType], returns whether the [filter] is the default filter for that type. If [filter] is
+     * an equivalent filter to the default, but does not point to the actual default, this function will still return
+     * false.
+     */
+    internal fun isDefaultFilter(filterType: ReportStreamFilterType, filter: ReportStreamFilter): Boolean {
+        // The usage of === (referential equality operator) below is intentional and necessary; we only want to
+        // return true if the filter references a default filter, not if it only happens to be equivalent to the default
+        return when (filterType) {
+            ReportStreamFilterType.QUALITY_FILTER -> qualityFilterDefaults.values.any { filter === it }
+            ReportStreamFilterType.PROCESSING_MODE_FILTER -> processingModeDefaults.values.any { filter === it }
+            else -> false
+        }
+    }
+
+    /**
+     * Takes a [bundle] and [filter] and optionally a [focusResource], evaluates if the bundle passes all
+     * the filter conditions, or when [reverseFilter] is true, evaluates if the bundle doesn't pass at least one of the
+     * filter conditions.
+     * @param filter Filter that will be evaluated
+     * @param bundle FHIR Bundle that will be evaluated
+     * @param defaultResponse result when there are no filter conditions in the list
+     * @param reverseFilter Optional flag used to reverse the result of the filter evaluation
+     * @param focusResource Starting point for the evaluation, can be [bundle] if checking from root
+     * @return Pair: Boolean indicating if the bundle passes the filter or not
+     *         and String to use when logging the filter result
+     */
+    internal fun evaluateFilterConditionAsAnd(
         filter: ReportStreamFilter?,
         bundle: Bundle,
         defaultResponse: Boolean,
-        reverseFilter: Boolean = false
-    ): Boolean {
-        // the filter needs to check all expressions passed in, or if the filter is null or empty it will return the
-        // default response
-        val result = if (filter.isNullOrEmpty()) {
-            defaultResponse
-        } else {
-            filter.all {
-                FhirPathUtils.evaluateCondition(
-                    CustomContext(bundle, bundle, shorthandLookupTable),
+        reverseFilter: Boolean = false,
+        focusResource: Base = bundle,
+    ): Pair<Boolean, String?> {
+        if (filter.isNullOrEmpty()) {
+            return Pair(defaultResponse, "defaultResponse")
+        }
+        val failingFilters = mutableListOf<String>()
+        val exceptionFilters = mutableListOf<String>()
+        filter.forEach { filterElement ->
+            try {
+                val filterElementResult = FhirPathUtils.evaluateCondition(
+                    CustomContext(bundle, focusResource, shorthandLookupTable),
+                    focusResource,
                     bundle,
-                    bundle,
-                    replaceShorthand(it)
+                    filterElement
                 )
+                if (!filterElementResult) failingFilters += filterElement
+            } catch (e: SchemaException) {
+                actionLogger?.warn(EvaluateFilterConditionErrorMessage(e.message))
+                exceptionFilters += filterElement
             }
         }
-        return if (reverseFilter) !result else result
+
+        return if (exceptionFilters.isNotEmpty()) {
+            Pair(false, "(exception found) $exceptionFilters")
+        } else if (failingFilters.isEmpty()) {
+            if (reverseFilter) Pair(false, "(reversed) $filter")
+            else Pair(true, null)
+        } else {
+            if (reverseFilter) Pair(true, null)
+            else Pair(false, failingFilters.toString())
+        }
+    }
+
+    /**
+     * Takes a [bundle] and a [filter] and optionally a [focusResource], evaluates if the bundle passes any of
+     * the filter conditions. When [reverseFilter] is true, this method will consider the passing of *any* filter
+     * condition as a failure.
+     * @param filter Filter that will be evaluated
+     * @param bundle FHIR Bundle that will be evaluated
+     * @param defaultResponse result when there are no filter conditions in the list
+     * @param reverseFilter Optional flag used to reverse the result of the filter evaluation
+     * @param focusResource Starting point for the evaluation, can be [bundle] if checking from root
+     * @return Pair: Boolean indicating if the bundle passes the filter or not
+     *         and String to use when logging the filter result
+     */
+    internal fun evaluateFilterConditionAsOr(
+        filter: ReportStreamFilter?,
+        bundle: Bundle,
+        defaultResponse: Boolean,
+        reverseFilter: Boolean = false,
+        focusResource: Base = bundle,
+    ): Pair<Boolean, String?> {
+        if (filter.isNullOrEmpty()) {
+            return Pair(defaultResponse, "defaultResponse")
+        }
+        val failingFilters = mutableListOf<String>()
+        val exceptionFilters = mutableListOf<String>()
+        val successfulFilters = mutableListOf<String>()
+        filter.forEach { filterElement ->
+            try {
+                val filterElementResult = FhirPathUtils.evaluateCondition(
+                    CustomContext(bundle, focusResource, shorthandLookupTable),
+                    focusResource,
+                    bundle,
+                    filterElement
+                )
+                if (!filterElementResult) failingFilters += filterElement
+                else successfulFilters += filterElement
+            } catch (e: SchemaException) {
+                actionLogger?.warn(EvaluateFilterConditionErrorMessage(e.message))
+                exceptionFilters += filterElement
+            }
+        }
+
+        return if (exceptionFilters.isNotEmpty()) {
+            Pair(false, "(exception found) $exceptionFilters")
+        } else if (successfulFilters.isNotEmpty()) {
+            if (reverseFilter) Pair(false, "(reversed) $successfulFilters")
+            else Pair(true, null)
+        } else {
+            if (reverseFilter) Pair(true, null)
+            else Pair(false, failingFilters.toString())
+        }
+    }
+
+    /**
+     * Log the results of running filters (referenced by the given [filterName]) on items out of a [report] during the
+     * "route" step for a [receiver], tracking the [filterType] and tying the results to a [receiver] and [bundle].
+     * @param filterName Name of evaluated filter
+     * @param bundle FHIR Bundle that was evaluated
+     * @param report Report object passed for logging purposes
+     * @param receiver Receiver of the report
+     * @param filterType Type of filter used
+     * @param focusResource Starting point for the evaluation, used for logging
+     */
+    internal fun logFilterResults(
+        filterName: String,
+        bundle: Bundle,
+        report: Report,
+        receiver: Receiver,
+        filterType: ReportStreamFilterType,
+        focusResource: Base
+    ) {
+        var filteredTrackingElement = bundle.identifier.value ?: ""
+        if (focusResource != bundle) {
+            filteredTrackingElement += " at " + focusResource.idBase
+
+            if (focusResource is Observation) {
+                // for Observation-type elements, we use the code property when available
+                // if more elements need specific logic, consider extending the FHIR libraries
+                // instead of adding more if/else statements
+                val coding = focusResource.code.coding.firstOrNull()
+                if (coding != null) filteredTrackingElement += " with " + coding.system + " code: " + coding.code
+            }
+        }
+        report.filteringResults.add(
+            ReportStreamFilterResult(
+                receiver.fullName,
+                report.itemCount,
+                filterName,
+                emptyList(),
+                filteredTrackingElement,
+                filterType
+            )
+        )
     }
 
     /**
      * Gets the applicable jurisdictional filters for 'FULL_ELR' for a [receiver]. Pulls from receiver configuration
-     * first and looks at the parent organization if the receiver does not have any jurs filters configured for
+     * first and looks at the parent organization if the receiver does not have any juris filters configured for
      * this topic
      */
     internal fun getJurisFilters(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         return (
-            orgFilters?.firstOrNull { it.topic == Topic.FULL_ELR }?.jurisdictionalFilter
+            orgFilters?.firstOrNull { it.topic == receiver.topic }?.jurisdictionalFilter
                 ?: emptyList()
             ).plus(receiver.jurisdictionalFilter)
     }
 
     /**
-     * Gets the applicable quality filters for 'FULL_ELR' for a [receiver]. Pulls from receiver configuration
-     * first and looks at the parent organization if the receiver does not have any quality filters configured for
-     * this topic
+     * Gets the applicable quality filters for a [receiver]. Gets applicable quality filters from the
+     * parent organization and adds any quality filters from the receiver's settings. If there are no filters in that
+     * result, returns the default filter instead.
      */
     internal fun getQualityFilters(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
-        return (
-            orgFilters?.firstOrNull() { it.topic == Topic.FULL_ELR }?.qualityFilter
+        val receiverFilters = (
+            orgFilters?.firstOrNull { it.topic == receiver.topic }?.qualityFilter
                 ?: emptyList()
             ).plus(receiver.qualityFilter)
+        return receiverFilters.ifEmpty { qualityFilterDefaults[receiver.topic] ?: emptyList() }
     }
 
     /**
-     * Gets the applicable routing filters for 'FULL_ELR' for a [receiver]. Pulls from receiver configuration
+     * Gets the applicable routing filters for a [receiver]. Pulls from receiver configuration
      * first and looks at the parent organization if the receiver does not have any routing filters configured for
      * this topic
      */
     internal fun getRoutingFilter(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         return (
-            orgFilters?.firstOrNull() { it.topic == Topic.FULL_ELR }?.routingFilter
+            orgFilters?.firstOrNull { it.topic == receiver.topic }?.routingFilter
                 ?: emptyList()
             ).plus(receiver.routingFilter)
     }
 
     /**
-     * Gets the applicable processing mode filters for 'FULL_ELR' for a [receiver]. Pulls from receiver configuration
-     * first and looks at the parent organization if the receiver does not have any processing mode filters configured
-     * for this topic
+     * Gets the applicable processing mode filters for a [receiver]. Gets applicable processing mode
+     * filters from the parent organization and adds any processing mode filters from the receiver's settings. If there
+     * are no filters in that result, returns the default filter instead.
      */
-    internal fun getProcessingModeFilter(receiver: Receiver, orgFilters: List<ReportStreamFilters>?):
-        ReportStreamFilter {
-        return (
-            orgFilters?.firstOrNull() { it.topic == Topic.FULL_ELR }?.processingModeFilter
+    internal fun getProcessingModeFilter(
+        receiver: Receiver,
+        orgFilters: List<ReportStreamFilters>?,
+    ): ReportStreamFilter {
+        val receiverFilters = (
+            orgFilters?.firstOrNull { it.topic == receiver.topic }?.processingModeFilter
                 ?: emptyList()
             ).plus(receiver.processingModeFilter)
+        return receiverFilters.ifEmpty { processingModeDefaults[receiver.topic] ?: emptyList() }
+    }
+
+    /**
+     * Gets the applicable condition filters for 'FULL_ELR' for a [receiver].
+     */
+    internal fun getConditionFilter(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
+        return (
+            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.conditionFilter
+                ?: emptyList()
+            ).plus(receiver.conditionFilter)
     }
 }

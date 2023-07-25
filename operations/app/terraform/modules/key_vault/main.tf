@@ -146,9 +146,6 @@ module "app_config_private_endpoint" {
 
 
 resource "azurerm_key_vault" "client_config" {
-  # Does not include "-keyvault" due to char limits (24)
-  #checkov:skip=CKV_AZURE_110:Purge protection not needed for temporary environments
-  #checkov:skip=CKV_AZURE_42:Recovery not needed for temporary environments
   name = var.client_config_kv_name
 
   location                        = var.location

@@ -53,6 +53,17 @@ telecom:
   vars:
     valueIn: NK1.5
 
+telecom_business:
+  condition: $valueIn NOT_NULL
+  valueOf: datatype/ContactPoint
+  generateList: true
+  expressionType: resource
+  specs: NK1.6
+  vars:
+    valueIn: NK1.6
+  constants:
+    use: work
+
 organization:
   condition: $orgContactPointAddressXAD NOT_NULL || $orgContactPointXTN NOT_NULL || $orgContactName NOT_NULL
   valueOf: resource/Organization

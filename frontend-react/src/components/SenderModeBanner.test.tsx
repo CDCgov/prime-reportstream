@@ -1,10 +1,7 @@
 import { screen } from "@testing-library/react";
 
 import { orgServer } from "../__mocks__/OrganizationMockServer";
-import {
-    makeOktaHook,
-    renderWithFullAppContext,
-} from "../utils/CustomRenderUtils";
+import { renderApp } from "../utils/CustomRenderUtils";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
 
@@ -29,15 +26,12 @@ describe("SenderModeBanner", () => {
             },
             dispatch: () => {},
             initialized: true,
+            isUserAdmin: false,
+            isUserReceiver: false,
+            isUserSender: true,
+            environment: "test",
         });
-        renderWithFullAppContext(
-            <SenderModeBanner />,
-            makeOktaHook({
-                authState: {
-                    isAuthenticated: true,
-                },
-            })
-        );
+        renderApp(<SenderModeBanner />);
         const text = await screen.findByText("Learn more about onboarding.");
         expect(text).toBeInTheDocument();
     });

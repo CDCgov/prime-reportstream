@@ -25,7 +25,7 @@ runs:
   using: "composite"
   steps:
 
-    - name: Set Build Environment - DEMO1
+    - name: Set Build Environment - demo1
       id: build_demo1
       if: |
         (github.event_name != 'pull_request' && github.ref_name == 'demo1') ||
@@ -48,6 +48,30 @@ runs:
         (github.event_name == 'pull_request' && github.base_ref == 'demo3')
       shell: bash
       run: echo "env_name=demo3" >> $GITHUB_OUTPUT
+
+    - name: Set Build Environment - trialfrontend01
+      id: build_trialfrontend01
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'trialfrontend01') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'trialfrontend01')
+      shell: bash
+      run: echo "env_name=trialfrontend01" >> $GITHUB_OUTPUT
+
+    - name: Set Build Environment - trialfrontend02
+      id: build_trialfrontend02
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'trialfrontend02') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'trialfrontend02')
+      shell: bash
+      run: echo "env_name=trialfrontend02" >> $GITHUB_OUTPUT
+
+    - name: Set Build Environment - trialfrontend03
+      id: build_trialfrontend03
+      if: |
+        (github.event_name != 'pull_request' && github.ref_name == 'trialfrontend03') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'trialfrontend03')
+      shell: bash
+      run: echo "env_name=trialfrontend03" >> $GITHUB_OUTPUT
 
     - name: Set Build Environment - TEST
       id: build_test
@@ -89,6 +113,9 @@ runs:
         ${{ steps.build_demo3.outputs.env_name }}\
         ${{ steps.build_test.outputs.env_name }}\
         ${{ steps.build_staging.outputs.env_name }}\
+        ${{ steps.build_trialfrontend01.outputs.env_name }}\
+        ${{ steps.build_trialfrontend02.outputs.env_name }}\
+        ${{ steps.build_trialfrontend03.outputs.env_name }}\
         ${{ steps.build_prod.outputs.env_name }}" >> $GITHUB_OUTPUT
 
     - name: Set if prerelease - RESULT

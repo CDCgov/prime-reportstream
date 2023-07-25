@@ -13,9 +13,10 @@
 # Databases #
 #############
 
-10.0.5.17 pdhstaging-pgsql.postgres.database.azure.com pdhstaging-pgsql.privatelink.postgres.database.azure.com
-10.1.5.5  pdhstaging-pgsql-replica.postgres.database.azure.com pdhstaging-pgsql-replica.privatelink.postgres.database.azure.com
-
+#10.0.5.17 pdhstaging-pgsql.postgres.database.azure.com pdhstaging-pgsql.privatelink.postgres.database.azure.com
+#10.1.5.5  pdhstaging-pgsql-replica.postgres.database.azure.com pdhstaging-pgsql-replica.privatelink.postgres.database.azure.com
+10.0.5.15 pdhstaging-pgsql.postgres.database.azure.com pdhstaging-pgsql.privatelink.postgres.database.azure.com
+10.1.5.15 pdhstaging-pgsql-replica.postgres.database.azure.com pdhstaging-pgsql-replica.privatelink.postgres.database.azure.com
 
 ####################
 # Storage Accounts #
