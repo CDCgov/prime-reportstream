@@ -26,3 +26,15 @@ code:
   valueOf: datatype/CodeableConcept_var
   expressionType: resource
   generateList: true
+
+extension_2:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: facility-identifier
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept
+      expressionType: resource
+      specs: $organizationIds
