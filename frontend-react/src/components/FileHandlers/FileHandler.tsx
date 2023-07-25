@@ -8,15 +8,15 @@ import useFileHandler, {
 } from "../../hooks/UseFileHandler";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import site from "../../content/site.json";
-import { USExtLink } from "../USLink";
+import { USExtLink, USLink } from "../USLink";
 import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
 import { WatersResponse } from "../../config/endpoints/waters";
+import Alert from "../../shared/Alert/Alert";
 
 import FileHandlerFileUploadStep from "./FileHandlerFileUploadStep";
 import FileHandlerSchemaSelectionStep from "./FileHandlerSchemaSelectionStep";
 import FileHandlerErrorsWarningsStep from "./FileHandlerErrorsWarningsStep";
 import FileHandlerSuccessStep from "./FileHandlerSuccessStep";
-import FileHandlerProgrammersGuideTip from "./FileHandlerProgrammersGuideTip";
 
 export interface FileHandlerStepProps extends FileHandlerState {
     isValid?: boolean;
@@ -196,7 +196,15 @@ export default function FileHandler() {
                     })()}
                 </div>
                 {StepComponent !== FileHandlerSuccessStep && (
-                    <FileHandlerProgrammersGuideTip />
+                    <Alert headingLevel="h3" type="tip">
+                        Pages 18-29 in the{" "}
+                        <USLink href="/resources/programmers-guide">
+                            API Programmer’s Guide
+                        </USLink>{" "}
+                        have the information you need to validate your file
+                        successfully. Pay special attention to which fields are
+                        required and common mistakes.
+                    </Alert>
                 )}
                 <p className="text-base-darker margin-top-10">
                     Questions or feedback? Please email{" "}

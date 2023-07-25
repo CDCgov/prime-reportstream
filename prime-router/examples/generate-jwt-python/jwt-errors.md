@@ -25,3 +25,9 @@ Make sure your request includes a JWT. [Review how to generate a JWT](https://re
 
 ## Missing scope
 Check you have included a scope (which resources you can access) in your request for an access token. [Review instructions](https://reportstream.cdc.gov/resources/api/getting-started#set-up-authentication) for generating a JWT.
+
+## ModuleNotFoundError error
+Make sure you have python dependencies installed
+
+## The term is not recognized as a cmdlet function script file or operable program
+Make sure you have python installed and added to your path. You may need to restart your terminal or session.

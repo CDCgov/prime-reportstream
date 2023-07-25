@@ -1,0 +1,10 @@
+extends: ../default-sender-transform
+elements:
+  - name: software-vendor-name
+    condition: 'false'
+
+  - name: provider-namespace-id
+    condition: 'false'
+
+  - name: provider-universal-id
+    condition: 'false'

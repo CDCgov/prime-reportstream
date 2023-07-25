@@ -1,4 +1,4 @@
-import { useSenderResource } from "../../../hooks/UseSenderResource";
+import useSenderResource from "../../../hooks/UseSenderResource";
 import { FileType } from "../../../utils/TemporarySettingsAPITypes";
 
 export enum StandardSchema {
@@ -6,8 +6,6 @@ export enum StandardSchema {
     CSV_OTC = "csv-otc-covid-19",
     HL7 = "hl7/hl7-ingest-covid-19-prod",
 }
-
-export const STANDARD_SCHEMA_VALUES: string[] = Object.values(StandardSchema);
 
 export type SchemaOption = {
     value: string;
@@ -40,8 +38,8 @@ export const STANDARD_SCHEMA_OPTIONS: SchemaOption[] = [
 
 export default function useSenderSchemaOptions(): UseSenderSchemaOptionsHookResult {
     const {
-        senderDetail,
-        senderIsLoading,
+        data: senderDetail,
+        isLoading: senderIsLoading,
         isInitialLoading: isSenderInitialLoading,
     } = useSenderResource({});
 

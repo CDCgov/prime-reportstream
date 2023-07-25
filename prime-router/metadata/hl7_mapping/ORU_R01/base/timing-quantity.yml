@@ -18,8 +18,9 @@ elements:
     value: [ '%resource.priority.value','%resource.extension(%`rsext-service-priority`).value.coding.code']
     hl7Spec: [ '%{hl7TQ1}-9-1' ]
     valueSet:
-      stat: S
-      urgent: U
-      asap: A
-      routine: R
+      values:
+        stat: S
+        urgent: U
+        asap: A
+        routine: R
 

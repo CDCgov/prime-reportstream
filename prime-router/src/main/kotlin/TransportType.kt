@@ -114,8 +114,12 @@ data class RESTTransportType
     val reportUrl: String,
     /**  [authTokenUrl] The URL to get the OAuth token. e.g. https://api2.health.ny.gov/services/uphn/V1.0/auth. */
     val authTokenUrl: String,
+    /** Authentication type i.e two-legged.  It is default to null (API shared key) */
+    val authType: String? = null,
     /** [tlsKeystore]The name for the credential manager to get the JKS used in TLS/SSL */
     val tlsKeystore: String? = null,
+    /** [parameters] The map of parameters to be sent in the message */
+    val parameters: Map<String, String> = emptyMap(),
     /** [headers] The map of headers to be sent in the message */
     val headers: Map<String, String>
 ) : TransportType("REST") {

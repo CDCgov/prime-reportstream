@@ -1,13 +1,14 @@
 # Build a branch-specific Storybook instance on Chromatic
-# To trigger, add the 'chromatic' label to the pull request
-# To re-trigger, remove and add the 'chromatic' label to the pull request
+# Any file that has a comment on THE FIRST LINE that says "AutoUpdateFileChromatic"
+# And is checked into git, will trigger a Chromatic update.
 
 name: Build Branch Chromatic
 
 on:
   pull_request:
     types:
-      - labeled
+      - opened
+      - synchronize
     paths:
       - "frontend-react/**"
     branches-ignore:
@@ -19,15 +20,40 @@ jobs:
     name: Chromatic
     runs-on: ubuntu-latest
     steps:
-      - name: Set vars
+      - uses: actions/checkout@96f53100ba2a5449eb71d2e6604bbcd94b9449b5
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed_files
+        uses: tj-actions/changed-files@ba9054e8d5ffe1537ded23c6a65348cb9b78e8c4
+
+      - name: List all changed files
         id: set_vars
-        if: ${{ github.event.label.name == 'chromatic' }}
-        shell: bash
-        run: echo "chromatic=true" >> $GITHUB_OUTPUT
+        run: |
+          for file in ${{ steps.changed_files.outputs.all_changed_files }}; do
+            if [[ -n $file ]]; then 
+              echo "File event: $file"
+              
+              full_path="$GITHUB_WORKSPACE/$file"
+              if [[ -f $full_path ]]; then
+                first_line=$(head -n 1 "$full_path")
+                
+                if [[ $first_line == *AutoUpdateFileChromatic* ]]; then
+                  export chromatic=true
+                  break
+                fi
+              fi
+            fi
+          done
+
+          if [[ $chromatic == 'true' ]]; then
+            echo "chromatic=true" >> $GITHUB_OUTPUT
+          fi
 
       - name: Find Comment
         id: comment_find
-        if: ${{ steps.set_vars.outputs.chromatic == 'true' }}
+        if: steps.set_vars.outputs.chromatic == 'true'
         uses: peter-evans/find-comment@a54c31d7fa095754bfef525c0c8e5e5674c4b4b1
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -36,7 +62,7 @@ jobs:
 
       - name: Create comment
         id: comment_create
-        if: ${{ steps.set_vars.outputs.chromatic == 'true' }}
+        if: steps.set_vars.outputs.chromatic == 'true'
         uses: peter-evans/create-or-update-comment@c6c9a1a66007646a28c153e2a8580a5bad27bcfa
         with:
           comment-id: ${{ steps.comment_find.outputs.comment-id }}
@@ -51,7 +77,7 @@ jobs:
         with:
           fetch-depth: 0 # need commit history for Chromatic
 
-      - uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
+      - uses: actions/setup-node@e33196f7422957bea03ed53f6fbb155025ffc7b8
         with:
           node-version-file: frontend-react/package.json
 
@@ -62,7 +88,7 @@ jobs:
 
       - name: Publish to Chromatic
         id: chromatic_publish
-        if: ${{ steps.set_vars.outputs.chromatic == 'true' }}
+        if: steps.set_vars.outputs.chromatic == 'true'
         uses: chromaui/action@d51b84e79d164fbe8fc5bb7175695d88ddd04b72
         with:
           workingDir: frontend-react
@@ -74,7 +100,7 @@ jobs:
           exitOnceUploaded: true
 
       - name: Update comment
-        if: ${{ steps.comment_find.outputs.comment-id != '' || steps.comment_create.outputs.comment-id != '' }}
+        if: steps.comment_find.outputs.comment-id != '' || steps.comment_create.outputs.comment-id != ''
         uses: peter-evans/create-or-update-comment@c6c9a1a66007646a28c153e2a8580a5bad27bcfa
         with:
           comment-id: ${{ steps.comment_find.outputs.comment-id || steps.comment_create.outputs.comment-id }}

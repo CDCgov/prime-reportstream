@@ -1,25 +1,26 @@
-import { Alert } from "@trussworks/react-uswds";
+import Alert from "../../../../shared/Alert/Alert";
 
 **Step 1: Prior to submission, send your public key to ReportStream.**
 
-Prior to connecting to the endpoint, you’ll need a public/private keypair. There are many ways to do this. The steps below show how to create a key pair using `openssl`.
-
-1. EC
-
+<ol>
+<li>
+Prior to connecting to the endpoint, you’ll need a public/private keypair. There are many ways to do this. The steps below show how to create a key pair using `openssl`.  
+  
+  EC 
   ```
-openssl ecparam -genkey -name secp384r1 -noout -out my-es-keypair.pem
-openssl ec -in my-es-keypair.pem -pubout -out  my-es-public-key.pem
-  ```
-
+  openssl ecparam -genkey -name secp384r1 -noout -out my-es-keypair.pem
+  openssl ec -in my-es-keypair.pem -pubout -out  my-es-public-key.pem
+  ```  
   RSA
-
   ```
 openssl genrsa -out my-rsa-keypair.pem 2048
 openssl rsa -in my-rsa-keypair.pem -outform PEM -pubout -out my-rsa-public-key.pem
   ```
+</li>
 
-2. Send the public key to the ReportStream team using [our public key tool](/resources/manage-public-key).
-Note: you’ll need to login to use that feature. If you do not have a login contact ReportStream support at [reportstream@cdc.gov](mailto:reportstream@cdc.gov). ReportStream will associate the key with your configuration within ReportStream.
+<li>Send the public key to the ReportStream team using [our public key tool](/resources/manage-public-key).
+Note: you’ll need to login to use that feature. If you do not have a login contact ReportStream support at [reportstream@cdc.gov](mailto:reportstream@cdc.gov). ReportStream will associate the key with your configuration within ReportStream.</li>
+</ol>
 
 You only need to do this step once, not every time you submit reports. If you need to change your keys at any time, contact ReportStream support.
 
@@ -48,7 +49,7 @@ Here is an example, using the fake client-id healthy labs, of header and payload
 }
 ```
 {
-<Alert type="info" headingLevel="div" slim={true} className="border-0 font-sans-xs">
+<Alert type="tip">
     <span className="text-bold">Note:</span>
     <ul>
         <li>The exp (expiration time) should be a Unix time, five minutes after the time the token was generated.</li>
