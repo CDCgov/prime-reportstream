@@ -1,6 +1,6 @@
 # Batch Step
 
-This step will batch all the messages that have been received and send them all in one report to the receiver. 
+This step will batch all the reports that have been translated within a configured window and send them all in one report to the receiver. 
 This message can contain messages from multiple senders for a single topic.
 
 
@@ -37,7 +37,7 @@ The batch step is handled by two different azure functions:
 This function runs on a cron trigger every minute (the smallest unit at which batches can be triggered) and performs the 
 following work on each invocation for every receiver with a configured `timing`:
 
-- Checks if the receiver should have received a task in the last 60 seconds
+- Checks if the receiver should have received a report in the last 60 seconds
 - Determines how many reports need to be batched by fetching all the `Task` records where the `next_action` is `batch`
 - Calculates how many batch messages should get added to the queue by dividing the number of reports by the configured `maxReportCount`
 - Dispatches those messages to the queue
@@ -51,7 +51,7 @@ being processed in tandem (see example section for more details).
 For each message that gets processed, the function:
 
 - Queries the `Task` table for all records where `next_action` is `batch` applying the `SKIP LOCKED` modifier to only grab records
-that are not already being processed by another invocation
+that are not already being processed by another invocation applying a limit corresponding the `maxReportCount`
 - Each report associated with the `Task` record is then downloaded and then all of them are merged into a single file
     - For FHIR receivers, the bundles are each appended on a new line following the `ndjson` format
     - For HL7 receivers, the messages are concatenated into a HL7 batch message
@@ -72,8 +72,7 @@ task.next_action_at >= {BACKSTOPTIME}
 For example, if a receiver is configured to receive a file once per day, when looking for tasks that need batching
 we'll calculate a look back window of three days.
 
-This behavior serves a secondary behavior of preventing the system from processing old tasks in the system.  
-See the example below for a more detailed example.
+This behavior serves a secondary purpose of preventing the system from processing old tasks in the system.
 
 **Note: the look back window includes a three-hour padding which means for more frequent schedules (i.e. batch once a minute) a larger window will be examined.  
 This padding is in place to handle extended periods of downtime.**
@@ -87,11 +86,6 @@ This padding is in place to handle extended periods of downtime.**
   - [FHIR](https://github.com/CDCgov/prime-reportstream/blob/ec1f33db50fabdfc02f6d07cce34f28951121dd5/prime-router/src/main/kotlin/fhirengine/utils/FHIRBundleHelpers.kt#L295)
   - [HL7](https://github.com/CDCgov/prime-reportstream/blob/ec1f33db50fabdfc02f6d07cce34f28951121dd5/prime-router/src/main/kotlin/fhirengine/utils/HL7MessageHelpers.kt#L32)
 
-### Relevant tables
-
-- Task
-- Report
-
 ## Examples
 
 ### Multiple batches at once:
@@ -101,7 +95,7 @@ six reports that were translated in the last 4 minutes.
 
 The batch decider function will run and look for any task where the `next_action` is `batch` that was added in the last three
 hours and 15 minutes; this corresponds to the 3-hour padding plus the three retries (3 * 5 minutes).  It will find the 6 
-tasks corresponding the reports that were translated and then add three messages to the queue by dividing the number of reports
+tasks corresponding to the reports that were translated and then add three messages to the queue by dividing the number of reports
 by the max items configured for that receiver (6 / 2).
 
 The exact number of concurrent invocations of the batch function will vary based on load, but for the purposes of the scenario
@@ -115,14 +109,14 @@ The batch function downloads and merges the reports and then dispatches a `send`
 A receiver is configured to receive a file twice a day with each file containing 10 reports with 20 reports that have been 
 translated in the last 12 hours.  The batch decider creates two queue messages (20 / 10) and dispatches them.  The batch function
 processes the first message successfully, but there is an unexpected outage while processing the second invocation which
-is resolved two hours later.  This leaves 10 reports that the system failed to process and still needs to go out.
+is resolved two hours later.  This leaves 10 reports that the system failed to process that still need to be delivered.
 
-Five hours later, 20 more reports are translated for the receiver and five hours after the batch decider is triggered and
-when it processes the receiver it finds 20 reports that need batching; it does this by calculating a look back window of
+Five hours later, 20 more reports are translated for the receiver and five hours later the batch decider is triggered for the receiver again and
+when it processes the receiver it finds 30 reports that need batching; it does this by calculating a look back window of
 39 hours (3 * 12 hours + 3 hours of padding) and finds the 20 new reports as well as the 10 reports that were not processed
 because of the unexpected outage and dispatches three batch messages to the queue.
 
-The batch function then processes each of these messages, generating a batched report and dispatching an event to the queue.
+The batch function then processes each of these messages, generating a batched report and dispatching a send event to the queue.
 
 ### Empty report
 
