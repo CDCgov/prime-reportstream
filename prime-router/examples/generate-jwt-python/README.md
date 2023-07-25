@@ -7,70 +7,29 @@ This directory contains a python example of how to connect to ReportStream as a 
 #### Prerequisites
 
 - Python 3
-- pipenv python package manager
-- Python packages `PyJWT` and `cryptography`
+- PyJWT module (`python3 -m pip install PyJWT`)
+- cryptography moddule (`python3 -m pip install cryptography`)
 
 #### Setup
 
-1. Install pipenv using [their instructions](https://pipenv.pypa.io/en/latest/installation/)
-    <details>
-      <summary>Windows</summary>
+1. Working in this folder, follow the setup steps in
+       https://auth0.com/blog/how-to-handle-jwt-in-python/
+prior to running generate-jwt.py
 
-      ```bash
-      python3.exe -m pip install --user pipenv
-      ```
-    </details>
-
-    <details>
-      <summary>Linux or Mac</summary>
-
-      ```bash
-      python3 -m pip install --user pipenv
-      ```
-    </details>
-       
-2. Install python dependencies using pipenv. From inside the `generate-jwt-python` directory:
-    <details>
-      <summary>Windows</summary>
-    
-      ```bash
-      python3.exe -m pipenv install
-      ```
-    </details>
-
-    <details>
-      <summary>Linux or Mac</summary>
-    
-      ```bash
-      python3 -m pipenv install
-      ```
-    </details>
+2. Most of those steps you only need do once. Once you have followed those steps, then each subsequent time you need to run it, just do:
+       `source .env/bin/activate`
 
 3. Then in `generate-jwt.py`, make these two changes:
-    1. Change `my_client_id` to be your unique client-id string, as given to you by the ReportStream team back in Step 1.
-    2. Point the `my_rsa_keypair_file` to be the path to your generated rsa keypair pem file.
+- Change `my_client_id` to be your unique client-id string, as given to you by the ReportStream team back in Step 1.
+- Point the `my_rsa_keypair_file` to be the path to your generated rsa keypair pem file.
 
 #### Run
 
-Launch a shell and run it:
+Then run it:
 
-<details>
-  <summary>Windows</summary>
-
-  ```bash
-  python3.exe -m pipenv shell
-  python .\generate-jwt.py
-  ```
-</details>
-
-<details>
-  <summary>Linux or Mac</summary>
-
-  ```bash
-  python3 -m pipenv shell
-  python ./generate-jwt.py
-  ```
-</details>
+```
+python3 ./generate-jwt.py
+```
 
 ## Here's what this example is doing
 

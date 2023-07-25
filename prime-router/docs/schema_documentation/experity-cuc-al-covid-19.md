@@ -2613,7 +2613,7 @@ The reporting facility's name
 
 **Table**: LIVD-SARS-CoV-2
 
-**Table Column**: Test Type
+**Table Column**: TestType
 
 ---
 

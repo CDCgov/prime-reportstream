@@ -2,14 +2,12 @@ import classnames from "classnames";
 import React, { ReactNode, useState } from "react";
 import { Icon } from "@trussworks/react-uswds";
 
-import { SortSettings } from "../../hooks/filters/UseSortOrder";
-
 import styles from "./Table.module.scss";
 
 enum FilterOptions {
-    NONE = "NONE",
-    ASC = "ASC",
-    DESC = "DESC",
+    NONE = "none",
+    ASC = "asc",
+    DESC = "desc",
 }
 
 interface SortableTableHeaderProps {
@@ -21,23 +19,13 @@ interface SortableTableHeaderProps {
     sticky?: boolean;
 }
 
-interface CustomSortableTableHeaderProps {
-    columnHeaderData: RowData;
-    sticky?: boolean;
-    onColumnCustomSort: () => void;
-    columnCustomSortSettings: SortSettings;
-}
-
 interface RowData {
     columnHeader: string;
     columnKey: string;
     content: string | ReactNode;
-    columnCustomSort?: () => void;
-    columnCustomSortSettings?: SortSettings;
 }
 
 export interface TableProps {
-    apiSortable?: boolean;
     borderless?: boolean;
     compact?: boolean;
     fullWidth?: boolean;
@@ -48,10 +36,6 @@ export interface TableProps {
     striped?: boolean;
     rowData: RowData[][];
 }
-
-const TableHeader = ({ dataContent }: { dataContent: RowData["content"] }) => (
-    <td className="column-data">{dataContent}</td>
-);
 
 const SortableTableHeader = ({
     columnHeaderData,
@@ -106,49 +90,6 @@ const SortableTableHeader = ({
     );
 };
 
-const CustomSortableTableHeader = ({
-    columnHeaderData,
-    sticky,
-    onColumnCustomSort,
-    columnCustomSortSettings,
-}: CustomSortableTableHeaderProps) => {
-    let SortIcon = Icon.SortArrow;
-    if (
-        columnCustomSortSettings.column === columnHeaderData.columnKey &&
-        columnCustomSortSettings.order === FilterOptions.ASC
-    ) {
-        SortIcon = Icon.ArrowUpward;
-    } else if (
-        columnCustomSortSettings.column === columnHeaderData.columnKey &&
-        columnCustomSortSettings.order === FilterOptions.DESC
-    ) {
-        SortIcon = Icon.ArrowDownward;
-    }
-
-    const handleHeaderClick = () => {
-        if (onColumnCustomSort) onColumnCustomSort();
-    };
-    return (
-        <th
-            className={classnames("column-header column-header--clickable", {
-                "column-header--sticky": sticky,
-            })}
-        >
-            <button
-                className="column-header-button"
-                onClick={handleHeaderClick}
-            >
-                <div className="column-header column-header--sortable">
-                    <p className="column-header-text">
-                        {columnHeaderData.columnHeader}
-                    </p>
-                    {<SortIcon size={3} />}
-                </div>
-            </button>
-        </th>
-    );
-};
-
 function sortTableData(
     activeColumn: string,
     rowData: RowData[][],
@@ -173,12 +114,10 @@ const SortableTable = ({
     sticky,
     rowData,
     columnHeaders,
-    apiSortable = false,
 }: {
     sticky?: boolean;
     rowData: RowData[][];
     columnHeaders: RowData[];
-    apiSortable?: boolean;
 }) => {
     const [activeColumn, setActiveColumn] = useState("");
     const [sortOrder, setSortOrder] = useState(FilterOptions.NONE);
@@ -188,32 +127,6 @@ const SortableTable = ({
             <thead>
                 <tr>
                     {columnHeaders.map((columnHeaderData, index) => {
-                        if (apiSortable && !columnHeaderData.columnCustomSort) {
-                            return (
-                                <TableHeader
-                                    key={index}
-                                    dataContent={columnHeaderData.columnHeader}
-                                />
-                            );
-                        } else if (
-                            apiSortable &&
-                            columnHeaderData.columnCustomSort &&
-                            columnHeaderData.columnCustomSortSettings
-                        ) {
-                            return (
-                                <CustomSortableTableHeader
-                                    key={index}
-                                    columnHeaderData={columnHeaderData}
-                                    sticky={sticky}
-                                    onColumnCustomSort={
-                                        columnHeaderData.columnCustomSort
-                                    }
-                                    columnCustomSortSettings={
-                                        columnHeaderData.columnCustomSortSettings
-                                    }
-                                />
-                            );
-                        }
                         return (
                             <SortableTableHeader
                                 key={index}
@@ -255,7 +168,6 @@ const SortableTable = ({
 };
 
 export const Table = ({
-    apiSortable,
     borderless,
     compact,
     fullWidth,
@@ -295,12 +207,11 @@ export const Table = ({
         >
             {rowData.length ? (
                 <table className={classes}>
-                    {sortable || apiSortable ? (
+                    {sortable ? (
                         <SortableTable
                             sticky={sticky}
                             rowData={rowData}
                             columnHeaders={columnHeaders}
-                            apiSortable={apiSortable}
                         />
                     ) : (
                         <>
@@ -332,12 +243,12 @@ export const Table = ({
                                         <tr key={index}>
                                             {row.map((data, dataIndex) => {
                                                 return (
-                                                    <TableHeader
+                                                    <td
                                                         key={dataIndex}
-                                                        dataContent={
-                                                            data.content
-                                                        }
-                                                    />
+                                                        className="column-data"
+                                                    >
+                                                        {data.content}
+                                                    </td>
                                                 );
                                             })}
                                         </tr>

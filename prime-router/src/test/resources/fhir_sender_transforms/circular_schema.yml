@@ -14,6 +14,9 @@ elements:
     condition: '%resource.issued.exists()'
     bundleProperty: '%resource.issued'
     value: [ '"CO"' ]
+    valueSet:
+      key: value
+      key2: value
   - name: observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0].result'
     resourceIndex: observationIndex

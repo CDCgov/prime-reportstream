@@ -6,7 +6,7 @@ import { FeatureName } from "../../../AppRouter";
 import { AuthElement } from "../../AuthElement";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import Crumbs, { CrumbsProps } from "../../Crumbs";
-import { useReportsDetail } from "../../../hooks/network/History/DeliveryHooks";
+import { useReportsDetail } from "../../../hooks/network/DataDashboard/DataDashboardHooks";
 import { withCatchAndSuspense } from "../../RSErrorBoundary";
 import HipaaNotice from "../../HipaaNotice";
 
@@ -14,7 +14,7 @@ import styles from "./ReportDetails.module.scss";
 import { ReportDetailsSummary } from "./ReportDetailsSummary";
 import ReportDetailsTable from "./ReportDetailsTable";
 
-export function ReportDetails() {
+function ReportDetails() {
     const crumbProps: CrumbsProps = {
         crumbList: [
             { label: FeatureName.DATA_DASHBOARD, path: "/data-dashboard" },
@@ -22,7 +22,7 @@ export function ReportDetails() {
         ],
     };
     const { reportId } = useParams();
-    const { reportDetail } = useReportsDetail(reportId!!);
+    const { data: reportDetail } = useReportsDetail(reportId!!);
 
     return (
         <div className={styles.ReportDetails}>
@@ -40,11 +40,11 @@ export function ReportDetails() {
     );
 }
 
-export const ReportDetailsWithAuth = () => {
+export function ReportDetailsWithAuth() {
     return (
         <AuthElement
             element={withCatchAndSuspense(<ReportDetails />)}
             requiredUserType={MemberType.RECEIVER}
         />
     );
-};
+}

@@ -15,9 +15,8 @@ elements:
     bundleProperty: '%resource.identifier'
     value: [ '"CO"' ]
     valueSet:
-      values:
-        "CO": 'Colorado'
-        "IG": null
+      "CO": 'Colorado'
+      "IG": null
   - name: observations
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0].result'
     resourceIndex: observationIndex

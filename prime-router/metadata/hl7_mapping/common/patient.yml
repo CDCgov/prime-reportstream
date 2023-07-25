@@ -52,11 +52,10 @@ elements:
     value: [ '%resource.gender' ]
     hl7Spec: [ '%{hl7PIDField}-8' ]
     valueSet:
-      values:
-        unknown: U
-        female: F
-        male: M
-        other: O
+      unknown: U
+      female: F
+      male: M
+      other: O
 
   #race
   - name: patient-race-identifier
@@ -164,9 +163,8 @@ elements:
     value: [ '%resource.deceased' ]
     hl7Spec: [ '%{hl7PIDField}-30' ]
     valueSet:
-      values:
-        true: Y
-        false: N
+      true: Y
+      false: N
 
   - name: patient-last-updated-at
     value: [ '%resource.meta.lastUpdated' ]

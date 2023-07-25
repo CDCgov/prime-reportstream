@@ -1,118 +1,103 @@
-import { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction } from "react";
 
 import { FeatureName } from "../../../AppRouter";
 import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
+import usePagination from "../../../hooks/UsePagination";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import Spinner from "../../Spinner";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
-import Pagination from "../../Table/Pagination";
+import { FilterManager } from "../../../hooks/filters/UseFilterManager";
+import { PaginationProps } from "../../Table/Pagination";
+import Table, { ColumnConfig, TableConfig } from "../../Table/Table";
 import TableFilters from "../../Table/TableFilters";
+import {
+    useOrgDeliveries,
+    DataDashboardAttr,
+} from "../../../hooks/network/DataDashboard/DataDashboardHooks";
+import { RSDelivery } from "../../../config/endpoints/dataDashboard";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
-import useReceiverDeliveries, {
-    DeliveriesAttr,
-} from "../../../hooks/network/DataDashboard/UseReceiverDeliveries";
-import AdminFetchAlert from "../../alerts/AdminFetchAlert";
-import { Table } from "../../../shared/Table/Table";
-import { getSlots } from "../../../hooks/UsePagination";
-import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
-import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
-import { USLink } from "../../USLink";
 
-function DashboardFilterAndTable({
-    receiverServices,
+const extractCursor = (d: RSDelivery) => d.batchReadyAt;
+
+interface DashboardTableContentProps {
+    receivers: RSReceiver[];
+    activeService: RSReceiver | undefined;
+    handleSetActive: (v: string) => void;
+    filterManager: FilterManager;
+    paginationProps?: PaginationProps;
+    isLoading: boolean;
+    receiverList: RSDelivery[] | undefined;
+}
+
+const DashboardTableContent: React.FC<DashboardTableContentProps> = ({
+    receivers,
     activeService,
-    setActiveService,
-}: {
-    receiverServices: RSReceiver[];
-    activeService: RSReceiver;
-    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
-}) {
-    const featureEvent = `${FeatureName.DATA_DASHBOARD} | ${EventName.TABLE_FILTER}`;
+    handleSetActive,
+    filterManager,
+    paginationProps,
+    isLoading,
+    receiverList,
+}) => {
+    if (isLoading) return <Spinner />;
 
-    const handleSetActive = (name: string) => {
-        setActiveService(receiverServices.find((item) => item.name === name));
-    };
+    const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
 
-    const {
-        data: results,
-        filterManager,
-        isLoading,
-    } = useReceiverDeliveries(activeService.name);
-
-    if (isLoading || !results) return <Spinner />;
-
-    const onColumnCustomSort = (columnID: string) => {
-        filterManager?.updateSort({
-            type: SortSettingsActionType.CHANGE_COL,
-            payload: {
-                column: columnID,
-            },
-        });
-        filterManager?.updateSort({
-            type: SortSettingsActionType.SWAP_ORDER,
-        });
-    };
-    const data = results?.data.map((dataRow) => [
+    const columns: Array<ColumnConfig> = [
         {
-            columnKey: DeliveriesAttr.CREATED_AT,
+            dataAttr: DataDashboardAttr.DATE_SENT,
             columnHeader: "Date sent to you",
-            content: formatDateWithoutSeconds(dataRow.createdAt),
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.CREATED_AT),
-            columnCustomSortSettings: filterManager.sortSettings,
+            sortable: true,
+            transform: formatDateWithoutSeconds,
         },
         {
-            columnKey: DeliveriesAttr.ORDERING_PROVIDER,
-            columnHeader: "Ordering provider",
-            content: dataRow.orderingProvider,
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.ORDERING_PROVIDER),
-            columnCustomSortSettings: filterManager.sortSettings,
+            dataAttr: DataDashboardAttr.PROVIDER,
+            columnHeader: "Ordering Provider",
+            feature: {
+                link: true,
+                linkBasePath: "/data-dashboard/facilities-providers/",
+            },
         },
         {
-            columnKey: DeliveriesAttr.ORDERING_FACILITY,
+            dataAttr: DataDashboardAttr.FACILITY,
             columnHeader: "Performing facility",
-            content: dataRow.orderingFacility,
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.ORDERING_FACILITY),
-            columnCustomSortSettings: filterManager.sortSettings,
+            feature: {
+                link: true,
+                linkBasePath: "/data-dashboard/facilities-providers/",
+            },
         },
         {
-            columnKey: DeliveriesAttr.SUBMITTER,
+            dataAttr: DataDashboardAttr.SUBMITTER,
             columnHeader: "Submitter",
-            content: dataRow.submitter,
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.SUBMITTER),
-            columnCustomSortSettings: filterManager.sortSettings,
+            feature: {
+                link: true,
+                linkBasePath: "/data-dashboard/facilities-providers/",
+            },
         },
         {
-            columnKey: DeliveriesAttr.REPORT_ID,
+            dataAttr: DataDashboardAttr.REPORT_ID,
             columnHeader: "Report ID",
-            content: (
-                <USLink
-                    href={`/data-dashboard/report-details/${dataRow.reportId}`}
-                >
-                    {dataRow.reportId}
-                </USLink>
-            ),
-            columnCustomSort: () =>
-                onColumnCustomSort(DeliveriesAttr.REPORT_ID),
-            columnCustomSortSettings: filterManager.sortSettings,
+            feature: {
+                link: true,
+                linkBasePath: "/data-dashboard/report-details/",
+            },
         },
-    ]);
+    ];
 
-    const currentPageNum = filterManager.pageSettings.currentPage;
+    const resultsTableConfig: TableConfig = {
+        columns: columns,
+        rows: receiverList || [],
+    };
 
     return (
         <>
             <div className="text-bold font-sans-md">
-                Showing all results ({results?.meta.totalFilteredCount})
+                Showing all results ({receiverList?.length})
             </div>
             <div className="display-flex flex-row">
                 <ReceiverServices
-                    receiverServices={receiverServices}
+                    receivers={receivers}
                     activeService={activeService}
                     handleSetActive={handleSetActive}
                 />
@@ -133,37 +118,78 @@ function DashboardFilterAndTable({
                     }
                 />
             </div>
-            <Table apiSortable borderless rowData={data} />
-            {data.length > 0 && (
-                <Pagination
-                    currentPageNum={currentPageNum}
-                    setSelectedPage={(pageNum) => {
-                        filterManager.updatePage({
-                            type: PageSettingsActionType.SET_PAGE,
-                            payload: { page: pageNum },
-                        });
-                    }}
-                    slots={getSlots(currentPageNum, results?.meta.totalPages)}
-                />
-            )}
+            <Table
+                classes="margin-top-1"
+                config={resultsTableConfig}
+                filterManager={filterManager}
+                paginationProps={paginationProps}
+            />
+        </>
+    );
+};
+
+function DashboardTableWithPagination({
+    receivers,
+    activeService,
+    setActiveService,
+}: {
+    receivers: RSReceiver[];
+    activeService: RSReceiver | undefined;
+    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
+}) {
+    const handleSetActive = (name: string) => {
+        setActiveService(receivers.find((item) => item.name === name));
+    };
+
+    const { fetchResults, filterManager } = useOrgDeliveries(
+        activeService?.name
+    );
+    const pageSize = filterManager.pageSettings.size;
+    const sortOrder = filterManager.sortSettings.order;
+    const rangeTo = filterManager.rangeSettings.to;
+    const rangeFrom = filterManager.rangeSettings.from;
+
+    const startCursor = sortOrder === "DESC" ? rangeTo : rangeFrom;
+    const isCursorInclusive = sortOrder === "ASC";
+    const analyticsEventName = `${FeatureName.DATA_DASHBOARD} | ${EventName.TABLE_PAGINATION}`;
+
+    const {
+        currentPageResults: serviceReportsList,
+        paginationProps,
+        isLoading,
+    } = usePagination<RSDelivery>({
+        startCursor,
+        isCursorInclusive,
+        pageSize,
+        fetchResults,
+        extractCursor,
+        analyticsEventName,
+    });
+
+    if (paginationProps) {
+        paginationProps.label = "Dashboard pagination";
+    }
+
+    return (
+        <>
+            <DashboardTableContent
+                receivers={receivers}
+                activeService={activeService}
+                handleSetActive={handleSetActive}
+                filterManager={filterManager}
+                paginationProps={paginationProps}
+                isLoading={isLoading}
+                receiverList={serviceReportsList}
+            />
         </>
     );
 }
 
 export default function DataDashboardTable() {
-    const {
-        loadingServices,
-        services,
-        activeService,
-        setActiveService,
-        isDisabled,
-    } = useOrganizationReceiversFeed();
+    const { loadingServices, services, activeService, setActiveService } =
+        useOrganizationReceiversFeed();
 
     if (loadingServices) return <Spinner />;
-
-    if (isDisabled) {
-        return <AdminFetchAlert />;
-    }
 
     if (!loadingServices && !activeService)
         return (
@@ -179,8 +205,8 @@ export default function DataDashboardTable() {
     return (
         <>
             {activeService && (
-                <DashboardFilterAndTable
-                    receiverServices={services}
+                <DashboardTableWithPagination
+                    receivers={services}
                     activeService={activeService}
                     setActiveService={setActiveService}
                 />

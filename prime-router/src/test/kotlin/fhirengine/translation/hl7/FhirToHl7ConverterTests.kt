@@ -139,11 +139,9 @@ class FhirToHl7ConverterTests {
         val customContext = CustomContext(bundle, bundle)
         val converter = FhirToHl7Converter(mockSchema)
 
-        val valueSet = InlineValueSet(
-            sortedMapOf(
-                Pair("Stagnatious", "S"), // casing should not matter
-                Pair("grompfle", "G")
-            )
+        val valueSet = sortedMapOf(
+            Pair("Stagnatious", "S"), // casing should not matter
+            Pair("grompfle", "G")
         )
 
         var element = ConverterSchemaElement("name", value = listOf("Bundle.id"), valueSet = valueSet)

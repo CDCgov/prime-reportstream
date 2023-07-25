@@ -130,13 +130,12 @@ elements:
     value: [ '%resource.status' ]
     hl7Spec: [ '%{hl7OBXField}-11' ]
     valueSet:
-      values:
-        registered: I
-        preliminary: P
-        final: F
-        corrected: C
-        amended: C
-        entered-in-error: W
+      registered: I
+      preliminary: P
+      final: F
+      corrected: C
+      amended: C
+      entered-in-error: W
 
   - name: observation-date-time
     value: [ '%resource.effective' ]

@@ -162,10 +162,13 @@ class FhirTransformSchemaTests {
                 assertThat(parentElement.schemaRef?.name).isEqualTo(originalElement.schemaRef?.name)
                 assertThat(parentElement.resource).isEqualTo(originalElement.resource)
                 assertThat(parentElement.resourceIndex).isEqualTo(originalElement.resourceIndex)
-                assertThat(parentElement.value).isEqualTo(originalElement.value)
-                assertThat(parentElement.valueSet).isEqualTo(originalElement.valueSet)
-                assertThat(parentElement.constants).isEqualTo(originalElement.constants)
+                assertThat(parentElement.value.size).isEqualTo(originalElement.value.size)
+                assertThat(parentElement.constants.size).isEqualTo(originalElement.constants.size)
                 assertThat(parentElement.bundleProperty).isEqualTo(originalElement.bundleProperty)
+                parentElement.value
+                    .forEachIndexed { index, value -> assertThat(originalElement.value[index]).isEqualTo(value) }
+                parentElement.constants
+                    .forEach { (key, value) -> assertThat(originalElement.constants[key]).isEqualTo(value) }
             }
         }
 
@@ -187,10 +190,13 @@ class FhirTransformSchemaTests {
                 assertThat(parentElementB.schemaRef).isEqualTo(elementB.schemaRef)
                 assertThat(parentElementB.resource).isEqualTo(elementB.resource)
                 assertThat(parentElementB.resourceIndex).isEqualTo(elementB.resourceIndex)
-                assertThat(parentElementB.value).isEqualTo(originalElement.value)
-                assertThat(parentElementB.valueSet).isEqualTo(originalElement.valueSet)
-                assertThat(parentElementB.constants).isEqualTo(originalElement.constants)
+                assertThat(parentElementB.value.size).isEqualTo(originalElement.value.size)
+                assertThat(parentElementB.constants.size).isEqualTo(originalElement.constants.size)
                 assertThat(parentElementB.bundleProperty).isEqualTo(originalElement.bundleProperty)
+                parentElementB.value
+                    .forEachIndexed { index, value -> assertThat(originalElement.value[index]).isEqualTo(value) }
+                parentElementB.constants
+                    .forEach { (key, value) -> assertThat(originalElement.constants[key]).isEqualTo(value) }
             }
         }
 
@@ -209,10 +215,13 @@ class FhirTransformSchemaTests {
                 assertThat(parentElementC.schemaRef).isEqualTo(elementC.schemaRef)
                 assertThat(parentElementC.resource).isEqualTo(elementC.resource)
                 assertThat(parentElementC.resourceIndex).isEqualTo(elementC.resourceIndex)
-                assertThat(parentElementC.value).isEqualTo(elementC.value)
-                assertThat(parentElementC.valueSet).isEqualTo(elementC.valueSet)
-                assertThat(parentElementC.constants).isEqualTo(elementC.constants)
+                assertThat(parentElementC.value.size).isEqualTo(elementC.value.size)
+                assertThat(parentElementC.constants.size).isEqualTo(elementC.constants.size)
                 assertThat(parentElementC.bundleProperty).isEqualTo(originalElement.bundleProperty)
+                parentElementC.value
+                    .forEachIndexed { index, value -> assertThat(elementC.value[index]).isEqualTo(value) }
+                parentElementC.constants
+                    .forEach { (key, value) -> assertThat(elementC.constants[key]).isEqualTo(value) }
             }
         }
     }

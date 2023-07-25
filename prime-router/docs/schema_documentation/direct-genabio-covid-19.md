@@ -3202,6 +3202,6 @@ Is the test authorized for unproctored administration by the FDA (Y, N, UNK)
 
 **Table**: LIVD-SARS-CoV-2
 
-**Table Column**: Test Type
+**Table Column**: TestType
 
 ---

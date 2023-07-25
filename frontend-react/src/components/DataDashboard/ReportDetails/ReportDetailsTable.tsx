@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHooks";
+import { useReportsFacilities } from "../../../hooks/network/DataDashboard/DataDashboardHooks";
 import Table, { TableConfig } from "../../../components/Table/Table";
 import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import TableFilters from "../../Table/TableFilters";
@@ -24,20 +24,32 @@ interface ReportDetailsTableProps {
 
 function ReportDetailsTable(props: ReportDetailsTableProps) {
     const { reportId }: ReportDetailsTableProps = props;
-    const { reportFacilities } = useReportsFacilities(reportId);
+    const { data } = useReportsFacilities(reportId);
     const featureEvent = `${FeatureName.REPORT_DETAILS} | ${EventName.TABLE_FILTER}`;
 
     const filterManager = useFilterManager(filterManagerDefaults);
 
     const tableConfig: TableConfig = {
         columns: [
-            { dataAttr: "facility", columnHeader: "Facility" },
-            { dataAttr: "location", columnHeader: "Location" },
-            { dataAttr: "CLIA", columnHeader: "CLIA" },
-            { dataAttr: "total", columnHeader: "Total tests" },
-            { dataAttr: "positive", columnHeader: "Total positive" },
+            {
+                dataAttr: "provider",
+                columnHeader: "Ordering provider",
+            },
+            {
+                dataAttr: "facility",
+                columnHeader: "Performing facility",
+            },
+            {
+                dataAttr: "submitter",
+                columnHeader: "Submitter",
+            },
+            { dataAttr: "total", columnHeader: "Test results" },
+            {
+                dataAttr: "collectionDate",
+                columnHeader: "Specimen collection date",
+            },
         ],
-        rows: reportFacilities!!,
+        rows: data!!,
     };
 
     return (

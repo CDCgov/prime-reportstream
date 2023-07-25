@@ -1360,7 +1360,7 @@ the test result is in some intermediate status, is a correction, or is the final
 
 **Table**: LIVD-SARS-CoV-2
 
-**Table Column**: Test Type
+**Table Column**: TestType
 
 ---
 

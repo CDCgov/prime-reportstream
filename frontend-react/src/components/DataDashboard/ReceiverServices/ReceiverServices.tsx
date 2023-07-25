@@ -4,22 +4,24 @@ import { RSReceiver } from "../../../config/endpoints/settings";
 
 interface Props {
     /* REQUIRED
-    A list of receiver services gathered by calling fetchReceivers() */
-    receiverServices: RSReceiver[];
+    A list of senders gathered by calling getListOfSenders() */
+    receivers: RSReceiver[];
 
     /* REQUIRED
-    The chosen receiver */
+    The chosen service */
     active: string;
 
     /* REQUIRED
     A function passed in by the parent prop to sync chosen state
     This can be seen in-use by <DeliveriesTable>. The chosen state in sync'd
-    and DeliveriesTable filters by the chosen receiver service */
+    and DeliveriesTable filters by the chosen sender */
     chosenCallback: (s: string) => void;
 }
 
 /*
-    These are the options used to swap between various receiver services
+    These are the buttons used to swap between various senders of data
+    to see only reports sent by individual senders populated on their
+    list
 */
 function ReceiversDropdown(props: Props) {
     return (
@@ -34,7 +36,7 @@ function ReceiversDropdown(props: Props) {
                 defaultValue={props.active}
                 onChange={(event) => props.chosenCallback(event.target.value)}
             >
-                {props.receiverServices.map((receiver, idx) => (
+                {props.receivers.map((receiver, idx) => (
                     <option key={`${receiver}.${idx}`} value={receiver.name}>
                         {receiver.name}
                     </option>
@@ -45,27 +47,26 @@ function ReceiversDropdown(props: Props) {
 }
 
 export default function ReceiverServices({
-    receiverServices,
+    receivers,
     activeService,
     handleSetActive,
 }: {
-    receiverServices: RSReceiver[];
+    receivers: RSReceiver[];
     activeService: RSReceiver | undefined;
     handleSetActive: (v: string) => void;
 }) {
     return (
         <div className="flex-align-self-end padding-right-4">
-            {receiverServices?.length > 1 ? (
+            {receivers?.length > 1 ? (
                 <ReceiversDropdown
-                    receiverServices={receiverServices}
+                    receivers={receivers}
                     active={activeService?.name || ""}
                     chosenCallback={handleSetActive}
                 />
             ) : (
                 <p className="margin-bottom-0">
                     <strong>Receiver service: </strong>
-                    {(receiverServices?.length &&
-                        receiverServices[0].name.toUpperCase()) ||
+                    {(receivers?.length && receivers[0].name.toUpperCase()) ||
                         ""}
                 </p>
             )}
