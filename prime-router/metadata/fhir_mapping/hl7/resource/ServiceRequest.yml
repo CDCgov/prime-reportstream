@@ -104,6 +104,13 @@ identifier_4:
     code: "PGN"
     display: "Placer Group Number"
 
+
+identifier_5:
+  valueOf: datatype/Identifier_Gen
+  generateList: true
+  expressionType: resource
+  specs: ORC.21
+
 status:
   type: SERVICE_REQUEST_STATUS
   default: "unknown"
@@ -132,7 +139,7 @@ authoredOn:
   expressionType: JEXL
   vars:
     dateTimeIn: ORC.9
-    orderControl: ORC.1
+    orderControl: String, ORC.1
 
 occurrenceDateTime:
   condition: $startTiming NULL && $endTiming NULL
@@ -192,6 +199,7 @@ priority_4:
     priorityValue: "urgent"
 
 requester:
+  generateList: true
   valueOf: resource/PractitionerRole
   expressionType: reference
   vars:
@@ -201,6 +209,7 @@ requester:
     roleOrganizationAddress: ORC.22
     roleOrganizationPhone: ORC.23
     rolePractitionerAddress: ORC.24
+    organizationIds: ORC.21
 
 reasonCode:
   condition: $reasonCWE NOT_NULL
