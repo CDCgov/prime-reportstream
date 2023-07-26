@@ -550,7 +550,7 @@ dockerCompose {
 
 tasks.azureFunctionsRun {
     dependsOn("composeUp")
-
+    finalizedBy("uploadSwaggerUI")
     // This storage account key is not a secret, just a dummy value.
     val devAzureConnectString =
         "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
@@ -575,6 +575,10 @@ tasks.azureFunctionsRun {
 
     environment(env)
     azurefunctions.localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
+}
+
+task<Exec>("uploadSwaggerUI") {
+    commandLine("./upload_swaggerui.sh")
 }
 
 tasks.register("run") {
