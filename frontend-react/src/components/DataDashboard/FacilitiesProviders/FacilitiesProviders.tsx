@@ -21,10 +21,10 @@ export function FacilitiesProviders() {
     };
     return (
         <div className={styles.FacilitiesProviders}>
-            <header className="usa-header usa-header--extended margin-top-neg-5">
+            <header className="usa-header usa-header--extended padding-top-3 margin-top-neg-5">
                 <Crumbs {...crumbProps}></Crumbs>
-                <GridContainer className="margin-left-7 margin-right-7 padding-bottom-3">
-                    <div className="font-sans-2xl">
+                <GridContainer className="margin-left-7 margin-right-7 padding-bottom-5">
+                    <div className="font-sans-2xl text-bold">
                         All facilities & providers
                     </div>
                     <hr className="margin-bottom-1" />
