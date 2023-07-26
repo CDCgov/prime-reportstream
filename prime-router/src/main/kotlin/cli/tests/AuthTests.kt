@@ -932,8 +932,11 @@ class Server2ServerAuthTests : CoolTest() {
             passed = passed and server2ServerReportDetailsAuthTests(
                 environment, org1.name, org2.name, reportId1, reportId2, token1, token2
             )
-            passed = passed and server2ServerSettingsAuthTests(environment, token1)
-            passed = passed and server2ServerSettingsAuthTests(environment, token2)
+            if (environment.envName == Environment.STAGING.envName) {
+                // PrimeAdmin tests cannot be run locally as they need Okta credentials, even in Server2Server
+                passed = passed and server2ServerSettingsAuthTests(environment, token1)
+                passed = passed and server2ServerSettingsAuthTests(environment, token2)
+            }
             passed = passed and server2ServerLookupTableSmokeTests(environment, token1)
             passed = passed and server2ServerLookupTableSmokeTests(environment, token2)
         } finally {
