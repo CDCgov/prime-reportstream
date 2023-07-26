@@ -2,9 +2,15 @@
 
 ## Overview
 
-These pages are a work in progress, please see the [old pages](../docs_deprecated/getting-started/getting-started.md) if something is missing
+These pages are a work in progress, please see the [old pages](../docs-deprecated/getting-started/getting-started.md) if something is missing
 
 ### Tools to install
+
+- git
+  - signing commits
+- openjdk
+- gradle
+- docker
 
 ## Running ReportStream
 
@@ -36,3 +42,5 @@ These pages are a work in progress, please see the [old pages](../docs_deprecate
 - [Metabase](./metabase.md)
 - [VPN](./vpn.md)
 - [Pipeline Configuration](./universal-pipeline-configuration.md)
+- [Swagger](./swagger.md)
+- [Kotlin](./kotlin.md)
