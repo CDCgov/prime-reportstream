@@ -38,6 +38,10 @@ Each pipeline step runs as its own *Azure Function* (equivalent to lambdas in AW
 
 The data that is submitted and flows through ReportStream is referred to as a `Report`. A ReportStream Report can contain one or more ReportStream Items. An `Item` is a single HL7v2 message or FHIR bundle representing some real world data, like a laboratory test result (ELR data).
 
+### FHIR
+
+The Universal Pipeline is often referred to as the "FHIR" pipeline due to the [Convert](./convert-translate.md) step translating received messages into the [FHIR](https://www.hl7.org/fhir/summary.html) format. This allows most logic in the pipeline to run on only one data format instead of having to have separate logic for each format. FHIR was chosen to be the internal format of the Universal Pipeline due to it being the future format of healthcare data exchange and because of its modularity, flexibility, and mature libraries. 
+
 ### Pipeline Steps Overview
 
 Each step in the pipeline is its own step precisely because it is in charge of a unique and specific task. For example, the [Translate](./convert-translate.md) step will translate the report from its current format to the format the particular receiver the report is destined to has requested via their settings. The [Convert](./convert-translate.md) step, on the other hand, will convert the report that was received from a sender to the Universal Pipeline's internal format of FHIR so that subsequent steps can perform their function on a normalized format. While the pipeline steps perform different tasks, they generally all:
@@ -127,11 +131,11 @@ Because each step, in general, creates a new Report, it becomes necessary to tra
 - Where did the submitted Report get sent?
 - Did the submitted Report get delivered?
 
-In order to answer the questions above, each step will record information regarding the actions it took, commonly referred to in ReportStream as `metadata`. The [metadata](LINK TO METADTA DOCUMENT) is stored in ReportStream's internal [Postgres database](TODO LINK TO DATABASE DOC) and powers API endpoints like `/history` to help ReportStream clients (senders) answer questions related to the processing of a particular report.
+In order to answer the questions above, each step will record information regarding the actions it took, commonly referred to in ReportStream as `metadata`. The [metadata](../design/metadata.md) is stored in ReportStream's internal [Postgres database](../design/metadata.md) and powers API endpoints like `/history` to help ReportStream clients (senders) answer questions related to the processing of a particular report.
 
 ### Report Status and Metadata
 
-The Universal Pipeline does NOT support the registering of callbacks and does NOT implement any type of ACK/NACK system, instead it answers the question of "What happened to my report" via the REST history endpoint (HTTP GET) located at `/api/waters/report/{report-id}/history`. The information provided by the history endpoint is captured as the report(s) flow through the pipeline and is referred to as [metadata](LINK TO EXTERNAL METADATA DOCUMENT)
+The Universal Pipeline does NOT support the registering of callbacks and does NOT implement any type of ACK/NACK system, instead it answers the question of "What happened to my report" via the REST history endpoint (HTTP GET) located at `/api/waters/report/{report-id}/history`. The information provided by the history endpoint is captured as the report(s) flow through the pipeline and is referred to as [metadata](../design/metadata.md)
 
 > The client (sender in our case) is responsible for polling the history endpoint to ensure either success or failure of their message. ReportStream will not automatically alert senders of changes to their Report's status.
 
@@ -146,7 +150,7 @@ As a Report flows through the Universal Pipeline, metadata such as the following
 
 When the history endpoint is called, it will return a JSON object representing the aforementioned metadata stored in the database. This is the same object that is returned by the reports or waters endpoints when submitting a report, only it may contain more information that is not known at the time a report is submitted, like the name of the receiver(s). To better understand the history endpoint, see the [example below](#history-endpoint-example).
 
-> Make sure to check out the [Swagger documentation](TODO) to learn how to execute the various endpoints provided by ReportStream and view their documentation, including the history endpoint!
+> Make sure to check out the [Swagger documentation](../design/swagger.md) to learn how to execute the various endpoints provided by ReportStream and view their documentation, including the history endpoint!
 
 ##### History Endpoint Example
 
