@@ -396,10 +396,10 @@
           "coding": [
             {
               "system": "http://loinc.org",
-              "code": "80383-3",
-              "display": "Flu B"
+              "code": "80383-3"
             }
-          ]
+          ],
+          "text": "Flu B"
         },
         "subject": {
           "reference": "Patient/39ab4916-f0d0-4fbb-a2a0-d0bcd8579820"
@@ -468,10 +468,10 @@
           "coding": [
             {
               "system": "http://loinc.org",
-              "code": "80382-5",
-              "display": "Flu A"
+              "code": "80382-5"
             }
-          ]
+          ],
+          "text": "Flu A"
         },
         "subject": {
           "reference": "Patient/39ab4916-f0d0-4fbb-a2a0-d0bcd8579820"
@@ -540,10 +540,10 @@
           "coding": [
             {
               "system": "http://loinc.org",
-              "code": "97099-6",
-              "display": "COVID-19"
+              "code": "97099-6"
             }
-          ]
+          ],
+          "text": "COVID-19"
         },
         "subject": {
           "reference": "Patient/39ab4916-f0d0-4fbb-a2a0-d0bcd8579820"
