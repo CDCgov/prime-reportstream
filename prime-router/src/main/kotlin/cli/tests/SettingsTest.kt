@@ -33,6 +33,7 @@ class SettingsTest : CoolTest() {
     /**
      * Define private local variables for use in the test.
      */
+    private val dummyAccessToken = "dummy"
     private val settingName = "dummy"
     private val settingErrorMessage = "Test GRUD of Setting API: "
 
@@ -76,7 +77,7 @@ class SettingsTest : CoolTest() {
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting CRUD REST API ${environment.url}")
-        val bearer = OktaAuthTests.getOktaAccessToken(environment, name)
+
         /**
          * Obtain the URL/path endpoint
          */
@@ -86,27 +87,29 @@ class SettingsTest : CoolTest() {
             SettingCommand.SettingType.ORGANIZATION,
             settingName
         )
+
         /**
          * VERIFY the dummy organization existed or not
          */
         echo("VERIFY the dummy organization existed or not...")
-        val (_, _, result) = SettingsUtilities.get(path, bearer)
+
+        val (_, _, result) = SettingsUtilities.get(path, dummyAccessToken)
         val (_, error) = result
         if (error?.response?.statusCode != HttpStatus.SC_NOT_FOUND) {
-            val (_, responseDel, resultDel) = SettingsUtilities.delete(path, bearer)
+            val (_, responseDel, resultDel) = SettingsUtilities.delete(path, dummyAccessToken)
             val (_, errorDel) = resultDel
             when (errorDel?.response?.statusCode) {
                 HttpStatus.SC_OK -> Unit
-                else -> {
+                else ->
                     return bad(settingErrorMessage + "Failed Dummy organization - ${responseDel.responseMessage}.")
                 }
             }
-        }
+
         /**
          * CREATE the dummy organization
          */
         echo("CREATE the new dummy organization...")
-        var output = SettingsUtilities.put(path, bearer, newDummyOrganization)
+        var output = SettingsUtilities.put(path, dummyAccessToken, newDummyOrganization)
         val (_, responseCreateNewDummy, _) = output
         when (responseCreateNewDummy.statusCode) {
             HttpStatus.SC_CREATED -> Unit
@@ -114,15 +117,17 @@ class SettingsTest : CoolTest() {
                 return bad(settingErrorMessage + "Failed on create new dummy organization.")
             }
         }
+
         /**
          * VERIFY the created dummy organization
          */
         echo("VERITY the new dummy organization was created...")
-        val (_, responseNewDummy, resultNewDummy) = SettingsUtilities.get(path, bearer)
+        val (_, responseNewDummy, resultNewDummy) = SettingsUtilities.get(path, dummyAccessToken)
         val (payloadNewDummy, errorNewDummy) = resultNewDummy
         if (errorNewDummy?.response?.statusCode == HttpStatus.SC_NOT_FOUND) {
             return bad(settingErrorMessage + responseNewDummy.responseMessage)
         }
+
         /**
          * The payload must contain the known "NEWDUMMYORG" defined
          * in the newDummyOrganization resource above.
@@ -130,22 +135,23 @@ class SettingsTest : CoolTest() {
         if (!payloadNewDummy?.contains("NEWDUMMYORG")!!) {
             return bad(settingErrorMessage + "It is not the created dummy organization.")
         }
+
         /**
          * UPDATE the dummy organization
          */
-        output = SettingsUtilities.put(path, bearer, updateDummyOrganization)
+        output = SettingsUtilities.put(path, dummyAccessToken, updateDummyOrganization)
         val (_, responseCreateUpdateDummy, _) = output
         when (responseCreateUpdateDummy.statusCode) {
             HttpStatus.SC_OK -> Unit
-            else -> {
+            else ->
                 return bad(settingErrorMessage + "Failed on can't create update dummy organization.")
-            }
         }
+
         /**
          * VERIFY the updated dummy organization
          */
         echo("VERIFY it is the new dummy organization is updated...")
-        val (_, _, resultUpdateOrg) = SettingsUtilities.get(path, bearer)
+        val (_, _, resultUpdateOrg) = SettingsUtilities.get(path, dummyAccessToken)
         val (payload, errorUpdateDummy) = resultUpdateOrg
         if (errorUpdateDummy?.response?.statusCode == HttpStatus.SC_NOT_FOUND) {
             return bad(settingErrorMessage + "Failed on verify the new dummy organization.")
@@ -163,7 +169,7 @@ class SettingsTest : CoolTest() {
          * DELETE the updated dummy organization
          */
         echo("DELETE the updated dummy organization...")
-        val (_, responseDelUpdateOrg, resultDelUpdateOrg) = SettingsUtilities.delete(path, bearer)
+        val (_, responseDelUpdateOrg, resultDelUpdateOrg) = SettingsUtilities.delete(path, dummyAccessToken)
         val (_, errorDelUpdateOrg) = resultDelUpdateOrg
         if (errorDelUpdateOrg?.response?.statusCode == HttpStatus.SC_NOT_FOUND) {
             return bad(settingErrorMessage + "Failed on delete - " + responseDelUpdateOrg.responseMessage)
@@ -173,7 +179,7 @@ class SettingsTest : CoolTest() {
          * VERIFY the dummy organization deleted
          */
         echo("VERIFY it is the new dummy organization is deleted...")
-        val (_, responseCleanUpDummyOrg, resultCleanUpDummyOrg) = SettingsUtilities.get(path, bearer)
+        val (_, responseCleanUpDummyOrg, resultCleanUpDummyOrg) = SettingsUtilities.get(path, dummyAccessToken)
         val (_, errorDummy) = resultCleanUpDummyOrg
         if (errorDummy?.response?.statusCode != HttpStatus.SC_NOT_FOUND) {
             return bad(settingErrorMessage + "Failed cleaned up - " + responseCleanUpDummyOrg.responseMessage)
