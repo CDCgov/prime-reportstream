@@ -2,9 +2,12 @@ name: Start apps in Test server
 
 on:
   workflow_dispatch:
+  # push: 
+  #   branches:
+  #     - feature/9537-schedulemaintenance_DemoandTest
   schedule:
-    - cron: "0 0 * * MON"
-  
+    - cron: "0 5 * * MON" #UTC-5
+    - cron: '0 11 * * 1-5'
 jobs:
   alert_stale_branches:
     name: Start Test Subscription apps

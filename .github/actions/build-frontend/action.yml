@@ -25,11 +25,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-
     - name: Use Node.js with yarn
-      uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
+      uses: actions/setup-node@e33196f7422957bea03ed53f6fbb155025ffc7b8
       with:
-        node-version-file: 'frontend-react/package.json'
+        node-version-file: "frontend-react/package.json"
 
     - run: yarn install --ignore-platform
       working-directory: frontend-react
@@ -40,7 +39,7 @@ runs:
       working-directory: frontend-react
       run: |
         echo "" >> .env.production
-        echo "REACT_APP_APPINSIGHTS_KEY=${{ inputs.appinsights-prod-key }}" >> .env.production
+        echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-prod-key }}" >> .env.production
         yarn test:ci
         yarn build:production
       shell: bash
@@ -52,14 +51,37 @@ runs:
         ENV=${{ inputs.env-name }}
         if [[ $ENV != demo* && $ENV != "test" && $ENV != trialfrontend* ]]; then ENV="staging"; fi
         echo "" >> .env.$ENV
-        echo "REACT_APP_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
+        echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
         yarn lint
         yarn test:ci
         yarn build:$ENV
       shell: bash
+      
+    - name: Set up JDK 11 to generate backend coverage stats
+      uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2
+      if: github.actor != 'dependabot[bot]'
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+        cache: 'gradle'
+
+    - uses: gradle/wrapper-validation-action@8d49e559aae34d3e0eb16cde532684bc9702762b
+      if: github.actor != 'dependabot[bot]'
+
+    - name: Spin up build containers
+      working-directory: prime-router
+      if: github.actor != 'dependabot[bot]'
+      run: docker-compose -f docker-compose.postgres.yml up -d
+      shell: bash
+
+    - name: Build Prime Router test report
+      working-directory: prime-router
+      if: github.actor != 'dependabot[bot]'
+      run: ./gradlew jacocoTestReport -x fatjar
+      shell: bash
 
     - name: SonarCloud Scan
-      if: inputs.GITHUB_TOKEN != '' && inputs.SONAR_TOKEN != ''
+      if: github.actor != 'dependabot[bot]' && inputs.GITHUB_TOKEN != '' && inputs.SONAR_TOKEN != ''
       uses: sonarsource/sonarcloud-github-action@db501078e936e4b4c8773d1bb949ba9ddb7b6b6a
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}

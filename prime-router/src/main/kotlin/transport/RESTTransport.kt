@@ -2,6 +2,7 @@ package gov.cdc.prime.router.transport
 
 import com.google.common.base.Preconditions
 import com.microsoft.azure.functions.ExecutionContext
+import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.RESTTransportType
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -17,6 +18,7 @@ import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import gov.cdc.prime.router.credentials.UserAssertionCredential
 import gov.cdc.prime.router.credentials.UserJksCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
+import gov.cdc.prime.router.tokens.AuthUtils
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.apache.Apache
@@ -91,7 +93,10 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         // get the file name, or create one from the report ID, NY requires a file name in the POST
         val fileName = header.reportFile.externalName ?: "$reportId.hl7"
         // get the username/password to authenticate with OAuth
-        val credential: RestCredential = lookupDefaultCredential(receiver)
+        val credential: RestCredential = if (restTransportInfo.authType == "two-legged")
+            lookupTwoLeggedCredential(receiver)
+        else
+            lookupDefaultCredential(receiver)
         // get the TLS/SSL cert in a JKS if needed, NY uses a specific one
         val jksCredential = restTransportInfo.tlsKeystore?.let { lookupJksCredentials(it) }
 
@@ -99,40 +104,44 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             // run our call to the endpoint in a blocking fashion
             runBlocking {
                 launch {
-                    // parse headers for any dynamic values, OK needs the report ID
-                    var (httpHeaders, bearerTokens: BearerTokens?) = getOAuthToken(
-                        restTransportInfo,
-                        reportId,
-                        jksCredential,
-                        credential,
-                        logger
-                    )
-                    logger.info("Token successfully added!")
+                    try {
+                        // parse headers for any dynamic values, OK needs the report ID
+                        var (httpHeaders, bearerTokens: BearerTokens?) = getOAuthToken(
+                            restTransportInfo,
+                            reportId,
+                            jksCredential,
+                            credential,
+                            logger
+                        )
+                        logger.info("Token successfully added!")
 
-                    // post the report
-                    val reportClient = httpClient ?: createDefaultHttpClient(jksCredential, bearerTokens)
-                    val response = postReport(
-                        reportContent,
-                        fileName,
-                        restTransportInfo.reportUrl,
-                        httpHeaders,
-                        logger,
-                        reportClient
-                    )
-                    val responseBody = response.bodyAsText()
-                    // update the action history
-                    val msg = "Success: REST transport of $fileName to $restTransportInfo:\n$responseBody"
-                    logger.info("Message successfully sent!")
-                    actionHistory.trackActionResult(response.status, msg)
-                    actionHistory.trackSentReport(
-                        receiver,
-                        sentReportId,
-                        fileName,
-                        restTransportInfo.toString(),
-                        msg,
-                        header.reportFile.itemCount
-                    )
-                    actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
+                        // post the report
+                        val reportClient = httpClient ?: createDefaultHttpClient(jksCredential, bearerTokens)
+                        val response = postReport(
+                            reportContent,
+                            fileName,
+                            restTransportInfo.reportUrl,
+                            httpHeaders,
+                            logger,
+                            reportClient
+                        )
+                        val responseBody = response.bodyAsText()
+                        // update the action history
+                        val msg = "Success: REST transport of $fileName to $restTransportInfo:\n$responseBody"
+                        logger.info("Message successfully sent!")
+                        actionHistory.trackActionResult(response.status, msg)
+                        actionHistory.trackSentReport(
+                            receiver,
+                            sentReportId,
+                            fileName,
+                            restTransportInfo.toString(),
+                            msg,
+                            header.reportFile.itemCount
+                        )
+                        actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
+                    } catch (t: Throwable) {
+                        throw t
+                    }
                 }
             }
             // nothing to retry, return null
@@ -211,6 +220,23 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     }
 
     /**
+     * Get a credential using PrivateKey to generate signed JWT authentication token (senderToken)
+     * @param receiver the fullName of the receiver is the label of the credential
+     */
+    fun lookupTwoLeggedCredential(receiver: Receiver): RestCredential {
+        val credential = lookupDefaultCredential(receiver)
+        val privateKey = AuthUtils.readPrivateKeyPem((credential as UserApiKeyCredential).apiKey)
+        val senderToken = AuthUtils.generateOrganizationToken(
+            Organization(
+                receiver.name, receiver.fullName,
+                Organization.Jurisdiction.FEDERAL, null, null, null, null, null
+            ),
+            "", privateKey, ""
+        )
+        return UserApiKeyCredential(credential.user, senderToken)
+    }
+
+    /**
      * Get a JKS from the credential service
      * @param [tlsKeystore] is the label of the credential
      */
@@ -253,7 +279,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         when (credential) {
             is UserApiKeyCredential -> {
                 tokenInfo = getAuthTokenWithUserApiKey(
-                    restTransportInfo.authTokenUrl,
+                    restTransportInfo,
                     credential,
                     logger,
                     tokenClient
@@ -327,20 +353,31 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
      * @param httpClient the HTTP client to make the call
      */
     suspend fun getAuthTokenWithUserApiKey(
-        restUrl: String,
+        restTransportInfo: RESTTransportType,
         credential: UserApiKeyCredential,
         logger: Logger,
         httpClient: HttpClient
     ): TokenInfo {
         httpClient.use { client ->
             val tokenInfo: TokenInfo = client.submitForm(
-                restUrl,
+                restTransportInfo.authTokenUrl,
                 formParameters = Parameters.build {
-                    append("grant_type", "client_credentials")
-                    append("client_id", credential.user)
-                    append("client_secret", credential.apiKey)
+                    if (restTransportInfo.parameters.isEmpty()) {
+                        // This block is for backward compatible since old
+                        // REST Transport doesn't have parameters.
+                        append("grant_type", "client_credentials")
+                        append("client_id", credential.user)
+                        append("client_secret", credential.apiKey)
+                    } else {
+                        restTransportInfo.parameters.forEach { param ->
+                            when (param.value) {
+                                "client_id" -> append(param.key, credential.user)
+                                "client_secret" -> append(param.key, credential.apiKey)
+                                else -> append(param.key, param.value)
+                            }
+                        }
+                    }
                 }
-
             ) {
                 expectSuccess = true // throw an exception if not successful
                 accept(ContentType.Application.Json)
@@ -408,6 +445,10 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         // OK
                         "hl7" -> {
                             TextContent(message.toString(Charsets.UTF_8), ContentType.Text.Plain)
+                        }
+                        // Flexion
+                        "demographics" -> {
+                            TextContent(message.toString(Charsets.UTF_8), ContentType.Application.Json)
                         }
                         // WA
                         "elr" -> {
@@ -500,7 +541,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             keyManagerFactory.init(keyStore, jksPasscode)
             // create the sslContext, type TLS, with the keyManager
             // note the ktor sample code uses a TrustManger instead, but that fails with the NY cert file
-            val sslContext = SSLContext.getInstance("TLS")
+            val sslContext = SSLContext.getInstance("TLSv1.3")
             sslContext.init(keyManagerFactory.keyManagers, null, null)
             return sslContext
         }

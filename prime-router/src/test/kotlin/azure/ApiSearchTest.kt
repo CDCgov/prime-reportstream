@@ -57,6 +57,7 @@ class ApiSearchTest {
     class TestApiSearch(
         override val filters: List<TestApiFilter<*>>,
         override val sortParameter: Field<*>?,
+        override val sortDirection: SortDirection = SortDirection.DESC,
         page: Int = 1,
         limit: Int = 25
     ) :
@@ -71,9 +72,16 @@ class ApiSearchTest {
             return sortParameter ?: TestTable.TEST.CREATED_AT
         }
 
+        override fun getPrimarySortColumn(): Field<*> {
+            return TestTable.TEST.FOO
+        }
+
         companion object : ApiSearchParser<TestPojo, TestApiSearch, TestRecord, TestApiFilter<*>>() {
             override fun parseRawApiSearch(rawApiSearch: RawApiSearch): TestApiSearch {
-                val sort = TestTable.TEST.field(rawApiSearch.sort.property)
+                val sort = if (rawApiSearch.sort != null)
+                    TestTable.TEST.field(rawApiSearch.sort!!.property)
+                else
+                    TestTable.TEST.CREATED_AT
                 val filters = rawApiSearch.filters.mapNotNull { filter ->
                     when (TestApiFilters.getTerm(TestApiFilterNames.valueOf(filter.filterName))) {
                         TestApiFilter.FooFilter::class.java -> TestApiFilter.FooFilter(filter.value)
@@ -88,6 +96,7 @@ class ApiSearchTest {
                 return TestApiSearch(
                     filters,
                     sort,
+                    sortDirection = rawApiSearch.sort?.direction ?: SortDirection.DESC,
                     limit = rawApiSearch.pagination.limit,
                     page = rawApiSearch.pagination.page
                 )
@@ -100,7 +109,7 @@ class ApiSearchTest {
         val rawSearchString = """
             {
                 "sort": {
-                    "direction": "DESC",
+                    "direction": "ASC",
                     "property": "created_at"
                 },
                 "pagination": {
@@ -115,7 +124,7 @@ class ApiSearchTest {
         val search = TestApiSearch.parse(request)
         assertThat(search.limit).isEqualTo(25)
         assertThat(search.page).isEqualTo(1)
-        assertThat(search.sortDirection).isEqualTo(SortDirection.DESC)
+        assertThat(search.sortDirection).isEqualTo(SortDirection.ASC)
         assertThat(search.sortParameter).isEqualTo(TestTable.TEST.CREATED_AT)
         assertThat(search.getWhereClause()).isNull()
         assertThat(search.getSortClause()).isNotNull()
@@ -142,6 +151,48 @@ class ApiSearchTest {
         val sortClause = search.getSortClause()
         assertThat(sortClause.order).isEqualTo(SortOrder.DESC)
         assertThat(sortClause.name).isEqualTo("foo")
+    }
+
+    @Test
+    fun `Test getPrimarySortClause`() {
+        val rawSearchString = """
+            {
+                "sort": {
+                    "direction": "DESC",
+                    "property": "created_at"
+                },
+                "pagination": {
+                    "page": 1,
+                    "limit": 25
+                },
+                "filters": [
+                ]
+            }
+        """.trimIndent()
+        val request = MockHttpRequestMessage(rawSearchString)
+        val search = TestApiSearch.parse(request)
+        val sortClause = search.getPrimarySortClause()
+        assertThat(sortClause.order).isEqualTo(SortOrder.DESC)
+        assertThat(sortClause.name).isEqualTo("foo")
+    }
+
+    @Test
+    fun `Test generates the default sort clause`() {
+        val rawSearchString = """
+            {
+                "pagination": {
+                    "page": 1,
+                    "limit": 25
+                },
+                "filters": [
+                ]
+            }
+        """.trimIndent()
+        val request = MockHttpRequestMessage(rawSearchString)
+        val search = TestApiSearch.parse(request)
+        val sortClause = search.getSortClause()
+        assertThat(sortClause.order).isEqualTo(SortOrder.DESC)
+        assertThat(sortClause.name).isEqualTo("created_at")
     }
 
     @Test

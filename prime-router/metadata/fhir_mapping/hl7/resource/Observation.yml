@@ -300,9 +300,9 @@ extension_1:
     url:
       type: SYSTEM_URL
       value: producer-id
-    valueReference:
-      valueOf: resource/Organization
-      expressionType: reference
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept
+      expressionType: resource
       specs: OBX.15
 
 extension_2:

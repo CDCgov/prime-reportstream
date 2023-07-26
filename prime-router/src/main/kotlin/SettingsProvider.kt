@@ -48,8 +48,8 @@ enum class CustomerStatus {
 enum class Topic(@JsonValue val jsonVal: String, val isUniversalPipeline: Boolean = true) {
     FULL_ELR("full-elr", true),
     ETOR_TI("etor-ti", true),
+    ELR_ELIMS("elr-elims", true),
     COVID_19("covid-19", false),
     MONKEYPOX("monkeypox", false),
-    CSV_TESTS("CsvFileTests-topic", false),
     TEST("test", false),
 }
