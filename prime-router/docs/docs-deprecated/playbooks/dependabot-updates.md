@@ -44,7 +44,7 @@ the [Maven Repository page](https://mvnrepository.com/artifact/com.fasterxml.jac
 
 ## Dealing with Breaking Changes
 If you have identified breaking changes then handle them in one of these ways:
-1. If you can make the changes in a short amount of time then block the PR in GitHub by marking as "changes requested," make the necesary changes, then request
+1. If you can make the changes in a short amount of time then block the PR in GitHub by marking as "changes requested," make the necessary changes, then request
 other reviewers to review and approve the changes.  Document your findings in the PR as well.
 1. If the changes are more extensive and require more time to make then open a new issue to deal with the changes and close the PR with a link to the issue.  Closing the 
 PR will result in dependabot not opening a new one for that library name and version.
