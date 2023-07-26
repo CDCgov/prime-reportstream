@@ -20,7 +20,7 @@ import { FeatureName } from "../../AppRouter";
 import { SignInOrUser } from "./SignInOrUser";
 import { AdminDropdown } from "./DropdownNav";
 
-const { IS_PREVIEW, CLIENT_ENV } = config;
+const { CLIENT_ENV } = config;
 
 const ProductIA = () => (
     <USNavLink href="/product" key="product" data-attribute="hidden">
@@ -125,7 +125,7 @@ export const ReportStreamHeader = ({
                                 </USLink>
                             </em>
                             <span className="rs-oktapreview-watermark">
-                                {IS_PREVIEW ? CLIENT_ENV : ""}
+                                {CLIENT_ENV !== "production" ? CLIENT_ENV : ""}
                             </span>
                         </Title>
                     </div>
