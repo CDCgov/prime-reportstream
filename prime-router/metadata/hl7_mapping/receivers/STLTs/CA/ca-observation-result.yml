@@ -44,9 +44,9 @@ elements:
     hl7Spec: [ '%{hl7ObservationPath}/OBX-17-1' ]
 
   - name: ca-observation-original-text
-    condition: '%resource.code.text.exists()'
-    hl7Spec: [ '%{hl7ObservationPath}/OBX-17-2' ]
-    value: [ '%resource.code.text' ]
+    condition: '%resource.method.coding[0].display.exists()'
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-17-9' ]
+    value: [ '%resource.method.coding[0].display' ]
 
   # California requirement: Move all regular notes and AOE questions between last OBX segment and SPM
   #   as NTE segments
