@@ -63,13 +63,16 @@ export const dummySenders = sendersGenerator(5);
 
 /** TEST UTILITY - generates `RSReceiver[]`, each with a unique `name` (starting from "elr-0")
  *
- * @param count {number} How many unique receivers you want. */
+ * @param count {number} How many unique receiverServices you want. */
 export const receiversGenerator = (count: number) => {
-    const receivers: RSReceiver[] = [];
+    const receiverServices: RSReceiver[] = [];
     for (let i = 0; i < count; i++) {
-        receivers.push({ name: `elr-${i}`, organizationName: "testOrg" });
+        receiverServices.push({
+            name: `elr-${i}`,
+            organizationName: "testOrg",
+        });
     }
-    return receivers;
+    return receiverServices;
 };
 
 export const dummyReceivers = receiversGenerator(5);

@@ -1516,6 +1516,6 @@ The LOINC code of the test performed. This is a standardized coded value describ
 
 **Table**: LIVD-SARS-CoV-2
 
-**Table Column**: TestType
+**Table Column**: Test Type
 
 ---
