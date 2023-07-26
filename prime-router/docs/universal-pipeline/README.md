@@ -1,6 +1,6 @@
 # Overview
 The Universal Pipeline is the core of what ReportStream is, and the two terms are sometimes used interchangeably. The Universal Pipeline is responsible for receiving data from a sender and sending it to one or more receivers. The pipeline was designed to be agnostic of:
-- **data formats** - At present, the pipeline can receive and send *HL7v2* and *FHIR* formats
+- **data formats** - At present, the pipeline can receive and send *HL7v2.5.1* and *FHIR* formats
 - **data types** - While presently only handling the routing of ELR (Laboratory Data), The pipeline was designed to be able to process the [six core data sources](https://www.cdc.gov/ophdst/public-health-data-strategy/phds-core-data-sources.html) as identified by PHDS:
     - Case data
     - Laboratory data
@@ -46,10 +46,10 @@ The Universal Pipeline is often referred to as the "FHIR" pipeline due to the [C
 
 Each step in the pipeline is its own step precisely because it is in charge of a unique and specific task. For example, the [Translate](./convert-translate.md) step will translate the report from its current format to the format the particular receiver the report is destined to has requested via their settings. The [Convert](./convert-translate.md) step, on the other hand, will convert the report that was received from a sender to the Universal Pipeline's internal format of FHIR so that subsequent steps can perform their function on a normalized format. While the pipeline steps perform different tasks, they generally all:
 
-1. Download the report outputted by the previous step from the step's specific folder in [ReportStream's internal Azure Storage Container](#universal-pipeline-internal-azure-storage-container)
+1. Download the report outputted by the previous step from the step's specific folder in [ReportStream's internal Azure Storage Container](#internal-azure-storage-container)
 2. Modify the downloaded report or perform some other action. In the case of the [Receive](./receive.md) step, it will just upload what it received from the client POST request
 3. Upload the modified report to the next step's associated folder in ReportStream's internal Azure Storage Container
-4. Schedule the next step in the pipeline to run by placing a message on the [AQS](https://learn.microsoft.com/en-us/azure/storage/queues/storage-queues-introduction) queue. This is how most steps are scheduled to be run. See [Universal Pipeline AQS Usage](#universal-pipeline-aqs-usage) for more information on how AQS is used in the Universal Pipeline.
+4. Schedule the next step in the pipeline to run by placing a message on the [AQS](https://learn.microsoft.com/en-us/azure/storage/queues/storage-queues-introduction) queue. This is how most steps are scheduled to be run. See [Universal Pipeline AQS Usage](#aqs-usage) for more information on how AQS is used in the Universal Pipeline.
 5. Update the ReportStream database with [metadata](#universal-pipeline-metadata-and-report-and-item-lineage) concerning the report and its item(s) the step processed. This metadata is used by the [history endpoint](#history-endpoint) to communicate the progress and status of data as it flows through the pipeline
 
 There are a few exceptions to the rules outlined above:
@@ -57,7 +57,7 @@ There are a few exceptions to the rules outlined above:
 2. The [Batch](./batch.md) step runs on its own timer and looks for reports that have passed the [Translate](./convert-translate.md) step successfully
 3. The [Send](./send.md) step, since it is the last step in the pipeline, will not place anything on the AQS queue
 
-#### Universal Pipeline Internal Azure Storage Container
+#### Internal Azure Storage Container
 The folder structure where reports are stored as they flow through the pipelines is shown below (screenshot from the Azure portal)
 
 TODO: Insert a picture of the folders for each step here
@@ -76,9 +76,9 @@ val blobInfo = BlobAccess.uploadBody(
 )
 ```
 
-The resulting `blobInfo.blobUrl` is returned as part of the `uploadBody` response object and gets passed to the object that is sent to the AQS queue, allowing the next step in the pipeline to download the output of the previous step! See [Universal Pipeline AQS Usage](#universal-pipeline-aqs-usage) for more information.
+The resulting `blobInfo.blobUrl` is returned as part of the `uploadBody` response object and gets passed to the object that is sent to the AQS queue, allowing the next step in the pipeline to download the output of the previous step! See [Universal Pipeline AQS Usage](#aqs-usage) for more information.
 
-#### Universal Pipeline AQS Usage
+#### AQS Usage
 
 Each pipeline step defined in `FHIRFunctions.kt`, besides [Receive](./receive.md), that is specific to the Universal Pipeline ([Batch](./batch.md) and [Send](./send.md) are old steps shared with the legacy pipeline), use the `QueueTrigger` decorator to allow them to be executed via the AQS mechanism in Azure. For example, the Convert step's decorator looks like so:
 
@@ -117,6 +117,16 @@ The three queues specific to the Universal Pipeline are:
 The two queues shared with Legacy Pipeline are:
 - batch
 - send
+
+##### Handling Expected Errors
+
+Each step is responsible for validating its own actions. For example, if the [Convert](convert-translate.md) step runs into a problem translating the received report into the Universal Pipeline's internal FHIR format, it is responsible for updating the metadata in the database, specifically the `action_log` table, with what error occurred. The `action_log` table is one of the sources of information for the [history endpoint](#history-endpoint), which means it is user facing.
+
+##### Handling Unexpected Errors
+
+While uncommon, a pipeline step may encounter an unexpected failure at some point. If this happens, the AQS message that initiated the step shall remain on the queue and the AQS message will run again at some point in the future.
+
+In addition to the built-in AQS retry mechanism, the unexpected failure will also get logged to the Azure logs where it can be troubleshooted.
 
 #### Universal Pipeline Metadata and Report and Item Lineage
 
