@@ -1,6 +1,8 @@
+@use "../../../global-modules.scss" as *;
+
 .ReportDetailsSummary {
     hr {
-        border: 1px solid #dfe1e2;
+        border: 1px solid color('gray-cool-10');
     }
 
     :global {
