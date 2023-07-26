@@ -11,6 +11,22 @@
                 padding: 0;
             }
 
+            &--sortable {
+              display: flex;
+              align-items: center;
+    
+              .column-header-text {
+                margin-right: 2px;
+                white-space: nowrap;
+              }
+    
+              svg {
+                flex: none;
+                margin-left: 2px;
+              }
+            }
+
+
             .column-header-button {
                 background-color: color("gray-5");
                 width: 100%;

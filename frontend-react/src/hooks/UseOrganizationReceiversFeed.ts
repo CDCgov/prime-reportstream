@@ -21,6 +21,7 @@ export const useOrganizationReceiversFeed = (): ReceiverFeeds => {
         fetchStatus,
     } = useOrganizationReceivers();
     const [active, setActive] = useState<RSReceiver | undefined>();
+    const [receiversFound, setReceiversFound] = useState<boolean | undefined>();
 
     useEffect(() => {
         if (receivers?.length) {
@@ -30,11 +31,16 @@ export const useOrganizationReceiversFeed = (): ReceiverFeeds => {
                     (val) => val.customerStatus === CustomerStatus.ACTIVE
                 ) || receivers[0] // Defaults to first in array
             );
+            setReceiversFound(true);
+        } else {
+            setReceiversFound(false);
         }
     }, [receivers]);
 
     return {
-        loadingServices: isLoading && fetchStatus !== "idle",
+        loadingServices:
+            (isLoading && fetchStatus !== "idle") ||
+            receiversFound === undefined,
         services: receivers || [],
         activeService: active,
         setActiveService: setActive,
