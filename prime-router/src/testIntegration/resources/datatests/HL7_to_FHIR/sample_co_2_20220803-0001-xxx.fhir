@@ -2,7 +2,7 @@
   "resourceType" : "Bundle",
   "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
   "meta" : {
-    "lastUpdated" : "2023-07-12T16:29:58.554-04:00"
+    "lastUpdated" : "2023-07-21T14:03:46.269-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -306,9 +306,6 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
         "valueString" : "1.1"
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueCodeableConcept" : { }
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
@@ -323,21 +320,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVID19",
-              "display" : "Novel Coronavirus 2019"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "41458-1"
-        } ],
-        "text" : "SARS coronavirus RNA[Presence] in Specimen by NAA with probe detection"
+          "code" : "41458-1",
+          "display" : "SARS coronavirus RNA[Presence] in Specimen by NAA with probe detection"
+        }, {
+          "system" : "L",
+          "code" : "COVID19",
+          "display" : "Novel Coronavirus 2019"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -351,21 +342,15 @@
         "reference" : "PractitionerRole/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
       } ],
       "valueCodeableConcept" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "NEGATIVE",
-              "display" : "NEGATIVE"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "*********"
-        } ],
-        "text" : "Negative"
+          "code" : "*********",
+          "display" : "Negative"
+        }, {
+          "system" : "L",
+          "code" : "NEGATIVE",
+          "display" : "NEGATIVE"
+        } ]
       },
       "method" : {
         "coding" : [ {
@@ -534,9 +519,6 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
         "valueString" : "1.1"
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueCodeableConcept" : { }
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
@@ -551,21 +533,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "INFLUAPCR",
-              "display" : "INFLUENZA A PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "34487-9"
-        } ],
-        "text" : "Influenza virus A RNA [Presence] in Unspecified specimen by NAA with probe detection"
+          "code" : "34487-9",
+          "display" : "Influenza virus A RNA [Presence] in Unspecified specimen by NAA with probe detection"
+        }, {
+          "system" : "L",
+          "code" : "INFLUAPCR",
+          "display" : "INFLUENZA A PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -579,21 +555,15 @@
         "reference" : "PractitionerRole/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
       } ],
       "valueCodeableConcept" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "NEGATIVE",
-              "display" : "NEGATIVE"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "*********"
-        } ],
-        "text" : "Negative"
+          "code" : "*********",
+          "display" : "Negative"
+        }, {
+          "system" : "L",
+          "code" : "NEGATIVE",
+          "display" : "NEGATIVE"
+        } ]
       }
     }
   }, {
@@ -756,9 +726,6 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
         "valueString" : "1.1"
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
-        "valueCodeableConcept" : { }
       } ],
       "identifier" : [ {
         "system" : "urn:id:extID",
@@ -773,21 +740,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "INFLUBPCR",
-              "display" : "INFLUENZA B PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "40982-1"
-        } ],
-        "text" : "Influenza virus B RNA [Presence] in Unspecified specimen by NAA with probe detection"
+          "code" : "40982-1",
+          "display" : "Influenza virus B RNA [Presence] in Unspecified specimen by NAA with probe detection"
+        }, {
+          "system" : "L",
+          "code" : "INFLUBPCR",
+          "display" : "INFLUENZA B PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -801,21 +762,15 @@
         "reference" : "PractitionerRole/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
       } ],
       "valueCodeableConcept" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "NEGATIVE",
-              "display" : "NEGATIVE"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "*********"
-        } ],
-        "text" : "Negative"
+          "code" : "*********",
+          "display" : "Negative"
+        }, {
+          "system" : "L",
+          "code" : "NEGATIVE",
+          "display" : "NEGATIVE"
+        } ]
       }
     }
   }, {
@@ -987,26 +942,17 @@
         "value" : "M7586249"
       } ],
       "type" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
-                "valueString" : "5.67"
-              } ],
-              "system" : "L",
-              "version" : "**********",
-              "code" : "NASAL/NP",
-              "display" : "NASAL/NP SWAB"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "*********"
-        } ],
-        "text" : "Specimen from nasal fossae"
+          "version" : "**********",
+          "code" : "*********",
+          "display" : "Specimen from nasal fossae"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "NASAL/NP",
+          "display" : "NASAL/NP SWAB"
+        } ]
       },
       "receivedTime" : "2022-06-21T13:41:00-06:00",
       "collection" : {
@@ -1017,7 +963,9 @@
       },
       "container" : [ {
         "type" : {
-          "text" : "NASOPHARYNGEAL SWAB"
+          "coding" : [ {
+            "display" : "NASOPHARYNGEAL SWAB"
+          } ]
         },
         "specimenQuantity" : {
           "extension" : [ {
@@ -1055,26 +1003,17 @@
         "value" : "M7586249"
       } ],
       "type" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
-                "valueString" : "5.67"
-              } ],
-              "system" : "L",
-              "version" : "**********",
-              "code" : "NASAL/NP",
-              "display" : "NASAL/NP SWAB"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "*********"
-        } ],
-        "text" : "Specimen from nasal fossae"
+          "version" : "**********",
+          "code" : "*********",
+          "display" : "Specimen from nasal fossae"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "NASAL/NP",
+          "display" : "NASAL/NP SWAB"
+        } ]
       },
       "receivedTime" : "2022-06-21T13:41:00-06:00",
       "collection" : {
@@ -1085,7 +1024,9 @@
       },
       "container" : [ {
         "type" : {
-          "text" : "NASAL WASHING"
+          "coding" : [ {
+            "display" : "NASAL WASHING"
+          } ]
         },
         "specimenQuantity" : {
           "extension" : [ {
@@ -1123,26 +1064,17 @@
         "value" : "M7586249"
       } ],
       "type" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
-                "valueString" : "5.67"
-              } ],
-              "system" : "L",
-              "version" : "**********",
-              "code" : "NASAL/NP",
-              "display" : "NASAL/NP SWAB"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "*********"
-        } ],
-        "text" : "Specimen from nasal fossae"
+          "version" : "**********",
+          "code" : "*********",
+          "display" : "Specimen from nasal fossae"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "NASAL/NP",
+          "display" : "NASAL/NP SWAB"
+        } ]
       },
       "receivedTime" : "2022-06-21T13:41:00-06:00",
       "collection" : {
@@ -1153,7 +1085,9 @@
       },
       "container" : [ {
         "type" : {
-          "text" : "NASAL WASHING"
+          "coding" : [ {
+            "display" : "NASAL WASHING"
+          } ]
         },
         "specimenQuantity" : {
           "extension" : [ {
@@ -1253,21 +1187,15 @@
       } ],
       "status" : "final",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVID19IHCE",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVID19IHCE",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -1543,21 +1471,15 @@
       "status" : "unknown",
       "intent" : "order",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVID19IHCE",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVID19IHCE",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -1644,21 +1566,15 @@
       } ],
       "status" : "final",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "INFLAPCR",
-              "display" : "INFLUENZA A VIRUS PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "34487-9"
-        } ],
-        "text" : "Influenza virus A RNA [Presence] in Unspecified specimen by NAA with probe detection"
+          "code" : "34487-9",
+          "display" : "Influenza virus A RNA [Presence] in Unspecified specimen by NAA with probe detection"
+        }, {
+          "system" : "L",
+          "code" : "INFLAPCR",
+          "display" : "INFLUENZA A VIRUS PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -1922,21 +1838,15 @@
       "status" : "unknown",
       "intent" : "order",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "INFLAPCR",
-              "display" : "INFLUENZA A VIRUS PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "34487-9"
-        } ],
-        "text" : "Influenza virus A RNA [Presence] in Unspecified specimen by NAA with probe detection"
+          "code" : "34487-9",
+          "display" : "Influenza virus A RNA [Presence] in Unspecified specimen by NAA with probe detection"
+        }, {
+          "system" : "L",
+          "code" : "INFLAPCR",
+          "display" : "INFLUENZA A VIRUS PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -2023,21 +1933,15 @@
       } ],
       "status" : "final",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "INFLBPCR",
-              "display" : "INFLUENZA B VIRUS PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "40982-1"
-        } ],
-        "text" : "Influenza virus B RNA [Presence] in Unspecified specimen by NAA with probe detection"
+          "code" : "40982-1",
+          "display" : "Influenza virus B RNA [Presence] in Unspecified specimen by NAA with probe detection"
+        }, {
+          "system" : "L",
+          "code" : "INFLBPCR",
+          "display" : "INFLUENZA B VIRUS PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -2301,21 +2205,15 @@
       "status" : "unknown",
       "intent" : "order",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "INFLBPCR",
-              "display" : "INFLUENZA B VIRUS PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "40982-1"
-        } ],
-        "text" : "Influenza virus B RNA [Presence] in Unspecified specimen by NAA with probe detection"
+          "code" : "40982-1",
+          "display" : "Influenza virus B RNA [Presence] in Unspecified specimen by NAA with probe detection"
+        }, {
+          "system" : "L",
+          "code" : "INFLBPCR",
+          "display" : "INFLUENZA B VIRUS PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -2361,9 +2259,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "L",
-            "code" : "W"
-          } ],
-          "text" : "White"
+            "code" : "W",
+            "display" : "White"
+          } ]
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group",
@@ -2375,21 +2273,15 @@
       }, {
         "url" : "http://hl7.org/fhir/StructureDefinition/patient-animal",
         "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "Human",
-                "display" : "Human"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "http://snomed.info/sct",
-            "code" : "337915000"
-          } ],
-          "text" : "Homo sapiens (organism)"
+            "code" : "337915000",
+            "display" : "Homo sapiens (organism)"
+          }, {
+            "system" : "L",
+            "code" : "Human",
+            "display" : "Human"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -2477,21 +2369,15 @@
       },
       "contact" : [ {
         "relationship" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "SO",
-                "display" : "SON"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "UNKNOWN",
-            "code" : "SO"
-          } ],
-          "text" : "SON"
+            "code" : "SO",
+            "display" : "SON"
+          }, {
+            "system" : "L",
+            "code" : "SO",
+            "display" : "SON"
+          } ]
         } ],
         "name" : {
           "text" : "Kin Connelly",
