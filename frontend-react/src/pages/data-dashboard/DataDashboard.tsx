@@ -18,12 +18,14 @@ function DataDashboard() {
     const { description } = orgDetails || {};
     return (
         <div className={styles.DataDashboard}>
-            <header className="usa-header usa-header--extended bg-primary-darker text-white">
+            <header className="usa-header usa-header--extended bg-primary-darker text-white margin-top-neg-5">
                 <GridContainer className="margin-left-7 margin-right-7 padding-top-8 padding-bottom-8 rs-max-width-100-important">
                     <div className="font-sans-lg text-blue-30 width-full">
                         {description}
                     </div>
-                    <div className="font-sans-2xl">Data Dashboard</div>
+                    <div className="font-sans-2xl text-bold">
+                        Data Dashboard
+                    </div>
                     <hr className="margin-bottom-3" />
                     <div className="font-sans-lg">
                         All the labs, facilities, aggregators, etc. that have
@@ -39,7 +41,7 @@ function DataDashboard() {
                     <hr />
                 </GridContainer>
             </header>
-            <GridContainer className="margin-left-7 margin-right-7 padding-top-8 padding-bottom-8 rs-max-width-100-important">
+            <GridContainer className="margin-left-7 margin-right-7 padding-top-8 rs-max-width-100-important">
                 <Helmet>
                     <title>{FeatureName.DATA_DASHBOARD}</title>
                 </Helmet>
