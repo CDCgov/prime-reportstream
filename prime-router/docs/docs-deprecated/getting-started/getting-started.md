@@ -45,7 +45,7 @@ You will need to have at least the following pieces of software installed _local
 * [git](install-git.md) including git-bash if you're on Windows
 * [Docker or Docker Desktop](install-docker.md)
 * [OpenJDK](install-openjdk.md) (currently targetting 11 through 15)
-* [Azure Functions Core Tools](install-afct.md) (currently targetting 3)
+* [Azure Functions Core Tools](install-afct.md) (currently targetting 4)
 
 The following are optional tools that can aid you during development or debugging:
 
