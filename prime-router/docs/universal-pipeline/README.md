@@ -1,4 +1,5 @@
 # Overview
+<<<<<<< HEAD
 The Universal Pipeline is the core of what ReportStream is, and the two terms are sometimes used interchangeably. The Universal Pipeline is responsible for receiving data from a sender and sending it to one or more receivers. The pipeline was designed to be agnostic of:
 - **data formats** - At present, the pipeline can receive and send *HL7v2.5.1* and *FHIR* formats
 - **data types** - While presently only handling the routing of ELR (Laboratory Data), The pipeline was designed to be able to process the [six core data sources](https://www.cdc.gov/ophdst/public-health-data-strategy/phds-core-data-sources.html) as identified by PHDS:
@@ -23,10 +24,12 @@ flowchart LR;
     Batch-->Send;
 ```
 The sections listed below will aim to describe each step of the pipeline in technical detail. Each step will refer to its part of the detailed architecture diagram found [here](https://lucid.app/lucidchart/invitations/accept/inv_daa20a3a-7979-4463-8932-26033c55abb3). See [Pipeline Steps Overview](#pipeline-steps-overview) for a high level overview of how the different steps combine to form the core functionality of the Universal Pipeline.
+
 - [Receive](./receive.md)
 - [Convert/Translate](./convert-translate.md)
 - [Route](./route.md)
 - [Batch](./batch.md)
+<<<<<<< HEAD
 - [Send](./send.md)
 
 ### Pipeline Scalability and Architecture

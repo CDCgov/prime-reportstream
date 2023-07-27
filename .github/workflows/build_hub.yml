@@ -133,7 +133,7 @@ jobs:
       - name: Generate New Schema Docs
         run: |
           # Clean the docs before regenerating
-          rm -rf generated/schema_documentation/*
+          rm -rf docs/docs_deprecated/schema_documentation/*
           ./gradlew generatedocs
 
       - name: Check for Uncommited Schema Docs
