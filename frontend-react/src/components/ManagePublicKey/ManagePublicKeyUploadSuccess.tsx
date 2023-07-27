@@ -18,9 +18,11 @@ export default function ManagePublicKeyUploadSuccess() {
                 You can now submit data to ReportStream.
             </div>
             <p>
-                If you need more information on your next steps, refer to page
-                11 in the{" "}
-                <USLink href="/resources/api">ReportStream API.</USLink>
+                Read more about
+                <USLink href="/resources/api/getting-started#set-up-authentication">
+                    your next steps for setting up authentication
+                </USLink>
+                .
             </p>
         </div>
     );

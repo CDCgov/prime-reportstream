@@ -146,11 +146,11 @@ export function ManagePublicKey() {
                     </p>
                     <Alert type="tip" className="margin-bottom-6">
                         <span className="padding-left-1">
-                            If you need more information on generating your
-                            public key, reference page 7 in the{" "}
-                            <USLink href="/resources/api">
-                                ReportStream API.
-                            </USLink>
+                            Learn more about
+                            <USLink href="/resources/api/getting-started#set-up-authentication">
+                                generating your public key
+                            </USLink>{" "}
+                            and setting up authentication.
                         </span>
                     </Alert>
                 </>
