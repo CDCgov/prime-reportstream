@@ -5,14 +5,15 @@ import ca.uhn.hl7v2.model.v251.segment.MSH
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
 import io.github.linuxforhealth.hl7.message.HL7MessageEngine
 import io.github.linuxforhealth.hl7.message.HL7MessageModel
 import io.github.linuxforhealth.hl7.resource.ResourceReader
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.Patient
-import org.hl7.fhir.r4.model.StringType
 
 /**
  * Translate an HL7 message to FHIR.
@@ -122,11 +123,17 @@ class HL7toFhirTranslator internal constructor(
                 bundle.addEntry().resource = Patient()
                 bundle.entry.first { it.resource.resourceType.name == "Patient" }.resource as Patient
             }
+
+            if ((birthTime?.length ?: 0) <= 8) {
+                // this field is just a date with no time, no need to create an extension to track the time
+                return
+            }
+
             val extension = Extension(
                 "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
-                StringType(birthTime)
+                DateTimeType(Hl7RelatedGeneralUtils.dateTimeWithZoneId(birthTime, ""))
             )
-            patient.addExtension(extension)
+            patient.birthDateElement.addExtension(extension)
         }
     }
 }
