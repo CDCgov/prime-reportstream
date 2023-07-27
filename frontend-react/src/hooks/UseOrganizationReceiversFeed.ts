@@ -12,7 +12,7 @@ interface ReceiverFeeds {
     setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
     isDisabled: boolean;
 }
-/** Fetches a list of receivers for your active organization, and provides a controller to switch
+/** Fetches a list of receiver services for your active organization, and provides a controller to switch
  * between them */
 export const useOrganizationReceiversFeed = (): ReceiverFeeds => {
     const {
