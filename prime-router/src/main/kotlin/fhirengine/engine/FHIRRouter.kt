@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.EvaluateFilterConditionErrorMessage
@@ -387,7 +388,7 @@ class FHIRRouter(
             //  default: allowAll
             val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
             val allObservations = FhirPathUtils.evaluate(
-                CustomContext(bundle, bundle, shorthandLookupTable),
+                CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
                 bundle,
                 bundle,
                 allObservationsExpression
@@ -510,7 +511,7 @@ class FHIRRouter(
         filter.forEach { filterElement ->
             try {
                 val filterElementResult = FhirPathUtils.evaluateCondition(
-                    CustomContext(bundle, focusResource, shorthandLookupTable),
+                    CustomContext(bundle, focusResource, shorthandLookupTable, CustomFhirPathFunctions()),
                     focusResource,
                     bundle,
                     filterElement
@@ -561,7 +562,7 @@ class FHIRRouter(
         filter.forEach { filterElement ->
             try {
                 val filterElementResult = FhirPathUtils.evaluateCondition(
-                    CustomContext(bundle, focusResource, shorthandLookupTable),
+                    CustomContext(bundle, focusResource, shorthandLookupTable, CustomFhirPathFunctions()),
                     focusResource,
                     bundle,
                     filterElement

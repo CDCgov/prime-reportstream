@@ -1,10 +1,10 @@
 package gov.cdc.prime.router.fhirengine.utils
 
+import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
@@ -254,7 +254,7 @@ object FHIRBundleHelpers {
     ): List<Extension> {
         val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
         val allObservations = FhirPathUtils.evaluate(
-            CustomContext(fhirBundle, fhirBundle, shortHandLookupTable),
+            CustomContext(fhirBundle, fhirBundle, shortHandLookupTable, CustomFhirPathFunctions()),
             fhirBundle,
             fhirBundle,
             allObservationsExpression
@@ -264,7 +264,7 @@ object FHIRBundleHelpers {
         allObservations.forEach { observation ->
             val passes = receiver.conditionFilter.any { conditionFilter ->
                 FhirPathUtils.evaluateCondition(
-                    CustomContext(fhirBundle, observation, shortHandLookupTable),
+                    CustomContext(fhirBundle, observation, shortHandLookupTable, CustomFhirPathFunctions()),
                     observation,
                     fhirBundle,
                     conditionFilter
