@@ -1,6 +1,6 @@
 # Overview
 <<<<<<< HEAD
-The Universal Pipeline is the core of what ReportStream is, and the two terms are sometimes used interchangeably. The Universal Pipeline is responsible for receiving data from a sender and sending it to one or more receivers. The pipeline was designed to be agnostic of:
+The Universal Pipeline is the core of what ReportStream is, and the two terms are sometimes used interchangeably. The Universal Pipeline is responsible for receiving medical data from a sender and sending it to one or more receivers. The pipeline was designed to be agnostic of:
 - **data formats** - At present, the pipeline can receive and send *HL7v2.5.1* and *FHIR* formats
 - **data types** - While presently only handling the routing of ELR (Laboratory Data), The pipeline was designed to be able to process the [six core data sources](https://www.cdc.gov/ophdst/public-health-data-strategy/phds-core-data-sources.html) as identified by PHDS:
     - Case data
@@ -33,9 +33,7 @@ The sections listed below will aim to describe each step of the pipeline in tech
 - [Send](./send.md)
 
 ### Pipeline Scalability and Architecture
-Each pipeline step runs as its own *Azure Function* (equivalent to lambdas in AWS) in ReportStream's Microsoft Azure Account. This means ReportStream and its Universal Pipeline are architected for, and deployed to, the cloud. The Universal Pipeline is horizontally and vertically scalable. AWS manages the life cycle of each function and dynamically decides how many of each function to instantiate based on load - ensuring ReportStream can handle even peak COVID reporting numbers! See the following diagram for more info on ReportStream's architecture:
-
-![rs-architecture.png](../assets/rs-architecture.png)
+Each pipeline step runs as its own *Azure Function* (equivalent to lambdas in AWS) in ReportStream's Microsoft Azure Account. This means ReportStream and its Universal Pipeline are architected for, and deployed to, the cloud. The Universal Pipeline is horizontally and vertically scalable. AWS manages the life cycle of each function and dynamically decides how many of each function to instantiate based on load - ensuring ReportStream can handle even peak COVID reporting numbers!
 
 ### `Report` and `Item`
 
