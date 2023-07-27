@@ -197,11 +197,11 @@ export default function FileHandler() {
                 </div>
                 {StepComponent !== FileHandlerSuccessStep && (
                     <Alert headingLevel="h3" type="tip">
-                        Pages 18-29 in the{" "}
-                        <USLink href="/resources/programmers-guide">
-                            API Programmer’s Guide
+                        Reference{" "}
+                        <USLink href="/resources/api/documentation/data-model">
+                            the data model
                         </USLink>{" "}
-                        have the information you need to validate your file
+                        for the information needed to validate your file
                         successfully. Pay special attention to which fields are
                         required and common mistakes.
                     </Alert>

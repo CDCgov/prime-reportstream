@@ -19,12 +19,15 @@ export default function FileHandlerSuccessStep() {
                 <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
                     {site.orgs.RS.email}
                 </USExtLink>{" "}
-                to let us know you have validated your file. Our team will be in
-                touch soon to help you get set up in staging.
+                and let us know you have validated your file. Our team will
+                respond soon to help you get set up in staging.
             </p>
             <p className="font-size-18 margin-0">
-                Learn more about the onboarding process in the{" "}
-                <USLink href="/resources/api">ReportStream API</USLink>.
+                Learn more about your next steps in{" "}
+                <USLink href="/resources/api/getting-started#set-up-authentication">
+                    the onboarding process
+                </USLink>
+                .
             </p>
         </div>
     );
