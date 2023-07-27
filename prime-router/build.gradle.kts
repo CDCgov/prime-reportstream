@@ -550,6 +550,8 @@ dockerCompose {
 
 tasks.azureFunctionsRun {
     dependsOn("composeUp")
+    dependsOn("uploadSwaggerUI").mustRunAfter("composeUp")
+
     // This storage account key is not a secret, just a dummy value.
     val devAzureConnectString =
         "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
@@ -577,21 +579,21 @@ tasks.azureFunctionsRun {
 }
 
 task<Exec>("uploadSwaggerUI") {
+    group = rootProject.description ?: ""
+    description = "Upload swagger ui and API docs to azure storage blob container"
     commandLine("./upload_swaggerui.sh")
 }
 
 tasks.register("run") {
     group = rootProject.description ?: ""
     description = "Run the Azure functions locally.  Note this needs the required services running as well"
-    dependsOn("uploadSwaggerUI")
-    dependsOn("azureFunctionsRun").mustRunAfter("uploadSwaggerUI")
+    dependsOn("azureFunctionsRun")
 }
 
 tasks.register("quickRun") {
     group = rootProject.description ?: ""
     description = "Run the Azure functions locally skipping tests and migration"
-    dependsOn("uploadSwaggerUI")
-    dependsOn("azureFunctionsRun").mustRunAfter("uploadSwaggerUI")
+    dependsOn("azureFunctionsRun")
     tasks["test"].enabled = false
     tasks["jacocoTestReport"].enabled = false
     tasks["compileTestKotlin"].enabled = false
