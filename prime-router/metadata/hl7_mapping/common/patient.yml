@@ -61,12 +61,13 @@ elements:
   #race
   - name: patient-race-identifier
     value:
-      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding.code'
+      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[0].code'
       - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("ombCategory").value.code'
     hl7Spec: [ '%{hl7PIDField}-10-1' ]
 
   - name: patient-race-text
     value:
+      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[0].display'
       - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.text'
       - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("text").value'
       - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("ombCategory").value.display'
@@ -82,18 +83,18 @@ elements:
     hl7Spec: [ '%{hl7PIDField}-10-3' ]
 
   - name: patient-race-alternate-identifier
-    resource: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
-    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.code' ]
+    value:
+      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[1].code'
     hl7Spec: [ '%{hl7PIDField}-10-4' ]
 
   - name: patient-race-alternate-text
-    resource: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
-    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.display' ]
+    value:
+      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[1].display'
     hl7Spec: [ '%{hl7PIDField}-10-5' ]
 
   - name: patient-race-alternate-system
-    resource: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
-    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.system' ]
+    value:
+      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[1].system'
     hl7Spec: [ '%{hl7PIDField}-10-6' ]
 
   - name: patient-race-coding-system-version
@@ -191,30 +192,8 @@ elements:
     hl7Spec: [ '%{hl7PIDField}-34-3' ]
 
   - name: patient-species-identifier
-    value: [ '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value.coding.code' ]
-    hl7Spec: [ '%{hl7PIDField}-35-1' ]
-
-  - name: patient-species-text
-    value: [ '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value.text' ]
-    hl7Spec: [ '%{hl7PIDField}-35-2' ]
-
-  # need to check why the value we get here is SCT instead of HL70446
-  - name: patient-species-coding-system
-    condition: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value.coding.code.exists()'
-    value: [ '"SCT"' ]
-    hl7Spec: [ '%{hl7PIDField}-35-3' ]
-
-  - name: patient-species-alternate-identifier
     resource: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value'
-    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.code' ]
-    hl7Spec: [ '%{hl7PIDField}-35-4' ]
+    constants:
+      ceFieldPath: '%{hl7PIDField}-35'
+    schema: ../common/datatype/ce-coded-element
 
-  - name: patient-species-alternate-text
-    resource: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value'
-    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.display' ]
-    hl7Spec: [ '%{hl7PIDField}-35-5' ]
-
-  - name: patient-species-alternate-system
-    resource: '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-animal").value'
-    value: [ '%resource.extension(%`rsext-alternate-identifier`).value.coding.system' ]
-    hl7Spec: [ '%{hl7PIDField}-35-6' ]

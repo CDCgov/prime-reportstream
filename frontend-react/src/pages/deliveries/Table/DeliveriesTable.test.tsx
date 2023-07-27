@@ -66,7 +66,7 @@ describe("DeliveriesTable", () => {
 
     describe("useReceiverFeed without data", () => {
         beforeEach(() => {
-            // Mock our receivers feed data
+            // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
                 loadingServices: false,
@@ -181,7 +181,7 @@ describe("DeliveriesTableWithNumbered", () => {
 
         describe("with no services", () => {
             beforeEach(() => {
-                // Mock our receivers feed data
+                // Mock our receiver services feed data
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: undefined,
                     loadingServices: false,
@@ -238,7 +238,7 @@ describe("DeliveriesTableWithNumbered", () => {
 
     describe("when disabled", () => {
         beforeEach(() => {
-            // Mock our receivers feed data
+            // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
                 loadingServices: false,

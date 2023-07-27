@@ -19,8 +19,15 @@ elements:
 
   - name: result-value-type-ce
     condition: '%resource.value is CodeableConcept'
-    # Note that for v.2.5 and earlier CWE does not exist.
+    # Note that for v.2.5 and earlier CWE is not in-spec.
     value: [ '"CE"' ]
+    hl7Spec: [ '%{hl7OBXField}-2' ]
+
+  - name: result-value-type-cwe
+    resource: '%resource.value'
+    condition: '%resource is CodeableConcept and (%resource.coding[0].version.exists() or %resource.coding[1].version.exists() or %resource.text.exists())'
+    # Note that for v.2.5 and earlier, CWE is not officially in-spec, but is widely used.
+    value: [ '"CWE"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-sn
@@ -29,35 +36,10 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: observation-identifier-code
-    value: [ '%resource.code.coding.code' ]
-    hl7Spec: [ '%{hl7OBXField}-3-1' ]
-
-  - name: observation-identifier-text
-    value: [ '%resource.code.text' ]
-    hl7Spec: [ '%{hl7OBXField}-3-2' ]
-
-  - name: observation-identifier-coding-system
-    value: [ '%resource.code.coding.system' ]
-    hl7Spec: [ '%{hl7OBXField}-3-3' ]
-
-  # override to handle LN translated to loinc L on HL7->FHIR conversion
-  - name: observation-identifier-coding-system-ln
-    resource: '%resource.code.coding'
-    condition: '%resource.system = "http://loinc.org"'
-    value: [ '%resource.system.getCodingSystemMapping()' ]
-    hl7Spec: [ '%{hl7OBXField}-3-3' ]
-
-  - name: observation-identifier-alternate-code
-    value: [ '%resource.code.extension(%`rsext-alternate-identifier`).value.coding.code' ]
-    hl7Spec: [ '%{hl7OBXField}-3-4' ]
-
-  - name: observation-identifier-alternate-text
-    value: [ '%resource.code.extension(%`rsext-alternate-identifier`).value.coding.display' ]
-    hl7Spec: [ '%{hl7OBXField}-3-5' ]
-
-  - name: observation-identifier-alternate-system
-    value: [ '%resource.code.extension(%`rsext-alternate-identifier`).value.coding.system' ]
-    hl7Spec: [ '%{hl7OBXField}-3-6' ]
+    resource: '%resource.code'
+    constants:
+      ceFieldPath: '%{hl7OBXField}-3'
+    schema: ../../common/datatype/ce-coded-element
 
   - name: observation-value-sub-id
     value: [ '%resource.extension(%`rsext-sub-id`).value' ]
@@ -86,34 +68,10 @@ elements:
     schema: ../../common/datatype/sn-structured-numeric
 
   - name: observation-units-identifier
-    value: [ '%resource.extension(%`rsext-units`).value.coding.code' ]
-    hl7Spec: [ '%{hl7OBXField}-6-1' ]
-
-  - name: observation-units-text
-    value: [ '%resource.extension(%`rsext-units`).value.text' ]
-    hl7Spec: [ '%{hl7OBXField}-6-2' ]
-
-  - name: observation-units-system
-    condition: >
-      %resource.extension(%`rsext-units`).exists() and 
-      %resource.extension(%`rsext-units`).value.coding.system = "http://unitsofmeasure.org"
-    value: [ '"UCUM"' ]
-    hl7Spec: [ '%{hl7OBXField}-6-3' ]
-
-  - name: observation-units-alternate-identifier
-    resource: '%resource.extension(%`rsext-units`).value.extension(%`rsext-alternate-identifier`).value'
-    value: [ '%resource.coding.code' ]
-    hl7Spec: [ '%{hl7OBXField}-6-4' ]
-
-  - name: observation-units-alternate-text
-    resource: '%resource.extension(%`rsext-units`).value.extension(%`rsext-alternate-identifier`).value'
-    value: [ '%resource.coding.display' ]
-    hl7Spec: [ '%{hl7OBXField}-6-5' ]
-
-  - name: observation-units-alternate-system
-    resource: '%resource.extension(%`rsext-units`).value.extension(%`rsext-alternate-identifier`).value'
-    value: [ '%resource.coding.system' ]
-    hl7Spec: [ '%{hl7OBXField}-6-6' ]
+    resource: '%resource.extension(%`rsext-units`).value'
+    constants:
+      ceFieldPath: '%{hl7OBXField}-6'
+    schema: ../../common/datatype/ce-coded-element
 
   - name: observation-reference-range
     value: [ '%resource.referenceRange.text' ]
@@ -122,7 +80,6 @@ elements:
   - name: observation-abnormal-flag
     resource: '%resource.interpretation'
     constants:
-      versionId: '2.7'
       cweFieldPath: '%{hl7OBXField}-8'
     schema: ../../common/datatype/ce-coded-with-exceptions
 
