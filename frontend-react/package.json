@@ -149,7 +149,7 @@
         "bfj": "^7.0.2",
         "browserslist": "^4.21.9",
         "camelcase": "^6.2.1",
-        "chromatic": "^6.19.9",
+        "chromatic": "^6.20.0",
         "confusing-browser-globals": "^1.0.11",
         "cross-env": "^7.0.3",
         "cypress": "^12.17.2",
