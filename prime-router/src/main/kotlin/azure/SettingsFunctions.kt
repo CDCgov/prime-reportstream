@@ -267,7 +267,7 @@ open class BaseFunction(
      * @param request Http request
      * @param clazz The class used to convert to Json
      * @param organizationName Organization to get settings for
-     * @return
+     * @return HttpResponseMessage resulting json or HTTP error response
      */
     fun <T : SettingAPI> getList(
         request: HttpRequestMessage<String?>,
