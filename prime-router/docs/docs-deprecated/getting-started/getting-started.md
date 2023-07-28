@@ -45,7 +45,7 @@ You will need to have at least the following pieces of software installed _local
 * [git](install-git.md) including git-bash if you're on Windows
 * [Docker or Docker Desktop](install-docker.md)
 * [OpenJDK](install-openjdk.md) (currently targetting 11 through 15)
-* [Azure Functions Core Tools](install-afct.md) (currently targetting 3)
+* [Azure Functions Core Tools](install-afct.md) (currently targetting 4)
 
 The following are optional tools that can aid you during development or debugging:
 
@@ -149,7 +149,7 @@ $ terraform fmt -recursive
 
 ## Updating schema documentation
 You must run the schema document generator after a schema file is updated.  The updated documents are stored in
-`docs/schema-documentation` and must be included with your schema changes. The CI/CD pipeline checks for the need to update
+`generated/schema-documentation` and must be included with your schema changes. The CI/CD pipeline checks for the need to update
 schema documentation and the build will fail if the schema documentation updates are not included.
 
 ```bash

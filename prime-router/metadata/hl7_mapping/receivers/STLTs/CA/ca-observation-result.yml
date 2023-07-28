@@ -1,10 +1,12 @@
 constants:
   hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
   rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
-  alternateIdentifierExtension: '%resource.value.extension(%`rsext-alternate-identifier`)'
-  originalTextExtension: '%alternateIdentifierExtension.value.coding.extension(%`rsext-original-text`)'
   observation: '%diagnostic.result[%resultIndex].resolve()'
 elements:
+  - name: ca-observation-abnormal-flag-version
+    condition: '%resource.interpretation.exists() and %resource.interpretation.coding[0].version.exists().not()'
+    value: [ '2.7' ]
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-8-7' ]
 
   - name: ca-observation-date-time
     condition: '%observation.effective.exists()'
@@ -42,9 +44,9 @@ elements:
     hl7Spec: [ '%{hl7ObservationPath}/OBX-17-1' ]
 
   - name: ca-observation-original-text
-    condition: '%alternateIdentifierExtension.exists() and %originalTextExtension.exists()'
-    hl7Spec: [ '%{hl7ObservationPath}/OBX-17-2' ]
-    value: [ '%originalTextExtension.value' ]
+    condition: '%resource.method.coding[0].display.exists()'
+    hl7Spec: [ '%{hl7ObservationPath}/OBX-17-9' ]
+    value: [ '%resource.method.coding[0].display' ]
 
   # California requirement: Move all regular notes and AOE questions between last OBX segment and SPM
   #   as NTE segments
