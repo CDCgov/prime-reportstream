@@ -1,3 +1,5 @@
+@use "../../global-modules.scss" as *;
+
 .DataDashboard {
     header {
         a {
@@ -7,7 +9,7 @@
     }
 
     hr {
-        border: 1px solid color('primary-dary');
+        border: 1px solid color('primary-dark');
     }
 
     :global {

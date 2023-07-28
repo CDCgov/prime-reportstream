@@ -105,6 +105,18 @@ elements:
     value: [ '%resource.code' ]
     hl7Spec: [ MSH-11-2 ]
 
+  - name: accept-acknowledgement-type
+    resource: '%resource.extension(%`rsext-accept-acknowledgement-type`).value'
+    condition: '%resource.exists() and %resource.type.coding.code.exists()'
+    value: [ '%resource.type.coding.code' ]
+    hl7Spec: [ MSH-15 ]
+
+  - name: app-acknowledgement-type
+    resource: '%resource.extension(%`rsext-application-acknowledgement-type`).value'
+    condition: '%resource.exists() and %resource.type.coding.code.exists()'
+    value: [ '%resource.type.coding.code' ]
+    hl7Spec: [ MSH-16 ]
+
   - name: country-code
     value:
       - '%resource.sender.resolve().address.country'
@@ -114,3 +126,11 @@ elements:
   - name: message-character-set
     value: [ '"UNICODE UTF-8"' ]
     hl7Spec: [ MSH-18 ]
+
+  - name: message-profile-identifier
+    resource: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id").value'
+    condition: '%resource.exists()'
+    constants:
+      entityIdFieldPath: 'MSH-21(%{entityIdIndex})'
+    schema: datatype/ei-entity-identifier
+    resourceIndex: entityIdIndex

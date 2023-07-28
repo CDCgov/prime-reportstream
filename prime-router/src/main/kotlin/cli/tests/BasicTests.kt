@@ -1165,7 +1165,7 @@ class InternationalContent : CoolTest() {
             options.dir,
             // Use the Chinese locale since the fake data is mainly Chinese characters
             // https://github.com/DiUS/java-faker/blob/master/src/main/resources/zh-CN.yml
-            locale = Locale("zh_CN")
+            locale = Locale.CHINA
         )
         echo("Created datafile $file")
         // Now send it to ReportStream.

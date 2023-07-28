@@ -41,6 +41,7 @@ resource "azurerm_app_service" "metabase" {
 
   app_settings = {
     "MB_DB_CONNECTION_URI" = "postgresql://${var.postgres_server_name}.postgres.database.azure.com:5432/metabase?user=${var.postgres_user}@${var.postgres_server_name}&password=${var.postgres_pass}&sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+    "MB_PASSWORD_LENGTH"="10"
 
     # Route outbound traffic through the VNET
     "WEBSITE_VNET_ROUTE_ALL" = 1
