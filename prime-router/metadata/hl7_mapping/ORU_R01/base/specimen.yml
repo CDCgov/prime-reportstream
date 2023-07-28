@@ -22,7 +22,7 @@ elements:
     schema: ../../common/datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
-#  If there's only one identifier and system is empty get identifier from performer org
+  #  If there's only one identifier and system is empty get identifier from performer org
   - name: specimen-organization-identifier
     condition: '%specimen.identifier.count() = 1 and %specimen.identifier.system.empty()'
     resource: '%performerOrganization'
@@ -43,7 +43,6 @@ elements:
   - name: specimen-type
     resource: '%resource.type'
     constants:
-      versionId: '2.67'
       cweFieldPath: '%{hl7SpecimenFieldPath}-4'
     schema: ../../common/datatype/ce-coded-with-exceptions
 

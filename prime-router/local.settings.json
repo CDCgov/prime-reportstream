@@ -3,7 +3,7 @@
   "Values": {
     "WEBSITE_RUN_FROM_PACKAGE": "1",
     "FUNCTIONS_WORKER_RUNTIME": "java",
-    "FUNCTIONS_EXTENSION_VERSION": "~3",
+    "FUNCTIONS_EXTENSION_VERSION": "~4",
     "JAVA_OPTS": "-Dfile.encoding=UTF-8 -Dcom.sun.management.jmxremote.rmi.port=9090 -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.port=9090 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.local.only=false -Djava.rmi.server.hostname=localhost",
     "REMOTE_CONNECTION_CHECK_SCHEDULE": "0 8 */1 * *"
   },
@@ -11,6 +11,6 @@
   "version": "2.0",
   "extensionBundle": {
     "id": "Microsoft.Azure.Functions.ExtensionBundle",
-    "version": "[3.3.0, 4.0.0)"
+    "version": "[4.*, 5.0.0)"
   }
 }
