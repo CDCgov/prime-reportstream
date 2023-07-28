@@ -151,15 +151,15 @@ class ReportFunction(
                 actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
                 val validatedRequest = validateRequest(request)
                 // removes incoming '#' if included in separation characters
-                val content = validatedRequest.content.replace("|^~\\&#", "|^~\\&")
+                val content = validatedRequest.content
                 val rawBody = content.toByteArray()
 
                 // if the override parameter is populated, use that, otherwise use the sender value
-                val allowDuplicates = if
-                (!allowDuplicatesParam.isNullOrEmpty()) allowDuplicatesParam == "true"
-                else {
-                    sender.allowDuplicates
-                }
+                val allowDuplicates =
+                    if (!allowDuplicatesParam.isNullOrEmpty())
+                        allowDuplicatesParam == "true"
+                    else
+                        sender.allowDuplicates
 
                 // Only process the report if we are not checking for connection or validation.
                 if (option != Options.CheckConnections && option != Options.ValidatePayload) {

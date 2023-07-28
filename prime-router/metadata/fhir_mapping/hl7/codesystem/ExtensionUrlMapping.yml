@@ -31,6 +31,9 @@
 # condition-assertedDate
 - id: "condition-assertedDate"
   url: "http://hl7.org/fhir/StructureDefinition/condition-assertedDate"
+# message encoding characters
+- id: "encoding-characters"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters"
 # source message profile ID
 - id: "source-message-profile-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id"

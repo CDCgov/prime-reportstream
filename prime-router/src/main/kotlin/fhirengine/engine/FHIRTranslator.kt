@@ -1,6 +1,8 @@
 package gov.cdc.prime.router.fhirengine.engine
 
 import ca.uhn.fhir.context.FhirContext
+import ca.uhn.hl7v2.model.Message
+import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogger
@@ -133,7 +135,7 @@ class FHIRTranslator(
         }
         Report.Format.HL7, Report.Format.HL7_BATCH -> {
             val hl7Message = getHL7MessageFromBundle(bundle, receiver)
-            hl7Message.encode().toByteArray()
+            hl7Message.encodePreserveEncodingChars().toByteArray()
         }
         else -> {
             error("Receiver format ${receiver.format} not supported.")
@@ -237,4 +239,20 @@ class FHIRTranslator(
         }
         return this
     }
+}
+
+/**
+ * Encodes a message while avoiding an error when MSH-2 is five characters long
+ *
+ * @return the encoded message as a string
+ */
+fun Message.encodePreserveEncodingChars(): String {
+    // get encoding characters ...
+    val msh = this.get("MSH") as Segment
+    val encCharString = Terser.get(msh, 2, 0, 1, 1)
+    val hasFiveEncodingChars = encCharString == "^~\\&#"
+    if (hasFiveEncodingChars) Terser.set(msh, 2, 0, 1, 1, "^~\\&")
+    var encodedMsg = encode()
+    if (hasFiveEncodingChars) encodedMsg = encodedMsg.replace("^~\\&", "^~\\&#")
+    return encodedMsg
 }

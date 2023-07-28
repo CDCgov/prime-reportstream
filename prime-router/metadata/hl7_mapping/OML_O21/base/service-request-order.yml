@@ -9,11 +9,12 @@ elements:
   - name: order-status
     value: [ '%resource.status' ]
     valueSet:
-      revoked: CA
-      completed: CM
-      entered-in-error: ER
-      on-hold: HD
-      active: IP
+      values:
+        revoked: CA
+        completed: CM
+        entered-in-error: ER
+        on-hold: HD
+        active: IP
     hl7Spec: [ '%{hl7ORCField}-5' ]
 
   - name: order-date-time-of-transaction

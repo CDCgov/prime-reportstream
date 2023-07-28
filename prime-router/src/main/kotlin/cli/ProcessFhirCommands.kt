@@ -3,6 +3,8 @@ package gov.cdc.prime.router.cli
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.fhirpath.FhirPathExecutionException
 import ca.uhn.hl7v2.model.Message
+import ca.uhn.hl7v2.model.Segment
+import ca.uhn.hl7v2.util.Terser
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.ProgramResult
@@ -16,6 +18,7 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
@@ -71,9 +74,7 @@ class ProcessFhirCommands : CliktCommand(
 
     override fun run() {
         // Read the contents of the file
-        // Note 8/18/2022: adding in a manual character delimeter replacement to make the primeCLI work with our HCA
-        //  sample files. We may want to change this in the future, but for convenience this `replace` is here
-        val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8).replace("^~\\&#", "^~\\&")
+        val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8)
         if (contents.isBlank()) throw CliktError("File ${inputFile.absolutePath} is empty.")
         val actionLogger = ActionLogger()
         // Check on the extension of the file for supported operations
@@ -127,7 +128,11 @@ class ProcessFhirCommands : CliktCommand(
      * @return a FHIR bundle that represents the data in the one HL7 message
      */
     private fun convertToFhir(hl7String: String, actionLogger: ActionLogger): Bundle {
-        val messages = HL7Reader(actionLogger).getMessages(hl7String)
+        val hasFiveEncodingChars = hl7String.contains("MSH|^~\\&#|")
+        val stringToEncode =
+            if (hasFiveEncodingChars) hl7String.replace("MSH|^~\\&#|", "MSH|^~\\&|")
+            else hl7String
+        val messages = HL7Reader(actionLogger).getMessages(stringToEncode)
         if (messages.isEmpty()) throw CliktError("No HL7 messages were read.")
         val message = if (messages.size > 1) {
             if (hl7ItemIndex == null)
@@ -139,6 +144,10 @@ class ProcessFhirCommands : CliktCommand(
         // if a hl7 parsing failure happens, throw error and show the message
         if (message.toString().lowercase().contains("failed"))
             throw CliktError("HL7 parser failure. $message")
+        if (hasFiveEncodingChars) {
+            val msh = message.get("MSH") as Segment
+            Terser.set(msh, 2, 0, 1, 1, "^~\\&#")
+        }
         return HL7toFhirTranslator.getInstance().translate(message)
     }
 
@@ -169,7 +178,7 @@ class ProcessFhirCommands : CliktCommand(
      * Output an HL7 [message] to the screen or a file.
      */
     private fun outputResult(message: Message) {
-        val text = message.encode()
+        val text = message.encodePreserveEncodingChars()
         if (outputFile != null) {
             outputFile!!.writeText(text, Charsets.UTF_8)
             echo("Wrote output to ${outputFile!!.absolutePath}")
