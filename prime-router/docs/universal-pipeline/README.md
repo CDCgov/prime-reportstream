@@ -29,7 +29,6 @@ The sections listed below will aim to describe each step of the pipeline in tech
 - [Convert/Translate](./convert-translate.md)
 - [Route](./route.md)
 - [Batch](./batch.md)
-<<<<<<< HEAD
 - [Send](./send.md)
 
 ### Pipeline Scalability and Architecture
