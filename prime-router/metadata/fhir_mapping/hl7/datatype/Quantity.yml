@@ -1,6 +1,11 @@
 value_1 :
   condition: $value CONTAINS_STRING '.'
-#  type: FLOAT  # not specifying a type results in the full "value" being reported correctly and no rounding/float conversion occurs
+#  Not specifying a type results in the full "value" being reported correctly and no rounding/float conversion occurs.
+#  This is meant as a temporary workaround to the type FLOAT rounding the value.
+#  For a permanent solution, an issue was submitted to LinuxForHealth/hl7v2-fhir-converter at
+#  https://github.com/LinuxForHealth/hl7v2-fhir-converter/issues/500
+#  in order to add a new decimal type that will not round the value
+#  type: FLOAT
   valueOf: $value
 value_2 :
   # Try to keep implicit precision for integers
