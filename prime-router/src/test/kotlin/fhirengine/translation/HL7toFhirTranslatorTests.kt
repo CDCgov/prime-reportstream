@@ -6,6 +6,7 @@ import assertk.assertions.isFailure
 import assertk.assertions.isGreaterThan
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
