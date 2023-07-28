@@ -11,6 +11,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
+import java.time.Duration
 
 const val elrConvertQueueName = "elr-fhir-convert"
 const val elrRoutingQueueName = "elr-fhir-route"
@@ -129,4 +130,12 @@ abstract class FHIREngine(
         actionLogger: ActionLogger,
         actionHistory: ActionHistory
     )
+
+    /**
+     * This value is used to delay the next step in the pipeline from processing the event in order to make sure
+     * that the requisite DB transaction has been committed.
+     *
+     * It should be removed as part of implementing https://github.com/CDCgov/prime-reportstream/issues/10638
+     */
+    val queueVisibilityTimeout: Duration = Duration.ofMinutes(5)
 }
