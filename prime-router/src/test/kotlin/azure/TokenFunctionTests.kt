@@ -193,7 +193,7 @@ class TokenFunctionTests {
             anyConstructed<ActionHistory>().trackActionResult(
                 match<String> {
                     it.startsWith(
-                        "AccessToken Request Denied: Malformed JWT JSON: ����"
+                        "AccessToken Request Denied: Malformed JWT JSON: "
                     )
                 }
             )
