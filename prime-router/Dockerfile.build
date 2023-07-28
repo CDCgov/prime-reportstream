@@ -4,7 +4,7 @@
 # with some suggested default shown here
 #
 # --build-arg GRADLE_VERSION=7.6.1        - The version of Gradle you want to build with
-# --build-arg AFCT_VERSION=3.0.3568     - The version of the Azure Functions Core Tools
+# --build-arg AFCT_VERSION=4.0.5198     - The version of the Azure Functions Core Tools
 # --build-arg JAVA_VERSION=11           - The version of the JDK (and thus JRE) you want to build against/with
 #
 
@@ -15,7 +15,7 @@
 #
 FROM alpine:3.18 AS downloader
 ARG GRADLE_VERSION=7.6.1
-ARG AFCT_VERSION=3.0.3568
+ARG AFCT_VERSION=4.0.5198
 
 RUN apk update && apk add wget --no-cache
 

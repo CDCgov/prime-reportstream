@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid } from "@trussworks/react-uswds";
+import { Grid, Icon } from "@trussworks/react-uswds";
 
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import ReportLink from "../../../pages/deliveries/Table/ReportLink";
@@ -19,8 +19,8 @@ export function ReportDetailsSummary(props: Props) {
 
     return (
         <div className={styles.ReportDetailsSummary}>
-            <div className="margin-bottom-3">
-                <h1 className="margin-top-0">Report Details</h1>
+            <div className="margin-top-1 margin-bottom-3">
+                <div className="font-sans-2xl text-bold">Report Details</div>
                 {!isDateExpired(report!.expires) && (
                     <div className="font-sans-lg display-flex flex-align-end">
                         Download as <ReportLink report={report} button />
@@ -32,7 +32,7 @@ export function ReportDetailsSummary(props: Props) {
                     <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="text-bold padding-right-3">
-                            Report ID
+                            Report ID <Icon.Info />
                         </span>
                     </Grid>
                     <Grid col={4} className="padding-right-6">
@@ -54,14 +54,13 @@ export function ReportDetailsSummary(props: Props) {
                     <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="text-bold padding-right-3">
-                            Date range
+                            Date sent to you
                         </span>
                     </Grid>
                     <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
-                            {formatDateWithoutSeconds(report!.batchReadyAt)} -{" "}
-                            {formatDateWithoutSeconds(report!.expires)}
+                            {formatDateWithoutSeconds(report!.batchReadyAt)}{" "}
                         </span>
                     </Grid>
                     <Grid col={2}>
@@ -79,38 +78,22 @@ export function ReportDetailsSummary(props: Props) {
                     <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="text-bold padding-right-3">
-                            Date sent to you
-                        </span>
-                    </Grid>
-                    <Grid col={4} className="padding-right-6">
-                        <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="font-code-xs">
-                            {formatDateWithoutSeconds(report!.batchReadyAt)}{" "}
-                        </span>
-                    </Grid>
-                    <Grid col={2}>
-                        <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="text-bold padding-right-3">
-                            Folder location
-                        </span>
-                    </Grid>
-                    <Grid col={4}>
-                        <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="font-code-xs"></span>
-                    </Grid>
-                </Grid>
-                <Grid row>
-                    <Grid col={2}>
-                        <hr className="margin-top-2 margin-bottom-2" />
-                        <span className="text-bold padding-right-3">
                             Available until
                         </span>
+                        <hr className="margin-top-2 margin-bottom-2" />
                     </Grid>
                     <Grid col={4} className="padding-right-6">
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="font-code-xs">
                             {formatDateWithoutSeconds(report!.expires)}{" "}
                         </span>
+                        <hr className="margin-top-2 margin-bottom-2" />
+                    </Grid>
+                    <Grid col={2}>
+                        <hr className="margin-top-2 margin-bottom-2" />
+                    </Grid>
+                    <Grid col={4}>
+                        <hr className="margin-top-2 margin-bottom-2" />
                     </Grid>
                 </Grid>
             </section>

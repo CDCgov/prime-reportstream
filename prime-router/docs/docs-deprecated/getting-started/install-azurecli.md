@@ -24,8 +24,7 @@ See https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-macos for furth
 ### Debian-based
 
 ```bash
-sudo apt-get update
-sudo apt-get --yes install azure-cli
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 ```
 
-See https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=linux for further instructions (including instructions for Ubuntu-specific ones).
+See https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?pivots=apt#installation-options for further instructions (including instructions for Ubuntu-specific ones).
