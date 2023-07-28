@@ -298,7 +298,7 @@
         initialTime: 00:00
       translation:
         type: CUSTOM
-        schemaName: covid-19
+        schemaName: fl/fl-covid-19
         format: HL7
       transport:
         type: SFTP
@@ -338,7 +338,7 @@
         initialTime: 00:00
       translation:
         type: CUSTOM
-        schemaName: or/or-covid-19-hl7
+        schemaName: az/az-covid-19-hl7
         format: HL7_BATCH
       transport:
         type: SFTP
@@ -358,7 +358,7 @@
         initialTime: 00:00
       translation:
         type: CUSTOM
-        schemaName: or/or-covid-19-hl7
+        schemaName: az/az-covid-19-hl7
         format: HL7_BATCH
       transport:
         type: SFTP
@@ -378,7 +378,7 @@
         initialTime: 00:00
       translation:
         type: CUSTOM
-        schemaName: or/or-covid-19-hl7
+        schemaName: az/az-covid-19-hl7
         format: HL7_BATCH
       transport:
         type: SFTP
@@ -439,7 +439,7 @@
         initialTime: 00:00
       translation:
         type: CUSTOM
-        schemaName: or/or-covid-19-hl7
+        schemaName: az/az-covid-19-hl7
         format: CSV
       transport:
         type: SFTP
