@@ -513,9 +513,8 @@ tasks.azureFunctionsPackage {
 tasks.register("package") {
     group = rootProject.description ?: ""
     description = "Package the code and necessary files to run the Azure functions"
-    // generate API docs
-    dependsOn("generateOpenApi")
-    dependsOn("copyApiSwaggerUI").mustRunAfter("generateOpenApi")
+    // copy the api docs swagger ui to the build location
+    dependsOn("copyApiSwaggerUI")
     dependsOn("azureFunctionsPackage")
     dependsOn("fatJar").mustRunAfter("azureFunctionsPackage")
 }
@@ -523,9 +522,8 @@ tasks.register("package") {
 tasks.register("quickPackage") {
     group = rootProject.description ?: ""
     description = "Package the code and necessary files to run the Azure functions skipping unit tests and migration"
-    // generate API docs
-    dependsOn("generateOpenApi")
-    dependsOn("copyApiSwaggerUI").mustRunAfter("generateOpenApi")
+    // copy the api docs swagger ui to the build location
+    dependsOn("copyApiSwaggerUI")
     // Quick package for development purposes.  Use with caution.
     dependsOn("azureFunctionsPackage")
     tasks["test"].enabled = false
@@ -579,6 +577,7 @@ tasks.azureFunctionsRun {
 }
 
 task<Exec>("uploadSwaggerUI") {
+    dependsOn("copyApiSwaggerUI")
     group = rootProject.description ?: ""
     description = "Upload swagger ui and API docs to azure storage blob container"
     commandLine("./upload_swaggerui.sh")
