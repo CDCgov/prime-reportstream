@@ -1,5 +1,4 @@
 @use "uswds-core" as *;
-@use "uswds_custom_theme" as *;
 
 /*
 * * * * * ==============================
@@ -109,7 +108,7 @@ main {
 .usa-table {
     width: 100%;
 
-    @media (max-width: $tablet) {
+    @media (max-width: units("tablet")) {
         display: block;
         overflow-x: auto;
     }
@@ -306,4 +305,31 @@ main {
 
 .usa-header + main {
     border-top: none;
+}
+
+// Headings
+// FUTURE_TODO: Decipher the ancient texts on how to apply these directly to USWDS token definitions.
+h4 {
+    font-size: 18px;
+    line-height: 160%;
+}
+
+.font-body-sm {
+    font-size: 14px;
+    line-height: 160%;
+    margin-bottom: 14px;
+}
+
+/* Grid-based form overrides */
+.usa-form .grid-row {
+    .usa-button,
+    .usa-button-group li {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    input {
+        width: 100%;
+        max-width: 100%;
+    }
 }

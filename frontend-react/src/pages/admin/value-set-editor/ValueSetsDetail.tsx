@@ -172,7 +172,7 @@ export const ValueSetsDetailTable = ({
     return (
         <Table
             title="ReportStream Core Values"
-            classes={"rs-no-padding"}
+            classes={"padding-0"}
             legend={Legend}
             // assume we don't want to allow creating a row if initial fetch failed
             datasetAction={datasetActionItem}

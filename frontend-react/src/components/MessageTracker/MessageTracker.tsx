@@ -5,6 +5,8 @@ import {
     Label,
     Button,
     TextInput,
+    ButtonGroup,
+    Grid,
 } from "@trussworks/react-uswds";
 
 import Spinner from "../Spinner";
@@ -98,8 +100,8 @@ export function MessageTracker() {
             <h1>Message ID Search</h1>
 
             <Form onSubmit={(e) => searchMessageId(e)} className="maxw-full">
-                <div className="grid-row display-flex">
-                    <div className="display-flex">
+                <Grid row gap="lg" className="flex-align-end">
+                    <Grid col={6}>
                         <FormGroup>
                             <Label
                                 className="font-sans-xs usa-label"
@@ -111,9 +113,6 @@ export function MessageTracker() {
                                 id="search-field"
                                 name="search"
                                 type="text"
-                                className={
-                                    "usa-input rs-max-width-100-important mobile:width-card-lg mobile-lg:width-mobile tablet:width-tablet"
-                                }
                                 autoFocus
                                 inputSize={"medium"}
                                 aria-disabled={isLoading}
@@ -128,26 +127,28 @@ export function MessageTracker() {
                                 required={true}
                             />
                         </FormGroup>
-                        <Button
-                            type="submit"
-                            name="submit-button"
-                            className="usa-button height-5 radius-left-1 rs-margin-top-auto-important margin-right-3 margin-left-3"
-                        >
-                            Search
-                        </Button>
-                    </div>
-                    <FormGroup className="display-flex">
-                        <Button
-                            onClick={() => clearSearch()}
-                            type="button"
-                            name="clear-button"
-                            className="font-sans-xs"
-                            unstyled
-                        >
-                            Clear
-                        </Button>
-                    </FormGroup>
-                </div>
+                    </Grid>
+                    <Grid col="auto">
+                        <ButtonGroup>
+                            <Button
+                                type="submit"
+                                name="submit-button"
+                                className="usa-button radius-left-1"
+                            >
+                                Search
+                            </Button>
+                            <Button
+                                onClick={() => clearSearch()}
+                                type="button"
+                                name="clear-button"
+                                className="font-sans-xs"
+                                outline
+                            >
+                                Clear
+                            </Button>
+                        </ButtonGroup>
+                    </Grid>
+                </Grid>
             </Form>
 
             <MessageTrackerTableContent

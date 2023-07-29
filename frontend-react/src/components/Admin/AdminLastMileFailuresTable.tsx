@@ -436,7 +436,7 @@ ${data.receiver}`;
                 </div>
             </form>
 
-            <div className={"grid-row margin-0 rs-container-unbounded"}>
+            <div className={"grid-row margin-0"}>
                 <Suspense fallback={<Spinner />}>
                     <NetworkErrorBoundary
                         fallbackComponent={() => <ErrorPage type="message" />}

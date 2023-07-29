@@ -6,7 +6,6 @@ import {
     PrimaryNav,
     Title,
 } from "@trussworks/react-uswds";
-import { NetworkErrorBoundary } from "rest-hooks";
 import classnames from "classnames";
 
 import { permissionCheck, PERMISSIONS } from "../../utils/PermissionsUtils";
@@ -144,29 +143,21 @@ export const ReportStreamHeader = ({
                         PERMISSIONS.PRIME_ADMIN,
                         authState?.accessToken
                     ) ? (
-                        <NetworkErrorBoundary
-                            fallbackComponent={() => (
-                                <select>
-                                    <option>Network error</option>
-                                </select>
-                            )}
+                        <USLink
+                            href={`/admin/settings`}
+                            className="usa-button usa-button--outline usa-button--small padding-1"
                         >
-                            <USLink
-                                href={`/admin/settings`}
-                                className="usa-button usa-button--outline usa-button--small padding-1"
-                            >
-                                <span className="usa-breadcrumb padding-left-2 text-semibold text-no-wrap">
-                                    {activeMembership?.parsedName || ""}
-                                    <RightLeftArrows
-                                        aria-hidden="true"
-                                        role="img"
-                                        className="rs-fa-right-left-icon padding-x-1 padding-top-1 text-primary-vivid"
-                                        width={"3em"}
-                                        height={"2em"}
-                                    />
-                                </span>
-                            </USLink>
-                        </NetworkErrorBoundary>
+                            <span className="usa-breadcrumb padding-left-2 text-semibold text-no-wrap">
+                                {activeMembership?.parsedName || ""}
+                                <RightLeftArrows
+                                    aria-hidden="true"
+                                    role="img"
+                                    className="rs-fa-right-left-icon padding-x-1 padding-top-1 text-primary-vivid"
+                                    width={"3em"}
+                                    height={"2em"}
+                                />
+                            </span>
+                        </USLink>
                     ) : null}
                     <SignInOrUser />
                 </PrimaryNav>

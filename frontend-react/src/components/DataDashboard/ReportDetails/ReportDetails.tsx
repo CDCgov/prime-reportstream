@@ -26,7 +26,7 @@ function ReportDetails() {
 
     return (
         <div className={styles.ReportDetails}>
-            <GridContainer className="rs-max-width-100-important">
+            <GridContainer>
                 <Crumbs {...crumbProps}></Crumbs>
                 <article>
                     <ReportDetailsSummary report={reportDetail} />

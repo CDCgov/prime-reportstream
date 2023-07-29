@@ -1,189 +1,170 @@
 ---
 title: ELR onboarding checklist
-subtitle: If you're a public health department and want to connect ReportStream through Electronic Lab Reporting (ELR), you'll need to fill out the ReportStream ELR onboarding form.
+subtitle: 
+  - If you're a public health department and want to connect ReportStream through Electronic Lab Reporting (ELR), you'll need to fill out the ReportStream ELR onboarding form.
+  - This checklist provides a preview of what we'll ask, so you can gather everything you need to complete the form.
 breadcrumbs:
   - label: Resources
     href: /resources
   - label: ELR onboarding checklist
+toc:
+  isInPage: true
 ---
 import site from "../../content/site.json";
-
-<h2 className="margin-bottom-8">
-    This checklist provides a preview of what we'll ask, so you can
-    gather everything you need to complete the form.
-</h2>
 
 <A
     className="usa-button"
     href={site.forms.intakeElr.url}
 >ELR onboarding form</A>
 <A
-    className="usa-button usa-button--nostyle"
+    className="usa-button usa-button--outline"
     href="/support/contact"
 >Contact us</A>
 
 ---
 
-<p className="margin-top-6">
-    <strong>On this page:</strong>
-</p>
-
-- <A href="#elr-contact-information">ELR contact information</A>
-- <A href="#alternate-contact-information">Program or admin staff contact information</A>
-- <A href="#data-requirements-and-preferences">Data requirements and preferences</A>
-- <A href="#testing-facility-registration">Testing facility registration</A>
-- <A href="#hl7-data-fields">HL7 data fields (Not applicable if using an alternatedata format)</A>
-- <A href="#sftp-details">SFTP details</A>
-- <A href="#document-uploads">Document uploads</A>
-
-
-<section className="measure-6">
 <p className="margin-bottom-4">
     Before gathering information on the checklist or completing the
     ELR onboarding form, we recommend first reviewing information on
     our{" "}
-    <A href="/getting-started/public-health-departments/overview">Getting started page</A>
+    [Getting started page](/getting-started/public-health-departments/overview)
     {" "}and the technical details outlined in{" "}
-    <A href="/how-it-works/systems-and-settings">Systems & settings</A>
+    [Systems & settings](/how-it-works/systems-and-settings)
     {" "}with your IT and data specialists.
 </p>
 
-    ### ELR contact information
+## ELR contact information
 
-    This is the person who helps set up the ELR connection. It
-    is often an IT person or a third party agency.
+This is the person who helps set up the ELR connection. It
+is often an IT person or a third party agency.
 
-    -Name
-    -Email address
-    -Phone number
-
----
-
-    ### Program or admin staff contact information
-
-    -Name
-    -Email address
-    -Phone number
+- Name
+- Email address
+- Phone number
 
 ---
 
-    ### Data requirements and preferences
+## Program or admin staff contact information
 
-    ReportStream sends data as an{" "}
-    <A href="https://hl7.org/">HL7</A> file via
-    Secure File Transfer Protocol (SFTP). We capture Health and
-    Human Services (HHS) required fields, including “Ask on
-    Order Entry” questions.{" "}
-
-    Please note: ReportStream follows industry standards for{" "}
-    <A href="https://github.com/CDCgov/prime-data-hub/blob/production/prime-router/docs/schema_documentation/primedatainput-pdi-covid-19.md">data formatting</A>
-    {" "}and reporting. While we can support custom format or sending
-    mechanisms, this will increase the time required to build
-    your connection.{" "}
-
-    Confirm your preferences and provide details for:
-
-    - <span className="text-bold">File type:</span> (HL7
-    v2.5.1, CSV, or other){" "}
-
-    -<span className="text-bold">Transport method:</span>{" "}
-    (SFTP, VPN, Health Information Exchange, SOAP, PHINMS,
-    or other){" "}
-
-    -<span className="text-bold">Batching:</span> Do you want
-    HL7 message batching{" "}
-    <A href="https://www.lyniate.com/knowledge-hub/hl7-batch-file-protocol/">using FHS and BHS segments</A>
-    ?{" "}
-
-    -<span className="text-bold">Timing:</span> Do you want
-    real time or daily reports, and at what time of day?{" "}
-
-    -<span className="text-bold">“Ask on Order Entry”:</span>{" "}
-    Do you want “Ask on Order Entry” questions as{" "}
-    <A href="https://hl7-definition.caristix.com/v2/HL7v2.5/Segments/OBX">OBX fields</A>
-    ?{" "}
-
-    -<span className="text-">Test data:</span> Do you require
-    synthetic and/or real patient data before going live?{" "}
-
-    -<span className="text-bold">Local public health department reporting:</span>
-    {" "}Explain any local public health department reporting
-    requirements that are different from the state.{" "}
-
-    -<span className="text-bold">Third-party information services:</span>
-    {" "}Do you require your data to be routed through a
-    third-party like a Health Information Exchange or a
-    health information integration service?{" "}
-
-    -<span className="text-bold">Additional fields:</span>{" "}
-    Any other data or fields you’d like collected?{" "}
+- Name
+- Email address
+- Phone number
 
 ---
 
-    ### Testing facility registration
+## Data requirements and preferences
 
-    ReportStream collects unique identifiers from testing
-    facilities when they register to send data, including name,{" "}
-    <A href="https://www.cdc.gov/clia/about.html">CLIA</A>
-    {" "}number, and address. This information is included with data
-    sent to public health departments.
+ReportStream sends data as an{" "}
+[HL7](https://hl7.org/) file via
+Secure File Transfer Protocol (SFTP). We capture Health and
+Human Services (HHS) required fields, including “Ask on
+Order Entry” questions.{" "}
 
-    -<span className="text-bold">Registration requirements:</span>
-    {" "}Do you require testing facilities to register before
-    data is sent to you?{" "}
-    -<span className="text-bold">Custom data fields:</span>{" "}
-    Do you require information in addition to standard
-    fields (name, CLIA number and/or address)?{" "}
-    -<span className="text-bold">Custom registration process:</span>
-    {" "}Do you have a custom testing facility registration
-    process?{" "}
+Please note: ReportStream follows industry standards for{" "}
+[data formatting](https://github.com/CDCgov/prime-data-hub/blob/production/prime-router/docs/schema_documentation/primedatainput-pdi-covid-19.md)
+{" "}and reporting. While we can support custom format or sending
+mechanisms, this will increase the time required to build
+your connection.{" "}
+
+Confirm your preferences and provide details for:
+
+- <span className="text-bold">File type:</span> (HL7
+v2.5.1, CSV, or other){" "}
+
+- <span className="text-bold">Transport method:</span>{" "}
+(SFTP, VPN, Health Information Exchange, SOAP, PHINMS,
+or other){" "}
+
+- <span className="text-bold">Batching:</span> Do you want
+HL7 message batching{" "}
+[using FHS and BHS segments](https://www.lyniate.com/knowledge-hub/hl7-batch-file-protocol/)
+?{" "}
+
+- <span className="text-bold">Timing:</span> Do you want
+real time or daily reports, and at what time of day?{" "}
+
+- <span className="text-bold">“Ask on Order Entry”:</span>{" "}
+Do you want “Ask on Order Entry” questions as{" "}
+[OBX fields](https://hl7-definition.caristix.com/v2/HL7v2.5/Segments/OBX)
+?{" "}
+
+- <span className="text-">Test data:</span> Do you require
+synthetic and/or real patient data before going live?{" "}
+
+- <span className="text-bold">Local public health department reporting:</span>
+{" "}Explain any local public health department reporting
+requirements that are different from the state.{" "}
+
+- <span className="text-bold">Third-party information services:</span>
+{" "}Do you require your data to be routed through a
+third-party like a Health Information Exchange or a
+health information integration service?{" "}
+
+- <span className="text-bold">Additional fields:</span>{" "}
+Any other data or fields you’d like collected?{" "}
 
 ---
 
-    <h3 id="hl7-data-fields">
-        HL7 data fields (Not applicable if using an alternate data
-        format){" "}
-    </h3>
+## Testing facility registration
 
-    -Receiving application name
-    -Receiving application{" "}
-        <A href="https://www.hl7.org/oid/">OID</A>
-    -Receiving facility name
-    -Receiving facility{" "}
-        <A href="https://www.hl7.org/oid/">OID</A>
+ReportStream collects unique identifiers from testing
+facilities when they register to send data, including name,{" "}
+[CLIA](https://www.cdc.gov/clia/about.html)
+{" "}number, and address. This information is included with data
+sent to public health departments.
 
----
-
-    ### SFTP details
-
-    -Staging host name (DNS name)
-    -Staging folder (folder name)
-    -Prod host name (DNS name)
-    -Prod host folder (folder name)
+- <span className="text-bold">Registration requirements:</span>
+{" "}Do you require testing facilities to register before
+data is sent to you?{" "}
+- <span className="text-bold">Custom data fields:</span>{" "}
+Do you require information in addition to standard
+fields (name, CLIA number and/or address)?{" "}
+- <span className="text-bold">Custom registration process:</span>
+{" "}Do you have a custom testing facility registration
+process?{" "}
 
 ---
 
-    ### Document uploads
+## HL7 data fields (Not applicable if using an alternate data format)
 
-    -<span className="text-bold">Required documentation:</span>
-            {" "}Necessary registration or data use, or legal agreements,
-            etc. that you need ReportStream to complete
-    -<span className="text-bold">Sample files:</span> Sample
-        files of your required data formatting, rules or
-        regulations, etc. that would be helpful to review{" "}
+- Receiving application name
+- Receiving application{" "}
+    [OID](https://www.hl7.org/oid/)
+- Receiving facility name
+- Receiving facility{" "}
+    [OID](https://www.hl7.org/oid/)
 
 ---
-    ### Ready for ReportStream?
 
-    Once you have all the information you need, submit our{" "}
-    <A href="https://prime.powerappsportals.us/siw/">ReportStream ELR onboarding form</A>
-    . We'll get back to you within a week.
+## SFTP details
 
-    Have questions or aren't quite ready for our ELR connection?
-    Send us an email and we'll help you figure out next steps.
+- Staging host name (DNS name)
+- Staging folder (folder name)
+- Prod host name (DNS name)
+- Prod host folder (folder name)
 
-    <A
-        className="usa-button usa-button--nostyle"
-        href="/support/contact"
-    >Get in touch</A>
-</section>
+---
+
+## Document uploads
+
+- <span className="text-bold">Required documentation:</span>
+        {" "}Necessary registration or data use, or legal agreements,
+        etc. that you need ReportStream to complete
+- <span className="text-bold">Sample files:</span> Sample
+    files of your required data formatting, rules or
+    regulations, etc. that would be helpful to review{" "}
+
+---
+## Ready for ReportStream?
+
+Once you have all the information you need, submit our{" "}
+[ReportStream ELR onboarding form](https://prime.powerappsportals.us/siw/)
+. We'll get back to you within a week.
+
+Have questions or aren't quite ready for our ELR connection?
+Send us an email and we'll help you figure out next steps.
+
+<A
+    className="usa-button usa-button--outline"
+    href="/support/contact"
+>Get in touch</A>
