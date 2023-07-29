@@ -56,6 +56,7 @@ export enum FeatureName {
     FACILITIES_PROVIDERS = "All facilities & providers",
     DATA_DASHBOARD = "Data Dashboard",
     REPORT_DETAILS = "Report Details",
+    PUBLIC_KEY = "Public Key",
 }
 
 export const appRoutes: RouteObject[] = [

@@ -14,6 +14,8 @@ import useCreateOrganizationPublicKey from "../../hooks/network/Organizations/Pu
 import useOrganizationPublicKeys from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
 import useOrganizationSenders from "../../hooks/UseOrganizationSenders";
 import Alert from "../../shared/Alert/Alert";
+import { FeatureName } from "../../AppRouter";
+import { trackAppInsightEvent } from "../../utils/Analytics";
 
 import ManagePublicKeyChooseSender from "./ManagePublicKeyChooseSender";
 import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
@@ -42,6 +44,8 @@ export function ManagePublicKey() {
         isSuccess,
         isLoading: isUploading,
     } = useCreateOrganizationPublicKey();
+
+    const featureEvent = `${FeatureName.PUBLIC_KEY}`;
 
     const handleSenderSelect = (selectedSender: string, showBack: boolean) => {
         setSender(selectedSender);
@@ -72,6 +76,15 @@ export function ManagePublicKey() {
                 sender: sender,
             });
         } catch (e: any) {
+            trackAppInsightEvent(featureEvent, {
+                fileUpload: {
+                    status: `Error: ${e.toString()}`,
+                    fileName: file?.name,
+                    fileType: file?.type,
+                    fileSize: file?.size,
+                    sender: sender,
+                },
+            });
             showError(`Uploading public key failed. ${e.toString()}`);
         }
     };
@@ -130,6 +143,18 @@ export function ManagePublicKey() {
     const isUploadEnabled =
         (sender && !fileSubmitted && !hasPublicKey) || uploadNewPublicKey;
     const hasUploadError = fileSubmitted && !isUploading && !isSuccess;
+
+    if (isSuccess) {
+        trackAppInsightEvent(featureEvent, {
+            fileUpload: {
+                status: "Success",
+                fileName: file?.name,
+                fileType: file?.type,
+                fileSize: file?.size,
+                sender: sender,
+            },
+        });
+    }
 
     return (
         <GridContainer className="manage-public-key padding-bottom-5 tablet:padding-top-6">
