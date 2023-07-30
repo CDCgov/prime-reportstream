@@ -116,7 +116,7 @@
         "@storybook/api": "^7.1.0",
         "@storybook/blocks": "^7.1.0",
         "@storybook/components": "^7.1.0",
-        "@storybook/core-events": "^7.1.0",
+        "@storybook/core-events": "^7.1.1",
         "@storybook/mdx2-csf": "1.1.0",
         "@storybook/react": "^7.1.0",
         "@storybook/react-vite": "^7.1.0",
