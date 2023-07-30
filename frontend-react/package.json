@@ -145,7 +145,7 @@
         "@typescript-eslint/eslint-plugin": "^5.61.0",
         "@typescript-eslint/parser": "^5.61.0",
         "@vitejs/plugin-react": "^4.0.3",
-        "babel-jest": "^29.6.1",
+        "babel-jest": "^29.6.2",
         "bfj": "^7.0.2",
         "browserslist": "^4.21.9",
         "camelcase": "^6.2.1",
