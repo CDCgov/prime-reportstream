@@ -249,8 +249,13 @@ class TranslationTests {
                         config.expectedFormat == Report.Format.HL7 && config.inputFormat == Report.Format.HL7 -> {
                             check(!config.expectedSchema.isNullOrBlank())
                             val bundle = translateToFhir(inputStream)
+                            val afterSenderTransform = if (config.senderTransform != null) {
+                                runSenderTransform(bundle, config.senderTransform)
+                            } else {
+                                bundle
+                            }
                             val actualStream =
-                                translateFromFhir(bundle, config.expectedSchema)
+                                translateFromFhir(afterSenderTransform, config.expectedSchema)
                             result.merge(
                                 CompareData().compare(expectedStream, actualStream, null, null)
                             )
