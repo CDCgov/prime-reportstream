@@ -112,7 +112,7 @@
         "@storybook/addon-essentials": "^7.1.0",
         "@storybook/addon-interactions": "^7.1.0",
         "@storybook/addon-links": "^7.1.0",
-        "@storybook/addons": "^7.1.0",
+        "@storybook/addons": "^7.1.1",
         "@storybook/api": "^7.1.0",
         "@storybook/blocks": "^7.1.0",
         "@storybook/components": "^7.1.0",
