@@ -1,6 +1,6 @@
 elements:
   - name: encoding-characters
-    condition: '%resource.extension(%`rsext-encoding-characters`).exists'
+    condition: '%resource.extension(%`rsext-encoding-characters`).exists()'
     value: [ '%resource.extension(%`rsext-encoding-characters`).value' ]
     hl7Spec: [ MSH-2 ]
 
