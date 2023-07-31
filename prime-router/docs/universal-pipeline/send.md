@@ -71,20 +71,52 @@ the similar pattern of lookup the credentials for that transport/receiver, creat
 All the transports are configured to catch any thrown exception and return a retry token of all items.  When a retry token is returned, the SendFunction
 looks to see if it should re-queue the event for another attempt at getting sent.  The SendFunction will attempt to send the report the 5 times 
 using an exponential back off with a random amount of time appended; this is done in order to prevent a huge slew of send events all being 
-triggered at the same time in the event of a large outage.
+triggered at the same time in the event of a large outage.  See examples for more details
 
 Under the hood, the retry functionality takes advantage of the `visibilityTimeout` parameter of azure queue messages that keeps a message
 invisible for a configured amount of time.
+
+### ResendFunction
+
+The ResendFunction is a small utility that can be used to resend a report that was unable to be delivered (indicated with a `send_error`) and it
+works by using a UUID parameter to find the report that failed to send and then adding a new send message to the queue.
 
 ## Code entry points
 
 - [SendFunction](https://github.com/CDCgov/prime-reportstream/blob/6f28db462ae9623d46486a45e8ce0b356e92dd05/prime-router/src/main/kotlin/azure/SendFunction.kt#L56)
 - [ITransport](https://github.com/CDCgov/prime-reportstream/blob/6f28db462ae9623d46486a45e8ce0b356e92dd05/prime-router/src/main/kotlin/transport/ITransport.kt#L9)
 - [TransportType](https://github.com/CDCgov/prime-reportstream/blob/6f28db462ae9623d46486a45e8ce0b356e92dd05/prime-router/src/main/kotlin/TransportType.kt#L22)
+- [Backoff strategy](https://github.com/CDCgov/prime-reportstream/blob/a1ae046ff789ae975657ec949c689b63eb996a8f/prime-router/src/main/kotlin/azure/SendFunction.kt#L178)
+- [ResendFunction](https://github.com/CDCgov/prime-reportstream/blob/a1ae046ff789ae975657ec949c689b63eb996a8f/prime-router/src/main/kotlin/azure/RequeueFunction.kt#L41)
 
 ## Examples
 
+### A report is sent
 
-Retry mechanisms (in case of send failures)
+A receiver is configured to receive reports in a SFTP server and a new message is added to the send queue for that receiver.  The send queue
+parses the message and finds the relevant credentials in the vault. The function generates an external name and uploads the file.
 
-- This is already included within the [Getting Started > Common Failures & Fixes > Message Fails to Send](https://docs.google.com/document/d/1Xr2defgjUjarZgyROqOqM1Cezx_hp6S_Gd3Ue8bik64/edit#heading=h.3ahv06k8tiv9) section. Make sure to link to that content to prevent writing it twice.   
+### A report fails to send the first time, but is sent the second
+
+A receiver is configured to receive reports in a SFTP server and a new message is added to the send queue for that receiver.  The send queue
+parses the message and finds the relevant credentials in the vault. The function generates an external name and attempts to upload the file
+to the SFTP server, but it is currently down.  The SendFunction queues a new event with a visibility timeout of 5 to 10 minutes.  That second
+event is then read from the queue and the report is delivered
+
+### A report fails to send five times and is never sent
+
+A receiver is configured to receive reports in a SFTP server and a new message is added to the send queue for that receiver.  The send queue
+parses the message and finds the relevant credentials in the vault. The function generates an external name and attempts to upload the file
+to the SFTP server, but gets a response that the credentials are invalid.  The function will then queue events with exponentially larger
+visibility timeouts until all five retries have occurred.  The function will then mark that the report failed to be sent.
+
+### A transport is not configured
+
+A receiver has a report routed to them, but has no transport configured; the function will short circuit but will still attempt to send the 
+report 5 more times
+
+
+## Procedures for handling reports that fail to send
+
+Details on how this handle can be found in the [troubleshooting section](../troubleshooting)
+ 
