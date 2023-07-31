@@ -1,6 +1,6 @@
 # Overview
 
-The Universal Pipeline is the core of what ReportStream is, and the two terms are sometimes used interchangeably. The Universal Pipeline is responsible for receiving medical data from a sender and sending it to one or more receivers. The pipeline was designed to be agnostic of:
+The Universal Pipeline is the core of what ReportStream is, and the two terms are sometimes used interchangeably. The Universal Pipeline is responsible for receiving public health data from a sender and sending it to one or more receivers. The pipeline was designed to be agnostic of:
 - **data formats** - At present, the pipeline can receive and send *HL7v2.5.1* and *FHIR* formats
 - **data types** - While presently only handling the routing of ELR (Laboratory Data), The pipeline was designed to be able to process the [six core data sources](https://www.cdc.gov/ophdst/public-health-data-strategy/phds-core-data-sources.html) as identified by PHDS:
     - Case data
