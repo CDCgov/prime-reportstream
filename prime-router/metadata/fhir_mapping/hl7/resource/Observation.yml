@@ -342,3 +342,14 @@ extension_4:
   constants:
     KEY_NAME_SUFFIX: DateTime
     urlValue: effective-reference-range
+
+extension_5:
+  condition: $value NOT_NULL
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, OBX.11
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: observation-status-original-text
