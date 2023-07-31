@@ -54,6 +54,8 @@ transport:
   credentialName: DEFAULT-SFTP
 ```
 
+For more details on how to set up a receiver, see [onboarding receivers](../onboarding-users/receivers.md).
+
 ## How it works
 
 This step works by listening for messages to get added to the send queue and then looking up the transport that is configured
@@ -73,7 +75,7 @@ no retries will be attempted
 All the transports are configured to catch any thrown exception and return a retry token of all items.  When a retry token is returned, the SendFunction
 looks to see if it should re-queue the event for another attempt at getting sent.  The SendFunction will attempt to send the report 5 more times 
 using an exponential back off with a small, random amount of time added or subtracted; this is done in order to prevent a huge slew of send events all being 
-triggered at the same time in the event of a large outage.  See examples for more details.
+triggered at the same time in the event of a large outage.  See [examples](#examples) for more details.
 
 Under the hood, the retry functionality takes advantage of the `visibilityTimeout` parameter of azure queue messages that keeps a message
 invisible for a configured amount of time.
