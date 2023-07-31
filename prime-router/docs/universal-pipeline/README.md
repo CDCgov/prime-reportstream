@@ -32,7 +32,7 @@ The sections listed below will aim to describe each step of the pipeline in tech
 - [Send](./send.md)
 
 ### Pipeline Scalability and Architecture
-Each pipeline step runs as its own *Azure Function* (equivalent to lambdas in AWS) in ReportStream's Microsoft Azure Account. This means ReportStream and its Universal Pipeline are architected for, and deployed to, the cloud. The Universal Pipeline is horizontally and vertically scalable. AWS manages the life cycle of each function and dynamically decides how many of each function to instantiate based on load - ensuring ReportStream can handle even peak COVID reporting numbers!
+Each pipeline step runs as its own *Azure Function* (equivalent to lambdas in AWS) in ReportStream's Microsoft Azure Account. This means ReportStream and its Universal Pipeline are architected for, and deployed to, the cloud. The Universal Pipeline is horizontally and vertically scalable. Azure manages the life cycle of each function and dynamically decides how many of each function to instantiate based on load - ensuring ReportStream can handle even peak COVID reporting numbers!
 
 ### `Report` and `Item`
 
