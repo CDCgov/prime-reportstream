@@ -128,10 +128,8 @@ class ProcessFhirCommands : CliktCommand(
      * @return a FHIR bundle that represents the data in the one HL7 message
      */
     private fun convertToFhir(hl7String: String, actionLogger: ActionLogger): Bundle {
-        val hasFiveEncodingChars = hl7String.contains("MSH|^~\\&#|")
-        val stringToEncode =
-            if (hasFiveEncodingChars) hl7String.replace("MSH|^~\\&#|", "MSH|^~\\&|")
-            else hl7String
+        val hasFiveEncodingChars = hl7MessageHasFiveEncodingChars(hl7String)
+        val stringToEncode = hl7String.replace("MSH|^~\\&#|", "MSH|^~\\&|")
         val messages = HL7Reader(actionLogger).getMessages(stringToEncode)
         if (messages.isEmpty()) throw CliktError("No HL7 messages were read.")
         val message = if (messages.size > 1) {
@@ -149,6 +147,21 @@ class ProcessFhirCommands : CliktCommand(
             Terser.set(msh, 2, 0, 1, 1, "^~\\&#")
         }
         return HL7toFhirTranslator.getInstance().translate(message)
+    }
+
+    /**
+     * @return true if a message header (either the one at hl7ItemIndex or the first one if hl7ItemIndex is null) in the
+     * given string contains MSH-2 of `^~\&#`, false otherwise
+     */
+    private fun hl7MessageHasFiveEncodingChars(hl7String: String): Boolean {
+        // This regex should match `MSH|^~\&|` or `MSH|^~\&#`
+        val mshStarts = "MSH\\|\\^~\\\\\\&[#|]".toRegex().findAll(hl7String)
+        mshStarts.forEachIndexed { index, matchResult ->
+            if (hl7ItemIndex == null || hl7ItemIndex == index) {
+                return matchResult.value == "MSH|^~\\&#"
+            }
+        }
+        return false
     }
 
     /**
