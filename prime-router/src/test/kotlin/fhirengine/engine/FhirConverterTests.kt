@@ -142,7 +142,7 @@ class FhirConverterTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }.returns(Unit)
+        every { queueMock.sendMessage(any(), any(), engine.queueVisibilityTimeout) }.returns(Unit)
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
         every { transformer.transform(any()) } returnsArgument (0)
 
@@ -156,7 +156,7 @@ class FhirConverterTests {
             transformer.transform(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
-            queueMock.sendMessage(any(), any())
+            queueMock.sendMessage(any(), any(), engine.queueVisibilityTimeout)
         }
     }
 
@@ -193,7 +193,7 @@ class FhirConverterTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
+        every { queueMock.sendMessage(any(), any(), engine.queueVisibilityTimeout) }
             .returns(Unit)
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
         every { transformer.transform(any()) } returnsArgument (0)
@@ -208,7 +208,7 @@ class FhirConverterTests {
             transformer.transform(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
-            queueMock.sendMessage(any(), any())
+            queueMock.sendMessage(any(), any(), engine.queueVisibilityTimeout)
         }
     }
 
