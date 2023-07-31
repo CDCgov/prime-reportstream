@@ -253,6 +253,9 @@ fun Message.encodePreserveEncodingChars(): String {
     val hasFiveEncodingChars = encCharString == "^~\\&#"
     if (hasFiveEncodingChars) Terser.set(msh, 2, 0, 1, 1, "^~\\&")
     var encodedMsg = encode()
-    if (hasFiveEncodingChars) encodedMsg = encodedMsg.replace("^~\\&", "^~\\&#")
+    if (hasFiveEncodingChars) {
+        encodedMsg = encodedMsg.replace("^~\\&", "^~\\&#")
+        Terser.set(msh, 2, 0, 1, 1, "^~\\&#")
+    }
     return encodedMsg
 }
