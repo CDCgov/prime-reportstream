@@ -1,7 +1,7 @@
 # Send
 
 This is the final step in the pipeline and is responsible for actually delivering the batched report to a receivers
-preferred location
+configured location
 
 ## Configuration
 
@@ -58,13 +58,13 @@ transport:
 
 This step works by listening for messages to get added to the send queue and then looking up the transport that is configured
 for the receiver.  Each transport has its own internal logic for creating the report and sending it out, but they mostly all follow
-the similar pattern of looking up the credentials for that transport/receiver, create an external file name and send the contents of the report.
+the similar pattern of looking up the credentials for that transport/receiver, creating an external file name and sending the contents of the report.
 
 **Some important notes on the transports:**
 - The AS2 transport is unused
 - The SOAP transport is hardcoded to only work with the state of Pennsylvania
 - The Email transport is incomplete and does not work
-- The Rest Transport uses the KTOR library under the hood; if it encounters a `ClientRequestException` (any 4XX status), this transport wil short circuit and
+- The Rest Transport uses the KTOR library under the hood; if it encounters a `ClientRequestException` (any 4XX status), this transport will short circuit and
 no retries will be attempted
 - The BlobStore transport only supports azure as the backing blob store and should only be used to move blobs internally in the CDC
 
