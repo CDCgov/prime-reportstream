@@ -24,6 +24,8 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFiveChars
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFourChars
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceReferences
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -250,12 +252,13 @@ fun Message.encodePreserveEncodingChars(): String {
     // get encoding characters ...
     val msh = this.get("MSH") as Segment
     val encCharString = Terser.get(msh, 2, 0, 1, 1)
-    val hasFiveEncodingChars = encCharString == "^~\\&#"
-    if (hasFiveEncodingChars) Terser.set(msh, 2, 0, 1, 1, "^~\\&")
+    val hasFiveEncodingChars = encCharString == defaultHl7EncodingFiveChars
+    if (hasFiveEncodingChars) Terser.set(msh, 2, 0, 1, 1, defaultHl7EncodingFourChars)
     var encodedMsg = encode()
     if (hasFiveEncodingChars) {
-        encodedMsg = encodedMsg.replace("^~\\&", "^~\\&#")
-        Terser.set(msh, 2, 0, 1, 1, "^~\\&#")
+        encodedMsg = encodedMsg.replace(defaultHl7EncodingFourChars, defaultHl7EncodingFiveChars)
+        // Set MSH-2 back in the in-memory message to preserve original value
+        Terser.set(msh, 2, 0, 1, 1, defaultHl7EncodingFiveChars)
     }
     return encodedMsg
 }

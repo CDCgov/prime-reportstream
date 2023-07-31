@@ -156,8 +156,9 @@ class ProcessFhirCommands : CliktCommand(
     private fun hl7MessageHasFiveEncodingChars(hl7String: String): Boolean {
         // This regex should match `MSH|^~\&|` or `MSH|^~\&#`
         val mshStarts = "MSH\\|\\^~\\\\\\&[#|]".toRegex().findAll(hl7String)
-        mshStarts.forEachIndexed { index, matchResult ->
-            if (hl7ItemIndex == null || hl7ItemIndex == index) {
+        val index = hl7ItemIndex ?: 0
+        mshStarts.forEachIndexed { i, matchResult ->
+            if (i == index) {
                 return matchResult.value == "MSH|^~\\&#"
             }
         }
