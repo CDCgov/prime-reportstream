@@ -221,3 +221,6 @@
 # Mother's identifier
 - id: "mothers-identifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/mothers-identifier"
+# Used to persist values from OBX.11 that do not map to FHIR, e.g. O.
+- id: "observation-status-original-text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-status-original-text"

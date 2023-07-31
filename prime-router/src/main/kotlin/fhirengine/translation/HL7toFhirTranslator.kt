@@ -5,14 +5,15 @@ import ca.uhn.hl7v2.model.v251.segment.MSH
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
 import io.github.linuxforhealth.hl7.message.HL7MessageEngine
 import io.github.linuxforhealth.hl7.message.HL7MessageModel
 import io.github.linuxforhealth.hl7.resource.ResourceReader
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.Extension
 import org.hl7.fhir.r4.model.Patient
-import org.hl7.fhir.r4.model.StringType
 
 /**
  * Translate an HL7 message to FHIR.
@@ -111,6 +112,13 @@ class HL7toFhirTranslator internal constructor(
         bundle.identifier.system = "https://reportstream.cdc.gov/prime-router"
     }
 
+    // As documented in https://docs.google.com/spreadsheets/d/1_MOAJOykRWct_9cBG-EcPcWSpSObQFLboPB579DIoAI/edit#gid=0,
+// the birthDate value needs an extension with a valueDateTime if PID.7 length is greater than 8. According to the
+// fhir documentation https://hl7.org/fhir/json.html#primitive, if a value has an id attribute or extension,
+// it is represented with an underscore before the name. Currently, it seems hl7v2-fhir-converter library does not
+// support this, so this method is a workaround to add an extension to birthDate. There is also no support for
+// getting the length of the field, for which this issue was created:
+// https://github.com/LinuxForHealth/hl7v2-fhir-converter/issues/499
     private fun handleBirthTime(bundle: Bundle, hl7Message: Message) {
         // If it is an ORM message, we want to check if it is a timestamp and add it as an extension if it is.
         val type = HL7Reader.getMessageType(hl7Message)
@@ -122,11 +130,17 @@ class HL7toFhirTranslator internal constructor(
                 bundle.addEntry().resource = Patient()
                 bundle.entry.first { it.resource.resourceType.name == "Patient" }.resource as Patient
             }
+
+            if ((birthTime?.length ?: 0) <= 8) {
+                // this field is just a date with no time, no need to create an extension to track the time
+                return
+            }
+
             val extension = Extension(
                 "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
-                StringType(birthTime)
+                DateTimeType(Hl7RelatedGeneralUtils.dateTimeWithZoneId(birthTime, ""))
             )
-            patient.addExtension(extension)
+            patient.birthDateElement.addExtension(extension)
         }
     }
 }

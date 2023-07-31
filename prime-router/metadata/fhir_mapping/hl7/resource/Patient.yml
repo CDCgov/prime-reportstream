@@ -431,19 +431,6 @@ extension:
           vars:
             annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '\n')
 
-    - expressionType: nested
-      generateList: true
-      vars:
-        dateTimeIn: PID.7
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: birthTime
-        valueDateTime:
-          type: STRING
-          valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
-          expressionType: JEXL
-
 extension_mother_identifier:
   generateList: true
   expressionType: nested

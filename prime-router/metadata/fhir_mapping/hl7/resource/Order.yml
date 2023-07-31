@@ -1,5 +1,0 @@
-resourceType: Order
-id:
-  type: STRING
-  valueOf: "GeneralUtils.generateResourceId()"
-  expressionType: JEXL
