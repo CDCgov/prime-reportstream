@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# This script upload api docs swagger ui to azure storage server blob container
+# This script uploads the api docs swagger ui to azure storage server blob container
 # and the api docs swagger ui is hosted from the blob container
 #
 # It is meant to used on developer machines, but not in production.

@@ -308,7 +308,7 @@ tasks.register<ResolveTask>("generateOpenApi") {
 }
 
 tasks.register<Copy>("copyApiSwaggerUI") {
-    // copy generated OpenAPI spec files (api.yaml for now)
+    // copy generated OpenAPI spec files
     // to folder /build/swagger-ui, in azure functions docker,
     // the api docs and swagger ui resources are upload to azure
     // blob container 'apidocs' - where the api docs is hosted.
