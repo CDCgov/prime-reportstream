@@ -3,12 +3,8 @@
 name: Build and Accept Master (Baseline) Chromatic
 
 on:
-  workflow_dispatch:
-    push:
-      paths:
-        - "frontend-react/**"
-    branches:
-      - master
+  merge_group:
+    branches: [master]
 
 jobs:
   chromatic-deployment:
@@ -19,7 +15,7 @@ jobs:
         with:
           fetch-depth: 0 # need commit history for Chromatic
 
-      - uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
+      - uses: actions/setup-node@e33196f7422957bea03ed53f6fbb155025ffc7b8
         with:
           node-version-file: frontend-react/package.json
 

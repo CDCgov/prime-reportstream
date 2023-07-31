@@ -2,7 +2,7 @@ import { USSmartLink } from "../../components/USLink";
 
 export default function Hero() {
     return (
-        <header className="usa-section--light padding-y-4 tablet:padding-y-6 tablet:margin-bottom-4 margin-top-0">
+        <header className="usa-section--light padding-y-4 tablet:padding-y-6 tablet:margin-bottom-4 margin-top-neg-5">
             <div className="grid-container">
                 <div className="font-sans-lg">
                     <h1 className="font-sans-xl tablet:font-sans-2xl margin-top-2">

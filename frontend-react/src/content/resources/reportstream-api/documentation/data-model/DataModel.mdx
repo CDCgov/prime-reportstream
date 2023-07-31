@@ -1,8 +1,10 @@
-import { Button, Icon, Alert, Table } from "@trussworks/react-uswds";
+import { Icon } from "@trussworks/react-uswds";
+import Alert from "../../../../../shared/Alert/Alert";
 
 # Data model
 
 <p className="usa-intro text-base">View API CSV and HL7 Field Requirements in the tables on this page or download all the requirements as CSV.</p>
+
 <a href="/assets/xlsx/ReportStream CSV and HL7 Field Requirements (version 3.0).xlsx" className="usa-button">Download Excel file (.xlsx) <Icon.FileDownload className="usa-icon--auto" /></a> Last updated: 1/6/23
 
 ***
@@ -24,7 +26,7 @@ If the UTC offset (+/-zzzz) is not present, results should be normalized to a si
 * **No:** Not a hard requirement. In the interest of providing complete information to public health agencies, please populate the field if data is available. For CSV implementations please provide the CSV column header even if no data is entered.
 
 {
-<Alert type="info">
+<Alert type="tip">
     <span className="text-bold">Note about OTC reporting:</span>
 
     <ul>

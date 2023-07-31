@@ -1,5 +1,15 @@
+@use "../../../global-modules.scss" as *;
+
 .ReportDetailsSummary {
     hr {
-        border: 1px solid color('base-lighter');
+        border: 1px solid color('gray-cool-10');
+    }
+
+    :global {
+        .usa-icon {
+            fill: #005ea2;
+            font-size: 20px;
+            vertical-align: text-bottom;
+        }
     }
 }

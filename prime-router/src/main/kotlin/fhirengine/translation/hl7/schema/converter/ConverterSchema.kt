@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import gov.cdc.prime.router.fhirengine.translation.hl7.ValueSetCollection
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
@@ -62,7 +63,7 @@ class ConverterSchema(
  * @property hl7Spec a list of hl7Specs that denote the field to place a value into
  * @property resourceIndex the variable name to store a FHIR collection's index number
  * @property constants element level constants
- * @property valueSet a list of key-value pairs used to convert the value property
+ * @property valueSet a collection of key-value pairs used to convert the value property
  * @property debug log debug information for the element
  */
 @JsonIgnoreProperties
@@ -73,11 +74,11 @@ class ConverterSchemaElement(
     schema: String? = null,
     schemaRef: ConfigSchema<ConverterSchemaElement>? = null,
     resource: String? = null,
-    value: List<String> = emptyList(),
+    value: List<String>? = null,
     var hl7Spec: List<String> = emptyList(),
     resourceIndex: String? = null,
     constants: SortedMap<String, String> = sortedMapOf(),
-    valueSet: SortedMap<String, String> = sortedMapOf(),
+    valueSet: ValueSetCollection? = null,
     debug: Boolean = false
 ) : ConfigSchemaElement(
     name = name,

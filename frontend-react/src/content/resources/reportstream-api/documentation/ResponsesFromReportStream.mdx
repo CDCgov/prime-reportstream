@@ -1,4 +1,4 @@
-import { Alert } from "@trussworks/react-uswds";
+import Alert from "../../../../shared/Alert/Alert";
 
 # Responses from ReportStream
 
@@ -26,7 +26,7 @@ However, one or more errors fail the entire submission.
 * Missing optional columns/fields
 
 {
-<Alert type="info">
+<Alert type="tip">
     <span className="text-bold">Note:</span> There’s a flag allowing partial submissions. With this flag, successful elements in a batch will succeed, and the unsuccessful ones won’t. This flag requires extra code on your part to handle partial failures.
 </Alert>
 }

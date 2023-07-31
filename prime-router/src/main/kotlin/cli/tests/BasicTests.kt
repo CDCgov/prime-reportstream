@@ -90,6 +90,8 @@ class End2EndUniversalPipeline : CoolTest() {
         )
         passed = passed and universalPipelineEnd2End(environment, options, etorTISender, listOf(etorReceiver))
 
+        passed = passed and universalPipelineEnd2End(environment, options, elrElimsSender, listOf(elimsReceiver))
+
         return passed
     }
 
@@ -175,6 +177,11 @@ class End2EndUniversalPipeline : CoolTest() {
             }
             translateReportIds.forEach { translateReportId ->
                 val batchResults = pollForStepResult(translateReportId, TaskAction.batch)
+                if (batchResults.isEmpty()) {
+                    return bad(
+                        "***async end2end_up FAILED***: No batch report was found after translate: $translateReportId"
+                    )
+                }
                 // verify each result is valid
                 for (result in batchResults.values)
                     passed = passed && examineStepResponse(result, "batch", sender.topic)
@@ -194,8 +201,9 @@ class End2EndUniversalPipeline : CoolTest() {
 
             // check that lineages were generated properly
             passed = passed and pollForLineageResults(
-                reportId, allGoodReceivers,
-                1, // for UP there should be one item per step
+                reportId,
+                expectedReceivers,
+                expectedReceivers.size,
                 asyncProcessMode = true,
                 isUniversalPipeline = true
             )
@@ -1157,7 +1165,7 @@ class InternationalContent : CoolTest() {
             options.dir,
             // Use the Chinese locale since the fake data is mainly Chinese characters
             // https://github.com/DiUS/java-faker/blob/master/src/main/resources/zh-CN.yml
-            locale = Locale("zh_CN")
+            locale = Locale.CHINA
         )
         echo("Created datafile $file")
         // Now send it to ReportStream.

@@ -70,7 +70,7 @@ elements:
   - name: test_type
     type: TABLE
     table: LIVD-SARS-CoV-2
-    tableColumn: TestType
+    tableColumn: Test Type
     reference:
     referenceUrl:
     mapper: livdLookup()
