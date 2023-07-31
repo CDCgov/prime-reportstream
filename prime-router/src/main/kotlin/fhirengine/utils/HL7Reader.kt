@@ -3,6 +3,7 @@ package gov.cdc.prime.router.fhirengine.utils
 import ca.uhn.hl7v2.ErrorCode
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
+import ca.uhn.hl7v2.model.v251.group.ORM_O01_PATIENT
 import ca.uhn.hl7v2.model.v251.segment.MSH
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
@@ -90,6 +91,41 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             return if (!timestamp.isEmpty && !timestamp.ts1_Time.isEmpty) {
                 timestamp.ts1_Time.valueAsDate
             } else null
+        }
+
+        fun getMessageType(message: Message): String? {
+            return (message["MSH"] as MSH).msh9_MessageType.msg1_MessageCode.toString()
+        }
+
+        fun isBirthTime(message: Message): Boolean {
+            val patient = getORMPatient(message) ?: return false
+            val dateTimeOfBirth = patient.pid.dateTimeOfBirth ?: return false
+            return dateTimeOfBirth.ts1_Time.toString().length > 8
+        }
+
+        private fun getORMPatient(message: Message): ORM_O01_PATIENT? {
+            try {
+                val patientResult = message.get("PATIENT_RESULT") ?: return null
+                return patientResult as ORM_O01_PATIENT
+            } catch (e: HL7Exception) {
+                // try just getting the patient
+                try {
+                    val patient = message.get("PATIENT") ?: return null
+                    return patient as ORM_O01_PATIENT
+                } catch (e: HL7Exception) {
+                    return null
+                }
+            }
+        }
+
+        fun getBirthTime(message: Message): String? {
+            try {
+                val patient = getORMPatient(message) ?: return null
+                val dateTimeOfBirth = patient.pid.dateTimeOfBirth ?: return null
+                return dateTimeOfBirth.ts1_Time.toString()
+            } catch (e: HL7Exception) {
+                return ""
+            }
         }
     }
 }
