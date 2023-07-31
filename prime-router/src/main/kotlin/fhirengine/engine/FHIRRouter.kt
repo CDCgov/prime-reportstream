@@ -272,7 +272,8 @@ class FHIRRouter(
                         BlobAccess.digestToString(blobInfo.digest),
                         message.blobSubFolderName,
                         message.topic,
-                    ).serialize()
+                    ).serialize(),
+                    this.queueVisibilityTimeout
                 )
             } else {
                 // this bundle does not have receivers; only perform the work necessary to track the routing action
