@@ -146,7 +146,13 @@ class FHIRConverter(
                     )
                 )
             }
-            messagesToSend.forEach { this.queue.sendMessage(elrRoutingQueueName, it.serialize()) }
+            messagesToSend.forEach {
+                this.queue.sendMessage(
+                    elrRoutingQueueName,
+                    it.serialize(),
+                    this.queueVisibilityTimeout
+                )
+            }
         }
     }
 
