@@ -76,3 +76,17 @@ extension_3:
         system: "http://terminology.hl7.org/CodeSystem/v3-AcknowledgementCondition"
       vars:
         code: MSH.16
+
+extension_4:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: message-sent
+    valueDateTime:
+      type: STRING
+      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+      expressionType: JEXL
+      vars:
+        dateTimeIn: MSH.7

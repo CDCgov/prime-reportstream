@@ -224,3 +224,21 @@
 # Used to persist values from OBX.11 that do not map to FHIR, e.g. O.
 - id: "observation-status-original-text"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-status-original-text"
+# Time the message was sent
+- id: "message-sent"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/message-sent"
+# Specimen Name or Code
+- id: "specimen-name-or-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/specimen-name-or-code"
+# Specimen Source Additives
+- id: "specimen-source-additives"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/specimen-source-additives"
+# Specimen Collection Method
+- id: "specimen-collection-method"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/specimen-collection-method"
+# Observation Type
+- id: "observation-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-type"
+# Observation Sub Type
+- id: "observation-sub-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type"
