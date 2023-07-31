@@ -7,7 +7,6 @@ breadcrumbs:
     href: /resources
   - label: Account registration guide
 toc:
-  isInPage: true
   depth: 2
 ---
 import site from "../site.json";
@@ -33,7 +32,7 @@ import site from "../site.json";
         </p>
         <p className="usa-alert__text">
             Questions? Get in touch at{" "}
-            [{`mailto: ${site.orgs.RS.email}`}](reportstream@cdc.gov)
+            <A href={`mailto: ${site.orgs.RS.email}`}>reportstream@cdc.gov</A>
         </p>
     </div>
 </div>
@@ -47,9 +46,7 @@ import site from "../site.json";
         </h3>
         <p className="margin-top-05">
             Send an email to{" "}
-            <A
-                href={`mailto: ${site.orgs.RS.email}?subject=Register a new account: organization or testing facility`}
-            >reportstream@cdc.gov</A>
+            <A href={`mailto: ${site.orgs.RS.email}?subject=Register a new account: organization or testing facility`}>reportstream@cdc.gov</A>
             . Use the example text below as a template for your
             message:
         </p>
@@ -100,7 +97,7 @@ import site from "../site.json";
             <p>
                 Open the link to view the form and review the
                 ReportStream{" "}
-                ["/terms-of-service"](terms of service)
+                [terms of service](/terms-of-service)
             </p>
             <p>
                 Fill out and submit the form.{" "}
@@ -190,7 +187,7 @@ import site from "../site.json";
         <div className="margin-top-2">
             <p>
                 Go to{" "}
-                ["/login"](https://reportstream.cdc.gov/login)
+                [https://reportstream.cdc.gov/login](/login)
                 {" "}to log in with your username and password.
             </p>
             <p>
@@ -284,14 +281,14 @@ below to get set up.
 
 ReportStream will manually manage user accounts for your
 team. To add or remove team members,{" "}
-[{`mailto: ${site.orgs.RS.email}`}](contact us)
+<A href={`mailto: ${site.orgs.RS.email}`}>contact us</A>
 .
 
 ### Password reset
 
 If you forgot your password, follow the instructions under
 "Need help signing in?" on the login page at{" "}
-[{`${site.orgs.RS.url}/login`}]({`${site.orgs.RS.url}/login`})
+<A href={`${site.orgs.RS.url}/login`}>{`${site.orgs.RS.url}/login`}</A>
 .
 
 If you want to update your password, log out of the

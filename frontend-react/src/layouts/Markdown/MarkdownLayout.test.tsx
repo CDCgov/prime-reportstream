@@ -3,10 +3,8 @@ import { RouterProvider, createMemoryRouter } from "react-router";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 
-import MarkdownLayout, {
-    LayoutSidenav,
-    lazyRouteMarkdown,
-} from "./MarkdownLayout";
+import MarkdownLayout, { lazyRouteMarkdown } from "./MarkdownLayout";
+import { LayoutSidenav } from "./LayoutComponents";
 
 describe("MarkdownLayout", () => {
     test("no sidenav", () => {

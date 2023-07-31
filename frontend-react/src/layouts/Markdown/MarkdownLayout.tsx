@@ -49,6 +49,7 @@ export interface MarkdownLayoutProps {
         callToAction?: Array<{ label: string; href: string }>;
         lastUpdated?: string;
         toc?: boolean | { depth?: number };
+        backToTop?: boolean;
     };
     toc?: TocEntry[];
     main?: JSX.Element;
@@ -109,6 +110,7 @@ export function MarkdownLayout({
         callToAction,
         lastUpdated,
         toc,
+        backToTop,
     } = {},
     toc: tocEntries,
 }: MarkdownLayoutProps) {
@@ -203,6 +205,13 @@ export function MarkdownLayout({
                                     </p>
                                 ) : null}
                             </header>
+                            {tableOfContents ? (
+                                <>
+                                    <b>On this page:</b>
+                                    {tableOfContents}
+                                    <hr />
+                                </>
+                            ) : null}
                             <MDXProvider
                                 components={{
                                     ...MDXComponents,
@@ -213,6 +222,13 @@ export function MarkdownLayout({
                             >
                                 {mainContent ?? children}
                             </MDXProvider>
+                            {backToTop ? (
+                                <p>
+                                    <USSmartLink href="#top">
+                                        Back to top
+                                    </USSmartLink>
+                                </p>
+                            ) : null}
                         </main>
                     )}
                 </Grid>
