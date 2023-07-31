@@ -781,7 +781,7 @@ dependencies {
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.4.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.16")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.17")
     implementation("org.thymeleaf:thymeleaf:3.1.1.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
@@ -862,5 +862,10 @@ dependencies {
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.3")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
+    testImplementation("org.testcontainers:testcontainers:1.18.3")
+    testImplementation("org.testcontainers:junit-jupiter:1.18.3")
+    testImplementation("org.testcontainers:postgresql:1.18.3")
+
     implementation(kotlin("script-runtime"))
 }

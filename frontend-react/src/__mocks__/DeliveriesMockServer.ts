@@ -15,6 +15,14 @@ export const makeFacilityFixture = (
     total: overrides?.total || 0,
 });
 
+export const makeFacilityFixtureArray = (count: number) => {
+    const fixtures: RSFacility[] = [];
+    for (let i = 0; i < count; i++) {
+        fixtures.push(makeFacilityFixture(i));
+    }
+    return fixtures;
+};
+
 export const makeDeliveryFixture = (
     id: number,
     overrides?: Partial<RSDelivery>

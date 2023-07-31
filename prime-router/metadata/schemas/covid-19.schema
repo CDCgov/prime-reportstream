@@ -1051,17 +1051,7 @@ elements:
   - name: test_type
     type: TABLE
     table: LIVD-SARS-CoV-2
-    tableColumn: TestType
-    reference:
-    referenceUrl:
-    mapper: livdLookup()
-    default:
-    documentation:
-
-  - name: clia_complexity
-    type: TABLE
-    table: LIVD-SARS-CoV-2
-    tableColumn: CLIAComplexity
+    tableColumn: Test Type
     reference:
     referenceUrl:
     mapper: livdLookup()

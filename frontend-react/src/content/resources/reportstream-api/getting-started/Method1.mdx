@@ -4,13 +4,13 @@ import Alert from "../../../../shared/Alert/Alert";
 
 <ol>
 <li>
-Prior to connecting to the endpoint, you’ll need a public/private keypair. There are many ways to do this. The steps below show how to create a key pair using `openssl`.  
-  
-  EC 
+Prior to connecting to the endpoint, you’ll need a public/private keypair. There are many ways to do this. The steps below show how to create a key pair using `openssl`.
+
+  EC
   ```
   openssl ecparam -genkey -name secp384r1 -noout -out my-es-keypair.pem
   openssl ec -in my-es-keypair.pem -pubout -out  my-es-public-key.pem
-  ```  
+  ```
   RSA
   ```
 openssl genrsa -out my-rsa-keypair.pem 2048
@@ -30,7 +30,9 @@ A JWT is a base64 encoded string that has three parts: `header`, `payload`, and 
 
 You can find an example python program to generate a valid JWT [on GitHub](https://github.com/CDCgov/prime-reportstream/tree/master/prime-router/examples/generate-jwt-python/).
 
-Here is an example, using the fake client-id healthy labs, of header and payload data that should appear in a ReportStream JWT, prior to signature:
+If you receive errors, reference [this list](https://github.com/CDCgov/prime-reportstream/tree/master/prime-router/examples/generate-jwt-python/jwt-errors.md) of error types for explanations and instructions.
+
+Here is an example, using the fake `client-id healthy labs`, of header and payload data that should appear in a ReportStream JWT, prior to signature:
 
 ```
 {
@@ -65,8 +67,8 @@ POST to the token URL, as in the example below, noting the following:
 1. Use Content-Type: application/x-www-form-urlencoded.
 2. In the `scope` parameter, replace the dummy string `‘healthy-labs’` with your client-id, as assigned to you by ReportStream staff.
 3. The `grant_type` and `client_assertion_type` parameters are always fixed values. The `grant_type` should be `client_credentials` and `client_assertion_type` should be `urn:ietf:params:oauth:client-assertion-type:jwt-bearer`, as in the example curl below.
-4. In the client_assertion parameter, replace the \<token-signing-secret\> below with your JWT from above.  
-5. All the parameters are sent in the body/payload of the post (when using curl, via the `-d` option), not in the URL.  
+4. In the client_assertion parameter, replace the \<token-signing-secret\> below with your JWT from above.
+5. All the parameters are sent in the body/payload of the post (when using curl, via the `-d` option), not in the URL.
 Here is an example ‘curl’ POST:
 
 ```
@@ -100,7 +102,7 @@ HL7 example
 
 <pre>
 <code>
-curl -H "authorization:bearer \<long-bearer-token\>" -H "client:healthy-labs"  -H "content-type:application/hl7-v2" 
+curl -H "authorization:bearer \<long-bearer-token\>" -H "client:healthy-labs"  -H "content-type:application/hl7-v2"
 --data-binary "@./<span className="text-primary-vivid">healthy-labs</span>-nonPII-data.hl7" {'"https://staging.prime.cdc.gov/api/waters"'}
 </code>
 </pre>

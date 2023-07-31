@@ -17,6 +17,31 @@ updates:
   # Maintain dependencies for GitHub Actions custom actions
   # These entries need to be updated for every new action created
   - package-ecosystem: "github-actions"
+    directory: "/.github/actions/Start-AzFunction"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/Start-PostgresDB"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/Stop-AzFunction"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/Stop-PostgresDB"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/notifications"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
     directory: "/.github/actions/build-backend"
     schedule:
       interval: "daily"
