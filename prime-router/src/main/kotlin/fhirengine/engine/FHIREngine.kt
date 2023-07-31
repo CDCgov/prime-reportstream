@@ -9,6 +9,7 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
+import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import java.time.Duration
@@ -137,5 +138,5 @@ abstract class FHIREngine(
      *
      * It should be removed as part of implementing https://github.com/CDCgov/prime-reportstream/issues/10638
      */
-    val queueVisibilityTimeout: Duration = Duration.ofMinutes(5)
+    val queueVisibilityTimeout: Duration = if (Environment.isLocal()) Duration.ZERO else Duration.ofMinutes(5)
 }
