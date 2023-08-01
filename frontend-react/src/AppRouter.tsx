@@ -213,6 +213,7 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "",
                         element: <Support />,
+                        index: true,
                         handle: {
                             isContentPage: true,
                         },
