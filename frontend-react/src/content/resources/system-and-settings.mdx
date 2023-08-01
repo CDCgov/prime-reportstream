@@ -16,25 +16,24 @@ encryption can be provided if required by public health
 departments.
 
 As a project of the U.S. federal government, ReportStream
-also complies with the{" "}
+also complies with the
 [Federal Information System Management Act](https://csrc.nist.gov/Projects/risk-management/fisma-background)
-{" "}(FISMA). FISMA sets standards and requires federal agencies
+(FISMA). FISMA sets standards and requires federal agencies
 to implement information security plans to protect sensitive
 data.
 
-Get more information on{" "}
-[ReportStream security practices](/resources/security-practices)
-.
+Get more information on
+[ReportStream security practices](/resources/security-practices).
 
 ## Data configuration and formatting
 
 ReportStream submits data via HL7, version 2.5.1.
 
-ReportStream data follows{" "}
+ReportStream data follows
 [HHS guidance for COVID-19 Lab Data Reporting](https://www.hhs.gov/answers/is-additional-information-including-technical-specifications-available-to-support-laboratories-with-implementation/index.html)
 , including the recommended Health and Human Services
 COVID-19 “Ask on Order Entry” questions. Sending Ask on
-Order Entry questions (via{" "}
+Order Entry questions (via
 [OBX fields](https://hl7-definition.caristix.com/v2/HL7v2.5/Segments/OBX)
 ) is optional.
 
@@ -63,16 +62,15 @@ health department test environment to make sure everything
 is working correctly before launch.
 
 - <b>Synthetic data (standard):</b>
-{" "}ReportStream always sends synthetic data in our{" "}
+ReportStream always sends synthetic data in our
 [standard data schema](https://github.com/CDCgov/prime-reportstream/blob/production/prime-router/docs/schema_documentation/primedatainput-pdi-covid-19.md)
-{" "}for your review.
+for your review.
 
-- <b>Patient data (as needed):</b>
-{" "}If required, ReportStream can also send patient data. In
-some cases, there may not be a testing facility that is
-registered with ReportStream in your jurisdiction. In
-this case, we'll finish all of the possible steps on
-your side. Once a testing facility registers we'll
+- <b>Patient data (as needed):</b> If required, ReportStream 
+can also send patient data. In some cases, there may not be 
+a testing facility that is registered with ReportStream in your 
+jurisdiction. In this case, we'll finish all of the possible 
+steps on your side. Once a testing facility registers we'll
 notify you, then move to approval and launch.
 
 ## Approval and launch

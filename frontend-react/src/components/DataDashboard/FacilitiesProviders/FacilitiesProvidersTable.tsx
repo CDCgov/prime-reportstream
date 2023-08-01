@@ -13,7 +13,7 @@ import { NoServicesBanner } from "../../alerts/NoServicesAlert";
 import { FeatureName } from "../../../AppRouter";
 import { Table } from "../../../shared/Table/Table";
 import { FacilityResource } from "../../../config/endpoints/dataDashboard";
-import { USLink } from "../../USLink";
+import { USLink } from "../../../shared/USLink/USLink";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import {
     transformFacilityTypeClass,

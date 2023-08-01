@@ -4,7 +4,7 @@ import { GridContainer } from "@trussworks/react-uswds";
 import Spinner from "../Spinner";
 import { AuthElement } from "../AuthElement";
 import { withCatchAndSuspense } from "../RSErrorBoundary";
-import { USLink } from "../USLink";
+import { USLink } from "../../shared/USLink/USLink";
 import { showError } from "../AlertNotifications";
 import { ApiKey } from "../../config/endpoints/settings";
 import { useSessionContext } from "../../contexts/SessionContext";
@@ -20,6 +20,7 @@ import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
 import ManagePublicKeyUploadSuccess from "./ManagePublicKeyUploadSuccess";
 import ManagePublicKeyUploadError from "./ManagePublicKeyUploadError";
 import ManagePublicKeyConfigured from "./ManagePublicKeyConfigured";
+import styles from "./ManagePublicKey.module.scss";
 
 export const CONTENT_TYPE = "application/x-x509-ca-cert";
 export const FORMAT = "PEM";
@@ -132,7 +133,9 @@ export function ManagePublicKey() {
     const hasUploadError = fileSubmitted && !isUploading && !isSuccess;
 
     return (
-        <GridContainer className="manage-public-key padding-bottom-5 tablet:padding-top-6">
+        <GridContainer
+            className={`${styles["manage-public-key"]} padding-bottom-5 tablet:padding-top-6`}
+        >
             {!isUploading && (
                 <h1 className="margin-top-0 margin-bottom-5">
                     Manage public key

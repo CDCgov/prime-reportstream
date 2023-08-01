@@ -11,7 +11,7 @@ import {
     MemberType,
     MembershipSettings,
 } from "../../hooks/UseOktaMemberships";
-import { USNavLink } from "../USLink";
+import { USNavLink } from "../../shared/USLink/USLink";
 import { Table } from "../../shared/Table/Table";
 
 export function OrgsTable() {

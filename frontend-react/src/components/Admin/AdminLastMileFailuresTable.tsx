@@ -23,7 +23,7 @@ import { ErrorPage } from "../../pages/error/ErrorPage";
 import Spinner from "../Spinner";
 import config from "../../config";
 import { getAppInsightsHeaders } from "../../TelemetryService";
-import { USLink } from "../USLink";
+import { USLink } from "../../shared/USLink/USLink";
 import { Table } from "../../shared/Table/Table";
 
 const { RS_API_URL } = config;

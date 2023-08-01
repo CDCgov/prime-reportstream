@@ -1,5 +1,5 @@
 import site from "../../content/site.json";
-import { USExtLink } from "../USLink";
+import { USExtLink } from "../../shared/USLink/USLink";
 
 export default function FileHandlerPiiWarning() {
     return (

@@ -3,7 +3,7 @@ import { Button, Grid } from "@trussworks/react-uswds";
 
 import site from "../../content/site.json";
 import { StaticAlert, StaticAlertType } from "../StaticAlert";
-import { USExtLink } from "../USLink";
+import { USExtLink } from "../../shared/USLink/USLink";
 
 type ManagePublicKeyUploadCompleteProps = {
     onTryAgain: () => void;

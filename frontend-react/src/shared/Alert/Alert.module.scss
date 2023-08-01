@@ -10,8 +10,7 @@
  */
 .usa-alert {
     /* Icon override */
-    // Using .usa-alert to win CSS specifity against USWDS
-    &:global(.usa-alert):before {
+    :global(.usa-alert__body):before {
         all: unset;
     }
 

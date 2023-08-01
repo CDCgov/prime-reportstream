@@ -18,7 +18,7 @@ import {
     CheckSettingResult,
     useCheckSettingsCmd,
 } from "../../network/api/CheckSettingCmd";
-import { USLink, USNavLink } from "../USLink";
+import { USLink, USNavLink } from "../../shared/USLink/USLink";
 
 import { DisplayMeta } from "./DisplayMeta";
 

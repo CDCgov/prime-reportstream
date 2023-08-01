@@ -1,6 +1,6 @@
 import React from "react";
 
-import { USLink } from "../USLink";
+import { USLink } from "../../shared/USLink/USLink";
 
 export default function ManagePublicKeyConfigured() {
     return (

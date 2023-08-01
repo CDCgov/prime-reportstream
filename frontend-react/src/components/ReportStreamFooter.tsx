@@ -11,7 +11,7 @@ import {
     IdentifierLink,
 } from "@trussworks/react-uswds";
 
-import { USExtLink } from "./USLink";
+import { USExtLink } from "../shared/USLink/USLink";
 
 export const ReportStreamFooter = () => {
     return (

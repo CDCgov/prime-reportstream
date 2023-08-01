@@ -16,7 +16,7 @@ import Title from "../../components/Title";
 import getStateTerritoryList from "../../utils/StateTerritories";
 import config from "../../config";
 import { getAppInsightsHeaders } from "../../TelemetryService";
-import { USLink } from "../../components/USLink";
+import { USLink } from "../../shared/USLink/USLink";
 
 import SuccessPage from "./SuccessPage";
 

@@ -13,6 +13,7 @@ import { parseFileLocation } from "../../utils/misc";
 
 import { WarningsErrors } from "./WarningsErrors";
 import { MessageReceivers } from "./MessageReceivers";
+import styles from "./MessageTracker.module.scss";
 
 type MessageDetailsProps = {
     id: string | undefined;
@@ -137,7 +138,7 @@ export function MessageDetails() {
                         <div
                             className={
                                 warnings.length
-                                    ? "message-tracker display-flex flex-column margin-bottom-2"
+                                    ? `${styles["message-tracker"]} display-flex flex-column margin-bottom-2`
                                     : ""
                             }
                         >
@@ -158,7 +159,7 @@ export function MessageDetails() {
                         <div
                             className={
                                 errors.length
-                                    ? "message-tracker display-flex flex-column margin-bottom-2"
+                                    ? `${styles["message-tracker"]} display-flex flex-column margin-bottom-2`
                                     : ""
                             }
                         >

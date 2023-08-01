@@ -9,7 +9,7 @@ import { ReportStreamHeader } from "../../components/header/ReportStreamHeader";
 import { ReportStreamFooter } from "../../components/ReportStreamFooter";
 import RSErrorBoundary from "../../components/RSErrorBoundary";
 import SenderModeBanner from "../../components/SenderModeBanner";
-import { USLink } from "../../components/USLink";
+import { USLink } from "../../shared/USLink/USLink";
 import { useSessionContext } from "../../contexts/SessionContext";
 
 export type MainLayoutProps = React.PropsWithChildren<{}>;

@@ -17,41 +17,35 @@ from ReportStream via a secure server.
 Connecting to ReportStream is similar to setting up an ELR feed
 with a lab or hospital. There are just three steps:
 
-<ol className="usa-process-list">
-    <li className="usa-process-list__item">
-        <h3 className="usa-process-list__heading">
-            Schedule kick-off:
-        </h3>
-        <section className="margin-top-neg-1">
+<ProcessList>
+    <ProcessListItem>
+        <ProcessListHeading type="h3">Schedule kick-off:</ProcessListHeading>
+        <p>
             Let us know you're interested by filling out and
-            submitting{" "}
+            submitting
             <A href={site.forms.intakeElr.url}>the form</A>
             . We'll be in touch within a week to schedule a kick-off
             meeting and start the integration process.
-        </section>
-    </li>
-    <li className="usa-process-list__item margin-top-neg-3">
-        <h3 className="usa-process-list__heading">
-            Connect and test:
-        </h3>
-        <section className="margin-top-neg-1">
+        </p>
+    </ProcessListItem>
+    <ProcessListItem>
+        <ProcessListHeading type="h3">Connect and test:</ProcessListHeading>
+        <p>
             As part of kick-off, you'll share your SFTP server
             credentials. We'll then send test files and ensure the
             test data arrives correctly in your database.
-        </section>
-    </li>
-    <li className="usa-process-list__item  margin-top-neg-3">
-        <h3 className="usa-process-list__heading">
-            Launch and roll out:
-        </h3>
-        <section className="margin-top-neg-1">
+        </p>
+    </ProcessListItem>
+    <ProcessListItem>
+        <ProcessListHeading type="h3">Launch and roll out:</ProcessListHeading>
+        <p>
             We'll start sending you real data from testing
             facilities. As new data is sent in to ReportStream,
             we'll continually batch and send you only the data
             relevant to your jurisdiction.
-        </section>
-    </li>
-</ol>
+        </p>
+    </ProcessListItem>
+</ProcessList>
 
 ---
 
@@ -65,13 +59,13 @@ their jurisdiction who are part of ReportStream. Data is
 accessible via the ReportStream website or the ELR connection.
 
 Interested in downloading data directly from the ReportStream
-website? Visit the ReportStream Data{" "}
+website? Visit the ReportStream Data
 [Manual Download Guide](/resources/data-download-guide)
-{" "}for more info.
+for more info.
 
 ## Get started with ReportStream
 
 Ready to bring ReportStream to your jurisdiction, or just
-have more questions? Fill out{" "}
+have more questions? Fill out
 <A href={site.forms.intakeElr.url}>the form</A>
-{" "}and we'll be in touch!
+and we'll be in touch!

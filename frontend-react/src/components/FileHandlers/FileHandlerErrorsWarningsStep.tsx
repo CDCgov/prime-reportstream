@@ -18,6 +18,7 @@ import {
     RequestLevel,
 } from "./FileHandlerMessaging";
 import { FileHandlerStepProps } from "./FileHandler";
+import styles from "./FileHandler.module.scss";
 
 const SERVER_ERROR_MESSAGING = {
     heading: OverallStatus.ERROR,
@@ -63,7 +64,7 @@ export default function FileHandlerErrorsWarningsStep({
 
     const modalRef = useRef<ModalRef>(null);
     return (
-        <div className="file-handler-table">
+        <div className={`${styles["file-handler-table"]}`}>
             {hasQualityFilterMessages ? (
                 <FileQualityFilterDisplay
                     destinations={qualityFilterMessages}

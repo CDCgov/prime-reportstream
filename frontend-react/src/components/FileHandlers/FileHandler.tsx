@@ -8,7 +8,7 @@ import useFileHandler, {
 } from "../../hooks/UseFileHandler";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import site from "../../content/site.json";
-import { USExtLink, USLink } from "../USLink";
+import { USExtLink, USLink } from "../../shared/USLink/USLink";
 import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
 import { WatersResponse } from "../../config/endpoints/waters";
 import Alert from "../../shared/Alert/Alert";

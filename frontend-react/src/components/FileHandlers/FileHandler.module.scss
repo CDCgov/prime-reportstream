@@ -1,0 +1,14 @@
+.file-handler-table {
+    :global(.usa-table) {
+        // @override _table.scss
+        td {
+            background-color: transparent;
+        }
+    }
+}
+
+.validation-section-header {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0;
+}

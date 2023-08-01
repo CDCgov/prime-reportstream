@@ -1,6 +1,6 @@
 import classNames from "classnames";
 
-import { USSmartLink } from "../../components/USLink";
+import { USSmartLink } from "../../shared/USLink/USLink";
 import { Icon, IconName } from "../../shared";
 
 export interface CallToActionType {

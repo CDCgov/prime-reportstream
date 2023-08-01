@@ -10,7 +10,11 @@ import React, { useMemo, useState } from "react";
 import * as reactUSWDS from "@trussworks/react-uswds";
 import type { TocEntry } from "remark-mdx-toc";
 
-import { USCrumbLink, USSmartLink, USNavLink } from "../../components/USLink";
+import {
+    USCrumbLink,
+    USSmartLink,
+    USNavLink,
+} from "../../shared/USLink/USLink";
 import * as shared from "../../shared";
 import MDXModules from "../../MDXModules";
 

@@ -14,7 +14,7 @@ import usamapsvg from "../../content/usa_w_territories.svg"; // in /content dir 
 </LayoutSidenav>
 
 <LayoutMain>
-    ## Don't see your state or territory? [Get in touch](/support/contact).
+    <p className="font-heading-xl">**Don't see your state or territory? [Get in touch](/support/contact).**</p>
 
     <img
         className="margin-bottom-6"
@@ -23,11 +23,11 @@ import usamapsvg from "../../content/usa_w_territories.svg"; // in /content dir 
     />
     <p className="font-body-2xs text-gray-50">[Heitordp](https://commons.wikimedia.org/wiki/File:Blank_USA,_w_territories.svg), CC0, via Wikimedia Commons</p>
     <p className="margin-top-10">ReportStream has established connections to send and report public health data for each of the states and territories listed here.</p>
-    <ul className={"rs-livestate-two-column"}>
+    <ul className={"rs-column-count-2"}>
         {live.data
             .sort((a, b) => a.state.localeCompare(b.state))
             .map((data) => (
-                <li key={`key_${data.state}`}>{data.state}</li>
+                <li key={data.state}>{data.state}</li>
             ))}
     </ul>
     Companies or testing facilities sending test results may still need

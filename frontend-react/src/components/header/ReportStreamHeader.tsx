@@ -13,7 +13,7 @@ import { ReactComponent as RightLeftArrows } from "../../content/right-left-arro
 import { useSessionContext } from "../../contexts/SessionContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
-import { USLink, USNavLink } from "../USLink";
+import { USLink, USNavLink } from "../../shared/USLink/USLink";
 import { FeatureName } from "../../AppRouter";
 
 import { SignInOrUser } from "./SignInOrUser";

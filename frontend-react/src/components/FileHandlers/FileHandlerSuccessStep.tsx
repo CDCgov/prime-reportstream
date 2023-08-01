@@ -1,6 +1,6 @@
 import React from "react";
 
-import { USExtLink, USLink } from "../USLink";
+import { USExtLink, USLink } from "../../shared/USLink/USLink";
 import site from "../../content/site.json";
 import { StaticAlert, StaticAlertType } from "../StaticAlert";
 
@@ -14,7 +14,7 @@ export default function FileHandlerSuccessStep() {
                     message="Your file is correctly formatted for ReportStream."
                 />
             </div>
-            <p className="font-size-18 margin-bottom-4">
+            <p className="font-sans-md margin-bottom-4">
                 To continue your onboarding, email{" "}
                 <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
                     {site.orgs.RS.email}
@@ -22,7 +22,7 @@ export default function FileHandlerSuccessStep() {
                 to let us know you have validated your file. Our team will be in
                 touch soon to help you get set up in staging.
             </p>
-            <p className="font-size-18 margin-0">
+            <p className="font-sans-md margin-0">
                 Learn more about the onboarding process in the{" "}
                 <USLink href="/resources/api">ReportStream API</USLink>.
             </p>

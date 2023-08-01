@@ -22,28 +22,6 @@ i.e.
 ----------------------------------------
 */
 
-html,
-body {
-    height: 100%;
-}
-
-.footer {
-    flex-shrink: 0;
-}
-
-body {
-    display: flex;
-    min-height: 100vh;
-    flex-direction: column;
-}
-
-main {
-    flex: 1 0 auto;
-    width: 100%;
-    min-height: calc(100vh - 230px);
-    padding: 0 0 4rem 0;
-}
-
 .usa-banner__inner,
 .usa-banner__header--expanded .usa-banner__inner {
     margin-left: 0;
@@ -79,31 +57,6 @@ main {
     color: color("primary");
 }
 
-// Breadcrumb
-
-.usa-breadcrumb {
-    margin-top: units(2);
-}
-
-// TYPOGRAPHY
-
-.usa-prose {
-    h1 {
-        line-height: lh("sans", 2);
-    }
-}
-
-.usa-intro {
-    line-height: units(4);
-}
-
-// ALERT
-.usa-site-alert {
-    .usa-alert__heading {
-        font-size: size("body", "md");
-    }
-}
-
 // TABLE
 .usa-table {
     width: 100%;
@@ -115,7 +68,6 @@ main {
 }
 
 // MODAL
-
 .usa-modal__main {
     word-wrap: break-word;
     width: 100%;
@@ -251,18 +203,6 @@ main {
 }
 
 // ComponentHeading as div, with header element inside
-.usa-process-list__heading,
-.usa-alert__heading {
-    & h1,
-    & h2,
-    & h3,
-    & h4,
-    & h5,
-    & h6 {
-        margin: 0;
-    }
-}
-
 .usa-card__header {
     font-weight: bold;
 }
@@ -303,21 +243,9 @@ main {
     }
 }
 
+/* Remove border */
 .usa-header + main {
     border-top: none;
-}
-
-// Headings
-// FUTURE_TODO: Decipher the ancient texts on how to apply these directly to USWDS token definitions.
-h4 {
-    font-size: 18px;
-    line-height: 160%;
-}
-
-.font-body-sm {
-    font-size: 14px;
-    line-height: 160%;
-    margin-bottom: 14px;
 }
 
 /* Grid-based form overrides */
@@ -332,4 +260,77 @@ h4 {
         width: 100%;
         max-width: 100%;
     }
+}
+
+/* Constrain usa-process-list imgs */
+.usa-process-list img {
+    display: block;
+    max-width: 15rem;
+    @include u-border(1px, "base-lighter");
+    margin-top: units(4);
+}
+
+/* Blockquotes */
+blockquote {
+    @include u-bg("base-lightest");
+    @include u-padding-x(3);
+    @include u-padding-y(1);
+    @include u-margin(0);
+}
+
+/**
+ * Apply usa-prose styling to all descendants
+ */
+html {
+    @include typeset($theme-prose-font-family);
+
+    @include usa-paragraph-style;
+    @include usa-headings-styles;
+    @include usa-list-styles;
+    @include usa-table-styles;
+}
+
+header {
+    /* Style as page heading */
+    &:has(h1) {
+        border-bottom: 1px solid color("base-lighter");
+        padding-top: units(3);
+        padding-bottom: units(4);
+        margin-bottom: units(6);
+    }
+}
+
+/* hr */
+$theme-hr-border-color: "base-lighter";
+hr {
+    border: 1px solid color($theme-hr-border-color);
+    /* TODO: Verify spacing in all uses of hr when enabling this
+    @include u-margin-bottom(6);
+    @include u-margin-top(6);
+    */
+}
+
+/* Do not decorate header non-button links */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+header {
+    & > .usa-link:not(.usa-button),
+    & > span > .usa-link:not(.usa-button) {
+        color: initial;
+        text-decoration: none;
+
+        &:visited {
+            color: initial;
+        }
+    }
+}
+
+/* Apply .usa-card__heading automatically to header children */
+.usa-card__header > * {
+    @include typeset($theme-card-header-typeset);
+    @include u-margin(0);
 }

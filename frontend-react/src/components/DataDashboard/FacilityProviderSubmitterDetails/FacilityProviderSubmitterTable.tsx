@@ -8,7 +8,7 @@ import useFilterManager, {
 } from "../../../hooks/filters/UseFilterManager";
 import { FeatureName } from "../../../AppRouter";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
-import { USLink } from "../../USLink";
+import { USLink } from "../../../shared/USLink/USLink";
 import { SenderTypeDetailResource } from "../../../config/endpoints/dataDashboard";
 
 import styles from "./FacilityProviderSubmitterTable.module.scss";

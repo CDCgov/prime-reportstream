@@ -13,7 +13,7 @@ import Spinner from "../Spinner";
 import { MessageListResource } from "../../config/endpoints/messageTracker";
 import { useMessageSearch } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
 import { Table } from "../../shared/Table/Table";
-import { USLink } from "../USLink";
+import { USLink } from "../../shared/USLink/USLink";
 
 interface MessageListTableContentProps {
     isLoading: boolean;

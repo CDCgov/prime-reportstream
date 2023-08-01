@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 
-import { USLink } from "../USLink";
+import { USLink } from "../../shared/USLink/USLink";
 import { FeatureName } from "../../AppRouter";
 
 export interface NonStaticOption {

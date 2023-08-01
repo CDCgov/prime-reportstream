@@ -1,4 +1,4 @@
-import { USSmartLink } from "../../components/USLink";
+import { USSmartLink } from "../../shared/USLink/USLink";
 
 export default function Hero() {
     return (

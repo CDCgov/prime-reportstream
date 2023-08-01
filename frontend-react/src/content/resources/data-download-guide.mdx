@@ -9,96 +9,61 @@ backToTop: true
 ---
 import site from "../../content/site.json";
 
-<div className="usa-alert usa-alert--info margin-bottom-6">
-    <div className="usa-alert__body">
-        <h3 className="usa-alert__heading font-body-md margin-top-05">
-            Why download data manually from ReportStream?
-        </h3>
-        <p className="margin-top-3">
-            <strong>
-                Get started without an ELR connection
-            </strong>
-        </p>
-        <p>
-            Download data in standard CSV and HL7 formats
-            without setting up an ELR feed.
-        </p>
-        <p>
-            <strong>Access back-up data</strong>
-        </p>
-        <p>
-            Get your jurisdiction data manually in the case of a
-            temporary connection failure.
-        </p>
-        <p>
-            <strong>Secure and personalized </strong>
-        </p>
-        <p>
-            Set up secure, individual logins for each member of
-            your team.
-        </p>
-    </div>
-</div>
+<Alert type="info" heading='Why download data manually from ReportStream?'>
+    **Get started without an ELR connection**
+
+    Download data in standard CSV and HL7 formats
+    without setting up an ELR feed.
+
+    **Access back-up data**
+
+    Get your jurisdiction data manually in the case of a
+    temporary connection failure.
+
+    **Secure and personalized**
+
+    Set up secure, individual logins for each member of
+    your team.
+</Alert>
 
 ## Download data from ReportStream
 
-<ol className="usa-process-list">
-    <li className="usa-process-list__item">
-        <h3 className="usa-process-list__heading">
-            Create an account
-        </h3>
-        <p className="margin-top-05">
-            To gain access to the ReportStream application,
-            follow the steps outlined in the{" "}
-            ["/resources/account-registration-guide"](Account Registration Guide)
-            .
-        </p>
-    </li>
-    <li className="usa-process-list__item">
-        <h3 className="usa-process-list__heading">
-            Log in to ReportStream
-        </h3>
+<ProcessList>
+    <ProcessListItem>
+        <ProcessListHeading type="h3">Create an account</ProcessListHeading>
+        To gain access to the ReportStream application,
+        follow the steps outlined in the
+        [Account Registration Guide](/resources/account-registration-guide).
+    </ProcessListItem>
+    <ProcessListItem>
+        <ProcessListHeading type="h3">Log in to ReportStream</ProcessListHeading>
+        Visit
+        <A href={site.orgs.RS.url}>reportstream.cdc.gov</A>
+        using a modern desktop web browser (ex: Chrome,
+        Firefox, Safari, Edge) and log in.
 
-        <p>
-            Visit{" "}
-            <A href={site.orgs.RS.url}>reportstream.cdc.gov</A>
-            {" "}using a modern desktop web browser (ex: Chrome,
-            Firefox, Safari, Edge) and log in.
-        </p>
-        <p>
-            Please note: ReportStream does not support Internet
-            Explorer 11 or below.
-        </p>
-    </li>
-    <li className="usa-process-list__item">
-        <h3 className="usa-process-list__heading">
-            Access your jurisdiction's data
-        </h3>
-        <p>
-            Once logged in to ReportStream, visit{" "}
-            [reportstream.cdc.gov/daily-data](/daily-data)
-            .
-        </p>
-        <p>
-            You will be able to download the most recently
-            reported test result data, as well as up to 30 days
-            of previously reported data. After 30 days has
-            passed, the file will be permanently deleted and
-            will not be recoverable.
-        </p>
-        <p>
-            For this reason, please download data and ingest it
-            into your system as soon as possible.
-        </p>
-    </li>
-</ol>
+        Please note: ReportStream does not support Internet
+        Explorer 11 or below.
+    </ProcessListItem>
+    <ProcessListItem>
+        <ProcessListHeading type="h3">Access your jurisdiction's data</ProcessListHeading>
+        Once logged in to ReportStream, visit
+        [reportstream.cdc.gov/daily-data](/daily-data).
+
+        You will be able to download the most recently
+        reported test result data, as well as up to 30 days
+        of previously reported data. After 30 days has
+        passed, the file will be permanently deleted and
+        will not be recoverable.
+
+        For this reason, please download data and ingest it
+        into your system as soon as possible.
+    </ProcessListItem>
+</ProcessList>
 
 ## Support
 
 Do you have questions, problems, or bugs to report? Contact
 us for help.
 
-<A
-    className="usa-button usa-button--outline"
-    href="/support/contact"
->Contact us</A>
+<A className="usa-button usa-button--outline" href="/support/contact">Contact us</A>

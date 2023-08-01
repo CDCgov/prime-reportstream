@@ -1,7 +1,7 @@
 import moment from "moment";
 
 import ReportResource from "../../../resources/ReportResource";
-import { USLink } from "../../../components/USLink";
+import { USLink } from "../../../shared/USLink/USLink";
 
 import ReportLink from "./ReportLink";
 

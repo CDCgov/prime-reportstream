@@ -3,7 +3,7 @@ import React from "react";
 
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { AuthElement } from "../components/AuthElement";
-import { USExtLink, USLink } from "../components/USLink";
+import { USExtLink, USLink } from "../shared/USLink/USLink";
 
 const TransitionBanner = () => {
     return (

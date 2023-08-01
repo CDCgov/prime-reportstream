@@ -1,5 +1,5 @@
 import content from "../../content/content.json";
-import { USSmartLink } from "../../components/USLink";
+import { USSmartLink } from "../../shared/USLink/USLink";
 
 import Hero from "./Hero";
 import Section from "./Sections/Section";

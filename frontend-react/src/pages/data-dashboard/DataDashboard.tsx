@@ -5,7 +5,7 @@ import React from "react";
 import { FeatureName } from "../../AppRouter";
 import { AuthElement } from "../../components/AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
-import { USNavLink } from "../../components/USLink";
+import { USNavLink } from "../../shared/USLink/USLink";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import DataDashboardTable from "../../components/DataDashboard/DataDashboardTable/DataDashboardTable";

@@ -4,8 +4,8 @@ import { Icon } from "@trussworks/react-uswds";
 import { useSessionContext } from "../contexts/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
 import useSenderResource from "../hooks/UseSenderResource";
+import { USLink } from "../shared/USLink/USLink";
 
-import { USLink } from "./USLink";
 import { withCatchAndSuspense } from "./RSErrorBoundary";
 
 const isNotActive = (val: string | undefined): boolean => {

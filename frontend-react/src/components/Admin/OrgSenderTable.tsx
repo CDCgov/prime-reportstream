@@ -4,7 +4,7 @@ import React from "react";
 
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import Spinner from "../Spinner";
-import { USLink, USNavLink } from "../USLink";
+import { USLink, USNavLink } from "../../shared/USLink/USLink";
 
 import { DisplayMeta } from "./DisplayMeta";
 

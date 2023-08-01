@@ -76,22 +76,6 @@ h3 img[src*="svg"] {
     float: left;
 }
 
-.rs-blockquote__documentation {
-    @include u-bg("base-lightest");
-    @include u-padding-x(3);
-    @include u-padding-y(1);
-    @include u-margin(0);
-}
-
-.rs-process-list__documentation {
-    img {
-        display: block;
-        max-width: 15rem;
-        @include u-border(1px, "base-lighter");
-        margin-top: units(4);
-    }
-}
-
 // Where we're live
 
 .rs-livestate-two-column {
@@ -640,24 +624,38 @@ h2.rs-numbered {
     }
 }
 
-header {
-    /* Style as page heading */
-    &:has(h1) {
-        border-bottom: 1px solid color("base-lighter");
-        padding-top: units(3);
-        padding-bottom: units(4);
-        margin-bottom: units(6);
+/* column-count utility (ex: ul/ol) */
+$column-count-options: (2, 3, 4);
+@each $value in $column-count-options {
+    .rs-column-count-#{$value} {
+        column-count: $value;
     }
 }
 
-/**
- * Apply usa-prose styling to all descendants
+/* 
+ * Page Layout Grid 
+ * Ensures the content area always has a proper
+ * minimum height in relation to footer.
  */
-html {
-    @include typeset($theme-prose-font-family);
+#root {
+    min-height: 100vh;
+    display: grid;
+    grid-template-areas:
+        "h"
+        "m"
+        "f";
+    grid-template-rows: max-content auto max-content;
+    grid-template-columns: auto;
 
-    @include usa-paragraph-style;
-    @include usa-headings-styles;
-    @include usa-list-styles;
-    @include usa-table-styles;
+    & > * {
+        grid-area: m;
+    }
+
+    & > header {
+        grid-area: h;
+    }
+
+    & > footer {
+        grid-area: f;
+    }
 }

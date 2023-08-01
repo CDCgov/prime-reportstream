@@ -40,7 +40,7 @@ import { AuthElement } from "../../components/AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
 import { getAppInsightsHeaders } from "../../TelemetryService";
-import { USLink } from "../../components/USLink";
+import { USLink } from "../../shared/USLink/USLink";
 
 const { RS_API_URL } = config;
 

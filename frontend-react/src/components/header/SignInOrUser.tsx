@@ -2,7 +2,7 @@ import { Button } from "@trussworks/react-uswds";
 
 import { logout } from "../../utils/UserUtils";
 import config from "../../config";
-import { USLinkButton } from "../USLink";
+import { USLinkButton } from "../../shared/USLink/USLink";
 import { useSessionContext } from "../../contexts/SessionContext";
 
 const { IS_PREVIEW } = config;

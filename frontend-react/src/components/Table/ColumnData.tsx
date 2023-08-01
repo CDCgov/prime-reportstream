@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import { Button } from "@trussworks/react-uswds";
 
-import { USLink } from "../USLink";
+import { USLink } from "../../shared/USLink/USLink";
 
 import { ColumnConfig, LinkableColumn, ActionableColumn } from "./Table";
 import { TableRowData } from "./TableRows";

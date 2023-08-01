@@ -1,5 +1,5 @@
 import site from "../../../content/site.json";
-import { USExtLink } from "../../../components/USLink";
+import { USExtLink } from "../../../shared/USLink/USLink";
 
 export const ErrorUnsupportedBrowser = () => {
     return (

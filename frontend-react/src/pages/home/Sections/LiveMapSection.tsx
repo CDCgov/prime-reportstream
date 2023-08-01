@@ -2,7 +2,7 @@ import DOMPurify from "dompurify";
 
 import { SectionProp } from "../HomeProps";
 import usamapsvg from "../../../content/usa_w_territories.svg";
-import { USLink } from "../../../components/USLink"; // in /content dir to get unique filename per build
+import { USLink } from "../../../shared/USLink/USLink"; // in /content dir to get unique filename per build
 
 export default function LiveMapSection({ section }: { section: SectionProp }) {
     let cleanDescriptionHtml = DOMPurify.sanitize(section!.description!);

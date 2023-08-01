@@ -1,7 +1,7 @@
 import React from "react";
 
 import { StaticAlert, StaticAlertType } from "../StaticAlert";
-import { USLink } from "../USLink";
+import { USLink } from "../../shared/USLink/USLink";
 
 export default function ManagePublicKeyUploadSuccess() {
     const heading = "New public key received by ReportStream";

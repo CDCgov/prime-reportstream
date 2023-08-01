@@ -8,7 +8,7 @@ import OktaSignInWidget from "../components/OktaSignInWidget";
 import { oktaSignInConfig } from "../oktaConfig";
 import { useSessionContext } from "../contexts/SessionContext";
 import { MembershipActionType } from "../hooks/UseOktaMemberships";
-import { USLink } from "../components/USLink";
+import { USLink } from "../shared/USLink/USLink";
 
 const MonitoringAlert = () => {
     return (

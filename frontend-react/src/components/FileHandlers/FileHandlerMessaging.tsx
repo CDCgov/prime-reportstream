@@ -5,10 +5,12 @@ import { renderToString } from "react-dom/server";
 import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
-import { USExtLink } from "../USLink";
+import { USExtLink } from "../../shared/USLink/USLink";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
 import { saveToCsv } from "../../utils/FileUtils";
 import { removeHTMLFromString } from "../../utils/misc";
+
+import styles from "./FileHandler.module.scss";
 
 const HL7_PRODUCT_MATRIX_URL =
     "https://www.hl7.org/implement/standards/product_brief.cfm";
@@ -92,7 +94,9 @@ export const RequestedChangesDisplay = ({
             {showTable && (
                 <div className="padding-y-4">
                     <div className="margin-bottom-4 display-flex flex-justify flex-align-center">
-                        <p className="validation-section-header">{title}</p>
+                        <p className={`${styles["validation-section-header"]}`}>
+                            {title}
+                        </p>
 
                         <Button
                             className="usa-button usa-button--outline display-flex flex-align-center margin-0"
@@ -319,7 +323,9 @@ export const FileQualityFilterDisplay = ({
 
             <div className="padding-y-4">
                 <div className="display-flex flex-justify flex-align-center">
-                    <p className="validation-section-header">Jurisdictions</p>
+                    <p className={`${styles["validation-section-header"]}`}>
+                        Jurisdictions
+                    </p>
 
                     <Button
                         className="usa-button usa-button--outline display-flex flex-align-center margin-0"

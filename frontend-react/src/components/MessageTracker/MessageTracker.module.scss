@@ -1,0 +1,23 @@
+@use "uswds-core" as *;
+
+// Message Tracker specific styles for Accordion component
+.message-tracker {
+    :global(.usa-accordion__button) {
+        color: white;
+        background-color: color("primary");
+        @include add-background-svg("usa-icons-bg/remove--white");
+
+        &[aria-expanded="false"] {
+            @include add-background-svg("usa-icons-bg/add--white");
+        }
+    }
+    :global(.usa-accordion__button:hover),
+    :global(.usa-accordion__button:focus) {
+        color: white;
+        background-color: color("primary");
+    }
+    :global(.usa-accordion--bordered .usa-accordion__content) {
+        border-color: color("primary");
+        border-width: medium;
+    }
+}
