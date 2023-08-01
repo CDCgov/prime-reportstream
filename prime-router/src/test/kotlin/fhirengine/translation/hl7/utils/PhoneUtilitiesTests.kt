@@ -18,7 +18,7 @@ class PhoneUtilitiesTests {
             "+61 2 6214 5600", // AU
             "613-688-5335", // CA
             "+1613-688-5335", // CA
-            "+52 55 5080 2000" // MX
+            "+52 55 5080 2000", // MX
         ).forEach {
             assertThat(PhoneUtilities.getPhoneNumberPart(it, PhonePart.Country)).isNotNull()
             assertThat(PhoneUtilities.getPhoneNumberPart(it, PhonePart.AreaCode)).isNotNull()
@@ -26,11 +26,19 @@ class PhoneUtilitiesTests {
         }
 
         listOf(
+            "1 (000)000-0000" // checking that bad phone numbers no longer throw an error
+        ).forEach {
+            assertThat(PhoneUtilities.getPhoneNumberPart(it, PhonePart.Country)).isNotNull()
+            assertThat(PhoneUtilities.getPhoneNumberPart(it, PhonePart.AreaCode)).isNull()
+            assertThat(PhoneUtilities.getPhoneNumberPart(it, PhonePart.Local)).isNull()
+        }
+
+        listOf(
             "",
             "abcdefghijk",
             "           ",
             "99999999999999999999999999999999999999999999999999999999999999",
-            "9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9"
+            "9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9",
         ).forEach {
             val countryCode = PhoneUtilities.getPhoneNumberPart(it, PhonePart.Country)
             assertThat(countryCode).isNull()

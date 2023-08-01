@@ -29,13 +29,15 @@ object PhoneUtilities {
             phoneNumberUtil.isPossibleNumber(cleanedValue, "US")
         ) {
             val phone = phoneNumberUtil.parse(cleanedValue, "US")
-
-            // pull out correct part of the number
-            return when (part) {
-                PhonePart.Country -> phone.countryCode.toString()
-                PhonePart.AreaCode -> phone.nationalNumber.toString().substring(0, 3)
-                PhonePart.Local -> phone.nationalNumber.toString().substring(3)
-                PhonePart.Extension -> phone.extension
+            return try {
+                when (part) {
+                    PhonePart.Country -> phone.countryCode.toString()
+                    PhonePart.AreaCode -> phone.nationalNumber.toString().substring(0, 3)
+                    PhonePart.Local -> phone.nationalNumber.toString().substring(3)
+                    PhonePart.Extension -> phone.extension
+                }
+            } catch (e: StringIndexOutOfBoundsException) {
+                null
             }
         }
         return null
