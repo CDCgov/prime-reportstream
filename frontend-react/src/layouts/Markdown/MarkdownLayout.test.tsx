@@ -4,7 +4,7 @@ import { RouterProvider, createMemoryRouter } from "react-router";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 import MarkdownLayout, { lazyRouteMarkdown } from "./MarkdownLayout";
-import { LayoutSidenav } from "./LayoutComponents";
+import { LayoutMain, LayoutSidenav } from "./LayoutComponents";
 
 describe("MarkdownLayout", () => {
     test("no sidenav", () => {
@@ -22,6 +22,29 @@ describe("MarkdownLayout", () => {
                 <>
                     <LayoutSidenav>Test</LayoutSidenav>
                     Test
+                </>
+            </MarkdownLayout>
+        );
+        await screen.findByRole("navigation");
+        expect(screen.getByRole("navigation")).toHaveTextContent("Test");
+        expect(screen.getByRole("main")).toHaveTextContent("Test");
+    });
+    test("main", async () => {
+        renderApp(
+            <MarkdownLayout>
+                <>
+                    <LayoutMain>Test</LayoutMain>
+                </>
+            </MarkdownLayout>
+        );
+        expect(screen.getByRole("main")).toHaveTextContent("Test");
+    });
+    test("sidenav + main", async () => {
+        renderApp(
+            <MarkdownLayout>
+                <>
+                    <LayoutSidenav>Test</LayoutSidenav>
+                    <LayoutMain>Test</LayoutMain>
                 </>
             </MarkdownLayout>
         );
