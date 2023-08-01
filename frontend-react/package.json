@@ -14,7 +14,7 @@
         "@tanstack/react-query": "^4.20.9",
         "@tanstack/react-query-devtools": "^4.20.9",
         "@trussworks/react-uswds": "^5.1.1",
-        "@uswds/uswds": "3.1.0",
+        "@uswds/uswds": "3.4.1",
         "axios": "^1.4.0",
         "classnames": "^2.3.1",
         "dompurify": "^3.0.4",
@@ -47,6 +47,7 @@
         "web-vitals": "^3.1.1"
     },
     "scripts": {
+        "postinstall": "patch-package",
         "clean": "rimraf ./build",
         "start:localdev": "cross-env NODE_ENV=development yarn run start-js",
         "preview": "cross-env NODE_ENV=preview yarn run build-base && yarn run vite preview",
@@ -181,6 +182,7 @@
         "msw-storybook-addon": "^1.8.0",
         "npm-run-all": "^4.1.5",
         "otplib": "^12.0.1",
+        "patch-package": "^8.0.0",
         "postcss": "^8.4.27",
         "prettier": "^2.8.8",
         "remark-frontmatter": "^4.0.1",
