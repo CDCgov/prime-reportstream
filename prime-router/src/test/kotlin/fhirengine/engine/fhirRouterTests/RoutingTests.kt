@@ -731,7 +731,7 @@ class RoutingTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
+        every { queueMock.sendMessage(any(), any(), engine.queueVisibilityTimeout) }
             .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
@@ -744,7 +744,7 @@ class RoutingTests {
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
-            queueMock.sendMessage(any(), any())
+            queueMock.sendMessage(any(), any(), engine.queueVisibilityTimeout)
             accessSpy.insertTask(any(), any(), any(), any())
             FHIRBundleHelpers.addReceivers(any(), any(), any())
         }
