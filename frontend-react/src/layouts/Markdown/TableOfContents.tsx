@@ -1,7 +1,7 @@
 import type { TocEntry } from "remark-mdx-toc";
 import Slugger from "github-slugger";
 
-import { USSmartLink } from "../../shared/USLink/USLink";
+import { USSmartLink } from "../../components/USLink";
 
 const slugger = new Slugger();
 

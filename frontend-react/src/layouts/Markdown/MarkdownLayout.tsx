@@ -162,7 +162,13 @@ export function MarkdownLayout({
                             aria-label="side-navigation"
                             className={`${styles.sidenav} tablet:grid-col-3`}
                         >
-                            <MDXProvider components={MDXComponents} {...mdx}>
+                            <MDXProvider
+                                {...mdx}
+                                components={{
+                                    ...MDXComponents,
+                                    ...mdx?.components,
+                                }}
+                            >
                                 {sidenavContent}
                             </MDXProvider>
                         </nav>
@@ -214,12 +220,13 @@ export function MarkdownLayout({
                                 </>
                             ) : null}
                             <MDXProvider
+                                {...mdx}
                                 components={{
                                     ...MDXComponents,
                                     LayoutSidenav,
                                     LayoutMain,
+                                    ...mdx?.components,
                                 }}
-                                {...mdx}
                             >
                                 {mainContent ?? children}
                             </MDXProvider>
