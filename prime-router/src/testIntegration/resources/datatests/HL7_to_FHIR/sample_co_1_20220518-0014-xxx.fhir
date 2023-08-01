@@ -2,7 +2,7 @@
   "resourceType" : "Bundle",
   "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
   "meta" : {
-    "lastUpdated" : "2023-07-12T16:28:25.899-04:00"
+    "lastUpdated" : "2023-07-21T14:02:50.122-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -258,9 +258,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "ML"
-          } ],
-          "text" : "SWEDISH MEDICAL CENTER"
+            "code" : "ML",
+            "display" : "SWEDISH MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -269,21 +269,15 @@
       } ],
       "status" : "final",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "HBS",
-              "display" : "HEPATITIS B SURFACE ANTIGEN"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "5196-1"
-        } ],
-        "text" : "Hepatitis B virus surface Ag [Presence] in Serum or Plasma by Immunoassay"
+          "code" : "5196-1",
+          "display" : "Hepatitis B virus surface Ag [Presence] in Serum or Plasma by Immunoassay"
+        }, {
+          "system" : "L",
+          "code" : "HBS",
+          "display" : "HEPATITIS B SURFACE ANTIGEN"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -299,7 +293,9 @@
       "valueCodeableConcept" : {
         "coding" : [ {
           "system" : "L",
-          "code" : "NEGATIVE"
+          "version" : "5.67",
+          "code" : "NEGATIVE",
+          "display" : "NEGATIVE"
         } ],
         "text" : "NEGATIVE"
       },
@@ -474,7 +470,6 @@
         "system" : "COCZS",
         "value" : "L15735128"
       } ],
-      "type" : { },
       "receivedTime" : "2021-08-16T05:40:00-06:00",
       "collection" : {
         "collectedPeriod" : {
@@ -562,9 +557,9 @@
       "code" : {
         "coding" : [ {
           "system" : "L",
-          "code" : "HBSAG(P)"
-        } ],
-        "text" : "HEPATITIS B SURFACE ANTIGEN"
+          "code" : "HBSAG(P)",
+          "display" : "HEPATITIS B SURFACE ANTIGEN"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -895,9 +890,9 @@
       "code" : {
         "coding" : [ {
           "system" : "L",
-          "code" : "HBSAG(P)"
-        } ],
-        "text" : "HEPATITIS B SURFACE ANTIGEN"
+          "code" : "HBSAG(P)",
+          "display" : "HEPATITIS B SURFACE ANTIGEN"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -916,9 +911,9 @@
       "reasonCode" : [ {
         "coding" : [ {
           "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-          "code" : "U071"
-        } ],
-        "text" : "COVID-19"
+          "code" : "U071",
+          "display" : "COVID-19"
+        } ]
       } ]
     }
   }, {
@@ -956,9 +951,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "L",
-            "code" : "W"
-          } ],
-          "text" : "White"
+            "code" : "W",
+            "display" : "White"
+          } ]
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/patient-notes",
@@ -966,21 +961,15 @@
           "extension" : [ {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
             "valueCodeableConcept" : {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-                "valueCodeableConcept" : {
-                  "coding" : [ {
-                    "system" : "L",
-                    "code" : "C",
-                    "display" : "Comment"
-                  } ]
-                }
-              } ],
               "coding" : [ {
                 "system" : "HL70364",
-                "code" : "RE"
-              } ],
-              "text" : "Remark"
+                "code" : "RE",
+                "display" : "Remark"
+              }, {
+                "system" : "L",
+                "code" : "C",
+                "display" : "Comment"
+              } ]
             }
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
@@ -1003,21 +992,15 @@
       }, {
         "url" : "http://hl7.org/fhir/StructureDefinition/patient-animal",
         "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "Human",
-                "display" : "Human"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "http://snomed.info/sct",
-            "code" : "337915000"
-          } ],
-          "text" : "Homo sapiens (organism)"
+            "code" : "337915000",
+            "display" : "Homo sapiens (organism)"
+          }, {
+            "system" : "L",
+            "code" : "Human",
+            "display" : "Human"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -1112,21 +1095,15 @@
       },
       "contact" : [ {
         "relationship" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "SP",
-                "display" : "SPOUSE"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "UNKNOWN",
-            "code" : "SP"
-          } ],
-          "text" : "SPOUSE"
+            "code" : "SP",
+            "display" : "SPOUSE"
+          }, {
+            "system" : "L",
+            "code" : "SP",
+            "display" : "SPOUSE"
+          } ]
         } ],
         "name" : {
           "use" : "official",

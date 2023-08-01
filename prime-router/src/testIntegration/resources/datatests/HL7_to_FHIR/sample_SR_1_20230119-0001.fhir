@@ -261,22 +261,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -500,22 +493,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -739,22 +725,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -978,22 +957,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -1217,22 +1189,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -1456,22 +1421,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -1695,22 +1653,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -1934,22 +1885,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -2173,22 +2117,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -2412,22 +2349,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -2651,22 +2581,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -2890,22 +2813,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -3129,22 +3045,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -3367,22 +3276,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -3606,22 +3508,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -3845,22 +3740,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -4084,22 +3972,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -4323,22 +4204,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -4562,22 +4436,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -4801,22 +4668,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -5040,22 +4900,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -5279,22 +5132,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -5518,22 +5364,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -5756,22 +5595,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -5995,22 +5827,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -6234,22 +6059,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -6473,22 +6291,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -6712,22 +6523,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -6951,22 +6755,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -7190,22 +6987,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -7429,22 +7219,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -7668,22 +7451,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -7907,22 +7683,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -8145,22 +7914,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -8384,22 +8146,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -8623,22 +8378,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -8862,22 +8610,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -9101,22 +8842,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -9340,22 +9074,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -9579,22 +9306,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -9818,22 +9538,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -10057,22 +9770,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -10296,22 +10002,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -10535,22 +10234,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -10773,22 +10465,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -11012,22 +10697,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -11251,22 +10929,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVID19",
-              "display" : "Novel Coronavirus 2019"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "41458-1"
-        } ],
-        "text" : "SARS coronavirus RNA[Presence] in Specimen by NAA with probe detection"
+          "code" : "41458-1",
+          "display" : "SARS coronavirus RNA[Presence] in Specimen by NAA with probe detection"
+        }, {
+          "system" : "L",
+          "code" : "COVID19",
+          "display" : "Novel Coronavirus 2019"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -11479,26 +11150,17 @@
         "value" : "M6059622"
       } ],
       "type" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
-                "valueString" : "5.67"
-              } ],
-              "system" : "L",
-              "version" : "07/31/2012",
-              "code" : "NP",
-              "display" : "NASOPHARYNGEAL SWAB"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "258500001"
-        } ],
-        "text" : "Nasopharyngeal swab"
+          "version" : "07/31/2012",
+          "code" : "258500001",
+          "display" : "Nasopharyngeal swab"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "NP",
+          "display" : "NASOPHARYNGEAL SWAB"
+        } ]
       },
       "receivedTime" : "2021-08-04T04:08:00-06:00",
       "collection" : {
@@ -11547,26 +11209,17 @@
         "value" : "M6059622"
       } ],
       "type" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
-                "valueString" : "5.67"
-              } ],
-              "system" : "L",
-              "version" : "07/31/2012",
-              "code" : "NP",
-              "display" : "NASOPHARYNGEAL SWAB"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "258500001"
-        } ],
-        "text" : "Nasopharyngeal swab"
+          "version" : "07/31/2012",
+          "code" : "258500001",
+          "display" : "Nasopharyngeal swab"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "NP",
+          "display" : "NASOPHARYNGEAL SWAB"
+        } ]
       },
       "receivedTime" : "2021-08-04T04:08:00-06:00",
       "collection" : {
@@ -11663,22 +11316,15 @@
       } ],
       "status" : "final",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -12105,22 +11751,15 @@
       "status" : "unknown",
       "intent" : "order",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1671810665623051900.c4891a47-0079-49e0-a08f-e8e1c8fce8f7"
@@ -12131,43 +11770,29 @@
         "reference" : "PractitionerRole/1671810666832768200.7d83dd6a-d36a-459a-948d-000e72fe2b12"
       },
       "reasonCode" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-              "code" : "R531",
-              "display" : "WEAKNESS"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-          "version" : "I10",
-          "code" : "R531"
-        } ],
-        "text" : "WEAKNESS"
+          "code" : "R531",
+          "display" : "WEAKNESS"
+        }, {
+          "system" : "http://hl7.org/fhir/sid/icd-10-cm",
+          "code" : "R531",
+          "display" : "WEAKNESS"
+        } ]
       } ],
       "note" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
           "valueCodeableConcept" : {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-              "valueCodeableConcept" : {
-                "coding" : [ {
-                  "system" : "L",
-                  "code" : "C",
-                  "display" : "Comment"
-                } ]
-              }
-            } ],
             "coding" : [ {
               "system" : "HL70364",
-              "version" : "L",
-              "code" : "RE"
-            } ],
-            "text" : "Remark"
+              "code" : "RE",
+              "display" : "Remark"
+            }, {
+              "system" : "L",
+              "code" : "C",
+              "display" : "Comment"
+            } ]
           }
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
@@ -12607,43 +12232,29 @@
         "reference" : "PractitionerRole/1671810666850067900.91dfd083-8467-4d8b-9dda-6255401fc85c"
       },
       "reasonCode" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-              "code" : "R531",
-              "display" : "WEAKNESS"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-          "version" : "I10",
-          "code" : "R531"
-        } ],
-        "text" : "WEAKNESS"
+          "code" : "R531",
+          "display" : "WEAKNESS"
+        }, {
+          "system" : "http://hl7.org/fhir/sid/icd-10-cm",
+          "code" : "R531",
+          "display" : "WEAKNESS"
+        } ]
       } ],
       "note" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
           "valueCodeableConcept" : {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-              "valueCodeableConcept" : {
-                "coding" : [ {
-                  "system" : "L",
-                  "code" : "C",
-                  "display" : "Comment"
-                } ]
-              }
-            } ],
             "coding" : [ {
               "system" : "HL70364",
-              "version" : "L",
-              "code" : "RE"
-            } ],
-            "text" : "Remark"
+              "code" : "RE",
+              "display" : "Remark"
+            }, {
+              "system" : "L",
+              "code" : "C",
+              "display" : "Comment"
+            } ]
           }
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
@@ -12703,22 +12314,15 @@
           "extension" : [ {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
             "valueCodeableConcept" : {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-                "valueCodeableConcept" : {
-                  "coding" : [ {
-                    "system" : "L",
-                    "code" : "C",
-                    "display" : "Comment"
-                  } ]
-                }
-              } ],
               "coding" : [ {
                 "system" : "HL70364",
-                "version" : "L",
-                "code" : "RE"
-              } ],
-              "text" : "Remark"
+                "code" : "RE",
+                "display" : "Remark"
+              }, {
+                "system" : "L",
+                "code" : "C",
+                "display" : "Comment"
+              } ]
             }
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
@@ -12741,22 +12345,15 @@
       }, {
         "url" : "http://hl7.org/fhir/StructureDefinition/patient-animal",
         "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "Human",
-                "display" : "Human"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "http://snomed.info/sct",
-            "version" : "L",
-            "code" : "337915000"
-          } ],
-          "text" : "Homo sapiens (organism)"
+            "code" : "337915000",
+            "display" : "Homo sapiens (organism)"
+          }, {
+            "system" : "L",
+            "code" : "Human",
+            "display" : "Human"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -12858,22 +12455,15 @@
       },
       "contact" : [ {
         "relationship" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "SO",
-                "display" : "SON"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "UNKNOWN",
-            "version" : "L",
-            "code" : "SO"
-          } ],
-          "text" : "SON"
+            "code" : "SO",
+            "display" : "SON"
+          }, {
+            "system" : "L",
+            "code" : "SO",
+            "display" : "SON"
+          } ]
         } ],
         "name" : {
           "use" : "official",
