@@ -31,6 +31,7 @@ import io.swagger.v3.oas.annotations.security.OAuthFlows
 import io.swagger.v3.oas.annotations.security.OAuthScope
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.security.SecurityScheme
+import io.swagger.v3.oas.annotations.security.SecuritySchemes
 import io.swagger.v3.oas.annotations.servers.Server
 import org.apache.logging.log4j.kotlin.Logging
 import javax.ws.rs.DELETE
@@ -169,24 +170,44 @@ SwIDAQAB
         )
     ]
 )
-@SecurityScheme(
-    name = "primeSecurity",
-    type = SecuritySchemeType.OAUTH2,
-    flows = OAuthFlows(
-        authorizationCode = OAuthFlow(
-            authorizationUrl = "https://hhs-prime.okta.com/oauth/authorize",
-            tokenUrl = "https://hhs-prime.okta.com/oauth/token",
-            scopes = [
-                OAuthScope(
-                    name = "org_admin",
-                    description = "Grants write access to single org"
-                ),
-                OAuthScope(name = "prime_admin", description = "Grants access to admin operations"),
-                OAuthScope(name = "user", description = "Grants read access")
-            ]
+
+@SecuritySchemes(
+    value = [
+        SecurityScheme(
+            name = "primeSecurity",
+            type = SecuritySchemeType.OAUTH2,
+            flows = OAuthFlows(
+                authorizationCode = OAuthFlow(
+                    authorizationUrl = "https://hhs-prime.okta.com/oauth/authorize",
+                    tokenUrl = "https://hhs-prime.okta.com/oauth/token",
+                    scopes = [
+                        OAuthScope(
+                            name = "org_admin",
+                            description = "Grants write access to single org"
+                        ),
+                        OAuthScope(name = "prime_admin", description = "Grants access to admin operations"),
+                        OAuthScope(name = "user", description = "Grants read access")
+                    ]
+                )
+            ),
+            description = "OAUTH2 Authroization for RS API Access."
+        ),
+        SecurityScheme(
+            name = "primeSecurityAPIKey",
+            type = SecuritySchemeType.APIKEY,
+            paramName = "x-functions-key",
+            description = "API Key Authorization."
+        ),
+        SecurityScheme(
+            name = "primeSecurityServerToServer",
+            type = SecuritySchemeType.HTTP,
+            scheme = "Bearer",
+            bearerFormat = "JWT",
+            description = "HTTP Bearer Token Authorization."
         )
-    )
+    ]
 )
+
 class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFacade.common) : Logging {
     data class ApiKeysResponse(val orgName: String, val keys: List<JwkSet>)
 
