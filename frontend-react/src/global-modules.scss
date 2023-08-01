@@ -1,3 +1,4 @@
 // required for each CSS Module that uses USWDS styles / tokens / etc
+@forward "styles/uswds_custom_theme";
 @forward "styles/uswds_settings";
 @forward "uswds-core";
