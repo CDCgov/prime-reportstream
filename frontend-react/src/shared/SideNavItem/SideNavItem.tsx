@@ -1,7 +1,7 @@
 import { SideNav } from "@trussworks/react-uswds";
 import { useLocation } from "react-router-dom";
 
-import { USNavLink } from "../components/USLink";
+import { USNavLink } from "../../components/USLink";
 
 export interface SideNavItemProps
     extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
