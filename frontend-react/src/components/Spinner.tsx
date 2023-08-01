@@ -2,28 +2,17 @@ import { Oval } from "react-loader-spinner";
 import { ReactNode } from "react";
 
 interface SpinnerProps {
-    size?: "default" | "fullpage" | "insidebutton";
     display?: boolean; // allows easier dynamic show/hide during load
     message?: ReactNode;
 }
 
-function Spinner({
-    size = "default",
-    display = true,
-    message = "",
-}: SpinnerProps) {
-    // map prop to css className
-    const sizeClassName = {
-        default: "grid-container rs-spinner-default",
-        fullpage: "grid-container rs-spinner-default rs-spinner-fullpage",
-        insidebutton: "rs-spinner-default rs-spinner-tiny",
-    }[size];
+function Spinner({ display = true, message = "" }: SpinnerProps) {
     return (
         <div className="padding-y-4 text-center">
             <div className="grid-row">
                 <div
                     hidden={!display}
-                    className={sizeClassName}
+                    className="grid-container"
                     data-testid="rs-spinner"
                 >
                     <Oval

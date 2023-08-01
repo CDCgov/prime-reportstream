@@ -1,27 +1,5 @@
 @use "uswds-core" as *;
 
-/*
-* * * * * ==============================
-* * * * * ==============================
-* * * * * ==============================
-* * * * * ==============================
-========================================
-========================================
-========================================
-----------------------------------------
-USWDS THEME CUSTOM STYLES
-----------------------------------------
-!! Copy this file to your project's
-sass root. Don't edit the version
-in node_modules.
-----------------------------------------
-Custom project SASS goes here.
-
-i.e.
-@include u-padding-right('05');
-----------------------------------------
-*/
-
 .usa-banner__inner,
 .usa-banner__header--expanded .usa-banner__inner {
     margin-left: 0;
@@ -310,6 +288,15 @@ hr {
     */
 }
 
+.usa-link .usa-link:visited {
+    .usa-button {
+        color: white;
+    }
+    .usa-button .usa-button--outline {
+        color: inherit;
+    }
+}
+
 /* Do not decorate header non-button links */
 h1,
 h2,
@@ -333,4 +320,24 @@ header {
 .usa-card__header > * {
     @include typeset($theme-card-header-typeset);
     @include u-margin(0);
+}
+
+pre {
+    background: rgba(201, 201, 201, 0.47);
+    color: black;
+    white-space: pre-wrap;
+    padding: 1.33rem;
+    border-radius: 1rem;
+}
+
+h3 img[src*="svg"] {
+    vertical-align: text-top;
+    margin-right: 5px;
+    float: left;
+}
+
+.usa-modal-wrapper {
+    &.is-visible {
+        z-index: var(--rs-zindex-top); // default is 99999, want toast over top.
+    }
 }

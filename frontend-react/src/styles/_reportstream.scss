@@ -25,14 +25,6 @@
 .rs-header-mark:visited {
     color: #1b1b1b;
 }
-.usa-link .usa-link:visited {
-    .usa-button {
-        color: white;
-    }
-    .usa-button .usa-button--outline {
-        color: inherit;
-    }
-}
 
 // Environment watermark above RS wordmark
 .rs-oktapreview-watermark {
@@ -56,7 +48,6 @@
 }
 
 // Tables
-
 .prime-table {
     width: 100%;
 }
@@ -70,57 +61,12 @@
     border-color: #dfe1e2;
 }
 
-h3 img[src*="svg"] {
-    vertical-align: text-top;
-    margin-right: 5px;
-    float: left;
-}
-
-// Where we're live
-
-.rs-livestate-two-column {
-    list-style: unset;
-    overflow: hidden;
-    column-count: 2;
-    column-gap: 1.25em;
-}
-
-.rs-livestate-two-column > * {
-    list-style: unset;
-    display: inline-block;
-    width: 80%;
-    padding-bottom: 0.5em;
-}
-
 /* tweak toaster notifications - other variables can be found by search node_modules for `--toastify-toast-width`  */
 :root {
     --toastify-toast-width: 600px;
     --rs-compare-modal-width: 87em;
     --rs-compare-modal-height: 45em;
     --rs-zindex-top: 999;
-}
-
-.rs-spinner {
-    display: inline-flex;
-    align-items: center;
-    justify-content: left;
-
-    .rs-spinner-fullpage {
-        justify-content: center;
-        height: calc(100vh - 230px);
-    }
-
-    .rs-spinner-tiny {
-        zoom: 0.2;
-        display: inline-flex;
-        align-content: center;
-    }
-}
-
-.usa-modal-wrapper {
-    &.is-visible {
-        z-index: var(--rs-zindex-top); // default is 99999, want toast over top.
-    }
 }
 
 .rs-compare-modal {
@@ -326,14 +272,6 @@ h3 img[src*="svg"] {
 
 .rs-sortable-header:hover {
     cursor: pointer;
-}
-
-pre {
-    background: rgba(201, 201, 201, 0.47);
-    color: black;
-    white-space: pre-wrap;
-    padding: 1.33rem;
-    border-radius: 1rem;
 }
 
 .rs-pagination-no-button {
