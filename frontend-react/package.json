@@ -50,6 +50,7 @@
     "scripts": {
         "clean": "rimraf ./build",
         "start:localdev": "cross-env NODE_ENV=development yarn run start-js",
+        "preview": "cross-env NODE_ENV=preview yarn run build-base && yarn run vite preview",
         "build:demo1": "cross-env NODE_ENV=demo1 yarn build-base",
         "build:demo2": "cross-env NODE_ENV=demo2 yarn build-base",
         "build:demo3": "cross-env NODE_ENV=demo3 yarn build-base",
