@@ -1,4 +1,5 @@
 ---
+# deprecated
 name: direct-otc-covid-19
 description: Direct Schema for OTC Results based on NIH At-Home specs
 topic: covid-19
