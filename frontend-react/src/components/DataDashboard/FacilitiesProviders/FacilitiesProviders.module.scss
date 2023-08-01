@@ -1,26 +1,24 @@
+@use "../../../global-modules.scss" as *;
+
 .FacilitiesProviders {
-
-    header {
-        a {
-            color: white;
-            margin-left: 18px;
-        }
-    }
-
     hr {
-        border: 1px solid #73B3E7;
+        border: 1px solid color('blue-30');
     }
 
     :global {
         .usa-breadcrumb {
-            background-color: #D9E8F6;
+            background-color: color('blue-10');
             margin-top: 0;
             margin-left: 56px;
             padding-left: 16px;
         }
 
+        .usa-breadcrumb__link {
+            color: color('blue-60v');
+        }
+
         .usa-header {
-            background-color: #D9E8F6;
+            background-color: color('blue-10');
         }
 
         .grid-container {
@@ -69,7 +67,7 @@
         }
 
         .usa-table--striped tbody tr:nth-child(odd) td {
-            background-color: #f1f3F6;
+            background-color: color('gray-cool-4');
         }
     }
 }

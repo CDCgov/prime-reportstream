@@ -781,7 +781,7 @@ dependencies {
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.4.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.16")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.17")
     implementation("org.thymeleaf:thymeleaf:3.1.1.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
@@ -792,7 +792,6 @@ dependencies {
     implementation("org.json:json:20230618")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.32.0")
-    implementation("org.bouncycastle:bcprov-jdk15on:1.70")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.poi:poi:5.2.3")
     implementation("org.apache.commons:commons-csv:1.10.0")
@@ -806,10 +805,9 @@ dependencies {
     implementation("org.commonmark:commonmark:0.21.0")
     implementation("com.google.guava:guava:32.1.1-jre")
     implementation("com.helger.as2:as2-lib:5.1.0")
-    // Prevent mixed versions of these libs based on different versions being included by different packages
-    implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
-    implementation("org.bouncycastle:bcmail-jdk15on:1.70")
-    implementation("org.bouncycastle:bcprov-jdk15on:1.70")
+    implementation("org.bouncycastle:bcprov-jdk15to18:1.75")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.75")
+    implementation("org.bouncycastle:bcmail-jdk15to18:1.75")
 
     implementation("commons-net:commons-net:3.9.0")
     implementation("com.cronutils:cron-utils:9.2.1")
@@ -862,5 +860,10 @@ dependencies {
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.3")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
+    testImplementation("org.testcontainers:testcontainers:1.18.3")
+    testImplementation("org.testcontainers:junit-jupiter:1.18.3")
+    testImplementation("org.testcontainers:postgresql:1.18.3")
+
     implementation(kotlin("script-runtime"))
 }

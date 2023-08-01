@@ -49,9 +49,9 @@ describe("DataDashboardTable", () => {
     afterEach(() => dataDashboardServer.resetHandlers());
     afterAll(() => dataDashboardServer.close());
 
-    describe("useReceiverFeed without data", () => {
+    describe("useOrganizationReceiversFeed without data", () => {
         beforeEach(() => {
-            // Mock our receivers feed data
+            // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
                 loadingServices: false,
@@ -217,7 +217,7 @@ describe("DataDashboardTableWithPagination", () => {
 
         describe("with no receiver services", () => {
             beforeEach(() => {
-                // Mock our receivers feed data
+                // Mock our receiver services feed data
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: undefined,
                     loadingServices: false,
@@ -274,7 +274,7 @@ describe("DataDashboardTableWithPagination", () => {
 
     describe("when disabled", () => {
         beforeEach(() => {
-            // Mock our receivers feed data
+            // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
                 loadingServices: false,

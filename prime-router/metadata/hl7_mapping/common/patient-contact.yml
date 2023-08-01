@@ -13,31 +13,10 @@ elements:
     schema: datatype/xpn-person-name
 
   - name: contact-relationship-id
-    value: [ '%resource.relationship.where(coding.system != "http://hl7.org/fhir/ValueSet/patient-contactrelationship").coding.code' ]
-    hl7Spec: [ '%{hl7NK1Field}-3-1' ]
-
-  - name: contact-relationship-text
-    value: [ '%resource.relationship.where(coding.system != "http://hl7.org/fhir/ValueSet/patient-contactrelationship").text' ]
-    hl7Spec: [ '%{hl7NK1Field}-3-2' ]
-
-  - name: contact-relationship-system
-    value: [ '%resource.relationship.where(coding.system != "http://hl7.org/fhir/ValueSet/patient-contactrelationship").coding.system' ]
-    hl7Spec: [ '%{hl7NK1Field}-3-3' ]
-
-  - name: contact-relationship-alternate-id
-    resource: '%resource.relationship.extension(%`rsext-alternate-identifier`).value'
-    value: [ '%resource.coding.code' ]
-    hl7Spec: [ '%{hl7NK1Field}-3-4' ]
-
-  - name: contact-relationship-alternate-text
-    resource: '%resource.relationship.extension(%`rsext-alternate-identifier`).value'
-    value: [ '%resource.coding.display' ]
-    hl7Spec: [ '%{hl7NK1Field}-3-5' ]
-
-  - name: contact-relationship-alternate-system
-    resource: '%resource.relationship.extension(%`rsext-alternate-identifier`).value'
-    value: [ '%resource.coding.system' ]
-    hl7Spec: [ '%{hl7NK1Field}-3-6' ]
+    resource: '%resource.relationship.where(coding.system != "http://hl7.org/fhir/ValueSet/patient-contactrelationship")'
+    constants:
+      ceFieldPath: '%{hl7NK1Field}-3'
+    schema: ../common/datatype/ce-coded-element
 
   - name: contact-address
     resource: '%resource.address'

@@ -10,10 +10,10 @@ See https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?t
 # Using homebrew
 brew update
 brew tap azure/functions
-brew install azure-functions-core-tools@3
+brew install azure-functions-core-tools@4
 
-# if you are upgrading on a machine that has 2.x installed
-brew link --overwrite azure-functions-core-tools@3
+# if you are upgrading on a machine that has 2.x or 3.x installed
+brew link --overwrite azure-functions-core-tools@4
 ```
 
 See https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=macos for detailed instructions.
@@ -24,12 +24,12 @@ See https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?t
 
 ```bash
 sudo apt-get update
-sudo apt-get --yes install lsb-release gpg # tools needed for subsequent commands
+sudo apt-get --yes install curl lsb-release gpg # tools needed for subsequent commands
 
 # Pull down Microsoft's Key and mark it as a trusted on
 curl https://packages.microsoft.com/keys/microsoft.asc \
     | gpg --dearmor \
-    | sudo tee "/etc/apt/trusted.gpg.d/microsoft.gpg"
+    | sudo cat > "/etc/apt/trusted.gpg.d/microsoft.gpg"
 
 # Pick one of the following
 # Ubuntu (you most likely want this if you are on any ubuntu derivate)
@@ -40,7 +40,7 @@ echo "deb [arch=amd64] https://packages.microsoft.com/debian/$(lsb_release -rs |
     | sudo tee /etc/apt/sources.list.d/dotnetdev.list
 
 sudo apt-get update
-sudo apt-get --yes install azure-functions-core-tools-3
+sudo apt-get --yes install azure-functions-core-tools-4
 ```
 
 See https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=linux for detailed instructions (including instructions for Ubuntu-specific ones).

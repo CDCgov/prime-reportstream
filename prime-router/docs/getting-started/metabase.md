@@ -1,0 +1,3 @@
+# Metabase
+
+- Common queries

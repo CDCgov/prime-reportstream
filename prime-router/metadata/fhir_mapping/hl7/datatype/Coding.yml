@@ -1,41 +1,19 @@
 system_1:
-     type: SYSTEM_URL
-     valueOf: $system
+  type: SYSTEM_URL
+  valueOf: $system
 
 system_2:
   type: STRING
   valueOf: $system
 
 version:
-     type: STRING
-     valueOf: $version
+  type: STRING
+  valueOf: $version
 
 code:
-     type: STRING
-     valueOf: $code
+  type: STRING
+  valueOf: $code
 
-display: 
-     type: STRING
-     valueOf: $display
-
-extension_1:
-  generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
-  condition: $value NOT_NULL
-  vars:
-    value: String, $alternateVersion
-  constants:
-    KEY_NAME_SUFFIX: String
-    urlValue: alternate-version
-
-extension_2:
-  generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
-  condition: $value NOT_NULL
-  vars:
-    value: String, $originalText
-  constants:
-    KEY_NAME_SUFFIX: String
-    urlValue: original-text
+display:
+  type: STRING
+  valueOf: $display

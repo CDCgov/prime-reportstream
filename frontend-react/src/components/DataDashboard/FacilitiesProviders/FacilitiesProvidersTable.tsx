@@ -1,9 +1,6 @@
 import React, { Dispatch, SetStateAction } from "react";
 
 import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
-import useFilterManager, {
-    FilterManagerDefaults,
-} from "../../../hooks/filters/UseFilterManager";
 import TableFilters from "../../Table/TableFilters";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
 import { RSReceiver } from "../../../config/endpoints/settings";
@@ -12,120 +9,111 @@ import Spinner from "../../Spinner";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
 import { FeatureName } from "../../../AppRouter";
 import { Table } from "../../../shared/Table/Table";
-import { FacilityResource } from "../../../config/endpoints/dataDashboard";
-import { USLink } from "../../USLink";
+import useReceiverSubmitters, {
+    DeliveriesAttr,
+} from "../../../hooks/network/DataDashboard/UseReceiverSubmitters";
+import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
+import Pagination from "../../Table/Pagination";
+import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
+import { getSlots } from "../../../hooks/UsePagination";
 import {
     transformFacilityTypeClass,
     transformFacilityTypeLabel,
 } from "../../../utils/DataDashboardUtils";
 
-const filterManagerDefaults: FilterManagerDefaults = {
-    sortDefaults: {
-        column: "reportDate",
-        order: "DESC",
-    },
-};
-
-interface ReceiverServicesProps {
-    receivers: RSReceiver[];
-    activeService: RSReceiver | undefined;
-    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
-}
-
-function FacilitiesProvidersTableWithPagination({
-    receivers,
+function FacilitiesProvidersFilterAndTable({
+    receiverServices,
     activeService,
     setActiveService,
-}: ReceiverServicesProps) {
+}: {
+    receiverServices: RSReceiver[];
+    activeService: RSReceiver;
+    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
+}) {
     const featureEvent = `${FeatureName.FACILITIES_PROVIDERS} | ${EventName.TABLE_FILTER}`;
 
-    // TODO: implement API once ready
-    const data: FacilityResource[] = [
-        {
-            facilityId: "12w3e4r5",
-            name: "Sally Doctor",
-            location: "San Diego, CA",
-            facilityType: "provider",
-            reportDate: "2022-09-28T22:21:33.801667",
-        },
-        {
-            facilityId: "12w3e4r6",
-            name: "AFC Urgent Care",
-            location: "San Antonio, TX",
-            facilityType: "facility",
-            reportDate: "2022-09-28T22:21:33.801667",
-        },
-        {
-            facilityId: "12w3e4r7",
-            name: "SimpleReport",
-            location: "Fairfield, CO",
-            facilityType: "submitter",
-            reportDate: "2022-09-28T22:21:33.801667",
-        },
-    ];
-
     const handleSetActive = (name: string) => {
-        setActiveService(receivers.find((item) => item.name === name));
+        setActiveService(receiverServices.find((item) => item.name === name));
     };
 
-    const filterManager = useFilterManager(filterManagerDefaults);
+    const {
+        data: results,
+        filterManager,
+        isLoading,
+    } = useReceiverSubmitters(activeService.name);
 
-    const formattedTableData = () => {
-        return data
-            .filter((eachFacility) => eachFacility)
-            .map((eachFacility) => [
-                {
-                    columnKey: "name",
-                    columnHeader: "Name",
-                    content: (
-                        <USLink
-                            href={`/data-dashboard/${eachFacility.facilityType}/${eachFacility.facilityId}`}
-                            className="flex-align-self-end height-5"
-                        >
-                            {eachFacility.name}
-                        </USLink>
-                    ),
-                },
-                {
-                    columnKey: "location",
-                    columnHeader: "Location",
-                    content: eachFacility.location || "",
-                },
-                {
-                    columnKey: "facilityType",
-                    columnHeader: "Facility type",
-                    content: eachFacility.facilityType ? (
-                        <span
-                            className={transformFacilityTypeClass(
-                                eachFacility.facilityType
-                            )}
-                        >
-                            {transformFacilityTypeLabel(
-                                eachFacility.facilityType
-                            )}
-                        </span>
-                    ) : (
-                        ""
-                    ),
-                },
-                {
-                    columnKey: "reportDate",
-                    columnHeader: "Most recent report date",
-                    content: formatDateWithoutSeconds(eachFacility.reportDate),
-                },
-            ]);
+    if (isLoading || !results) return <Spinner />;
+
+    const onColumnCustomSort = (columnID: string) => {
+        filterManager?.updateSort({
+            type: SortSettingsActionType.CHANGE_COL,
+            payload: {
+                column: columnID,
+            },
+        });
+        filterManager?.updateSort({
+            type: SortSettingsActionType.SWAP_ORDER,
+        });
     };
+    const data = results?.data.map((dataRow) => [
+        {
+            columnKey: DeliveriesAttr.NAME,
+            columnHeader: "Name",
+            content: dataRow.name,
+            columnCustomSort: () => onColumnCustomSort(DeliveriesAttr.NAME),
+            columnCustomSortSettings: filterManager.sortSettings,
+        },
+        {
+            columnKey: DeliveriesAttr.LOCATION,
+            columnHeader: "Location",
+            content: dataRow.location,
+            columnCustomSort: () => onColumnCustomSort(DeliveriesAttr.LOCATION),
+            columnCustomSortSettings: filterManager.sortSettings,
+        },
+        {
+            columnKey: DeliveriesAttr.FACILITY_TYPE,
+            columnHeader: "Facility type",
+            content: dataRow.type ? (
+                <span className={transformFacilityTypeClass(dataRow.type)}>
+                    {transformFacilityTypeLabel(dataRow.type)}
+                </span>
+            ) : (
+                ""
+            ),
+            columnCustomSort: () =>
+                onColumnCustomSort(DeliveriesAttr.FACILITY_TYPE),
+            columnCustomSortSettings: filterManager.sortSettings,
+        },
+        {
+            columnKey: DeliveriesAttr.TEST_RESULT_COUNT,
+            columnHeader: "Report count",
+            content: dataRow.testResultCount,
+            columnCustomSort: () =>
+                onColumnCustomSort(DeliveriesAttr.TEST_RESULT_COUNT),
+            columnCustomSortSettings: filterManager.sortSettings,
+        },
+        {
+            columnKey: DeliveriesAttr.REPORT_DATE,
+            columnHeader: "Most recent report date",
+            content: formatDateWithoutSeconds(dataRow.firstReportDate),
+            columnCustomSort: () =>
+                onColumnCustomSort(DeliveriesAttr.REPORT_DATE),
+            columnCustomSortSettings: filterManager.sortSettings,
+        },
+    ]);
+
+    const currentPageNum = filterManager.pageSettings.currentPage;
 
     return (
         <div>
             <section id="facilities-providers">
                 <div className="text-bold font-sans-md">
-                    Showing all results ({data.length})
+                    Showing all results ({results?.meta.totalFilteredCount})
                 </div>
                 <div className="display-flex flex-row">
                     <ReceiverServices
-                        receiverServices={receivers}
+                        receiverServices={receiverServices}
                         activeService={activeService}
                         handleSetActive={handleSetActive}
                     />
@@ -139,19 +127,33 @@ function FacilitiesProvidersTableWithPagination({
                         }: {
                             from: string;
                             to: string;
-                        }) =>
+                        }) => {
+                            filterManager?.updatePage({
+                                type: PageSettingsActionType.RESET,
+                            });
+
                             trackAppInsightEvent(featureEvent, {
                                 tableFilter: { startRange: from, endRange: to },
-                            })
-                        }
+                            });
+                        }}
                     />
                 </div>
-                <Table
-                    striped
-                    borderless
-                    sticky
-                    rowData={formattedTableData()}
-                />
+                <Table apiSortable borderless rowData={data} />
+                {data.length > 0 && (
+                    <Pagination
+                        currentPageNum={currentPageNum}
+                        setSelectedPage={(pageNum) => {
+                            filterManager.updatePage({
+                                type: PageSettingsActionType.SET_PAGE,
+                                payload: { page: pageNum },
+                            });
+                        }}
+                        slots={getSlots(
+                            currentPageNum,
+                            results?.meta.totalPages
+                        )}
+                    />
+                )}
             </section>
         </div>
     );
@@ -177,8 +179,8 @@ export default function FacilitiesProvidersTable() {
     return (
         <>
             {activeService && (
-                <FacilitiesProvidersTableWithPagination
-                    receivers={services}
+                <FacilitiesProvidersFilterAndTable
+                    receiverServices={services}
                     activeService={activeService}
                     setActiveService={setActiveService}
                 />

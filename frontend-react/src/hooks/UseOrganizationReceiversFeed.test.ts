@@ -103,7 +103,7 @@ describe("useOrganizationReceiversFeed", () => {
             });
         });
 
-        test("returns correct organization receivers feed", async () => {
+        test("returns correct organization receiver services feed", async () => {
             const { result } = renderHook(
                 () => useOrganizationReceiversFeed(),
                 { wrapper: AppWrapper() }

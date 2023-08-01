@@ -67,7 +67,7 @@ object ReportFileApiFilters : ApiFilters<ReportFileRecord, ReportFileApiFilter<*
  * @param page the page of results to fetch
  * @param limit the number of results to fetch
  */
-class ReportFileApiSearch private constructor(
+class ReportFileApiSearch internal constructor(
     override val filters: List<ReportFileApiFilter<*>>,
     override val sortParameter: Field<*>?,
     override val sortDirection: SortDirection = SortDirection.DESC,

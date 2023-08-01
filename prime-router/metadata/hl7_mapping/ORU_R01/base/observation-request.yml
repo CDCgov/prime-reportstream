@@ -125,7 +125,7 @@ elements:
         cancelled: X
 
   - name: parent-observation-link
-    resource: '%resource.identifier.where(type.coding.system = "http://loinc.org").type'
+    resource: '%resource.identifier.where(type.coding[0].system = "http://loinc.org").type'
     constants:
       ceFieldPath: '%{fieldPath}-26-1'
     schema: ../../common/datatype/ce-coded-element
@@ -133,7 +133,7 @@ elements:
   - name: parent-observation-sub-id
     resource: '%resource.extension(%`rsext-parent-observation-sub-id`)'
     condition: '%resource.exists()'
-    value: ['%resource.value']
+    value: [ '%resource.value' ]
     hl7Spec: [ '%{fieldPath}-26-2' ]
 
   - name: parent-observation-value-descriptor

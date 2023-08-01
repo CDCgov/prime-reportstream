@@ -1,6 +1,6 @@
 name: Build Hub
 
-on: 
+on:
   pull_request:
     branches:
       - master
@@ -44,9 +44,9 @@ jobs:
       - name: Set up JDK 11
         uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2
         with:
-          java-version: '11'
-          distribution: 'adopt'
-          cache: 'gradle'
+          java-version: "11"
+          distribution: "adopt"
+          cache: "gradle"
 
       - uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
 
@@ -55,7 +55,7 @@ jobs:
 
       - name: Build Prime Router Package
         run: ./gradlew package -Pshowtests
-        
+
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@f0b5d2433f350eff587831d4ad22cb15aab75866
         # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
@@ -80,18 +80,18 @@ jobs:
         id: spin_containers
         run: |
           docker-compose -f docker-compose.yml up -d prime_dev sftp azurite
-          
+
       - name: Give some time for the container to start
         run: |
           echo "sleeping 30"
           sleep 30
           echo "wake up"
-      
+
       - name: Load the configuration
         run: |
-         ./gradlew reloadTables
-         ./gradlew reloadSettings
-        
+          ./gradlew reloadTables
+          ./gradlew reloadSettings
+
       # Integrations tests require the metadata catalog
       - name: Run Integration Tests
         run: ./gradlew testIntegration -Pshowtests
@@ -116,12 +116,12 @@ jobs:
           export $(xargs < .vault/env/.env.local)
           ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
           ./gradlew testSmoke
-          
+
       - name: Dump docker logs
         if: always()
         uses: jwalton/gh-docker-logs@59c9656cd3cb7542525f3dce7ae2f44c0ff85d66
         with:
-          images: 'prime-router_prime_dev,vault'
+          images: "prime-router_prime_dev,vault"
 
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
@@ -133,7 +133,7 @@ jobs:
       - name: Generate New Schema Docs
         run: |
           # Clean the docs before regenerating
-          rm -rf docs/schema_documentation/*
+          rm -rf docs/docs_deprecated/schema_documentation/*
           ./gradlew generatedocs
 
       - name: Check for Uncommited Schema Docs
@@ -190,7 +190,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'java' ]
+        language: ["java"]
 
     steps:
       - name: "Check out changes"
@@ -205,9 +205,9 @@ jobs:
       - name: Set up JDK 11
         uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2
         with:
-          java-version: '11'
-          distribution: 'adopt'
-          cache: 'gradle'
+          java-version: "11"
+          distribution: "adopt"
+          cache: "gradle"
 
       - uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
 
@@ -220,7 +220,7 @@ jobs:
       - name: Perform Java CodeQL Analysis
         uses: github/codeql-action/analyze@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
         if: github.actor != 'dependabot[bot]'
-        
+
       - name: "Run SonarCloud Scan"
         uses: sonarsource/sonarcloud-github-action@db501078e936e4b4c8773d1bb949ba9ddb7b6b6a
         env:
