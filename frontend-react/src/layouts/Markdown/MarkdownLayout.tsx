@@ -154,7 +154,7 @@ export function MarkdownLayout({
     return (
         <MarkdownLayoutContext.Provider value={ctx}>
             {helmet}
-            <GridContainer className="rs-prose">
+            <GridContainer className="usa-prose">
                 <Grid row className="flex-justify flex-align-start">
                     {sidenavContent ? (
                         <nav
