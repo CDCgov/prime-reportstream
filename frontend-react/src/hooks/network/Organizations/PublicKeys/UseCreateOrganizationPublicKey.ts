@@ -31,7 +31,7 @@ export default function useCreateOrganizationPublicKey(): UseCreateOrganizationP
         kid,
         sender,
     }: OrganizationPublicKeyPostArgs) => {
-        const res = await authorizedFetch(servicesEndpoints.createPublicKey, {
+        return await authorizedFetch(servicesEndpoints.createPublicKey, {
             segments: { orgName: parsedName!! },
             params: {
                 scope: `${parsedName}.*.report`,
@@ -39,7 +39,6 @@ export default function useCreateOrganizationPublicKey(): UseCreateOrganizationP
             },
             data: kid,
         });
-        return res;
     };
     return rsUseMutation(
         [servicesEndpoints.createPublicKey.queryKey],
