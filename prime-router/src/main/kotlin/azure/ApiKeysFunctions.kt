@@ -190,20 +190,20 @@ SwIDAQAB
                     ]
                 )
             ),
-            description = "OAUTH2 Authroization for RS API Access."
+            description = "OAUTH2 Authorization for Report Stream API Access."
         ),
         SecurityScheme(
             name = "primeSecurityAPIKey",
             type = SecuritySchemeType.APIKEY,
             paramName = "x-functions-key",
-            description = "API Key Authorization."
+            description = "Azure Function Key Authorization for Report Stream API Access."
         ),
         SecurityScheme(
             name = "primeSecurityServerToServer",
             type = SecuritySchemeType.HTTP,
             scheme = "Bearer",
             bearerFormat = "JWT",
-            description = "HTTP Bearer Token Authorization."
+            description = "HTTP Bearer Token Authorization for Report Stream API Access."
         )
     ]
 )
