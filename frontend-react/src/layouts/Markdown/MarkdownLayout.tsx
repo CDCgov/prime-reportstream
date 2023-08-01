@@ -18,6 +18,7 @@ import { TableOfContents } from "./TableOfContents";
 import { CallToAction } from "./CallToAction";
 import MarkdownLayoutContext from "./Context";
 import { LayoutSidenav, LayoutMain } from "./LayoutComponents";
+import styles from "./MarkdownLayout.module.scss";
 
 /**
  * React components are functions that are pascal-cased so filtering is done
@@ -159,7 +160,7 @@ export function MarkdownLayout({
                     {sidenavContent ? (
                         <nav
                             aria-label="side-navigation"
-                            className="tablet:grid-col-3 position-sticky top-0"
+                            className={`${styles.sidenav} tablet:grid-col-3`}
                         >
                             <MDXProvider components={MDXComponents} {...mdx}>
                                 {sidenavContent}
