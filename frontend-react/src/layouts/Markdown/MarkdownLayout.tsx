@@ -203,7 +203,7 @@ export function MarkdownLayout({
                                 </hgroup>
                                 {callToAction
                                     ? callToAction.map((c) => (
-                                          <CallToAction {...c} />
+                                          <CallToAction key={c.label} {...c} />
                                       ))
                                     : null}
                                 {lastUpdated ? (

@@ -3,14 +3,14 @@ import classNames from "classnames";
 import { USSmartLink } from "../../components/USLink";
 import { Icon, IconName } from "../../shared";
 
-export interface CallToActionType {
+export interface CallToActionItem {
     label: string;
     href: string;
     style?: string;
     icon?: IconName;
 }
 
-export type CallToActionProps = React.PropsWithChildren<CallToActionType>;
+export type CallToActionProps = React.PropsWithChildren<CallToActionItem>;
 
 export const CallToAction = ({
     label,

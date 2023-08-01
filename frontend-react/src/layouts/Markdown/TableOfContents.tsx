@@ -66,7 +66,7 @@ export function TableOfContentsEntry({
     return (
         <li>
             <USSmartLink href={`#${attributes.id}`}>{value}</USSmartLink>
-            {children && depth + 1 <= maxDepth ? (
+            {children.length && depth + 1 <= maxDepth ? (
                 <TableOfContents
                     items={children}
                     depth={maxDepth}
