@@ -1,4 +1,5 @@
 ---
+# deprecated
 name: fl-covid-19
 description: Florida COVID-19 HL7
 topic: covid-19
