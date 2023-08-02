@@ -129,6 +129,9 @@ class ProcessFhirCommands : CliktCommand(
      */
     private fun convertToFhir(hl7String: String, actionLogger: ActionLogger): Bundle {
         val hasFiveEncodingChars = hl7MessageHasFiveEncodingChars(hl7String)
+        // Some HL7 2.5.1 implementations have adopted the truncation character # that was added in 2.7
+        // However, the library used to encode the HL7 message throws an error it there are more than 4 encoding
+        // characters, so this work around exists for that scenario
         val stringToEncode = hl7String.replace("MSH|^~\\&#|", "MSH|^~\\&|")
         val messages = HL7Reader(actionLogger).getMessages(stringToEncode)
         if (messages.isEmpty()) throw CliktError("No HL7 messages were read.")

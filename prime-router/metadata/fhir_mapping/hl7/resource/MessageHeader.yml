@@ -80,7 +80,7 @@ extension_3:
         code: MSH.16
 
 extension_4:
-  condition: $msh2 NOT_NULL && $msh2 NOT_EQUALS_STRING ^~\&
+  condition: $msh2 NOT_NULL && $msh2 EQUALS_STRING ^~\&#
   generateList: true
   expressionType: nested
   vars:
