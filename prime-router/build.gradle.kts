@@ -290,6 +290,10 @@ tasks.register<Test>("testIntegration") {
     }
 }
 
+val apiDocsBaseDir = File(project.projectDir, "/docs/api/")
+val apiDocsSpecDir = File(apiDocsBaseDir, "generated")
+val apiDocsSwaggerUIDir = File(apiDocsBaseDir, "swagger-ui")
+val buildSwaggerUIDir = File(project.buildDir, "/swagger-ui/")
 tasks.register<ResolveTask>("generateOpenApi") {
     group = rootProject.description ?: ""
     description = "Generate OpenAPI spec for Report Stream APIs"
@@ -299,14 +303,21 @@ tasks.register<ResolveTask>("generateOpenApi") {
     classpath = sourceSets["main"].runtimeClasspath
     buildClasspath = classpath
     resourcePackages = setOf("gov.cdc.prime.router.azure")
-    outputDir = file("docs/api/generated")
+    outputDir = apiDocsSpecDir
+    dependsOn("compileKotlin")
 }
 
-/**
- * Generate OpenAPI spec right after build
- */
-tasks.named("build") {
-    finalizedBy("generateOpenApi")
+tasks.register<Copy>("copyApiSwaggerUI") {
+    // copy generated OpenAPI spec files
+    // to folder /build/swagger-ui, in azure functions docker,
+    // the api docs and swagger ui resources are upload to azure
+    // blob container 'apidocs' - where the api docs is hosted.
+    from(apiDocsSpecDir) {
+        include("*.yaml")
+    }
+    from(apiDocsSwaggerUIDir)
+    into(buildSwaggerUIDir)
+    dependsOn("generateOpenApi")
 }
 
 tasks.withType<Test>().configureEach {
@@ -474,11 +485,13 @@ val azureScriptsTmpDir = File(rootProject.buildDir.path, "$azureFunctionsDir-scr
 val azureScriptsFinalDir = rootProject.buildDir
 val primeScriptName = "prime"
 val startFuncScriptName = "start_func.sh"
+val apiDocsSetupScriptName = "upload_swaggerui.sh"
 tasks.register<Copy>("gatherAzureScripts") {
     from("./")
     into(azureScriptsTmpDir)
     include(primeScriptName)
     include(startFuncScriptName)
+    include(apiDocsSetupScriptName)
 }
 
 tasks.register("copyAzureScripts") {
@@ -488,6 +501,7 @@ tasks.register("copyAzureScripts") {
         FileUtils.copyDirectory(azureScriptsTmpDir, azureScriptsFinalDir)
         File(azureScriptsFinalDir.path, primeScriptName).setExecutable(true)
         File(azureScriptsFinalDir.path, startFuncScriptName).setExecutable(true)
+        File(azureScriptsFinalDir.path, apiDocsSetupScriptName).setExecutable(true)
     }
 }
 
@@ -499,17 +513,19 @@ tasks.azureFunctionsPackage {
 tasks.register("package") {
     group = rootProject.description ?: ""
     description = "Package the code and necessary files to run the Azure functions"
+    // copy the api docs swagger ui to the build location
+    dependsOn("copyApiSwaggerUI")
     dependsOn("azureFunctionsPackage")
-    dependsOn("fatJar")
+    dependsOn("fatJar").mustRunAfter("azureFunctionsPackage")
 }
 
 tasks.register("quickPackage") {
     group = rootProject.description ?: ""
     description = "Package the code and necessary files to run the Azure functions skipping unit tests and migration"
+    // copy the api docs swagger ui to the build location
+    dependsOn("copyApiSwaggerUI")
     // Quick package for development purposes.  Use with caution.
     dependsOn("azureFunctionsPackage")
-    dependsOn("copyAzureResources")
-    dependsOn("copyAzureScripts")
     tasks["test"].enabled = false
     tasks["jacocoTestReport"].enabled = false
     tasks["compileTestKotlin"].enabled = false
@@ -532,6 +548,8 @@ dockerCompose {
 
 tasks.azureFunctionsRun {
     dependsOn("composeUp")
+    dependsOn("uploadSwaggerUI").mustRunAfter("composeUp")
+
     // This storage account key is not a secret, just a dummy value.
     val devAzureConnectString =
         "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
@@ -556,6 +574,13 @@ tasks.azureFunctionsRun {
 
     environment(env)
     azurefunctions.localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
+}
+
+task<Exec>("uploadSwaggerUI") {
+    dependsOn("copyApiSwaggerUI")
+    group = rootProject.description ?: ""
+    description = "Upload swagger ui and API docs to azure storage blob container"
+    commandLine("./upload_swaggerui.sh")
 }
 
 tasks.register("run") {
@@ -782,7 +807,7 @@ dependencies {
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.17")
-    implementation("org.thymeleaf:thymeleaf:3.1.1.RELEASE")
+    implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
@@ -859,7 +884,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.3")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
     testImplementation("org.testcontainers:testcontainers:1.18.3")
     testImplementation("org.testcontainers:junit-jupiter:1.18.3")
