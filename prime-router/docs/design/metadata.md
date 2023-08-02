@@ -1,1 +1,0 @@
-TODO: Document our use of Postgres and how we use it to store "metadata"
