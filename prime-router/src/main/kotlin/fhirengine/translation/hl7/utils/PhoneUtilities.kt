@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import com.google.i18n.phonenumbers.PhoneNumberUtil
+import org.apache.logging.log4j.kotlin.Logging
 
 /**
  * Enumeration representing the different parts of a phone number.
@@ -15,7 +16,7 @@ enum class PhonePart {
 /**
  * A collection of methods for dealing with phone parts.
  */
-object PhoneUtilities {
+object PhoneUtilities : Logging {
 
     /**
      *  Parses the [cleanedValue] into a PhoneNumber and returns the [part] requested.
@@ -37,6 +38,7 @@ object PhoneUtilities {
                     PhonePart.Extension -> phone.extension
                 }
             } catch (e: StringIndexOutOfBoundsException) {
+                logger.warn("Invalid phone number sent.")
                 null
             }
         }
