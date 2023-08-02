@@ -131,11 +131,6 @@ class HL7toFhirTranslator internal constructor(
                 bundle.entry.first { it.resource.resourceType.name == "Patient" }.resource as Patient
             }
 
-            if ((birthTime?.length ?: 0) <= 8) {
-                // this field is just a date with no time, no need to create an extension to track the time
-                return
-            }
-
             val extension = Extension(
                 "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
                 DateTimeType(Hl7RelatedGeneralUtils.dateTimeWithZoneId(birthTime, ""))
