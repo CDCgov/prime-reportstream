@@ -7,6 +7,7 @@ import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.blob.models.BlobErrorCode
 import com.azure.storage.blob.models.BlobStorageException
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.common.Environment
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
@@ -18,7 +19,12 @@ import java.security.MessageDigest
 
 const val defaultBlobContainerName = "reports"
 
-class BlobAccess : Logging {
+/**
+ * Accessor for Azure blob storage.
+ * Optionally provide [Environment].
+ */
+class BlobAccess(environment: Environment = Environment.get()) : Logging {
+    private val currEnvironment: Environment = environment
 
     // Basic info about a blob: its format, url in azure, and its sha256 hash
     data class BlobInfo(
@@ -65,6 +71,7 @@ class BlobAccess : Logging {
 
     companion object : Logging {
         private const val defaultConnEnvVar = "AzureWebJobsStorage"
+        private var currentConnEnvVar = defaultConnEnvVar
 
         /**
          * Metadata of a blob container.
@@ -72,7 +79,7 @@ class BlobAccess : Logging {
         private data class BlobContainerMetadata(val name: String, val connectionString: String)
 
         /**
-         * THe blob containers.
+         * Map of reusable blob containers corresponding with specific blob container Metadata.
          */
         private val blobContainerClients = mutableMapOf<BlobContainerMetadata, BlobContainerClient>()
 

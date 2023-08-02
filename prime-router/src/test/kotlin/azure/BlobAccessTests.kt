@@ -4,6 +4,12 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.fail
+import com.azure.storage.blob.BlobServiceClientBuilder
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkConstructor
+import io.mockk.unmockkAll
+import io.mockk.verify
 import org.junit.jupiter.api.Test
 import java.net.MalformedURLException
 
@@ -51,5 +57,18 @@ class BlobAccessTests {
         } catch (e: MalformedURLException) {
             assertThat(e).isNotNull()
         }
+    }
+
+    @Test
+    fun `check connection`() {
+        mockkConstructor(BlobServiceClientBuilder::class)
+        every { anyConstructed<BlobServiceClientBuilder>().connectionString(any()) } answers
+            { BlobServiceClientBuilder() }
+        every { anyConstructed<BlobServiceClientBuilder>().buildClient() } returns mockk()
+
+        BlobAccess.checkConnection("test")
+        verify(exactly = 1) { BlobServiceClientBuilder().connectionString(any()) }
+        verify(exactly = 1) { BlobServiceClientBuilder().buildClient() }
+        unmockkAll()
     }
 }

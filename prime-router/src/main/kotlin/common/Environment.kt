@@ -97,7 +97,7 @@ enum class Environment(
 
         /**
          * Checks if the current environment is the local environment.
-         * @return true if local environemnt, false otherwise
+         * @return true if local environment, false otherwise
          */
         fun isLocal(): Boolean {
             return get() == LOCAL
