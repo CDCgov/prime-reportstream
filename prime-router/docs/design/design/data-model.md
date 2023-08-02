@@ -21,10 +21,25 @@ All ReportStream metadata is stored in ReportStream's internal Postgres database
 
 ### Actions
 
+Anytime something recordable happens in ReportStream, an action is inserted into the database `action` table. There are many types of actions in ReportStream, and the generated list can be found here:
+```
+prime-router/build/generated-src/jooq/src/main/java/gov/cdc/prime/router/azure/db/enums/TaskAction.java`.
+```
+For example, an action is created anytime a step in the Universal Pipeline succeeds or fails. An action can also have one or more warning or error log entries associated with it, which can be very useful for troubleshooting issues.
+
 #### Associated Tables
 
 - action
 - action_log
+
+#### `action` table
+
+Each entry in the `action` table contains data that helps give context around the action. This data is represented by columns such as `action_result`, `created_at`, `sending_org`, et. al. The various columns in this table are not always possible to populate, depending on the action, and so they may be left null. This table is referenced by the `action_log` and `report_file` tables via its `action_id` primary key.
+
+#### `action_log` table
+Every action can have one or more action_log entries associated with them. To this end, the `action_log` table has `action_log_id` as the primary key and foreign keys into `action` and `report_file` tables via `action_id` and `report_id` foreign keys, respectively. 
+
+The main column in `action_log` is `detail`, a jsbon type which contains the contents of the message being logged.
 
 ### Report and Item Lineage
 
@@ -47,6 +62,10 @@ As child reports are created, the `report_lineage` table is also updated to link
 #### `item_lineage` table
 
 The `item_lineage` table helps keep track of individual Report [Items](../../universal-pipeline/README.md#report-and-item) as they flow through the Universal Pipeline and get split into different, and potentially multiple, Reports. Similar to the `report_lineage` table, the `item_lineage` table contains the id of the parent and child report, and in addition, the parent and child index. The index indicates what item in a report the `item_lineage` refers to. For example, if `parent_index` is 2 and `child_index` is 3, that means the second item in the parent Report file is the third item in the child Report file. There is no `item` table, a decision that was made during the initial design, so items only show up in the database via the item_lineage table for subsequent child Reports. Similar to `report_lineage`, `item_lineage` is stored as a graph and can be queried with Postgres' recursive [Common Table Expressions](https://www.postgresql.org/docs/current/queries-with.html) feature.
+
+#### Examples
+
+A good set of examples on how to query report and item lineage was created for the CDC ELIMS Pilot effort. These queries can be found in the repository [here](../../../examples/cdc-elims-metabase-queries/README.md).
 
 ### Lookup Tables
 
