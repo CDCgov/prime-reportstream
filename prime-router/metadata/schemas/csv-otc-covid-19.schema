@@ -1,4 +1,5 @@
 ---
+# deprecated
 name: csv-otc-covid-19
 description: CSV Schema for OTC Results based on NIH At-Home specs
 topic: covid-19

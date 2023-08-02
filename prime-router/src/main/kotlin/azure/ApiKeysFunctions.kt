@@ -31,6 +31,8 @@ import io.swagger.v3.oas.annotations.security.OAuthFlows
 import io.swagger.v3.oas.annotations.security.OAuthScope
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.security.SecurityScheme
+import io.swagger.v3.oas.annotations.security.SecuritySchemes
+import io.swagger.v3.oas.annotations.servers.Server
 import org.apache.logging.log4j.kotlin.Logging
 import javax.ws.rs.DELETE
 import javax.ws.rs.GET
@@ -152,26 +154,60 @@ SwIDAQAB
             email = "reportstream@cdc.gov"
         ),
         version = "0.2.0-oas3"
-    )
-)
-@SecurityScheme(
-    name = "primeSecurity",
-    type = SecuritySchemeType.OAUTH2,
-    flows = OAuthFlows(
-        authorizationCode = OAuthFlow(
-            authorizationUrl = "https://hhs-prime.okta.com/oauth/authorize",
-            tokenUrl = "https://hhs-prime.okta.com/oauth/token",
-            scopes = [
-                OAuthScope(
-                    name = "org_admin",
-                    description = "Grants write access to single org"
-                ),
-                OAuthScope(name = "prime_admin", description = "Grants access to admin operations"),
-                OAuthScope(name = "user", description = "Grants read access")
-            ]
+    ),
+    servers = [
+        Server(
+            url = "http://localhost:7071/api/",
+            description = "Local Server (Local Development Use)"
+        ),
+        Server(
+            url = "https://staging.prime.cdc.gov/api/",
+            description = "Staging Server"
+        ),
+        Server(
+            url = "https://prime.cdc.gov/api/",
+            description = "Production Server"
         )
-    )
+    ]
 )
+
+@SecuritySchemes(
+    value = [
+        SecurityScheme(
+            name = "primeSecurity",
+            type = SecuritySchemeType.OAUTH2,
+            flows = OAuthFlows(
+                authorizationCode = OAuthFlow(
+                    authorizationUrl = "https://hhs-prime.okta.com/oauth/authorize",
+                    tokenUrl = "https://hhs-prime.okta.com/oauth/token",
+                    scopes = [
+                        OAuthScope(
+                            name = "org_admin",
+                            description = "Grants write access to single org"
+                        ),
+                        OAuthScope(name = "prime_admin", description = "Grants access to admin operations"),
+                        OAuthScope(name = "user", description = "Grants read access")
+                    ]
+                )
+            ),
+            description = "OAUTH2 Authorization for Report Stream API Access."
+        ),
+        SecurityScheme(
+            name = "primeSecurityAPIKey",
+            type = SecuritySchemeType.APIKEY,
+            paramName = "x-functions-key",
+            description = "Azure Function Key Authorization for Report Stream API Access."
+        ),
+        SecurityScheme(
+            name = "primeSecurityServerToServer",
+            type = SecuritySchemeType.HTTP,
+            scheme = "Bearer",
+            bearerFormat = "JWT",
+            description = "HTTP Bearer Token Authorization for Report Stream API Access."
+        )
+    ]
+)
+
 class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFacade.common) : Logging {
     data class ApiKeysResponse(val orgName: String, val keys: List<JwkSet>)
 

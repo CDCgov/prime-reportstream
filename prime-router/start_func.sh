@@ -6,10 +6,9 @@
 # It handles three different configurations in this order of preference
 #  1. The dev container case where '/prime-data-hub-router/azure-functions/prime-data-hub-router' contains the function
 #  2. The local case where 'build/azure-functions/prime-data-hub-router'1' contains the function
-#  2. The local case where 'azure-functions/prime-data-hub-router' contains the function
+#  3. The local case where 'azure-functions/prime-data-hub-router' contains the function
 #
 
-set -e
 base_name=azure-functions/prime-data-hub-router
 
 # find the function folder
@@ -46,4 +45,4 @@ else
 fi
 
 # Run the functions
-func host start --cors http://localhost:8090,http://localhost:3000 --language-worker -- "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+func host start --cors http://localhost:10000,http://127.0.0.1:10000,http://localhost:8090,http://localhost:3000 --language-worker -- "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
