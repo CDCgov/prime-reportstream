@@ -99,7 +99,7 @@ abstract class ReportFileFunction(
                 return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
             }
             logger.info(
-                "Authorized request by org ${claims.scopes} to getList on organization $userOrgName."
+                "Authorized request by org ${claims.scopes} to getListByOrg on organization $userOrgName."
             )
 
             return HttpUtilities.okResponse(request, this.historyAsJson(request.queryParameters, userOrgName))
