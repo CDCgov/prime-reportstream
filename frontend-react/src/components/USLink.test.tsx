@@ -44,9 +44,11 @@ const routeUrlsMap = {
     [`${window.location.origin}`]: `/`,
 };
 
+const mailToLink = "mailto:someone@abc.com";
+
 const nonRouteUrls = [
     undefined,
-    "mailto:someone@abc.com",
+    mailToLink,
     "https://www.google.com",
     "http://www.google.com",
     "//www.google.com",
@@ -166,6 +168,7 @@ const externalUrls = [
     "https://www.google.com",
     "//www.google.com",
     "//google.com",
+    mailToLink,
 ];
 
 const internalUrls = [
@@ -173,7 +176,6 @@ const internalUrls = [
     "",
     "/login",
     "#",
-    "mailto:",
     "login",
     "https://reportstream.cdc.gov/login",
     "https://www.cdc.gov",
