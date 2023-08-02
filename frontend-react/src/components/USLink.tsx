@@ -209,9 +209,10 @@ export function isExternalUrl(href?: string) {
             href.replace(/^\/\//, `${window.location.protocol}//`)
         );
         return (
-            url.protocol.startsWith("http") &&
-            url.host !== "cdc.gov" &&
-            !url.host.endsWith(".cdc.gov")
+            (url.protocol.startsWith("http") &&
+                url.host !== "cdc.gov" &&
+                !url.host.endsWith(".cdc.gov")) ||
+            href.indexOf("mailto:") === 0
         );
     } catch (e: any) {
         return false;

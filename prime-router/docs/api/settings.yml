@@ -1,28 +1,28 @@
-openapi: 3.0.2
+openapi: "3.0.3"
 info:
   title: Prime ReportStream
   description: A router of public health data from multiple senders and receivers
   contact:
     name: USDS at Centers for Disease Control and Prevention
-    url: https://reportstream.cdc.gov
+    url: "https://reportstream.cdc.gov"
     email: reportstream@cdc.gov
   version: 0.2.0-oas3
 paths:
-
-  # The setting end-point handles the settings for PRIME admins and PHD users
-  #
   /settings/organizations:
     get:
-      description: The settings for all organizations of the system. Must have admin access.
+      description: >-
+        The settings for all organizations of the system. Must have admin
+        access.
       security:
-        - OAuth2: [ system_admin ]
+        - OAuth2: [system_admin]
+        - Server2Server: []
       responses:
-        '200':
+        "200":
           description: OK
           headers:
             Last-Modified:
               description: The date and time any setting was modified in GMT.
-              example: Wed, 21 Oct 2015 07:28:00 GMT
+              example: "Wed, 21 Oct 2015 07:28:00 GMT"
               required: false
               schema:
                 type: string
@@ -31,27 +31,32 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Organization'
+                  $ref: "#/components/schemas/Organization"
     head:
-      description: Retrived the last modified for all settings of the system. Must have admin access.
+      description: >-
+        Retrieved the last modified for all settings of the system. Must have
+        admin access.
       security:
-        - OAuth2: [ system_admin ]
+        - OAuth2: [system_admin]
+        - Server2Server: []
       responses:
-        '200':
+        "200":
           description: OK
           headers:
             Last-Modified:
-              description: The Last-Modified response HTTP header contains the date and time any setting was modified.
-              example: Wed, 21 Oct 2015 07:28:00 GMT
+              description: >-
+                The Last-Modified response HTTP header contains the date and
+                time any setting was modified.
+              example: "Wed, 21 Oct 2015 07:28:00 GMT"
               required: false
               schema:
                 type: string
-
-  /settings/organizations/{organizationName}:
+  "/settings/organizations/{organizationName}":
     get:
       description: A single organization settings
       security:
-        - OAuth2: [ user ]
+        - OAuth2: [user]
+        - Server2Server: []
       parameters:
         - in: path
           schema:
@@ -60,16 +65,17 @@ paths:
           name: organizationName
           description: The name of the organization
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Organization'
+                $ref: "#/components/schemas/Organization"
     put:
       description: Create or update the direct settings associated with an organization
       security:
-        - OAuth2: [ system_admin ]
+        - OAuth2: [system_admin]
+        - Server2Server: []
       parameters:
         - in: path
           required: true
@@ -81,28 +87,29 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Organization'
+              $ref: "#/components/schemas/Organization"
       responses:
-        '200':
-          description: OK, the organization setting was updated
+        "200":
+          description: "OK, the organization setting was updated"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Organization'
-        '201':
+                $ref: "#/components/schemas/Organization"
+        "201":
           description: Created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Organization'
-        '400':
+                $ref: "#/components/schemas/Organization"
+        "400":
           description: Bad Request
-        '401':
+        "401":
           description: Unauthorized
     delete:
       description: Delete an organization (and the associated receivers and senders)
       security:
-        - OAuth2: [ system_admin ]
+        - OAuth2: [system_admin]
+        - Server2Server: []
       parameters:
         - in: path
           required: true
@@ -111,22 +118,22 @@ paths:
           name: organizationName
           description: The name of the organization
       responses:
-        '200':
-          description: OK, the organization setting was deleted
+        "200":
+          description: "OK, the organization setting was deleted"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Organization'
-        '400':
+                $ref: "#/components/schemas/Organization"
+        "400":
           description: Bad Request
-        '401':
+        "401":
           description: Unauthorized
-
-  /settings/organizations/{organizationName}/receivers:
+  "/settings/organizations/{organizationName}/receivers":
     get:
       description: A list of receivers and their current settings
       security:
-          - OAuth2: [ user ]
+        - OAuth2: [user]
+        - Server2Server: []
       parameters:
         - in: path
           name: organizationName
@@ -136,24 +143,24 @@ paths:
           required: true
           example: az-phd
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Receiver'
-        '400':
+                  $ref: "#/components/schemas/Receiver"
+        "400":
           description: Bad Request
-        '401':
+        "401":
           description: Unauthorized
-
-  /settings/organizations/{organizationName}/receivers/{receiverName}:
+  "/settings/organizations/{organizationName}/receivers/{receiverName}":
     get:
       description: The settings of a single of receiver
       security:
-        - OAuth2: [ user ]
+        - OAuth2: [user]
+        - Server2Server: []
       parameters:
         - in: path
           name: organizationName
@@ -170,20 +177,21 @@ paths:
           required: true
           example: elr
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Receiver'
-        '400':
+                $ref: "#/components/schemas/Receiver"
+        "400":
           description: Bad Request
-        '401':
+        "401":
           description: Unauthorized
     put:
-      description: Update a single reciever
+      description: Update a single receiver
       security:
-        - OAuth2: [ org_admin ]
+        - OAuth2: [org_admin]
+        - Server2Server: []
       parameters:
         - in: path
           name: organizationName
@@ -203,28 +211,29 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Receiver'
+              $ref: "#/components/schemas/Receiver"
       responses:
-        '200':
-          description: OK, the receiver setting was updated
+        "200":
+          description: "OK, the receiver setting was updated"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Receiver'
-        '201':
+                $ref: "#/components/schemas/Receiver"
+        "201":
           description: Created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Receiver'
-        '400':
+                $ref: "#/components/schemas/Receiver"
+        "400":
           description: Bad Request
-        '401':
+        "401":
           description: Unauthorized
     delete:
       description: Delete a receiver
       security:
-        - OAuth2: [ org_admin ]
+        - OAuth2: [org_admin]
+        - Server2Server: []
       parameters:
         - in: path
           name: organizationName
@@ -241,22 +250,22 @@ paths:
           required: true
           example: elr
       responses:
-        '200':
-          description: OK, the receiver was deleted
+        "200":
+          description: "OK, the receiver was deleted"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Receiver'
-        '400':
+                $ref: "#/components/schemas/Receiver"
+        "400":
           description: Bad Request
-        '401':
+        "401":
           description: Unauthorized
-
-  /settings/organizations/{organizationName}/senders:
+  "/settings/organizations/{organizationName}/senders":
     get:
       description: A list of senders
       security:
-        - OAuth2: [ user ]
+        - OAuth2: [user]
+        - Server2Server: []
       parameters:
         - in: path
           name: organizationName
@@ -266,24 +275,24 @@ paths:
           required: true
           example: az-phd
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Sender'
-        '400':
+                  $ref: "#/components/schemas/Sender"
+        "400":
           description: Bad Request
-        '401':
+        "401":
           description: Unauthorized
-
-  /settings/organizations/{organizationName}/senders/{senderName}:
+  "/settings/organizations/{organizationName}/senders/{senderName}":
     get:
       description: The settings of a single of sender
       security:
-        - OAuth2: [ user ]
+        - OAuth2: [user]
+        - Server2Server: []
       parameters:
         - in: path
           name: organizationName
@@ -300,20 +309,21 @@ paths:
           required: true
           example: default
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Sender'
-        '400':
+                $ref: "#/components/schemas/Sender"
+        "400":
           description: Bad Request
-        '401':
+        "401":
           description: Unauthorized
     put:
       description: Update a single sender
       security:
-        - OAuth2: [ org_admin ]
+        - OAuth2: [org_admin]
+        - Server2Server: []
       parameters:
         - in: path
           name: organizationName
@@ -333,32 +343,33 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Sender'
+              $ref: "#/components/schemas/Sender"
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Sender'
-        '201':
+                  $ref: "#/components/schemas/Sender"
+        "201":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Sender'
-        '400':
+                  $ref: "#/components/schemas/Sender"
+        "400":
           description: Bad Request
-        '401':
+        "401":
           description: Unauthorized
     delete:
       description: Delete a sender
       security:
-        - OAuth2: [ org_admin ]
+        - OAuth2: [org_admin]
+        - Server2Server: []
       parameters:
         - in: path
           name: organizationName
@@ -375,22 +386,22 @@ paths:
           required: true
           example: default
       responses:
-        '200':
-          description: OK, the sender was deleted
+        "200":
+          description: "OK, the sender was deleted"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Sender'
-        '400':
+                $ref: "#/components/schemas/Sender"
+        "400":
           description: Bad Request
-        '401':
+        "401":
           description: Unauthorized
-
-  /waters/org/{organizationName}/senders/revs/{settingType}:
+  "/waters/org/{organizationName}/senders/revs/{settingType}":
     get:
       description: The full history of setting revisions for all settings of a given type.
       security:
-        - OAuth2: [ user ]
+        - OAuth2: [user]
+        - Server2Server: []
       parameters:
         - in: path
           name: organizationName
@@ -404,22 +415,23 @@ paths:
           description: Type of setting
           schema:
             type: string
-            enum: ["organization", "sender", "receiver"]
+            enum:
+              - organization
+              - sender
+              - receiver
           required: true
           example: organization
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SettingRevisions'
-        '400':
+                $ref: "#/components/schemas/SettingRevisions"
+        "400":
           description: Bad Request
-        '401':
+        "401":
           description: Unauthorized
-
-# Building
 components:
   schemas:
     SettingMetadata:
@@ -441,11 +453,13 @@ components:
           type: string
           readOnly: true
           example: jj@phd.gov
-
     Organization:
       description: An organization connected to data hub
       type: object
-      required: ["name", "description", "jurisdiction" ]
+      required:
+        - name
+        - description
+        - jurisdiction
       properties:
         name:
           description: the unique id for the organization
@@ -470,8 +484,7 @@ components:
           type: string
           example: Pima
         meta:
-          $ref: '#/components/schemas/SettingMetadata'
-
+          $ref: "#/components/schemas/SettingMetadata"
     Sender:
       description: An sender of reports to the data hub
       type: object
@@ -483,7 +496,7 @@ components:
         - format
       properties:
         name:
-          description: Unique name for the senders, includes the orgninzation name
+          description: "Unique name for the senders, includes the organization name"
           type: string
           example: simple_report.default
         description:
@@ -508,8 +521,7 @@ components:
           enum:
             - CSV
         meta:
-          $ref: '#/components/schemas/SettingMetadata'
-
+          $ref: "#/components/schemas/SettingMetadata"
     Receiver:
       description: A receiver of reports from the data hub
       type: object
@@ -518,11 +530,13 @@ components:
         - description
         - topic
         - jurisdictionalFilter
-        - reportConfiguations
+        - reportConfigurations
         - timing
       properties:
         name:
-          description: The unique name for the receiver. Should include the organization name as a prefix.
+          description: >-
+            The unique name for the receiver. Should include the organization
+            name as a prefix.
           type: string
           example: az-phd.elr
         description:
@@ -565,18 +579,21 @@ components:
                 type: boolean
                 default: false
         translations:
-          description: How the report is translated from the sender. A report can be sent in multiple ways.
+          description: >-
+            How the report is translated from the sender. A report can be sent
+            in multiple ways.
           type: array
           items:
             anyOf:
-              - $ref: '#/components/schemas/CustomConfiguration'
-              - $ref: '#/components/schemas/StandardHL7Configuration'
+              - $ref: "#/components/schemas/CustomConfiguration"
+              - $ref: "#/components/schemas/StandardHL7Configuration"
             discriminator:
               propertyName: type
         timing:
           description: When the report is sent if not immediately
           type: object
-          required: [frequency]
+          required:
+            - frequency
           properties:
             frequency:
               description: How often send a report
@@ -589,8 +606,7 @@ components:
               description: The UTC hour to send a daily batch
               type: number
         meta:
-          $ref: '#/components/schemas/SettingMetadata'
-
+          $ref: "#/components/schemas/SettingMetadata"
     SettingRevisions:
       description: A receiver of reports from the data hub
       type: object
@@ -625,11 +641,16 @@ components:
           format: email
           example: local@test.com
         settingJson:
-          description: Json as a string for the content of the setting. Json schema varies by setting type and over revisions
+          description: >-
+            Json as a string for the content of the setting. Json schema varies
+            by setting type and over revisions
           type: string
-          example: "{\"keys\": null, \"meta\": null, \"name\": \"test-elr\", \"topic\": \"full-elr\", \"format\": \"HL7\", \"version\": null, \"createdAt\": null, \"createdBy\": null, \"senderType\": null, \"customerStatus\": \"inactive\", \"processingType\": \"sync\", \"allowDuplicates\": true, \"organizationName\": \"ignore\", \"primarySubmissionMethod\": null}"
-
-
+          example: >-
+            {"keys": null, "meta": null, "name": "test-elr", "topic":
+            "full-elr", "format": "HL7", "version": null, "createdAt": null,
+            "createdBy": null, "senderType": null, "customerStatus": "inactive",
+            "processingType": "sync", "allowDuplicates": true,
+            "organizationName": "ignore", "primarySubmissionMethod": null}
     StandardHL7Configuration:
       description: A standard HL7 configuration
       type: object
@@ -640,7 +661,7 @@ components:
         - transport
       properties:
         type:
-          description: The discrimenator
+          description: The discriminator
           type: string
           example: STANDARD_HL7
         includeAOE:
@@ -698,7 +719,9 @@ components:
           type: boolean
           default: false
         useBlankInsteadOfUnknown:
-          description: A comma delimited list of element names that should use blank instead of unknown
+          description: >-
+            A comma delimited list of element names that should use blank
+            instead of unknown
           type: string
           default: null
         truncateHDNamespaceIds:
@@ -706,11 +729,15 @@ components:
           type: boolean
           default: false
         usePid14ForPatientEmail:
-          description: Use the PID-14 field for patient email instead of the standard PID-13 field
+          description: >-
+            Use the PID-14 field for patient email instead of the standard
+            PID-13 field
           type: boolean
           default: false
         convertTimestampToDateTime:
-          description: A comma delimited list of HL7 fields to convert to the yyyMMddHHmmss format
+          description: >-
+            A comma delimited list of HL7 fields to convert to the yyyMMddHHmmss
+            format
           type: string
           default: null
         phoneNumberFormatting:
@@ -739,11 +766,10 @@ components:
           default: STANDARD
         transport:
           oneOf:
-            - $ref: '#/components/schemas/SFTPTransport'
-            - $ref: '#/components/schemas/AS2Transport'
-            - $ref: '#/components/schemas/BlobStoreTransport'
-            - $ref: '#/components/schemas/NullTransport'
-
+            - $ref: "#/components/schemas/SFTPTransport"
+            - $ref: "#/components/schemas/AS2Transport"
+            - $ref: "#/components/schemas/BlobStoreTransport"
+            - $ref: "#/components/schemas/NullTransport"
     CustomConfiguration:
       description: A custom configuration for a custom schema
       type: object
@@ -754,7 +780,7 @@ components:
         - transport
       properties:
         type:
-          description: The discrimenator
+          description: The discriminator
           type: string
           example: CUSTOM
         schemaName:
@@ -777,11 +803,10 @@ components:
         transport:
           description: The transport to use
           oneOf:
-            - $ref: '#/components/schemas/SFTPTransport'
-            - $ref: '#/components/schemas/AS2Transport'
-            - $ref: '#/components/schemas/BlobStoreTransport'
-            - $ref: '#/components/schemas/NullTransport'
-
+            - $ref: "#/components/schemas/SFTPTransport"
+            - $ref: "#/components/schemas/AS2Transport"
+            - $ref: "#/components/schemas/BlobStoreTransport"
+            - $ref: "#/components/schemas/NullTransport"
     SFTPTransport:
       description: Describes a single SFTP connection in all of it variations
       type: object
@@ -807,9 +832,10 @@ components:
           description: The file path to place the report
           type: string
           example: /in/test
-
     BlobStoreTransport:
-      description: Moves results to a Azure Blob Store. Typcially used for HHS Protect interfaces.
+      description: >-
+        Moves results to a Azure Blob Store. Typically used for HHS Protect
+        interfaces.
       type: object
       required:
         - type
@@ -821,13 +847,14 @@ components:
           type: string
           example: BLOBSTORE
         storageName:
-          description: This looks for an env var with this name. env var value is the connection string
+          description: >-
+            This looks for an env var with this name. env var value is the
+            connection string
           type: string
         containerName:
           description: This name of the Azure container
           type: string
           example: hhsprotect
-
     AS2Transport:
       description: Describes a single AS2 connection in all of it variations
       type: object
@@ -844,13 +871,13 @@ components:
         receiverUrl:
           description: The URL to the AS2 end-point
           type: string
-          example: https://as2.example.com/receiver.aspx
+          example: "https://as2.example.com/receiver.aspx"
         receiverId:
-          description: The AS2 id of the receiver. Usually, the same for all senders.
+          description: "The AS2 id of the receiver. Usually, the same for all senders."
           type: string
           example: exampleAS2Id
         senderId:
-          description: The AS2 id of the sender. Usually, assigned by receiver to PRIME.
+          description: "The AS2 id of the sender. Usually, assigned by receiver to PRIME."
           type: string
           example: primeAS2Id
         senderEmail:
@@ -862,10 +889,11 @@ components:
           type: string
           default: application/hl7-v2
         contentDescription:
-          description: A description of the content of the message. Usually, the same for all messages.
+          description: >-
+            A description of the content of the message. Usually, the same for
+            all messages.
           type: string
           default: SARS-CoV-2 Electronic Lab Results
-
     NullTransport:
       description: A transport type that does not do anything
       type: object
@@ -875,11 +903,12 @@ components:
         type:
           description: The discriminator
           type: string
-          example: NULL
+          example: null
         dummy:
           description: A dummy value
           type: string
-
   securitySchemes:
     OAuth2:
-      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'
+      $ref: "https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2"
+    Server2Server:
+      $ref: "https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/Server2Server"
