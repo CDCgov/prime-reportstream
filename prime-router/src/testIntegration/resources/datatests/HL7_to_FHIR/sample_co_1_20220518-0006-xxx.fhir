@@ -2,7 +2,7 @@
   "resourceType" : "Bundle",
   "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
   "meta" : {
-    "lastUpdated" : "2023-07-12T16:26:52.220-04:00"
+    "lastUpdated" : "2023-07-21T14:00:24.000-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -263,9 +263,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -281,21 +281,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -476,9 +470,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -494,21 +488,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -689,9 +677,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -707,21 +695,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -902,9 +884,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -920,21 +902,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -1115,9 +1091,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -1133,21 +1109,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -1328,9 +1298,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -1346,21 +1316,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -1541,9 +1505,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -1559,21 +1523,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -1754,9 +1712,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -1772,21 +1730,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -1967,9 +1919,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -1985,21 +1937,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -2180,9 +2126,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -2198,21 +2144,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -2393,9 +2333,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -2411,21 +2351,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -2606,9 +2540,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -2624,21 +2558,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -2819,9 +2747,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -2837,21 +2765,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -3031,9 +2953,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -3049,21 +2971,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -3244,9 +3160,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -3262,21 +3178,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -3457,9 +3367,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -3475,21 +3385,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -3670,9 +3574,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -3688,21 +3592,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -3883,9 +3781,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -3901,21 +3799,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -4096,9 +3988,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -4114,21 +4006,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -4309,9 +4195,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -4327,21 +4213,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -4522,9 +4402,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -4540,21 +4420,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -4735,9 +4609,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -4753,21 +4627,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -4948,9 +4816,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -4966,21 +4834,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -5160,9 +5022,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -5178,21 +5040,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -5373,9 +5229,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -5391,21 +5247,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -5586,9 +5436,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -5604,21 +5454,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -5799,9 +5643,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -5817,21 +5661,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -6012,9 +5850,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -6030,21 +5868,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -6225,9 +6057,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -6243,21 +6075,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -6438,9 +6264,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -6456,21 +6282,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -6651,9 +6471,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -6669,21 +6489,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -6864,9 +6678,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -6882,21 +6696,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -7077,9 +6885,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -7095,21 +6903,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -7289,9 +7091,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -7307,21 +7109,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -7502,9 +7298,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -7520,21 +7316,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -7715,9 +7505,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -7733,21 +7523,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -7928,9 +7712,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -7946,21 +7730,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -8141,9 +7919,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -8159,21 +7937,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -8354,9 +8126,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -8372,21 +8144,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -8567,9 +8333,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -8585,21 +8351,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -8780,9 +8540,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -8798,21 +8558,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -8993,9 +8747,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -9011,21 +8765,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -9206,9 +8954,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -9224,21 +8972,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -9419,9 +9161,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -9437,21 +9179,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -9631,9 +9367,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -9649,21 +9385,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -9844,9 +9574,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -9862,21 +9592,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -10057,9 +9781,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "LB",
-            "code" : "SRM"
-          } ],
-          "text" : "SKY RIDGE MEDICAL CENTER"
+            "code" : "SRM",
+            "display" : "SKY RIDGE MEDICAL CENTER"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -10075,21 +9799,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVID19",
-              "display" : "Novel Coronavirus 2019"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "41458-1"
-        } ],
-        "text" : "SARS coronavirus RNA[Presence] in Specimen by NAA with probe detection"
+          "code" : "41458-1",
+          "display" : "SARS coronavirus RNA[Presence] in Specimen by NAA with probe detection"
+        }, {
+          "system" : "L",
+          "code" : "COVID19",
+          "display" : "Novel Coronavirus 2019"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -10273,26 +9991,17 @@
         "value" : "M6059622"
       } ],
       "type" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
-                "valueString" : "5.67"
-              } ],
-              "system" : "L",
-              "version" : "07/31/2012",
-              "code" : "NP",
-              "display" : "NASOPHARYNGEAL SWAB"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "258500001"
-        } ],
-        "text" : "Nasopharyngeal swab"
+          "version" : "07/31/2012",
+          "code" : "258500001",
+          "display" : "Nasopharyngeal swab"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "NP",
+          "display" : "NASOPHARYNGEAL SWAB"
+        } ]
       },
       "receivedTime" : "2021-08-04T04:08:00-06:00",
       "collection" : {
@@ -10303,7 +10012,9 @@
       },
       "container" : [ {
         "type" : {
-          "text" : "NASAL SWAB"
+          "coding" : [ {
+            "display" : "NASAL SWAB"
+          } ]
         },
         "specimenQuantity" : {
           "extension" : [ {
@@ -10341,26 +10052,17 @@
         "value" : "M6059622"
       } ],
       "type" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
-                "valueString" : "5.67"
-              } ],
-              "system" : "L",
-              "version" : "07/31/2012",
-              "code" : "NP",
-              "display" : "NASOPHARYNGEAL SWAB"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "258500001"
-        } ],
-        "text" : "Nasopharyngeal swab"
+          "version" : "07/31/2012",
+          "code" : "258500001",
+          "display" : "Nasopharyngeal swab"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "NP",
+          "display" : "NASOPHARYNGEAL SWAB"
+        } ]
       },
       "receivedTime" : "2021-08-04T04:08:00-06:00",
       "collection" : {
@@ -10371,7 +10073,9 @@
       },
       "container" : [ {
         "type" : {
-          "text" : "NASAL SWAB"
+          "coding" : [ {
+            "display" : "NASAL SWAB"
+          } ]
         },
         "specimenQuantity" : {
           "extension" : [ {
@@ -10459,21 +10163,15 @@
       } ],
       "status" : "final",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -10890,21 +10588,15 @@
       "intent" : "order",
       "priority" : "stat",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "COVNONPUIIHLI",
-              "display" : "Novel Coronavirus 2019 PCR"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "code" : "94500-6"
-        } ],
-        "text" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+          "code" : "94500-6",
+          "display" : "SARS-CoV-2 RNA Resp Ql NAA+probe"
+        }, {
+          "system" : "L",
+          "code" : "COVNONPUIIHLI",
+          "display" : "Novel Coronavirus 2019 PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -10921,41 +10613,29 @@
         "reference" : "PractitionerRole/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
       },
       "reasonCode" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-              "code" : "R531",
-              "display" : "WEAKNESS"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-          "code" : "R531"
-        } ],
-        "text" : "WEAKNESS"
+          "code" : "R531",
+          "display" : "WEAKNESS"
+        }, {
+          "system" : "http://hl7.org/fhir/sid/icd-10-cm",
+          "code" : "R531",
+          "display" : "WEAKNESS"
+        } ]
       } ],
       "note" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
           "valueCodeableConcept" : {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-              "valueCodeableConcept" : {
-                "coding" : [ {
-                  "system" : "L",
-                  "code" : "C",
-                  "display" : "Comment"
-                } ]
-              }
-            } ],
             "coding" : [ {
               "system" : "HL70364",
-              "code" : "RE"
-            } ],
-            "text" : "Remark"
+              "code" : "RE",
+              "display" : "Remark"
+            }, {
+              "system" : "L",
+              "code" : "C",
+              "display" : "Comment"
+            } ]
           }
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
@@ -11048,9 +10728,9 @@
       "code" : {
         "coding" : [ {
           "system" : "L",
-          "code" : "COVNONPUIORD"
-        } ],
-        "text" : "Novel Coronavirus 2019 NON-PUI"
+          "code" : "COVNONPUIORD",
+          "display" : "Novel Coronavirus 2019 NON-PUI"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -11374,9 +11054,9 @@
       "code" : {
         "coding" : [ {
           "system" : "L",
-          "code" : "COVNONPUIORD"
-        } ],
-        "text" : "Novel Coronavirus 2019 NON-PUI"
+          "code" : "COVNONPUIORD",
+          "display" : "Novel Coronavirus 2019 NON-PUI"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -11393,41 +11073,29 @@
         "reference" : "PractitionerRole/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
       },
       "reasonCode" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-              "code" : "R531",
-              "display" : "WEAKNESS"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-          "code" : "R531"
-        } ],
-        "text" : "WEAKNESS"
+          "code" : "R531",
+          "display" : "WEAKNESS"
+        }, {
+          "system" : "http://hl7.org/fhir/sid/icd-10-cm",
+          "code" : "R531",
+          "display" : "WEAKNESS"
+        } ]
       } ],
       "note" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
           "valueCodeableConcept" : {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-              "valueCodeableConcept" : {
-                "coding" : [ {
-                  "system" : "L",
-                  "code" : "C",
-                  "display" : "Comment"
-                } ]
-              }
-            } ],
             "coding" : [ {
               "system" : "HL70364",
-              "code" : "RE"
-            } ],
-            "text" : "Remark"
+              "code" : "RE",
+              "display" : "Remark"
+            }, {
+              "system" : "L",
+              "code" : "C",
+              "display" : "Comment"
+            } ]
           }
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
@@ -11477,9 +11145,9 @@
         "valueCodeableConcept" : {
           "coding" : [ {
             "system" : "L",
-            "code" : "W"
-          } ],
-          "text" : "White"
+            "code" : "W",
+            "display" : "White"
+          } ]
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/patient-notes",
@@ -11487,21 +11155,15 @@
           "extension" : [ {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
             "valueCodeableConcept" : {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-                "valueCodeableConcept" : {
-                  "coding" : [ {
-                    "system" : "L",
-                    "code" : "C",
-                    "display" : "Comment"
-                  } ]
-                }
-              } ],
               "coding" : [ {
                 "system" : "HL70364",
-                "code" : "RE"
-              } ],
-              "text" : "Remark"
+                "code" : "RE",
+                "display" : "Remark"
+              }, {
+                "system" : "L",
+                "code" : "C",
+                "display" : "Comment"
+              } ]
             }
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
@@ -11524,21 +11186,15 @@
       }, {
         "url" : "http://hl7.org/fhir/StructureDefinition/patient-animal",
         "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "Human",
-                "display" : "Human"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "http://snomed.info/sct",
-            "code" : "337915000"
-          } ],
-          "text" : "Homo sapiens (organism)"
+            "code" : "337915000",
+            "display" : "Homo sapiens (organism)"
+          }, {
+            "system" : "L",
+            "code" : "Human",
+            "display" : "Human"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -11633,21 +11289,15 @@
       },
       "contact" : [ {
         "relationship" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "SO",
-                "display" : "SON"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "UNKNOWN",
-            "code" : "SO"
-          } ],
-          "text" : "SON"
+            "code" : "SO",
+            "display" : "SON"
+          }, {
+            "system" : "L",
+            "code" : "SO",
+            "display" : "SON"
+          } ]
         } ],
         "name" : {
           "use" : "official",

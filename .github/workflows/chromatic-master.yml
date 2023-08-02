@@ -3,12 +3,8 @@
 name: Build and Accept Master (Baseline) Chromatic
 
 on:
-  workflow_dispatch:
-    push:
-      paths:
-        - "frontend-react/**"
-    branches:
-      - master
+  merge_group:
+    branches: [master]
 
 jobs:
   chromatic-deployment:

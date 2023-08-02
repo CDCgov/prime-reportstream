@@ -3,6 +3,7 @@ import { Dispatch, useReducer } from "react";
 enum PageSettingsActionType {
     INC_PAGE = "increment",
     DEC_PAGE = "decrement",
+    SET_PAGE = "set-page",
     SET_SIZE = "set-size",
     RESET = "reset",
 }
@@ -11,6 +12,7 @@ type PageSize = 10 | 25 | 50 | 100;
 
 interface PageSettings {
     size: PageSize;
+    page?: number;
     currentPage: number;
 }
 interface PageFilter {
@@ -38,6 +40,11 @@ const pageNumReducer = (
             return {
                 ...state,
                 currentPage: state.currentPage + 1,
+            };
+        case PageSettingsActionType.SET_PAGE:
+            return {
+                ...state,
+                currentPage: payload?.page || state.currentPage,
             };
         case PageSettingsActionType.SET_SIZE:
             return {

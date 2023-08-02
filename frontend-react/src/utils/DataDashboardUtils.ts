@@ -22,15 +22,15 @@ export const facilityTypeDisplay = {
 };
 
 export function transformFacilityTypeLabel(facility: string) {
-    const facilityType = facility as SenderType;
+    const facilityType = facility.toLowerCase() as SenderType;
     return facilityTypeDisplay[facilityType]
         ? facilityTypeDisplay[facilityType].label
-        : facilityType;
+        : facility;
 }
 
 export function transformFacilityTypeClass(facility: string) {
-    const facilityType = facility as SenderType;
+    const facilityType = facility.toLowerCase() as SenderType;
     return facilityTypeDisplay[facilityType]
         ? facilityTypeDisplay[facilityType].className
-        : facilityType;
+        : "";
 }

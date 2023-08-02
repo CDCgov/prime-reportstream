@@ -2,6 +2,8 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import gov.cdc.prime.router.fhirengine.engine.LookupTableValueSet
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
@@ -118,7 +120,8 @@ object ConfigSchemaReader : Logging {
         inputStream: InputStream,
         schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java
     ): ConfigSchema<*> {
-        val mapper = ObjectMapper(YAMLFactory())
+        val mapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
+        mapper.registerSubtypes(LookupTableValueSet::class.java)
         val rawSchema = mapper.readValue(inputStream, schemaClass)
         // Are there any null elements?  This may mean some unknown array value in the YAML
         if (rawSchema.elements.any { false }) {

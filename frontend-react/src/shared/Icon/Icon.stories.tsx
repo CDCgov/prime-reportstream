@@ -1,3 +1,4 @@
+// AutoUpdateFileChromatic
 import { Meta, StoryObj } from "@storybook/react";
 
 import Icon from "./Icon";

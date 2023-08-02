@@ -115,15 +115,6 @@
 # Generic text
 - id: "text"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/text"
-# Original text
-- id: "original-text"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/original-text"
-# Alternate identifier
-- id: "alternate-identifier"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier"
-# Alternate version
-- id: "alternate-version"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version"
 # Alternate value
 - id: "alternate-value"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-value"

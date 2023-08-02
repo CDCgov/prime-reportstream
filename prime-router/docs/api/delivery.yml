@@ -43,7 +43,7 @@ paths:
           description: The receiver could not be found
   /v1/receivers/{receiverFullName}/deliveries/submitters/search:
     post:
-      description: Return a list of all the the providers, facilities and senders that have sent results to a receiver
+      description: Return a list of all the providers, facilities and senders that have sent results to a receiver
       security:
         - OAuth2: [ user ]
         - ApiKeyAuth: [ ]
