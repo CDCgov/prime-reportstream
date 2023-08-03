@@ -769,7 +769,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
     implementation("com.azure:azure-core:1.41.0")
     implementation("com.azure:azure-core-http-netty:1.13.5")
@@ -779,7 +779,7 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.15.2") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.6.0") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.6.4") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -829,7 +829,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:9.7.0")
     implementation("org.commonmark:commonmark:0.21.0")
     implementation("com.google.guava:guava:32.1.1-jre")
-    implementation("com.helger.as2:as2-lib:5.1.0")
+    implementation("com.helger.as2:as2-lib:5.1.1")
     implementation("org.bouncycastle:bcprov-jdk15to18:1.75")
     implementation("org.bouncycastle:bcprov-jdk18on:1.75")
     implementation("org.bouncycastle:bcmail-jdk15to18:1.75")
@@ -878,14 +878,14 @@ dependencies {
         exclude(group = "com.github.kittinunf.fuel", module = "fuel")
     }
     // kotlinx-coroutines-core is needed by mock-fuel
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
     testImplementation("io.mockk:mockk:1.13.5")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.3")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testImplementation("org.testcontainers:testcontainers:1.18.3")
     testImplementation("org.testcontainers:junit-jupiter:1.18.3")
     testImplementation("org.testcontainers:postgresql:1.18.3")
