@@ -109,14 +109,15 @@ jobs:
           backup-from: staging
 
   approve_router_release:
-    name: "Approve Deploy Release: ${{ needs.pre_job.outputs.env_name }}"
+    name: "Approve Router Release: ${{ needs.pre_job.outputs.env_name }}"
     needs:
       - pre_job
       - build_router_release
       - deploy_infrastructure
     if: |
       always() &&
-      failure() != 'true' &&
+      !cancelled() &&
+      !failure() &&
       needs.pre_job.outputs.has_router_change == 'true'
     environment: ${{ needs.pre_job.outputs.env_name }}-router
     concurrency: ${{ needs.pre_job.outputs.env_name }}-router
@@ -132,7 +133,8 @@ jobs:
       - build_frontend_react_release
     if: |
       always() &&
-      failure() != 'true' &&
+      !cancelled() &&
+      !failure() &&
       needs.pre_job.outputs.has_react_change == 'true'
     environment: ${{ needs.pre_job.outputs.env_name }}-frontend
     concurrency: ${{ needs.pre_job.outputs.env_name }}-frontend
@@ -146,7 +148,11 @@ jobs:
     needs:
       - pre_job
       - approve_router_release
-    if: needs.pre_job.outputs.has_router_change == 'true'
+    if: |
+      always() &&
+      !cancelled() &&
+      !failure() &&
+      needs.pre_job.outputs.has_router_change == 'true'
     environment: ${{ needs.pre_job.outputs.env_name }}
     concurrency: ${{ needs.pre_job.outputs.env_name }}
     runs-on: ubuntu-latest
@@ -177,7 +183,11 @@ jobs:
     needs:
       - pre_job
       - approve_frontend_release
-    if: needs.pre_job.outputs.has_react_change == 'true'
+    if: |
+      always() &&
+      !cancelled() &&
+      !failure() &&
+      needs.pre_job.outputs.has_react_change == 'true'
     environment: ${{ needs.pre_job.outputs.env_name }}
     concurrency: ${{ needs.pre_job.outputs.env_name }}
     runs-on: ubuntu-latest
