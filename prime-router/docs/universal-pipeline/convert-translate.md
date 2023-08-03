@@ -1,4 +1,6 @@
 # Convert/Translate
+When you create this please make sure to reference 
+[changing-transforms](../getting-started/standard-operating-procedures/changing-transforms.md)
 
 The convert step converts the incoming message into the RS FHIR bundle structure and adds any custom sender transforms to the message.
 
