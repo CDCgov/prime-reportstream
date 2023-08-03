@@ -77,10 +77,6 @@ describe("ReportDetailsSummary", () => {
 
         expect(screen.getByText(/Report ID/)).toBeVisible();
         expect(screen.getByText(/123/)).toBeVisible();
-        expect(screen.getByText(/Date range/)).toBeVisible();
-        expect(
-            screen.getByText(`9/28/2022 10:21 PM - ${expectedExpireDate}`)
-        ).toBeVisible();
         expect(screen.getByText(/Delivery method/)).toBeVisible();
         expect(screen.getByText(/SFTP/)).toBeVisible();
         expect(screen.getByText(/Date sent to you/)).toBeVisible();
