@@ -212,6 +212,6 @@
 # Specimen Source Site Modifier
 - id: "specimen-source-site-modifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/specimen-source-site-modifier"
-# Specimen Tpe Modifier
+# Specimen Type Modifier
 - id: "specimen-type-modifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/specimen-type-modifier"
