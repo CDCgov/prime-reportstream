@@ -10,8 +10,9 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.SettingType
-import gov.cdc.prime.router.tokens.OktaAuthentication
-import gov.cdc.prime.router.tokens.PrincipalLevel
+import gov.cdc.prime.router.tokens.AuthenticatedClaims
+import gov.cdc.prime.router.tokens.AuthenticatedClaims.Companion.authenticateAdmin
+import gov.cdc.prime.router.tokens.authenticationFailure
 import org.apache.logging.log4j.kotlin.Logging
 
 /*
@@ -19,10 +20,9 @@ import org.apache.logging.log4j.kotlin.Logging
  */
 
 class GetOrganizations(
-    settingsFacade: SettingsFacade = SettingsFacade.common,
-    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN)
+    settingsFacade: SettingsFacade = SettingsFacade.common
 ) :
-    BaseFunction(settingsFacade, oktaAuthentication) {
+    BaseFunction(settingsFacade) {
     @FunctionName("getOrganizations")
     fun run(
         @HttpTrigger(
@@ -41,10 +41,9 @@ class GetOrganizations(
 }
 
 class GetOneOrganization(
-    settingsFacade: SettingsFacade = SettingsFacade.common,
-    oktaAuthentication: OktaAuthentication = OktaAuthentication()
+    settingsFacade: SettingsFacade = SettingsFacade.common
 ) :
-    BaseFunction(settingsFacade, oktaAuthentication) {
+    BaseFunction(settingsFacade) {
     @FunctionName("getOneOrganization")
     fun run(
         @HttpTrigger(
@@ -61,10 +60,9 @@ class GetOneOrganization(
 }
 
 class UpdateOrganization(
-    settingsFacade: SettingsFacade = SettingsFacade.common,
-    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN)
+    settingsFacade: SettingsFacade = SettingsFacade.common
 ) :
-    BaseFunction(settingsFacade, oktaAuthentication) {
+    BaseFunction(settingsFacade) {
     @FunctionName("updateOneOrganization")
     fun run(
         @HttpTrigger(
@@ -87,10 +85,9 @@ class UpdateOrganization(
  * Sender APIs
  */
 class GetSenders(
-    settingsFacade: SettingsFacade = SettingsFacade.common,
-    oktaAuthentication: OktaAuthentication = OktaAuthentication()
+    settingsFacade: SettingsFacade = SettingsFacade.common
 ) :
-    BaseFunction(settingsFacade, oktaAuthentication) {
+    BaseFunction(settingsFacade) {
     @FunctionName("getSenders")
     fun run(
         @HttpTrigger(
@@ -101,15 +98,14 @@ class GetSenders(
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String
     ): HttpResponseMessage {
-        return getList(request, organizationName, Sender::class.java)
+        return getList(request, Sender::class.java, organizationName)
     }
 }
 
 class GetOneSender(
-    settingsFacade: SettingsFacade = SettingsFacade.common,
-    oktaAuthentication: OktaAuthentication = OktaAuthentication()
+    settingsFacade: SettingsFacade = SettingsFacade.common
 ) :
-    BaseFunction(settingsFacade, oktaAuthentication) {
+    BaseFunction(settingsFacade) {
     @FunctionName("getOneSender")
     fun run(
         @HttpTrigger(
@@ -126,10 +122,9 @@ class GetOneSender(
 }
 
 class UpdateSender(
-    settingsFacade: SettingsFacade = SettingsFacade.common,
-    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.ORGANIZATION_ADMIN)
+    settingsFacade: SettingsFacade = SettingsFacade.common
 ) :
-    BaseFunction(settingsFacade, oktaAuthentication) {
+    BaseFunction(settingsFacade) {
     @FunctionName("updateOneSender")
     fun run(
         @HttpTrigger(
@@ -155,10 +150,9 @@ class UpdateSender(
  */
 
 class GetReceiver(
-    settingsFacade: SettingsFacade = SettingsFacade.common,
-    oktaAuthentication: OktaAuthentication = OktaAuthentication()
+    settingsFacade: SettingsFacade = SettingsFacade.common
 ) :
-    BaseFunction(settingsFacade, oktaAuthentication) {
+    BaseFunction(settingsFacade) {
     @FunctionName("getReceivers")
     fun run(
         @HttpTrigger(
@@ -169,15 +163,14 @@ class GetReceiver(
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String
     ): HttpResponseMessage {
-        return getList(request, organizationName, ReceiverAPI::class.java)
+        return getList(request, ReceiverAPI::class.java, organizationName)
     }
 }
 
 class GetOneReceiver(
-    settingsFacade: SettingsFacade = SettingsFacade.common,
-    oktaAuthentication: OktaAuthentication = OktaAuthentication()
+    settingsFacade: SettingsFacade = SettingsFacade.common
 ) :
-    BaseFunction(settingsFacade, oktaAuthentication) {
+    BaseFunction(settingsFacade) {
     @FunctionName("getOneReceiver")
     fun run(
         @HttpTrigger(
@@ -194,10 +187,9 @@ class GetOneReceiver(
 }
 
 class UpdateReceiver(
-    settingsFacade: SettingsFacade = SettingsFacade.common,
-    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.ORGANIZATION_ADMIN)
+    settingsFacade: SettingsFacade = SettingsFacade.common
 ) :
-    BaseFunction(settingsFacade, oktaAuthentication) {
+    BaseFunction(settingsFacade) {
     @FunctionName("updateOneReceiver")
     fun run(
         @HttpTrigger(
@@ -236,10 +228,9 @@ class UpdateReceiver(
  *   @return Spring HttpTrigger call
  */
 class GetSettingRevisionHistory(
-    settingsFacade: SettingsFacade = SettingsFacade.common,
-    oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.ORGANIZATION_ADMIN)
+    settingsFacade: SettingsFacade = SettingsFacade.common
 ) :
-    BaseFunction(settingsFacade, oktaAuthentication) {
+    BaseFunction(settingsFacade) {
     @FunctionName("getSettingRevisionHistory")
     fun run(
         @HttpTrigger(
@@ -266,31 +257,33 @@ class GetSettingRevisionHistory(
  */
 
 open class BaseFunction(
-    private val facade: SettingsFacade,
-    private val oktaAuthentication: OktaAuthentication
+    private val facade: SettingsFacade
 ) : Logging {
     private val missingAuthorizationHeader = HttpUtilities.errorJson("Missing Authorization Header")
     private val invalidClaim = HttpUtilities.errorJson("Invalid Authorization Header")
 
+    /**
+     * Gets the list of settings for a given organization
+     * @param request Http request
+     * @param clazz The class used to convert to Json
+     * @param organizationName Organization to get settings for
+     * @return HttpResponseMessage resulting json or HTTP error response
+     */
     fun <T : SettingAPI> getList(
         request: HttpRequestMessage<String?>,
-        clazz: Class<T>
+        clazz: Class<T>,
+        organizationName: String? = null
     ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request, "") {
+        authenticateAdmin(request)
+            ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+        return if (organizationName != null) {
+            val (result, outputBody) = facade.findSettingsAsJson(organizationName, clazz)
+            facadeResultToResponse(request, result, outputBody)
+        } else {
             val settings = facade.findSettingsAsJson(clazz)
             val lastModified = facade.getLastModified()
             HttpUtilities.okResponse(request, settings, lastModified)
-        }
-    }
-
-    fun <T : SettingAPI> getList(
-        request: HttpRequestMessage<String?>,
-        organizationName: String,
-        clazz: Class<T>
-    ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request, organizationName) {
-            val (result, outputBody) = facade.findSettingsAsJson(organizationName, clazz)
-            facadeResultToResponse(request, result, outputBody)
         }
     }
 
@@ -307,19 +300,21 @@ open class BaseFunction(
         organizationName: String,
         settingType: SettingType
     ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request, organizationName) {
-            val settings = facade.findSettingHistoryAsJson(organizationName, settingType)
-            HttpUtilities.okResponse(request, settings, facade.getLastModified())
-        }
+        authenticateAdmin(request)
+            ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+        val settings = facade.findSettingHistoryAsJson(organizationName, settingType)
+        return HttpUtilities.okResponse(request, settings, facade.getLastModified())
     }
 
     fun getHead(
         request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request, "") {
-            val lastModified = facade.getLastModified()
-            HttpUtilities.okResponse(request, lastModified = lastModified)
-        }
+        authenticateAdmin(request)
+            ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+        val lastModified = facade.getLastModified()
+        return HttpUtilities.okResponse(request, lastModified = lastModified)
     }
 
     /**
@@ -327,7 +322,6 @@ open class BaseFunction(
      * @param request Http request
      * @param settingName Name column in Setting table to match
      * @param clazz The class used to convert to Json
-     * @param organizationName Mapped to organzationId then used to select the organization_id column
      * @return HttpResponseMessage The resulting json or HTTP error response
      */
     fun <T : SettingAPI> getOne(
@@ -336,9 +330,13 @@ open class BaseFunction(
         clazz: Class<T>,
         organizationName: String? = null
     ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request, organizationName ?: settingName) {
-            val setting = facade.findSettingAsJson(settingName, clazz, organizationName)
-                ?: return@checkAccess HttpUtilities.notFoundResponse(request)
+        authenticateAdmin(request)
+            ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+        val setting = facade.findSettingAsJson(settingName, clazz, organizationName)
+        return if (setting == null) {
+            HttpUtilities.notFoundResponse(request)
+        } else {
             HttpUtilities.okResponse(request, setting)
         }
     }
@@ -349,23 +347,24 @@ open class BaseFunction(
         clazz: Class<T>,
         organizationName: String? = null
     ): HttpResponseMessage {
-        return oktaAuthentication.checkAccess(request, organizationName ?: settingName) { claims ->
-            val (result, outputBody) = when (request.httpMethod) {
-                HttpMethod.PUT -> {
-                    if (request.headers[HttpHeaders.CONTENT_TYPE.lowercase()] != HttpUtilities.jsonMediaType) {
-                        return@checkAccess HttpUtilities.badRequestResponse(request, errorJson("invalid media type"))
-                    }
-                    val body = request.body
-                        ?: return@checkAccess HttpUtilities.badRequestResponse(request, errorJson("missing payload"))
-                    facade.putSetting(settingName, body, claims, clazz, organizationName)
+        val claims = authenticateAdmin(request)
+            ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+
+        val (result, outputBody) = when (request.httpMethod) {
+            HttpMethod.PUT -> {
+                if (request.headers[HttpHeaders.CONTENT_TYPE.lowercase()] != HttpUtilities.jsonMediaType) {
+                    return HttpUtilities.badRequestResponse(request, errorJson("invalid media type"))
                 }
-                HttpMethod.DELETE ->
-                    facade.deleteSetting(settingName, claims, clazz, organizationName)
-                else ->
-                    return@checkAccess HttpUtilities.badRequestResponse(request, errorJson("unsupported method"))
+                val body = request.body
+                    ?: return HttpUtilities.badRequestResponse(request, errorJson("missing payload"))
+                facade.putSetting(settingName, body, claims, clazz, organizationName)
             }
-            facadeResultToResponse(request, result, outputBody)
+            HttpMethod.DELETE ->
+                facade.deleteSetting(settingName, claims, clazz, organizationName)
+            else ->
+                return HttpUtilities.badRequestResponse(request, errorJson("unsupported method"))
         }
+        return facadeResultToResponse(request, result, outputBody)
     }
 
     private fun facadeResultToResponse(
@@ -382,4 +381,5 @@ open class BaseFunction(
     }
 
     private fun errorJson(message: String): String = HttpUtilities.errorJson(message)
+
 }
