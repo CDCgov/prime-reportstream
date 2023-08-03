@@ -3,6 +3,8 @@ import { MDXProvider } from "@mdx-js/react";
 
 import { USSmartLink } from "../USLink";
 
+import styles from "./MarkdownLayout.module.scss";
+
 export interface MarkdownLayoutProps {
     sidenav?: JSX.Element;
     children?: React.ReactNode;
@@ -60,7 +62,7 @@ export function MarkdownLayout({
                     {sidenav ? (
                         <Nav
                             aria-label="side-navigation"
-                            className="tablet:grid-col-3 position-sticky top-0"
+                            className={`${styles.sidenav} tablet:grid-col-3`}
                             {...sidenavProps}
                         >
                             {sidenav}
