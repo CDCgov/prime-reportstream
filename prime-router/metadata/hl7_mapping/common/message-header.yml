@@ -1,4 +1,9 @@
 elements:
+  - name: encoding-characters
+    condition: '%resource.extension(%`rsext-encoding-characters`).exists()'
+    value: [ '%resource.extension(%`rsext-encoding-characters`).value' ]
+    hl7Spec: [ MSH-2 ]
+
   - name: sending-application-namespace-id-no-endpoint
     value: [ '%resource.source.name.split(":").first()' ]
     hl7Spec: [ MSH-3-1 ]

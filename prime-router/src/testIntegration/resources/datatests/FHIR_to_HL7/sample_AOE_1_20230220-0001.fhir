@@ -23,7 +23,10 @@
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
-      },
+      },"extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+        "valueString" : "^~\\&#"
+      } ],
       "eventCoding" : {
         "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
         "code" : "R01",
