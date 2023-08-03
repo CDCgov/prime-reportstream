@@ -199,7 +199,6 @@ priority_4:
     priorityValue: "urgent"
 
 requester:
-  generateList: true
   valueOf: resource/PractitionerRole
   expressionType: reference
   vars:
@@ -209,7 +208,6 @@ requester:
     roleOrganizationAddress: ORC.22
     roleOrganizationPhone: ORC.23
     rolePractitionerAddress: ORC.24
-    organizationIds: ORC.21
 
 reasonCode:
   condition: $reasonCWE NOT_NULL
