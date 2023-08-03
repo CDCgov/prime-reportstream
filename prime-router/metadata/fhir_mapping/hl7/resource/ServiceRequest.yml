@@ -322,6 +322,18 @@ extension_7:
       valueOf: OBR.20
       expressionType: HL7Spec
 
+extension_8:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: filler-field-2
+    valueString:
+      type: STRING
+      valueOf: OBR.21
+      expressionType: HL7Spec
+
 extension_9:
   generateList: true
   expressionType: nested
