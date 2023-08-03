@@ -78,6 +78,21 @@ extension_3:
         code: MSH.16
 
 extension_4:
+  condition: $msh2 NOT_NULL && $msh2 EQUALS_STRING ^~\&#
+  generateList: true
+  expressionType: nested
+  vars:
+    msh2: String, MSH.2
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: encoding-characters
+    valueString:
+      type: STRING
+      valueOf: MSH.2
+      expressionType: HL7Spec
+
+extension_5:
   generateList: true
   expressionType: nested
   expressionsMap:

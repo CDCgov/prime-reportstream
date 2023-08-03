@@ -124,7 +124,7 @@ abstract class SubmissionReceiver(
             val receiver by lazy {
                 when (sender) {
                     is CovidSender, is MonkeypoxSender -> TopicReceiver(workflowEngine, actionHistory)
-                    else -> ELRReceiver(workflowEngine, actionHistory)
+                    else -> UniversalPipelineReceiver(workflowEngine, actionHistory)
                 }
             }
             return receiver
@@ -240,9 +240,9 @@ class TopicReceiver : SubmissionReceiver {
 }
 
 /**
- * Receiver for Full ELR, contains logic to process full ELR submissions.
+ * Receiver for Universal Pipeline, contains logic to process Universal Pipeline submissions.
  */
-class ELRReceiver : SubmissionReceiver {
+class UniversalPipelineReceiver : SubmissionReceiver {
     constructor(
         workflowEngine: WorkflowEngine = WorkflowEngine(),
         actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
