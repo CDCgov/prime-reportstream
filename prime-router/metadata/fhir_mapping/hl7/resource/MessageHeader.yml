@@ -91,17 +91,3 @@ extension_4:
       type: STRING
       valueOf: MSH.2
       expressionType: HL7Spec
-
-extension_5:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: message-sent
-    valueDateTime:
-      type: STRING
-      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
-      expressionType: JEXL
-      vars:
-        dateTimeIn: MSH.7
