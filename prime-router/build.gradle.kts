@@ -584,7 +584,7 @@ task<Exec>("uploadSwaggerUI") {
 }
 
 tasks.register("killFunc") {
-    exec{
+    exec {
         workingDir = project.rootDir
         val processName = "func"
         commandLine = listOf("sh", "-c", "pkill -9 $processName || true")
