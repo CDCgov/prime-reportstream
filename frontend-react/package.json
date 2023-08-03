@@ -189,7 +189,7 @@
         "remark-mdx-frontmatter": "^3.0.0",
         "remark-mdx-toc": "^0.3.1",
         "rimraf": "^4.4.0",
-        "sass": "^1.64.0",
+        "sass": "^1.64.2",
         "storybook": "^7.1.0",
         "storybook-addon-react-router-v6": "^1.0.2",
         "ts-node": "^10.9.1",
