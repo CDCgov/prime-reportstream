@@ -38,7 +38,7 @@ import { ReportDetailsWithAuth } from "./components/DataDashboard/ReportDetails/
 import { FacilitiesProvidersWithAuth } from "./components/DataDashboard/FacilitiesProviders/FacilitiesProviders";
 import { FacilityProviderSubmitterDetailsWithAuth } from "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails";
 import { SenderType } from "./utils/DataDashboardUtils";
-import { lazyRouteMarkdown } from "./layouts/Markdown/MarkdownLayout";
+import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",

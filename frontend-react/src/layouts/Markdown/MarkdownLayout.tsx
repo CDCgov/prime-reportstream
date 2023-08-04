@@ -12,7 +12,6 @@ import type { TocEntry } from "remark-mdx-toc";
 
 import { USCrumbLink, USSmartLink, USNavLink } from "../../components/USLink";
 import * as shared from "../../shared";
-import MDXModules from "../../MDXModules";
 
 import { TableOfContents } from "./TableOfContents";
 import { CallToAction } from "./CallToAction";
@@ -32,7 +31,7 @@ function filterComponents<T extends {}>(
         Object.entries(obj).filter(
             ([k, v]) =>
                 include.includes(k as string & keyof T) ||
-                (typeof v === "function" && k[0] === k[0].toUpperCase())
+                (typeof v === "function" && k.startsWith(k[0].toUpperCase()))
         )
     );
 }
@@ -70,9 +69,6 @@ const MDXComponents = {
     ...sharedComponents,
     Link: USSmartLink,
     USNavLink,
-    Subtitle: (props: React.PropsWithChildren<{}>) => {
-        return <p>{props.children}</p>;
-    },
 };
 
 /**
@@ -115,11 +111,6 @@ export function MarkdownLayout({
     } = {},
     toc: tocEntries,
 }: MarkdownLayoutProps) {
-    const helmet = title ? (
-        <Helmet>
-            <title>{title}</title>
-        </Helmet>
-    ) : null;
     const [sidenavContent, setSidenavContent] =
         useState<React.ReactNode>(undefined);
     const [mainContent, setMainContent] = useState<React.ReactNode>(undefined);
@@ -131,30 +122,20 @@ export function MarkdownLayout({
             setMainContent,
         };
     }, [mainContent, sidenavContent]);
-
-    const tableOfContents =
-        toc && tocEntries ? (
-            <TableOfContents
-                {...(typeof toc === "object" ? toc : {})}
-                items={tocEntries}
-            />
-        ) : null;
-
-    const sub = subtitle ? (
-        Array.isArray(subtitle) ? (
-            subtitle.map((s, i) => (
-                <p key={i} className="usa-intro text-base">
-                    {s}
-                </p>
-            ))
-        ) : (
-            <p className="usa-intro text-base">{subtitle}</p>
-        )
-    ) : null;
+    const tocObj = toc ? (typeof toc === "object" ? toc : {}) : null;
+    const subtitleArr = Array.isArray(subtitle)
+        ? subtitle
+        : subtitle
+        ? [subtitle]
+        : [];
 
     return (
         <MarkdownLayoutContext.Provider value={ctx}>
-            {helmet}
+            {title && (
+                <Helmet>
+                    <title>{title}</title>
+                </Helmet>
+            )}
             <GridContainer className="usa-prose">
                 <Grid row className="flex-justify flex-align-start">
                     {sidenavContent ? (
@@ -176,7 +157,7 @@ export function MarkdownLayout({
                     {main ?? (
                         <main
                             className={
-                                sidenavContent || tableOfContents
+                                sidenavContent
                                     ? "tablet:grid-col-8"
                                     : "tablet:grid-col-12"
                             }
@@ -199,26 +180,34 @@ export function MarkdownLayout({
                                 ) : null}
                                 <hgroup>
                                     <h1>{title}</h1>
-                                    {sub}
+                                    {subtitleArr.map((s) => (
+                                        <p
+                                            key={s.slice(0, 5)}
+                                            className="usa-intro text-base"
+                                        >
+                                            {s}
+                                        </p>
+                                    ))}
                                 </hgroup>
-                                {callToAction
-                                    ? callToAction.map((c) => (
-                                          <CallToAction key={c.label} {...c} />
-                                      ))
-                                    : null}
-                                {lastUpdated ? (
+                                {callToAction?.map((c) => (
+                                    <CallToAction key={c.label} {...c} />
+                                ))}
+                                {lastUpdated && (
                                     <p className="text-base text-italic">
                                         Last updated: {lastUpdated}
                                     </p>
-                                ) : null}
+                                )}
                             </header>
-                            {tableOfContents ? (
+                            {tocObj && tocEntries && (
                                 <>
                                     <b>On this page:</b>
-                                    {tableOfContents}
+                                    <TableOfContents
+                                        {...tocObj}
+                                        items={tocEntries}
+                                    />
                                     <hr />
                                 </>
-                            ) : null}
+                            )}
                             <MDXProvider
                                 {...mdx}
                                 components={{
@@ -230,13 +219,13 @@ export function MarkdownLayout({
                             >
                                 {mainContent ?? children}
                             </MDXProvider>
-                            {backToTop ? (
+                            {backToTop && (
                                 <p>
                                     <USSmartLink href="#top">
                                         Back to top
                                     </USSmartLink>
                                 </p>
-                            ) : null}
+                            )}
                         </main>
                     )}
                 </Grid>
@@ -246,22 +235,3 @@ export function MarkdownLayout({
 }
 
 export default MarkdownLayout;
-
-/**
- * Creates react-router-compatible lazy function for provided file path.
- */
-export function lazyRouteMarkdown(path: string) {
-    return async () => {
-        const module = await MDXModules[`./${path}.mdx`]();
-        const Content = module.default;
-        return {
-            Component() {
-                return (
-                    <MarkdownLayout {...module}>
-                        <Content />
-                    </MarkdownLayout>
-                );
-            },
-        };
-    };
-}
