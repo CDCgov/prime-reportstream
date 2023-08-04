@@ -10,9 +10,9 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.SettingType
-import gov.cdc.prime.router.tokens.AuthenticatedClaims
-import gov.cdc.prime.router.tokens.AuthenticatedClaims.Companion.authenticateAdmin
+import gov.cdc.prime.router.tokens.AuthenticatedClaims.Companion.authenticate
 import gov.cdc.prime.router.tokens.authenticationFailure
+import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
 
 /*
@@ -274,8 +274,11 @@ open class BaseFunction(
         clazz: Class<T>,
         organizationName: String? = null
     ): HttpResponseMessage {
-        authenticateAdmin(request)
+        val claims = authenticate(request)
             ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+        if (!claims.authorizedForSettingsRead(organizationName, request = request)) {
+            return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+        }
 
         return if (organizationName != null) {
             val (result, outputBody) = facade.findSettingsAsJson(organizationName, clazz)
@@ -300,9 +303,11 @@ open class BaseFunction(
         organizationName: String,
         settingType: SettingType
     ): HttpResponseMessage {
-        authenticateAdmin(request)
+        val claims = authenticate(request)
             ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
-
+        if (!claims.authorizedForSettingsRead(organizationName, request = request)) {
+            return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+        }
         val settings = facade.findSettingHistoryAsJson(organizationName, settingType)
         return HttpUtilities.okResponse(request, settings, facade.getLastModified())
     }
@@ -310,8 +315,11 @@ open class BaseFunction(
     fun getHead(
         request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
-        authenticateAdmin(request)
+        val claims = authenticate(request)
             ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+        if (!claims.authorizedForPrimeAdminAction(request = request)) {
+            return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+        }
 
         val lastModified = facade.getLastModified()
         return HttpUtilities.okResponse(request, lastModified = lastModified)
@@ -330,8 +338,11 @@ open class BaseFunction(
         clazz: Class<T>,
         organizationName: String? = null
     ): HttpResponseMessage {
-        authenticateAdmin(request)
+        val claims = authenticate(request)
             ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+        if (!claims.authorizedForSettingsRead(settingName, request = request)) {
+            return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+        }
 
         val setting = facade.findSettingAsJson(settingName, clazz, organizationName)
         return if (setting == null) {
@@ -347,8 +358,11 @@ open class BaseFunction(
         clazz: Class<T>,
         organizationName: String? = null
     ): HttpResponseMessage {
-        val claims = authenticateAdmin(request)
+        val claims = authenticate(request)
             ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
+        if (!claims.authorizedForSettingsWrite(request = request)) {
+            return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+        }
 
         val (result, outputBody) = when (request.httpMethod) {
             HttpMethod.PUT -> {
@@ -381,5 +395,4 @@ open class BaseFunction(
     }
 
     private fun errorJson(message: String): String = HttpUtilities.errorJson(message)
-
 }

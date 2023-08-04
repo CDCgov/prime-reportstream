@@ -110,27 +110,117 @@ class AuthenticatedClaims : Logging {
         requiredSenderOrReceiver: String? = null,
         request: HttpRequestMessage<String?>
     ): Boolean {
-        val requiredScopes = mutableSetOf(Scope.primeAdminScope)
-        // Remember that authorized(...), called below, does an exact string match, char for char, only.
+        return authorizedForScopes(
+            requiredOrganization,
+            requiredSenderOrReceiver,
+            mutableSetOf(
+                Scope.Companion.DetailedScope.User,
+                Scope.Companion.DetailedScope.Admin,
+                Scope.Companion.DetailedScope.Report
+            ),
+            request
+        )
+    }
+
+    /**
+     * Determine if these claims authorize access to update settings in the
+     * org [requiredOrganization] and optional sender [requiredSenderOrReceiver] string.
+     * The [request] is only used for logging.
+     *
+     * @return true if the request to write settings data on behalf of the [requiredOrganization] is
+     * authorized based on the [claims], false otherwise.
+     */
+    fun authorizedForSettingsWrite(
+        requiredOrganization: String? = null,
+        requiredSenderOrReceiver: String? = null,
+        request: HttpRequestMessage<String?>
+    ): Boolean {
+        return authorizedForScopes(
+            requiredOrganization,
+            requiredSenderOrReceiver,
+            mutableSetOf(Scope.Companion.DetailedScope.Admin),
+            request
+        )
+    }
+
+    /**
+     * Determine if these claims authorize access to read settings for the
+     * org [requiredOrganization] and optional sender [requiredSenderOrReceiver] string.
+     * The [request] is only used for logging.
+     *
+     * @return true if the request to read settings data on behalf of the [requiredOrganization] is
+     * authorized based on the [claims], false otherwise.
+     */
+    fun authorizedForSettingsRead(
+        requiredOrganization: String? = null,
+        requiredSenderOrReceiver: String? = null,
+        request: HttpRequestMessage<String?>
+    ): Boolean {
+        return authorizedForScopes(
+            requiredOrganization,
+            requiredSenderOrReceiver,
+            mutableSetOf(Scope.Companion.DetailedScope.User, Scope.Companion.DetailedScope.Admin),
+            request
+        )
+    }
+
+    /**
+     * Determine if these claims authorize a Prime Admin protected action
+     * The [request] is only used for logging.
+     *
+     * @return true if the request to perform Prime Admin action is
+     * authorized based on the [claims], false otherwise.
+     */
+    fun authorizedForPrimeAdminAction(
+        request: HttpRequestMessage<String?>
+    ): Boolean {
+        return authorizedForScopes(
+            detailedScopes = mutableSetOf(Scope.Companion.DetailedScope.User, Scope.Companion.DetailedScope.Admin),
+            request = request
+        )
+    }
+
+    /**
+     * Determine if the resulting claims from authentication authorize access to a particular feature given the
+     * provided [detailedScopes].
+     * The [request] is only used for logging.
+     *
+     * @return true if the request to submit data on behalf of the [requiredOrganization] is
+     * authorized based on the [claims], false otherwise.
+     */
+    private fun authorizedForScopes(
+        requiredOrganization: String? = null,
+        requiredSenderOrReceiver: String? = null,
+        detailedScopes: MutableSet<Scope.Companion.DetailedScope> =
+            mutableSetOf(Scope.Companion.DetailedScope.PrimeAdmin),
+        request: HttpRequestMessage<String?>
+    ): Boolean {
+        // Reminder that authorized(...), called below, does an exact string match, char for char, only.
         // That is, the "*" is not treated as anything special.
+        val requiredScopes = mutableSetOf(Scope.primeAdminScope)
         if (!requiredOrganization.isNullOrBlank()) {
-            requiredScopes += setOf(
-                "$requiredOrganization.*.user", // eg, md-phd.*.user
-                "$requiredOrganization.*.admin", // eg, md-phd.*.admin
-                "$requiredOrganization.*.report", // eg, md-phd.*.report
-                "$requiredOrganization.default.user", // grandfather-in senders using 'default' in server2server scope.
-                "$requiredOrganization.default.admin",
-                "$requiredOrganization.default.report"
-            )
+            detailedScopes.forEach {
+                requiredScopes.add("$requiredOrganization.*.$it")
+                requiredScopes.add("$requiredOrganization.default.$it")
+            }
             if (!requiredSenderOrReceiver.isNullOrBlank()) {
-                requiredScopes += setOf(
-                    "$requiredOrganization.$requiredSenderOrReceiver.user", // eg, md-phd.mysender.user
-                    "$requiredOrganization.$requiredSenderOrReceiver.admin", // eg, md-phd.mysender.admin
-                    "$requiredOrganization.$requiredSenderOrReceiver.report" // eg, md-phd.mysender.report
-                )
+                detailedScopes.forEach {
+                    requiredScopes.add("$requiredOrganization.$requiredSenderOrReceiver.$it")
+                }
             }
         }
-        return if (authorized(requiredScopes)) {
+        return authorized(requiredScopes, request, requiredOrganization)
+    }
+
+    /**
+     * @return true if these claims authorize access to the [requiredScopes].  False if unauthorized.
+     */
+    fun authorized(
+        requiredScopes: Set<String>,
+        request: HttpRequestMessage<String?>,
+        requiredOrganization: String? = null
+    ): Boolean {
+        return if (Scope.authorized(this.scopes, requiredScopes)) {
             logger.info(
                 "Authorized request by user with claims ${this.scopes}" +
                     " for org-related resources. client= $requiredOrganization."
@@ -143,13 +233,6 @@ class AuthenticatedClaims : Logging {
             )
             false
         }
-    }
-
-    /**
-     * @return true if these claims authorize access to the [requiredScopes].  False if unauthorized.
-     */
-    fun authorized(requiredScopes: Set<String>): Boolean {
-        return Scope.authorized(this.scopes, requiredScopes)
     }
 
     companion object : Logging {
@@ -231,22 +314,6 @@ class AuthenticatedClaims : Logging {
             return authenticatedClaims
         }
 
-        /**
-         * Run authentication then filters out non-admin claims
-         * @param request Http request to authenticate
-         * @return Authenticated claims if primeadmin is authorized, else null
-         */
-        fun authenticateAdmin(
-            request: HttpRequestMessage<String?>
-        ): AuthenticatedClaims? {
-            val claims = authenticate(request)
-            return if (claims == null || !claims.authorized(setOf("*.*.primeadmin"))) {
-                logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
-                null
-            } else {
-                claims
-            }
-        }
         /**
          * Create fake AuthenticatedClaims, for testing
          * @return fake claims, for testing.

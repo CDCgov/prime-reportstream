@@ -185,7 +185,7 @@ class GetReports :
         ) request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
-        if (claims == null || !claims.authorized(setOf("*.*.primeadmin"))) {
+        if (claims == null || !claims.authorized(setOf("*.*.primeadmin"), request)) {
             logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
             return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
         }

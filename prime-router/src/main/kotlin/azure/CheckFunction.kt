@@ -160,7 +160,7 @@ class CheckFunction : Logging {
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
 
-        if (claims == null || !claims.authorized(setOf("*.*.primeadmin", "$orgName.*.admin"))) {
+        if (claims == null || !claims.authorized(setOf("*.*.primeadmin", "$orgName.*.admin"), request)) {
             logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
             return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
         }

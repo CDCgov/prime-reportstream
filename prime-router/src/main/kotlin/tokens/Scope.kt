@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.tokens
 
 import gov.cdc.prime.router.Organization
+import io.ktor.util.toLowerCasePreservingASCIIRules
 import org.apache.logging.log4j.kotlin.Logging
 
 /**
@@ -126,7 +127,9 @@ class Scope {
          * @return the (possibly empty) intersection of the two sets.  Empty Set == not authorized for anything.
          */
         internal fun authorizedScopes(userScopes: Set<String>, requiredScopes: Set<String>): Set<String> {
-            return userScopes.filter { it.isNotBlank() }.intersect(requiredScopes.filter { it.isNotBlank() }.toSet())
+            return userScopes.map(String::toLowerCasePreservingASCIIRules).filter { it.isNotBlank() }.intersect(
+                requiredScopes.map(String::toLowerCasePreservingASCIIRules).filter { it.isNotBlank() }.toSet()
+            )
         }
 
         /**
