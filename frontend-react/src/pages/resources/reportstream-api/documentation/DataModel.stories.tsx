@@ -18,19 +18,22 @@ export default {
     component: DataModelPage,
 } as ComponentMeta<typeof DataModelPage>;
 
+function ExternalStory() {
+    return <>{"{OMITTED}"}</>;
+}
+
 export const Default: ComponentStoryObj<typeof DataModelPage> = {
     args: {
         mdx: {
             components: {
                 a: USSmartLink,
-                AskOnEntryTable: React.Component<any>,
-                OrderAndResultDataElementsTable: React.Component<any>,
-                OrderingProviderDataElementsTable: React.Component<any>,
-                PatientDataElementsTable: React.Component<any>,
-                SpecimenDataElementsTable: React.Component<any>,
-                TestingFacilityDataElementsTable: React.Component<any>,
-                ReportingAndOrderingFacilityDataElementsTable:
-                    React.Component<any>,
+                AskOnEntryTable: ExternalStory,
+                OrderAndResultDataElementsTable: ExternalStory,
+                OrderingProviderDataElementsTable: ExternalStory,
+                PatientDataElementsTable: ExternalStory,
+                SpecimenDataElementsTable: ExternalStory,
+                TestingFacilityDataElementsTable: ExternalStory,
+                ReportingAndOrderingFacilityDataElementsTable: ExternalStory,
             },
         },
     },
