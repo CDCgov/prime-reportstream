@@ -83,7 +83,7 @@ describe("useCreateOrganizationPublicKey", () => {
                     await result.current.mutateAsync({
                         kid: "testOrg.elr-0",
                         sender: "elr-0",
-                    })
+                    }),
             ).rejects.toThrowError("Request failed with status code 401");
         });
     });

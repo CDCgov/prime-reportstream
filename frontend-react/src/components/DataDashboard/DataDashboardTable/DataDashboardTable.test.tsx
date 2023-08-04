@@ -85,7 +85,7 @@ describe("DataDashboardTable", () => {
                 isLoading: false,
             };
             mockUseReceiverDeliveries.mockReturnValue(
-                mockUseReceiverDeliveriesCallback
+                mockUseReceiverDeliveriesCallback,
             );
 
             // Render the component
@@ -94,11 +94,11 @@ describe("DataDashboardTable", () => {
 
         test("if no activeService display NoServicesBanner", async () => {
             const heading = await screen.findByText(
-                /Active Services unavailable/i
+                /Active Services unavailable/i,
             );
             expect(heading).toBeInTheDocument();
             const message = await screen.findByText(
-                /No valid receiver found for your organization/i
+                /No valid receiver found for your organization/i,
             );
             expect(message).toBeInTheDocument();
         });
@@ -123,7 +123,7 @@ describe("DataDashboardTableWithPagination", () => {
                     isLoading: false,
                 };
                 mockUseReceiverDeliveries.mockReturnValue(
-                    mockUseReceiverDeliveriesCallback
+                    mockUseReceiverDeliveriesCallback,
                 );
 
                 // Render the component
@@ -140,16 +140,16 @@ describe("DataDashboardTableWithPagination", () => {
 
                 // Column headers render
                 expect(
-                    screen.getByText("Showing all results (101)")
+                    screen.getByText("Showing all results (101)"),
                 ).toBeInTheDocument();
                 expect(
-                    screen.getByText("Date sent to you")
+                    screen.getByText("Date sent to you"),
                 ).toBeInTheDocument();
                 expect(
-                    screen.getByText("Ordering provider")
+                    screen.getByText("Ordering provider"),
                 ).toBeInTheDocument();
                 expect(
-                    screen.getByText("Performing facility")
+                    screen.getByText("Performing facility"),
                 ).toBeInTheDocument();
                 expect(screen.getByText("Submitter")).toBeInTheDocument();
                 expect(screen.getByText("Report ID")).toBeInTheDocument();
@@ -195,7 +195,7 @@ describe("DataDashboardTableWithPagination", () => {
                     isLoading: false,
                 };
                 mockUseReceiverDeliveries.mockReturnValue(
-                    mockUseReceiverDeliveriesCallback
+                    mockUseReceiverDeliveriesCallback,
                 );
 
                 // Render the component
@@ -205,7 +205,7 @@ describe("DataDashboardTableWithPagination", () => {
             test("renders the receiver service", () => {
                 expect(screen.queryByRole("select")).not.toBeInTheDocument();
                 expect(
-                    screen.getByText("Receiver service:")
+                    screen.getByText("Receiver service:"),
                 ).toBeInTheDocument();
                 expect(screen.getByText("ELR-0")).toBeInTheDocument();
             });
@@ -251,7 +251,7 @@ describe("DataDashboardTableWithPagination", () => {
                     isLoading: false,
                 };
                 mockUseReceiverDeliveries.mockReturnValue(
-                    mockUseReceiverDeliveriesCallback
+                    mockUseReceiverDeliveriesCallback,
                 );
 
                 // Render the component
@@ -260,12 +260,12 @@ describe("DataDashboardTableWithPagination", () => {
 
             test("renders the NoServicesBanner message", async () => {
                 const heading = await screen.findByText(
-                    "Active Services unavailable"
+                    "Active Services unavailable",
                 );
                 expect(heading).toBeInTheDocument();
 
                 const message = await screen.findByText(
-                    "No valid receiver found for your organization"
+                    "No valid receiver found for your organization",
                 );
                 expect(message).toBeInTheDocument();
             });
@@ -308,7 +308,7 @@ describe("DataDashboardTableWithPagination", () => {
                 isLoading: false,
             };
             mockUseReceiverDeliveries.mockReturnValue(
-                mockUseReceiverDeliveriesCallback
+                mockUseReceiverDeliveriesCallback,
             );
 
             // Render the component
@@ -318,12 +318,12 @@ describe("DataDashboardTableWithPagination", () => {
         test("renders an error saying admins shouldn't fetch organization data", async () => {
             expect(
                 await screen.findByText(
-                    "Cannot fetch Organization data as admin"
-                )
+                    "Cannot fetch Organization data as admin",
+                ),
             ).toBeVisible();
 
             expect(
-                await screen.findByText("Please try again as an Organization")
+                await screen.findByText("Please try again as an Organization"),
             ).toBeVisible();
         });
     });

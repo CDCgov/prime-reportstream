@@ -67,7 +67,7 @@ const SessionProvider = ({ children }: { children: ReactNode }) => {
             initialized: authState !== null && !!initialized,
             user: authState?.idToken?.claims,
             ...getUserPermissions(
-                authState?.accessToken?.claims as RSUserClaims
+                authState?.accessToken?.claims as RSUserClaims,
             ),
             environment: APP_ENV,
         };

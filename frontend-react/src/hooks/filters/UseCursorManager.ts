@@ -18,7 +18,7 @@ interface CursorAction {
 
 type CursorReducer<Cursors, CursorAction> = (
     cursors: Cursors,
-    action: CursorAction
+    action: CursorAction,
 ) => Cursors;
 
 /** @deprecated CursorManager is replaced with PaginationProps*/

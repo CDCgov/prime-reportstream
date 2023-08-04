@@ -103,7 +103,7 @@ describe("ReportStreamHeader", () => {
         });
         renderApp(<ReportStreamHeader>Test</ReportStreamHeader>);
         expect(
-            screen.queryByText(FeatureName.DAILY_DATA)
+            screen.queryByText(FeatureName.DAILY_DATA),
         ).not.toBeInTheDocument();
         expect(screen.getByText(FeatureName.UPLOAD)).toBeInTheDocument();
         expect(screen.getByText(FeatureName.SUBMISSIONS)).toBeInTheDocument();
@@ -144,7 +144,7 @@ describe("ReportStreamHeader", () => {
         expect(screen.getByText(FeatureName.DAILY_DATA)).toBeInTheDocument();
         expect(screen.queryByText(FeatureName.UPLOAD)).not.toBeInTheDocument();
         expect(
-            screen.queryByText(FeatureName.SUBMISSIONS)
+            screen.queryByText(FeatureName.SUBMISSIONS),
         ).not.toBeInTheDocument();
     });
 });

@@ -53,7 +53,7 @@ describe("useSenderSchemaOptions", () => {
         test("returns the standard schema options", () => {
             expect(renderer.result.current.isLoading).toEqual(false);
             expect(renderer.result.current.schemaOptions).toEqual(
-                STANDARD_SCHEMA_OPTIONS
+                STANDARD_SCHEMA_OPTIONS,
             );
         });
     });
@@ -70,7 +70,7 @@ describe("useSenderSchemaOptions", () => {
             test("returns the loading state and the standard schema options", () => {
                 expect(renderer.result.current.isLoading).toEqual(true);
                 expect(renderer.result.current.schemaOptions).toEqual(
-                    STANDARD_SCHEMA_OPTIONS
+                    STANDARD_SCHEMA_OPTIONS,
                 );
             });
         });
@@ -86,7 +86,7 @@ describe("useSenderSchemaOptions", () => {
             test("returns the loading state and the standard schema options", () => {
                 expect(renderer.result.current.isLoading).toEqual(false);
                 expect(renderer.result.current.schemaOptions).toEqual(
-                    STANDARD_SCHEMA_OPTIONS
+                    STANDARD_SCHEMA_OPTIONS,
                 );
             });
         });
@@ -125,7 +125,7 @@ describe("useSenderSchemaOptions", () => {
                 test("returns the de-duplicated standard schema options", () => {
                     expect(renderer.result.current.isLoading).toEqual(false);
                     expect(renderer.result.current.schemaOptions).toEqual(
-                        STANDARD_SCHEMA_OPTIONS
+                        STANDARD_SCHEMA_OPTIONS,
                     );
                 });
             });

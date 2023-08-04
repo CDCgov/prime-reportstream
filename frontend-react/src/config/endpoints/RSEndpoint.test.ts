@@ -31,13 +31,13 @@ describe("RSEndpoint", () => {
 
         test("returns url if no dynamic segments are present and no values are passed", () => {
             expect(testEndpoint.toDynamicUrl()).toEqual(
-                `${config.API_ROOT}/path`
+                `${config.API_ROOT}/path`,
             );
         });
 
         test("throws if not all dynamic segments are provided with values", () => {
             expect(() =>
-                dynamicEndpoint.toDynamicUrl({ something: "else" })
+                dynamicEndpoint.toDynamicUrl({ something: "else" }),
             ).toThrow();
         });
 
@@ -46,7 +46,7 @@ describe("RSEndpoint", () => {
                 dynamicEndpoint.toDynamicUrl({
                     something: "else",
                     anything: "more",
-                })
+                }),
             ).toEqual(`${config.API_ROOT}/else/more`);
         });
     });
@@ -62,7 +62,7 @@ describe("RSEndpoint", () => {
             expect(
                 testEndpoint.toAxiosConfig({
                     headers: { "x-fake-header": "anyway" },
-                })
+                }),
             ).toEqual({
                 url: `${config.API_ROOT}/path`,
                 method: "GET",
@@ -77,7 +77,7 @@ describe("RSEndpoint", () => {
                     headers: { "x-fake-header": "anyway" },
                     url: "do not use",
                     method: "POST",
-                })
+                }),
             ).toEqual({
                 url: `${config.API_ROOT}/path`,
                 method: "GET",
@@ -94,7 +94,7 @@ describe("RSEndpoint", () => {
                         something: "else",
                         anything: "more",
                     },
-                })
+                }),
             ).toEqual({
                 url: `${config.API_ROOT}/else/more`,
                 method: "GET",

@@ -49,7 +49,7 @@ export default function useSenderSchemaOptions(): UseSenderSchemaOptionsHookResu
         senderDetail &&
         senderDetail.schemaName &&
         !(Object.values(StandardSchema) as string[]).includes(
-            senderDetail.schemaName
+            senderDetail.schemaName,
         )
             ? ([
                   {
