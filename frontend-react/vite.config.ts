@@ -6,7 +6,9 @@ import svgr from "vite-plugin-svgr";
 import mdx from "@mdx-js/rollup";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
-import remarkToc from "remark-toc";
+import { remarkMdxToc } from "remark-mdx-toc";
+import remarkFrontmatter from "remark-frontmatter";
+import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 import { checker } from "vite-plugin-checker";
 import dotenv from "dotenv";
 
@@ -25,7 +27,12 @@ export default defineConfig(async () => {
             mdx({
                 mdExtensions: [],
                 providerImportSource: "@mdx-js/react",
-                remarkPlugins: [remarkGfm, remarkToc],
+                remarkPlugins: [
+                    remarkGfm,
+                    remarkMdxToc,
+                    remarkFrontmatter,
+                    remarkMdxFrontmatter,
+                ],
                 rehypePlugins: [rehypeSlug],
             }),
             svgr(),
