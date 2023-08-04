@@ -54,7 +54,7 @@ jobs:
       - name: Get container ID
         id: get_container_id
         run: |
-          az acr repository show-tags --name pdh${{ env.ENV }}containerregistry.azurecr.io --repository pdh${{ env.ENV }} --orderby time_asc --output table | tail -5 | head -1 > container_id.txt
+          az acr repository show-tags --name pdh${{ env.ENV }}containerregistry.azurecr.io --repository pdh${{ env.ENV }} --orderby time_asc --output table | tail -3 | head -1 > container_id.txt
 
       - name: Deploy to Candidate Slot
         run: |
