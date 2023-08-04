@@ -4,6 +4,7 @@ import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.translation.hl7.utils.FhirPathFunctions
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
@@ -101,7 +102,10 @@ class FhirToHl7Converter(
         schema: ConverterSchema,
         bundle: Bundle,
         focusResource: Base,
-        context: CustomContext = CustomContext(bundle, bundle, customFhirFunctions = this.context?.fhirFunctions),
+        context: CustomContext = CustomContext(
+            bundle, bundle, customFhirFunctions = this.context?.fhirFunctions,
+            receiver = this.context?.receiver
+        ),
         debug: Boolean = false
     ) {
         val logLevel = if (debug) Level.INFO else Level.DEBUG
@@ -227,4 +231,5 @@ class FhirToHl7Converter(
  */
 data class FhirToHl7Context(
     val fhirFunctions: FhirPathFunctions,
+    val receiver: Receiver? = null
 )

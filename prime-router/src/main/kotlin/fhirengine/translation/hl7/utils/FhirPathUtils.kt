@@ -3,6 +3,8 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import ca.uhn.hl7v2.model.v251.datatype.DT
 import ca.uhn.hl7v2.model.v251.datatype.DTM
+import gov.cdc.prime.router.Hl7Configuration
+import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.apache.logging.log4j.kotlin.Logging
@@ -20,6 +22,7 @@ import org.hl7.fhir.r4.utils.FHIRLexer.FHIRLexerException
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 import java.time.DateTimeException
 import java.time.LocalTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
@@ -171,7 +174,7 @@ object FhirPathUtils : Logging {
      * Convert a FHIR [dateTime] to the format required by HL7
      * @return the converted HL7 DTM
      */
-    fun convertDateTimeToHL7(dateTime: BaseDateTimeType): String {
+    fun convertDateTimeToHL7(dateTime: BaseDateTimeType, appContext: CustomContext? = null): String {
         /**
          * Set the timezone for an [hl7DateTime] if a timezone was specified.
          * @return the updated [hl7DateTime] object
@@ -191,6 +194,8 @@ object FhirPathUtils : Logging {
             return hl7DateTime
         }
 
+        val receiver = appContext?.receiver
+        val hl7Config = receiver?.translation as? Hl7Configuration
         val hl7DateTime = DTM(null)
 
         return when (dateTime.precision) {
@@ -211,17 +216,25 @@ object FhirPathUtils : Logging {
             }
 
             else -> {
-                var secs = dateTime.second.toFloat()
-//                TODO: There's no way to turn this off at the moment.
-//                 Need to add support to configure Date precision.
-//                 Ticket: https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/8694
-
-//                if (dateTime.nanos != null) secs += dateTime.nanos.toFloat() / 1000000000
-                hl7DateTime.setDateSecondPrecision(
-                    dateTime.year, dateTime.month + 1, dateTime.day, dateTime.hour, dateTime.minute,
-                    secs
-                )
-                setTimezone(hl7DateTime).toString()
+                if (hl7Config?.useHighPrecisionHeaderDateTimeFormat == true) {
+                    val tz = if (dateTime.timeZone?.id != null) {
+                        ZoneId.of(dateTime.timeZone?.id)
+                    } else
+                        DateUtilities.utcZone
+                    DateUtilities.formatDateForReceiver(
+                        DateUtilities.parseDate(dateTime.asStringValue()),
+                        tz,
+                        receiver.dateTimeFormat ?: DateUtilities.DateTimeFormat.OFFSET,
+                        hl7Config.convertPositiveDateTimeOffsetToNegative ?: false,
+                        hl7Config.useHighPrecisionHeaderDateTimeFormat
+                    )
+                } else {
+                    var secs = dateTime.second.toFloat()
+                    hl7DateTime.setDateSecondPrecision(
+                        dateTime.year, dateTime.month + 1, dateTime.day, dateTime.hour, dateTime.minute, secs
+                    )
+                    setTimezone(hl7DateTime).toString()
+                }
             }
         }
     }

@@ -15,7 +15,11 @@ import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.every
+import io.mockk.mockkClass
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DateTimeType
 import org.hl7.fhir.r4.model.DateType
@@ -169,16 +173,28 @@ class FhirPathUtilsTests {
         // Hour only or hour and minute only is not supported by FHIR type
         assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11")))
             .isEqualTo("20150405122211")
-//              TODO: There's no way to turn this off at the moment.
-//                 Need to add support to configure Date precision.
-//                 Ticket: https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/8694
-
-//        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11.567")))
-//            .isEqualTo("20150405122211.567")
-//        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11.567891")))
-//            .isEqualTo("20150405122211.5679") // Note the rounding
         assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-11T12:22:01-04:00")))
             .isEqualTo("20150411122201-0400")
+    }
+
+    @Test
+    fun `test convertDateTimeToHL7 with CustomContext with receiver setting`() {
+        val receiver = mockkClass(Receiver::class)
+        val appContext = mockkClass(CustomContext::class)
+        every { appContext.receiver }.returns(receiver)
+        every { receiver.dateTimeFormat }.returns(null)
+        every { receiver.translation }.returns(
+            UnitTestUtils.createConfig(
+                useHighPrecisionHeaderDateTimeFormat = true,
+                convertPositiveDateTimeOffsetToNegative = false
+            )
+        )
+        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11.567Z"), appContext))
+            .isEqualTo("20150405122211.5670+0000")
+        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11.567891Z"), appContext))
+            .isEqualTo("20150405122211.5678+0000")
+        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-11T12:22:01-04:00"), appContext))
+            .isEqualTo("20150411122201.0000-0400")
     }
 
     @Test

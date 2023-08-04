@@ -244,6 +244,48 @@ class FhirTranslatorTests {
     }
 
     /**
+     * When the receiver is in test mode, all output HL7 should have processingId = T
+     */
+    @Test
+    fun `test when useHighPrecisionHeaderDateTimeFormat = true`() {
+
+        // set up
+        val schemaName = ORU_R01_SCHEMA
+        val receiver = Receiver(
+            RECEIVER_NAME,
+            ORGANIZATION_NAME,
+            Topic.FULL_ELR,
+            CustomerStatus.TESTING,
+            schemaName,
+            translation = UnitTestUtils.createConfig(
+                useTestProcessingMode = true,
+                schemaName = schemaName,
+                useHighPrecisionHeaderDateTimeFormat = true,
+                convertPositiveDateTimeOffsetToNegative = false
+            )
+        )
+
+        val testOrg = DeepOrganization(
+            ORGANIZATION_NAME, "test", Organization.Jurisdiction.FEDERAL,
+            receivers = listOf(receiver)
+        )
+
+        val settings = FileSettings().loadOrganizations(testOrg)
+
+        val fhirData = File(VALID_DATA_URL).readText()
+        val bundle = FhirTranscoder.decode(fhirData)
+
+        val engine = makeFhirEngine(settings = settings)
+
+        // act
+        val hl7Message = engine.getHL7MessageFromBundle(bundle, receiver)
+        val terser = Terser(hl7Message)
+
+        // assert
+        assertThat(terser.get(MSH_11_1)).isEqualTo("T")
+    }
+
+    /**
      * When the receiver is in active mode but the override boolean is set to true,
      * all output HL7 should have processingId = T
      */
