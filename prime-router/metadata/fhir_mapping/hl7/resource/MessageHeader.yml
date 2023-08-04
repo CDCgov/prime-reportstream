@@ -78,3 +78,18 @@ extension_3:
         system: "http://terminology.hl7.org/CodeSystem/v3-AcknowledgementCondition"
       vars:
         code: MSH.16
+
+extension_4:
+  condition: $msh2 NOT_NULL && $msh2 EQUALS_STRING ^~\&#
+  generateList: true
+  expressionType: nested
+  vars:
+    msh2: String, MSH.2
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: encoding-characters
+    valueString:
+      type: STRING
+      valueOf: MSH.2
+      expressionType: HL7Spec

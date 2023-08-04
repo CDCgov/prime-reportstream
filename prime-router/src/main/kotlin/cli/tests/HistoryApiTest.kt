@@ -9,9 +9,7 @@ import com.github.kittinunf.result.Result
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.HttpUtilities
-import gov.cdc.prime.router.cli.CommandUtilities.Companion.abort
 import gov.cdc.prime.router.cli.FileUtilities
-import gov.cdc.prime.router.cli.OktaCommand
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
 import java.net.HttpURLConnection
@@ -71,28 +69,9 @@ class HistoryApiTest : CoolTest() {
     override val description = "Test the History/Lineage API"
     override val status = TestStatus.SMOKE
 
-    // todo this code was copied from oktaAccessToken in SettingCommands.kt
-    // This is now copied in 3 places:  here, SettingCommands, LookupTableCommands, in 3 different ways.
-    // Best style is the lazy init in SettingCommands.  To factor up we need to pass Environment to
-    // CoolTest constructor.  This is a lotta work.
-    /**
-     * The access token left by a previous login command as specified by the command line parameters
-     */
-    fun getAccessToken(environment: Environment): String {
-        return if (environment.oktaApp == null) {
-            "dummy"
-        } else {
-            OktaCommand.fetchAccessToken(environment.oktaApp)
-                ?: abort(
-                    "Cannot run test $name.  Invalid access token. " +
-                        "Run ./prime login to fetch/refresh a PrimeAdmin access token for the $environment environment."
-                )
-        }
-    }
-
     /**
      * Create some fake history, so we have something to query for.
-     * @return null on failure.  Otherwise returns the list of ReportIds created.
+     * @return null on failure. Otherwise returns the list of ReportIds created.
      */
     private fun submitTestData(environment: Environment, options: CoolTestOptions): Set<ReportId>? {
         val receivers = listOf(csvReceiver)
@@ -175,7 +154,7 @@ class HistoryApiTest : CoolTest() {
      */
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         ugly("Starting $name Test: get submission history ")
-        val bearer = getAccessToken(environment)
+        val bearer = OktaAuthTests.getOktaAccessToken(environment, name)
 
         val reportIds = submitTestData(environment, options)
             ?: return bad("*** $name TEST FAILED:  Unable to submit test data")
