@@ -59,13 +59,13 @@ const valueSetColumnConfig: ColumnConfig[] = [
 
 const toValueSetWithMeta = (
     valueSetArray: ValueSet[] = [],
-    valueSetMeta: LookupTable
+    valueSetMeta: LookupTable,
 ) => valueSetArray.map((valueSet) => ({ ...valueSet, ...valueSetMeta }));
 
 const ValueSetsTable = () => {
     const { valueSetMeta } = useValueSetsMeta();
     const { valueSetArray } = useValueSetsTable<ValueSet[]>(
-        LookupTables.VALUE_SET
+        LookupTables.VALUE_SET,
     );
 
     const tableConfig: TableConfig = {

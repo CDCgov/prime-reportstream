@@ -68,7 +68,7 @@ export interface FileHandlerAction {
 
 type FileHandlerReducer = (
     state: FileHandlerState,
-    action: FileHandlerAction
+    action: FileHandlerAction,
 ) => FileHandlerState;
 
 export const INITIAL_STATE = {
@@ -111,7 +111,7 @@ function getPreSubmitState(): Partial<FileHandlerState> {
 // update state when file is selected in form
 function calculateFileSelectedState(
     state: FileHandlerState,
-    payload: FileSelectedPayload
+    payload: FileSelectedPayload,
 ): Partial<FileHandlerState> {
     const { file, fileContent } = payload;
     try {
@@ -175,7 +175,7 @@ function calculateFileSelectedState(
 // update state when API request is complete
 function calculateRequestCompleteState(
     state: FileHandlerState,
-    payload: RequestCompletePayload
+    payload: RequestCompletePayload,
 ): Partial<FileHandlerState> {
     const {
         response: {
@@ -210,7 +210,7 @@ function calculateRequestCompleteState(
 
 function reducer(
     state: FileHandlerState,
-    action: FileHandlerAction
+    action: FileHandlerAction,
 ): FileHandlerState {
     const { type, payload } = action;
     switch (type) {
@@ -225,13 +225,13 @@ function reducer(
         case FileHandlerActionType.FILE_SELECTED:
             const fileSelectedState = calculateFileSelectedState(
                 state,
-                payload as FileSelectedPayload
+                payload as FileSelectedPayload,
             );
             return { ...state, ...fileSelectedState };
         case FileHandlerActionType.REQUEST_COMPLETE:
             const requestCompleteState = calculateRequestCompleteState(
                 state,
-                payload as RequestCompletePayload
+                payload as RequestCompletePayload,
             );
             return { ...state, ...requestCompleteState };
         case FileHandlerActionType.SCHEMA_SELECTED:
@@ -270,7 +270,7 @@ export type UseFileHandlerHookResult = {
 export default function useFileHandler(): UseFileHandlerHookResult {
     const [state, dispatch] = useReducer<FileHandlerReducer>(
         reducer,
-        getInitialState()
+        getInitialState(),
     );
 
     /* TODO: possible future refactors:

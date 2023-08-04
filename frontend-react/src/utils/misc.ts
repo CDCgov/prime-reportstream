@@ -22,7 +22,7 @@ export const splitOn: {
  *  valid=true, offset: -1, errorMsg: "" - this is to keep typechecking simple for the caller. offset is always a number
  */
 export const checkJson = (
-    jsonTextValue: string
+    jsonTextValue: string,
 ): { valid: boolean; offset: number; errorMsg: string } => {
     try {
         JSON.parse(jsonTextValue);
@@ -75,7 +75,7 @@ export enum VersionWarningType {
  */
 export function getVersionWarning(
     warningType: VersionWarningType,
-    settings: any = null
+    settings: any = null,
 ): string {
     switch (warningType) {
         case VersionWarningType.POPUP:
@@ -120,7 +120,7 @@ export const toHumanReadable = (machineString: string): string => {
     const camelcaseToSpaces = delimitersToSpaces.replace(/([A-Z])/g, " $1");
     const fixCaps = camelcaseToSpaces.replace(
         /(?:\s|^)(\w)/g,
-        (_match: string, capture: string) => ` ${capture.toUpperCase()}`
+        (_match: string, capture: string) => ` ${capture.toUpperCase()}`,
     );
     return fixCaps.trim();
 };
@@ -142,18 +142,21 @@ export const capitalizeFirst = (uncapped: string): string => {
  */
 export const groupBy = <T>(
     array: T[],
-    predicate: (value: T, index: number, array: T[]) => string
+    predicate: (value: T, index: number, array: T[]) => string,
 ) =>
-    array.reduce((acc, value, index, array) => {
-        (acc[predicate(value, index, array)] ||= []).push(value);
-        return acc;
-    }, {} as { [key: string]: T[] });
+    array.reduce(
+        (acc, value, index, array) => {
+            (acc[predicate(value, index, array)] ||= []).push(value);
+            return acc;
+        },
+        {} as { [key: string]: T[] },
+    );
 
 /* Takes a url that contains the 'report/' location and returns
     the folder location, sending org, and filename
 */
 export const parseFileLocation = (
-    urlFileLocation: string
+    urlFileLocation: string,
 ): {
     folderLocation: string;
     sendingOrg: string;

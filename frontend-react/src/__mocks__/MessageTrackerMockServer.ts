@@ -11,7 +11,7 @@ import {
 const { RS_API_URL } = config;
 export const makeMessageDetailsFixture = (
     id: number,
-    overrides?: Partial<RSMessageDetail>
+    overrides?: Partial<RSMessageDetail>,
 ): RSMessageDetail => ({
     id: id || 1,
     messageId: overrides?.messageId || "",

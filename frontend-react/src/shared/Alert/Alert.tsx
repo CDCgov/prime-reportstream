@@ -69,7 +69,7 @@ export const Alert = ({
         {
             [styles["usa-alert--tip"]]: _type === "tip",
         },
-        className
+        className,
     );
 
     // convert "tip" to "info"
@@ -107,5 +107,5 @@ export default Alert;
  * Simplified icon prop for storybook
  */
 export const AlertSimple = (
-    props: Omit<AlertProps, "icon"> & { icon?: IconName }
+    props: Omit<AlertProps, "icon"> & { icon?: IconName },
 ) => <Alert {...props} />;

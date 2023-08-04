@@ -37,7 +37,7 @@ const fetchJsonFromStorage = (storageKey: string) => {
 // TODO: replace all occurrences of this with reads from SessionContext
 export function getStoredOktaToken(): string | undefined {
     const tokenJsonString = localStorage.getItem(
-        GLOBAL_STORAGE_KEYS.OKTA_ACCESS_TOKEN
+        GLOBAL_STORAGE_KEYS.OKTA_ACCESS_TOKEN,
     );
     if (!tokenJsonString) {
         return "";
@@ -92,6 +92,6 @@ export function getSavedFeatureFlags(): string[] {
 export function storeFeatureFlags(flags: string[]) {
     window.localStorage.setItem(
         FEATURE_FLAG_LOCALSTORAGE_KEY,
-        flags.join("\t")
+        flags.join("\t"),
     );
 }

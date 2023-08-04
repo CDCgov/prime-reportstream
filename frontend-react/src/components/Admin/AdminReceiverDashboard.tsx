@@ -312,7 +312,7 @@ class TimeSlots implements IterateTimeSlots {
  * @param dataIn
  */
 const sortStatusData = (
-    dataIn: AdmConnStatusDataType[]
+    dataIn: AdmConnStatusDataType[],
 ): AdmConnStatusDataType[] => {
     // empty case
     if (dataIn.length === 0) {
@@ -366,7 +366,7 @@ function renderAllReceiverRows(props: {
         for (let [daySlotStart, daySlotEnd] of daySlots) {
             const timeSlots = new TimeSlots(
                 [daySlotStart, daySlotEnd],
-                SKIP_HOURS
+                SKIP_HOURS,
             );
             for (let [timeSlotStart, timeSlotEnd] of timeSlots) {
                 const successForSlice = new SuccessRateTracker();
@@ -419,7 +419,7 @@ function renderAllReceiverRows(props: {
                     }
                     currentEntry = props.data[offset];
                     currentDate = new Date(
-                        currentEntry.connectionCheckCompletedAt
+                        currentEntry.connectionCheckCompletedAt,
                     );
                     currentReceiver = `${currentEntry.organizationName}|${currentEntry.receiverName}`;
                 }
@@ -457,10 +457,10 @@ function renderAllReceiverRows(props: {
                                       // get saved offset from "data-offset" attribute on this element
                                       const target = evt.currentTarget;
                                       const sliceStart = parseInt(
-                                          target?.dataset["offset"] || "-1"
+                                          target?.dataset["offset"] || "-1",
                                       );
                                       let sliceEnd = parseInt(
-                                          target?.dataset["offsetEnd"] || "-1"
+                                          target?.dataset["offsetEnd"] || "-1",
                                       );
                                       // sanity check it's within range (should never happen)
                                       if (
@@ -474,7 +474,7 @@ function renderAllReceiverRows(props: {
                                                   : sliceStart;
                                           const subsetData = props.data.slice(
                                               sliceStart,
-                                              sliceEnd
+                                              sliceEnd,
                                           );
                                           props.onClick(subsetData);
                                       }
@@ -482,7 +482,7 @@ function renderAllReceiverRows(props: {
                         }
                     >
                         {" "}
-                    </Grid>
+                    </Grid>,
                 );
                 // </editor-fold>
             } // per-day time slice loop
@@ -501,7 +501,7 @@ function renderAllReceiverRows(props: {
                     <Grid gap={1} row className={"slices-row slices-row-12"}>
                         {sliceElements}
                     </Grid>
-                </GridContainer>
+                </GridContainer>,
             );
             sliceElements = [];
             // </editor-fold>
@@ -514,7 +514,7 @@ function renderAllReceiverRows(props: {
         const combinedName = `${orgName} ${recvrName}`.toLowerCase();
         const successRate = Math.round(
             (100 * successForRow.countSuccess) /
-                (successForRow.countSuccess + successForRow.countFailed)
+                (successForRow.countSuccess + successForRow.countFailed),
         );
         const titleClassName =
             SUCCESS_RATE_CLASSNAME_MAP[successForRow.currentState];
@@ -555,7 +555,7 @@ function renderAllReceiverRows(props: {
                         </Grid>
                     </>
                 </ScrollSyncPane>
-            </Grid>
+            </Grid>,
         );
         perDayElements = [];
         visibleSliceCount = 0;
@@ -634,7 +634,7 @@ function MainRender(props: {
             props.onDetailsClick(dataItems);
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [props.onDetailsClick]
+        [props.onDetailsClick],
     );
     // Example: if we decide to filter data[1], then we filter renderedRows[1]
     // this prevents the expensive row renders when a filter happens
@@ -651,7 +651,7 @@ function MainRender(props: {
             }),
         // memo cannot track date changes correctly, leave them out of deps!
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [data, props.filterErrorText]
+        [data, props.filterErrorText],
     );
 
     if (renderedRows.length === 0) {
@@ -681,7 +681,7 @@ function ModalInfoRender(props: { subData: AdmConnStatusDataType[] }) {
     const duration = (dataItem: AdmConnStatusDataType) => {
         return durationFormatShort(
             new Date(dataItem.connectionCheckCompletedAt),
-            new Date(dataItem.connectionCheckStartedAt)
+            new Date(dataItem.connectionCheckStartedAt),
         );
     };
 
@@ -850,10 +850,10 @@ function DateRangePickingAtomic(props: {
 
 export function AdminReceiverDashboard() {
     const [startDate, setStartDate] = useState<string>(
-        startOfDayIso(initialStartDate())
+        startOfDayIso(initialStartDate()),
     );
     const [endDate, setEndDate] = useState<string>(
-        initialEndDate().toISOString()
+        initialEndDate().toISOString(),
     );
     // this is the text input box filter
     const [filterReceivers, setFilterReceivers] = useState("");
@@ -972,7 +972,7 @@ export function AdminReceiverDashboard() {
                             onChange={(evt) =>
                                 setFilterRowSuccessState(
                                     (evt?.target?.value as SuccessRate) ||
-                                        SuccessRate.UNDEFINED
+                                        SuccessRate.UNDEFINED,
                                 )
                             }
                         >

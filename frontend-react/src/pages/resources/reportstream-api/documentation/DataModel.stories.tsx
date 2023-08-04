@@ -23,13 +23,14 @@ export const Default: ComponentStoryObj<typeof DataModelPage> = {
         mdx: {
             components: {
                 a: USSmartLink,
-                AskOnEntryTable: React.Fragment,
-                OrderAndResultDataElementsTable: React.Fragment,
-                OrderingProviderDataElementsTable: React.Fragment,
-                PatientDataElementsTable: React.Fragment,
-                SpecimenDataElementsTable: React.Fragment,
-                TestingFacilityDataElementsTable: React.Fragment,
-                ReportingAndOrderingFacilityDataElementsTable: React.Fragment,
+                AskOnEntryTable: React.Component<any>,
+                OrderAndResultDataElementsTable: React.Component<any>,
+                OrderingProviderDataElementsTable: React.Component<any>,
+                PatientDataElementsTable: React.Component<any>,
+                SpecimenDataElementsTable: React.Component<any>,
+                TestingFacilityDataElementsTable: React.Component<any>,
+                ReportingAndOrderingFacilityDataElementsTable:
+                    React.Component<any>,
             },
         },
     },
