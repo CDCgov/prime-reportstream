@@ -1,33 +1,47 @@
-constants:
-  alternateIdentifierExtension: '%resource.extension(%`rsext-alternate-identifier`)'
-  originalTextExtension: '%alternateIdentifierExtension.value.coding.extension(%`rsext-original-text`)'
 elements:
-  - name: coded-element
-    constants:
-      ceFieldPath: '%{cweFieldPath}'
-    schema: ce-coded-element
-
-  - name: coding-system-version-id
-    condition: '%versionId.exists() and %resource.exists()'
-    value: [ '%versionId' ]
-    hl7Spec: [ '%{cweFieldPath}-7' ]
-
-  - name: coding-system-version-id-extension
-    resource: '%resource.extension(%`rsext-alternate-identifier`).value.coding.version'
-    value: [ '%resource' ]
-    hl7Spec: [ '%{cweFieldPath}-7' ]
-
-  - name: coding-system-alternate-version-id
-    resource: '%resource.extension(%`rsext-alternate-identifier`).value.coding.extension(%`rsext-alternate-version`)'
+  - name: identifier-code
+    value: [ '%resource.coding[0].code' ]
+    hl7Spec: [ '%{cweFieldPath}-1' ]
+  - name: identifier-display
+    value: [ '%resource.coding[0].display' ]
+    hl7Spec: [ '%{cweFieldPath}-2' ]
+  - name: identifier-system-url
+    resource: '%resource.coding[0].system'
+    condition: '%resource.value.startsWith("http")'
+    value: [ '%resource.getCodingSystemMapping()' ]
+    hl7Spec: [ '%{cweFieldPath}-3' ]
+  - name: identifier-system
+    resource: '%resource.coding[0].system'
+    condition: '%resource.value.startsWith("http").not()'
     value: [ '%resource.value' ]
+    hl7Spec: [ '%{cweFieldPath}-3' ]
+  - name: identifier-version
+    value: [ '%resource.coding[0].version' ]
+    hl7Spec: [ '%{cweFieldPath}-7' ]
+
+  - name: alt-identifier-code
+    value: [ '%resource.coding[1].code' ]
+    hl7Spec: [ '%{cweFieldPath}-4' ]
+  - name: alt-identifier-display
+    value: [ '%resource.coding[1].display' ]
+    hl7Spec: [ '%{cweFieldPath}-5' ]
+  - name: alt-identifier-system
+    value: [ '%resource.coding[1].system' ]
+    hl7Spec: [ '%{cweFieldPath}-6' ]
+  - name: alt-identifier-system-url
+    resource: '%resource.coding[1].system'
+    condition: '%resource.value.startsWith("http")'
+    value: [ '%resource.getCodingSystemMapping()' ]
+    hl7Spec: [ '%{cweFieldPath}-6' ]
+  - name: alt-identifier-system
+    resource: '%resource.coding[1].system'
+    condition: '%resource.value.startsWith("http").not()'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{cweFieldPath}-6' ]
+  - name: alt-identifier-version
+    value: [ '%resource.coding[1].version' ]
     hl7Spec: [ '%{cweFieldPath}-8' ]
 
   - name: original-text
-    condition: '%alternateIdentifierExtension.exists() and %originalTextExtension.exists()'
-    value: [ '%originalTextExtension.value' ]
-    hl7Spec: [ '%{cweFieldPath}-9' ]
-
-  - name: original-text-from-display
-    condition: '%alternateIdentifierExtension.exists().not() and %originalTextExtension.exists().not()'
-    value: [ '%resource.coding.display' ]
+    value: [ '%resource.text' ]
     hl7Spec: [ '%{cweFieldPath}-9' ]

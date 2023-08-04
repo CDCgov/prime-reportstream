@@ -26,8 +26,10 @@ export function ReportDetails() {
 
     return (
         <div className={styles.ReportDetails}>
-            <GridContainer className="rs-max-width-100-important">
+            <header className="usa-header usa-header--extended padding-left-4 padding-top-4 margin-top-neg-5">
                 <Crumbs {...crumbProps}></Crumbs>
+            </header>
+            <GridContainer className="rs-max-width-100-important">
                 <article>
                     <ReportDetailsSummary report={reportDetail} />
                     {withCatchAndSuspense(

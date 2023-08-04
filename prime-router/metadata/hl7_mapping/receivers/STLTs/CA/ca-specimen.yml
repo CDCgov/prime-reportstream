@@ -37,6 +37,21 @@ elements:
     value: [ '%resource.name.substring(0,20)' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-2-2-2' ]
 
+  - name: ca-specimen-type-display
+    condition: '%resource.type.exists() and %resource.type.coding[0].display.exists().not()'
+    value: [ '%resource.type.text' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-4-2' ]
+
+  - name: ca-specimen-type-text
+    condition: '%resource.type.exists() and %resource.type.coding[0].display.exists().not()'
+    value: [ "" ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-4-9' ]
+
+  - name: ca-specimen-type-version
+    condition: '%resource.type.exists() and %resource.type.coding[0].version.exists().not()'
+    value: [ '2.67' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-4-7' ]
+
   - name: ca-specimen-collection-time
     condition: '%resource.collection.collected is dateTime'
     value: [ '%resource.collection.collected.changeTimezone(%timezone)' ]
