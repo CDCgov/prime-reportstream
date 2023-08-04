@@ -30,7 +30,7 @@ runs:
       with:
         node-version-file: "frontend-react/package.json"
 
-    - run: yarn install --ignore-platform
+    - run: yarn install
       working-directory: frontend-react
       shell: bash
 
@@ -56,14 +56,14 @@ runs:
         yarn test:ci
         yarn build:$ENV
       shell: bash
-      
+
     - name: Set up JDK 11 to generate backend coverage stats
       uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2
       if: github.actor != 'dependabot[bot]'
       with:
-        java-version: '11'
-        distribution: 'adopt'
-        cache: 'gradle'
+        java-version: "11"
+        distribution: "adopt"
+        cache: "gradle"
 
     - uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
       if: github.actor != 'dependabot[bot]'
