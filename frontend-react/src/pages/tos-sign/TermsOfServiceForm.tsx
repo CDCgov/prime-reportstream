@@ -258,7 +258,7 @@ function TermsOfServiceForm() {
                                 value={title}
                                 maxLength={255}
                                 onChange={(
-                                    e: React.ChangeEvent<HTMLInputElement>
+                                    e: React.ChangeEvent<HTMLInputElement>,
                                 ) => setTitle(e.target.value)}
                             />
                         </FormGroup>
@@ -275,7 +275,7 @@ function TermsOfServiceForm() {
                                 value={firstName}
                                 maxLength={255}
                                 onChange={(
-                                    e: React.ChangeEvent<HTMLInputElement>
+                                    e: React.ChangeEvent<HTMLInputElement>,
                                 ) => setFirstName(e.target.value)}
                             />
                             <ErrorMessageWithFlag
@@ -296,7 +296,7 @@ function TermsOfServiceForm() {
                                 value={lastName}
                                 maxLength={255}
                                 onChange={(
-                                    e: React.ChangeEvent<HTMLInputElement>
+                                    e: React.ChangeEvent<HTMLInputElement>,
                                 ) => setLastName(e.target.value)}
                             />
                             <ErrorMessageWithFlag
@@ -317,7 +317,7 @@ function TermsOfServiceForm() {
                                 value={email}
                                 maxLength={255}
                                 onChange={(
-                                    e: React.ChangeEvent<HTMLInputElement>
+                                    e: React.ChangeEvent<HTMLInputElement>,
                                 ) => setEmail(e.target.value)}
                             />
                             <ErrorMessageWithFlag
@@ -344,7 +344,7 @@ function TermsOfServiceForm() {
                                 value={organizationName}
                                 maxLength={255}
                                 onChange={(
-                                    e: React.ChangeEvent<HTMLInputElement>
+                                    e: React.ChangeEvent<HTMLInputElement>,
                                 ) => setOrganizationName(e.target.value)}
                             />
                             <ErrorMessageWithFlag
@@ -362,7 +362,7 @@ function TermsOfServiceForm() {
                                 name="states-dropdown"
                                 value={territory}
                                 onChange={(
-                                    e: React.ChangeEvent<HTMLSelectElement>
+                                    e: React.ChangeEvent<HTMLSelectElement>,
                                 ) => setTerritory(e.target.value)}
                             >
                                 {STATES.map((state) => {
@@ -389,7 +389,7 @@ function TermsOfServiceForm() {
                             name="multi-state"
                             label="My organization operates in multiple states"
                             onChange={(
-                                e: React.ChangeEvent<HTMLInputElement>
+                                e: React.ChangeEvent<HTMLInputElement>,
                             ) => setMultipleStates(e.target.checked)}
                         />
                     </fieldset>
@@ -403,7 +403,7 @@ function TermsOfServiceForm() {
                                 data-testid="agree"
                                 name="agree"
                                 onChange={(
-                                    e: React.ChangeEvent<HTMLInputElement>
+                                    e: React.ChangeEvent<HTMLInputElement>,
                                 ) => setAgree(e.target.checked)}
                                 label={<AgreementLabel />}
                             />

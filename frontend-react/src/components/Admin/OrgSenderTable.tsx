@@ -15,7 +15,7 @@ interface OrgSettingsTableProps {
 export function OrgSenderTable(props: OrgSettingsTableProps) {
     const orgSenderSettings: OrgSenderSettingsResource[] = useResource(
         OrgSenderSettingsResource.list(),
-        { orgname: props.orgname }
+        { orgname: props.orgname },
     );
 
     return (

@@ -165,7 +165,7 @@ export const CsvSchemaDocumentation = () => {
                                                 </USLink>
                                             </li>
                                         );
-                                    }
+                                    },
                                 )}
                             </div>
                         );

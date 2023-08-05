@@ -25,7 +25,7 @@ const enumPropMap = {
 };
 
 const testScenarios = Object.entries(enumProps).map(([key, valueList]) =>
-    valueList.map((v) => [key, v, enumPropMap[key as keyof typeof enumProps]])
+    valueList.map((v) => [key, v, enumPropMap[key as keyof typeof enumProps]]),
 );
 
 const routeUrls = [
@@ -44,9 +44,11 @@ const routeUrlsMap = {
     [`${window.location.origin}`]: `/`,
 };
 
+const mailToLink = "mailto:someone@abc.com";
+
 const nonRouteUrls = [
     undefined,
-    "mailto:someone@abc.com",
+    mailToLink,
     "https://www.google.com",
     "http://www.google.com",
     "//www.google.com",
@@ -88,7 +90,7 @@ describe("USLink", () => {
         renderApp(
             <USLink href={"/some/url"} className={"my-custom-class"}>
                 My Link
-            </USLink>
+            </USLink>,
         );
         const link = screen.getByRole("link");
         expect(link).toHaveClass("usa-link");
@@ -130,7 +132,7 @@ describe("USLinkButton", () => {
         renderApp(
             <USLinkButton href="#" secondary base outline inverse unstyled>
                 Test
-            </USLinkButton>
+            </USLinkButton>,
         );
         expect(screen.getByRole("link")).toHaveClass(
             "usa-button",
@@ -138,7 +140,7 @@ describe("USLinkButton", () => {
             "usa-button--base",
             "usa-button--outline",
             "usa-button--inverse",
-            "usa-button--unstyled"
+            "usa-button--unstyled",
         );
     });
 
@@ -152,13 +154,13 @@ describe("USLinkButton", () => {
             renderApp(
                 <USLinkButton {...prop} href="#">
                     Test
-                </USLinkButton>
+                </USLinkButton>,
             );
             expect(screen.getByRole("link")).toHaveClass(
                 "usa-button",
-                className
+                className,
             );
-        }
+        },
     );
 });
 
@@ -166,6 +168,7 @@ const externalUrls = [
     "https://www.google.com",
     "//www.google.com",
     "//google.com",
+    mailToLink,
 ];
 
 const internalUrls = [
@@ -173,7 +176,6 @@ const internalUrls = [
     "",
     "/login",
     "#",
-    "mailto:",
     "login",
     "https://reportstream.cdc.gov/login",
     "https://www.cdc.gov",
@@ -202,7 +204,7 @@ describe("USSmartLink", () => {
     test.each(internalUrls)("'%s' returns internal link", (url) => {
         const view = renderApp(<USSmartLink href={url}>Test</USSmartLink>);
         expect(view.container.children[0]).not.toHaveClass(
-            "usa-link--external"
+            "usa-link--external",
         );
     });
 });

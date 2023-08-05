@@ -35,7 +35,7 @@ export const FORMAT_TO_CONTENT_TYPE = {
 
 /** Uploads a file to ReportStream */
 export const useWatersUploader = (
-    callback?: (data?: WatersResponse) => void
+    callback?: (data?: WatersResponse) => void,
 ) => {
     const { authorizedFetch } = useAuthorizedFetch<WatersResponse>();
 

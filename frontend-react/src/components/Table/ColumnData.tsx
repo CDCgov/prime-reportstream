@@ -17,7 +17,7 @@ export interface ColumnProps {
 
 const showMappedFieldValue = (
     columnConfig: ColumnConfig,
-    rowData: TableRowData
+    rowData: TableRowData,
 ) => {
     const rawFieldValue = rowData[columnConfig.dataAttr];
     if (columnConfig.valueMap) {
@@ -46,7 +46,7 @@ export const ColumnData = ({
     // Easy-to-read way to transform value
     const transform = (
         transformFunc: Function,
-        transformVal: string | number
+        transformVal: string | number,
     ) => {
         return transformFunc(transformVal);
     };
@@ -85,7 +85,7 @@ export const ColumnData = ({
                 {columnConfig.valueMap
                     ? showMappedFieldValue(columnConfig, rowData)
                     : displayValue}
-            </USLink>
+            </USLink>,
         );
     }
 
@@ -124,7 +124,7 @@ export const ColumnData = ({
                 ) : (
                     <div>{displayValue}</div>
                 )}
-            </>
+            </>,
         );
     }
 
@@ -141,7 +141,7 @@ export const ColumnData = ({
                  * the same as the server-provided data, NOT the
                  * displayed data (in case of transformation/map) */
                 defaultValue={displayValue}
-            />
+            />,
         );
     }
 

@@ -29,7 +29,7 @@ describe("ConfirmDialog", () => {
                     id={id}
                     onConfirm={confirmCallback}
                 ></ModalConfirmDialog>
-            </div>
+            </div>,
         );
 
         // should NOT be visible before we call showModal()

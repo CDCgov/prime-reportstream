@@ -55,7 +55,7 @@ export const ErrorNoPage = () => {
                                             outline
                                             onClick={() =>
                                                 window.open(
-                                                    `mailto:${site.orgs.RS.email}`
+                                                    `mailto:${site.orgs.RS.email}`,
                                                 )
                                             }
                                         >

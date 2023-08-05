@@ -26,10 +26,10 @@ jest.mock("../TelemetryService", () => ({
 
 function createSampleRecords(
     numRecords: number,
-    startCursor = 1
+    startCursor = 1,
 ): SampleRecord[] {
     return range(startCursor, startCursor + numRecords).map(
-        (c) => ({ cursor: c.toString() } as SampleRecord)
+        (c) => ({ cursor: c.toString() }) as SampleRecord,
     );
 }
 
@@ -422,7 +422,7 @@ describe("usePagination", () => {
                 usePagination<SampleRecord>(props),
             {
                 initialProps,
-            }
+            },
         );
     }
 
@@ -456,14 +456,14 @@ describe("usePagination", () => {
         // The request on the first page should check for the presence of up to
         // seven pages.
         await waitFor(() =>
-            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61)
+            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61),
         );
         expect(result.current.paginationProps?.currentPageNum).toBe(1);
         expect(result.current.paginationProps?.slots).toStrictEqual([
             1, 2, 3, 4,
         ]);
         expect(result.current.currentPageResults).toStrictEqual(
-            results.slice(0, 10)
+            results.slice(0, 10),
         );
     });
 
@@ -482,7 +482,7 @@ describe("usePagination", () => {
             extractCursor,
         });
         await waitFor(() =>
-            expect(result.current.paginationProps).toBeDefined()
+            expect(result.current.paginationProps).toBeDefined(),
         );
         act(() => {
             result.current.paginationProps?.setSelectedPage(6);
@@ -502,8 +502,8 @@ describe("usePagination", () => {
 
         await waitFor(() =>
             expect(
-                result.current.paginationProps?.currentPageNum
-            ).toBeGreaterThan(1)
+                result.current.paginationProps?.currentPageNum,
+            ).toBeGreaterThan(1),
         );
         expect(mockFetchResults).toHaveBeenLastCalledWith("60", 21);
         expect(result.current.paginationProps?.currentPageNum).toBe(6);
@@ -522,7 +522,7 @@ describe("usePagination", () => {
         // fetch was needed to extend the pagination, not get the results for
         // the current page.
         expect(result.current.currentPageResults).toStrictEqual(
-            results1.slice(50, 60)
+            results1.slice(50, 60),
         );
     });
 
@@ -542,7 +542,7 @@ describe("usePagination", () => {
         // Wait for the fetch promise to resolve, then check the slots and move
         // to the next page.
         await waitFor(() =>
-            expect(result.current.paginationProps).toBeDefined()
+            expect(result.current.paginationProps).toBeDefined(),
         );
         expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
         expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
@@ -562,7 +562,7 @@ describe("usePagination", () => {
             extractCursor,
         });
         await waitFor(() =>
-            expect(result.current.paginationProps).toBeDefined()
+            expect(result.current.paginationProps).toBeDefined(),
         );
         // After a reset, the fetch count should reflect an initial request,
         // which needs to check for the presence of up to five pages.
@@ -589,7 +589,7 @@ describe("usePagination", () => {
 
         // Set the results and move to the second page.
         await waitFor(() =>
-            expect(result.current.paginationProps).toBeDefined()
+            expect(result.current.paginationProps).toBeDefined(),
         );
         act(() => {
             result.current.paginationProps?.setSelectedPage(2);
@@ -604,7 +604,9 @@ describe("usePagination", () => {
             fetchResults: mockFetchResults2,
         });
         await waitFor(() =>
-            expect(result.current.paginationProps?.currentPageNum).toBeDefined()
+            expect(
+                result.current.paginationProps?.currentPageNum,
+            ).toBeDefined(),
         );
         // The initial request should check for the presence of up to five pages.
         expect(mockFetchResults2).toHaveBeenLastCalledWith("1", 61);
@@ -628,7 +630,7 @@ describe("usePagination", () => {
         // Wait for the fetch promise to resolve, then check the slots and move
         // to the next page.
         await waitFor(() =>
-            expect(result.current.paginationProps).toBeDefined()
+            expect(result.current.paginationProps).toBeDefined(),
         );
         expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
         expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);

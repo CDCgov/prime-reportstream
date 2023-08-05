@@ -106,10 +106,10 @@ describe("useOktaMemberships", () => {
                 "NotYourStandardGroup",
             ]);
             const { result } = renderHook(() =>
-                useOktaMemberships(fakeAuthState)
+                useOktaMemberships(fakeAuthState),
             );
             expect(result.current.state.activeMembership?.memberType).toEqual(
-                "non-standard"
+                "non-standard",
             );
         });
     });
@@ -139,7 +139,7 @@ describe("useOktaMemberships", () => {
             };
             const fakeAuthState = fakeAuthStateForOrgs(["DHmy-organization"]);
             const { result } = renderHook(() =>
-                useOktaMemberships(fakeAuthState)
+                useOktaMemberships(fakeAuthState),
             );
             expect(result.current.state.activeMembership).toEqual({
                 parsedName: "my-organization",
@@ -149,18 +149,18 @@ describe("useOktaMemberships", () => {
                 result.current.dispatch({
                     type: MembershipActionType.ADMIN_OVERRIDE,
                     payload: newActive,
-                })
+                }),
             );
             expect(result.current.state.activeMembership).toEqual(newActive);
             expect(mockStoreOrganizationOverride).toHaveBeenCalledWith(
-                JSON.stringify(newActive)
+                JSON.stringify(newActive),
             );
         });
 
         test("can be reset", () => {
             const fakeAuthState = fakeAuthStateForOrgs(["DHmy-organization"]);
             const { result } = renderHook(() =>
-                useOktaMemberships(fakeAuthState)
+                useOktaMemberships(fakeAuthState),
             );
             expect(result.current.state.activeMembership).toEqual({
                 parsedName: "my-organization",
@@ -171,7 +171,7 @@ describe("useOktaMemberships", () => {
             act(() =>
                 result.current.dispatch({
                     type: MembershipActionType.RESET,
-                })
+                }),
             );
             expect(result.current.state).toEqual({
                 memberships: undefined,
@@ -226,7 +226,7 @@ describe("helper functions", () => {
                         sub: "",
                         organization: [],
                     },
-                })
+                }),
             );
             expect(state).toEqual({
                 activeMembership: null,
@@ -239,7 +239,7 @@ describe("helper functions", () => {
                         sub: "",
                         organization: ["DHmy-organization"],
                     },
-                })
+                }),
             );
             expect(state).toEqual({
                 activeMembership: {
@@ -259,7 +259,7 @@ describe("helper functions", () => {
                             "DHmy-other-organization",
                         ],
                     },
-                })
+                }),
             );
             expect(state).toEqual({
                 activeMembership: {
@@ -276,7 +276,7 @@ describe("helper functions", () => {
                         sub: "",
                         organization: ["DHmy-organization", "DHPrimeAdmins"],
                     },
-                })
+                }),
             );
             expect(state).toEqual({
                 activeMembership: {
@@ -335,7 +335,7 @@ describe("helper functions", () => {
                             organization: ["DHmy-organization"],
                         },
                     }),
-                }
+                },
             );
             expect(mockStoreSessionMembershipState).toHaveBeenCalledWith(
                 JSON.stringify({
@@ -344,7 +344,7 @@ describe("helper functions", () => {
                         memberType: MemberType.RECEIVER,
                     },
                     initialized: true,
-                })
+                }),
             );
             membershipReducer(
                 {
@@ -355,12 +355,12 @@ describe("helper functions", () => {
                 },
                 {
                     type: MembershipActionType.RESET,
-                }
+                },
             );
             expect(mockStoreSessionMembershipState).toHaveBeenCalledWith(
                 JSON.stringify({
                     activeMembership: null,
-                })
+                }),
             );
         });
     });
