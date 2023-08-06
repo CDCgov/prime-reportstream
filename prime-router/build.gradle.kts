@@ -801,7 +801,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
-    implementation("org.yaml:snakeyaml:2.0")
+    implementation("org.yaml:snakeyaml:2.1")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.4.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
