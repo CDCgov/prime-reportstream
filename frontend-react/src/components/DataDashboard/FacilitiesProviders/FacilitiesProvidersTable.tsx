@@ -150,7 +150,7 @@ function FacilitiesProvidersFilterAndTable({
                         }}
                         slots={getSlots(
                             currentPageNum,
-                            results?.meta.totalPages
+                            results?.meta.totalPages,
                         )}
                     />
                 )}

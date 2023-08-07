@@ -42,7 +42,7 @@ function mapStateToOrderedSteps(state: FileHandlerState) {
             Component: FileHandlerErrorsWarningsStep,
             isValid: false,
             shouldSkip: Boolean(
-                overallStatus && errors.length === 0 && warnings.length === 0
+                overallStatus && errors.length === 0 && warnings.length === 0,
             ),
         },
         {
@@ -56,7 +56,7 @@ export default function FileHandler() {
     const { state, dispatch } = useFileHandler();
     const { fileName, localError } = state;
     const orderedSteps = mapStateToOrderedSteps(state).filter(
-        (step) => !step.shouldSkip
+        (step) => !step.shouldSkip,
     );
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const {
@@ -112,7 +112,7 @@ export default function FileHandler() {
         });
 
         const fileSelectionStepIndex = orderedSteps.findIndex(
-            ({ Component }) => Component === FileHandlerFileUploadStep
+            ({ Component }) => Component === FileHandlerFileUploadStep,
         );
         setCurrentStepIndex(fileSelectionStepIndex);
         window.scrollTo(0, 0);

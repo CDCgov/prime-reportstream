@@ -26,7 +26,7 @@ interface RangeFilter {
 
 const rangeReducer = (
     state: RangeSettings,
-    action: RangeSettingsAction
+    action: RangeSettingsAction,
 ): RangeSettings => {
     const { type, payload } = action;
     switch (type) {

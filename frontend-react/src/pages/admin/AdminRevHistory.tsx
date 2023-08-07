@@ -20,7 +20,7 @@ import { StaticCompare } from "../../components/StaticCompare";
 type AccordionClickHandler = (
     key: string,
     itemClickedKey: string,
-    data: SettingRevision
+    data: SettingRevision,
 ) => void;
 
 /**
@@ -40,7 +40,9 @@ const dataToAccordionItems = (props: {
 
     // should come back sorted by name and version from server. Sort by name, then by version
     props.data.sort((a, b) =>
-        a.name === b.name ? a.version - b.version : a.name.localeCompare(b.name)
+        a.name === b.name
+            ? a.version - b.version
+            : a.name.localeCompare(b.name),
     );
 
     // group the data to make generating the prop content logic easier to follow
@@ -171,7 +173,7 @@ const AdminRevHistory = () => {
                     break;
             }
         },
-        []
+        [],
     );
 
     return (

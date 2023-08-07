@@ -21,7 +21,7 @@ describe("MainLayout", () => {
         renderApp(
             <MainLayout>
                 <ErroringComponent />
-            </MainLayout>
+            </MainLayout>,
         );
         expect(screen.getByRole("main")).toBeInTheDocument();
         expect(screen.getByRole("alert")).toBeInTheDocument();

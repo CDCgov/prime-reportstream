@@ -48,7 +48,7 @@ describe("SubmissionTable", () => {
         renderApp(<SubmissionTable />, { restHookFixtures: fixtures });
 
         const pagination = await screen.findByLabelText(
-            /submissions pagination/i
+            /submissions pagination/i,
         );
         expect(pagination).toBeInTheDocument();
 
@@ -84,11 +84,11 @@ describe("SubmissionTable", () => {
         test("renders a warning about not being able to request submission history", async () => {
             expect(
                 await screen.findByText(
-                    "Cannot fetch Organization data as admin"
-                )
+                    "Cannot fetch Organization data as admin",
+                ),
             ).toBeVisible();
             expect(
-                await screen.findByText("Please try again as an Organization")
+                await screen.findByText("Please try again as an Organization"),
             ).toBeVisible();
         });
     });

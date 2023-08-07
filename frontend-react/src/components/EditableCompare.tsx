@@ -50,7 +50,7 @@ export const EditableCompare = forwardRef(
     // allows for functions on components (useImperativeHandle)
     (
         { jsonDiffMode, modified, onChange, original }: EditableCompareProps,
-        ref: Ref<EditableCompareRef>
+        ref: Ref<EditableCompareRef>,
     ): ReactElement => {
         // useRefs are used to access html elements directly (instead of document.getElementById)
         const staticDiffRef = useRef<HTMLDivElement>(null);
@@ -94,7 +94,7 @@ export const EditableCompare = forwardRef(
                 const result = jsonDiffMode
                     ? jsonDifferMarkup(
                           JSON.parse(originalText),
-                          JSON.parse(modifiedText)
+                          JSON.parse(modifiedText),
                       )
                     : textDifferMarkup(originalText, modifiedText);
 
@@ -112,7 +112,7 @@ export const EditableCompare = forwardRef(
                 leftHandSideHighlightHtml,
                 rightHandSideHighlightHtml,
                 jsonDiffMode,
-            ]
+            ],
         );
 
         // force an update of the content
@@ -126,7 +126,7 @@ export const EditableCompare = forwardRef(
                     formattedText = JSON.stringify(
                         JSON.parse(formattedText),
                         null,
-                        2
+                        2,
                     );
                     setTextAreaContent(formattedText);
                 } else {
@@ -138,7 +138,7 @@ export const EditableCompare = forwardRef(
 
                 return valid;
             },
-            [original, textAreaContent, refreshDiffCallback]
+            [original, textAreaContent, refreshDiffCallback],
         );
 
         const onChangeHandler = useCallback(
@@ -148,7 +148,7 @@ export const EditableCompare = forwardRef(
                 setRightHandSideHighlightHtml("");
                 onChange(newText, checkJson(newText).valid);
             },
-            [setTextAreaContent, setRightHandSideHighlightHtml, onChange]
+            [setTextAreaContent, setRightHandSideHighlightHtml, onChange],
         );
 
         useImperativeHandle(
@@ -165,7 +165,7 @@ export const EditableCompare = forwardRef(
                     return isValidSyntax;
                 },
             }),
-            [textAreaContent, original, isValidSyntax, refreshEditedText]
+            [textAreaContent, original, isValidSyntax, refreshEditedText],
         );
 
         useEffect(() => {
@@ -196,7 +196,7 @@ export const EditableCompare = forwardRef(
                                 className="rs-editable-compare-base rs-editable-compare-background"
                                 dangerouslySetInnerHTML={{
                                     __html: DOMPurify.sanitize(
-                                        leftHandSideHighlightHtml
+                                        leftHandSideHighlightHtml,
                                     ),
                                 }}
                             />
@@ -224,7 +224,7 @@ export const EditableCompare = forwardRef(
                                     // the extra `<br/>` is required for some odd reason.
                                     // It's in the shadowdom of the textarea.
                                     __html: `${DOMPurify.sanitize(
-                                        rightHandSideHighlightHtml
+                                        rightHandSideHighlightHtml,
                                     )}<br/>`,
                                 }}
                             />
@@ -233,5 +233,5 @@ export const EditableCompare = forwardRef(
                 </div>
             </ScrollSync>
         );
-    }
+    },
 );

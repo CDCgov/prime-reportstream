@@ -10,7 +10,7 @@ describe("Alert", () => {
         renderApp(
             <Alert type="info" heading="Heading Test">
                 Test
-            </Alert>
+            </Alert>,
         );
         const alert = screen.getByTestId("alert");
         const body = screen.getByText("Test");
@@ -35,14 +35,14 @@ describe("Alert", () => {
         (type) => {
             renderApp(<Alert type={type}>Test</Alert>);
             expect(screen.getByRole(getAriaRole(type))).toBeInTheDocument();
-        }
+        },
     );
 
     test("renders with headingLevel", () => {
         renderApp(
             <Alert type="info" headingLevel="h2" heading="Heading Test">
                 Test
-            </Alert>
+            </Alert>,
         );
         const heading = screen.getByRole("heading");
         expect(heading).toBeInTheDocument();
