@@ -2,8 +2,15 @@ package gov.cdc.prime.router.cli
 
 import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.fhirpath.FhirPathExecutionException
+import ca.uhn.hl7v2.HL7Exception
+import ca.uhn.hl7v2.model.Composite
+import ca.uhn.hl7v2.model.Group
 import ca.uhn.hl7v2.model.Message
+import ca.uhn.hl7v2.model.Primitive
 import ca.uhn.hl7v2.model.Segment
+import ca.uhn.hl7v2.model.Structure
+import ca.uhn.hl7v2.model.Type
+import ca.uhn.hl7v2.model.Varies
 import ca.uhn.hl7v2.util.Terser
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.CliktError
@@ -27,6 +34,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import org.apache.commons.lang3.StringUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Extension
@@ -92,11 +100,131 @@ class ProcessFhirCommands : CliktCommand(
             // HL7 to FHIR to HL7 conversion
             inputFileType == "HL7" && outputFormat == Report.Format.HL7.toString() -> {
                 val bundle = convertToFhir(contents, actionLogger)
-                outputResult(convertToHl7(FhirTranscoder.encode(bundle)))
+                val messages = HL7Reader(actionLogger).getMessages(contents)
+                val outmessage = convertToHl7(FhirTranscoder.encode(bundle))
+//                outputResult(outmessage)
+                diffHl7(messages[0], outmessage)
             }
 
             else -> throw CliktError("File extension ${inputFile.extension} is not supported.")
         }
+    }
+
+    data class Hl7Diff(val segmentIndex: String, val issue: String) {
+        override fun toString(): String {
+            return "Difference between messages at $segmentIndex: $issue"
+        }
+    }
+
+    private fun diffHl7(input: Message, output: Message) {
+        val inputMap: MutableMap<String, Segment> = mutableMapOf()
+        val outputMap: MutableMap<String, Segment> = mutableMapOf()
+        val differences: MutableList<Hl7Diff> = mutableListOf()
+
+        fun indexStructure(structure: Structure, index: String, map: MutableMap<String, Segment>) {
+           when(structure) {
+               is Group -> {
+                   val childrenNames = structure.names.filter { cname -> structure.getAll(cname).isNotEmpty() }
+                   val children = childrenNames.map { structure.getAll(it) }
+                   children.forEach{ childrenOfType ->
+                       childrenOfType.forEachIndexed{i, child ->
+                           indexStructure(child, "$index-${i+1}", map)
+                   }}
+               }
+               is Segment -> {
+                   map["$index-${structure.name}"] = structure
+               }
+           }
+        }
+
+        val inputNames = input.names
+        inputNames.filter{name -> input.getAll(name).isNotEmpty() }.forEach { iname ->
+            val children = input.getAll(iname)
+            children.forEachIndexed { index,c ->
+               indexStructure(c, (index+1).toString(), inputMap)
+
+            }
+        }
+        val outputNames = output.names
+        outputNames.filter{name -> output.getAll(name).isNotEmpty() }.forEach { iname ->
+            val children = output.getAll(iname)
+            children.forEachIndexed { index,c ->
+                indexStructure(c, (index+1).toString(), outputMap)
+
+            }
+        }
+
+        fun compareHl7Type( segmentIndex: String, input: Type, output: Type): Boolean {
+            return when {
+                input is Primitive && output is Primitive && !StringUtils.equals(input.value, output.value) -> {
+                    echo("$segmentIndex did not match on $input, $output")
+                    false
+                }
+                input is Varies && output is Varies -> compareHl7Type(segmentIndex, input.data, output.data)
+                input is Composite && output is Composite -> {
+                    val inputComponents = input.components.filter { !it.isEmpty }
+                    val outputComponents = output.components.filter { !it.isEmpty }
+                    if(inputComponents.size !=  outputComponents.size){
+                        return false
+                    } else {
+                        var matches = true
+                        inputComponents.zip(outputComponents).forEach{(i,o)->
+                            matches = compareHl7Type(segmentIndex, i , o)
+                        }
+                        return  matches
+                    }
+                }
+                else -> {
+                    true
+                }
+            }
+        }
+
+        inputMap.forEach { (segmentIndex, segment) ->
+            val outputSegment = outputMap[segmentIndex]
+            if(outputSegment == null) {
+                differences.add(Hl7Diff(segmentIndex, "Output missing segment"))
+                return@forEach
+            } else {
+                for(i in 1 .. segment.numFields()) {
+                    val inputFields = segment.getField(i)
+                    val outputFields = try {
+                        outputSegment.getField(i)
+                    } catch(ex: HL7Exception) {
+                        differences.add(
+                            Hl7Diff(
+                                segmentIndex,
+                                "Fields did not match, output was missing $segmentIndex.$i"
+                            )
+                        )
+                        continue
+                    }
+                    inputFields.forEachIndexed { index, input ->
+                        try {
+                            val outputField = outputFields[index]
+                            val matches = compareHl7Type(segmentIndex, input, outputField)
+                            if (!matches) {
+                                differences.add(
+                                    Hl7Diff(segmentIndex, "Field did not match at $segmentIndex.$i.$index")
+                                )
+                            }
+                        } catch (ex: IndexOutOfBoundsException) {
+                            differences.add(
+                                Hl7Diff(
+                                    segmentIndex,
+                                    "Input had more repeating types for ${input.name}"
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        echo("-------diff output")
+        echo("There were ${differences.size} differences between the input and output")
+        differences.forEach{echo(it)}
+
     }
 
     /**
