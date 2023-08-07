@@ -11,7 +11,7 @@
         "@okta/okta-react": "^6.7.0",
         "@okta/okta-signin-widget": "^7.8.1",
         "@rest-hooks/rest": "^3.0.3",
-        "@tanstack/react-query": "^4.20.9",
+        "@tanstack/react-query": "^4.32.6",
         "@tanstack/react-query-devtools": "^4.20.9",
         "@trussworks/react-uswds": "^5.1.1",
         "@uswds/uswds": "3.4.1",
@@ -159,18 +159,18 @@
         "cypress-localstorage-commands": "^2.2.3",
         "cypress-plugin-tab": "^1.0.5",
         "eslint": "^8.44.0",
-        "eslint-config-prettier": "^8.10.0",
+        "eslint-config-prettier": "^9.0.0",
         "eslint-plugin-chai-friendly": "^0.7.2",
         "eslint-plugin-cypress": "^2.13.3",
         "eslint-plugin-import": "^2.27.5",
         "eslint-plugin-jest": "^27.2.3",
-        "eslint-plugin-jest-dom": "^5.0.1",
+        "eslint-plugin-jest-dom": "^5.0.2",
         "eslint-plugin-jsx-a11y": "^6.7.1",
         "eslint-plugin-prettier": "^5.0.0",
         "eslint-plugin-react": "^7.33.0",
         "eslint-plugin-react-hooks": "^4.3.0",
         "eslint-plugin-storybook": "^0.6.13",
-        "eslint-plugin-testing-library": "^5.11.0",
+        "eslint-plugin-testing-library": "^5.11.1",
         "eslint-plugin-unused-imports": "^3.0.0",
         "identity-obj-proxy": "^3.0.0",
         "jest": "^29.6.1",
@@ -208,10 +208,10 @@
         "word-wrap": "aashutoshrathi/word-wrap",
         "semver": ">=7.5.3",
         "@types/react": "^18.0.28",
-        "jackspeak": "2.1.1",
         "github-slugger": "^1.5.0"
     },
     "engines": {
         "node": "~18.15"
-    }
+    },
+    "packageManager": "yarn@3.6.1"
 }

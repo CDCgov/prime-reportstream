@@ -20,7 +20,7 @@ jobs:
           node-version-file: frontend-react/package.json
 
       - name: Install dependencies
-        run: yarn --ignore-platform
+        run: yarn
         working-directory: frontend-react
         shell: bash
 
