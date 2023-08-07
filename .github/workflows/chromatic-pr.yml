@@ -26,7 +26,7 @@ jobs:
 
       - name: Get changed files
         id: changed_files
-        uses: tj-actions/changed-files@85c8b8252fc9893e00b3633a16670e53040e6d71
+        uses: tj-actions/changed-files@87697c0dca7dd44e37a2b79a79489332556ff1f3
 
       - name: List all changed files
         id: set_vars
@@ -82,7 +82,7 @@ jobs:
           node-version-file: frontend-react/package.json
 
       - name: Install dependencies
-        run: yarn --ignore-platform
+        run: yarn
         working-directory: frontend-react
         shell: bash
 
