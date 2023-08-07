@@ -2,15 +2,15 @@ import * as DeliveryHooks from "../DeliveryHooks";
 
 export const mockUseOrgDeliveries = jest.spyOn(
     DeliveryHooks,
-    "useOrgDeliveries"
+    "useOrgDeliveries",
 );
 
 export const mockUseReportDetail = jest.spyOn(
     DeliveryHooks,
-    "useReportsDetail"
+    "useReportsDetail",
 );
 
 export const mockUseReportFacilities = jest.spyOn(
     DeliveryHooks,
-    "useReportsFacilities"
+    "useReportsFacilities",
 );

@@ -108,7 +108,7 @@ describe("ConfirmSaveSettingModal", () => {
                     fireEvent.click(checkSyntaxButtonNode);
 
                     errorDiffNode = screen.queryByTestId(
-                        "EditableCompare__errorDiff"
+                        "EditableCompare__errorDiff",
                     );
                 });
 
@@ -118,7 +118,7 @@ describe("ConfirmSaveSettingModal", () => {
 
                 test("does not render an error toast", () => {
                     expect(
-                        screen.queryByText(/JSON data generated/)
+                        screen.queryByText(/JSON data generated/),
                     ).not.toBeInTheDocument();
                 });
 
@@ -137,7 +137,7 @@ describe("ConfirmSaveSettingModal", () => {
                     fireEvent.click(checkSyntaxButtonNode);
 
                     errorDiffNode = screen.queryByTestId(
-                        "EditableCompare__errorDiff"
+                        "EditableCompare__errorDiff",
                     );
                 });
 
@@ -147,13 +147,13 @@ describe("ConfirmSaveSettingModal", () => {
 
                 test("does not render an error toast", () => {
                     expect(
-                        screen.queryByText(/JSON data generated/)
+                        screen.queryByText(/JSON data generated/),
                     ).not.toBeInTheDocument();
                 });
 
                 test("pretty-prints the JSON in the textarea", () => {
                     expect(textareaNode.innerHTML).toEqual(
-                        '{\n  "a": 1,\n  "b": 2\n}'
+                        '{\n  "a": 1,\n  "b": 2\n}',
                     );
                 });
             });
@@ -166,7 +166,7 @@ describe("ConfirmSaveSettingModal", () => {
                 renderComponent();
 
                 jest.spyOn(console, "trace").mockImplementationOnce(
-                    consoleTraceSpy
+                    consoleTraceSpy,
                 );
 
                 fireEvent.change(textareaNode, {
@@ -175,7 +175,7 @@ describe("ConfirmSaveSettingModal", () => {
                 fireEvent.click(checkSyntaxButtonNode);
 
                 errorDiffNode = screen.getByTestId(
-                    "EditableCompare__errorDiff"
+                    "EditableCompare__errorDiff",
                 );
             });
 
@@ -191,7 +191,7 @@ describe("ConfirmSaveSettingModal", () => {
             test("renders an error toast", () => {
                 expect(consoleTraceSpy).toHaveBeenCalled();
                 expect(
-                    screen.queryByText(/JSON data generated/)
+                    screen.queryByText(/JSON data generated/),
                 ).not.toBeInTheDocument();
             });
 
@@ -204,7 +204,7 @@ describe("ConfirmSaveSettingModal", () => {
                     });
 
                     errorDiffNode = screen.queryByTestId(
-                        "EditableCompare__errorDiff"
+                        "EditableCompare__errorDiff",
                     );
                     expect(errorDiffNode).toBeNull();
                 });

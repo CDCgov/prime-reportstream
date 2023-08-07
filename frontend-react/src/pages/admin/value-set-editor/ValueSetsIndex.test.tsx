@@ -44,14 +44,14 @@ describe("ValueSetsIndex tests", () => {
             () =>
                 ({
                     valueSetArray: [] as ValueSet[],
-                } as ValueSetsTableResponse<any>)
+                }) as ValueSetsTableResponse<any>,
         );
 
         mockUseValueSetsMeta = jest.fn(
             () =>
                 ({
                     valueSetMeta: {},
-                } as ValueSetsMetaResponse)
+                }) as ValueSetsMetaResponse,
         );
         renderApp(<ValueSetsIndex />);
         const headers = screen.getAllByRole("columnheader");
@@ -68,14 +68,14 @@ describe("ValueSetsIndex tests", () => {
             () =>
                 ({
                     valueSetArray: fakeRows,
-                } as ValueSetsTableResponse<any>)
+                }) as ValueSetsTableResponse<any>,
         );
 
         mockUseValueSetsMeta = jest.fn(
             () =>
                 ({
                     valueSetMeta: fakeMeta,
-                } as ValueSetsMetaResponse)
+                }) as ValueSetsMetaResponse,
         );
 
         renderApp(<ValueSetsIndex />);
@@ -84,13 +84,13 @@ describe("ValueSetsIndex tests", () => {
 
         const firstContentRow = rows[1];
         expect(
-            within(firstContentRow).getByText("any name")
+            within(firstContentRow).getByText("any name"),
         ).toBeInTheDocument();
         expect(
-            within(firstContentRow).getByText("your very own system")
+            within(firstContentRow).getByText("your very own system"),
         ).toBeInTheDocument();
         expect(
-            within(firstContentRow).getByText("Tuesday")
+            within(firstContentRow).getByText("Tuesday"),
         ).toBeInTheDocument();
         expect(within(firstContentRow).getByText("you")).toBeInTheDocument();
     });
@@ -100,13 +100,13 @@ describe("ValueSetsIndex tests", () => {
             () =>
                 ({
                     valueSetMeta: fakeMeta,
-                } as ValueSetsMetaResponse)
+                }) as ValueSetsMetaResponse,
         );
         mockUseValueSetsTable = jest.fn(() => {
             throw new RSNetworkError(
                 new AxiosError("Test", "404", undefined, {}, {
                     status: 404,
-                } as AxiosResponse)
+                } as AxiosResponse),
             );
         });
         /* Outputs a large error stack...should we consider hiding error stacks in page tests since we
@@ -114,8 +114,8 @@ describe("ValueSetsIndex tests", () => {
         renderApp(<ValueSetsIndex />);
         expect(
             screen.getByText(
-                "Our apologies, there was an error loading this content."
-            )
+                "Our apologies, there was an error loading this content.",
+            ),
         ).toBeInTheDocument();
         restore();
     });

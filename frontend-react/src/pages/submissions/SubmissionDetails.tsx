@@ -77,7 +77,7 @@ function SubmissionDetailsContent() {
     const { actionId } = useParams<SubmissionDetailsProps>();
     const actionDetails: ActionDetailsResource = useResource(
         ActionDetailsResource.detail(),
-        { actionId, organization }
+        { actionId, organization },
     );
     const submissionDate = generateDateTitles(actionDetails.timestamp);
 

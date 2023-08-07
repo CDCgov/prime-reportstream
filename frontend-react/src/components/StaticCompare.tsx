@@ -32,7 +32,7 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
             setLeftHighlightHtml(result.left.markupText);
             setRightHighlightHtml(result.right.markupText);
         },
-        []
+        [],
     );
 
     useEffect(() => {
@@ -55,7 +55,7 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
                                 data-testid={"left-compare-text"}
                                 dangerouslySetInnerHTML={{
                                     __html: DOMPurify.sanitize(
-                                        leftHighlightHtml
+                                        leftHighlightHtml,
                                     ),
                                 }}
                             />
@@ -68,7 +68,7 @@ export const StaticCompare = (props: StaticCompareProps): ReactElement => {
                                 data-testid={"right-compare-text"}
                                 dangerouslySetInnerHTML={{
                                     __html: DOMPurify.sanitize(
-                                        rightHighlightHtml
+                                        rightHighlightHtml,
                                     ),
                                 }}
                             />

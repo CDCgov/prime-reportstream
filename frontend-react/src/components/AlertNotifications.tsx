@@ -3,7 +3,7 @@ import React from "react";
 
 export const showAlertNotification = (
     type: "success" | "warning" | "error" | "info",
-    message: React.ReactNode | string = ""
+    message: React.ReactNode | string = "",
 ) => {
     try {
         const toastId = `id_${message}`.replace(/\W/gi, "_").substring(0, 512);
@@ -27,7 +27,7 @@ export const showAlertNotification = (
                 closeButton: false,
                 position: "bottom-center",
                 hideProgressBar: true,
-            }
+            },
         );
         toast.clearWaitingQueue(); // don't pile up messages
     } catch (err: any) {

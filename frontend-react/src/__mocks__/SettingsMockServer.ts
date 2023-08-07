@@ -9,7 +9,7 @@ const handlers = [
         `http://localhost:3000${senderSettingsUrl("abbott", "user1234")}`,
         (req, res, ctx) => {
             return res(ctx.status(200));
-        }
+        },
     ),
 ];
 

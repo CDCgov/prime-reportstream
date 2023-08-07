@@ -40,11 +40,11 @@ const filterManagerDefaults: FilterManagerDefaults = {
 export default function useReceiverDeliveries(serviceName?: string) {
     const { activeMembership } = useSessionContext();
     const adminSafeOrgName = useAdminSafeOrganizationName(
-        activeMembership?.parsedName
+        activeMembership?.parsedName,
     ); // "PrimeAdmins" -> "ignore"
     const orgAndService = useMemo(
         () => `${adminSafeOrgName}.${serviceName}`,
-        [adminSafeOrgName, serviceName]
+        [adminSafeOrgName, serviceName],
     );
 
     // Pagination and filter props
@@ -86,7 +86,7 @@ export default function useReceiverDeliveries(serviceName?: string) {
             rangeTo,
             sortColumn,
             sortDirection,
-        ]
+        ],
     );
     const { data, isLoading } = rsUseQuery(
         [
@@ -99,7 +99,7 @@ export default function useReceiverDeliveries(serviceName?: string) {
         {
             enabled:
                 !!activeMembership?.parsedName && !!activeMembership.service,
-        }
+        },
     );
 
     return { data, filterManager, isLoading };
