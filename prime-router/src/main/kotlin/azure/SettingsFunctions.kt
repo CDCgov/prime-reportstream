@@ -55,8 +55,7 @@ class GetOneOrganization(
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String
     ): HttpResponseMessage {
-        // Counter-intuitive:  this fails if you pass the organizationName as the organizationName. ;)
-        return getOne(request, organizationName, OrganizationAPI::class.java, null)
+        return getOne(request, organizationName, OrganizationAPI::class.java, organizationName)
     }
 }
 
@@ -341,7 +340,7 @@ open class BaseFunction(
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims == null || !claims.authorized(
-                setOf(PRIME_ADMIN_PATTERN, "$settingName.*.admin", "$settingName.*.user")
+                setOf(PRIME_ADMIN_PATTERN, "$organizationName.*.admin", "$organizationName.*.user")
             )
         ) {
             logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
