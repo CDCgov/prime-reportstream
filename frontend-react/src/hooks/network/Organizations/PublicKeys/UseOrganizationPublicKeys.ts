@@ -24,7 +24,7 @@ export default function useOrganizationPublicKeys() {
                     orgName: activeMembership?.parsedName!!,
                 },
             }),
-        [activeMembership?.parsedName, authorizedFetch]
+        [activeMembership?.parsedName, authorizedFetch],
     );
     return rsUseQuery(
         [publicKeys.queryKey, activeMembership],
@@ -32,6 +32,6 @@ export default function useOrganizationPublicKeys() {
         {
             enabled:
                 !!activeMembership?.parsedName && !!activeMembership.service,
-        }
+        },
     );
 }

@@ -58,7 +58,7 @@ export function ManagePublicKey() {
     };
 
     const handlePublicKeySubmit = async (
-        event: React.FormEvent<HTMLFormElement>
+        event: React.FormEvent<HTMLFormElement>,
     ) => {
         event.preventDefault();
 
@@ -90,7 +90,7 @@ export function ManagePublicKey() {
     };
 
     const handleFileChange = async (
-        event: React.ChangeEvent<HTMLInputElement>
+        event: React.ChangeEvent<HTMLInputElement>,
     ) => {
         // No file selected
         if (!event?.target?.files?.length) {

@@ -49,7 +49,7 @@ const cursorOrRange = (
     order: SortOrder,
     field: RangeField,
     cursor: string,
-    range: string
+    range: string,
 ): string => {
     if (
         (order === "ASC" && field === RangeField.FROM) ||
@@ -70,10 +70,10 @@ const cursorOrRange = (
 const useFilterManager = (defaults?: FilterManagerDefaults): FilterManager => {
     const { settings: rangeSettings, update: updateRange } = useDateRange();
     const { settings: sortSettings, update: updateSort } = useSortOrder(
-        defaults?.sortDefaults
+        defaults?.sortDefaults,
     );
     const { settings: pageSettings, update: updatePage } = usePages(
-        defaults?.pageDefaults
+        defaults?.pageDefaults,
     );
 
     const resetAll = useCallback(() => {

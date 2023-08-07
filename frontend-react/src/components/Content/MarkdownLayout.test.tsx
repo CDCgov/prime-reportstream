@@ -14,7 +14,7 @@ describe("MarkdownLayout", () => {
         const sidenav = <>Test sidenav</>;
         renderApp(<MarkdownLayout sidenav={sidenav}>Test</MarkdownLayout>);
         expect(screen.getByRole("navigation")).toHaveTextContent(
-            "Test sidenav"
+            "Test sidenav",
         );
         expect(screen.getByRole("main")).toHaveTextContent("Test");
     });

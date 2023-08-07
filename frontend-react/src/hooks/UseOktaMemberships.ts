@@ -81,7 +81,7 @@ export const extractSenderName = (org: string) =>
 /** This method constructs membership settings
  * @remarks This will put you as a default sender if you are not in a specific sender group */
 export const getSettingsFromOrganization = (
-    org: string
+    org: string,
 ): MembershipSettings => {
     const parsedName = parseOrgName(org);
     const memberType = getTypeOfGroup(org);
@@ -106,7 +106,7 @@ const defaultState: MembershipState = {
 };
 
 export const membershipsFromToken = (
-    token: AccessToken | undefined
+    token: AccessToken | undefined,
 ): Partial<MembershipState> => {
     // Check if we even have claims
     if (!token?.claims) {
@@ -127,7 +127,7 @@ export const membershipsFromToken = (
 
 // allows for overriding active membership with override previously set in session storage
 export const calculateMembershipsWithOverride = (
-    membershipState: MembershipState
+    membershipState: MembershipState,
 ): MembershipState => {
     const override = getOrganizationOverride();
     const activeMembership = override || membershipState?.activeMembership;
@@ -141,17 +141,17 @@ export const calculateMembershipsWithOverride = (
 // this is most of the actual reducer logic
 const calculateNewState = (
     state: MembershipState,
-    action: MembershipAction
+    action: MembershipAction,
 ) => {
     const { type, payload } = action;
     switch (type) {
         case MembershipActionType.SET_MEMBERSHIPS_FROM_TOKEN:
             const parsedMemberships = membershipsFromToken(
-                payload as AccessToken
+                payload as AccessToken,
             );
             return {
                 ...calculateMembershipsWithOverride(
-                    parsedMemberships as MembershipState
+                    parsedMemberships as MembershipState,
                 ),
                 initialized: true,
             };
@@ -181,7 +181,7 @@ const calculateNewState = (
 export const getInitialState = () => {
     const storedState = getSessionMembershipState();
     const storedStateWithOverride = calculateMembershipsWithOverride(
-        storedState || {}
+        storedState || {},
     );
     // ALWAYS setting the `initialized` flag to false on the first render because...
     // we are prioritizing consistency over minor performance gains. This will always be false
@@ -192,7 +192,7 @@ export const getInitialState = () => {
 
 export const membershipReducer = (
     state: MembershipState,
-    action: MembershipAction
+    action: MembershipAction,
 ) => {
     const newState = calculateNewState(state, action);
 
@@ -209,7 +209,7 @@ export const membershipReducer = (
 };
 
 export const useOktaMemberships = (
-    authState: AuthState | null
+    authState: AuthState | null,
 ): MembershipController => {
     const initialState = useMemo(() => getInitialState(), []);
     const [state, dispatch] = useReducer(membershipReducer, initialState);

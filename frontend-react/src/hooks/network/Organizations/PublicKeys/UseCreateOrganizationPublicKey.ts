@@ -42,6 +42,6 @@ export default function useCreateOrganizationPublicKey(): UseCreateOrganizationP
     };
     return rsUseMutation(
         [servicesEndpoints.createPublicKey.queryKey],
-        mutationFn
+        mutationFn,
     );
 }

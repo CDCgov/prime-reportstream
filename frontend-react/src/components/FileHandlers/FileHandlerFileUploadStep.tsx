@@ -51,7 +51,7 @@ export const UPLOAD_PROMPT_DESCRIPTIONS = {
 export function getClientHeader(
     selectedSchemaName: string | undefined,
     activeMembership: MembershipSettings | null | undefined,
-    sender: RSSender | undefined
+    sender: RSSender | undefined,
 ) {
     const parsedName = activeMembership?.parsedName;
     const senderName = activeMembership?.service;
@@ -100,7 +100,7 @@ export default function FileHandlerFileUploadStep({
     const { sendFile, isWorking: isUploading } = useWatersUploader();
 
     async function handleFileChange(
-        event: React.ChangeEvent<HTMLInputElement>
+        event: React.ChangeEvent<HTMLInputElement>,
     ) {
         // TODO: consolidate with upcoming FileUtils generic function
         if (!event?.target?.files?.length) {
@@ -114,7 +114,7 @@ export default function FileHandlerFileUploadStep({
         if (selectedFile.type === "csv" || selectedFile.type === "text/csv") {
             const localCsvError = parseCsvForError(
                 selectedFile.name,
-                selectedFileContent
+                selectedFileContent,
             );
             if (localCsvError) {
                 showError(localCsvError);
@@ -142,7 +142,7 @@ export default function FileHandlerFileUploadStep({
                 client: getClientHeader(
                     selectedSchemaOption.value,
                     activeMembership,
-                    senderDetail
+                    senderDetail,
                 ),
                 schema: selectedSchemaOption.value,
                 format: selectedSchemaOption.format,

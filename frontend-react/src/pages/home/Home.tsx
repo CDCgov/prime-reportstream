@@ -39,7 +39,7 @@ export const Home = () => {
                                                 feature={feature}
                                             />
                                         );
-                                    }
+                                    },
                                 )}
                             </div>
                         </section>

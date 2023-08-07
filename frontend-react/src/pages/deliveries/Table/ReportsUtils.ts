@@ -11,7 +11,7 @@ export const reportDetailURL = (id: string, base?: string) =>
 export const getReportAndDownload = (
     id: string,
     oktaToken: string,
-    org: string
+    org: string,
 ): RSReportInterface | undefined => {
     let report = undefined;
     axios

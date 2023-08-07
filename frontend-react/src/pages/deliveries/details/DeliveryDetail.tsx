@@ -21,7 +21,7 @@ const DetailsContent = () => {
                 <Summary report={reportDetail} />
                 <DeliveryInfo report={reportDetail} />
                 {withCatchAndSuspense(
-                    <DeliveryFacilitiesTable reportId={reportId!!} />
+                    <DeliveryFacilitiesTable reportId={reportId!!} />,
                 )}
                 <HipaaNotice />
             </article>
