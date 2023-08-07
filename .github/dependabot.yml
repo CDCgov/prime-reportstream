@@ -147,6 +147,7 @@ updates:
           - "typescript"
           - "tslib"
           - "ts-node"
+          - "@typescript-eslint*"
       react:
         patterns:
           - "react"
