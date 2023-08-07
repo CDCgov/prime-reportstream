@@ -25,14 +25,14 @@ import styles from "./MarkdownLayout.module.scss";
  */
 function filterComponents<T extends {}>(
     obj: T,
-    include: Array<string & keyof T> = []
+    include: Array<string & keyof T> = [],
 ) {
     return Object.fromEntries(
         Object.entries(obj).filter(
             ([k, v]) =>
                 include.includes(k as string & keyof T) ||
-                (typeof v === "function" && k.startsWith(k[0].toUpperCase()))
-        )
+                (typeof v === "function" && k.startsWith(k[0].toUpperCase())),
+        ),
     );
 }
 

@@ -105,7 +105,7 @@ export const appRoutes: RouteObject[] = [
                                 path: "",
                                 index: true,
                                 lazy: lazyRouteMarkdown(
-                                    "content/resources/reportstream-api/ReportStreamApi"
+                                    "content/resources/reportstream-api/ReportStreamApi",
                                 ),
                                 handle: {
                                     isContentPage: true,
@@ -114,7 +114,7 @@ export const appRoutes: RouteObject[] = [
                             {
                                 path: "getting-started",
                                 lazy: lazyRouteMarkdown(
-                                    "content/resources/reportstream-api/getting-started/GettingStarted"
+                                    "content/resources/reportstream-api/getting-started/GettingStarted",
                                 ),
                                 handle: {
                                     isContentPage: true,
@@ -126,7 +126,7 @@ export const appRoutes: RouteObject[] = [
                                     {
                                         path: "",
                                         lazy: lazyRouteMarkdown(
-                                            "content/resources/reportstream-api/documentation/Documentation"
+                                            "content/resources/reportstream-api/documentation/Documentation",
                                         ),
                                         index: true,
                                         handle: {
@@ -136,7 +136,7 @@ export const appRoutes: RouteObject[] = [
                                     {
                                         path: "data-model",
                                         lazy: lazyRouteMarkdown(
-                                            "content/resources/reportstream-api/documentation/data-model/DataModel"
+                                            "content/resources/reportstream-api/documentation/data-model/DataModel",
                                         ),
                                         handle: {
                                             isContentPage: true,
@@ -145,7 +145,7 @@ export const appRoutes: RouteObject[] = [
                                     {
                                         path: "responses-from-reportstream",
                                         lazy: lazyRouteMarkdown(
-                                            "content/resources/reportstream-api/documentation/ResponsesFromReportStream"
+                                            "content/resources/reportstream-api/documentation/ResponsesFromReportStream",
                                         ),
                                         handle: {
                                             isContentPage: true,
@@ -154,7 +154,7 @@ export const appRoutes: RouteObject[] = [
                                     {
                                         path: "sample-payloads-and-output",
                                         lazy: lazyRouteMarkdown(
-                                            "content/resources/reportstream-api/documentation/SamplePayloadsAndOutput"
+                                            "content/resources/reportstream-api/documentation/SamplePayloadsAndOutput",
                                         ),
                                         handle: {
                                             isContentPage: true,
@@ -178,7 +178,7 @@ export const appRoutes: RouteObject[] = [
                         path: "",
                         index: true,
                         lazy: lazyRouteMarkdown(
-                            "content/resources/ResourcesIndex"
+                            "content/resources/ResourcesIndex",
                         ),
                         handle: {
                             isContentPage: true,

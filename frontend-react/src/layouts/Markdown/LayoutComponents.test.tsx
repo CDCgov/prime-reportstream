@@ -42,11 +42,11 @@ describe("LayoutComponents", () => {
         renderApp(
             <TestComponent>
                 <LayoutSidenav>Test Sidenav</LayoutSidenav>
-            </TestComponent>
+            </TestComponent>,
         );
         expect(screen.getByTestId("sidenav")).toHaveTextContent("Test Sidenav");
         expect(screen.getByTestId("children")).not.toHaveTextContent(
-            "Test Sidenav"
+            "Test Sidenav",
         );
     });
 
@@ -54,11 +54,11 @@ describe("LayoutComponents", () => {
         renderApp(
             <TestComponent>
                 <LayoutMain>Test Main</LayoutMain>
-            </TestComponent>
+            </TestComponent>,
         );
         expect(screen.getByTestId("main")).toHaveTextContent("Test Main");
         expect(screen.getByTestId("children")).not.toHaveTextContent(
-            "Test Main"
+            "Test Main",
         );
     });
 });

@@ -20,7 +20,7 @@ export const CallToAction = ({
 }: CallToActionProps) => {
     const classname = classNames(
         "usa-button",
-        style ? `usa-button--${style}` : null
+        style ? `usa-button--${style}` : null,
     );
     return (
         <USSmartLink href={href} className={classname}>

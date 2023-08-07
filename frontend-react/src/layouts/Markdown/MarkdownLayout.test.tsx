@@ -10,7 +10,7 @@ describe("MarkdownLayout", () => {
         renderApp(
             <MarkdownLayout>
                 <>Test</>
-            </MarkdownLayout>
+            </MarkdownLayout>,
         );
         expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
         expect(screen.getByRole("main")).toHaveTextContent("Test");
@@ -22,7 +22,7 @@ describe("MarkdownLayout", () => {
                     <LayoutSidenav>Test</LayoutSidenav>
                     Test
                 </>
-            </MarkdownLayout>
+            </MarkdownLayout>,
         );
         await screen.findByRole("navigation");
         expect(screen.getByRole("navigation")).toHaveTextContent("Test");
@@ -34,7 +34,7 @@ describe("MarkdownLayout", () => {
                 <>
                     <LayoutMain>Test</LayoutMain>
                 </>
-            </MarkdownLayout>
+            </MarkdownLayout>,
         );
         expect(screen.getByRole("main")).toHaveTextContent("Test");
     });
@@ -45,7 +45,7 @@ describe("MarkdownLayout", () => {
                     <LayoutSidenav>Test</LayoutSidenav>
                     <LayoutMain>Test</LayoutMain>
                 </>
-            </MarkdownLayout>
+            </MarkdownLayout>,
         );
         await screen.findByRole("navigation");
         expect(screen.getByRole("navigation")).toHaveTextContent("Test");
