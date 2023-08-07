@@ -32,7 +32,7 @@ jobs:
         id: build_vars
         uses: ./.github/actions/build-vars
 
-  build_release:
+  build_router_release:
     name: "Release: Build Router"
     needs:
       - pre_job
@@ -108,18 +108,51 @@ jobs:
           backup-age-limit: 7200
           backup-from: staging
 
-  deploy_release:
-    name: "Deploy Release: ${{ needs.pre_job.outputs.env_name }}"
+  approve_router_release:
+    name: "Approve Router Release: ${{ needs.pre_job.outputs.env_name }}"
     needs:
       - pre_job
-      - build_release
-      - build_frontend_react_release
+      - build_router_release
       - deploy_infrastructure
     if: |
       always() &&
-      failure() != 'true' &&
-      (needs.pre_job.outputs.has_router_change == 'true' ||
-      needs.pre_job.outputs.has_react_change == 'true')
+      !cancelled() &&
+      !failure() &&
+      needs.pre_job.outputs.has_router_change == 'true'
+    environment: ${{ needs.pre_job.outputs.env_name }}-router
+    concurrency: ${{ needs.pre_job.outputs.env_name }}-router
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+
+  approve_frontend_release:
+    name: "Approve Frontend Release: ${{ needs.pre_job.outputs.env_name }}"
+    needs:
+      - pre_job
+      - build_frontend_react_release
+    if: |
+      always() &&
+      !cancelled() &&
+      !failure() &&
+      needs.pre_job.outputs.has_react_change == 'true'
+    environment: ${{ needs.pre_job.outputs.env_name }}-frontend
+    concurrency: ${{ needs.pre_job.outputs.env_name }}-frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+
+  deploy_router_release:
+    name: "Deploy Router Release: ${{ needs.pre_job.outputs.env_name }}"
+    needs:
+      - pre_job
+      - approve_router_release
+    if: |
+      always() &&
+      !cancelled() &&
+      !failure() &&
+      needs.pre_job.outputs.has_router_change == 'true'
     environment: ${{ needs.pre_job.outputs.env_name }}
     concurrency: ${{ needs.pre_job.outputs.env_name }}
     runs-on: ubuntu-latest
@@ -138,7 +171,6 @@ jobs:
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
       - name: Deploy backend
-        if: needs.pre_job.outputs.has_router_change == 'true'
         uses: ./.github/actions/deploy-backend
         with:
           env-name: ${{ needs.pre_job.outputs.env_name }}
@@ -146,8 +178,34 @@ jobs:
           dct-repo-pass: ${{ secrets.DCT_REPO_PASS }}
           version: ${{ needs.pre_job.outputs.version }}
 
+  deploy_frontend_release:
+    name: "Deploy Frontend Release: ${{ needs.pre_job.outputs.env_name }}"
+    needs:
+      - pre_job
+      - approve_frontend_release
+    if: |
+      always() &&
+      !cancelled() &&
+      !failure() &&
+      needs.pre_job.outputs.has_react_change == 'true'
+    environment: ${{ needs.pre_job.outputs.env_name }}
+    concurrency: ${{ needs.pre_job.outputs.env_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+
+      - name: Connect to VPN and login to Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          env-name: ${{ needs.pre_job.outputs.env_name }}
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
       - name: Deploy frontend
-        if: needs.pre_job.outputs.has_react_change == 'true'
         uses: ./.github/actions/deploy-frontend
         with:
           env-name: ${{ needs.pre_job.outputs.env_name }}
