@@ -39,6 +39,7 @@ import java.util.UUID
 class OktaAuthTests : CoolTest() {
     override val name = "oktaauth"
     override val description = "Test Okta Authorization and Authentication of various waters endpoints"
+
     // Not SMOKE because it requires login to do settings stuff.  Can't automate.  Doesn't work on Staging.
     override val status = TestStatus.DRAFT
 
@@ -83,7 +84,8 @@ class OktaAuthTests : CoolTest() {
                 OktaCommand.fetchAccessToken(environment.oktaApp)
                     ?: CommandUtilities.abort(
                         "Cannot run test $testName. Invalid access token. " +
-                            "Run ./prime login to fetch/refresh a PrimeAdmin access token for the $environment environment."
+                            "Run ./prime login to fetch/refresh a PrimeAdmin " +
+                            "access token for the $environment environment."
                     )
             }
         }
