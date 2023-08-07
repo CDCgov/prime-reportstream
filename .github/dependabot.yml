@@ -114,7 +114,7 @@ updates:
     groups:
       babel:
         patterns:
-          - "*babel*"
+          - "@babel*"
       mdx:
         patterns:
           - "*mdx*"
@@ -123,10 +123,16 @@ updates:
           - "*storybook*"
       testing-library:
         patterns:
-          - "@testing-library/*"
+          - "*testing-library/*"
       eslint:
         patterns:
-          - "*eslint*"
+          - "eslint*"
+        exclude-patterns:
+          - "*prettier"
+          - "*cypress"
+          - "*jest*"
+          - "*storybook"
+          - "*testing-library"
       jest:
         patterns:
           - "*jest*"
@@ -153,10 +159,11 @@ updates:
           - "*cypress*"
       vite:
         patterns:
-          - "*vite*"
+          - "vite*"
+          - "@vitejs*"
       okta:
         patterns:
-          - "*okta*"
+          - "@okta*"
       applicationinsights:
         patterns:
           - "@microsoft/applicationinsights*"
