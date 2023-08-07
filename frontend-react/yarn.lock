@@ -4594,10 +4594,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:4.32.5":
-  version: 4.32.5
-  resolution: "@tanstack/query-core@npm:4.32.5"
-  checksum: 91f0123e903acaa33bb34025d872832cb080ee61167e711c5ea37a34d2012340219e9e970fa2bf5aa344734ca8925c054863d5af809026ca44d8b0c4cfcc4165
+"@tanstack/query-core@npm:4.32.6":
+  version: 4.32.6
+  resolution: "@tanstack/query-core@npm:4.32.6"
+  checksum: c06f4b8d7edfc237d34da14c4ff2c71f4e6de662f123914419e9c2fbb9dccb7c1d3f46afd66ca5fea40687c5a99e514750a32a05e809d0db76343a90a45c76a8
   languageName: node
   linkType: hard
 
@@ -4616,11 +4616,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^4.20.9":
-  version: 4.32.5
-  resolution: "@tanstack/react-query@npm:4.32.5"
+"@tanstack/react-query@npm:^4.32.6":
+  version: 4.32.6
+  resolution: "@tanstack/react-query@npm:4.32.6"
   dependencies:
-    "@tanstack/query-core": 4.32.5
+    "@tanstack/query-core": 4.32.6
     use-sync-external-store: ^1.2.0
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -4631,7 +4631,7 @@ __metadata:
       optional: true
     react-native:
       optional: true
-  checksum: dd36cc8dbdb4bb10d79a18c9ddc842b52b4e85ba09a13aac169028bef04a864dc1a06cf5b5e70dc8308b93bd20b2d40d2a37f5efaeaa43ffaf261bc6ec01d140
+  checksum: 5ce7939515329d64aee35703de8f030bba383717e68eefb17a32492cca44d8421175b7045e0fd6314faff11cee8a570f42208685947a97bc50d0023d5ae1029e
   languageName: node
   linkType: hard
 
@@ -8652,16 +8652,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jest-dom@npm:^5.0.1":
-  version: 5.0.1
-  resolution: "eslint-plugin-jest-dom@npm:5.0.1"
+"eslint-plugin-jest-dom@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "eslint-plugin-jest-dom@npm:5.0.2"
   dependencies:
     "@babel/runtime": ^7.16.3
     requireindex: ^1.2.0
   peerDependencies:
     "@testing-library/dom": ^8.0.0 || ^9.0.0
     eslint: ^6.8.0 || ^7.0.0 || ^8.0.0
-  checksum: aad1ccae292e8b77be0e034499a62502e074d6d631320efa8b7d9de4a1e484f0ab27480820fb4974cec49101df35c9d4a320643a7c93d2a08778fec283b1e2fd
+  checksum: 83bda8d1f86edfaf4b8e3039f15b73ad8ec035b6afc2403828cea70d4ed792e015406aa58c3dab91235d230f4561f33d26a80064cf7b298fd6edc72a1c27273a
   languageName: node
   linkType: hard
 
@@ -8776,14 +8776,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-testing-library@npm:^5.11.0":
-  version: 5.11.0
-  resolution: "eslint-plugin-testing-library@npm:5.11.0"
+"eslint-plugin-testing-library@npm:^5.11.1":
+  version: 5.11.1
+  resolution: "eslint-plugin-testing-library@npm:5.11.1"
   dependencies:
     "@typescript-eslint/utils": ^5.58.0
   peerDependencies:
     eslint: ^7.5.0 || ^8.0.0
-  checksum: 7f19d3dedd7788b411ca3d9045de682feb26025b9c26d97d4e2f0bf62f5eaa276147d946bd5d0cd967b822e546a954330fdb7ef80485301264f646143f011a02
+  checksum: 9f3fc68ef9f13016a4381b33ab5dbffcc189e5de3eaeba184bcf7d2771faa7f54e59c04b652162fb1c0f83fb52428dd909db5450a25508b94be59eba69fcc990
   languageName: node
   linkType: hard
 
@@ -14876,7 +14876,7 @@ __metadata:
     "@storybook/react-vite": ^7.2.1
     "@storybook/testing-library": ^0.2.0
     "@storybook/theming": ^7.2.1
-    "@tanstack/react-query": ^4.20.9
+    "@tanstack/react-query": ^4.32.6
     "@tanstack/react-query-devtools": ^4.20.9
     "@testing-library/cypress": ^9.0.0
     "@testing-library/dom": ^9.3.1
@@ -14925,13 +14925,13 @@ __metadata:
     eslint-plugin-cypress: ^2.13.3
     eslint-plugin-import: ^2.27.5
     eslint-plugin-jest: ^27.2.3
-    eslint-plugin-jest-dom: ^5.0.1
+    eslint-plugin-jest-dom: ^5.0.2
     eslint-plugin-jsx-a11y: ^6.7.1
     eslint-plugin-prettier: ^5.0.0
     eslint-plugin-react: ^7.33.0
     eslint-plugin-react-hooks: ^4.3.0
     eslint-plugin-storybook: ^0.6.13
-    eslint-plugin-testing-library: ^5.11.0
+    eslint-plugin-testing-library: ^5.11.1
     eslint-plugin-unused-imports: ^3.0.0
     export-to-csv-fix-source-map: ^0.2.1
     history: ^5.3.0
