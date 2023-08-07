@@ -66,7 +66,7 @@ describe("Pagination", () => {
             for (const [i, item] of items.entries()) {
                 expect(item).toHaveTextContent(expectedItems[i]);
             }
-        }
+        },
     );
 
     test("Clicking on pagination items invokes the setSelectedPage callback", () => {

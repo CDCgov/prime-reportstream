@@ -50,15 +50,15 @@ const useOrgDeliveries = (service?: string) => {
     // endlessly.
     const generateFetcher = useCreateFetch(
         oktaToken as AccessToken,
-        activeMembership as MembershipSettings
+        activeMembership as MembershipSettings,
     );
 
     const adminSafeOrgName = useAdminSafeOrganizationName(
-        activeMembership?.parsedName
+        activeMembership?.parsedName,
     ); // "PrimeAdmins" -> "ignore"
     const orgAndService = useMemo(
         () => `${adminSafeOrgName}.${service}`,
-        [adminSafeOrgName, service]
+        [adminSafeOrgName, service],
     );
 
     const filterManager = useFilterManager(filterManagerDefaults);
@@ -94,7 +94,7 @@ const useOrgDeliveries = (service?: string) => {
             rangeFrom,
             rangeTo,
             activeMembership?.parsedName,
-        ]
+        ],
     );
 
     return { fetchResults, filterManager };
@@ -113,14 +113,14 @@ const useReportsDetail = (id: string) => {
                     id: id,
                 },
             }),
-        [authorizedFetch, id]
+        [authorizedFetch, id],
     );
     const { data } = rsUseQuery(
         // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
         // during use
         [getDeliveryDetails.queryKey, id],
         memoizedDataFetch,
-        { enabled: !!id }
+        { enabled: !!id },
     );
     return { reportDetail: data };
 };
@@ -138,14 +138,14 @@ const useReportsFacilities = (id: string) => {
                     id: id,
                 },
             }),
-        [authorizedFetch, id]
+        [authorizedFetch, id],
     );
     const { data } = rsUseQuery(
         // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
         // during use
         [getDeliveryFacilities.queryKey, id],
         memoizedDataFetch,
-        { enabled: !!id }
+        { enabled: !!id },
     );
     return { reportFacilities: data };
 };

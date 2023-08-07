@@ -10,7 +10,7 @@ describe("SideNavItem", () => {
         renderApp(
             <SideNavItem href="/foo" to="a">
                 Test
-            </SideNavItem>
+            </SideNavItem>,
         );
         const parentLink = screen.getByRole("link");
         expect(parentLink).toHaveTextContent("Test");
@@ -33,7 +33,7 @@ describe("SideNavItem", () => {
                 </SideNavItem>,
                 {
                     initialRouteEntries: ["/foo"],
-                }
+                },
             );
             const items = screen.getAllByRole("link");
             const [parentLink, childLink] = items;
@@ -52,7 +52,7 @@ describe("SideNavItem", () => {
                 </SideNavItem>,
                 {
                     initialRouteEntries: ["/foo"],
-                }
+                },
             );
             const [, childLink] = screen.getAllByRole("link");
             expect(childLink).toBeInTheDocument();
@@ -68,7 +68,7 @@ describe("SideNavItem", () => {
                 </SideNavItem>,
                 {
                     initialRouteEntries: ["/elsewhere"],
-                }
+                },
             );
             const [, childLink] = screen.getAllByRole("link");
             expect(childLink).toBeUndefined();
@@ -85,7 +85,7 @@ describe("SideNavItem", () => {
                 </SideNavItem>,
                 {
                     initialRouteEntries: ["/elsewhere"],
-                }
+                },
             );
             const [, childLink] = screen.getAllByRole("link");
             expect(childLink).toBeInTheDocument();
@@ -102,7 +102,7 @@ describe("SideNavItem", () => {
                 </SideNavItem>,
                 {
                     initialRouteEntries: ["/foo"],
-                }
+                },
             );
             const [, childLink] = screen.getAllByRole("link");
             expect(childLink).toBeUndefined();

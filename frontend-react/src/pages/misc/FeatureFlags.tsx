@@ -35,7 +35,7 @@ export function FeatureFlagUIComponent() {
             // already added.
             showAlertNotification(
                 "info",
-                `Item '${newFlag}' is already a feature flag.`
+                `Item '${newFlag}' is already a feature flag.`,
             );
             return;
         }
@@ -49,7 +49,7 @@ export function FeatureFlagUIComponent() {
         }
         showAlertNotification(
             "success",
-            `Feature flag '${newFlag}' added. You will now see UI related to this feature.`
+            `Feature flag '${newFlag}' added. You will now see UI related to this feature.`,
         );
     }, [newFlagInputText, checkFlag, dispatch]);
     const deleteFlagClick = useCallback(
@@ -59,7 +59,7 @@ export function FeatureFlagUIComponent() {
                 payload: flagname,
             });
         },
-        [dispatch]
+        [dispatch],
     );
 
     return (

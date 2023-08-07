@@ -58,17 +58,17 @@ describe("AdminDropdownNav - value-sets", () => {
         renderApp(<AdminDropdown />);
         expect(screen.getByRole("button")).toHaveAttribute(
             "aria-expanded",
-            "false"
+            "false",
         );
         fireEvent.click(screen.getByRole("button"));
         expect(screen.getByRole("button")).toHaveAttribute(
             "aria-expanded",
-            "true"
+            "true",
         );
         fireEvent.click(screen.getByText("Feature Flags"));
         expect(screen.getByRole("button")).toHaveAttribute(
             "aria-expanded",
-            "false"
+            "false",
         );
     });
 

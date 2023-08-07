@@ -17,7 +17,7 @@ import { Table } from "../../shared/Table/Table";
 export function OrgsTable() {
     const orgs: OrgSettingsResource[] = useResource(
         OrgSettingsResource.list(),
-        {}
+        {},
     ).sort((a, b) => a.name.localeCompare(b.name));
     const [filter, setFilter] = useState("");
     const navigate = useNavigate();
@@ -62,7 +62,7 @@ export function OrgsTable() {
                         eachOrg.countyName,
                     ].join(`","`),
                     `"`,
-                ].join("")
+                ].join(""),
             )
             .join(`\n`); // join result of .map() lines
         // Note that this csv previously included a `Created` column with a createdAt

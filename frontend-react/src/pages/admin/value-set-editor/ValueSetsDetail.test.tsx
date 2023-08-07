@@ -68,13 +68,13 @@ describe("ValueSetsDetail", () => {
             () =>
                 ({
                     valueSetArray: fakeRows,
-                } as ValueSetsTableResponse<any>)
+                }) as ValueSetsTableResponse<any>,
         );
         mockUseValueSetsMeta = jest.fn(
             () =>
                 ({
                     valueSetMeta: fakeMeta,
-                } as ValueSetsMetaResponse)
+                }) as ValueSetsMetaResponse,
         );
         // only render with query provider
         renderApp(<ValueSetsDetail />);
@@ -94,13 +94,13 @@ describe("ValueSetsDetail", () => {
             () =>
                 ({
                     valueSetArray: fakeRows,
-                } as ValueSetsTableResponse<any>)
+                }) as ValueSetsTableResponse<any>,
         );
         mockUseValueSetsMeta = jest.fn(
             () =>
                 ({
                     valueSetMeta: fakeMeta,
-                } as ValueSetsMetaResponse)
+                }) as ValueSetsMetaResponse,
         );
         renderApp(<ValueSetsDetail />);
         const editButtons = screen.getAllByText("Edit");
@@ -123,22 +123,22 @@ describe("ValueSetsDetail", () => {
             throw new RSNetworkError(
                 new AxiosError("Test", "404", undefined, {}, {
                     status: 404,
-                } as AxiosResponse)
+                } as AxiosResponse),
             );
         });
         mockUseValueSetsMeta = jest.fn(
             () =>
                 ({
                     valueSetMeta: fakeMeta,
-                } as ValueSetsMetaResponse)
+                }) as ValueSetsMetaResponse,
         );
         /* Outputs a large error stack...should we consider hiding error stacks in page tests since we
          * test them via the ErrorBoundary test? */
         renderApp(<ValueSetsDetail />);
         expect(
             screen.getByText(
-                "Our apologies, there was an error loading this content."
-            )
+                "Our apologies, there was an error loading this content.",
+            ),
         ).toBeInTheDocument();
         restore();
     });
@@ -154,7 +154,7 @@ describe("ValueSetsDetailTable", () => {
                 setAlert={mockSetAlert}
                 valueSetData={[]}
                 error={mockError}
-            />
+            />,
         );
         expect(mockSetAlert).toHaveBeenCalled();
         expect(mockSetAlert).toHaveBeenCalledWith({
@@ -181,7 +181,7 @@ describe("ValueSetsDetailTable", () => {
                 valueSetName={"a-path"}
                 setAlert={mockSetAlert}
                 valueSetData={fakeRows}
-            />
+            />,
         );
         const editButtons = screen.getAllByText("Edit");
         const editButton = editButtons[0];

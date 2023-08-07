@@ -17,7 +17,7 @@ describe("RSNetworkError", () => {
                     data: {
                         isThere: true,
                     },
-                } as AxiosResponse
+                } as AxiosResponse,
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.BAD_REQUEST);
@@ -31,7 +31,7 @@ describe("RSNetworkError", () => {
                 undefined,
                 undefined,
                 {},
-                {} as AxiosResponse
+                {} as AxiosResponse,
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.UNKNOWN);
@@ -49,7 +49,7 @@ describe("RSNetworkError", () => {
                 {},
                 {
                     status: 400,
-                } as AxiosResponse
+                } as AxiosResponse,
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.BAD_REQUEST);
@@ -63,7 +63,7 @@ describe("RSNetworkError", () => {
                 {},
                 {
                     status: 401,
-                } as AxiosResponse
+                } as AxiosResponse,
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.UNAUTHORIZED);
@@ -77,7 +77,7 @@ describe("RSNetworkError", () => {
                 {},
                 {
                     status: 404,
-                } as AxiosResponse
+                } as AxiosResponse,
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.NOT_FOUND);
@@ -91,7 +91,7 @@ describe("RSNetworkError", () => {
                 {},
                 {
                     status: 503,
-                } as AxiosResponse
+                } as AxiosResponse,
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.SERVER_ERROR);
@@ -105,7 +105,7 @@ describe("RSNetworkError", () => {
                 {},
                 {
                     status: 467,
-                } as AxiosResponse
+                } as AxiosResponse,
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.UNKNOWN);
@@ -117,7 +117,7 @@ describe("RSNetworkError", () => {
                 undefined,
                 undefined,
                 undefined,
-                undefined
+                undefined,
             );
             const error = new RSNetworkError(axiosError);
             expect(error.name).toEqual(ErrorName.UNKNOWN);
