@@ -64,7 +64,7 @@ export default class SubmissionsResource extends AuthResource {
      */
     static sortByCreatedAt(
         a: SubmissionsResource,
-        b: SubmissionsResource
+        b: SubmissionsResource,
     ): number {
         // format "2022-02-01T15:11:58.200754Z" means we can compare strings without converting to dates
         // since it's in descending time format (aka year, month, day, hour, min, sec)

@@ -16,10 +16,10 @@ import {
 describe("submission details date display", () => {
     test("SubmissionDates have valid format", () => {
         const actionDetailsTestResource = new TestResponse(
-            ResponseType.ACTION_DETAIL
+            ResponseType.ACTION_DETAIL,
         ).data;
         const submissionDate = generateDateTitles(
-            actionDetailsTestResource.timestamp
+            actionDetailsTestResource.timestamp,
         );
 
         if (submissionDate) {
@@ -28,7 +28,7 @@ describe("submission details date display", () => {
             expect(submissionDate.timeString).toMatch(/\d{1,2}:\d{2}/);
         } else {
             throw new Error(
-                "You were the chosen one! You were meant to destroy the nulls, not join them!"
+                "You were the chosen one! You were meant to destroy the nulls, not join them!",
             );
         }
     });

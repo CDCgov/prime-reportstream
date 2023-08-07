@@ -106,11 +106,11 @@ describe("DeliveriesTable", () => {
 
         test("if no activeService display NoServicesBanner", async () => {
             const heading = await screen.findByText(
-                /Active Services unavailable/i
+                /Active Services unavailable/i,
             );
             expect(heading).toBeInTheDocument();
             const message = await screen.findByText(
-                /No valid receiver found for your organization/i
+                /No valid receiver found for your organization/i,
             );
             expect(message).toBeInTheDocument();
         });
@@ -135,7 +135,7 @@ describe("DeliveriesTableWithNumbered", () => {
                     filterManager: mockFilterManager,
                 };
                 mockUseOrgDeliveries.mockReturnValue(
-                    mockUseOrgDeliveriesCallback
+                    mockUseOrgDeliveriesCallback,
                 );
 
                 // Render the component
@@ -144,7 +144,7 @@ describe("DeliveriesTableWithNumbered", () => {
 
             test("renders with no error", async () => {
                 const pagination = await screen.findByLabelText(
-                    /Deliveries pagination/i
+                    /Deliveries pagination/i,
                 );
                 expect(pagination).toBeInTheDocument();
                 // Column headers render
@@ -215,7 +215,7 @@ describe("DeliveriesTableWithNumbered", () => {
                     filterManager: mockFilterManager,
                 };
                 mockUseOrgDeliveries.mockReturnValue(
-                    mockUseOrgDeliveriesCallback
+                    mockUseOrgDeliveriesCallback,
                 );
 
                 // Render the component
@@ -224,12 +224,12 @@ describe("DeliveriesTableWithNumbered", () => {
 
             test("renders the NoServicesBanner message", async () => {
                 const heading = await screen.findByText(
-                    "Active Services unavailable"
+                    "Active Services unavailable",
                 );
                 expect(heading).toBeInTheDocument();
 
                 const message = await screen.findByText(
-                    "No valid receiver found for your organization"
+                    "No valid receiver found for your organization",
                 );
                 expect(message).toBeInTheDocument();
             });
@@ -280,12 +280,12 @@ describe("DeliveriesTableWithNumbered", () => {
         test("renders an error saying admins shouldn't fetch organization data", async () => {
             expect(
                 await screen.findByText(
-                    "Cannot fetch Organization data as admin"
-                )
+                    "Cannot fetch Organization data as admin",
+                ),
             ).toBeVisible();
 
             expect(
-                await screen.findByText("Please try again as an Organization")
+                await screen.findByText("Please try again as an Organization"),
             ).toBeVisible();
         });
     });

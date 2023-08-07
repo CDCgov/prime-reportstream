@@ -27,7 +27,7 @@ interface PageSettingsAction {
 
 const pageNumReducer = (
     state: PageSettings,
-    action: PageSettingsAction
+    action: PageSettingsAction,
 ): PageSettings => {
     const { type, payload } = action;
     switch (type) {

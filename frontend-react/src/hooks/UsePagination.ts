@@ -18,14 +18,14 @@ export type CursorExtractor<T> = (arg: T) => string;
 // number of results.
 export type ResultsFetcher<T> = (
     cursor: string,
-    numResults: number
+    numResults: number,
 ) => Promise<T[]>;
 
 // Returns a list of slots based on the USWDS pagination behavior rules.
 // See https://designsystem.digital.gov/components/pagination/
 export function getSlots(
     currentPageNum: number,
-    finalPageNum?: number
+    finalPageNum?: number,
 ): SlotItem[] {
     // For unbounded sets show the first, previous, current, and next pages. Put
     // the current page in Slot 4 and fill in gaps with additional pages or
@@ -141,14 +141,14 @@ interface PaginationAction<T> {
 
 type PaginationReducer<PaginationState, PaginationAction> = (
     state: PaginationState,
-    action: PaginationAction
+    action: PaginationAction,
 ) => PaginationState;
 
 // Updates the state with results, cursors, and possible final page in response
 // to a set of results returned from a fetch call.
 export function processResultsReducer<T>(
     state: PaginationState<T>,
-    { results, requestConfig }: ProcessResultsPayload<T>
+    { results, requestConfig }: ProcessResultsPayload<T>,
 ): PaginationState<T> {
     const { numResults, cursorPageNum, selectedPageNum } = requestConfig;
     const {
@@ -224,7 +224,7 @@ export function processResultsReducer<T>(
 // fetching of a new batch of results.
 export function setSelectedPageReducer<T>(
     state: PaginationState<T>,
-    selectedPageNum: number
+    selectedPageNum: number,
 ): PaginationState<T> {
     const slots = getSlots(selectedPageNum, state.finalPageNum);
 
@@ -236,7 +236,7 @@ export function setSelectedPageReducer<T>(
     const lastSlotPage = slotNumbers.pop() as number;
 
     const fetchedPageNumbers = Object.keys(state.pageResultsMap).map((k) =>
-        parseInt(k)
+        parseInt(k),
     );
     const lastFetchedPage =
         fetchedPageNumbers.length > 0 ? Math.max(...fetchedPageNumbers) : 0;
@@ -271,14 +271,14 @@ export function setSelectedPageReducer<T>(
 
 function reducer<T>(
     state: PaginationState<T>,
-    action: PaginationAction<T>
+    action: PaginationAction<T>,
 ): PaginationState<T> {
     const { type, payload } = action;
     switch (type) {
         case PaginationActionType.PROCESS_RESULTS:
             return processResultsReducer(
                 state,
-                payload as ProcessResultsPayload<T>
+                payload as ProcessResultsPayload<T>,
             );
         case PaginationActionType.RESET:
             const initialState = getInitialState(payload as ResetPayload<T>);
@@ -286,7 +286,7 @@ function reducer<T>(
         case PaginationActionType.SET_SELECTED_PAGE:
             return setSelectedPageReducer(
                 state,
-                payload as SetSelectedPagePayload
+                payload as SetSelectedPagePayload,
             );
         default:
             return state;
@@ -367,7 +367,7 @@ function usePagination<T>({
             isCursorInclusive,
             pageSize,
             extractCursor,
-        })
+        }),
     );
 
     // Reset the state if any of the hook props change.
@@ -396,7 +396,7 @@ function usePagination<T>({
             }
             const results = await fetchResults(
                 requestConfig.cursor,
-                requestConfig.numResults
+                requestConfig.numResults,
             );
             dispatch({
                 type: PaginationActionType.PROCESS_RESULTS,
@@ -427,7 +427,7 @@ function usePagination<T>({
                 });
             }
         },
-        [dispatch, analyticsEventName, pageSize]
+        [dispatch, analyticsEventName, pageSize],
     );
 
     // Assemble props for the pagination UI component.

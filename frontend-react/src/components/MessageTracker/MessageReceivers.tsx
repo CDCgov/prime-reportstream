@@ -109,7 +109,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                 columnHeader: "Main",
                 content: (() => {
                     const status = parseFileLocation(
-                        row?.fileUrl || NO_DATA_STRING
+                        row?.fileUrl || NO_DATA_STRING,
                     ).folderLocation;
                     return (
                         <p
@@ -122,7 +122,7 @@ export const MessageReceivers = ({ receiverDetails }: MessageReceiverProps) => {
                                         status === StatusEnum.PROCESS,
                                     "bg-blue-20 border-1px bg-primary-lighter radius-md":
                                         status === StatusEnum.READY,
-                                }
+                                },
                             )}
                         >
                             {status.toLocaleUpperCase()}

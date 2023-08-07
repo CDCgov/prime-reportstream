@@ -22,7 +22,7 @@ describe("UseDateRange", () => {
                 payload: {
                     from: new Date("2022-12-31").toISOString(),
                 },
-            })
+            }),
         );
         expect(result.current.settings).toEqual({
             to: "3000-01-01T00:00:00.000Z",
@@ -38,7 +38,7 @@ describe("UseDateRange", () => {
                 payload: {
                     to: new Date("2022-01-01").toISOString(),
                 },
-            })
+            }),
         );
         expect(result.current.settings).toEqual({
             to: "2022-01-01T00:00:00.000Z",
@@ -54,12 +54,12 @@ describe("UseDateRange", () => {
                 payload: {
                     to: new Date("2022-01-01").toISOString(),
                 },
-            })
+            }),
         );
         act(() =>
             result.current.update({
                 type: RangeSettingsActionType.RESET,
-            })
+            }),
         );
         expect(result.current.settings).toEqual({
             to: "3000-01-01T00:00:00.000Z",
@@ -76,7 +76,7 @@ describe("UseDateRange", () => {
                     from: new Date("2022-12-31").toISOString(),
                     to: new Date("2022-01-01").toISOString(),
                 },
-            })
+            }),
         );
         expect(result.current.settings).toEqual({
             from: "2022-12-31T00:00:00.000Z",

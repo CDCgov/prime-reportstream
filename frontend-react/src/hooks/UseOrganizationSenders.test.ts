@@ -63,7 +63,7 @@ describe("useOrganizationSenders", () => {
                 wrapper: AppWrapper(),
             });
             await waitFor(() =>
-                expect(result.current.data).toEqual(dummySenders)
+                expect(result.current.data).toEqual(dummySenders),
             );
             expect(result.current.isLoading).toEqual(false);
         });
