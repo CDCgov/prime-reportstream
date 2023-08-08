@@ -83,7 +83,8 @@ class OktaAuthTests : CoolTest() {
                 OktaCommand.fetchAccessToken(environment.oktaApp)
                     ?: CommandUtilities.abort(
                         "Cannot run test $testName. Invalid access token. " +
-                            "Run ./prime login to fetch/refresh a PrimeAdmin access token for the $environment environment."
+                            "Run ./prime login to fetch/refresh a PrimeAdmin access token for " +
+                            "the $environment environment."
                     )
             }
         }
@@ -1150,35 +1151,63 @@ class Server2ServerAuthTests : CoolTest() {
         userToken: String
     ): Boolean {
         ugly("Starting $name Test: test settings/organizations queries using server2server auth.")
-        // Unhappy Path: Normal user unable to access Settings
-        val (_, responseUnhappy) = Fuel.get("${environment.url}/api/settings/organizations")
+        val advice = "Run   ./prime login --env staging    " +
+            "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
+        val adminToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: OktaAuthTests.abort(
+            "The Okta PrimeAdmin tests use a Staging Okta token, even locally, which is not available. $advice"
+        )
+        // Happy Path: user on user-allowed endpoint (GET Org Settings)
+        val (_, responseUserGet) = Fuel.get("${environment.url}/api/settings/organizations")
             .authentication()
             .bearer(userToken)
             .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
             .responseString()
-        if (responseUnhappy.statusCode != HttpStatus.UNAUTHORIZED.value()) {
+        if (responseUserGet.statusCode != HttpStatus.OK.value()) {
             bad(
-                "***$name Test settings/organizations Unhappy Path (Unauthorized) FAILED:" +
-                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseUnhappy.statusCode}"
+                "***$name Test settings/organizations Happy Path (user-GET) FAILED:" +
+                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseUserGet.statusCode}"
             )
             return false
         }
-        ugly("Starting $name Test: test settings/organizations queries using Okta PrimeAdmin token")
-        val advice = "Run   ./prime login --env staging    " +
-            "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
-        val oktaToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: OktaAuthTests.abort(
-            "The Okta PrimeAdmin tests use a Staging Okta token, even locally, which is not available. $advice"
-        )
-        // Happy Path: Admin successfully accesses Settings
-        val (_, responseHappy) = Fuel.get("${environment.url}/api/settings/organizations")
+
+        // Unhappy Path: user on admin-only endpoint (POST Update Settings)
+        val (_, responseUserPost) = Fuel.post("${environment.url}/api/settings/organizations/${org1.name}")
             .authentication()
-            .bearer(oktaToken)
+            .bearer(userToken)
             .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
             .responseString()
-        if (responseHappy.statusCode != HttpStatus.OK.value()) {
+        if (responseUserPost.statusCode != HttpStatus.UNAUTHORIZED.value()) {
             bad(
-                "***$name Test settings/organizations Happy Path FAILED:" +
-                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseHappy.statusCode}"
+                "***$name Test settings/organizations Unhappy Path (user-POST) FAILED:" +
+                    " Expected HttpStatus ${HttpStatus.UNAUTHORIZED}. Got ${responseUserPost.statusCode}"
+            )
+            return false
+        }
+
+        // Happy Path: admin on user-allowed endpoint (GET Org Settings)
+        val (_, responseAdminGet) = Fuel.get("${environment.url}/api/settings/organizations")
+            .authentication()
+            .bearer(adminToken)
+            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+            .responseString()
+        if (responseAdminGet.statusCode != HttpStatus.OK.value()) {
+            bad(
+                "***$name Test settings/organizations Happy Path (admin-GET) FAILED:" +
+                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseAdminGet.statusCode}"
+            )
+            return false
+        }
+
+        // Happy Path: admin on admin-only endpoint (POST Update Settings)
+        val (_, responseAdminPost) = Fuel.post("${environment.url}/api/settings/organizations/${org1.name}")
+            .authentication()
+            .bearer(adminToken)
+            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+            .responseString()
+        if (responseAdminPost.statusCode != HttpStatus.OK.value()) {
+            bad(
+                "***$name Test settings/organizations Happy Path (admin-POST) FAILED:" +
+                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseAdminPost.statusCode}"
             )
             return false
         }
