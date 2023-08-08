@@ -58,6 +58,12 @@
                     "quote": "The selling point for me was I wanted to expand into other states so I was working with several different states for different credentialing and [ReportStream] had connections already to most of those states.",
                     "author": "Desiree Bock",
                     "authorTitle": "Senior VP of Operations at Dobrin Group"
+                },
+                {
+                    "title": "More test results and improved interoperability",
+                    "quote": "All the people we worked with were competent and focused. I will commend the team as to how they have continued to onboard facilities and get those lab results to us…. Without it, we wouldn’t have gotten those reports at all or just through faxes. It’s really improved our interoperability.",
+                    "author": "Tim Ratliff",
+                    "authorTitle": "Sr. Program Manager, Texas Health and Human services"
                 }
             ]
         }
@@ -66,15 +72,7 @@
     "otherPartners": [
         {
             "subTitle": "Healthcare organizations, facilities and labs",
-            "type": "otherPartners",
-            "citation": [
-                {
-                    "title": "More test results and improved interoperability",
-                    "quote": "All the people we worked with were competent and focused. I will commend the team as to how they have continued to onboard facilities and get those lab results to us…. Without it, we wouldn’t have gotten those reports at all or just through faxes. It’s really improved our interoperability.",
-                    "author": "Tim Ratliff",
-                    "authorTitle": "Sr. Program Manager, Texas Health and Human services"
-                }
-            ]
+            "type": "otherPartners"
         }
     ]
 }

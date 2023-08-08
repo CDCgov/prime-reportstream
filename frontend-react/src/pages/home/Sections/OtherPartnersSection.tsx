@@ -2,8 +2,6 @@ import { Link } from "@trussworks/react-uswds";
 
 import { SectionProp } from "../HomeProps";
 
-import CitationSection from "./Citation";
-
 export default function OtherPartnersSection({
     section,
 }: {
@@ -22,15 +20,6 @@ export default function OtherPartnersSection({
                     See all partners
                 </Link>
             </div>
-            {section.citation?.map((citation, citationIndex) => {
-                return (
-                    <CitationSection
-                        data-testid="citation"
-                        key={citationIndex}
-                        citation={citation}
-                    />
-                );
-            })}
         </div>
     );
 }

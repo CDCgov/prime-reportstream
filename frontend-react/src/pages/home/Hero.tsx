@@ -4,13 +4,13 @@ import React from "react";
 export default function Hero() {
     return (
         <header className="bg-primary-darker text-white padding-y-9 margin-top-neg-5">
-            <div className="grid-container width-desktop-lg padding-left-4 padding-right-4">
-                <div className="grid-row maxw-tablet-lg">
-                    <h1 className="font-sans-xl tablet:font-sans-2xl margin-top-2">
+            <div className="grid-container padding-left-4 padding-right-4">
+                <div className="grid-row">
+                    <h1 className="font-sans-3xl margin-top-2">
                         Your single connection to simplify data transfer and
                         improve public health
                     </h1>
-                    <p className="usa-intro maxw-tablet">
+                    <p className="usa-prose">
                         ReportStream is CDC’s free, interoperable platform for
                         streamlining public health reporting. We navigate
                         unique, complex requirements and work to make sure your

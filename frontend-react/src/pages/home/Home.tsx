@@ -8,7 +8,6 @@ import Hero from "./Hero";
 import Section from "./Sections/Section";
 import Feature from "./Features/Feature";
 import LiveMapSection from "./Sections/LiveMapSection";
-import OtherPartnersSection from "./Sections/OtherPartnersSection";
 
 /* INFO
    to change any of the content rendered by Home.tsx, Ctrl+click (shortcut for VScode) on the content import above
@@ -18,7 +17,6 @@ export const Home = () => {
     return (
         <>
             <Hero />
-
             {/* INFO
                 this block of code maps through the section array in content.json to render all section
                 and the features held in the feature array of each section. */}
@@ -162,14 +160,15 @@ export const Home = () => {
                     );
                 })}
             </div>
+            {/*
             <div
                 data-testid="container-other-partners"
                 className="grid-container"
-            >
-                {/* INFO
+            >*/}
+            {/* INFO
                     this block of code, similar to the one above, maps through the otherPartners array in content.json to
                     render out all its contents. */}
-                {content.otherPartners.map((section, sectionIndex) => {
+            {/*{content.otherPartners.map((section, sectionIndex) => {
                     return (
                         <section
                             data-testid="section"
@@ -181,21 +180,20 @@ export const Home = () => {
                     );
                 })}
             </div>
+            */}
             <div className="bg-primary-lighter margin-bottom-neg-8">
                 {/* INFO
                     this block of code, renders out Connect with us content. */}
                 <div data-testid="container-connect" className="grid-container">
                     <section className="usa-section margin-y-0 tablet:padding-top-9 tablet:padding-bottom-9">
                         <div className="grid-row">
-                            <div className="grid-col-2"></div>
                             <h2
                                 data-testid="heading"
-                                className="font-sans-xl margin-top-0 tablet:margin-bottom-0"
+                                className="font-sans-xl margin-top-0 tablet:margin-bottom-0 grid-offset-2"
                             >
                                 Still exploring if ReportStream is right for
                                 you?
                             </h2>
-                            <div className="grid-col-1"></div>
                             <p className="usa-intro margin-top-4 margin-bottom-4">
                                 Our team will respond to your questions or set
                                 up a time to learn more about how we can help
