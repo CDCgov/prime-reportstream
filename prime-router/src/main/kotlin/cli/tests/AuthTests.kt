@@ -1144,15 +1144,15 @@ class Server2ServerAuthTests : CoolTest() {
      * Test fetching organization settings with a normal user and an admin
      * @param environment Where is the test hitting? Staging, Local?
      * @param userToken General user token for unauthorized test cases
-     * @param org Organization that the general user belongs to
-     * @param wrongOrg Organization that the general user DOES NOT belongs to
+     * @param authorizedOrg Organization that the general user belongs to
+     * @param unauthorizedOrg Organization that the general user DOES NOT belong to
      * @return true if all tests pass, else false
      */
     private fun server2ServerSettingsAuthTests(
         environment: Environment,
         userToken: String,
-        org: Organization,
-        wrongOrg: Organization
+        authorizedOrg: Organization,
+        unauthorizedOrg: Organization
     ): Boolean {
         ugly("Starting $name Test: test settings/organizations queries using server2server auth.")
         val advice = "Run   ./prime login --env staging    " +
@@ -1160,10 +1160,11 @@ class Server2ServerAuthTests : CoolTest() {
         val adminToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: OktaAuthTests.abort(
             "The Okta PrimeAdmin tests use a Staging Okta token, even locally, which is not available. $advice"
         )
+        val orgEndpoint = "${environment.url}/api/settings/organizations"
 
         // Case: GET All Org Settings (Admin-only endpoint)
         // Unhappy Path: user on admin-only endpoint
-        val (_, responseUserGetAllOrgs) = Fuel.get("${environment.url}/api/settings/organizations")
+        val (_, responseUserGetAllOrgs) = Fuel.get(orgEndpoint)
             .authentication()
             .bearer(userToken)
             .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
@@ -1176,7 +1177,7 @@ class Server2ServerAuthTests : CoolTest() {
             return false
         }
         // Happy Path: admin on admin-only endpoint
-        val (_, responseAdminGetAllOrgs) = Fuel.get("${environment.url}/api/settings/organizations")
+        val (_, responseAdminGetAllOrgs) = Fuel.get(orgEndpoint)
             .authentication()
             .bearer(adminToken)
             .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
@@ -1191,7 +1192,7 @@ class Server2ServerAuthTests : CoolTest() {
 
         // Case: GET Receivers for an Org (Endpoint allowed for admins and members of the org)
         // Happy Path: user on user-allowed endpoint
-        val (_, responseUserGet) = Fuel.get("${environment.url}/api/settings/organizations/${org.name}/receivers")
+        val (_, responseUserGet) = Fuel.get("$orgEndpoint/${authorizedOrg.name}/receivers")
             .authentication()
             .bearer(userToken)
             .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
@@ -1204,7 +1205,7 @@ class Server2ServerAuthTests : CoolTest() {
             return false
         }
         // Happy Path: admin on user-allowed endpoint
-        val (_, responseAdminGet) = Fuel.get("${environment.url}/api/settings/${org.name}/receivers")
+        val (_, responseAdminGet) = Fuel.get("$orgEndpoint/${authorizedOrg.name}/receivers")
             .authentication()
             .bearer(adminToken)
             .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
@@ -1216,16 +1217,16 @@ class Server2ServerAuthTests : CoolTest() {
             )
             return false
         }
-        // UnhappyPath: user on wrong org name
-        val (_, responseWrongOrg) = Fuel.get("${environment.url}/api/settings/organizations/${wrongOrg.name}/receivers")
+        // UnhappyPath: user on an unauthorized org name
+        val (_, responseUnauthorizedOrg) = Fuel.get("$orgEndpoint/${unauthorizedOrg.name}/receivers")
             .authentication()
             .bearer(userToken)
             .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
             .responseString()
-        if (responseWrongOrg.statusCode != HttpStatus.UNAUTHORIZED.value()) {
+        if (responseUnauthorizedOrg.statusCode != HttpStatus.UNAUTHORIZED.value()) {
             bad(
-                "***$name Test settings/organizations Unhappy Path (user-GET Wrong Org Receivers) FAILED:" +
-                    " Expected HttpStatus ${HttpStatus.UNAUTHORIZED}. Got ${responseWrongOrg.statusCode}"
+                "***$name Test settings/organizations Unhappy Path (user-GET Unauthorized Org Receivers) FAILED:" +
+                    " Expected HttpStatus ${HttpStatus.UNAUTHORIZED}. Got ${responseUnauthorizedOrg.statusCode}"
             )
             return false
         }
