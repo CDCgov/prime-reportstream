@@ -1,28 +1,26 @@
-import { USSmartLink } from "../../components/USLink";
+import { Link } from "@trussworks/react-uswds";
+import React from "react";
 
 export default function Hero() {
     return (
-        <header className="usa-section--light padding-y-4 tablet:padding-y-6 tablet:margin-bottom-4 margin-top-neg-5">
-            <div className="grid-container">
-                <div className="font-sans-lg">
+        <header className="bg-primary-darker text-white padding-y-9 margin-top-neg-5">
+            <div className="grid-container width-desktop-lg padding-left-4 padding-right-4">
+                <div className="grid-row maxw-tablet-lg">
                     <h1 className="font-sans-xl tablet:font-sans-2xl margin-top-2">
-                        ReportStream
-                    </h1>
-                    <p>
                         Your single connection to simplify data transfer and
                         improve public health
+                    </h1>
+                    <p className="usa-intro maxw-tablet">
+                        ReportStream is CDC’s free, interoperable platform for
+                        streamlining public health reporting. We navigate
+                        unique, complex requirements and work to make sure your
+                        data gets where it needs to be.
                     </p>
-                    <p>
-                        Connect with us to{" "}
-                        <USSmartLink href="https://app.smartsheetgov.com/b/form/8c71931f25e64e42bf1fef32900bdecd">
-                            send data
-                        </USSmartLink>{" "}
-                        or{" "}
-                        <USSmartLink href="mailto:reportstream@cdc.gov">
-                            receive data
-                        </USSmartLink>
-                        .
-                    </p>
+                </div>
+                <div className="grid-row padding-top-8">
+                    <Link href="" className="usa-button">
+                        Connect now
+                    </Link>
                 </div>
             </div>
         </header>

@@ -40,7 +40,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 </RSErrorBoundary>
             </main>
             <ToastContainer limit={4} />
-            <footer className="usa-identifier footer">
+            <footer className="footer">
                 <ReportStreamFooter />
             </footer>
         </App>

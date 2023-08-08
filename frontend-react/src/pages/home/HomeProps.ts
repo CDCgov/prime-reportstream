@@ -6,11 +6,13 @@ export interface SectionProp {
     title?: string;
     type?: string;
     summary?: string;
+    subTitle?: string;
     bullets?: { content?: string }[];
     features?: FeatureProp[];
     description?: string;
     buttonText?: string;
     buttonUrlSubject?: string;
+    citation?: CitationProp[];
 }
 
 /* INFO
@@ -23,6 +25,14 @@ export interface FeatureProp {
     icon?: string;
     img?: string;
     imgAlt?: string;
+    imgClassName?: string;
     summary?: string;
     items?: { title?: string; summary?: string }[];
+}
+
+export interface CitationProp {
+    title?: string;
+    quote?: string;
+    author?: string;
+    authorTitle?: string;
 }

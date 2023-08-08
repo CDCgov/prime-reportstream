@@ -32,28 +32,3 @@ describe("Section rendering", () => {
         expect(summary.innerHTML).toEqual(fakeSection.summary);
     });
 });
-
-describe("Live Map rendering", () => {
-    const fakeLiveMapSection = {
-        title: "Map section",
-        type: "liveMap",
-        summary: "Map summary",
-        description: "Map description",
-    };
-
-    beforeEach(() => {
-        renderApp(<Section section={fakeLiveMapSection} />);
-    });
-
-    test("Renders <LiveMapSection /> if type is liveMap", () => {
-        const header = screen.getByTestId("heading");
-        const summary = screen.getByTestId("summary");
-        const map = screen.getByTestId("map");
-        const description = screen.getByTestId("description");
-
-        expect(header).toBeInTheDocument();
-        expect(summary).toBeInTheDocument();
-        expect(map).toBeInTheDocument();
-        expect(description).toBeInTheDocument();
-    });
-});
