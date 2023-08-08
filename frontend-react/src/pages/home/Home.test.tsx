@@ -13,14 +13,14 @@ describe("Home rendering", () => {
     test("Container renders", () => {
         expect(screen.getByTestId("container-get-started")).toBeInTheDocument();
         expect(
-            screen.getByTestId("container-how-it-works")
+            screen.getByTestId("container-how-it-works"),
         ).toBeInTheDocument();
         expect(
-            screen.getByTestId("container-other-products")
+            screen.getByTestId("container-other-products"),
         ).toBeInTheDocument();
         expect(screen.getByTestId("container-map")).toBeInTheDocument();
         expect(
-            screen.getByTestId("container-other-partners")
+            screen.getByTestId("container-other-partners"),
         ).toBeInTheDocument();
         expect(screen.getByTestId("container-connect")).toBeInTheDocument();
     });
@@ -40,7 +40,7 @@ describe("Home rendering", () => {
             content.sections.length +
                 content.otherProducts.length +
                 content.liveMapContact.length +
-                content.otherPartners.length
+                content.otherPartners.length,
         );
     });
 });

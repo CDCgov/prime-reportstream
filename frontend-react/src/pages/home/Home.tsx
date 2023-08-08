@@ -48,7 +48,7 @@ export const Home = () => {
                                                     feature={feature}
                                                 />
                                             );
-                                        }
+                                        },
                                     )}
                                 </div>
                                 <div className="grid-row">
@@ -130,7 +130,7 @@ export const Home = () => {
                                                     feature={feature}
                                                 />
                                             );
-                                        }
+                                        },
                                     )}
                                 </div>
                                 <p>
@@ -203,7 +203,10 @@ export const Home = () => {
                             </p>
                         </div>
                         <div className="grid-row">
-                            <Link href="" className="usa-button grid-offset-5">
+                            <Link
+                                href="mailto:reportstream@cdc.gov"
+                                className="usa-button grid-offset-5"
+                            >
                                 Connect with us
                             </Link>
                         </div>
