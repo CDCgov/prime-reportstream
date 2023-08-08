@@ -93,43 +93,30 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             } else null
         }
 
-        fun getMessageType(message: Message): String? {
+        /**
+         * Get the type of the [message]
+         * @return the type of message ex. ORU
+         */
+        fun getMessageType(message: Message): String {
             return (message["MSH"] as MSH).msh9_MessageType.msg1_MessageCode.toString()
         }
 
-//        fun isBirthTime(message: Message): Boolean {
-// //            val patient = getORMPatient(message) ?: return false
-//            val terser = Terser(message)
-//            val dateTimeOfBirth = terser.get("/PATIENT/PID-7")
-//            return dateTimeOfBirth.toString().length > 8
-//        }
-
-//        private fun getORMPatient(message: Message): ORM_O01_PATIENT? {
-//            try {
-//                val patientResult = message.get("PATIENT_RESULT") ?: return null
-//                return patientResult as ORM_O01_PATIENT
-//            } catch (e: HL7Exception) {
-//                // try just getting the patient
-//                try {
-//                    val patient = message.get("PATIENT") ?: return null
-//                    return patient as ORM_O01_PATIENT
-//                } catch (e: HL7Exception) {
-//                    return null
-//                }
-//            }
-//        }
-
+        /**
+         * Get the birthTime from the [message]
+         * @return the birthTime, if available or blank if not
+         */
         fun getBirthTime(message: Message): String {
             return try {
                 Terser(message).get("${getPatientPath(message)}/PID-7")
-//                val patient = getORMPatient(message) ?: return null
-//                val dateTimeOfBirth = patient.pid.dateTimeOfBirth ?: return null
-//                return dateTimeOfBirth.ts1_Time.toString()
             } catch (e: HL7Exception) {
                 ""
             }
         }
 
+        /**
+         * Get the path that is needed to retrieve the patient info, based on the type of the [hl7Message]
+         * @return the path for retrieving patient info
+         */
         fun getPatientPath(hl7Message: Message): String? {
             return when (getMessageType(hl7Message)) {
                 "ORM" -> "PATIENT"

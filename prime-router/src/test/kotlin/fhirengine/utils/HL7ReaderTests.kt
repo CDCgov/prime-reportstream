@@ -265,36 +265,8 @@ OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen b
         assertThat(type).isEqualTo("ORU")
     }
 
-//    @Test
-//    fun `test isBirthDate_DateTime`() {
-//        val actionLogger = ActionLogger()
-//        val hL7Reader = HL7Reader(actionLogger)
-//        val birthTimeMessage = """
-//            MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORM^O01^ORM_O01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
-//            SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
-//            PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||195808100102034|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071^^^^48077||7275555555:1:^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
-//        """.trimIndent()
-//        val messages = hL7Reader.getMessages(birthTimeMessage)
-//        val type = HL7Reader.isBirthTime(messages[0])
-//        assertThat(type).isEqualTo(true)
-//    }
-//
-//    @Test
-//    fun `test isBirthDate_Date`() {
-//        val actionLogger = ActionLogger()
-//        val hL7Reader = HL7Reader(actionLogger)
-//        val birthDateMessage = """
-//            MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORM^O01^ORM_O01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
-//            SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
-//            PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071^^^^48077||7275555555:1:^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N
-//        """.trimIndent()
-//        val messages = hL7Reader.getMessages(birthDateMessage)
-//        val type = HL7Reader.isBirthTime(messages[0])
-//        assertThat(type).isEqualTo(false)
-//    }
-
     @Test
-    fun `test getBirthDate_DateTime`() {
+    fun `test getBirthTime_DateTime`() {
         val actionLogger = ActionLogger()
         val hL7Reader = HL7Reader(actionLogger)
         val birthTimeMessage = """           
@@ -308,7 +280,7 @@ OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen b
     }
 
     @Test
-    fun `test getBirthDate_Date`() {
+    fun `test getBirthTime_Date`() {
         val actionLogger = ActionLogger()
         val hL7Reader = HL7Reader(actionLogger)
         val birthDateMessage = """           
@@ -319,5 +291,47 @@ OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen b
         val messages = hL7Reader.getMessages(birthDateMessage)
         val type = HL7Reader.getBirthTime(messages[0])
         assertThat(type).isEqualTo("19580810")
+    }
+
+    @Test
+    fun `test getPatientPath_ORM`() {
+        val actionLogger = ActionLogger()
+        val hL7Reader = HL7Reader(actionLogger)
+        val birthDateMessage = """           
+            MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORM^O01^ORM_O01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+            SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
+            PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071^^^^48077||7275555555:1:^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N                       
+        """.trimIndent()
+        val messages = hL7Reader.getMessages(birthDateMessage)
+        val type = HL7Reader.getPatientPath(messages[0])
+        assertThat(type).isEqualTo("PATIENT")
+    }
+
+    @Test
+    fun `test getPatientPath_ORU`() {
+        val actionLogger = ActionLogger()
+        val hL7Reader = HL7Reader(actionLogger)
+        val birthDateMessage = """           
+            MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||ORU^R01^ORU_R01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+            SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
+            PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071^^^^48077||7275555555:1:^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N                       
+        """.trimIndent()
+        val messages = hL7Reader.getMessages(birthDateMessage)
+        val type = HL7Reader.getPatientPath(messages[0])
+        assertThat(type).isEqualTo("PATIENT_RESULT/PATIENT")
+    }
+
+    @Test
+    fun `test getPatientPath_Other`() {
+        val actionLogger = ActionLogger()
+        val hL7Reader = HL7Reader(actionLogger)
+        val birthDateMessage = """           
+            MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime ReportStream|20210210170737||TEST^O01^TEST_O01|371784|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+            SFT|Centers for Disease Control and Prevention|0.1-SNAPSHOT|PRIME ReportStream|0.1-SNAPSHOT||20210210
+            PID|1||2a14112c-ece1-4f82-915c-7b3a8d152eda^^^Avante at Ormond Beach^PI||Buckridge^Kareem^Millie^^^^L||19580810|F||2106-3^White^HL70005^^^^2.5.1|688 Leighann Inlet^^South Rodneychester^TX^67071^^^^48077||7275555555:1:^PRN^^roscoe.wilkinson@email.com^1^211^2240784|||||||||U^Unknown^HL70189||||||||N                       
+        """.trimIndent()
+        val messages = hL7Reader.getMessages(birthDateMessage)
+        val type = HL7Reader.getPatientPath(messages[0])
+        assertThat(type).isEqualTo(null)
     }
 }
