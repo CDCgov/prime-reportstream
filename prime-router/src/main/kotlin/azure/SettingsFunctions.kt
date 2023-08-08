@@ -12,6 +12,7 @@ import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.tokens.AuthenticatedClaims.Companion.authenticateAdmin
 import gov.cdc.prime.router.tokens.authenticationFailure
+import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
 
 /*
@@ -53,8 +54,7 @@ class GetOneOrganization(
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String
     ): HttpResponseMessage {
-        // Counter-intuitive:  this fails if you pass the organizationName as the organizationName. ;)
-        return getOne(request, organizationName, OrganizationAPI::class.java, null)
+        return getOne(request, organizationName, OrganizationAPI::class.java, organizationName)
     }
 }
 
@@ -273,9 +273,13 @@ open class BaseFunction(
         clazz: Class<T>,
         organizationName: String? = null
     ): HttpResponseMessage {
-        authenticateAdmin(request)
-            ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
-
+        val claims = AuthenticatedClaims.authenticate(request)
+        if (claims == null ||
+            !claims.authorized(setOf(PRIME_ADMIN_PATTERN, "$organizationName.*.admin", "$organizationName.*.user"))
+        ) {
+            logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
+            return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+        }
         return if (organizationName != null) {
             val (result, outputBody) = facade.findSettingsAsJson(organizationName, clazz)
             facadeResultToResponse(request, result, outputBody)
@@ -299,9 +303,14 @@ open class BaseFunction(
         organizationName: String,
         settingType: SettingType
     ): HttpResponseMessage {
-        authenticateAdmin(request)
-            ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
-
+        val claims = AuthenticatedClaims.authenticate(request)
+        if (claims == null || !claims.authorized(
+                setOf(PRIME_ADMIN_PATTERN, "$organizationName.*.admin", "$organizationName.*.user")
+            )
+        ) {
+            logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
+            return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+        }
         val settings = facade.findSettingHistoryAsJson(organizationName, settingType)
         return HttpUtilities.okResponse(request, settings, facade.getLastModified())
     }
@@ -311,7 +320,6 @@ open class BaseFunction(
     ): HttpResponseMessage {
         authenticateAdmin(request)
             ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
-
         val lastModified = facade.getLastModified()
         return HttpUtilities.okResponse(request, lastModified = lastModified)
     }
@@ -329,9 +337,14 @@ open class BaseFunction(
         clazz: Class<T>,
         organizationName: String? = null
     ): HttpResponseMessage {
-        authenticateAdmin(request)
-            ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
-
+        val claims = AuthenticatedClaims.authenticate(request)
+        if (claims == null || !claims.authorized(
+                setOf(PRIME_ADMIN_PATTERN, "$organizationName.*.admin", "$organizationName.*.user")
+            )
+        ) {
+            logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
+            return HttpUtilities.unauthorizedResponse(request, authorizationFailure)
+        }
         val setting = facade.findSettingAsJson(settingName, clazz, organizationName)
         return if (setting == null) {
             HttpUtilities.notFoundResponse(request)
