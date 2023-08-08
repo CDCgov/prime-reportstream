@@ -1,7 +1,10 @@
-import { Icon } from "@trussworks/react-uswds";
+import Sidenav from "../Sidenav.mdx";
 
 import site from "../../../../content/site.json";
 
+<LayoutSidenav><Sidenav /></LayoutSidenav>
+
+<LayoutMain>
 # Sample payloads and output
 <p className="text-base">Last updated: 5/26/23</p>
 
@@ -11,7 +14,7 @@ import site from "../../../../content/site.json";
 
 Input
 
-<a href={site.assets.standardCsv.path} className="usa-button">Download a sample file <Icon.FileDownload /></a>
+<a href={site.assets.standardCsv.path} className="usa-button">Download a sample file <Icon name='FileDownload' /></a>
 
 Response
 
@@ -52,7 +55,7 @@ Response
 
 Input
 
-<a href={site.assets.exampleHl7.path} download className="usa-button">Download a sample file <Icon.FileDownload /></a>
+<a href={site.assets.exampleHl7.path} download className="usa-button">Download a sample file <Icon name='FileDownload' /></a>
 
 Response
 
@@ -82,3 +85,4 @@ Response
 * [A simple schema meant for testing and demos](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/schema_documentation/sample-phd1-sample.md)
 * [A complex real-life schema used by our sister project, SimpleReport, for submitting COVID-19 data](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/schema_documentation/primedatainput-pdi-covid-19.md)
 * [Other examples of COVID-19 schemas](https://github.com/CDCgov/prime-reportstream/tree/master/prime-router/docs/schema_documentation)
+</LayoutMain>
