@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import MainLayout from "./MainLayout";
 

@@ -5023,6 +5023,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/github-slugger@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "@types/github-slugger@npm:1.3.0"
+  checksum: 6561f26814d7c6bf619b1abfba07930ddc2f71e1e1d58a03c20852fd4086ec17f8ee98a44a8ac77ba917c0ff7052cd3fe74071fba59bd526dff8a3a980e2e528
+  languageName: node
+  linkType: hard
+
 "@types/glob@npm:^7.1.3":
   version: 7.2.0
   resolution: "@types/glob@npm:7.2.0"
@@ -14886,6 +14893,7 @@ __metadata:
     "@trussworks/react-uswds": ^5.1.1
     "@types/dompurify": ^3.0.2
     "@types/downloadjs": ^1.4.2
+    "@types/github-slugger": ^1.3.0
     "@types/html-to-text": ^9.0.1
     "@types/lodash.chunk": ^4.2.7
     "@types/lodash.omit": ^4.5.7
