@@ -3,14 +3,14 @@ import classNames from "classnames";
 import { Outlet, useMatches } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
-import App from "../App";
-import { DAPHeader } from "../components/header/DAPHeader";
-import { ReportStreamHeader } from "../components/header/ReportStreamHeader";
-import { ReportStreamFooter } from "../components/ReportStreamFooter";
-import RSErrorBoundary from "../components/RSErrorBoundary";
-import SenderModeBanner from "../components/SenderModeBanner";
-import { USLink } from "../components/USLink";
-import { useSessionContext } from "../contexts/SessionContext";
+import App from "../../App";
+import { DAPHeader } from "../../components/header/DAPHeader";
+import { ReportStreamHeader } from "../../components/header/ReportStreamHeader";
+import { ReportStreamFooter } from "../../components/ReportStreamFooter";
+import RSErrorBoundary from "../../components/RSErrorBoundary";
+import SenderModeBanner from "../../components/SenderModeBanner";
+import { USLink } from "../../components/USLink";
+import { useSessionContext } from "../../contexts/SessionContext";
 
 export type MainLayoutProps = React.PropsWithChildren<{}>;
 
