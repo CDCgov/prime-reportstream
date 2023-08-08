@@ -1222,7 +1222,7 @@ class Server2ServerAuthTests : CoolTest() {
             .bearer(userToken)
             .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
             .responseString()
-        if (responseUserGet.statusCode != HttpStatus.UNAUTHORIZED.value()) {
+        if (responseWrongOrg.statusCode != HttpStatus.UNAUTHORIZED.value()) {
             bad(
                 "***$name Test settings/organizations Unhappy Path (user-GET Wrong Org Receivers) FAILED:" +
                     " Expected HttpStatus ${HttpStatus.UNAUTHORIZED}. Got ${responseWrongOrg.statusCode}"
