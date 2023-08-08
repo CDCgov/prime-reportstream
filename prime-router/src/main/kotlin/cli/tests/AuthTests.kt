@@ -39,6 +39,7 @@ import java.util.UUID
 class OktaAuthTests : CoolTest() {
     override val name = "oktaauth"
     override val description = "Test Okta Authorization and Authentication of various waters endpoints"
+
     // Not SMOKE because it requires login to do settings stuff.  Can't automate.  Doesn't work on Staging.
     override val status = TestStatus.DRAFT
 
