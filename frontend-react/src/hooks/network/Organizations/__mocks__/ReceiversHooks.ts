@@ -3,10 +3,10 @@ import * as UseOrganizationReceiversFeedHook from "../../../UseOrganizationRecei
 
 export const mockUseOrganizationReceivers = jest.spyOn(
     UseOrganizationReceiversHook,
-    "useOrganizationReceivers"
+    "useOrganizationReceivers",
 );
 
 export const mockUseOrganizationReceiversFeed = jest.spyOn(
     UseOrganizationReceiversFeedHook,
-    "useOrganizationReceiversFeed"
+    "useOrganizationReceiversFeed",
 );

@@ -23,7 +23,7 @@ const baseItem: CsvSchemaItem = {
 describe("CsvSchemaDocumentationItem", () => {
     test("renders a schema item", () => {
         const { container } = renderApp(
-            <CsvSchemaDocumentationItem item={baseItem} />
+            <CsvSchemaDocumentationItem item={baseItem} />,
         );
         expect(container.firstChild).toMatchSnapshot();
     });

@@ -21,7 +21,7 @@ const isReceiver = (s: string) => !isSender(s) && !isAdmin(s);
  * admitted to both sender and receiver features. */
 const permissionCheck = (
     level: PERMISSIONS,
-    token: AccessToken | undefined
+    token: AccessToken | undefined,
 ): boolean => {
     if (!token) return false;
     const oktaGroups = getOktaGroups(token);

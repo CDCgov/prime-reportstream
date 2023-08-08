@@ -32,7 +32,7 @@ export function getHrefRoute(href?: string): string | undefined {
 
     try {
         const url = new URL(
-            href.replace(/^\/\//, `${window.location.protocol}//`)
+            href.replace(/^\/\//, `${window.location.protocol}//`),
         );
         if (
             url.protocol.startsWith("http") &&
@@ -111,7 +111,7 @@ export const USLinkButton = ({
             [`usa-button--${size}`]: size,
             "usa-button--unstyled": unstyled,
         },
-        className
+        className,
     );
     return <SafeLink {...anchorHTMLAttributes} className={linkClassname} />;
 };
@@ -206,7 +206,7 @@ export function isExternalUrl(href?: string) {
     try {
         // Browsers allow // shorthand in anchor urls but URL does not
         const url = new URL(
-            href.replace(/^\/\//, `${window.location.protocol}//`)
+            href.replace(/^\/\//, `${window.location.protocol}//`),
         );
         return (
             (url.protocol.startsWith("http") &&

@@ -10,7 +10,7 @@ import config from "../../config";
 import { EditSenderSettings } from "./EditSenderSettings";
 
 const mockData: OrgSenderSettingsResource = new TestResponse(
-    ResponseType.SENDER_SETTINGS
+    ResponseType.SENDER_SETTINGS,
 ).data;
 let editJsonAndSaveButton: HTMLElement;
 let nameField: HTMLElement;
@@ -73,8 +73,8 @@ describe("EditSenderSettings", () => {
         settingsServer.use(
             rest.get(
                 `${config.API_ROOT}/settings/organizations/abbott/senders/user1234`,
-                (req, res, ctx) => res(ctx.json(mockData))
-            )
+                (req, res, ctx) => res(ctx.json(mockData)),
+            ),
         );
     });
     afterAll(() => settingsServer.close());
@@ -120,7 +120,7 @@ describe("EditSenderSettings", () => {
 
         beforeEach(() => {
             jest.spyOn(console, "trace").mockImplementationOnce(
-                consoleTraceSpy
+                consoleTraceSpy,
             );
         });
 

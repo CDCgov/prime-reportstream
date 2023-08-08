@@ -26,8 +26,8 @@ const MapSections = ({ cMap }: { cMap: ContentMap }) => {
     const arraySections: JSX.Element[] = [];
     cMap.forEach((value, key) =>
         arraySections.push(
-            <ArraySection dirs={value!!} title={key} key={key} />
-        )
+            <ArraySection dirs={value!!} title={key} key={key} />,
+        ),
     );
     return <>{arraySections}</>;
 };

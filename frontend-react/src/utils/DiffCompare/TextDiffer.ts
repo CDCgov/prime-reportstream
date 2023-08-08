@@ -18,7 +18,7 @@ import { DifferMarkupResult } from "./AbstractDiffer";
 export const insertHighlight = (
     text: string,
     offset: number,
-    length: number
+    length: number,
 ): string => {
     if (
         text.length === 0 ||
@@ -50,7 +50,7 @@ export const insertHighlight = (
  */
 export const textDifferMarkup = (
     leftText: string,
-    rightText: string
+    rightText: string,
 ): DifferMarkupResult => {
     const differ = Diff(leftText, rightText);
     differ.compose();
@@ -65,7 +65,7 @@ export const textDifferMarkup = (
             eachDiff.sestype !== SES_TYPE.DELETE
                 ? acc
                 : insertHighlight(acc, eachDiff.index - 1, eachDiff.len),
-        leftText
+        leftText,
     );
 
     // Right items are "Added" in the Sess world
@@ -74,7 +74,7 @@ export const textDifferMarkup = (
             eachDiff.sestype !== SES_TYPE.ADD
                 ? acc
                 : insertHighlight(acc, eachDiff.index - 1, eachDiff.len),
-        rightText
+        rightText,
     );
 
     /** we're given the opportunity to normalize the text*/

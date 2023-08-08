@@ -30,7 +30,7 @@ describe("Basic rendering", () => {
     test("Data is displayed", () => {
         const name = screen.getByText(
             `${mockData.firstName} ${mockData.lastName}`,
-            { exact: false }
+            { exact: false },
         );
         const email = screen.getByText(mockData.email, {
             exact: false,

@@ -18,7 +18,7 @@ describe("useValueSetsMeta", () => {
                 console.error("unhandled");
                 throw new Error("unhandled " + req.url);
             },
-        })
+        }),
     );
     afterEach(() => lookupTableServer.resetHandlers());
     afterAll(() => lookupTableServer.close());
@@ -26,7 +26,7 @@ describe("useValueSetsMeta", () => {
     test("returns expected meta values", async () => {
         const { result } = renderWithAppWrapper();
         await waitFor(() =>
-            expect(result.current.valueSetMeta.createdAt).toBeDefined()
+            expect(result.current.valueSetMeta.createdAt).toBeDefined(),
         );
         const { createdAt, createdBy } = result.current.valueSetMeta;
         expect(createdAt).toEqual("now");
@@ -37,7 +37,7 @@ describe("useValueSetsMeta", () => {
         const { result } = renderWithAppWrapper(LookupTables.VALUE_SET_ROW);
 
         await waitFor(() =>
-            expect(result.current.valueSetMeta.createdAt).toBeDefined()
+            expect(result.current.valueSetMeta.createdAt).toBeDefined(),
         );
         const { createdAt, createdBy } = result.current.valueSetMeta;
         expect(createdAt).toEqual("later");

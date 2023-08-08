@@ -89,8 +89,8 @@ describe("EditReceiverSettings", () => {
         settingsServer.use(
             rest.get(
                 `${config.API_ROOT}/settings/organizations/abbott/receivers/user1234`,
-                (req, res, ctx) => res(ctx.json(mockData))
-            )
+                (req, res, ctx) => res(ctx.json(mockData)),
+            ),
         );
     });
     afterAll(() => settingsServer.close());
