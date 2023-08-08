@@ -9,7 +9,6 @@ import {
     ElementDirectory,
 } from "../../components/Content/MarkdownDirectory";
 import { Contact, ServiceRequest } from "../../pages/support/index-legacy";
-import { FaqPage } from "../../pages/support/faq/FaqPage";
 
 enum SupportTitles {
     CONTACT = "Contact",
@@ -31,18 +30,6 @@ export const SupportDirectoryTools = new ContentDirectoryTools()
 
 /* An array of directories to be rendered */
 export const supportDirectories: ContentDirectory[] = [
-    new ElementDirectory()
-        .setTitle(SupportTitles.FAQ)
-        .setSlug(SupportDirectoryTools.getSlug(SupportTitles.FAQ))
-        .setDescription(
-            "Answers to common questions about working with ReportStream.",
-        )
-        .addElement(
-            contentContainer(
-                FaqPage,
-                SupportDirectoryTools.makeCrumb(SupportTitles.FAQ),
-            ),
-        ),
     new ElementDirectory()
         .setTitle(SupportTitles.SERVICE_REQUEST)
         .setSlug(SupportDirectoryTools.getSlug(SupportTitles.SERVICE_REQUEST))
