@@ -121,9 +121,9 @@ class HL7toFhirTranslator internal constructor(
     // https://github.com/LinuxForHealth/hl7v2-fhir-converter/issues/499
     private fun handleBirthTime(bundle: Bundle, hl7Message: Message) {
         // If it is an ORM message, we want to check if it is a timestamp and add it as an extension if it is.
-        val type = HL7Reader.getMessageType(hl7Message)
-        if (type != null && type == "ORM" && HL7Reader.isBirthTime(hl7Message)) {
-            val birthTime = HL7Reader.getBirthTime(hl7Message)
+
+        val birthTime = HL7Reader.getBirthTime(hl7Message)
+        if (birthTime.length > 8) {
             val patient = try {
                 bundle.entry.first { it.resource.resourceType.name == "Patient" }.resource as Patient
             } catch (e: NoSuchElementException) {
@@ -135,6 +135,7 @@ class HL7toFhirTranslator internal constructor(
                 "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
                 DateTimeType(Hl7RelatedGeneralUtils.dateTimeWithZoneId(birthTime, ""))
             )
+
             patient.birthDateElement.addExtension(extension)
         }
     }
