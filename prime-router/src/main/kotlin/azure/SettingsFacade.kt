@@ -107,7 +107,10 @@ class SettingsFacade(
     ): T? {
         val setting = db.transactReturning { txn ->
             val settingType = settingTypeFromClass(clazz.name)
-            if (organizationName != null)
+            // When getting the organization setting (settingType == Organization), organizationName has to be null
+            // and name has to be the organizationName, due to how the database and query is structured. An Organization
+            // cannot have a parent, whereas Senders and Receivers do have a parent (their org)
+            if (organizationName != null && settingType != SettingType.ORGANIZATION)
                 db.fetchSetting(settingType, name, organizationName, txn)
             else
                 db.fetchSetting(settingType, name, parentId = null, txn)

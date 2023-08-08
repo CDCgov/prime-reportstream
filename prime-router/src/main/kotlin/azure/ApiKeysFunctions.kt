@@ -221,7 +221,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
         useNewApiResponse: Boolean = false
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
-        if (claims == null || !claims.authorized(setOf(PRIME_ADMIN_PATTERN, "$orgName.*.admin"))) {
+        if (claims == null || !claims.authorized(setOf(PRIME_ADMIN_PATTERN, "$orgName.*.admin", "$orgName.*.user"))) {
             logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
             return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
         }
