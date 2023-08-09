@@ -1,6 +1,36 @@
 // AutoUpdateFileChromatic
 @use "../../global-modules.scss" as *;
 
+.Navbar {
+  height: 104px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  :global {
+    .usa-nav-container {
+      align-items: center;
+      height: 100%;
+      margin: 0;
+    }
+
+    .usa-nav {
+      height: 100%;
+    }
+
+    .usa-nav__primary button {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .usa-nav__primary .usa-accordion__button span {
+      padding-right: 8px;
+    }
+    
+  }
+}
+
 .NavbarDefault {
   background-color: color("white");
   border-bottom: 1px solid color("primary-darker");

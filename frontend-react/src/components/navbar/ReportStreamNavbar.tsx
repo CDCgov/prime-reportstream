@@ -7,6 +7,7 @@ import {
     PrimaryNav,
     Title,
 } from "@trussworks/react-uswds";
+import classnames from "classnames";
 import { useState } from "react";
 
 import styles from "./ReportStreamNavbar.module.scss";
@@ -123,11 +124,10 @@ export const ReportStreamNavbar = ({
             ></div>
             <Header
                 basic={true}
-                className={
-                    blueVariant
-                        ? styles.NavbarBlueVariant
-                        : styles.NavbarDefault
-                }
+                className={classnames(styles.Navbar, {
+                    [styles.NavbarBlueVariant]: blueVariant,
+                    [styles.NavbarDefault]: !blueVariant,
+                })}
             >
                 <div className="usa-nav-container">
                     <div className="usa-navbar">
