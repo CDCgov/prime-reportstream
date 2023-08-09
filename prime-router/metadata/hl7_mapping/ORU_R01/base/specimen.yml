@@ -47,7 +47,7 @@ elements:
     schema: ../../common/datatype/ce-coded-with-exceptions
 
   - name: specimen-type-modifier
-    resource: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/specimen-type-modifier").value'
+    resource: '%resource.extension(%`rsext-specimen-type-modifier`).value'
     condition: '%resource.exists()'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-5'
@@ -75,7 +75,7 @@ elements:
     schema: ../../common/datatype/ce-coded-with-exceptions
 
   - name: specimen-source-site-modifier
-    resource: '%resource.collection.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/specimen-source-site-modifier").value'
+    resource: '%resource.collection.extension(%`rsext-specimen-source-site-modifier`).value'
     condition: '%resource.exists()'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-9'
