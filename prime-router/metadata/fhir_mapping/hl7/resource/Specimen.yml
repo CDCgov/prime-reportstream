@@ -75,3 +75,36 @@ subject:
   valueOf: datatype/Reference
   expressionType: resource
   specs: $Patient
+
+extension_1:
+  condition: $value NOT_NULL
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, OBR.15.1
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: specimen-name-or-code
+
+extension_2:
+  condition: $value NOT_NULL
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, OBR.15.2
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: specimen-source-additives
+
+extension_3:
+  condition: $value NOT_NULL
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, OBR.15.3
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: specimen-collection-method

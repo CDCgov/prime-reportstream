@@ -360,45 +360,12 @@ extension_6:
   valueOf: extension/Extension
   expressionType: resource
   vars:
-    value: String, OBR.15.1
-  constants:
-    KEY_NAME_SUFFIX: String
-    urlValue: specimen-name-or-code
-
-extension_7:
-  condition: $value NOT_NULL
-  generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
-  vars:
-    value: String, OBR.15.2
-  constants:
-    KEY_NAME_SUFFIX: String
-    urlValue: specimen-source-additives
-
-extension_8:
-  condition: $value NOT_NULL
-  generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
-  vars:
-    value: String, OBR.15.3
-  constants:
-    KEY_NAME_SUFFIX: String
-    urlValue: specimen-collection-method
-
-extension_9:
-  condition: $value NOT_NULL
-  generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
-  vars:
     value: String, OBX.29
   constants:
     KEY_NAME_SUFFIX: String
     urlValue: observation-type
 
-extension_10:
+extension_7:
   condition: $value NOT_NULL
   generateList: true
   valueOf: extension/Extension
