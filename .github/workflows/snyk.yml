@@ -29,9 +29,9 @@ jobs:
       run:
         working-directory: prime-router
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/gradle-jdk11@master
+        uses: snyk/actions/gradle-jdk11@b98d498629f1c368650224d6d212bf7dfa89e4bf
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
