@@ -1,10 +1,15 @@
 package fhirengine.engine
 
 import fhirengine.translation.hl7.utils.FhirPathFunctions
+import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.metadata.LivdLookup
+import java.time.ZoneId
 import org.hl7.fhir.r4.model.Base
+import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.Device
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.StringType
@@ -143,5 +148,36 @@ class CustomFhirPathFunctions : FhirPathFunctions {
         } else {
             mutableListOf(StringType(result))
         }
+    }
+
+    /**
+     * This optional function allows ReportStream UP to convert dateTime to highPrecision format as in
+     * Covid-19 pipline.
+     * [dateTime] - dateTime value convert
+     * [appContext] - specific application context which contain receiver translate setting.
+     */
+    override fun useHighPrecisionHeaderDateTimeFormat(
+        dateTime: BaseDateTimeType,
+        appContext: CustomContext
+    ): String? {
+        val receiver = appContext.receiver
+        val hl7Config = receiver?.translation as? Hl7Configuration
+
+        val retVal =
+            if (hl7Config?.useHighPrecisionHeaderDateTimeFormat == true) {
+                val tz = if (dateTime.timeZone?.id != null) {
+                    ZoneId.of(dateTime.timeZone?.id)
+                } else DateUtilities.utcZone
+
+                DateUtilities.formatDateForReceiver(
+                    DateUtilities.parseDate(dateTime.asStringValue()),
+                    tz,
+                    receiver.dateTimeFormat ?: DateUtilities.DateTimeFormat.OFFSET,
+                    hl7Config.convertPositiveDateTimeOffsetToNegative ?: false,
+                    hl7Config.useHighPrecisionHeaderDateTimeFormat)
+            } else {
+                null
+            }
+        return retVal
     }
 }

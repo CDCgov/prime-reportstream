@@ -15,6 +15,7 @@ import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
+import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -181,6 +182,7 @@ class FhirPathUtilsTests {
     fun `test convertDateTimeToHL7 with CustomContext with receiver setting`() {
         val receiver = mockkClass(Receiver::class)
         val appContext = mockkClass(CustomContext::class)
+        every { appContext.customFhirFunctions }.returns(CustomFhirPathFunctions())
         every { appContext.receiver }.returns(receiver)
         every { receiver.dateTimeFormat }.returns(null)
         every { receiver.translation }.returns(
@@ -189,6 +191,8 @@ class FhirPathUtilsTests {
                 convertPositiveDateTimeOffsetToNegative = false
             )
         )
+        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2023-07-21T10:30:17.328-07:00"), appContext))
+            .isEqualTo("20230721103017.0000-0700")
         assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11.567Z"), appContext))
             .isEqualTo("20150405122211.5670+0000")
         assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11.567891Z"), appContext))

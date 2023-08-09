@@ -159,7 +159,7 @@ object FhirPathUtils : Logging {
             }
             // InstantType and DateTimeType are both subclasses of BaseDateTime and can use the same helper
             evaluated[0] is InstantType || evaluated[0] is DateTimeType -> {
-                convertDateTimeToHL7(evaluated[0] as BaseDateTimeType)
+                convertDateTimeToHL7(evaluated[0] as BaseDateTimeType, appContext)
             }
             evaluated[0] is DateType -> convertDateToHL7(evaluated[0] as DateType)
 
@@ -194,8 +194,6 @@ object FhirPathUtils : Logging {
             return hl7DateTime
         }
 
-        val receiver = appContext?.receiver
-        val hl7Config = receiver?.translation as? Hl7Configuration
         val hl7DateTime = DTM(null)
 
         return when (dateTime.precision) {
@@ -216,18 +214,12 @@ object FhirPathUtils : Logging {
             }
 
             else -> {
-                if (hl7Config?.useHighPrecisionHeaderDateTimeFormat == true) {
-                    val tz = if (dateTime.timeZone?.id != null) {
-                        ZoneId.of(dateTime.timeZone?.id)
-                    } else
-                        DateUtilities.utcZone
-                    DateUtilities.formatDateForReceiver(
-                        DateUtilities.parseDate(dateTime.asStringValue()),
-                        tz,
-                        receiver.dateTimeFormat ?: DateUtilities.DateTimeFormat.OFFSET,
-                        hl7Config.convertPositiveDateTimeOffsetToNegative ?: false,
-                        hl7Config.useHighPrecisionHeaderDateTimeFormat
-                    )
+                val highPrecisionDateTime =
+                    if (appContext?.customFhirFunctions != null)
+                        appContext.customFhirFunctions.useHighPrecisionHeaderDateTimeFormat(dateTime, appContext)
+                    else null
+                if (highPrecisionDateTime != null) {
+                    highPrecisionDateTime
                 } else {
                     var secs = dateTime.second.toFloat()
                     hl7DateTime.setDateSecondPrecision(
