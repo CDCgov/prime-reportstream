@@ -3,8 +3,8 @@ import { Link } from "@trussworks/react-uswds";
 import { SectionProp } from "../HomeProps";
 import usamapsvg from "../../../content/usa_w_territories.svg";
 import { USLink } from "../../../components/USLink";
+import { Citation } from "../../../shared/Citation/Citation";
 
-import CitationSection from "./Citation";
 import styles from "./LiveMapSection.module.scss";
 
 export default function LiveMapSection({ section }: { section: SectionProp }) {
@@ -54,7 +54,7 @@ export default function LiveMapSection({ section }: { section: SectionProp }) {
             </div>
             {section.citation?.map((citation, citationIndex) => {
                 return (
-                    <CitationSection
+                    <Citation
                         data-testid="citation"
                         key={citationIndex}
                         citation={citation}

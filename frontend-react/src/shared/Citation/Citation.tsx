@@ -1,10 +1,6 @@
-import { CitationProp } from "../HomeProps";
+import { CitationProp } from "../../pages/home/HomeProps";
 
-export default function CitationSection({
-    citation,
-}: {
-    citation: CitationProp;
-}) {
+export const Citation = ({ citation }: { citation: CitationProp }) => {
     return (
         <div className="padding-top-9">
             <h3 data-testid="title" className="font-sans-lg">
@@ -19,4 +15,4 @@ export default function CitationSection({
             </p>
         </div>
     );
-}
+};
