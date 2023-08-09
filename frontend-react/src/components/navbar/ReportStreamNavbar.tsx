@@ -3,6 +3,7 @@ import {
     Header,
     Menu,
     NavDropDownButton,
+    NavMenuButton,
     PrimaryNav,
     Title,
 } from "@trussworks/react-uswds";
@@ -16,6 +17,14 @@ export const ReportStreamNavbar = ({
     blueVariant?: boolean;
 }) => {
     const [openMenuItem, setOpenMenuItem] = useState<null | string>(null);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const toggleMobileMenu = () => {
+        if (mobileMenuOpen) {
+            setMobileMenuOpen(false);
+        } else {
+            setMobileMenuOpen(true);
+        }
+    };
     const setMenu = (menuName: string) => {
         if (openMenuItem === menuName) {
             setOpenMenuItem(null);
@@ -36,6 +45,7 @@ export const ReportStreamNavbar = ({
                 <NavDropDownButton
                     menuId={menuName.toLowerCase()}
                     isOpen={openMenuItem === menuName}
+                    isCurrent={openMenuItem === menuName}
                     label={menuName}
                     onToggle={() => {
                         setMenu(menuName);
@@ -49,7 +59,7 @@ export const ReportStreamNavbar = ({
             </>
         );
     };
-    const testItemsMenu = [
+    const menuItems = [
         <Dropdown
             menuName="About"
             dropdownList={[
@@ -107,25 +117,40 @@ export const ReportStreamNavbar = ({
         />,
     ];
     return (
-        <Header
-            basic={true}
-            className={
-                blueVariant ? styles.NavbarBlueVariant : styles.NavbarDefault
-            }
-        >
-            <div className="usa-nav-container">
-                <div className="usa-navbar">
-                    <Title>ReportStream</Title>
-                </div>
-                <PrimaryNav items={testItemsMenu}>
-                    <div>
-                        <Button outline type="button">
-                            Login
-                        </Button>
-                        <Button type="button">Connect now</Button>
+        <>
+            <div
+                className={`usa-overlay ${mobileMenuOpen ? "is-visible" : ""}`}
+            ></div>
+            <Header
+                basic={true}
+                className={
+                    blueVariant
+                        ? styles.NavbarBlueVariant
+                        : styles.NavbarDefault
+                }
+            >
+                <div className="usa-nav-container">
+                    <div className="usa-navbar">
+                        <Title>ReportStream</Title>
+                        <NavMenuButton
+                            onClick={toggleMobileMenu}
+                            label="Menu"
+                        />
                     </div>
-                </PrimaryNav>
-            </div>
-        </Header>
+                    <PrimaryNav
+                        items={menuItems}
+                        mobileExpanded={mobileMenuOpen}
+                        onToggleMobileNav={toggleMobileMenu}
+                    >
+                        <div>
+                            <Button outline type="button">
+                                Login
+                            </Button>
+                            <Button type="button">Connect now</Button>
+                        </div>
+                    </PrimaryNav>
+                </div>
+            </Header>
+        </>
     );
 };

@@ -3,13 +3,15 @@
 
 .NavbarDefault {
   background-color: color("white");
+  border-bottom: 1px solid color("primary-darker");
 }
 
 .NavbarBlueVariant {
   background-color: color("primary-darker");
+  border-bottom: 1px solid color("white");
 
   :global {
-    .usa-logo__text, .usa-nav__primary button span, .usa-nav__submenu .usa-nav__submenu-item a {
+    .usa-logo__text, .usa-nav__primary button span{
       color: color("white");
     }
     
@@ -20,6 +22,11 @@
     .usa-button.usa-button--outline {
       box-shadow:  0 0 0 2px color("white");
       color: color("white");
+
+      &:hover {
+        box-shadow:  0 0 0 2px color("gray-10");
+        color: color("gray-10");
+      }
     }
     
     .usa-button:not(.usa-button.usa-button--outline) {
@@ -27,7 +34,25 @@
       color: color("primary-darker");
 
       &:hover {
-        background-color: color("gray-5");
+        background-color: color("gray-10");
+      }
+    }
+
+    .usa-nav__primary button[aria-expanded=true], .usa-nav__submenu {
+      background-color: color("white");
+    }
+
+    .usa-nav__submenu .usa-nav__submenu-item a {
+      color: color("primary-darker");
+    }
+
+    .usa-nav__primary button[aria-expanded=true] {
+      & span {
+        color: color("primary-darker");
+
+        &:after {
+          background-color: color("primary-darker");
+        }
       }
     }
   }
