@@ -7,4 +7,8 @@ export default {
     component: ReportStreamNavbar,
 };
 
-export const RsNavbar = (): React.ReactElement => <ReportStreamNavbar />;
+export const NavbarDefault = (): React.ReactElement => <ReportStreamNavbar />;
+
+export const NavbarBlueVariant = (): React.ReactElement => (
+    <ReportStreamNavbar blueVariant={true} />
+);

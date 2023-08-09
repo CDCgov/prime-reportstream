@@ -8,7 +8,13 @@ import {
 } from "@trussworks/react-uswds";
 import { useState } from "react";
 
-export const ReportStreamNavbar = () => {
+import styles from "./ReportStreamNavbar.module.scss";
+
+export const ReportStreamNavbar = ({
+    blueVariant,
+}: {
+    blueVariant?: boolean;
+}) => {
     const [openMenuItem, setOpenMenuItem] = useState<null | string>(null);
     const setMenu = (menuName: string) => {
         if (openMenuItem === menuName) {
@@ -101,7 +107,12 @@ export const ReportStreamNavbar = () => {
         />,
     ];
     return (
-        <Header basic={true} className="bg-white">
+        <Header
+            basic={true}
+            className={
+                blueVariant ? styles.NavbarBlueVariant : styles.NavbarDefault
+            }
+        >
             <div className="usa-nav-container">
                 <div className="usa-navbar">
                     <Title>ReportStream</Title>
