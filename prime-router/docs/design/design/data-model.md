@@ -63,7 +63,7 @@ As child reports are created, the `report_lineage` table is also updated to link
 
 #### `item_lineage` table
 
-The `item_lineage` table helps keep track of individual Report [Items](../../universal-pipeline/README.md#report-and-item) as they flow through the Universal Pipeline and get split into different, and potentially multiple, Reports. Similar to the `report_lineage` table, the `item_lineage` table contains the id of the parent and child report, and in addition, the parent and child index. The index indicates what item in a report the `item_lineage` refers to. For example, if `parent_index` is 2 and `child_index` is 3, that means the second item in the parent Report file is the third item in the child Report file. There is no `item` table, a decision that was made during the initial design, so items only show up in the database via the `item_lineage` table for subsequent child Reports. Also like `report_lineage`, `item_lineage` is stored as a graph and can be queried with Postgres' recursive [Common Table Expressions](https://www.postgresql.org/docs/current/queries-with.html) feature.
+The `item_lineage` table helps keep track of individual Report [Items](../../universal-pipeline/README.md#report-and-item) as they flow through the Universal Pipeline and get split into different, and potentially multiple, Reports. Similar to the `report_lineage` table, the `item_lineage` table contains the id of the parent and child Report, and in addition, the parent and child index. The index indicates what Item in a Report the `item_lineage` refers to. For example, if `parent_index` is 2 and `child_index` is 3, that means the second item in the parent Report file is the third item in the child Report file. There is no `item` table, a decision that was made during the initial design, so items only show up in the database via the `item_lineage` table for subsequent child Reports. Also like `report_lineage`, `item_lineage` is stored as a graph and can be queried with Postgres' recursive [Common Table Expressions](https://www.postgresql.org/docs/current/queries-with.html) feature.
 
 #### Examples
 
@@ -98,15 +98,133 @@ The `lookup_table_row` table is responsible for storing the individual rows of a
 
 `data` is a JSON object representing the data of a Lookup Table and can be anything. See `LookupTable.kt` for more details on how the potentially varied data gets loaded into an Object.
 
-### Settings
+### Organizations
+
+In ReportStream, Reports flow from a "sender" to one or more "receivers", both of which belong to exactly one ReportStream "Organization". An Organization can have one or more ReportStream Receivers and one or more ReportStream Senders under it. Due to that nature of the use case mostly commonly supported by ReportStream (ELR), usually, but not always, an Organization either has only senders or only receivers. If an Organization contains only senders, the Organization itself is colloquially referred to as a "Sender." If an Organization contains only receivers, the Organization itself is colloquially referred to as a "Receiver."
+
+For example, in the case of California, there is an Organization called _ca-dph_, with the following Receivers (some omitted for brevity) and no Senders.
+
+- elr-saphirestage
+- elr-test
+
+The ReportStream team conversationally refers to this organization as "California Department of Public Health, one of our receivers" but technically speaking it is more accurate and descriptive to say "California Department of Public Health, a ReportStream Organization with multiple Receivers and no Senders."
 
 #### Associated Tables
 
-- setting
+- setting 
+
+#### `setting` table
+
+The `setting` table contains three types of settings, indicated by the `type` column: `ORGANIZATION`, `SENDER`, `RECEIVER`. Each row represents one of these objects, with the `values` json column containing the settings for that object. 
+
+Each row also has an `organization_id`, which is always null for an `ORGANIZATION` type but, in the case of `SENDER` and `RECEIVER` types, links to the particular `ORGANIZATION` type that Sender or Receiver belongs to. This is how the relationship between Organizations and Senders/Receivers is modeled in the database.
+
+Furthermore, the `setting` table also supports versioning. When a change is made to a setting, the `values` column does not get overriden, instead, a new row is created and the `version` column is incremented for the new row, as well as the `is_active` column being updated accordingly for both the new and old row.
+
+**Example Table** (`created_at` and `created_by` columns redacted for brevity).
+
+| setting_id | type         | name                | organization_id | values  | is_deleted | is_active | version |
+|------------|--------------|---------------------|-----------------|---------|------------|-----------|---------|
+| 229        | ORGANIZATION | flexion             | <null>          | { ... } | false      | true      | 3       |
+| 62         | RECEIVER     | simulated-lab       | 229             | { ... } | false      | true      | 8       |
 
 #### Organization Settings
 
-##### API KEYS
+Organizations serve as containers for Senders and Receivers, but have their own settings as well. The settings for an Organization are self-explanatory. For more information on the `keys` parameter, see [SMART on FHIR oauth implementation](../features/0002-authentication.md#via-smart-on-fhir-oauth-implementation-details).
+
+```json
+{
+  "keys": [
+    {
+      "keys": [],
+      "scope": "flexion.*.report"
+    },
+    {
+      "keys": [
+        {
+          "e": "AQAB",
+          "n": "nUBC3WokRK6O3avr91nZjxmif-AegNsFrN7a0p9V38W_Zy5zxTmqRNy9NXcVlQwc3g4p7xuiw2qtIgUBPIcFgRoDe4B7abnIw198oqT4VjeRf5C1n1vlJKKBwxdHsU9yZv4mdSDW8P7TtnIoO_U8RwGmux_AeOjMZESbFP3192swWdjVzsS6pkEhE1U65rhc3psCYseXQ7qMkQyEy9JzMRNNKKg9z1E3YhmJXHfk2yB-LE6c_j1UV9tZtDSLhJnowySVwagLUdfIylBQa87h1hq-Ob3ltbjjSG3GZlifhgnmKGg_Fn2dLfni7tL0brh5Fq6HXU-llvHUZcUoKrJB1Q",
+          "kid": "local-umn2-flexion",
+          "kty": "RSA"
+        }
+      ],
+      "scope": "flexion.*.user"
+    }
+  ],
+  "name": "flexion",
+  "description": "Flexion, Inc.",
+  "jurisdiction": "FEDERAL"
+}
+```
+
+#### Sender Settings
+
+Sender settings allow the Sender to indicate what [topic](TBD issue 10477) they would like to use as well as the format of their message. `allowDuplicates` allows sender to indicate if duplicate Items in a Report should be filtered out prior to processing.
+
+Example Sender settings configuration. Deprecated options have been omitted.
+```json
+{
+  "name": "etor-service-sender",
+  "topic": "full-elr",
+  "format": "FHIR",
+  "allowDuplicates": true
+}
+```
+
+#### Receiver Settings
+
+Receiver settings primarily allow the Receiver to configure:
+1. [Transport protocol](../../universal-pipeline/send.md#configuration)
+2. [Batching](../../universal-pipeline/batch.md#Configuration)
+3. [Routing Filters](../../universal-pipeline/route.md#filters)
+4. [Translations](../../universal-pipeline/convert-translate.md)
+5. [Topic](TBD issue 10477)
+
+Example Receiver settings configuration. Deprecated options have been omitted.
+```json
+{
+    "name": "simulated-lab",
+    "topic": "full-elr",
+    "timing": {
+        "timeZone": "EASTERN",
+        "operation": "MERGE",
+        "whenEmpty": {
+            "action": "NONE",
+            "onlyOncePerDay": false
+        },
+        "initialTime": "00:00",
+        "numberPerDay": 1440,
+        "maxReportCount": 100
+    },
+    "transport": {
+        "host": "sftp",
+        "port": "22",
+        "type": "SFTP",
+        "filePath": "./upload",
+        "credentialName": "DEFAULT-SFTP"
+    },
+    "deidentify": false,
+    "description": "",
+    "translation": {
+        "type": "HL7",
+        "nameFormat": "standard",
+        "schemaName": "metadata/hl7_mapping/OML_O21/OML_O21-base",
+    },
+    "externalName": "Simulated State Public Health Lab ETOR Receiver",
+    "qualityFilter": [],
+    "routingFilter": [],
+    "customerStatus": "active",
+    "dateTimeFormat": "OFFSET",
+    "conditionFilter": [],
+    "organizationName": "flexion",
+    "deidentifiedValue": "",
+    "jurisdictionalFilter": [
+        "%hl7MessageType = 'O21'"
+    ],
+    "processingModeFilter": [],
+    "reverseTheQualityFilter": false
+}
+```
 
 ### ReportStream Support Features
 

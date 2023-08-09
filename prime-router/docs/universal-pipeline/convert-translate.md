@@ -52,6 +52,7 @@ Note: The Translate step will occur after the Route step (next section), but the
       - useHighPrecisionHeaderDateTimeFormat
 - FHIR Transforms
 - CSV Transforms
+- deidentify setting
 
 ## HL7 to FHIR translation process
 Note: This part of the Translate step, which occurs after the Route step (next section)
