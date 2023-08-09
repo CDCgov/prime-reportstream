@@ -1,19 +1,19 @@
 package fhirengine.engine
 
 import fhirengine.translation.hl7.utils.FhirPathFunctions
-import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.metadata.LivdLookup
-import java.time.ZoneId
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.Device
 import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
+import java.time.ZoneId
 
 /**
  * Custom FHIR functions created by report stream to help map from FHIR -> HL7
@@ -174,7 +174,8 @@ class CustomFhirPathFunctions : FhirPathFunctions {
                     tz,
                     receiver.dateTimeFormat ?: DateUtilities.DateTimeFormat.OFFSET,
                     hl7Config.convertPositiveDateTimeOffsetToNegative ?: false,
-                    hl7Config.useHighPrecisionHeaderDateTimeFormat)
+                    hl7Config.useHighPrecisionHeaderDateTimeFormat
+                )
             } else {
                 null
             }

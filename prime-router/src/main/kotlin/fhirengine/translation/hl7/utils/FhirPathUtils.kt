@@ -3,8 +3,6 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import ca.uhn.hl7v2.model.v251.datatype.DT
 import ca.uhn.hl7v2.model.v251.datatype.DTM
-import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.apache.logging.log4j.kotlin.Logging
@@ -22,7 +20,6 @@ import org.hl7.fhir.r4.utils.FHIRLexer.FHIRLexerException
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 import java.time.DateTimeException
 import java.time.LocalTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
