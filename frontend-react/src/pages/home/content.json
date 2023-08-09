@@ -1,5 +1,5 @@
 {
-    "sections": [
+    "howWeHelp": [
         {
             "title": "How we help you",
             "type": "",
@@ -24,7 +24,7 @@
     "otherProducts": [
         {
             "title": "What other products do we work with?",
-            "type": "",
+            "type": "otherProducts",
             "summary": "You may already use other tools for public health reporting or are considering your options. Here is a quick overview of how ReportStream compares with similar products:",
             "features": [
                 {

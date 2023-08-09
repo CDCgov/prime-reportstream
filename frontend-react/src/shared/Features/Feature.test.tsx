@@ -1,8 +1,8 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
-import Feature from "./Feature";
+import { Feature } from "./Feature";
 
 describe("Feature rendering", () => {
     const baseSection = { type: "xyz" };
@@ -58,7 +58,7 @@ describe("DeliveryMethodFeature rendering", () => {
     });
 
     test("renders without error", () => {
-        const image = screen.getByTestId("image");
+        const image = screen.getByTestId("img");
         const heading = screen.getByTestId("heading");
         expect(image).toBeInTheDocument();
         expect(heading).toBeInTheDocument();
@@ -71,6 +71,7 @@ describe("LiveMapFeature rendering", () => {
         img: "test.png",
         imgAlt: "test alt",
         linkInternal: "/how-it-works/where-were-live",
+        summary: "This is a summary",
     };
 
     beforeEach(() => {
@@ -80,9 +81,9 @@ describe("LiveMapFeature rendering", () => {
     });
 
     test("renders without error", () => {
-        const heading = screen.getByTestId("heading");
+        const image = screen.getByTestId("img");
         const summary = screen.getByTestId("summary");
-        expect(heading).toBeInTheDocument();
+        expect(image).toBeInTheDocument();
         expect(summary).toBeInTheDocument();
     });
 });

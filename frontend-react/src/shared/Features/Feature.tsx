@@ -1,15 +1,15 @@
 import React from "react";
 import DOMPurify from "dompurify";
 
-import { FeatureProp, SectionProp } from "../HomeProps";
+import { FeatureProp, SectionProp } from "../../pages/home/HomeProps";
 
-export default function Feature({
+export const Feature = ({
     section,
     feature,
 }: {
     section: SectionProp;
     feature: FeatureProp;
-}) {
+}) => {
     let cleanSummaryHtml = DOMPurify.sanitize(feature!.summary!);
     const totalFeatures = section.features?.length || 0;
     let gridColValue = 12 / totalFeatures;
@@ -19,15 +19,16 @@ export default function Feature({
         <div className={test}>
             {feature.img && (
                 <img
+                    data-testid="img"
                     src={feature.img}
-                    alt=""
+                    alt={feature.imgAlt}
                     className={feature.imgClassName}
                 />
             )}
             {feature.title && (
                 <h3
                     data-testid="heading"
-                    className="usa-prose font-sans-lg padding-top-3 border-top-05 border-primary"
+                    className="usa-prose maxw-mobile-lg font-sans-lg padding-top-3 border-top-05 border-primary"
                 >
                     {feature.title}
                 </h3>
@@ -39,4 +40,4 @@ export default function Feature({
             ></p>
         </div>
     );
-}
+};

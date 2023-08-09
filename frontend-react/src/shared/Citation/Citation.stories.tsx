@@ -15,6 +15,6 @@ const citation = {
     authorTitle: "Senior VP of Operations at Dobrin Group",
 };
 
-export const CitationSection = (): React.ReactElement => (
+export const RSCitation = (): React.ReactElement => (
     <Citation citation={citation} />
 );

@@ -24,7 +24,7 @@ export default function LiveMapSection({ section }: { section: SectionProp }) {
             </h3>
             <div
                 data-testid="map"
-                className="grid-col-8 grid-offset-2 margin-y-8"
+                className="desktop:grid-col-8 desktop:grid-offset-2 margin-y-8"
             >
                 <USLink href="/product/where-were-live">
                     <img
@@ -33,21 +33,21 @@ export default function LiveMapSection({ section }: { section: SectionProp }) {
                         alt="Map of states using ReportStream"
                     />
                 </USLink>
-                <div className="grid-offset-3">
+                <div className="grid-row flex-justify-center">
                     <ul className={styles.legend}>
                         <li>
-                            <span className="bg-primary"></span> Connected
+                            <span className="bg-primary"></span>Connected
                         </li>
                         <li>
-                            <span className="bg-gray-10"></span> Not Connected
+                            <span className="bg-gray-10"></span>Not Connected
                         </li>
                     </ul>
                 </div>
             </div>
-            <div className="grid-row padding-top-4">
+            <div className="grid-row flex-justify-center">
                 <Link
                     href="/product/where-were-live"
-                    className="usa-button usa-button--outline grid-offset-5"
+                    className="usa-button usa-button--outline"
                 >
                     See all partners
                 </Link>

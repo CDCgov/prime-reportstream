@@ -2,11 +2,11 @@ import { Link } from "@trussworks/react-uswds";
 import React from "react";
 
 import { USLink, USSmartLink } from "../../components/USLink";
+import { Feature } from "../../shared/Features/Feature";
 
 import content from "./content.json";
 import Hero from "./Hero";
 import Section from "./Sections/Section";
-import Feature from "./Features/Feature";
 import LiveMapSection from "./Sections/LiveMapSection";
 
 /* INFO
@@ -25,7 +25,7 @@ export const Home = () => {
                     data-testid="container-get-started"
                     className="grid-container"
                 >
-                    {content.sections.map((section, sectionIndex) => {
+                    {content.howWeHelp.map((section, sectionIndex) => {
                         return (
                             <section
                                 data-testid="section"
@@ -49,8 +49,7 @@ export const Home = () => {
                                         },
                                     )}
                                 </div>
-                                <div className="grid-row">
-                                    <div className="grid-col-5"></div>
+                                <div className="grid-row flex-justify-center">
                                     <Link href="" className="usa-button">
                                         Get Started
                                     </Link>
@@ -185,11 +184,11 @@ export const Home = () => {
                 {/* INFO
                     this block of code, renders out Connect with us content. */}
                 <div data-testid="container-connect" className="grid-container">
-                    <section className="usa-section margin-y-0 tablet:padding-top-9 tablet:padding-bottom-9">
-                        <div className="grid-row">
+                    <section className="usa-section">
+                        <div className="grid-row flex-justify-center">
                             <h2
                                 data-testid="heading"
-                                className="font-sans-xl margin-top-0 tablet:margin-bottom-0 grid-offset-2"
+                                className="font-sans-xl margin-top-0 tablet:margin-bottom-0"
                             >
                                 Still exploring if ReportStream is right for
                                 you?
@@ -200,10 +199,10 @@ export const Home = () => {
                                 you.
                             </p>
                         </div>
-                        <div className="grid-row">
+                        <div className="grid-row margin-bottom-2 flex-justify-center">
                             <Link
                                 href="mailto:reportstream@cdc.gov"
-                                className="usa-button grid-offset-5"
+                                className="usa-button"
                             >
                                 Connect with us
                             </Link>

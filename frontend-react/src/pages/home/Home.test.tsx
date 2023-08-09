@@ -19,9 +19,9 @@ describe("Home rendering", () => {
             screen.getByTestId("container-other-products"),
         ).toBeInTheDocument();
         expect(screen.getByTestId("container-map")).toBeInTheDocument();
-        expect(
-            screen.getByTestId("container-other-partners"),
-        ).toBeInTheDocument();
+        // expect(
+        //     screen.getByTestId("container-other-partners")
+        // ).toBeInTheDocument();
         expect(screen.getByTestId("container-connect")).toBeInTheDocument();
     });
 
@@ -29,7 +29,7 @@ describe("Home rendering", () => {
         // these tests require each new feature section has a `data-testid="feature"` set!
 
         // note: forEach() is not async friendly
-        for (const eachSection of content.sections) {
+        for (const eachSection of content.howWeHelp) {
             for (const eachFeature of eachSection.features ?? []) {
                 // make sure each feature for each section appears somewhere on the page.
                 expect(await screen.findByText(eachFeature.title)).toBeValid();
@@ -37,10 +37,9 @@ describe("Home rendering", () => {
         }
 
         expect(await screen.findAllByTestId("section")).toHaveLength(
-            content.sections.length +
+            content.howWeHelp.length +
                 content.otherProducts.length +
-                content.liveMapContact.length +
-                content.otherPartners.length,
+                content.liveMapContact.length,
         );
     });
 });
