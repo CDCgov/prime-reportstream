@@ -9,7 +9,6 @@ import {
     ElementDirectory,
 } from "../../components/Content/MarkdownDirectory";
 import { Contact, ServiceRequest } from "../../pages/support/index-legacy";
-import { FaqPage } from "../../pages/support/faq/FaqPage";
 
 enum SupportTitles {
     CONTACT = "Contact",
@@ -32,40 +31,28 @@ export const SupportDirectoryTools = new ContentDirectoryTools()
 /* An array of directories to be rendered */
 export const supportDirectories: ContentDirectory[] = [
     new ElementDirectory()
-        .setTitle(SupportTitles.FAQ)
-        .setSlug(SupportDirectoryTools.getSlug(SupportTitles.FAQ))
-        .setDescription(
-            "Answers to common questions about working with ReportStream."
-        )
-        .addElement(
-            contentContainer(
-                FaqPage,
-                SupportDirectoryTools.makeCrumb(SupportTitles.FAQ)
-            )
-        ),
-    new ElementDirectory()
         .setTitle(SupportTitles.SERVICE_REQUEST)
         .setSlug(SupportDirectoryTools.getSlug(SupportTitles.SERVICE_REQUEST))
         .setDescription(
-            "Have an issue with an existing connection? Open a ticket with our support team."
+            "Have an issue with an existing connection? Open a ticket with our support team.",
         )
         .addElement(
             contentContainer(
                 ServiceRequest,
-                SupportDirectoryTools.makeCrumb(SupportTitles.SERVICE_REQUEST)
-            )
+                SupportDirectoryTools.makeCrumb(SupportTitles.SERVICE_REQUEST),
+            ),
         ),
     new ElementDirectory()
         .setTitle(SupportTitles.CONTACT)
         .setSlug(SupportDirectoryTools.getSlug(SupportTitles.CONTACT))
         .setDescription(
-            "For general inquiries, questions, or issues. Reach out, we're happy to help!"
+            "For general inquiries, questions, or issues. Reach out, we're happy to help!",
         )
         .addElement(
             contentContainer(
                 Contact,
-                SupportDirectoryTools.makeCrumb(SupportTitles.CONTACT)
-            )
+                SupportDirectoryTools.makeCrumb(SupportTitles.CONTACT),
+            ),
         ),
 ];
 

@@ -27,7 +27,7 @@ interface SortFilter {
 
 export const sortSettingsReducer = (
     state: SortSettings,
-    action: SortSettingsAction
+    action: SortSettingsAction,
 ): SortSettings => {
     const { type, payload } = action;
     switch (type) {

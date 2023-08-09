@@ -110,7 +110,7 @@ const Table = ({
                     return config.rows.sort((a, b) =>
                         localOrder === "ASC"
                             ? a[column].localeCompare(b[column])
-                            : b[column].localeCompare(a[column])
+                            : b[column].localeCompare(a[column]),
                     );
                 }
                 case "bigint":
@@ -118,7 +118,7 @@ const Table = ({
                     return config.rows.sort((a, b) =>
                         localOrder === "ASC"
                             ? a[column] - b[column]
-                            : b[column] - a[column]
+                            : b[column] - a[column],
                     );
                 }
             }

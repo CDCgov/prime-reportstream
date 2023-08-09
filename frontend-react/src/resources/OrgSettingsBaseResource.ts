@@ -33,7 +33,7 @@ export default abstract class OrgSettingsBaseResource extends AuthResource {
 
                 method: "DELETE",
                 schema: null,
-            })
+            }),
         );
     }
 }

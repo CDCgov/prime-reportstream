@@ -20,7 +20,7 @@ const timeRegex: RegExp = /\d{1,2}:\d{2}/;
     limitation for us that doesn't allow us to test negative cases.
 */
 const mockData: ActionDetailsResource = new TestResponse(
-    ResponseType.ACTION_DETAIL
+    ResponseType.ACTION_DETAIL,
 ).data;
 jest.mock("rest-hooks", () => ({
     ...jest.requireActual("rest-hooks"),
@@ -60,15 +60,15 @@ describe("SubmissionDetails", () => {
 
         /* DestinationItem contents*/
         const receiverOrgNameAndService = await screen.findByText(
-            `${mockData.destinations[0].organization}`
+            `${mockData.destinations[0].organization}`,
         );
         const dataStream = await screen.findByText(
-            mockData.destinations[0].service.toUpperCase()
+            mockData.destinations[0].service.toUpperCase(),
         );
         const transmissionDate = await screen.findByText("7 Apr 1970");
         const transmissionTime = screen.getByText(findTimeWithoutDate);
         const recordsTransmitted = await screen.findByText(
-            mockData.destinations[0].itemCount
+            mockData.destinations[0].itemCount,
         );
 
         /*
@@ -113,7 +113,7 @@ describe("DetailItem", () => {
 describe("DestinationItem", () => {
     beforeEach(() => {
         renderApp(
-            <DestinationItem destinationObj={mockData.destinations[0]} />
+            <DestinationItem destinationObj={mockData.destinations[0]} />,
         );
     });
 

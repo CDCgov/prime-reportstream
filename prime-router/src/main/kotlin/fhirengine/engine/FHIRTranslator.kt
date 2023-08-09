@@ -1,6 +1,8 @@
 package gov.cdc.prime.router.fhirengine.engine
 
 import ca.uhn.fhir.context.FhirContext
+import ca.uhn.hl7v2.model.Message
+import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogger
@@ -22,6 +24,8 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFiveChars
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFourChars
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceReferences
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -133,7 +137,7 @@ class FHIRTranslator(
         }
         Report.Format.HL7, Report.Format.HL7_BATCH -> {
             val hl7Message = getHL7MessageFromBundle(bundle, receiver)
-            hl7Message.encode().toByteArray()
+            hl7Message.encodePreserveEncodingChars().toByteArray()
         }
         else -> {
             error("Receiver format ${receiver.format} not supported.")
@@ -237,4 +241,24 @@ class FHIRTranslator(
         }
         return this
     }
+}
+
+/**
+ * Encodes a message while avoiding an error when MSH-2 is five characters long
+ *
+ * @return the encoded message as a string
+ */
+fun Message.encodePreserveEncodingChars(): String {
+    // get encoding characters ...
+    val msh = this.get("MSH") as Segment
+    val encCharString = Terser.get(msh, 2, 0, 1, 1)
+    val hasFiveEncodingChars = encCharString == defaultHl7EncodingFiveChars
+    if (hasFiveEncodingChars) Terser.set(msh, 2, 0, 1, 1, defaultHl7EncodingFourChars)
+    var encodedMsg = encode()
+    if (hasFiveEncodingChars) {
+        encodedMsg = encodedMsg.replace(defaultHl7EncodingFourChars, defaultHl7EncodingFiveChars)
+        // Set MSH-2 back in the in-memory message to preserve original value
+        Terser.set(msh, 2, 0, 1, 1, defaultHl7EncodingFiveChars)
+    }
+    return encodedMsg
 }

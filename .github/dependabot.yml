@@ -5,7 +5,6 @@
 
 version: 2
 updates:
-
   # Maintain dependencies for GitHub Actions Workflows
   - package-ecosystem: "github-actions"
     # Workflow files stored in the
@@ -112,6 +111,68 @@ updates:
       time: "00:17"
       timezone: "US/Eastern"
     rebase-strategy: "disabled"
+    groups:
+      babel:
+        patterns:
+          - "@babel*"
+      mdx:
+        patterns:
+          - "*mdx*"
+      storybook:
+        patterns:
+          - "*storybook*"
+      testing-library:
+        patterns:
+          - "*testing-library/*"
+      eslint:
+        patterns:
+          - "eslint*"
+        exclude-patterns:
+          - "*prettier"
+          - "*cypress"
+          - "*jest*"
+          - "*storybook"
+          - "*testing-library"
+      jest:
+        patterns:
+          - "*jest*"
+      msw:
+        patterns:
+          - "*msw*"
+      prettier:
+        patterns:
+          - "*prettier*"
+      typescript:
+        patterns:
+          - "typescript"
+          - "tslib"
+          - "ts-node"
+          - "@typescript-eslint*"
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+      react-router:
+        patterns:
+          - "*react-router*"
+      cypress:
+        patterns:
+          - "*cypress*"
+      vite:
+        patterns:
+          - "vite*"
+          - "@vitejs*"
+        exclude-patterns:
+          - "@storybook*"
+      okta:
+        patterns:
+          - "@okta*"
+      applicationinsights:
+        patterns:
+          - "@microsoft/applicationinsights*"
+      react-query:
+        patterns:
+          - "*react-query*"
 
   # OPERATIONS
   - package-ecosystem: "docker"
@@ -138,13 +199,13 @@ updates:
     directory: "/operations/app/src/environments/prod"
     schedule:
       interval: "weekly"
-    
+
   # ROUTER
   - package-ecosystem: "docker"
     directory: "/prime-router"
     schedule:
       interval: "weekly"
-    
+
   # All packages weekly
   - package-ecosystem: "gradle"
     directory: "/prime-router"

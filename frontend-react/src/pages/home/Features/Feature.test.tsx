@@ -53,7 +53,7 @@ describe("DeliveryMethodFeature rendering", () => {
             <Feature
                 section={deliveryMethodSection}
                 feature={deliveryFeature}
-            />
+            />,
         );
     });
 
@@ -75,7 +75,7 @@ describe("LiveMapFeature rendering", () => {
 
     beforeEach(() => {
         renderApp(
-            <Feature section={liveMapSection} feature={liveMapFeature} />
+            <Feature section={liveMapSection} feature={liveMapFeature} />,
         );
     });
 

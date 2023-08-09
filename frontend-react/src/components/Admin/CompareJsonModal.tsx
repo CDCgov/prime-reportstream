@@ -66,7 +66,7 @@ export interface CompareSettingsModalProps {
 export const ConfirmSaveSettingModal = forwardRef(
     (
         { uniquid, onConfirm, oldjson, newjson }: CompareSettingsModalProps,
-        ref: Ref<ConfirmSaveSettingModalRef>
+        ref: Ref<ConfirmSaveSettingModalRef>,
     ) => {
         const modalRef = useRef<ModalRef>(null);
         const diffEditorRef = useRef<EditableCompareRef>(null);
@@ -115,7 +115,7 @@ export const ConfirmSaveSettingModal = forwardRef(
                 modalIsOpen: modalRef?.current?.modalIsOpen || false,
                 toggleModal: modalRef?.current?.toggleModal || (() => false),
             }),
-            [diffEditorRef, newjson, modalRef, oldjson]
+            [diffEditorRef, newjson, modalRef, oldjson],
         );
 
         return (
@@ -182,5 +182,5 @@ export const ConfirmSaveSettingModal = forwardRef(
                 </Modal>
             </>
         );
-    }
+    },
 );

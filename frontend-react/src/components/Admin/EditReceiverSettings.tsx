@@ -60,7 +60,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
 
     const orgReceiverSettings: OrgReceiverSettingsResource = useResource(
         OrgReceiverSettingsResource.detail(),
-        { orgname, receivername, action }
+        { orgname, receivername, action },
     );
 
     const { fetch: fetchController } = useController();
@@ -89,7 +89,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
 
             showAlertNotification(
                 "success",
-                `Item '${deleteItemId}' has been deleted`
+                `Item '${deleteItemId}' has been deleted`,
             );
 
             // navigate back to list since this item was just deleted
@@ -98,7 +98,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
         } catch (e: any) {
             console.trace(e);
             showError(
-                `Deleting item '${deleteItemId}' failed. ${e.toString()}`
+                `Deleting item '${deleteItemId}' failed. ${e.toString()}`,
             );
             return false;
         }
@@ -116,7 +116,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },
-            }
+            },
         );
 
         return await response.json();
@@ -128,10 +128,10 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             setLoading(true);
             const latestResponse = await getLatestReceiverResponse();
             setOrgReceiverSettingsOldJson(
-                JSON.stringify(latestResponse, jsonSortReplacer, 2)
+                JSON.stringify(latestResponse, jsonSortReplacer, 2),
             );
             setOrgReceiverSettingsNewJson(
-                JSON.stringify(orgReceiverSettings, jsonSortReplacer, 2)
+                JSON.stringify(orgReceiverSettings, jsonSortReplacer, 2),
             );
             if (
                 action === "edit" &&
@@ -139,7 +139,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             ) {
                 showError(getVersionWarning(VersionWarningType.POPUP));
                 confirmModalRef?.current?.setWarning(
-                    getVersionWarning(VersionWarningType.FULL, latestResponse)
+                    getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
                 confirmModalRef?.current?.disableSave();
             }
@@ -151,7 +151,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             let errorDetail = await getErrorDetailFromResponse(e);
             console.trace(e, errorDetail);
             showError(
-                `Reloading receiver '${receivername}' failed with: ${errorDetail}`
+                `Reloading receiver '${receivername}' failed with: ${errorDetail}`,
             );
             return false;
         }
@@ -174,11 +174,11 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             if (latestResponse.version !== orgReceiverSettings?.version) {
                 // refresh left-side panel in compare modal to make it obvious what has changed
                 setOrgReceiverSettingsOldJson(
-                    JSON.stringify(latestResponse, jsonSortReplacer, 2)
+                    JSON.stringify(latestResponse, jsonSortReplacer, 2),
                 );
                 showError(getVersionWarning(VersionWarningType.POPUP));
                 confirmModalRef?.current?.setWarning(
-                    getVersionWarning(VersionWarningType.FULL, latestResponse)
+                    getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
                 confirmModalRef?.current?.disableSave();
                 return false;
@@ -192,13 +192,13 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             await fetchController(
                 OrgReceiverSettingsResource.update(),
                 { orgname, receivername: receivernamelocal },
-                data
+                data,
             );
 
             await resetReceiverList();
             showAlertNotification(
                 "success",
-                `Item '${receivername}' has been updated`
+                `Item '${receivername}' has been updated`,
             );
             setLoading(false);
             confirmModalRef?.current?.hideModal();
@@ -208,7 +208,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             let errorDetail = await getErrorDetailFromResponse(e);
             console.trace(e, errorDetail);
             showError(
-                `Updating receiver '${receivername}' failed with: ${errorDetail}`
+                `Updating receiver '${receivername}' failed with: ${errorDetail}`,
             );
             return false;
         }
@@ -275,7 +275,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     toolTip={
                         <EnumTooltip
                             vals={getListOfEnumValues(
-                                "reportStreamFilterDefinition"
+                                "reportStreamFilterDefinition",
                             )}
                         />
                     }
@@ -291,7 +291,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     toolTip={
                         <EnumTooltip
                             vals={getListOfEnumValues(
-                                "reportStreamFilterDefinition"
+                                "reportStreamFilterDefinition",
                             )}
                         />
                     }
@@ -313,7 +313,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     toolTip={
                         <EnumTooltip
                             vals={getListOfEnumValues(
-                                "reportStreamFilterDefinition"
+                                "reportStreamFilterDefinition",
                             )}
                         />
                     }
@@ -327,7 +327,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                     toolTip={
                         <EnumTooltip
                             vals={getListOfEnumValues(
-                                "reportStreamFilterDefinition"
+                                "reportStreamFilterDefinition",
                             )}
                         />
                     }

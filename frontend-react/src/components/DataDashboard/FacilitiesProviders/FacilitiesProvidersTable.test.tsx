@@ -98,7 +98,7 @@ describe("FacilitiesProvidersTable", () => {
                 isLoading: false,
             };
             mockUseReceiverSubmitter.mockReturnValue(
-                mockUseReceiverSubmitterCallback
+                mockUseReceiverSubmitterCallback,
             );
 
             // Render the component
@@ -107,11 +107,11 @@ describe("FacilitiesProvidersTable", () => {
 
         test("if no activeService display NoServicesBanner", async () => {
             const heading = await screen.findByText(
-                /Active Services unavailable/i
+                /Active Services unavailable/i,
             );
             expect(heading).toBeInTheDocument();
             const message = await screen.findByText(
-                /No valid receiver found for your organization/i
+                /No valid receiver found for your organization/i,
             );
             expect(message).toBeInTheDocument();
         });
@@ -135,7 +135,7 @@ describe("FacilitiesProvidersTable", () => {
                 isLoading: false,
             };
             mockUseReceiverSubmitter.mockReturnValue(
-                mockUseReceiverSubmitterCallback
+                mockUseReceiverSubmitterCallback,
             );
 
             // Render the component
@@ -148,7 +148,7 @@ describe("FacilitiesProvidersTable", () => {
             expect(screen.getByText("Location")).toBeInTheDocument();
             expect(screen.getByText("Facility type")).toBeInTheDocument();
             expect(
-                screen.getByText("Most recent report date")
+                screen.getByText("Most recent report date"),
             ).toBeInTheDocument();
         });
 

@@ -25,7 +25,7 @@ export default function useSenderResource(initialData?: any) {
             activeMembership?.parsedName,
             activeMembership?.service,
             authorizedFetch,
-        ]
+        ],
     );
     return rsUseQuery(
         [senderDetail.queryKey, activeMembership],
@@ -34,6 +34,6 @@ export default function useSenderResource(initialData?: any) {
             enabled:
                 !!activeMembership?.parsedName && !!activeMembership.service,
             ...(initialData && { initialData: initialData }),
-        }
+        },
     );
 }

@@ -13,16 +13,16 @@ describe("StaticCompare", () => {
                 leftText={leftJson}
                 rightText={rightJson}
                 jsonDiffMode={false}
-            />
+            />,
         );
         const leftCompare = screen.getByTestId("left-compare-text");
         expect(leftCompare.innerHTML).toContain(
-            `"key": "<mark>lef</mark>t json value"`
+            `"key": "<mark>lef</mark>t json value"`,
         );
 
         const rightCompare = screen.getByTestId("right-compare-text");
         expect(rightCompare.innerHTML).toContain(
-            `"key": "<mark>righ</mark>t json value"`
+            `"key": "<mark>righ</mark>t json value"`,
         );
     });
 });

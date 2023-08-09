@@ -5,15 +5,15 @@ import * as StorageTools from "../SessionStorageTools";
  * spies every time. */
 export const mockTokenFromStorage = jest.spyOn(
     StorageTools,
-    "getStoredOktaToken"
+    "getStoredOktaToken",
 );
 
 export const mockStoreFeatureFlags = jest.spyOn(
     StorageTools,
-    "storeFeatureFlags"
+    "storeFeatureFlags",
 );
 
 export const mockGetSavedFeatureFlags = jest.spyOn(
     StorageTools,
-    "getSavedFeatureFlags"
+    "getSavedFeatureFlags",
 );

@@ -18,6 +18,7 @@ import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.Sender.ProcessingType
 import gov.cdc.prime.router.SubmissionReceiver
+import gov.cdc.prime.router.UniversalPipelineReceiver
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.history.azure.SubmissionsFacade
@@ -150,21 +151,22 @@ class ReportFunction(
                 // track the sending organization and client based on the header
                 actionHistory.trackActionSenderInfo(sender.fullName, payloadName)
                 val validatedRequest = validateRequest(request)
-                // removes incoming '#' if included in separation characters
-                val content = validatedRequest.content.replace("|^~\\&#", "|^~\\&")
-                val rawBody = content.toByteArray()
 
                 // if the override parameter is populated, use that, otherwise use the sender value
-                val allowDuplicates = if
-                (!allowDuplicatesParam.isNullOrEmpty()) allowDuplicatesParam == "true"
-                else {
-                    sender.allowDuplicates
-                }
+                val allowDuplicates =
+                    if (!allowDuplicatesParam.isNullOrEmpty())
+                        allowDuplicatesParam == "true"
+                    else
+                        sender.allowDuplicates
 
                 // Only process the report if we are not checking for connection or validation.
                 if (option != Options.CheckConnections && option != Options.ValidatePayload) {
                     val receiver = SubmissionReceiver.getSubmissionReceiver(sender, workflowEngine, actionHistory)
-
+                    val content =
+                        if (receiver is UniversalPipelineReceiver) validatedRequest.content
+                        // removes incoming '#' if included in separation characters
+                        else validatedRequest.content.replace("|^~\\&#", "|^~\\&")
+                    val rawBody = content.toByteArray()
                     // send report on its way, either via the COVID pipeline or the full ELR pipeline
                     receiver.validateAndMoveToProcessing(
                         sender,

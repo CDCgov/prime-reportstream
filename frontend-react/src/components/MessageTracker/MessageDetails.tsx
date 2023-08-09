@@ -107,7 +107,7 @@ export function MessageDetails() {
                             <DetailItem
                                 item="Date/Time Submitted"
                                 content={dateTimeFormatter.format(
-                                    submittedDate
+                                    submittedDate,
                                 )}
                             />
                             <div className="display-flex flex-column margin-bottom-2">
