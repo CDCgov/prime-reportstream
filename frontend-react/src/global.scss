@@ -1,4 +1,5 @@
 // override (change some of the defaults loaded above)
+@forward "styles/uswds_custom_theme";
 @forward "styles/uswds_settings"; // _uswds_settings.scss
 @forward "uswds";
 
