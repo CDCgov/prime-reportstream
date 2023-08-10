@@ -155,6 +155,10 @@ SwIDAQAB
         ),
         version = "0.2.0-oas3"
     ),
+    security = [
+        SecurityRequirement(name = "primeSecurityServerToServer"),
+        SecurityRequirement(name = "primeSecurityAPIKey"),
+    ],
     servers = [
         Server(
             url = "http://localhost:7071/api/",
