@@ -142,7 +142,7 @@ export const ReportStreamNavbar = ({
                         mobileExpanded={mobileMenuOpen}
                         onToggleMobileNav={toggleMobileMenu}
                     >
-                        <div>
+                        <div className="nav-cta-container">
                             <Button outline type="button">
                                 Login
                             </Button>

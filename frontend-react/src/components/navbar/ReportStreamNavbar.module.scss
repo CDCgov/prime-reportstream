@@ -8,32 +8,75 @@
   justify-content: center;
 
   :global {
+    .usa-nav {
+      height: 100%;
+    }
+
     .usa-nav-container {
       align-items: center;
       height: 100%;
       margin: 0;
     }
-
-    .usa-nav {
-      height: 100%;
-    }
-
-    .usa-nav__primary button {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .usa-nav__primary .usa-accordion__button span {
-      padding-right: 8px;
-    }
     
+    .usa-nav.is-visible {
+      .usa-accordion {
+        padding-bottom: 64px;
+      }
+
+      .nav-cta-container {
+        margin-top: 16px;
+        order: 2;
+
+        & .usa-button {
+          margin-bottom: 8px;
+          width: 100%;
+        }
+      }
+  
+      .usa-nav__primary button {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .usa-nav__primary .usa-accordion__button span {
+        padding-right: 8px;
+      }
+    }
   }
 }
 
 .NavbarDefault {
   background-color: color("white");
   border-bottom: 1px solid color("primary-darker");
+
+  :global {
+    .usa-nav__link:hover::after {
+      background-color: color("base-lighter");
+    }
+
+    .usa-nav__primary button[aria-expanded=true] {
+      background-color: color("white");
+
+      & span {
+        color: color("base-darkest");
+
+        &:after {
+          background-color: color("base-darkest");
+        }
+      }
+    }
+  }
+
+  .usa-nav.is-visible {
+    .usa-nav__primary .usa-current::after {
+      background-color: color("base-lighter");
+    }
+
+    .usa-nav__link:hover::after {
+      background-color: color("base-lighter");
+    }
+  }
 }
 
 .NavbarBlueVariant {
@@ -41,7 +84,11 @@
   border-bottom: 1px solid color("white");
 
   :global {
-    .usa-logo__text, .usa-nav__primary button span{
+    .usa-nav__link:hover::after {
+      background-color: color("primary");
+    }
+
+    .usa-logo__text, .usa-nav__primary button span {
       color: color("white");
     }
     
@@ -68,7 +115,7 @@
       }
     }
 
-    .usa-nav__primary button[aria-expanded=true], .usa-nav__submenu {
+    .usa-nav__primary button[aria-expanded=true] .usa-button, .usa-nav__submenu {
       background-color: color("white");
     }
 
@@ -76,12 +123,52 @@
       color: color("primary-darker");
     }
 
-    .usa-nav__primary button[aria-expanded=true] {
-      & span {
-        color: color("primary-darker");
+    .usa-nav.is-visible {
+      background-color: color("primary-darker");
 
-        &:after {
-          background-color: color("primary-darker");
+      .usa-nav__close {
+        svg {
+          fill: color("white");
+        }
+      }
+
+      .usa-nav__primary-item, .usa-nav__submenu-item {
+        border-top: 1px solid color("primary");
+      }
+
+      .usa-nav__primary button {
+        &:hover {
+          background-color: color("primary-dark");
+        }
+      }
+
+      .usa-accordion {
+        border-bottom: 1px solid color("primary");
+      }
+
+      .usa-nav__primary button[aria-expanded=true] {
+        background-color: color("primary-darker");
+        
+        & span {
+          color: color("primary-light");
+        }
+
+        &:hover {
+          background-color: color("primary-dark");
+        }
+      }
+
+      .usa-nav__submenu {
+        background-color: color("primary-darker");
+      }
+
+      .usa-nav__submenu .usa-nav__submenu-item a {
+        color: color("white");
+      }
+
+      .usa-nav__primary a:not(.usa-button) {
+        &:hover {
+          background-color: color("primary-dark");
         }
       }
     }

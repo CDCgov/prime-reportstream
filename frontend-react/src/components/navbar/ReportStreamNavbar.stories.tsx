@@ -5,6 +5,9 @@ import { ReportStreamNavbar } from "./ReportStreamNavbar";
 export default {
     title: "Components/Navbar",
     component: ReportStreamNavbar,
+    parameters: {
+        backgrounds: { default: "dark" },
+    },
 };
 
 export const NavbarDefault = (): React.ReactElement => <ReportStreamNavbar />;
