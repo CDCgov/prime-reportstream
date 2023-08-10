@@ -40,7 +40,7 @@ const uswdsComponents = filterComponents(reactUSWDS);
 const sharedComponents = filterComponents(shared);
 
 export interface MarkdownLayoutProps {
-    children: JSX.Element;
+    children: React.ReactNode;
     frontmatter?: {
         sidenav?: string;
         breadcrumbs?: Array<{ label: string; href: string }>;
@@ -52,8 +52,8 @@ export interface MarkdownLayoutProps {
         backToTop?: boolean;
     };
     toc?: TocEntry[];
-    main?: JSX.Element;
-    nav?: JSX.Element;
+    main?: React.ReactNode;
+    nav?: React.ReactNode;
     mdx?: React.ComponentProps<typeof MDXProvider>;
 }
 

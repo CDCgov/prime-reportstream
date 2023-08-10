@@ -17,4 +17,6 @@ declare module "*.mdx" {
         toc?: boolean | { depth?: number };
         backToTop?: boolean;
     };
+
+    export const toc: TocEntry[];
 }
