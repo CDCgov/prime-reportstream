@@ -1,5 +1,5 @@
 # FHIR Functions
-FHIR functions are functions that can be run on a bundle (ex. retrieve an age or telephone area code) via the command line using the fhirpath tool. To use the FHIR 
+FHIR functions are methods that can be run on a bundle (ex. retrieve an age or telephone area code) via the command line using the fhirpath tool. To use the FHIR 
 path tool, in terminal, run `./prime fhirpath -i <bundle file path here>`. 
 This sets the bundle to be the resource. The resource is the part of the bundle which you can currently run functions
 on. 
