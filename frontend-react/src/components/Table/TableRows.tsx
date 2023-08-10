@@ -155,12 +155,12 @@ export const TableRows = ({
             setUpdatedRow(null); // in case we have some weird old irrelevant data in the state
             setRowToEdit(rowIndex);
         },
-        [rowToEdit, setRowToEdit, updatedRow, onSave]
+        [rowToEdit, setRowToEdit, updatedRow, onSave],
     );
 
     const addingNewRow: boolean = useMemo(
         () => rowToEdit !== undefined && rowToEdit === rows.length,
-        [rowToEdit, rows.length]
+        [rowToEdit, rows.length],
     );
 
     // decouple the rows we are displaying from the rows that have been persisted to allow

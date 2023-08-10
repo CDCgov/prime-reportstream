@@ -31,7 +31,7 @@ describe("useReportsList", () => {
             wrapper: AppWrapper(),
         });
         await waitFor(() =>
-            expect(result.current.reportFacilities?.length).toEqual(2)
+            expect(result.current.reportFacilities?.length).toEqual(2),
         );
     });
 });

@@ -20,7 +20,7 @@ interface DropdownNavProps {
 export const makeNonStaticOption = (
     title: string,
     slug: string,
-    root: string
+    root: string,
 ): NonStaticOption => {
     return { title, slug, root };
 };

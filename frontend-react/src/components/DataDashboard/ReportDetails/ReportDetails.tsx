@@ -33,7 +33,7 @@ export function ReportDetails() {
                 <article>
                     <ReportDetailsSummary report={reportDetail} />
                     {withCatchAndSuspense(
-                        <ReportDetailsTable reportId={reportId!!} />
+                        <ReportDetailsTable reportId={reportId!!} />,
                     )}
                     <HipaaNotice />
                 </article>

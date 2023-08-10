@@ -152,7 +152,7 @@ const CustomSortableTableHeader = ({
 function sortTableData(
     activeColumn: string,
     rowData: RowData[][],
-    sortOrder: FilterOptions
+    sortOrder: FilterOptions,
 ) {
     return sortOrder !== FilterOptions.NONE && activeColumn
         ? rowData.sort((a, b): number => {
@@ -315,7 +315,7 @@ export const Table = ({
                                                     {
                                                         "column-header--sticky":
                                                             sticky,
-                                                    }
+                                                    },
                                                 )}
                                             >
                                                 <p className="column-header-text">

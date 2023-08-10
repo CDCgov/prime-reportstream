@@ -71,8 +71,8 @@ const App = ({ children }: AppProps) => {
             navigate(
                 toRelativeUrl(
                     `${window.location.origin}/admin/settings`,
-                    window.location.origin
-                )
+                    window.location.origin,
+                ),
             );
             return;
         }
@@ -83,8 +83,8 @@ const App = ({ children }: AppProps) => {
             navigate(
                 toRelativeUrl(
                     `${window.location.origin}/upload`,
-                    window.location.origin
-                )
+                    window.location.origin,
+                ),
             );
             return;
         }

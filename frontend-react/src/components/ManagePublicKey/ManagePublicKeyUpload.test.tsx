@@ -23,7 +23,7 @@ describe("ManagePublicKeyUpload", () => {
 
     function doRender(props: Partial<ManagePublicKeyUploadProps> = {}) {
         return renderApp(
-            <ManagePublicKeyUpload {...DEFAULT_PROPS} {...props} />
+            <ManagePublicKeyUpload {...DEFAULT_PROPS} {...props} />,
         );
     }
 
@@ -47,7 +47,7 @@ describe("ManagePublicKeyUpload", () => {
 
         test("displays message", () => {
             expect(
-                screen.getByText(/Your public key is already configured./)
+                screen.getByText(/Your public key is already configured./),
             ).toBeVisible();
         });
     });
@@ -79,7 +79,7 @@ describe("ManagePublicKeyUpload", () => {
             test("only allows .pem files", () => {
                 expect(screen.getByTestId("file-input-input")).toHaveAttribute(
                     "accept",
-                    ".pem"
+                    ".pem",
                 );
             });
         });

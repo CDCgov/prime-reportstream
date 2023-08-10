@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
 import MainLayout from "./MainLayout";
 
@@ -21,7 +21,7 @@ describe("MainLayout", () => {
         renderApp(
             <MainLayout>
                 <ErroringComponent />
-            </MainLayout>
+            </MainLayout>,
         );
         expect(screen.getByRole("main")).toBeInTheDocument();
         expect(screen.getByRole("alert")).toBeInTheDocument();
