@@ -109,7 +109,6 @@ extension_3:
   constants:
     KEY_NAME_SUFFIX: String
     urlValue: specimen-collection-method
-    specimenAdditive: SPM.6
 
 
 extension_4-specimenTypeModifier:
