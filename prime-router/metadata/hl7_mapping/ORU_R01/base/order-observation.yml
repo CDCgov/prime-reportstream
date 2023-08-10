@@ -31,7 +31,8 @@ elements:
     schema: timing-quantity
 
   - name: observation-result-with-aoe
-    resource: '%resource.result.resolve()'
+    # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
+    resource: '%resource.result.resolve() | %service.supportingInfo.resolve().where(specimen.exists().not())'
     schema: observation-result
     resourceIndex: resultIndex
     constants:

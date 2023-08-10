@@ -181,6 +181,14 @@ interpretation:
   vars:
     valueIn: OBX.8
 
+# $suppressNote is a constant that can be passed in so that a note is not generated
+# This was required when we translate the SPECIMEN.OBX segment so that the created observation
+# does not include notes from the OBSERVATION GROUP
+# ORDER_OBSERVATION
+#   NTE -> Should not be included as part of the Observation created from the OBX
+#   SPECIMEN
+#     OBX
+# See use here: https://github.com/CDCgov/prime-reportstream/blob/813fe6d15e780af3ea88eb61ddfbdf2a8f4462a9/prime-router/metadata/fhir_mapping/hl7/resource/ServiceRequest.yml#L380
 note_1:
   valueOf: datatype/Annotation
   expressionType: resource

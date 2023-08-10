@@ -90,7 +90,7 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
     }
 
     /**
-     * Merge a [childSchema] into this one.
+     * Merge a [childSchema] into this one overriding any matching schemas found.
      * @return the reference to the schema
      */
     open fun merge(childSchema: ConfigSchema<T>) = apply {
@@ -111,9 +111,9 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
     }
 
     /**
-     * Find an [elementName] in this schema. This function recursively traverses the entire schema tree to find the
-     * element.
-     * @return the element found or null if not found
+     * Find an [elementName] in this schema. This function recursively traverses the entire schema tree to find all
+     * instances of the element.
+     * @return list of the found elements
      */
     internal fun findElements(elementName: String): List<ConfigSchemaElement> {
         // First try to find the element at this level in the schema.
