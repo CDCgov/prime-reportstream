@@ -2,20 +2,35 @@
 @use "../../global-modules.scss" as *;
 
 .Navbar {
-  height: 104px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+
+  @media (min-width: $tablet) {
+    height: 104px;
+  }
 
   :global {
     .usa-nav {
       height: 100%;
     }
 
+    .usa-menu-btn {
+      cursor: pointer;
+    }
+
     .usa-nav-container {
       align-items: center;
       height: 100%;
       margin: 0;
+    }
+
+    .usa-nav__submenu {
+      margin-top: -26px;
+    }
+
+    .usa-nav__submenu .usa-nav__submenu-item a {
+      padding: 0.5rem 1.5rem;
     }
     
     .usa-nav.is-visible {
@@ -66,15 +81,15 @@
         }
       }
     }
-  }
 
-  .usa-nav.is-visible {
-    .usa-nav__primary .usa-current::after {
-      background-color: color("base-lighter");
-    }
-
-    .usa-nav__link:hover::after {
-      background-color: color("base-lighter");
+    .usa-nav.is-visible {
+      .usa-nav__primary .usa-current::after {
+        background-color: color("base-lighter");
+      }
+  
+      .usa-nav__link:hover::after {
+        background-color: color("base-lighter");
+      }
     }
   }
 }
@@ -92,7 +107,7 @@
       color: color("white");
     }
     
-    .usa-nav__primary button[aria-expanded=false] span::after {
+    .usa-nav__primary button span::after {
       background-color: color("white");
     }
 
