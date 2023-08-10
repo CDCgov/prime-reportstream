@@ -184,16 +184,18 @@ interpretation:
 note_1:
   valueOf: datatype/Annotation
   expressionType: resource
-  condition: $obx3 EQUALS 48767-8
+  condition: $obx3 EQUALS 48767-8 && $suppressNote NULL
   specs: OBX
+  useGroup: true
   vars:
     obx3: STRING, OBX.3.1
     annotationText: STRING, OBX.5
 
 note_2:
   valueOf: datatype/Annotation
-  condition: $annotationText NOT_NULL
+  condition: $annotationText NOT_NULL && $suppressNote NULL
   expressionType: resource
+  useGroup: true
   vars:
     annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '\n')
 
@@ -292,6 +294,12 @@ category:
     code: "laboratory"
     system_code: "observation-category"
     display: "Laboratory"
+
+specimen:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $Specimen
+  useGroup: true
 
 extension_1:
   generateList: true

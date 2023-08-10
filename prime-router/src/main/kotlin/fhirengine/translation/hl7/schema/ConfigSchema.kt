@@ -99,9 +99,9 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
             if (childElement.name.isNullOrBlank()) {
                 throw SchemaException("Child schema ${childSchema.name} found with element with no name.")
             }
-            val elementInSchema = findElement(childElement.name!!)
-            if (elementInSchema != null) {
-                elementInSchema.merge(childElement)
+            val elementInSchemas = findElements(childElement.name!!)
+            if (elementInSchemas.isNotEmpty()) {
+                elementInSchemas.forEach { it.merge(childElement) }
             } else {
                 this.elements.add(childElement)
             }
@@ -115,7 +115,7 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
      * element.
      * @return the element found or null if not found
      */
-    internal fun findElement(elementName: String): ConfigSchemaElement? {
+    internal fun findElements(elementName: String): List<ConfigSchemaElement> {
         // First try to find the element at this level in the schema.
         var elementsInSchema: List<ConfigSchemaElement> = elements.filter { elementName == it.name }
 
@@ -126,12 +126,10 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
             // Why the distinct? A schema can make references to the same schema multiple times, so you could get
             // a list of elements that are identical, so we make sure to get only those that at different.
             elementsInSchema = elements.filter { it.schemaRef != null }.mapNotNull {
-                it.schemaRef?.findElement(elementName)
-            }.distinct()
+                it.schemaRef?.findElements(elementName)
+            }.flatten().distinct()
         }
-        // Sanity check
-        check(elementsInSchema.size <= 1)
-        return if (elementsInSchema.isEmpty()) null else elementsInSchema[0]
+        return elementsInSchema
     }
 }
 
