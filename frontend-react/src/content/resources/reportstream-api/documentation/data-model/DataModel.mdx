@@ -1,11 +1,20 @@
-import { Icon } from "@trussworks/react-uswds";
-import Alert from "../../../../../shared/Alert/Alert";
+import Sidenav from "../../Sidenav.mdx";
+import PatientDataElementsTable from "./PatientDataElementsTable.mdx";
+import OrderAndResultDataElementsTable from "./OrderAndResultDataElementsTable.mdx";
+import SpecimenDataElementsTable from "./SpecimenDataElementsTable.mdx";
+import OrderingProviderDataElementsTable from "./OrderingProviderDataElementsTable.mdx";
+import TestingFacilityDataElementsTable from "./TestingFacilityDataElementsTable.mdx";
+import AskOnEntryTable from "./AskOnEntryTable.mdx";
+import ReportingAndOrderingFacilityDataElementsTable from "./ReportingAndOrderingFacilityDataElementsTable.mdx";
 
+<LayoutSidenav><Sidenav /></LayoutSidenav>
+
+<LayoutMain>
 # Data model
 
 <p className="usa-intro text-base">View API CSV and HL7 Field Requirements in the tables on this page or download all the requirements as CSV.</p>
 
-<a href="/assets/xlsx/ReportStream CSV and HL7 Field Requirements (version 3.0).xlsx" className="usa-button">Download Excel file (.xlsx) <Icon.FileDownload className="usa-icon--auto" /></a><span className="text-base">Last updated: 5/26/23</span>
+<a href="/assets/xlsx/ReportStream CSV and HL7 Field Requirements (version 3.0).xlsx" className="usa-button">Download Excel file (.xlsx) <Icon name='FileDownload' className="usa-icon--auto" /></a><span className="text-base">Last updated: 5/26/23</span>
 
 ***
 
@@ -91,3 +100,4 @@ All Reporting and Ordering Facility Data Elements can be left blank for CSV if s
         <ReportingAndOrderingFacilityDataElementsTable />
     </div>
 </section>
+</LayoutMain>

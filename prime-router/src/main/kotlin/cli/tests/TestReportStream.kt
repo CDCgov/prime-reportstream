@@ -145,6 +145,7 @@ Examples:
             "test" -> require(!key.isNullOrBlank()) { "Must specify --key <secret> to submit reports to --env test" }
             "staging" ->
                 require(!key.isNullOrBlank()) { "Must specify --key <secret> to submit reports to --env staging" }
+
             "prod" -> error("Sorry, prod is not implemented yet")
         }
     }

@@ -6,6 +6,7 @@ import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.v251.segment.MSH
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
+import ca.uhn.hl7v2.util.Terser
 import ca.uhn.hl7v2.validation.ValidationException
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
@@ -90,6 +91,38 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             return if (!timestamp.isEmpty && !timestamp.ts1_Time.isEmpty) {
                 timestamp.ts1_Time.valueAsDate
             } else null
+        }
+
+        /**
+         * Get the type of the [message]
+         * @return the type of message ex. ORU
+         */
+        fun getMessageType(message: Message): String {
+            return (message["MSH"] as MSH).msh9_MessageType.msg1_MessageCode.toString()
+        }
+
+        /**
+         * Get the birthTime from the [message]
+         * @return the birthTime, if available or blank if not
+         */
+        fun getBirthTime(message: Message): String {
+            return try {
+                Terser(message).get("${getPatientPath(message)}/PID-7")
+            } catch (e: HL7Exception) {
+                ""
+            }
+        }
+
+        /**
+         * Get the path that is needed to retrieve the patient info, based on the type of the [hl7Message]
+         * @return the path for retrieving patient info
+         */
+        fun getPatientPath(hl7Message: Message): String? {
+            return when (getMessageType(hl7Message)) {
+                "ORM" -> "PATIENT"
+                "ORU" -> "PATIENT_RESULT/PATIENT"
+                else -> null
+            }
         }
     }
 }
