@@ -1,8 +1,6 @@
 package fhirengine.translation.hl7.utils
 
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import org.hl7.fhir.r4.model.Base
-import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.utils.FHIRPathEngine
 
 /**
@@ -29,15 +27,4 @@ interface FhirPathFunctions {
         parameters: MutableList<MutableList<Base>>?,
         additionalFunctions: FhirPathFunctions? = null
     ): MutableList<Base>
-
-    /**
-     * This optional function allows ReportStream UP to convert dateTime to highPrecision format as in
-     * Covid-19 pipline.
-     * [dateTime] - dateTime value convert
-     * [appContext] - specific application context which contain receiver translate setting.
-     */
-    fun useHighPrecisionHeaderDateTimeFormat(
-        dateTime: BaseDateTimeType,
-        appContext: CustomContext
-    ): String? { return null }
 }

@@ -12,6 +12,7 @@ import assertk.assertions.isTrue
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
+import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
@@ -427,7 +428,10 @@ class FhirToHl7ConverterTests {
         )
 
         every { LivdLookup.find(any(), any(), any(), any(), any(), any(), any(), any()) } returns loincCode
-        val message = FhirToHl7Converter(schema, context = FhirToHl7Context(CustomFhirPathFunctions())).convert(bundle)
+        val message = FhirToHl7Converter(schema,
+            context = FhirToHl7Context(CustomFhirPathFunctions(),
+                null,
+                CustomTranslationFunctions())).convert(bundle)
         assertThat(message.isEmpty).isFalse()
         assertThat(Terser(message).get(element.hl7Spec[0])).isEqualTo(loincCode)
         unmockkObject(LivdLookup, Metadata)
@@ -455,7 +459,7 @@ class FhirToHl7ConverterTests {
 
         val message = FhirToHl7Converter(
             schema,
-            context = FhirToHl7Context(CustomFhirPathFunctions())
+            context = FhirToHl7Context(CustomFhirPathFunctions(),null,CustomTranslationFunctions())
         ).convert(bundle)
         assertThat(message.isEmpty).isFalse()
         assertThat(Terser(message).get(element.hl7Spec[0])).isEqualTo(expectedDate)

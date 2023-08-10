@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import fhirengine.translation.hl7.utils.FhirPathFunctions
-import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.text.StringSubstitutor
@@ -25,7 +24,8 @@ data class CustomContext(
     var focusResource: Base,
     val constants: MutableMap<String, String> = mutableMapOf(),
     val customFhirFunctions: FhirPathFunctions? = null,
-    val receiver: Receiver? = null
+    val config: Any? = null,
+    val translationFunctions: TranslationFunctions? = Hl7TranslationFunctions()
 ) {
     companion object {
         /**
@@ -40,7 +40,8 @@ data class CustomContext(
                     previousContext.focusResource,
                     previousContext.constants.toMap().toMutableMap(), // This makes a copy of the map
                     previousContext.customFhirFunctions,
-                    previousContext.receiver
+                    previousContext.config,
+                    previousContext.translationFunctions
                 )
                 constants.forEach { newContext.constants[it.key] = it.value }
                 newContext
