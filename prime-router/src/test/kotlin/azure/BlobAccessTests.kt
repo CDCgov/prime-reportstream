@@ -112,6 +112,9 @@ class BlobAccessTests {
     fun `download blob`() {
         val streamSlot = CapturingSlot<ByteArrayOutputStream>()
 
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
         val mockedBlobClient = mockkClass(BlobClient::class)
         every { mockedBlobClient.downloadStream(capture(streamSlot)) } answers
             { streamSlot.captured.writeBytes("test".toByteArray()) }
@@ -168,6 +171,9 @@ class BlobAccessTests {
 
     @Test
     fun `delete blob`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
         val mockedBlobClient = mockkClass(BlobClient::class)
         every { mockedBlobClient.delete() } answers { }
         mockkConstructor(BlobClientBuilder::class)
@@ -189,6 +195,9 @@ class BlobAccessTests {
 
     @Test
     fun `check connection`() {
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
         mockkConstructor(BlobServiceClientBuilder::class)
         every { anyConstructed<BlobServiceClientBuilder>().connectionString(any()) } answers
             { BlobServiceClientBuilder() }
@@ -196,7 +205,7 @@ class BlobAccessTests {
 
         BlobAccess.checkConnection("test")
 
-        verify(exactly = 1) { BlobServiceClientBuilder().connectionString(System.getenv("test")) }
+        verify(exactly = 1) { BlobServiceClientBuilder().connectionString("testconnection") }
         verify(exactly = 1) { BlobServiceClientBuilder().buildClient() }
 
         unmockkAll()
