@@ -62,7 +62,7 @@ if command -v gitleaks &> /dev/null; then
 fi
 
 function base_command() {
-    if [[ ${LOCAL_GITLEAKS?} == 0 ]]; then
+    if [[ ${LOCAL_GITLEAKS?} == 1 ]]; then
         echo "running gitleaks locally"
         gitleaks protect \
             --source="${REPO_ROOT?}" \
