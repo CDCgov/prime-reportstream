@@ -27,14 +27,14 @@ status:
 type:
   valueOf: datatype/CodeableConcept
   expressionType: resource
-  specs: SPM.4 | SPM.5
+  specs: SPM.4 | SPM.5 | OBR.15.1
 
 receivedTime:
   type: STRING
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
   expressionType: JEXL
   vars:
-    dateTimeIn: SPM.18
+    dateTimeIn: SPM.18 | OBR.14
 
 collection:
   valueOf: secondary/Collection
@@ -70,3 +70,41 @@ container:
   vars:
     containerTypeCWE: SPM.27
     specimenQuantity: SPM.26
+
+subject:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $Patient
+
+extension_1:
+  condition: $value NOT_NULL
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, OBR.15.1
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: specimen-name-or-code
+
+extension_2:
+  condition: $value NOT_NULL
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, OBR.15.2
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: specimen-source-additives
+
+extension_3:
+  condition: $value NOT_NULL
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, OBR.15.3
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: specimen-collection-method
