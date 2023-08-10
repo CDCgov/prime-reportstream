@@ -4,15 +4,17 @@ system:
 
 value:
   type: STRING
-  valueOf: $id
+  valueOf: $val
   required: true
+  vars:
+    val: XON.10 | $id
 
 type:
   valueOf: datatype/CodeableConcept_var
   condition: $code NOT_NULL
   expressionType: resource
   vars:
-    code: $typeCode
+    code: XON.6 | $typeCode
     system: $typeCodeSystem
 
 period:
