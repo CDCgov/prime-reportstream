@@ -70,6 +70,7 @@ container:
   vars:
     containerTypeCWE: SPM.27
     specimenQuantity: SPM.26
+    specimenAdditive: SPM.6
 
 subject:
   valueOf: datatype/Reference
