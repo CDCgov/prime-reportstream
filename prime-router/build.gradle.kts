@@ -39,7 +39,7 @@ plugins {
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.8.20"
-    id("com.avast.gradle.docker-compose") version "0.16.12"
+    id("com.avast.gradle.docker-compose") version "0.17.4"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
     id("com.nocwriter.runsql") version ("1.0.3")
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.15"
