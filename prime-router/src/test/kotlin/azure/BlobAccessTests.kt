@@ -3,13 +3,18 @@ package gov.cdc.prime.router.azure
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
+import assertk.assertions.isTrue
 import assertk.fail
 import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobClientBuilder
 import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.BlobServiceClientBuilder
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.Schema
+import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.Topic
 import io.mockk.CapturingSlot
 import io.mockk.every
 import io.mockk.mockk
@@ -70,14 +75,45 @@ class BlobAccessTests {
     }
 
     @Test
+    fun `upload report`() {
+        val testUrl = "http://uploadreport"
+        val testFormat = Report.Format.CSV
+        val testBytes = "testbytes".toByteArray()
+
+        val one = Schema(name = "one", topic = Topic.TEST)
+        val metadata = Metadata(schema = one)
+        val report1 = Report(
+            one, listOf(listOf("1", "2"), listOf("3", "4")), source = TestSource,
+            bodyFormat = testFormat, metadata = metadata
+        )
+
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every {
+            BlobAccess.uploadBody(
+                report1.bodyFormat, testBytes, report1.name, null,
+                Event.EventAction.NONE
+            )
+        } returns
+            BlobAccess.BlobInfo(report1.bodyFormat, testUrl, BlobAccess.sha256Digest(testBytes))
+
+        val testBlob = BlobAccess()
+        val result = testBlob.uploadReport(report1, testBytes)
+
+        assertThat(result.format).isEqualTo(testFormat)
+        assertThat(result.blobUrl).isEqualTo(testUrl)
+        assertThat(result.digest).isEqualTo(BlobAccess.sha256Digest(testBytes))
+    }
+
+    @Test
     fun `upload body`() {
-        val testUrl = "http://127.0.0.1"
+        val testUrl = "http://uploadbody"
         val testFormat = Report.Format.CSV
         val testName = "testblob"
         val testBytes = "testbytes".toByteArray()
         val testFolder = "testfolder"
         val testEnv = "testenvvar"
-        val testEvents: List<Event.EventAction> = listOf(
+        val testEvents: List<Event.EventAction?> = listOf(
             Event.EventAction.RECEIVE,
             Event.EventAction.SEND,
             Event.EventAction.BATCH,
@@ -85,7 +121,8 @@ class BlobAccessTests {
             Event.EventAction.ROUTE,
             Event.EventAction.TRANSLATE,
             Event.EventAction.NONE,
-            Event.EventAction.CONVERT
+            Event.EventAction.CONVERT,
+            null
         )
 
         mockkClass(BlobAccess::class)
@@ -94,10 +131,10 @@ class BlobAccessTests {
         every { BlobAccess.Companion.uploadBlob(any(), testBytes) } returns testUrl
 
         testEvents.forEach {
-            val result = if (it == Event.EventAction.CONVERT) {
-                BlobAccess.uploadBody(testFormat, testBytes, testName, action = it)
-            } else {
-                BlobAccess.uploadBody(testFormat, testBytes, testName, testFolder, it)
+            val result = when (it) {
+                null -> BlobAccess.uploadBody(testFormat, testBytes, testName, "")
+                Event.EventAction.CONVERT -> BlobAccess.uploadBody(testFormat, testBytes, testName, action = it)
+                else -> BlobAccess.uploadBody(testFormat, testBytes, testName, testFolder, it)
             }
 
             assertThat(result.format).isEqualTo(testFormat)
@@ -136,16 +173,38 @@ class BlobAccessTests {
         every { anyConstructed<BlobClientBuilder>().buildClient() } returns mockedBlobClient
 
         val result = BlobAccess.uploadBlob(testName, testBytes, testContainer, testEnv)
+        val result2 = BlobAccess.uploadBlob(testName, testBytes, testContainer, testEnv)
 
-        verify(exactly = 1) { mockedBlobClient.upload(any<ByteArrayInputStream>(), testBytes.size.toLong()) }
+        verify(exactly = 2) { mockedBlobClient.upload(any<ByteArrayInputStream>(), testBytes.size.toLong()) }
         assertThat(result).isEqualTo("testurlname")
+        assertThat(result2).isEqualTo("testurlname")
 
         unmockkAll()
     }
 
     @Test
+    fun `blob exists`() {
+        val testUrl = "http://blobexists"
+
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
+        val mockedBlobClient = mockkClass(BlobClient::class)
+        every { mockedBlobClient.exists() } returns true
+        mockkConstructor(BlobClientBuilder::class)
+        every { anyConstructed<BlobClientBuilder>().connectionString(any()) } answers
+            { BlobClientBuilder() }
+        every { anyConstructed<BlobClientBuilder>().endpoint(testUrl) } answers
+            { BlobClientBuilder() }
+        every { anyConstructed<BlobClientBuilder>().buildClient() } returns mockedBlobClient
+
+        val result = BlobAccess.exists(testUrl)
+        assertThat(result).isTrue()
+    }
+
+    @Test
     fun `download blob`() {
-        val testUrl = "http://127.0.0.1"
+        val testUrl = "http://downloadblob"
         val streamSlot = CapturingSlot<ByteArrayOutputStream>()
 
         mockkClass(BlobAccess::class)
@@ -207,7 +266,7 @@ class BlobAccessTests {
 
     @Test
     fun `delete blob`() {
-        val testUrl = "http://127.0.0.1"
+        val testUrl = "http://deleteblob"
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
