@@ -9,9 +9,9 @@ Data is captured and stored in a relational database (Postgres) as [Reports](../
 3. When there is an issue, what were the error or warnings associated with the processing of a particular Report?
 4. What data did a Report contain?
 
-> The data that is contained within a Report or Item (like ordering provider) is often referred to as "metadata", and should not be confused with the more encompassing and general "ReportStream metadata." This document shall discuss both, and will use the terms "Report/Item metadata" and "ReportStream (RS) metadata" to distinguish between the two concepts.
+> The data that is contained within a Report or Item (like ordering provider) is often referred to as "metadata", and should not be confused with the more encompassing and general "ReportStream metadata" discussed hitherto. This document shall discuss both, and will use the terms "Report/Item metadata" and "ReportStream (RS) metadata" to distinguish between the two concepts.
 
-This document shall cover the data and its organization that allows for answering the questions outlined above, hereafter referred to as the **ReportStream data model**.
+This document shall cover the data and its organization that allows for answering the questions about Reports and Items like those outlined above, hereafter referred to as the **ReportStream data model**.
 
 ## ReportStream Postgres Data Model
 
@@ -48,7 +48,7 @@ A Task is created anytime a pipeline step runs. The metadata related to that ste
 
 Since the task table contains the associated report_id, it can be linked to other tables that track the report_id - such as `report_file` and `action_log`.
 
-The table also includes many columns that are nullable, and often will be, depending on what step is associated for that pipeline step. For example, if the associated pipeline step is convert (`next_action` = route), then the `receiver_name` is one of the columns that will be empty since this is not known until later in the pipeline.
+The table also includes many columns that are nullable, and often will be, depending on the associated pipeline step. For example, if the associated pipeline step is convert (`next_action` = route), then the `receiver_name` is one of the columns that will be empty since this is not known until later in the pipeline.
 
 - report_id
 - next_action
@@ -79,7 +79,7 @@ As a Report flows through ReportStream's Universal Pipeline, it can be split up 
 - item_lineage
 
 #### `report_file` table
-Each time a Report is created, an entry is created in `report_file` table where a unique ID identifies the Report. Each Report entry in this table also ties in to the action table and contains data about the report, such as who the sending or receiving org was, what the next action to be performed on the report is, what the URL to the associated blob in azure is, et. al.
+Each time a Report is created, an entry is created in the `report_file` table where a unique ID identifies the Report. Each Report entry in this table also ties in to the action table and contains data about the report, such as who the sending or receiving org was, what the next action to be performed on the report is, what the URL to the associated blob in azure is, et. al.
 
 > It's important to note that the actual Report, which may contain  personally identifiable information (PII), is stored in the internal ReportStream Azure Storage Container and NOT in the database. The database (report_file table) does NOT directly store any PII, only protected links to the blob in Azure!
 
@@ -119,13 +119,13 @@ The `lookup_table_row` table is responsible for storing the individual rows of a
 
 `lookup_table_row_id` is the internal unique identifier of the row, whereas `lookup_table_version_id` links to the `lookup_table_version_id` in the `lookup-table-version` table -- that is to say this column identifies which specific Lookup Table and version of that Lookup Table the row belongs to. 
 
-`row_num` indicates the "virtual" index of the row in the Lookup Table, meaning this logical implementation of a table via two tables in the database isn't actually a single table in memory.
+`row_num` indicates the "virtual" index of the row in the Lookup Table, meaning this logical implementation of a table via two database tables isn't actually a single table in memory.
 
-`data` is a JSON object representing the data of a Lookup Table and can be anything. See `LookupTable.kt` for more details on how the potentially varied data gets loaded into an Object.
+`data` is a JSON object representing the data of a Lookup Table and can be anything. See `LookupTable.kt` for more details on how the potentially varied data gets loaded into an object.
 
 ### Organizations
 
-In ReportStream, Reports flow from a "sender" to one or more "receivers", both of which belong to exactly one ReportStream "Organization". An Organization can have one or more ReportStream Receivers and one or more ReportStream Senders under it. Due to that nature of the use case mostly commonly supported by ReportStream (ELR), usually, but not always, an Organization either has only senders or only receivers. If an Organization contains only senders, the Organization itself is colloquially referred to as a "Sender." If an Organization contains only receivers, the Organization itself is colloquially referred to as a "Receiver."
+In ReportStream, Reports flow from a "sender" to one or more "receivers", both of which belong to exactly one ReportStream "Organization". An Organization can have one or more ReportStream Receivers and one or more ReportStream Senders under it. Due to the nature of the use case mostly commonly supported by ReportStream (ELR), usually, but not always, an Organization either has only senders or only receivers. If an Organization contains only senders, the Organization itself is colloquially referred to as a "Sender." If an Organization contains only receivers, the Organization itself is colloquially referred to as a "Receiver."
 
 For example, in the case of California, there is an Organization called _ca-dph_, with the following Receivers (some omitted for brevity) and no Senders.
 
@@ -184,7 +184,7 @@ Organizations serve as containers for Senders and Receivers, but have their own 
 
 #### Sender Settings
 
-Sender settings allow the Sender to indicate what [topic](TBD issue 10477) they would like to use as well as the format of their message. `allowDuplicates` allows sender to indicate if duplicate Items in a Report should be filtered out prior to processing.
+Sender settings allow the Sender to indicate what [topic](./topic.md) they would like to use as well as the format of their message. `allowDuplicates` allows Senders to indicate if duplicate Items in a Report should be filtered out prior to processing.
 
 Example Sender settings configuration. Deprecated options have been omitted.
 ```json
@@ -203,7 +203,7 @@ Receiver settings primarily allow the Receiver to configure:
 2. [Batching](../../universal-pipeline/batch.md#Configuration)
 3. [Routing Filters](../../universal-pipeline/route.md#filters)
 4. [Translations](../../universal-pipeline/convert-translate.md)
-5. [Topic](TBD issue 10477)
+5. [Topic](./topic.md)
 
 Example Receiver settings configuration. Deprecated options have been omitted.
 ```json
@@ -253,7 +253,7 @@ Example Receiver settings configuration. Deprecated options have been omitted.
 
 ### Report/Item Metadata
 
-Presently, some data that is stored within the Reports/Items that flow through ReportStream is stored in the `covid_result_metadata` table. This table was originally designed to capture fields deemed important or useful by receivers of COVID ELR messages. It enables ReportStream to create receiver-facing dashboards that answer questions like "What _facilities_ are sending data to me" and "How many positive COVID results did I receive last week?"
+Presently, some data that is stored within the Reports/Items themselves that flow through ReportStream is stored in the `covid_result_metadata` table. This table was originally designed to capture fields deemed important or useful by receivers of COVID ELR messages. It enables ReportStream to create receiver-facing dashboards that answer questions like "What _facilities_ are sending data to me" and "How many positive COVID results did I receive last week?"
 
 In an effort to expand the Report/Item metadata functionality beyond COVID and support any ELR message, the `elr_result_metadata` table was created, but was only briefly used for MPox data.
 
@@ -276,7 +276,7 @@ The following fields can be considered "tracking" fields and are used to underst
 - message_id - unique message ID set by the sender in the item itself
 - previous_message_id - pointer/link to the unique id of a previously submitted item.  Usually blank. Or, if an item modifies/corrects a prior item, this field holds the message_id of the prior item.
 
-The following fields are the actual values contained within and item that a receiver may find useful and each fields purpose can be deduced by its name.
+The following fields are the actual values contained within an item that a receiver may find useful and each field's purpose can be deduced by its name.
 
 - equipment_model
 - test_result
@@ -331,7 +331,6 @@ This section shall discuss the rest of the database tables that power backend or
 
 - flyway_schema_history
 - jti_cache
-- task
 
 #### `flyway_schema_history` table
 
