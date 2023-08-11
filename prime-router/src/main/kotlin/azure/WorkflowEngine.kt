@@ -37,6 +37,7 @@ import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
 import java.time.OffsetDateTime
+import java.util.Calendar
 
 /**
  * A top-level object that contains all the helpers and accessors to power the workflow.
@@ -470,6 +471,7 @@ class WorkflowEngine(
                 this.dispatchReport(event, report, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
+
             receiver.timing != null && options != Options.SendImmediately -> {
                 val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
@@ -478,6 +480,7 @@ class WorkflowEngine(
                 this.dispatchReport(event, batchReport, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
+
             receiver.format.isSingleItemFormat -> {
                 report.filteringResults.forEach {
                     val emptyReport = Report(
@@ -500,6 +503,7 @@ class WorkflowEngine(
                     }
                 loggerMsg = "Queued to send immediately: HL7 split into ${report.itemCount} individual reports"
             }
+
             else -> {
                 val event = ReportEvent(Event.EventAction.SEND, report.id, actionHistory.generatingEmptyReport)
                 this.dispatchReport(event, report, actionHistory, receiver, txn)
@@ -689,6 +693,7 @@ class WorkflowEngine(
                 }
                 result.report
             }
+
             "INTERNAL" -> {
                 csvSerializer.readInternal(
                     header.task.schemaName,
@@ -698,6 +703,7 @@ class WorkflowEngine(
                     header.reportFile.reportId
                 )
             }
+
             else -> error("Unsupported read format")
         }
     }
@@ -770,7 +776,11 @@ class WorkflowEngine(
 
         val downloadContent = (reportFile.bodyUrl != null && fetchBlobBody)
         val content = if (downloadContent && BlobAccess.exists(reportFile.bodyUrl)) {
-            BlobAccess.downloadBlob(reportFile.bodyUrl)
+            val startDownloadTime = Calendar.getInstance().timeInMillis
+            val contentToReturn = BlobAccess.downloadBlob(reportFile.bodyUrl)
+            val endDownloadTime = Calendar.getInstance().timeInMillis
+            logger.info("Batch Download Time: " + (endDownloadTime - startDownloadTime))
+            contentToReturn
         } else null
         return Header(task, reportFile, itemLineages, organization, receiver, schema, content, downloadContent)
     }
@@ -874,6 +884,7 @@ class WorkflowEngine(
                     )
                 }
             }
+
             Sender.Format.HL7, Sender.Format.HL7_BATCH -> {
                 try {
                     this.hl7Serializer.readExternal(
@@ -894,6 +905,7 @@ class WorkflowEngine(
                     )
                 }
             }
+
             else -> throw IllegalStateException("Sender format ${sender.format} is not supported")
         }
     }
