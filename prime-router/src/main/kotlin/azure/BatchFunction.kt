@@ -12,7 +12,6 @@ import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.Configuration
 import java.time.OffsetDateTime
-import java.util.Calendar
 
 const val batch = "batch"
 const val defaultBatchSize = 100
@@ -194,7 +193,7 @@ class BatchFunction(
                 actionHistory.trackExistingInputReport(it.task.reportId)
 
                 // download message
-                val bodyBytes = downloadBlobWithMetrics(it)
+                val bodyBytes = BlobAccess.downloadBlob(it.task.bodyUrl)
 
                 // get a Report from the message
                 val (report, sendEvent, blobInfo) = Report.generateReportAndUploadBlob(
@@ -225,7 +224,7 @@ class BatchFunction(
                 actionHistory.trackExistingInputReport(it.task.reportId)
 
                 // download message
-                val bodyBytes = downloadBlobWithMetrics(it)
+                val bodyBytes = BlobAccess.downloadBlob(it.task.bodyUrl)
                 String(bodyBytes)
             }
 
@@ -256,13 +255,5 @@ class BatchFunction(
                 txn
             )
         }
-    }
-
-    private fun downloadBlobWithMetrics(it: WorkflowEngine.Header): ByteArray {
-        val startDownloadTime = Calendar.getInstance().timeInMillis
-        val bodyBytes = BlobAccess.downloadBlob(it.task.bodyUrl)
-        val endDownloadTime = Calendar.getInstance().timeInMillis
-        logger.info("Batch Download Time: " + (endDownloadTime - startDownloadTime))
-        return bodyBytes
     }
 }

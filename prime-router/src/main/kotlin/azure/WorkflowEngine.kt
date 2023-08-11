@@ -37,7 +37,6 @@ import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
 import java.time.OffsetDateTime
-import java.util.Calendar
 
 /**
  * A top-level object that contains all the helpers and accessors to power the workflow.
@@ -776,11 +775,7 @@ class WorkflowEngine(
 
         val downloadContent = (reportFile.bodyUrl != null && fetchBlobBody)
         val content = if (downloadContent && BlobAccess.exists(reportFile.bodyUrl)) {
-            val startDownloadTime = Calendar.getInstance().timeInMillis
-            val contentToReturn = BlobAccess.downloadBlob(reportFile.bodyUrl)
-            val endDownloadTime = Calendar.getInstance().timeInMillis
-            logger.info("Batch Download Time: " + (endDownloadTime - startDownloadTime))
-            contentToReturn
+            BlobAccess.downloadBlob(reportFile.bodyUrl)
         } else null
         return Header(task, reportFile, itemLineages, organization, receiver, schema, content, downloadContent)
     }
