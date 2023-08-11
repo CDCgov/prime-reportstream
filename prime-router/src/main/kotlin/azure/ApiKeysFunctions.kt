@@ -188,10 +188,8 @@ SwIDAQAB
             type = SecuritySchemeType.OAUTH2,
             flows = OAuthFlows(
                 authorizationCode = OAuthFlow(
-                    // authorizationUrl = "https://hhs-prime.okta.com/oauth/authorize",
-                    // tokenUrl = "https://hhs-prime.okta.com/oauth/token",
-                    authorizationUrl = "https://hhs-prime.oktapreview.com/oauth/authorize",
-                    tokenUrl = "https://hhs-prime.oktapreview.com/oauth/token",
+                    authorizationUrl = "https://hhs-prime.oktapreview.com/oauth2/authorize",
+                    tokenUrl = "https://hhs-prime.oktapreview.com/oauth2/token",
                     scopes = [
                         OAuthScope(
                             name = "org_admin",
