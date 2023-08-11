@@ -37,3 +37,20 @@ test("has Support link", async ({ page }) => {
         .click();
     await expect(page).toHaveURL(/.*support/);
 });
+
+test('has Resources link', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByRole('link', { name: 'Resources' }).click();
+
+  await expect(page).toHaveURL(/.*resources/);
+});
+
+test('has Support link', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByRole('link', { name: 'Support' }).click();
+
+  await expect(page).toHaveURL(/.*support/);
+});
+
