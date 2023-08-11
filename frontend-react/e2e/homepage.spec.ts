@@ -1,15 +1,32 @@
 import { test, expect } from '@playwright/test';
 
-test('has correect title', async ({ page }) => {
+test('Has correct title', async ({ page }) => {
   await page.goto('/');
 
   await expect(page).toHaveTitle(/CDC Prime ReportStream/);
 });
 
-test('get started link', async ({ page }) => {
+test('has Product link', async ({ page }) => {
   await page.goto('/');
 
   await page.getByRole('link', { name: 'Product' }).click();
 
   await expect(page).toHaveURL(/.*product\/overview/);
 });
+
+test('has Resources link', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByRole('link', { name: 'Resources' }).click();
+
+  await expect(page).toHaveURL(/.*resources/);
+});
+
+test('has Support link', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByRole('link', { name: 'Support' }).click();
+
+  await expect(page).toHaveURL(/.*support/);
+});
+
