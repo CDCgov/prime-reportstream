@@ -294,6 +294,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
                 // check for valid message type
                 messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
             }
+
             Sender.Format.FHIR -> {
                 val bundles = FhirTranscoder.getBundles(content, actionLogs)
                 report = Report(
@@ -305,6 +306,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
                     topic = sender.topic,
                 )
             }
+
             else -> {
                 throw IllegalStateException("Unexpected sender format ${sender.format}")
             }
@@ -356,6 +358,11 @@ class UniversalPipelineReceiver : SubmissionReceiver {
         }
     }
 
+    enum class MessageType {
+        ORU_R01,
+        ORM_O01
+    }
+
     /**
      * Checks that a [message] is of the supported type(s), and uses the [actionLogs] to add an error
      * message for item with index [itemIndex] if it is not.
@@ -369,7 +376,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
 
         // TODO: This may need to be a configurable value in the future, if we ever support message types other
         //  than ORU_RO1. As of 6/15/2022 multiple message type support is out of scope
-        if (messageType != "ORU_R01") {
+        if (messageType != MessageType.ORU_R01.toString() && messageType != MessageType.ORM_O01.toString()) {
             actionLogs.getItemLogger(itemIndex)
                 .error(InvalidHL7Message("Ignoring unsupported HL7 message type $messageType"))
         }
