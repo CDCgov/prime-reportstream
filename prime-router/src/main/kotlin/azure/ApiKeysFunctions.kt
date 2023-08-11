@@ -15,6 +15,7 @@ import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.JwkSet
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.authenticationFailure
+import io.swagger.v3.oas.annotations.ExternalDocumentation
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -146,8 +147,8 @@ SwIDAQAB
 
 @OpenAPIDefinition(
     info = Info(
-        title = "Prime ReportStream",
-        description = "A router of public health data from senders to receivers",
+        title = "OpenAPI 3.0 API Docs for Prime ReportStream",
+        description = "Prime ReportStream: A router of public health data from senders to receivers",
         contact = Contact(
             name = "USDS at Centers for Disease Control and Prevention",
             url = "https://reportstream.cdc.gov",
@@ -155,7 +156,12 @@ SwIDAQAB
         ),
         version = "0.2.0-oas3"
     ),
+    externalDocs = ExternalDocumentation(
+        description = "ReportStream API Programmer Guide",
+        url = "https://staging.reportstream.cdc.gov/resources/api/getting-started"
+    ),
     security = [
+        SecurityRequirement(name = "primeSecurityOAUTH"),
         SecurityRequirement(name = "primeSecurityServerToServer"),
         SecurityRequirement(name = "primeSecurityAPIKey"),
     ],
@@ -178,12 +184,14 @@ SwIDAQAB
 @SecuritySchemes(
     value = [
         SecurityScheme(
-            name = "primeSecurity",
+            name = "primeSecurityOAUTH",
             type = SecuritySchemeType.OAUTH2,
             flows = OAuthFlows(
                 authorizationCode = OAuthFlow(
-                    authorizationUrl = "https://hhs-prime.okta.com/oauth/authorize",
-                    tokenUrl = "https://hhs-prime.okta.com/oauth/token",
+                    // authorizationUrl = "https://hhs-prime.okta.com/oauth/authorize",
+                    // tokenUrl = "https://hhs-prime.okta.com/oauth/token",
+                    authorizationUrl = "https://hhs-prime.oktapreview.com/oauth/authorize",
+                    tokenUrl = "https://hhs-prime.oktapreview.com/oauth/token",
                     scopes = [
                         OAuthScope(
                             name = "org_admin",
