@@ -201,6 +201,7 @@ class BlobAccess() : Logging {
                 val containerClient = blobServiceClient.getBlobContainerClient(name)
                 try {
                     if (!containerClient.exists()) containerClient.create()
+                    blobContainerClients[blobContainerMetadata] = containerClient
                 } catch (error: BlobStorageException) {
                     // This can happen when there are concurrent calls to the API
                     if (error.errorCode.equals(BlobErrorCode.CONTAINER_ALREADY_EXISTS)) {
