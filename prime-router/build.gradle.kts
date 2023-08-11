@@ -583,16 +583,24 @@ task<Exec>("uploadSwaggerUI") {
     commandLine("./upload_swaggerui.sh")
 }
 
+tasks.register("killFunc") {
+    exec {
+        workingDir = project.rootDir
+        val processName = "func"
+        commandLine = listOf("sh", "-c", "pkill -9 $processName || true")
+    }
+}
+
 tasks.register("run") {
     group = rootProject.description ?: ""
     description = "Run the Azure functions locally.  Note this needs the required services running as well"
-    dependsOn("azureFunctionsRun")
+    dependsOn("killFunc", "azureFunctionsRun")
 }
 
 tasks.register("quickRun") {
     group = rootProject.description ?: ""
     description = "Run the Azure functions locally skipping tests and migration"
-    dependsOn("azureFunctionsRun")
+    dependsOn("killFunc", "azureFunctionsRun")
     tasks["test"].enabled = false
     tasks["jacocoTestReport"].enabled = false
     tasks["compileTestKotlin"].enabled = false

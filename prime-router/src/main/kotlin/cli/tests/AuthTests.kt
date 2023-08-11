@@ -86,6 +86,7 @@ class OktaAuthTests : CoolTest() {
                         "Cannot run test $testName. Invalid access token. " +
                             "Run ./prime login to fetch/refresh a PrimeAdmin access token for " +
                             "the $environment environment."
+
                     )
             }
         }
