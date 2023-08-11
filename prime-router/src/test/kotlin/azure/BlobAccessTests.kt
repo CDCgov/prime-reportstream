@@ -9,6 +9,7 @@ import com.azure.storage.blob.BlobClientBuilder
 import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.BlobServiceClientBuilder
+import gov.cdc.prime.router.Report
 import io.mockk.CapturingSlot
 import io.mockk.every
 import io.mockk.mockk
@@ -17,7 +18,6 @@ import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import io.mockk.verify
-import net.wussmann.kenneth.mockfuel.any
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -70,6 +70,43 @@ class BlobAccessTests {
     }
 
     @Test
+    fun `upload body`() {
+        val testUrl = "http://127.0.0.1"
+        val testFormat = Report.Format.CSV
+        val testName = "testblob"
+        val testBytes = "testbytes".toByteArray()
+        val testFolder = "testfolder"
+        val testEnv = "testenvvar"
+        val testEvents: List<Event.EventAction> = listOf(
+            Event.EventAction.RECEIVE,
+            Event.EventAction.SEND,
+            Event.EventAction.BATCH,
+            Event.EventAction.PROCESS,
+            Event.EventAction.ROUTE,
+            Event.EventAction.TRANSLATE,
+            Event.EventAction.NONE,
+            Event.EventAction.CONVERT
+        )
+
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(testEnv) } returns "testconnection"
+        every { BlobAccess.Companion.uploadBlob(any(), testBytes) } returns testUrl
+
+        testEvents.forEach {
+            val result = if (it == Event.EventAction.CONVERT) {
+                BlobAccess.uploadBody(testFormat, testBytes, testName, action = it)
+            } else {
+                BlobAccess.uploadBody(testFormat, testBytes, testName, testFolder, it)
+            }
+
+            assertThat(result.format).isEqualTo(testFormat)
+            assertThat(result.blobUrl).isEqualTo(testUrl)
+            assertThat(result.digest).isEqualTo(BlobAccess.sha256Digest(testBytes))
+        }
+    }
+
+    @Test
     fun `upload blob`() {
         val testName = "testblob"
         val testContainer = "testcontainer"
@@ -96,8 +133,6 @@ class BlobAccessTests {
         mockkConstructor(BlobClientBuilder::class)
         every { anyConstructed<BlobClientBuilder>().connectionString(any()) } answers
             { BlobClientBuilder() }
-        every { anyConstructed<BlobClientBuilder>().endpoint("http://127.0.0.1") } answers
-            { BlobClientBuilder() }
         every { anyConstructed<BlobClientBuilder>().buildClient() } returns mockedBlobClient
 
         val result = BlobAccess.uploadBlob(testName, testBytes, testContainer, testEnv)
@@ -110,6 +145,7 @@ class BlobAccessTests {
 
     @Test
     fun `download blob`() {
+        val testUrl = "http://127.0.0.1"
         val streamSlot = CapturingSlot<ByteArrayOutputStream>()
 
         mockkClass(BlobAccess::class)
@@ -121,14 +157,14 @@ class BlobAccessTests {
         mockkConstructor(BlobClientBuilder::class)
         every { anyConstructed<BlobClientBuilder>().connectionString(any()) } answers
             { BlobClientBuilder() }
-        every { anyConstructed<BlobClientBuilder>().endpoint("http://127.0.0.1") } answers
+        every { anyConstructed<BlobClientBuilder>().endpoint(testUrl) } answers
             { BlobClientBuilder() }
         every { anyConstructed<BlobClientBuilder>().buildClient() } returns mockedBlobClient
 
-        val result = BlobAccess.downloadBlob("http://127.0.0.1")
+        val result = BlobAccess.downloadBlob(testUrl)
 
         verify(exactly = 1) { BlobClientBuilder().connectionString(any()) }
-        verify(exactly = 1) { BlobClientBuilder().endpoint("http://127.0.0.1") }
+        verify(exactly = 1) { BlobClientBuilder().endpoint(testUrl) }
         verify(exactly = 1) { BlobClientBuilder().buildClient() }
         assertThat(result).isEqualTo("test".toByteArray())
 
@@ -171,6 +207,7 @@ class BlobAccessTests {
 
     @Test
     fun `delete blob`() {
+        val testUrl = "http://127.0.0.1"
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
@@ -179,14 +216,14 @@ class BlobAccessTests {
         mockkConstructor(BlobClientBuilder::class)
         every { anyConstructed<BlobClientBuilder>().connectionString(any()) } answers
             { BlobClientBuilder() }
-        every { anyConstructed<BlobClientBuilder>().endpoint("http://127.0.0.1") } answers
+        every { anyConstructed<BlobClientBuilder>().endpoint(testUrl) } answers
             { BlobClientBuilder() }
         every { anyConstructed<BlobClientBuilder>().buildClient() } returns mockedBlobClient
 
-        BlobAccess.deleteBlob("http://127.0.0.1")
+        BlobAccess.deleteBlob(testUrl)
 
         verify(exactly = 1) { BlobClientBuilder().connectionString(any()) }
-        verify(exactly = 1) { BlobClientBuilder().endpoint("http://127.0.0.1") }
+        verify(exactly = 1) { BlobClientBuilder().endpoint(testUrl) }
         verify(exactly = 1) { BlobClientBuilder().buildClient() }
         verify(exactly = 1) { mockedBlobClient.delete() }
 
