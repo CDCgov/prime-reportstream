@@ -63,13 +63,14 @@ note_1:
     noteText: SPM.14
 
 container:
-  condition: $containerTypeCWE NOT_NULL
+  condition: $containerTypeCWE NOT_NULL || $specimenAdditive NOT_NULL
   valueOf: secondary/Container
   expressionType: resource
   generateList: true
   vars:
     containerTypeCWE: SPM.27
     specimenQuantity: SPM.26
+    specimenAdditive: SPM.6
 
 subject:
   valueOf: datatype/Reference
@@ -108,3 +109,20 @@ extension_3:
   constants:
     KEY_NAME_SUFFIX: String
     urlValue: specimen-collection-method
+
+
+extension_4-specimenTypeModifier:
+  condition: $spm5 NOT_NULL && $spm4 NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    spm5: SPM.5
+    spm4: SPM.4
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: specimen-type-modifier
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept
+      expressionType: resource
+      specs: SPM.5
