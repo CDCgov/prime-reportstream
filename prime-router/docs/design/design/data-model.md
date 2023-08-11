@@ -1,5 +1,3 @@
-TODO: Document our use of Postgres and how we use it to store "metadata"
-
 # ReportStream Data Model and Metadata
 
 ## Overview
@@ -19,7 +17,7 @@ This document shall cover the data and its organization that allows for answerin
 
 All ReportStream metadata is stored in ReportStream's internal Postgres database. The data is split up into various tables and relationships between the tables, allowing for some complex queries. The following sections are organized based on the real world data ReportStream models, and each section may discuss one or more database tables.
 
-### Actions
+### Actions and Tasks
 
 Anytime something recordable happens in ReportStream, an action is inserted into the database `action` table. There are many types of actions in ReportStream, and the generated list can be found here:
 ```
@@ -33,6 +31,7 @@ Actions are mainly used by the [history API](../../universal-pipeline/README.md#
 
 - action
 - action_log
+- task
 
 #### `action` table
 
@@ -42,6 +41,32 @@ Each entry in the `action` table contains data that helps give context around th
 Every action can have one or more `action_log` entries associated with them. To this end, the `action_log` table has `action_log_id` as the primary key and foreign keys into `action` and `report_file` tables via `action_id` and `report_id` foreign keys, respectively. 
 
 The main column in `action_log` is `detail`, a jsbon type which contains the contents of the message being logged.
+
+#### `task` table
+
+A Task is created anytime a pipeline step runs. The metadata related to that step, like the id of the associated report, the name of the next pipeline step to run, the receiver_name (if known), the data type of the report (HL7v2 vs FHIR), and other useful information is recorded to the `task` table. The complete list of columns can be found below.
+
+Since the task table contains the associated report_id, it can be linked to other tables that track the report_id - such as `report_file` and `action_log`.
+
+The table also includes many columns that are nullable, and often will be, depending on what step is associated for that pipeline step. For example, if the associated pipeline step is convert (`next_action` = route), then the `receiver_name` is one of the columns that will be empty since this is not known until later in the pipeline.
+
+- report_id
+- next_action
+- next_action_at
+- schema_name
+- receiver_name
+- item_count
+- body_format
+- body_url
+- created_at
+- translated_at
+- batched_at
+- sent_at
+- wiped_at
+- errored_at
+- retry_token
+- processed_at
+- routed_at
 
 ### Report and Item Lineage
 
@@ -226,7 +251,106 @@ Example Receiver settings configuration. Deprecated options have been omitted.
 }
 ```
 
+### Report/Item Metadata
+
+Presently, some data that is stored within the Reports/Items that flow through ReportStream is stored in the `covid_result_metadata` table. This table was originally designed to capture fields deemed important or useful by receivers of COVID ELR messages. It enables ReportStream to create receiver-facing dashboards that answer questions like "What _facilities_ are sending data to me" and "How many positive COVID results did I receive last week?"
+
+In an effort to expand the Report/Item metadata functionality beyond COVID and support any ELR message, the `elr_result_metadata` table was created, but was only briefly used for MPox data.
+
+The legacy pipeline uses the `covid_result_metadata` table and powers the STLT Dashboard on the ReportStream website. Neither metadata table is used by the Universal Pipeline. At the moment, the UP does not track or record Report/Item metadata at all.
+
+#### Associated Tables
+
+- covid_result_metadata
+- elr_result_metadata
+
+#### `covid_result_metadata` table
+
+See the example below for the data points that are recorded in the `covid_result_metadata` table.
+
+The following fields can be considered "tracking" fields and are used to understand which Report/Item the metadata belongs to.
+
+- covid_results_metadata_id - uniquely identifies a row of data belonging to a Report
+- report_id - the id of the report_file the metadata belongs to
+- report_index - the index of the item in the linked report_file the metadata belongs to
+- message_id - unique message ID set by the sender in the item itself
+- previous_message_id - pointer/link to the unique id of a previously submitted item.  Usually blank. Or, if an item modifies/corrects a prior item, this field holds the message_id of the prior item.
+
+The following fields are the actual values contained within and item that a receiver may find useful and each fields purpose can be deduced by its name.
+
+- equipment_model
+- test_result
+- test_result_code
+- ordering_facility_name
+- ordering_facility_city
+- ordering_facility_county
+- ordering_facility_state
+- ordering_facility_postal_code
+- ordering_provider_name
+- ordering_provider_id
+- ordering_provider_county
+- ordering_provider_state
+- ordering_provider_postal_code
+- patient_state
+- patient_county
+- patient_postal_code
+- patient_age
+- patient_gender
+- patient_gender_code
+- patient_ethnicity
+- patient_ethnicity_code
+- patient_race
+- patient_race_code
+- patient_tribal_citizenship
+- patient_tribal_citizenship_code
+- specimen_collection_date_time
+- testing_lab_city
+- testing_lab_county
+- testing_lab_postal_code
+- testing_lab_state
+- testing_lab_name
+- testing_lab_clia
+- created_at
+- site_of_care
+- sender_id
+- test_kit_name_id
+- test_performed_loinc_code
+- organization_name
+- patient_country
+- processing_mode_code
+
+#### `elr_result_metadata` table
+
+There are currently no plans to start using the `elr_result_metadta` table. Metadata tracking in the Universal Pipeline is likely to take an all-together different approach to the metadata question, and may not store metadata in the Postgres database at all, but rather somewhere else where maintainability, extensibility, and searching performance may be improved.
+
 ### ReportStream Support Features
 
-This section shall discuss the rest of the DB tables that power backend or non-user facing functionality of ReportStream. These tables round out the rest of the functionality that ReportStream relies on the database to enable.
+This section shall discuss the rest of the database tables that power backend or non-user facing functionality of ReportStream. These tables round out the rest of the features and functionality of ReportStream that the database enables.
+
+#### Associated Tables
+
+- flyway_schema_history
+- jti_cache
+- task
+
+#### `flyway_schema_history` table
+
+This table is used to record ReportStream's Flyway migrations and is managed by Flyway. See [Exploring the Flyway Schema History Table](https://www.red-gate.com/hub/product-learning/flyway/exploring-the-flyway-schema-history-table) for more information.
+
+#### `jti_cache` table
+
+The `jti_cache` table is a simple table that keeps track of JWT IDs (JTI) for ReportStream's [server-server authentication implementation](../features/0002-authentication.md#via-smart-on-fhir-oauth-implementation).
+
+The table contains the following columns:
+
+- jti_cache_id
+- jti
+- expires_at
+- created_at
+
+### Deprecated Tables
+
+The following tables deserve a mention since they exist but are not used and thus not worth covering in detail.
+
+- email_schedule
 
