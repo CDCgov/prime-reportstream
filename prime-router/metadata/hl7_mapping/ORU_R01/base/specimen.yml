@@ -143,6 +143,6 @@ elements:
     schema: observation-result
     resourceIndex: resultIndex
     constants:
-      hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{resultIndex})'
-      hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{resultIndex})/OBX'
+      hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{resultIndex})/SPECIMEN_OBSERVATION'
+      hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{resultIndex})/SPECIMEN_OBSERVATION(%{resultIndex})/OBX'
       observation: '%diagnostic.result[%resultIndex].resolve()'

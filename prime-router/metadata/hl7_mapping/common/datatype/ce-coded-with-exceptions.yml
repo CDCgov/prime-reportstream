@@ -18,6 +18,11 @@ elements:
   - name: identifier-version
     value: [ '%resource.coding[0].version' ]
     hl7Spec: [ '%{cweFieldPath}-7' ]
+  - name: coding-system-oid
+    resource: '%resource.coding[1].extension(%`rsext-coding-system-oid`)'
+    condition: '%resource.value.exists()'
+    value: ['%resource.value.getId()']
+    hl7Spec: [ '%{cweFieldPath}-14' ]
 
   - name: alt-identifier-code
     value: [ '%resource.coding[1].code' ]

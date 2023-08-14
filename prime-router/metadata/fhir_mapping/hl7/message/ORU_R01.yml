@@ -70,7 +70,7 @@ resources:
     additionalSegments:
       - .NTE
       - .ORC
-      - .SPECIMEN.OBX
+      - .SPECIMEN.SPECIMEN_OBSERVATION.OBX
       - PATIENT_RESULT.PATIENT.PID
       - PATIENT_RESULT.PATIENT.VISIT.PV1
       - MSH

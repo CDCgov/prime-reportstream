@@ -17,3 +17,21 @@ code:
 display:
   type: STRING
   valueOf: $display
+
+extension_1-codingSystemOID:
+  generateList: true
+  expressionType: nested
+  condition: $codingSystemOID NOT_NULL
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: coding-system-oid
+    valueOid:
+      type: STRING
+      valueOf: $oidString
+      vars:
+        oidString: $oidUrlPrefix + $codingSystemOID
+      constants:
+        oidUrlPrefix: "urn:oid:"
+
+

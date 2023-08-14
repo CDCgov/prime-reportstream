@@ -33,9 +33,17 @@ elements:
 
   - name: observation-identifier-code
     resource: '%resource.code'
+    condition: '%resource.text.exists().not()'
     constants:
       ceFieldPath: '%{hl7OBXField}-3'
     schema: ../../common/datatype/ce-coded-element
+
+  - name: observation-identifier-code
+    resource: '%resource.code'
+    condition: '%resource.text.exists()'
+    constants:
+      cweFieldPath: '%{hl7OBXField}-3'
+    schema: ../../common/datatype/ce-coded-with-exceptions
 
   - name: observation-value-sub-id
     value: [ '%resource.extension(%`rsext-sub-id`).value' ]

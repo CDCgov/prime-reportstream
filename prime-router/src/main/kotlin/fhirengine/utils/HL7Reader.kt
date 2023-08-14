@@ -1,9 +1,11 @@
 package gov.cdc.prime.router.fhirengine.utils
 
+import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.ErrorCode
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.model.v251.segment.MSH
+import ca.uhn.hl7v2.model.v27.segment.MSH
+import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Terser
@@ -29,7 +31,10 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
         } else {
             try {
-                val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream())
+                val context = DefaultHapiContext(
+                    CanonicalModelClassFactory(ca.uhn.hl7v2.model.v27.message.ORU_R01::class.java)
+                )
+                val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream(), context)
                 while (iterator.hasNext()) {
                     messages.add(iterator.next())
                 }
@@ -88,8 +93,9 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          */
         fun getMessageTimestamp(message: Message): Date? {
             val timestamp = (message["MSH"] as MSH).msh7_DateTimeOfMessage
-            return if (!timestamp.isEmpty && !timestamp.ts1_Time.isEmpty) {
-                timestamp.ts1_Time.valueAsDate
+            timestamp.valueAsDate
+            return if (!timestamp.isEmpty) {
+                timestamp.valueAsDate
             } else null
         }
 

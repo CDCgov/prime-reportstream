@@ -32,8 +32,8 @@ elements:
   - name: universal-service
     resource: '%resource.code'
     constants:
-      ceFieldPath: '%{fieldPath}-4'
-    schema: ../../common/datatype/ce-coded-element
+      cweFieldPath: '%{fieldPath}-4'
+    schema: ../../common/datatype/ce-coded-with-exceptions
 
   - name: observation-request-date-time
     condition: '%resource.effective is dateTime'
