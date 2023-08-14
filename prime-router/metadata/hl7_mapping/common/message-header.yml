@@ -129,7 +129,7 @@ elements:
     hl7Spec: [ MSH-17 ]
 
   - name: message-character-set
-    value: [ '"UNICODE UTF-8"' ]
+    value: [ '%resource.extension(%`rsext-character-set`).value', '"UNICODE UTF-8"' ]
     hl7Spec: [ MSH-18 ]
 
   - name: message-profile-identifier
