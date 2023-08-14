@@ -308,3 +308,8 @@ main {
 .usa-header + main {
     border-top: none;
 }
+
+/* allow column count override */
+.usa-identifier__section.column-count-3 ul {
+    column-count: 3;
+}
