@@ -26,6 +26,10 @@ Simplify HL7 truncation logic and put it in one place that can be used by both t
    - Check if the field exists in the custom length map and select the configured value as its max length
    - Check if the field exists in the spec list and select the spec value as its max length
    - Otherwise, return null if none of the conditions match (this will let us know to not truncate at all)
+ - Add a new function to the `TranslationFunctions` interface called `truncateHL7Field`
+   - Inject our new class into implementations of `TranslationFunctions`
+   - Pass the call through to our common function that we extracted earlier in each implementation class
+ - Move new code to FHIRengine packages
 
 ## Operations
 
