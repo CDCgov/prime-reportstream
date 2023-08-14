@@ -4,10 +4,7 @@ export default function Section({ section }: { section: SectionProp }) {
     return (
         <>
             {section.title && (
-                <h2
-                    data-testid="heading"
-                    className="font-sans-xl margin-top-0 tablet:margin-bottom-0"
-                >
+                <h2 data-testid="heading" className="font-sans-xl margin-top-0">
                     {section.title}
                 </h2>
             )}

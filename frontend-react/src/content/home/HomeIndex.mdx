@@ -10,11 +10,11 @@ import LiveMapSection from "../../pages/home/Sections/LiveMapSection";
     <div className="grid-container">
         {content.howWeHelp.map((section, sectionIndex) => {
             return (
-            <section key={`home-${sectionIndex}`}className="usa-section margin-y-0 tablet:padding-top-9 tablet:padding-bottom-9">
+            <section key={`home-${sectionIndex}`}className="usa-section margin-y-0 padding-top-9 padding-bottom-10">
                 <div className="grid-row grid-gap">
                     <Section section={section} />
                 </div>
-                <div className="grid-row grid-gap margin-y-8">
+                <div className="grid-row grid-gap margin-bottom-8">
                     {section.features?.map(
                         (feature, featureIndex) =>
                             <Feature
@@ -27,7 +27,7 @@ import LiveMapSection from "../../pages/home/Sections/LiveMapSection";
                 </div>
                 <div className="grid-row flex-justify-center">
                     <a href="" className="usa-button">
-                        Get Started
+                        Get started
                     </a>
                 </div>
             </section>
@@ -36,57 +36,21 @@ import LiveMapSection from "../../pages/home/Sections/LiveMapSection";
     </div>
 </div>
 <div className="grid-container">
-    <section className="usa-section padding-y-9">
-        <h2 className="font-sans-xl margin-top-0 tablet:margin-bottom-0">
-            How it works
-        </h2>
+    <section className="usa-section padding-top-9 padding-bottom-0">
+        <h2 className="font-sans-xl margin-top-0">How it works</h2>
         <p className="usa-intro margin-top-4">Our open-source platform aggregates and [securely delivers](/resources/security-practices) healthcare data test results from organizations and testing facilities directly to public health entities. Born in response to the COVID-19 pandemic, ReportStream is built to thrive and evolve within the complex environment of public health.</p>
         <img
-            className="margin-y-8"
+            className="margin-top-8"
             src="/assets/img/ReportStreamDiagram_2022.png"
             alt="Organizations and testing facilities submit data, which ReportStream validates, augments and standardizes. Then, the data is routed as ReportStream determines the destination by subscription management. After this, it is transformed and transported to public health agencies in the desired data model and batch size."
         />
-            Learn what’s next for ReportStream and how we are working to improve your experience and advance public health.
-        <h3 className="font-sans-lg margin-y-4">
-            Accepted data types and conditions
-        </h3>
-            Check out the current data types we accept and the growing list of conditions that ReportStream can help you send or receive.
     </section>
-</div>
-<div className="bg-primary-lighter">
-    {/* INFO this block of code, similar to the one above, maps through the otherProducts array in content.json to render out all its contents. */}
-    <div className="grid-container">
-        {content.otherProducts.map((section, sectionIndex) => {
-            return (
-                <section key={`home-${sectionIndex}`} className="usa-section margin-y-0 tablet:padding-top-9 tablet:padding-bottom-9">
-                    <div className="grid-row grid-gap">
-                        <Section section={section} />
-                    </div>
-                    <div className="grid-row grid-gap margin-y-8">
-                        {section.features?.map(
-                            (feature, featureIndex) => {
-                                return (
-                                    <Feature
-                                        data-testid="feature"
-                                        key={`feature-${sectionIndex}.${featureIndex}`}
-                                        section={section}
-                                        feature={feature}
-                                    />
-                                );
-                            },
-                        )}
-                    </div>
-                    <p>Questions about other products? Our team would be <a href="/support/contact">happy to talk more</a> and explore how we can help you.</p>
-                </section>
-            );
-        })}
-    </div>
 </div>
 <div className="grid-container">
     {/* INFO this block of code, similar to the one above, maps through the liveMapContact array in content.json to render out all its contents. */}
     {content.liveMapContact.map((section, sectionIndex) => {
         return (
-            <section key={`livemap-${sectionIndex}`} className="usa-section margin-y-0 tablet:padding-top-9 tablet:padding-bottom-9">
+            <section key={`livemap-${sectionIndex}`} className="usa-section margin-y-0 tablet:padding-bottom-9">
                 <LiveMapSection section={section} />
             </section>
         );

@@ -12,7 +12,7 @@ export default function LiveMapSection({ section }: { section: SectionProp }) {
         <div>
             <h2
                 data-testid="heading"
-                className="font-sans-xl margin-top-0 tablet:margin-bottom-0"
+                className="font-sans-xl margin-top-0 tablet:margin-bottom-0 padding-top-9 border-top-05 border-primary"
             >
                 {section.title}
             </h2>

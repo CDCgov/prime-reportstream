@@ -10,7 +10,7 @@ export default function Hero() {
                         Your single connection to simplify data transfer and
                         improve public health
                     </h1>
-                    <p className="font-sans-lg measure-6">
+                    <p className="usa-intro-prose-text-base">
                         ReportStream is CDC’s free, interoperable platform for
                         streamlining public health reporting. We navigate
                         unique, complex requirements and work to make sure your
