@@ -29,7 +29,7 @@ both extend an interface called FhirPathFunctions. There are two places for thes
 are internal functions, meaning that they can only be called from within the code rather than from the command line.
 
 ### Internal
-There is currently only one internal FHIR path function and that is the LIVD Lookup function
+There is currently only one internal FHIR path function and that is the LIVD Lookup function which can be found [here](../../src/main/kotlin/fhirengine/engine/CustomFhirPathFunctions.kt)
 
 - livdTableLookup - This function must be called on a resource of type `Observation` with a parameter specifying 
     the field in the `LivdLookupTable` that you want to search on. If the `deviceId` on the 
@@ -39,35 +39,9 @@ There is currently only one internal FHIR path function and that is the LIVD Loo
     the criteria found in the LIVD table. A preview of this table can be found in the `LIVD-SARS-CoV-2.csv` file.
 
 ### External
-There are many external FHIR path functions.
-- getPhoneNumberCountryCode() - The resource must be a phone number, no parameters passed. Will return the country code 
-associated with the phone number. Example output: `Primitive: IntegerType[1]`
-- getPhoneNumberAreaCode() - The resource must be a phone number, no parameters passed. Will return the area code
-  associated with the phone number. Example output: `Primitive: IntegerType[679]`
-- getPhoneNumberLocalNumber() - The resource must be a phone number, no parameters passed. Will return the number 
-without the area code. Example Output: `Primitive: IntegerType[1125593]`
-- getPhoneNumberExtension() - The resource must be a phone number, no parameters passed. Will return the extension, if 
-present.
-- hasPhoneNumberExtension() - The resource must be a phone number, no parameters passed. Will return true or false 
-depending on whether there is an extension. Example Output: `Primitive: BooleanType[false]`
-- split(delimiter) - The resource must be a string, the parameter is the delimiter to split the string on. Will return a 
-mutableList of the split strings. Example Output: 
-> - Primitive: B 
-> - Primitive: CL
-> - Primitive:
-> Number of results = 3 ---------------------------- 
-- getId() - The resource must be a singular, primitive value, no parameters passed.
-Returns a list with one ID value or an empty list. Example Output: 
-> Primitive: BECLE  
->Number of results = 1 -------------------------`
-- getIdType() - The resource must be a singular, primitive value, no parameters passed. 
-Returns a list with one value denoting the ID type, or an empty list. Example Output: ``
-> Primitive: OID  
->Number of results = 1 -------------------------`
-- changeTimezone(timeZone) - The resource must be a DateTime, the timezone to change to is passed as a parameter. 
-Returns a date in the new timezone.
->Primitive: DateTimeType[2022-06-22T05:06:00+09:30]  
->Number of results = 1 ----------------------------
+There are many external FHIR path functions which can be found [here](../../src/main/kotlin/fhirengine/translation/hl7/utils/CustomFHIRFunctions.kt)
+
+An example of one of the currently most complicated functions is the convertDateToAge function:
 - convertDateToAge(<optional> timeUnit, <optional> comparisonDate) - The resource must be a date. Since this function 
 required a lot of code to complete, it is broken out into a separate helper function. This is the pattern we hope to 
 use moving forward. This required so much extra code partially because it takes multiple, optional params which can be
@@ -83,3 +57,10 @@ days.Example Output:
 >"code": "a"  
 >}  
 >Number of results = 1 ----------------------------
+
+## How to define a FHIR path function
+1. Determine which file it will go in by reading the [internal](#internal) and [external](#external) sections of this 
+document.
+2. Add the function itself.
+3. Add it to the resolveFunction method. This registers it so the command line knows what to expect and is valid.
+4. Add it to the execute function method. This registers it so the command line knows what to call.
