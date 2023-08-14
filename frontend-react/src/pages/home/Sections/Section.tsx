@@ -2,7 +2,7 @@ import { SectionProp } from "../HomeProps";
 
 export default function Section({ section }: { section: SectionProp }) {
     return (
-        <div>
+        <>
             {section.title && (
                 <h2
                     data-testid="heading"
@@ -16,6 +16,6 @@ export default function Section({ section }: { section: SectionProp }) {
                     {section.summary}
                 </p>
             )}
-        </div>
+        </>
     );
 }

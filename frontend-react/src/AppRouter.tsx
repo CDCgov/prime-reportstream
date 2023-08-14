@@ -7,6 +7,7 @@ import { About } from "./pages/About";
 import { Login } from "./pages/Login";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import { Resources } from "./pages/resources/Resources";
+import { ResourcesPage } from "./pages/resources/ResourcesPage";
 import { Product } from "./pages/product/ProductIndex";
 import { Support } from "./pages/support/Support";
 import { UploadWithAuth } from "./pages/Upload";
@@ -24,21 +25,27 @@ import { AdminReceiverDashWithAuth } from "./pages/admin/AdminReceiverDashPage";
 import { DeliveryDetailWithAuth } from "./pages/deliveries/details/DeliveryDetail";
 import { ValueSetsDetailWithAuth } from "./pages/admin/value-set-editor/ValueSetsDetail";
 import { ValueSetsIndexWithAuth } from "./pages/admin/value-set-editor/ValueSetsIndex";
-import Home from "./pages/home/Home";
 import { DeliveriesWithAuth } from "./pages/deliveries/Deliveries";
 import { EditReceiverSettingsWithAuth } from "./components/Admin/EditReceiverSettings";
 import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
 import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
 import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
+import { GettingStartedPage } from "./pages/resources/reportstream-api/GettingStarted";
+import { DocumentationPage } from "./pages/resources/reportstream-api/documentation/Documentation";
+import { DataModelPage } from "./pages/resources/reportstream-api/documentation/DataModel";
+import { ResponsesFromReportStreamPage } from "./pages/resources/reportstream-api/documentation/ResponsesFromReportStream";
+import { SamplePayloadsAndOutputPage } from "./pages/resources/reportstream-api/documentation/SamplePayloadsAndOutput";
 import FileHandler from "./components/FileHandlers/FileHandler";
+import { ReportStreamAPIPage } from "./pages/resources/reportstream-api/ReportStreamApi";
+import { FaqPage } from "./pages/support/faq/FaqPage";
 import { DataDashboardWithAuth } from "./pages/data-dashboard/DataDashboard";
-import MainLayout from "./layouts/Main/MainLayout";
+import MainLayout from "./layouts/MainLayout";
 import { ReportDetailsWithAuth } from "./components/DataDashboard/ReportDetails/ReportDetails";
 import { FacilitiesProvidersWithAuth } from "./components/DataDashboard/FacilitiesProviders/FacilitiesProviders";
 import { FacilityProviderSubmitterDetailsWithAuth } from "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails";
 import { SenderType } from "./utils/DataDashboardUtils";
-import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
+import { HomePage } from "./pages/home/HomePage";
 
 export enum FeatureName {
     DAILY_DATA = "Daily Data",
@@ -61,7 +68,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "",
                 index: true,
-                element: <Home />,
+                element: <HomePage />,
                 handle: {
                     isContentPage: true,
                 },
@@ -104,18 +111,14 @@ export const appRoutes: RouteObject[] = [
                             {
                                 path: "",
                                 index: true,
-                                lazy: lazyRouteMarkdown(
-                                    "content/resources/reportstream-api/ReportStreamApi",
-                                ),
+                                element: <ReportStreamAPIPage />,
                                 handle: {
                                     isContentPage: true,
                                 },
                             },
                             {
                                 path: "getting-started",
-                                lazy: lazyRouteMarkdown(
-                                    "content/resources/reportstream-api/getting-started/GettingStarted",
-                                ),
+                                element: <GettingStartedPage />,
                                 handle: {
                                     isContentPage: true,
                                 },
@@ -125,9 +128,7 @@ export const appRoutes: RouteObject[] = [
                                 children: [
                                     {
                                         path: "",
-                                        lazy: lazyRouteMarkdown(
-                                            "content/resources/reportstream-api/documentation/Documentation",
-                                        ),
+                                        element: <DocumentationPage />,
                                         index: true,
                                         handle: {
                                             isContentPage: true,
@@ -135,17 +136,15 @@ export const appRoutes: RouteObject[] = [
                                     },
                                     {
                                         path: "data-model",
-                                        lazy: lazyRouteMarkdown(
-                                            "content/resources/reportstream-api/documentation/data-model/DataModel",
-                                        ),
+                                        element: <DataModelPage />,
                                         handle: {
                                             isContentPage: true,
                                         },
                                     },
                                     {
                                         path: "responses-from-reportstream",
-                                        lazy: lazyRouteMarkdown(
-                                            "content/resources/reportstream-api/documentation/ResponsesFromReportStream",
+                                        element: (
+                                            <ResponsesFromReportStreamPage />
                                         ),
                                         handle: {
                                             isContentPage: true,
@@ -153,8 +152,8 @@ export const appRoutes: RouteObject[] = [
                                     },
                                     {
                                         path: "sample-payloads-and-output",
-                                        lazy: lazyRouteMarkdown(
-                                            "content/resources/reportstream-api/documentation/SamplePayloadsAndOutput",
+                                        element: (
+                                            <SamplePayloadsAndOutputPage />
                                         ),
                                         handle: {
                                             isContentPage: true,
@@ -177,9 +176,7 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "",
                         index: true,
-                        lazy: lazyRouteMarkdown(
-                            "content/resources/ResourcesIndex",
-                        ),
+                        element: <ResourcesPage />,
                         handle: {
                             isContentPage: true,
                         },
@@ -205,7 +202,7 @@ export const appRoutes: RouteObject[] = [
                 children: [
                     {
                         path: "faq",
-                        lazy: lazyRouteMarkdown("content/support/faq/FaqIndex"),
+                        element: <FaqPage />,
                         handle: {
                             isContentPage: true,
                         },
@@ -213,7 +210,6 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "",
                         element: <Support />,
-                        index: true,
                         handle: {
                             isContentPage: true,
                         },
