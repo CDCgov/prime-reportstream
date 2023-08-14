@@ -1,15 +1,17 @@
 package gov.cdc.prime.router.fhirengine.utils
 
+import ca.uhn.hl7v2.AbstractHL7Exception
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.ErrorCode
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.model.v27.segment.MSH
+import ca.uhn.hl7v2.model.v27.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
 import ca.uhn.hl7v2.util.Terser
 import ca.uhn.hl7v2.validation.ValidationException
+import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.InvalidReportMessage
 import org.apache.commons.lang3.exception.ExceptionUtils
@@ -30,17 +32,35 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
         if (rawMessage.isBlank()) {
             actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
         } else {
+            val validationContext = ValidationContextFactory.noValidation()
             try {
-                val context = DefaultHapiContext(
-                    CanonicalModelClassFactory(ca.uhn.hl7v2.model.v27.message.ORU_R01::class.java)
-                )
+                val context = DefaultHapiContext( CanonicalModelClassFactory(ORU_R01::class.java))
+                context.validationContext = validationContext
                 val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream(), context)
                 while (iterator.hasNext()) {
                     messages.add(iterator.next())
                 }
                 // NOTE for batch hl7; should we be doing anything with the BHS and other headers
-            } catch (e: Hl7InputStreamMessageStringIterator.ParseFailureError) {
+            } catch(e: Exception) {
+                logger.error(e.message.toString())
+            }
+            catch (e: Hl7InputStreamMessageStringIterator.ParseFailureError){
                 logHL7ParseFailure(e)
+            } catch (e: AbstractHL7Exception) {
+                logHL7ParseFailure(e)
+            }
+
+            if(messages.isEmpty()) {
+                try{
+                    val context = DefaultHapiContext( CanonicalModelClassFactory(ca.uhn.hl7v2.model.v251.message.ORU_R01::class.java))
+                    context.validationContext = validationContext
+                    val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream(), context)
+                    while (iterator.hasNext()) {
+                        messages.add(iterator.next())
+                    }
+                } catch(e: Exception) {
+                    logger.error(e.message.toString())
+                }
             }
 
             if (messages.isEmpty() && !actionLogger.hasErrors()) {
@@ -70,13 +90,25 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
     private fun logHL7ParseFailure(exception: Hl7InputStreamMessageStringIterator.ParseFailureError) {
         logger.error("Failed to parse message", exception)
         // Get the exception root cause and log it accordingly
-        val errorMessage: String = when (val rootCause = ExceptionUtils.getRootCause(exception)) {
-            is ValidationException -> "Validation Failed: ${rootCause.message}"
+        when(val rootCause = ExceptionUtils.getRootCause(exception)) {
+            is AbstractHL7Exception -> recordError(rootCause)
+            else -> throw rootCause
+        }
+    }
+
+    private fun logHL7ParseFailure(exception: AbstractHL7Exception){
+        logger.error("Failed to parse message", exception)
+        recordError(exception)
+    }
+
+    private fun recordError(exception: AbstractHL7Exception) {
+        val errorMessage: String = when (exception) {
+            is ValidationException -> "Validation Failed: ${exception.message}"
 
             is HL7Exception -> {
-                when (rootCause.errorCode) {
-                    ErrorCode.REQUIRED_FIELD_MISSING.code -> "Required field missing: ${rootCause.message}"
-                    ErrorCode.DATA_TYPE_ERROR.code -> "Data type error: ${rootCause.message}"
+                when (exception.errorCode) {
+                    ErrorCode.REQUIRED_FIELD_MISSING.code -> "Required field missing: ${exception.message}"
+                    ErrorCode.DATA_TYPE_ERROR.code -> "Data type error: ${exception.message}"
                     else -> "Failed to parse message"
                 }
             }
@@ -92,11 +124,11 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          * @return the timestamp or null if not specified
          */
         fun getMessageTimestamp(message: Message): Date? {
-            val timestamp = (message["MSH"] as MSH).msh7_DateTimeOfMessage
-            timestamp.valueAsDate
-            return if (!timestamp.isEmpty) {
-                timestamp.valueAsDate
-            } else null
+            return when(val structure = message["MSH"]) {
+                is ca.uhn.hl7v2.model.v27.segment.MSH -> structure.msh7_DateTimeOfMessage.valueAsDate
+                is ca.uhn.hl7v2.model.v251.segment.MSH -> structure.msh7_DateTimeOfMessage.ts1_Time.valueAsDate
+                else -> null
+            }
         }
 
         /**
@@ -104,7 +136,11 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          * @return the type of message ex. ORU
          */
         fun getMessageType(message: Message): String {
-            return (message["MSH"] as MSH).msh9_MessageType.msg1_MessageCode.toString()
+            return when(val structure = message["MSH"]) {
+                is ca.uhn.hl7v2.model.v27.segment.MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
+                is ca.uhn.hl7v2.model.v251.segment.MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
+                else -> ""
+            }
         }
 
         /**

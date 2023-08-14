@@ -98,7 +98,7 @@ class HL7toFhirTranslator internal constructor(
 //        val messageCode = Terser.get(header, 9, 1, 1 ,1)
 //        val triggerEvent = Terser.get(header, 9, 2, 1 ,1)
 //        return "${messageCode}_$triggerEvent"
-        return Terser.get(header, 9, 0, 3, 1)
+        return Terser.get(header, 9, 0, 3 ,1)
     }
 
     /**
@@ -109,8 +109,12 @@ class HL7toFhirTranslator internal constructor(
         bundle.timestamp = HL7Reader.getMessageTimestamp(hl7Message)
 
         // The HL7 message ID
-        val mshSegment = hl7Message["MSH"] as MSH
-        bundle.identifier.value = mshSegment.messageControlID.value
+        val identifierValue = when( val mshSegment = hl7Message["MSH"]) {
+            is ca.uhn.hl7v2.model.v27.segment.MSH -> mshSegment.messageControlID.value
+            is ca.uhn.hl7v2.model.v251.segment.MSH -> mshSegment.messageControlID.value
+            else -> ""
+        }
+        bundle.identifier.value = identifierValue
         bundle.identifier.system = "https://reportstream.cdc.gov/prime-router"
     }
 

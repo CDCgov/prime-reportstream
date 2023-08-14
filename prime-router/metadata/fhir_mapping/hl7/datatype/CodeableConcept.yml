@@ -46,7 +46,8 @@ coding_5:
     display: String, CWE.5 | CNE.5 | CE.5
     system: $overrideSystem | CWE.6 | CNE.6 | CE.6
     version: String, CWE.8 | CNE.8
-    codingSystemOID: String, CWE.14
+  constants:
+    codeIndex: "alternate identifier"
 
 coding_6:
   generateList: true
@@ -75,6 +76,8 @@ coding_8:
     code: $alternateCode
     display: $alternateDisplay
     system: $alternateSystem
+  constants:
+    codeIndex: "alternate identifier"
 
 coding_9:
   generateList: true
@@ -85,6 +88,8 @@ coding_9:
     code: CWE.10
     display: CWE.11
     system: CWE.12
+  constants:
+    codeIndex: "second alternate identifier"
 
 # Require available text, and the absence of an identifierCoding
 text:
