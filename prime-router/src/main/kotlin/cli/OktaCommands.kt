@@ -1,8 +1,11 @@
 package gov.cdc.prime.router.cli
 
+import com.azure.identity.DefaultAzureCredential
+import com.azure.security.keyvault.secrets.SecretClient
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.kittinunf.fuel.Fuel
@@ -13,6 +16,7 @@ import com.github.kittinunf.result.Result
 import com.sun.net.httpserver.HttpServer
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import gov.cdc.prime.router.secrets.SecretHelper
 import org.apache.commons.codec.binary.Base64
 import org.json.JSONObject
 import java.awt.Desktop
@@ -62,17 +66,40 @@ class LoginCommand : OktaCommand(
         .choice("local", "test", "staging", "prod")
         .default("local", "local")
 
+    private val manualLogin by option(
+        "--manual",
+        help = "Enable to open the login page and sign manually to Okta"
+    ).flag(default = false)
+
+    private val forceRefreshToken by option(
+        "--force",
+        help = "Enable to do a login regardless of any current access tokens"
+    ).flag(default = false)
+
     override fun run() {
         val oktaApp = Environment.get(env).oktaApp ?: abort("No need to login in this environment")
-        val accessTokenFile = readAccessTokenFile()
-        if (accessTokenFile != null && isValidToken(oktaApp, accessTokenFile)) {
-            echo("Has a valid token until ${accessTokenFile.expiresAt}")
+
+        val accessTokenFile = if (!forceRefreshToken) {
+            val accessTokenFile = readAccessTokenFile()
+            if (accessTokenFile != null && isValidToken(oktaApp, accessTokenFile)) {
+                echo("Has a valid token until ${accessTokenFile.expiresAt}")
+                accessTokenFile
+            } else {
+                null
+            }
         } else {
-            echo("About to launch a browser to log in to Okta...")
-            val accessTokenJson = launchSignIn(oktaApp)
-            val newAccessTokenFile = writeAccessTokenFile(oktaApp, accessTokenJson)
-            echo("Login valid until ${newAccessTokenFile.expiresAt}")
+            null
         }
+
+        val accessTokenJson = if (manualLogin) {
+            echo("About to launch a browser to log in to Okta...")
+            launchSignIn(oktaApp)
+        } else {
+            clientCredentialsAuthorize(oktaPreviewBaseUrl)
+        }
+
+        val newAccessTokenFile = writeAccessTokenFile(oktaApp, accessTokenJson)
+        echo("Login valid until ${newAccessTokenFile.expiresAt}")
     }
 
     private fun launchSignIn(app: OktaApp): JSONObject {
@@ -108,6 +135,30 @@ class LoginCommand : OktaCommand(
             "state=$state&" +
             "code_challenge_method=S256&" +
             "code_challenge=$codeChallenge"
+    }
+
+    private fun clientCredentialsAuthorize(oktaUrl: String): JSONObject {
+        // @todo look into pulling authKey via azure instead of env var
+        // e.g. val authKey = SecretHelper.getSecretService().fetchSecret("okta-client-credentials")
+        val authKey = System.getenv("oktaAuthKey")
+        val scope = "simple_report_dev"
+
+        val (_, _, result) = Fuel
+            .post("$oktaUrl$oktaTokenPath?")
+            .header(
+                Headers.CONTENT_TYPE to "application/x-www-form-urlencoded",
+                "Authorization" to "Basic $authKey"
+            )
+            .body("grant_type=client_credentials&" +
+                "scope=$scope")
+            .responseJson()
+
+        return when (result) {
+            is Result.Failure -> throw result.getException()
+            is Result.Success -> {
+                result.value.obj()
+            }
+        }
     }
 
     private fun startRedirectServer() {
