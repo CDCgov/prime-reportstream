@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+. "$(dirname -- "$0")/_/husky.sh"
+# we need to enter frontend-react from monorepo root.
+# won't be needed when frontend is its own repo.
+cd frontend-react
+
+. scripts/yarn-check.sh
+yarn dlx lint-staged
+yarn test -o
