@@ -128,6 +128,9 @@ export function MarkdownLayout({
         : subtitle
         ? [subtitle]
         : [];
+    const isHeader = Boolean(
+        title || breadcrumbs || callToAction || lastUpdated || toc,
+    );
 
     return (
         <MarkdownLayoutContext.Provider value={ctx}>
@@ -162,42 +165,46 @@ export function MarkdownLayout({
                                     : "tablet:grid-col-12"
                             }
                         >
-                            <header>
-                                {breadcrumbs != null ? (
-                                    <BreadcrumbBar>
-                                        {breadcrumbs.map((b) => (
-                                            <Breadcrumb key={b.label}>
-                                                {b.href ? (
-                                                    <USCrumbLink href={b.href}>
-                                                        {b.label}
-                                                    </USCrumbLink>
-                                                ) : (
-                                                    b.label
-                                                )}
-                                            </Breadcrumb>
+                            {isHeader && (
+                                <header>
+                                    {breadcrumbs != null ? (
+                                        <BreadcrumbBar>
+                                            {breadcrumbs.map((b) => (
+                                                <Breadcrumb key={b.label}>
+                                                    {b.href ? (
+                                                        <USCrumbLink
+                                                            href={b.href}
+                                                        >
+                                                            {b.label}
+                                                        </USCrumbLink>
+                                                    ) : (
+                                                        b.label
+                                                    )}
+                                                </Breadcrumb>
+                                            ))}
+                                        </BreadcrumbBar>
+                                    ) : null}
+                                    <hgroup>
+                                        <h1>{title}</h1>
+                                        {subtitleArr.map((s) => (
+                                            <p
+                                                key={s.slice(0, 5)}
+                                                className="usa-intro text-base"
+                                            >
+                                                {s}
+                                            </p>
                                         ))}
-                                    </BreadcrumbBar>
-                                ) : null}
-                                <hgroup>
-                                    <h1>{title}</h1>
-                                    {subtitleArr.map((s) => (
-                                        <p
-                                            key={s.slice(0, 5)}
-                                            className="usa-intro text-base"
-                                        >
-                                            {s}
-                                        </p>
+                                    </hgroup>
+                                    {callToAction?.map((c) => (
+                                        <CallToAction key={c.label} {...c} />
                                     ))}
-                                </hgroup>
-                                {callToAction?.map((c) => (
-                                    <CallToAction key={c.label} {...c} />
-                                ))}
-                                {lastUpdated && (
-                                    <p className="text-base text-italic">
-                                        Last updated: {lastUpdated}
-                                    </p>
-                                )}
-                            </header>
+                                    {lastUpdated && (
+                                        <p className="text-base text-italic">
+                                            Last updated: {lastUpdated}
+                                        </p>
+                                    )}
+                                </header>
+                            )}
                             {tocObj && tocEntries && (
                                 <>
                                     <b>On this page:</b>

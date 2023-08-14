@@ -18,7 +18,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     const { environment } = useSessionContext();
     const matches = useMatches() as RsRouteObject[];
     const { handle = {} } = matches.at(-1) ?? {};
-    const { isContentPage } = handle;
+    const { isContentPage, isFullWidth } = handle;
 
     return (
         <App>
@@ -32,7 +32,10 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             </ReportStreamHeader>
             <main
                 id="main-content"
-                className={classNames(isContentPage && "rs-style__content")}
+                className={classNames(
+                    isContentPage && "rs-style--content",
+                    isFullWidth && "rs-style--full-width",
+                )}
             >
                 <RSErrorBoundary>
                     {children}
