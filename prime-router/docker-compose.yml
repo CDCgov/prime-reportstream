@@ -12,7 +12,7 @@ services:
       - type: bind
         source: ./build
         target: /prime-data-hub-router
-    entrypoint: [/prime-data-hub-router/start_func.sh]
+    entrypoint: [ /prime-data-hub-router/start_func.sh ]
     env_file:
       # On first run of docker-compose, create this file, it will get populated, but docker-compose doesn't allow optional env_file
       # Example: touch .vault/env/.env.local
@@ -44,7 +44,7 @@ services:
 
   # Azurite is the Azure storage emulator for local development
   azurite:
-    image: mcr.microsoft.com/azure-storage/azurite:3.23.0
+    image: mcr.microsoft.com/azure-storage/azurite:3.25.1
     # uncomment the line below to skip x-ms-version checks
     # command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0
     volumes:
@@ -60,7 +60,7 @@ services:
   sftp:
     image: atmoz/sftp
     ports:
-        - "2222:22"
+      - "2222:22"
     volumes:
       - ./build/sftp:/home/foo/upload
       # add more users
