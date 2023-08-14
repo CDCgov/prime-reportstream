@@ -1,9 +1,7 @@
-# Update LIVD Table# How To Update The LIVD Table
+# How to Update the LIVD Table
 
----
 ## Introduction
 
----
 HHS maintains a list of all authorized covid test devices as an xlsx. ReportStream
 keeps a local csv version copy of that list. This local csv file needs to be updated
 once the new LIVD table comes out.
