@@ -3,8 +3,8 @@
 isModified=0
 
 function modified_check() {
-    COUNT=$(git status --porcelain | grep "frontend-react/" | wc -l)
-    if [[ ${MODIFIED_PACKAGE_COUNT} != 0 ]]; then
+    MODIFIED_COUNT=$(git status --porcelain | grep "frontend-react/" | wc -l)
+    if [[ ${MODIFIED_COUNT} != 0 ]]; then
         isModified=1
     else
         isModified=0
