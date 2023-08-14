@@ -108,3 +108,9 @@ NOTE: This only works `run:build-dir` because webpack's dynamic runtime updating
 `.github/workflows/chromatic-master.yml` triggers a Chromatic build anytime a PR gets merged into our `master` branch.
 
 `.github/workflows/chromatic-pr.yml` triggers a Chromatic build anytime a file with `// AutoUpdateFileChromatic` comment on its FIRST LINE is checked in to a PR. The goal here is to automatically update our Chromatic anytime a file that has an associated Storybook is modified.
+
+## End-To-End Testing
+All the End to End testing specs are located in [./e2e/](./e2e/) directory. To run these tests use the following command:
+```
+yarn test:e2e
+```
