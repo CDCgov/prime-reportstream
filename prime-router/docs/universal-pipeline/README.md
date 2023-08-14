@@ -60,7 +60,7 @@ There are a few exceptions to the rules outlined above:
 #### Internal Azure Storage Container
 The folder structure where reports are stored as they flow through the pipelines is shown below (screenshot from the Azure portal)
 
-TODO: Insert a picture of the folders for each step here
+![azure-reports-folders](../assets/azure-reports-folders.png)
 
 Each step in the Universal Pipeline, aside from Send, will upload the modified version of the report it received to the folder associated with the next step in the pipeline. This is done using the `BlobAccess` object. For example, the Convert step uploads its output, the converted FHIR bundle, like so:
 
