@@ -14,7 +14,7 @@ function modified_check() {
 
 function yarn_lock_check() {
     echo "Checking Yarn lock integrity"
-    yarn install --immutable --immutable-cache
+    yarn --immutable --immutable-cache
 }
 
 modified_check
