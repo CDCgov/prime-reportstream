@@ -34,31 +34,32 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
         } else {
             val validationContext = ValidationContextFactory.noValidation()
             try {
-                val context = DefaultHapiContext( CanonicalModelClassFactory(ORU_R01::class.java))
+                val context = DefaultHapiContext(CanonicalModelClassFactory(ORU_R01::class.java))
                 context.validationContext = validationContext
                 val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream(), context)
                 while (iterator.hasNext()) {
                     messages.add(iterator.next())
                 }
                 // NOTE for batch hl7; should we be doing anything with the BHS and other headers
-            } catch(e: Exception) {
+            } catch (e: Exception) {
                 logger.error(e.message.toString())
-            }
-            catch (e: Hl7InputStreamMessageStringIterator.ParseFailureError){
+            } catch (e: Hl7InputStreamMessageStringIterator.ParseFailureError) {
                 logHL7ParseFailure(e)
             } catch (e: AbstractHL7Exception) {
                 logHL7ParseFailure(e)
             }
 
-            if(messages.isEmpty()) {
-                try{
-                    val context = DefaultHapiContext( CanonicalModelClassFactory(ca.uhn.hl7v2.model.v251.message.ORU_R01::class.java))
+            if (messages.isEmpty()) {
+                try {
+                    val context = DefaultHapiContext(
+                        CanonicalModelClassFactory(ca.uhn.hl7v2.model.v251.message.ORU_R01::class.java)
+                    )
                     context.validationContext = validationContext
                     val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream(), context)
                     while (iterator.hasNext()) {
                         messages.add(iterator.next())
                     }
-                } catch(e: Exception) {
+                } catch (e: Exception) {
                     logger.error(e.message.toString())
                 }
             }
@@ -90,13 +91,13 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
     private fun logHL7ParseFailure(exception: Hl7InputStreamMessageStringIterator.ParseFailureError) {
         logger.error("Failed to parse message", exception)
         // Get the exception root cause and log it accordingly
-        when(val rootCause = ExceptionUtils.getRootCause(exception)) {
+        when (val rootCause = ExceptionUtils.getRootCause(exception)) {
             is AbstractHL7Exception -> recordError(rootCause)
             else -> throw rootCause
         }
     }
 
-    private fun logHL7ParseFailure(exception: AbstractHL7Exception){
+    private fun logHL7ParseFailure(exception: AbstractHL7Exception) {
         logger.error("Failed to parse message", exception)
         recordError(exception)
     }
@@ -124,7 +125,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          * @return the timestamp or null if not specified
          */
         fun getMessageTimestamp(message: Message): Date? {
-            return when(val structure = message["MSH"]) {
+            return when (val structure = message["MSH"]) {
                 is ca.uhn.hl7v2.model.v27.segment.MSH -> structure.msh7_DateTimeOfMessage.valueAsDate
                 is ca.uhn.hl7v2.model.v251.segment.MSH -> structure.msh7_DateTimeOfMessage.ts1_Time.valueAsDate
                 else -> null
@@ -136,7 +137,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          * @return the type of message ex. ORU
          */
         fun getMessageType(message: Message): String {
-            return when(val structure = message["MSH"]) {
+            return when (val structure = message["MSH"]) {
                 is ca.uhn.hl7v2.model.v27.segment.MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
                 is ca.uhn.hl7v2.model.v251.segment.MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
                 else -> ""
