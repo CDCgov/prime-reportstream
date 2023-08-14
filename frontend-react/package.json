@@ -151,7 +151,7 @@
         "babel-jest": "^29.6.1",
         "bfj": "^7.0.2",
         "browserslist": "^4.21.10",
-        "camelcase": "^6.2.1",
+        "camelcase": "^8.0.0",
         "chromatic": "^6.19.9",
         "confusing-browser-globals": "^1.0.11",
         "cross-env": "^7.0.3",
