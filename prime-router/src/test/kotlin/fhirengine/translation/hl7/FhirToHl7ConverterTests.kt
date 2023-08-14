@@ -428,10 +428,14 @@ class FhirToHl7ConverterTests {
         )
 
         every { LivdLookup.find(any(), any(), any(), any(), any(), any(), any(), any()) } returns loincCode
-        val message = FhirToHl7Converter(schema,
-            context = FhirToHl7Context(CustomFhirPathFunctions(),
+        val message = FhirToHl7Converter(
+            schema,
+            context = FhirToHl7Context(
+                CustomFhirPathFunctions(),
                 null,
-                CustomTranslationFunctions())).convert(bundle)
+                CustomTranslationFunctions()
+            )
+        ).convert(bundle)
         assertThat(message.isEmpty).isFalse()
         assertThat(Terser(message).get(element.hl7Spec[0])).isEqualTo(loincCode)
         unmockkObject(LivdLookup, Metadata)
@@ -459,7 +463,7 @@ class FhirToHl7ConverterTests {
 
         val message = FhirToHl7Converter(
             schema,
-            context = FhirToHl7Context(CustomFhirPathFunctions(),null,CustomTranslationFunctions())
+            context = FhirToHl7Context(CustomFhirPathFunctions(), null, CustomTranslationFunctions())
         ).convert(bundle)
         assertThat(message.isEmpty).isFalse()
         assertThat(Terser(message).get(element.hl7Spec[0])).isEqualTo(expectedDate)

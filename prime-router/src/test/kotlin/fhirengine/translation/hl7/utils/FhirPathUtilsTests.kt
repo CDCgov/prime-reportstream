@@ -16,6 +16,7 @@ import assertk.assertions.isTrue
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
+import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -109,28 +110,42 @@ class FhirPathUtilsTests {
         val a = ORU_R01()
         val terser = Terser(a)
         val bundle = Bundle()
-        bundle.timestamp = Date()
+
+        val receiver = mockkClass(Receiver::class)
+        val appContext = mockkClass(CustomContext::class)
+        every { appContext.constants.contains(any()) }.returns(false)
+        every { appContext.customFhirFunctions }.returns(CustomFhirPathFunctions())
+        every { appContext.translationFunctions }.returns(CustomTranslationFunctions())
+        every { appContext.config }.returns(receiver)
+        every { receiver.dateTimeFormat }.returns(null)
+        every { receiver.translation }.returns(
+            UnitTestUtils.createConfig(
+                useHighPrecisionHeaderDateTimeFormat = true,
+                convertPositiveDateTimeOffsetToNegative = false
+            )
+        )
 
         val observation = Observation()
         observation.effective = DateTimeType("2015-04-11T12:22:01-04:00")
+        bundle.timestamp = Date()
         bundle.addEntry().resource = observation
 
         // Test timestamp of java Date
         var path = "Bundle.timestamp"
-        var result = FhirPathUtils.evaluateString(null, bundle, bundle, path)
+        var result = FhirPathUtils.evaluateString(appContext, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         assertThat { terser.set("MSH-7", result) }.isSuccess()
 
         // Test DateTimeType
         path = "Bundle.entry.resource.effective"
-        result = FhirPathUtils.evaluateString(null, bundle, bundle, path)
+        result = FhirPathUtils.evaluateString(appContext, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         assertThat { terser.set("MSH-7", result) }.isSuccess()
 
         // Test InstanceType (which boils down to a DateTimeType)
         observation.effective = InstantType("2015-04-11T12:22:01-04:00")
         path = "Bundle.entry.resource.effective"
-        result = FhirPathUtils.evaluateString(null, bundle, bundle, path)
+        result = FhirPathUtils.evaluateString(appContext, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         assertThat { terser.set("MSH-7", result) }.isSuccess()
 
@@ -140,14 +155,14 @@ class FhirPathUtilsTests {
         observation.addExtension(ext)
         // Test DateType
         path = "Bundle.entry.resource.extension.value"
-        result = FhirPathUtils.evaluateString(null, bundle, bundle, path)
+        result = FhirPathUtils.evaluateString(appContext, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         assertThat { terser.set("MSH-7", result) }.isSuccess()
 
         // Test TimeType
         ext.setValue(TimeType("13:04:05.098"))
         path = "Bundle.entry.resource.extension.value"
-        result = FhirPathUtils.evaluateString(null, bundle, bundle, path)
+        result = FhirPathUtils.evaluateString(appContext, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         // OBX-2 is one of the few HL7 fields that accepts a TM
         assertThat { terser.set("/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/OBX-2", result) }.isSuccess()
@@ -155,27 +170,12 @@ class FhirPathUtilsTests {
         // Test regular string
         bundle.id = "super special id"
         path = "Bundle.id"
-        result = FhirPathUtils.evaluateString(null, bundle, bundle, path)
+        result = FhirPathUtils.evaluateString(appContext, bundle, bundle, path)
         assertThat(result).isNotEmpty()
         assertThat { terser.set("MSH-10", result) }.isSuccess()
 
         // Empty string
-        assertThat(FhirPathUtils.evaluateString(null, bundle, bundle, "")).isEmpty()
-    }
-
-    @Test
-    fun `test convertDateTimeToHL7`() {
-        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015")))
-            .isEqualTo("2015")
-        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04")))
-            .isEqualTo("201504")
-        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05")))
-            .isEqualTo("20150405")
-        // Hour only or hour and minute only is not supported by FHIR type
-        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11")))
-            .isEqualTo("20150405122211")
-        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-11T12:22:01-04:00")))
-            .isEqualTo("20150411122201-0400")
+        assertThat(FhirPathUtils.evaluateString(appContext, bundle, bundle, "")).isEmpty()
     }
 
     @Test
@@ -183,7 +183,7 @@ class FhirPathUtilsTests {
         val receiver = mockkClass(Receiver::class)
         val appContext = mockkClass(CustomContext::class)
         every { appContext.customFhirFunctions }.returns(CustomFhirPathFunctions())
-        every { appContext.receiver }.returns(receiver)
+        every { appContext.config }.returns(receiver)
         every { receiver.dateTimeFormat }.returns(null)
         every { receiver.translation }.returns(
             UnitTestUtils.createConfig(
@@ -191,14 +191,26 @@ class FhirPathUtilsTests {
                 convertPositiveDateTimeOffsetToNegative = false
             )
         )
-        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2023-07-21T10:30:17.328-07:00"), appContext))
+        assertThat(
+            CustomTranslationFunctions()
+                .convertDateTimeToHL7(DateTimeType("2023-07-21T10:30:17.328-07:00"), appContext)
+        )
             .isEqualTo("20230721103017.0000-0700")
-        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11.567Z"), appContext))
+        assertThat(
+            CustomTranslationFunctions()
+                .convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11.567Z"), appContext)
+        )
             .isEqualTo("20150405122211.5670+0000")
-        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11.567891Z"), appContext))
+        assertThat(
+            CustomTranslationFunctions()
+                .convertDateTimeToHL7(DateTimeType("2015-04-05T12:22:11.567891Z"), appContext)
+        )
             .isEqualTo("20150405122211.5678+0000")
-        assertThat(FhirPathUtils.convertDateTimeToHL7(DateTimeType("2015-04-11T12:22:01-04:00"), appContext))
-            .isEqualTo("20150411122201.0000-0400")
+        assertThat(
+            CustomTranslationFunctions()
+                .convertDateTimeToHL7(DateTimeType("2015-04-11T12:22:01-04:00"), appContext)
+        )
+            .isEqualTo("20150411122201-0400")
     }
 
     @Test
