@@ -1,6 +1,8 @@
+@use "../../../global-modules.scss" as *;
+
 .ReportDetailsTable {
     padding: 32px 33px;
-    background-color: #f1f3F6;
+    background-color: color('gray-cool-4');
 
     :global {
         .filter-container {

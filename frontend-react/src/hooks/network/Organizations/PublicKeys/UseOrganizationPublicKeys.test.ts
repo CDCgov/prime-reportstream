@@ -65,7 +65,7 @@ describe("useOrganizationPublicKeys", () => {
                 wrapper: AppWrapper(),
             });
             await waitFor(() =>
-                expect(result.current.data).toEqual(dummyPublicKey)
+                expect(result.current.data).toEqual(dummyPublicKey),
             );
             expect(result.current.isLoading).toEqual(false);
         });

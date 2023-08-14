@@ -1,3 +1,4 @@
+// AutoUpdateFileChromatic
 @use "uswds-core" as *;
 @use "uswds_custom_theme" as *;
 
@@ -844,5 +845,10 @@ h2.rs-numbered {
 .rs-style__content {
     .grid-container {
         @include grid-container("desktop-lg");
+    }
+
+    // Smaller font for content alerts
+    .usa-alert {
+        @include u-font-size("sans", "xs");
     }
 }

@@ -1,4 +1,5 @@
 ---
+# deprecated
 name: hl7-ingest-covid-19-training
 description: Schema for ingesting HL7 messages - forces training mode
 topic: covid-19

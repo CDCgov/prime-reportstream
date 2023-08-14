@@ -59,7 +59,7 @@ export async function chooseFile(file: File) {
 
 describe("FileHandler", () => {
     function mockUseFileHandler(
-        fileHandlerState: Partial<FileHandlerState> = {}
+        fileHandlerState: Partial<FileHandlerState> = {},
     ) {
         jest.spyOn(useFileHandlerExports, "default").mockReturnValue({
             state: {
@@ -71,7 +71,7 @@ describe("FileHandler", () => {
     }
 
     function mockUseSenderSchemaOptions(
-        result: Partial<UseSenderSchemaOptionsHookResult> = {}
+        result: Partial<UseSenderSchemaOptionsHookResult> = {},
     ) {
         jest.spyOn(useSenderSchemaOptionsExports, "default").mockReturnValue({
             isLoading: false,
@@ -81,11 +81,11 @@ describe("FileHandler", () => {
     }
 
     function mockUseWatersUploader(
-        result: Partial<UseWatersUploaderResult> = {}
+        result: Partial<UseWatersUploaderResult> = {},
     ) {
         jest.spyOn(
             useWatersUploaderExports,
-            "useWatersUploader"
+            "useWatersUploader",
         ).mockReturnValue({
             isWorking: false,
             uploaderError: null,
@@ -113,10 +113,10 @@ describe("FileHandler", () => {
 
         test("renders the prompt as expected", () => {
             expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-                "ReportStream File Validator"
+                "ReportStream File Validator",
             );
             expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
-                "wow, cool organization"
+                "wow, cool organization",
             );
             expect(screen.getByText("Select data model")).toBeVisible();
         });
@@ -149,7 +149,7 @@ describe("FileHandler", () => {
             // Step 3: success
             await waitFor(() => {
                 return screen.getByText(
-                    "Your file is correctly formatted for ReportStream."
+                    "Your file is correctly formatted for ReportStream.",
                 );
             });
         });
@@ -187,7 +187,7 @@ describe("FileHandler", () => {
             await userEvent.click(screen.getByText(/^Continue$/));
             await waitFor(() => {
                 return screen.getByText(
-                    "Your file is correctly formatted for ReportStream."
+                    "Your file is correctly formatted for ReportStream.",
                 );
             });
         });
@@ -219,7 +219,7 @@ describe("FileHandler", () => {
 
             // Step 3: errors
             expect(
-                screen.getByText("Resubmit with the required edits.")
+                screen.getByText("Resubmit with the required edits."),
             ).toBeVisible();
         });
 
@@ -238,10 +238,10 @@ describe("FileHandler", () => {
 
             // Step 3: errors
             expect(
-                screen.getByText("Resubmit with the required edits.")
+                screen.getByText("Resubmit with the required edits."),
             ).toBeVisible();
             expect(
-                screen.queryByText("Continue without changes")
+                screen.queryByText("Continue without changes"),
             ).not.toBeInTheDocument();
             await userEvent.click(screen.getByText("Test another file"));
 

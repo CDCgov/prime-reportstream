@@ -3,4 +3,4 @@ elements:
     bundleProperty: '%resource.status'
     condition: '%observationIndex = 0'
     value:
-      - 'final'
+      - '"final"'

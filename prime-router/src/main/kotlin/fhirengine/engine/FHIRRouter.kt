@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.fhirengine.engine
 
+import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.EvaluateFilterConditionErrorMessage
@@ -95,11 +96,20 @@ class FHIRRouter(
     )
 
     /**
+     * Default Rules for quality filter on ELR_ELIMS topic:
+     *   no rules; completely open
+     */
+    private val elrElimsQualityFilterDefault: ReportStreamFilter = listOf(
+        "true",
+    )
+
+    /**
      * Maps topics to default quality filters so that topic-dependent defaults can be used
      */
     val qualityFilterDefaults = mapOf(
         Pair(Topic.FULL_ELR, fullElrQualityFilterDefault),
         Pair(Topic.ETOR_TI, etorTiQualityFilterDefault),
+        Pair(Topic.ELR_ELIMS, elrElimsQualityFilterDefault)
     )
 
     /**
@@ -115,7 +125,7 @@ class FHIRRouter(
      */
     val processingModeDefaults = mapOf(
         Pair(Topic.FULL_ELR, processingModeFilterDefault),
-        Pair(Topic.ETOR_TI, processingModeFilterDefault),
+        Pair(Topic.ETOR_TI, processingModeFilterDefault)
     )
 
     /**
@@ -263,7 +273,8 @@ class FHIRRouter(
                         BlobAccess.digestToString(blobInfo.digest),
                         message.blobSubFolderName,
                         message.topic,
-                    ).serialize()
+                    ).serialize(),
+                    this.queueVisibilityTimeout
                 )
             } else {
                 // this bundle does not have receivers; only perform the work necessary to track the routing action
@@ -378,7 +389,7 @@ class FHIRRouter(
             //  default: allowAll
             val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
             val allObservations = FhirPathUtils.evaluate(
-                CustomContext(bundle, bundle, shorthandLookupTable),
+                CustomContext(bundle, bundle, shorthandLookupTable, CustomFhirPathFunctions()),
                 bundle,
                 bundle,
                 allObservationsExpression
@@ -501,7 +512,7 @@ class FHIRRouter(
         filter.forEach { filterElement ->
             try {
                 val filterElementResult = FhirPathUtils.evaluateCondition(
-                    CustomContext(bundle, focusResource, shorthandLookupTable),
+                    CustomContext(bundle, focusResource, shorthandLookupTable, CustomFhirPathFunctions()),
                     focusResource,
                     bundle,
                     filterElement
@@ -552,7 +563,7 @@ class FHIRRouter(
         filter.forEach { filterElement ->
             try {
                 val filterElementResult = FhirPathUtils.evaluateCondition(
-                    CustomContext(bundle, focusResource, shorthandLookupTable),
+                    CustomContext(bundle, focusResource, shorthandLookupTable, CustomFhirPathFunctions()),
                     focusResource,
                     bundle,
                     filterElement
@@ -625,7 +636,7 @@ class FHIRRouter(
      */
     internal fun getJurisFilters(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         return (
-            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.jurisdictionalFilter
+            orgFilters?.firstOrNull { it.topic == receiver.topic }?.jurisdictionalFilter
                 ?: emptyList()
             ).plus(receiver.jurisdictionalFilter)
     }
@@ -637,7 +648,7 @@ class FHIRRouter(
      */
     internal fun getQualityFilters(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         val receiverFilters = (
-            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.qualityFilter
+            orgFilters?.firstOrNull { it.topic == receiver.topic }?.qualityFilter
                 ?: emptyList()
             ).plus(receiver.qualityFilter)
         return receiverFilters.ifEmpty { qualityFilterDefaults[receiver.topic] ?: emptyList() }
@@ -650,7 +661,7 @@ class FHIRRouter(
      */
     internal fun getRoutingFilter(receiver: Receiver, orgFilters: List<ReportStreamFilters>?): ReportStreamFilter {
         return (
-            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.routingFilter
+            orgFilters?.firstOrNull { it.topic == receiver.topic }?.routingFilter
                 ?: emptyList()
             ).plus(receiver.routingFilter)
     }
@@ -665,7 +676,7 @@ class FHIRRouter(
         orgFilters: List<ReportStreamFilters>?,
     ): ReportStreamFilter {
         val receiverFilters = (
-            orgFilters?.firstOrNull { it.topic.isUniversalPipeline }?.processingModeFilter
+            orgFilters?.firstOrNull { it.topic == receiver.topic }?.processingModeFilter
                 ?: emptyList()
             ).plus(receiver.processingModeFilter)
         return receiverFilters.ifEmpty { processingModeDefaults[receiver.topic] ?: emptyList() }

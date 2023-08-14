@@ -6,7 +6,7 @@ import { ContentDirectory } from "./MarkdownDirectory";
 
 export const contentContainer = (
     Content: () => JSX.Element,
-    crumbs: CrumbConfig[]
+    crumbs: CrumbConfig[],
 ) => {
     const wrappedElement = (
         <div className="rs-documentation usa-prose">
@@ -23,7 +23,7 @@ export const contentContainer = (
 export const crumbsFromHere = (
     directory: string,
     dirPath: string,
-    pageLabel: string
+    pageLabel: string,
 ): CrumbConfig[] => [{ label: directory, path: dirPath }, { label: pageLabel }];
 
 /** Renders a given element with breadcrumbs
@@ -31,8 +31,9 @@ export const crumbsFromHere = (
  * @param element {JSX.Element} The element to be rendered
  * @param crumbs {CrumbConfig[]} A list of crumbs to render */
 export const renderWithCrumbs =
-    (element: JSX.Element, crumbs: CrumbConfig[]) => () =>
-        <WithCrumbs page={element} crumbList={crumbs} />;
+    (element: JSX.Element, crumbs: CrumbConfig[]) => () => (
+        <WithCrumbs page={element} crumbList={crumbs} />
+    );
 
 export interface SlugParams {
     key: string;
@@ -63,7 +64,7 @@ export class ContentDirectoryTools {
         const slug = this.slugs.get(slugMapKey);
         if (slug === undefined)
             throw Error(
-                `Slug not found in ${this.title} directory tools slug map: ${slug}`
+                `Slug not found in ${this.title} directory tools slug map: ${slug}`,
             );
         return slug;
     }
@@ -74,5 +75,5 @@ export class ContentDirectoryTools {
 
 export const makeSectionFromTitles = (
     titles: string[],
-    directories: ContentDirectory[]
+    directories: ContentDirectory[],
 ) => directories.filter((dir) => titles.includes(dir.title));

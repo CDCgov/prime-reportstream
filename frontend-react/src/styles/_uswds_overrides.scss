@@ -1,3 +1,4 @@
+// AutoUpdateFileChromatic
 @use "uswds-core" as *;
 @use "uswds_custom_theme" as *;
 
@@ -262,12 +263,6 @@ main {
     & h6 {
         margin: 0;
     }
-}
-
-// Allow for div heading container element to bypass default stylings (ex: font-size)
-div.usa-alert__heading {
-    all: unset;
-    font-weight: bold;
 }
 
 .usa-card__header {

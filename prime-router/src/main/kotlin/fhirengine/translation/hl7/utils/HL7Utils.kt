@@ -17,7 +17,8 @@ object HL7Utils : Logging {
     /**
      * The default HL7 encoding characters.  Note that depending on the message version this will be 4 or 5 characters.
      */
-    private const val defaultHl7EncodingChars = "^~\\&#"
+    const val defaultHl7EncodingFourChars = "^~\\&"
+    const val defaultHl7EncodingFiveChars = "^~\\&#"
 
     /**
      * Gets a new object for the given [hl7Class].
@@ -73,7 +74,7 @@ object HL7Utils : Logging {
             terser.getSegment("MSH").let {
                 val msh2Length = it.getLength(2)
                 terser.set("MSH-1", defaultHl7Delimiter)
-                terser.set("MSH-2", defaultHl7EncodingChars.take(msh2Length))
+                terser.set("MSH-2", defaultHl7EncodingFourChars.take(msh2Length))
                 terser.set("MSH-9-1", typeParts[0])
                 terser.set("MSH-9-2", typeParts[1])
                 terser.set("MSH-9-3", "${typeParts[0]}_${typeParts[1]}")

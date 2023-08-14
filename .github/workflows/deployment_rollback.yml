@@ -1,0 +1,73 @@
+name: "Rollback: Deployment to CandidateSlot"
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment Environments:'
+        required: true
+        options:
+        - prod
+        - staging
+        - test
+        type: choice
+jobs:
+  DeployToCandidateSlot:
+    runs-on: ubuntu-latest
+    env:
+      ALLOWED_USERS: "lucasdze,jeremy-page,JosiahSiegel,snesm,supriyaaddagada"
+
+    steps:
+      - name: Check if actor is allowed to run the workflow
+        if: ${{ contains(env.ALLOWED_USERS, github.actor) }}
+        run: echo "The user is allowed to run the workflow."
+      
+      - name: Check if actor is NOT allowed to run the workflow
+        if: ${{ !contains(env.ALLOWED_USERS, github.actor) }}
+        run: |
+          echo "This user is not allowed to run the workflow."
+          exit 1
+          
+      - name: "Check out changes"
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+
+      - name: Set deployment environment
+        run: echo "ENV=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+
+      - name: Get runner ip
+        id: runner_ip
+        uses: ./.github/actions/runner-ip
+
+      - name: Connect to VPN & Login into Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: Add runner IP to Function App firewall
+        run: |
+          az functionapp config access-restriction add --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --ip-address ${{ steps.runner_ip.outputs.ip-address }} --priority 88
+
+      - name: Get container ID
+        id: get_container_id
+        run: |
+          az acr repository show-tags --name pdh${{ env.ENV }}containerregistry.azurecr.io --repository pdh${{ env.ENV }} --orderby time_asc --output table | tail -3 | head -1 > container_id.txt
+
+      - name: Deploy to Candidate Slot
+        run: |
+          az webapp config container set --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --slot candidate --docker-custom-image-name pdh${{ env.ENV }}containerregistry.azurecr.io/pdh${{ env.ENV }}:`cat container_id.txt`
+
+      - name: Swap Slots
+        run: |
+          az functionapp deployment slot swap --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --slot candidate --target-slot production
+      
+      - name: Verify the Running Container
+        run: |
+          az webapp config container show --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} 
+
+      - name: Remove runner IP from Function App firewall
+        run: |
+          az functionapp config access-restriction remove --name pdh${{ env.ENV }}-functionapp --resource-group prime-data-hub-${{ env.ENV }} --ip-address ${{ steps.runner_ip.outputs.ip-address }} 

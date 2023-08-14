@@ -31,9 +31,18 @@
 # condition-assertedDate
 - id: "condition-assertedDate"
   url: "http://hl7.org/fhir/StructureDefinition/condition-assertedDate"
+# message encoding characters
+- id: "encoding-characters"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters"
 # source message profile ID
 - id: "source-message-profile-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id"
+# message accept acknowledgement type
+- id: "accept-acknowledgement-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/accept-acknowledgement-type"
+# source application acknowledgement type
+- id: "application-acknowledgement-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/application-acknowledgement-type"
 # application-identifier
 - id: "application-identifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/application-identifier"
@@ -109,15 +118,6 @@
 # Generic text
 - id: "text"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/text"
-# Original text
-- id: "original-text"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/original-text"
-# Alternate identifier
-- id: "alternate-identifier"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier"
-# Alternate version
-- id: "alternate-version"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version"
 # Alternate value
 - id: "alternate-value"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-value"
@@ -209,3 +209,36 @@
 # Business Event In Progress - https://docs.google.com/spreadsheets/d/11VBF5TIRJTfRwkRIK1XH-k40dZqCd3g3a0sBY-zJU4Q/edit#gid=0
 - id: "business-event"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event"
+# Name
+- id: "name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name"
+# Mother's identifier
+- id: "mothers-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/mothers-identifier"
+# Used to persist values from OBX.11 that do not map to FHIR, e.g. O.
+- id: "observation-status-original-text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-status-original-text"
+# Time the message was sent
+- id: "message-sent"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/message-sent"
+# Specimen Name or Code
+- id: "specimen-name-or-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/specimen-name-or-code"
+# Specimen Source Additives
+- id: "specimen-source-additives"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/specimen-source-additives"
+# Specimen Collection Method
+- id: "specimen-collection-method"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/specimen-collection-method"
+# Observation Type
+- id: "observation-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-type"
+# Observation Sub Type
+- id: "observation-sub-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type"
+# Specimen Source Site Modifier
+- id: "specimen-source-site-modifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/specimen-source-site-modifier"
+# Specimen Type Modifier
+- id: "specimen-type-modifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/specimen-type-modifier"

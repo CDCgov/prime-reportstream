@@ -36,7 +36,7 @@ type RequestedChangesDisplayProps = {
  */
 export function getSafeFileName(
     originalFileName: string,
-    requestLevel: RequestLevel
+    requestLevel: RequestLevel,
 ) {
     const joinedStr = [originalFileName, requestLevel].join("-").toLowerCase();
 
@@ -75,8 +75,8 @@ export const RequestedChangesDisplay = ({
                             errorCode={item.errorCode}
                             field={item.field}
                             message={item.message}
-                        />
-                    )
+                        />,
+                    ),
                 ),
             };
         });

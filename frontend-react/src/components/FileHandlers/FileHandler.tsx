@@ -8,15 +8,15 @@ import useFileHandler, {
 } from "../../hooks/UseFileHandler";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import site from "../../content/site.json";
-import { USExtLink } from "../USLink";
+import { USExtLink, USLink } from "../USLink";
 import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
 import { WatersResponse } from "../../config/endpoints/waters";
+import Alert from "../../shared/Alert/Alert";
 
 import FileHandlerFileUploadStep from "./FileHandlerFileUploadStep";
 import FileHandlerSchemaSelectionStep from "./FileHandlerSchemaSelectionStep";
 import FileHandlerErrorsWarningsStep from "./FileHandlerErrorsWarningsStep";
 import FileHandlerSuccessStep from "./FileHandlerSuccessStep";
-import FileHandlerProgrammersGuideTip from "./FileHandlerProgrammersGuideTip";
 
 export interface FileHandlerStepProps extends FileHandlerState {
     isValid?: boolean;
@@ -42,7 +42,7 @@ function mapStateToOrderedSteps(state: FileHandlerState) {
             Component: FileHandlerErrorsWarningsStep,
             isValid: false,
             shouldSkip: Boolean(
-                overallStatus && errors.length === 0 && warnings.length === 0
+                overallStatus && errors.length === 0 && warnings.length === 0,
             ),
         },
         {
@@ -56,7 +56,7 @@ export default function FileHandler() {
     const { state, dispatch } = useFileHandler();
     const { fileName, localError } = state;
     const orderedSteps = mapStateToOrderedSteps(state).filter(
-        (step) => !step.shouldSkip
+        (step) => !step.shouldSkip,
     );
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const {
@@ -112,7 +112,7 @@ export default function FileHandler() {
         });
 
         const fileSelectionStepIndex = orderedSteps.findIndex(
-            ({ Component }) => Component === FileHandlerFileUploadStep
+            ({ Component }) => Component === FileHandlerFileUploadStep,
         );
         setCurrentStepIndex(fileSelectionStepIndex);
         window.scrollTo(0, 0);
@@ -196,7 +196,15 @@ export default function FileHandler() {
                     })()}
                 </div>
                 {StepComponent !== FileHandlerSuccessStep && (
-                    <FileHandlerProgrammersGuideTip />
+                    <Alert headingLevel="h3" type="tip">
+                        Reference{" "}
+                        <USLink href="/resources/api/documentation/data-model">
+                            the data model
+                        </USLink>{" "}
+                        for the information needed to validate your file
+                        successfully. Pay special attention to which fields are
+                        required and common mistakes.
+                    </Alert>
                 )}
                 <p className="text-base-darker margin-top-10">
                     Questions or feedback? Please email{" "}

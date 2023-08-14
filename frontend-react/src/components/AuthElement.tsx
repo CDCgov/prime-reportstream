@@ -30,7 +30,7 @@ export const AuthElement = ({
     // from useSessionContext
     const memberType = useMemo(
         () => activeMembership?.memberType || MemberType.NON_STAND,
-        [activeMembership]
+        [activeMembership],
     );
     // Dynamically authorize user from single or multiple allowed user types
     const authorizeMemberType = useMemo(() => {
@@ -44,7 +44,7 @@ export const AuthElement = ({
 
     const needsLogin = useMemo(
         () => !oktaToken || !activeMembership,
-        [oktaToken, activeMembership]
+        [oktaToken, activeMembership],
     );
     useEffect(() => {
         // not ready to make a determination about auth status yet, show a spinner
@@ -78,7 +78,7 @@ export const AuthElement = ({
 
     const elementToRender = useMemo(
         () => (initialized ? element : <Spinner />),
-        [initialized, element]
+        [initialized, element],
     );
     return elementToRender;
 };

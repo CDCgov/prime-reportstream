@@ -48,14 +48,14 @@ const FeatureFlagContext = createContext<FeatureFlagContextValues>({
 
 export const featureFlagReducer = (
     state: FeatureFlagState,
-    action: FeatureFlagAction
+    action: FeatureFlagAction,
 ) => {
     const { type, payload } = action;
     let newFlags;
     switch (type) {
         case FeatureFlagActionType.ADD:
             newFlags = uniq(
-                state.featureFlags.concat([payload.trim().toLowerCase()])
+                state.featureFlags.concat([payload.trim().toLowerCase()]),
             );
             storeFeatureFlags(newFlags);
             return { featureFlags: newFlags };
@@ -63,7 +63,7 @@ export const featureFlagReducer = (
         // we shouldn't run into a case where this is hit for those
         case FeatureFlagActionType.REMOVE:
             newFlags = state.featureFlags.filter(
-                (f) => f !== payload.trim().toLowerCase()
+                (f) => f !== payload.trim().toLowerCase(),
             );
             storeFeatureFlags(newFlags);
             return { featureFlags: newFlags };
@@ -84,12 +84,12 @@ export const FeatureFlagProvider = ({
     // if the env turns on the flag, we don't want a user accidentally accessing it later on
     const allFeatureFlags: string[] = useMemo(
         () => uniq(featureFlags.concat(DEFAULT_FEATURE_FLAGS)),
-        [featureFlags]
+        [featureFlags],
     );
 
     const checkFlag = useCallback(
         (flag: string): boolean => !!allFeatureFlags.find((el) => el === flag),
-        [allFeatureFlags]
+        [allFeatureFlags],
     );
 
     return (

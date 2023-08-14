@@ -34,11 +34,11 @@ export function AdminOrgNew() {
                 await fetchController(
                     OrganizationResource.update(),
                     { orgname: orgName },
-                    orgSetting
+                    orgSetting,
                 );
                 showAlertNotification(
                     "success",
-                    `Item '${orgName}' has been created`
+                    `Item '${orgName}' has been created`,
                 );
 
                 navigate(`/admin/orgsettings/org/${orgName}`);

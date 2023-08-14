@@ -15,5 +15,5 @@ const root = createRoot(document.getElementById("root")!);
 root.render(
     <CacheProvider>
         <RouterProvider router={router} />
-    </CacheProvider>
+    </CacheProvider>,
 );

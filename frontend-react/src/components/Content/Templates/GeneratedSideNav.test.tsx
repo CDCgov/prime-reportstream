@@ -17,6 +17,6 @@ test("GeneratedSideNav", () => {
     expect(screen.getByText("Another Dir")).toBeInTheDocument();
     expect(screen.getByText("Another Dir")).toHaveAttribute(
         "href",
-        "/another-dir"
+        "/another-dir",
     );
 });
