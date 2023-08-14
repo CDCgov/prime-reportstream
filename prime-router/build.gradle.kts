@@ -39,7 +39,7 @@ plugins {
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.8.20"
-    id("com.avast.gradle.docker-compose") version "0.16.12"
+    id("com.avast.gradle.docker-compose") version "0.17.4"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
     id("com.nocwriter.runsql") version ("1.0.3")
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.15"
@@ -544,6 +544,9 @@ dockerCompose {
     startedServices.addAll("sftp", "soap-webservice", "rest-webservice", "vault", "azurite")
     stopContainers.set(false)
     waitForTcpPorts.set(false)
+    // Starting in version 0.17 the plugin changed the default to true, meaning our docker compose yaml files
+    // get run with `docker compose` rather than `docker-compose`
+    useDockerComposeV2.set(false)
 }
 
 tasks.azureFunctionsRun {
@@ -814,6 +817,7 @@ dependencies {
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.4.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
+    implementation("ca.uhn.hapi:hapi-structures-v27:2.3")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.17")
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
