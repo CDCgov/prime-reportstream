@@ -15,7 +15,7 @@ CHECKS_TO_RUN=(
     #${REPO_ROOT}/.environment/gitleaks/run-gitleaks.sh
     ${REPO_ROOT}/.environment/ktlint/run-ktlintCheck.sh
     ${REPO_ROOT}/.environment/terraform-fmt/run-terraform-fmt.sh
-    ${REPO_ROOT}/frontend-react/.husky/pre-commit
+    ${REPO_ROOT}/.environment/frontend/run-frontend.sh
 )
 
 function error() {
