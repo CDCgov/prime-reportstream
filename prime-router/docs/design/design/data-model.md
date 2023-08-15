@@ -81,7 +81,7 @@ As a Report flows through ReportStream's Universal Pipeline, it can be split up 
 #### `report_file` table
 Each time a Report is created, an entry is created in the `report_file` table where a unique ID identifies the Report. Each Report entry in this table also ties in to the action table and contains data about the report, such as who the sending or receiving org was, what the next action to be performed on the report is, what the URL to the associated blob in azure is, et. al.
 
-> It's important to note that the actual Report, which may contain  personally identifiable information (PII), is stored in the internal ReportStream Azure Storage Container and NOT in the database. The database (report_file table) does NOT directly store any PII, only protected links to the blob in Azure!
+> It's important to note that the actual Report, which may contain personally identifiable information (PII), is stored in the internal ReportStream Azure Storage Container and NOT in the database. The database (report_file table) does NOT directly store any PII, only protected links to the blob in Azure!
 
 #### `report_lineage` table
 As child reports are created, the `report_lineage` table is also updated to link the child report to the parent. In this way, the Report's lineage is tracked as a graph structure and can be queried with Postgres' recursive [Common Table Expressions](https://www.postgresql.org/docs/current/queries-with.html) feature. The `report_lineage` table is fairly simple and stores the associated parent and child report IDs, along with the time it was created and the associated `action_id`.
@@ -184,7 +184,7 @@ Organizations serve as containers for Senders and Receivers, but have their own 
 
 #### Sender Settings
 
-Sender settings allow the Sender to indicate what [topic](./topic.md) they would like to use as well as the format of their message. `allowDuplicates` allows Senders to indicate if duplicate Items in a Report should be filtered out prior to processing.
+Sender settings allow the Sender to indicate what [topic](./topic.md) they would like to use as well as the format of their message. `allowDuplicates` allows Senders to indicate if duplicate Items in a Report should be filtered out prior to processing. For more information regarding `allowDuplicates`, see documentation on the [Receive step](../../universal-pipeline/receive.md) of the Universal Pipeline.
 
 Example Sender settings configuration. Deprecated options have been omitted.
 ```json
