@@ -1,34 +1,10 @@
 # FHIR Functions
-FHIR functions are methods that can be run on a bundle (ex. retrieve an age or telephone area code) via the command line using the fhirpath tool. To use the FHIR 
-path tool, in terminal, run `./prime fhirpath -i <bundle file path here>`. 
-This sets the bundle to be the resource. The resource is the part of the bundle which you can currently run functions
-on. 
-
-- By default, the resource is the bundle itself. To change what the resource is set to, run a command like 
-`resource=Bundle.entry.resource.ofType(Patient)[0]`.
-
-
-- To evaluate a specific field in the bundle, run a command like 
-`Bundle.entry.resource.ofType(Observation)[0].device.resolve().deviceName`. 
-  - In this example `resolve()` is used. If you encounter a message like 
-  `Reference to Encounter/1674584645770942000.cffbb057-46bb-4018-8fce-7a4d552ef7e3 -
-    use resolve() to navigate into it`you need to evaluate the reference using resolve() and then you'll get the 
-    actual data inside
-
-
-- To run a function on a resource, run a command like 
-`Bundle.entry.resource.ofType(Patient)[0].contact.telecom.value.GetPhoneNumberCountryCode()`
-
-
-- To call a function on a resource that is set, use `%resource` as shown here: `%resource.GetPhoneNumberCountryCode()`
-
-- When using the tool, `--help` is your friend.
-
+FHIR functions are methods that can be run on a bundle in order to extract data from it (ex. retrieve an age or telephone area code)
 Currently, there are two places where FHIR functions are created. Both are in a file called CustomFhirPathFunctions and
 both extend an interface called FhirPathFunctions. There are two places for these functions because some
 are internal functions, meaning that they can only be called from within the code rather than from the command line.
 
-### Internal
+## Internal FHIR Path Functions
 There is currently only one internal FHIR path function and that is the LIVD Lookup function which can be found [here](../../src/main/kotlin/fhirengine/engine/CustomFhirPathFunctions.kt)
 
 - livdTableLookup - This function must be called on a resource of type `Observation` with a parameter specifying 
@@ -38,7 +14,7 @@ There is currently only one internal FHIR path function and that is the LIVD Loo
     but the `deviceName` is, it will search for the `equipmentModelName`. What is returned are any results that match 
     the criteria found in the LIVD table. A preview of this table can be found in the `LIVD-SARS-CoV-2.csv` file.
 
-### External
+## External FHIR Path Functions
 There are many external FHIR path functions which can be found [here](../../src/main/kotlin/fhirengine/translation/hl7/utils/CustomFHIRFunctions.kt)
 
 An example of one of the currently most complicated functions is the convertDateToAge function:
@@ -64,3 +40,29 @@ document.
 2. Add the function itself.
 3. Add it to the resolveFunction method. This registers it so the command line knows what to expect and is valid.
 4. Add it to the execute function method. This registers it so the command line knows what to call.
+
+## FHIR Path Tool
+You can run these functions on a bundle using a command line fhirpath tool. To use the FHIR
+path tool, in terminal, run `./prime fhirpath -i <bundle file path here>`.
+This sets the bundle to be the resource. The resource is the part of the bundle which you can currently run functions
+on.
+
+- By default, the resource is the bundle itself. To change what the resource is set to, run a command like
+  `resource=Bundle.entry.resource.ofType(Patient)[0]`.
+
+
+- To evaluate a specific field in the bundle, run a command like
+  `Bundle.entry.resource.ofType(Observation)[0].device.resolve().deviceName`.
+    - In this example `resolve()` is used. If you encounter a message like
+      `Reference to Encounter/1674584645770942000.cffbb057-46bb-4018-8fce-7a4d552ef7e3 -
+      use resolve() to navigate into it`you need to evaluate the reference using resolve() and then you'll get the
+      actual data inside
+
+
+- To run a function on a resource, run a command like
+  `Bundle.entry.resource.ofType(Patient)[0].contact.telecom.value.GetPhoneNumberCountryCode()`
+
+
+- To call a function on a resource that is set, use `%resource` as shown here: `%resource.GetPhoneNumberCountryCode()`
+
+- When using the tool, `--help` is your friend.
