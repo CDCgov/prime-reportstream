@@ -36,10 +36,12 @@ export default function LiveMapSection({ section }: { section: SectionProp }) {
                 <div className="grid-row flex-justify-center">
                     <ul className={styles.legend}>
                         <li>
-                            <span className="bg-primary"></span>Connected
+                            <span className="bg-primary"></span>
+                            Connected
                         </li>
                         <li>
-                            <span className="bg-gray-10"></span>Not Connected
+                            <span className="bg-gray-10"></span>
+                            Not Connected
                         </li>
                     </ul>
                 </div>

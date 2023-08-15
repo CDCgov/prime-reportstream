@@ -3,9 +3,9 @@ import { CitationProp } from "../../pages/home/HomeProps";
 export const Citation = ({ citation }: { citation: CitationProp }) => {
     return (
         <div className="padding-top-9">
-            <h3 data-testid="title" className="font-sans-lg">
+            <p data-testid="title" className="font-sans-lg text-bold">
                 {citation.title}
-            </h3>
+            </p>
             <p data-testid="quote" className="usa-intro">
                 "{citation.quote}"
             </p>

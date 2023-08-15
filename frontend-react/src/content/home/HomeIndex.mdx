@@ -3,6 +3,7 @@ import content from "../../pages/home/content.json";
 import Section from "../../pages/home/Sections/Section";
 import { Feature } from "../../shared/Features/Feature";
 import LiveMapSection from "../../pages/home/Sections/LiveMapSection";
+import site from "../site.json";
 
 
 <Hero />
@@ -10,7 +11,7 @@ import LiveMapSection from "../../pages/home/Sections/LiveMapSection";
     <div className="grid-container">
         {content.howWeHelp.map((section, sectionIndex) => {
             return (
-            <section key={`home-${sectionIndex}`}className="usa-section margin-y-0 padding-top-9 padding-bottom-10">
+            <section key={`home-${sectionIndex}`}className="usa-section margin-y-0 padding-y-9">
                 <div className="grid-row grid-gap">
                     <Section section={section} />
                 </div>
@@ -25,10 +26,8 @@ import LiveMapSection from "../../pages/home/Sections/LiveMapSection";
                             />
                     )}
                 </div>
-                <div className="grid-row flex-justify-center">
-                    <a href="" className="usa-button">
-                        Get started
-                    </a>
+                <div className="grid-row flex-justify-center margin-bottom-2">
+                    <A href={site.forms.connectWithRS.url} className="usa-button">Get started</A>
                 </div>
             </section>
             );
@@ -65,7 +64,7 @@ import LiveMapSection from "../../pages/home/Sections/LiveMapSection";
                 <p className="usa-intro">Our team will respond to your questions or set up a time to learn more about how we can help you.</p>
             </div>
             <div className="grid-row flex-justify-center margin-bottom-2">
-                <a href="mailto:reportstream@cdc.gov" className="usa-button">Connect with us</a>
+                <A href={site.forms.connectWithRS.url} className="usa-button">Connect with us</A>
             </div>
         </section>
     </div>

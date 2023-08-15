@@ -4,15 +4,18 @@
     list-style: none;
 
     li {
-        float: left;
-        margin-right: 8px;
+        @include u-float(left);
+        @include u-margin-right(1);
     }
 
     span {
-        border: none;
-        float: left;
-        width: 12px;
-        height: 12px;
-        margin: 2px 5px 2px 2px;
+        @include u-border(0);
+        @include u-float(left);
+        @include u-width(1.5);
+        @include u-height(1.5);
+        @include u-margin-top(5px);
+        @include u-margin-right(5px);
+        @include u-margin-bottom(2px);
+        @include u-margin-left(2px);
     }
 }
