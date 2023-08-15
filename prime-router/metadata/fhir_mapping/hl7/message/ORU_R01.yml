@@ -61,6 +61,21 @@ resources:
       - .OBSERVATION.NTE
       - MSH
 
+  - resourceName: ServiceRequest
+    segment: .OBR
+    group: PATIENT_RESULT.ORDER_OBSERVATION
+    resourcePath: resource/ServiceRequest
+    repeats: true
+    isReferenced: true
+    additionalSegments:
+      - .NTE
+      - .ORC
+      - .SPECIMEN.OBX
+      - PATIENT_RESULT.PATIENT.PID
+      - PATIENT_RESULT.PATIENT.VISIT.PV1
+      - MSH
+      - .TIMING_QTY.TQ1
+
   - resourceName: DiagnosticReport
     segment: .OBR
     group: PATIENT_RESULT.ORDER_OBSERVATION
