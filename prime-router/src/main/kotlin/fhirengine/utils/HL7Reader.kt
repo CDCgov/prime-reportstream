@@ -4,6 +4,7 @@ import ca.uhn.hl7v2.AbstractHL7Exception
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.ErrorCode
 import ca.uhn.hl7v2.HL7Exception
+import ca.uhn.hl7v2.model.AbstractMessage
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.v27.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
@@ -22,45 +23,68 @@ import java.util.Date
  * Converts raw HL7 data (message or batch) to HL7 message objects.
  */
 class HL7Reader(private val actionLogger: ActionLogger) : Logging {
+
     /**
      * Returns one or more messages read from the raw HL7 data.
+     *
+     * This function takes a couple of different approaches to transforming the raw string into messages.
+     *
+     * First, it will read the message type from MSH.9 and attempt to find the list of mapped MessageModels.
+     * See [getMessageModelClasses].  These mappings will typically consist of the v27 structure and the v25 structure
+     * for that message type.  If models are found, the code will iterate over the models and attempt to parse the
+     * message.  If messages are parsed, loop short circuits.
+     *
+     * The reason we need to use multiple message models is due to inconsistencies of the specs across different
+     * organizations.  For example, the NIST profile for v251 includes fields that are only available in the v27
+     * standard spec.  To get around this fact, we take advantage that the specs are mostly backwards compatible;
+     * a NIST v251 can be parsed using the v271 structure successfully and will now also include the data from the
+     * fields only available in the standard v27.  The only caveat to this approach is that the HAPI library itself
+     * is not 100% backwards compatible.  A common error is that a v251 message will specify a component is a CE, but
+     * the v27 spec says it must be a CWE; though these two data types are compatible from a field standpoint, the HAPI
+     * library will throw a type error along the lines of "a CWE field cannot be set to a CE type".  To get around this
+     * issue, if the message cannot be parsed to v27 we fall back to parsing it as a v251 message.
+     *
+     *
+     * If no message models are returned by [getMessageModelClasses], the string is parsed using the default behavior
+     * of [Hl7InputStreamMessageIterator].
+     *
+     *
      * @return one or more HL7 messages
      * @throws IllegalArgumentException if the raw data cannot be parsed or no messages were read
      */
     fun getMessages(rawMessage: String): List<Message> {
+        val messageModelsToTry = getMessageModelClasses(rawMessage)
         val messages: MutableList<Message> = mutableListOf()
         if (rawMessage.isBlank()) {
             actionLogger.error(InvalidReportMessage("Provided raw data is empty."))
-        } else {
-            val validationContext = ValidationContextFactory.noValidation()
+        } else if (messageModelsToTry.isEmpty()) {
             try {
-                val context = DefaultHapiContext(CanonicalModelClassFactory(ORU_R01::class.java))
-                context.validationContext = validationContext
-                val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream(), context)
+                val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream())
                 while (iterator.hasNext()) {
                     messages.add(iterator.next())
                 }
-                // NOTE for batch hl7; should we be doing anything with the BHS and other headers
-            } catch (e: Exception) {
-                logger.error(e.message.toString())
             } catch (e: Hl7InputStreamMessageStringIterator.ParseFailureError) {
                 logHL7ParseFailure(e)
-            } catch (e: AbstractHL7Exception) {
-                logHL7ParseFailure(e)
             }
-
-            if (messages.isEmpty()) {
-                try {
-                    val context = DefaultHapiContext(
-                        CanonicalModelClassFactory(ca.uhn.hl7v2.model.v251.message.ORU_R01::class.java)
-                    )
+        } else {
+            val validationContext = ValidationContextFactory.noValidation()
+            run modelLoop@{
+                messageModelsToTry.forEach { model ->
+                    val context = DefaultHapiContext(CanonicalModelClassFactory(model))
                     context.validationContext = validationContext
-                    val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream(), context)
-                    while (iterator.hasNext()) {
-                        messages.add(iterator.next())
+                    try {
+                        val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream(), context)
+                        while (iterator.hasNext()) {
+                            messages.add(iterator.next())
+                        }
+                    } catch (e: Hl7InputStreamMessageStringIterator.ParseFailureError) {
+                        logHL7ParseFailure(e)
                     }
-                } catch (e: Exception) {
-                    logger.error(e.message.toString())
+
+                    if (messages.isNotEmpty()) {
+                        // Don't try other message models if we were able to parse
+                        return@modelLoop
+                    }
                 }
             }
 
@@ -69,6 +93,39 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             }
         }
         return messages
+    }
+
+    /**
+     * Extracts the message type from the MSH segment and returns the list of message models to use to
+     * try to parse the messages.
+     *
+     * This function assumes all the message types will be the same if this is a HL7 batch.
+     */
+    private fun getMessageModelClasses(rawMessage: String): List<Class<out AbstractMessage>> {
+        val iterator = Hl7InputStreamMessageIterator(rawMessage.byteInputStream())
+        if (iterator.hasNext()) {
+            try {
+                val firstMessage = iterator.next()
+                return when (val messageType = getMessageType(firstMessage)) {
+                    "ORU" -> listOf(
+                        ORU_R01::class.java,
+                        ca.uhn.hl7v2.model.v251.message.ORU_R01::class.java
+                    )
+
+                    else -> {
+                        logger.warn(
+                            "$messageType did not have any mapped message model classes, using default behavior"
+                        )
+                        emptyList()
+                    }
+                }
+            } catch (ex: Hl7InputStreamMessageStringIterator.ParseFailureError) {
+                logHL7ParseFailure(ex)
+                return emptyList()
+            }
+        }
+        actionLogger.error(InvalidReportMessage("String did not contain any HL7 messages"))
+        return emptyList()
     }
 
     /**
@@ -95,11 +152,6 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
             is AbstractHL7Exception -> recordError(rootCause)
             else -> throw rootCause
         }
-    }
-
-    private fun logHL7ParseFailure(exception: AbstractHL7Exception) {
-        logger.error("Failed to parse message", exception)
-        recordError(exception)
     }
 
     private fun recordError(exception: AbstractHL7Exception) {

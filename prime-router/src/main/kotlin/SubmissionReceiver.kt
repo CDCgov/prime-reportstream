@@ -368,15 +368,15 @@ class UniversalPipelineReceiver : SubmissionReceiver {
      * message for item with index [itemIndex] if it is not.
      */
     internal fun checkValidMessageType(message: Message, actionLogs: ActionLogger, itemIndex: Int) {
-        val header = message.get("MSH")
-        check(header is MSH)
-        val messageType = header.messageType.msg1_MessageCode.value +
-            "_" +
-            header.messageType.msg2_TriggerEvent.value
+        val messageType = when (val msh = message.get("MSH")) {
+            is MSH -> msh.messageType.messageStructure.toString()
+            is ca.uhn.hl7v2.model.v27.segment.MSH -> msh.messageType.messageStructure.toString()
+            else -> ""
+        }
 
         // TODO: This may need to be a configurable value in the future, if we ever support message types other
         //  than ORU_RO1. As of 6/15/2022 multiple message type support is out of scope
-        if (messageType != MessageType.ORU_R01.toString() && messageType != MessageType.ORM_O01.toString()) {
+        if (!listOf(MessageType.ORU_R01.toString(), MessageType.ORM_O01.toString()).contains(messageType)) {
             actionLogs.getItemLogger(itemIndex)
                 .error(InvalidHL7Message("Ignoring unsupported HL7 message type $messageType"))
         }
