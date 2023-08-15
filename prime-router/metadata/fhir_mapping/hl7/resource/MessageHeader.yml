@@ -91,3 +91,18 @@ extension_4:
       type: STRING
       valueOf: MSH.2
       expressionType: HL7Spec
+
+extension_5-character-set:
+  condition: $msh18 NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    msh18: String, MSH.18
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: character-set
+    valueString:
+      type: STRING
+      valueOf: MSH.18
+      expressionType: HL7Spec
