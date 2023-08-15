@@ -13,7 +13,7 @@ function modified_check() {
 
 modified_check
 if [[ ${isModified} == 1 ]]; then
-    "frontend-react/.husky/pre-commit";
+    ./frontend-react/.husky/pre-commit;
 fi
 RC=$?
 
