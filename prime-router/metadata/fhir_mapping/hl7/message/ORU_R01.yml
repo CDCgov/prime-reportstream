@@ -71,6 +71,7 @@ resources:
       - .NTE
       - .ORC
       - .SPECIMEN.SPECIMEN_OBSERVATION.OBX
+      - .SPECIMEN.OBX
       - PATIENT_RESULT.PATIENT.PID
       - PATIENT_RESULT.PATIENT.VISIT.PV1
       - MSH

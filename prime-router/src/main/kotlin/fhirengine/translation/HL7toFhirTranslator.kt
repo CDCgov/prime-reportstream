@@ -2,7 +2,6 @@ package gov.cdc.prime.router.fhirengine.translation
 
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.Segment
-import ca.uhn.hl7v2.model.v27.segment.MSH
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -95,9 +94,6 @@ class HL7toFhirTranslator internal constructor(
      */
     internal fun getMessageTemplateType(message: Message): String {
         val header = message.get("MSH") as Segment
-//        val messageCode = Terser.get(header, 9, 1, 1 ,1)
-//        val triggerEvent = Terser.get(header, 9, 2, 1 ,1)
-//        return "${messageCode}_$triggerEvent"
         return Terser.get(header, 9, 0, 3, 1)
     }
 
