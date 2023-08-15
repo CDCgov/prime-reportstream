@@ -331,6 +331,7 @@ This section shall discuss the rest of the database tables that power backend or
 
 - flyway_schema_history
 - jti_cache
+- email_schedule
 
 #### `flyway_schema_history` table
 
@@ -347,9 +348,30 @@ The table contains the following columns:
 - expires_at
 - created_at
 
-### Deprecated Tables
+#### `email_schedule` table
 
-The following tables deserve a mention since they exist but are not used and thus not worth covering in detail.
+The `email_schedule` table is fairly simple and powers the implementation of ReportStream's Email Engine, implemented in `EmailEngineFunction.kt`. More information regarding this feature can be found in the [proposal document](../proposals/0007-email-notification/0007-email-notification.md).
 
-- email_schedule
+`email_schedule` follows a similar approach to versioning as the [lookup_table_version](#lookuptableversion-table) table. `email_schedule` uses the following columns to indicate the version of a schedule and whether it is active: `is_deleted`, `is_active`, and `version`. 
+
+The `values` column is a JSON object that contains the configuration of the email schedule. See below for an example values object. Refer to implementation and [proposal document](../proposals/0007-email-notification/0007-email-notification.md) for more information on how the values are used.
+
+```json
+{
+    "template": "d-415aa983fe064c02989bc7465d0c9ed8",
+    "type": "daily",
+    "cronSchedule": "01 11 * * *",
+    "organizations": [
+        "pima-az-phd"
+    ],
+    "emails": [
+        "qtv1@cdc.gov",
+        "qpu0@cdc.gov",
+        "qva8@cdc.gov",
+        "qop4@cdc.gov"
+    ]
+}
+```
+
+
 
