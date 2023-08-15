@@ -40,7 +40,7 @@ Each entry in the `action` table contains data that helps give context around th
 #### `action_log` table
 Every action can have one or more `action_log` entries associated with them. To this end, the `action_log` table has `action_log_id` as the primary key and foreign keys into `action` and `report_file` tables via `action_id` and `report_id` foreign keys, respectively. 
 
-The main column in `action_log` is `detail`, a jsbon type which contains the contents of the message being logged.
+The main column in `action_log` is `detail`, a json type which contains the contents of the message being logged.
 
 #### `task` table
 
