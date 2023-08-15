@@ -13,14 +13,7 @@ interface TranslationFunctions {
      * Convert a FHIR [dateTime] to the format required by HL7
      * @return the converted HL7 DTM
      */
-    fun convertDateTimeToHL7(dateTime: BaseDateTimeType, appContext: CustomContext? = null): String
-}
-
-class Hl7TranslationFunctions : TranslationFunctions { /**
-     * Convert a FHIR [dateTime] to the format required by HL7
-     * @return the converted HL7 DTM
-     */
-    override fun convertDateTimeToHL7(dateTime: BaseDateTimeType, appContext: CustomContext?): String {
+    fun convertDateTimeToHL7(dateTime: BaseDateTimeType, appContext: CustomContext? = null): String {
         /**
          * Set the timezone for an [hl7DateTime] if a timezone was specified.
          * @return the updated [hl7DateTime] object
@@ -70,3 +63,5 @@ class Hl7TranslationFunctions : TranslationFunctions { /**
         }
     }
 }
+
+class Hl7TranslationFunctions : TranslationFunctions

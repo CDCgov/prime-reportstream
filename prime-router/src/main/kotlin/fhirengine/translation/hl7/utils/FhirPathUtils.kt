@@ -157,7 +157,7 @@ object FhirPathUtils : Logging {
             evaluated[0] is InstantType || evaluated[0] is DateTimeType -> {
                 appContext?.translationFunctions?.convertDateTimeToHL7(
                     evaluated[0] as BaseDateTimeType, appContext
-                ) ?: ""
+                ) ?: Hl7TranslationFunctions().convertDateTimeToHL7(evaluated[0] as BaseDateTimeType, appContext)
             }
             evaluated[0] is DateType -> convertDateToHL7(evaluated[0] as DateType)
 

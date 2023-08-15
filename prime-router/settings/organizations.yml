@@ -964,6 +964,8 @@
         type: "HL7"
         receivingApplicationName: ""
         receivingFacilityName: ""
+        convertPositiveDateTimeOffsetToNegative: false
+        useHighPrecisionHeaderDateTimeFormat: true
       transport:
         type: SFTP
         host: sftp
