@@ -1,7 +1,3 @@
-constants:
-  hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
-  hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX'
-  observation: '%diagnostic.result[%resultIndex].resolve()'
 elements:
   - name: result-set-id
     value: [ '%resultIndex + 1' ]
