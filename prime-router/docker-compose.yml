@@ -45,7 +45,7 @@ services:
 
   # Azurite is the Azure storage emulator for local development
   azurite:
-    image: mcr.microsoft.com/azure-storage/azurite:3.23.0
+    image: mcr.microsoft.com/azure-storage/azurite:3.25.1
     # uncomment the line below to skip x-ms-version checks
     # command: azurite --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0
     volumes:
@@ -61,7 +61,7 @@ services:
   sftp:
     image: atmoz/sftp
     ports:
-        - "2222:22"
+      - "2222:22"
     volumes:
       - ./build/sftp:/home/foo/upload
       # add more users
