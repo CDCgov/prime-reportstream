@@ -75,7 +75,7 @@ identifier_2d:
     display: Social Security number
 # There is no text for PID.19
 
-# When IN1.17 is empty and the Coverage.subscriber from IN2.72 IS self use PID.19 / IN2.2 for SSN identifier
+# When ORM message, set the pid.
 identifier_2e:
   condition: $valueIn NOT_NULL && $valueIN117 NULL && $subscriberValue EQUALS 01
   valueOf: datatype/Identifier_var
@@ -358,6 +358,19 @@ extension:
       expressionsMap:
         url:
           type: SYSTEM_URL
+          value: mothers-identifier
+        valueIdentifier:
+          valueOf: datatype/Identifier
+          expressionType: resource
+          specs: PID.21
+          vars:
+            pid21: PID.21
+
+
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
           value: "religion"
         valueCodeableConcept:
           valueOf: datatype/CodeableConcept
@@ -417,6 +430,23 @@ extension:
           condition: $annotationText NOT_NULL
           vars:
             annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '\n')
+
+extension_mother_identifier:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: mothersMaidenName
+        valueHumanName:
+          valueOf: datatype/HumanName
+          expressionType: resource
+          condition: $pid21 NOT_NULL
+          specs: PID.21
+          vars:
+            pid21: PID.21
 
 communication:
   condition: $language NOT_NULL

@@ -1,4 +1,5 @@
 ---
+# deprecated
 name: signetic-covid-19
 description: Signetic schema
 topic: covid-19

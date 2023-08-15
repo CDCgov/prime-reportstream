@@ -1,14 +1,18 @@
-import { CardGroup, Card, CardBody, CardHeader, Accordion } from "@trussworks/react-uswds";
-import Alert from "../../../../shared/Alert/Alert";
 import Method1 from "./Method1.mdx";
 import Method2 from "./Method2.mdx";
+import Sidenav from "../Sidenav.mdx";
 
+<LayoutSidenav><Sidenav /></LayoutSidenav>
+
+<LayoutMain>
 # Getting started
 
 <p className="usa-intro text-base">This programmer’s guide helps you, the technical user at the testing facility, learn how to send data using the ReportStream Restful (REST) API.</p>
 
 Examples in this guide use curl commands for simplicity with the assumption you’ll be coding these calls into your sending system.
 You can also use a program like Postman to test submissions.
+
+<p className="text-base">**Last updated:** 5/26/23</p>
 
 ***
 
@@ -114,3 +118,4 @@ Data will automatically flow to appropriate state, local, and federal jurisdicti
     </ul>
 </Alert>
 }
+</LayoutMain>

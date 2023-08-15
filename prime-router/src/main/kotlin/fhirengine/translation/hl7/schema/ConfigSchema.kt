@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.fhirengine.translation.hl7.ValueSetCollection
 import java.util.SortedMap
 
 /**
@@ -89,7 +90,7 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
     }
 
     /**
-     * Merge a [childSchema] into this one.
+     * Merge a [childSchema] into this one overriding any matching schemas found.
      * @return the reference to the schema
      */
     open fun merge(childSchema: ConfigSchema<T>) = apply {
@@ -98,9 +99,9 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
             if (childElement.name.isNullOrBlank()) {
                 throw SchemaException("Child schema ${childSchema.name} found with element with no name.")
             }
-            val elementInSchema = findElement(childElement.name!!)
-            if (elementInSchema != null) {
-                elementInSchema.merge(childElement)
+            val elementInSchemas = findElements(childElement.name!!)
+            if (elementInSchemas.isNotEmpty()) {
+                elementInSchemas.forEach { it.merge(childElement) }
             } else {
                 this.elements.add(childElement)
             }
@@ -110,11 +111,11 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
     }
 
     /**
-     * Find an [elementName] in this schema. This function recursively traverses the entire schema tree to find the
-     * element.
-     * @return the element found or null if not found
+     * Find an [elementName] in this schema. This function recursively traverses the entire schema tree to find all
+     * instances of the element.
+     * @return list of the found elements
      */
-    internal fun findElement(elementName: String): ConfigSchemaElement? {
+    internal fun findElements(elementName: String): List<ConfigSchemaElement> {
         // First try to find the element at this level in the schema.
         var elementsInSchema: List<ConfigSchemaElement> = elements.filter { elementName == it.name }
 
@@ -125,12 +126,10 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
             // Why the distinct? A schema can make references to the same schema multiple times, so you could get
             // a list of elements that are identical, so we make sure to get only those that at different.
             elementsInSchema = elements.filter { it.schemaRef != null }.mapNotNull {
-                it.schemaRef?.findElement(elementName)
-            }.distinct()
+                it.schemaRef?.findElements(elementName)
+            }.flatten().distinct()
         }
-        // Sanity check
-        check(elementsInSchema.size <= 1)
-        return if (elementsInSchema.isEmpty()) null else elementsInSchema[0]
+        return elementsInSchema
     }
 }
 
@@ -145,7 +144,7 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
  * @property value a list of FHIR paths each pointing to a FHIR primitive value
  * @property resourceIndex the variable name to store a FHIR collection's index number
  * @property constants element level constants
- * @property valueSet a list of key-value pairs used to convert the value property
+ * @property valueSet a collection of key-value pairs used to convert the value property
  * @property debug log debug information for the element
  */
 @JsonIgnoreProperties
@@ -156,10 +155,10 @@ abstract class ConfigSchemaElement(
     var schema: String? = null,
     var schemaRef: ConfigSchema<*>? = null,
     var resource: String? = null,
-    var value: List<String> = emptyList(),
+    var value: List<String>? = null,
     var resourceIndex: String? = null,
     var constants: SortedMap<String, String> = sortedMapOf(),
-    var valueSet: SortedMap<String, String> = sortedMapOf(),
+    var valueSet: ValueSetCollection? = null,
     var debug: Boolean = false
 ) {
     private var validationErrors: MutableSet<String> = mutableSetOf()
@@ -186,21 +185,23 @@ abstract class ConfigSchemaElement(
         }
 
         when {
-            !schema.isNullOrBlank() && value.isNotEmpty() ->
+            !schema.isNullOrBlank() && !value.isNullOrEmpty() ->
                 addError("Schema property cannot be used with the value property")
-            !schema.isNullOrBlank() && valueSet.isNotEmpty() ->
+            !schema.isNullOrBlank() && (valueSet != null) ->
                 addError("Schema property cannot be used with the valueSet property")
-            schema.isNullOrBlank() && value.isEmpty() ->
+            schema.isNullOrBlank() && value.isNullOrEmpty() ->
                 addError("Value property is required when not using a schema")
         }
 
         // value sets need a value to be...set
-        if (valueSet.isNotEmpty() && value.isEmpty()) {
+        if (valueSet != null && value.isNullOrEmpty()) {
             addError("Value property is required when using a value set")
         }
 
         // value set keys and values cannot be null
-        if (valueSet.keys.any { it == null } || valueSet.values.any { it == null }) {
+        if (valueSet?.toSortedMap()?.keys?.any { it == null } == true ||
+            valueSet?.toSortedMap()?.values?.any { it == null } == true
+        ) {
             addError("Value sets cannot contain null values")
         }
 
@@ -225,9 +226,9 @@ abstract class ConfigSchemaElement(
         overwritingElement.schemaRef?.let { this.schemaRef = overwritingElement.schemaRef }
         overwritingElement.resource?.let { this.resource = overwritingElement.resource }
         overwritingElement.resourceIndex?.let { this.resourceIndex = overwritingElement.resourceIndex }
+        overwritingElement.value?.let { this.value = overwritingElement.value }
+        overwritingElement.valueSet?.let { this.valueSet = overwritingElement.valueSet }
         if (overwritingElement.debug) this.debug = overwritingElement.debug
-        if (overwritingElement.value.isNotEmpty()) this.value = overwritingElement.value
-        if (overwritingElement.valueSet.isNotEmpty()) this.valueSet = overwritingElement.valueSet
         if (overwritingElement.constants.isNotEmpty()) this.constants = overwritingElement.constants
     }
 }

@@ -2,8 +2,6 @@
 
 # dependencies
 /node_modules
-/.pnp
-.pnp.js
 
 # testing
 /coverage
@@ -13,26 +11,29 @@
 
 # misc
 .DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
+# npm
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-/.env.local
-/.env.*.local
-
-# we are using yarn
-package-lock.json
-
-# .scss is compiled to .css
-/src/content/generated
+# local environment files
+.env.local
+.env.*.local
 
 # Cypress
 cypress.*.json
 cypress/downloads
 cypress/videos
 cypress/screenshots
+
+# Yarn
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

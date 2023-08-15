@@ -79,7 +79,7 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
         getReportAndDownload(
             id,
             oktaToken?.accessToken || "",
-            activeMembership?.parsedName || ""
+            activeMembership?.parsedName || "",
         );
     };
     const transformDate = (s: string) => {
@@ -168,7 +168,7 @@ const DeliveriesTableWithNumberedPagination = ({
     };
 
     const { fetchResults, filterManager } = useOrgDeliveries(
-        activeService?.name
+        activeService?.name,
     );
     const pageSize = filterManager.pageSettings.size;
     const sortOrder = filterManager.sortSettings.order;

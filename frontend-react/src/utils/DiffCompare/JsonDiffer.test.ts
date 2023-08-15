@@ -4,13 +4,16 @@ import { _exportForTestingJsonDiffer, jsonDifferMarkup } from "./JsonDiffer";
 describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
     test("isInPath utility function", () => {
         expect(
-            _exportForTestingJsonDiffer.isInPath("/foo/bar/1", "/foo1/bar")
+            _exportForTestingJsonDiffer.isInPath("/foo/bar/1", "/foo1/bar"),
         ).toBe(false);
         expect(
-            _exportForTestingJsonDiffer.isInPath("/foo/bar/12", "/foo/bar/1")
+            _exportForTestingJsonDiffer.isInPath("/foo/bar/12", "/foo/bar/1"),
         ).toBe(false);
         expect(
-            _exportForTestingJsonDiffer.isInPath("/foo/bar/1/2/3", "/foo/bar/1")
+            _exportForTestingJsonDiffer.isInPath(
+                "/foo/bar/1/2/3",
+                "/foo/bar/1",
+            ),
         ).toBe(true);
     });
 
@@ -19,18 +22,18 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
             _exportForTestingJsonDiffer.isNotInAnyPath("/foo/bar/2", [
                 "/foo",
                 "/foo/bar",
-            ])
+            ]),
         ).toBe(false);
 
         expect(
             _exportForTestingJsonDiffer.isNotInAnyPath("/foo/bar/2", [
                 "/foo1",
                 "/foo1/bar",
-            ])
+            ]),
         ).toBe(true);
 
         expect(
-            _exportForTestingJsonDiffer.isNotInAnyPath("/foo/bar/2", [])
+            _exportForTestingJsonDiffer.isNotInAnyPath("/foo/bar/2", []),
         ).toBe(true);
     });
 
@@ -85,7 +88,7 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
         {
             const trimmedDiffs = _exportForTestingJsonDiffer.jsonDiffer(
                 left,
-                right
+                right,
             );
             expect(trimmedDiffs.addedLeftKeys).toStrictEqual(["/key1"]);
             expect(trimmedDiffs.addedRightKeys).toStrictEqual(["/key2"]);
@@ -96,11 +99,11 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
     test("Combo test", () => {
         const left = jsonSourceMap(
             { addleft: "addedleft", same: "same", diff: "leftdiff" },
-            2
+            2,
         );
         const right = jsonSourceMap(
             { addright: "addedright", same: "same", diff: "rightdiff" },
-            2
+            2,
         );
         const diffs = _exportForTestingJsonDiffer.jsonDiffer(left, right);
         expect(diffs.addedLeftKeys).toStrictEqual(["/addleft"]);
@@ -111,13 +114,13 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
     test("diff in values only", () => {
         const valueDiffs = jsonDifferMarkup(
             { key1: "value1" },
-            { key1: "value2" }
+            { key1: "value2" },
         );
         expect(valueDiffs.left.markupText).toBe(
-            `{\n  "key1": <mark>"value1"</mark>\n}`
+            `{\n  "key1": <mark>"value1"</mark>\n}`,
         );
         expect(valueDiffs.right.markupText).toBe(
-            `{\n  "key1": <mark>"value2"</mark>\n}`
+            `{\n  "key1": <mark>"value2"</mark>\n}`,
         );
         // valueDiffs.left.json and valueDiffs.right.json check in other tests
     });
@@ -126,15 +129,15 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
         // diff: key1, key3. Same: key2
         const keyDiffs = jsonDifferMarkup(
             { key1: "value1", key2: "value2" },
-            { key2: "value2", key3: "value3" }
+            { key2: "value2", key3: "value3" },
         );
 
         expect(keyDiffs.left.markupText).toBe(
-            `{\n  <mark>"key1": "value1"</mark>,\n  "key2": "value2"\n}`
+            `{\n  <mark>"key1": "value1"</mark>,\n  "key2": "value2"\n}`,
         );
 
         expect(keyDiffs.right.markupText).toBe(
-            `{\n  "key2": "value2",\n  <mark>"key3": "value3"</mark>\n}`
+            `{\n  "key2": "value2",\n  <mark>"key3": "value3"</mark>\n}`,
         );
     });
 
@@ -151,21 +154,21 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
                 key2: "value2",
                 key3: "value3-right",
                 key5: "value5",
-            }
+            },
         );
 
         expect(comboDiffs.left.markupText).toBe(
-            `{\n  <mark>"key1": "value1"</mark>,\n  "key2": "value2",\n  "key3": <mark>"value3-left"</mark>,\n  <mark>"key4": "value4"</mark>\n}`
+            `{\n  <mark>"key1": "value1"</mark>,\n  "key2": "value2",\n  "key3": <mark>"value3-left"</mark>,\n  <mark>"key4": "value4"</mark>\n}`,
         );
         expect(comboDiffs.right.markupText).toBe(
-            `{\n  <mark>"key0": "value0"</mark>,\n  "key2": "value2",\n  "key3": <mark>"value3-right"</mark>,\n  <mark>"key5": "value5"</mark>\n}`
+            `{\n  <mark>"key0": "value0"</mark>,\n  "key2": "value2",\n  "key3": <mark>"value3-right"</mark>,\n  <mark>"key5": "value5"</mark>\n}`,
         );
     });
 
     test("value type is changed", () => {
         const diff = jsonDifferMarkup({ key: [1, 2, 3] }, { key: "a" });
         expect(diff.left.markupText).toBe(
-            `{\n  "key": [\n    <mark>1</mark>,\n    <mark>2</mark>,\n    <mark>3</mark>\n  ]\n}`
+            `{\n  "key": [\n    <mark>1</mark>,\n    <mark>2</mark>,\n    <mark>3</mark>\n  ]\n}`,
         );
         expect(diff.right.markupText).toBe(`{\n  "key": <mark>"a"</mark>\n}`);
     });
@@ -173,13 +176,13 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
     test("values in array are different", () => {
         const diff = jsonDifferMarkup(
             { key: [1, 3, 4, 6] },
-            { key: [2, 3, 5, 6] }
+            { key: [2, 3, 5, 6] },
         );
         expect(diff.left.markupText).toBe(
-            `{\n  "key": [\n    <mark>1</mark>,\n    3,\n    <mark>4</mark>,\n    6\n  ]\n}`
+            `{\n  "key": [\n    <mark>1</mark>,\n    3,\n    <mark>4</mark>,\n    6\n  ]\n}`,
         );
         expect(diff.right.markupText).toBe(
-            `{\n  "key": [\n    <mark>2</mark>,\n    3,\n    <mark>5</mark>,\n    6\n  ]\n}`
+            `{\n  "key": [\n    <mark>2</mark>,\n    3,\n    <mark>5</mark>,\n    6\n  ]\n}`,
         );
     });
 
@@ -204,14 +207,14 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
                     keyChangeType1: [0, 1, 2, 3],
                     keyChangeType2: "right",
                 },
-            }
+            },
         );
 
         expect(nestedDiff.left.markupText).toBe(
-            `{\n  "createdBy": "test@example.com",\n  "timing": {\n    <mark>"whenEmpty": {\n      <mark>"onlyOncePerDay": false</mark>\n    }</mark>,\n    "keyChangeType1": <mark>"left"</mark>,\n    "keyChangeType2": [\n      <mark>3</mark>,\n      <mark>2</mark>,\n      <mark>1</mark>,\n      <mark>0</mark>\n    ]\n  }\n}`
+            `{\n  "createdBy": "test@example.com",\n  "timing": {\n    <mark>"whenEmpty": {\n      <mark>"onlyOncePerDay": false</mark>\n    }</mark>,\n    "keyChangeType1": <mark>"left"</mark>,\n    "keyChangeType2": [\n      <mark>3</mark>,\n      <mark>2</mark>,\n      <mark>1</mark>,\n      <mark>0</mark>\n    ]\n  }\n}`,
         );
         expect(nestedDiff.right.markupText).toBe(
-            `{\n  "createdBy": "test@example.com",\n  "timing": {\n    <mark>"whenEmpty1": {\n      <mark>"onlyOncePerDay": false</mark>\n    }</mark>,\n    "keyChangeType1": <mark>[\n      <mark>0</mark>,\n      <mark>1</mark>,\n      <mark>2</mark>,\n      <mark>3</mark>\n    ]</mark>,\n    "keyChangeType2": <mark>"right"</mark>\n  }\n}`
+            `{\n  "createdBy": "test@example.com",\n  "timing": {\n    <mark>"whenEmpty1": {\n      <mark>"onlyOncePerDay": false</mark>\n    }</mark>,\n    "keyChangeType1": <mark>[\n      <mark>0</mark>,\n      <mark>1</mark>,\n      <mark>2</mark>,\n      <mark>3</mark>\n    ]</mark>,\n    "keyChangeType2": <mark>"right"</mark>\n  }\n}`,
         );
     });
 

@@ -70,7 +70,7 @@ export const ReportStreamHeader = ({
                     data-attribute="hidden"
                 >
                     <span>{FeatureName.DAILY_DATA}</span>
-                </USNavLink>
+                </USNavLink>,
             );
         }
 
@@ -89,7 +89,7 @@ export const ReportStreamHeader = ({
                     data-attribute="hidden"
                 >
                     <span>{FeatureName.SUBMISSIONS}</span>
-                </USNavLink>
+                </USNavLink>,
             );
         }
 
@@ -106,7 +106,7 @@ export const ReportStreamHeader = ({
             basic={true}
             className={classnames(
                 "border-bottom-1px border-base-lighter",
-                className
+                className,
             )}
         >
             {children}
@@ -142,7 +142,7 @@ export const ReportStreamHeader = ({
                      needs to be able to see and use this */}
                     {permissionCheck(
                         PERMISSIONS.PRIME_ADMIN,
-                        authState?.accessToken
+                        authState?.accessToken,
                     ) ? (
                         <NetworkErrorBoundary
                             fallbackComponent={() => (

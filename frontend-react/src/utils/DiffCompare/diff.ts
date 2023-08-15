@@ -153,20 +153,20 @@ export const Diff = (a_: string, b_: string) => {
                     fp[k + offset] = snake(
                         k,
                         (fp[k - 1 + offset] || -1) + 1,
-                        fp[k + 1 + offset] || -1
+                        fp[k + 1 + offset] || -1,
                     );
                 }
                 for (let k = delta + p; k >= delta + 1; --k) {
                     fp[k + offset] = snake(
                         k,
                         (fp[k - 1 + offset] || -1) + 1,
-                        fp[k + 1 + offset] || -1
+                        fp[k + 1 + offset] || -1,
                     );
                 }
                 fp[delta + offset] = snake(
                     delta,
                     (fp[delta - 1 + offset] || -1) + 1,
-                    fp[delta + 1 + offset] || -1
+                    fp[delta + 1 + offset] || -1,
                 );
             } while ((fp[delta + offset] || -1) !== blen);
 

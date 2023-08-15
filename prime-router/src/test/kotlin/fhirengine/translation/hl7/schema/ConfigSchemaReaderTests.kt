@@ -301,6 +301,13 @@ class ConfigSchemaReaderTests {
                 "src/test/resources/fhir_sender_transforms",
             )
         }.isFailure()
+
+        assertThat {
+            fhirTransformSchemaFromFile(
+                "no_schema_nor_value",
+                "src/test/resources/fhir_sender_transforms",
+            )
+        }.isFailure()
     }
 
     @Test
@@ -338,17 +345,17 @@ class ConfigSchemaReaderTests {
             assertThat(schema.elements).isNotEmpty()
         }
 
-        val patientLastNameElement = schema.findElement("patient-last-name")
+        val patientLastNameElement = schema.findElements("patient-last-name")
         assertThat(patientLastNameElement).isNotNull()
-        assertThat(patientLastNameElement!!.condition).isEqualTo("true")
-        assertThat(patientLastNameElement.value).isNotEmpty()
-        assertThat(patientLastNameElement.value[0]).isEqualTo("DUMMY")
+        assertThat(patientLastNameElement[0].condition).isEqualTo("true")
+        assertThat(patientLastNameElement[0].value).isNotNull()
+        assertThat(patientLastNameElement[0].value!![0]).isEqualTo("DUMMY")
 
-        val orderElement = schema.findElement("order-observations")
+        val orderElement = schema.findElements("order-observations")
         assertThat(orderElement).isNotNull()
-        assertThat(orderElement!!.condition).isEqualTo("false")
+        assertThat(orderElement[0].condition).isEqualTo("false")
 
-        val newElement = schema.findElement("new-element")
+        val newElement = schema.findElements("new-element")
         assertThat(newElement).isNotNull()
     }
 

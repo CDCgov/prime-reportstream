@@ -1,9 +1,10 @@
 // override (change some of the defaults loaded above)
+@forward "styles/uswds_custom_theme";
 @forward "styles/uswds_settings"; // _uswds_settings.scss
 @forward "uswds";
 
 @use "uswds";
-@import "@trussworks/react-uswds/lib/uswds.css";
+@import "@trussworks/react-uswds/lib/index.css";
 @import "styles/uswds_overrides"; // _uswds_overrides.scss
 @import "styles/typography"; // _typography.scss
 @import "styles/reportstream"; // _reportstream.scss

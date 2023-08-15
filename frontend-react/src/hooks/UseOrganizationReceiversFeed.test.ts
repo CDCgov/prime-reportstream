@@ -39,7 +39,7 @@ describe("useOrganizationReceiversFeed", () => {
                 () => useOrganizationReceiversFeed(),
                 {
                     wrapper: AppWrapper(),
-                }
+                },
             );
             expect(result.current.services).toEqual([]);
             expect(result.current.setActiveService).toBeDefined();
@@ -73,7 +73,7 @@ describe("useOrganizationReceiversFeed", () => {
                 () => useOrganizationReceiversFeed(),
                 {
                     wrapper: AppWrapper(),
-                }
+                },
             );
             expect(result.current.services).toEqual([]);
             expect(result.current.setActiveService).toBeDefined();
@@ -103,16 +103,20 @@ describe("useOrganizationReceiversFeed", () => {
             });
         });
 
-        test("returns correct organization receivers feed", async () => {
+        test("returns correct organization receiver services feed", async () => {
             const { result } = renderHook(
                 () => useOrganizationReceiversFeed(),
-                { wrapper: AppWrapper() }
+                { wrapper: AppWrapper() },
             );
             await waitFor(() =>
-                expect(result.current.services).toEqual(dummyReceivers)
+                expect(result.current.services).toEqual(dummyReceivers),
             );
             expect(result.current.setActiveService).toBeDefined();
-            expect(result.current.activeService).toEqual(dummyActiveReceiver);
+            await waitFor(() =>
+                expect(result.current.activeService).toEqual(
+                    dummyActiveReceiver,
+                ),
+            );
             expect(result.current.loadingServices).toEqual(false);
         });
     });

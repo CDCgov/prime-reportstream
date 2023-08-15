@@ -6,7 +6,7 @@ import config from "../config";
 
 export const makeFacilityFixture = (
     identifier: number,
-    overrides?: Partial<RSFacility>
+    overrides?: Partial<RSFacility>,
 ): RSFacility => ({
     facility: overrides?.facility || "Facility Fixture",
     location: overrides?.location || "DeliveriesMockServer.ts",
@@ -15,9 +15,17 @@ export const makeFacilityFixture = (
     total: overrides?.total || 0,
 });
 
+export const makeFacilityFixtureArray = (count: number) => {
+    const fixtures: RSFacility[] = [];
+    for (let i = 0; i < count; i++) {
+        fixtures.push(makeFacilityFixture(i));
+    }
+    return fixtures;
+};
+
 export const makeDeliveryFixture = (
     id: number,
-    overrides?: Partial<RSDelivery>
+    overrides?: Partial<RSDelivery>,
 ): RSDelivery => ({
     deliveryId: overrides?.deliveryId || 0,
     batchReadyAt: overrides?.batchReadyAt || "",
@@ -53,23 +61,23 @@ const handlers = [
                     makeDeliveryFixture(1),
                     makeDeliveryFixture(2),
                     makeDeliveryFixture(3),
-                ])
+                ]),
             );
-        }
+        },
     ),
     /* Successfully returns a Report */
     rest.get(
         `${config.API_ROOT}/waters/report/123/delivery`,
         (req, res, ctx) => {
             return res(ctx.status(200), ctx.json(makeDeliveryFixture(123)));
-        }
+        },
     ),
     rest.get(
         `${config.API_ROOT}/waters/report/123/facilities`,
         (req, res, ctx) => {
             const testRes = [makeFacilityFixture(1), makeFacilityFixture(2)];
             return res(ctx.status(200), ctx.json(testRes));
-        }
+        },
     ),
 ];
 

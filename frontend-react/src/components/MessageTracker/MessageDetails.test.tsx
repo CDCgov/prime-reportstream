@@ -187,7 +187,7 @@ describe("RSMessageDetail component", () => {
         expect(screen.getByText(/somebody 1/)).toBeInTheDocument();
         expect(screen.getByText(/Incoming Report ID/)).toBeInTheDocument();
         expect(
-            screen.getByText(/29038fca-e521-4af8-82ac-6b9fafd0fd58/)
+            screen.getByText(/29038fca-e521-4af8-82ac-6b9fafd0fd58/),
         ).toBeVisible();
         expect(screen.getAllByText("Date/Time Submitted")[0]).toBeVisible();
         expect(screen.getByText("09/28/2022, 10:21:33 PM")).toBeVisible();
@@ -197,8 +197,8 @@ describe("RSMessageDetail component", () => {
         expect(screen.getAllByText(/Incoming File Name/)[0]).toBeVisible();
         expect(
             screen.getByText(
-                "upload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv"
-            )
+                "upload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv",
+            ),
         ).toBeVisible();
         expect(screen.getByText("Warnings (2)")).toBeVisible();
     });
@@ -218,8 +218,8 @@ describe("RSMessageDetail component", () => {
             expect(screen.getByText("simple_report.csvuploader")).toBeVisible();
             expect(
                 screen.getByText(
-                    "upload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv"
-                )
+                    "upload-covid-19-c33f9d36-9e5b-44eb-9368-218d88f3a7d1-20230131190253.csv",
+                ),
             ).toBeVisible();
         });
 
@@ -235,7 +235,7 @@ describe("RSMessageDetail component", () => {
             renderApp(<MessageDetails />);
             expect(screen.queryByText("RECEIVE")).not.toBeInTheDocument();
             expect(
-                screen.queryByText("/ simple_report.csvuploader")
+                screen.queryByText("/ simple_report.csvuploader"),
             ).not.toBeInTheDocument();
         });
     });

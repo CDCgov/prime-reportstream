@@ -8,8 +8,6 @@ import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
-import gov.cdc.prime.router.cli.CommandUtilities
-import gov.cdc.prime.router.cli.OktaCommand
 import gov.cdc.prime.router.common.Environment
 import org.apache.http.HttpStatus
 
@@ -43,7 +41,7 @@ class SftpcheckTest : CoolTest() {
         ugly("Starting SFTPCHECK Receciver Connections test ${environment.url}")
 
         // Get receiver ignore organizations with transport.host=sftp
-        val accessToken = getAccessToken(environment) // Get accessToken per environment.
+        val accessToken = OktaAuthTests.getOktaAccessToken(environment, name) // Get accessToken per environment.
         val ignoreReceiverNamePath = environment.formUrl(ignoreReceiverNamesURI).toString()
         val ignoreReceiversNameList = listReceiverNames(ignoreReceiverNamePath, accessToken)
 
@@ -133,17 +131,5 @@ class SftpcheckTest : CoolTest() {
             .bearer(accessToken)
             .header(Headers.CONTENT_TYPE to jsonMimeType)
             .responseString()
-    }
-
-    /**
-     * Get accessToken from Okta if available.
-     * @param: environment is the environment of test is running.
-     * @return: it returns accessTokenFile.token if oktaApp environment
-     *     is set otherwise, it returns "dummy" string.
-     */
-    private fun getAccessToken(environment: Environment): String {
-        if (environment.oktaApp == null) return "dummy"
-        return OktaCommand.fetchAccessToken(environment.oktaApp)
-            ?: CommandUtilities.abort("Invalid access token. Run ./prime login to fetch/refresh your access token.")
     }
 }

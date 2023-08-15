@@ -33,7 +33,7 @@ const settingRevisionEndpoints: RSApiEndpoints = {
 
 /** actual fetching component **/
 export const useSettingRevisionEndpointsQuery = (
-    params: SettingRevisionParams
+    params: SettingRevisionParams,
 ) => {
     const { authorizedFetch, rsUseQuery } =
         useAuthorizedFetch<SettingRevision[]>();
@@ -42,6 +42,6 @@ export const useSettingRevisionEndpointsQuery = (
     return rsUseQuery(["history", params.org, params.settingType], async () =>
         authorizedFetch(settingRevisionEndpoints.getList, {
             segments: params,
-        })
+        }),
     );
 };

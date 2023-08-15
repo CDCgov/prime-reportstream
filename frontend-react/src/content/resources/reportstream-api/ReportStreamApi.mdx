@@ -1,7 +1,6 @@
-import { CardGroup, Card, CardBody, CardHeader, ProcessList, ProcessListItem, ProcessListHeading  } from "@trussworks/react-uswds";
-import { Button } from "@trussworks/react-uswds";
 import DOMPurify from "dompurify";
 
+import Sidenav from "./Sidenav.mdx";
 import site from "../../../content/site.json";
 import { ResourcesDirectories } from "../../../content/resources";
 import { trackAppInsightEvent } from "../../../utils/Analytics";
@@ -11,67 +10,73 @@ export const handleClick = () => {
     window.open(DOMPurify.sanitize(site.assets.programmersGuidePdf.path));
 };
 
-# ReportStream API
+<LayoutSidenav>
+    <Sidenav />
+</LayoutSidenav>
 
-<p className="usa-intro text-base">By using the ReportStream Restful (REST) API, your data will automatically be filtered, transformed, batched, and forwarded to public health departments.</p>
+<LayoutMain>
+    # ReportStream API
 
-<CardGroup>
-    <Card gridLayout={{col: "fill"}}>
-        <CardHeader><span className="font-sans-lg">[Getting started](getting-started)</span></CardHeader>
-        <CardBody>Resources and support to set up your connection and format your data. Our onboarding guide will walk you through the steps needed to get started.</CardBody>
-    </Card>
-    <Card gridLayout={{col: "fill"}}>
-        <CardHeader><span className="font-sans-lg">[Documentation](documentation)</span></CardHeader>
-        <CardBody>Details on our data model and sample responses, inputs and outputs to assist you in our set up and use of the ReportStream API.</CardBody>
-    </Card>
-</CardGroup>
+    <p className="usa-intro text-base">By using the ReportStream Restful (REST) API, your data will automatically be filtered, transformed, batched, and forwarded to public health departments.</p>
 
-<p>Our API guide and documentation is also available as a <Button type="button" unstyled onClick={handleClick}>downloadable PDF</Button>.</p>
+    <CardGroup>
+        <Card gridLayout={{col: "fill"}}>
+            <CardHeader><span className="font-sans-lg">[Getting started](getting-started)</span></CardHeader>
+            <CardBody>Resources and support to set up your connection and format your data. Our onboarding guide will walk you through the steps needed to get started.</CardBody>
+        </Card>
+        <Card gridLayout={{col: "fill"}}>
+            <CardHeader><span className="font-sans-lg">[Documentation](documentation)</span></CardHeader>
+            <CardBody>Details on our data model and sample responses, inputs and outputs to assist you in our set up and use of the ReportStream API.</CardBody>
+        </Card>
+    </CardGroup>
 
-***
-<br/>
+    <p>Our API guide and documentation is also available as a <Button type="button" unstyled onClick={handleClick}>downloadable PDF</Button>.</p>
 
-## <a href="#onboarding-overview" className="usa-link usa-link--unstyled">Onboarding overview</a>
-We’ll give you and your team resources and support as you begin connecting with ReportStream’s API. [Learn more](getting-started) about setting up your connection and formatting your data.
+    ***
+    <br/>
 
-If you haven’t connected with us yet, [contact us](/support/contact) to set up your kickoff call.
+    ## <a href="#onboarding-overview" className="usa-link usa-link--unstyled">Onboarding overview</a>
+    We’ll give you and your team resources and support as you begin connecting with ReportStream’s API. [Learn more](getting-started) about setting up your connection and formatting your data.
 
-<ProcessList>
-    <ProcessListItem>
-        <ProcessListHeading type="div">
-            ### Kickoff
-        </ProcessListHeading>
-        Before you begin setting up your API connection, a ReportStream team member will meet with you and your team to review the process and answer any questions.
-    </ProcessListItem>
-    <ProcessListItem>
-        <ProcessListHeading type="div">
-            ### Validate and test your data
-        </ProcessListHeading>
-        Before you start sending your data, you will [complete authentication](getting-started#set-up-authentication) and go through three rounds of testing your files.
+    If you haven’t connected with us yet, [contact us](/support/contact) to set up your kickoff call.
 
-        <ol className="usa-list--unstyled">
-            <li> **Step 1** &nbsp;&nbsp;&nbsp;&nbsp; Format and validate a fake data file </li>
-            <li> **Step 2** &nbsp;&nbsp;&nbsp; Set up authentication and test your API connection </li>
-            <li> **Step 3** &nbsp;&nbsp;&nbsp; Test real data in production </li>
-        </ol>
-    </ProcessListItem>
-    <ProcessListItem>
-        <ProcessListHeading type="div">
-            ### Start sending your data
-        </ProcessListHeading>
-        Once we know your files and connection will work, you can start sending your data through the API.
-    </ProcessListItem>
-</ProcessList>
+    <ProcessList>
+        <ProcessListItem>
+            <ProcessListHeading type="div">
+                ### Kickoff
+            </ProcessListHeading>
+            Before you begin setting up your API connection, a ReportStream team member will meet with you and your team to review the process and answer any questions.
+        </ProcessListItem>
+        <ProcessListItem>
+            <ProcessListHeading type="div">
+                ### Validate and test your data
+            </ProcessListHeading>
+            Before you start sending your data, you will [complete authentication](getting-started#set-up-authentication) and go through three rounds of testing your files.
 
-***
-<br/>
+            <ol className="usa-list--unstyled">
+                <li> **Step 1** &nbsp;&nbsp;&nbsp;&nbsp; Format and validate a fake data file </li>
+                <li> **Step 2** &nbsp;&nbsp;&nbsp; Set up authentication and test your API connection </li>
+                <li> **Step 3** &nbsp;&nbsp;&nbsp; Test real data in production </li>
+            </ol>
+        </ProcessListItem>
+        <ProcessListItem>
+            <ProcessListHeading type="div">
+                ### Start sending your data
+            </ProcessListHeading>
+            Once we know your files and connection will work, you can start sending your data through the API.
+        </ProcessListItem>
+    </ProcessList>
 
-## <a href="#about-our-api" className="usa-link usa-link--unstyled">About our API</a>
+    ***
+    <br/>
 
-**Waters API**
+    ## <a href="#about-our-api" className="usa-link usa-link--unstyled">About our API</a>
 
-The Waters API — the primary secure entry point to ReportStream — is named in memory of Dr. Michael Stephan Waters (1973-2020). His tireless work at the U.S. Food and Drug Administration championed diagnostic data interoperability efforts nationwide. ReportStream honors Dr. Waters through continuation and elevation of his work.
+    **Waters API**
 
-**Release notes**
+    The Waters API — the primary secure entry point to ReportStream — is named in memory of Dr. Michael Stephan Waters (1973-2020). His tireless work at the U.S. Food and Drug Administration championed diagnostic data interoperability efforts nationwide. ReportStream honors Dr. Waters through continuation and elevation of his work.
 
-[View our release notes](https://github.com/CDCgov/prime-reportstream/releases) on Github.
+    **Release notes**
+
+    [View our release notes](https://github.com/CDCgov/prime-reportstream/releases) on Github.
+</LayoutMain>

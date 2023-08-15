@@ -16,6 +16,7 @@ import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
+import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
@@ -248,8 +249,13 @@ class TranslationTests {
                         config.expectedFormat == Report.Format.HL7 && config.inputFormat == Report.Format.HL7 -> {
                             check(!config.expectedSchema.isNullOrBlank())
                             val bundle = translateToFhir(inputStream)
+                            val afterSenderTransform = if (config.senderTransform != null) {
+                                runSenderTransform(bundle, config.senderTransform)
+                            } else {
+                                bundle
+                            }
                             val actualStream =
-                                translateFromFhir(bundle, config.expectedSchema)
+                                translateFromFhir(afterSenderTransform, config.expectedSchema)
                             result.merge(
                                 CompareData().compare(expectedStream, actualStream, null, null)
                             )
@@ -353,7 +359,7 @@ class TranslationTests {
                 FilenameUtils.getPath(schema),
                 context = FhirToHl7Context(CustomFhirPathFunctions())
             ).convert(fhirBundle)
-            return hl7.encode().byteInputStream()
+            return hl7.encodePreserveEncodingChars().byteInputStream()
         }
 
         private fun runSenderTransform(bundle: InputStream, schema: String): InputStream {
