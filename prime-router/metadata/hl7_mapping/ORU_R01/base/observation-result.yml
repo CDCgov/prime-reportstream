@@ -35,8 +35,8 @@ elements:
     resource: '%resource.code'
     condition: '%resource.text.exists().not()'
     constants:
-      ceFieldPath: '%{hl7OBXField}-3'
-    schema: ../../common/datatype/ce-coded-element
+      cweFieldPath: '%{hl7OBXField}-3'
+    schema: ../../common/datatype/ce-coded-with-exceptions
 
   - name: observation-identifier-code
     resource: '%resource.code'
@@ -74,8 +74,8 @@ elements:
   - name: observation-units-identifier
     resource: '%resource.extension(%`rsext-units`).value'
     constants:
-      ceFieldPath: '%{hl7OBXField}-6'
-    schema: ../../common/datatype/ce-coded-element
+      cweFieldPath: '%{hl7OBXField}-6'
+    schema: ../../common/datatype/ce-coded-with-exceptions
 
   - name: observation-reference-range
     value: [ '%resource.referenceRange.text' ]
