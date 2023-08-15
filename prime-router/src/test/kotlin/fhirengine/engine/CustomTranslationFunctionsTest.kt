@@ -104,6 +104,6 @@ class CustomTranslationFunctionsTest {
         assertThat(
             CustomTranslationFunctions()
                 .convertDateTimeToHL7(DateTimeType("2015-04-11T12:22:01-04:00"), appContext)
-        ).isEqualTo("20150411122201-0400")
+        ).isEqualTo("20150411122201.0000-0400")
     }
 }
