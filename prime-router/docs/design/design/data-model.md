@@ -113,15 +113,15 @@ The Lookup Tables feature allows ReportStream to store and version datasets. Loo
 
 #### `lookup_table_row` table
 
-The `lookup_table_row` table is responsible for storing the individual rows of a Lookup Table.
+The `lookup_table_row` table is responsible for storing the individual rows of a Lookup Table. The Lookup Table itself is defined in `lookup_table_version` and each `lookup_table_row` points to the table in `lookup_table_version` it is a part of. In this way, the two tables work together to implement the ReportStream Lookup Table.
 
 ![lookup-table-row](../../assets/lookup-table-row.png)
 
 `lookup_table_row_id` is the internal unique identifier of the row, whereas `lookup_table_version_id` links to the `lookup_table_version_id` in the `lookup-table-version` table -- that is to say this column identifies which specific Lookup Table and version of that Lookup Table the row belongs to. 
 
-`row_num` indicates the "virtual" index of the row in the Lookup Table, meaning this logical implementation of a table via two database tables isn't actually a single table in memory.
+`row_num` indicates the index of the row in the Lookup Table. This is used when the Lookup Table is loaded into the LookupTable object defined in `LookupTable.kt`.
 
-`data` is a JSON object representing the data of a Lookup Table and can be anything. See `LookupTable.kt` for more details on how the potentially varied data gets loaded into an object.
+`data` is a JSON object representing the data of a Lookup Table and can be any valid JSON. See `LookupTable.kt` for more details on how the potentially varied data gets loaded into an object.
 
 ### Organizations
 
