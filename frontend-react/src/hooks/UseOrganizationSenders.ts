@@ -20,7 +20,7 @@ export default function useOrganizationSenders() {
                     orgName: activeMembership?.parsedName!!,
                 },
             }),
-        [activeMembership?.parsedName, authorizedFetch]
+        [activeMembership?.parsedName, authorizedFetch],
     );
     return rsUseQuery([senders.queryKey, activeMembership], memoizedDataFetch, {
         enabled: !!activeMembership?.parsedName && !!activeMembership.service,

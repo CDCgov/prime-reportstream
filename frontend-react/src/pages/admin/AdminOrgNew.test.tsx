@@ -8,7 +8,7 @@ import OrganizationResource from "../../resources/OrganizationResource";
 import { AdminOrgNew } from "./AdminOrgNew";
 
 const mockData: OrganizationResource = new TestResponse(
-    ResponseType.NEW_ORGANIZATION
+    ResponseType.NEW_ORGANIZATION,
 ).data;
 
 jest.mock("rest-hooks", () => ({

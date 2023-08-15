@@ -70,7 +70,7 @@ const blankSettings = {
 export const ModalConfirmDialog = forwardRef(
     (
         { id, onConfirm, isLarge }: ModalConfirmProps,
-        ref: Ref<ModalConfirmRef>
+        ref: Ref<ModalConfirmRef>,
     ) => {
         const modalRef = useRef<ModalRef>(null);
         const [modalState, setModalState] =
@@ -93,7 +93,7 @@ export const ModalConfirmDialog = forwardRef(
                 modalIsOpen: modalRef?.current?.modalIsOpen || false,
                 toggleModal: modalRef?.current?.toggleModal || (() => false),
             }),
-            [modalRef]
+            [modalRef],
         );
 
         const onClickHandler = () => {
@@ -146,5 +146,5 @@ export const ModalConfirmDialog = forwardRef(
                 </Modal>
             </>
         );
-    }
+    },
 );

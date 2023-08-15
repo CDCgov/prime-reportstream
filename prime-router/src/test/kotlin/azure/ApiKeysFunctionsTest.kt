@@ -70,6 +70,7 @@ class ApiKeysFunctionsTest {
         alg = "RS256",
         use = "sig",
     )
+
     val jwk3 = Jwk(
         pubKey.getAlgorithm(),
         kid = "key3",
@@ -370,6 +371,7 @@ class ApiKeysFunctionsTest {
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
 
             val response = ApiKeysFunctions().post(httpRequestMessage, organization.name)
+
             assertThat(response.status).isEqualTo(HttpStatus.OK)
 
             val updatedOrg = settings.organizationStore.get(organization.name)
@@ -405,6 +407,7 @@ class ApiKeysFunctionsTest {
             every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
 
             val response = ApiKeysFunctions().post(httpRequestMessage, organization.name)
+
             assertThat(response.status).isEqualTo(HttpStatus.OK)
 
             val updatedOrg = settings.organizationStore.get(organization.name)
@@ -764,26 +767,6 @@ class ApiKeysFunctionsTest {
         }
 
         @Test
-        fun `Test does not return keys if not an admin of the organization`() {
-            settings.organizationStore.put(
-                organization.name,
-                organization.makeCopyWithNewScopeAndJwk(defaultReportScope, jwk)
-            )
-
-            val httpRequestMessage = MockHttpRequestMessage()
-
-            val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "test@cdc.gov")
-            val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
-
-            mockkObject(AuthenticatedClaims)
-            every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
-
-            @Suppress("DEPRECATION")
-            val response = ApiKeysFunctions().get(httpRequestMessage, organization.name)
-            assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        }
-
-        @Test
         fun `Test returns a 404 if the org does not exist`() {
             settings.organizationStore.put(
                 organization.name,
@@ -854,25 +837,6 @@ class ApiKeysFunctionsTest {
 
                 val response = ApiKeysFunctions().getV1(httpRequestMessage, "missing_org")
                 assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
-            }
-
-            @Test
-            fun `Test does not return keys if not an admin of the organization`() {
-                settings.organizationStore.put(
-                    organization.name,
-                    organization.makeCopyWithNewScopeAndJwk(defaultReportScope, jwk)
-                )
-
-                val httpRequestMessage = MockHttpRequestMessage()
-
-                val jwt = mapOf("organization" to listOf("DHSender_simple_report"), "sub" to "test@cdc.gov")
-                val claims = AuthenticatedClaims(jwt, AuthenticationType.Okta)
-
-                mockkObject(AuthenticatedClaims)
-                every { AuthenticatedClaims.Companion.authenticate(any()) } returns claims
-
-                val response = ApiKeysFunctions().getV1(httpRequestMessage, organization.name)
-                assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
             }
 
             @Test

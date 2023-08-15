@@ -32,7 +32,7 @@ describe("useReportsList", () => {
 
         test("fetchResults returns an array of deliveries", async () => {
             const { result } = renderHook(() =>
-                useOrgDeliveries("testService")
+                useOrgDeliveries("testService"),
             );
             const results = await result.current.fetchResults(" ", 10);
 
@@ -64,7 +64,7 @@ describe("useReportsList", () => {
 
         test("fetchResults returns an empty array", async () => {
             const { result } = renderHook(() =>
-                useOrgDeliveries("testService")
+                useOrgDeliveries("testService"),
             );
             const results = await result.current.fetchResults(" ", 10);
 

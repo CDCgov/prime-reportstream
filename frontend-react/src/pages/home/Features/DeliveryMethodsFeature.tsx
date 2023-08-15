@@ -23,12 +23,6 @@ export default function DeliveryMethodsFeature({
                     >
                         {feature.title}
                     </h3>
-                    <p data-testid="item-1" className="usa-prose">
-                        {feature!.items![0]?.summary}
-                    </p>
-                    <p data-testid="item-2" className="usa-prose">
-                        {feature!.items![1]?.summary}
-                    </p>
                 </div>
             </div>
         </div>

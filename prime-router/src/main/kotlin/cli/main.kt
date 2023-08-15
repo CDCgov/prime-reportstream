@@ -130,7 +130,7 @@ class GenerateDocs : CliktCommand(
         metavar = "<path>",
         help = "write documentation to this file (should not include extension)"
     )
-    private val defaultOutputDir = "docs/schema_documentation"
+    private val defaultOutputDir = "docs/docs-deprecated/schema_documentation"
     private val outputDir by option(
         "--output-dir",
         metavar = "<path>",

@@ -9,7 +9,6 @@ elements:
     condition: '%resource.name.exists()'
     value:
       - '%resource.extension(%`rsext-organization-name-type`).value.coding.code'
-      - '''L'''
     hl7Spec: [ SFT-1-2 ]
 
   - name: software-vendor-assigning-authority
@@ -35,7 +34,7 @@ elements:
     hl7Spec: [ SFT-1-10 ]
 
   - name: software-version
-    value: [ '%resource.source.version']
+    value: [ '%resource.source.version' ]
     hl7Spec: [ SFT-2 ]
 
   - name: software-name

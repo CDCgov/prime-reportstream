@@ -54,6 +54,8 @@ prime-router/fake-pdi-covid-19.csv
 prime-router/id_file
 prime-router/.classpath
 prime-router/.project
+# Not to check in the open api spec for now
+prime-router/docs/api/generated
 
 # VS Code
 **/.vscode/**

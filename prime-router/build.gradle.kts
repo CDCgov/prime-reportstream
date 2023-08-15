@@ -17,6 +17,7 @@ Properties to control the execution and output using the Gradle -P arguments:
   E.g. ./gradlew clean package -Ppg.user=myuser -Dpg.password=mypassword -Pforcetest
  */
 
+import io.swagger.v3.plugins.gradle.tasks.ResolveTask
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -41,6 +42,7 @@ plugins {
     id("com.avast.gradle.docker-compose") version "0.16.12"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
     id("com.nocwriter.runsql") version ("1.0.3")
+    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.15"
 }
 
 group = "gov.cdc.prime"
@@ -103,8 +105,8 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "2.3.1"
-val kotlinVersion = "1.8.22"
+val ktorVersion = "2.3.2"
+val kotlinVersion = "1.9.0"
 val jacksonVersion = "2.15.2"
 
 jacoco.toolVersion = "0.8.9"
@@ -288,6 +290,36 @@ tasks.register<Test>("testIntegration") {
     }
 }
 
+val apiDocsBaseDir = File(project.projectDir, "/docs/api/")
+val apiDocsSpecDir = File(apiDocsBaseDir, "generated")
+val apiDocsSwaggerUIDir = File(apiDocsBaseDir, "swagger-ui")
+val buildSwaggerUIDir = File(project.buildDir, "/swagger-ui/")
+tasks.register<ResolveTask>("generateOpenApi") {
+    group = rootProject.description ?: ""
+    description = "Generate OpenAPI spec for Report Stream APIs"
+    outputFileName = "api"
+    outputFormat = ResolveTask.Format.YAML
+    prettyPrint = true
+    classpath = sourceSets["main"].runtimeClasspath
+    buildClasspath = classpath
+    resourcePackages = setOf("gov.cdc.prime.router.azure")
+    outputDir = apiDocsSpecDir
+    dependsOn("compileKotlin")
+}
+
+tasks.register<Copy>("copyApiSwaggerUI") {
+    // copy generated OpenAPI spec files
+    // to folder /build/swagger-ui, in azure functions docker,
+    // the api docs and swagger ui resources are upload to azure
+    // blob container 'apidocs' - where the api docs is hosted.
+    from(apiDocsSpecDir) {
+        include("*.yaml")
+    }
+    from(apiDocsSwaggerUIDir)
+    into(buildSwaggerUIDir)
+    dependsOn("generateOpenApi")
+}
+
 tasks.withType<Test>().configureEach {
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
 }
@@ -453,11 +485,13 @@ val azureScriptsTmpDir = File(rootProject.buildDir.path, "$azureFunctionsDir-scr
 val azureScriptsFinalDir = rootProject.buildDir
 val primeScriptName = "prime"
 val startFuncScriptName = "start_func.sh"
+val apiDocsSetupScriptName = "upload_swaggerui.sh"
 tasks.register<Copy>("gatherAzureScripts") {
     from("./")
     into(azureScriptsTmpDir)
     include(primeScriptName)
     include(startFuncScriptName)
+    include(apiDocsSetupScriptName)
 }
 
 tasks.register("copyAzureScripts") {
@@ -467,6 +501,7 @@ tasks.register("copyAzureScripts") {
         FileUtils.copyDirectory(azureScriptsTmpDir, azureScriptsFinalDir)
         File(azureScriptsFinalDir.path, primeScriptName).setExecutable(true)
         File(azureScriptsFinalDir.path, startFuncScriptName).setExecutable(true)
+        File(azureScriptsFinalDir.path, apiDocsSetupScriptName).setExecutable(true)
     }
 }
 
@@ -478,17 +513,19 @@ tasks.azureFunctionsPackage {
 tasks.register("package") {
     group = rootProject.description ?: ""
     description = "Package the code and necessary files to run the Azure functions"
+    // copy the api docs swagger ui to the build location
+    dependsOn("copyApiSwaggerUI")
     dependsOn("azureFunctionsPackage")
-    dependsOn("fatJar")
+    dependsOn("fatJar").mustRunAfter("azureFunctionsPackage")
 }
 
 tasks.register("quickPackage") {
     group = rootProject.description ?: ""
     description = "Package the code and necessary files to run the Azure functions skipping unit tests and migration"
+    // copy the api docs swagger ui to the build location
+    dependsOn("copyApiSwaggerUI")
     // Quick package for development purposes.  Use with caution.
     dependsOn("azureFunctionsPackage")
-    dependsOn("copyAzureResources")
-    dependsOn("copyAzureScripts")
     tasks["test"].enabled = false
     tasks["jacocoTestReport"].enabled = false
     tasks["compileTestKotlin"].enabled = false
@@ -511,6 +548,8 @@ dockerCompose {
 
 tasks.azureFunctionsRun {
     dependsOn("composeUp")
+    dependsOn("uploadSwaggerUI").mustRunAfter("composeUp")
+
     // This storage account key is not a secret, just a dummy value.
     val devAzureConnectString =
         "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
@@ -537,16 +576,31 @@ tasks.azureFunctionsRun {
     azurefunctions.localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
 }
 
+task<Exec>("uploadSwaggerUI") {
+    dependsOn("copyApiSwaggerUI")
+    group = rootProject.description ?: ""
+    description = "Upload swagger ui and API docs to azure storage blob container"
+    commandLine("./upload_swaggerui.sh")
+}
+
+tasks.register("killFunc") {
+    exec {
+        workingDir = project.rootDir
+        val processName = "func"
+        commandLine = listOf("sh", "-c", "pkill -9 $processName || true")
+    }
+}
+
 tasks.register("run") {
     group = rootProject.description ?: ""
     description = "Run the Azure functions locally.  Note this needs the required services running as well"
-    dependsOn("azureFunctionsRun")
+    dependsOn("killFunc", "azureFunctionsRun")
 }
 
 tasks.register("quickRun") {
     group = rootProject.description ?: ""
     description = "Run the Azure functions locally skipping tests and migration"
-    dependsOn("azureFunctionsRun")
+    dependsOn("killFunc", "azureFunctionsRun")
     tasks["test"].enabled = false
     tasks["jacocoTestReport"].enabled = false
     tasks["compileTestKotlin"].enabled = false
@@ -718,22 +772,22 @@ configurations {
 }
 
 dependencies {
-    jooqGenerator("org.postgresql:postgresql:42.5.1")
+    jooqGenerator("org.postgresql:postgresql:42.6.0")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
-    implementation("com.azure:azure-core:1.35.0")
-    implementation("com.azure:azure-core-http-netty:1.12.8")
+    implementation("com.azure:azure-core:1.41.0")
+    implementation("com.azure:azure-core-http-netty:1.13.5")
     implementation("com.azure:azure-storage-blob:12.22.3") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.15.2") {
+    implementation("com.azure:azure-storage-queue:12.18.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.6.0") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.6.4") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -760,8 +814,8 @@ dependencies {
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.4.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.15")
-    implementation("org.thymeleaf:thymeleaf:3.1.1.RELEASE")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.17")
+    implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
@@ -771,7 +825,6 @@ dependencies {
     implementation("org.json:json:20230618")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.32.0")
-    implementation("org.bouncycastle:bcprov-jdk15on:1.70")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.poi:poi:5.2.3")
     implementation("org.apache.commons:commons-csv:1.10.0")
@@ -779,16 +832,15 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("commons-codec:commons-codec:1.16.0")
     implementation("commons-io:commons-io:2.13.0")
-    implementation("org.postgresql:postgresql:42.5.1")
+    implementation("org.postgresql:postgresql:42.6.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.flywaydb:flyway-core:9.7.0")
     implementation("org.commonmark:commonmark:0.21.0")
-    implementation("com.google.guava:guava:32.0.1-jre")
-    implementation("com.helger.as2:as2-lib:5.1.0")
-    // Prevent mixed versions of these libs based on different versions being included by different packages
-    implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
-    implementation("org.bouncycastle:bcmail-jdk15on:1.70")
-    implementation("org.bouncycastle:bcprov-jdk15on:1.70")
+    implementation("com.google.guava:guava:32.1.1-jre")
+    implementation("com.helger.as2:as2-lib:5.1.1")
+    implementation("org.bouncycastle:bcprov-jdk15to18:1.75")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.75")
+    implementation("org.bouncycastle:bcmail-jdk15to18:1.75")
 
     implementation("commons-net:commons-net:3.9.0")
     implementation("com.cronutils:cron-utils:9.2.1")
@@ -812,6 +864,15 @@ dependencies {
     implementation("com.anyascii:anyascii:0.3.2")
 // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
     implementation("org.jsoup:jsoup:1.16.1")
+    // https://mvnrepository.com/artifact/io.swagger/swagger-annotations
+    implementation("io.swagger:swagger-annotations:1.6.11")
+    implementation("io.swagger.core.v3:swagger-jaxrs2:2.2.15")
+    // https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
+    implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
+    // https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api
+    implementation("javax.servlet:javax.servlet-api:4.0.1")
+    // https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api
+    implementation("javax.annotation:javax.annotation-api:1.3.2")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
@@ -825,12 +886,17 @@ dependencies {
         exclude(group = "com.github.kittinunf.fuel", module = "fuel")
     }
     // kotlinx-coroutines-core is needed by mock-fuel
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
     testImplementation("io.mockk:mockk:1.13.5")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.3")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    testImplementation("org.testcontainers:testcontainers:1.18.3")
+    testImplementation("org.testcontainers:junit-jupiter:1.18.3")
+    testImplementation("org.testcontainers:postgresql:1.18.3")
+
     implementation(kotlin("script-runtime"))
 }

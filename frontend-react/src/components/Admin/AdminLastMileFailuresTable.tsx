@@ -157,7 +157,7 @@ const DataLoadRenderTable = (props: {
 }) => {
     const lastMileData: AdmSendFailuresResource[] = useResource(
         AdmSendFailuresResource.list(),
-        { days_to_show: props.daysToShow }
+        { days_to_show: props.daysToShow },
     );
     const lastMileResends: AdmAction[] = useResource(AdmAction.list(), {
         days_to_show: props.daysToShow,
@@ -199,7 +199,7 @@ const DataLoadRenderTable = (props: {
                                 key={`details_${eachRow.pk()}`}
                                 onClick={() =>
                                     props.handleShowDetailsClick(
-                                        JSON.stringify(dataForDialog, null, 4)
+                                        JSON.stringify(dataForDialog, null, 4),
                                     )
                                 }
                             >
@@ -236,7 +236,7 @@ const DataLoadRenderTable = (props: {
                                 key={`retry_${eachRow.pk()}`}
                                 onClick={() =>
                                     props.handleRetrySendClick(
-                                        JSON.stringify(eachRow, null, 2)
+                                        JSON.stringify(eachRow, null, 2),
                                     )
                                 }
                                 type="button"
@@ -275,7 +275,7 @@ export function AdminLastMileFailuresTable() {
             setCurrentJsonDataForModal(jsonRowData);
             modalShowInfoRef?.current?.toggleModal(undefined, true);
         },
-        [modalShowInfoRef]
+        [modalShowInfoRef],
     );
 
     const modalResendRef = useRef<ModalRef>(null); // used to show/hide modal
@@ -330,7 +330,7 @@ ${data.receiver}`;
             // we need to show confirmation dialog, then do action to trigger resent
             modalResendRef?.current?.toggleModal(undefined, true);
         },
-        [modalResendRef]
+        [modalResendRef],
     );
 
     const closeResendModal = useCallback(() => {

@@ -53,19 +53,15 @@ describe("DeliveryMethodFeature rendering", () => {
             <Feature
                 section={deliveryMethodSection}
                 feature={deliveryFeature}
-            />
+            />,
         );
     });
 
     test("renders without error", () => {
         const image = screen.getByTestId("image");
         const heading = screen.getByTestId("heading");
-        const item1 = screen.getByTestId("item-1");
-        const item2 = screen.getByTestId("item-2");
         expect(image).toBeInTheDocument();
         expect(heading).toBeInTheDocument();
-        expect(item1).toBeInTheDocument();
-        expect(item2).toBeInTheDocument();
     });
 });
 
@@ -79,7 +75,7 @@ describe("LiveMapFeature rendering", () => {
 
     beforeEach(() => {
         renderApp(
-            <Feature section={liveMapSection} feature={liveMapFeature} />
+            <Feature section={liveMapSection} feature={liveMapFeature} />,
         );
     });
 

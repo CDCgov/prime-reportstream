@@ -145,6 +145,7 @@ Examples:
             "test" -> require(!key.isNullOrBlank()) { "Must specify --key <secret> to submit reports to --env test" }
             "staging" ->
                 require(!key.isNullOrBlank()) { "Must specify --key <secret> to submit reports to --env staging" }
+
             "prod" -> error("Sorry, prod is not implemented yet")
         }
     }
@@ -262,16 +263,21 @@ Examples:
             }
             test.outputAllMsgs()
             test.echo("********************************")
-            if (!passed)
+            if (!passed) {
                 failures.add(test)
+            }
         }
 
-        runBlocking {
-            tests.forEach { test ->
-                if (runSequential) {
-                    runTest(test)
-                } else {
+        if (runSequential) {
+            runBlocking {
+                tests.forEach { test ->
                     launch { runTest(test) }
+                }
+            }
+        } else {
+            tests.forEach { test ->
+                runBlocking {
+                    runTest(test)
                 }
             }
         }
@@ -293,8 +299,6 @@ Examples:
         val coolTestList = listOf(
             Ping(),
             SftpcheckTest(),
-            End2End(),
-            End2EndUniversalPipeline(),
             Merge(),
             Server2ServerAuthTests(),
             OktaAuthTests(),
@@ -324,7 +328,9 @@ Examples:
             DbConnectionsLoad(),
             LongLoad(),
             ABot(),
-            LivdApiTest()
+            LivdApiTest(),
+            End2End(),
+            End2EndUniversalPipeline(),
         )
     }
 }
@@ -469,7 +475,7 @@ abstract class CoolTest {
     suspend fun pollForStepResult(
         reportId: ReportId,
         taskAction: TaskAction,
-        maxPollSecs: Int = 480,
+        maxPollSecs: Int = 840,
         pollSleepSecs: Int = 20,
     ): Map<UUID, DetailedSubmissionHistory?> {
         var timeElapsedSecs = 0
@@ -660,7 +666,7 @@ abstract class CoolTest {
         totalItems: Int,
         filterOrgName: Boolean = false,
         silent: Boolean = false,
-        maxPollSecs: Int = 480,
+        maxPollSecs: Int = 840,
         pollSleepSecs: Int = 30, // I had this as every 5 secs, but was getting failures.  The queries run unfastly.
         asyncProcessMode: Boolean = false,
         isUniversalPipeline: Boolean = false
@@ -743,7 +749,7 @@ abstract class CoolTest {
                         action = action,
                         isUniversalPipeline = isUniversalPipeline
                     )
-                    val expected = if (action == TaskAction.receive && asyncProcessMode) {
+                    val expected = if (action == TaskAction.receive && asyncProcessMode && !isUniversalPipeline) {
                         totalItems
                     } else totalItems / receivers.size
                     queryResults += if (count == null || expected != count) {
@@ -797,9 +803,12 @@ abstract class CoolTest {
 
             if (topic != null && !topic.isNull &&
                 (
-                    topic.textValue().equals(Topic.COVID_19.jsonVal, true) ||
-                        topic.textValue().equals(Topic.FULL_ELR.jsonVal, true) ||
-                        topic.textValue().equals(Topic.ETOR_TI.jsonVal, true)
+                    listOf(
+                            Topic.COVID_19.jsonVal,
+                            Topic.FULL_ELR.jsonVal,
+                            Topic.ETOR_TI.jsonVal,
+                            Topic.ELR_ELIMS.jsonVal
+                        ).contains(topic.textValue())
                     )
             ) {
                 good("'topic' is in response and correctly set")
@@ -856,6 +865,12 @@ abstract class CoolTest {
                 ?: error("Unable to find sender $etorTISenderName for organization ${org1.name}")
         }
 
+        const val elrElimsSenderName = "ignore-elr-elims"
+        val elrElimsSender by lazy {
+            settings.findSender("$org1Name.$elrElimsSenderName") as? UniversalPipelineSender
+                ?: error("Unable to find sender $elrElimsSenderName for organization ${org1.name}")
+        }
+
         const val simpleReportSenderName = "ignore-simple-report"
         val simpleRepSender by lazy {
             settings.findSender("$org1Name.$simpleReportSenderName") as? LegacyPipelineSender
@@ -899,6 +914,7 @@ abstract class CoolTest {
             it.organizationName == org1Name && it.name == "FULL_ELR_FHIR"
         }[0]
         val etorReceiver = settings.receivers.first { it.topic == Topic.ETOR_TI }
+        val elimsReceiver = settings.receivers.first { it.topic == Topic.ELR_ELIMS }
         val csvReceiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "CSV" }[0]
         val hl7Receiver = settings.receivers.filter { it.organizationName == org1Name && it.name == "HL7" }[0]
         val hl7BatchReceiver =

@@ -48,11 +48,11 @@ async function chooseFile(file: File) {
 
 describe("ManagePublicKey", () => {
     function mockUseCreateOrganizationPublicKey(
-        result: Partial<UseCreateOrganizationPublicKeyResult>
+        result: Partial<UseCreateOrganizationPublicKeyResult>,
     ) {
         jest.spyOn(
             useCreateOrganizationPublicKeyExports,
-            "default"
+            "default",
         ).mockReturnValue({
             mutateAsync: jest.fn(),
             ...result,
@@ -60,7 +60,7 @@ describe("ManagePublicKey", () => {
     }
 
     function mockUseOrganizationSenders(
-        result: Partial<UseOrganizationSendersResult> = {}
+        result: Partial<UseOrganizationSendersResult> = {},
     ) {
         jest.spyOn(useOrganizationSendersExports, "default").mockReturnValue({
             isLoading: false,
@@ -70,14 +70,14 @@ describe("ManagePublicKey", () => {
     }
 
     function mockUseOrganizationPublicKeys(
-        result: Partial<UseOrganizationPublicKeysResult> = {}
+        result: Partial<UseOrganizationPublicKeysResult> = {},
     ) {
         jest.spyOn(useOrganizationPublicKeysExports, "default").mockReturnValue(
             {
                 isLoading: false,
                 data: { orgName: "elr-0", keys: [] },
                 ...result,
-            } as UseOrganizationPublicKeysResult
+            } as UseOrganizationPublicKeysResult,
         );
     }
 
@@ -126,10 +126,10 @@ describe("ManagePublicKey", () => {
         test("renders the sender options", () => {
             expect(screen.getByText(/Manage public key/)).toBeVisible();
             expect(
-                screen.getByTestId("ManagePublicKeyChooseSender")
+                screen.getByTestId("ManagePublicKeyChooseSender"),
             ).toBeVisible();
             expect(
-                screen.queryByTestId("file-input-input")
+                screen.queryByTestId("file-input-input"),
             ).not.toBeInTheDocument();
         });
 
@@ -151,7 +151,7 @@ describe("ManagePublicKey", () => {
 
             test("renders ManagePublicKeyUpload", async () => {
                 expect(
-                    screen.queryByTestId("ManagePublicKeyChooseSender")
+                    screen.queryByTestId("ManagePublicKeyChooseSender"),
                 ).not.toBeInTheDocument();
                 expect(screen.getByTestId("file-input-input")).toBeVisible();
             });
@@ -171,7 +171,7 @@ describe("ManagePublicKey", () => {
         test("renders ManagePublicKeyUpload", () => {
             expect(screen.getByText(/Manage public key/)).toBeVisible();
             expect(
-                screen.queryByTestId("ManagePublicKeyChooseSender")
+                screen.queryByTestId("ManagePublicKeyChooseSender"),
             ).not.toBeInTheDocument();
             expect(screen.getByTestId("file-input-input")).toBeVisible();
         });
@@ -205,11 +205,11 @@ describe("ManagePublicKey", () => {
 
         test("shows the configured screen and displays a message to the user", async () => {
             expect(
-                screen.getByText(/Your public key is already configured./)
+                screen.getByText(/Your public key is already configured./),
             ).toBeVisible();
             expect(screen.getByText("Contact ReportStream")).toBeVisible();
             expect(
-                screen.getByText(/to upload a new public key./)
+                screen.getByText(/to upload a new public key./),
             ).toBeVisible();
         });
     });
@@ -242,7 +242,7 @@ describe("ManagePublicKey", () => {
             /* eslint-enable testing-library/no-unnecessary-act */
 
             expect(
-                screen.getByText("You can now submit data to ReportStream.")
+                screen.getByText("You can now submit data to ReportStream."),
             ).toBeVisible();
         });
     });
@@ -275,13 +275,13 @@ describe("ManagePublicKey", () => {
 
         test("shows the upload error screen", () => {
             expect(
-                screen.getByText("Key could not be submitted")
+                screen.getByText("Key could not be submitted"),
             ).toBeVisible();
         });
 
         test("allows the user to try again", async () => {
             expect(
-                screen.getByText("Key could not be submitted")
+                screen.getByText("Key could not be submitted"),
             ).toBeVisible();
             await userEvent.click(screen.getByText("Try again"));
 

@@ -4,7 +4,7 @@ import { AppWrapper } from "../utils/CustomRenderUtils";
 import { dummySender, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 
-import { useSenderResource } from "./UseSenderResource";
+import useSenderResource from "./UseSenderResource";
 import { MembershipSettings, MemberType } from "./UseOktaMemberships";
 
 describe("useSenderResource", () => {
@@ -32,8 +32,8 @@ describe("useSenderResource", () => {
         const { result } = renderHook(() => useSenderResource(), {
             wrapper: AppWrapper(),
         });
-        expect(result.current.senderDetail).toEqual(undefined);
-        expect(result.current.senderIsLoading).toEqual(true);
+        expect(result.current.data).toEqual(undefined);
+        expect(result.current.isLoading).toEqual(true);
     });
     test("returns correct sender match", async () => {
         mockSessionContext.mockReturnValue({
@@ -55,9 +55,7 @@ describe("useSenderResource", () => {
         const { result } = renderHook(() => useSenderResource(), {
             wrapper: AppWrapper(),
         });
-        await waitFor(() =>
-            expect(result.current.senderDetail).toEqual(dummySender)
-        );
-        expect(result.current.senderIsLoading).toEqual(false);
+        await waitFor(() => expect(result.current.data).toEqual(dummySender));
+        expect(result.current.isLoading).toEqual(false);
     });
 });

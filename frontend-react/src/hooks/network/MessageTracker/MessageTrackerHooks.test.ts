@@ -40,13 +40,13 @@ describe("useMessageSearch", () => {
             messages = await result.current.search("alaska1");
             expect(messages.length).toEqual(3);
             expect(messages[0].reportId).toEqual(
-                MOCK_MESSAGE_SENDER_DATA[0].reportId
+                MOCK_MESSAGE_SENDER_DATA[0].reportId,
             );
             expect(messages[1].reportId).toEqual(
-                MOCK_MESSAGE_SENDER_DATA[1].reportId
+                MOCK_MESSAGE_SENDER_DATA[1].reportId,
             );
             expect(messages[2].reportId).toEqual(
-                MOCK_MESSAGE_SENDER_DATA[2].reportId
+                MOCK_MESSAGE_SENDER_DATA[2].reportId,
             );
         });
     });
@@ -74,7 +74,7 @@ describe("useMessageDetails", () => {
             wrapper: AppWrapper(),
         });
         await waitFor(() =>
-            expect(result.current.messageDetails?.id).toEqual(11)
+            expect(result.current.messageDetails?.id).toEqual(11),
         );
     });
 });

@@ -177,15 +177,10 @@ class ConverterSchemaTests {
                 assertThat(parentElement.schemaRef?.name).isEqualTo(originalElement.schemaRef?.name)
                 assertThat(parentElement.resource).isEqualTo(originalElement.resource)
                 assertThat(parentElement.resourceIndex).isEqualTo(originalElement.resourceIndex)
-                assertThat(parentElement.value.size).isEqualTo(originalElement.value.size)
-                assertThat(parentElement.hl7Spec.size).isEqualTo(originalElement.hl7Spec.size)
-                assertThat(parentElement.constants.size).isEqualTo(originalElement.constants.size)
-                parentElement.value
-                    .forEachIndexed { index, value -> assertThat(originalElement.value[index]).isEqualTo(value) }
-                parentElement.hl7Spec
-                    .forEachIndexed { index, hl7Spec -> assertThat(originalElement.hl7Spec[index]).isEqualTo(hl7Spec) }
-                parentElement.constants
-                    .forEach { (key, value) -> assertThat(originalElement.constants[key]).isEqualTo(value) }
+                assertThat(parentElement.value).isEqualTo(originalElement.value)
+                assertThat(parentElement.valueSet).isEqualTo(originalElement.valueSet)
+                assertThat(parentElement.hl7Spec).isEqualTo(originalElement.hl7Spec)
+                assertThat(parentElement.constants).isEqualTo(originalElement.constants)
             }
         }
 
@@ -203,15 +198,10 @@ class ConverterSchemaTests {
                 assertThat(parentElementB.schemaRef).isEqualTo(elementB.schemaRef)
                 assertThat(parentElementB.resource).isEqualTo(elementB.resource)
                 assertThat(parentElementB.resourceIndex).isEqualTo(elementB.resourceIndex)
-                assertThat(parentElementB.value.size).isEqualTo(originalElement.value.size)
-                assertThat(parentElementB.hl7Spec.size).isEqualTo(originalElement.hl7Spec.size)
-                assertThat(parentElementB.constants.size).isEqualTo(originalElement.constants.size)
-                parentElementB.value
-                    .forEachIndexed { index, value -> assertThat(originalElement.value[index]).isEqualTo(value) }
-                parentElementB.hl7Spec
-                    .forEachIndexed { index, hl7Spec -> assertThat(originalElement.hl7Spec[index]).isEqualTo(hl7Spec) }
-                parentElementB.constants
-                    .forEach { (key, value) -> assertThat(originalElement.constants[key]).isEqualTo(value) }
+                assertThat(parentElementB.value).isEqualTo(originalElement.value)
+                assertThat(parentElementB.valueSet).isEqualTo(originalElement.valueSet)
+                assertThat(parentElementB.hl7Spec).isEqualTo(originalElement.hl7Spec)
+                assertThat(parentElementB.constants).isEqualTo(originalElement.constants)
             }
         }
 
@@ -231,15 +221,10 @@ class ConverterSchemaTests {
                 assertThat(parentElementC.schemaRef).isEqualTo(elementC.schemaRef)
                 assertThat(parentElementC.resource).isEqualTo(elementC.resource)
                 assertThat(parentElementC.resourceIndex).isEqualTo(elementC.resourceIndex)
-                assertThat(parentElementC.value.size).isEqualTo(elementC.value.size)
-                assertThat(parentElementC.hl7Spec.size).isEqualTo(elementC.hl7Spec.size)
-                assertThat(parentElementC.constants.size).isEqualTo(elementC.constants.size)
-                parentElementC.value
-                    .forEachIndexed { index, value -> assertThat(elementC.value[index]).isEqualTo(value) }
-                parentElementC.hl7Spec
-                    .forEachIndexed { index, hl7Spec -> assertThat(elementC.hl7Spec[index]).isEqualTo(hl7Spec) }
-                parentElementC.constants
-                    .forEach { (key, value) -> assertThat(elementC.constants[key]).isEqualTo(value) }
+                assertThat(parentElementC.value).isEqualTo(elementC.value)
+                assertThat(parentElementC.valueSet).isEqualTo(elementC.valueSet)
+                assertThat(parentElementC.hl7Spec).isEqualTo(elementC.hl7Spec)
+                assertThat(parentElementC.constants).isEqualTo(elementC.constants)
             }
         }
     }

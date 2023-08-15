@@ -29,7 +29,7 @@ export default class ReportResource extends AuthResource {
         sent?: number,
         expires?: number,
         total?: number,
-        fileType?: string
+        fileType?: string,
     ) {
         super();
         this.reportId = reportId || "";

@@ -33,7 +33,7 @@ export default class RSErrorBoundary extends React.Component<
         const notRSError = !isRSNetworkError(error);
         if (notRSError) {
             console.warn(
-                "Please work to migrate all non RSError throws to use an RSError object."
+                "Please work to migrate all non RSError throws to use an RSError object.",
             );
         }
         return {

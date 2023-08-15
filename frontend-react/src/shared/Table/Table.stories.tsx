@@ -1,10 +1,11 @@
+// AutoUpdateFileChromatic
 import React from "react";
 import { StoryFn, Meta } from "@storybook/react";
 
 import { Table } from "./Table";
 
 export default {
-    title: "components/Table",
+    title: "Components/Table",
     component: Table,
 } as Meta<typeof Table>;
 

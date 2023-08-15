@@ -1379,16 +1379,17 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
          * Azure functions are actually deployed in a web server. That is functions amortize startup
          * costs by reusing an existing process for a function invocation. Hence, a connection pool
          * is a win in latency after the first initialization.
+         *
+         * @param jdcUrl the URL for the database
+         * @param username the username
+         * @param password the password
+         * @return a data source that can be used to make DB connections
          */
-        private val hikariDataSource: HikariDataSource by lazy {
+        fun getDataSource(jdcUrl: String, username: String, password: String): HikariDataSource {
             DriverManager.registerDriver(Driver())
-
-            val password = System.getenv(passwordVariable)
-            val user = System.getenv(userVariable)
-            val databaseUrl = System.getenv(databaseVariable)
             val config = HikariConfig()
-            config.jdbcUrl = databaseUrl
-            config.username = user
+            config.jdbcUrl = jdcUrl
+            config.username = username
             config.password = password
             config.addDataSourceProperty(
                 "dataSourceClassName",
@@ -1414,12 +1415,28 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             config.maxLifetime = 180000
             val dataSource = HikariDataSource(config)
 
-            val flyway = Flyway.configure().dataSource(dataSource).load()
+            // This is a current issue in flyway https://github.com/flyway/flyway/issues/3508
+            // This setting makes flyway fall back to session locks
+            // This is fixed in flyway 9.19.4
+            val flyway = Flyway.configure().configuration(mapOf(Pair("flyway.postgresql.transactional.lock", "false")))
+                .dataSource(dataSource).load()
             if (isFlywayMigrationOK) {
+                // TODO https://github.com/CDCgov/prime-reportstream/issues/10526
+                // Investigate why this is required
                 flyway.migrate()
             }
 
-            dataSource
+            return dataSource
+        }
+
+        private val hikariDataSource: HikariDataSource by lazy {
+            // TODO: https://github.com/CDCgov/prime-reportstream/issues/10527
+            // Long term this should be moved to using a system.properties file that easier to override
+            getDataSource(
+                System.getenv(databaseVariable),
+                System.getenv(userVariable),
+                System.getenv(passwordVariable)
+            )
         }
 
         val commonDataSource: DataSource

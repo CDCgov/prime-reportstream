@@ -27,21 +27,21 @@ describe("permissionCheck", () => {
         const trueSenderAuth = permissionCheck(PERMISSIONS.SENDER, senderToken);
         const trueReceiverAuth = permissionCheck(
             PERMISSIONS.RECEIVER,
-            receiverToken
+            receiverToken,
         );
         const trueAdminAuth = permissionCheck(
             PERMISSIONS.PRIME_ADMIN,
-            adminToken
+            adminToken,
         );
 
         const falseSenderAuth = permissionCheck(PERMISSIONS.SENDER, adminToken);
         const falseReceiverAuth = permissionCheck(
             PERMISSIONS.RECEIVER,
-            senderToken
+            senderToken,
         );
         const falseAdminAuth = permissionCheck(
             PERMISSIONS.PRIME_ADMIN,
-            receiverToken
+            receiverToken,
         );
 
         expect(trueSenderAuth).toEqual(true);

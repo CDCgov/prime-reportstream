@@ -4,7 +4,7 @@ import { StoryObj, Meta } from "@storybook/react";
 import { USExtLink, USLink, USLinkButton } from "./USLink";
 
 export default {
-    title: "components/USLink",
+    title: "Components/USLink",
     component: USLink,
 } as Meta<typeof USLink>;
 

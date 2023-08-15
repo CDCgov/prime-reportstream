@@ -1,0 +1,291 @@
+openapi: 3.0.2
+info:
+  title: Prime ReportStream
+  description: A router of public health data from multiple senders and receivers
+  contact:
+    name: USDS at Centers for Disease Control and Prevention
+    url: https://reportstream.cdc.gov
+    email: reportstream@cdc.gov
+  version: 0.2.0-oas3
+paths:
+  /v1/receivers/{receiverFullName}/deliveries:
+    post:
+      description: Returns a list of reports that have been delivered to the receiver
+      security:
+        - OAuth2: [ user ]
+        - ApiKeyAuth: [ ]
+      parameters:
+        - in: path
+          name: receiverFullName
+          schema:
+            type: string
+          required: true
+          description: The full name of the receiver to fetch submitters for
+      requestBody:
+        description: The search parameters for the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryApiSearch'
+      responses:
+        '200':
+          description: The results from running the search
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryApiSearchResults'
+        '401':
+          description: Unauthorized
+        '400':
+          description: The search request could not be parsed
+        '404':
+          description: The receiver could not be found
+  /v1/receivers/{receiverFullName}/deliveries/submitters/search:
+    post:
+      description: Return a list of all the providers, facilities and senders that have sent results to a receiver
+      security:
+        - OAuth2: [ user ]
+        - ApiKeyAuth: [ ]
+      parameters:
+        - in: path
+          name: receiverFullName
+          schema:
+            type: string
+          required: true
+          description: The full name of the receiver to fetch submitters for
+      requestBody:
+        description: The search parameters for the request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitterApiSearch'
+      responses:
+        '200':
+          description: The results from running the search
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmitterApiSearchResults'
+        '401':
+          description: Unauthorized
+        '400':
+            description: The search request could not be parsed
+        '404':
+          description: The receiver could not be found
+components:
+  securitySchemes:
+    OAuth2:
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/OAuth2'
+    ApiKeyAuth:
+      $ref: 'https://raw.githubusercontent.com/CDCgov/prime-reportstream/master/prime-router/docs/api/components/security_schemes.yml#/ApiKeyAuth'
+  schemas:
+    DeliveryApiSearch:
+      type: object
+      properties:
+        sort:
+          description: The sorting to apply to the results, defaults to sorting by created_at, DESC
+          type: object
+          properties:
+            direction:
+              description: The order to apply the sort property
+              type: string
+              enum:
+                - DESC
+                - ASC
+            'property':
+              description: The property to sort by
+              type: string
+              enum:
+                - ordering_provider
+                - ordering_facility
+                - submitter
+                - report_id
+                - created_at
+                - expiration_date
+                - number_of_tests
+                - sort_id
+        pagination:
+          type: object
+          description: The pagination to apply to the search
+          properties:
+            page:
+              type: integer
+              description: Which page of results to fetch
+            limit:
+              type: integer
+              description: The number of results to return per page
+        filters:
+          type: array
+          items:
+            type: object
+            properties:
+              filterName:
+                description: The name of the filter to apply to the results
+                type: string
+                enum:
+                  - SINCE
+                  - UNTIL
+              value:
+                description: The value for the filter to apply; depending on the
+                  > filter type the value will be parsed to the data type that underlying filter expects
+                  > i.e. the SINCE filter will parse it to an LocalDateTime
+                type: string
+    SubmitterApiSearch:
+      type: object
+      properties:
+        sort:
+          description: The sorting to apply to the results, defaults to sorting by created_at, DESC
+          type: object
+          properties:
+            direction:
+              description: The order to apply the sort property
+              type: string
+              enum:
+                - DESC
+                - ASC
+            'property':
+              description: The property to sort by
+              type: string
+              enum:
+                - id
+                - name
+                - first_report_date
+                - test_result_count
+                - type
+        pagination:
+          type: object
+          description: The pagination to apply to the search
+          properties:
+            page:
+              type: integer
+              description: Which page of results to fetch
+            limit:
+              type: integer
+              description: The number of results to return per page
+        filters:
+          type: array
+          items:
+            type: object
+            properties:
+              filterName:
+                description: The name of the filter to apply to the results
+                type: string
+                enum:
+                  - SINCE
+                  - UNTIL
+              value:
+                description: The value for the filter to apply; depending on the 
+                  > filter type the value will be parsed to the data type that underlying filter expects
+                  > i.e. the SINCE filter will parse it to an LocalDateTime
+                type: string
+    DeliveryApiSearchResults:
+      type: object
+      description: Results from running a search for submitters to a specific receiver
+      properties:
+        meta:
+          type: object
+          properties:
+            'type':
+              type: string
+              enum:
+                - submitter
+            totalCount:
+              type: integer
+              description: The total of number of results before applying the filters
+            totalFilteredCount:
+              type: integer
+              description: The total number of results after applying the filters
+            totalPages:
+              type: integer
+              description: The number of pages for the results
+            nextPage:
+              type: integer
+              description: the next page of results
+            previousPage:
+              type: integer
+              description: the previous page of results
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              orderingProvider:
+                type: string
+                description: The ordering provider in the report
+              orderingFacility:
+                type: string
+                description: The ordering facility in the report
+              submitter:
+                type: string
+                description: The sender of the data that was in the report
+              createdAt:
+                type: string
+                format: date-time
+                description: When the report was sent
+              expirationDate:
+                type: string
+                format: date-time
+                description: When the report will no longer be available
+              testResultCount:
+                type: string
+                description: The total number of reports sent by the submitter
+              reportId:
+                type: string
+                format: uuid
+                description: The ID for the sent report
+    SubmitterApiSearchResults:
+      type: object
+      description: Results from running a search for submitters to a specific receiver
+      properties:
+        meta:
+          type: object
+          properties:
+            'type':
+              type: string
+              enum:
+                - submitter
+            totalCount:
+              type: integer
+              description: The total of number of results before applying the filters
+            totalFilteredCount:
+              type: integer
+              description: The total number of results after applying the filters
+            totalPages:
+              type: integer
+              description: The number of pages for the results
+            nextPage:
+              type: integer
+              description: the next page of results
+            previousPage:
+              type: integer
+              description: the previous page of results
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The id of the submitter
+              name:
+                type: string
+                description: The name of the submitter
+              firstReportDate:
+                type: string
+                format: date-time
+                description: The date the first of the first report sent by the submitter
+              testResultCount:
+                type: string
+                description: The total number of reports sent by the submitter
+              'type':
+                type: string
+                description: The submitter type
+                enum:
+                  - SUBMITTER
+                  - PROVIDER
+                  - FACILITY
+              location:
+                type: string
+                description: The location for the submitter

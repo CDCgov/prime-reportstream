@@ -180,8 +180,12 @@ object FhirPathUtils : Logging {
             dateTime.timeZone?.let {
                 // This is strange way to set the timezone offset, but it is an integer with the leftmost two digits as the hour
                 // and the rightmost two digits as minutes (e.g. -0400)
-                val hour = dateTime.timeZone.rawOffset / 1000 / 60 / 60
-                val min = dateTime.timeZone.rawOffset / 1000 / 60 % 60
+                var offset = dateTime.timeZone.rawOffset
+                if (dateTime.timeZone.useDaylightTime()) {
+                    offset = dateTime.timeZone.rawOffset + dateTime.timeZone.dstSavings
+                }
+                val hour = offset / 1000 / 60 / 60
+                val min = offset / 1000 / 60 % 60
                 hl7DateTime.setOffset(hour * 100 + min)
             }
             return hl7DateTime

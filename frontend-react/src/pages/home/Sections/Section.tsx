@@ -1,12 +1,9 @@
 import { SectionProp } from "../HomeProps";
 
-import CtaSection from "./CtaSection";
 import LiveMapSection from "./LiveMapSection";
 
 export default function Section({ section }: { section: SectionProp }) {
-    if (section.type === "cta") return <CtaSection section={section} />;
-    else if (section.type === "liveMap")
-        return <LiveMapSection section={section} />;
+    if (section.type === "liveMap") return <LiveMapSection section={section} />;
     else
         return (
             <div className="tablet:grid-col-8">

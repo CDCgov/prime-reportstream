@@ -1,0 +1,16 @@
+extends: ../default-sender-transform
+elements:
+  - name: sending-application-namespace-id
+    condition: 'false'
+
+  - name: sending-application-universal-id
+    condition: 'false'
+
+  - name: software-vendor-name
+    condition: 'false'
+
+  - name: provider-namespace-id
+    condition: 'false'
+
+  - name: provider-universal-id
+    condition: 'false'

@@ -48,7 +48,7 @@ export default function FileHandlerSchemaSelectionStep({
                     onChange={(e) => {
                         const option = schemaOptions.find(
                             ({ value }: SchemaOption) =>
-                                value === e.target.value
+                                value === e.target.value,
                         )!;
 
                         if (option?.format !== fileType) {

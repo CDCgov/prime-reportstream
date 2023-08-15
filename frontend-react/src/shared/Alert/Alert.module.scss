@@ -1,0 +1,54 @@
+@use "../../global-modules.scss" as *;
+
+/**
+ * Overrides usa-alert's default icon behavior (css-embedded
+ * icons placed into dom via :before) in favor of explicit
+ * icon placed using same rules. Adds "tip" type styling.
+ * Adds automatic bolding to heading (when element is div
+ * instead of h1-h6). Adds min-height to body for empty
+ * body scenario.
+ */
+.usa-alert {
+    /* Icon override */
+    :global(.usa-alert__body):before {
+        all: unset;
+    }
+
+    :global(.usa-alert__body > .usa-icon) {
+        @include u-width(4);
+        height: (2 * units($theme-alert-padding-y)) + units(3);
+        left: $alert-icon-optical-padding;
+        position: absolute;
+        top: 0;
+    }
+
+    &:global(.usa-alert--slim .usa-alert__body > .usa-icon) {
+        @include u-height(5);
+        @include u-width(3);
+    }
+
+    &--no-icon &__body {
+        padding-left: 0;
+    }
+
+    /* Misc overrides */
+    :global(.usa-alert__body) {
+        min-height: units(3);
+    }
+
+    :global(div.usa-alert__heading) {
+        font-weight: bold;
+    }
+
+    /* Tip type style */
+    &--tip {
+        @include u-border("primary-lighter");
+        @include u-border(1px);
+        @include u-border("solid");
+        @include u-radius("md");
+
+        :global(.usa-alert__heading) {
+            font-size: size("body", "sm");
+        }
+    }
+}

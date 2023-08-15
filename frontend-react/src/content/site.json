@@ -41,6 +41,9 @@
         },
         "programmersGuidePdf": {
             "path": "/assets/pdf/ReportStream-Programmers-Guide-v4.0.pdf"
+        },
+        "exampleHl7": {
+            "path": "/assets/hl7/Example-hl7-file.hl7"
         }
     }
 }

@@ -32,13 +32,13 @@ describe("RSErrorBoundary", () => {
     test("Catches RSError", () => {
         const restore = conditionallySuppressConsole(
             "unknown-error",
-            "The above error occurred in the <ThrowsRSError> component:"
+            "The above error occurred in the <ThrowsRSError> component:",
         );
         renderApp(<ThrowsRSErrorWrapped />);
         expect(
             screen.getByText(
-                "Our apologies, there was an error loading this content."
-            )
+                "Our apologies, there was an error loading this content.",
+            ),
         ).toBeInTheDocument();
         restore();
     });
@@ -48,13 +48,13 @@ describe("RSErrorBoundary", () => {
             "Please work to migrate all non RSError throws to use an RSError object.",
             "Error: mock",
             "The above error occurred in the <ThrowsGenericError> component:",
-            "unknown-error"
+            "unknown-error",
         );
         renderApp(<ThrowsGenericErrorWrapped />);
         expect(
             screen.getByText(
-                "Our apologies, there was an error loading this content."
-            )
+                "Our apologies, there was an error loading this content.",
+            ),
         ).toBeInTheDocument();
         restore();
     });

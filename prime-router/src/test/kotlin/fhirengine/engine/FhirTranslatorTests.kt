@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
+import assertk.assertions.isTrue
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
@@ -587,5 +588,24 @@ class FhirTranslatorTests {
         assertThat(byteBody).isNotEmpty()
 
         assertThat { engine.getByteArrayFromBundle(csvReceiver, fhirBundle) }.isFailure()
+    }
+
+    @Test
+    fun `test encodePreserveEncodingChars`() {
+        val fhirData = File("src/test/resources/fhirengine/engine/valid_data_five_encoding_chars.fhir").readText()
+        val fhirBundle = FhirTranscoder.decode(fhirData)
+
+        val hl7v2Receiver = Receiver(
+            RECEIVER_NAME, ORGANIZATION_NAME, Topic.FULL_ELR, CustomerStatus.ACTIVE,
+            ORU_R01_SCHEMA, format = Report.Format.HL7_BATCH,
+        )
+        val engine = makeFhirEngine()
+
+        val hl7Message = engine.getHL7MessageFromBundle(fhirBundle, hl7v2Receiver)
+        val strBody = hl7Message.encodePreserveEncodingChars()
+        assertThat(strBody).isNotEmpty()
+        assertThat(strBody.contains("MSH|^~\\&#")).isTrue()
+
+        assertThat { hl7Message.encode() }.isFailure()
     }
 }

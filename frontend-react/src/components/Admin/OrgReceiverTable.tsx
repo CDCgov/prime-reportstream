@@ -35,7 +35,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
     const { orgname: orgName } = props;
     const orgReceiverSettings: OrgReceiverSettingsResource[] = useResource(
         OrgReceiverSettingsResource.list(),
-        props
+        props,
     );
 
     const { doCheck, isLoading } = useCheckSettingsCmd();
@@ -53,7 +53,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
             modalRef?.current?.toggleModal(undefined, true);
             setClickedReceiver(checkProps.receiverName);
         },
-        [modalRef, setClickedReceiver]
+        [modalRef, setClickedReceiver],
     );
 
     // The "Start check" button is clicked in the modal to start the API call to do the check
@@ -183,8 +183,8 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                 >
                     This check will use the '{clickedReceiver}' settings to
                     connect to the receiver's server. <br />
-                    No files will be sent. This feature ONLY supports SFTP
-                    receivers currently.
+                    No files will be sent. This feature ONLY supports SFTP and
+                    REST receivers currently.
                 </ModalHeading>
                 <div className={"rs-admindash-modal-container"}>
                     <div className={"rs-resend-label"}>

@@ -308,22 +308,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "BCEXT",
-              "display" : "EXTENDED BLOOD CULTURE"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "600-7"
-        } ],
-        "text" : "Bacteria identified in Blood by Culture"
+          "code" : "600-7",
+          "display" : "Bacteria identified in Blood by Culture"
+        }, {
+          "system" : "L",
+          "code" : "BCEXT",
+          "display" : "EXTENDED BLOOD CULTURE"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -535,22 +528,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "BCEXT",
-              "display" : "EXTENDED BLOOD CULTURE"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "600-7"
-        } ],
-        "text" : "Bacteria identified in Blood by Culture"
+          "code" : "600-7",
+          "display" : "Bacteria identified in Blood by Culture"
+        }, {
+          "system" : "L",
+          "code" : "BCEXT",
+          "display" : "EXTENDED BLOOD CULTURE"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -564,29 +550,18 @@
         "reference" : "PractitionerRole/1674584582213497000.440686fa-c471-4537-8b25-78087b2775e8"
       } ],
       "valueCodeableConcept" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/original-text",
-                "valueString" : "ENTEROCOCCUS RAFFINOSIS, VRE"
-              }, {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
-                "valueString" : "5.67"
-              } ],
-              "system" : "L",
-              "version" : "07/31/2012",
-              "code" : "ENTRAFVRE",
-              "display" : "ENTEROCOCCUS RAFFINOSIS, VRE"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "782959008"
+          "version" : "07/31/2012",
+          "code" : "782959008",
+          "display" : "Vancomycin resistant Enterococcus raffinosus"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "ENTRAFVRE",
+          "display" : "ENTEROCOCCUS RAFFINOSIS, VRE"
         } ],
-        "text" : "Vancomycin resistant Enterococcus raffinosus"
+        "text" : "ENTEROCOCCUS RAFFINOSIS, VRE"
       }
     }
   }, {
@@ -787,22 +762,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "BCEXT",
-              "display" : "EXTENDED BLOOD CULTURE"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "600-7"
-        } ],
-        "text" : "Bacteria identified in Blood by Culture"
+          "code" : "600-7",
+          "display" : "Bacteria identified in Blood by Culture"
+        }, {
+          "system" : "L",
+          "code" : "BCEXT",
+          "display" : "EXTENDED BLOOD CULTURE"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -816,50 +784,32 @@
         "reference" : "PractitionerRole/1674584582219967000.29aa9824-3482-47a4-a5b2-234c730158fe"
       } ],
       "valueCodeableConcept" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/original-text",
-                "valueString" : "CANDIDA ALBICANS"
-              }, {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
-                "valueString" : "5.67"
-              } ],
-              "system" : "L",
-              "version" : "07/31/2012",
-              "code" : "CANALB",
-              "display" : "CANDIDA ALBICANS"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "53326005"
+          "version" : "07/31/2012",
+          "code" : "53326005",
+          "display" : "Candida albicans"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "CANALB",
+          "display" : "CANDIDA ALBICANS"
         } ],
-        "text" : "Candida albicans"
+        "text" : "CANDIDA ALBICANS"
       },
       "note" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
           "valueCodeableConcept" : {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-              "valueCodeableConcept" : {
-                "coding" : [ {
-                  "system" : "L",
-                  "code" : "C",
-                  "display" : "Comment"
-                } ]
-              }
-            } ],
             "coding" : [ {
               "system" : "HL70364",
-              "version" : "L",
-              "code" : "RE"
-            } ],
-            "text" : "Remark"
+              "code" : "RE",
+              "display" : "Remark"
+            }, {
+              "system" : "L",
+              "code" : "C",
+              "display" : "Comment"
+            } ]
           }
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
@@ -1071,22 +1021,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "BLOODC",
-              "display" : "BLOOD CULTURE"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "600-7"
-        } ],
-        "text" : "Bacteria identified in Blood by Culture"
+          "code" : "600-7",
+          "display" : "Bacteria identified in Blood by Culture"
+        }, {
+          "system" : "L",
+          "code" : "BLOODC",
+          "display" : "BLOOD CULTURE"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -1315,9 +1258,9 @@
       "code" : {
         "coding" : [ {
           "system" : "L",
-          "code" : "MBCPCR"
-        } ],
-        "text" : "BLOOD CULTURE PCR"
+          "code" : "MBCPCR",
+          "display" : "BLOOD CULTURE PCR"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -1546,9 +1489,9 @@
       "code" : {
         "coding" : [ {
           "system" : "L",
-          "code" : "MPOSBC"
-        } ],
-        "text" : "BLOOD CULTURE GRAM STAIN"
+          "code" : "MPOSBC",
+          "display" : "BLOOD CULTURE GRAM STAIN"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -1785,9 +1728,9 @@
       "code" : {
         "coding" : [ {
           "system" : "L",
-          "code" : "MPOSBC"
-        } ],
-        "text" : "BLOOD CULTURE GRAM STAIN"
+          "code" : "MPOSBC",
+          "display" : "BLOOD CULTURE GRAM STAIN"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -2016,9 +1959,9 @@
       "code" : {
         "coding" : [ {
           "system" : "L",
-          "code" : "MPOSBC"
-        } ],
-        "text" : "BLOOD CULTURE GRAM STAIN"
+          "code" : "MPOSBC",
+          "display" : "BLOOD CULTURE GRAM STAIN"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -2255,9 +2198,9 @@
       "code" : {
         "coding" : [ {
           "system" : "L",
-          "code" : "MPOSBC"
-        } ],
-        "text" : "BLOOD CULTURE GRAM STAIN"
+          "code" : "MPOSBC",
+          "display" : "BLOOD CULTURE GRAM STAIN"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -2481,22 +2424,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "BLOODC",
-              "display" : "BLOOD CULTURE"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "600-7"
-        } ],
-        "text" : "Bacteria identified in Blood by Culture"
+          "code" : "600-7",
+          "display" : "Bacteria identified in Blood by Culture"
+        }, {
+          "system" : "L",
+          "code" : "BLOODC",
+          "display" : "BLOOD CULTURE"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -2512,7 +2448,9 @@
       "valueCodeableConcept" : {
         "coding" : [ {
           "system" : "L",
-          "code" : "POSITIVE"
+          "version" : "5.67",
+          "code" : "POSITIVE",
+          "display" : "POSITIVE"
         } ],
         "text" : "POSITIVE"
       },
@@ -2520,22 +2458,15 @@
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
           "valueCodeableConcept" : {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-              "valueCodeableConcept" : {
-                "coding" : [ {
-                  "system" : "L",
-                  "code" : "C",
-                  "display" : "Comment"
-                } ]
-              }
-            } ],
             "coding" : [ {
               "system" : "HL70364",
-              "version" : "L",
-              "code" : "RE"
-            } ],
-            "text" : "Remark"
+              "code" : "RE",
+              "display" : "Remark"
+            }, {
+              "system" : "L",
+              "code" : "C",
+              "display" : "Comment"
+            } ]
           }
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
@@ -2762,22 +2693,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "VERGPCOM",
-              "display" : "COMMENT"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "77202-0"
-        } ],
-        "text" : "Laboratory comment [Text] in Report Narrative"
+          "code" : "77202-0",
+          "display" : "Laboratory comment [Text] in Report Narrative"
+        }, {
+          "system" : "L",
+          "code" : "VERGPCOM",
+          "display" : "COMMENT"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -3010,22 +2934,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "VERGPCOM",
-              "display" : "COMMENT"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "77202-0"
-        } ],
-        "text" : "Laboratory comment [Text] in Report Narrative"
+          "code" : "77202-0",
+          "display" : "Laboratory comment [Text] in Report Narrative"
+        }, {
+          "system" : "L",
+          "code" : "VERGPCOM",
+          "display" : "COMMENT"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -3252,22 +3169,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "VERGPCOM",
-              "display" : "COMMENT"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "77202-0"
-        } ],
-        "text" : "Laboratory comment [Text] in Report Narrative"
+          "code" : "77202-0",
+          "display" : "Laboratory comment [Text] in Report Narrative"
+        }, {
+          "system" : "L",
+          "code" : "VERGPCOM",
+          "display" : "COMMENT"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -3494,22 +3404,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "VERGPCOM",
-              "display" : "COMMENT"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "77202-0"
-        } ],
-        "text" : "Laboratory comment [Text] in Report Narrative"
+          "code" : "77202-0",
+          "display" : "Laboratory comment [Text] in Report Narrative"
+        }, {
+          "system" : "L",
+          "code" : "VERGPCOM",
+          "display" : "COMMENT"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -3735,22 +3638,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "VERGPCOM",
-              "display" : "COMMENT"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "77202-0"
-        } ],
-        "text" : "Laboratory comment [Text] in Report Narrative"
+          "code" : "77202-0",
+          "display" : "Laboratory comment [Text] in Report Narrative"
+        }, {
+          "system" : "L",
+          "code" : "VERGPCOM",
+          "display" : "COMMENT"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -3977,22 +3873,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "VERGPCOM",
-              "display" : "COMMENT"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "77202-0"
-        } ],
-        "text" : "Laboratory comment [Text] in Report Narrative"
+          "code" : "77202-0",
+          "display" : "Laboratory comment [Text] in Report Narrative"
+        }, {
+          "system" : "L",
+          "code" : "VERGPCOM",
+          "display" : "COMMENT"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -4219,22 +4108,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "VERGPCOM",
-              "display" : "COMMENT"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "77202-0"
-        } ],
-        "text" : "Laboratory comment [Text] in Report Narrative"
+          "code" : "77202-0",
+          "display" : "Laboratory comment [Text] in Report Narrative"
+        }, {
+          "system" : "L",
+          "code" : "VERGPCOM",
+          "display" : "COMMENT"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -4461,22 +4343,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "VERGPCOM",
-              "display" : "COMMENT"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "77202-0"
-        } ],
-        "text" : "Laboratory comment [Text] in Report Narrative"
+          "code" : "77202-0",
+          "display" : "Laboratory comment [Text] in Report Narrative"
+        }, {
+          "system" : "L",
+          "code" : "VERGPCOM",
+          "display" : "COMMENT"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -4703,22 +4578,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "VERGPCOM",
-              "display" : "COMMENT"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "77202-0"
-        } ],
-        "text" : "Laboratory comment [Text] in Report Narrative"
+          "code" : "77202-0",
+          "display" : "Laboratory comment [Text] in Report Narrative"
+        }, {
+          "system" : "L",
+          "code" : "VERGPCOM",
+          "display" : "COMMENT"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -4945,22 +4813,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "VERGPCOM",
-              "display" : "COMMENT"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "77202-0"
-        } ],
-        "text" : "Laboratory comment [Text] in Report Narrative"
+          "code" : "77202-0",
+          "display" : "Laboratory comment [Text] in Report Narrative"
+        }, {
+          "system" : "L",
+          "code" : "VERGPCOM",
+          "display" : "COMMENT"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -5168,22 +5029,15 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
         "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "ug/mL",
-                "display" : "ug/mL"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "http://unitsofmeasure.org",
-            "version" : "L",
-            "code" : "ug/mL"
-          } ],
-          "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+            "code" : "ug/mL",
+            "display" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+          }, {
+            "system" : "L",
+            "code" : "ug/mL",
+            "display" : "ug/mL"
+          } ]
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
@@ -5200,22 +5054,15 @@
       } ],
       "status" : "preliminary",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "DAP",
-              "display" : "DAPTOMYCIN"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "35788-9"
-        } ],
-        "text" : "DAPTOmycin [Susceptibility] by Minimum inhibitory concentration (MIC)"
+          "code" : "35788-9",
+          "display" : "DAPTOmycin [Susceptibility] by Minimum inhibitory concentration (MIC)"
+        }, {
+          "system" : "L",
+          "code" : "DAP",
+          "display" : "DAPTOMYCIN"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -5236,22 +5083,15 @@
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
             "valueCodeableConcept" : {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-                "valueCodeableConcept" : {
-                  "coding" : [ {
-                    "system" : "L",
-                    "code" : "ug/mL",
-                    "display" : "ug/mL"
-                  } ]
-                }
-              } ],
               "coding" : [ {
                 "system" : "http://unitsofmeasure.org",
-                "version" : "L",
-                "code" : "ug/mL"
-              } ],
-              "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+                "code" : "ug/mL",
+                "display" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+              }, {
+                "system" : "L",
+                "code" : "ug/mL",
+                "display" : "ug/mL"
+              } ]
             }
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/comparator",
@@ -5264,22 +5104,15 @@
           "extension" : [ {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
             "valueCodeableConcept" : {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-                "valueCodeableConcept" : {
-                  "coding" : [ {
-                    "system" : "L",
-                    "code" : "ug/mL",
-                    "display" : "ug/mL"
-                  } ]
-                }
-              } ],
               "coding" : [ {
                 "system" : "http://unitsofmeasure.org",
-                "version" : "L",
-                "code" : "ug/mL"
-              } ],
-              "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+                "code" : "ug/mL",
+                "display" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+              }, {
+                "system" : "L",
+                "code" : "ug/mL",
+                "display" : "ug/mL"
+              } ]
             }
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/comparator",
@@ -5475,22 +5308,15 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
         "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "ug/mL",
-                "display" : "ug/mL"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "http://unitsofmeasure.org",
-            "version" : "L",
-            "code" : "ug/mL"
-          } ],
-          "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+            "code" : "ug/mL",
+            "display" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+          }, {
+            "system" : "L",
+            "code" : "ug/mL",
+            "display" : "ug/mL"
+          } ]
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
@@ -5514,22 +5340,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "AM",
-              "display" : "AMPICILLIN"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "28-1"
-        } ],
-        "text" : "Ampicillin [Susceptibility] by Minimum inhibitory concentration (MIC)"
+          "code" : "28-1",
+          "display" : "Ampicillin [Susceptibility] by Minimum inhibitory concentration (MIC)"
+        }, {
+          "system" : "L",
+          "code" : "AM",
+          "display" : "AMPICILLIN"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -5550,22 +5369,15 @@
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
             "valueCodeableConcept" : {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-                "valueCodeableConcept" : {
-                  "coding" : [ {
-                    "system" : "L",
-                    "code" : "ug/mL",
-                    "display" : "ug/mL"
-                  } ]
-                }
-              } ],
               "coding" : [ {
                 "system" : "http://unitsofmeasure.org",
-                "version" : "L",
-                "code" : "ug/mL"
-              } ],
-              "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+                "code" : "ug/mL",
+                "display" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+              }, {
+                "system" : "L",
+                "code" : "ug/mL",
+                "display" : "ug/mL"
+              } ]
             }
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/comparator",
@@ -5578,22 +5390,15 @@
           "extension" : [ {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
             "valueCodeableConcept" : {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-                "valueCodeableConcept" : {
-                  "coding" : [ {
-                    "system" : "L",
-                    "code" : "ug/mL",
-                    "display" : "ug/mL"
-                  } ]
-                }
-              } ],
               "coding" : [ {
                 "system" : "http://unitsofmeasure.org",
-                "version" : "L",
-                "code" : "ug/mL"
-              } ],
-              "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+                "code" : "ug/mL",
+                "display" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+              }, {
+                "system" : "L",
+                "code" : "ug/mL",
+                "display" : "ug/mL"
+              } ]
             }
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/comparator",
@@ -5789,22 +5594,15 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
         "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "ug/mL",
-                "display" : "ug/mL"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "http://unitsofmeasure.org",
-            "version" : "L",
-            "code" : "ug/mL"
-          } ],
-          "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+            "code" : "ug/mL",
+            "display" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+          }, {
+            "system" : "L",
+            "code" : "ug/mL",
+            "display" : "ug/mL"
+          } ]
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
@@ -5828,22 +5626,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "GMS",
-              "display" : "GENTAMICIN SYNERGY SCREEN"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "7018-5"
-        } ],
-        "text" : "Gentamicin.high potency [Susceptibility] by Minimum inhibitory concentration (MIC)"
+          "code" : "7018-5",
+          "display" : "Gentamicin.high potency [Susceptibility] by Minimum inhibitory concentration (MIC)"
+        }, {
+          "system" : "L",
+          "code" : "GMS",
+          "display" : "GENTAMICIN SYNERGY SCREEN"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -6044,22 +5835,15 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
         "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "ug/mL",
-                "display" : "ug/mL"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "http://unitsofmeasure.org",
-            "version" : "L",
-            "code" : "ug/mL"
-          } ],
-          "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+            "code" : "ug/mL",
+            "display" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+          }, {
+            "system" : "L",
+            "code" : "ug/mL",
+            "display" : "ug/mL"
+          } ]
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
@@ -6083,22 +5867,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "LZD",
-              "display" : "LINEZOLID"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "29254-0"
-        } ],
-        "text" : "Linezolid [Susceptibility] by Minimum inhibitory concentration (MIC)"
+          "code" : "29254-0",
+          "display" : "Linezolid [Susceptibility] by Minimum inhibitory concentration (MIC)"
+        }, {
+          "system" : "L",
+          "code" : "LZD",
+          "display" : "LINEZOLID"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -6119,22 +5896,15 @@
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
             "valueCodeableConcept" : {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-                "valueCodeableConcept" : {
-                  "coding" : [ {
-                    "system" : "L",
-                    "code" : "ug/mL",
-                    "display" : "ug/mL"
-                  } ]
-                }
-              } ],
               "coding" : [ {
                 "system" : "http://unitsofmeasure.org",
-                "version" : "L",
-                "code" : "ug/mL"
-              } ],
-              "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+                "code" : "ug/mL",
+                "display" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+              }, {
+                "system" : "L",
+                "code" : "ug/mL",
+                "display" : "ug/mL"
+              } ]
             }
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/comparator",
@@ -6147,22 +5917,15 @@
           "extension" : [ {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
             "valueCodeableConcept" : {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-                "valueCodeableConcept" : {
-                  "coding" : [ {
-                    "system" : "L",
-                    "code" : "ug/mL",
-                    "display" : "ug/mL"
-                  } ]
-                }
-              } ],
               "coding" : [ {
                 "system" : "http://unitsofmeasure.org",
-                "version" : "L",
-                "code" : "ug/mL"
-              } ],
-              "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+                "code" : "ug/mL",
+                "display" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+              }, {
+                "system" : "L",
+                "code" : "ug/mL",
+                "display" : "ug/mL"
+              } ]
             }
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/comparator",
@@ -6358,22 +6121,15 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
         "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "ug/mL",
-                "display" : "ug/mL"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "http://unitsofmeasure.org",
-            "version" : "L",
-            "code" : "ug/mL"
-          } ],
-          "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+            "code" : "ug/mL",
+            "display" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+          }, {
+            "system" : "L",
+            "code" : "ug/mL",
+            "display" : "ug/mL"
+          } ]
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
@@ -6397,22 +6153,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "STS",
-              "display" : "STREPTOMYCIN SYNERGY SCREEN"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "6933-6"
-        } ],
-        "text" : "Streptomycin.high potency [Susceptibility] by Minimum inhibitory concentration (MIC)"
+          "code" : "6933-6",
+          "display" : "Streptomycin.high potency [Susceptibility] by Minimum inhibitory concentration (MIC)"
+        }, {
+          "system" : "L",
+          "code" : "STS",
+          "display" : "STREPTOMYCIN SYNERGY SCREEN"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -6613,22 +6362,15 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
         "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "ug/mL",
-                "display" : "ug/mL"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "http://unitsofmeasure.org",
-            "version" : "L",
-            "code" : "ug/mL"
-          } ],
-          "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+            "code" : "ug/mL",
+            "display" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+          }, {
+            "system" : "L",
+            "code" : "ug/mL",
+            "display" : "ug/mL"
+          } ]
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
@@ -6652,22 +6394,15 @@
         } ]
       } ],
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "VA",
-              "display" : "VANCOMYCIN"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "19000-9"
-        } ],
-        "text" : "Vancomycin [Susceptibility]"
+          "code" : "19000-9",
+          "display" : "Vancomycin [Susceptibility]"
+        }, {
+          "system" : "L",
+          "code" : "VA",
+          "display" : "VANCOMYCIN"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -6688,22 +6423,15 @@
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
             "valueCodeableConcept" : {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-                "valueCodeableConcept" : {
-                  "coding" : [ {
-                    "system" : "L",
-                    "code" : "ug/mL",
-                    "display" : "ug/mL"
-                  } ]
-                }
-              } ],
               "coding" : [ {
                 "system" : "http://unitsofmeasure.org",
-                "version" : "L",
-                "code" : "ug/mL"
-              } ],
-              "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+                "code" : "ug/mL",
+                "display" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+              }, {
+                "system" : "L",
+                "code" : "ug/mL",
+                "display" : "ug/mL"
+              } ]
             }
           } ],
           "value" : 32,
@@ -6714,22 +6442,15 @@
           "extension" : [ {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
             "valueCodeableConcept" : {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-                "valueCodeableConcept" : {
-                  "coding" : [ {
-                    "system" : "L",
-                    "code" : "ug/mL",
-                    "display" : "ug/mL"
-                  } ]
-                }
-              } ],
               "coding" : [ {
                 "system" : "http://unitsofmeasure.org",
-                "version" : "L",
-                "code" : "ug/mL"
-              } ],
-              "text" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+                "code" : "ug/mL",
+                "display" : "MicroGrams Per MilliLiter [Mass Concentration Units]"
+              }, {
+                "system" : "L",
+                "code" : "ug/mL",
+                "display" : "ug/mL"
+              } ]
             }
           } ],
           "comparator" : ">=",
@@ -6932,26 +6653,17 @@
         "value" : "M12776123"
       } ],
       "type" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
-                "valueString" : "5.67"
-              } ],
-              "system" : "L",
-              "version" : "07/31/2012",
-              "code" : "BLD",
-              "display" : "BLOOD"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "119297000"
-        } ],
-        "text" : "Blood specimen"
+          "version" : "07/31/2012",
+          "code" : "119297000",
+          "display" : "Blood specimen"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "BLD",
+          "display" : "BLOOD"
+        } ]
       },
       "receivedTime" : "2021-08-04T00:18:00-06:00",
       "collection" : {
@@ -6960,24 +6672,20 @@
           "end" : "2028-08-02T02:52:01-06:00"
         },
         "bodySite" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "code" : "5.67"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "L",
-            "code" : "RA"
-          } ],
-          "text" : "RIGHT ARM"
+            "code" : "RA",
+            "display" : "RIGHT ARM"
+          }, {
+            "code" : "5.67"
+          } ]
         }
       },
       "container" : [ {
         "type" : {
-          "text" : "BACTEC AEROBIC PLUS"
+          "coding" : [ {
+            "display" : "BACTEC AEROBIC PLUS"
+          } ]
         },
         "specimenQuantity" : {
           "extension" : [ {
@@ -7018,26 +6726,17 @@
         "value" : "M12776123"
       } ],
       "type" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
-                "valueString" : "5.67"
-              } ],
-              "system" : "L",
-              "version" : "07/31/2012",
-              "code" : "BLD",
-              "display" : "BLOOD"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "119297000"
-        } ],
-        "text" : "Blood specimen"
+          "version" : "07/31/2012",
+          "code" : "119297000",
+          "display" : "Blood specimen"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "BLD",
+          "display" : "BLOOD"
+        } ]
       },
       "receivedTime" : "2021-08-04T00:18:00-06:00",
       "collection" : {
@@ -7046,24 +6745,20 @@
           "end" : "2028-08-02T02:52:01-06:00"
         },
         "bodySite" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "code" : "5.67"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "L",
-            "code" : "RA"
-          } ],
-          "text" : "RIGHT ARM"
+            "code" : "RA",
+            "display" : "RIGHT ARM"
+          }, {
+            "code" : "5.67"
+          } ]
         }
       },
       "container" : [ {
         "type" : {
-          "text" : "BACTEC BLOOD CULTURE BOTTLES"
+          "coding" : [ {
+            "display" : "BACTEC BLOOD CULTURE BOTTLES"
+          } ]
         },
         "specimenQuantity" : {
           "extension" : [ {
@@ -7104,26 +6799,17 @@
         "value" : "M12776123"
       } ],
       "type" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
-                "valueString" : "5.67"
-              } ],
-              "system" : "L",
-              "version" : "07/31/2012",
-              "code" : "BLD",
-              "display" : "BLOOD"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "119297000"
-        } ],
-        "text" : "Blood specimen"
+          "version" : "07/31/2012",
+          "code" : "119297000",
+          "display" : "Blood specimen"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "BLD",
+          "display" : "BLOOD"
+        } ]
       },
       "receivedTime" : "2021-08-04T00:18:00-06:00",
       "collection" : {
@@ -7132,19 +6818,13 @@
           "end" : "2028-08-02T02:52:01-06:00"
         },
         "bodySite" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "code" : "5.67"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "L",
-            "code" : "RA"
-          } ],
-          "text" : "RIGHT ARM"
+            "code" : "RA",
+            "display" : "RIGHT ARM"
+          }, {
+            "code" : "5.67"
+          } ]
         }
       },
       "note" : [ {
@@ -7178,26 +6858,17 @@
         "value" : "M12776123"
       } ],
       "type" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-version",
-                "valueString" : "5.67"
-              } ],
-              "system" : "L",
-              "version" : "07/31/2012",
-              "code" : "ISLT",
-              "display" : "ISOLATE"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://snomed.info/sct",
-          "code" : "119303007"
-        } ],
-        "text" : "Microbial isolate"
+          "version" : "07/31/2012",
+          "code" : "119303007",
+          "display" : "Microbial isolate"
+        }, {
+          "system" : "L",
+          "version" : "5.67",
+          "code" : "ISLT",
+          "display" : "ISOLATE"
+        } ]
       },
       "receivedTime" : "2021-08-04T00:18:00-06:00",
       "collection" : {
@@ -7206,24 +6877,20 @@
           "end" : "2028-08-08T09:28:05-06:00"
         },
         "bodySite" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "code" : "5.67"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "L",
-            "code" : "RA"
-          } ],
-          "text" : "RIGHT ARM"
+            "code" : "RA",
+            "display" : "RIGHT ARM"
+          }, {
+            "code" : "5.67"
+          } ]
         }
       },
       "container" : [ {
         "type" : {
-          "text" : "BACTEC BLOOD CULTURE BOTTLES"
+          "coding" : [ {
+            "display" : "BACTEC BLOOD CULTURE BOTTLES"
+          } ]
         },
         "specimenQuantity" : {
           "extension" : [ {
@@ -7322,22 +6989,15 @@
       } ],
       "status" : "preliminary",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "BCEXT",
-              "display" : "EXTENDED BLOOD CULTURE"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "600-7"
-        } ],
-        "text" : "Bacteria identified in Blood by Culture"
+          "code" : "600-7",
+          "display" : "Bacteria identified in Blood by Culture"
+        }, {
+          "system" : "L",
+          "code" : "BCEXT",
+          "display" : "EXTENDED BLOOD CULTURE"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -7680,22 +7340,15 @@
       "intent" : "order",
       "priority" : "stat",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "BCEXT",
-              "display" : "EXTENDED BLOOD CULTURE"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "600-7"
-        } ],
-        "text" : "Bacteria identified in Blood by Culture"
+          "code" : "600-7",
+          "display" : "Bacteria identified in Blood by Culture"
+        }, {
+          "system" : "L",
+          "code" : "BCEXT",
+          "display" : "EXTENDED BLOOD CULTURE"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -7712,43 +7365,29 @@
         "reference" : "PractitionerRole/1674584582548782000.ce515b2d-0652-4485-b0bf-46b399563a1b"
       },
       "reasonCode" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-              "code" : "R6521",
-              "display" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-          "version" : "I10",
-          "code" : "R6521"
-        } ],
-        "text" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+          "code" : "R6521",
+          "display" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+        }, {
+          "system" : "http://hl7.org/fhir/sid/icd-10-cm",
+          "code" : "R6521",
+          "display" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+        } ]
       } ],
       "note" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
           "valueCodeableConcept" : {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-              "valueCodeableConcept" : {
-                "coding" : [ {
-                  "system" : "L",
-                  "code" : "C",
-                  "display" : "Comment"
-                } ]
-              }
-            } ],
             "coding" : [ {
               "system" : "HL70364",
-              "version" : "L",
-              "code" : "RE"
-            } ],
-            "text" : "Remark"
+              "code" : "RE",
+              "display" : "Remark"
+            }, {
+              "system" : "L",
+              "code" : "C",
+              "display" : "Comment"
+            } ]
           }
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
@@ -7847,22 +7486,15 @@
       } ],
       "status" : "preliminary",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "BLOODC",
-              "display" : "BLOOD CULTURE"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "600-7"
-        } ],
-        "text" : "Bacteria identified in Blood by Culture"
+          "code" : "600-7",
+          "display" : "Bacteria identified in Blood by Culture"
+        }, {
+          "system" : "L",
+          "code" : "BLOODC",
+          "display" : "BLOOD CULTURE"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -8213,22 +7845,15 @@
       "intent" : "order",
       "priority" : "stat",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "BLOODC",
-              "display" : "BLOOD CULTURE"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "600-7"
-        } ],
-        "text" : "Bacteria identified in Blood by Culture"
+          "code" : "600-7",
+          "display" : "Bacteria identified in Blood by Culture"
+        }, {
+          "system" : "L",
+          "code" : "BLOODC",
+          "display" : "BLOOD CULTURE"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -8245,43 +7870,29 @@
         "reference" : "PractitionerRole/1674584582557801000.9840f4aa-4eb6-4598-bebc-f339385dacfb"
       },
       "reasonCode" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-              "code" : "R6521",
-              "display" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-          "version" : "I10",
-          "code" : "R6521"
-        } ],
-        "text" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+          "code" : "R6521",
+          "display" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+        }, {
+          "system" : "http://hl7.org/fhir/sid/icd-10-cm",
+          "code" : "R6521",
+          "display" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+        } ]
       } ],
       "note" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
           "valueCodeableConcept" : {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-              "valueCodeableConcept" : {
-                "coding" : [ {
-                  "system" : "L",
-                  "code" : "C",
-                  "display" : "Comment"
-                } ]
-              }
-            } ],
             "coding" : [ {
               "system" : "HL70364",
-              "version" : "L",
-              "code" : "RE"
-            } ],
-            "text" : "Remark"
+              "code" : "RE",
+              "display" : "Remark"
+            }, {
+              "system" : "L",
+              "code" : "C",
+              "display" : "Comment"
+            } ]
           }
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
@@ -8385,22 +7996,15 @@
       } ],
       "status" : "preliminary",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "VERGPCOM",
-              "display" : "COMMENT"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "77202-0"
-        } ],
-        "text" : "Laboratory comment [Text] in Report Narrative"
+          "code" : "77202-0",
+          "display" : "Laboratory comment [Text] in Report Narrative"
+        }, {
+          "system" : "L",
+          "code" : "VERGPCOM",
+          "display" : "COMMENT"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -8757,22 +8361,15 @@
       "intent" : "order",
       "priority" : "stat",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "VERGPCOM",
-              "display" : "COMMENT"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "77202-0"
-        } ],
-        "text" : "Laboratory comment [Text] in Report Narrative"
+          "code" : "77202-0",
+          "display" : "Laboratory comment [Text] in Report Narrative"
+        }, {
+          "system" : "L",
+          "code" : "VERGPCOM",
+          "display" : "COMMENT"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -8789,43 +8386,29 @@
         "reference" : "PractitionerRole/1674584582565863000.ae6bd199-144f-426c-a66d-b8aa160adb48"
       },
       "reasonCode" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-              "code" : "R6521",
-              "display" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-          "version" : "I10",
-          "code" : "R6521"
-        } ],
-        "text" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+          "code" : "R6521",
+          "display" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+        }, {
+          "system" : "http://hl7.org/fhir/sid/icd-10-cm",
+          "code" : "R6521",
+          "display" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+        } ]
       } ],
       "note" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
           "valueCodeableConcept" : {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-              "valueCodeableConcept" : {
-                "coding" : [ {
-                  "system" : "L",
-                  "code" : "C",
-                  "display" : "Comment"
-                } ]
-              }
-            } ],
             "coding" : [ {
               "system" : "HL70364",
-              "version" : "L",
-              "code" : "RE"
-            } ],
-            "text" : "Remark"
+              "code" : "RE",
+              "display" : "Remark"
+            }, {
+              "system" : "L",
+              "code" : "C",
+              "display" : "Comment"
+            } ]
           }
         }, {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
@@ -8891,20 +8474,13 @@
         "value" : "20280808092805-0600"
       }, {
         "type" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "BCEXT",
-                "display" : "EXTENDED BLOOD CULTURE"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "http://loinc.org",
-            "version" : "L",
             "code" : "600-7"
+          }, {
+            "system" : "L",
+            "code" : "BCEXT",
+            "display" : "EXTENDED BLOOD CULTURE"
           } ]
         },
         "system" : "600-7",
@@ -8924,22 +8500,15 @@
       } ],
       "status" : "preliminary",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "MDAPTOE",
-              "display" : "MIC DAPTOMYCIN E TEST"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "50545-3"
-        } ],
-        "text" : "Bacterial susceptibility panel by Minimum inhibitory concentration (MIC)"
+          "code" : "50545-3",
+          "display" : "Bacterial susceptibility panel by Minimum inhibitory concentration (MIC)"
+        }, {
+          "system" : "L",
+          "code" : "MDAPTOE",
+          "display" : "MIC DAPTOMYCIN E TEST"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -9181,22 +8750,15 @@
       "status" : "unknown",
       "intent" : "order",
       "code" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "L",
-              "code" : "MDAPTOE",
-              "display" : "MIC DAPTOMYCIN E TEST"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://loinc.org",
-          "version" : "L",
-          "code" : "50545-3"
-        } ],
-        "text" : "Bacterial susceptibility panel by Minimum inhibitory concentration (MIC)"
+          "code" : "50545-3",
+          "display" : "Bacterial susceptibility panel by Minimum inhibitory concentration (MIC)"
+        }, {
+          "system" : "L",
+          "code" : "MDAPTOE",
+          "display" : "MIC DAPTOMYCIN E TEST"
+        } ]
       },
       "subject" : {
         "reference" : "Patient/1674584582151578000.63439aca-c5e0-4db4-9736-a5f23bc67137"
@@ -9205,22 +8767,15 @@
         "reference" : "PractitionerRole/1674584582572825000.cb778109-53c6-4fa6-a47f-267e36c6e85f"
       },
       "reasonCode" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-              "code" : "R6521",
-              "display" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-          "version" : "I10",
-          "code" : "R6521"
-        } ],
-        "text" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+          "code" : "R6521",
+          "display" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+        }, {
+          "system" : "http://hl7.org/fhir/sid/icd-10-cm",
+          "code" : "R6521",
+          "display" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+        } ]
       } ]
     }
   }, {
@@ -9275,20 +8830,13 @@
         "value" : "20280808092805-0600"
       }, {
         "type" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "BCEXT",
-                "display" : "EXTENDED BLOOD CULTURE"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "http://loinc.org",
-            "version" : "L",
             "code" : "600-7"
+          }, {
+            "system" : "L",
+            "code" : "BCEXT",
+            "display" : "EXTENDED BLOOD CULTURE"
           } ]
         },
         "system" : "600-7",
@@ -9578,22 +9126,15 @@
         "reference" : "PractitionerRole/1674584582579618000.f0fa169e-400c-4074-9106-514d135ef7ac"
       },
       "reasonCode" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-              "code" : "R6521",
-              "display" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
-            } ]
-          }
-        } ],
         "coding" : [ {
           "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-          "version" : "I10",
-          "code" : "R6521"
-        } ],
-        "text" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+          "code" : "R6521",
+          "display" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+        }, {
+          "system" : "http://hl7.org/fhir/sid/icd-10-cm",
+          "code" : "R6521",
+          "display" : "SEVERE SEPSIS WITH SEPTIC SHOCK"
+        } ]
       } ]
     }
   }, {
@@ -9618,12 +9159,6 @@
       "extension" : [ {
         "url" : "http://hl7.org/fhir/StructureDefinition/patient-religion",
         "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "text" : "Nonreligious"
-            }
-          } ],
           "coding" : [ {
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0006",
             "code" : "NOE",
@@ -9637,22 +9172,15 @@
       }, {
         "url" : "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
         "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "W",
-                "display" : "White"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "http://terminology.hl7.org/CodeSystem/v3-Race",
-            "version" : "L",
-            "code" : "2106-3"
-          } ],
-          "text" : "White"
+            "code" : "2106-3",
+            "display" : "White"
+          }, {
+            "system" : "L",
+            "code" : "W",
+            "display" : "White"
+          } ]
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/patient-notes",
@@ -9660,22 +9188,15 @@
           "extension" : [ {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
             "valueCodeableConcept" : {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-                "valueCodeableConcept" : {
-                  "coding" : [ {
-                    "system" : "L",
-                    "code" : "C",
-                    "display" : "Comment"
-                  } ]
-                }
-              } ],
               "coding" : [ {
                 "system" : "HL70364",
-                "version" : "L",
-                "code" : "RE"
-              } ],
-              "text" : "Remark"
+                "code" : "RE",
+                "display" : "Remark"
+              }, {
+                "system" : "L",
+                "code" : "C",
+                "display" : "Comment"
+              } ]
             }
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
@@ -9691,42 +9212,28 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group",
         "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "2",
-                "display" : "Not Hispanic or Latin"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0189",
-            "version" : "L",
-            "code" : "N"
-          } ],
-          "text" : "Not Hispanic or Latino"
+            "code" : "N",
+            "display" : "Not Hispanic or Latino"
+          }, {
+            "system" : "L",
+            "code" : "2",
+            "display" : "Not Hispanic or Latin"
+          } ]
         }
       }, {
         "url" : "http://hl7.org/fhir/StructureDefinition/patient-animal",
         "valueCodeableConcept" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "Human",
-                "display" : "Human"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "http://snomed.info/sct",
-            "version" : "L",
-            "code" : "337915000"
-          } ],
-          "text" : "Homo sapiens (organism)"
+            "code" : "337915000",
+            "display" : "Homo sapiens (organism)"
+          }, {
+            "system" : "L",
+            "code" : "Human",
+            "display" : "Human"
+          } ]
         }
       } ],
       "identifier" : [ {
@@ -9843,22 +9350,15 @@
             "display" : "Unknown"
           } ]
         }, {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-identifier",
-            "valueCodeableConcept" : {
-              "coding" : [ {
-                "system" : "L",
-                "code" : "OT",
-                "display" : "OTHER RELATIONSHIP"
-              } ]
-            }
-          } ],
           "coding" : [ {
             "system" : "HL70063",
-            "version" : "L",
-            "code" : "OTH"
-          } ],
-          "text" : "Other"
+            "code" : "OTH",
+            "display" : "Other"
+          }, {
+            "system" : "L",
+            "code" : "OT",
+            "display" : "OTHER RELATIONSHIP"
+          } ]
         } ],
         "name" : {
           "use" : "official",

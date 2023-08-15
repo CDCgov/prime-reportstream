@@ -20,7 +20,7 @@ describe("FileHandlerSchemaSelectionStep", () => {
         beforeEach(() => {
             jest.spyOn(
                 UseSenderSchemaOptionsExports,
-                "default"
+                "default",
             ).mockReturnValue({
                 schemaOptions: [],
                 isLoading: true,
@@ -44,7 +44,7 @@ describe("FileHandlerSchemaSelectionStep", () => {
         beforeEach(() => {
             jest.spyOn(
                 UseSenderSchemaOptionsExports,
-                "default"
+                "default",
             ).mockReturnValue({
                 schemaOptions: [
                     {
@@ -65,7 +65,7 @@ describe("FileHandlerSchemaSelectionStep", () => {
                 <FileHandlerSchemaSelectionStep
                     {...DEFAULT_PROPS}
                     onSchemaChange={onSchemaChangeSpy}
-                />
+                />,
             );
         });
 

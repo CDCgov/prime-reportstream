@@ -1,15 +1,9 @@
 {
-    "title": "ReportStream makes it easier to send and collect public health data — for free",
-    "summary": "ReportStream is an open source, cloud based platform that aggregates and delivers reportable disease test results to health departments",
-    "description": "Get faster, more accurate data directly from testing facilities, labs, and more — through a single connection.",
-    "heroImg": "rs-diagram.svg",
-    "heroImgAlt": "Example screenshot of the ReportStream web application",
-
     "sections": [
         {
-            "title": "Why ReportStream?",
+            "title": "How we help you",
             "type": "why",
-            "summary": "Get faster, more accurate data directly from testing facilities, labs, and more — through a single connection",
+            "summary": "ReportStream is CDC’s free, interoperable platform for streamlining public health reporting. We navigate unique and changing requirements and work to make sure your data is where it needs to be. ",
             "bullets": [
                 { "content": "100% free" },
                 { "content": "Backed by the CDC" },
@@ -17,77 +11,22 @@
             ],
             "features": [
                 {
-                    "title": "Aggregated, clean data",
-                    "summary": "Get aggregated, validated test results from across your jurisdiction, all through a single connection.",
+                    "title": "1. Create a personalized plan to meet your unique data needs.",
+                    "summary": "Our expert team works with your preferences to accept data in HL7, FHIR and CSV, and deliver data through multiple connection types.",
                     "icon": "copy",
                     "iconDescription": "multiple documents"
                 },
                 {
-                    "title": "Analytics and insights",
-                    "summary": "Get insights on reporting trends and real-time alerts that help you inform and manage your reportable disease response.",
+                    "title": "2. Start sending or receiving data.",
+                    "summary": "Through our secure, cloud-based platform, data is validated, routed and transformed to the correct jurisdictions in the correct formatting.",
                     "icon": "chart-line",
                     "iconDescription": "a chart"
                 },
                 {
-                    "title": "A built-in network",
-                    "summary": "ReportStream works directly with disease test manufacturers, labs, and apps like <a href='https://simplereport.gov' className='usa-link'>SimpleReport</a> to deliver more results to public health departments across the U.S.",
+                    "title": "3. Stay updated on the status of your data.",
+                    "summary": "Our expert support team is on call and ready to solve any problems that arise.",
                     "icon": "network-wired",
                     "iconDescription": "multiple documents"
-                },
-                {
-                    "title": "Safe and secure",
-                    "summary": "Test results and patient data are securely stored and protected by two-factor authentication, database encryption, and HTTPS.",
-                    "icon": "shield.svg",
-                    "iconDescription": "Icon of a shield"
-                },
-                {
-                    "title": "Free and created by the CDC",
-                    "summary": "Developed for disease test data and public health departments, ReportStream is 100% free.",
-                    "icon": "cdc-logo.svg",
-                    "iconDescription": "CDC logo"
-                }
-            ]
-        },
-        {
-            "title": "ReportStream offers two ways to deliver data directly to your public health department",
-            "summary": "Log in and download test results quickly through our web application, or work with ReportStream to set up a customized ELR connection",
-            "type": "deliveryMethods",
-            "features": [
-                {
-                    "title": "1. Data download",
-                    "method": 1,
-                    "summary": "Log in and download test results quickly through our web application",
-                    "icon": "file-download",
-                    "img": "report-stream-application.png",
-                    "imgAlt": "Diagram showing simplified point-to-point ELR connections",
-                    "items": [
-                        {
-                            "title": "Set up made simple",
-                            "summary": "Get verified, then simply log in to download data from our online portal. Give your team access to data from anyone in your jurisdiction that's connected to ReportStream."
-                        },
-                        {
-                            "title": "Industry standard data formatting",
-                            "summary": "Save time with less manual data entry. Download daily data in standard HL7 or CSV format in minutes, without setting up an ELR."
-                        }
-                    ]
-                },
-                {
-                    "title": "2. Electronic lab reporting",
-                    "method": 2,
-                    "summary": "Work with ReportStream to set up a customized ELR connection",
-                    "icon": "file-medical",
-                    "img": "rs-diagram.svg",
-                    "imgAlt": "Example screenshot of the ReportStream web application",
-                    "items": [
-                        {
-                            "title": "Centralize your connections",
-                            "summary": "Get data from multiple testing facilities — in less time —  through a single connection."
-                        },
-                        {
-                            "title": "Customized, clean data",
-                            "summary": "ReportStream works 1:1 with public health departments to make sure data arrives in the format you need, when you need it."
-                        }
-                    ]
                 }
             ]
         }
@@ -95,9 +34,9 @@
 
     "liveMapContact": [
         {
-            "title": "Where is ReportStream live?",
+            "title": "Who ReportStream works with",
             "type": "liveMap",
-            "summary": "ReportStream partners with health departments, test manufacturers, data aggregators, and others across the U.S.",
+            "summary": "ReportStream partners with public health entities, labs, test manufacturers, data aggregators, and others across the U.S.",
             "description": "We're growing quickly. Take a look at the complete <a href='/product/where-were-live'>list of ReportStream partners</a>.",
             "features": [
                 {
@@ -106,14 +45,6 @@
                     "linkInternal": "/how-it-works/where-were-live"
                 }
             ]
-        },
-        {
-            "title": "Interested in learning more about ReportStream?",
-            "type": "cta",
-            "summary": "Either way, if you send or analyze reportable disease data, we'd like to help.",
-            "description": "ReportStream works with public health departments looking to get better quality disease data from jurisdictions. We also collaborate with testing facilities, data aggregators, manufacturers, and more to send test results to health departments.",
-            "buttonText": "Get in touch",
-            "buttonUrlSubject": "?subject=I'm interested in learning more about ReportStream"
         }
     ]
 }
