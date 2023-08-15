@@ -23,12 +23,18 @@ import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import io.mockk.verify
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.net.MalformedURLException
 
 class BlobAccessTests {
+    @AfterEach
+    fun tearDown() {
+        unmockkAll()
+    }
+
     @Test
     fun `blob info filename`() {
         var filename = BlobAccess.BlobInfo
@@ -107,7 +113,7 @@ class BlobAccessTests {
 
     @Test
     fun `upload body`() {
-        val testUrl = "http://uploadbody"
+        val blobSlot = CapturingSlot<String>()
         val testFormat = Report.Format.CSV
         val testName = "testblob"
         val testBytes = "testbytes".toByteArray()
@@ -128,17 +134,29 @@ class BlobAccessTests {
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(testEnv) } returns "testconnection"
-        every { BlobAccess.Companion.uploadBlob(any(), testBytes) } returns testUrl
+        every { BlobAccess.Companion.uploadBlob(capture(blobSlot), testBytes) } answers
+            { "http://" + blobSlot.captured }
 
         testEvents.forEach {
             val result = when (it) {
                 null -> BlobAccess.uploadBody(testFormat, testBytes, testName, "")
+                // testing with and without reportName passed in to improve code coverage
                 Event.EventAction.CONVERT -> BlobAccess.uploadBody(testFormat, testBytes, testName, action = it)
                 else -> BlobAccess.uploadBody(testFormat, testBytes, testName, testFolder, it)
             }
 
             assertThat(result.format).isEqualTo(testFormat)
-            assertThat(result.blobUrl).isEqualTo(testUrl)
+            // test blobUrl is as expected for the EventAction
+            assertThat(
+                result.blobUrl.contains(
+                    when (it?.name) {
+                        null -> "none"
+                        "SEND" -> "ready"
+                        "CONVERT" -> "other"
+                        else -> it.name.lowercase()
+                    }
+                )
+            ).isTrue()
             assertThat(result.digest).isEqualTo(BlobAccess.sha256Digest(testBytes))
         }
     }
@@ -173,13 +191,12 @@ class BlobAccessTests {
         every { anyConstructed<BlobClientBuilder>().buildClient() } returns mockedBlobClient
 
         val result = BlobAccess.uploadBlob(testName, testBytes, testContainer, testEnv)
+        // upload a second blob to the same container to test container client reuse
         val result2 = BlobAccess.uploadBlob(testName, testBytes, testContainer, testEnv)
 
         verify(exactly = 2) { mockedBlobClient.upload(any<ByteArrayInputStream>(), testBytes.size.toLong()) }
         assertThat(result).isEqualTo("testurlname")
         assertThat(result2).isEqualTo("testurlname")
-
-        unmockkAll()
     }
 
     @Test
@@ -226,8 +243,6 @@ class BlobAccessTests {
         verify(exactly = 1) { BlobClientBuilder().endpoint(testUrl) }
         verify(exactly = 1) { BlobClientBuilder().buildClient() }
         assertThat(result).isEqualTo("test".toByteArray())
-
-        unmockkAll()
     }
 
     @Test
@@ -260,8 +275,6 @@ class BlobAccessTests {
             )
         }
         assertThat(result).isEqualTo("http://testurl2")
-
-        unmockkAll()
     }
 
     @Test
@@ -285,8 +298,6 @@ class BlobAccessTests {
         verify(exactly = 1) { BlobClientBuilder().endpoint(testUrl) }
         verify(exactly = 1) { BlobClientBuilder().buildClient() }
         verify(exactly = 1) { mockedBlobClient.delete() }
-
-        unmockkAll()
     }
 
     @Test
@@ -303,7 +314,5 @@ class BlobAccessTests {
 
         verify(exactly = 1) { BlobServiceClientBuilder().connectionString("testconnection") }
         verify(exactly = 1) { BlobServiceClientBuilder().buildClient() }
-
-        unmockkAll()
     }
 }
