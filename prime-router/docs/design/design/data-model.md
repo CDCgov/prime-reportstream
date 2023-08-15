@@ -155,7 +155,7 @@ Furthermore, the `setting` table also supports versioning. When a change is made
 
 #### Organization Settings
 
-Organizations serve as containers for Senders and Receivers, but have their own settings as well. The settings for an Organization are self-explanatory. For more information on the `keys` parameter, see [SMART on FHIR oauth implementation](../features/0002-authentication.md#via-smart-on-fhir-oauth-implementation-details).
+Organizations serve as containers for Senders and Receivers, but have their own settings as well. The purpose of most Organization settings can be deduced from their name. In the case of the `keys` parameter, more information regarding its purpose and usage can be found in [SMART on FHIR oauth implementation](../features/0002-authentication.md#via-smart-on-fhir-oauth-implementation-details).
 
 ```json
 {
