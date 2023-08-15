@@ -11,3 +11,5 @@ git config core.hooksPath ".git/hooks";
 # Move back to frontend project for project commands
 cd frontend-react;
 patch-package;
+
+echo "Frontend postinstall complete"
