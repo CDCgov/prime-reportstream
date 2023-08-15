@@ -1,20 +1,15 @@
-import {
-    Breadcrumb,
-    BreadcrumbBar,
-    Grid,
-    GridContainer,
-} from "@trussworks/react-uswds";
+import { Grid, GridContainer } from "@trussworks/react-uswds";
 import { MDXProvider } from "@mdx-js/react";
 import { Helmet } from "react-helmet-async";
 import React, { useMemo, useState } from "react";
 import * as reactUSWDS from "@trussworks/react-uswds";
 import type { TocEntry } from "remark-mdx-toc";
 
-import { USCrumbLink, USSmartLink, USNavLink } from "../../components/USLink";
+import { USSmartLink, USNavLink } from "../../components/USLink";
 import * as shared from "../../shared";
+import PageHeader from "../../shared/PageHeader/PageHeader";
 
 import { TableOfContents } from "./TableOfContents";
-import { CallToAction } from "./CallToAction";
 import MarkdownLayoutContext from "./Context";
 import { LayoutSidenav, LayoutMain } from "./LayoutComponents";
 import styles from "./MarkdownLayout.module.scss";
@@ -50,6 +45,7 @@ export interface MarkdownLayoutProps {
         lastUpdated?: string;
         toc?: boolean | { depth?: number };
         backToTop?: boolean;
+        isPrimaryDarker?: boolean;
     };
     toc?: TocEntry[];
     main?: React.ReactNode;
@@ -108,6 +104,7 @@ export function MarkdownLayout({
         lastUpdated,
         toc,
         backToTop,
+        isPrimaryDarker,
     } = {},
     toc: tocEntries,
 }: MarkdownLayoutProps) {
@@ -166,44 +163,14 @@ export function MarkdownLayout({
                             }
                         >
                             {isHeader && (
-                                <header>
-                                    {breadcrumbs != null ? (
-                                        <BreadcrumbBar>
-                                            {breadcrumbs.map((b) => (
-                                                <Breadcrumb key={b.label}>
-                                                    {b.href ? (
-                                                        <USCrumbLink
-                                                            href={b.href}
-                                                        >
-                                                            {b.label}
-                                                        </USCrumbLink>
-                                                    ) : (
-                                                        b.label
-                                                    )}
-                                                </Breadcrumb>
-                                            ))}
-                                        </BreadcrumbBar>
-                                    ) : null}
-                                    <hgroup>
-                                        <h1>{title}</h1>
-                                        {subtitleArr.map((s) => (
-                                            <p
-                                                key={s.slice(0, 5)}
-                                                className="usa-intro text-base"
-                                            >
-                                                {s}
-                                            </p>
-                                        ))}
-                                    </hgroup>
-                                    {callToAction?.map((c) => (
-                                        <CallToAction key={c.label} {...c} />
-                                    ))}
-                                    {lastUpdated && (
-                                        <p className="text-base text-italic">
-                                            Last updated: {lastUpdated}
-                                        </p>
-                                    )}
-                                </header>
+                                <PageHeader
+                                    title={title}
+                                    breadcrumbs={breadcrumbs}
+                                    subtitleArr={subtitleArr}
+                                    callToAction={callToAction}
+                                    isPrimaryDarker={isPrimaryDarker}
+                                    lastUpdated={lastUpdated}
+                                />
                             )}
                             {tocObj && tocEntries && (
                                 <>

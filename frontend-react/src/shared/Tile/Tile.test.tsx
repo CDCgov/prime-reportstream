@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 
-import { Feature } from "./Feature";
+import { Tile } from "./Tile";
 
 describe("Feature rendering", () => {
     const baseSection = { type: "xyz" };
@@ -12,7 +12,7 @@ describe("Feature rendering", () => {
     };
 
     beforeEach(() => {
-        renderApp(<Feature section={baseSection} feature={baseFeature} />);
+        renderApp(<Tile section={baseSection} item={baseFeature} />);
     });
 
     test("renders without error", () => {
@@ -50,10 +50,7 @@ describe("DeliveryMethodFeature rendering", () => {
 
     beforeEach(() => {
         renderApp(
-            <Feature
-                section={deliveryMethodSection}
-                feature={deliveryFeature}
-            />,
+            <Tile section={deliveryMethodSection} item={deliveryFeature} />,
         );
     });
 
@@ -75,9 +72,7 @@ describe("LiveMapFeature rendering", () => {
     };
 
     beforeEach(() => {
-        renderApp(
-            <Feature section={liveMapSection} feature={liveMapFeature} />,
-        );
+        renderApp(<Tile section={liveMapSection} item={liveMapFeature} />);
     });
 
     test("renders without error", () => {

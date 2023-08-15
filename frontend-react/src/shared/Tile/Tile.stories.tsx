@@ -1,16 +1,16 @@
 // AutoUpdateFileChromatic
 import React from "react";
 
-import { Feature } from "./Feature";
+import { Tile } from "./Tile";
 
 export default {
-    title: "components/Feature",
-    component: Feature,
+    title: "components/Tile",
+    component: Tile,
 };
 
 const section = {
     title: "This is a section",
-    features: [
+    items: [
         {
             title: "1. Create a personalized plan to meet your unique public health data needs",
             summary:
@@ -24,10 +24,10 @@ const section = {
     ],
 };
 
-export const RSFeature = (): React.ReactElement => (
-    <Feature section={section} feature={section.features[0]} />
+export const RSTile = (): React.ReactElement => (
+    <Tile section={section} item={section.items[0]} />
 );
 
-export const RSFeatureWithImage = (): React.ReactElement => (
-    <Feature section={section} feature={section.features[1]} />
+export const RSTileWithImage = (): React.ReactElement => (
+    <Tile section={section} item={section.items[1]} />
 );

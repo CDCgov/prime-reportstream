@@ -1,15 +1,14 @@
 import { screen } from "@testing-library/react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
+import PageHeader from "../../shared/PageHeader/PageHeader";
 
-import Hero from "./Hero";
-
-describe("Hero rendering", () => {
+describe("PageHeader rendering", () => {
     beforeEach(() => {
-        renderApp(<Hero />);
+        renderApp(<PageHeader />);
     });
 
-    test("Title and Summary render on Hero", () => {
+    test("Title and Summary render on PageHeader", () => {
         expect(screen.getByRole("banner")).toBeInTheDocument();
     });
 });
