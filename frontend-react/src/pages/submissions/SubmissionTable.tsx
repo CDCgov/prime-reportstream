@@ -131,7 +131,7 @@ function SubmissionTableWithNumberedPagination() {
             rangeFrom,
             rangeTo,
             isAdmin,
-        ]
+        ],
     );
 
     // The start cursor is the high value when results are in descending order

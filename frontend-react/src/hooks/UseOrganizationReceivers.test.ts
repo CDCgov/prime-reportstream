@@ -53,7 +53,7 @@ describe("useOrganizationReceivers", () => {
             wrapper: AppWrapper(),
         });
         await waitFor(() =>
-            expect(result.current.data).toEqual(dummyReceivers)
+            expect(result.current.data).toEqual(dummyReceivers),
         );
         expect(result.current.isLoading).toEqual(false);
     });

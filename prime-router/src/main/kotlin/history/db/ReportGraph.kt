@@ -69,7 +69,7 @@ class ReportGraph(
      *
      */
     fun getMetadataForReports(descendantReportIds: List<UUID>): List<CovidResultMetadata> {
-        val itemGraph = itemAncestorGraphCommonTableExpression(descendantReportIds)
+        val itemGraph = itemAncestorGraphWithPathCommonTableExpression(descendantReportIds)
 
         val metadata = metadataCommonTableExpression(itemGraph)
 
@@ -121,14 +121,63 @@ class ReportGraph(
      * to then recursively walk the item lineage to produce an [ItemGraphRecord]
      *
      * Results will look like:
-     * 784f82f6-75f7-4ccc-aad1-1ab24ad8b595, 1, (784f82f6-75f7-4ccc-aad1-1ab24ad8b595,1)
-     * 81492979-40cd-45e7-a7ce-038269fd81aa, 1, (81492979-40cd-45e7-a7ce-038269fd81aa,1)
-     * 5a52b273-c79e-46fa-9c5a-65fa725d4daa, 1, (784f82f6-75f7-4ccc-aad1-1ab24ad8b595,1)->(5a52b273-c79e-46fa-9c5a-65fa725d4daa,1)
-     * 5a52b273-c79e-46fa-9c5a-65fa725d4daa, 2, (81492979-40cd-45e7-a7ce-038269fd81aa,1)->(5a52b273-c79e-46fa-9c5a-65fa725d4daa,2)
+     * 784f82f6-75f7-4ccc-aad1-1ab24ad8b595, 1, 784f82f6-75f7-4ccc-aad1-1ab24ad8b595
+     * 81492979-40cd-45e7-a7ce-038269fd81aa, 1, 784f82f6-75f7-4ccc-aad1-1ab24ad8b595
+     * 5a52b273-c79e-46fa-9c5a-65fa725d4daa, 1, 784f82f6-75f7-4ccc-aad1-1ab24ad8b595
+     * 5a52b273-c79e-46fa-9c5a-65fa725d4daa, 2, 784f82f6-75f7-4ccc-aad1-1ab24ad8b595
      *
      * @param reportIds the set of reports to start from
      */
     fun itemAncestorGraphCommonTableExpression(reportIds: List<UUID>) =
+        DSL
+            .name(ItemGraphTable.ITEM_GRAPH.name)
+            .`as`(
+                DSL.select(
+                    ITEM_LINEAGE.PARENT_REPORT_ID,
+                    ITEM_LINEAGE.PARENT_INDEX,
+                    ITEM_LINEAGE.CHILD_REPORT_ID.`as`(STARTING_REPORT_ID_FIELD)
+                )
+                    .from(ITEM_LINEAGE)
+                    .where(ITEM_LINEAGE.CHILD_REPORT_ID.`in`(reportIds))
+                    .unionAll(
+                        DSL.select(
+                            ITEM_LINEAGE.PARENT_REPORT_ID,
+                            ITEM_LINEAGE.PARENT_INDEX,
+                            DSL.field("${ItemGraphTable.ITEM_GRAPH.name}.$STARTING_REPORT_ID_FIELD", SQLDataType.UUID)
+                        )
+                            .from(ITEM_LINEAGE)
+                            .join(DSL.table(DSL.name(ItemGraphTable.ITEM_GRAPH.name)))
+                            .on(
+                                DSL.field(
+                                    DSL.name(ItemGraphTable.ITEM_GRAPH.name, PARENT_REPORT_ID_FIELD), SQLDataType.UUID
+                                )
+                                    .eq(
+                                        ITEM_LINEAGE.CHILD_REPORT_ID
+                                    ),
+                                DSL.field(
+                                    DSL.name(ItemGraphTable.ITEM_GRAPH.name, PARENT_INDEX_FIELD), SQLDataType.INTEGER
+                                ).eq(
+                                    ITEM_LINEAGE.CHILD_INDEX
+                                )
+                            )
+                    )
+                    .coerce(ItemGraphTable.ITEM_GRAPH)
+            )
+
+    /**
+     * Accepts a list of report ids and then finds all the items associated with that report
+     * to then recursively walk the item lineage to produce an [ItemGraphRecord].  This is intended to be used
+     * for debugging purposes to trace the lineage of a report.
+     *
+     * Results will look like:
+     * 784f82f6-75f7-4ccc-aad1-1ab24ad8b595, 1, (784f82f6-75f7-4ccc-aad1-1ab24ad8b595,1), 784f82f6-75f7-4ccc-aad1-1ab24ad8b595
+     * 81492979-40cd-45e7-a7ce-038269fd81aa, 1, (81492979-40cd-45e7-a7ce-038269fd81aa,1), 784f82f6-75f7-4ccc-aad1-1ab24ad8b595
+     * 5a52b273-c79e-46fa-9c5a-65fa725d4daa, 1, (784f82f6-75f7-4ccc-aad1-1ab24ad8b595,1)->(5a52b273-c79e-46fa-9c5a-65fa725d4daa,1),
+     * 5a52b273-c79e-46fa-9c5a-65fa725d4daa, 2, (81492979-40cd-45e7-a7ce-038269fd81aa,1)->(5a52b273-c79e-46fa-9c5a-65fa725d4daa,2), 784f82f6-75f7-4ccc-aad1-1ab24ad8b595
+     *
+     * @param reportIds the set of reports to start from
+     */
+    fun itemAncestorGraphWithPathCommonTableExpression(reportIds: List<UUID>) =
         DSL
             .name(ItemGraphTable.ITEM_GRAPH.name)
             .`as`(

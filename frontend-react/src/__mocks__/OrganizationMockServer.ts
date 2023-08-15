@@ -110,7 +110,7 @@ const handlers = [
     rest.get(base, (_req, res, ctx) => {
         return res(
             ctx.json([fakeOrg, fakeOrg, fakeOrg, fakeOrg]),
-            ctx.status(200)
+            ctx.status(200),
         );
     }),
     rest.get(testSender, (req, res, ctx) => {

@@ -39,6 +39,21 @@ bodySite:
   vars:
     valueIn: SPM.8
 
+extension_1-bodySiteModifier:
+  condition: $spm9 NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    spm9: SPM.9
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: specimen-source-site-modifier
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept
+      expressionType: resource
+      specs: SPM.9
+
 collector:
   condition: $practitionerVal NOT_NULL
   valueOf: resource/Practitioner
