@@ -74,6 +74,8 @@ coding_7:
     system: $overrideSystem | CWE.3 | CNE.3 | CE.3
     version: String, CWE.7 | CNE.7
     codingSystemOID: String, CWE.14
+  constants:
+    codeIndex: "identifier"
 
 coding_8:
   valueOf: $coding
