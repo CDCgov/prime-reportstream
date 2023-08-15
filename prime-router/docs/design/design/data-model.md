@@ -92,7 +92,7 @@ The `item_lineage` table helps keep track of individual Report [Items](../../uni
 
 #### Examples
 
-A good set of examples on how to query report and item lineage was created for the CDC ELIMS Pilot effort. These queries can be found in the repository [here](../../../examples/cdc-elims-metabase-queries/README.md).
+A good set of examples on how to query report and item lineage was created for the CDC ELIMS Pilot effort. These queries can be found in the repository [here](../../../examples/cdc-elims-metabase-queries).
 
 ### Lookup Tables
 
