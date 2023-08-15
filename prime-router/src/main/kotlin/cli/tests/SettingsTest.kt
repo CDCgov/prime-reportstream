@@ -102,8 +102,8 @@ class SettingsTest : CoolTest() {
                 HttpStatus.SC_OK -> Unit
                 else ->
                     return bad(settingErrorMessage + "Failed Dummy organization - ${responseDel.responseMessage}.")
-                }
             }
+        }
 
         /**
          * CREATE the dummy organization

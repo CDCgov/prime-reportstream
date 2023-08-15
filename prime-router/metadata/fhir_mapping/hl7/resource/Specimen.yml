@@ -27,14 +27,14 @@ status:
 type:
   valueOf: datatype/CodeableConcept
   expressionType: resource
-  specs: SPM.4 | SPM.5
+  specs: SPM.4 | SPM.5 | OBR.15.1
 
 receivedTime:
   type: STRING
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
   expressionType: JEXL
   vars:
-    dateTimeIn: SPM.18
+    dateTimeIn: SPM.18 | OBR.14
 
 collection:
   valueOf: secondary/Collection
@@ -63,10 +63,66 @@ note_1:
     noteText: SPM.14
 
 container:
-  condition: $containerTypeCWE NOT_NULL
+  condition: $containerTypeCWE NOT_NULL || $specimenAdditive NOT_NULL
   valueOf: secondary/Container
   expressionType: resource
   generateList: true
   vars:
     containerTypeCWE: SPM.27
     specimenQuantity: SPM.26
+    specimenAdditive: SPM.6
+
+subject:
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $Patient
+
+extension_1:
+  condition: $value NOT_NULL
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, OBR.15.1
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: specimen-name-or-code
+
+extension_2:
+  condition: $value NOT_NULL
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, OBR.15.2
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: specimen-source-additives
+
+extension_3:
+  condition: $value NOT_NULL
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, OBR.15.3
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: specimen-collection-method
+
+
+extension_4-specimenTypeModifier:
+  condition: $spm5 NOT_NULL && $spm4 NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    spm5: SPM.5
+    spm4: SPM.4
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: specimen-type-modifier
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept
+      expressionType: resource
+      specs: SPM.5

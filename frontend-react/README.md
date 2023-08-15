@@ -26,7 +26,7 @@ and use `yarn` to serve it on `localhost:3000`
 
 ```bash
 cd ../frontend-react
-yarn --ignore-platform
+yarn
 yarn start:localdev
 ```
 
