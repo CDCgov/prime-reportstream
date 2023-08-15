@@ -194,6 +194,7 @@ class BlobAccessTests {
         // upload a second blob to the same container to test container client reuse
         val result2 = BlobAccess.uploadBlob(testName, testBytes, testContainer, testEnv)
 
+        verify(exactly = 1) { mockedContainerClient.create() }
         verify(exactly = 2) { mockedBlobClient.upload(any<ByteArrayInputStream>(), testBytes.size.toLong()) }
         assertThat(result).isEqualTo("testurlname")
         assertThat(result2).isEqualTo("testurlname")
