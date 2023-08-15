@@ -39,7 +39,7 @@ export function NewSetting() {
             try {
                 if (!isValidServiceName(orgSettingName)) {
                     showError(
-                        `${orgSettingName} cannot contain special characters.`
+                        `${orgSettingName} cannot contain special characters.`,
                     );
                     return false;
                 }
@@ -62,19 +62,19 @@ export function NewSetting() {
                 await fetchController(
                     SETTINGTYPE[settingtype].updateFn,
                     SETTINGTYPE[settingtype].args,
-                    data
+                    data,
                 );
 
                 showAlertNotification(
                     "success",
-                    `Item '${orgSettingName}' has been created`
+                    `Item '${orgSettingName}' has been created`,
                 );
                 navigate(-1);
             } catch (e: any) {
                 let errorDetail = await getErrorDetailFromResponse(e);
                 console.trace(e, errorDetail);
                 showError(
-                    `Updating setting '${orgSettingName}' failed with: ${errorDetail}`
+                    `Updating setting '${orgSettingName}' failed with: ${errorDetail}`,
                 );
                 return false;
             }

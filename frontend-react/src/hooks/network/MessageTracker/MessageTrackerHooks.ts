@@ -15,7 +15,7 @@ export const useMessageSearch = () => {
     const { authorizedFetch } = useAuthorizedFetch<MessageListResource[]>();
 
     const messagesSearch = (
-        messageId: string
+        messageId: string,
     ): Promise<MessageListResource[]> => {
         return authorizedFetch(search, {
             segments: { messageId },
@@ -45,12 +45,12 @@ export const useMessageDetails = (id: string) => {
                     id: id,
                 },
             }),
-        [authorizedFetch, id]
+        [authorizedFetch, id],
     );
     const { data } = rsUseQuery(
         [getMessageDetails.queryKey, id],
         memoizedDataFetch,
-        { enabled: !!id }
+        { enabled: !!id },
     );
     return { messageDetails: data };
 };

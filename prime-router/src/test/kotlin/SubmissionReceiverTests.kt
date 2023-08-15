@@ -764,7 +764,7 @@ class SubmissionReceiverTests {
         )
 
         val receiver = spyk(
-            ELRReceiver(
+            UniversalPipelineReceiver(
                 engine,
                 actionHistory
             )
@@ -847,7 +847,7 @@ class SubmissionReceiverTests {
         )
 
         val receiver = spyk(
-            ELRReceiver(
+            UniversalPipelineReceiver(
                 engine,
                 actionHistory
             )
@@ -917,7 +917,7 @@ class SubmissionReceiverTests {
         )
 
         val receiver = spyk(
-            ELRReceiver(
+            UniversalPipelineReceiver(
                 engine,
                 actionHistory
             )
@@ -987,7 +987,7 @@ class SubmissionReceiverTests {
         )
 
         val receiver = spyk(
-            ELRReceiver(
+            UniversalPipelineReceiver(
                 engine,
                 actionHistory
             )
@@ -1057,7 +1057,7 @@ class SubmissionReceiverTests {
         )
 
         val receiver = spyk(
-            ELRReceiver(
+            UniversalPipelineReceiver(
                 engine,
                 actionHistory
             )
@@ -1130,7 +1130,7 @@ class SubmissionReceiverTests {
         )
 
         val receiver = spyk(
-            ELRReceiver(
+            UniversalPipelineReceiver(
                 engine,
                 actionHistory
             )
@@ -1379,6 +1379,6 @@ class SubmissionReceiverTests {
             topic = Topic.FULL_ELR
         )
         val fullELRResult = SubmissionReceiver.getSubmissionReceiver(universalPipelineSender, engine, actionHistory)
-        assertThat(fullELRResult).isInstanceOf(ELRReceiver::class.java)
+        assertThat(fullELRResult).isInstanceOf(UniversalPipelineReceiver::class.java)
     }
 }

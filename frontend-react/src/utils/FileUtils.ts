@@ -9,12 +9,12 @@ export const REPORT_MAX_ITEM_COLUMNS = 2000;
 export const PAYLOAD_MAX_BYTES = 50 * 1000 * 1000; // no idea why this isn't in "k" (* 1024).
 export const PAYLOAD_MAX_KBYTES = (PAYLOAD_MAX_BYTES / 1024).toLocaleString(
     "en-US",
-    { maximumFractionDigits: 2, minimumFractionDigits: 2 }
+    { maximumFractionDigits: 2, minimumFractionDigits: 2 },
 );
 
 export const parseCsvForError = (
     fileName: string,
-    fileContent: string
+    fileContent: string,
 ): string | undefined => {
     // count the number of lines
     const lineCount = (fileContent.match(/\n/g) || []).length + 1;
@@ -56,7 +56,7 @@ const EXPORT_TO_CSV_DEFAULTS: ExportToCsvOptions = {
 
 export function saveToCsv(
     data: any,
-    options: Partial<ExportToCsvOptions> = {}
+    options: Partial<ExportToCsvOptions> = {},
 ) {
     const finalOptions: ExportToCsvOptions = {
         ...EXPORT_TO_CSV_DEFAULTS,
@@ -70,7 +70,7 @@ export function saveToCsv(
 export const validateFileType = (
     file: File,
     fileExt: string,
-    mimeType: string
+    mimeType: string,
 ) => {
     // look at the filename extension.
     const fileNameArray = file.name.split(".");

@@ -104,6 +104,13 @@ identifier_4:
     code: "PGN"
     display: "Placer Group Number"
 
+
+identifier_5:
+  valueOf: datatype/Identifier_Gen
+  generateList: true
+  expressionType: resource
+  specs: ORC.21
+
 status:
   type: SERVICE_REQUEST_STATUS
   default: "unknown"
@@ -132,7 +139,7 @@ authoredOn:
   expressionType: JEXL
   vars:
     dateTimeIn: ORC.9
-    orderControl: ORC.1
+    orderControl: String, ORC.1
 
 occurrenceDateTime:
   condition: $startTiming NULL && $endTiming NULL

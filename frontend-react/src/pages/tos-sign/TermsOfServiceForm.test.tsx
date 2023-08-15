@@ -13,12 +13,12 @@ describe("Basic rendering", () => {
 
     it("Title renders", async () => {
         expect(
-            await screen.findByText("Account registration")
+            await screen.findByText("Account registration"),
         ).toBeInTheDocument();
         expect(
             await screen.findByText(
-                "Register your organization with ReportStream"
-            )
+                "Register your organization with ReportStream",
+            ),
         ).toBeInTheDocument();
     });
 
@@ -52,7 +52,7 @@ describe("Basic rendering", () => {
 
             await userEvent.click(submitBtn);
             expect(
-                screen.getByText(eachItem.errorMsg, { exact: false })
+                screen.getByText(eachItem.errorMsg, { exact: false }),
             ).toBeInTheDocument();
 
             // now fill in and see if error messag is cleared
@@ -61,7 +61,7 @@ describe("Basic rendering", () => {
 
             await userEvent.click(submitBtn);
             expect(
-                screen.queryByText(eachItem.errorMsg, { exact: false })
+                screen.queryByText(eachItem.errorMsg, { exact: false }),
             ).not.toBeInTheDocument();
 
             // leave it cleared. If every field has a valid value, then last click on submit button will submit.
@@ -69,7 +69,7 @@ describe("Basic rendering", () => {
 
             await userEvent.click(submitBtn);
             expect(
-                screen.getByText(eachItem.errorMsg, { exact: false })
+                screen.getByText(eachItem.errorMsg, { exact: false }),
             ).toBeInTheDocument();
         }
 
@@ -82,7 +82,7 @@ describe("Basic rendering", () => {
         // this is "Visible" because it's using a hidden tag unlike other error messages
         // "<ErrorMessage>" vs "<ErrorMessageWithFlag>" .. this drove me nuts writing this test
         expect(
-            screen.queryByText(agreeErrorMsg, { exact: false })
+            screen.queryByText(agreeErrorMsg, { exact: false }),
         ).not.toBeVisible();
 
         // toggle it off
@@ -90,7 +90,7 @@ describe("Basic rendering", () => {
         expect(agreedInput).not.toBeChecked();
         await userEvent.click(submitBtn);
         expect(
-            screen.queryByText(agreeErrorMsg, { exact: false })
+            screen.queryByText(agreeErrorMsg, { exact: false }),
         ).toBeVisible();
     });
 });

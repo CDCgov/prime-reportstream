@@ -17,7 +17,7 @@ export type DateTimeData = {
     timeString format: 16:30
 */
 export const generateDateTitles = (
-    dateTimeString: string
+    dateTimeString: string,
 ): DateTimeData | null => {
     const dateRegex = /\d{1,2} [a-z,A-Z]{3} \d{4}/;
     const timeRegex = /\d{1,2}:\d{2}/;
@@ -62,7 +62,7 @@ const parseMonth = (numericMonth: number) => {
 
 export const formattedDateFromTimestamp = (
     timestamp: string,
-    format: string
+    format: string,
 ) => {
     const timestampDate = new Date(timestamp);
     // TODO: refactor to remove dependency on moment

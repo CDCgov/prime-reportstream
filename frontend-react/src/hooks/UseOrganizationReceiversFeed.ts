@@ -28,8 +28,8 @@ export const useOrganizationReceiversFeed = (): ReceiverFeeds => {
             setActive(
                 receivers.find(
                     // Checks for an active receiver first
-                    (val) => val.customerStatus === CustomerStatus.ACTIVE
-                ) || receivers[0] // Defaults to first in array
+                    (val) => val.customerStatus === CustomerStatus.ACTIVE,
+                ) || receivers[0], // Defaults to first in array
             );
             setReceiversFound(true);
         } else {

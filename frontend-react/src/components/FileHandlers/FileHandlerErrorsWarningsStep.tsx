@@ -53,7 +53,7 @@ export default function FileHandlerErrorsWarningsStep({
 
     // Array containing only qualityFilterMessages that have filteredReportItems.
     const qualityFilterMessages = reportItems?.filter(
-        (d) => d.filteredReportItems.length > 0
+        (d) => d.filteredReportItems.length > 0,
     );
 
     const hasQualityFilterMessages =

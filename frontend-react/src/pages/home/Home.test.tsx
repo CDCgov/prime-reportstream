@@ -26,7 +26,7 @@ describe("Home rendering", () => {
         }
 
         expect(await screen.findAllByTestId("section")).toHaveLength(
-            content.sections.length + content.liveMapContact.length
+            content.sections.length + content.liveMapContact.length,
         );
     });
 });

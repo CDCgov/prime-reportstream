@@ -56,7 +56,7 @@ describe("AuthElement unit tests", () => {
                 element={<TestElementWithProp test={"Success!"} />}
                 requiredFeatureFlag={FeatureFlagName.FOR_TEST}
                 requiredUserType={MemberType.PRIME_ADMIN}
-            />
+            />,
         );
         expect(screen.getByText("Success!")).toBeInTheDocument();
         expect(mockUseNavigate).not.toHaveBeenCalled();
@@ -76,7 +76,7 @@ describe("AuthElement unit tests", () => {
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={MemberType.RECEIVER}
-            />
+            />,
         );
         expect(mockUseNavigate).toHaveBeenCalledWith("/login");
     });
@@ -98,7 +98,7 @@ describe("AuthElement unit tests", () => {
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={MemberType.SENDER}
-            />
+            />,
         );
         expect(mockUseNavigate).not.toHaveBeenCalledWith();
         expect(screen.getByText("Test Passed")).toBeInTheDocument();
@@ -123,7 +123,7 @@ describe("AuthElement unit tests", () => {
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={MemberType.RECEIVER}
-            />
+            />,
         );
         expect(mockUseNavigate).not.toHaveBeenCalledWith("/login"); // Make sure first navigate() doesn't accidentally run
         expect(mockUseNavigate).toHaveBeenCalledWith("/");
@@ -154,7 +154,7 @@ describe("AuthElement unit tests", () => {
             <AuthElement
                 element={<TestElement />}
                 requiredFeatureFlag={FeatureFlagName.FOR_TEST}
-            />
+            />,
         );
         expect(mockUseNavigate).toHaveBeenCalledWith("/");
     });
@@ -178,7 +178,7 @@ describe("AuthElement unit tests", () => {
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={[MemberType.SENDER, MemberType.RECEIVER]}
-            />
+            />,
         );
         expect(screen.getByText("Test Passed")).toBeInTheDocument();
         expect(mockUseNavigate).not.toHaveBeenCalled();
@@ -203,7 +203,7 @@ describe("AuthElement unit tests", () => {
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={[MemberType.SENDER, MemberType.RECEIVER]}
-            />
+            />,
         );
         expect(mockUseNavigate).toHaveBeenCalledWith("/");
     });
@@ -227,7 +227,7 @@ describe("AuthElement unit tests", () => {
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={[MemberType.SENDER, MemberType.RECEIVER]}
-            />
+            />,
         );
         const spinner = await screen.findByTestId("rs-spinner");
         expect(spinner).toBeInTheDocument();
@@ -247,7 +247,7 @@ describe("AuthElement unit tests", () => {
                 {
                     memberType: MemberType.PRIME_ADMIN,
                     parsedName: "PrimeAdmins",
-                }
+                },
             ),
             activeMembership: {
                 memberType: MemberType.RECEIVER,
@@ -265,7 +265,7 @@ describe("AuthElement unit tests", () => {
             <AuthElement
                 element={<TestElement />}
                 requiredUserType={MemberType.PRIME_ADMIN}
-            />
+            />,
         );
         expect(screen.getByText("Test Passed")).toBeInTheDocument();
         expect(mockUseNavigate).not.toHaveBeenCalled();

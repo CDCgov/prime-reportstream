@@ -42,11 +42,11 @@ const testDirectories: ContentDirectory[] = [
 const testContentMap: ContentMap = new Map()
     .set(
         "Section 1",
-        makeSectionFromTitles([TestDirPages.ONE], testDirectories)
+        makeSectionFromTitles([TestDirPages.ONE], testDirectories),
     )
     .set(
         "Section 2",
-        makeSectionFromTitles([TestDirPages.TWO], testDirectories)
+        makeSectionFromTitles([TestDirPages.TWO], testDirectories),
     );
 // Props for a single array page
 const arrayPageProps: IACardGridProps = {

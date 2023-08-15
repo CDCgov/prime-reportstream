@@ -24,7 +24,7 @@ export const useOrganizationSettings = () => {
                     orgName: parsedName!!,
                 },
             }),
-        [parsedName, authorizedFetch]
+        [parsedName, authorizedFetch],
     );
     return rsUseQuery(
         [settings.queryKey, activeMembership],
@@ -32,6 +32,6 @@ export const useOrganizationSettings = () => {
         {
             enabled:
                 Boolean(parsedName) && parsedName !== Organizations.PRIMEADMINS,
-        }
+        },
     );
 };

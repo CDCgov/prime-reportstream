@@ -62,7 +62,7 @@ describe("useReceiverSubmitters", () => {
                 () => useReceiverSubmitters("testService"),
                 {
                     wrapper: AppWrapper(),
-                }
+                },
             );
 
             await waitFor(() => expect(result.current.data).toHaveLength(1));

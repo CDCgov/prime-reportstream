@@ -119,7 +119,7 @@ describe("useFileHandler", () => {
             result.current.dispatch({
                 type: FileHandlerActionType.REQUEST_COMPLETE,
                 payload: requestCompleteSuccessPayload,
-            })
+            }),
         );
         expect(result.current.state).not.toEqual(initialState);
 
@@ -143,7 +143,7 @@ describe("useFileHandler", () => {
             result.current.dispatch({
                 type: FileHandlerActionType.REQUEST_COMPLETE,
                 payload: requestCompleteSuccessPayload,
-            })
+            }),
         );
         expect(result.current.state).not.toEqual(initialState);
 
@@ -155,15 +155,15 @@ describe("useFileHandler", () => {
 
         expect(result.current.state.errors).toEqual(INITIAL_STATE.errors);
         expect(result.current.state.destinations).toEqual(
-            INITIAL_STATE.destinations
+            INITIAL_STATE.destinations,
         );
         expect(result.current.state.reportId).toEqual(INITIAL_STATE.reportId);
         expect(result.current.state.successTimestamp).toEqual(
-            INITIAL_STATE.successTimestamp
+            INITIAL_STATE.successTimestamp,
         );
         expect(result.current.state.warnings).toEqual(INITIAL_STATE.warnings);
         expect(result.current.state.localError).toEqual(
-            INITIAL_STATE.localError
+            INITIAL_STATE.localError,
         );
     });
 
@@ -176,11 +176,11 @@ describe("useFileHandler", () => {
             result.current.dispatch({
                 type: FileHandlerActionType.FILE_SELECTED,
                 payload: fileSelectedTooBigPayload,
-            })
+            }),
         );
 
         expect(result.current.state.localError).toEqual(
-            `The file 'aCsv.csv' is too large. The maximum file size is ${PAYLOAD_MAX_KBYTES}k`
+            `The file 'aCsv.csv' is too large. The maximum file size is ${PAYLOAD_MAX_KBYTES}k`,
         );
     });
     test("returns local error on file selected if file is not csv or hl7", () => {
@@ -192,11 +192,11 @@ describe("useFileHandler", () => {
             result.current.dispatch({
                 type: FileHandlerActionType.FILE_SELECTED,
                 payload: fileSelectedBadTypePayload,
-            })
+            }),
         );
 
         expect(result.current.state.localError).toEqual(
-            "The file type must be .csv or .hl7"
+            "The file type must be .csv or .hl7",
         );
     });
     test("returns expected state on file selected with file type", () => {
@@ -208,7 +208,7 @@ describe("useFileHandler", () => {
             result.current.dispatch({
                 type: FileHandlerActionType.FILE_SELECTED,
                 payload: fileSelectedTypedPayload,
-            })
+            }),
         );
 
         expect(result.current.state).toEqual({
@@ -234,7 +234,7 @@ describe("useFileHandler", () => {
             result.current.dispatch({
                 type: FileHandlerActionType.FILE_SELECTED,
                 payload: fileSelectedUntypedPayload,
-            })
+            }),
         );
 
         expect(result.current.state).toEqual({
@@ -260,7 +260,7 @@ describe("useFileHandler", () => {
             result.current.dispatch({
                 type: FileHandlerActionType.REQUEST_COMPLETE,
                 payload: requestCompleteSuccessPayload,
-            })
+            }),
         );
 
         expect(result.current.state).toEqual({
@@ -296,7 +296,7 @@ describe("useFileHandler", () => {
             result.current.dispatch({
                 type: FileHandlerActionType.REQUEST_COMPLETE,
                 payload: requestCompleteErrorPayload,
-            })
+            }),
         );
 
         expect(result.current.state).toEqual({
@@ -337,7 +337,7 @@ describe("useFileHandler", () => {
                 renderer.result.current.dispatch({
                     type: FileHandlerActionType.SCHEMA_SELECTED,
                     payload,
-                })
+                }),
             );
         }
 
@@ -348,7 +348,7 @@ describe("useFileHandler", () => {
 
             test("clears out the selected schema from state", () => {
                 expect(
-                    renderer.result.current.state.selectedSchemaOption
+                    renderer.result.current.state.selectedSchemaOption,
                 ).toBeNull();
             });
         });
@@ -366,7 +366,7 @@ describe("useFileHandler", () => {
 
             test("sets the selected schema in state", () => {
                 expect(
-                    renderer.result.current.state.selectedSchemaOption
+                    renderer.result.current.state.selectedSchemaOption,
                 ).toEqual(schemaOption);
             });
         });
@@ -389,7 +389,7 @@ describe("useFileHandler", () => {
                                 "blep.csv",
                                 {
                                     type: "csv",
-                                }
+                                },
                             ),
                         },
                     });
@@ -403,7 +403,7 @@ describe("useFileHandler", () => {
                             fileName: "blep.csv",
                             fileType: "CSV",
                             contentType: "text/csv",
-                        })
+                        }),
                     );
 
                     act(() => {
@@ -422,7 +422,7 @@ describe("useFileHandler", () => {
                             fileName: "blep.csv",
                             fileType: "CSV",
                             contentType: "text/csv",
-                        })
+                        }),
                     );
                 });
             });
@@ -434,7 +434,7 @@ describe("useFileHandler", () => {
                             fileName: "blep.csv",
                             fileType: "CSV",
                             contentType: "text/csv",
-                        })
+                        }),
                     );
 
                     act(() => {
@@ -453,7 +453,7 @@ describe("useFileHandler", () => {
                             fileName: "blep.csv",
                             fileType: "CSV",
                             contentType: "text/csv",
-                        })
+                        }),
                     );
                 });
             });

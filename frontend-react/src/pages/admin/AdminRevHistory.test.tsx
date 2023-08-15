@@ -56,7 +56,7 @@ jest.mock("react-router-dom", () => ({
 jest.mock("../../network/api/Organizations/SettingRevisions", () => {
     return {
         ...jest.requireActual(
-            "../../network/api/Organizations/SettingRevisions"
+            "../../network/api/Organizations/SettingRevisions",
         ),
         useSettingRevisionEndpointsQuery: (_params: SettingRevisionParams) => {
             // The results set (data, isLoading, error) needs to match what the component
@@ -113,7 +113,7 @@ describe("AdminRevHistory", () => {
             const rightMetaText =
                 screen.getByTestId("meta-right-data").textContent;
             expect(rightMetaText).toBe(
-                "Flags: isDeleted: false isActive: false"
+                "Flags: isDeleted: false isActive: false",
             );
         }
 

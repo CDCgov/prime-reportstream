@@ -25,7 +25,7 @@ export function conditionallySuppressConsole(...matchers: string[]) {
         .mockImplementation((message: any) => {
             if (
                 !matchers.find((matcher) =>
-                    message.toString().includes(matcher)
+                    message.toString().includes(matcher),
                 )
             ) {
                 origConsole.error(message);
@@ -36,7 +36,7 @@ export function conditionallySuppressConsole(...matchers: string[]) {
         .mockImplementation((message: any) => {
             if (
                 !matchers.find((matcher) =>
-                    message.toString().includes(matcher)
+                    message.toString().includes(matcher),
                 )
             ) {
                 origConsole.warn(message);

@@ -42,7 +42,7 @@ function mapStateToOrderedSteps(state: FileHandlerState) {
             Component: FileHandlerErrorsWarningsStep,
             isValid: false,
             shouldSkip: Boolean(
-                overallStatus && errors.length === 0 && warnings.length === 0
+                overallStatus && errors.length === 0 && warnings.length === 0,
             ),
         },
         {
@@ -56,7 +56,7 @@ export default function FileHandler() {
     const { state, dispatch } = useFileHandler();
     const { fileName, localError } = state;
     const orderedSteps = mapStateToOrderedSteps(state).filter(
-        (step) => !step.shouldSkip
+        (step) => !step.shouldSkip,
     );
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const {
@@ -112,7 +112,7 @@ export default function FileHandler() {
         });
 
         const fileSelectionStepIndex = orderedSteps.findIndex(
-            ({ Component }) => Component === FileHandlerFileUploadStep
+            ({ Component }) => Component === FileHandlerFileUploadStep,
         );
         setCurrentStepIndex(fileSelectionStepIndex);
         window.scrollTo(0, 0);
@@ -197,11 +197,11 @@ export default function FileHandler() {
                 </div>
                 {StepComponent !== FileHandlerSuccessStep && (
                     <Alert headingLevel="h3" type="tip">
-                        Pages 18-29 in the{" "}
-                        <USLink href="/resources/programmers-guide">
-                            API Programmer’s Guide
+                        Reference{" "}
+                        <USLink href="/resources/api/documentation/data-model">
+                            the data model
                         </USLink>{" "}
-                        have the information you need to validate your file
+                        for the information needed to validate your file
                         successfully. Pay special attention to which fields are
                         required and common mistakes.
                     </Alert>

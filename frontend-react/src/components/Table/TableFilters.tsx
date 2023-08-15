@@ -65,7 +65,7 @@ function TableFilters({
     const [rangeFrom, setRangeFrom] = useState<string>(FALLBACK_FROM);
     const [rangeTo, setRangeTo] = useState<string>(FALLBACK_TO);
     const isFilterEnabled = Boolean(
-        rangeFrom && rangeTo && rangeFrom < rangeTo
+        rangeFrom && rangeTo && rangeFrom < rangeTo,
     );
 
     const updateRange = () => {
@@ -129,7 +129,7 @@ function TableFilters({
                         onChange: (val?: string) => {
                             if (isValidDateString(val)) {
                                 setRangeTo(
-                                    getEndOfDay(new Date(val!!)).toISOString()
+                                    getEndOfDay(new Date(val!!)).toISOString(),
                                 );
                             } else {
                                 setRangeTo("");
