@@ -18,7 +18,7 @@ function modified_check() {
 
 function yarn_lock_check() {
     note "Checking Yarn lock integrity"
-    yarn check --integrity
+    yarn --immutable --immutable-cache
 }
 
 cd frontend-react
