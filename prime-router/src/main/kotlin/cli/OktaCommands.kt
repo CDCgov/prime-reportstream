@@ -8,7 +8,6 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
-import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import com.sun.net.httpserver.HttpServer
@@ -38,8 +37,8 @@ const val oktaPreviewBaseUrl = "https://hhs-prime.oktapreview.com"
 private const val oktaProdClientId = "0oa6kt4j3tOFz5SH84h6"
 private const val oktaPreviewClientId = "0oa2fs6vp3W5MTzjh1d7"
 private const val oktaAuthorizePath = "/oauth2/default/v1/authorize" // Default authorization server
+private const val oktaIntrospectPath = "/oauth2/default/v1/introspect"
 private const val oktaTokenPath = "/oauth2/default/v1/token"
-private const val oktaUserInfoPath = "/oauth2/default/v1/userinfo"
 private const val oktaScope = "openid"
 private const val redirectPort = 9988
 private const val redirectHost = "http://localhost"
@@ -296,13 +295,22 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             if (accessTokenFile.expiresAt <= LocalDateTime.now().plusMinutes(5)) return false
             val oktaBaseUrl = getOktaUrlBase(oktaApp)
             // Try out the token with Otka for the final confirmation
-            val (_, _, result) = Fuel.get("$oktaBaseUrl$oktaUserInfoPath")
-                .authentication()
-                .bearer(accessTokenFile.token)
+            val authKey = System.getenv("oktaAuthKey")
+            val (_, _, result) = Fuel.post("$oktaBaseUrl$oktaIntrospectPath")
+                .header(
+                    Headers.CONTENT_TYPE to "application/x-www-form-urlencoded",
+                    "Authorization" to "Basic $authKey"
+                )
+                .body(
+                    "token_type_hint=access_token&" +
+                        "token=${accessTokenFile.token}"
+                )
                 .responseJson()
             return when (result) {
                 is Result.Failure -> throw result.getException()
-                is Result.Success -> true
+                is Result.Success -> {
+                    result.value.obj().get("active") == true
+                }
             }
         }
 
