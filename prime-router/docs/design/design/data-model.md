@@ -4,7 +4,7 @@
 
 Data is captured and stored in a relational database (Postgres) as [Reports](../../universal-pipeline/README.md#report-and-item) flow through ReportStream. This data can generally be referred to as "metadata". The captured metadata aims to track and explain the ReportStream-related history of a Report so questions like the following can be answered (non-exhaustive list):
 
-1. Did a particular Report get delivered? and to whom?
+1. Did a particular Report get delivered? To whom did it get delivered?
 2. What Reports were not delivered anywhere? Were they supposed to be delivered somewhere?
 3. When there is an issue, what were the error or warnings associated with the processing of a particular Report?
 4. What data did a Report contain?
