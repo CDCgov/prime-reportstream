@@ -147,8 +147,8 @@ SwIDAQAB
 
 @OpenAPIDefinition(
     info = Info(
-        title = "OpenAPI 3.0 API Docs for Prime ReportStream",
-        description = "Prime ReportStream: A router of public health data from senders to receivers",
+        title = "Prime ReportStream",
+        description = "A router of public health data",
         contact = Contact(
             name = "USDS at Centers for Disease Control and Prevention",
             url = "https://reportstream.cdc.gov",
