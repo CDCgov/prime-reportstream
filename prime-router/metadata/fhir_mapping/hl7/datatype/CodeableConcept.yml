@@ -40,6 +40,20 @@ coding_5:
   generateList: true
   valueOf: datatype/Coding
   expressionType: resource
+  condition: $code NOT_NULL
+  vars:
+    code: CWE.10
+    display: CWE.11
+    system: CWE.12
+    version: CWE.13
+  constants:
+    codeIndex: "second alternate identifier"
+
+
+coding_6:
+  generateList: true
+  valueOf: datatype/Coding
+  expressionType: resource
   condition: $code NOT_NULL || $display NOT_NULL
   vars:
     code: String, CWE.4 | CNE.4 | CE.4
@@ -49,7 +63,7 @@ coding_5:
   constants:
     codeIndex: "alternate identifier"
 
-coding_6:
+coding_7:
   generateList: true
   valueOf: datatype/Coding
   expressionType: resource
@@ -61,13 +75,13 @@ coding_6:
     version: String, CWE.7 | CNE.7
     codingSystemOID: String, CWE.14
 
-coding_7:
+coding_8:
   valueOf: $coding
   condition: $coding NOT_NULL
   generateList: true
 
 # Allows alternate coding to be added from variables
-coding_8:
+coding_9:
   generateList: true
   valueOf: datatype/Coding  # uses values from vars
   expressionType: resource
@@ -78,18 +92,6 @@ coding_8:
     system: $alternateSystem
   constants:
     codeIndex: "alternate identifier"
-
-coding_9:
-  generateList: true
-  valueOf: datatype/Coding
-  expressionType: resource
-  condition: $code NOT_NULL
-  vars:
-    code: CWE.10
-    display: CWE.11
-    system: CWE.12
-  constants:
-    codeIndex: "second alternate identifier"
 
 # Require available text, and the absence of an identifierCoding
 text:
