@@ -52,6 +52,7 @@ When creating a transform, please reference [Changing/Updating Sender/Receiver T
       - useHighPrecisionHeaderDateTimeFormat
 - FHIR Transforms
 - CSV Transforms
+- deidentify setting
 
 ## HL7 to FHIR translation process
 Note: This part of the Translate step, which occurs after the Route step (next section)
