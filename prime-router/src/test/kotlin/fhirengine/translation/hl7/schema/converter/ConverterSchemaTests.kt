@@ -261,8 +261,8 @@ class ConverterSchemaTests {
             )
         )
 
-        assertThat(schema.findElement("parent2")).isEqualTo(schema.elements[1])
-        assertThat(schema.findElement("child2")).isEqualTo(childSchema.elements[1])
+        assertThat(schema.findElements("parent2")[0]).isEqualTo(schema.elements[1])
+        assertThat(schema.findElements("child2")[0]).isEqualTo(childSchema.elements[1])
     }
 
     @Test
