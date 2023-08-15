@@ -379,3 +379,9 @@ extension_11:
         expressionType: JEXL
         vars:
           dateTimeIn: ORC.15
+
+supportingInfo:
+  valueOf: resource/Observation
+  expressionType: reference
+  constants:
+    suppressNote: 'true'
