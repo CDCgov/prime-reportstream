@@ -79,7 +79,7 @@ export default defineConfig<TestOptions>({
 
     /* Run your local dev server before starting the tests */
     webServer: {
-        command: "yarn vite preview",
+        command: "yarn run preview",
         url: "http://localhost:4173",
         // reuseExistingServer: !process.env.CI,
     },
