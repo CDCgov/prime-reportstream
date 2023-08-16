@@ -72,6 +72,11 @@ class ProcessFhirCommands : CliktCommand(
     private val fhirToHl7Schema by option("-s", "--schema", help = "Schema location for the FHIR to HL7 conversion")
         .file()
 
+     * Schema location for the FHIR to FHIR conversion
+     */
+    private val fhirTofhirSchema by option("-s", "--schema", help = "Schema location for the FHIR to FHIR conversion")
+        .file()
+
     override fun run() {
         // Read the contents of the file
         val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8)
@@ -90,8 +95,8 @@ class ProcessFhirCommands : CliktCommand(
             }
 
             // FHIR to FHIR conversion
-            inputFileType == "FHIR" && outputFormat == Report.Format.FHIR.toString() -> {
-                outputResult(convertToFhir(contents, actionLogger), actionLogger)  
+            inputFileType == ("FHIR" || inputFileType == "JSON" ) && outputFormat == Report.Format.FHIR.toString() -> {
+                outputResult(convertToFhirToFhir(contents, actionLogger), actionLogger)  
             }
             
             // HL7 to FHIR to HL7 conversion
@@ -125,6 +130,28 @@ class ProcessFhirCommands : CliktCommand(
             }
         }
     }
+
+    /**
+    * convert an FHIR message to FHIR message
+    */
+    private fun convertToFhirToFhir(jsonString: String): Message {
+        return when {
+            fhirTofhirSchema == null ->
+                throw CliktError("You must specify a schema.")
+
+            !fhirTofhirSchema!!.canRead() ->
+                throw CliktError("Unable to read schema file ${fhirTofhirSchema!!.absolutePath}.")
+
+            else -> {
+                val bundle = FhirTranscoder.decode(jsonString)
+                FhirConverter(
+                    fhirTofhirSchema!!.name.split(".")[0], fhirTofhirSchema!!.parent,
+                    context = FhirToHl7Context(CustomFhirPathFunctions())
+                ).convert(bundle)
+            }
+        }
+    }
+    
 
     /**
      * Convert an HL7 message or batch as a [hl7String] to a FHIR bundle. [actionLogger] will contain any
