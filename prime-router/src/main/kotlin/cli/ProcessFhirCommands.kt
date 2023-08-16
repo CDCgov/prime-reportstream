@@ -90,7 +90,7 @@ class ProcessFhirCommands : CliktCommand(
             }
 
             // FHIR to FHIR conversion
-            inputFileType == "FHIR" || inputFileType == "JSON"  -> {
+            inputFileType == "FHIR"  -> {
                 outputResult(convertToFhir(contents, actionLogger), actionLogger)  
             }
             
