@@ -27,7 +27,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@575d86297c16d8dbeab91eb94e3843410e4f3545
         with:
           java-version: "17"
           distribution: "temurin"
