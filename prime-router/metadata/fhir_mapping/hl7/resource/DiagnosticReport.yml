@@ -169,13 +169,11 @@ resultsInterpreter:
     interpreter: OBR.32.1
 
 basedOn:
-  condition: $basedOnORCOBR NOT_NULL
-  valueOf: resource/ServiceRequest
-  generateList: true
-  expressionType: reference
-  specs: ORC | OBR
-  vars:
-    basedOnORCOBR: ORC | OBR
+  valueOf: datatype/Reference
+  expressionType: resource
+  specs: $ServiceRequest
+  useGroup: true
+
 
 specimen:
   valueOf: datatype/Reference
