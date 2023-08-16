@@ -1,4 +1,18 @@
-import { SectionProp } from "../HomeProps";
+import { ItemProp } from "../../../shared/Tile/Tile";
+import { CitationProp } from "../../../shared/Citation/Citation";
+
+export interface SectionProp {
+    title?: string;
+    type?: string;
+    summary?: string;
+    subTitle?: string;
+    bullets?: { content?: string }[];
+    items?: ItemProp[];
+    description?: string;
+    buttonText?: string;
+    buttonUrlSubject?: string;
+    citation?: CitationProp[];
+}
 
 export default function Section({ section }: { section: SectionProp }) {
     return (

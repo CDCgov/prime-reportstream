@@ -1,7 +1,18 @@
 import React from "react";
 import DOMPurify from "dompurify";
 
-import { ItemProp, SectionProp } from "../../pages/home/HomeProps";
+import { SectionProp } from "../../pages/home/Sections/Section";
+
+export interface ItemProp {
+    method?: number;
+    title?: string;
+    icon?: string;
+    img?: string;
+    imgAlt?: string;
+    imgClassName?: string;
+    summary?: string;
+    items?: { title?: string; summary?: string }[];
+}
 
 export const Tile = ({
     section,

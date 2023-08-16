@@ -1,6 +1,6 @@
 import { Link } from "@trussworks/react-uswds";
 
-import { SectionProp } from "../HomeProps";
+import { SectionProp } from "../Sections/Section";
 import usamapsvg from "../../../content/usa_w_territories.svg";
 import { USLink } from "../../../components/USLink";
 import { Citation } from "../../../shared/Citation/Citation";

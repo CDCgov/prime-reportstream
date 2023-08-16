@@ -1,6 +1,6 @@
 import { Link } from "@trussworks/react-uswds";
 
-import { SectionProp } from "../HomeProps";
+import { SectionProp } from "../Sections/Section";
 
 export default function OtherPartnersSection({
     section,

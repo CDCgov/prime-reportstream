@@ -1,4 +1,9 @@
-import { CitationProp } from "../../pages/home/HomeProps";
+export interface CitationProp {
+    title?: string;
+    quote?: string;
+    author?: string;
+    authorTitle?: string;
+}
 
 export const Citation = ({ citation }: { citation: CitationProp }) => {
     return (
