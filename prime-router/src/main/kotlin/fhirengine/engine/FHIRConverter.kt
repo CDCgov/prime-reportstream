@@ -116,7 +116,7 @@ class FHIRConverter(
                 )
 
                 // track created report
-                actionHistory.trackCreatedReport(routeEvent, report, null, blobInfo)
+                actionHistory.trackCreatedReport(routeEvent, report, blobInfo = blobInfo)
 
                 // insert task
                 this.insertRouteTask(

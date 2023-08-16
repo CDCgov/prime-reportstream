@@ -144,7 +144,7 @@ class FhirFunctionTests {
         every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
 
         every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
-        every { actionHistory.trackCreatedReport(any(), any(), null, any()) } returns Unit
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.sendingOrg } returns "Test Sender"
 
@@ -197,7 +197,7 @@ class FhirFunctionTests {
         every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
 
         every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
-        every { actionHistory.trackCreatedReport(any(), any(), null, any()) } returns Unit
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.sendingOrg } returns "Test Sender"
 
@@ -250,7 +250,7 @@ class FhirFunctionTests {
         every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
 
         every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
-        every { actionHistory.trackCreatedReport(any(), any(), null, any()) } returns Unit
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.sendingOrg } returns "Test Sender"
 

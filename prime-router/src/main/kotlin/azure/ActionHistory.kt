@@ -460,8 +460,8 @@ class ActionHistory(
     fun trackCreatedReport(
         event: Event,
         report: Report,
-        receiver: Receiver?,
-        blobInfo: BlobAccess.BlobInfo?,
+        receiver: Receiver? = null,
+        blobInfo: BlobAccess.BlobInfo? = null,
     ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")

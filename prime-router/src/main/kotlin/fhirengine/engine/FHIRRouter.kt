@@ -243,7 +243,7 @@ class FHIRRouter(
                 )
 
                 // ensure tracking is set
-                actionHistory.trackCreatedReport(nextEvent, report, null, blobInfo)
+                actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
                 // insert translate task into Task table
                 this.insertTranslateTask(
@@ -288,7 +288,7 @@ class FHIRRouter(
                 )
 
                 // ensure tracking is set
-                actionHistory.trackCreatedReport(nextEvent, report, null, null)
+                actionHistory.trackCreatedReport(nextEvent, report)
 
                 // nullify the previous task next_action
                 db.updateTask(
