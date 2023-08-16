@@ -1,5 +1,8 @@
 # FHIR Functions
 FHIR functions are methods that can be run on a bundle in order to extract data from it (ex. retrieve an age or telephone area code). 
+Sometimes this is needed because we need only a part of what is sent over or need data in a different format for us to 
+properly meet the FHIR spec's requirements.    
+
 Currently, there are two places where FHIR functions are created. Both files are called `CustomFhirPathFunctions` and
 both extend an interface called FhirPathFunctions. There are two places for these functions because some
 are internal functions, meaning that they can only be called from within the code rather than from the command line 
@@ -27,7 +30,7 @@ If left off, the method assumes years if it is greater than one year, months if 
 greater than one month, and days if the value is less than one month. There is also an optional param to pass a 
 comparison date if you don't want to get the age based off of how old they are today.
 (timeUnit, comparisonDate) and (comparisonDate, timeUnit) are both acceptable. It returns an age in years, months, or 
-days.Example Output: 
+days. Example Output: 
 >{  
 >"value": "DecimalType[31]"  
 >"unit": "year" &nbsp;  
@@ -68,3 +71,13 @@ on.
 - To call a function on a resource that is set, use `%resource` as shown here: `%resource.GetPhoneNumberCountryCode()`
 
 - When using the tool, `--help` is your friend.
+
+## Use in Mappings
+Using these methods in mappings is basically the same as using them in the [FHIR Path Tool](#fhir-path-tool) just set 
+the value to the resource you want to run the function on with the method called on it like so:
+`value: [ '%resource.value.getPhoneNumberAreaCode()' ]`. 
+
+That is one of the awesome things about using the FHIR path
+tool, you can figure out the path that you need without having to update the mapping, stop the service, run the service, 
+send a message, and then check that what you got is correct repeatedly. Ideally, after you find the path and test the 
+function with the FHIR path tool, you will be able to get it right on the first go!
