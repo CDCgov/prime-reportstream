@@ -372,8 +372,10 @@ open class BaseFunction(
                     ?: return HttpUtilities.badRequestResponse(request, errorJson("missing payload"))
                 facade.putSetting(settingName, body, claims, clazz, organizationName)
             }
+
             HttpMethod.DELETE ->
                 facade.deleteSetting(settingName, claims, clazz, organizationName)
+
             else ->
                 return HttpUtilities.badRequestResponse(request, errorJson("unsupported method"))
         }

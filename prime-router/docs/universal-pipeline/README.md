@@ -60,7 +60,7 @@ There are a few exceptions to the rules outlined above:
 #### Internal Azure Storage Container
 The folder structure where reports are stored as they flow through the pipelines is shown below (screenshot from the Azure portal)
 
-TODO: Insert a picture of the folders for each step here
+![azure-reports-folders](../assets/azure-reports-folders.png)
 
 Each step in the Universal Pipeline, aside from Send, will upload the modified version of the report it received to the folder associated with the next step in the pipeline. This is done using the `BlobAccess` object. For example, the Convert step uploads its output, the converted FHIR bundle, like so:
 
@@ -132,7 +132,7 @@ In addition to the built-in AQS retry mechanism, the unexpected failure will als
 
 > Before continuing with this section, make sure you understand the concept of a [Report and Item](#report-and-item) in ReportStream!
 
-Generally, each step takes in one Report, performs some operation, and outputs a different Report, referred to as a `Child Report`. In some steps, like the [Convert](convert-translate.md) step, the received Report may be split up into multiple child reports! For the Convert step specifically, this is the case when a Report contains multiple items. The Convert step will split the report into multiple, so that each Report contains only one item - this is done to prepare for the [Route](route.md) and [Translate](convert-translate.md) steps.
+Generally, each step takes in one Report, performs some operation, and outputs a different Report, referred to as a `Child Report`. In some steps, like the [Convert](convert-translate.md) step, the received Report may be split up into multiple child reports! For the Convert step specifically, this is the case when a Report contains multiple items. The Convert step will split the Report into multiple Reports, so that each Report contains only one item - this is done to prepare for the [Route](route.md) and [Translate](convert-translate.md) steps.
 
 ![item-lineage.png](../assets/item-lineage.png)
 
@@ -141,11 +141,11 @@ Because each step, in general, creates a new Report, it becomes necessary to tra
 - Where did the submitted Report get sent?
 - Did the submitted Report get delivered?
 
-In order to answer the questions above, each step will record information regarding the actions it took, commonly referred to in ReportStream as `metadata`. The [metadata](../design/metadata.md) is stored in ReportStream's internal [Postgres database](../design/metadata.md) and powers API endpoints like `/history` to help ReportStream clients (senders) answer questions related to the processing of a particular report.
+In order to answer the questions above, each step will record information regarding the actions it took, commonly referred to in ReportStream as `metadata`. The [metadata](../design/design/data-model.md) is stored in ReportStream's internal [Postgres database](../design/design/data-model.md) and powers API endpoints like `/history` to help ReportStream clients (senders) answer questions related to the processing of a particular report.
 
 ### Report Status and Metadata
 
-The Universal Pipeline does NOT support the registering of callbacks and does NOT implement any type of ACK/NACK system, instead it answers the question of "What happened to my report" via the REST history endpoint (HTTP GET) located at `/api/waters/report/{report-id}/history`. The information provided by the history endpoint is captured as the report(s) flow through the pipeline and is referred to as [metadata](../design/metadata.md)
+The Universal Pipeline does NOT support the registering of callbacks and does NOT implement any type of ACK/NACK system, instead it answers the question of "What happened to my report" via the REST history endpoint (HTTP GET) located at `/api/waters/report/{report-id}/history`. The information provided by the history endpoint is captured as the report(s) flow through the pipeline and is referred to as [metadata](../design/design/data-model.md)
 
 > The client (sender in our case) is responsible for polling the history endpoint to ensure either success or failure of their message. ReportStream will not automatically alert senders of changes to their Report's status.
 

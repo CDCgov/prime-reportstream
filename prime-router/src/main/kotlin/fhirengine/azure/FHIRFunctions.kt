@@ -20,6 +20,7 @@ import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
 import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
+import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
 
 class FHIRFunctions(
@@ -146,7 +147,9 @@ class FHIRFunctions(
      * Logs the [engineType] and [dequeueCount]
      */
     private fun readMessage(engineType: String, message: String, dequeueCount: Int): RawSubmission {
-        logger.debug("${engineType}ing message: $message for the $dequeueCount time")
+        logger.debug(
+            "${StringUtils.removeEnd(engineType, "e")}ing message: $message for the $dequeueCount time"
+        )
         val messageContent = Message.deserialize(message)
         check(messageContent is RawSubmission) {
             "An unknown message was received by the FHIR $engineType Function " +

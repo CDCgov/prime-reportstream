@@ -59,6 +59,21 @@ identifier_4:
     typeCode: CLIA
     typeCodeSystem: v2-0301
 
+# Universal ID for DNS
+identifier_5:
+  valueOf: datatype/Identifier_Gen
+  condition: $idStr NOT_NULL && $systemStr EQUALS DNS
+  generateList: true
+  expressionType: resource
+  vars:
+    idStr: String, MSH.4.2
+    id: $dnsUrlPrefix + MSH.4.2
+    systemStr: String, MSH.4.3
+  constants:
+    dnsUrlPrefix: "urn:dns"
+    typeCode: DNS
+    typeCodeSystem: v2-0301
+
 address:
   valueOf: datatype/Address
   expressionType: resource

@@ -4748,14 +4748,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trussworks/react-uswds@npm:^5.1.1":
-  version: 5.1.1
-  resolution: "@trussworks/react-uswds@npm:5.1.1"
+"@trussworks/react-uswds@npm:^5.2.0":
+  version: 5.2.0
+  resolution: "@trussworks/react-uswds@npm:5.2.0"
   peerDependencies:
-    "@uswds/uswds": 3.1.0
+    "@uswds/uswds": 3.4.1
     react: ^16.x || ^17.x || ^18.x
     react-dom: ^16.x || ^17.x || ^18.x
-  checksum: 49bcea57542a6631830d8dd0aeef7f5427de260e73ed77fe7b20a1252684e4faa40b1bbbba3bc78f4bb83c252b052b001a8859e956438cfd69efc80a6ffc45fa
+  checksum: da89d644922162f6e7d1c108ebe2f210c7464cb55b872b0174d6e79676953979e1ddd05c650c9cb8312134844d604939d8d269905aaa016accab30a8f1804ecb
   languageName: node
   linkType: hard
 
@@ -5020,6 +5020,13 @@ __metadata:
   version: 3.2.1
   resolution: "@types/find-cache-dir@npm:3.2.1"
   checksum: bf5c4e96da40247cd9e6327f54dfccda961a0fb2d70e3c71bd05def94de4c2e6fb310fe8ecb0f04ecf5dbc52214e184b55a2337b0f87250d4ae1e2e7d58321e4
+  languageName: node
+  linkType: hard
+
+"@types/github-slugger@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "@types/github-slugger@npm:1.3.0"
+  checksum: 6561f26814d7c6bf619b1abfba07930ddc2f71e1e1d58a03c20852fd4086ec17f8ee98a44a8ac77ba917c0ff7052cd3fe74071fba59bd526dff8a3a980e2e528
   languageName: node
   linkType: hard
 
@@ -14883,9 +14890,10 @@ __metadata:
     "@testing-library/jest-dom": ^5.17.0
     "@testing-library/react": ^14.0.0
     "@testing-library/user-event": ^14.4.3
-    "@trussworks/react-uswds": ^5.1.1
+    "@trussworks/react-uswds": ^5.2.0
     "@types/dompurify": ^3.0.2
     "@types/downloadjs": ^1.4.2
+    "@types/github-slugger": ^1.3.0
     "@types/html-to-text": ^9.0.1
     "@types/lodash.chunk": ^4.2.7
     "@types/lodash.omit": ^4.5.7
