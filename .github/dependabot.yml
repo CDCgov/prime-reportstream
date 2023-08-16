@@ -179,10 +179,6 @@ updates:
     directory: "/operations"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "docker"
-    directory: "/.devcocntainer"
-    schedule:
-      interval: "weekly"
   - package-ecosystem: "terraform"
     directory: "/operations/app/src/environments/dev"
     schedule:
