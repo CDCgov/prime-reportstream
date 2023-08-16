@@ -16,10 +16,6 @@ hr {
     cursor: pointer;
 }
 
-.usa-link--external::after {
-    @include u-margin-left(0.5);
-}
-
 .usa-icon-button {
     border-radius: 100%;
     padding: 0.25rem 0.25rem;

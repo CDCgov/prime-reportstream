@@ -37,12 +37,12 @@ export const Tile = ({
                 />
             )}
             {item.title && (
-                <h3
+                <p
                     data-testid="heading"
-                    className="usa-prose maxw-mobile-lg font-sans-lg padding-top-3 border-top-05 border-primary"
+                    className="usa-prose maxw-mobile-lg font-sans-lg text-bold padding-top-3 border-top-05 border-primary"
                 >
                     {item.title}
-                </h3>
+                </p>
             )}
             <p
                 data-testid="summary"
