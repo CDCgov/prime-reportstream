@@ -5,7 +5,7 @@
 #
 # The intent is for the prime-router to be mounted into this container,
 # allowing the content of this container to be stable
-#
+
 ARG JAVA_VERSION=17
 
 # This Debian image additionally contains function core tools – useful when using custom extensions
