@@ -26,18 +26,25 @@ import java.time.LocalDateTime
 import kotlin.random.Random
 
 /**
- * Implements a PKCE OAUTH2 authorization workflow with the HHS-PRIME Okta account. A browser is launched
- * for the user to enter credentials. A local server is setup to handle the Oauth2 redirect and to capture
+ * Implements an PKCE OAUTH2 authorization workflow with the HHS-PRIME Okta account.
+ * By default, the application checks locally for active Okta access tokens
+ * If no active access tokens exist, the system attempts to get a new token from the Okta API and saves it
+ *
+ * A manual login option is also available by adding the parameter "--manual"
+ * On manual mode, a browser is launched for the user to enter credentials.
+ * A local server is setup to handle the Oauth2 redirect and to capture
  * the authorization code.
  *
  * Based on Okta article https://developer.okta.com/blog/2018/12/13/oauth-2-for-native-and-mobile-apps
  */
+
+// OKTA_baseUrl
 private const val oktaProdBaseUrl = "https://hhs-prime.okta.com"
 const val oktaPreviewBaseUrl = "https://hhs-prime.oktapreview.com"
 private const val oktaProdClientId = "0oa6kt4j3tOFz5SH84h6"
 private const val oktaPreviewClientId = "0oa2fs6vp3W5MTzjh1d7"
 private const val oktaAuthorizePath = "/oauth2/default/v1/authorize" // Default authorization server
-private const val oktaIntrospectPath = "/oauth2/default/v1/introspect"
+private const val oktaIntrospectPath = "/oauth2/default/v1/introspect" // For checking if a token is active
 private const val oktaTokenPath = "/oauth2/default/v1/token"
 private const val oktaScope = "openid"
 private const val redirectPort = 9988
@@ -88,7 +95,7 @@ class LoginCommand : OktaCommand(
                 echo("About to launch a browser to log in to Okta...")
                 launchSignIn(oktaApp)
             } else {
-                clientCredentialsAuthorize(oktaPreviewBaseUrl)
+                clientCredentialsAuthorize()
             }
 
             val newAccessTokenFile = writeAccessTokenFile(oktaApp, accessTokenJson)
@@ -131,10 +138,11 @@ class LoginCommand : OktaCommand(
             "code_challenge=$codeChallenge"
     }
 
-    private fun clientCredentialsAuthorize(oktaUrl: String): JSONObject {
-        // @todo look into pulling authKey via azure instead of env var
-        // e.g. val authKey = SecretHelper.getSecretService().fetchSecret("okta-client-credentials")
-        val authKey = System.getenv("oktaAuthKey")
+    private fun clientCredentialsAuthorize(): JSONObject {
+        // These values need to be set on your terminal when working locally
+        val oktaUrl = System.getenv("OKTA_baseUrl")
+        val authKey = System.getenv("OKTA_authKey")
+
         val scope = "simple_report_dev"
 
         val (_, _, result) = Fuel
@@ -295,7 +303,7 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             if (accessTokenFile.expiresAt <= LocalDateTime.now().plusMinutes(5)) return false
             val oktaBaseUrl = getOktaUrlBase(oktaApp)
             // Try out the token with Otka for the final confirmation
-            val authKey = System.getenv("oktaAuthKey")
+            val authKey = System.getenv("OKTA_authKey")
             val (_, _, result) = Fuel.post("$oktaBaseUrl$oktaIntrospectPath")
                 .header(
                     Headers.CONTENT_TYPE to "application/x-www-form-urlencoded",
