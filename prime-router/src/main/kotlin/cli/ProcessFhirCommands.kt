@@ -90,7 +90,7 @@ class ProcessFhirCommands : CliktCommand(
             }
 
             // FHIR to FHIR conversion
-            inputFileType == "FHIR"  -> {
+            inputFileType == "FHIR" && outputFormat == Report.Format.FHIR.toString() -> {
                 outputResult(convertToFhir(contents, actionLogger), actionLogger)  
             }
             
