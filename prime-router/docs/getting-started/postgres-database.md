@@ -1,5 +1,9 @@
 # Postgres Database
 
+## Introduction
+The Postgres database powers [ReportStream's Data Model] (../design/design/data-model.md) and is currently managed in 
+Microsoft Azure. 
+
 ## DB Flyaway Repair
 If the Flyway migrations need a repair, the following commands will resolve in each environment.
 
@@ -164,5 +168,35 @@ Connect to the staging database with read-only access:
 psql "host=pdhstaging-pgsql.postgres.database.azure.com user=reportstream_pgsql_developer@pdhstaging-pgsql dbname=prime_data_hub sslmode=require"
 ```
 
+### Local Setup/Troubleshooting
+The good news is, Postgres will work out of the box with our setup! However, there are times when things get out of wack
+(for example if you get something like 
+`Unable to obtain connection from database (jdbc:postgresql://localhost:5432/prime_data_hub) for user 'prime': FATAL: role "prime" does not exist`)
+a good debugging step is to run the following:
+```
+export POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
+export POSTGRES_USER=prime
+export POSTGRES_PASSWORD=changeIT!
+```
+
+If you are getting and error like `Stack: java.lang.Exception: Error loading schema catalog: ./metadata/schemas` or 
+other database setup issues take these 5 steps:
+1. Shutdown RS
+2. ./gradlew resetDB 
+3. Start RS
+4. ./gradlew reloadTables
+5. ./gradlew reloadSettings
+AND IT NEEDS TO BE IN THAT ORDER due to prerequisites
 
 
+### Postgres Gradle Actions
+There are three gradle actions that we use to interact with the database:
+- `./gradlew clearDB` - Truncate/empty all tables in the database that hold report and related data, and leave settings
+- `./gradlew reloadTables` - Load the latest test lookup tables to the database
+- `./gradlew resetDB` - Delete all tables in the database and recreate from the latest schema
+To see all gradle action definitions, go to `build.gradle.kts`
+
+### Managing Postgres with Flyway
+Flyway is an open-source database-migration tool that runs files in 
+`prime-router/src/main/resources/db/migration` directory. If you need to make changes to the database, a PR needs to be 
+submitted with an incremented vile version added to the migration directory. 
