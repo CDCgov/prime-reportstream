@@ -1415,9 +1415,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             config.maxLifetime = 180000
             val dataSource = HikariDataSource(config)
 
-            // This is a current issue in flyway https://github.com/flyway/flyway/issues/3508
-            // This setting makes flyway fall back to session locks
-            // This is fixed in flyway 9.19.4
+            // This setting makes flyway fall back to session locks as concurrent index creation cannot be done
+            // within a transaction. This setting is needed as of flyway 9.19.4.
             val flyway = Flyway.configure().configuration(mapOf(Pair("flyway.postgresql.transactional.lock", "false")))
                 .dataSource(dataSource).load()
             if (isFlywayMigrationOK) {
