@@ -403,8 +403,8 @@ OBX|1|test|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen b
 
         val messages = hL7Reader.getMessages(data)
         assertThat(messages).hasSize(1)
-        assertThat(actionLogger.hasErrors()).isTrue()
-        assertThat(actionLogger.errors[0].detail.message)
+        assertThat(actionLogger.hasWarnings()).isTrue()
+        assertThat(actionLogger.warnings[0].detail.message)
             .isEqualTo("Data type error: 'CE' in record 1 is invalid for version 2.7 at OBX-2(0)")
     }
 }
