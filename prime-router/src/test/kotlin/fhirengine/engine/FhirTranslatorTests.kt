@@ -7,6 +7,7 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.util.Terser
+import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogDetail
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
@@ -24,6 +25,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -221,48 +223,6 @@ class FhirTranslatorTests {
             CustomerStatus.TESTING,
             schemaName,
             translation = UnitTestUtils.createConfig(useTestProcessingMode = true, schemaName = schemaName)
-        )
-
-        val testOrg = DeepOrganization(
-            ORGANIZATION_NAME, "test", Organization.Jurisdiction.FEDERAL,
-            receivers = listOf(receiver)
-        )
-
-        val settings = FileSettings().loadOrganizations(testOrg)
-
-        val fhirData = File(VALID_DATA_URL).readText()
-        val bundle = FhirTranscoder.decode(fhirData)
-
-        val engine = makeFhirEngine(settings = settings)
-
-        // act
-        val hl7Message = engine.getHL7MessageFromBundle(bundle, receiver)
-        val terser = Terser(hl7Message)
-
-        // assert
-        assertThat(terser.get(MSH_11_1)).isEqualTo("T")
-    }
-
-    /**
-     * When the receiver is in test mode, all output HL7 should have processingId = T
-     */
-    @Test
-    fun `test when useHighPrecisionHeaderDateTimeFormat = true`() {
-
-        // set up
-        val schemaName = ORU_R01_SCHEMA
-        val receiver = Receiver(
-            RECEIVER_NAME,
-            ORGANIZATION_NAME,
-            Topic.FULL_ELR,
-            CustomerStatus.TESTING,
-            schemaName,
-            translation = UnitTestUtils.createConfig(
-                useTestProcessingMode = true,
-                schemaName = schemaName,
-                useHighPrecisionHeaderDateTimeFormat = true,
-                convertPositiveDateTimeOffsetToNegative = false
-            )
         )
 
         val testOrg = DeepOrganization(

@@ -17,7 +17,9 @@ import org.hl7.fhir.r4.utils.FHIRPathEngine
 import org.hl7.fhir.r4.utils.FHIRPathEngine.IEvaluationContext.FunctionDetails
 
 /**
- * Context used for resolving [constants] and custom FHIR functions.
+ * Context used for resolving [constants] and custom FHIR functions. The class is for us to add our customer function
+ * [customFhirFunctions], customer [config] object for us to pass any object to our custom translation function
+ * [translationFunctions] (eg, handler function to do custom translation).
  */
 data class CustomContext(
     val bundle: Bundle,

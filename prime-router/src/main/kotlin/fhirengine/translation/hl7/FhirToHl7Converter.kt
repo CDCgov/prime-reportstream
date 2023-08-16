@@ -95,8 +95,10 @@ class FhirToHl7Converter(
     }
 
     /**
-     * Generate HL7 data for the elements for the given [schema] using [bundle] and [context] starting at the
-     * [focusResource] in the bundle. Set [debug] to true to enable debug statements to the logs.
+     * Generate HL7 data for the elements for the given [schema] using [bundle] and custom [context]
+     * that contains bundle, customFhirFunctions, config object (eg, Receiver object which contains receiver setting),
+     * and the customTransFunctions (eg, handler function to do custom translation).
+     * Starting at the [focusResource] in the bundle. Set [debug] to true to enable debug statements to the logs.
      */
     private fun processSchema(
         schema: ConverterSchema,
