@@ -28,9 +28,8 @@ liveMapContact:
           author: Monica Gamez
           authorTitle: Deputy Associate Commissioner, Texas Department of State Health Services
 ---
-import Section from "../../pages/home/Sections/Section";
-import { Tile } from "../../shared/Tile/Tile";
-import LiveMapSection from "../../pages/home/Sections/LiveMapSection";
+import { Section } from "../../shared/Section/Section";
+import { LiveMap } from "../../shared/LiveMap/LiveMap";
 import site from "../site.json";
 
 <div className="bg-primary-lighter">
@@ -38,20 +37,7 @@ import site from "../site.json";
         {frontmatter.howWeHelp.map((section, sectionIndex) => {
             return (
             <section key={`home-${sectionIndex}`}className="usa-section margin-y-0 padding-y-9">
-                <div className="grid-row grid-gap">
-                    <Section section={section} />
-                </div>
-                <div className="grid-row grid-gap margin-bottom-8">
-                    {section.items?.map(
-                        (item, itemIndex) =>
-                            <Tile
-                                data-testid="item"
-                                key={`item-${sectionIndex}.${itemIndex}`}
-                                section={section}
-                                item={item}
-                            />
-                    )}
-                </div>
+                <Section section={section} />
                 <div className="grid-row flex-justify-center margin-bottom-2">
                     <A href={site.forms.connectWithRS.url} className="usa-button">Get started</A>
                 </div>
@@ -75,7 +61,7 @@ import site from "../site.json";
     {frontmatter.liveMapContact.map((section, sectionIndex) => {
         return (
             <section key={`livemap-${sectionIndex}`} className="usa-section margin-y-0 tablet:padding-bottom-9">
-                <LiveMapSection section={section} />
+                <LiveMap section={section} />
             </section>
         );
     })}

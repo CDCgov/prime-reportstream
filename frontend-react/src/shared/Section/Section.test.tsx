@@ -1,8 +1,8 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
-import Section from "./Section";
+import { Section } from "./Section";
 
 /* REFACTOR
    Is there a better way to handle mocking components when they cause

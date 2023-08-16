@@ -1,12 +1,8 @@
 import { Link } from "@trussworks/react-uswds";
 
-import { SectionProp } from "../Sections/Section";
+import { SectionProp } from "../Section/Section";
 
-export default function OtherPartnersSection({
-    section,
-}: {
-    section: SectionProp;
-}) {
+export const OtherPartners = ({ section }: { section: SectionProp }) => {
     return (
         <div>
             <h3 data-testid="subTitle" className="font-sans-lg margin-top-0">
@@ -22,4 +18,4 @@ export default function OtherPartnersSection({
             </div>
         </div>
     );
-}
+};

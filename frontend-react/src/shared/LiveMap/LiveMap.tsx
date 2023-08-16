@@ -1,13 +1,13 @@
 import { Link } from "@trussworks/react-uswds";
 
-import { SectionProp } from "../Sections/Section";
-import usamapsvg from "../../../content/usa_w_territories.svg";
-import { USLink } from "../../../components/USLink";
-import { Citation } from "../../../shared/Citation/Citation";
+import { SectionProp } from "../Section/Section";
+import usamapsvg from "../../content/usa_w_territories.svg";
+import { USLink } from "../../components/USLink";
+import { Citation } from "../Citation/Citation";
 
-import styles from "./LiveMapSection.module.scss";
+import styles from "./LiveMap.module.scss";
 
-export default function LiveMapSection({ section }: { section: SectionProp }) {
+export const LiveMap = ({ section }: { section: SectionProp }) => {
     return (
         <div>
             <h2
@@ -65,4 +65,4 @@ export default function LiveMapSection({ section }: { section: SectionProp }) {
             })}
         </div>
     );
-}
+};

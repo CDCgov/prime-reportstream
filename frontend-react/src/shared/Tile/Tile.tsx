@@ -1,7 +1,7 @@
 import React from "react";
 import DOMPurify from "dompurify";
 
-import { SectionProp } from "../../pages/home/Sections/Section";
+import { SectionProp } from "../Section/Section";
 
 export interface ItemProp {
     method?: number;

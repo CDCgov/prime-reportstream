@@ -1,10 +1,10 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
-import LiveMapSection from "./LiveMapSection";
+import { LiveMap } from "./LiveMap";
 
-describe("LiveMapSection", () => {
+describe("LiveMap", () => {
     const fakeSection = {
         title: "Map section",
         type: "liveMap",
@@ -13,7 +13,7 @@ describe("LiveMapSection", () => {
     };
 
     beforeEach(() => {
-        renderApp(<LiveMapSection section={fakeSection} />);
+        renderApp(<LiveMap section={fakeSection} />);
     });
 
     test("renders props", () => {
