@@ -122,7 +122,8 @@ elements:
   - name: observation-note
     condition: false
 
-
+  - name: specimen-observation-result-with-aoe
+    condition: false
 
   # PID-3-4 Max length: 20
   - name: patient-assigning-authority
