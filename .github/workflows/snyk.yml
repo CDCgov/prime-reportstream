@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/gradle-jdk17@master
+        uses: snyk/actions/gradle-jdk17@6ae6fc478e6ba13b515a3980e6aef554d553924e
         env:  
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
