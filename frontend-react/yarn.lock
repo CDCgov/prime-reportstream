@@ -1942,10 +1942,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/js@npm:8.48.0":
-  version: 8.48.0
-  resolution: "@eslint/js@npm:8.48.0"
-  checksum: b2755f9c0ee810c886eba3c50dcacb184ba5a5cd1cbc01988ee506ad7340653cae0bd55f1d95c64b56dfc6d25c2caa7825335ffd2c50165bae9996fe0f396851
+"@eslint/js@npm:8.49.0":
+  version: 8.49.0
+  resolution: "@eslint/js@npm:8.49.0"
+  checksum: a6601807c8aeeefe866926ad92ed98007c034a735af20ff709009e39ad1337474243d47908500a3bde04e37bfba16bcf1d3452417f962e1345bc8756edd6b830
   languageName: node
   linkType: hard
 
@@ -1994,7 +1994,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@humanwhocodes/config-array@npm:^0.11.10":
+"@humanwhocodes/config-array@npm:^0.11.11":
   version: 0.11.11
   resolution: "@humanwhocodes/config-array@npm:0.11.11"
   dependencies:
@@ -4895,13 +4895,13 @@ __metadata:
   linkType: hard
 
 "@trussworks/react-uswds@npm:^5.3.0":
-  version: 5.3.0
-  resolution: "@trussworks/react-uswds@npm:5.3.0"
+  version: 5.3.1
+  resolution: "@trussworks/react-uswds@npm:5.3.1"
   peerDependencies:
     "@uswds/uswds": 3.5.0
     react: ^16.x || ^17.x || ^18.x
     react-dom: ^16.x || ^17.x || ^18.x
-  checksum: b2e512b72415dc0b1a29d358e01291e584d0e172ba7c06021e7c9e694fab0a584c93fbbae666ed999ded012c3cac1f7cef4a710655629548e777a9d02e63c657
+  checksum: 35e7bf00911c9a6f17ca8d6d2a9352ab714375aa2b171c938fab51dcb97a95fb2964764304118b09416732ae19f1db03edecef86e092e1f0c72f4f0b5f7bdb6d
   languageName: node
   linkType: hard
 
@@ -5431,9 +5431,9 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^16.0.0, @types/node@npm:^16.18.39":
-  version: 16.18.48
-  resolution: "@types/node@npm:16.18.48"
-  checksum: 5b725fe918197e4395cc88de17d67efeb02436e29c0d3b212ed63dfc51509ed398e9155ae15d1a8cd6f1c891463f2cf074dcea320d8cd392e25a9a11ce53dd6c
+  version: 16.18.49
+  resolution: "@types/node@npm:16.18.49"
+  checksum: f4a4ec774cd05c803f9d9f38dc299c72e4cfa4e77a3b3b55d7b423acb8fbd36050bea5f2a97ef4223d66262a53d7f9ebd511b85adf3e91cf541e4ffffd3ee0ec
   languageName: node
   linkType: hard
 
@@ -8372,9 +8372,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.477":
-  version: 1.4.512
-  resolution: "electron-to-chromium@npm:1.4.512"
-  checksum: 880fe8036653f9215b983ade7739655ee13cd20129cf0489def224d2641a010388e40e5806170d9118d02167b813b1f1beb4d8b40a4048cbad2cdf73ae95eb09
+  version: 1.4.513
+  resolution: "electron-to-chromium@npm:1.4.513"
+  checksum: 613b66da177dcf5abca2441c502cde4b4fb247665dc049c54d1fe3b79fc3a5a3ecae92faf97d3147af0fec9c50bf90db09e8ca3f0953a5ec2fdb472d6d6253c2
   languageName: node
   linkType: hard
 
@@ -9048,14 +9048,14 @@ __metadata:
   linkType: hard
 
 "eslint@npm:^8.48.0":
-  version: 8.48.0
-  resolution: "eslint@npm:8.48.0"
+  version: 8.49.0
+  resolution: "eslint@npm:8.49.0"
   dependencies:
     "@eslint-community/eslint-utils": ^4.2.0
     "@eslint-community/regexpp": ^4.6.1
     "@eslint/eslintrc": ^2.1.2
-    "@eslint/js": 8.48.0
-    "@humanwhocodes/config-array": ^0.11.10
+    "@eslint/js": 8.49.0
+    "@humanwhocodes/config-array": ^0.11.11
     "@humanwhocodes/module-importer": ^1.0.1
     "@nodelib/fs.walk": ^1.2.8
     ajv: ^6.12.4
@@ -9090,7 +9090,7 @@ __metadata:
     text-table: ^0.2.0
   bin:
     eslint: bin/eslint.js
-  checksum: f20b359a4f8123fec5c033577368cc020d42978b1b45303974acd8da7a27063168ee3fe297ab5b35327162f6a93154063e3ce6577102f70f9809aff793db9bd0
+  checksum: 4dfe257e1e42da2f9da872b05aaaf99b0f5aa022c1a91eee8f2af1ab72651b596366320c575ccd4e0469f7b4c97aff5bb85ae3323ebd6a293c3faef4028b0d81
   languageName: node
   linkType: hard
 
