@@ -6,7 +6,6 @@ import ca.uhn.hl7v2.ErrorCode
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.AbstractMessage
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.model.v27.message.ORU_R01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageStringIterator
@@ -18,6 +17,10 @@ import gov.cdc.prime.router.InvalidReportMessage
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.util.Date
+import ca.uhn.hl7v2.model.v251.message.ORU_R01 as v251_ORU_R01
+import ca.uhn.hl7v2.model.v251.segment.MSH as v251_MSH
+import ca.uhn.hl7v2.model.v27.message.ORU_R01 as v27_ORU_R01
+import ca.uhn.hl7v2.model.v27.segment.MSH as v27_MSH
 
 /**
  * Converts raw HL7 data (message or batch) to HL7 message objects.
@@ -79,6 +82,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                             messages.add(iterator.next())
                         }
                     } catch (e: Hl7InputStreamMessageStringIterator.ParseFailureError) {
+                        messages.clear()
                         parseError = e
                     }
 
@@ -119,8 +123,8 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                 val firstMessage = iterator.next()
                 return when (val messageType = getMessageType(firstMessage)) {
                     "ORU" -> listOf(
-                        ORU_R01::class.java,
-                        ca.uhn.hl7v2.model.v251.message.ORU_R01::class.java
+                        v27_ORU_R01::class.java,
+                        v251_ORU_R01::class.java
                     )
 
                     else -> {
@@ -196,8 +200,8 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          */
         fun getMessageTimestamp(message: Message): Date? {
             return when (val structure = message["MSH"]) {
-                is ca.uhn.hl7v2.model.v27.segment.MSH -> structure.msh7_DateTimeOfMessage.valueAsDate
-                is ca.uhn.hl7v2.model.v251.segment.MSH -> structure.msh7_DateTimeOfMessage.ts1_Time.valueAsDate
+                is v27_MSH -> structure.msh7_DateTimeOfMessage.valueAsDate
+                is v251_MSH -> structure.msh7_DateTimeOfMessage.ts1_Time.valueAsDate
                 else -> null
             }
         }
@@ -208,8 +212,8 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          */
         fun getMessageType(message: Message): String {
             return when (val structure = message["MSH"]) {
-                is ca.uhn.hl7v2.model.v27.segment.MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
-                is ca.uhn.hl7v2.model.v251.segment.MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
+                is v27_MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
+                is v251_MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
                 else -> ""
             }
         }
