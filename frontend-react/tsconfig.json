@@ -21,8 +21,6 @@
     "jsx": "react-jsx",
     "types": [
       "jest",
-      "cypress",
-      "@testing-library/cypress",
       "mdx",
       "vite/client",
     ],
@@ -31,7 +29,7 @@
   },
   "include": [
     "./src",
-    "./cypress",
+    "./e2e"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -410,16 +410,6 @@ module.exports = {
                 "testing-library/no-await-sync-query": "warn",
             },
         },
-        {
-            plugins: ["chai-friendly"],
-            files: ["**/cypress/**/*.[jt]s?(x)"],
-            extends: ["plugin:cypress/recommended"],
-            rules: {
-                "no-unused-expressions": "off",
-                "@typescript-eslint/no-unused-expressions": "off",
-                "chai-friendly/no-unused-expressions": "error",
-            },
-        },
     ],
     settings: {
         "import/resolver": {},
