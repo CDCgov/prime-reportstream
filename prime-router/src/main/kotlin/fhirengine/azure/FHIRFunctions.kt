@@ -6,8 +6,11 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
@@ -21,7 +24,9 @@ import org.apache.logging.log4j.kotlin.Logging
 
 class FHIRFunctions(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
-    private val actionLogger: ActionLogger = ActionLogger()
+    private val actionLogger: ActionLogger = ActionLogger(),
+    private val databaseAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
+    private val queueAccess: QueueAccess = QueueAccess
 ) : Logging {
 
     /**
@@ -50,13 +55,32 @@ class FHIRFunctions(
         fhirEngine: FHIREngine,
         actionHistory: ActionHistory = ActionHistory(TaskAction.convert)
     ) {
-        val messageContent = readMessage("Convert", message, dequeueCount)
-        try {
-            fhirEngine.doWork(messageContent, actionLogger, actionHistory)
-        } catch (e: Exception) {
-            logger.error("Unknown error.", e)
+        runFhirEngine(message, dequeueCount, fhirEngine, actionHistory, elrRoutingQueueName)
+    }
+
+    private fun runFhirEngine(
+        message: String,
+        dequeueCount: Int,
+        fhirEngine: FHIREngine,
+        actionHistory: ActionHistory,
+        queueName: String? = null
+    ) {
+        val messageContent = readMessage(fhirEngine.engineType, message, dequeueCount)
+
+        val newMessages = databaseAccess.transactReturning { txn ->
+            val results = fhirEngine.run(messageContent, actionLogger, actionHistory, txn)
+            recordResults(message, actionHistory)
+            results
         }
-        recordResults(message, actionHistory)
+
+        if (queueName != null) {
+            newMessages.forEach {
+                queueAccess.sendMessage(
+                    queueName,
+                    it.serialize()
+                )
+            }
+        }
     }
 
     /**
@@ -85,14 +109,7 @@ class FHIRFunctions(
         fhirEngine: FHIRRouter,
         actionHistory: ActionHistory = ActionHistory(TaskAction.route)
     ) {
-        val messageContent = readMessage("Route", message, dequeueCount)
-
-        try {
-            fhirEngine.doWork(messageContent, actionLogger, actionHistory)
-        } catch (e: Exception) {
-            logger.error("Unknown error.", e)
-        }
-        recordResults(message, actionHistory)
+        runFhirEngine(message, dequeueCount, fhirEngine, actionHistory, elrTranslationQueueName)
     }
 
     /**
@@ -121,14 +138,7 @@ class FHIRFunctions(
         fhirEngine: FHIRTranslator,
         actionHistory: ActionHistory = ActionHistory(TaskAction.translate)
     ) {
-        val messageContent = readMessage("Translate", message, dequeueCount)
-
-        try {
-            fhirEngine.doWork(messageContent, actionLogger, actionHistory)
-        } catch (e: Exception) {
-            logger.error("Unknown error.", e)
-        }
-        recordResults(message, actionHistory)
+        runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
     }
 
     /**

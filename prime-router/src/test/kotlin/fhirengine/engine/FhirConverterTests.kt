@@ -147,7 +147,9 @@ class FhirConverterTests {
         every { transformer.transform(any()) } returnsArgument (0)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 1) {
@@ -156,7 +158,6 @@ class FhirConverterTests {
             transformer.transform(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
-            queueMock.sendMessage(any(), any(), engine.queueVisibilityTimeout)
         }
     }
 
@@ -199,7 +200,9 @@ class FhirConverterTests {
         every { transformer.transform(any()) } returnsArgument (0)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 1) {
@@ -208,7 +211,6 @@ class FhirConverterTests {
             transformer.transform(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
-            queueMock.sendMessage(any(), any(), engine.queueVisibilityTimeout)
         }
     }
 
@@ -327,7 +329,11 @@ class FhirConverterTests {
         every { transformer.transform(any()) } returnsArgument (0)
 
         // act
-        assertThrows<RuntimeException> { engine.doWork(message, actionLogger, actionHistory) }
+        assertThrows<RuntimeException> {
+            accessSpy.transact { txn ->
+                engine.run(message, actionLogger, actionHistory, txn)
+            }
+        }
 
         // assert
         verify(exactly = 1) {

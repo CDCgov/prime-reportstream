@@ -5,20 +5,29 @@ import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.DeepOrganization
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Organization
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.Event
+import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.engine.FHIRConverter
+import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
 import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.Message
+import gov.cdc.prime.router.fhirengine.engine.RawSubmission
+import gov.cdc.prime.router.fhirengine.engine.elrRoutingQueueName
+import gov.cdc.prime.router.fhirengine.engine.elrTranslationQueueName
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
@@ -138,7 +147,7 @@ class FhirFunctionTests {
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
         val workflowEngine = makeWorkflowEngine(metadata, settings)
 
-        val fhirFunc = spyk(FHIRFunctions(workflowEngine))
+        val fhirFunc = spyk(FHIRFunctions(workflowEngine, queueAccess = queueMock))
 
         every { accessSpy.insertAction(any(), any()) } returns 0
         every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
@@ -147,8 +156,40 @@ class FhirFunctionTests {
         every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.sendingOrg } returns "Test Sender"
+        every { queueMock.sendMessage(any(), any()) } returns Unit
 
-        every { fhirEngine.doWork(any(), any(), any()) } returns Unit
+        val report = Report(
+            Report.Format.FHIR,
+            emptyList(),
+            1,
+            itemLineage = listOf(
+                ItemLineage()
+            ),
+            metadata = UnitTestUtils.simpleMetadata,
+            topic = Topic.FULL_ELR,
+        )
+        val routeEvent = ProcessEvent(
+            Event.EventAction.ROUTE,
+            report.id,
+            Options.None,
+            emptyMap(),
+            emptyList()
+        )
+        val message = RawSubmission(
+            report.id,
+            "",
+            "BlobAccess.digestToString(blobInfo.digest)",
+            "ignore.ignore-full-elr",
+            Topic.FULL_ELR
+        )
+        every { fhirEngine.doWork(any(), any(), any()) } returns listOf(
+            FHIREngine.FHIREngineRunResult(
+                routeEvent,
+                report,
+                "",
+                message
+            )
+        )
 
         val queueMessage = "{\"type\":\"raw\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
@@ -165,6 +206,7 @@ class FhirFunctionTests {
             fhirEngine.doWork(any(), any(), any())
             actionHistory.trackActionParams(queueMessage) // string
             actionHistory.trackLogs(emptyList()) // list actionLog
+            queueMock.sendMessage(elrRoutingQueueName, message.serialize())
             workflowEngine.recordAction(any())
         }
     }
@@ -192,7 +234,7 @@ class FhirFunctionTests {
         val actionHistory = spyk(ActionHistory(TaskAction.receive))
         val workflowEngine = makeWorkflowEngine(metadata, settings)
 
-        val fhirFunc = spyk(FHIRFunctions(workflowEngine))
+        val fhirFunc = spyk(FHIRFunctions(workflowEngine, queueAccess = queueMock))
         every { accessSpy.insertAction(any(), any()) } returns 0
         every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
 
@@ -200,8 +242,40 @@ class FhirFunctionTests {
         every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.sendingOrg } returns "Test Sender"
+        every { queueMock.sendMessage(any(), any()) } returns Unit
 
-        every { fhirEngine.doWork(any(), any(), any()) } returns Unit
+        val report = Report(
+            Report.Format.FHIR,
+            emptyList(),
+            1,
+            itemLineage = listOf(
+                ItemLineage()
+            ),
+            metadata = UnitTestUtils.simpleMetadata,
+            topic = Topic.FULL_ELR,
+        )
+        val nextEvent = ProcessEvent(
+            Event.EventAction.TRANSLATE,
+            report.id,
+            Options.None,
+            emptyMap(),
+            emptyList()
+        )
+        val message = RawSubmission(
+            report.id,
+            "",
+            "",
+            "ignore.ignore-full-elr",
+            Topic.FULL_ELR
+        )
+        every { fhirEngine.doWork(any(), any(), any()) } returns listOf(
+            FHIREngine.FHIREngineRunResult(
+                nextEvent,
+                report,
+                "",
+                message
+            )
+        )
 
         val queueMessage = "{\"type\":\"raw\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
@@ -219,6 +293,7 @@ class FhirFunctionTests {
             actionHistory.trackActionParams(queueMessage) // string
             actionHistory.trackLogs(emptyList()) // list actionLog
             workflowEngine.recordAction(any())
+            queueMock.sendMessage(elrTranslationQueueName, message.serialize())
         }
     }
 
@@ -254,7 +329,32 @@ class FhirFunctionTests {
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.sendingOrg } returns "Test Sender"
 
-        every { fhirEngine.doWork(any(), any(), any()) } returns Unit
+        val report = Report(
+            Report.Format.FHIR,
+            emptyList(),
+            1,
+            itemLineage = listOf(
+                ItemLineage()
+            ),
+            metadata = UnitTestUtils.simpleMetadata,
+            topic = Topic.FULL_ELR,
+        )
+        val nextEvent = ProcessEvent(
+            Event.EventAction.BATCH,
+            report.id,
+            Options.None,
+            emptyMap(),
+            emptyList()
+        )
+
+        every { fhirEngine.doWork(any(), any(), any()) } returns listOf(
+            FHIREngine.FHIREngineRunResult(
+                nextEvent,
+                report,
+                "",
+                null
+            )
+        )
 
         val queueMessage = "{\"type\":\"raw\",\"reportId\":\"011bb9ab-15c7-4ecd-8fae-0dd21e04d353\"," +
             "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
@@ -272,6 +372,9 @@ class FhirFunctionTests {
             actionHistory.trackActionParams(queueMessage) // string
             actionHistory.trackLogs(emptyList()) // list actionLog
             workflowEngine.recordAction(any())
+        }
+        verify(exactly = 0) {
+            queueMock.sendMessage(any(), any())
         }
     }
 }

@@ -45,6 +45,7 @@ import org.junit.jupiter.api.TestInstance
 import java.io.File
 import java.util.UUID
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 private const val ORGANIZATION_NAME = "co-phd"
 private const val RECEIVER_NAME = "full-elr-hl7"
@@ -154,17 +155,16 @@ class FhirTranslatorTests {
             .returns(Unit)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
-        verify(exactly = 0) {
-            queueMock.sendMessage(any(), any())
-        }
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
-            accessSpy.insertTask(any(), any(), any(), any())
+            accessSpy.insertTask(any(), any(), any(), any(), any())
             actionHistory.trackActionReceiverInfo(any(), any())
         }
     }
@@ -195,7 +195,9 @@ class FhirTranslatorTests {
         every { queueMock.sendMessage(any(), any()) }.returns(Unit)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 0) {
@@ -380,7 +382,9 @@ class FhirTranslatorTests {
         val engine = spyk(makeFhirEngine())
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 0) {
@@ -390,7 +394,7 @@ class FhirTranslatorTests {
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
-            accessSpy.insertTask(any(), any(), any(), any())
+            accessSpy.insertTask(any(), any(), any(), any(), any())
             engine.pruneBundleForReceiver(any(), any())
         }
     }
@@ -439,11 +443,11 @@ class FhirTranslatorTests {
         val engine = spyk(makeFhirEngine(settings = settings))
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
-
-        // assert
-        verify(exactly = 1) {
-            actionLogger.error(any<ActionLogDetail>())
+        accessSpy.transact { txn ->
+            assertFailsWith<IllegalStateException> (
+                message = "Receiver format CSV not supported.",
+                block = { engine.run(message, actionLogger, actionHistory, txn) }
+            )
         }
     }
 

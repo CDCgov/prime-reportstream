@@ -1,18 +1,24 @@
 package gov.cdc.prime.router.fhirengine.engine
 
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
+import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
+import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
+import org.jooq.Field
 import java.time.Duration
+import java.time.OffsetDateTime
 
 const val elrConvertQueueName = "elr-fhir-convert"
 const val elrRoutingQueueName = "elr-fhir-route"
@@ -124,13 +130,98 @@ abstract class FHIREngine(
 
     /**
      * The functional part of any given type of FHIR engine, taking in the [message] to do whatever work needs to
-     * be done, tracking with the [actionLogger] and [actionHistory], and making use of [metadata] if present
+     * be done, tracking with the [actionLogger] and [actionHistory], and making use of [metadata] if present.  It
+     * returns the result of the work so that messages can be passed along.
      */
     abstract fun doWork(
         message: RawSubmission,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory
+    ): List<FHIREngineRunResult>
+
+    private fun insertNextTask(
+        report: Report,
+        reportUrl: String,
+        nextAction: Event,
+        txn: DataAccessTransaction
+    ) {
+        db.insertTask(report, report.bodyFormat.toString(), reportUrl, nextAction, txn)
+    }
+
+    /**
+     * Field that is updated as part of completing the work
+     */
+    abstract val finishedField: Field<OffsetDateTime>
+
+    /**
+     * The type of work the engine is performing
+     */
+    abstract val engineType: String
+
+    private fun updateCurrentTask(message: RawSubmission, txn: DataAccessTransaction) {
+        db.updateTask(
+            message.reportId,
+            TaskAction.none,
+            null,
+            null,
+            finishedField = this.finishedField,
+            txn
+        )
+    }
+
+    /**
+     * Result class that is returned as part of completing the work on a message
+     *
+     * @param nextEvent the next event that should be propagated
+     * @param report the report generated
+     * @param reportUrl the URL for the generated report
+     * @param message optionally a message that should be dispatched to a queue
+     *
+     */
+    data class FHIREngineRunResult(
+        val nextEvent: Event,
+        val report: Report,
+        val reportUrl: String,
+        val message: RawSubmission?
     )
+
+    /**
+     *
+     * Responsible for invoking the [doWork] function, inserting any new tasks and updating the previous task
+     * If an exception is encountered it is logged and then rethrown in order to rollback the transaction
+     *
+     * @param message the message to process
+     * @param actionLogger  the action logger to use
+     * @param actionHistory the action history to use
+     * @param txn the database transaction
+     *
+     */
+    fun run(
+        message: RawSubmission,
+        actionLogger: ActionLogger,
+        actionHistory: ActionHistory,
+        txn: DataAccessTransaction
+    ): List<RawSubmission> {
+        try {
+            // Do the FHIR work (convert, route, translate)
+            val results = doWork(message, actionLogger, actionHistory)
+
+            // Add the next task
+            results.forEach {
+                insertNextTask(it.report, it.reportUrl, it.nextEvent, txn)
+            }
+
+            // Nullify the previous task
+            updateCurrentTask(message, txn)
+
+            // Return the result to commit the transaction and add to the queue
+            return results.mapNotNull { it.message }
+        } catch (ex: Exception) {
+            logger.error(ex)
+            actionLogger.error(InvalidReportMessage(ex.message ?: ""))
+            throw ex
+        }
+    }
 
     /**
      * This value is used to delay the next step in the pipeline from processing the event in order to make sure

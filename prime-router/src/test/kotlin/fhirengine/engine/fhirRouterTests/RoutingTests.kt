@@ -475,7 +475,9 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 0) {
@@ -527,7 +529,9 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 0) {
@@ -579,7 +583,9 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 0) {
@@ -631,7 +637,9 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 0) {
@@ -684,7 +692,9 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 0) {
@@ -737,15 +747,16 @@ class RoutingTests {
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
-            queueMock.sendMessage(any(), any(), engine.queueVisibilityTimeout)
-            accessSpy.insertTask(any(), any(), any(), any())
+            accessSpy.insertTask(any(), any(), any(), any(), any())
             FHIRBundleHelpers.addReceivers(any(), any(), any())
         }
     }
@@ -782,7 +793,9 @@ class RoutingTests {
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 1) {
@@ -940,7 +953,9 @@ class RoutingTests {
         every { FhirPathUtils.evaluateCondition(any(), any(), any(), any()) } throws SchemaException(nonBooleanMsg)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         assertThat(actionLogger.hasWarnings()).isTrue()
