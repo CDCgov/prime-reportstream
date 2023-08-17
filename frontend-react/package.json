@@ -198,7 +198,7 @@
         "ts-node": "^10.9.1",
         "tslib": "^2.6.0",
         "typescript": "^5.1.6",
-        "vite": "^4.4.8",
+        "vite": "^4.4.9",
         "vite-plugin-checker": "^0.6.1",
         "vite-plugin-svgr": "^3.2.0",
         "whatwg-fetch": "^3.6.17"
