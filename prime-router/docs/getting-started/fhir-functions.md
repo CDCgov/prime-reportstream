@@ -1,7 +1,29 @@
 # FHIR Functions
-FHIR functions are methods that can be run on a bundle in order to extract data from it (ex. retrieve an age or telephone area code). 
-Sometimes this is needed because we need only a part of what is sent over or need data in a different format for us to 
-properly meet the FHIR spec's requirements.    
+FHIR functions are methods that can be run on a bundle in order to extract data from it (ex. retrieve an age or telephone area code).
+When translating FHIR bundles to other formats, like HL7v2, it is necessary to extract data from the FHIR bundle, so 
+that it can be moved over to the new format. We can often accomplish extracting the data we need via a simple FHIR path 
+expression like so:
+
+``` 
+  - name: designator-namespace-id-from-namespace
+   condition: '%resource.extension(%`namespaceExtName`).exists()'
+   value: [ '%resource.extension(%`namespaceExtName`).value' ]
+   hl7Spec: [ '%{hl7HDField}-1' ]
+```
+
+When a simple FHIR path expression is not enough, we use FHIR Functions like so:
+``` 
+  - name: specimen-received-time-diagnostic
+    condition: '%resource.receivedTime.exists().not() and %resource.collection.collected is dateTime'
+    value: [ '%resource.collection.collected.changeTimezone(%timezone)' ]
+    hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]
+```
+FHIR Functions can run complicated 
+queries on the bundle using the HAPI FHIR library directly in order to extract or manipulate the pieces of data we 
+need to build the new message we are mapping to. In the example above, the `changeTimezone(%timezone)` was necessary 
+because this customer wanted to receive the messages with times in their local format, regardless of what timezone was 
+sent. The FHIR functions more geared towards extraction like `getPhoneNumberAreaCode()` normally are used when FHIR has
+a field that requires data that is not sent over as a separate value. See [Translating with FHIR Functions](#translating-with-fhir-functions) for more details.    
 
 Currently, there are two places where FHIR functions are created. Both files are called `CustomFhirPathFunctions` and
 both extend an interface called FhirPathFunctions. There are two places for these functions because some
@@ -72,7 +94,7 @@ on.
 
 - When using the tool, `--help` is your friend.
 
-## Use in Mappings
+## Translating with FHIR Functions
 Using these methods in mappings is basically the same as using them in the [FHIR Path Tool](#fhir-path-tool) just set 
 the value to the resource you want to run the function on with the method called on it like so:
 `value: [ '%resource.value.getPhoneNumberAreaCode()' ]`. 
