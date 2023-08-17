@@ -6,9 +6,8 @@ the API without requiring external tools such as curl or Postman.
 
 This directory contains all open api spec resources:
 
-1. ./: specs in yaml format derived from other process (vs auto generated specs under ./generated)
-2. ./swagger-ui: swagger ui artifacts (with customization - see custom and maintain notes below)
-3. ./generated: auto generated api spec(s) from annotated kotlin source files
+- ./swagger-ui: swagger ui artifacts (with customization - see custom and maintain notes below)
+- ./generated: auto generated api spec(s) from annotated kotlin source files
 
 ## Purpose
 
@@ -29,15 +28,13 @@ usage, parameters, and expected output; as well as an interface to make an API c
 
 ### Accessing the Swagger UI Interface
 
-The interface consists of static web assets that are compiled and served similarly to our front-end web application.
-The UI is served and accessible on the same server as the reportstream web ui / front-end using a particular URL / path.
-To access it, navigate to TLD for your chosen environment and append `/swagger-ui` to the end of the root url.
+The interface consists of static web assets that are compiled from annotations in our back-end code and served similarly
+to our front-end web application. The UI can only be accessed locally in the azure storage instance once compiled. To
+access it, run the prime-router stack, then navigate to the URL below:
 
-**Staging** https://staging.prime.cdc.gov/swagger-ui
-**Local** https://localhost:8080/swagger-ui
+**Local** http://127.0.0.1:10000/devstoreaccount1/apidocs/index.html
 
-Please note that while all environments can be selected in the swagger-ui (regardless of your chosen URL),
-you may encounter cross-origin restrictions when trying to access one environment from outside its URL.
+Please note you may encounter cross-origin restrictions when trying to access one environment from outside its URL.
 
 ### Authentication
 
@@ -48,11 +45,12 @@ Regardless of chosen authentication method, the steps are similar:
 Near the top-right of the interface you'll find an `Authorize` button which will bring up a menu with the authentication
 methods available (described below). Each option will require some inputs.
 
-#### OAuth
+####  OKTA
 
-OAuth utilizes a `client ID` and a `secret` that is encoded as a JSON Web-Token. This token is submitted to the server to
-request a bearer token which will be used to authenticate further request. The bearer token expires after 5 minutes so
-it must be periodically refreshed using a separate API call.
+OKTA provides an implementation of OAuth2 for authentication. It utilizes a `client ID` and a `secret` that is encoded
+as a JSON Web-Token. This token is submitted to the server to request a bearer token which will then be used to
+authenticate further requests. The bearer token expires after 5 minutes so it must be periodically refreshed using a
+separate API call.
 
 Provide the client ID / secret and select a scope in the Authorize menu and Swagger will automate the above OAuth process.
 
@@ -62,12 +60,23 @@ Based on OAuth2, this method is based on best practices outlined in the SMART on
 OAuth above: a client secret, ID, and scope is encoded as a JWT and sent to the server; which responds with a bearer
 token the client can use to authenticate and authorize further requests.
 
+The initial JWT must be created outside of the swagger environment. An example using a python script is provided in this
+repo (examples/generate-jwt-python). See the README instructions in that directory for instructions, summarized here:
+1. Install python dependencies for generating JWT
+2. Set variables on lines 28-30 in the script (`my_client_id`, `my_kid`, and `my_rsa_keypair_file`)
+3. Run the script! The penultimate curl contains the JWT used to retrieve a bearer token. The final curl contains an
+   example using that bearer token.
+
 #### API Key (x-functions-key)
 
 This method utilizes a simple API key and a client ID that is mapped to a header value and sent with every request. It
-is less secure, deprecated, and should only be used in edge cases where OAuth is not possible.
+is less secure, deprecated, and should only be used in edge cases where OAuth is not possible. This key is generated
+and stored in the Azure cloud and provided by reportstream to the end user.
 
-## Notes
+## Developer Notes
+
+The openapi spec for reportstream is generated from annotations in the code. This facilitates accurate and timely
+updates and an otherwise ameliorates a lengthy, manual, repetitive, and error-prone process.
 
 ### Swagger UI Customization and Maintenance
 This section is currently empty.
