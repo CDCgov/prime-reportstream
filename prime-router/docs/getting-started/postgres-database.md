@@ -35,11 +35,9 @@ FLYWAY_URL=jdbc:postgresql://pdhprod-pgsql.postgres.database.azure.com:5432/prim
 ```
 
 ## How to Log and Debug Database Queries
-
-### Introduction
 Sometimes you need a bit more insight into what's actually happening on the database.
 
-Here's a few ways to log queries and execution plans.
+Here's a few ways to log queries.
 
 ### Log all queries using log4j
 
