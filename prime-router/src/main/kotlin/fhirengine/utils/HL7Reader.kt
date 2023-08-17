@@ -22,6 +22,8 @@ import ca.uhn.hl7v2.model.v251.segment.MSH as v251_MSH
 import ca.uhn.hl7v2.model.v27.message.ORU_R01 as v27_ORU_R01
 import ca.uhn.hl7v2.model.v27.segment.MSH as v27_MSH
 
+private const val MSH_SEGMENT_NAME = "MSH"
+
 /**
  * Converts raw HL7 data (message or batch) to HL7 message objects.
  */
@@ -199,7 +201,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          * @return the timestamp or null if not specified
          */
         fun getMessageTimestamp(message: Message): Date? {
-            return when (val structure = message["MSH"]) {
+            return when (val structure = message[MSH_SEGMENT_NAME]) {
                 is v27_MSH -> structure.msh7_DateTimeOfMessage.valueAsDate
                 is v251_MSH -> structure.msh7_DateTimeOfMessage.ts1_Time.valueAsDate
                 else -> null
@@ -211,7 +213,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
          * @return the type of message ex. ORU
          */
         fun getMessageType(message: Message): String {
-            return when (val structure = message["MSH"]) {
+            return when (val structure = message[MSH_SEGMENT_NAME]) {
                 is v27_MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
                 is v251_MSH -> structure.msh9_MessageType.msg1_MessageCode.toString()
                 else -> ""
