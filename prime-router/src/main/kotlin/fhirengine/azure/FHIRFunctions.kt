@@ -6,6 +6,7 @@ import com.microsoft.azure.functions.annotation.QueueTrigger
 import com.microsoft.azure.functions.annotation.StorageAccount
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
@@ -56,31 +57,12 @@ class FHIRFunctions(
         fhirEngine: FHIREngine,
         actionHistory: ActionHistory = ActionHistory(TaskAction.convert)
     ) {
-        runFhirEngine(message, dequeueCount, fhirEngine, actionHistory, elrRoutingQueueName)
-    }
-
-    private fun runFhirEngine(
-        message: String,
-        dequeueCount: Int,
-        fhirEngine: FHIREngine,
-        actionHistory: ActionHistory,
-        queueName: String? = null
-    ) {
-        val messageContent = readMessage(fhirEngine.engineType, message, dequeueCount)
-
-        val newMessages = databaseAccess.transactReturning { txn ->
-            val results = fhirEngine.run(messageContent, actionLogger, actionHistory, txn)
-            recordResults(message, actionHistory)
-            results
-        }
-
-        if (queueName != null) {
-            newMessages.forEach {
-                queueAccess.sendMessage(
-                    queueName,
-                    it.serialize()
-                )
-            }
+        val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
+        messagesToDispatch.forEach {
+            queueAccess.sendMessage(
+                elrRoutingQueueName,
+                it.serialize()
+            )
         }
     }
 
@@ -110,7 +92,13 @@ class FHIRFunctions(
         fhirEngine: FHIRRouter,
         actionHistory: ActionHistory = ActionHistory(TaskAction.route)
     ) {
-        runFhirEngine(message, dequeueCount, fhirEngine, actionHistory, elrTranslationQueueName)
+        val messagesToDispatch = runFhirEngine(message, dequeueCount, fhirEngine, actionHistory)
+        messagesToDispatch.forEach {
+            queueAccess.sendMessage(
+                elrTranslationQueueName,
+                it.serialize()
+            )
+        }
     }
 
     /**
@@ -143,6 +131,28 @@ class FHIRFunctions(
     }
 
     /**
+     * Deserializes the message, create the DB transaction and then runs the FHIR engine
+     *
+     * @return any messages that need to be dispatched
+     */
+    private fun runFhirEngine(
+        message: String,
+        dequeueCount: Int,
+        fhirEngine: FHIREngine,
+        actionHistory: ActionHistory,
+    ): List<RawSubmission> {
+        val messageContent = readMessage(fhirEngine.engineType, message, dequeueCount)
+
+        val newMessages = databaseAccess.transactReturning { txn ->
+            val results = fhirEngine.run(messageContent, actionLogger, actionHistory, txn)
+            recordResults(message, actionHistory, txn)
+            results
+        }
+
+        return newMessages
+    }
+
+    /**
      * Deserializes the [message] into a RawSubmission, verifies it is of the correct type.
      * Logs the [engineType] and [dequeueCount]
      */
@@ -161,9 +171,9 @@ class FHIRFunctions(
     /**
      * Tracks any action params that are part of the [message] and records the logs and actions to the database
      */
-    private fun recordResults(message: String, actionHistory: ActionHistory) {
+    private fun recordResults(message: String, actionHistory: ActionHistory, txn: DataAccessTransaction) {
         actionHistory.trackActionParams(message)
         actionHistory.trackLogs(actionLogger.logs)
-        workflowEngine.recordAction(actionHistory)
+        workflowEngine.recordAction(actionHistory, txn)
     }
 }

@@ -10,14 +10,11 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DataAccessTransaction
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.common.BaseEngine
-import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import org.jooq.Field
-import java.time.Duration
 import java.time.OffsetDateTime
 
 const val elrConvertQueueName = "elr-fhir-convert"
@@ -36,9 +33,8 @@ abstract class FHIREngine(
     val metadata: Metadata = Metadata.getInstance(),
     val settings: SettingsProvider = this.settingsProviderSingleton,
     val db: DatabaseAccess = this.databaseAccessSingleton,
-    val blob: BlobAccess = BlobAccess(),
-    queue: QueueAccess = QueueAccess,
-) : BaseEngine(queue) {
+    val blob: BlobAccess = BlobAccess()
+) : BaseEngine() {
 
     /**
      * Custom builder for Workflow engine
@@ -46,7 +42,6 @@ abstract class FHIREngine(
      * [settingsProvider] mockable settingsProvider
      * [databaseAccess] mockable data access class
      * [blobAccess] mockable blob storage access class
-     * [queueAccess] mockable azure queue access class
      * [hl7Serializer] legacy pipeline hl7 serializer
      * [csvSerializer] legacy pipeline csv serializer
      */
@@ -55,7 +50,6 @@ abstract class FHIREngine(
         var settingsProvider: SettingsProvider? = null,
         var databaseAccess: DatabaseAccess? = null,
         var blobAccess: BlobAccess? = null,
-        var queueAccess: QueueAccess? = null,
         var hl7Serializer: Hl7Serializer? = null,
         var csvSerializer: CsvSerializer? = null
     ) {
@@ -84,12 +78,6 @@ abstract class FHIREngine(
         fun blobAccess(blobAccess: BlobAccess) = apply { this.blobAccess = blobAccess }
 
         /**
-         * Set the queue access instance.
-         * @return the modified workflow engine
-         */
-        fun queueAccess(queueAccess: QueueAccess) = apply { this.queueAccess = queueAccess }
-
-        /**
          * Build the fhir engine instance.
          * @return the fhir engine instance
          */
@@ -106,22 +94,19 @@ abstract class FHIREngine(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
-                    blobAccess ?: BlobAccess(),
-                    queueAccess ?: QueueAccess
+                    blobAccess ?: BlobAccess()
                 )
                 TaskAction.route -> FHIRRouter(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
-                    blobAccess ?: BlobAccess(),
-                    queueAccess ?: QueueAccess
+                    blobAccess ?: BlobAccess()
                 )
                 TaskAction.translate -> FHIRTranslator(
                     metadata ?: Metadata.getInstance(),
                     settingsProvider!!,
                     databaseAccess ?: databaseAccessSingleton,
                     blobAccess ?: BlobAccess(),
-                    queueAccess ?: QueueAccess
                 )
                 else -> throw NotImplementedError("Invalid action type for FHIR engine")
             }
@@ -139,15 +124,6 @@ abstract class FHIREngine(
         actionHistory: ActionHistory
     ): List<FHIREngineRunResult>
 
-    private fun insertNextTask(
-        report: Report,
-        reportUrl: String,
-        nextAction: Event,
-        txn: DataAccessTransaction
-    ) {
-        db.insertTask(report, report.bodyFormat.toString(), reportUrl, nextAction, txn)
-    }
-
     /**
      * Field that is updated as part of completing the work
      */
@@ -157,17 +133,6 @@ abstract class FHIREngine(
      * The type of work the engine is performing
      */
     abstract val engineType: String
-
-    private fun updateCurrentTask(message: RawSubmission, txn: DataAccessTransaction) {
-        db.updateTask(
-            message.reportId,
-            TaskAction.none,
-            null,
-            null,
-            finishedField = this.finishedField,
-            txn
-        )
-    }
 
     /**
      * Result class that is returned as part of completing the work on a message
@@ -208,28 +173,26 @@ abstract class FHIREngine(
 
             // Add the next task
             results.forEach {
-                insertNextTask(it.report, it.reportUrl, it.nextEvent, txn)
+                db.insertTask(it.report, it.report.bodyFormat.toString(), it.reportUrl, it.nextEvent, txn)
             }
 
             // Nullify the previous task
-            updateCurrentTask(message, txn)
+            db.updateTask(
+                message.reportId,
+                TaskAction.none,
+                null,
+                null,
+                finishedField = this.finishedField,
+                txn
+            )
 
             // Return the result to commit the transaction and add to the queue
             return results.mapNotNull { it.message }
         } catch (ex: Exception) {
             logger.error(ex)
             actionLogger.error(InvalidReportMessage(ex.message ?: ""))
+            // The error gets logged but rethrown so that wrapping transaction can get rolled back
             throw ex
         }
     }
-
-    /**
-     * This value is used to delay the next step in the pipeline from processing the event in order to make sure
-     * that the requisite DB transaction has been committed.  This is only configured for production so as not to
-     * arbitrarily slow down staging or local development
-     *
-     * It should be removed as part of implementing https://github.com/CDCgov/prime-reportstream/issues/10638
-     */
-    val queueVisibilityTimeout: Duration =
-        if (Environment.get() == Environment.PROD) Duration.ofMinutes(5) else Duration.ZERO
 }

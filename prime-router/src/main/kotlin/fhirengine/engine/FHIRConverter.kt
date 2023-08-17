@@ -11,7 +11,6 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
@@ -35,8 +34,7 @@ class FHIRConverter(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-    queue: QueueAccess = QueueAccess,
-) : FHIREngine(metadata, settings, db, blob, queue) {
+) : FHIREngine(metadata, settings, db, blob) {
 
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT
 

@@ -22,7 +22,6 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -62,7 +61,6 @@ class FhirTranslatorTests {
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
-    val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
         ORGANIZATION_NAME,
         "test",
@@ -115,7 +113,7 @@ class FhirTranslatorTests {
         settings: SettingsProvider = FileSettings().loadOrganizations(oneOrganization),
     ): FHIRTranslator {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).queueAccess(queueMock).build(TaskAction.translate) as FHIRTranslator
+            .blobAccess(blobMock).build(TaskAction.translate) as FHIRTranslator
     }
 
     private fun getResource(bundle: Bundle, resource: String) =
@@ -149,8 +147,7 @@ class FhirTranslatorTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
-            .returns(Unit)
+
         every { actionHistory.trackActionReceiverInfo(any(), any()) }
             .returns(Unit)
 
@@ -192,7 +189,6 @@ class FhirTranslatorTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }.returns(Unit)
 
         // act
         accessSpy.transact { txn ->
@@ -200,9 +196,6 @@ class FhirTranslatorTests {
         }
 
         // assert
-        verify(exactly = 0) {
-            queueMock.sendMessage(any(), any())
-        }
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
         }
@@ -375,8 +368,6 @@ class FhirTranslatorTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
-            .returns(Unit)
         every { actionHistory.trackActionReceiverInfo(any(), any()) }.returns(Unit)
 
         val engine = spyk(makeFhirEngine())
@@ -387,9 +378,6 @@ class FhirTranslatorTests {
         }
 
         // assert
-        verify(exactly = 0) {
-            queueMock.sendMessage(any(), any())
-        }
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), any())
@@ -436,8 +424,6 @@ class FhirTranslatorTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
-            .returns(Unit)
         every { actionHistory.trackActionReceiverInfo(any(), any()) }.returns(Unit)
 
         val engine = spyk(makeFhirEngine(settings = settings))
