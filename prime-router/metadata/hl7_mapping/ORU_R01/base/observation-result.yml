@@ -164,9 +164,25 @@ elements:
     schema: ../../common/datatype/xad-extended-address
     resourceIndex: contactIndex
 
+  - name: performing-organization-address-pracrole
+    condition: '%resource.performer.resolve() is PractitionerRole'
+    resource: '%resource.performer.resolve().organization.resolve().address'
+    constants:
+      hl7AddressField: '%{hl7OBXField}-24'
+    schema: ../../common/datatype/xad-extended-address
+    resourceIndex: contactIndex
+
   - name: performing-organization-address-non-pracrole
     condition: '%observation.performer.resolve().is(PractitionerRole).not()'
     resource: '%observation.performer.resolve().address'
+    constants:
+      hl7AddressField: '%{hl7OBXField}-24'
+    schema: ../../common/datatype/xad-extended-address
+    resourceIndex: contactIndex
+
+  - name: performing-organization-address-non-pracrole
+    condition: '%resource.performer.resolve().is(PractitionerRole).not()'
+    resource: '%resource.performer.resolve().address'
     constants:
       hl7AddressField: '%{hl7OBXField}-24'
     schema: ../../common/datatype/xad-extended-address
