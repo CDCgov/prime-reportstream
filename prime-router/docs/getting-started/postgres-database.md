@@ -7,7 +7,7 @@ Microsoft Azure.
 ## DB Flyaway Repair
 If the Flyway migrations need a repair, the following commands will resolve in each environment.
 
-## TEST
+### TEST
 
 ```shell
 az login
@@ -16,7 +16,7 @@ FLYWAY_URL=jdbc:postgresql://pdhtest-pgsql.postgres.database.azure.com:5432/prim
 FLYWAY_URL=jdbc:postgresql://pdhtest-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require FLYWAY_USER=reportstream_pgsql_admin@pdhtest-pgsql ./gradlew flywayRepair
 ```
 
-## STAGING
+### STAGING
 
 ```shell
 az login
@@ -25,7 +25,7 @@ FLYWAY_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.com:5432/p
 FLYWAY_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.com:5432/prime_data_hub?sslmode=require FLYWAY_USER=reportstream_pgsql_admin@pdhstaging-pgsql ./gradlew flywayRepair
 ```
 
-## PROD
+### PROD
 
 ```shell
 az login
@@ -141,7 +141,11 @@ docker-compose -f docker-compose -f docker-compose.build.yml up -d postgresql
 This section documents the process for logging into the staging instance of the Postgres database via Azure Active Directory. For production access reach out to Devops.
 
 ### Staging
-Make sure that you IP address is added to Connection Security on the database.
+Make sure that your IP address is added to Connection Security on the database.
+1. Go to Azure Database for Postgres Servers
+2. Select the Staging DB 
+3. Click Connection Security in the side panel
+4. Add your IP address as both the `Start` and `End` IP Address and label it with your name
 
 #### Login to Azure CLI
 
@@ -150,14 +154,6 @@ az login
 ```
 
 #### Login to PostgreSQL
-
-Using your PostgreSQL tool of choice, login with the following details:
-
-* For write / schema access: `reportstream_pgsql_admin@dbservername`
-    * Only use this if you have a specific reason
-* For read-only access: `reportstream_pgsql_developer@dbservername`
-* Password: `<the accessToken from above>`
-
 Get your access token and set as envvar `PGPASSWORD` in one go:
 ```shell
 export PGPASSWORD=$(az account get-access-token --resource-type oss-rdbms | python3 -c "import sys, json; print(json.load(sys.stdin)['accessToken'])")
@@ -199,4 +195,4 @@ To see all gradle action definitions, go to `build.gradle.kts`
 ### Managing Postgres with Flyway
 Flyway is an open-source database-migration tool that runs files in 
 `prime-router/src/main/resources/db/migration` directory. If you need to make changes to the database, a PR needs to be 
-submitted with an incremented vile version added to the migration directory. 
+submitted with an incremented file version added to the migration directory. 
