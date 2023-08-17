@@ -1,17 +1,462 @@
-# Route
+# Universal Pipeline Routing
 
-During this step the UP goes through every Full ELR receiver and checks if the message can be routed to them. It goes through the receiver’s quality, jurisdictional, routing and condition filters. If all the filters pass RS will route the message to the receiver and also remove any conditions that don’t match the condition filter.
+# Context
 
-Note: This step occurs after the Convert step and before the Translate step.
+The Route function’s purpose is to match FHIR bundles with receivers. Each receiver connected with ReportStream has unique interests in the data that flows through the pipeline. Routing is designed to find the data that meet those interests.
 
-## Filters
+The Route function follows the convert function. At this point all data will be in FHIR format. These messages are passed to the FHIR Router which first decodes creating a FHIR Bundle. **_FHIRRouter.applyFilters_** does the work to find receivers that accept the bundle. With the list of acceptable receivers, FHIR Endpoints are added to the Provenance resource identifying those receivers.  An endpoint describes the details of a receiver including which test results to include. With that information, the message is passed to the Translate function where receiver specific work is done.
 
-Make sure to explain the default for each filter - explain that routing in RS depends on filters. If a receiver wants a message to go to them, it has to pass their filters. Additionally, the default filter also depends on the associated topic. (Already some data on this, needs updating)
-[Reference](https://docs.google.com/spreadsheets/d/1xAfkzPqs4yA3tAdXW4JShtENTZW_kSW6rlH_Hjx-glI/edit#gid=0) for user settings requested upon onboarding
 
-- Quality Filter
-- RoutingFilter
-- JurisdictionalFilter
-- Processing Mode Filter
-- Condition Filter
-- Developer section on how they work with examples. Also explain in this section how they can now be put on separate lines. 
+## Topic
+
+A Topic must be set for all senders and receivers. The choice of topic determines which pipeline is used (Universal or Covid) and will affect how routing takes place. The routing step will start by limiting available receivers to only those with a topic matching the sender topic. Topics include:
+
+
+<table>
+  <tr>
+   <td><strong>Topic Name</strong>
+   </td>
+   <td><strong>Pipeline</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>full-elr
+   </td>
+   <td>Universal
+   </td>
+   <td>General use for test result reporting
+   </td>
+  </tr>
+  <tr>
+   <td>etor-ti
+   </td>
+   <td>Universal
+   </td>
+   <td>ETOR project with Flexion’s Trusted Intermediary
+   </td>
+  </tr>
+  <tr>
+   <td>elr-elims
+   </td>
+   <td>Universal
+   </td>
+   <td>ELR project with ELIMS
+   </td>
+  </tr>
+</table>
+
+# FHIRPath
+
+Although existing in the COVID Pipeline, filter functions do not exist in the Universal Pipeline. The functionality is covered by [FHIRPath](https://build.fhir.org/fhirpath.html). Paths are defined using [FHIRPath](http://hl7.org/fhirpath/), which is an expression language defined by FHIR. In its simplest form, this can take the form of a single dotted path: `Bundle.entry.resource.ofType(Patient).name.family`.` `
+
+FHIRPath is used in filtering to access values in a bundle. In the example, the value for the patient’s family name (i.e last name) would be provided.
+
+
+## Shorthands
+
+FHIRPath can be verbose and can be challenging for a user that is not familiar with FHIR or the FHIR bundle structure. In FHIRPath, expressions can be simplified by the use of built-in constants that point to specific FHIR resources. This makes expressions simpler to write while keeping the flexibility and logic that it provides. These ReportStream-specific shorthands are prefaced with the percent symbol(%). For example:
+
+<table>
+  <tr>
+   <td><strong>ShortHand Examples</strong>
+   </td>
+   <td><strong>Full FHIRPath Expression</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>%patientState
+   </td>
+   <td>Bundle.entry.resource.ofType(Patient).address.state
+   </td>
+  </tr>
+  <tr>
+   <td>%patientLastname
+   </td>
+   <td>Bundle.entry.resource.ofType(Patient).name.family
+   </td>
+  </tr>
+  <tr>
+   <td>%patientFirstname
+   </td>
+   <td>Bundle.entry.resource.ofType(Patient).name.given
+   </td>
+  </tr>
+</table>
+
+```yaml
+jurisdictionalFilter:
+	- ‘%patientState = “CO”’
+qualityFilter:
+	- ‘%patientLastname.exists() and %patientFirstname.exists()’
+```
+
+## COVID vs Universal
+
+The table below demonstrates a few filter functions and their FHIRPath equivalent.
+
+
+<table>
+  <tr>
+   <td><strong>COVID Pipeline: filter functions</strong>
+   </td>
+   <td><strong>Universal Pipeline: FHIRPath Expressions</strong>
+   </td>
+  </tr>
+  <tr>
+   <td><code>hasValidDataFor(message_id)</code>
+   </td>
+   <td><code>%messageId.exists().not()</code>
+   </td>
+  </tr>
+  <tr>
+   <td><code>hasValidDataFor(patient_last_name, patient_first_name)</code>
+   </td>
+   <td><code>%patientLastname.exists() and %patientFistname.exists()</code>
+   </td>
+  </tr>
+  <tr>
+   <td><code>hasAtLeastOneOf(patient_street,patient_zip_code,patient_phone_number,patient_email)</code>
+   </td>
+   <td><code>%patientStreet.exists() or %patientZipcode.exists() or %patientPhoneNumber.exists() or %patientEmail.exists()</code>
+   </td>
+  </tr>
+  <tr>
+   <td><code>isValidCLIA(testing_lab_clia,reporting_facility_clia)</code>
+   </td>
+   <td><code>%testingLabId.getIdType() = "CLIA" or %reportingFacilityId.getIdType() = 'CLIA'</code>
+   </td>
+  </tr>
+  <tr>
+   <td><code>allowAll()</code>
+   </td>
+   <td><code>true</code>
+   </td>
+  </tr>
+  <tr>
+   <td><code>allowNone()</code>
+   </td>
+   <td><code>false</code>
+   </td>
+  </tr>
+  <tr>
+   <td><code>orEquals(ordering_facility_state, CO, patient_state, CO)</code>
+   </td>
+   <td><code>%orderingFacilityState = "CO" or \
+%patientState = "CO"</code>
+   </td>
+  </tr>
+</table>
+
+
+
+# Filter Types
+
+## Purpose
+
+Routing configuration is as part of the settings for a specific organization and/or receiver. There are five main filter groups*: Jurisdictional, Quality, Routing, Processing Mode Code, and Condition. These filter groups are used to organize the filters and make it easier to report the filter results to a user, but the functionality is the same for all the filters. All filters can take an array of expressions where all expressions must evaluate to true (an AND operation) or at least one must evaluate to true (an OR operation) for the filter group to evaluate to true. All filters can be set by defaults (set in code).
+
+_*Filter groups may have been referred to as filter types in the past._
+
+
+## **Jurisdictional Filter**
+
+Identifies data that falls within a receiver’s jurisdiction as most of our organizations are geographic entities (e.g., patient state is CO).  Note that the non-matching result of the jurisdictional filter is not reported to users via the submission history API as this filter is just to decide to which receiver data needs to go.
+
+
+<table>
+  <tr>
+   <td><strong>Topic</strong>
+   </td>
+   <td>Applies to following topics: <em>full-elr, etor-ti, elr-elims</em>
+   </td>
+  </tr>
+  <tr>
+   <td><strong>Operation</strong>
+   </td>
+   <td>expressions are evaluated with AND operation
+   </td>
+  </tr>
+  <tr>
+   <td><strong>Default</strong>
+   </td>
+   <td><strong>Allow None</strong>: allowing none is a safeguard as jurisdictional filtering keeps data from one jurisdiction benign reported to another. This must be overwritten with a custom filter for each receiver
+   </td>
+  </tr>
+</table>
+
+
+
+## Quality Filter
+
+filter out any data that does not meet the specified minimum requirements (e.g. must have patient last name)
+
+
+<table>
+  <tr>
+   <td><strong>Topic</strong>
+   </td>
+   <td>Applies to following topics: <em>full-elr, etor-ti, elr-elims</em>
+   </td>
+  </tr>
+  <tr>
+   <td><strong>Operation</strong>
+   </td>
+   <td>expressions are evaluated as an AND operation
+   </td>
+  </tr>
+  <tr>
+   <td><strong>Default</strong>
+   </td>
+   <td>See code block below
+   </td>
+  </tr>
+</table>
+
+```kotlin
+/**
+ * Default Rules:
+ *   Must have message ID, patient last name, patient first name, DOB, specimen type
+ *   At least one of patient street, patient zip code, patient phone number, patient email
+ *   At least one of order test date, specimen collection date/time, test result date
+ */
+val qualityFilterDefault: ReportStreamFilter = listOf(
+    "%messageId.exists()",
+    "%patient.name.family.exists()",
+    "%patient.name.given.count() > 0",
+    "%patient.birthDate.exists()",
+    "%specimen.type.exists()",
+    "(%patient.address.line.exists() or " +
+        "%patient.address.postalCode.exists() or " +
+        "%patient.telecom.exists())",
+    "(" +
+        "(%specimen.collection.collectedPeriod.exists() or " +
+        "%specimen.collection.collected.exists()" +
+        ") or " +
+        "%serviceRequest.occurrence.exists() or " +
+        "%observation.effective.exists())"
+)
+```
+
+## Routing Filter
+
+Generic filtering that does not concern data quality or condition (e.g. test result is positive)
+
+
+<table>
+  <tr>
+   <td><strong>Topic</strong>
+   </td>
+   <td>Applies to following topics: <em>full-elr, etor-ti, elr-elims</em>
+   </td>
+  </tr>
+  <tr>
+   <td><strong>Operation</strong>
+   </td>
+   <td>expressions are evaluated with AND operation
+   </td>
+  </tr>
+  <tr>
+   <td><strong>Default</strong>
+   </td>
+   <td><strong>Allow All: </strong>the door is open. No filter is in place
+   </td>
+  </tr>
+</table>
+
+
+
+## Processing Mode Code Filter
+
+The processing mode of the data indicates the sender’s intended context for the data. Options for this field are found here [CodeSystem: processingId](https://terminology.hl7.org/5.2.0/CodeSystem-v2-0103.html). The intention is to ensure the sender and receiver operate with the same data content context. Test data should only be accepted by test receivers. Production data should only be accepted by production receivers.
+
+
+<table>
+  <tr>
+   <td><strong>Topic</strong>
+   </td>
+   <td>Applies to following topics: <em>full-elr, etor-ti</em>
+   </td>
+  </tr>
+  <tr>
+   <td><strong>Operation</strong>
+   </td>
+   <td>expressions are evaluated with AND operation
+   </td>
+  </tr>
+  <tr>
+   <td><strong>Default</strong>
+   </td>
+   <td>See code block below
+   </td>
+  </tr>
+</table>
+
+```kotlin
+   /**
+ * Default Rule:
+ *  Must have a processing mode id of 'P'
+ */
+val processingModeFilterDefault: ReportStreamFilter = listOf(
+    "%processingId = 'P'"
+)
+```
+
+## Condition Filter
+
+Filter data based on the test identifiers. A receiver expecting flu results should only accept tests for flu. If the message contains multiple observations, some that pass the condition filter and others that do not, the condition filter will be used to identify the desired observations. Identifiers for the needed observations are added to the Endpoint which is then added to the Provenance resource.
+
+*The Translate step will review the Endpoints and remove any observations that are not identified.
+
+
+<table>
+  <tr>
+   <td><strong>Topic</strong>
+   </td>
+   <td>Applies to following topics: <em>full-elr, etor-ti, elr-elims</em>
+   </td>
+  </tr>
+  <tr>
+   <td><strong>Operation</strong>
+   </td>
+   <td>expressions are evaluated with OR operation
+   </td>
+  </tr>
+  <tr>
+   <td><strong>Default</strong>
+   </td>
+   <td><strong>Allow All:</strong> the door is open. No filter is in place
+   </td>
+  </tr>
+</table>
+
+
+
+# Storage
+
+The Route Function retrieves messages from the pdhprodstorageaccount Azure Storage Account. Within that storage account there is a Blob Container named reports containing folders for use by the Universal Pipeline. The Convert Function places all messages into the route folder for retrieval by the Route Function. Those messages that match a receiver's filtering will then be placed in the translate folder for future retrieval by the Translate Function. Messages within the route folder are saved to sub-folders equaling the name of the sender.
+
+
+# Filter Reversal
+
+This is a NOT operation on the result of the filters set in the Quality Filter. The primary use is to set the filters for a secondary receiver to ingest all data not accepted by a primary receiver. This may be helpful to keep the qualityFilter setting the same for both the primary and secondary and make it easier to read the configuration.
+
+
+# Logging
+
+
+## Purpose
+
+Filtering logic can be extensive and complex. Recording the outcome of the filters provides internal and external users an important view of events. Logging is particularly important when reports do not pass filtering.
+
+* **Jurisdictional Filter**
+    * results of this filter are <span style="text-decoration:underline;">not</span> logged. Given that most items are only meant for one or maybe a couple jurisdictions out of hundreds, there is little value in logging here.
+* **Other Filters**(Quality, Routing, Processing Mode Code, and Condition)
+    * Following Jurisdictional filtering, all other filter groups use**_ evaluateFilterAndLogResult()_**. Upon failure of a filter in a filter group, the outcome is logged to the ActionLog table
+
+```kotlin
+if (!passes) {
+    val filterToLog = "${
+        if (isDefaultFilter(filterType, filters)) "(default filter) " 
+        else ""
+    }${failingFilterName ?: "unknown"}"
+    logFilterResults(filterToLog, bundle, report, receiver, filterType, focusResource)
+}
+```
+
+* **Code Exceptions**
+    * Results of code exceptions on all filters(including jurisdictional) are logged as warnings in the Action Log table:
+
+```kotlin
+catch (e: SchemaException) {
+    actionLogger?.warn(EvaluateFilterConditionErrorMessage(e.message))
+    exceptionFilters += filterElement
+}
+```
+
+## Filter Log Scenarios
+
+As mentioned, only “failing” filters are logged, and only for non-jurisdictional filters. However, there are a few ways that filters can fail, and the way they are logged varies slightly.
+
+### Simply Filtered Out
+
+In the most basic case, one or more of the predicates within a filter evaluates to false and the report is filtered out. If the filter is [A, B, C, D, E], which can be thought of as `A ∧ B ∧ C ∧ D ∧ E`, any predicate of the filter evaluating to false would result in an overall negative result, so all predicates evaluating to false are logged, but those evaluating to true are less relevant/actionable in the logs. So in that case of the filter [A, B, C, D, E], if B, D, and E all evaluate to false, the logged message might look something like this:
+
+`For someOrg.someReceiver, filter [B, D, E][] filtered out item someItemId`
+
+### Filtered Out w/ Default Filter
+
+If a report is filtered out by application of a default filter, the logged message will include the text “(default filter)”. So for instance if the default filter was [A, B, C, D, E], and B, D, and E all evaluate to false, the message might look like this:
+
+The extra tag is intended to give some indication of where the filter came from if none existed on the receiver. Note that in cases where a receiver has specified filters that happen to be equivalent to the default filter, it will not be marked as the default filter in the message.
+
+`For someOrg.someReceiver, filter (default filter) [B, D, E][] filtered out item someItemId`
+
+### Schema Exception
+
+If the evaluation of a filter leads to an exception, the exception message will be added to the action log so that it can be resolved, but the filter result will still also be logged. The logged message will include the text “(exception found)”. So for instance, if the filter was [A, B, C, D, E] and A and C result in exceptions, the message might look like this:
+
+`For someOrg.someReceiver, filter (exception found) [A, C][] filtered out item someItemId`
+
+We would never expect to have exceptions in evaluation of default filters, but if we did, the resulting message would look like this:
+
+`For someOrg.someReceiver, filter (default filter) (exception found) [A, C][] filtered out item someItemId`
+
+### Filtered Out w/ Reversed Filter
+
+If a report is filtered out due to a quality filter along with a setting of `reverseTheQualityFilter: true`, the logged message will include the text “(reversed)”. Imagine a reversed filter of [A, B, C, D, E], which can be thought of as or equivalently . The only way for this to yield a negative result is if each and every predicate A, B, C, D, and E evaluate to true; therefore each of those predicates is relevant in logging why the filter yielded a negative result. So while in non-reversed cases, we only include the individual predicates that evaluated to false, in reversed cases, we include all predicates, and the resulting message might look like this:
+
+`For someOrg.someReceiver, filter (reversed) [A, B, C, D, E][] filtered out item someItemId`
+
+As it is today, the only filters that can be reversed are quality filters. If the default quality filter is reversed, the resulting message might look like this:
+
+`For someOrg.someReceiver, filter (default filter) (reversed) [A, B, C, D, E][] filtered out item someItemId`
+
+### Filtered Out w/ Default Response
+
+Currently only jurisdictional filters have default results that would filter out reports, and jurisdictional filter results are not logged. If that were to change, we would have to log that we filtered out an item, but without any filter to reference, so this case might have an entirely different format, or the message might look like:
+
+`For someOrg.someReceiver, filter default response[] filtered out item someItemId`
+
+# Configuring Filters
+
+
+## Frontend User Interface
+
+The admin user interface at[ https://reportstream.cdc.gov/](https://reportstream.cdc.gov/) allows a PRIME admin to manage the settings of an organization, sender and/or receiver.  Filters are configured as free text and the input text must conform to the expected syntax.
+
+## Command Line Interface
+
+All filters for receivers and organizations can be created/updated/deleted via the command line.
+
+
+
+1. create a .yml file containing the updated FHIRPath expressions. Ensure the file begins with “---”. Example:
+
+
+```yaml
+---
+- name: yoyodyne
+  description: Yoyodyne Propulsion Laboratories, the Future Starts Tomorrow!
+  jurisdiction: FEDERAL
+  receivers:
+    - name: ELR
+      externalName: yoyodyne ELR
+      organizationName: yoyodyne
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'CA')]
+```
+
+2. Use the following commands to load the information from the .yml files into the staging database. First obtain a login token for staging
+
+`./prime login –env staging`
+
+Next update the staging DB
+
+`./prime multiple-settings set –env staging –input <file-location>`
+
+# Sources:
+
+[Universal Pipeline Routing Design](https://zh-file.s3.amazonaws.com/304423150/b0f41580-4e93-4b6d-957f-f752698796dc?Expires=1692031051&AWSAccessKeyId=AKIAI5X57DET3FHKSALA&Signature=frJxSOhI%2FoTw0jlGY51xDqLmUBI%3D), Oct 2022
