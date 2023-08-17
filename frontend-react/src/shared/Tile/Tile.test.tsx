@@ -1,8 +1,8 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
-import Feature from "./Feature";
+import { Tile } from "./Tile";
 
 describe("Feature rendering", () => {
     const baseSection = { type: "xyz" };
@@ -12,7 +12,7 @@ describe("Feature rendering", () => {
     };
 
     beforeEach(() => {
-        renderApp(<Feature section={baseSection} feature={baseFeature} />);
+        renderApp(<Tile section={baseSection} item={baseFeature} />);
     });
 
     test("renders without error", () => {
@@ -50,15 +50,12 @@ describe("DeliveryMethodFeature rendering", () => {
 
     beforeEach(() => {
         renderApp(
-            <Feature
-                section={deliveryMethodSection}
-                feature={deliveryFeature}
-            />,
+            <Tile section={deliveryMethodSection} item={deliveryFeature} />,
         );
     });
 
     test("renders without error", () => {
-        const image = screen.getByTestId("image");
+        const image = screen.getByTestId("img");
         const heading = screen.getByTestId("heading");
         expect(image).toBeInTheDocument();
         expect(heading).toBeInTheDocument();
@@ -71,18 +68,17 @@ describe("LiveMapFeature rendering", () => {
         img: "test.png",
         imgAlt: "test alt",
         linkInternal: "/how-it-works/where-were-live",
+        summary: "This is a summary",
     };
 
     beforeEach(() => {
-        renderApp(
-            <Feature section={liveMapSection} feature={liveMapFeature} />,
-        );
+        renderApp(<Tile section={liveMapSection} item={liveMapFeature} />);
     });
 
     test("renders without error", () => {
-        const heading = screen.getByTestId("heading");
+        const image = screen.getByTestId("img");
         const summary = screen.getByTestId("summary");
-        expect(heading).toBeInTheDocument();
+        expect(image).toBeInTheDocument();
         expect(summary).toBeInTheDocument();
     });
 });

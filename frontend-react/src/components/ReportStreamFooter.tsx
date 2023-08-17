@@ -15,7 +15,7 @@ import { USExtLink } from "./USLink";
 
 export const ReportStreamFooter = () => {
     return (
-        <Identifier>
+        <Identifier className="bg-primary-darker">
             <IdentifierMasthead aria-label="Agency identifier">
                 <IdentifierLogos>
                     <IdentifierLogo
@@ -36,7 +36,10 @@ export const ReportStreamFooter = () => {
                     </Link>
                 </IdentifierIdentity>
             </IdentifierMasthead>
-            <IdentifierLinks navProps={{ "aria-label": "Important links" }}>
+            <IdentifierLinks
+                className="column-count-3"
+                navProps={{ "aria-label": "Important links" }}
+            >
                 <IdentifierLinkItem>
                     <IdentifierLink href="https://www.cdc.gov/about/default.htm">
                         About CDC
@@ -50,11 +53,6 @@ export const ReportStreamFooter = () => {
                 <IdentifierLinkItem>
                     <IdentifierLink href="https://www.cdc.gov/contact/accessibility.html">
                         Accessibilty support
-                    </IdentifierLink>
-                </IdentifierLinkItem>
-                <IdentifierLinkItem>
-                    <IdentifierLink href="https://www.cdc.gov/Other/disclaimer.html#exit-notification">
-                        External Links
                     </IdentifierLink>
                 </IdentifierLinkItem>
                 <IdentifierLinkItem>
@@ -81,16 +79,16 @@ export const ReportStreamFooter = () => {
                     </IdentifierLink>
                 </IdentifierLinkItem>
                 <IdentifierLinkItem>
-                    <IdentifierLink href="/terms-of-service">
-                        Terms of service
-                    </IdentifierLink>
-                </IdentifierLinkItem>
-                <IdentifierLinkItem>
                     <IdentifierLink
                         href="https://www.hhs.gov/vulnerability-disclosure-policy/index.html"
                         className="usa-link--external"
                     >
                         Vulnerability disclosure policy
+                    </IdentifierLink>
+                </IdentifierLinkItem>
+                <IdentifierLinkItem>
+                    <IdentifierLink href="/terms-of-service">
+                        Terms of service
                     </IdentifierLink>
                 </IdentifierLinkItem>
             </IdentifierLinks>

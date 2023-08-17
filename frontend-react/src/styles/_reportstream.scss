@@ -779,7 +779,7 @@ pre {
     margin-top: auto !important;
 }
 
-/** 
+/**
  * Allows automatic counter numbers in process-list style
  */
 @mixin numbered($counter) {
@@ -839,16 +839,42 @@ h2.rs-numbered {
     }
 }
 
+/* Remove padding on inner/outter mains */
+#main-content {
+    &,
+    & > .grid-container > .grid-row > main {
+        padding: 0;
+    }
+}
+
 /*
  * CMS-type pages use a smaller default width
  */
-.rs-style__content {
-    .grid-container {
+.rs-style--content {
+    & > .grid-container {
         @include grid-container("desktop-lg");
     }
 
     // Smaller font for content alerts
     .usa-alert {
         @include u-font-size("sans", "xs");
+    }
+}
+
+/*
+ * Make parent container full-width across all screen sizes
+ */
+@media screen and (min-width: 0) {
+    .rs-style--full-width {
+        & > .grid-container {
+            @include u-padding(0, !important);
+        }
+    }
+}
+
+.rs-style--full-width {
+    & > .grid-container {
+        @include grid-container("full");
+        @include u-padding(0);
     }
 }

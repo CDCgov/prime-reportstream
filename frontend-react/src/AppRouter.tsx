@@ -24,7 +24,6 @@ import { AdminReceiverDashWithAuth } from "./pages/admin/AdminReceiverDashPage";
 import { DeliveryDetailWithAuth } from "./pages/deliveries/details/DeliveryDetail";
 import { ValueSetsDetailWithAuth } from "./pages/admin/value-set-editor/ValueSetsDetail";
 import { ValueSetsIndexWithAuth } from "./pages/admin/value-set-editor/ValueSetsIndex";
-import Home from "./pages/home/Home";
 import { DeliveriesWithAuth } from "./pages/deliveries/Deliveries";
 import { EditReceiverSettingsWithAuth } from "./components/Admin/EditReceiverSettings";
 import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
@@ -61,9 +60,10 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "",
                 index: true,
-                element: <Home />,
+                lazy: lazyRouteMarkdown("content/home/home-index"),
                 handle: {
                     isContentPage: true,
+                    isFullWidth: true,
                 },
             },
             {
