@@ -18,7 +18,10 @@ import java.security.MessageDigest
 
 const val defaultBlobContainerName = "reports"
 
-class BlobAccess : Logging {
+/**
+ * Accessor for Azure blob storage.
+ */
+class BlobAccess() : Logging {
 
     // Basic info about a blob: its format, url in azure, and its sha256 hash
     data class BlobInfo(
@@ -72,7 +75,7 @@ class BlobAccess : Logging {
         private data class BlobContainerMetadata(val name: String, val connectionString: String)
 
         /**
-         * THe blob containers.
+         * Map of reusable blob containers corresponding with specific blob container Metadata.
          */
         private val blobContainerClients = mutableMapOf<BlobContainerMetadata, BlobContainerClient>()
 
@@ -106,10 +109,17 @@ class BlobAccess : Logging {
         }
 
         /**
+         * Obtain the blob connection string from the given environment.
+         */
+        fun getBlobConnection(blobConnEnvVar: String = defaultConnEnvVar): String {
+            return System.getenv(blobConnEnvVar)
+        }
+
+        /**
          * Obtain a client for interacting with the blob store.
          */
         private fun getBlobClient(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar): BlobClient {
-            val blobConnection = System.getenv(blobConnEnvVar)
+            val blobConnection = getBlobConnection(blobConnEnvVar)
             return BlobClientBuilder().connectionString(blobConnection).endpoint(blobUrl).buildClient()
         }
 
@@ -171,7 +181,7 @@ class BlobAccess : Logging {
          * Check the connection to the blob store
          */
         fun checkConnection(blobConnEnvVar: String = defaultConnEnvVar) {
-            val blobConnection = System.getenv(blobConnEnvVar)
+            val blobConnection = getBlobConnection(blobConnEnvVar)
             BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
         }
 
@@ -181,7 +191,7 @@ class BlobAccess : Logging {
          * @return the blob container client
          */
         private fun getBlobContainer(name: String, blobConnEnvVar: String = defaultConnEnvVar): BlobContainerClient {
-            val blobConnection = System.getenv(blobConnEnvVar)
+            val blobConnection = getBlobConnection(blobConnEnvVar)
             val blobContainerMetadata = BlobContainerMetadata(name, blobConnection)
 
             return if (blobContainerClients.containsKey(blobContainerMetadata)) {
@@ -191,6 +201,7 @@ class BlobAccess : Logging {
                 val containerClient = blobServiceClient.getBlobContainerClient(name)
                 try {
                     if (!containerClient.exists()) containerClient.create()
+                    blobContainerClients[blobContainerMetadata] = containerClient
                 } catch (error: BlobStorageException) {
                     // This can happen when there are concurrent calls to the API
                     if (error.errorCode.equals(BlobErrorCode.CONTAINER_ALREADY_EXISTS)) {

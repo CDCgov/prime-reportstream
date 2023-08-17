@@ -137,3 +137,12 @@ elements:
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-27'
     schema: ../../common/datatype/ce-coded-with-exceptions
+
+  - name: specimen-observation-result-with-aoe
+    resource: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id)'
+    schema: observation-result
+    resourceIndex: resultIndex
+    constants:
+      hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{resultIndex})'
+      hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{resultIndex})/OBX'
+      observation: '%diagnostic.result[%resultIndex].resolve()'
