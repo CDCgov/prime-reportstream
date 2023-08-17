@@ -38,9 +38,14 @@ import kotlin.random.Random
  * Based on Okta article https://developer.okta.com/blog/2018/12/13/oauth-2-for-native-and-mobile-apps
  */
 
+private const val oktaProdBaseUrl = "https://hhs-prime.okta.com"
+private const val oktaPreviewBaseUrl = "https://hhs-prime.oktapreview.com"
+private const val oktaProdClientId = "0oa6kt4j3tOFz5SH84h6"
+private const val oktaPreviewClientId = "0oa2fs6vp3W5MTzjh1d7"
 private const val oktaAuthorizePath = "/oauth2/default/v1/authorize" // Default authorization server
 private const val oktaIntrospectPath = "/oauth2/default/v1/introspect" // For checking if a token is active
 private const val oktaTokenPath = "/oauth2/default/v1/token"
+private const val oktaScope = "simple_report_dev"
 private const val redirectPort = 9988
 private const val redirectHost = "http://localhost"
 private const val redirectPath = "/callback"
@@ -74,16 +79,15 @@ class LoginCommand : OktaCommand(
     ).flag(default = false)
 
     override fun run() {
-        Environment.get(env).oktaApp ?: abort("No need to login in this environment")
+        val oktaApp = Environment.get(env).oktaApp ?: abort("No need to login in this environment")
 
         // Load environment variables for the Okta Api
         // The prefix has to be added as this value is already set for other uses
-        oktaBaseUrl = "https://" + (System.getenv("OKTA_baseUrl") ?: "hhs-prime.oktapreview.com")
-        oktaClientId = System.getenv("OKTA_clientId")
-            ?: error("A valid OKTA_clientId environment variable is needed for this command")
+        oktaBaseUrl = oktaBaseUrls[oktaApp] ?: error("Invalid app - Okta url")
+        oktaClientId = clientIds[oktaApp] ?: error("Invalid app")
+
         oktaAuthKey = System.getenv("OKTA_authKey")
             ?: error("A valid OKTA_authKey environment variable is needed for this command")
-        oktaScope = System.getenv("OKTA_scope") ?: "openid"
 
         val accessTokenFile = if (!forceRefreshToken) {
             readAccessTokenFile()
@@ -231,7 +235,7 @@ class LogoutCommand : OktaCommand(
  * Shared stuff between login and logout
  */
 abstract class OktaCommand(name: String, help: String) : CliktCommand(name = name, help = help) {
-    enum class OktaApp { DH_TEST, DH_PROD, DH_STAGE }
+    enum class OktaApp { DH_TEST, DH_PROD, DH_STAGE, DH_DEV }
 
     data class AccessTokenFile(val token: String, val clientId: String, val expiresAt: LocalDateTime)
 
@@ -258,14 +262,22 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
         lateinit var oktaAuthKey: String
 
         /**
-         * Scope for the login to the Okta account
-         */
-        lateinit var oktaScope: String
-
-        /**
          * Dummy access token for when use with development.
          */
-        private const val dummyOktaAccessToken = "dummy"
+        internal const val dummyOktaAccessToken = "dummy"
+
+        internal val clientIds = mapOf(
+            OktaApp.DH_PROD to oktaProdClientId,
+            OktaApp.DH_TEST to oktaPreviewClientId,
+            OktaApp.DH_STAGE to oktaPreviewClientId,
+            OktaApp.DH_DEV to oktaPreviewClientId,
+        )
+        internal val oktaBaseUrls = mapOf(
+            OktaApp.DH_PROD to oktaProdBaseUrl,
+            OktaApp.DH_TEST to oktaPreviewBaseUrl,
+            OktaApp.DH_STAGE to oktaPreviewBaseUrl,
+            OktaApp.DH_DEV to oktaPreviewBaseUrl,
+        )
 
         private val jsonMapper = JacksonMapperUtilities.allowUnknownsMapper
 
@@ -300,8 +312,8 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             if (oktaClientId != accessTokenFile.clientId) return false
             // Make sure the token will not expire soon
             if (accessTokenFile.expiresAt <= LocalDateTime.now().plusMinutes(5)) return false
-            // Try out the token with Okta for the final confirmation
 
+            // Try out the token with Okta for the final confirmation
             val (_, _, result) = Fuel.post("$oktaBaseUrl$oktaIntrospectPath")
                 .header(
                     Headers.CONTENT_TYPE to "application/x-www-form-urlencoded",
