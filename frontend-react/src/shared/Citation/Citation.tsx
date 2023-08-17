@@ -14,7 +14,9 @@ export const Citation = ({ citation }: { citation: CitationProp }) => {
             <p data-testid="quote" className="usa-intro">
                 "{citation.quote}"
             </p>
-            <h4 data-testid="author">{citation.author}</h4>
+            <p data-testid="author" className="font-sans-sm text-bold">
+                {citation.author}
+            </p>
             <p data-testid="authorTitle" className="margin-top-0">
                 {citation.authorTitle}
             </p>
