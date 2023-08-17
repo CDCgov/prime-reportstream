@@ -5,9 +5,15 @@ elements:
   ## 2. Rely on the ordering of the coding array assuming it is [identifier, alternate identifier, second alternate identifier]
 
   - name: identifier-code
+    condition: >
+      %resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").exists() or
+      %resource.coding[0].extension(%`rsext-code-index-name`).exists().not()
     value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").code', '%resource.coding[0].code' ]
     hl7Spec: [ '%{cweFieldPath}-1' ]
   - name: identifier-display
+    condition: >
+      %resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").exists() or
+      %resource.coding[0].extension(%`rsext-code-index-name`).exists().not()
     value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").display', '%resource.coding[0].display' ]
     hl7Spec: [ '%{cweFieldPath}-2' ]
   - name: identifier-system-url
@@ -31,6 +37,9 @@ elements:
     value: [ '%resource.system.value' ]
     hl7Spec: [ '%{cweFieldPath}-3' ]
   - name: identifier-version
+    condition: >
+      %resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").exists() or
+      %resource.coding[0].extension(%`rsext-code-index-name`).exists().not()
     value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").version', '%resource.coding[0].version' ]
     hl7Spec: [ '%{cweFieldPath}-7' ]
   - name: coding-system-oid
@@ -39,7 +48,7 @@ elements:
     value: ['%resource.value.getId()']
     hl7Spec: [ '%{cweFieldPath}-14' ]
   - name: coding-system-oid
-    resource: '%resource.coding[1].extension(%`rsext-coding-system-oid`)'
+    resource: '%resource.coding[0].extension(%`rsext-coding-system-oid`)'
     condition: '%resource.value.exists()'
     value: [ '%resource.value.getId()' ]
     hl7Spec: [ '%{cweFieldPath}-14' ]
