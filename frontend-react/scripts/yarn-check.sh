@@ -3,8 +3,8 @@
 isModified=0
 
 function modified_check() {
-    MODIFIED_PACKAGE_COUNT=$(git status --porcelain | grep "package.json$" | wc -l)
-    MODIFIED_LOCK_COUNT=$(git status --porcelain | grep "yarn.lock$" | wc -l)
+    MODIFIED_PACKAGE_COUNT=$(git status --porcelain | grep "package.json$" | wc -l | xargs)
+    MODIFIED_LOCK_COUNT=$(git status --porcelain | grep "yarn.lock$" | wc -l | xargs)
     if [ ${MODIFIED_PACKAGE_COUNT} != 0 ] || [ ${MODIFIED_LOCK_COUNT} != 0 ]; then
         isModified=1
     else
