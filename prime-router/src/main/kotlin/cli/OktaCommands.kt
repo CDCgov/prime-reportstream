@@ -86,9 +86,6 @@ class LoginCommand : OktaCommand(
         oktaBaseUrl = oktaBaseUrls[oktaApp] ?: error("Invalid app - Okta url")
         oktaClientId = clientIds[oktaApp] ?: error("Invalid app")
 
-        oktaAuthKey = System.getenv("OKTA_authKey")
-            ?: error("A valid OKTA_authKey environment variable is needed for this command")
-
         val accessTokenFile = if (!forceRefreshToken) {
             readAccessTokenFile()
         } else {
@@ -145,6 +142,8 @@ class LoginCommand : OktaCommand(
     }
 
     private fun clientCredentialsAuthorize(): JSONObject {
+        oktaAuthKey = System.getenv("OKTA_authKey")
+            ?: error("A valid OKTA_authKey environment variable is needed for this command")
         val (_, _, result) = Fuel
             .post("$oktaBaseUrl$oktaTokenPath?")
             .header(
