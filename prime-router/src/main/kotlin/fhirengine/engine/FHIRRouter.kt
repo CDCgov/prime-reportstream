@@ -21,7 +21,6 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
 import gov.cdc.prime.router.azure.db.Tables
-import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -271,16 +270,6 @@ class FHIRRouter(
 
             // ensure tracking is set
             actionHistory.trackCreatedReport(nextEvent, report, null)
-
-            // nullify the previous task next_action
-            db.updateTask(
-                message.reportId,
-                TaskAction.none,
-                null,
-                null,
-                finishedField = Tables.TASK.ROUTED_AT,
-                null
-            )
 
             return emptyList()
         }

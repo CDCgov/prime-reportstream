@@ -191,7 +191,7 @@ abstract class FHIREngine(
         } catch (ex: Exception) {
             logger.error(ex)
             actionLogger.error(InvalidReportMessage(ex.message ?: ""))
-            // The error gets logged but rethrown so that wrapping transaction can get rolled back
+            // The error gets logged but rethrown so that the passed in transaction can get rolled back
             throw ex
         }
     }
