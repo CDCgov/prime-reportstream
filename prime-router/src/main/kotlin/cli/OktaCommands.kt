@@ -68,9 +68,9 @@ class LoginCommand : OktaCommand(
         .choice("local", "test", "staging", "prod")
         .default("local", "local")
 
-    private val manualLogin by option(
-        "--manual",
-        help = "Enable to open the login page and sign in to Okta"
+    private val useApiKey by option(
+        "--useApiKey",
+        help = "Enable to sign in to Okta via an Api request instead of a login page"
     ).flag(default = false)
 
     private val forceRefreshToken by option(
@@ -98,11 +98,12 @@ class LoginCommand : OktaCommand(
         if (accessTokenFile != null && isValidToken(accessTokenFile)) {
             echo("Has a valid token until ${accessTokenFile.expiresAt}")
         } else {
-            val accessTokenJson = if (manualLogin) {
+            val accessTokenJson = if (useApiKey) {
+                echo("Logging in to Okta via the Client Credentials Api...")
+                clientCredentialsAuthorize()
+            } else {
                 echo("About to launch a browser to log in to Okta...")
                 launchSignIn()
-            } else {
-                clientCredentialsAuthorize()
             }
 
             val newAccessTokenFile = writeAccessTokenFile(accessTokenJson)
