@@ -79,7 +79,70 @@ The openapi spec for reportstream is generated from annotations in the code. Thi
 updates and an otherwise ameliorates a lengthy, manual, repetitive, and error-prone process.
 
 ### Swagger UI Customization and Maintenance
-This section is currently empty.
+Since the swagger files are generated from annotations in the code, any changes must be made to the annotations
+(or in the config of the underlying library) rather than the swagger YAML files themselves. These annotations use openapi
+classes and data structures to decorate functions with any metadata to document functions.
+
+For example (From `ApiKeysFunction.kt` function `getApiKeysV1` for retrieval of api keys): 
+
+```kotlin
+    @Operation(
+        summary = "Retrieve API keys for the organization (v1), return API keys when successful",
+        description = OPERATION_GET_KEYS_DESC,
+        tags = [KEY_MGMT_TAG],
+        parameters = [
+            Parameter(
+                name = PARAM_NAME_ORGNAME,
+                required = true,
+                description = PARAM_DESC_ORGNAME_GET,
+            )
+        ],
+        responses = [
+            ApiResponse(
+                responseCode = HTTP_200_OK,
+                description = HTTP_200_GET_MSG,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = ApiKeysResponse::class),
+                        examples = [
+                            ExampleObject(
+                                name = "Example response for API key retrieval",
+                                summary = "Example response when key retrieved successfully",
+                                value = EX_GET_APIKEYS_RESP
+                            ),
+                        ]
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = HTTP_404_NOT_FOUND,
+                description = HTTP_404_ERR_MSG,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = String::class)
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = HTTP_400_BAD_REQ,
+                description = HTTP_400_ERR_MSG,
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = String::class)
+                    )
+                ]
+            )
+        ]
+    )
+    @GET
+    @Path("v1/settings/organizations/{organizationName}/public-keys")
+    fun getV1( . . . 
+```
+
+For more examples of such annotations, search for `@Operation` in the codebase. 
 
 ### Swagger UI Distribution Update History
 
