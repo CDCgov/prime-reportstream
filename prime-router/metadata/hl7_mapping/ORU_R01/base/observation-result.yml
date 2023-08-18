@@ -144,28 +144,20 @@ elements:
 
   - name: performing-organization-name-pracrole
     condition: '%observation.performer.resolve() is PractitionerRole'
-    resource: '%observation.performer.resolve().organization.resolve()'
+    resource: '%resource.performer.resolve().organization.resolve()'
     schema: ../../common/datatype/xon-organization
     constants:
       hl7OrgField: '%{hl7OBXField}-23'
 
   - name: performing-organization-name-non-pracrole
     condition: '%observation.performer.resolve().is(PractitionerRole).not()'
-    resource: '%observation.performer.resolve()'
+    resource: '%resource.performer.resolve()'
     schema: ../../common/datatype/xon-organization
     constants:
       hl7OrgField: '%{hl7OBXField}-23'
 
   - name: performing-organization-address-pracrole
     condition: '%observation.performer.resolve() is PractitionerRole'
-    resource: '%observation.performer.resolve().organization.resolve().address'
-    constants:
-      hl7AddressField: '%{hl7OBXField}-24'
-    schema: ../../common/datatype/xad-extended-address
-    resourceIndex: contactIndex
-
-  - name: performing-organization-address-pracrole
-    condition: '%resource.performer.resolve() is PractitionerRole'
     resource: '%resource.performer.resolve().organization.resolve().address'
     constants:
       hl7AddressField: '%{hl7OBXField}-24'
@@ -174,14 +166,6 @@ elements:
 
   - name: performing-organization-address-non-pracrole
     condition: '%observation.performer.resolve().is(PractitionerRole).not()'
-    resource: '%observation.performer.resolve().address'
-    constants:
-      hl7AddressField: '%{hl7OBXField}-24'
-    schema: ../../common/datatype/xad-extended-address
-    resourceIndex: contactIndex
-
-  - name: performing-organization-address-non-pracrole
-    condition: '%resource.performer.resolve().is(PractitionerRole).not()'
     resource: '%resource.performer.resolve().address'
     constants:
       hl7AddressField: '%{hl7OBXField}-24'
