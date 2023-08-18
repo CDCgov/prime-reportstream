@@ -86,8 +86,8 @@
         authTokenUrl: "https://cdcti-staging-api.azurewebsites.net/v1/auth/token"
         authType: "two-legged"
 # Uncomment below for local Trusted-Intermediary server
-#        reportUrl: "http://localhost:8080/v1/etor/orders"
-#        authTokenUrl: "http://localhost:8080/v1/auth/token"
+        # reportUrl: "http://host.docker.internal:8080/v1/etor/orders"
+        # authTokenUrl: "http://host.docker.internal:8080/v1/auth/token"
         type: "REST"
         tlsKeystore: null
         parameters:
