@@ -1,5 +1,8 @@
-import { MarkdownLayout } from "../../../components/Content/MarkdownLayout";
-import FaqIndex from "../../../content/support/faq/FaqIndex.mdx";
+import { MarkdownLayout } from "../../../layouts/Markdown/MarkdownLayout";
+import FaqIndex, {
+    frontmatter,
+    toc,
+} from "../../../content/support/faq/FaqIndex.mdx";
 import Crumbs, { CrumbsProps } from "../../../components/Crumbs";
 import { FeatureName } from "../../../AppRouter";
 
@@ -12,7 +15,7 @@ export function FaqPage() {
     };
 
     return (
-        <MarkdownLayout>
+        <MarkdownLayout frontmatter={frontmatter} toc={toc}>
             <Crumbs {...crumbProps}></Crumbs>
             <FaqIndex />
         </MarkdownLayout>

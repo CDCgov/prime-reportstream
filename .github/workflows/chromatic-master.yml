@@ -15,18 +15,18 @@ jobs:
         with:
           fetch-depth: 0 # need commit history for Chromatic
 
-      - uses: actions/setup-node@e33196f7422957bea03ed53f6fbb155025ffc7b8
+      - uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d
         with:
           node-version-file: frontend-react/package.json
 
       - name: Install dependencies
-        run: yarn --ignore-platform
+        run: yarn
         working-directory: frontend-react
         shell: bash
 
       - name: Publish to Chromatic and accept baseline
         id: chromatic_publish
-        uses: chromaui/action@d51b84e79d164fbe8fc5bb7175695d88ddd04b72
+        uses: chromaui/action@671728dff1f5d28ae44538038bb18dd21f72a8cc
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}
