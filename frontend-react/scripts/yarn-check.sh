@@ -2,10 +2,6 @@
 
 isModified=0
 
-function note() {
-    echo "yarn-check> info: ${*}"
-}
-
 function modified_check() {
     MODIFIED_PACKAGE_COUNT=$(git status --porcelain | grep "package.json$" | wc -l)
     MODIFIED_LOCK_COUNT=$(git status --porcelain | grep "yarn.lock$" | wc -l)
@@ -17,21 +13,17 @@ function modified_check() {
 }
 
 function yarn_lock_check() {
-    note "Checking Yarn lock integrity"
+    echo "Checking Yarn lock integrity"
     yarn --immutable --immutable-cache
 }
 
-cd frontend-react
 modified_check
 if [[ ${isModified} == 1 ]]; then
     yarn_lock_check
-else
-    note "Skipping this check"
 fi
 RC=$?
 
 if [[ ${RC?} != 0 ]]; then
-    note "ERROR: Your yarn lock file is out of sync. Please run yarn install and try again."
+    echo "ERROR: Your yarn lock file is out of sync. Please yarn install and stage the yarn.lock file (if changed) and try again."
+    exit ${RC?}
 fi
-
-exit ${RC?} 
