@@ -24,10 +24,8 @@ const section = {
     ],
 };
 
-export const RSTile = (): React.ReactElement => (
-    <Tile section={section} item={section.items[0]} />
-);
+export const RSTile = (): React.ReactElement => <Tile {...section.items[0]} />;
 
 export const RSTileWithImage = (): React.ReactElement => (
-    <Tile section={section} item={section.items[1]} />
+    <Tile {...section.items[1]} />
 );

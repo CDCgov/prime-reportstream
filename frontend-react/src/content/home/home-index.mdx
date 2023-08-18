@@ -1,7 +1,6 @@
 ---
 title: Your single connection to simplify data transfer and improve public health
 subtitle: ReportStream is CDC’s free, interoperable platform for streamlining public health reporting. We navigate unique, complex requirements and work to make sure your data gets where it needs to be.
-isPrimaryDarker: true
 callToAction:
     - href: https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957
       label: Connect now
@@ -28,26 +27,23 @@ liveMapContact:
           author: Monica Gamez
           authorTitle: Deputy Associate Commissioner, Texas Department of State Health Services
 ---
-import { Section } from "../../shared/Section/Section";
-import { LiveMap } from "../../shared/LiveMap/LiveMap";
 import site from "../site.json";
 
-<div className="bg-primary-lighter">
+<HeroWrapper className="bg-primary-lighter">
     <div className="grid-container">
         {frontmatter.howWeHelp.map((section, sectionIndex) => {
             return (
-            <section key={`home-${sectionIndex}`}className="usa-section margin-y-0 padding-y-9">
-                <Section section={section} />
-                <div className="grid-row flex-justify-center margin-bottom-2">
-                    <A href={site.forms.connectWithRS.url} className="usa-button">Get started</A>
-                </div>
-            </section>
+                <ContentSection key={`home-${sectionIndex}`} {...section}>
+                    <div className="grid-row flex-justify-center margin-bottom-2">
+                        <A href={site.forms.connectWithRS.url} className="usa-button">Get started</A>
+                    </div>
+                </ContentSection>
             );
         })}
     </div>
-</div>
-<div className="grid-container">
-    <section className="usa-section padding-top-9 padding-bottom-0">
+</HeroWrapper>
+<HeroWrapper className="grid-container">
+    <section className="usa-section padding-bottom-0">
         <h2 className="font-sans-xl margin-top-0">How it works</h2>
         <p className="usa-intro margin-top-4">Our open-source platform aggregates and [securely delivers](/resources/security-practices) healthcare data test results from organizations and testing facilities directly to public health entities. Born in response to the COVID-19 pandemic, ReportStream is built to thrive and evolve within the complex environment of public health.</p>
         <img
@@ -56,17 +52,15 @@ import site from "../site.json";
             alt="Organizations and testing facilities submit data, which ReportStream validates, augments and standardizes. Then, the data is routed as ReportStream determines the destination by subscription management. After this, it is transformed and transported to public health agencies in the desired data model and batch size."
         />
     </section>
-</div>
-<div className="grid-container">
+</HeroWrapper>
+<HeroWrapper className="grid-container">
     {frontmatter.liveMapContact.map((section, sectionIndex) => {
         return (
-            <section key={`livemap-${sectionIndex}`} className="usa-section margin-y-0 tablet:padding-bottom-9">
-                <LiveMap section={section} />
-            </section>
+            <LiveMap key={`livemap-${sectionIndex}`} className="usa-section margin-y-0 tablet:padding-bottom-9" {...section} />
         );
     })}
-</div>
-<div className="bg-primary-lighter">
+</HeroWrapper>
+<HeroWrapper className="bg-primary-lighter">
     <div className="grid-container">
         <section className="usa-section">
             <div className="grid-row flex-justify-center">
@@ -78,4 +72,4 @@ import site from "../site.json";
             </div>
         </section>
     </div>
-</div>
+</HeroWrapper>

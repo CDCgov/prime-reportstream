@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 
-import { Section } from "./Section";
+import { ContentSection } from "./ContentSection";
 
 /* REFACTOR
    Is there a better way to handle mocking components when they cause
@@ -19,7 +19,7 @@ describe("Section rendering", () => {
     };
 
     beforeEach(() => {
-        renderApp(<Section section={fakeSection} />);
+        renderApp(<ContentSection {...fakeSection} />);
     });
 
     test("Section renders props", () => {

@@ -1,0 +1,34 @@
+@use "uswds-core" as *;
+
+$-alternate-bg: "primary-darker";
+$-alternate-color: "white";
+$-alternate-button-bg: "accent-cool";
+$-alternate-button-color: "black";
+
+@mixin u-rs-style-alternate-color {
+    @include u-color($-alternate-color);
+}
+
+@mixin u-rs-style-alternate-bg {
+    @include u-bg($-alternate-bg);
+}
+
+@mixin u-rs-style-alternate-button {
+    @include u-bg($-alternate-button-bg);
+    @include u-color($-alternate-button-color);
+}
+
+@mixin u-rs-style-alternate-container {
+    @include u-rs-style-alternate-bg;
+    @include u-rs-style-alternate-color;
+
+    & a,
+    & .usa-link {
+        @include u-rs-style-alternate-color;
+    }
+
+    & button,
+    & .usa-button {
+        @include u-rs-style-alternate-button;
+    }
+}
