@@ -70,7 +70,7 @@ class LoginCommand : OktaCommand(
 
     private val manualLogin by option(
         "--manual",
-        help = "Enable to open the login page and sign manually to Okta"
+        help = "Enable to open the login page and sign in to Okta"
     ).flag(default = false)
 
     private val forceRefreshToken by option(
