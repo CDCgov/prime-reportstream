@@ -1,8 +1,12 @@
 import { Link } from "@trussworks/react-uswds";
 
-import { SectionProp } from "../Section/Section";
+import { ContentSectionProps } from "../ContentSection/ContentSection";
 
-export const OtherPartners = ({ section }: { section: SectionProp }) => {
+export const OtherPartners = ({
+    section,
+}: {
+    section: ContentSectionProps;
+}) => {
     return (
         <div>
             <h3 data-testid="subTitle" className="font-sans-lg margin-top-0">

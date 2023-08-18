@@ -99,12 +99,12 @@ export const appRoutes: RouteObject[] = [
                 path: "managing-your-connection",
                 children: [
                     {
-                        path: "refer-health-care-organizations",
+                        path: "refer-healthcare-organizations",
                         handle: {
                             isContentPage: true,
                         },
                         lazy: lazyRouteMarkdown(
-                            "content/managing-your-connection/refer-health-care-organizations",
+                            "content/managing-your-connection/refer-healthcare-organizations",
                         ),
                     },
                 ],

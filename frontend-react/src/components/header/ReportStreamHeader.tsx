@@ -40,14 +40,13 @@ const SupportIA = () => (
     </USNavLink>
 );
 
-type ReportStreamHeaderProps = {
-    children: React.ReactNode;
-    className?: string;
-};
+export interface ReportStreamHeaderProps
+    extends React.PropsWithChildren<React.HTMLAttributes<HTMLElement>> {}
 
 export const ReportStreamHeader = ({
     children,
     className,
+    ...props
 }: ReportStreamHeaderProps) => {
     const { authState } = useOktaAuth();
     const { activeMembership, isAdminStrictCheck } = useSessionContext();
@@ -108,6 +107,7 @@ export const ReportStreamHeader = ({
                 "border-bottom-1px border-base-lighter",
                 className,
             )}
+            {...props}
         >
             {children}
             <div className="usa-nav-container">

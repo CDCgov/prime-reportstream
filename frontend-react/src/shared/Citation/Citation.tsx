@@ -1,24 +1,32 @@
-export interface CitationProp {
-    title?: string;
-    quote?: string;
-    author?: string;
-    authorTitle?: string;
-}
+import classNames from "classnames";
 
-export const Citation = ({ citation }: { citation: CitationProp }) => {
+export interface CitationProps
+    extends React.PropsWithChildren<
+        React.HTMLAttributes<HTMLElement> & CitationItem
+    > {}
+
+export const Citation = ({
+    className,
+    title,
+    quote,
+    author,
+    authorTitle,
+    ...props
+}: CitationProps) => {
+    const classnames = classNames("padding-top-9", className);
     return (
-        <div className="padding-top-9">
+        <div className={classnames} {...props}>
             <p data-testid="title" className="font-sans-lg text-bold">
-                {citation.title}
+                {title}
             </p>
             <p data-testid="quote" className="usa-intro">
-                "{citation.quote}"
+                "{quote}"
             </p>
             <p data-testid="author" className="font-sans-sm text-bold">
-                {citation.author}
+                {author}
             </p>
             <p data-testid="authorTitle" className="margin-top-0">
-                {citation.authorTitle}
+                {authorTitle}
             </p>
         </div>
     );

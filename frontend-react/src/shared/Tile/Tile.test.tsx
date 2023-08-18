@@ -5,14 +5,13 @@ import { renderApp } from "../../utils/CustomRenderUtils";
 import { Tile } from "./Tile";
 
 describe("Feature rendering", () => {
-    const baseSection = { type: "xyz" };
     const baseFeature = {
         title: "base title",
         summary: "base summary",
     };
 
     beforeEach(() => {
-        renderApp(<Tile section={baseSection} item={baseFeature} />);
+        renderApp(<Tile {...baseFeature} />);
     });
 
     test("renders without error", () => {
@@ -31,7 +30,6 @@ describe("Feature rendering", () => {
 });
 
 describe("DeliveryMethodFeature rendering", () => {
-    const deliveryMethodSection = { type: "deliveryMethods" };
     const deliveryFeature = {
         title: "delivery title",
         img: "test.png",
@@ -49,9 +47,7 @@ describe("DeliveryMethodFeature rendering", () => {
     };
 
     beforeEach(() => {
-        renderApp(
-            <Tile section={deliveryMethodSection} item={deliveryFeature} />,
-        );
+        renderApp(<Tile {...deliveryFeature} />);
     });
 
     test("renders without error", () => {
@@ -63,7 +59,6 @@ describe("DeliveryMethodFeature rendering", () => {
 });
 
 describe("LiveMapFeature rendering", () => {
-    const liveMapSection = { type: "liveMap" };
     const liveMapFeature = {
         img: "test.png",
         imgAlt: "test alt",
@@ -72,7 +67,7 @@ describe("LiveMapFeature rendering", () => {
     };
 
     beforeEach(() => {
-        renderApp(<Tile section={liveMapSection} item={liveMapFeature} />);
+        renderApp(<Tile {...liveMapFeature} />);
     });
 
     test("renders without error", () => {

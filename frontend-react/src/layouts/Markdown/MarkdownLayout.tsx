@@ -1,13 +1,15 @@
-import { Grid, GridContainer } from "@trussworks/react-uswds";
 import { MDXProvider } from "@mdx-js/react";
 import { Helmet } from "react-helmet-async";
 import React, { useMemo, useState } from "react";
 import * as reactUSWDS from "@trussworks/react-uswds";
 import type { TocEntry } from "remark-mdx-toc";
+import { useMatches } from "react-router";
+import classNames from "classnames";
 
 import { USSmartLink, USNavLink } from "../../components/USLink";
 import * as shared from "../../shared";
 import PageHeader from "../../shared/PageHeader/PageHeader";
+import HeroWrapper from "../../shared/HeroWrapper/HeroWrapper";
 
 import { TableOfContents } from "./TableOfContents";
 import MarkdownLayoutContext from "./Context";
@@ -36,19 +38,9 @@ const sharedComponents = filterComponents(shared);
 
 export interface MarkdownLayoutProps {
     children: React.ReactNode;
-    frontmatter?: {
-        sidenav?: string;
-        breadcrumbs?: Array<{ label: string; href: string }>;
-        title?: string;
-        subtitle?: string | string[];
-        callToAction?: Array<{ label: string; href: string }>;
-        lastUpdated?: string;
-        toc?: boolean | { depth?: number };
-        backToTop?: boolean;
-        isPrimaryDarker?: boolean;
-    };
+    frontmatter?: Frontmatter;
     toc?: TocEntry[];
-    main?: React.ReactNode;
+    article?: React.ReactNode;
     nav?: React.ReactNode;
     mdx?: React.ComponentProps<typeof MDXProvider>;
 }
@@ -94,7 +86,7 @@ const MDXComponents = {
  */
 export function MarkdownLayout({
     children,
-    main,
+    article,
     mdx,
     frontmatter: {
         title,
@@ -104,7 +96,6 @@ export function MarkdownLayout({
         lastUpdated,
         toc,
         backToTop,
-        isPrimaryDarker,
     } = {},
     toc: tocEntries,
 }: MarkdownLayoutProps) {
@@ -128,6 +119,9 @@ export function MarkdownLayout({
     const isHeader = Boolean(
         title || breadcrumbs || callToAction || lastUpdated || toc,
     );
+    const matches = useMatches() as RsRouteObject[];
+    const { handle = {} } = matches.at(-1) ?? {};
+    const { isFullWidth } = handle;
 
     return (
         <MarkdownLayoutContext.Provider value={ctx}>
@@ -136,74 +130,79 @@ export function MarkdownLayout({
                     <title>{title}</title>
                 </Helmet>
             )}
-            <GridContainer className="usa-prose">
-                <Grid row className="flex-justify flex-align-start">
-                    {sidenavContent ? (
-                        <nav
-                            aria-label="side-navigation"
-                            className={`${styles.sidenav} tablet:grid-col-3`}
-                        >
-                            <MDXProvider
-                                {...mdx}
-                                components={{
-                                    ...MDXComponents,
-                                    ...mdx?.components,
-                                }}
-                            >
-                                {sidenavContent}
-                            </MDXProvider>
-                        </nav>
-                    ) : null}
-                    {main ?? (
-                        <main
-                            className={
-                                sidenavContent
-                                    ? "tablet:grid-col-8"
-                                    : "tablet:grid-col-12"
-                            }
-                        >
-                            {isHeader && (
+            {sidenavContent ? (
+                <nav
+                    aria-label="side-navigation"
+                    className={`${styles.sidenav} tablet:grid-col-3`}
+                >
+                    <MDXProvider
+                        {...mdx}
+                        components={{
+                            ...MDXComponents,
+                            ...mdx?.components,
+                        }}
+                    >
+                        {sidenavContent}
+                    </MDXProvider>
+                </nav>
+            ) : null}
+            {article ?? (
+                <article
+                    id="main-content"
+                    className={classNames(
+                        "usa-prose",
+                        sidenavContent
+                            ? "tablet:grid-col-8"
+                            : "tablet:grid-col-12",
+                    )}
+                >
+                    {isHeader &&
+                        (isFullWidth ? (
+                            <HeroWrapper isAlternate>
                                 <PageHeader
                                     title={title}
                                     breadcrumbs={breadcrumbs}
                                     subtitleArr={subtitleArr}
                                     callToAction={callToAction}
-                                    isPrimaryDarker={isPrimaryDarker}
                                     lastUpdated={lastUpdated}
+                                    className="usa-section grid-container"
                                 />
-                            )}
-                            {tocObj && tocEntries && (
-                                <>
-                                    <b>On this page:</b>
-                                    <TableOfContents
-                                        {...tocObj}
-                                        items={tocEntries}
-                                    />
-                                    <hr />
-                                </>
-                            )}
-                            <MDXProvider
-                                {...mdx}
-                                components={{
-                                    ...MDXComponents,
-                                    LayoutSidenav,
-                                    LayoutMain,
-                                    ...mdx?.components,
-                                }}
-                            >
-                                {mainContent ?? children}
-                            </MDXProvider>
-                            {backToTop && (
-                                <p>
-                                    <USSmartLink href="#top">
-                                        Back to top
-                                    </USSmartLink>
-                                </p>
-                            )}
-                        </main>
+                            </HeroWrapper>
+                        ) : (
+                            <PageHeader
+                                title={title}
+                                breadcrumbs={breadcrumbs}
+                                subtitleArr={subtitleArr}
+                                callToAction={callToAction}
+                                lastUpdated={lastUpdated}
+                                className="usa-section"
+                            />
+                        ))}
+                    {tocObj && tocEntries && (
+                        <>
+                            <b>On this page:</b>
+                            <TableOfContents {...tocObj} items={tocEntries} />
+                            <hr />
+                        </>
                     )}
-                </Grid>
-            </GridContainer>
+                    <MDXProvider
+                        {...mdx}
+                        components={{
+                            ...MDXComponents,
+                            LayoutSidenav,
+                            LayoutMain,
+                            ...mdx?.components,
+                        }}
+                    >
+                        {mainContent ?? children}
+                    </MDXProvider>
+                    {backToTop && (
+                        <p>
+                            <USSmartLink href="#top">Back to top</USSmartLink>
+                        </p>
+                    )}
+                </article>
+            )}
         </MarkdownLayoutContext.Provider>
     );
 }

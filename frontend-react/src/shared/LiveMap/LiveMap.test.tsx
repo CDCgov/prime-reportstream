@@ -13,7 +13,7 @@ describe("LiveMap", () => {
     };
 
     beforeEach(() => {
-        renderApp(<LiveMap section={fakeSection} />);
+        renderApp(<LiveMap {...fakeSection} />);
     });
 
     test("renders props", () => {
