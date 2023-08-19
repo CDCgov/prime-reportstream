@@ -237,7 +237,7 @@ describe("ManagePublicKey", () => {
             expect(screen.getByText("Submit")).toBeVisible();
             /* eslint-disable testing-library/no-unnecessary-act */
             await act(async () => {
-                await fireEvent.submit(screen.getByTestId("form"));
+                fireEvent.submit(screen.getByTestId("form"));
             });
             /* eslint-enable testing-library/no-unnecessary-act */
 
@@ -268,7 +268,7 @@ describe("ManagePublicKey", () => {
             expect(screen.getByText("Submit")).toBeVisible();
             /* eslint-disable testing-library/no-unnecessary-act */
             await act(async () => {
-                await fireEvent.submit(screen.getByTestId("form"));
+                fireEvent.submit(screen.getByTestId("form"));
             });
             /* eslint-enable testing-library/no-unnecessary-act */
         });
