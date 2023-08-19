@@ -84,12 +84,12 @@
         useBatching: false
         type: "FHIR"
       transport: !<REST>
-        reportUrl: "https://cdcti-staging-api.azurewebsites.net/v1/etor/demographics"
+        reportUrl: "https://cdcti-staging-api.azurewebsites.net/v1/etor/orders"
         authTokenUrl: "https://cdcti-staging-api.azurewebsites.net/v1/auth/token"
         authType: "two-legged"
 # Uncomment below for local Trusted-Intermediary server
-#        reportUrl: "http://localhost:8080/v1/etor/demographics"
-#        authTokenUrl: "http://localhost:8080/v1/auth"
+#        reportUrl: "http://localhost:8080/v1/etor/orders"
+#        authTokenUrl: "http://localhost:8080/v1/auth/token"
         type: "REST"
         tlsKeystore: null
         parameters:

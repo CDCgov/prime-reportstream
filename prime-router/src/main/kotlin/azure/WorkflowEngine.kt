@@ -470,6 +470,7 @@ class WorkflowEngine(
                 this.dispatchReport(event, report, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
+
             receiver.timing != null && options != Options.SendImmediately -> {
                 val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
@@ -478,6 +479,7 @@ class WorkflowEngine(
                 this.dispatchReport(event, batchReport, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
+
             receiver.format.isSingleItemFormat -> {
                 report.filteringResults.forEach {
                     val emptyReport = Report(
@@ -500,6 +502,7 @@ class WorkflowEngine(
                     }
                 loggerMsg = "Queued to send immediately: HL7 split into ${report.itemCount} individual reports"
             }
+
             else -> {
                 val event = ReportEvent(Event.EventAction.SEND, report.id, actionHistory.generatingEmptyReport)
                 this.dispatchReport(event, report, actionHistory, receiver, txn)
@@ -689,6 +692,7 @@ class WorkflowEngine(
                 }
                 result.report
             }
+
             "INTERNAL" -> {
                 csvSerializer.readInternal(
                     header.task.schemaName,
@@ -698,6 +702,7 @@ class WorkflowEngine(
                     header.reportFile.reportId
                 )
             }
+
             else -> error("Unsupported read format")
         }
     }
@@ -874,6 +879,7 @@ class WorkflowEngine(
                     )
                 }
             }
+
             Sender.Format.HL7, Sender.Format.HL7_BATCH -> {
                 try {
                     this.hl7Serializer.readExternal(
@@ -894,6 +900,7 @@ class WorkflowEngine(
                     )
                 }
             }
+
             else -> throw IllegalStateException("Sender format ${sender.format} is not supported")
         }
     }
