@@ -794,7 +794,7 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.8.3") {
+    implementation("com.azure:azure-identity:1.10.0") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -842,7 +842,7 @@ dependencies {
     implementation("org.commonmark:commonmark:0.21.0")
     implementation("com.google.guava:guava:32.1.1-jre")
     implementation("com.helger.as2:as2-lib:5.1.1")
-    implementation("org.bouncycastle:bcprov-jdk15to18:1.75")
+    implementation("org.bouncycastle:bcprov-jdk15to18:1.76")
     implementation("org.bouncycastle:bcprov-jdk18on:1.75")
     implementation("org.bouncycastle:bcmail-jdk15to18:1.75")
 
@@ -892,7 +892,7 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.13.5")
+    testImplementation("io.mockk:mockk:1.13.7")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
