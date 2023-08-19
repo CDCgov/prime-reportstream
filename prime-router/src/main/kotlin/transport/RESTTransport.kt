@@ -450,6 +450,9 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         "demographics" -> {
                             TextContent(message.toString(Charsets.UTF_8), ContentType.Application.Json)
                         }
+                        "orders" -> {
+                            TextContent(message.toString(Charsets.UTF_8), ContentType.Application.Json)
+                        }
                         // WA
                         "elr" -> {
                             contentType(ContentType.Application.Json)
