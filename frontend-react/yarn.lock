@@ -3044,9 +3044,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@okta/okta-auth-js@npm:^7.4.0":
-  version: 7.4.0
-  resolution: "@okta/okta-auth-js@npm:7.4.0"
+"@okta/okta-auth-js@npm:^7.4.1":
+  version: 7.4.1
+  resolution: "@okta/okta-auth-js@npm:7.4.1"
   dependencies:
     "@babel/runtime": ^7.12.5
     "@peculiar/webcrypto": ^1.4.0
@@ -3064,7 +3064,7 @@ __metadata:
     tiny-emitter: 1.1.0
     webcrypto-shim: ^0.1.5
     xhr2: 0.1.3
-  checksum: b02cac3da931c027dc2ccee5323790a04a5d22fb5269858aaaeb00d10c9238db2b1e86d5f112ec0e7b336b645cddda09b85b4d98e5ab0b8d506167a17920160d
+  checksum: 01a0728b8d124a08c0176e2fd73a8a01903a89c823d3dafedcaf459d7aeb7a8310c733d4cf288245d641d1c2cdcbbf23c50ec67f19c19af973fe33ea76dc4ae9
   languageName: node
   linkType: hard
 
@@ -3107,9 +3107,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@okta/okta-signin-widget@npm:^7.8.1":
-  version: 7.9.0
-  resolution: "@okta/okta-signin-widget@npm:7.9.0"
+"@okta/okta-signin-widget@npm:^7.9.1":
+  version: 7.9.1
+  resolution: "@okta/okta-signin-widget@npm:7.9.1"
   dependencies:
     "@okta/okta-auth-js": ~7.0.0
     "@sindresorhus/to-milliseconds": ^1.0.0
@@ -3134,7 +3134,7 @@ __metadata:
   dependenciesMeta:
     fsevents:
       optional: true
-  checksum: 80bb79b2817c96e0dfe2fa3327d758774b0ec14ddf0d114f1159469495345d6dbc1e09884fd22c0d846af914a44f81b59c8c00a57cffadc26c272a911e65a4d3
+  checksum: 55b1882869dbbaabde0527ed93478b9837dde7f3bae6199af77a92ff5a837987219c1f8f9155636bdbd4746f7c6bf98b458b54c0bdb49bc4b17edaca574cd2e7
   languageName: node
   linkType: hard
 
@@ -15405,9 +15405,9 @@ __metadata:
     "@mdx-js/rollup": ^2.3.0
     "@microsoft/applicationinsights-react-js": ^17.0.0
     "@microsoft/applicationinsights-web": ^3.0.2
-    "@okta/okta-auth-js": ^7.4.0
+    "@okta/okta-auth-js": ^7.4.1
     "@okta/okta-react": ^6.7.0
-    "@okta/okta-signin-widget": ^7.8.1
+    "@okta/okta-signin-widget": ^7.9.1
     "@rest-hooks/rest": ^3.0.3
     "@rest-hooks/test": ^7.3.1
     "@storybook/addon-a11y": ^7.2.3
