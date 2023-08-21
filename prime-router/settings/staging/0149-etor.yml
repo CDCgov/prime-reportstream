@@ -43,14 +43,10 @@
       organizationName: flexion
       topic: etor-ti
       customerStatus: active
-      # This is how to allow everything:
-      #     jurisdictionalFilter:
-      #       - true
       jurisdictionalFilter:
-        - "%hl7MessageType = 'O21'"
-      #  - "%performerState = 'CO' or %patientState = 'CO'"
+        - Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'
       qualityFilter:
-        - "%hl7MessageType = 'O21'"
+        - true
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -73,8 +69,10 @@
       organizationName: flexion
       topic: etor-ti
       customerStatus: active
-      jurisdictionalFilter: [ "(%patientState.exists() and %patientState = 'IG')" ]
-      qualityFilter: [ "(%patientState.exists() and %patientState = 'IG')" ]
+      jurisdictionalFilter: 
+        - Bundle.entry.resource.ofType(MessageHeader).event.code = 'O01'
+      qualityFilter:
+        - true
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -88,8 +86,8 @@
         authTokenUrl: "https://cdcti-staging-api.azurewebsites.net/v1/auth/token"
         authType: "two-legged"
 # Uncomment below for local Trusted-Intermediary server
-#        reportUrl: "http://localhost:8080/v1/etor/orders"
-#        authTokenUrl: "http://localhost:8080/v1/auth/token"
+        # reportUrl: "http://host.docker.internal:8080/v1/etor/orders"
+        # authTokenUrl: "http://host.docker.internal:8080/v1/auth/token"
         type: "REST"
         tlsKeystore: null
         parameters:
@@ -99,10 +97,3 @@
           RecordId: 'header.reportFile.reportId'
           senderLabName: 'CDC PRIME REPORTSTREAM' #name-of-the-lab-the-sending-user-belongs-to
           sourceLabName: 'CDC PRIME REPORTSTREAM' #name-of-the-lab-that-originally-sent-this-hl7-message-to-OSDH
-# Uncomment below for local SFTP testing
-#      transport:
-#        type: SFTP
-#        host: sftp
-#        port: 22
-#        filePath: ./upload
-#        credentialName: DEFAULT-SFTP
