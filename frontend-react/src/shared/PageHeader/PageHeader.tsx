@@ -45,16 +45,18 @@ export default function PageHeader({
                     {s}
                 </p>
             ))}
-            <div className="grid-row margin-top-8 margin-bottom-2">
-                {callToAction?.map((c) => (
-                    <CallToAction key={c.label} {...c} />
-                ))}
-                {lastUpdated && (
-                    <p className="text-base text-italic">
-                        Last updated: {lastUpdated}
-                    </p>
-                )}
-            </div>
+            {lastUpdated && (
+                <div className="grid-row margin-top-8 margin-bottom-2">
+                    {callToAction?.map((c) => (
+                        <CallToAction key={c.label} {...c} />
+                    ))}
+                    {lastUpdated && (
+                        <p className="text-base text-italic">
+                            Last updated: {lastUpdated}
+                        </p>
+                    )}
+                </div>
+            )}
         </header>
     );
 }

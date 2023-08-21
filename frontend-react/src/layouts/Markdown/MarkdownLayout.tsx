@@ -175,7 +175,6 @@ export function MarkdownLayout({
                                 subtitleArr={subtitleArr}
                                 callToAction={callToAction}
                                 lastUpdated={lastUpdated}
-                                className="usa-section"
                             />
                         ))}
                     {tocObj && tocEntries && (
