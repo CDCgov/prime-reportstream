@@ -53,6 +53,13 @@ val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
 val defaultDuplicateStrategy = DuplicatesStrategy.WARN
 azurefunctions.appName = azureAppName
+val appJvmTarget = "17"
+val javaVersion = when (appJvmTarget) {
+    "17" -> JavaVersion.VERSION_17
+    "19" -> JavaVersion.VERSION_19
+    "21" -> JavaVersion.VERSION_21
+    else -> JavaVersion.VERSION_17
+}
 
 // Local database information, first one wins:
 // 1. Project properties (-P<VAR>=<VALUE> flag)
@@ -113,17 +120,17 @@ jacoco.toolVersion = "0.8.9"
 
 // Set the compiler JVM target
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
 }
 
 val compileKotlin: KotlinCompile by tasks
 val compileTestKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions.jvmTarget = "11"
+compileKotlin.kotlinOptions.jvmTarget = appJvmTarget
 compileKotlin.kotlinOptions.allWarningsAsErrors = true
 // if you set this to true, you will get a warning, which then gets treated as an error
 compileKotlin.kotlinOptions.useK2 = false
-compileTestKotlin.kotlinOptions.jvmTarget = "11"
+compileTestKotlin.kotlinOptions.jvmTarget = appJvmTarget
 compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
 tasks.clean {
@@ -246,7 +253,7 @@ sourceSets.create("testIntegration") {
 }
 
 val compileTestIntegrationKotlin: KotlinCompile by tasks
-compileTestIntegrationKotlin.kotlinOptions.jvmTarget = "11"
+compileTestIntegrationKotlin.kotlinOptions.jvmTarget = appJvmTarget
 
 val testIntegrationImplementation: Configuration by configurations.getting {
     extendsFrom(configurations["testImplementation"])
@@ -794,7 +801,7 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.8.3") {
+    implementation("com.azure:azure-identity:1.10.0") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -832,7 +839,7 @@ dependencies {
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.poi:poi:5.2.3")
     implementation("org.apache.commons:commons-csv:1.10.0")
-    implementation("org.apache.commons:commons-lang3:3.12.0")
+    implementation("org.apache.commons:commons-lang3:3.13.0")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("commons-codec:commons-codec:1.16.0")
     implementation("commons-io:commons-io:2.13.0")
@@ -842,7 +849,7 @@ dependencies {
     implementation("org.commonmark:commonmark:0.21.0")
     implementation("com.google.guava:guava:32.1.1-jre")
     implementation("com.helger.as2:as2-lib:5.1.1")
-    implementation("org.bouncycastle:bcprov-jdk15to18:1.75")
+    implementation("org.bouncycastle:bcprov-jdk15to18:1.76")
     implementation("org.bouncycastle:bcprov-jdk18on:1.75")
     implementation("org.bouncycastle:bcmail-jdk15to18:1.75")
 
@@ -892,7 +899,7 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.13.5")
+    testImplementation("io.mockk:mockk:1.13.7")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
