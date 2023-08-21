@@ -1,0 +1,32 @@
+---
+title: Managing your connection
+subtitle: Tools and resources to manage your ReportStream account and monitor your data
+isPrimaryDarker: true
+quickLinks:
+    - items:
+        - title: For health care organizations
+          bullets:
+            - File validator
+              Manage your public key
+              View your submission history
+          description: <a href='/login' class='usa-link'>Login</a> or <a href='https://app.smartsheetgov.com/b/form/ff33efa457be461c9893301d4c0ec12d' class='usa-link'>contact us</a> to create an account.
+        - title: For public health agencies
+          bullets:
+            - How to download your data
+              Refer healthcare organizations
+              View Daily Data
+          description: <a href='/login' class='usa-link'>Login</a> or <a href='https://app.smartsheetgov.com/b/form/ff33efa457be461c9893301d4c0ec12d' class='usa-link'>contact us</a> to create an account.
+---
+import { Section } from "../../shared/Section/Section";
+
+<div className="bg-primary-lighter">
+    <div className="grid-container">
+        {frontmatter.quickLinks.map((section, sectionIndex) => {
+            return (
+                <section key={`home-${sectionIndex}`}className="usa-section margin-y-0 padding-y-9">
+                    <Section section={section} />
+                </section>
+            );
+        })}
+    </div>
+</div>

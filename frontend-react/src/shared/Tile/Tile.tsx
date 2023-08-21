@@ -12,6 +12,7 @@ export interface ItemProp {
     imgClassName?: string;
     summary?: string;
     items?: { title?: string; summary?: string }[];
+    bullets?: [];
 }
 
 export const Tile = ({
@@ -44,11 +45,20 @@ export const Tile = ({
                     {item.title}
                 </p>
             )}
-            <p
-                data-testid="summary"
-                className="usa-prose maxw-mobile-lg"
-                dangerouslySetInnerHTML={{ __html: cleanSummaryHtml }}
-            ></p>
+            {item.summary && (
+                <p
+                    data-testid="summary"
+                    className="usa-prose maxw-mobile-lg"
+                    dangerouslySetInnerHTML={{ __html: cleanSummaryHtml }}
+                ></p>
+            )}
+            {item.bullets && (
+                <ul>
+                    {item.bullets?.map((bullet, bulletIndex) => (
+                        <li key={`bullet-${bulletIndex}`}>{bullet}</li>
+                    ))}
+                </ul>
+            )}
         </div>
     );
 };

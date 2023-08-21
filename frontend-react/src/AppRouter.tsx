@@ -201,6 +201,17 @@ export const appRoutes: RouteObject[] = [
                 },
             },
             {
+                path: "/manage-connection",
+                index: true,
+                lazy: lazyRouteMarkdown(
+                    "content/manage-connection/manage-connection-index",
+                ),
+                handle: {
+                    isContentPage: true,
+                    isFullWidth: true,
+                },
+            },
+            {
                 path: "/support",
                 children: [
                     {
