@@ -143,8 +143,8 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         headers = mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
     )
     private val flexionRestTransportType = RESTTransportType(
-        "v1/etor/demographics",
-        "v1/auth",
+        "v1/etor/orders",
+        "v1/auth/token",
         "two-legged",
         null,
         mapOf("mock-p1" to "value-p1", "mock-p2" to "value-p2"),
