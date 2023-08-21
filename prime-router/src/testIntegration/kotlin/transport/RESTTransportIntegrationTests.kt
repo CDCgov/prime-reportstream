@@ -555,8 +555,10 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         every { runBlocking { mockRestTransport.getAuthTokenWithUserPass(any(), any(), any(), any()) } }.returns(
             TokenInfo(accessToken = "MockToken", tokenType = "bearer")
         )
-        val retryItems = mockRestTransport.send(nbsRestTransportTypeLive, header, reportId, null,
-            context, actionHistory)
+        val retryItems = mockRestTransport.send(
+            nbsRestTransportTypeLive, header, reportId, null,
+            context, actionHistory
+        )
         assertThat(retryItems).isNull()
     }
 }
