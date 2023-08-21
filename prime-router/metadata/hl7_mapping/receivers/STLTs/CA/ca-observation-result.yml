@@ -3,6 +3,13 @@ constants:
   rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
   observation: '%diagnostic.result[%resultIndex].resolve()'
 elements:
+
+  - name: ca-observation-identifier-code
+    resource: '%resource.code'
+    constants:
+      ceFieldPath: '%{hl7ObservationPath}/OBX-3'
+    schema: ../../../common/datatype/ce-coded-element
+
   - name: ca-observation-abnormal-flag-version
     condition: '%resource.interpretation.exists() and %resource.interpretation.coding[0].version.exists().not()'
     value: [ '2.7' ]
