@@ -1,4 +1,4 @@
-hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+hl7Class: ca.uhn.hl7v2.model.v27.message.ORU_R01
 constants:
   # Prefix for RS custom extension URLs
   rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'

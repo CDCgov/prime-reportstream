@@ -247,7 +247,7 @@ class WorkflowEngine(
             if (isEmptyReport) {
                 actionHistory.trackGeneratedEmptyReport(nextAction, report, receiver, blobInfo)
             } else {
-                actionHistory.trackCreatedReport(nextAction, report, receiver, blobInfo)
+                actionHistory.trackCreatedReport(nextAction, report, receiver = receiver, blobInfo = blobInfo)
             }
         } catch (e: Exception) {
             // Clean up

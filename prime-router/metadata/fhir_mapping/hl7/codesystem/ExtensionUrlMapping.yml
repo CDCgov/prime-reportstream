@@ -245,3 +245,9 @@
 # Specimen Type Modifier
 - id: "specimen-type-modifier"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/specimen-type-modifier"
+# Coding System OID
+- id: "coding-system-oid"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system-oid"
+# Code Index Name
+- id: "code-index-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name"

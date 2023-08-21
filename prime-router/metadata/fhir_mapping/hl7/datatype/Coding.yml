@@ -17,3 +17,41 @@ code:
 display:
   type: STRING
   valueOf: $display
+
+extension_1-codingSystemOID:
+  generateList: true
+  expressionType: nested
+  condition: $codingSystemOID NOT_NULL
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: coding-system-oid
+    valueOid:
+      type: STRING
+      valueOf: $oidString
+      vars:
+        oidString: $oidUrlPrefix + $codingSystemOID
+      constants:
+        oidUrlPrefix: "urn:oid:"
+
+# A codeable concept can have an identifier, an alternate identifier
+# and in 2.7+ (and NIST 2.5.1) a second alternate identifier.  It is also possible
+# that a codeable concept will have an identifier and a second alternate identifier
+# but no alternate identifier, so this extension keeps track of what it was
+# Values: "identifier", "alternate identifier", "second alternate identifier"
+extension_2-codeIndex:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: code-index-name
+    valueString:
+      type: STRING
+      valueOf: $codeIndexStr
+      vars:
+        codeIndexStr: String, $codeIndex | $codeIndexDefault
+      constants:
+        codeIndexDefault: "identifier"
+
+

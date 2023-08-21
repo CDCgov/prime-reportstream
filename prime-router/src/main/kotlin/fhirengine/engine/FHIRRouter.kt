@@ -4,7 +4,6 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.EvaluateFilterConditionErrorMessage
-import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Options
 import gov.cdc.prime.router.Receiver
@@ -21,9 +20,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
-import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -33,6 +30,8 @@ import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Observation
+import org.jooq.Field
+import java.time.OffsetDateTime
 
 /**
  * [metadata] mockable metadata
@@ -46,8 +45,7 @@ class FHIRRouter(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-    queue: QueueAccess = QueueAccess
-) : FHIREngine(metadata, settings, db, blob, queue) {
+) : FHIREngine(metadata, settings, db, blob) {
 
     /**
      * The name of the lookup table to load the shorthand replacement key/value pairs from
@@ -179,132 +177,106 @@ class FHIRRouter(
         message: RawSubmission,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory
-    ) {
+    ): List<FHIREngineRunResult> {
         logger.trace("Processing HL7 data for FHIR conversion.")
         this.actionLogger = actionLogger
-        try {
-            // track input report
-            actionHistory.trackExistingInputReport(message.reportId)
 
-            // pull fhir document and parse FHIR document
-            val bundle = FhirTranscoder.decode(message.downloadContent())
+        // track input report
+        actionHistory.trackExistingInputReport(message.reportId)
 
-            // create report object
-            val sources = emptyList<Source>()
-            val report = Report(
-                Report.Format.FHIR,
-                sources,
+        // pull fhir document and parse FHIR document
+        val bundle = FhirTranscoder.decode(message.downloadContent())
+
+        // create report object
+        val sources = emptyList<Source>()
+        val report = Report(
+            Report.Format.FHIR,
+            sources,
+            1,
+            metadata = this.metadata,
+            topic = message.topic,
+        )
+
+        // create item lineage
+        report.itemLineages = listOf(
+            ItemLineage(
+                null,
+                message.reportId,
                 1,
-                metadata = this.metadata,
-                topic = message.topic,
+                report.id,
+                1,
+                null,
+                null,
+                null,
+                report.getItemHashForRow(1)
+            )
+        )
+
+        // get the receivers that this bundle should go to
+        val listOfReceivers = applyFilters(bundle, report, message.topic)
+
+        // check if there are any receivers
+        if (listOfReceivers.isNotEmpty()) {
+            // this bundle has receivers; send message to translate function
+            // add the receivers to the fhir bundle
+            FHIRBundleHelpers.addReceivers(bundle, listOfReceivers, shorthandLookupTable)
+
+            // create translate event
+            val nextEvent = ProcessEvent(
+                Event.EventAction.TRANSLATE,
+                report.id,
+                Options.None,
+                emptyMap(),
+                emptyList()
             )
 
-            // create item lineage
-            report.itemLineages = listOf(
-                ItemLineage(
-                    null,
-                    message.reportId,
-                    1,
-                    report.id,
-                    1,
-                    null,
-                    null,
-                    null,
-                    report.getItemHashForRow(1)
-                )
+            // upload new copy to blobstore
+            val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
+            val blobInfo = BlobAccess.uploadBody(
+                Report.Format.FHIR,
+                bodyBytes,
+                report.name,
+                message.blobSubFolderName,
+                nextEvent.eventAction
             )
 
-            // get the receivers that this bundle should go to
-            val listOfReceivers = applyFilters(bundle, report, message.topic)
+            // ensure tracking is set
+            actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
-            // check if there are any receivers
-            if (listOfReceivers.isNotEmpty()) {
-                // this bundle has receivers; send message to translate function
-                // add the receivers to the fhir bundle
-                FHIRBundleHelpers.addReceivers(bundle, listOfReceivers, shorthandLookupTable)
-
-                // create translate event
-                val nextEvent = ProcessEvent(
-                    Event.EventAction.TRANSLATE,
-                    message.reportId,
-                    Options.None,
-                    emptyMap(),
-                    emptyList()
-                )
-
-                // upload new copy to blobstore
-                val bodyBytes = FhirTranscoder.encode(bundle).toByteArray()
-                val blobInfo = BlobAccess.uploadBody(
-                    Report.Format.FHIR,
-                    bodyBytes,
-                    report.name,
-                    message.blobSubFolderName,
-                    nextEvent.eventAction
-                )
-
-                // ensure tracking is set
-                actionHistory.trackCreatedReport(nextEvent, report, blobInfo)
-
-                // insert translate task into Task table
-                this.insertTranslateTask(
+            return listOf(
+                FHIREngineRunResult(
+                    nextEvent,
                     report,
-                    report.bodyFormat.toString(),
                     blobInfo.blobUrl,
-                    nextEvent
-                )
-
-                // nullify the previous task next_action
-                db.updateTask(
-                    message.reportId,
-                    TaskAction.none,
-                    null,
-                    null,
-                    finishedField = Tables.TASK.ROUTED_AT,
-                    null
-                )
-
-                // move to translation (send to <elrTranslationQueueName> queue). This passes the same message on, but
-                //  the destinations have been updated in the FHIR
-                this.queue.sendMessage(
-                    elrTranslationQueueName,
                     RawSubmission(
                         report.id,
                         blobInfo.blobUrl,
                         BlobAccess.digestToString(blobInfo.digest),
                         message.blobSubFolderName,
                         message.topic,
-                    ).serialize(),
-                    this.queueVisibilityTimeout
+                    )
                 )
-            } else {
-                // this bundle does not have receivers; only perform the work necessary to track the routing action
-                // create none event
-                val nextEvent = ProcessEvent(
-                    Event.EventAction.NONE,
-                    message.reportId,
-                    Options.None,
-                    emptyMap(),
-                    emptyList()
-                )
+            )
+        } else {
+            // this bundle does not have receivers; only perform the work necessary to track the routing action
+            // create none event
+            val nextEvent = ProcessEvent(
+                Event.EventAction.NONE,
+                message.reportId,
+                Options.None,
+                emptyMap(),
+                emptyList()
+            )
 
                 // ensure tracking is set
-                actionHistory.trackCreatedReport(nextEvent, report, null)
+                actionHistory.trackCreatedReport(nextEvent, report)
 
-                // nullify the previous task next_action
-                db.updateTask(
-                    message.reportId,
-                    TaskAction.none,
-                    null,
-                    null,
-                    finishedField = Tables.TASK.ROUTED_AT,
-                    null
-                )
-            }
-        } catch (e: IllegalArgumentException) {
-            logger.error(e)
-            actionLogger.error(InvalidReportMessage(e.message ?: ""))
+            return emptyList()
         }
     }
+
+    override val finishedField: Field<OffsetDateTime> = Tables.TASK.ROUTED_AT
+    override val engineType: String = "Route"
 
     /**
      * Inserts a 'translate' task into the task table for the [report] in question. This is just a pass-through

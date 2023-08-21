@@ -48,3 +48,11 @@ elements:
 
   - name: specimen-observation-result-with-aoe
     condition: false
+
+    #OBX-3
+  - name: observation-identifier-code
+    condition: false
+
+  # OBR-4
+  - name: universal-service
+    condition: false
