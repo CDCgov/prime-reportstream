@@ -1,6 +1,5 @@
 import { initializeWorker, mswDecorator } from "msw-storybook-addon";
 import { CacheProvider } from "rest-hooks";
-import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import MockDate from "mockdate";
 
@@ -36,14 +35,6 @@ function withRestHooksCacheProvider(Story) {
     );
 }
 
-function withRouter(Story) {
-    return (
-        <BrowserRouter>
-            <Story />
-        </BrowserRouter>
-    );
-}
-
 function withHelmet(Story) {
     return (
         <HelmetProvider>
@@ -54,7 +45,6 @@ function withHelmet(Story) {
 
 export const decorators = [
     withHelmet,
-    withRouter,
     withRestHooksCacheProvider,
     mswDecorator,
 ];

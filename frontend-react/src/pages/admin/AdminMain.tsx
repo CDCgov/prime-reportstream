@@ -9,7 +9,7 @@ import { ErrorPage } from "../error/ErrorPage";
 import { OrgsTable } from "../../components/Admin/OrgsTable";
 import { AuthElement } from "../../components/AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
-import { FeatureName } from "../../AppRouter";
+import { FeatureName } from "../../utils/FeatureName";
 
 export function AdminMain() {
     return (
