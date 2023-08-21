@@ -1,13 +1,13 @@
 # Universal Pipeline Routing
 
-# Context
+## Context
 
 The Route function’s purpose is to match FHIR bundles with receivers. Each receiver connected with ReportStream has unique interests in the data that flows through the pipeline. Routing is designed to find the data that meet those interests.
 
-The Route function follows the convert function. At this point all data will be in FHIR format. These messages are passed to the FHIR Router which first decodes creating a FHIR Bundle. **_FHIRRouter.applyFilters_** does the work to find receivers that accept the bundle. With the list of acceptable receivers, FHIR Endpoints are added to the Provenance resource identifying those receivers.  An endpoint describes the details of a receiver including which test results to include. With that information, the message is passed to the Translate function where receiver specific work is done.
+The Route function follows the convert function. At this point all data will be in FHIR format. These messages are passed to the FHIR Router which first decodes a FHIR Bundle. **_FHIRRouter.applyFilters_** does the work to find receivers that accept the bundle. With the list of acceptable receivers, FHIR Endpoints are added to the Provenance resource identifying those receivers.  An endpoint describes the details of a receiver including which test results to include. With that information, the message is passed to the Translate function where receiver specific work is done.
 
 
-## Topic
+### Topic
 
 A Topic must be set for all senders and receivers. The choice of topic determines which pipeline is used (Universal or Covid) and will affect how routing takes place. The routing step will start by limiting available receivers to only those with a topic matching the sender topic. Topics include:
 
@@ -47,14 +47,14 @@ A Topic must be set for all senders and receivers. The choice of topic determine
   </tr>
 </table>
 
-# FHIRPath
+## FHIRPath
 
-Although existing in the COVID Pipeline, filter functions do not exist in the Universal Pipeline. The functionality is covered by [FHIRPath](https://build.fhir.org/fhirpath.html). Paths are defined using [FHIRPath](http://hl7.org/fhirpath/), which is an expression language defined by FHIR. In its simplest form, this can take the form of a single dotted path: `Bundle.entry.resource.ofType(Patient).name.family`.` `
+Access to fields in a FHIR message can be accomplished using [FHIRPath](http://hl7.org/fhirpath/), which is an expression language defined by FHIR. At its simplest, this takes the form of a single dotted path: `Bundle.entry.resource.ofType(Patient).name.family`.` `
 
 FHIRPath is used in filtering to access values in a bundle. In the example, the value for the patient’s family name (i.e last name) would be provided.
 
 
-## Shorthands
+### Shorthands
 
 FHIRPath can be verbose and can be challenging for a user that is not familiar with FHIR or the FHIR bundle structure. In FHIRPath, expressions can be simplified by the use of built-in constants that point to specific FHIR resources. This makes expressions simpler to write while keeping the flexibility and logic that it provides. These ReportStream-specific shorthands are prefaced with the percent symbol(%). For example:
 
@@ -92,7 +92,7 @@ qualityFilter:
 	- ‘%patientLastname.exists() and %patientFirstname.exists()’
 ```
 
-## COVID vs Universal
+### COVID vs Universal
 
 The table below demonstrates a few filter functions and their FHIRPath equivalent.
 
@@ -151,16 +151,16 @@ The table below demonstrates a few filter functions and their FHIRPath equivalen
 
 
 
-# Filter Types
+## Filter Types
 
-## Purpose
+### Purpose
 
-Routing configuration is as part of the settings for a specific organization and/or receiver. There are five main filter groups*: Jurisdictional, Quality, Routing, Processing Mode Code, and Condition. These filter groups are used to organize the filters and make it easier to report the filter results to a user, but the functionality is the same for all the filters. All filters can take an array of expressions where all expressions must evaluate to true (an AND operation) or at least one must evaluate to true (an OR operation) for the filter group to evaluate to true. All filters can be set by defaults (set in code).
+Routing configuration is a part of the settings for a specific organization and/or receiver. There are five main filter groups*: Jurisdictional, Quality, Routing, Processing Mode Code, and Condition. These filter groups are used to organize the filters and make it easier to report the filter results to a user, but the functionality is the same for all the filters. All filters can take an array of expressions where all expressions must evaluate to true (an AND operation) or at least one must evaluate to true (an OR operation) for the filter group to evaluate to true. All filters can be set by defaults (set in code).
 
 _*Filter groups may have been referred to as filter types in the past._
 
 
-## **Jurisdictional Filter**
+### **Jurisdictional Filter**
 
 Identifies data that falls within a receiver’s jurisdiction as most of our organizations are geographic entities (e.g., patient state is CO).  Note that the non-matching result of the jurisdictional filter is not reported to users via the submission history API as this filter is just to decide to which receiver data needs to go.
 
@@ -175,22 +175,22 @@ Identifies data that falls within a receiver’s jurisdiction as most of our org
   <tr>
    <td><strong>Operation</strong>
    </td>
-   <td>expressions are evaluated with AND operation
+   <td>Expressions are evaluated with AND operation
    </td>
   </tr>
   <tr>
    <td><strong>Default</strong>
    </td>
-   <td><strong>Allow None</strong>: allowing none is a safeguard as jurisdictional filtering keeps data from one jurisdiction benign reported to another. This must be overwritten with a custom filter for each receiver
+   <td><strong>Allow None</strong>: Allowing none is a safeguard as jurisdictional filtering keeps data from one jurisdiction being reported to another. This must be overwritten with a custom filter for each receiver
    </td>
   </tr>
 </table>
 
 
 
-## Quality Filter
+### Quality Filter
 
-filter out any data that does not meet the specified minimum requirements (e.g. must have patient last name)
+Filter out any data that does not meet the specified minimum requirements (e.g. must have patient last name)
 
 
 <table>
@@ -203,7 +203,7 @@ filter out any data that does not meet the specified minimum requirements (e.g. 
   <tr>
    <td><strong>Operation</strong>
    </td>
-   <td>expressions are evaluated as an AND operation
+   <td>Expressions are evaluated as an AND operation
    </td>
   </tr>
   <tr>
@@ -239,7 +239,7 @@ val qualityFilterDefault: ReportStreamFilter = listOf(
 )
 ```
 
-## Routing Filter
+### Routing Filter
 
 Generic filtering that does not concern data quality or condition (e.g. test result is positive)
 
@@ -254,20 +254,20 @@ Generic filtering that does not concern data quality or condition (e.g. test res
   <tr>
    <td><strong>Operation</strong>
    </td>
-   <td>expressions are evaluated with AND operation
+   <td>Expressions are evaluated with AND operation
    </td>
   </tr>
   <tr>
    <td><strong>Default</strong>
    </td>
-   <td><strong>Allow All: </strong>the door is open. No filter is in place
+   <td><strong>Allow All: </strong>The door is open. No filter is in place
    </td>
   </tr>
 </table>
 
 
 
-## Processing Mode Code Filter
+### Processing Mode Code Filter
 
 The processing mode of the data indicates the sender’s intended context for the data. Options for this field are found here [CodeSystem: processingId](https://terminology.hl7.org/5.2.0/CodeSystem-v2-0103.html). The intention is to ensure the sender and receiver operate with the same data content context. Test data should only be accepted by test receivers. Production data should only be accepted by production receivers.
 
@@ -282,7 +282,7 @@ The processing mode of the data indicates the sender’s intended context for th
   <tr>
    <td><strong>Operation</strong>
    </td>
-   <td>expressions are evaluated with AND operation
+   <td>Expressions are evaluated with AND operation
    </td>
   </tr>
   <tr>
@@ -303,7 +303,7 @@ val processingModeFilterDefault: ReportStreamFilter = listOf(
 )
 ```
 
-## Condition Filter
+### Condition Filter
 
 Filter data based on the test identifiers. A receiver expecting flu results should only accept tests for flu. If the message contains multiple observations, some that pass the condition filter and others that do not, the condition filter will be used to identify the desired observations. Identifiers for the needed observations are added to the Endpoint which is then added to the Provenance resource.
 
@@ -320,33 +320,33 @@ Filter data based on the test identifiers. A receiver expecting flu results shou
   <tr>
    <td><strong>Operation</strong>
    </td>
-   <td>expressions are evaluated with OR operation
+   <td>Expressions are evaluated with OR operation
    </td>
   </tr>
   <tr>
    <td><strong>Default</strong>
    </td>
-   <td><strong>Allow All:</strong> the door is open. No filter is in place
+   <td><strong>Allow All:</strong> The door is open. No filter is in place
    </td>
   </tr>
 </table>
 
 
 
-# Storage
+## Storage
 
 The Route Function retrieves messages from the pdhprodstorageaccount Azure Storage Account. Within that storage account there is a Blob Container named reports containing folders for use by the Universal Pipeline. The Convert Function places all messages into the route folder for retrieval by the Route Function. Those messages that match a receiver's filtering will then be placed in the translate folder for future retrieval by the Translate Function. Messages within the route folder are saved to sub-folders equaling the name of the sender.
 
 
-# Filter Reversal
+## Filter Reversal
 
 This is a NOT operation on the result of the filters set in the Quality Filter. The primary use is to set the filters for a secondary receiver to ingest all data not accepted by a primary receiver. This may be helpful to keep the qualityFilter setting the same for both the primary and secondary and make it easier to read the configuration.
 
 
-# Logging
+## Logging
 
 
-## Purpose
+### Purpose
 
 Filtering logic can be extensive and complex. Recording the outcome of the filters provides internal and external users an important view of events. Logging is particularly important when reports do not pass filtering.
 
@@ -375,17 +375,17 @@ catch (e: SchemaException) {
 }
 ```
 
-## Filter Log Scenarios
+### Filter Log Scenarios
 
 As mentioned, only “failing” filters are logged, and only for non-jurisdictional filters. However, there are a few ways that filters can fail, and the way they are logged varies slightly.
 
-### Simply Filtered Out
+#### Simply Filtered Out
 
 In the most basic case, one or more of the predicates within a filter evaluates to false and the report is filtered out. If the filter is [A, B, C, D, E], which can be thought of as `A ∧ B ∧ C ∧ D ∧ E`, any predicate of the filter evaluating to false would result in an overall negative result, so all predicates evaluating to false are logged, but those evaluating to true are less relevant/actionable in the logs. So in that case of the filter [A, B, C, D, E], if B, D, and E all evaluate to false, the logged message might look something like this:
 
 `For someOrg.someReceiver, filter [B, D, E][] filtered out item someItemId`
 
-### Filtered Out w/ Default Filter
+#### Filtered Out w/ Default Filter
 
 If a report is filtered out by application of a default filter, the logged message will include the text “(default filter)”. So for instance if the default filter was [A, B, C, D, E], and B, D, and E all evaluate to false, the message might look like this:
 
@@ -393,7 +393,7 @@ The extra tag is intended to give some indication of where the filter came from 
 
 `For someOrg.someReceiver, filter (default filter) [B, D, E][] filtered out item someItemId`
 
-### Schema Exception
+#### Schema Exception
 
 If the evaluation of a filter leads to an exception, the exception message will be added to the action log so that it can be resolved, but the filter result will still also be logged. The logged message will include the text “(exception found)”. So for instance, if the filter was [A, B, C, D, E] and A and C result in exceptions, the message might look like this:
 
@@ -403,7 +403,7 @@ We would never expect to have exceptions in evaluation of default filters, but i
 
 `For someOrg.someReceiver, filter (default filter) (exception found) [A, C][] filtered out item someItemId`
 
-### Filtered Out w/ Reversed Filter
+#### Filtered Out w/ Reversed Filter
 
 If a report is filtered out due to a quality filter along with a setting of `reverseTheQualityFilter: true`, the logged message will include the text “(reversed)”. Imagine a reversed filter of [A, B, C, D, E], which can be thought of as or equivalently . The only way for this to yield a negative result is if each and every predicate A, B, C, D, and E evaluate to true; therefore each of those predicates is relevant in logging why the filter yielded a negative result. So while in non-reversed cases, we only include the individual predicates that evaluated to false, in reversed cases, we include all predicates, and the resulting message might look like this:
 
@@ -413,20 +413,20 @@ As it is today, the only filters that can be reversed are quality filters. If th
 
 `For someOrg.someReceiver, filter (default filter) (reversed) [A, B, C, D, E][] filtered out item someItemId`
 
-### Filtered Out w/ Default Response
+#### Filtered Out w/ Default Response
 
 Currently only jurisdictional filters have default results that would filter out reports, and jurisdictional filter results are not logged. If that were to change, we would have to log that we filtered out an item, but without any filter to reference, so this case might have an entirely different format, or the message might look like:
 
 `For someOrg.someReceiver, filter default response[] filtered out item someItemId`
 
-# Configuring Filters
+## Configuring Filters
 
 
-## Frontend User Interface
+### Frontend User Interface
 
 The admin user interface at[ https://reportstream.cdc.gov/](https://reportstream.cdc.gov/) allows a PRIME admin to manage the settings of an organization, sender and/or receiver.  Filters are configured as free text and the input text must conform to the expected syntax.
 
-## Command Line Interface
+### Command Line Interface
 
 All filters for receivers and organizations can be created/updated/deleted via the command line.
 
@@ -457,6 +457,6 @@ Next update the staging DB
 
 `./prime multiple-settings set –env staging –input <file-location>`
 
-# Sources:
+## Sources:
 
 [Universal Pipeline Routing Design](https://zh-file.s3.amazonaws.com/304423150/b0f41580-4e93-4b6d-957f-f752698796dc?Expires=1692031051&AWSAccessKeyId=AKIAI5X57DET3FHKSALA&Signature=frJxSOhI%2FoTw0jlGY51xDqLmUBI%3D), Oct 2022
