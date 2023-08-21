@@ -2,6 +2,13 @@ constants:
   fieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBR
 elements:
 
+  # OBR-4
+  - name: ca-universal-service
+    resource: '%resource.code'
+    constants:
+      ceFieldPath: '%{fieldPath}-4'
+    schema: ../../../common/datatype/ce-coded-element
+
   # OBR-3-2: Max length 20
   - name: ca-order-organization-identifier-name
     resource: '%resource.basedOn.resolve().performer.resolve()'
