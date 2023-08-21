@@ -1,7 +1,8 @@
 package gov.cdc.prime.router.fhirengine.translation
 
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.model.v251.segment.MSH
+import ca.uhn.hl7v2.model.Segment
+import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
@@ -92,11 +93,8 @@ class HL7toFhirTranslator internal constructor(
      * @return the message type
      */
     internal fun getMessageTemplateType(message: Message): String {
-        val header = message.get("MSH")
-        check(header is MSH)
-        return header.messageType.msg1_MessageCode.value +
-            "_" +
-            header.messageType.msg2_TriggerEvent.value
+        val header = message.get("MSH") as Segment
+        return Terser.get(header, 9, 0, 3, 1)
     }
 
     /**
@@ -107,8 +105,12 @@ class HL7toFhirTranslator internal constructor(
         bundle.timestamp = HL7Reader.getMessageTimestamp(hl7Message)
 
         // The HL7 message ID
-        val mshSegment = hl7Message["MSH"] as MSH
-        bundle.identifier.value = mshSegment.messageControlID.value
+        val identifierValue = when (val mshSegment = hl7Message["MSH"]) {
+            is ca.uhn.hl7v2.model.v27.segment.MSH -> mshSegment.messageControlID.value
+            is ca.uhn.hl7v2.model.v251.segment.MSH -> mshSegment.messageControlID.value
+            else -> ""
+        }
+        bundle.identifier.value = identifierValue
         bundle.identifier.system = "https://reportstream.cdc.gov/prime-router"
     }
 

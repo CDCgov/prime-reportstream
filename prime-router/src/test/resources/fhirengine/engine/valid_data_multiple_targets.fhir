@@ -2697,11 +2697,11 @@
         "identifier": [
           {
             "system": "https://reportstream.cdc.gov/prime-router",
-            "value": "ignore.FULL_ELR_OTHER"
+            "value": "phd.elr2"
           }
         ],
         "status": "active",
-        "name": "Ignore FULL_ELR_OTHER"
+        "name": "PHD elr2"
       }
     }
   ]

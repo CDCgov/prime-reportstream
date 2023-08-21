@@ -1,7 +1,6 @@
 package gov.cdc.prime.router
 
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.model.v251.segment.MSH
 import gov.cdc.prime.router.Report.Format
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
@@ -14,6 +13,8 @@ import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import ca.uhn.hl7v2.model.v251.segment.MSH as v251_MSH
+import ca.uhn.hl7v2.model.v27.segment.MSH as v27_MSH
 
 /**
  * The base class for a 'receiver' type, currently just for COVID or full ELR submissions. This allows us a fan out
@@ -368,15 +369,13 @@ class UniversalPipelineReceiver : SubmissionReceiver {
      * message for item with index [itemIndex] if it is not.
      */
     internal fun checkValidMessageType(message: Message, actionLogs: ActionLogger, itemIndex: Int) {
-        val header = message.get("MSH")
-        check(header is MSH)
-        val messageType = header.messageType.msg1_MessageCode.value +
-            "_" +
-            header.messageType.msg2_TriggerEvent.value
+        val messageType = when (val msh = message.get("MSH")) {
+            is v251_MSH -> msh.messageType.messageStructure.toString()
+            is v27_MSH -> msh.messageType.messageStructure.toString()
+            else -> ""
+        }
 
-        // TODO: This may need to be a configurable value in the future, if we ever support message types other
-        //  than ORU_RO1. As of 6/15/2022 multiple message type support is out of scope
-        if (messageType != MessageType.ORU_R01.toString() && messageType != MessageType.ORM_O01.toString()) {
+        if (!MessageType.values().map { it.toString() }.contains(messageType)) {
             actionLogs.getItemLogger(itemIndex)
                 .error(InvalidHL7Message("Ignoring unsupported HL7 message type $messageType"))
         }
