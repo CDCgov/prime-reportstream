@@ -145,5 +145,5 @@ elements:
     constants:
       hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{specimenIndex})/SPECIMEN_OBSERVATION'
       hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{specimenIndex})/SPECIMEN_OBSERVATION(%{specimenObservationIndex})/OBX'
-      observation: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id)[%resultIndex]'
+      observation: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id)[%specimenObservationIndex]'
       resultIndex: '%specimenObservationIndex'
