@@ -12,7 +12,6 @@ import gov.cdc.prime.router.SettingsProvider
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
@@ -37,7 +36,6 @@ class GetFilterTests {
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
-    val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
         ORGANIZATION_NAME,
         "test",
@@ -146,7 +144,7 @@ class GetFilterTests {
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).queueAccess(queueMock).build(TaskAction.route)
+            .blobAccess(blobMock).build(TaskAction.route)
     }
 
     @BeforeEach

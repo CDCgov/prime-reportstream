@@ -143,6 +143,10 @@ elements:
   - name: observation-result-with-aoe
     resource: '%resource.result.resolve()'
 
+  # OBX-3
+  - name: observation-identifier-code
+    condition: false
+
 
   # California requirement: move order notes and observation notes to last observation
   # suppressing default mapping for notes
@@ -153,6 +157,10 @@ elements:
     condition: false
 
   - name: specimen-observation-result-with-aoe
+    condition: false
+
+  # OBR-4
+  - name: universal-service
     condition: false
 
   # PID-3-4 Max length: 20
