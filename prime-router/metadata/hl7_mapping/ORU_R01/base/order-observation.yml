@@ -17,6 +17,7 @@ elements:
 
   - name: specimen
     resource: '%specimen'
+    resourceIndex: specimenIndex
     condition: '%specimen.exists()'
     schema: specimen
 

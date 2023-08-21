@@ -8,7 +8,6 @@ import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Hl7Configuration
-import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -17,9 +16,7 @@ import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
-import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
@@ -33,6 +30,8 @@ import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.DiagnosticReport
 import org.hl7.fhir.r4.model.Endpoint
 import org.hl7.fhir.r4.model.Provenance
+import org.jooq.Field
+import java.time.OffsetDateTime
 
 /**
  * Translate a full-ELR FHIR message into the formats needed by any receivers from the route step
@@ -47,8 +46,7 @@ class FHIRTranslator(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-    queue: QueueAccess = QueueAccess
-) : FHIREngine(metadata, settings, db, blob, queue) {
+) : FHIREngine(metadata, settings, db, blob) {
 
     /**
      * Accepts a FHIR [message], parses it, and generates translated output files for each item in the destinations
@@ -59,7 +57,7 @@ class FHIRTranslator(
         message: RawSubmission,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory
-    ) {
+    ): List<FHIREngineRunResult> {
         logger.trace("Translating FHIR file for receivers.")
         // pull fhir document and parse FHIR document
         val bundle = FhirTranscoder.decode(message.downloadContent())
@@ -70,55 +68,50 @@ class FHIRTranslator(
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         val receiverEndpoints = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()
 
-        receiverEndpoints.forEach { receiverEndpoint ->
-            val receiverName = receiverEndpoint.identifier[0].value
-            val receiver = settings.findReceiver(receiverName)
+        val receiverAndEndpoints: List<Pair<Endpoint, Receiver>> = receiverEndpoints.mapNotNull { endpoint ->
+            val receiver = settings.findReceiver(endpoint.identifier[0].value)
             if (receiver != null) {
-                actionHistory.trackActionReceiverInfo(receiver.organizationName, receiver.name)
-            }
-
-            // We only process receivers that are active and for this pipeline.
-            if (receiver != null && receiver.topic.isUniversalPipeline) {
-                try {
-                    val updatedBundle = pruneBundleForReceiver(bundle, receiverEndpoint)
-
-                    val bodyBytes = getByteArrayFromBundle(receiver, updatedBundle)
-
-                    // get a Report from the message
-                    val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
-                        Event.EventAction.BATCH,
-                        bodyBytes,
-                        listOf(message.reportId),
-                        receiver,
-                        this.metadata,
-                        actionHistory,
-                        topic = message.topic,
-                    )
-
-                    // insert batch task into Task table
-                    this.insertBatchTask(
-                        report,
-                        report.bodyFormat.toString(),
-                        blobInfo.blobUrl,
-                        event
-                    )
-
-                    // nullify the previous task next_action
-                    db.updateTask(
-                        message.reportId,
-                        TaskAction.none,
-                        null,
-                        null,
-                        finishedField = Tables.TASK.TRANSLATED_AT,
-                        null
-                    )
-                } catch (e: Exception) { // handle translation errors
-                    logger.error(e)
-                    actionLogger.error(InvalidReportMessage(e.message ?: ""))
-                }
+                Pair(endpoint, receiver)
+            } else {
+                null
             }
         }
+
+        return receiverAndEndpoints
+            .map {
+                actionHistory.trackActionReceiverInfo(it.second.organizationName, it.second.name)
+                it
+            }
+            .filter {
+                it.second.topic.isUniversalPipeline
+            }
+            .map { (receiverEndpoint, receiver) ->
+                val updatedBundle = pruneBundleForReceiver(bundle, receiverEndpoint)
+
+                val bodyBytes = getByteArrayFromBundle(receiver, updatedBundle)
+
+                // get a Report from the message
+                val (report, event, blobInfo) = Report.generateReportAndUploadBlob(
+                    Event.EventAction.BATCH,
+                    bodyBytes,
+                    listOf(message.reportId),
+                    receiver,
+                    this.metadata,
+                    actionHistory,
+                    topic = message.topic,
+                )
+
+                FHIREngineRunResult(
+                    event,
+                    report,
+                    blobInfo.blobUrl,
+                    null
+                )
+            }
     }
+
+    override val finishedField: Field<OffsetDateTime> = Tables.TASK.TRANSLATED_AT
+    override val engineType: String = "Translate"
 
     /**
      * Returns a byteArray representation of the [bundle] in a format [receiver] expects, or throws an exception if the
@@ -145,26 +138,10 @@ class FHIRTranslator(
     }
 
     /**
-     * Inserts a 'batch' task into the task table for the [report] in question. This is just a pass-through function
-     * but is present here for proper separation of layers and testing. This may need to be modified in the future.
-     * The task will track the [report] in the [format] specified and knows it is located at [reportUrl].
-     * [nextAction] specifies what is going to happen next for this report
-     *
-     */
-    private fun insertBatchTask(
-        report: Report,
-        reportFormat: String,
-        reportUrl: String,
-        nextAction: Event
-    ) {
-        db.insertTask(report, reportFormat, reportUrl, nextAction, null)
-    }
-
-    /**
      * Turn a fhir [bundle] into a hl7 message formatter for the [receiver] specified.
      * @return HL7 Message in the format required by the receiver
      */
-    internal fun getHL7MessageFromBundle(bundle: Bundle, receiver: Receiver): ca.uhn.hl7v2.model.Message {
+    internal fun getHL7MessageFromBundle(bundle: Bundle, receiver: Receiver): Message {
         val converter = FhirToHl7Converter(
             receiver.schemaName,
             context = FhirToHl7Context(CustomFhirPathFunctions())

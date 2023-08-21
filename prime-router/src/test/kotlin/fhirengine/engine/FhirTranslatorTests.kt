@@ -22,7 +22,6 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
@@ -45,10 +44,11 @@ import org.junit.jupiter.api.TestInstance
 import java.io.File
 import java.util.UUID
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 private const val ORGANIZATION_NAME = "co-phd"
 private const val RECEIVER_NAME = "full-elr-hl7"
-private const val ORU_R01_SCHEMA = "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+private const val ORU_R01_SCHEMA = "metadata/hl7_mapping/receivers/STLTs/CA/CA"
 private const val BLOB_SUB_FOLDER = "test-sender"
 private const val BLOB_URL = "http://blob.url"
 private const val BODY_URL = "http://anyblob.com"
@@ -61,7 +61,6 @@ class FhirTranslatorTests {
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
-    val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
         ORGANIZATION_NAME,
         "test",
@@ -114,7 +113,7 @@ class FhirTranslatorTests {
         settings: SettingsProvider = FileSettings().loadOrganizations(oneOrganization),
     ): FHIRTranslator {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).queueAccess(queueMock).build(TaskAction.translate) as FHIRTranslator
+            .blobAccess(blobMock).build(TaskAction.translate) as FHIRTranslator
     }
 
     private fun getResource(bundle: Bundle, resource: String) =
@@ -148,23 +147,21 @@ class FhirTranslatorTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
-            .returns(Unit)
+
         every { actionHistory.trackActionReceiverInfo(any(), any()) }
             .returns(Unit)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
-        verify(exactly = 0) {
-            queueMock.sendMessage(any(), any())
-        }
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
             BlobAccess.Companion.uploadBlob(any(), any())
-            accessSpy.insertTask(any(), any(), any(), any())
+            accessSpy.insertTask(any(), any(), any(), any(), any())
             actionHistory.trackActionReceiverInfo(any(), any())
         }
     }
@@ -192,15 +189,13 @@ class FhirTranslatorTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }.returns(Unit)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
-        verify(exactly = 0) {
-            queueMock.sendMessage(any(), any())
-        }
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
         }
@@ -373,24 +368,21 @@ class FhirTranslatorTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
-            .returns(Unit)
         every { actionHistory.trackActionReceiverInfo(any(), any()) }.returns(Unit)
 
         val engine = spyk(makeFhirEngine())
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
-        verify(exactly = 0) {
-            queueMock.sendMessage(any(), any())
-        }
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
             BlobAccess.Companion.uploadBlob(any(), any())
-            accessSpy.insertTask(any(), any(), any(), any())
+            accessSpy.insertTask(any(), any(), any(), any(), any())
             engine.pruneBundleForReceiver(any(), any())
         }
     }
@@ -432,18 +424,16 @@ class FhirTranslatorTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
-            .returns(Unit)
         every { actionHistory.trackActionReceiverInfo(any(), any()) }.returns(Unit)
 
         val engine = spyk(makeFhirEngine(settings = settings))
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
-
-        // assert
-        verify(exactly = 1) {
-            actionLogger.error(any<ActionLogDetail>())
+        accessSpy.transact { txn ->
+            assertFailsWith<IllegalStateException> (
+                message = "Receiver format CSV not supported.",
+                block = { engine.run(message, actionLogger, actionHistory, txn) }
+            )
         }
     }
 
