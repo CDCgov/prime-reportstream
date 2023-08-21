@@ -12,7 +12,6 @@ export interface ItemProp {
     imgClassName?: string;
     summary?: string;
     items?: { title?: string; summary?: string }[];
-    bullets?: [];
 }
 
 export const Tile = ({
@@ -23,7 +22,7 @@ export const Tile = ({
     item: ItemProp;
 }) => {
     let cleanSummaryHtml = DOMPurify.sanitize(item!.summary!);
-    const totalItems = section.items?.length || 0;
+    const totalItems = section?.items?.length || 0;
     let gridColValue = 12 / totalItems;
     const styleItems = `tablet:grid-col-${gridColValue} margin-bottom-0`;
 
@@ -51,13 +50,6 @@ export const Tile = ({
                     className="usa-prose maxw-mobile-lg"
                     dangerouslySetInnerHTML={{ __html: cleanSummaryHtml }}
                 ></p>
-            )}
-            {item.bullets && (
-                <ul>
-                    {item.bullets?.map((bullet, bulletIndex) => (
-                        <li key={`bullet-${bulletIndex}`}>{bullet}</li>
-                    ))}
-                </ul>
             )}
         </div>
     );
