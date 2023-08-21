@@ -141,8 +141,9 @@ elements:
   - name: specimen-observation-result-with-aoe
     resource: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id)'
     schema: observation-result
-    resourceIndex: resultIndex
+    resourceIndex: specimenObservationIndex
     constants:
-      hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{resultIndex})'
-      hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{resultIndex})/OBX'
-      observation: '%diagnostic.result[%resultIndex].resolve()'
+      hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{specimenIndex})/SPECIMEN_OBSERVATION'
+      hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{specimenIndex})/SPECIMEN_OBSERVATION(%{specimenObservationIndex})/OBX'
+      observation: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id)[%resultIndex]'
+      resultIndex: '%specimenObservationIndex'
