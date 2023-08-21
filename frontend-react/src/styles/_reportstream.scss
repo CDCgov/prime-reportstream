@@ -844,6 +844,12 @@ main {
     @include u-display("flex");
     @include u-flex("justify");
     @include u-flex("align-start");
+    @include grid-container;
+}
+
+// Okta widget rudely renders as main element
+#okta-wrapper main {
+    display: block;
 }
 
 .rs-style {
@@ -882,23 +888,6 @@ main {
 
         #site-header {
             margin-bottom: unset;
-        }
-    }
-
-    /*
-    * Automatic alternate color scheme application to specifically
-    * targettable areas. Ambigous areas will require manual application.
-    */
-    &--alternate {
-        #site-header .usa-nav-container {
-            @include u-rs-style-alternate-container;
-
-            .usa-logo,
-            .usa-nav {
-                a:not(.usa-button) {
-                    @include u-rs-style-alternate-nav-link;
-                }
-            }
         }
     }
 }

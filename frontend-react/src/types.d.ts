@@ -12,6 +12,7 @@ declare global {
              */
             isContentPage?: boolean;
             isFullWidth?: boolean;
+            isLoginPage?: boolean;
         };
     };
 }
