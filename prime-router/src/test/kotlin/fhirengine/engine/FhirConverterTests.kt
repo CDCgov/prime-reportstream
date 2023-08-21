@@ -20,7 +20,6 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import io.mockk.clearAllMocks
@@ -52,7 +51,6 @@ class FhirConverterTests {
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
-    val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
         "co-phd",
         "test",
@@ -105,7 +103,7 @@ class FhirConverterTests {
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider, taskAction: TaskAction): FHIREngine {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).queueAccess(queueMock).build(taskAction)
+            .blobAccess(blobMock).build(taskAction)
     }
 
     @BeforeEach
@@ -142,12 +140,13 @@ class FhirConverterTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any(), engine.queueVisibilityTimeout) }.returns(Unit)
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
         every { transformer.transform(any()) } returnsArgument (0)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 1) {
@@ -156,7 +155,6 @@ class FhirConverterTests {
             transformer.transform(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
-            queueMock.sendMessage(any(), any(), engine.queueVisibilityTimeout)
         }
     }
 
@@ -193,13 +191,13 @@ class FhirConverterTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any(), engine.queueVisibilityTimeout) }
-            .returns(Unit)
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
         every { transformer.transform(any()) } returnsArgument (0)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 1) {
@@ -208,7 +206,6 @@ class FhirConverterTests {
             transformer.transform(any())
             actionHistory.trackCreatedReport(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
-            queueMock.sendMessage(any(), any(), engine.queueVisibilityTimeout)
         }
     }
 
@@ -321,13 +318,15 @@ class FhirConverterTests {
         // Throw an exception the second time trackCreatedReport is called to exit processing early and demonstrate sendMessage is not called
         every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit) andThenThrows(RuntimeException())
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
-            .returns(Unit)
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
         every { transformer.transform(any()) } returnsArgument (0)
 
         // act
-        assertThrows<RuntimeException> { engine.doWork(message, actionLogger, actionHistory) }
+        assertThrows<RuntimeException> {
+            accessSpy.transact { txn ->
+                engine.run(message, actionLogger, actionHistory, txn)
+            }
+        }
 
         // assert
         verify(exactly = 1) {
@@ -339,6 +338,5 @@ class FhirConverterTests {
             BlobAccess.Companion.uploadBlob(any(), any())
             actionHistory.trackCreatedReport(any(), any(), any())
         }
-        verify(exactly = 0) { queueMock.sendMessage(any(), any()) }
     }
 }
