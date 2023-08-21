@@ -709,6 +709,7 @@ tasks.register("migrate") {
 tasks.register("resetDB") {
     group = rootProject.description ?: ""
     description = "Delete all tables in the database and recreate from the latest schema"
+    flyway.cleanDisabled = false
     dependsOn("flywayClean")
     dependsOn("flywayMigrate")
 }
