@@ -25,7 +25,7 @@ The legacy pipeline tracked items through the system in two ways:
 
 - A unique tracking ID was extracted from the item
   - How that ID was extracted was determined based on the schema associated with the sender
-- An item hash is calculated used the contents of the item (using all the columns as the input to a message digest)
+- An item hash is calculated using the contents of the item (using all the columns as the input to a message digest)
 
 Both of these are only partially implemented in the universal pipeline:
 
@@ -42,7 +42,7 @@ would consist of primarily two changes:
 report had already been batched
   - this new function will likely need to accept a maximum date in order to only consider the most recent reports sent to
   the receiver
-  - the batch step should record when items are filtered because they have already been set
+  - the batch step should record when items are filtered because they have already been sent
 
 ### Resending items that fail in a step another than send
 
@@ -56,7 +56,7 @@ and then provide endpoints for triggering messages to be resent.
 #### Take advantage of the azure `*-poison` queue
 
 Events that are retried but keep failing are ultimately placed in a poison queue in azure.  A custom function could be
-written than processes any items out of the that queue once the underlying problem has been solved.
+written that processes any items out of the queue once the underlying problem has been solved.
 
 ## Open questions
 
