@@ -2,7 +2,7 @@
   "resourceType" : "Bundle",
   "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
   "meta" : {
-    "lastUpdated" : "2023-07-21T14:02:50.122-04:00"
+    "lastUpdated" : "2023-08-14T11:44:43.902-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -21,11 +21,18 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
       },
       "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+        "valueString" : "^~\\&#"
+      }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
         "valueIdentifier" : {
           "extension" : [ {
@@ -78,6 +85,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -97,6 +108,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -113,6 +128,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -127,16 +146,33 @@
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
         "valueCodeableConcept" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
             "code" : "L"
           } ]
         }
       } ],
       "identifier" : [ {
+        "type" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
+            "code" : "MEDITECH"
+          } ]
+        },
         "value" : "MEDITECH"
       } ],
       "type" : [ {
         "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
           "code" : "XX"
         } ]
@@ -154,6 +190,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -164,6 +204,10 @@
       "recorded" : "2028-08-14T13:50:01-06:00",
       "activity" : {
         "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "R01",
           "display" : "ORU_R01"
@@ -172,6 +216,10 @@
       "agent" : [ {
         "type" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
             "code" : "author"
           } ]
@@ -198,6 +246,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -209,6 +261,10 @@
       "contact" : [ {
         "purpose" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/contactentity-type",
             "code" : "ADMIN",
             "display" : "Administrative"
@@ -228,6 +284,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P",
           "display" : "MEDITECH LAB"
@@ -249,14 +309,25 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
       },
       "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-status-original-text",
+        "valueString" : "F"
+      }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id",
         "valueCodeableConcept" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "LB",
             "code" : "ML",
             "display" : "SWEDISH MEDICAL CENTER"
@@ -270,11 +341,21 @@
       "status" : "final",
       "code" : {
         "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://loinc.org",
+          "version" : "2.40",
           "code" : "5196-1",
           "display" : "Hepatitis B virus surface Ag [Presence] in Serum or Plasma by Immunoassay"
         }, {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "alternate identifier"
+          } ],
           "system" : "L",
+          "version" : "5.67",
           "code" : "HBS",
           "display" : "HEPATITIS B SURFACE ANTIGEN"
         } ]
@@ -292,6 +373,10 @@
       } ],
       "valueCodeableConcept" : {
         "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "L",
           "version" : "5.67",
           "code" : "NEGATIVE",
@@ -314,6 +399,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -331,6 +420,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -339,6 +432,10 @@
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type",
         "valueCodeableConcept" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "FI"
           } ]
@@ -356,6 +453,10 @@
         } ],
         "type" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0912",
             "code" : "MDIR"
           } ]
@@ -382,6 +483,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -393,16 +498,33 @@
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
         "valueCodeableConcept" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
             "code" : "L"
           } ]
         }
       } ],
       "identifier" : [ {
+        "type" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
+            "code" : "SWEDISH MEDICAL CENT"
+          } ]
+        },
         "value" : "06D0663730"
       } ],
       "type" : [ {
         "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
           "code" : "XX"
         } ]
@@ -428,6 +550,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -440,6 +566,10 @@
       },
       "code" : [ {
         "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0912",
           "code" : "MDIR"
         } ]
@@ -456,6 +586,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -463,6 +597,10 @@
       "identifier" : [ {
         "type" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "alternate identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "FGN"
           } ]
@@ -470,6 +608,9 @@
         "system" : "COCZS",
         "value" : "L15735128"
       } ],
+      "subject" : {
+        "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      },
       "receivedTime" : "2021-08-16T05:40:00-06:00",
       "collection" : {
         "collectedPeriod" : {
@@ -479,9 +620,9 @@
       }
     }
   }, {
-    "fullUrl" : "DiagnosticReport/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "fullUrl" : "ServiceRequest/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
-      "resourceType" : "DiagnosticReport",
+      "resourceType" : "ServiceRequest",
       "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
       "meta" : {
         "extension" : [ {
@@ -493,36 +634,79 @@
         } ],
         "lastUpdated" : "2021-08-15T11:51:00-06:00",
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
       },
       "extension" : [ {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event",
-        "valueDateTime" : "2028-08-14T13:50:00Z"
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field-2",
+        "valueString" : "11754982"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/clinical-information",
+        "valueString" : "COVID 19"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier",
+        "valueReference" : {
+          "reference" : "Practitioner/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization",
+        "valueString" : "SWEDISH MEDICAL CENT"
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/order-control",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0119",
+            "code" : "RE"
+          } ]
+        }
+      }, {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date",
+        "valueDateTime" : "2021-08-16T05:03:00Z"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/result-status",
         "valueCodeableConcept" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0123",
             "code" : "A"
           } ]
         }
       }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/response-flag",
-        "valueCodeableConcept" : {
-          "coding" : [ {
-            "system" : "http://terminology.hl7.org/CodeSystem/v2-0121",
-            "code" : "N"
-          } ]
-        }
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-field-2",
+        "valueString" : "SWEDISH MEDICAL CENTER"
       } ],
       "identifier" : [ {
-        "system" : "urn:id:extID",
+        "type" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "VN",
+            "display" : "Visit number"
+          } ]
+        },
         "value" : "20280814135001-0600"
       }, {
         "type" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "PGN",
             "display" : "Placer Group Number"
@@ -533,8 +717,24 @@
       }, {
         "type" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
+            "code" : "SWEDISH MEDICAL CENT"
+          } ]
+        },
+        "value" : "06D0663730"
+      }, {
+        "type" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-            "code" : "PLAC"
+            "code" : "PLAC",
+            "display" : "Placer Identifier"
           } ]
         },
         "system" : "urn:id:L15735128.1",
@@ -542,6 +742,10 @@
       }, {
         "type" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "FILL",
             "display" : "Filler Identifier"
@@ -550,13 +754,17 @@
         "system" : "urn:id:L15735128.1",
         "value" : "0816:ZS:S00004R.1"
       } ],
-      "basedOn" : [ {
-        "reference" : "ServiceRequest/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-      } ],
-      "status" : "partial",
+      "status" : "unknown",
+      "intent" : "order",
+      "priority" : "routine",
       "code" : {
         "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "L",
+          "version" : "5.67",
           "code" : "HBSAG(P)",
           "display" : "HEPATITIS B SURFACE ANTIGEN"
         } ]
@@ -564,19 +772,28 @@
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
       },
-      "encounter" : {
-        "reference" : "Encounter/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      "occurrenceTiming" : {
+        "repeat" : {
+          "boundsPeriod" : {
+            "start" : "2028-08-14T08:05:01-06:00",
+            "end" : "2028-08-14T13:50:01-06:00"
+          }
+        }
       },
-      "effectivePeriod" : {
-        "start" : "2028-08-14T08:05:01-06:00",
-        "end" : "2028-08-14T08:05:01-06:00"
+      "requester" : {
+        "reference" : "PractitionerRole/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
       },
-      "issued" : "2021-08-16T10:47:00-06:00",
-      "specimen" : [ {
-        "reference" : "Specimen/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-      } ],
-      "result" : [ {
-        "reference" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      "reasonCode" : [ {
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
+          "system" : "http://hl7.org/fhir/sid/icd-10-cm",
+          "version" : "38",
+          "code" : "U071",
+          "display" : "COVID-19"
+        } ]
       } ]
     }
   }, {
@@ -594,6 +811,10 @@
         } ],
         "lastUpdated" : "2021-08-15T11:51:00-06:00",
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -617,6 +838,10 @@
         } ],
         "lastUpdated" : "2021-08-15T11:51:00-06:00",
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -638,6 +863,10 @@
         } ],
         "lastUpdated" : "2021-08-15T11:51:00-06:00",
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -646,6 +875,10 @@
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type",
         "valueCodeableConcept" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "NPI"
           } ]
@@ -719,6 +952,10 @@
         } ],
         "lastUpdated" : "2021-08-15T11:51:00-06:00",
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -730,16 +967,33 @@
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
         "valueCodeableConcept" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
             "code" : "L"
           } ]
         }
       } ],
       "identifier" : [ {
+        "type" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
+            "code" : "SWEDISH MEDICAL CENT"
+          } ]
+        },
         "value" : "06D0663730"
       } ],
       "type" : [ {
         "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
           "code" : "XX"
         } ]
@@ -777,6 +1031,10 @@
         } ],
         "lastUpdated" : "2021-08-15T11:51:00-06:00",
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -789,9 +1047,9 @@
       }
     }
   }, {
-    "fullUrl" : "ServiceRequest/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "fullUrl" : "DiagnosticReport/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resource" : {
-      "resourceType" : "ServiceRequest",
+      "resourceType" : "DiagnosticReport",
       "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
       "meta" : {
         "extension" : [ {
@@ -803,59 +1061,52 @@
         } ],
         "lastUpdated" : "2021-08-15T11:51:00-06:00",
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
       },
       "extension" : [ {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/placer-field-2",
-        "valueString" : "11754982"
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/clinical-information",
-        "valueString" : "COVID 19"
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier",
-        "valueReference" : {
-          "reference" : "Practitioner/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-        }
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization",
-        "valueString" : "SWEDISH MEDICAL CENT"
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/order-control",
-        "valueCodeableConcept" : {
-          "coding" : [ {
-            "system" : "http://terminology.hl7.org/CodeSystem/v2-0119",
-            "code" : "RE"
-          } ]
-        }
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/order-effective-date",
-        "valueDateTime" : "2021-08-16T05:03:00Z"
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/business-event",
+        "valueDateTime" : "2028-08-14T13:50:00Z"
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/result-status",
         "valueCodeableConcept" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0123",
             "code" : "A"
           } ]
         }
       }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/filler-field-2",
-        "valueString" : "SWEDISH MEDICAL CENTER"
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/response-flag",
+        "valueCodeableConcept" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0121",
+            "code" : "N"
+          } ]
+        }
       } ],
       "identifier" : [ {
-        "type" : {
-          "coding" : [ {
-            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-            "code" : "VN",
-            "display" : "Visit number"
-          } ]
-        },
+        "system" : "urn:id:extID",
         "value" : "20280814135001-0600"
       }, {
         "type" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "PGN",
             "display" : "Placer Group Number"
@@ -866,9 +1117,12 @@
       }, {
         "type" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-            "code" : "PLAC",
-            "display" : "Placer Identifier"
+            "code" : "PLAC"
           } ]
         },
         "system" : "urn:id:L15735128.1",
@@ -876,6 +1130,10 @@
       }, {
         "type" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "FILL",
             "display" : "Filler Identifier"
@@ -884,12 +1142,18 @@
         "system" : "urn:id:L15735128.1",
         "value" : "0816:ZS:S00004R.1"
       } ],
-      "status" : "unknown",
-      "intent" : "order",
-      "priority" : "routine",
+      "basedOn" : [ {
+        "reference" : "ServiceRequest/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      } ],
+      "status" : "partial",
       "code" : {
         "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "L",
+          "version" : "5.67",
           "code" : "HBSAG(P)",
           "display" : "HEPATITIS B SURFACE ANTIGEN"
         } ]
@@ -897,23 +1161,19 @@
       "subject" : {
         "reference" : "Patient/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
       },
-      "occurrenceTiming" : {
-        "repeat" : {
-          "boundsPeriod" : {
-            "start" : "2028-08-14T08:05:01-06:00",
-            "end" : "2028-08-14T13:50:01-06:00"
-          }
-        }
+      "encounter" : {
+        "reference" : "Encounter/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
       },
-      "requester" : {
-        "reference" : "PractitionerRole/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      "effectivePeriod" : {
+        "start" : "2028-08-14T08:05:01-06:00",
+        "end" : "2028-08-14T08:05:01-06:00"
       },
-      "reasonCode" : [ {
-        "coding" : [ {
-          "system" : "http://hl7.org/fhir/sid/icd-10-cm",
-          "code" : "U071",
-          "display" : "COVID-19"
-        } ]
+      "issued" : "2021-08-16T10:47:00-06:00",
+      "specimen" : [ {
+        "reference" : "Specimen/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      } ],
+      "result" : [ {
+        "reference" : "Observation/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
       } ]
     }
   }, {
@@ -931,6 +1191,10 @@
         } ],
         "lastUpdated" : "2021-08-15T11:51:00-06:00",
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -939,6 +1203,10 @@
         "url" : "http://hl7.org/fhir/StructureDefinition/patient-religion",
         "valueCodeableConcept" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "alternate identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0006",
             "code" : "JSH"
           }, {
@@ -947,12 +1215,26 @@
           } ]
         }
       }, {
-        "url" : "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
+        "url" : "http://hl7.org/fhir/StructureDefinition/patient-animal",
         "valueCodeableConcept" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
+            "system" : "http://snomed.info/sct",
+            "version" : "1",
+            "code" : "337915000",
+            "display" : "Homo sapiens (organism)"
+          }, {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "alternate identifier"
+            } ],
             "system" : "L",
-            "code" : "W",
-            "display" : "White"
+            "version" : "1",
+            "code" : "Human",
+            "display" : "Human"
           } ]
         }
       }, {
@@ -962,11 +1244,21 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-type",
             "valueCodeableConcept" : {
               "coding" : [ {
+                "extension" : [ {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                  "valueString" : "identifier"
+                } ],
                 "system" : "HL70364",
+                "version" : "2.5.1",
                 "code" : "RE",
                 "display" : "Remark"
               }, {
+                "extension" : [ {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                  "valueString" : "alternate identifier"
+                } ],
                 "system" : "L",
+                "version" : "V1",
                 "code" : "C",
                 "display" : "Comment"
               } ]
@@ -975,6 +1267,10 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
             "valueCodeableConcept" : {
               "coding" : [ {
+                "extension" : [ {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                  "valueString" : "identifier"
+                } ],
                 "system" : "http://terminology.hl7.org/CodeSystem/v2-0105",
                 "code" : "P"
               } ]
@@ -983,23 +1279,28 @@
           "text" : "NOTE"
         }
       }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group",
+        "url" : "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
         "valueCodeableConcept" : {
           "coding" : [ {
-            "code" : "2"
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
+            "system" : "L",
+            "version" : "5.67",
+            "code" : "W",
+            "display" : "White"
           } ]
         }
       }, {
-        "url" : "http://hl7.org/fhir/StructureDefinition/patient-animal",
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group",
         "valueCodeableConcept" : {
           "coding" : [ {
-            "system" : "http://snomed.info/sct",
-            "code" : "337915000",
-            "display" : "Homo sapiens (organism)"
-          }, {
-            "system" : "L",
-            "code" : "Human",
-            "display" : "Human"
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
+            "code" : "2"
           } ]
         }
       } ],
@@ -1096,11 +1397,21 @@
       "contact" : [ {
         "relationship" : [ {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "UNKNOWN",
+            "version" : "2.5.1",
             "code" : "SP",
             "display" : "SPOUSE"
           }, {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "alternate identifier"
+            } ],
             "system" : "L",
+            "version" : "5.67",
             "code" : "SP",
             "display" : "SPOUSE"
           } ]
@@ -1144,6 +1455,10 @@
         } ],
         "lastUpdated" : "2021-08-15T11:51:00-06:00",
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -1175,6 +1490,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -1195,6 +1514,10 @@
       "identifier" : [ {
         "type" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "VN",
             "display" : "Visit number"
@@ -1210,14 +1533,20 @@
       },
       "type" : [ {
         "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "code" : "EM"
         } ]
       } ],
       "serviceType" : {
         "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0069",
-          "code" : "MED",
-          "display" : "Medical Service"
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
+          "code" : "MED"
         } ]
       },
       "subject" : {
@@ -1226,6 +1555,10 @@
       "participant" : [ {
         "type" : [ {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
             "code" : "ADM",
             "display" : "admitter"
@@ -1237,6 +1570,10 @@
       }, {
         "type" : [ {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
             "code" : "REF",
             "display" : "referrer"
@@ -1248,6 +1585,10 @@
       }, {
         "type" : [ {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
             "code" : "CON",
             "display" : "consultant"
@@ -1259,6 +1600,10 @@
       }, {
         "type" : [ {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
             "code" : "CON",
             "display" : "consultant"
@@ -1270,6 +1615,10 @@
       }, {
         "type" : [ {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
             "code" : "CON",
             "display" : "consultant"
@@ -1281,6 +1630,10 @@
       }, {
         "type" : [ {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
             "code" : "ATND",
             "display" : "attender"
@@ -1296,11 +1649,19 @@
       "hospitalization" : {
         "admitSource" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "code" : "PR"
           } ]
         },
         "dischargeDisposition" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "code" : "SAP"
           } ]
         }
@@ -1323,6 +1684,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -1331,6 +1696,10 @@
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type",
         "valueCodeableConcept" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "NPI"
           } ]
@@ -1369,6 +1738,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -1377,6 +1750,10 @@
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type",
         "valueCodeableConcept" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "XX"
           } ]
@@ -1414,6 +1791,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -1422,6 +1803,10 @@
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type",
         "valueCodeableConcept" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "XX"
           } ]
@@ -1459,6 +1844,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -1467,6 +1856,10 @@
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type",
         "valueCodeableConcept" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "NPI"
           } ]
@@ -1505,6 +1898,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -1513,6 +1910,10 @@
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type",
         "valueCodeableConcept" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "NPI"
           } ]
@@ -1551,6 +1952,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -1559,6 +1964,10 @@
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type",
         "valueCodeableConcept" : {
           "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "NPI"
           } ]
@@ -1597,6 +2006,10 @@
           "valueString" : "2.5.1"
         } ],
         "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
           "code" : "P"
         } ]
@@ -1611,6 +2024,10 @@
       "mode" : "instance",
       "physicalType" : {
         "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
           "system" : "http://terminology.hl7.org/CodeSystem/location-physical-type",
           "code" : "bd"
         } ]

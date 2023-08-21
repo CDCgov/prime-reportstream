@@ -12,3 +12,9 @@ elements:
       and %symptomaticAoe.value.coding.code = 'N'
     hl7Spec: [ '%{hl7ObservationPath}/OBX-5' ]
     value: [ '""' ]
+
+  - name: radx-mars-observation-identifier-code
+    resource: '%resource.code'
+    constants:
+      ceFieldPath: '%{hl7ObservationPath}/OBX-3'
+    schema: ../../common/datatype/ce-coded-element

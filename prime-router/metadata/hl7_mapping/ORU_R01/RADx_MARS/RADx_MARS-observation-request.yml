@@ -2,6 +2,13 @@ constants:
   fieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBR
 elements:
 
+  # OBR-4
+  - name: radx-mars-universal-service
+    resource: '%resource.code'
+    constants:
+      ceFieldPath: '%{fieldPath}-4'
+    schema: ../../common/datatype/ce-coded-element
+
   - name: radx-mars-ordering-provider-id-assigner-oid
     resource: '%service.requester.resolve().practitioner.exists()'
     value: [ '"2.16.840.1.113883.4.6"' ]
