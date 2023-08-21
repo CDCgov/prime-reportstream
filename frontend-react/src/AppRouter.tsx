@@ -87,6 +87,21 @@ export const appRoutes: RouteObject[] = [
                 },
             },
             {
+                path: "/developer-resources",
+                children: [
+                    {
+                        index: true,
+                        lazy: lazyRouteMarkdown(
+                            "content/developer-resources/landing-page",
+                        ),
+                        handle: {
+                            isContentPage: true,
+                            isFullWidth: true,
+                        },
+                    },
+                ],
+            },
+            {
                 path: "/resources",
                 children: [
                     {
