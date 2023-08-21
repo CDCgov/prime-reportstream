@@ -56,7 +56,9 @@ azurefunctions.appName = azureAppName
 val appJvmTarget = "17"
 val javaVersion = when (appJvmTarget) {
     "17" -> JavaVersion.VERSION_17
-    else -> JavaVersion.VERSION_11
+    "19" -> JavaVersion.VERSION_19
+    "21" -> JavaVersion.VERSION_21
+    else -> JavaVersion.VERSION_17
 }
 
 // Local database information, first one wins:
