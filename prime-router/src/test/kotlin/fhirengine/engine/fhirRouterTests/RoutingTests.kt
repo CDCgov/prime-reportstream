@@ -465,7 +465,7 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
 
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
@@ -518,7 +518,7 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
@@ -570,7 +570,7 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
@@ -622,7 +622,7 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
@@ -675,7 +675,7 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
@@ -728,7 +728,7 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
@@ -741,7 +741,7 @@ class RoutingTests {
         // assert
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
-            actionHistory.trackCreatedReport(any(), any(), any())
+            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
             BlobAccess.Companion.uploadBlob(any(), any())
             accessSpy.insertTask(any(), any(), any(), any(), any())
             FHIRBundleHelpers.addReceivers(any(), any(), any())
@@ -773,7 +773,7 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
 
@@ -785,7 +785,7 @@ class RoutingTests {
         // assert
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
-            actionHistory.trackCreatedReport(any(), any(), any())
+            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
         }
         verify(exactly = 0) {
             accessSpy.insertTask(any(), any(), any(), any())
@@ -921,7 +921,7 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         engine.setFiltersOnEngine(

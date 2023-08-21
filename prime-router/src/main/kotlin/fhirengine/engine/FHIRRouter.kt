@@ -241,7 +241,7 @@ class FHIRRouter(
             )
 
             // ensure tracking is set
-            actionHistory.trackCreatedReport(nextEvent, report, blobInfo)
+            actionHistory.trackCreatedReport(nextEvent, report, blobInfo = blobInfo)
 
             return listOf(
                 FHIREngineRunResult(
@@ -268,8 +268,8 @@ class FHIRRouter(
                 emptyList()
             )
 
-            // ensure tracking is set
-            actionHistory.trackCreatedReport(nextEvent, report, null)
+                // ensure tracking is set
+                actionHistory.trackCreatedReport(nextEvent, report)
 
             return emptyList()
         }
