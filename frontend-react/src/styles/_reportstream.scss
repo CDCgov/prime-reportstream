@@ -893,11 +893,10 @@ main {
         #site-header .usa-nav-container {
             @include u-rs-style-alternate-container;
 
-            &,
-            & .usa-nav {
-                a:not(.usa-button),
-                a:not(.usa-button):visited {
-                    @include u-rs-style-alternate-color;
+            .usa-logo,
+            .usa-nav {
+                a:not(.usa-button) {
+                    @include u-rs-style-alternate-nav-link;
                 }
             }
         }
