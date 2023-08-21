@@ -335,7 +335,7 @@ Filter data based on the test identifiers. A receiver expecting flu results shou
 
 ## Storage
 
-The Route Function retrieves messages from the pdhprodstorageaccount Azure Storage Account. Within that storage account there is a Blob Container named reports containing folders for use by the Universal Pipeline. The Convert Function places all messages into the route folder for retrieval by the Route Function. Those messages that match a receiver's filtering will then be placed in the translate folder for future retrieval by the Translate Function. Messages within the route folder are saved to sub-folders equaling the name of the sender.
+The `Route Function` retrieves messages from the `pdhprodstorageaccount` Azure Storage Account. Within that storage account there is a blob container named `reports` containing folders for use by the Universal Pipeline. The `Convert Function` places all messages into the route folder for retrieval by the `Route Function`. Those messages that match a receiver's filtering will then be placed in the `translate` folder for future retrieval by the `Translate Function`. Messages within the `route` folder are saved to sub-folders equaling the name of the sender.
 
 
 ## Filter Reversal
@@ -405,7 +405,7 @@ We would never expect to have exceptions in evaluation of default filters, but i
 
 #### Filtered Out w/ Reversed Filter
 
-If a report is filtered out due to a quality filter along with a setting of `reverseTheQualityFilter: true`, the logged message will include the text “(reversed)”. Imagine a reversed filter of [A, B, C, D, E], which can be thought of as or equivalently . The only way for this to yield a negative result is if each and every predicate A, B, C, D, and E evaluate to true; therefore each of those predicates is relevant in logging why the filter yielded a negative result. So while in non-reversed cases, we only include the individual predicates that evaluated to false, in reversed cases, we include all predicates, and the resulting message might look like this:
+If a report is filtered out due to a quality filter along with a setting of `reverseTheQualityFilter: true`, the logged message will include the text “(reversed)”. Imagine a reversed filter of [A, B, C, D, E], which can be thought of as `or` equivalently. The only way for this to yield a negative result is if each and every predicate A, B, C, D, and E evaluate to true; therefore each of those predicates are relevant in logging why the filter yielded a negative result. So while in non-reversed cases, we only include the individual predicates that evaluated to false, in reversed cases, we include all predicates, and the resulting message might look like this:
 
 `For someOrg.someReceiver, filter (reversed) [A, B, C, D, E][] filtered out item someItemId`
 
