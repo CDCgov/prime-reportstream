@@ -9,7 +9,7 @@ The first and most significant aspect of the convert step is the conversion of a
 - Currently, no other input formats are supported in the Universal Pipeline, but to support new input types, they would need to be translated to FHIR by some other method.
 
 ### HL7v2-to-FHIR configurations
-[section all about the mapping configurations in `fhir_mapping`]
+[section all about the mapping configurations in `fhir_mapping`, link to separate page if necessary]
 
 ## Sender Transforms
 After the conversion to FHIR format is complete, we can now apply sender transforms. We use these transforms to make sender-specific adjustments to the resulting FHIR bundle, so we can think of this as a FHIR-to-FHIR transform. The class `FhirTransformer` is used to perform these kinds of transforms.
@@ -17,4 +17,4 @@ After the conversion to FHIR format is complete, we can now apply sender transfo
 Note: When creating a transform, please reference [Changing/Updating Sender/Receiver Transforms](../getting-started/standard-operating-procedures/changing-transforms.md) for guidance.
 
 ### FhirTransformer configurations
-[section all about configuration files and the different settings that are possible]
+[section all about configuration files and the different settings that are possible, link to separate page if necessary]

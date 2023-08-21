@@ -7,46 +7,47 @@ After the [route step](route.md) has determined the receivers for a message, the
 HL7v2 receivers can utilize receiver transforms as well as some other organization settings to customize the process of going from FHIR to HL7v2. Unlike `FhirTransformer`, which operates on FHIR-to-FHIR conversion, this scenario makes use of the `FhirToHl7Converter`, which operates (as the name suggests) on FHIR-to-HL7v2 conversion.
 
 #### FhirToHl7Converter configuration
-[section all about configuration files and the different settings that are possible]
+[section all about configuration files and the different settings that are possible, link to separate page if necessary]
 
 #### Other HL7v2 receiver settings 
-        - useTestProcessingMode
-        - useBatchHeaders
-        - receivingApplicationName
-        - receivingApplicationOID
-        - receivingFacilityName
-        - receivingFacilityOID
-        - messageProfileId
-        - replaceValue
-        - replaceValueAwithB
-        - reportingFacilityName
-        - reportingFacilityId
-        - reportingFacilityIdType
-        - suppressQstForAoe
-        - suppressHl7Fields
-        - suppressAoe
-        - defaultAoeToUnknown
-        - replaceUnicodeWithAscii
-        - useBlankInsteadOfUnknown
-        - truncateHDNamespaceIds
-        - truncateHl7Fields
-        - usePid14ForPatientEmail
-        - convertTimestampToDateTime
-        - cliaForOutOfStateTesting
-        - cliaForSender
-        - phoneNumberFormatting
-        - suppressNonNPI
-        - processingModeCode
-        - replaceDiiWithOid
-        - applyOTCDefault
-        - useOrderingFacilityName
-        - valueSetOverrides
-        - nameFormat
-        - receivingOrganization
-        - convertPositiveDateTimeOffsetToNegative
-        - stripInvalidCharsRegex
-        - convertDateTimesToReceiverLocalTime
-        - useHighPrecisionHeaderDateTimeFormat
+[be sure to investigate support in Universal Pipeline vs Legacy (COVID) Pipeline]
+- useTestProcessingMode
+- useBatchHeaders
+- receivingApplicationName
+- receivingApplicationOID
+- receivingFacilityName
+- receivingFacilityOID
+- messageProfileId
+- replaceValue
+- replaceValueAwithB
+- reportingFacilityName
+- reportingFacilityId
+- reportingFacilityIdType
+- suppressQstForAoe
+- suppressHl7Fields
+- suppressAoe
+- defaultAoeToUnknown
+- replaceUnicodeWithAscii
+- useBlankInsteadOfUnknown
+- truncateHDNamespaceIds
+- truncateHl7Fields
+- usePid14ForPatientEmail
+- convertTimestampToDateTime
+- cliaForOutOfStateTesting
+- cliaForSender
+- phoneNumberFormatting
+- suppressNonNPI
+- processingModeCode
+- replaceDiiWithOid
+- applyOTCDefault
+- useOrderingFacilityName
+- valueSetOverrides
+- nameFormat
+- receivingOrganization
+- convertPositiveDateTimeOffsetToNegative
+- stripInvalidCharsRegex
+- convertDateTimesToReceiverLocalTime
+- useHighPrecisionHeaderDateTimeFormat
 
 ### FHIR Transforms
 Since the message at this point is already in the FHIR format, when receivers want the message in FHIR format, no format translation needs to occur, however, the receiver may still want to apply some receiver-specific transforms to the FHIR bundle. This is done by applying a `FhirTransformer`, similarly to what is used for sender-specific changes in the [convert step](convert.md), but this time as a receiver transform. For details on the FhirTransformer settings, see [this section](convert.md#fhirtransformer-configurations).
