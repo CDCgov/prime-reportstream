@@ -47,52 +47,9 @@ A Topic must be set for all senders and receivers. The choice of topic determine
   </tr>
 </table>
 
-## FHIRPath
+### FHIRPath for Routing
 
-Access to fields in a FHIR message can be accomplished using [FHIRPath](http://hl7.org/fhirpath/), which is an expression language defined by FHIR. At its simplest, this takes the form of a single dotted path: `Bundle.entry.resource.ofType(Patient).name.family`.` `
-
-FHIRPath is used in filtering to access values in a bundle. In the example, the value for the patient’s family name (i.e last name) would be provided.
-
-
-### Shorthands
-
-FHIRPath can be verbose and can be challenging for a user that is not familiar with FHIR or the FHIR bundle structure. In FHIRPath, expressions can be simplified by the use of built-in constants that point to specific FHIR resources. This makes expressions simpler to write while keeping the flexibility and logic that it provides. These ReportStream-specific shorthands are prefaced with the percent symbol(%). For example:
-
-<table>
-  <tr>
-   <td><strong>ShortHand Examples</strong>
-   </td>
-   <td><strong>Full FHIRPath Expression</strong>
-   </td>
-  </tr>
-  <tr>
-   <td>%patientState
-   </td>
-   <td>Bundle.entry.resource.ofType(Patient).address.state
-   </td>
-  </tr>
-  <tr>
-   <td>%patientLastname
-   </td>
-   <td>Bundle.entry.resource.ofType(Patient).name.family
-   </td>
-  </tr>
-  <tr>
-   <td>%patientFirstname
-   </td>
-   <td>Bundle.entry.resource.ofType(Patient).name.given
-   </td>
-  </tr>
-</table>
-
-```yaml
-jurisdictionalFilter:
-	- ‘%patientState = “CO”’
-qualityFilter:
-	- ‘%patientLastname.exists() and %patientFirstname.exists()’
-```
-
-### COVID vs Universal
+FHIRPath is used to build filter expressions. See FHIRPath documentation in [fhir-functions.md](https://github.com/CDCgov/prime-reportstream/blob/d43ab6297a44a4ef2a0fef8d467e79cfcc154f33/prime-router/docs/getting-started/fhir-functions.md)
 
 The table below demonstrates a few filter functions and their FHIRPath equivalent.
 
