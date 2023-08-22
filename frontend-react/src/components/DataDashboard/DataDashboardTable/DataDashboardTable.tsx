@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 
-import { FeatureName } from "../../../AppRouter";
+import { FeatureName } from "../../../utils/FeatureName";
 import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";

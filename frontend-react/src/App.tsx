@@ -17,7 +17,8 @@ import { logout } from "./utils/UserUtils";
 import { IS_IE } from "./utils/GetIsIE";
 import ScrollRestoration from "./components/ScrollRestoration";
 
-export interface AppProps extends React.PropsWithChildren {}
+export interface AppProps
+    extends React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement>> {}
 
 const App = ({ children }: AppProps) => {
     const sessionStartTime = useRef<number>(new Date().getTime());

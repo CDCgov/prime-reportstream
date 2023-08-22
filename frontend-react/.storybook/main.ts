@@ -10,6 +10,7 @@ const config: StorybookConfig = {
         "./UtilizedUSWDSComponents/*.stories.@(js|jsx|ts|tsx)",
     ],
     addons: [
+        "storybook-addon-react-router-v6",
         "@storybook/addon-links",
         "@storybook/addon-essentials",
         "@storybook/addon-interactions",
@@ -36,7 +37,7 @@ const config: StorybookConfig = {
     async viteFinal(config, options) {
         // Exclude our mdx plugin from vite config in favor of storybook's
         config.plugins = config.plugins?.filter(
-            (x: any, i) => x.name !== "@mdx-js/rollup"
+            (x: any, i) => x.name !== "@mdx-js/rollup",
         );
 
         // Proxy react-uswds storybook website locally so we can supply
