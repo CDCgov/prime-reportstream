@@ -914,7 +914,7 @@ class ReportTests {
             every { fileNameTemplates } returns emptyMap()
         }
         val mockActionHistory = mockk<ActionHistory>() {
-            every { trackCreatedReport(any(), any(), any()) } returns Unit
+            every { trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
         }
         val hl7MockData = UUID.randomUUID().toString().toByteArray() // Just some data
         val receiver = Receiver(
@@ -978,7 +978,7 @@ class ReportTests {
             every { fileNameTemplates } returns emptyMap()
         }
         val mockActionHistory = mockk<ActionHistory>() {
-            every { trackCreatedReport(any(), any(), any()) } returns Unit
+            every { trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
         }
         val fhirMockData = UUID.randomUUID().toString().toByteArray() // Just some data
         val receiver = Receiver(
