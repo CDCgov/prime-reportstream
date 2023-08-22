@@ -7,7 +7,7 @@ import HipaaNotice from "../../components/HipaaNotice";
 import { AdminLastMileFailuresTable } from "../../components/Admin/AdminLastMileFailuresTable";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
-import { FeatureName } from "../../AppRouter";
+import { FeatureName } from "../../utils/FeatureName";
 
 export function AdminLastMileFailures() {
     return (

@@ -1,5 +1,4 @@
-import React from "react";
-
+// AutoUpdateFileChromatic
 import { ReportStreamFooter } from "./ReportStreamFooter";
 
 export default {
@@ -7,4 +6,9 @@ export default {
     component: ReportStreamFooter,
 };
 
-export const RsFooter = (): React.ReactElement => <ReportStreamFooter />;
+export const Default = {};
+export const Alternate = {
+    args: {
+        isAlternate: true,
+    },
+};

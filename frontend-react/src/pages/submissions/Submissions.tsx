@@ -8,7 +8,7 @@ import Title from "../../components/Title";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
-import { FeatureName } from "../../AppRouter";
+import { FeatureName } from "../../utils/FeatureName";
 
 import SubmissionTable from "./SubmissionTable";
 

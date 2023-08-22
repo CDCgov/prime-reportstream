@@ -2,27 +2,47 @@ import { GovBanner } from "@trussworks/react-uswds";
 import classNames from "classnames";
 import { Outlet, useMatches } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import React from "react";
 
 import App from "../../App";
 import { DAPHeader } from "../../components/header/DAPHeader";
 import { ReportStreamHeader } from "../../components/header/ReportStreamHeader";
-import { ReportStreamFooter } from "../../components/ReportStreamFooter";
 import RSErrorBoundary from "../../components/RSErrorBoundary";
 import SenderModeBanner from "../../components/SenderModeBanner";
 import { USLink } from "../../components/USLink";
 import { useSessionContext } from "../../contexts/SessionContext";
+import { ReportStreamFooter } from "../../shared/ReportStreamFooter/ReportStreamFooter";
 
-export type MainLayoutProps = React.PropsWithChildren<{}>;
+const ArticleWrapper = (props: React.PropsWithChildren) => {
+    return (
+        <article id="main-content" className="tablet:grid-col-12" {...props} />
+    );
+};
 
-const MainLayout = ({ children }: MainLayoutProps) => {
+export type MainLayoutBaseProps = React.PropsWithChildren<{}>;
+
+export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
     const { environment } = useSessionContext();
     const matches = useMatches() as RsRouteObject[];
     const { handle = {} } = matches.at(-1) ?? {};
-    const { isContentPage } = handle;
+    const { isContentPage, isFullWidth, isLoginPage } = handle;
+    // Okta signin widget rudely assumes to be the main element
+    const OuterWrapper = isLoginPage ? React.Fragment : "main";
+    // article element is currently handled within markdownlayout for markdown pages
+    const InnerWrapper =
+        isContentPage || isLoginPage ? React.Fragment : ArticleWrapper;
 
     return (
-        <App>
-            <ReportStreamHeader className="margin-bottom-5">
+        <div
+            className={classNames(
+                isContentPage && "rs-style--content",
+                isFullWidth && "rs-style--full-width",
+                // Currently all the full-width pages are alternate.
+                // This could change.
+                isFullWidth && "rs-style--alternate",
+            )}
+        >
+            <ReportStreamHeader className="margin-bottom-5" id="site-header">
                 <DAPHeader env={environment} />
                 <USLink className="usa-skipnav" href="#main-content">
                     Skip Nav
@@ -30,19 +50,24 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 <GovBanner aria-label="Official government website" />
                 <SenderModeBanner />
             </ReportStreamHeader>
-            <main
-                id="main-content"
-                className={classNames(isContentPage && "rs-style__content")}
-            >
-                <RSErrorBoundary>
-                    {children}
-                    <Outlet />
-                </RSErrorBoundary>
-            </main>
+            <OuterWrapper>
+                <InnerWrapper>
+                    <RSErrorBoundary>
+                        {children}
+                        <Outlet />
+                    </RSErrorBoundary>
+                </InnerWrapper>
+            </OuterWrapper>
             <ToastContainer limit={4} />
-            <footer className="usa-identifier footer">
-                <ReportStreamFooter />
-            </footer>
+            <ReportStreamFooter id="site-footer" isAlternate />
+        </div>
+    );
+};
+
+const MainLayout = (props: MainLayoutBaseProps) => {
+    return (
+        <App>
+            <MainLayoutBase {...props} />
         </App>
     );
 };

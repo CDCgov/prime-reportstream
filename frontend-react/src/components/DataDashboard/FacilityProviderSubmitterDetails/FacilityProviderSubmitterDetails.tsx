@@ -4,7 +4,7 @@ import React from "react";
 import { AuthElement } from "../../AuthElement";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import Crumbs, { CrumbsProps } from "../../Crumbs";
-import { FeatureName } from "../../../AppRouter";
+import { FeatureName } from "../../../utils/FeatureName";
 import HipaaNotice from "../../HipaaNotice";
 import { SenderType } from "../../../utils/DataDashboardUtils";
 import { withCatchAndSuspense } from "../../RSErrorBoundary";

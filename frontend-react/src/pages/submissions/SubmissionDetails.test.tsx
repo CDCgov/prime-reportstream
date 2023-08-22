@@ -4,7 +4,7 @@ import ActionDetailsResource from "../../resources/ActionDetailsResource";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { DetailItem } from "../../components/DetailItem/DetailItem";
-import { FeatureName } from "../../AppRouter";
+import { FeatureName } from "../../utils/FeatureName";
 
 import SubmissionDetails, { DestinationItem } from "./SubmissionDetails";
 

@@ -12,7 +12,7 @@ describe("lazyRouteMarkdown", () => {
             },
         ]);
         render(<RouterProvider router={router} />);
-        await screen.findByRole("main");
-        expect(screen.getByRole("main")).toHaveTextContent("Test");
+        await screen.findByRole("article");
+        expect(screen.getByRole("article")).toHaveTextContent("Test");
     });
 });
