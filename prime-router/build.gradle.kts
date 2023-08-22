@@ -843,7 +843,7 @@ dependencies {
     implementation("com.google.guava:guava:32.1.1-jre")
     implementation("com.helger.as2:as2-lib:5.1.1")
     implementation("org.bouncycastle:bcprov-jdk15to18:1.76")
-    implementation("org.bouncycastle:bcprov-jdk18on:1.75")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.76")
     implementation("org.bouncycastle:bcmail-jdk15to18:1.75")
 
     implementation("commons-net:commons-net:3.9.0")
