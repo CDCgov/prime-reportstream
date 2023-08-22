@@ -1,26 +1,36 @@
 import { Link } from "@trussworks/react-uswds";
 
-import { SectionProp } from "../Section/Section";
 import usamapsvg from "../../content/usa_w_territories.svg";
 import { USLink } from "../../components/USLink";
 import { Citation } from "../Citation/Citation";
 
 import styles from "./LiveMap.module.scss";
 
-export const LiveMap = ({ section }: { section: SectionProp }) => {
+export interface LiveMapProps
+    extends React.PropsWithChildren<
+        React.HTMLAttributes<HTMLElement> & ContentItem
+    > {}
+
+export const LiveMap = ({
+    title,
+    summary,
+    subTitle,
+    citation,
+    ...props
+}: LiveMapProps) => {
     return (
-        <div>
+        <section {...props}>
             <h2
                 data-testid="heading"
                 className="font-sans-xl margin-top-0 tablet:margin-bottom-0 padding-top-9 border-top-05 border-primary"
             >
-                {section.title}
+                {title}
             </h2>
             <p data-testid="summary" className="usa-intro margin-top-4">
-                {section.summary}
+                {summary}
             </p>
             <h3 data-testid="subTitle" className="font-sans-lg margin-top-4">
-                {section.subTitle}
+                {subTitle}
             </h3>
             <div
                 data-testid="map"
@@ -54,15 +64,15 @@ export const LiveMap = ({ section }: { section: SectionProp }) => {
                     See all partners
                 </Link>
             </div>
-            {section.citation?.map((citation, citationIndex) => {
+            {citation?.map((citation, citationIndex) => {
                 return (
                     <Citation
                         data-testid="citation"
                         key={citationIndex}
-                        citation={citation}
+                        {...citation}
                     />
                 );
             })}
-        </div>
+        </section>
     );
 };

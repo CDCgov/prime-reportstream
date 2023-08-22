@@ -1716,7 +1716,7 @@ class Report : Logging {
             report.nextAction = event.eventAction.toTaskAction()
 
             // track generated reports, one per receiver
-            actionHistory.trackCreatedReport(event, report, blobInfo)
+            actionHistory.trackCreatedReport(event, report, blobInfo = blobInfo)
 
             return Triple(report, event, blobInfo)
         }

@@ -202,7 +202,7 @@ Receiver settings primarily allow the Receiver to configure:
 1. [Transport protocol](../../universal-pipeline/send.md#configuration)
 2. [Batching](../../universal-pipeline/batch.md#Configuration)
 3. [Routing Filters](../../universal-pipeline/route.md#filters)
-4. [Translations](../../universal-pipeline/convert-translate.md)
+4. [Translations](../../universal-pipeline/translate.md)
 5. [Topic](./topic.md)
 
 Example Receiver settings configuration. Deprecated options have been omitted.

@@ -2,7 +2,7 @@
 
 The purpose of this document is to explain where to make a change when you 
 need to update a transform. If you need more information please read 
-[Convert/Translate](../../universal-pipeline/convert-translate.md)
+[Convert](../../universal-pipeline/convert.md)
 
 ```mermaid
 flowchart LR

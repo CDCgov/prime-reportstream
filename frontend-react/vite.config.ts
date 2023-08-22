@@ -77,6 +77,9 @@ export default defineConfig(async () => {
                     includePaths: ["node_modules/@uswds/uswds/packages"],
                 },
             },
+            devSourcemap:
+                process.env.NODE_ENV === "development" ||
+                process.env.SOURCEMAPS === "true",
         },
     };
 });

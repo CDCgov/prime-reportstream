@@ -8,18 +8,10 @@ export default {
     component: PageHeader,
 };
 
-export const RSPageHeaderLighter = (): React.ReactElement => (
+export const RSPageHeader = (): React.ReactElement => (
     <PageHeader
         title={"This is the title"}
         subtitleArr={["This is the subtitle"]}
-    />
-);
-
-export const RSPageHeaderDarker = (): React.ReactElement => (
-    <PageHeader
-        title={"This is the title"}
-        subtitleArr={["This is the subtitle"]}
-        isPrimaryDarker={true}
         callToAction={[
             {
                 href: "https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957",

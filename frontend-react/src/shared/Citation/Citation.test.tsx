@@ -13,7 +13,7 @@ describe("Citation rendering", () => {
     };
 
     beforeEach(() => {
-        renderApp(<Citation citation={fakeCitation} />);
+        renderApp(<Citation {...fakeCitation} />);
     });
 
     test("Citation renders props", () => {
