@@ -1,5 +1,7 @@
 # To submit this to localhost, run:
 # ./prime multiple-settings set --env staging --input ./settings/staging/0154-nbs-staging.yml
+# ./prime multiple-settings set --input ./junk/NBS/0154-nbs-cdc-staging.yml
+---
 - name: dataingestion
   description: "Data Ingestion CDC NBS"
   jurisdiction: "FEDERAL"
@@ -7,7 +9,7 @@
     - name: "datateam-cdc-nbs"
       organizationName: "dataingestion"
       topic: "covid-19"
-      customerStatus: "testing"
+      customerStatus: "active"
       translation: !<HL7>
         format: "HL7"
         defaults: {}
@@ -16,7 +18,11 @@
         type: "HL7"
       routingFilter: []
       processingModeFilter:
-        - "doesNotMatch(processing_mode_code,T,D)"
+        - "matches(processing_mode_code,T,D)"
+      jurisdictionalFilter:
+        - "allowAll()"
+      qualityFilter:
+        - "allowAll()"
       reverseTheQualityFilter: false
       conditionFilter: []
       deidentify: true
