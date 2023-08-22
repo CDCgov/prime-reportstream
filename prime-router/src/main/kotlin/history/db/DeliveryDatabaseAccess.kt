@@ -220,10 +220,9 @@ class DeliveryDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessS
 
             search.fetchResults(
                 DSL.using(txn),
-                DSL
-                    .withRecursive(itemGraph)
-                    .select(deliveriesExpression.asterisk())
-                    .from(deliveriesExpression.asTable(DeliveryTable.DELIVERY.name))
+                deliveriesExpression.asterisk(),
+                deliveriesExpression.asTable(DeliveryTable.DELIVERY.name),
+                itemGraph
             )
         }
     }

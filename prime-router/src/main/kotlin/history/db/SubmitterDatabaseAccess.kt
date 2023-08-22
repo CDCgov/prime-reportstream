@@ -307,9 +307,9 @@ class SubmitterDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccess
 
             search.fetchResults(
                 DSL.using(txn),
-                DSL.withRecursive(itemGraph)
-                    .select(submitterExpression.asterisk())
-                    .from(submitterExpression)
+                submitterExpression.asterisk(),
+                submitterExpression,
+                itemGraph
             )
         }
     }
