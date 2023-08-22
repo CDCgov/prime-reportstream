@@ -13,7 +13,7 @@ describe("MarkdownLayout", () => {
             </MarkdownLayout>,
         );
         expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
-        expect(screen.getByRole("main")).toHaveTextContent("Test");
+        expect(screen.getByRole("article")).toHaveTextContent("Test");
     });
     test("sidenav", async () => {
         renderApp(
@@ -26,7 +26,7 @@ describe("MarkdownLayout", () => {
         );
         await screen.findByRole("navigation");
         expect(screen.getByRole("navigation")).toHaveTextContent("Test");
-        expect(screen.getByRole("main")).toHaveTextContent("Test");
+        expect(screen.getByRole("article")).toHaveTextContent("Test");
     });
     test("main", async () => {
         renderApp(
@@ -36,7 +36,7 @@ describe("MarkdownLayout", () => {
                 </>
             </MarkdownLayout>,
         );
-        expect(screen.getByRole("main")).toHaveTextContent("Test");
+        expect(screen.getByRole("article")).toHaveTextContent("Test");
     });
     test("sidenav + main", async () => {
         renderApp(
@@ -49,6 +49,6 @@ describe("MarkdownLayout", () => {
         );
         await screen.findByRole("navigation");
         expect(screen.getByRole("navigation")).toHaveTextContent("Test");
-        expect(screen.getByRole("main")).toHaveTextContent("Test");
+        expect(screen.getByRole("article")).toHaveTextContent("Test");
     });
 });

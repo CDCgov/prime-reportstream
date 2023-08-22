@@ -819,7 +819,7 @@ dependencies {
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.17")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.19")
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
@@ -844,7 +844,7 @@ dependencies {
     implementation("com.google.guava:guava:32.1.1-jre")
     implementation("com.helger.as2:as2-lib:5.1.1")
     implementation("org.bouncycastle:bcprov-jdk15to18:1.76")
-    implementation("org.bouncycastle:bcprov-jdk18on:1.75")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.76")
     implementation("org.bouncycastle:bcmail-jdk15to18:1.75")
 
     implementation("commons-net:commons-net:3.9.0")
@@ -899,9 +899,9 @@ dependencies {
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
-    testImplementation("org.testcontainers:testcontainers:1.18.3")
-    testImplementation("org.testcontainers:junit-jupiter:1.18.3")
-    testImplementation("org.testcontainers:postgresql:1.18.3")
+    testImplementation("org.testcontainers:testcontainers:1.19.0")
+    testImplementation("org.testcontainers:junit-jupiter:1.19.0")
+    testImplementation("org.testcontainers:postgresql:1.19.0")
 
     implementation(kotlin("script-runtime"))
 }

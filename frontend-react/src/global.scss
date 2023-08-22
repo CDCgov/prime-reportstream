@@ -4,11 +4,11 @@
 @forward "uswds";
 
 @use "uswds";
-@import "@trussworks/react-uswds/lib/index.css";
-@import "styles/uswds_overrides"; // _uswds_overrides.scss
-@import "styles/typography"; // _typography.scss
-@import "styles/reportstream"; // _reportstream.scss
-@import "styles/components";
+@use "@trussworks/react-uswds/lib/index.css";
+@use "styles/uswds_overrides"; // _uswds_overrides.scss
+@use "styles/typography"; // _typography.scss
+@use "styles/reportstream"; // _reportstream.scss
+@use "styles/components";
 
 // Print styles (e.g. may be used by PDF generation)
-@import "styles/print";
+@use "styles/print";

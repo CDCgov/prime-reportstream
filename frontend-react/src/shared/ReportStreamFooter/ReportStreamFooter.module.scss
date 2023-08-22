@@ -1,0 +1,10 @@
+@use "../../global-modules.scss" as *;
+
+.rs-footer {
+    &--alternate {
+        &,
+        & :global(.usa-identifier) {
+            @include u-rs-style-alternate-bg;
+        }
+    }
+}
