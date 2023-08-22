@@ -44,6 +44,12 @@ report had already been batched
   the receiver
   - the batch step should record when items are filtered because they have already been sent
 
+There is existing [functionality](https://github.com/CDCgov/prime-reportstream/blob/9d11de15a24d7b8d58a50fec026168f33f857774/prime-router/src/main/kotlin/Report.kt#L1284) 
+for calculating an item hash from an HL7 row so this and a similar method will need to be added for FHIR bundles.  Jackson
+does implement `hashCode` for every object that extends `JsonNode`, but we'll need to investigate if that is sufficient
+for our purposes.  Specifically, implementor will need to verify that identical but structurally different JSON generates
+the same hash: `{name1: 'a', name2: 'b'}` vs `{name2: 'b', name1: 'a'}`
+
 ### Resending items that fail in a step another than send
 
 This section is purposely left sparse as it's highly contingent on product requirements.
