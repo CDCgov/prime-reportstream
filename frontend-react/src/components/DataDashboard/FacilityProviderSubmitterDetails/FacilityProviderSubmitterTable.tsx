@@ -6,7 +6,7 @@ import TableFilters from "../../Table/TableFilters";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../../hooks/filters/UseFilterManager";
-import { FeatureName } from "../../../AppRouter";
+import { FeatureName } from "../../../utils/FeatureName";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import { USLink } from "../../USLink";
 import { SenderTypeDetailResource } from "../../../config/endpoints/dataDashboard";
@@ -26,7 +26,7 @@ interface FacilityProviderSubmitterTableProps {
 }
 
 function FacilityProviderSubmitterTable(
-    props: FacilityProviderSubmitterTableProps
+    props: FacilityProviderSubmitterTableProps,
 ) {
     const featureEvent = `${FeatureName.REPORT_DETAILS} | ${EventName.TABLE_FILTER}`;
     // const { senderTypeId }: FacilityProviderSubmitterTableProps = props;
@@ -73,14 +73,14 @@ function FacilityProviderSubmitterTable(
                     columnKey: "batchReadyAt",
                     columnHeader: "Date sent to you",
                     content: formatDateWithoutSeconds(
-                        SenderTypeDetailResource.batchReadyAt
+                        SenderTypeDetailResource.batchReadyAt,
                     ),
                 },
                 {
                     columnKey: "expires",
                     columnHeader: "Available until",
                     content: formatDateWithoutSeconds(
-                        SenderTypeDetailResource.expires
+                        SenderTypeDetailResource.expires,
                     ),
                 },
                 {

@@ -3,7 +3,7 @@ import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 
 import { MarkdownDirectory } from "../Content/MarkdownDirectory";
 import { USLink } from "../USLink";
-import { FeatureName } from "../../AppRouter";
+import { FeatureName } from "../../utils/FeatureName";
 
 export interface NonStaticOption {
     title: string;
@@ -20,7 +20,7 @@ interface DropdownNavProps {
 export const makeNonStaticOption = (
     title: string,
     slug: string,
-    root: string
+    root: string,
 ): NonStaticOption => {
     return { title, slug, root };
 };

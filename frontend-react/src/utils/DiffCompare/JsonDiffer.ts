@@ -99,7 +99,7 @@ const extractLeafNodes = (pathArray: string[]): string[] => {
         const parentPaths: string[] = leafPath
             .split("/")
             .map((elem, index, array) =>
-                [...array.slice(0, index), elem].join("/")
+                [...array.slice(0, index), elem].join("/"),
             )
             .slice(0, -1); // remove the last element which is leaf node itself
 
@@ -133,7 +133,7 @@ type Marker = {
  */
 const convertValuesToMarkers = (
     keys: string[],
-    jsonMap: SourceMapResult
+    jsonMap: SourceMapResult,
 ): Marker[] => {
     return keys.reduce(
         (acc: Marker[], each: string): Marker[] => [
@@ -143,7 +143,7 @@ const convertValuesToMarkers = (
                 end: jsonMap.pointers[each].valueEnd.pos,
             },
         ],
-        []
+        [],
     );
 };
 
@@ -156,7 +156,7 @@ const convertValuesToMarkers = (
  */
 const convertNodesToMarkers = (
     keys: string[],
-    jsonMap: SourceMapResult
+    jsonMap: SourceMapResult,
 ): Marker[] => {
     return keys.reduce(
         (acc: Marker[], each: string): Marker[] => [
@@ -168,7 +168,7 @@ const convertNodesToMarkers = (
                 end: jsonMap.pointers[each].valueEnd.pos,
             },
         ],
-        []
+        [],
     );
 };
 
@@ -197,7 +197,7 @@ const insertMarks = (jsonStr: string, markers: Marker[]): string => {
             { pos: each.start, mark: "<mark>" },
             { pos: each.end, mark: "</mark>" },
         ],
-        [] as MarkerInsert[]
+        [] as MarkerInsert[],
     );
 
     // we reverse sort by pos. Work must be done from back to front
@@ -207,7 +207,7 @@ const insertMarks = (jsonStr: string, markers: Marker[]): string => {
     return inserts.reduce(
         (acc: string, each: MarkerInsert) =>
             `${acc.slice(0, each.pos)}${each.mark}${acc.slice(each.pos)}`,
-        jsonStr
+        jsonStr,
     );
 };
 
@@ -219,7 +219,7 @@ const insertMarks = (jsonStr: string, markers: Marker[]): string => {
  */
 const jsonDiffer = (
     leftData: SourceMapResult,
-    rightData: SourceMapResult
+    rightData: SourceMapResult,
 ): JsonDiffResult => {
     // diff the keys. If the key is different, then just consider the value of that key to be different.
     const leftKeys = Object.keys(leftData.pointers);
@@ -227,10 +227,10 @@ const jsonDiffer = (
 
     // this is looking for diffs between the two lists.
     let addedLeftKeys = leftKeys.filter(
-        (key) => key.length && !rightKeys.includes(key)
+        (key) => key.length && !rightKeys.includes(key),
     );
     let addedRightKeys = rightKeys.filter(
-        (key) => key.length && !leftKeys.includes(key)
+        (key) => key.length && !leftKeys.includes(key),
     );
 
     // now we want intersection (aka NOT changed and see if the values have changed).
@@ -248,7 +248,7 @@ const jsonDiffer = (
     // we pull out the value of unchanged keys and see if that's different.
     let changedKeys = intersectionKeys.filter(
         (key) =>
-            key !== "" && getValue(key, leftData) !== getValue(key, rightData)
+            key !== "" && getValue(key, leftData) !== getValue(key, rightData),
     );
 
     // now extract just the node leaves from the keys. This is because technically the content of each parent
@@ -271,7 +271,7 @@ const jsonDiffer = (
  */
 export const jsonDifferMarkup = (
     leftJson: unknown,
-    rightJson: unknown
+    rightJson: unknown,
 ): DifferMarkupResult => {
     const leftMap = jsonSourceMap(leftJson, 2);
     const rightMap = jsonSourceMap(rightJson, 2);

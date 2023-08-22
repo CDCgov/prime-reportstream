@@ -6,7 +6,9 @@ import svgr from "vite-plugin-svgr";
 import mdx from "@mdx-js/rollup";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
-import remarkToc from "remark-toc";
+import { remarkMdxToc } from "remark-mdx-toc";
+import remarkFrontmatter from "remark-frontmatter";
+import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 import { checker } from "vite-plugin-checker";
 import dotenv from "dotenv";
 
@@ -16,7 +18,6 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 // https://vitejs.dev/config/
 export default defineConfig(async () => {
     return {
-        assetsInclude: ["**/*.md"],
         optimizeDeps: {
             include: ["react/jsx-runtime"],
         },
@@ -25,7 +26,12 @@ export default defineConfig(async () => {
             mdx({
                 mdExtensions: [],
                 providerImportSource: "@mdx-js/react",
-                remarkPlugins: [remarkGfm, remarkToc],
+                remarkPlugins: [
+                    remarkGfm,
+                    remarkMdxToc,
+                    remarkFrontmatter,
+                    remarkMdxFrontmatter,
+                ],
                 rehypePlugins: [rehypeSlug],
             }),
             svgr(),
@@ -71,6 +77,9 @@ export default defineConfig(async () => {
                     includePaths: ["node_modules/@uswds/uswds/packages"],
                 },
             },
+            devSourcemap:
+                process.env.NODE_ENV === "development" ||
+                process.env.SOURCEMAPS === "true",
         },
     };
 });

@@ -26,7 +26,7 @@ describe("RequestedChangesDisplay", () => {
                 message={"Broken Glass, Everywhere"}
                 data={[]}
                 schemaColumnHeader={FileType.CSV}
-            />
+            />,
         );
 
         const alert = await screen.findByRole("alert");
@@ -91,7 +91,7 @@ describe("RequestedChangesDisplay", () => {
                 message={"Broken Glass, Everywhere"}
                 data={errors}
                 schemaColumnHeader={FileType.CSV}
-            />
+            />,
         );
 
         const table = screen.queryByRole("table");
@@ -188,14 +188,14 @@ describe("FileQualityFilterDisplay", () => {
                 message={
                     "The following records were filtered out while processing/validating your file."
                 }
-            />
+            />,
         );
 
         const alert = await screen.findByRole("alert");
         expect(alert).toHaveClass("usa-alert--warning");
 
         const message = await screen.findByText(
-            "The following records were filtered out while processing/validating your file."
+            "The following records were filtered out while processing/validating your file.",
         );
         expect(message).toHaveClass("usa-alert__text"); // imperfect, just want to make sure it's there
 
@@ -206,15 +206,15 @@ describe("FileQualityFilterDisplay", () => {
         expect(rows).toHaveLength(6);
 
         expect(
-            screen.queryByText(/Maryland Public Health Department/)
+            screen.queryByText(/Maryland Public Health Department/),
         ).not.toBeInTheDocument();
         expect(
-            screen.getByText(/Alaska Public Health Department/)
+            screen.getByText(/Alaska Public Health Department/),
         ).toBeInTheDocument();
         const row1 = await within(rows[1]).findAllByRole("cell");
         expect(row1[0]).toHaveTextContent("Filtered out item Alaska1");
         expect(
-            screen.getByText(/Hawaii Public Health Department/)
+            screen.getByText(/Hawaii Public Health Department/),
         ).toBeInTheDocument();
         const row3 = await within(rows[3]).findAllByRole("cell");
         expect(row3[0]).toHaveTextContent("Filtered out item Hawaii6");
@@ -232,7 +232,7 @@ describe("ValidationErrorMessage", () => {
 
     function renderComponent(props: Partial<ValidationErrorMessageProps>) {
         const view = renderApp(
-            <ValidationErrorMessage {...DEFAULT_PROPS} {...props} />
+            <ValidationErrorMessage {...DEFAULT_PROPS} {...props} />,
         );
 
         errorMessageNode = screen.getByTestId("ValidationErrorMessage");
@@ -247,7 +247,7 @@ describe("ValidationErrorMessage", () => {
 
         test("renders an error about a blank message", () => {
             expect(errorMessageNode).toHaveTextContent(
-                "Blank message(s) found within file. Blank messages cannot be processed."
+                "Blank message(s) found within file. Blank messages cannot be processed.",
             );
         });
     });
@@ -261,7 +261,7 @@ describe("ValidationErrorMessage", () => {
 
         test("renders an error about a missing message type field", () => {
             expect(errorMessageNode).toHaveTextContent(
-                "Missing required HL7 message type field MSH-9. Fill in the blank field before resubmitting."
+                "Missing required HL7 message type field MSH-9. Fill in the blank field before resubmitting.",
             );
         });
     });
@@ -275,14 +275,14 @@ describe("ValidationErrorMessage", () => {
 
         test("renders an error about an unsupported type", () => {
             expect(errorMessageNode).toHaveTextContent(
-                "We found an unsupported HL7 message type. Please reformat to ORU-RO1. Refer to HL7 specification for more details."
+                "We found an unsupported HL7 message type. Please reformat to ORU-RO1. Refer to HL7 specification for more details.",
             );
         });
 
         test("renders a link to the HL7 product matrix", () => {
             expect(screen.getByRole("link")).toHaveAttribute(
                 "href",
-                "https://www.hl7.org/implement/standards/product_brief.cfm"
+                "https://www.hl7.org/implement/standards/product_brief.cfm",
             );
         });
     });
@@ -296,14 +296,14 @@ describe("ValidationErrorMessage", () => {
 
         test("renders an error about an invalid format", () => {
             expect(errorMessageNode).toHaveTextContent(
-                "Invalid HL7 message format. Check your formatting by referring to HL7 specification."
+                "Invalid HL7 message format. Check your formatting by referring to HL7 specification.",
             );
         });
 
         test("renders a link to the HL7 product matrix", () => {
             expect(screen.getByRole("link")).toHaveAttribute(
                 "href",
-                "https://www.hl7.org/implement/standards/product_brief.cfm"
+                "https://www.hl7.org/implement/standards/product_brief.cfm",
             );
         });
     });
@@ -317,7 +317,7 @@ describe("ValidationErrorMessage", () => {
 
         test("renders an error about an invalid datetime", () => {
             expect(errorMessageNode).toHaveTextContent(
-                "Reformat validation_field as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ."
+                "Reformat validation_field as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ.",
             );
         });
     });
@@ -331,7 +331,7 @@ describe("ValidationErrorMessage", () => {
 
         test("renders an error about an invalid phone number", () => {
             expect(errorMessageNode).toHaveTextContent(
-                "Reformat phone number to a 10-digit phone number (e.g. (555) 555-5555)."
+                "Reformat phone number to a 10-digit phone number (e.g. (555) 555-5555).",
             );
         });
     });
@@ -345,14 +345,14 @@ describe("ValidationErrorMessage", () => {
 
         test("renders an error about an invalid field ", () => {
             expect(errorMessageNode).toHaveTextContent(
-                "Reformat validation_field to HL7 specification."
+                "Reformat validation_field to HL7 specification.",
             );
         });
 
         test("renders a link to the HL7 product matrix", () => {
             expect(screen.getByRole("link")).toHaveAttribute(
                 "href",
-                "https://www.hl7.org/implement/standards/product_brief.cfm"
+                "https://www.hl7.org/implement/standards/product_brief.cfm",
             );
         });
     });
@@ -364,7 +364,7 @@ describe("ValidationErrorMessage", () => {
 
         test("renders an error about a missing field", () => {
             expect(errorMessageNode).toHaveTextContent(
-                "Fill in the required field validation_field."
+                "Fill in the required field validation_field.",
             );
         });
     });
@@ -378,14 +378,14 @@ describe("ValidationErrorMessage", () => {
 
         test("renders an error about LIVD table LOINC mapping", () => {
             expect(errorMessageNode).toHaveTextContent(
-                "Reformat field validation_field. Refer to CDC LIVD table LOINC mapping spreadsheet for acceptable values."
+                "Reformat field validation_field. Refer to CDC LIVD table LOINC mapping spreadsheet for acceptable values.",
             );
         });
 
         test("renders a link to the CDC LIVD table LOINC mapping spreadsheet", () => {
             expect(screen.getByRole("link")).toHaveAttribute(
                 "href",
-                "https://www.cdc.gov/csels/dls/livd-codes.html"
+                "https://www.cdc.gov/csels/dls/livd-codes.html",
             );
         });
     });
@@ -401,7 +401,7 @@ describe("ValidationErrorMessage", () => {
 
             test("renders the message", () => {
                 expect(errorMessageNode).toHaveTextContent(
-                    "this is wrong please fix it kthxbai"
+                    "this is wrong please fix it kthxbai",
                 );
             });
         });
@@ -425,23 +425,23 @@ describe("ValidationErrorMessage", () => {
 describe("getSafeFileName", () => {
     test("returns a safe file name, replacing non-alphanumeric characters with hyphens", () => {
         expect(getSafeFileName("aaa", RequestLevel.WARNING)).toEqual(
-            "aaa-warnings"
+            "aaa-warnings",
         );
         expect(getSafeFileName("aaa-!@#.csv", RequestLevel.WARNING)).toEqual(
-            "aaa-----csv-warnings"
+            "aaa-----csv-warnings",
         );
         expect(
-            getSafeFileName("Hello I Am A File", RequestLevel.WARNING)
+            getSafeFileName("Hello I Am A File", RequestLevel.WARNING),
         ).toEqual("hello-i-am-a-file-warnings");
 
         expect(getSafeFileName("aaa", RequestLevel.ERROR)).toEqual(
-            "aaa-errors"
+            "aaa-errors",
         );
         expect(getSafeFileName("aaa!@#.csv", RequestLevel.ERROR)).toEqual(
-            "aaa----csv-errors"
+            "aaa----csv-errors",
         );
         expect(
-            getSafeFileName("Hello I Am A File", RequestLevel.ERROR)
+            getSafeFileName("Hello I Am A File", RequestLevel.ERROR),
         ).toEqual("hello-i-am-a-file-errors");
     });
 });

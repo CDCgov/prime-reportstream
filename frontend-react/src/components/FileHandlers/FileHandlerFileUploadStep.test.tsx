@@ -42,7 +42,7 @@ describe("FileHandlerFileUploadStep", () => {
     const DEFAULT_SENDERS: RSSender[] = sendersGenerator(2);
 
     function mockUseSenderResource(
-        result: Partial<UseSenderResourceHookResult> = {}
+        result: Partial<UseSenderResourceHookResult> = {},
     ) {
         jest.spyOn(useSenderResourceExports, "default").mockReturnValue({
             isInitialLoading: false,
@@ -85,14 +85,16 @@ describe("FileHandlerFileUploadStep", () => {
                             title: "whatever",
                             value: "whatever",
                         }}
-                    />
+                    />,
                 );
             });
 
             test("renders the CSV-specific text", () => {
                 expect(screen.getByText("Upload CSV file")).toBeVisible();
                 expect(
-                    screen.getByText("Make sure your file has a .csv extension")
+                    screen.getByText(
+                        "Make sure your file has a .csv extension",
+                    ),
                 ).toBeVisible();
             });
         });
@@ -107,16 +109,18 @@ describe("FileHandlerFileUploadStep", () => {
                             title: "whatever",
                             value: "whatever",
                         }}
-                    />
+                    />,
                 );
             });
 
             test("renders the HL7-specific text", () => {
                 expect(
-                    screen.getByText("Upload HL7 v2.5.1 file")
+                    screen.getByText("Upload HL7 v2.5.1 file"),
                 ).toBeVisible();
                 expect(
-                    screen.getByText("Make sure your file has a .hl7 extension")
+                    screen.getByText(
+                        "Make sure your file has a .hl7 extension",
+                    ),
                 ).toBeVisible();
             });
         });
@@ -134,19 +138,19 @@ describe("FileHandlerFileUploadStep", () => {
                             value: "whatever",
                         }}
                         onFileChange={onFileChangeSpy}
-                    />
+                    />,
                 );
 
                 await userEvent.upload(
                     screen.getByTestId("file-input-input"),
-                    fakeFile
+                    fakeFile,
                 );
             });
 
             test("calls onFileChange with the file and content", async () => {
                 expect(onFileChangeSpy).toHaveBeenCalledWith(
                     fakeFile,
-                    "foo,bar\r\nbar,foo"
+                    "foo,bar\r\nbar,foo",
                 );
             });
         });
@@ -155,7 +159,7 @@ describe("FileHandlerFileUploadStep", () => {
             beforeEach(async () => {
                 jest.spyOn(
                     useWatersUploaderExports,
-                    "useWatersUploader"
+                    "useWatersUploader",
                 ).mockReturnValue({
                     isWorking: true,
                     uploaderError: null,
@@ -170,15 +174,15 @@ describe("FileHandlerFileUploadStep", () => {
                             title: "whatever",
                             value: "whatever",
                         }}
-                    />
+                    />,
                 );
             });
 
             test("renders the loading message", () => {
                 expect(
                     screen.getByText(
-                        "Checking your file for any errors that will prevent your data from being reported successfully..."
-                    )
+                        "Checking your file for any errors that will prevent your data from being reported successfully...",
+                    ),
                 ).toBeVisible();
             });
         });
@@ -190,7 +194,7 @@ describe("FileHandlerFileUploadStep", () => {
             beforeEach(async () => {
                 jest.spyOn(
                     useWatersUploaderExports,
-                    "useWatersUploader"
+                    "useWatersUploader",
                 ).mockReturnValue({
                     isWorking: false,
                     uploaderError: null,
@@ -211,12 +215,12 @@ describe("FileHandlerFileUploadStep", () => {
                         fileContent="whatever"
                         onFileSubmitSuccess={onFileSubmitSuccessSpy}
                         onNextStepClick={onNextStepClickSpy}
-                    />
+                    />,
                 );
 
                 await userEvent.upload(
                     screen.getByTestId("file-input-input"),
-                    fakeFile
+                    fakeFile,
                 );
                 await userEvent.click(screen.getByText("Submit"));
                 fireEvent.submit(screen.getByTestId("form"));
@@ -228,7 +232,7 @@ describe("FileHandlerFileUploadStep", () => {
 
             test("it calls onFileSubmitSuccess with the response", () => {
                 expect(onFileSubmitSuccessSpy).toHaveBeenCalledWith(
-                    mockSendValidFile
+                    mockSendValidFile,
                 );
             });
 
@@ -238,7 +242,7 @@ describe("FileHandlerFileUploadStep", () => {
 
             test("it calls trackAppInsightEvent with event data", () => {
                 expect(
-                    analyticsExports.trackAppInsightEvent
+                    analyticsExports.trackAppInsightEvent,
                 ).toHaveBeenCalledWith("File Validator", {
                     fileValidator: {
                         errorCount: 0,
@@ -258,7 +262,7 @@ describe("FileHandlerFileUploadStep", () => {
             beforeEach(async () => {
                 jest.spyOn(
                     useWatersUploaderExports,
-                    "useWatersUploader"
+                    "useWatersUploader",
                 ).mockReturnValue({
                     isWorking: false,
                     uploaderError: null,
@@ -279,12 +283,12 @@ describe("FileHandlerFileUploadStep", () => {
                         }}
                         fileContent="whatever"
                         onFileSubmitError={onFileSubmitErrorSpy}
-                    />
+                    />,
                 );
 
                 await userEvent.upload(
                     screen.getByTestId("file-input-input"),
-                    fakeFile
+                    fakeFile,
                 );
                 await userEvent.click(screen.getByText("Submit"));
                 fireEvent.submit(screen.getByTestId("form"));
@@ -300,7 +304,7 @@ describe("FileHandlerFileUploadStep", () => {
 
             test("it calls trackAppInsightEvent with event data", () => {
                 expect(
-                    analyticsExports.trackAppInsightEvent
+                    analyticsExports.trackAppInsightEvent,
                 ).toHaveBeenCalledWith("File Validator", {
                     fileValidator: {
                         errorCount: 2,
@@ -341,8 +345,8 @@ describe("getClientHeader", () => {
                 getClientHeader(
                     undefined,
                     DEFAULT_ACTIVE_MEMBERSHIP,
-                    DEFAULT_SENDER
-                )
+                    DEFAULT_SENDER,
+                ),
             ).toEqual("");
         });
     });
@@ -350,10 +354,10 @@ describe("getClientHeader", () => {
     describe("when activeMembership is falsy", () => {
         test("returns an empty string", () => {
             expect(
-                getClientHeader(DEFAULT_SCHEMA_NAME, undefined, DEFAULT_SENDER)
+                getClientHeader(DEFAULT_SCHEMA_NAME, undefined, DEFAULT_SENDER),
             ).toEqual("");
             expect(
-                getClientHeader(DEFAULT_SCHEMA_NAME, null, DEFAULT_SENDER)
+                getClientHeader(DEFAULT_SCHEMA_NAME, null, DEFAULT_SENDER),
             ).toEqual("");
         });
     });
@@ -363,8 +367,8 @@ describe("getClientHeader", () => {
             getClientHeader(
                 DEFAULT_SCHEMA_NAME,
                 DEFAULT_ACTIVE_MEMBERSHIP,
-                undefined
-            )
+                undefined,
+            ),
         ).toEqual("");
     });
 
@@ -374,8 +378,8 @@ describe("getClientHeader", () => {
                 getClientHeader(
                     DEFAULT_SCHEMA_NAME,
                     { ...DEFAULT_ACTIVE_MEMBERSHIP, parsedName: "" },
-                    DEFAULT_SENDER
-                )
+                    DEFAULT_SENDER,
+                ),
             ).toEqual("");
         });
     });
@@ -386,8 +390,8 @@ describe("getClientHeader", () => {
                 getClientHeader(
                     DEFAULT_SCHEMA_NAME,
                     { ...DEFAULT_ACTIVE_MEMBERSHIP, service: "" },
-                    DEFAULT_SENDER
-                )
+                    DEFAULT_SENDER,
+                ),
             ).toEqual("");
         });
     });
@@ -398,8 +402,8 @@ describe("getClientHeader", () => {
                 getClientHeader(
                     DEFAULT_SCHEMA_NAME,
                     DEFAULT_ACTIVE_MEMBERSHIP,
-                    DEFAULT_SENDER
-                )
+                    DEFAULT_SENDER,
+                ),
             ).toEqual("orgName.serviceName");
         });
     });
@@ -410,8 +414,8 @@ describe("getClientHeader", () => {
                 getClientHeader(
                     "bogus-schema",
                     DEFAULT_ACTIVE_MEMBERSHIP,
-                    DEFAULT_SENDER
-                )
+                    DEFAULT_SENDER,
+                ),
             ).toEqual("");
         });
     });

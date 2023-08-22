@@ -31,7 +31,7 @@ export const receiverServicesGenerator = (count: number) => {
  * @param id {string} Used to generate reportId. */
 export const makeRSReceiverDeliveryFixture = (
     id: number,
-    overrides?: Partial<RSReceiverDelivery>
+    overrides?: Partial<RSReceiverDelivery>,
 ): RSReceiverDelivery => ({
     orderingProvider: overrides?.orderingProvider || "",
     orderingFacility: overrides?.orderingFacility || "",
@@ -54,7 +54,7 @@ export const makeRSReceiverDeliveryFixtureArray = (count: number) => {
  * @param deliveryCount {number} How many unique RSReceiverDelivery you want. */
 export const makeRSReceiverDeliveryResponseFixture = (
     deliveryCount: number,
-    overrides?: Partial<RSReceiverDeliveryResponse>
+    overrides?: Partial<RSReceiverDeliveryResponse>,
 ): RSReceiverDeliveryResponse => ({
     meta: {
         type: overrides?.meta?.type || "delivery",
@@ -69,7 +69,7 @@ export const makeRSReceiverDeliveryResponseFixture = (
 
 export const makeRSSubmitterFixture = (
     id: number,
-    overrides?: Partial<RSSubmitter>
+    overrides?: Partial<RSSubmitter>,
 ): RSSubmitter => ({
     id: id.toString() || "123",
     name: overrides?.name || "Any facility USA",
@@ -91,7 +91,7 @@ export const makeRSSubmitterFixtureArray = (count: number) => {
  * @param submitterCount {number} How many unique RSReceiverSubmitter you want. */
 export const makeRSReceiverSubmitterResponseFixture = (
     submitterCount: number,
-    overrides?: Partial<RSReceiverSubmitterResponse>
+    overrides?: Partial<RSReceiverSubmitterResponse>,
 ): RSReceiverSubmitterResponse => ({
     meta: {
         type: overrides?.meta?.type || "submitter",
@@ -111,7 +111,7 @@ const handlers = [
         }
         return res(
             ctx.status(200),
-            ctx.json([makeRSReceiverDeliveryResponseFixture(5)])
+            ctx.json([makeRSReceiverDeliveryResponseFixture(5)]),
         );
     }),
     rest.post(
@@ -122,9 +122,9 @@ const handlers = [
             }
             return res(
                 ctx.status(200),
-                ctx.json([makeRSReceiverSubmitterResponseFixture(5)])
+                ctx.json([makeRSReceiverSubmitterResponseFixture(5)]),
             );
-        }
+        },
     ),
 ];
 

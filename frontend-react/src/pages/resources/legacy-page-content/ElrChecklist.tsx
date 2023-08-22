@@ -32,7 +32,7 @@ export const ELRChecklistIa = () => {
                 onClick={() =>
                     window.open(
                         DOMPurify.sanitize(site.forms.intakeElr.url),
-                        "_blank"
+                        "_blank",
                     )
                 }
             >

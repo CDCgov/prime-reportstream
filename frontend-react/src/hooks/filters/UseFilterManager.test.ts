@@ -66,7 +66,7 @@ describe("UseFilterManager", () => {
                     locally: true,
                     localOrder: "ASC",
                 },
-            })
+            }),
         );
         expect(result.current.rangeSettings).toEqual({
             to: "3000-01-01T00:00:00.000Z",
@@ -91,25 +91,25 @@ describe("Helper functions", () => {
             "ASC",
             RangeField.TO,
             "cursor",
-            "range"
+            "range",
         );
         const cursorAsStart = cursorOrRange(
             "DESC",
             RangeField.TO,
             "cursor",
-            "range"
+            "range",
         );
         const rangeAsEnd = cursorOrRange(
             "DESC",
             RangeField.FROM,
             "cursor",
-            "range"
+            "range",
         );
         const cursorAsEnd = cursorOrRange(
             "ASC",
             RangeField.FROM,
             "cursor",
-            "range"
+            "range",
         );
 
         expect(rangeAsStart).toEqual("range");
@@ -135,7 +135,7 @@ describe("extractFiltersFromManager", () => {
         expect({ to, from }).toEqual(mockRangeSettings);
         expect({ currentPage, size }).toEqual(mockPageSettings);
         expect({ column, locally, order, localOrder }).toEqual(
-            mockSortSettings
+            mockSortSettings,
         );
     });
 });

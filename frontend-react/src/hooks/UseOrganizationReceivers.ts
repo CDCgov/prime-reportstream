@@ -20,7 +20,7 @@ export const useOrganizationReceivers = () => {
                     orgName: parsedName!!,
                 },
             }),
-        [parsedName, authorizedFetch]
+        [parsedName, authorizedFetch],
     );
     return rsUseQuery(
         [receivers.queryKey, activeMembership],
@@ -28,6 +28,6 @@ export const useOrganizationReceivers = () => {
         {
             enabled:
                 Boolean(parsedName) && parsedName !== Organizations.PRIMEADMINS,
-        }
+        },
     );
 };

@@ -90,7 +90,7 @@ const makeConfigs = (sampleRow: TableRowData): ColumnConfig[] => {
 
 const getTestConfig = (
     rowCount: number,
-    linkable: boolean = true
+    linkable: boolean = true,
 ): TableConfig => {
     const testRows: TableRowData[] = getSetOfRows(rowCount, linkable);
     const colConfigs: ColumnConfig[] = makeConfigs(testRows[0]);
@@ -197,14 +197,14 @@ describe("Table, basic tests", () => {
         renderApp(<SimpleTable />);
         const linkInCell = screen.getByText("UUID-1");
         expect(linkInCell).toContainHTML(
-            '<a class="usa-link" href="/base/UUID-1">UUID-1</a>'
+            '<a class="usa-link" href="/base/UUID-1">UUID-1</a>',
         );
     });
 
     test("Action columns are rendered as actions", () => {
         renderApp(<SimpleTableWithAction />);
         expect(
-            screen.getByText("Test Simple Table With Action")
+            screen.getByText("Test Simple Table With Action"),
         ).toBeInTheDocument();
         const actionButtonCell = screen.getAllByText("actionButtonParam")[0];
         expect(actionButtonCell).toContainHTML("actionButtonParam</button>");
@@ -302,13 +302,13 @@ describe("Table, filter integration tests", () => {
         await clickFilterButton();
 
         expect(screen.getByText(/cursor:/)).not.toHaveTextContent(
-            defaultCursor
+            defaultCursor,
         );
         // Checking for inclusive date
         expect(screen.getByText(/cursor:/)).toHaveTextContent(/23:59:59.999Z/);
 
         // Change sort order and repeat
-        userEvent.click(screen.getByText("Column Two"));
+        await userEvent.click(screen.getByText("Column Two"));
         await selectDatesFromRange("13", "23");
         await clickFilterButton();
 
@@ -334,7 +334,7 @@ describe("TableRows", () => {
                 columns={fakeColumns}
                 setRowToEdit={fakeRowSetter}
                 rowToEdit={undefined}
-            />
+            />,
         );
 
         // click the edit button
@@ -357,13 +357,13 @@ describe("TableRows", () => {
                 columns={fakeColumns}
                 setRowToEdit={fakeRowSetter}
                 rowToEdit={0}
-            />
+            />,
         );
 
         // click save
         const saveButton = screen.getAllByText("Save")[0];
         expect(saveButton).toBeInTheDocument();
-        userEvent.click(saveButton);
+        await userEvent.click(saveButton);
 
         // expect onSave to have not been called
         expect(fakeSave).toHaveBeenCalledTimes(0);
@@ -384,7 +384,7 @@ describe("TableRows", () => {
                 columns={fakeColumns}
                 setRowToEdit={fakeRowSetter}
                 rowToEdit={undefined}
-            />
+            />,
         );
 
         // click the edit button
@@ -407,7 +407,7 @@ describe("TableRows", () => {
                 columns={fakeColumns}
                 setRowToEdit={fakeRowSetter}
                 rowToEdit={0}
-            />
+            />,
         );
 
         // click second edit button
@@ -436,7 +436,7 @@ describe("TableRows", () => {
                 columns={fakeColumns}
                 setRowToEdit={fakeRowSetter}
                 rowToEdit={undefined}
-            />
+            />,
         );
 
         // click the edit button
@@ -459,13 +459,13 @@ describe("TableRows", () => {
                 columns={fakeColumns}
                 setRowToEdit={fakeRowSetter}
                 rowToEdit={0}
-            />
+            />,
         );
 
         // update value
         // this assumes that an input is being rendered by `ColumnData`
         const firstInput = screen.getByLabelText(
-            "editableColumn-0"
+            "editableColumn-0",
         ) as HTMLInputElement;
         const initialValue = firstInput.value;
         await userEvent.click(firstInput);
@@ -504,12 +504,12 @@ describe("ColumnData", () => {
                     editing={true}
                     setUpdatedRow={fakeUpdate}
                 />
-            </tr>
+            </tr>,
         );
 
         // update value
         const firstInput = screen.getByLabelText(
-            "editableColumn-0"
+            "editableColumn-0",
         ) as HTMLInputElement;
         const initialValue = firstInput.value;
         await userEvent.click(firstInput);
@@ -519,7 +519,7 @@ describe("ColumnData", () => {
         expect(fakeUpdate).toHaveBeenCalledTimes(8);
         expect(fakeUpdate).toHaveBeenLastCalledWith(
             `${initialValue}fakeItem`,
-            "editableColumn"
+            "editableColumn",
         );
     });
 });

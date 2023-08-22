@@ -21,7 +21,7 @@ import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
-import { FeatureName } from "../../../AppRouter";
+import { FeatureName } from "../../../utils/FeatureName";
 import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
 
@@ -79,7 +79,7 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
         getReportAndDownload(
             id,
             oktaToken?.accessToken || "",
-            activeMembership?.parsedName || ""
+            activeMembership?.parsedName || "",
         );
     };
     const transformDate = (s: string) => {
@@ -168,7 +168,7 @@ const DeliveriesTableWithNumberedPagination = ({
     };
 
     const { fetchResults, filterManager } = useOrgDeliveries(
-        activeService?.name
+        activeService?.name,
     );
     const pageSize = filterManager.pageSettings.size;
     const sortOrder = filterManager.sortSettings.order;

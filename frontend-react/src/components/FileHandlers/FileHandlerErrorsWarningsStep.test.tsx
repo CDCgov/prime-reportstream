@@ -39,16 +39,16 @@ describe("FileHandlerErrorsWarningsStep", () => {
                 <FileHandlerErrorsWarningsStep
                     {...DEFAULT_PROPS}
                     errors={[fakeError]}
-                />
+                />,
             );
         });
 
         test("only renders the errors table", () => {
             expect(
-                screen.getByTestId("RequestedChangesDisplay--Errors")
+                screen.getByTestId("RequestedChangesDisplay--Errors"),
             ).toBeVisible();
             expect(
-                screen.queryByTestId("RequestedChangesDisplay--Warnings")
+                screen.queryByTestId("RequestedChangesDisplay--Warnings"),
             ).not.toBeInTheDocument();
         });
     });
@@ -59,16 +59,16 @@ describe("FileHandlerErrorsWarningsStep", () => {
                 <FileHandlerErrorsWarningsStep
                     {...DEFAULT_PROPS}
                     warnings={[fakeWarning]}
-                />
+                />,
             );
         });
 
         test("only renders the errors table", () => {
             expect(
-                screen.queryByTestId("RequestedChangesDisplay--Errors")
+                screen.queryByTestId("RequestedChangesDisplay--Errors"),
             ).not.toBeInTheDocument();
             expect(
-                screen.getByTestId("RequestedChangesDisplay--Warnings")
+                screen.getByTestId("RequestedChangesDisplay--Warnings"),
             ).toBeVisible();
         });
     });
@@ -80,16 +80,16 @@ describe("FileHandlerErrorsWarningsStep", () => {
                     {...DEFAULT_PROPS}
                     errors={[fakeError]}
                     warnings={[fakeWarning]}
-                />
+                />,
             );
         });
 
         test("renders both the errors table and the warnings table", () => {
             expect(
-                screen.getByTestId("RequestedChangesDisplay--Errors")
+                screen.getByTestId("RequestedChangesDisplay--Errors"),
             ).toBeVisible();
             expect(
-                screen.getByTestId("RequestedChangesDisplay--Warnings")
+                screen.getByTestId("RequestedChangesDisplay--Warnings"),
             ).toBeVisible();
         });
     });
@@ -104,7 +104,7 @@ describe("FileHandlerErrorsWarningsStep", () => {
                     errors={[fakeError]}
                     warnings={[fakeWarning]}
                     onTestAnotherFileClick={onTestAnotherFileClickSpy}
-                />
+                />,
             );
 
             await userEvent.click(screen.getByText("Test another file"));

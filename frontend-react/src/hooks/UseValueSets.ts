@@ -22,13 +22,13 @@ const { getTableData, getTableList, updateTable, activateTable } =
 */
 const findTableMetaByName = (
     tables: LookupTable[] = [],
-    tableName: string
+    tableName: string,
 ): LookupTable => {
     if (!tables.length) {
         return {} as LookupTable;
     }
     const filteredBody: LookupTable[] = tables.filter(
-        (tv: LookupTable) => tv.tableName === tableName && tv.isActive
+        (tv: LookupTable) => tv.tableName === tableName && tv.isActive,
     );
 
     if (!filteredBody.length) {
@@ -37,7 +37,7 @@ const findTableMetaByName = (
     }
     return filteredBody.sort(
         (a: LookupTable, b: LookupTable) =>
-            b["tableVersion"] - a["tableVersion"]
+            b["tableVersion"] - a["tableVersion"],
     )[0];
 };
 
@@ -52,7 +52,7 @@ export interface ValueSetsTableResponse<T> {
     valueSetArray: T;
 }
 export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
-    dataTableName: string
+    dataTableName: string,
 ): ValueSetsTableResponse<T> => {
     const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<T>();
 
@@ -64,7 +64,7 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
                     tableName: dataTableName,
                 },
             }),
-        [authorizedFetch, dataTableName]
+        [authorizedFetch, dataTableName],
     );
 
     // not entirely accurate typing. What is sent back by the api is actually ApiValueSet[] rather than ValueSet[]
@@ -72,7 +72,7 @@ export const useValueSetsTable = <T extends ValueSet[] | ValueSetRow[]>(
     // to make the API conform better to the frontend's expectations. TODO: look at this when refactoring the API
     const { data: valueSetData } = rsUseQuery(
         [getTableData.queryKey, dataTableName],
-        memoizedDataFetch
+        memoizedDataFetch,
     );
 
     return { valueSetArray: valueSetData as T };
@@ -89,13 +89,13 @@ export interface ValueSetsMetaResponse {
     valueSetMeta: LookupTable;
 }
 export const useValueSetsMeta = (
-    dataTableName: string = LookupTables.VALUE_SET
+    dataTableName: string = LookupTables.VALUE_SET,
 ): ValueSetsMetaResponse => {
     const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<LookupTable[]>();
 
     // get all lookup tables in order to get metadata
     const { data: tableData } = rsUseQuery([getTableList.queryKey], () =>
-        authorizedFetch(getTableList)
+        authorizedFetch(getTableList),
     );
 
     const tableMeta = findTableMetaByName(tableData, dataTableName);

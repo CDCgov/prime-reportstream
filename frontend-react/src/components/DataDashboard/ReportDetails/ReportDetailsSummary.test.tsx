@@ -68,7 +68,7 @@ beforeEach(() => {
 describe("ReportDetailsSummary", () => {
     test("renders expected content", () => {
         const expectedExpireDate = formatDateWithoutSeconds(
-            futureDate.toString()
+            futureDate.toString(),
         );
         renderApp(<ReportDetailsSummary report={DEFAULT_RSDELIVERY} />);
 
@@ -89,7 +89,7 @@ describe("ReportDetailsSummary", () => {
         renderApp(
             <ReportDetailsSummary
                 report={{ ...DEFAULT_RSDELIVERY, expires: pastDate.toString() }}
-            />
+            />,
         );
 
         expect(screen.queryByText(/Download as/)).not.toBeInTheDocument();

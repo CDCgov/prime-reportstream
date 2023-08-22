@@ -1,4 +1,9 @@
 elements:
+  - name: encoding-characters
+    condition: '%resource.extension(%`rsext-encoding-characters`).exists()'
+    value: [ '%resource.extension(%`rsext-encoding-characters`).value' ]
+    hl7Spec: [ MSH-2 ]
+
   - name: sending-application-namespace-id-no-endpoint
     value: [ '%resource.source.name.split(":").first()' ]
     hl7Spec: [ MSH-3-1 ]
@@ -105,6 +110,11 @@ elements:
     value: [ '%resource.code' ]
     hl7Spec: [ MSH-11-2 ]
 
+  - name: version-id
+    value: ['"2.5.1"']
+    hl7Spec: [MSH-12]
+
+
   - name: accept-acknowledgement-type
     resource: '%resource.extension(%`rsext-accept-acknowledgement-type`).value'
     condition: '%resource.exists() and %resource.type.coding.code.exists()'
@@ -124,7 +134,7 @@ elements:
     hl7Spec: [ MSH-17 ]
 
   - name: message-character-set
-    value: [ '"UNICODE UTF-8"' ]
+    value: [ '%resource.extension(%`rsext-character-set`).value', '"UNICODE UTF-8"' ]
     hl7Spec: [ MSH-18 ]
 
   - name: message-profile-identifier

@@ -7,7 +7,7 @@ import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import Spinner from "../../Spinner";
 import { NoServicesBanner } from "../../alerts/NoServicesAlert";
-import { FeatureName } from "../../../AppRouter";
+import { FeatureName } from "../../../utils/FeatureName";
 import { Table } from "../../../shared/Table/Table";
 import useReceiverSubmitters, {
     DeliveriesAttr,
@@ -150,7 +150,7 @@ function FacilitiesProvidersFilterAndTable({
                         }}
                         slots={getSlots(
                             currentPageNum,
-                            results?.meta.totalPages
+                            results?.meta.totalPages,
                         )}
                     />
                 )}

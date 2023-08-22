@@ -47,7 +47,7 @@ describe("TelemetryService", () => {
                 ai.initialize();
 
                 expect(console.warn).toHaveBeenCalledWith(
-                    "App Insights connection string not provided"
+                    "App Insights connection string not provided",
                 );
             });
         });
