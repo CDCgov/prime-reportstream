@@ -308,3 +308,13 @@ main {
 .usa-header + main {
     border-top: none;
 }
+
+/* allow column count override */
+.usa-identifier__section.column-count-3 ul {
+    column-count: 3;
+}
+
+/* allow for spacing between text and external image */
+.usa-link--external::after {
+    @include u-margin-left(0.5);
+}

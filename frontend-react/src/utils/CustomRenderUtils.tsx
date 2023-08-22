@@ -36,6 +36,7 @@ function createTestRoutes(
 ): RouteObject[] {
     return routes.map((r) => ({
         ...r,
+        lazy: undefined,
         element: r.path !== "/" ? element : <TestLayout />,
         children: r.children
             ? createTestRoutes(r.children, element)

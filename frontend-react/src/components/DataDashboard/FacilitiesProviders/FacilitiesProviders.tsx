@@ -2,7 +2,7 @@ import { GridContainer } from "@trussworks/react-uswds";
 import { Helmet } from "react-helmet-async";
 import React from "react";
 
-import { FeatureName } from "../../../AppRouter";
+import { FeatureName } from "../../../utils/FeatureName";
 import { AuthElement } from "../../AuthElement";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import HipaaNotice from "../../HipaaNotice";
