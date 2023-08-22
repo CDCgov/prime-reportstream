@@ -1,0 +1,5 @@
+@use "../../global-modules.scss" as *;
+
+.rs-tile {
+    @include u-border-top("05", "primary");
+}

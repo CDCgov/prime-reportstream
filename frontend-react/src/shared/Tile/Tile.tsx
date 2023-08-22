@@ -1,5 +1,6 @@
 import React from "react";
 import DOMPurify from "dompurify";
+import classNames from "classnames";
 
 export interface TileProps
     extends React.PropsWithChildren<
@@ -13,11 +14,13 @@ export const Tile = ({
     imgClassName,
     title,
     summary,
+    children,
 }: TileProps) => {
     const cleanSummaryHtml = DOMPurify.sanitize(summary ?? "");
-
+    const classnames = classNames("usa-prose", "padding-bottom-3", className);
     return (
-        <div className={className}>
+        <div className={classnames}>
+            <hr className="border-y-2px border-primary margin-0 margin-bottom-205" />
             {img && (
                 <img
                     data-testid="img"
@@ -29,16 +32,19 @@ export const Tile = ({
             {title && (
                 <p
                     data-testid="heading"
-                    className="usa-prose maxw-mobile-lg font-sans-lg text-bold padding-top-3 border-top-05 border-primary"
+                    className="usa-prose maxw-mobile-lg font-sans-lg text-bold"
                 >
                     {title}
                 </p>
             )}
-            <p
-                data-testid="summary"
-                className="usa-prose maxw-mobile-lg"
-                dangerouslySetInnerHTML={{ __html: cleanSummaryHtml }}
-            ></p>
+            {cleanSummaryHtml && (
+                <p
+                    data-testid="summary"
+                    className="usa-prose maxw-mobile-lg"
+                    dangerouslySetInnerHTML={{ __html: cleanSummaryHtml }}
+                ></p>
+            )}
+            {children}
         </div>
     );
 };
