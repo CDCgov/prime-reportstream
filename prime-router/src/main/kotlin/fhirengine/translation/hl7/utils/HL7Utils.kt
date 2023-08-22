@@ -88,4 +88,24 @@ object HL7Utils : Logging {
         // Sanity check: Check to make sure a mistake was not made when adding types.
         return message
     }
+
+    fun formPathSpec(spec: String, rep: Int? = null): String {
+        val segment = spec.substring(0, 3)
+        val components = spec.substring(3)
+        val segmentSpec = formSegSpec(segment, rep)
+        return "$segmentSpec$components"
+    }
+
+    fun formSegSpec(segment: String, rep: Int? = null): String {
+        val repSpec = rep?.let { "($rep)" } ?: ""
+        return when (segment) {
+            "OBR" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBR"
+            "ORC" -> "/PATIENT_RESULT/ORDER_OBSERVATION/ORC"
+            "SPM" -> "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM"
+            "PID" -> "/PATIENT_RESULT/PATIENT/PID"
+            "OBX" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION$repSpec/OBX"
+            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE$repSpec"
+            else -> segment
+        }
+    }
 }

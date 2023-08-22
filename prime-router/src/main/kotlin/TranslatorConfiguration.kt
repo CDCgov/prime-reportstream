@@ -202,6 +202,19 @@ data class Hl7Configuration
                 "reporting_facility" to reportingFacility
             )
         }
+
+    /**
+     * Pull apart the comma-delimited HL7 fields and trim them.
+     *
+     * If the configuration is missing return an empty list
+     */
+    fun parseTruncateHl7Fields(): List<String> {
+        return truncateHl7Fields
+            ?.uppercase()
+            ?.split(",")
+            ?.map { it.trim() }
+            ?: emptyList()
+    }
 }
 
 /**
