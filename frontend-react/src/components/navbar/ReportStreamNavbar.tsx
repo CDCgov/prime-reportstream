@@ -84,7 +84,7 @@ export const ReportStreamNavbar = ({
             ]}
         />,
         <Dropdown
-            menuName="Developer resources"
+            menuName="Developers"
             dropdownList={[
                 <a href="#linkOne" key="one">
                     Current link
@@ -95,7 +95,7 @@ export const ReportStreamNavbar = ({
             ]}
         />,
         <Dropdown
-            menuName="Managing your connection"
+            menuName="Your connection"
             dropdownList={[
                 <a href="#linkOne" key="one">
                     Current link

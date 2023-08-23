@@ -11,8 +11,8 @@
   }
 
   :global {
-    .usa-nav {
-      height: 100%;
+    .usa-nav__primary button {
+      padding: 1rem;
     }
 
     .usa-menu-btn {
@@ -25,12 +25,41 @@
       margin: 0;
     }
 
-    .usa-nav__submenu {
-      margin-top: -26px;
+    .usa-nav__submenu .usa-nav__submenu-item {
+      position: relative;
+      width: fit-content;
+
+      &:hover:after {
+        border-radius: 0;
+        content: "";
+        display: block;
+        position: absolute;
+        height: 0.25rem;
+        left: 1rem;
+        right: 1rem;
+        bottom: 0;
+      }
+
+      & a {
+        padding: 1rem;
+  
+        &:hover {
+          text-decoration: none;
+        }
+      }
     }
 
-    .usa-nav__submenu .usa-nav__submenu-item a {
-      padding: 0.5rem 1.5rem;
+    .usa-nav__primary button[aria-expanded=true] {
+      &:hover:after {
+        border-radius: 0;
+        content: "";
+        display: block;
+        position: absolute;
+        height: 0.25rem;
+        left: 1rem;
+        right: 1rem;
+        bottom: 0;
+      }
     }
     
     .usa-nav.is-visible {
@@ -58,6 +87,23 @@
         padding-right: 8px;
       }
     }
+    @media (min-width: $tablet) and (max-width: 1110px) {
+      .usa-nav__primary button {
+        padding: 1rem 0.4rem;
+      }
+
+      .usa-nav__primary button span::after {
+        right: 0;
+      }
+
+      .usa-nav__link:hover::after, .usa-nav__primary button[aria-expanded=true]:hover:after, .usa-nav__submenu .usa-nav__submenu-item:hover:after {
+        left: 0.4rem;
+      }
+
+      .usa-nav__submenu .usa-nav__submenu-item a {
+        padding: 1rem 1rem 1rem 0.4rem;
+      }
+    }
   }
 }
 
@@ -67,28 +113,38 @@
 
   :global {
     .usa-nav__link:hover::after {
-      background-color: color("base-lighter");
+      background-color: color("primary");
     }
 
     .usa-nav__primary button[aria-expanded=true] {
-      background-color: color("white");
+      background-color: color("primary-darker");
 
-      & span {
-        color: color("base-darkest");
+      &:hover:after {
+        background-color: color("white");
+      }
+    }
 
-        &:after {
-          background-color: color("base-darkest");
-        }
+    .usa-nav__submenu .usa-nav__submenu-item {
+      &:hover:after {
+        background-color: color("white");
       }
     }
 
     .usa-nav.is-visible {
-      .usa-nav__primary .usa-current::after {
-        background-color: color("base-lighter");
+      .usa-nav__primary button[aria-expanded=true] {
+        background-color: color("white");
       }
-  
+
       .usa-nav__link:hover::after {
-        background-color: color("base-lighter");
+        background-color: transparent;
+      }
+
+      .usa-nav__primary-item, .usa-nav__submenu-item {
+        width: 100%;
+
+        &:hover:after {
+          background-color: transparent;
+        }
       }
     }
   }
@@ -100,13 +156,16 @@
 
   :global {
     .usa-nav__link:hover::after {
-      background-color: color("primary");
+      background-color: color("white");
     }
 
-    .usa-logo__text, .usa-nav__primary button span {
+    .usa-logo__text, .usa-nav__primary button[aria-expanded=false] span {
       color: color("white");
     }
-    
+    .usa-nav__primary button[aria-expanded=false]:hover span::after {
+      background-color: color("white");
+    }
+
     .usa-nav__primary button span::after {
       background-color: color("white");
     }
@@ -130,12 +189,35 @@
       }
     }
 
+    .usa-nav__primary button[aria-expanded=true] {
+      background-color: color("white");
+
+      & span {
+        color: color("primary-darker");
+
+        &:after {
+          background-color: color("primary-darker");
+        }
+      }
+
+      &:hover:after {
+        background-color: color("primary-darker");
+      }
+    }
+
     .usa-nav__primary button[aria-expanded=true] .usa-button, .usa-nav__submenu {
       background-color: color("white");
     }
 
-    .usa-nav__submenu .usa-nav__submenu-item a {
-      color: color("primary-darker");
+    .usa-nav__submenu .usa-nav__submenu-item {
+      &:hover:after {
+        background-color: color("primary-darker");
+      }
+      
+
+      a {
+        color: color("primary-darker");
+      }
     }
 
     .usa-nav.is-visible {
@@ -149,6 +231,11 @@
 
       .usa-nav__primary-item, .usa-nav__submenu-item {
         border-top: 1px solid color("primary");
+        width: 100%;
+
+        &:hover:after {
+          background-color: transparent;
+        }
       }
 
       .usa-nav__primary button {
@@ -163,13 +250,17 @@
 
       .usa-nav__primary button[aria-expanded=true] {
         background-color: color("primary-darker");
-        
-        & span {
-          color: color("primary-light");
+
+        span {
+          color: color("white");
+
+          &:after {
+            background-color: color("white");
+          }
         }
 
         &:hover {
-          background-color: color("primary-dark");
+          background-color: transparent;
         }
       }
 
