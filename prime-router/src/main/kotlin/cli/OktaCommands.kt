@@ -46,6 +46,7 @@ private const val oktaAuthorizePath = "/oauth2/default/v1/authorize" // Default 
 private const val oktaIntrospectPath = "/oauth2/default/v1/introspect" // For checking if a token is active
 private const val oktaTokenPath = "/oauth2/default/v1/token"
 private const val oktaScope = "simple_report_dev"
+private const val oktaDummyAccessToken = "dummy"
 private const val redirectPort = 9988
 private const val redirectHost = "http://localhost"
 private const val redirectPath = "/callback"
@@ -80,11 +81,7 @@ class LoginCommand : OktaCommand(
 
     override fun run() {
         val oktaApp = Environment.get(env).oktaApp ?: abort("No need to login in this environment")
-
-        // Load environment variables for the Okta Api
-        // The prefix has to be added as this value is already set for other uses
-        oktaBaseUrl = oktaBaseUrls[oktaApp] ?: error("Invalid app - Okta url")
-        oktaClientId = clientIds[oktaApp] ?: error("Invalid app")
+        oktaConfig.init(oktaApp)
 
         val accessTokenFile = if (!forceRefreshToken) {
             readAccessTokenFile()
@@ -131,8 +128,8 @@ class LoginCommand : OktaCommand(
     }
 
     private fun authorizeUrl(state: String, codeChallenge: String): String {
-        return "$oktaBaseUrl$oktaAuthorizePath?" +
-            "client_id=$oktaClientId&" +
+        return "${oktaConfig.baseUrl}$oktaAuthorizePath?" +
+            "client_id=${oktaConfig.clientId}&" +
             "response_type=code&" +
             "scope=$oktaScope&" +
             "redirect_uri=$redirectHost:$redirectPort$redirectPath&" +
@@ -142,13 +139,12 @@ class LoginCommand : OktaCommand(
     }
 
     private fun clientCredentialsAuthorize(): JSONObject {
-        oktaAuthKey = System.getenv("OKTA_authKey")
-            ?: error("A valid OKTA_authKey environment variable is needed for this command")
+        if (oktaConfig.authKey == "")  error("A valid OKTA_authKey environment variable is needed for this command")
         val (_, _, result) = Fuel
-            .post("$oktaBaseUrl$oktaTokenPath?")
+            .post("${oktaConfig.baseUrl}$oktaTokenPath?")
             .header(
                 Headers.CONTENT_TYPE to "application/x-www-form-urlencoded",
-                "Authorization" to "Basic $oktaAuthKey"
+                "Authorization" to "Basic ${oktaConfig.authKey}"
             )
             .body("grant_type=client_credentials&scope=$oktaScope")
             .responseJson()
@@ -189,10 +185,10 @@ class LoginCommand : OktaCommand(
     ): JSONObject {
         val body = "grant_type=authorization_code&" +
             "redirect_uri=$redirectHost:$redirectPort$redirectPath&" +
-            "client_id=$oktaClientId&" +
+            "client_id=${oktaConfig.clientId}&" +
             "code=$code&" +
             "code_verifier=$codeVerifier"
-        val (_, _, result) = Fuel.post("$oktaBaseUrl$oktaTokenPath")
+        val (_, _, result) = Fuel.post("${oktaConfig.baseUrl}$oktaTokenPath")
             .header(Headers.CONTENT_TYPE to "application/x-www-form-urlencoded")
             .body(body)
             .responseJson()
@@ -244,49 +240,16 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
     }
 
     companion object {
-        /**
-         * Base endpoint for the Okta account
-         */
-        lateinit var oktaBaseUrl: String
-
-        /**
-         * Client ID for the Okta account
-         * Required for Okta API calls to work
-         */
-        lateinit var oktaClientId: String
-
-        /**
-         * Api key for the Okta account
-         * Required for Okta API calls to work
-         */
-        lateinit var oktaAuthKey: String
-
-        /**
-         * Dummy access token for when use with development.
-         */
-        internal const val dummyOktaAccessToken = "dummy"
-
-        internal val clientIds = mapOf(
-            OktaApp.DH_PROD to oktaProdClientId,
-            OktaApp.DH_TEST to oktaPreviewClientId,
-            OktaApp.DH_STAGE to oktaPreviewClientId,
-            OktaApp.DH_DEV to oktaPreviewClientId,
-        )
-        internal val oktaBaseUrls = mapOf(
-            OktaApp.DH_PROD to oktaProdBaseUrl,
-            OktaApp.DH_TEST to oktaPreviewBaseUrl,
-            OktaApp.DH_STAGE to oktaPreviewBaseUrl,
-            OktaApp.DH_DEV to oktaPreviewBaseUrl,
-        )
-
         private val jsonMapper = JacksonMapperUtilities.allowUnknownsMapper
+
+        val oktaConfig: OktaConfig = OktaConfig()
 
         /**
          * Returns the access token saved from the last login if valid given [app].
          * @return the Okta access token, a dummy token if [app] is null. or null if there is no valid token
          */
         fun fetchAccessToken(app: OktaApp?): String? {
-            return if (app == null) dummyOktaAccessToken
+            return if (app == null) oktaDummyAccessToken
             else {
                 val accessTokenFile = readAccessTokenFile()
                 if (accessTokenFile != null && isValidToken(accessTokenFile))
@@ -309,15 +272,15 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
 
         fun isValidToken(accessTokenFile: AccessTokenFile): Boolean {
             // Make sure the token is for the right okta app
-            if (oktaClientId != accessTokenFile.clientId) return false
+            if (oktaConfig.clientId != accessTokenFile.clientId) return false
             // Make sure the token will not expire soon
             if (accessTokenFile.expiresAt <= LocalDateTime.now().plusMinutes(5)) return false
 
             // Try out the token with Okta for the final confirmation
-            val (_, _, result) = Fuel.post("$oktaBaseUrl$oktaIntrospectPath")
+            val (_, _, result) = Fuel.post("${oktaConfig.baseUrl}$oktaIntrospectPath")
                 .header(
                     Headers.CONTENT_TYPE to "application/x-www-form-urlencoded",
-                    "Authorization" to "Basic $oktaAuthKey"
+                    "Authorization" to "Basic ${oktaConfig.authKey}"
                 )
                 .body(
                     "token_type_hint=access_token&" +
@@ -336,7 +299,7 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             val token = accessTokenJson.getString("access_token")
             val expiresIn = accessTokenJson.getLong("expires_in")
             val expiresAt = LocalDateTime.now().plusSeconds(expiresIn)
-            val accessTokenFile = AccessTokenFile(token, oktaClientId, expiresAt)
+            val accessTokenFile = AccessTokenFile(token, oktaConfig.clientId, expiresAt)
 
             val directoryPath = primeFolderPath()
             if (Files.notExists(directoryPath)) Files.createDirectory(directoryPath)
@@ -362,4 +325,48 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             return Path.of(System.getProperty("user.home"), localPrimeFolder, localTokenFileName)
         }
     }
+}
+
+/**
+ * Container for configurable values regarding Okta interactions.
+ * These values are required for Okta API calls to work.
+ *
+ * @property baseUrl Base endpoint for the Okta account
+ * @property clientId Client ID for the Okta account
+ * @property authKey Api key for the Okta account
+ */
+data class OktaConfig(
+    var baseUrl: String = oktaPreviewBaseUrl,
+    var clientId: String = oktaPreviewClientId,
+    var authKey: String = oktaDummyAccessToken
+) {
+    /**
+     * Load environment variables for the Okta Api
+     * @param oktaApp Configuration values
+     */
+    fun init(oktaApp: OktaCommand.OktaApp) {
+        baseUrl = oktaBaseUrls[oktaApp] ?: error("Invalid app - Okta url")
+        clientId = clientIds[oktaApp] ?: error("Invalid app")
+        authKey = System.getenv("OKTA_authKey")
+    }
+
+    /**
+     * Container for Okta endpoints by environment
+     */
+    private val oktaBaseUrls = mapOf(
+        OktaCommand.OktaApp.DH_PROD to oktaProdBaseUrl,
+        OktaCommand.OktaApp.DH_TEST to oktaPreviewBaseUrl,
+        OktaCommand.OktaApp.DH_STAGE to oktaPreviewBaseUrl,
+        OktaCommand.OktaApp.DH_DEV to oktaPreviewBaseUrl,
+    )
+
+    /**
+     * Container for Okta client ids by environment
+     */
+    private val clientIds = mapOf(
+        OktaCommand.OktaApp.DH_PROD to oktaProdClientId,
+        OktaCommand.OktaApp.DH_TEST to oktaPreviewClientId,
+        OktaCommand.OktaApp.DH_STAGE to oktaPreviewClientId,
+        OktaCommand.OktaApp.DH_DEV to oktaPreviewClientId,
+    )
 }
