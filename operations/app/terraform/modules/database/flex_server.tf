@@ -1,9 +1,10 @@
+
 resource "azurerm_postgresql_flexible_server" "flex_server" {
-  for_each = toset(var.flex_instances)
+  # for_each = toset(var.flex_instances)
 
   name                         = "${var.resource_prefix}-pgsql-flex"
-  location                     = var.location
   resource_group_name          = var.resource_group
+  location                     = var.location
   version                      = "13"
   delegated_subnet_id          = var.subnets.postgres_subnets[0]
   private_dns_zone_id          = var.dns_zones["postgres"].id
@@ -15,4 +16,22 @@ resource "azurerm_postgresql_flexible_server" "flex_server" {
   storage_mb = 32768
 
   sku_name = var.flex_sku_name
+}
+resource "azurerm_postgresql_flexible_server_database" "prime_data_hub_db_flex" {
+  name      = "prime_data_hub_db"
+  server_id = azurerm_postgresql_flexible_server.flex_server.id
+  charset             = "UTF8"
+  collation           = "en_US.utf8"
+}
+resource "azurerm_postgresql_flexible_server_database" "prime_data_hub_candidate_db_flex" {
+  name      = "prime_data_hub_candidate"
+  server_id = azurerm_postgresql_flexible_server.flex_server.id
+  charset             = "UTF8"
+  collation           = "en_US.utf8"
+}
+resource "azurerm_postgresql_flexible_server_database" "metabase_db_flex" {
+  name      = "metabase"
+  server_id = azurerm_postgresql_flexible_server.flex_server.id
+  charset             = "UTF8"
+  collation           = "en_US.utf8"
 }
