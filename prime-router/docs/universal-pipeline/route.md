@@ -331,49 +331,7 @@ catch (e: SchemaException) {
 }
 ```
 
-### Filter Log Scenarios
-
-As mentioned, only “failing” filters are logged, and only for non-jurisdictional filters. However, there are a few ways that filters can fail, and the way they are logged varies slightly.
-
-#### Simply Filtered Out
-
-In the most basic case, one or more of the predicates within a filter evaluates to false and the report is filtered out. If the filter is [A, B, C, D, E], which can be thought of as `A ∧ B ∧ C ∧ D ∧ E`, any predicate of the filter evaluating to false would result in an overall negative result, so all predicates evaluating to false are logged, but those evaluating to true are less relevant/actionable in the logs. So in that case of the filter [A, B, C, D, E], if B, D, and E all evaluate to false, the logged message might look something like this:
-
-`For someOrg.someReceiver, filter [B, D, E][] filtered out item someItemId`
-
-#### Filtered Out w/ Default Filter
-
-If a report is filtered out by application of a default filter, the logged message will include the text “(default filter)”. So for instance if the default filter was [A, B, C, D, E], and B, D, and E all evaluate to false, the message might look like this:
-
-The extra tag is intended to give some indication of where the filter came from if none existed on the receiver. Note that in cases where a receiver has specified filters that happen to be equivalent to the default filter, it will not be marked as the default filter in the message.
-
-`For someOrg.someReceiver, filter (default filter) [B, D, E][] filtered out item someItemId`
-
-#### Schema Exception
-
-If the evaluation of a filter leads to an exception, the exception message will be added to the action log so that it can be resolved, but the filter result will still also be logged. The logged message will include the text “(exception found)”. So for instance, if the filter was [A, B, C, D, E] and A and C result in exceptions, the message might look like this:
-
-`For someOrg.someReceiver, filter (exception found) [A, C][] filtered out item someItemId`
-
-We would never expect to have exceptions in evaluation of default filters, but if we did, the resulting message would look like this:
-
-`For someOrg.someReceiver, filter (default filter) (exception found) [A, C][] filtered out item someItemId`
-
-#### Filtered Out w/ Reversed Filter
-
-If a report is filtered out due to a quality filter along with a setting of `reverseTheQualityFilter: true`, the logged message will include the text “(reversed)”. Imagine a reversed filter of [A, B, C, D, E], which can be thought of as `or` equivalently. The only way for this to yield a negative result is if each and every predicate A, B, C, D, and E evaluate to true; therefore each of those predicates are relevant in logging why the filter yielded a negative result. So while in non-reversed cases, we only include the individual predicates that evaluated to false, in reversed cases, we include all predicates, and the resulting message might look like this:
-
-`For someOrg.someReceiver, filter (reversed) [A, B, C, D, E][] filtered out item someItemId`
-
-As it is today, the only filters that can be reversed are quality filters. If the default quality filter is reversed, the resulting message might look like this:
-
-`For someOrg.someReceiver, filter (default filter) (reversed) [A, B, C, D, E][] filtered out item someItemId`
-
-#### Filtered Out w/ Default Response
-
-Currently only jurisdictional filters have default results that would filter out reports, and jurisdictional filter results are not logged. If that were to change, we would have to log that we filtered out an item, but without any filter to reference, so this case might have an entirely different format, or the message might look like:
-
-`For someOrg.someReceiver, filter default response[] filtered out item someItemId`
+Various scenarios for filter logging are outlined in the [filtering design](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/design/features/0001-universal-pipeline-filter-reporting.md#filter-log-scenarios).
 
 ## Configuring Filters
 
