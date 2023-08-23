@@ -4,12 +4,11 @@
 
 The Route function’s purpose is to match FHIR bundles with receivers. Each receiver connected with ReportStream has unique interests in the data that flows through the pipeline. Routing is designed to find the data that meet those interests.
 
-The Route function follows the convert function. At this point all data will be in FHIR format. These messages are passed to the FHIR Router which first decodes a FHIR Bundle. **_FHIRRouter.applyFilters_** does the work to find receivers that accept the bundle. With the list of acceptable receivers, FHIR Endpoints are added to the Provenance resource identifying those receivers.  An endpoint describes the details of a receiver including which test results to include. With that information, the message is passed to the Translate function where receiver specific work is done.
-
+The Route function follows the convert function. At this point all data will be in FHIR format. These messages are passed to the FHIR Router which first decodes a FHIR Bundle. `FHIRRouter.applyFilters` does the work to find receivers that accept the bundle. With the list of acceptable receivers, FHIR Endpoints are added to the Provenance resource identifying those receivers.  An Endpoint resource describes the details of a receiver including which test results to include. With that information, the message is passed to the [Translate](translate.md) function where receiver specific work is done.
 
 ### Topic
 
-A Topic must be set for all senders and receivers. The choice of topic determines which pipeline is used (Universal or Covid) and will affect how routing takes place. The routing step will start by limiting available receivers to only those with a topic matching the sender topic. Topics include:
+A Topic must be set for all senders and receivers. The choice of topic determines which pipeline is used (Universal or Legacy) and will affect how routing takes place. The routing step will start by limiting available receivers to only those with a topic matching the sender topic. Topics include:
 
 
 <table>
@@ -56,7 +55,7 @@ The table below demonstrates a few filter functions and their FHIRPath equivalen
 
 <table>
   <tr>
-   <td><strong>COVID Pipeline: filter functions</strong>
+   <td><strong>Legacy Pipeline: filter functions</strong>
    </td>
    <td><strong>Universal Pipeline: FHIRPath Expressions</strong>
    </td>
@@ -308,10 +307,10 @@ This is a NOT operation on the result of the filters set in the Quality Filter. 
 Filtering logic can be extensive and complex. Recording the outcome of the filters provides internal and external users an important view of events. Logging is particularly important when reports do not pass filtering.
 
 * **Jurisdictional Filter**
-    * results of this filter are <span style="text-decoration:underline;">not</span> logged. Given that most items are only meant for one or maybe a couple jurisdictions out of hundreds, there is little value in logging here.
+    * results of this filter are **not** logged. Given that most items are only meant for one or maybe a couple jurisdictions out of hundreds, there is little value in logging here.
 * **Other Filters**(Quality, Routing, Processing Mode Code, and Condition)
-    * Following Jurisdictional filtering, all other filter groups use**_ evaluateFilterAndLogResult()_**. Upon failure of a filter in a filter group, the outcome is logged to the ActionLog table
-
+    * Following Jurisdictional filtering, all other filter groups use `evaluateFilterAndLogResult()`. Upon failure of a filter in a filter group, the outcome is logged to the Action Log table. See Action Log table in [ReportStream Data Model](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/design/design/data-model.md#action_log-table)
+  
 ```kotlin
 if (!passes) {
     val filterToLog = "${
@@ -413,7 +412,3 @@ All filters for receivers and organizations can be created/updated/deleted via t
 Next update the staging DB
 
 `./prime multiple-settings set –env staging –input <file-location>`
-
-## Sources:
-
-[Universal Pipeline Routing Design](https://zh-file.s3.amazonaws.com/304423150/b0f41580-4e93-4b6d-957f-f752698796dc?Expires=1692031051&AWSAccessKeyId=AKIAI5X57DET3FHKSALA&Signature=frJxSOhI%2FoTw0jlGY51xDqLmUBI%3D), Oct 2022
