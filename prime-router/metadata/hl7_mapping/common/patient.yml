@@ -79,6 +79,7 @@ elements:
                 %resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").exists()'
     value:
       - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("ombCategory").value.system'
+      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[0].system'
       - '"HL70005"'
     hl7Spec: [ '%{hl7PIDField}-10-3' ]
 
@@ -98,8 +99,8 @@ elements:
     hl7Spec: [ '%{hl7PIDField}-10-6' ]
 
   - name: patient-race-coding-system-version
-    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.exists()'
-    value: [ '"2.5.1"' ]
+    value: [ '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[0].version' ]
+    # use the index extensions from the base CWE handling
     hl7Spec: [ '%{hl7PIDField}-10-7' ]
 
   - name: patient-address
@@ -138,13 +139,8 @@ elements:
   - name: patient-ethnicity
     resource: '%resource.extension(%`rsext-ethnic-group`).value'
     constants:
-      ceFieldPath: '%{hl7PIDField}-22'
-    schema: datatype/ce-coded-element
-
-  - name: patient-ethnicity-coding-system-version
-    condition: '%resource.extension(%`rsext-ethnic-group`).value.exists()'
-    value: [ '"2.9"' ]
-    hl7Spec: [ '%{hl7PIDField}-22-7' ]
+      cweFieldPath: '%{hl7PIDField}-22'
+    schema: datatype/ce-coded-with-exceptions
 
   - name: patient-multiple-birth-order
     value: [ '%resource.multipleBirth' ]

@@ -211,12 +211,12 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/STLTs/CO/CO"
+        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
-        receivingApplicationName: "CO-ELR"
-        receivingFacilityName: "CO"
+        receivingApplicationName: "IG-ELR"
+        receivingFacilityName: "IG"
       transport:
         type: SFTP
         host: sftp
@@ -234,7 +234,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/STLTs/CO/CO"
+        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
