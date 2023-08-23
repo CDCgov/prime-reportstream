@@ -2,6 +2,8 @@ import React from "react";
 import DOMPurify from "dompurify";
 import classNames from "classnames";
 
+import styles from "./Tile.module.scss";
+
 export interface TileProps
     extends React.PropsWithChildren<
         React.HTMLAttributes<HTMLElement> & ContentSubitem
@@ -17,10 +19,14 @@ export const Tile = ({
     children,
 }: TileProps) => {
     const cleanSummaryHtml = DOMPurify.sanitize(summary ?? "");
-    const classnames = classNames("usa-prose", "padding-bottom-3", className);
+    const classnames = classNames(
+        styles["rs-tile"],
+        "usa-prose",
+        "padding-bottom-3",
+        className,
+    );
     return (
         <div className={classnames}>
-            <hr className="border-y-2px border-primary margin-0 margin-bottom-205" />
             {img && (
                 <img
                     data-testid="img"
