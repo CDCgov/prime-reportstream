@@ -308,7 +308,7 @@ describe("Table, filter integration tests", () => {
         expect(screen.getByText(/cursor:/)).toHaveTextContent(/23:59:59.999Z/);
 
         // Change sort order and repeat
-        userEvent.click(screen.getByText("Column Two"));
+        await userEvent.click(screen.getByText("Column Two"));
         await selectDatesFromRange("13", "23");
         await clickFilterButton();
 
@@ -363,7 +363,7 @@ describe("TableRows", () => {
         // click save
         const saveButton = screen.getAllByText("Save")[0];
         expect(saveButton).toBeInTheDocument();
-        userEvent.click(saveButton);
+        await userEvent.click(saveButton);
 
         // expect onSave to have not been called
         expect(fakeSave).toHaveBeenCalledTimes(0);

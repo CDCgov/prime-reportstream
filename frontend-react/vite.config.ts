@@ -18,7 +18,6 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 // https://vitejs.dev/config/
 export default defineConfig(async () => {
     return {
-        assetsInclude: ["**/*.md"],
         optimizeDeps: {
             include: ["react/jsx-runtime"],
         },
@@ -72,18 +71,15 @@ export default defineConfig(async () => {
                 },
             },
         },
-        preview: {
-            headers: {
-                "Content-Security-Policy":
-                    "default-src 'self'; script-src 'self' https://hhs-prime.oktapreview.com https://global.oktacdn.com https://www.google-analytics.com https://*.in.applicationinsights.azure.com https://dap.digitalgov.gov; style-src 'self' 'unsafe-inline' https://global.oktacdn.com https://cdnjs.cloudflare.com; frame-src 'self' https://hhs-prime.oktapreview.com; img-src 'self' https://hhs-prime.oktapreview.com https://reportstream.cdc.gov data: ; connect-src 'self' https://www.google-analytics.com https://*.in.applicationinsights.azure.com https://hhs-prime.oktapreview.com https://reportstream.cdc.gov/api/ https://prime.cdc.gov/api/ https://dap.digitalgov.gov;",
-            },
-        },
         css: {
             preprocessorOptions: {
                 scss: {
                     includePaths: ["node_modules/@uswds/uswds/packages"],
                 },
             },
+            devSourcemap:
+                process.env.NODE_ENV === "development" ||
+                process.env.SOURCEMAPS === "true",
         },
     };
 });

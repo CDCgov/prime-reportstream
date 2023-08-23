@@ -17,7 +17,6 @@ import {
     ReferralGuideMd,
     GettingStartedSubmittingDataMd,
 } from "../../pages/resources/markdown-adapters";
-import { ReportStreamAPIPage } from "../../pages/resources/reportstream-api/ReportStreamApi";
 
 export enum ResourcesDirectories {
     ACCOUNT_REGISTRATION = "Account registration guide",
@@ -133,17 +132,6 @@ export const resourcesDirectories = [
                 ),
             ),
         ),
-    new ElementDirectory()
-        .setTitle(ResourcesDirectories.REPORTSTREAM_API)
-        .setSlug(
-            ResourcesDirectoryTools.getSlug(
-                ResourcesDirectories.REPORTSTREAM_API,
-            ),
-        )
-        .setDescription(
-            "Learn about our API and how to set up your connection for reporting data to public health departments.",
-        )
-        .addElement(ReportStreamAPIPage),
     new ElementDirectory()
         .setTitle(ResourcesDirectories.DOWNLOAD_GUIDE)
         .setSlug(

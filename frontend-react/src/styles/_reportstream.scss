@@ -1,6 +1,7 @@
 // AutoUpdateFileChromatic
 @use "uswds-core" as *;
 @use "uswds_custom_theme" as *;
+@use "alternate" as *;
 
 // USWDS identifier
 
@@ -779,7 +780,7 @@ pre {
     margin-top: auto !important;
 }
 
-/** 
+/**
  * Allows automatic counter numbers in process-list style
  */
 @mixin numbered($counter) {
@@ -839,16 +840,54 @@ h2.rs-numbered {
     }
 }
 
-/*
- * CMS-type pages use a smaller default width
- */
-.rs-style__content {
-    .grid-container {
-        @include grid-container("desktop-lg");
+main {
+    @include u-display("flex");
+    @include u-flex("justify");
+    @include u-flex("align-start");
+    @include grid-container;
+}
+
+// Okta widget rudely renders as main element
+#okta-wrapper main {
+    display: block;
+}
+
+.rs-style {
+    /*
+    * CMS-type pages use a smaller default width
+    */
+    &--content {
+        main {
+            @include grid-container("desktop-lg");
+
+            // Smaller font for content alerts
+            .usa-alert {
+                @include u-font-size("sans", "xs");
+            }
+        }
     }
 
-    // Smaller font for content alerts
-    .usa-alert {
-        @include u-font-size("sans", "xs");
+    /*
+    * Full-width pages currently designed to be flush between the
+    * viewport and page's header/main/footer grid
+    */
+    &--full-width {
+        main {
+            @include grid-container("full");
+            @include u-padding(0);
+
+            /*
+            * Make flush across all screen sizes
+            */
+            @media screen and (min-width: 0) {
+                & {
+                    @include u-padding(0, !important);
+                }
+            }
+        }
+
+        #site-header {
+            margin-bottom: unset;
+        }
     }
 }

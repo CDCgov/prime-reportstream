@@ -44,6 +44,10 @@ const config: Config.InitialOptions = {
         "@mdx-js/react": "<rootDir>/src/__mocks__/mdxjsReactMock.tsx",
         // remove vite-supported queries from url imports
         "^(.+)\\?.*": "$1",
+        "^.*\\.mdx": "<rootDir>/src/__mocks__/mdxFrontmatterMock.tsx",
+        "^react-helmet-async$":
+            "<rootDir>/src/__mocks__/reactHelmetAsyncMock.tsx",
+        "MDXImports(\\.ts)?$": "<rootDir>/src/__mocks__/mdxModulesMock.ts",
     },
     moduleFileExtensions: [
         "web.js",

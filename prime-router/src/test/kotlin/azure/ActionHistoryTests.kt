@@ -202,7 +202,7 @@ class ActionHistoryTests {
         )
         val actionHistory1 = ActionHistory(TaskAction.receive)
         val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
-        actionHistory1.trackCreatedReport(event1, report1, blobInfo1)
+        actionHistory1.trackCreatedReport(event1, report1, blobInfo = blobInfo1)
 
         assertThat(actionHistory1.reportsOut[report1.id]).isNotNull()
         val reportFile = actionHistory1.reportsOut[report1.id]!!
@@ -216,7 +216,7 @@ class ActionHistoryTests {
         assertThat(reportFile.itemCount).isEqualTo(0)
 
         // not allowed to track the same report twice.
-        assertThat { actionHistory1.trackCreatedReport(event1, report1, blobInfo1) }.isFailure()
+        assertThat { actionHistory1.trackCreatedReport(event1, report1, blobInfo = blobInfo1) }.isFailure()
     }
 
     @Test
@@ -230,7 +230,7 @@ class ActionHistoryTests {
             metadata = UnitTestUtils.simpleMetadata
         )
         val actionHistory1 = ActionHistory(TaskAction.receive)
-        actionHistory1.trackCreatedReport(event1, report1, null)
+        actionHistory1.trackCreatedReport(event1, report1)
 
         assertThat(actionHistory1.reportsOut[report1.id]).isNotNull()
         val reportFile = actionHistory1.reportsOut[report1.id]!!
@@ -244,7 +244,7 @@ class ActionHistoryTests {
         assertThat(reportFile.itemCount).isEqualTo(0)
 
         // not allowed to track the same report twice.
-        assertThat { actionHistory1.trackCreatedReport(event1, report1, null) }.isFailure()
+        assertThat { actionHistory1.trackCreatedReport(event1, report1) }.isFailure()
     }
 
     @Test

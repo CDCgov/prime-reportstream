@@ -1,46 +1,135 @@
 elements:
+
+  ## This schema supports parsing the code FHIR resource to HL7 two different ways
+  ## 1. Attempt to use the code-index-name to identify the identifier, alternate identifier and second alternate identifier
+  ## 2. Rely on the ordering of the coding array assuming it is [identifier, alternate identifier, second alternate identifier]
+
   - name: identifier-code
-    value: [ '%resource.coding[0].code' ]
+    condition: >
+      %resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").exists() or
+      %resource.coding[0].extension(%`rsext-code-index-name`).exists().not()
+    value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").code', '%resource.coding[0].code' ]
     hl7Spec: [ '%{cweFieldPath}-1' ]
   - name: identifier-display
-    value: [ '%resource.coding[0].display' ]
+    condition: >
+      %resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").exists() or
+      %resource.coding[0].extension(%`rsext-code-index-name`).exists().not()
+    value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").display', '%resource.coding[0].display' ]
     hl7Spec: [ '%{cweFieldPath}-2' ]
   - name: identifier-system-url
-    resource: '%resource.coding[0].system'
+    resource: '%resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").system'
     condition: '%resource.value.startsWith("http")'
     value: [ '%resource.getCodingSystemMapping()' ]
+    hl7Spec: [ '%{cweFieldPath}-3' ]
+  - name: identifier-system-url
+    resource: '%resource.coding[0]'
+    condition: '%resource.system.value.startsWith("http") and %resource.extension(%`rsext-code-index-name`).exists().not()'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '%{cweFieldPath}-3' ]
   - name: identifier-system
-    resource: '%resource.coding[0].system'
+    resource: '%resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").system'
     condition: '%resource.value.startsWith("http").not()'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{cweFieldPath}-3' ]
+  - name: identifier-system
+    resource: '%resource.coding[0]'
+    condition: '%resource.system.value.startsWith("http").not() and %resource.extension(%`rsext-code-index-name`).exists().not()'
+    value: [ '%resource.system.value' ]
+    hl7Spec: [ '%{cweFieldPath}-3' ]
   - name: identifier-version
-    value: [ '%resource.coding[0].version' ]
+    condition: >
+      %resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").exists() or
+      %resource.coding[0].extension(%`rsext-code-index-name`).exists().not()
+    value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").version', '%resource.coding[0].version' ]
     hl7Spec: [ '%{cweFieldPath}-7' ]
+  - name: coding-system-oid
+    resource: '%resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").extension(%`rsext-coding-system-oid`)'
+    condition: '%resource.value.exists()'
+    value: ['%resource.value.getId()']
+    hl7Spec: [ '%{cweFieldPath}-14' ]
+  - name: coding-system-oid
+    resource: '%resource.coding[0].extension(%`rsext-coding-system-oid`)'
+    condition: '%resource.value.exists()'
+    value: [ '%resource.value.getId()' ]
+    hl7Spec: [ '%{cweFieldPath}-14' ]
 
   - name: alt-identifier-code
-    value: [ '%resource.coding[1].code' ]
+    condition: >
+      %resource.coding.where(extension(%`rsext-code-index-name`).value = "alternate identifier").exists() or
+      %resource.coding[1].extension(%`rsext-code-index-name`).exists().not()
+    value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "alternate identifier").code', '%resource.coding[1].code' ]
     hl7Spec: [ '%{cweFieldPath}-4' ]
   - name: alt-identifier-display
-    value: [ '%resource.coding[1].display' ]
+    condition: >
+      %resource.coding.where(extension(%`rsext-code-index-name`).value = "alternate identifier").exists() or
+      %resource.coding[1].extension(%`rsext-code-index-name`).exists().not()
+    value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "alternate identifier").display', '%resource.coding[1].display' ]
     hl7Spec: [ '%{cweFieldPath}-5' ]
-  - name: alt-identifier-system
-    value: [ '%resource.coding[1].system' ]
-    hl7Spec: [ '%{cweFieldPath}-6' ]
   - name: alt-identifier-system-url
-    resource: '%resource.coding[1].system'
+    resource: '%resource.coding.where(extension(%`rsext-code-index-name`).value = "alternate identifier").system'
     condition: '%resource.value.startsWith("http")'
     value: [ '%resource.getCodingSystemMapping()' ]
     hl7Spec: [ '%{cweFieldPath}-6' ]
+  - name: alt-identifier-system-url
+    resource: '%resource.coding[1]'
+    condition: '%resource.system.value.startsWith("http") and %resource.extension(%`rsext-code-index-name`).exists().not()'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '%{cweFieldPath}-6' ]
   - name: alt-identifier-system
-    resource: '%resource.coding[1].system'
+    resource: '%resource.coding.where(extension(%`rsext-code-index-name`).value = "alternate identifier").system'
     condition: '%resource.value.startsWith("http").not()'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{cweFieldPath}-6' ]
+  - name: alt-identifier-system
+    resource: '%resource.coding[1]'
+    condition: '%resource.system.value.startsWith("http").not() and %resource.extension(%`rsext-code-index-name`).exists().not()'
+    value: [ '%resource.system.value' ]
+    hl7Spec: [ '%{cweFieldPath}-6' ]
   - name: alt-identifier-version
-    value: [ '%resource.coding[1].version' ]
+    condition: >
+      %resource.coding.where(extension(%`rsext-code-index-name`).value = "alternate identifier").exists() or
+      %resource.coding[1].extension(%`rsext-code-index-name`).exists().not()
+    value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "alternate identifier").version', '%resource.coding[1].version' ]
     hl7Spec: [ '%{cweFieldPath}-8' ]
+
+  - name: second-alt-identifier-code
+    condition: >
+      %resource.coding.where(extension(%`rsext-code-index-name`).value = "second alternate identifier").exists() or
+      %resource.coding[1].extension(%`rsext-code-index-name`).exists().not()
+    value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "second alternate identifier").code','%resource.coding[2].code' ]
+    hl7Spec: [ '%{cweFieldPath}-10' ]
+  - name: second-alt-identifier-display
+    condition: >
+      %resource.coding.where(extension(%`rsext-code-index-name`).value = "second alternate identifier").exists() or
+      %resource.coding[1].extension(%`rsext-code-index-name`).exists().not()
+    value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "second alternate identifier").display','%resource.coding[2].display' ]
+    hl7Spec: [ '%{cweFieldPath}-11' ]
+  - name: second-alt-identifier-system-url
+    resource: '%resource.coding.where(extension(%`rsext-code-index-name`).value = "second alternate identifier").system'
+    condition: '%resource.value.startsWith("http")'
+    value: [ '%resource.getCodingSystemMapping()' ]
+    hl7Spec: [ '%{cweFieldPath}-12' ]
+  - name: second-alt-identifier-system-url
+    resource: '%resource.coding[2]'
+    condition: '%resource.system.value.startsWith("http") and %resource.extension(%`rsext-code-index-name`).exists().not()'
+    value: [ '%resource.system.getCodingSystemMapping()' ]
+    hl7Spec: [ '%{cweFieldPath}-12' ]
+  - name: second-alt-identifier-system
+    resource: '%resource.coding.where(extension(%`rsext-code-index-name`).value = "second alternate identifier").system'
+    condition: '%resource.value.startsWith("http").not()'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{cweFieldPath}-12' ]
+  - name: second-alt-identifier-system
+    resource: '%resource.coding[2]'
+    condition: '%resource.system.value.startsWith("http").not() and %resource.extension(%`rsext-code-index-name`).exists().not()'
+    value: [ '%resource.system.value' ]
+    hl7Spec: [ '%{cweFieldPath}-12' ]
+  - name: second-alt-identifier-version
+    condition: >
+      %resource.coding.where(extension(%`rsext-code-index-name`).value = "second alternate identifier").exists() or
+      %resource.coding[1].extension(%`rsext-code-index-name`).exists().not()
+    value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "second alternate identifier").version', '%resource.coding[2].version' ]
+    hl7Spec: [ '%{cweFieldPath}-13' ]
 
   - name: original-text
     value: [ '%resource.text' ]

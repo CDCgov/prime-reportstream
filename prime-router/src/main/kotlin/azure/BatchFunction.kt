@@ -138,6 +138,7 @@ class BatchFunction(
                             receiver.format.isSingleItemFormat -> inReports // don't merge, when we are about to split
                             receiver.timing?.operation == Receiver.BatchOperation.MERGE ->
                                 listOf(Report.merge(inReports))
+
                             else -> inReports
                         }
                         val outReports = if (receiver.format.isSingleItemFormat)

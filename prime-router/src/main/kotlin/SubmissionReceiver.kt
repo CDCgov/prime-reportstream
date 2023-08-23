@@ -1,7 +1,6 @@
 package gov.cdc.prime.router
 
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.model.v251.segment.MSH
 import gov.cdc.prime.router.Report.Format
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
@@ -14,6 +13,8 @@ import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.engine.elrConvertQueueName
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import ca.uhn.hl7v2.model.v251.segment.MSH as v251_MSH
+import ca.uhn.hl7v2.model.v27.segment.MSH as v27_MSH
 
 /**
  * The base class for a 'receiver' type, currently just for COVID or full ELR submissions. This allows us a fan out
@@ -232,7 +233,7 @@ class TopicReceiver : SubmissionReceiver {
 
         val bodyBytes = ReportWriter.getBodyBytes(report)
         val blobInfo = workflowEngine.blob.uploadReport(report, bodyBytes, senderName, processEvent.eventAction)
-        actionHistory.trackCreatedReport(processEvent, report, blobInfo)
+        actionHistory.trackCreatedReport(processEvent, report, blobInfo = blobInfo)
 
         // add task to task table
         workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), blobInfo.blobUrl, processEvent)
@@ -294,6 +295,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
                 // check for valid message type
                 messages.forEachIndexed { idx, element -> checkValidMessageType(element, actionLogs, idx + 1) }
             }
+
             Sender.Format.FHIR -> {
                 val bundles = FhirTranscoder.getBundles(content, actionLogs)
                 report = Report(
@@ -305,6 +307,7 @@ class UniversalPipelineReceiver : SubmissionReceiver {
                     topic = sender.topic,
                 )
             }
+
             else -> {
                 throw IllegalStateException("Unexpected sender format ${sender.format}")
             }
@@ -356,20 +359,23 @@ class UniversalPipelineReceiver : SubmissionReceiver {
         }
     }
 
+    enum class MessageType {
+        ORU_R01,
+        ORM_O01
+    }
+
     /**
      * Checks that a [message] is of the supported type(s), and uses the [actionLogs] to add an error
      * message for item with index [itemIndex] if it is not.
      */
     internal fun checkValidMessageType(message: Message, actionLogs: ActionLogger, itemIndex: Int) {
-        val header = message.get("MSH")
-        check(header is MSH)
-        val messageType = header.messageType.msg1_MessageCode.value +
-            "_" +
-            header.messageType.msg2_TriggerEvent.value
+        val messageType = when (val msh = message.get("MSH")) {
+            is v251_MSH -> msh.messageType.messageStructure.toString()
+            is v27_MSH -> msh.messageType.messageStructure.toString()
+            else -> ""
+        }
 
-        // TODO: This may need to be a configurable value in the future, if we ever support message types other
-        //  than ORU_RO1. As of 6/15/2022 multiple message type support is out of scope
-        if (messageType != "ORU_R01") {
+        if (!MessageType.values().map { it.toString() }.contains(messageType)) {
             actionLogs.getItemLogger(itemIndex)
                 .error(InvalidHL7Message("Ignoring unsupported HL7 message type $messageType"))
         }
