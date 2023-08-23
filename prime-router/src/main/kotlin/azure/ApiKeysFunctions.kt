@@ -19,7 +19,6 @@ import io.swagger.v3.oas.annotations.ExternalDocumentation
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType
 import io.swagger.v3.oas.annotations.info.Contact
 import io.swagger.v3.oas.annotations.info.Info
@@ -163,8 +162,7 @@ SwIDAQAB
     ),
     security = [
         SecurityRequirement(name = "primeSecurityOAUTH"),
-        SecurityRequirement(name = "primeSecurityServerToServer"),
-        SecurityRequirement(name = "primeSecurityAPIKey"),
+        SecurityRequirement(name = "primeSecurityServerToServer")
     ],
     servers = [
         Server(
@@ -174,10 +172,6 @@ SwIDAQAB
         Server(
             url = "https://staging.prime.cdc.gov/api/",
             description = "Staging Server"
-        ),
-        Server(
-            url = "https://prime.cdc.gov/api/",
-            description = "Production Server"
         )
     ]
 )
@@ -207,13 +201,6 @@ SwIDAQAB
             scheme = "Bearer",
             bearerFormat = "JWT",
             description = "HTTP Bearer Token Authorization for Report Stream API Access."
-        ),
-        SecurityScheme(
-            name = "primeSecurityAPIKey",
-            type = SecuritySchemeType.APIKEY,
-            `in` = SecuritySchemeIn.HEADER,
-            paramName = "x-functions-key",
-            description = "Azure Function Key Authorization for Report Stream API Access."
         )
     ]
 )
