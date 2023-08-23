@@ -305,6 +305,13 @@ updates:
       time: "03:17"
       timezone: "US/Eastern"
     rebase-strategy: "disabled"
+    groups:
+      bouncycastle:
+        patterns:
+          - "org.bouncycastle:bc*"
+      testcontainers:
+        patterns:
+          - "org.testcontainers:*"
     ignore:
       # ignore updates to sshj so we don't run into future issues connecting to STLTs
       - dependency-name: "sshj"
