@@ -16,7 +16,7 @@ import SubmissionsResource from "../../resources/SubmissionsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import { EventName, trackAppInsightEvent } from "../../utils/Analytics";
-import { FeatureName } from "../../AppRouter";
+import { FeatureName } from "../../utils/FeatureName";
 import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
 import AdminFetchAlert from "../../components/alerts/AdminFetchAlert";
 
