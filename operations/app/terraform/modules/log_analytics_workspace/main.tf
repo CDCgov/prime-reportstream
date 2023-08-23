@@ -20,11 +20,6 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostics" {
     for_each = each.value.logs
     content {
       category = log.value
-
-      retention_policy {
-        enabled = true
-        days    = 60
-      }
     }
   }
 
@@ -32,11 +27,6 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostics" {
     for_each = each.value.metrics
     content {
       category = metric.value
-
-      retention_policy {
-        enabled = true
-        days    = 60
-      }
     }
   }
 

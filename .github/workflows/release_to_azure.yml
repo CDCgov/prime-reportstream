@@ -99,12 +99,9 @@ jobs:
         uses: ./.github/actions/vpn-azure
         with:
           env-name: ${{ needs.pre_job.outputs.env_name }}
-          tls-key: ${{ secrets.TLS_KEY }}
-          ca-cert: ${{ secrets.CA_CRT}}
-          user-crt: ${{ secrets.USER_CRT }}
-          user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
+          dns-ip: ${{ needs.pre_job.outputs.dns_ip }}
 
       - name: Provision demo environment
         uses: ./.github/actions/demo-env
@@ -175,6 +172,7 @@ jobs:
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          dns-ip: ${{ needs.pre_job.outputs.dns_ip }}
 
       - name: Deploy backend
         uses: ./.github/actions/deploy-backend
@@ -210,6 +208,7 @@ jobs:
           user-crt: ${{ secrets.USER_CRT }}
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+          dns-ip: ${{ needs.pre_job.outputs.dns_ip }}
 
       - name: Deploy frontend
         uses: ./.github/actions/deploy-frontend

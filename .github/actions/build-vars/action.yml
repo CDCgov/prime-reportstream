@@ -208,5 +208,5 @@ runs:
       shell: bash
       run: |
         DNS_IP=$(az container show -g prime-data-hub-${{ steps.build_result.outputs.env_name }} \
-        --name pdh${{ steps.build_result.outputs.env_name }}-dns --query 'ipAddress.ip')
+        --name pdh${{ steps.build_result.outputs.env_name }}-dns --query 'ipAddress.ip' -o tsv)
         echo "dns_ip=$DNS_IP" >> $GITHUB_OUTPUT
