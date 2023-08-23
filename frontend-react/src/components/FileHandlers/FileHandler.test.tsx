@@ -143,7 +143,7 @@ describe("FileHandler", () => {
             expect(screen.getByText("Submit")).toBeDisabled();
             await chooseFile(fakeFile);
             await act(async () => {
-                await fireEvent.submit(screen.getByTestId("form"));
+                fireEvent.submit(screen.getByTestId("form"));
             });
 
             // Step 3: success
@@ -176,7 +176,7 @@ describe("FileHandler", () => {
             expect(screen.getByText("Submit")).toBeDisabled();
             await chooseFile(fakeFile);
             await act(async () => {
-                await fireEvent.submit(screen.getByTestId("form"));
+                fireEvent.submit(screen.getByTestId("form"));
             });
 
             // Step 3a: warnings
@@ -214,7 +214,7 @@ describe("FileHandler", () => {
             expect(screen.getByText("Submit")).toBeDisabled();
             await chooseFile(fakeFile);
             await act(async () => {
-                await fireEvent.submit(screen.getByTestId("form"));
+                fireEvent.submit(screen.getByTestId("form"));
             });
 
             // Step 3: errors
@@ -233,7 +233,7 @@ describe("FileHandler", () => {
             expect(screen.getByText("Submit")).toBeDisabled();
             await chooseFile(fakeFile);
             await act(async () => {
-                await fireEvent.submit(screen.getByTestId("form"));
+                fireEvent.submit(screen.getByTestId("form"));
             });
 
             // Step 3: errors

@@ -3,7 +3,7 @@ import { RSDelivery } from "../../../config/endpoints/deliveries";
 import Crumbs, { CrumbsProps } from "../../../components/Crumbs";
 import Title from "../../../components/Title";
 import { useOrganizationSettings } from "../../../hooks/UseOrganizationSettings";
-import { FeatureName } from "../../../AppRouter";
+import { FeatureName } from "../../../utils/FeatureName";
 
 interface Props {
     /* REQUIRED

@@ -233,7 +233,7 @@ class TopicReceiver : SubmissionReceiver {
 
         val bodyBytes = ReportWriter.getBodyBytes(report)
         val blobInfo = workflowEngine.blob.uploadReport(report, bodyBytes, senderName, processEvent.eventAction)
-        actionHistory.trackCreatedReport(processEvent, report, blobInfo)
+        actionHistory.trackCreatedReport(processEvent, report, blobInfo = blobInfo)
 
         // add task to task table
         workflowEngine.insertProcessTask(report, report.bodyFormat.toString(), blobInfo.blobUrl, processEvent)

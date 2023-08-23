@@ -79,9 +79,8 @@ export function MessageTracker() {
 
     const searchMessageId = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const senderResponse: MessageListResource[] = await search(
-            searchFilter,
-        );
+        const senderResponse: MessageListResource[] =
+            await search(searchFilter);
 
         setHasSearched(true);
 

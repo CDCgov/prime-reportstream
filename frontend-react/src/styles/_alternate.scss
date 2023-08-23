@@ -1,0 +1,77 @@
+@use "uswds-core" as *;
+
+/*
+ * Mixins to apply alternate text and bg colors through
+ * USWDS color calculation functions if possible (provides
+ * accessible text color from provided bg color).
+ */
+
+$-alternate-bg: "primary-darker";
+$-alternate-button-bg: "accent-cool";
+
+// Split text and bg mixins for singular application
+@mixin u-rs-style-alternate-color {
+    @include set-text-from-bg($-alternate-bg);
+}
+@mixin u-rs-style-alternate-bg {
+    @include u-bg($-alternate-bg);
+}
+
+// Container/Component level mixins
+@mixin u-rs-style-alternate-nav-link {
+    @include set-text-from-bg($-alternate-bg);
+
+    &:hover {
+        @include u-color("gray-5");
+    }
+
+    &:active {
+        @include u-color("gray-10");
+    }
+}
+@mixin u-rs-style-alternate-link {
+    @include u-color($-alternate-button-bg);
+
+    &:visited {
+        @include u-color("accent-warm");
+    }
+
+    &:hover {
+        @include u-color("accent-cool-dark");
+    }
+
+    &:active {
+        @include u-color("accent-cool-darker");
+    }
+}
+@mixin u-rs-style-alternate-button {
+    @include set-text-and-bg($-alternate-button-bg);
+
+    &:visited {
+        @include set-text-and-bg($-alternate-button-bg);
+    }
+
+    &:hover {
+        @include set-text-and-bg("accent-cool-dark");
+    }
+
+    &:active,
+    &.usa-button--active {
+        @include set-text-and-bg("accent-cool-darker");
+    }
+}
+@mixin u-rs-style-alternate-container {
+    @include u-rs-style-alternate-bg;
+    @include u-rs-style-alternate-color;
+
+    & a,
+    & .usa-link {
+        @include u-rs-style-alternate-link;
+    }
+
+    & button,
+    & .usa-button,
+    & .usa-link.usa-button {
+        @include u-rs-style-alternate-button;
+    }
+}
