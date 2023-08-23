@@ -2,7 +2,7 @@
 ## Context
 ### FHIRPath
 
-Access to fields in a FHIR message can be accomplished using [FHIRPath](http://hl7.org/fhirpath/), which is an expression language defined by FHIR. At its simplest, this takes the form of a single dotted path: `Bundle.entry.resource.ofType(Patient).name.family`.` `
+Access to fields in a FHIR message can be accomplished using [FHIRPath](http://hl7.org/fhirpath/), which is an expression language defined by FHIR. At its simplest, this takes the form of a single dotted path: `Bundle.entry.resource.ofType(Patient).name.family`.
 
 FHIRPath is used in filtering to access values in a bundle. In the example, the value for the patient’s family name (i.e last name) would be provided.
 
@@ -38,6 +38,8 @@ FHIRPath can be verbose and challenging for a user that is not familiar with FHI
   </tr>
 </table>
 
+This how the shorthands would be used in receiver settings:
+
 ```yaml
 jurisdictionalFilter:
 	- ‘%patientState = “CO”’
@@ -51,15 +53,15 @@ When translating FHIR bundles to other formats, like HL7v2, it is necessary to e
 that it can be moved over to the new format. We can often accomplish extracting the data we need via a simple FHIR path 
 expression like so:
 
-``` 
+```yaml
   - name: designator-namespace-id-from-namespace
-   condition: '%resource.extension(%`namespaceExtName`).exists()'
-   value: [ '%resource.extension(%`namespaceExtName`).value' ]
-   hl7Spec: [ '%{hl7HDField}-1' ]
+    condition: '%resource.extension(%`namespaceExtName`).exists()'
+    value: [ '%resource.extension(%`namespaceExtName`).value' ]
+    hl7Spec: [ '%{hl7HDField}-1' ]
 ```
 
 When a simple FHIR path expression is not enough, we use FHIR Functions like so:
-``` 
+```yaml
   - name: specimen-received-time-diagnostic
     condition: '%resource.receivedTime.exists().not() and %resource.collection.collected is dateTime'
     value: [ '%resource.collection.collected.changeTimezone(%timezone)' ]

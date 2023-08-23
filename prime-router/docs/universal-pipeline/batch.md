@@ -1,4 +1,4 @@
-# Batch Step
+# Universal Pipeline Batch Step
 
 This step will batch all the reports that have been translated within a configured window and send them all in one report to the receiver. 
 This report can contain items from multiple senders for a single topic.
