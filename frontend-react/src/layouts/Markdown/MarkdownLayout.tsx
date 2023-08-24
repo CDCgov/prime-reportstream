@@ -8,8 +8,6 @@ import classNames from "classnames";
 
 import { USSmartLink, USNavLink } from "../../components/USLink";
 import * as shared from "../../shared";
-import PageHeader from "../../shared/PageHeader/PageHeader";
-import HeroWrapper from "../../shared/HeroWrapper/HeroWrapper";
 
 import { TableOfContents } from "./TableOfContents";
 import MarkdownLayoutContext from "./Context";
