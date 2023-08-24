@@ -20,13 +20,13 @@ jobs:
     name: Chromatic
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
         with:
           fetch-depth: 0
 
       - name: Get changed files
         id: changed_files
-        uses: tj-actions/changed-files@17f3fec1edef0c3916d59cbcee1585fcd457e456
+        uses: tj-actions/changed-files@1c26215f3fbd51eba03bc199e5cbabdfc3584ce3
 
       - name: List all changed files
         id: set_vars
@@ -73,7 +73,7 @@ jobs:
           reactions: rocket
           reactions-edit-mode: replace
 
-      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
         with:
           fetch-depth: 0 # need commit history for Chromatic
 
