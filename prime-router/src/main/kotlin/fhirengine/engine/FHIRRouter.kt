@@ -268,8 +268,8 @@ class FHIRRouter(
                 emptyList()
             )
 
-                // ensure tracking is set
-                actionHistory.trackCreatedReport(nextEvent, report)
+            // ensure tracking is set
+            actionHistory.trackCreatedReport(nextEvent, report)
 
             return emptyList()
         }

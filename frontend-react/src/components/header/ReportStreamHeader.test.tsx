@@ -7,7 +7,7 @@ import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
 import { RSSessionContext } from "../../contexts/SessionContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AccessTokenWithRSClaims } from "../../utils/OrganizationUtils";
-import { FeatureName } from "../../AppRouter";
+import { FeatureName } from "../../utils/FeatureName";
 
 import { ReportStreamHeader } from "./ReportStreamHeader";
 

@@ -1,0 +1,75 @@
+---
+title: Your single connection to simplify data transfer and improve public health
+subtitle: ReportStream is CDC’s free, interoperable platform for streamlining public health reporting. We navigate unique, complex requirements and work to make sure your data gets where it needs to be.
+callToAction:
+    - href: https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957
+      label: Connect now
+howWeHelp:
+    - title: How we help you
+      items:
+        - title: 1. Create a personalized plan to meet your unique public health data needs
+          summary: Our expert team works with your preferences to accept data in HL7, FHIR and CSV, and deliver data through multiple connection types.
+        - title: 2. Start sending or receiving data
+          summary: Through our secure, cloud-based platform, data is validated, routed and transformed to the correct jurisdictions in the correct formatting.
+        - title: 3. Stay updated on the status of your data
+          summary: Our <a href='/support/contact' class='usa-link'>expert support team</a> is on call and ready to solve any problems that arise.
+liveMapContact:
+    - title: Who is in our network
+      subTitle: Public health entities
+      summary: ReportStream works with organizations who need to report data and public health entities who need to receive data.
+      features:
+        - img: rs-live-stlt.svg
+          imgAlt: Map of the U.S. showing states and territories where ReportStream is currently live
+          linkInternal: /how-it-works/where-were-live
+      citation:
+        - title: More test results and improved interoperability
+          quote: All the people we worked with were competent and focused. I will commend the team as to how they have continued to onboard facilities and get those lab results to us timely.  Without it, we wouldn’t have received those reports at all; or, we would have had numerous pages of faxes. This initiative really improved our interoperability.
+          author: Monica Gamez
+          authorTitle: Deputy Associate Commissioner, Texas Department of State Health Services
+---
+import site from "../site.json";
+
+<HeroWrapper className="bg-primary-lighter">
+    <div className="grid-container">
+        {frontmatter.howWeHelp.map((section, sectionIndex) => {
+            return (
+                <ContentSection key={`home-${sectionIndex}`} {...section}>
+                    <div className="grid-row flex-justify-center margin-bottom-2">
+                        <A href={site.forms.connectWithRS.url} className="usa-button">Get started</A>
+                    </div>
+                </ContentSection>
+            );
+        })}
+    </div>
+</HeroWrapper>
+<HeroWrapper className="grid-container">
+    <section className="usa-section padding-bottom-0">
+        <h2 className="font-sans-xl margin-top-0">How it works</h2>
+        <p className="usa-intro margin-top-4">Our open-source platform aggregates and [securely delivers](/resources/security-practices) healthcare data test results from organizations and testing facilities directly to public health entities. Born in response to the COVID-19 pandemic, ReportStream is built to thrive and evolve within the complex environment of public health.</p>
+        <img
+            className="margin-top-8"
+            src="/assets/img/ReportStreamDiagram_2022.png"
+            alt="Organizations and testing facilities submit data, which ReportStream validates, augments and standardizes. Then, the data is routed as ReportStream determines the destination by subscription management. After this, it is transformed and transported to public health agencies in the desired data model and batch size."
+        />
+    </section>
+</HeroWrapper>
+<HeroWrapper className="grid-container">
+    {frontmatter.liveMapContact.map((section, sectionIndex) => {
+        return (
+            <LiveMap key={`livemap-${sectionIndex}`} className="usa-section margin-y-0 tablet:padding-bottom-9" {...section} />
+        );
+    })}
+</HeroWrapper>
+<HeroWrapper className="bg-primary-lighter">
+    <div className="grid-container">
+        <section className="usa-section">
+            <div className="grid-row flex-justify-center">
+                # Still exploring if ReportStream is right for you?
+                <p className="usa-intro">Our team will respond to your questions or set up a time to learn more about how we can help you.</p>
+            </div>
+            <div className="grid-row flex-justify-center margin-bottom-2">
+                <A href={site.forms.connectWithRS.url} className="usa-button">Connect with us</A>
+            </div>
+        </section>
+    </div>
+</HeroWrapper>
