@@ -90,7 +90,7 @@
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
     - topic: full-elr
       jurisdictionalFilter:
-        - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
+        - "(%performerState.exists() and %performerState = 'NY') or (%patientState.exists() and %patientState = 'NY')"
       qualityFilter:
         - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
   senders:
@@ -116,7 +116,7 @@
       organizationName: ignore
       topic: etor-ti
       customerStatus: active
-      schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      # schemaName: metadata/fhir_transforms/senders/default-sender-transform
       format: HL7
     - name: ignore-elr-elims      # Use this to test elr-elims
       organizationName: ignore
@@ -205,7 +205,7 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'NY') or (%patientState.exists() and %patientState = 'NY')" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -215,8 +215,8 @@
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
-        receivingApplicationName: "IG-ELR"
-        receivingFacilityName: "IG"
+        receivingApplicationName: "NY-ELR"
+        receivingFacilityName: "NY"
       transport:
         type: SFTP
         host: sftp
@@ -271,7 +271,7 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'NY') or (%patientState.exists() and %patientState = 'NY')" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute

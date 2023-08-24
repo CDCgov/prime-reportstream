@@ -59,49 +59,31 @@ elements:
         other: O
 
   #race
+  - name: patient-race-codeable-concept
+    condition: '%resource.exists()'
+    resource: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
+    constants:
+      cweFieldPath: '%{hl7PIDField}-10'
+    schema: datatype/ce-coded-with-exceptions
+
   - name: patient-race-identifier
     value:
-      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[0].code'
       - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("ombCategory").value.code'
     hl7Spec: [ '%{hl7PIDField}-10-1' ]
 
-  - name: patient-race-text
+  - name: patient-race-display
     value:
-      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[0].display'
-      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.text'
       - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("text").value'
       - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("ombCategory").value.display'
     hl7Spec: [ '%{hl7PIDField}-10-2' ]
 
   # this value just confirms that this segment part is HL7-Race
   - name: patient-race-coding-system
-    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").exists() or
-                %resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").exists()'
+    condition: '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").exists()'
     value:
       - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("ombCategory").value.system'
-      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[0].system'
       - '"HL70005"'
     hl7Spec: [ '%{hl7PIDField}-10-3' ]
-
-  - name: patient-race-alternate-identifier
-    value:
-      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[1].code'
-    hl7Spec: [ '%{hl7PIDField}-10-4' ]
-
-  - name: patient-race-alternate-text
-    value:
-      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[1].display'
-    hl7Spec: [ '%{hl7PIDField}-10-5' ]
-
-  - name: patient-race-alternate-system
-    value:
-      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[1].system'
-    hl7Spec: [ '%{hl7PIDField}-10-6' ]
-
-  - name: patient-race-coding-system-version
-    value: [ '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[0].version' ]
-    # use the index extensions from the base CWE handling
-    hl7Spec: [ '%{hl7PIDField}-10-7' ]
 
   - name: patient-address
     resource: '%resource.address'
