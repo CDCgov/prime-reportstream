@@ -318,3 +318,10 @@ main {
 .usa-link--external::after {
     @include u-margin-left(0.5);
 }
+
+.usa-prose {
+    /* Do not apply uswds measure on paragraphs (allow to be full-width) */
+    & > p {
+        max-width: unset;
+    }
+}
