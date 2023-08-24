@@ -71,7 +71,7 @@ class LoginCommand : OktaCommand(
 
     private val useApiKey by option(
         "--useApiKey",
-        help = "Enable to sign in to Okta via an Api request instead of a login page"
+        help = "Enable to sign in to Okta via an API key instead of a login page"
     ).flag(default = false)
 
     private val forceRefreshToken by option(
