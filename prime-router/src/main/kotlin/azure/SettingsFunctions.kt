@@ -17,15 +17,18 @@ import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
 
 /*
- * Organizations API
+ * Organization Settings API
  */
-
-class GetOrganizations(
+class SettingsFunction(
     settingsFacade: SettingsFacade = SettingsFacade.common
-) :
-    BaseFunction(settingsFacade) {
+) : BaseFunction(settingsFacade) {
+    /**
+     * Get a full list of organizations and their settings.
+     * @param request Incoming http request
+     * @return HttpResponseMessage resulting json or HTTP error response
+     */
     @FunctionName("getOrganizations")
-    fun run(
+    fun getOrganizations(
         @HttpTrigger(
             name = "getOrganizations",
             methods = [HttpMethod.GET, HttpMethod.HEAD],
@@ -39,14 +42,15 @@ class GetOrganizations(
             else -> error("Unsupported method")
         }
     }
-}
 
-class GetOneOrganization(
-    settingsFacade: SettingsFacade = SettingsFacade.common
-) :
-    BaseFunction(settingsFacade) {
+    /**
+     * Get settings for the given organization.
+     * @param request Incoming http request
+     * @param organizationName Organization to get settings for
+     * @return HttpResponseMessage resulting json or HTTP error response
+     */
     @FunctionName("getOneOrganization")
-    fun run(
+    fun getOneOrganization(
         @HttpTrigger(
             name = "getOneOrganization",
             methods = [HttpMethod.GET],
@@ -57,14 +61,15 @@ class GetOneOrganization(
     ): HttpResponseMessage {
         return getOne(request, organizationName, OrganizationAPI::class.java, organizationName)
     }
-}
 
-class UpdateOrganization(
-    settingsFacade: SettingsFacade = SettingsFacade.common
-) :
-    BaseFunction(settingsFacade) {
+    /**
+     * TODO
+     * @param request Incoming http request
+     * @param organizationName Organization to update settings for
+     * @return HttpResponseMessage resulting json or HTTP error response
+     */
     @FunctionName("updateOneOrganization")
-    fun run(
+    fun updateOneOrganization(
         @HttpTrigger(
             name = "updateOneOrganization",
             methods = [HttpMethod.DELETE, HttpMethod.PUT],
@@ -79,17 +84,15 @@ class UpdateOrganization(
             OrganizationAPI::class.java
         )
     }
-}
 
-/**
- * Sender APIs
- */
-class GetSenders(
-    settingsFacade: SettingsFacade = SettingsFacade.common
-) :
-    BaseFunction(settingsFacade) {
+    /**
+     * TODO
+     * @param request Incoming http request
+     * @param organizationName Organization to get senders for
+     * @return HttpResponseMessage resulting json or HTTP error response
+     */
     @FunctionName("getSenders")
-    fun run(
+    fun getSenders(
         @HttpTrigger(
             name = "getSenders",
             methods = [HttpMethod.GET],
@@ -100,14 +103,16 @@ class GetSenders(
     ): HttpResponseMessage {
         return getList(request, Sender::class.java, organizationName)
     }
-}
 
-class GetOneSender(
-    settingsFacade: SettingsFacade = SettingsFacade.common
-) :
-    BaseFunction(settingsFacade) {
+    /**
+     * TODO
+     * @param request Incoming http request
+     * @param organizationName Organization in which to look for the sender
+     * @param senderName
+     * @return HttpResponseMessage resulting json or HTTP error response
+     */
     @FunctionName("getOneSender")
-    fun run(
+    fun getOneSender(
         @HttpTrigger(
             name = "getOneSender",
             methods = [HttpMethod.GET],
@@ -119,14 +124,16 @@ class GetOneSender(
     ): HttpResponseMessage {
         return getOne(request, senderName, Sender::class.java, organizationName)
     }
-}
 
-class UpdateSender(
-    settingsFacade: SettingsFacade = SettingsFacade.common
-) :
-    BaseFunction(settingsFacade) {
+    /**
+     * TODO
+     * @param request Incoming http request
+     * @param organizationName Organization in which to look for the sender
+     * @param senderName
+     * @return HttpResponseMessage resulting json or HTTP error response
+     */
     @FunctionName("updateOneSender")
-    fun run(
+    fun updateOneSender(
         @HttpTrigger(
             name = "updateOneSender",
             methods = [HttpMethod.DELETE, HttpMethod.PUT],
@@ -143,18 +150,15 @@ class UpdateSender(
             organizationName
         )
     }
-}
 
-/**
- * Receiver APIS
- */
-
-class GetReceiver(
-    settingsFacade: SettingsFacade = SettingsFacade.common
-) :
-    BaseFunction(settingsFacade) {
+    /**
+     * TODO
+     * @param request Incoming http request
+     * @param organizationName Organization to get receivers for
+     * @return HttpResponseMessage resulting json or HTTP error response
+     */
     @FunctionName("getReceivers")
-    fun run(
+    fun getReceivers(
         @HttpTrigger(
             name = "getReceivers",
             methods = [HttpMethod.GET],
@@ -165,14 +169,16 @@ class GetReceiver(
     ): HttpResponseMessage {
         return getList(request, ReceiverAPI::class.java, organizationName)
     }
-}
 
-class GetOneReceiver(
-    settingsFacade: SettingsFacade = SettingsFacade.common
-) :
-    BaseFunction(settingsFacade) {
+    /**
+     * TODO
+     * @param request Incoming http request
+     * @param organizationName Organization in which to look for the receiver
+     * @param receiverName
+     * @return HttpResponseMessage resulting json or HTTP error response
+     */
     @FunctionName("getOneReceiver")
-    fun run(
+    fun getOneReceiver(
         @HttpTrigger(
             name = "getOneReceiver",
             methods = [HttpMethod.GET],
@@ -184,14 +190,16 @@ class GetOneReceiver(
     ): HttpResponseMessage {
         return getOne(request, receiverName, ReceiverAPI::class.java, organizationName)
     }
-}
 
-class UpdateReceiver(
-    settingsFacade: SettingsFacade = SettingsFacade.common
-) :
-    BaseFunction(settingsFacade) {
+    /**
+     * TODO
+     * @param request Incoming http request
+     * @param organizationName Organization in which to look for the receiver
+     * @param receiverName
+     * @return HttpResponseMessage resulting json or HTTP error response
+     */
     @FunctionName("updateOneReceiver")
-    fun run(
+    fun updateOneReceiver(
         @HttpTrigger(
             name = "updateOneReceiver",
             methods = [HttpMethod.DELETE, HttpMethod.PUT],
@@ -208,31 +216,26 @@ class UpdateReceiver(
             organizationName
         )
     }
-}
 
-/**
- * Get a history of revisions for an Org's settings (by type).
- * It includes all the Setting data for the full history to enable
- * quick client diffs across revisions.
- *
- * Type returned depends on the request settingSelector parameter.
- * ALL named settings are return and the caller must group accordingly.
- * Return ALL names solves the problem where knowing a deleted name become impossible
- *
- * From the OpenAPI view, this is just 3 different api calls
- *   `settings/revision/organizations/{organizationName}/sender`
- *   `settings/revision/organizations/{organizationName}/receiver`
- *   `settings/revision/organizations/{organizationName}/organization`
- *   @param settingsFacade Same pattern as the rest of the funs in this module
- *   @param oktaAuthentication Default to require org admin, caller can override
- *   @return Spring HttpTrigger call
- */
-class GetSettingRevisionHistory(
-    settingsFacade: SettingsFacade = SettingsFacade.common
-) :
-    BaseFunction(settingsFacade) {
+    /**
+     * Get a history of revisions for an organization's settings (by type).
+     * It includes all the Setting data for the full history to enable
+     * quick client diffs across revisions.
+     *
+     * Type returned depends on the request settingSelector parameter.
+     * ALL named settings are return and the caller must group accordingly.
+     * Return ALL names solves the problem where knowing a deleted name become impossible
+     *
+     * From the OpenAPI view, this is just 3 different api calls
+     *   `settings/revision/organizations/{organizationName}/sender`
+     *   `settings/revision/organizations/{organizationName}/receiver`
+     *   `settings/revision/organizations/{organizationName}/organization`
+     * @param organizationName Organization in which to look for the receiver
+     * @param settingSelector
+     * @return HttpResponseMessage resulting json or HTTP error response
+     */
     @FunctionName("getSettingRevisionHistory")
-    fun run(
+    fun getSettingRevisionHistory(
         @HttpTrigger(
             name = "getSettingRevisionHistory",
             methods = [HttpMethod.GET],
@@ -242,12 +245,12 @@ class GetSettingRevisionHistory(
         @BindingName("organizationName") organizationName: String,
         @BindingName("settingSelector") settingSelector: String
     ): HttpResponseMessage {
-        try {
+        return try {
             // verify the settingsTypeString is in the allowed setting enumeration.
             val settingType = SettingType.valueOf(settingSelector.uppercase())
-            return getListHistory(request, organizationName, settingType)
+            getListHistory(request, organizationName, settingType)
         } catch (e: EnumConstantNotPresentException) {
-            return HttpUtilities.badRequestResponse(request, "Invalid setting selector parameter")
+            HttpUtilities.badRequestResponse(request, "Invalid setting selector parameter")
         }
     }
 }
@@ -255,16 +258,12 @@ class GetSettingRevisionHistory(
 /**
  * Common Settings API
  */
-
 open class BaseFunction(
     private val facade: SettingsFacade
 ) : Logging {
-    private val missingAuthorizationHeader = HttpUtilities.errorJson("Missing Authorization Header")
-    private val invalidClaim = HttpUtilities.errorJson("Invalid Authorization Header")
-
     /**
      * Gets the list of settings for a given organization
-     * @param request Http request
+     * @param request Incoming http request
      * @param clazz The class used to convert to Json
      * @param organizationName Organization to get settings for
      * @return HttpResponseMessage resulting json or HTTP error response
@@ -316,6 +315,11 @@ open class BaseFunction(
         return HttpUtilities.okResponse(request, settings, facade.getLastModified())
     }
 
+    /**
+     * TODO
+     * @param request Incoming http request
+     * @return HttpResponseMessage resulting json or HTTP error response
+     */
     fun getHead(
         request: HttpRequestMessage<String?>
     ): HttpResponseMessage {
@@ -327,7 +331,7 @@ open class BaseFunction(
 
     /**
      * Return a single setting. Separated from http request for testability reasons
-     * @param request Http request
+     * @param request Incoming http request
      * @param settingName Name column in Setting table to match
      * @param clazz The class used to convert to Json
      * @return HttpResponseMessage The resulting json or HTTP error response
@@ -354,6 +358,16 @@ open class BaseFunction(
         }
     }
 
+    /**
+     * TODO
+     *
+     * @param T
+     * @param request Incoming http request
+     * @param settingName
+     * @param clazz
+     * @param organizationName
+     * @return HttpResponseMessage resulting json or HTTP error response
+     */
     fun <T : SettingAPI> updateOne(
         request: HttpRequestMessage<String?>,
         settingName: String,
@@ -382,6 +396,14 @@ open class BaseFunction(
         return facadeResultToResponse(request, result, outputBody)
     }
 
+    /**
+     * TODO
+     *
+     * @param request Incoming http request
+     * @param result
+     * @param outputBody
+     * @return HttpResponseMessage resulting json or HTTP error response
+     */
     private fun facadeResultToResponse(
         request: HttpRequestMessage<String?>,
         result: SettingsFacade.AccessResult,
@@ -395,5 +417,11 @@ open class BaseFunction(
         }
     }
 
+    /**
+     * TODO
+     *
+     * @param message
+     * @return
+     */
     private fun errorJson(message: String): String = HttpUtilities.errorJson(message)
 }
