@@ -113,6 +113,14 @@ elements:
   - name: observation-result-with-aoe
     resource: '%resource.result.resolve()'
 
+  # OBX CWE-CE
+  - name: observation-identifier-code
+    condition: false
+
+  # OBR-4
+  - name: universal-service
+    condition: false
+
 
   # California requirement: move order notes and observation notes to last observation
   # suppressing default mapping for notes

@@ -11,15 +11,15 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.ProcessEvent
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.Tables
-import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import org.hl7.fhir.r4.model.Bundle
+import org.jooq.Field
+import java.time.OffsetDateTime
 
 /**
  * Process a message off of the raw-elr azure queue, convert it into FHIR, and store for next step.
@@ -34,9 +34,11 @@ class FHIRConverter(
     settings: SettingsProvider = this.settingsProviderSingleton,
     db: DatabaseAccess = this.databaseAccessSingleton,
     blob: BlobAccess = BlobAccess(),
-    queue: QueueAccess = QueueAccess
-) : FHIREngine(metadata, settings, db, blob, queue) {
+) : FHIREngine(metadata, settings, db, blob) {
 
+    override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT
+
+    override val engineType: String = "Convert"
     /**
      * Accepts a [message] in either HL7 or FHIR format
      * HL7 messages will be converted into FHIR.
@@ -49,7 +51,7 @@ class FHIRConverter(
         message: RawSubmission,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory
-    ) {
+    ): List<FHIREngineRunResult> {
         val format = Report.getFormatFromBlobURL(message.blobURL)
         logger.trace("Processing $format data for FHIR conversion.")
         val fhirBundles = when (format) {
@@ -57,15 +59,11 @@ class FHIRConverter(
             Report.Format.FHIR -> getContentFromFHIR(message, actionLogger)
             else -> throw NotImplementedError("Invalid format $format ")
         }
-
         if (fhirBundles.isNotEmpty()) {
             logger.debug("Generated ${fhirBundles.size} FHIR bundles.")
             actionHistory.trackExistingInputReport(message.reportId)
             val transformer = getTransformerFromSchema(message.schemaName)
-            // operate on each fhir bundle
-            var bundleIndex = 1
-            val messagesToSend = mutableListOf<RawSubmission>()
-            for (bundle in fhirBundles) {
+            return fhirBundles.mapIndexed { bundleIndex, bundle ->
                 // conduct FHIR Transform
                 transformer?.transform(bundle)
 
@@ -86,7 +84,7 @@ class FHIRConverter(
                     ItemLineage(
                         null,
                         message.reportId,
-                        bundleIndex++,
+                        bundleIndex,
                         report.id,
                         1,
                         null,
@@ -116,27 +114,12 @@ class FHIRConverter(
                 )
 
                 // track created report
-                actionHistory.trackCreatedReport(routeEvent, report, blobInfo)
+                actionHistory.trackCreatedReport(routeEvent, report, blobInfo = blobInfo)
 
-                // insert task
-                this.insertRouteTask(
+                FHIREngineRunResult(
+                    routeEvent,
                     report,
-                    report.bodyFormat.toString(),
                     blobInfo.blobUrl,
-                    routeEvent
-                )
-
-                // nullify the previous task next_action
-                db.updateTask(
-                    message.reportId,
-                    TaskAction.none,
-                    null,
-                    null,
-                    finishedField = Tables.TASK.PROCESSED_AT,
-                    null
-                )
-
-                messagesToSend.add(
                     RawSubmission(
                         report.id,
                         blobInfo.blobUrl,
@@ -146,14 +129,8 @@ class FHIRConverter(
                     )
                 )
             }
-            messagesToSend.forEach {
-                this.queue.sendMessage(
-                    elrRoutingQueueName,
-                    it.serialize(),
-                    this.queueVisibilityTimeout
-                )
-            }
         }
+        return emptyList()
     }
 
     /**

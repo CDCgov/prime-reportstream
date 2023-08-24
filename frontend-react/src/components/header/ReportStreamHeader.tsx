@@ -1,4 +1,3 @@
-import { useOktaAuth } from "@okta/okta-react";
 import React, { useState } from "react";
 import {
     Header,
@@ -6,16 +5,13 @@ import {
     PrimaryNav,
     Title,
 } from "@trussworks/react-uswds";
-import { NetworkErrorBoundary } from "rest-hooks";
 import classnames from "classnames";
 
-import { permissionCheck, PERMISSIONS } from "../../utils/PermissionsUtils";
 import { ReactComponent as RightLeftArrows } from "../../content/right-left-arrows.svg";
 import { useSessionContext } from "../../contexts/SessionContext";
-import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
 import { USLink, USNavLink } from "../USLink";
-import { FeatureName } from "../../AppRouter";
+import { FeatureName } from "../../utils/FeatureName";
 
 import { SignInOrUser } from "./SignInOrUser";
 import { AdminDropdown } from "./DropdownNav";
@@ -40,65 +36,57 @@ const SupportIA = () => (
     </USNavLink>
 );
 
-type ReportStreamHeaderProps = {
-    children: React.ReactNode;
-    className?: string;
-};
+export interface ReportStreamHeaderProps
+    extends React.PropsWithChildren<React.HTMLAttributes<HTMLElement>> {}
 
 export const ReportStreamHeader = ({
     children,
     className,
+    ...props
 }: ReportStreamHeaderProps) => {
-    const { authState } = useOktaAuth();
-    const { activeMembership, isAdminStrictCheck } = useSessionContext();
+    const {
+        activeMembership,
+        isAdminStrictCheck,
+        isUserAdmin,
+        isUserReceiver,
+        isUserSender,
+    } = useSessionContext();
     const [expanded, setExpanded] = useState(false);
     let itemsMenu = [<ProductIA />, <ResourcesIA />, <SupportIA />];
 
     const toggleMobileNav = (): void =>
         setExpanded((prvExpanded) => !prvExpanded);
 
-    if (authState && authState.isAuthenticated && authState.accessToken) {
-        /* RECEIVERS ONLY */
-        if (
-            activeMembership?.memberType === MemberType.RECEIVER ||
-            activeMembership?.memberType === MemberType.PRIME_ADMIN
-        ) {
-            itemsMenu.push(
-                <USNavLink
-                    href="/daily-data"
-                    key="daily"
-                    data-attribute="hidden"
-                >
-                    <span>{FeatureName.DAILY_DATA}</span>
-                </USNavLink>,
-            );
-        }
+    /* RECEIVERS ONLY */
+    if (isUserReceiver || isUserAdmin) {
+        itemsMenu.push(
+            <USNavLink href="/daily-data" key="daily" data-attribute="hidden">
+                <span>{FeatureName.DAILY_DATA}</span>
+            </USNavLink>,
+        );
+    }
 
-        /* SENDERS ONLY */
-        if (
-            activeMembership?.memberType === MemberType.SENDER ||
-            activeMembership?.memberType === MemberType.PRIME_ADMIN
-        ) {
-            itemsMenu.push(
-                <USNavLink href="/upload" key="upload" data-attribute="hidden">
-                    <span>{FeatureName.UPLOAD}</span>
-                </USNavLink>,
-                <USNavLink
-                    href="/submissions"
-                    key="submissions"
-                    data-attribute="hidden"
-                >
-                    <span>{FeatureName.SUBMISSIONS}</span>
-                </USNavLink>,
-            );
-        }
+    /* SENDERS ONLY */
+    if (isUserSender || isUserAdmin) {
+        itemsMenu.push(
+            <USNavLink href="/upload" key="upload" data-attribute="hidden">
+                <span>{FeatureName.UPLOAD}</span>
+            </USNavLink>,
+            <USNavLink
+                href="/submissions"
+                key="submissions"
+                data-attribute="hidden"
+            >
+                <span>{FeatureName.SUBMISSIONS}</span>
+            </USNavLink>,
+        );
+    }
 
-        /* ADMIN ONLY (hard check)
+    /* ADMIN ONLY (hard check)
           Build a drop-down for file handler links
         */
-        if (isAdminStrictCheck) {
-            itemsMenu.push(<AdminDropdown />);
-        }
+    if (isAdminStrictCheck) {
+        itemsMenu.push(<AdminDropdown />);
     }
 
     return (
@@ -108,6 +96,7 @@ export const ReportStreamHeader = ({
                 "border-bottom-1px border-base-lighter",
                 className,
             )}
+            {...props}
         >
             {children}
             <div className="usa-nav-container">
@@ -140,33 +129,22 @@ export const ReportStreamHeader = ({
                      This needs to be directly checking the token for admin permissions because
                      an admin with an active membership that is NOT an admin membership type still
                      needs to be able to see and use this */}
-                    {permissionCheck(
-                        PERMISSIONS.PRIME_ADMIN,
-                        authState?.accessToken,
-                    ) ? (
-                        <NetworkErrorBoundary
-                            fallbackComponent={() => (
-                                <select>
-                                    <option>Network error</option>
-                                </select>
-                            )}
+                    {isUserAdmin ? (
+                        <USLink
+                            href={`/admin/settings`}
+                            className="usa-button usa-button--outline usa-button--small padding-1"
                         >
-                            <USLink
-                                href={`/admin/settings`}
-                                className="usa-button usa-button--outline usa-button--small padding-1"
-                            >
-                                <span className="usa-breadcrumb padding-left-2 text-semibold text-no-wrap">
-                                    {activeMembership?.parsedName || ""}
-                                    <RightLeftArrows
-                                        aria-hidden="true"
-                                        role="img"
-                                        className="rs-fa-right-left-icon padding-x-1 padding-top-1 text-primary-vivid"
-                                        width={"3em"}
-                                        height={"2em"}
-                                    />
-                                </span>
-                            </USLink>
-                        </NetworkErrorBoundary>
+                            <span className="usa-breadcrumb padding-left-2 text-semibold text-no-wrap">
+                                {activeMembership?.parsedName || ""}
+                                <RightLeftArrows
+                                    aria-hidden="true"
+                                    role="img"
+                                    className="rs-fa-right-left-icon padding-x-1 padding-top-1 text-primary-vivid"
+                                    width={"3em"}
+                                    height={"2em"}
+                                />
+                            </span>
+                        </USLink>
                     ) : null}
                     <SignInOrUser />
                 </PrimaryNav>

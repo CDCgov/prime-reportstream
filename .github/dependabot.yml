@@ -179,24 +179,113 @@ updates:
     directory: "/operations"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "docker"
-    directory: "/.devcocntainer"
+
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/app_service_plan"
     schedule:
       interval: "weekly"
   - package-ecosystem: "terraform"
-    directory: "/operations/app/src/environments/dev"
+    directory: "/operations/app/terraform/modules/application_insights"
     schedule:
       interval: "weekly"
   - package-ecosystem: "terraform"
-    directory: "/operations/app/src/environments/test"
+    directory: "/operations/app/terraform/modules/azure_dashboard"
     schedule:
       interval: "weekly"
   - package-ecosystem: "terraform"
-    directory: "/operations/app/src/environments/staging"
+    directory: "/operations/app/terraform/modules/chatops"
     schedule:
       interval: "weekly"
   - package-ecosystem: "terraform"
-    directory: "/operations/app/src/environments/prod"
+    directory: "/operations/app/terraform/modules/common/private_endpoint"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/common/sftp"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/common/vnet_dns_zones"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/container_registry"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/data_factory"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/database"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/front_door"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/function_app"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/init"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/init/subnets"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/key_vault"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/log_analytics_workspace"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/metabase"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/nat_gateway"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/network"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/sftp"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/sftp_container"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/ssh"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/storage"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/vars/demo"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/vars/prod"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/vars/staging"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/vars/test"
     schedule:
       interval: "weekly"
 
