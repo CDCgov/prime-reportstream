@@ -347,7 +347,9 @@ data class OktaConfig(
     fun init(oktaApp: OktaCommand.OktaApp) {
         baseUrl = oktaBaseUrls[oktaApp] ?: error("Invalid app - Okta url")
         clientId = clientIds[oktaApp] ?: error("Invalid app")
-        authKey = System.getenv("OKTA_authKey")
+
+        val envAuthKey = System.getenv("OKTA_authKey")
+        if (envAuthKey != null) authKey = envAuthKey
     }
 
     /**
