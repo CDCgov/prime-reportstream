@@ -6,3 +6,4 @@ export * from "./HeroWrapper/HeroWrapper";
 export * from "./ContentSection/ContentSection";
 export * from "./Tile/Tile";
 export * from "./LiveMap/LiveMap";
+export * from "./Blockquote/Blockquote";

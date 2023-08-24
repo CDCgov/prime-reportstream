@@ -318,3 +318,35 @@ main {
 .usa-link--external::after {
     @include u-margin-left(0.5);
 }
+
+/* custom blockquote from design */
+blockquote {
+    @include u-margin-x(0);
+    @include u-padding(1.5);
+    @include u-border-left("primary-darker");
+    // 6 px
+    border-left-width: calc(#{units("05")} + #{units(2px)});
+    @include set-text-and-bg(
+        $theme-summary-box-background-color,
+        $theme-summary-box-text-color,
+        $context: "blockquote"
+    );
+    @include u-font("sans", "lg");
+
+    footer {
+        @include u-font("sans", "md");
+        font-weight: bold;
+
+        cite {
+            display: block;
+            font-weight: initial;
+        }
+    }
+}
+
+.usa-prose {
+    /* Do not apply uswds measure on paragraphs (allow to be full-width) */
+    & > p {
+        max-width: unset;
+    }
+}
