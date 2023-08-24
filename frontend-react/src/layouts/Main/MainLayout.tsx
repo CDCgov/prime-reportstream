@@ -1,17 +1,13 @@
-import { GovBanner } from "@trussworks/react-uswds";
 import classNames from "classnames";
 import { Outlet, useMatches } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import React from "react";
 
 import App from "../../App";
-import { DAPHeader } from "../../components/header/DAPHeader";
-import { ReportStreamHeader } from "../../components/header/ReportStreamHeader";
 import RSErrorBoundary from "../../components/RSErrorBoundary";
-import SenderModeBanner from "../../components/SenderModeBanner";
-import { USLink } from "../../components/USLink";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { ReportStreamFooter } from "../../shared/ReportStreamFooter/ReportStreamFooter";
+import { ReportStreamNavbar } from "../../components/navbar/ReportStreamNavbar";
 
 const ArticleWrapper = (props: React.PropsWithChildren) => {
     return (
@@ -42,14 +38,15 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
                 isFullWidth && "rs-style--alternate",
             )}
         >
-            <ReportStreamHeader className="margin-bottom-5" id="site-header">
+            {/* <ReportStreamHeader className="margin-bottom-5" id="site-header">
                 <DAPHeader env={environment} />
                 <USLink className="usa-skipnav" href="#main-content">
                     Skip Nav
                 </USLink>
                 <GovBanner aria-label="Official government website" />
                 <SenderModeBanner />
-            </ReportStreamHeader>
+            </ReportStreamHeader> */}
+            <ReportStreamNavbar blueVariant={isFullWidth} />
             <OuterWrapper>
                 <InnerWrapper>
                     <RSErrorBoundary>

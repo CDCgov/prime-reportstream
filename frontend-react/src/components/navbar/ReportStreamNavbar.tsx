@@ -61,61 +61,21 @@ export const ReportStreamNavbar = ({
         );
     };
     const menuItems = [
-        <Dropdown
-            menuName="About"
-            dropdownList={[
-                <a href="#linkOne" key="one">
-                    Current link
-                </a>,
-                <a href="#linkTwo" key="two">
-                    Simple link Two
-                </a>,
-            ]}
-        />,
-        <Dropdown
-            menuName="Getting started"
-            dropdownList={[
-                <a href="#linkOne" key="one">
-                    Current link
-                </a>,
-                <a href="#linkTwo" key="two">
-                    Simple link Two
-                </a>,
-            ]}
-        />,
-        <Dropdown
-            menuName="Developers"
-            dropdownList={[
-                <a href="#linkOne" key="one">
-                    Current link
-                </a>,
-                <a href="#linkTwo" key="two">
-                    Simple link Two
-                </a>,
-            ]}
-        />,
-        <Dropdown
-            menuName="Your connection"
-            dropdownList={[
-                <a href="#linkOne" key="one">
-                    Current link
-                </a>,
-                <a href="#linkTwo" key="two">
-                    Simple link Two
-                </a>,
-            ]}
-        />,
-        <Dropdown
-            menuName="Support"
-            dropdownList={[
-                <a href="#linkOne" key="one">
-                    Current link
-                </a>,
-                <a href="#linkTwo" key="two">
-                    Simple link Two
-                </a>,
-            ]}
-        />,
+        <div className="primary-nav-link-container">
+            <a className="primary-nav-link" href="/product" key="product">
+                Product
+            </a>
+        </div>,
+        <div className="primary-nav-link-container">
+            <a className="primary-nav-link" href="/resources" key="resources">
+                Resources
+            </a>
+        </div>,
+        <div className="primary-nav-link-container">
+            <a className="primary-nav-link" href="/support" key="support">
+                Support
+            </a>
+        </div>,
     ];
     return (
         <>
