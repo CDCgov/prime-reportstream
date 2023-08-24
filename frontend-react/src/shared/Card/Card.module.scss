@@ -4,8 +4,8 @@
  * Allows for Card Groups and Cards
  * with differing style expectations
  */
-.rs-hero-wrapper--alternate {
-    :global(.usa-card__header ) {
+.usa-card--alternate {
+    :global(.usa-card__header) {
         @include u-padding-left(0);
     }
     :global(.usa-card__heading) {
