@@ -60,7 +60,7 @@ jobs:
       sink_backup_storage: ${{ env.SINK_BACKUP_STORAGE }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
 
       - name: Set env variables
         shell: bash
@@ -137,7 +137,7 @@ jobs:
        backup_age_valid: ${{ env.BACKUP_AGE_VALID }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
 
       - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
         with:
@@ -225,7 +225,7 @@ jobs:
       sink_db_server: ${{ needs.pre_job.outputs.sink_db_server }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
 
       - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
         with:
