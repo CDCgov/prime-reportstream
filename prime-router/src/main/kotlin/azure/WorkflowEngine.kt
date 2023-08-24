@@ -33,6 +33,9 @@ import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
 import gov.cdc.prime.router.transport.SoapTransport
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
@@ -47,6 +50,7 @@ import java.time.OffsetDateTime
  * @see DatabaseAccess.Header
  */
 class WorkflowEngine(
+
     val metadata: Metadata = Metadata.getInstance(),
     val settings: SettingsProvider = settingsProviderSingleton,
     val hl7Serializer: Hl7Serializer = hl7SerializerSingleton,
@@ -647,13 +651,18 @@ class WorkflowEngine(
             val (organization, receiver) = findOrganizationAndReceiver(messageEvent.receiverName, txn)
             // This check is needed as long as TASK does not FK to REPORT_FILE.  @todo FK TASK to REPORT_FILE
             ActionHistory.sanityCheckReports(tasks, reportFiles, false)
-            val headers = tasks.mapNotNull {
-                if (reportFiles[it.reportId] != null) {
-                    createHeader(it, reportFiles[it.reportId]!!, null, organization, receiver)
-                } else {
-                    null
-                }
-            }
+
+            val headers = runBlocking {
+                tasks.mapNotNull {
+                    async {
+                        if (reportFiles[it.reportId] != null) {
+                            createHeader(it, reportFiles[it.reportId]!!, null, organization, receiver)
+                        } else {
+                            null
+                        }
+                    }
+                }.awaitAll()
+            }.filterNotNull()
 
             updateBlock(headers, txn)
             // Here we iterate through the original tasks, rather than headers.
