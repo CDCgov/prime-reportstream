@@ -14,7 +14,7 @@ export type PageHeaderProps = React.PropsWithChildren<
     } & React.HTMLAttributes<HTMLElement>
 >;
 
-export default function PageHeader({
+export function PageHeader({
     title,
     breadcrumbs,
     subtitleArr,
@@ -60,3 +60,5 @@ export default function PageHeader({
         </header>
     );
 }
+
+export default PageHeader;

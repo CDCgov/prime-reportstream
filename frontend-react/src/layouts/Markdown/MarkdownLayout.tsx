@@ -156,8 +156,8 @@ export function MarkdownLayout({
                 >
                     {isHeader &&
                         (isFullWidth ? (
-                            <HeroWrapper isAlternate>
-                                <PageHeader
+                            <shared.HeroWrapper isAlternate>
+                                <shared.PageHeader
                                     title={title}
                                     breadcrumbs={breadcrumbs}
                                     subtitleArr={subtitleArr}
@@ -165,9 +165,9 @@ export function MarkdownLayout({
                                     lastUpdated={lastUpdated}
                                     className="usa-section grid-container"
                                 />
-                            </HeroWrapper>
+                            </shared.HeroWrapper>
                         ) : (
-                            <PageHeader
+                            <shared.PageHeader
                                 title={title}
                                 breadcrumbs={breadcrumbs}
                                 subtitleArr={subtitleArr}
