@@ -167,6 +167,72 @@ class FhirTransformerTests {
     }
 
     @Test
+    fun `test check for duplicates only checks one nested schema deep`() {
+        // check for dupes in various scenarios:
+        // root -> A -> C -> D
+        //           -> B -> D
+        val schemaD = FhirTransformSchema(
+            elements = mutableListOf(
+                FhirTransformSchemaElement(
+                    "elementD",
+                    value = listOf("'654321'"),
+                    bundleProperty = "%resource.id"
+                )
+            )
+        )
+
+        val schemaB = FhirTransformSchema(
+            elements = mutableListOf(
+                FhirTransformSchemaElement(
+                    "elementB",
+                    schema = "elementD",
+                    schemaRef = schemaD
+                )
+            )
+        )
+
+        val schemaC = FhirTransformSchema(
+            elements = mutableListOf(
+                FhirTransformSchemaElement(
+                    "elementB",
+                    schema = "elementD",
+                    schemaRef = schemaD
+                )
+            )
+        )
+
+        val schemaA = FhirTransformSchema(
+            elements = mutableListOf(
+                FhirTransformSchemaElement(
+                    "elementA-1",
+                    schema = "elementB",
+                    schemaRef = schemaB
+                ),
+                FhirTransformSchemaElement(
+                    "elementA-2",
+                    schema = "elementC",
+                    schemaRef = schemaC
+                )
+            )
+        )
+        val rootSchema = FhirTransformSchema(
+            elements = mutableListOf(
+                FhirTransformSchemaElement(
+                    "element-A",
+                    schema = "elementA",
+                    schemaRef = schemaA
+                )
+            )
+        )
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        // This asserts that
+        // https://github.com/CDCgov/prime-reportstream/blob/e60a3d59d630d6eff690b98b8d49784ccf1fcdf1/prime-router/src/main/kotlin/fhirengine/translation/hl7/schema/ConfigSchema.kt#L52
+        // only checks for duplicates nested twice
+        assertThat(FhirTransformer(rootSchema).transform(bundle).isEmpty).isFalse()
+    }
+
+    @Test
     fun `test transform deeper property`() {
         val bundle = Bundle()
         bundle.id = "abc123"
