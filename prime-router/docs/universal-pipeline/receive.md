@@ -1,4 +1,4 @@
-# Receive
+# Universal Pipeline Receive Step
 
 
 The UP can receive data in either HL7 or FHIR. We are planning to support CSV in the future.
