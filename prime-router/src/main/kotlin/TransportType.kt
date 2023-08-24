@@ -123,7 +123,7 @@ data class RESTTransportType
     val parameters: Map<String, String> = emptyMap(),
     /** [headers] The map of headers to be sent in the message */
     val headers: Map<String, String>,
-    // content type of the report to be posted (generally either text/plan or application/json)
+    // content type of the report to be posted (generally either text/plain or application/json)
     val reportContentType: String = ContentType.Text.Plain.toString(),
 ) : TransportType("REST") {
     override fun toString(): String = "apiUrl=$reportUrl"
