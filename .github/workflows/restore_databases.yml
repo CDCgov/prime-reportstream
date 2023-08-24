@@ -315,6 +315,7 @@ jobs:
       # Remove runner db access
       - name: Remove db access
         if: always() && steps.add-db-access.outcome == 'success'
+        continue-on-error: true
         shell: bash
         run: |
           az postgres server firewall-rule delete -g ${{ env.sink_resource_group }} -s ${{ env.sink_db_server }} -n github_actions_runner --yes

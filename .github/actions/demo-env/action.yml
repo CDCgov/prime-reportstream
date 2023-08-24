@@ -161,12 +161,12 @@ runs:
       with:
         owner: CDCgov
         repo: prime-reportstream
-        ref: master
+        ref: josiahsiegel/update/demoenv
         github_token: ${{ inputs.github-token }}
         workflow_file_name: restore_databases.yml
         wait_interval: 120
         client_payload: '{ "backup_from":"${{ inputs.backup-from }}", "restore_to":"${{ inputs.env-name }}", "backup_age_limit_mins":"${{ inputs.backup-age-limit }}", "restore_ignore_backup_age":"true"}'
-        propagate_failure: true
+        propagate_failure: false
         trigger_workflow: true
         wait_workflow: true
 
