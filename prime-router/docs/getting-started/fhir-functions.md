@@ -38,7 +38,7 @@ FHIRPath can be verbose and challenging for a user that is not familiar with FHI
   </tr>
 </table>
 
-This how the shorthands would be used in receiver settings:
+This is how the shorthands would be used in receiver settings:
 
 ```yaml
 jurisdictionalFilter:
