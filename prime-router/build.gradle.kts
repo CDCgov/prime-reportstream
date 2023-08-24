@@ -709,6 +709,7 @@ tasks.register("migrate") {
 tasks.register("resetDB") {
     group = rootProject.description ?: ""
     description = "Delete all tables in the database and recreate from the latest schema"
+    flyway.cleanDisabled = false
     dependsOn("flywayClean")
     dependsOn("flywayMigrate")
 }
@@ -802,7 +803,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:[2.17.1,)")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.17.1,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.2.0")
-    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.1")
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.2")
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.5.4")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
