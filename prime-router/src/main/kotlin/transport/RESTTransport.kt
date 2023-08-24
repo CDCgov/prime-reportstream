@@ -389,7 +389,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
 
     /**
      * Get the OAuth token by submitting UserPass credentials
-     * as id-token, used by OK
+     * as id-token, used by OK, and CDC NBS
      *
      * @param restUrl The URL to post to get the OAuth token
      * @param credential The UserPass credential with user for email and pass for password
@@ -403,14 +403,30 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         httpClient: HttpClient
     ): TokenInfo {
         httpClient.use { client ->
-            val idTokenInfoString: String = client.post(restUrl) {
-                expectSuccess = true // throw an exception if not successful
-                contentType(ContentType.Application.Json)
-                setBody(mapOf("email" to credential.user, "password" to credential.pass))
-            }.body()
-            logger.info("Got Token with UserPass")
-            val idTokenInfo = Json.decodeFromString<IdToken>(idTokenInfoString)
-            return TokenInfo(accessToken = idTokenInfo.idToken, expiresIn = 3600)
+            if (restUrl.contains("dataingestion.datateam-cdc-nbs")) {
+                val idTokenInfoString: String = client.post(restUrl) {
+                    val credentialString = credential.user + ":" + credential.pass
+                    val basicAuth = "Basic " + Base64.encodeBytes(credentialString.encodeToByteArray())
+                    expectSuccess = true // throw an exception if not successful
+                    postHeaders(
+                        mapOf(
+                            "Authorization" to basicAuth,
+                            "Host" to "dataingestion.datateam-cdc-nbs.eqsandbox.com"
+                        )
+                    )
+                }.body()
+                logger.info("Got Token with UserPass")
+                return TokenInfo(accessToken = "Bearer " + idTokenInfoString, expiresIn = 3600)
+            } else {
+                val idTokenInfoString: String = client.post(restUrl) {
+                    expectSuccess = true // throw an exception if not successful
+                    contentType(ContentType.Application.Json)
+                    setBody(mapOf("email" to credential.user, "password" to credential.pass))
+                }.body()
+                logger.info("Got Token with UserPass")
+                val idTokenInfo = Json.decodeFromString<IdToken>(idTokenInfoString)
+                return TokenInfo(accessToken = idTokenInfo.idToken, expiresIn = 3600)
+            }
         }
     }
 
@@ -442,8 +458,8 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                 )
                 setBody(
                     when (restUrl.substringAfterLast('/')) {
-                        // OK
-                        "hl7" -> {
+                        // OK or NBS
+                        "hl7", "reports" -> {
                             TextContent(message.toString(Charsets.UTF_8), ContentType.Text.Plain)
                         }
                         // Flexion

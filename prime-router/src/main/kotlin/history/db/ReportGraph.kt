@@ -1,14 +1,19 @@
 package gov.cdc.prime.router.history.db
 
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.db.Tables.COVID_RESULT_METADATA
 import gov.cdc.prime.router.azure.db.Tables.ITEM_LINEAGE
 import gov.cdc.prime.router.azure.db.Tables.REPORT_LINEAGE
+import gov.cdc.prime.router.azure.db.enums.TaskAction
+import gov.cdc.prime.router.azure.db.tables.Action
+import gov.cdc.prime.router.azure.db.tables.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.records.CovidResultMetadataRecord
 import gov.cdc.prime.router.common.BaseEngine
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.CommonTableExpression
+import org.jooq.DSLContext
 import org.jooq.impl.CustomRecord
 import org.jooq.impl.CustomTable
 import org.jooq.impl.DSL
@@ -60,6 +65,27 @@ class ItemGraphRecord : CustomRecord<ItemGraphRecord>(ItemGraphTable.ITEM_GRAPH)
 class ReportGraph(
     val db: DatabaseAccess = BaseEngine.databaseAccessSingleton
 ) : Logging {
+
+    /**
+     *
+     * @param receiver the Receiver to load report ids for
+     * @param taskAction the task to filter reports by
+     * @param dslContext the jOOQ DSL context to execute the query against
+     */
+    fun fetchReportIdsForReceiverAndTask(
+        receiver: Receiver,
+        taskAction: TaskAction,
+        dslContext: DSLContext
+    ): List<UUID> {
+        return dslContext
+            .select(ReportFile.REPORT_FILE.REPORT_ID)
+            .from(ReportFile.REPORT_FILE)
+            .join(Action.ACTION).on(Action.ACTION.ACTION_ID.eq(ReportFile.REPORT_FILE.ACTION_ID))
+            .where(Action.ACTION.RECEIVING_ORG.eq(receiver.organizationName))
+            .and(Action.ACTION.RECEIVING_ORG_SVC.eq(receiver.name))
+            .and(Action.ACTION.ACTION_NAME.eq(taskAction))
+            .fetchInto(UUID::class.java)
+    }
 
     /**
      * Returns all the metadata for the items in the past in reports; will recursively walk up the report lineage

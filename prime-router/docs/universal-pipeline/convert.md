@@ -1,4 +1,4 @@
-# Convert
+# Universal Pipeline Convert Step
 The convert step comes after the [receive step](receive.md). This step first converts an incoming message into the FHIR format. Once the message has been converted to FHIR, then it will apply any sender transforms to the resulting FHIR bundle.
 
 ## Conversion
