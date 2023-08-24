@@ -28,7 +28,6 @@ import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.ActionHistory
 import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
-import gov.cdc.prime.router.azure.QueueAccess
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.fhirengine.engine.FHIREngine
 import gov.cdc.prime.router.fhirengine.engine.FHIRRouter
@@ -79,7 +78,6 @@ class RoutingTests {
     val connection = MockConnection(dataProvider)
     val accessSpy = spyk(DatabaseAccess(connection))
     val blobMock = mockkClass(BlobAccess::class)
-    val queueMock = mockkClass(QueueAccess::class)
     val oneOrganization = DeepOrganization(
         ORGANIZATION_NAME,
         "test",
@@ -220,7 +218,7 @@ class RoutingTests {
 
     private fun makeFhirEngine(metadata: Metadata, settings: SettingsProvider): FHIREngine {
         return FHIREngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(accessSpy)
-            .blobAccess(blobMock).queueAccess(queueMock).build(TaskAction.route)
+            .blobAccess(blobMock).build(TaskAction.route)
     }
 
     /**
@@ -467,15 +465,16 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
-            .returns(Unit)
+
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 0) {
@@ -519,15 +518,15 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
-            .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 0) {
@@ -571,15 +570,15 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
-            .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 0) {
@@ -623,15 +622,15 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
-            .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 0) {
@@ -676,15 +675,15 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
-            .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 0) {
@@ -729,23 +728,22 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any(), engine.queueVisibilityTimeout) }
-            .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
-            actionHistory.trackCreatedReport(any(), any(), any())
+            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
             BlobAccess.Companion.uploadBlob(any(), any())
-            queueMock.sendMessage(any(), any(), engine.queueVisibilityTimeout)
-            accessSpy.insertTask(any(), any(), any(), any())
+            accessSpy.insertTask(any(), any(), any(), any(), any())
             FHIRBundleHelpers.addReceivers(any(), any(), any())
         }
     }
@@ -775,22 +773,21 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
-            .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
-            actionHistory.trackCreatedReport(any(), any(), any())
+            actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
         }
         verify(exactly = 0) {
-            queueMock.sendMessage(any(), any())
             accessSpy.insertTask(any(), any(), any(), any())
             FHIRBundleHelpers.addReceivers(any(), any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
@@ -924,10 +921,8 @@ class RoutingTests {
         every { message.downloadContent() }.returns(fhirData)
         every { BlobAccess.uploadBlob(any(), any()) } returns "test"
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
-        every { actionHistory.trackCreatedReport(any(), any(), any()) }.returns(Unit)
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { queueMock.sendMessage(any(), any()) }
-            .returns(Unit)
         every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
         engine.setFiltersOnEngine(
             jurisFilter,
@@ -940,7 +935,9 @@ class RoutingTests {
         every { FhirPathUtils.evaluateCondition(any(), any(), any(), any()) } throws SchemaException(nonBooleanMsg)
 
         // act
-        engine.doWork(message, actionLogger, actionHistory)
+        accessSpy.transact { txn ->
+            engine.run(message, actionLogger, actionHistory, txn)
+        }
 
         // assert
         assertThat(actionLogger.hasWarnings()).isTrue()

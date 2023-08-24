@@ -59,7 +59,18 @@ const restrictedGlobals = require("confusing-browser-globals");
 /** @type {import('eslint').Linter.Config} */
 module.exports = {
     root: true,
-    parser: "@babel/eslint-parser",
+    parser: "@typescript-eslint/parser",
+    parserOptions: {
+        ecmaVersion: 2018,
+        sourceType: "module",
+        ecmaFeatures: {
+            jsx: true,
+        },
+
+        // typescript-eslint specific options
+        warnOnUnsupportedTypeScriptVersion: true,
+        requireConfigFile: false,
+    },
     extends: [
         "plugin:import/recommended",
         "plugin:import/typescript",
@@ -67,6 +78,7 @@ module.exports = {
         "plugin:storybook/recommended",
     ],
     plugins: [
+        "@typescript-eslint",
         "react",
         "testing-library",
         "unused-imports",
@@ -323,18 +335,6 @@ module.exports = {
     overrides: [
         {
             files: ["**/*.ts?(x)"],
-            parser: "@typescript-eslint/parser",
-            parserOptions: {
-                ecmaVersion: 2018,
-                sourceType: "module",
-                ecmaFeatures: {
-                    jsx: true,
-                },
-
-                // typescript-eslint specific options
-                warnOnUnsupportedTypeScriptVersion: true,
-            },
-            plugins: ["@typescript-eslint"],
             // If adding a typescript-eslint version of an existing ESLint rule,
             // make sure to disable the ESLint rule here.
             rules: {
@@ -398,7 +398,11 @@ module.exports = {
                 "plugin:jest-dom/recommended",
             ],
             rules: {
-                "testing-library/no-render-in-setup": [
+                "testing-library/no-await-sync-events": [
+                    "error",
+                    { eventModules: ["fire-event"] },
+                ],
+                "testing-library/no-render-in-lifecycle": [
                     "error",
                     {
                         allowTestingFrameworkSetupHook: "beforeEach",
@@ -407,7 +411,7 @@ module.exports = {
                 "testing-library/no-node-access": "off",
                 "testing-library/prefer-screen-queries": "warn",
                 "testing-library/no-unnecessary-act": "warn",
-                "testing-library/no-await-sync-query": "warn",
+                "testing-library/no-await-sync-queries": "warn",
             },
         },
         {

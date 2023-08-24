@@ -1,4 +1,4 @@
-import { fireEvent, screen, cleanup, within } from "@testing-library/react";
+import { fireEvent, screen, within } from "@testing-library/react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { MOCK_MESSAGE_SENDER_DATA } from "../../__mocks__/MessageTrackerMockServer";
@@ -21,8 +21,6 @@ describe("MessageTracker component", () => {
     beforeEach(() => {
         renderApp(<MessageTracker />);
     });
-
-    afterEach(cleanup);
 
     test("should be able to edit search field", () => {
         const searchField = screen.getByTestId("textInput");

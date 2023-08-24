@@ -1,5 +1,3 @@
-import classNames from "classnames";
-
 import { Tile } from "../Tile/Tile";
 
 export interface ContentSectionProps
@@ -11,16 +9,14 @@ export const ContentSection = ({
     title,
     summary,
     items,
-    className,
     children,
     ...props
 }: ContentSectionProps) => {
-    const classnames = classNames("usa-section", className);
     const totalItems = items?.length || 0;
     let gridColValue = 12 / totalItems;
     const tileClassname = `tablet:grid-col-${gridColValue} margin-bottom-0`;
     return (
-        <section className={classnames} {...props}>
+        <section className="usa-section" {...props}>
             <div className="grid-row grid-gap">
                 {title && (
                     <h2
