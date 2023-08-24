@@ -17,4 +17,12 @@
     :global(.usa-card__footer) {
         @include u-padding-left(0);
     }
+
+    :global(.usa-card__container) {
+        border-style: none;
+    }
+
+    :global(.usa-card__img) {
+        border-radius: 0;
+    }
 }
