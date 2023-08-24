@@ -67,11 +67,13 @@ elements:
     schema: datatype/ce-coded-with-exceptions
 
   - name: patient-race-identifier
+    condition: '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").exists()'
     value:
       - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("ombCategory").value.code'
     hl7Spec: [ '%{hl7PIDField}-10-1' ]
 
   - name: patient-race-display
+    condition: '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").exists()'
     value:
       - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("text").value'
       - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("ombCategory").value.display'
