@@ -26,18 +26,19 @@ import java.time.LocalDateTime
 import kotlin.random.Random
 
 /**
- * Implements OAUTH2 authorization workflows with the HHS-PRIME Okta account.
- * By default, the application checks locally for active Okta access tokens
- * If no active access tokens exist, the system attempts to get a new token from the Okta API and saves it
- *
- * A PKCE OAUTH2 authorization workflow login option is available by adding the parameter "--manual"
- * On manual mode, a browser is launched for the user to enter credentials.
+ * Implements a PKCE OAUTH2 authorization workflow with the HHS-PRIME Okta account.
+ * A browser is launched for the user to enter credentials.
  * A local server is setup to handle the Oauth2 redirect and to capture
  * the authorization code.
  *
+ * By adding the "--useApiKey" parameter, the login process makes a direct call to Okta's Client Credentials Api
+ *
+ * By default, the application checks locally for active Okta access tokens
+ * If no active access tokens exist or the "--force" parameter is included,
+ * the system attempts to get a new token from the Okta API and saves it
+ *
  * Based on Okta article https://developer.okta.com/blog/2018/12/13/oauth-2-for-native-and-mobile-apps
  */
-
 private const val oktaProdBaseUrl = "https://hhs-prime.okta.com"
 private const val oktaPreviewBaseUrl = "https://hhs-prime.oktapreview.com"
 private const val oktaProdClientId = "0oa6kt4j3tOFz5SH84h6"
@@ -79,9 +80,12 @@ class LoginCommand : OktaCommand(
         help = "Enable to do a login regardless of any current access tokens"
     ).flag(default = false)
 
+    /**
+     * Attempt to log into Okta if the environment needs it
+     */
     override fun run() {
         val oktaApp = Environment.get(env).oktaApp ?: abort("No need to login in this environment")
-        oktaConfig.init(oktaApp)
+        val oktaConfig = OktaConfig(oktaApp)
 
         val accessTokenFile = if (!forceRefreshToken) {
             readAccessTokenFile()
@@ -89,27 +93,32 @@ class LoginCommand : OktaCommand(
             null
         }
 
-        if (accessTokenFile != null && isValidToken(accessTokenFile)) {
+        if (accessTokenFile != null && isValidToken(oktaConfig, accessTokenFile)) {
             echo("Has a valid token until ${accessTokenFile.expiresAt}")
         } else {
             val accessTokenJson = if (useApiKey) {
                 echo("Logging in to Okta via the Client Credentials Api...")
-                clientCredentialsAuthorize()
+                clientCredentialsAuthorize(oktaConfig)
             } else {
                 echo("About to launch a browser to log in to Okta...")
-                launchSignIn()
+                launchSignIn(oktaConfig)
             }
 
-            val newAccessTokenFile = writeAccessTokenFile(accessTokenJson)
+            val newAccessTokenFile = writeAccessTokenFile(oktaConfig, accessTokenJson)
             echo("Login valid until ${newAccessTokenFile.expiresAt}")
         }
     }
 
-    private fun launchSignIn(): JSONObject {
+    /**
+     * Launch the Login page for Okta.
+     * @param oktaConfig Configuration value wrapper
+     * @return Response from Okta as a JSONObject
+     */
+    private fun launchSignIn(oktaConfig: OktaConfig): JSONObject {
         val codeVerifier = generateCodeVerifier()
         val codeChallenge = generateCodeChallenge(codeVerifier)
         val state = generateCodeVerifier() // random number
-        val authorizeUrl = authorizeUrl(state, codeChallenge = codeChallenge)
+        val authorizeUrl = authorizeUrl(oktaConfig, state, codeChallenge = codeChallenge)
         startRedirectServer()
         Desktop.getDesktop().browse(URI(authorizeUrl))
         waitForRedirect()
@@ -124,10 +133,17 @@ class LoginCommand : OktaCommand(
             .find { it.startsWith("state=") }
             ?.substringAfter("state=")
         if (foundState != state) error("Okta didn't return a valid state. Possible problem.")
-        return fetchAccessToken(code, codeVerifier)
+        return fetchSignInAccessToken(code, codeVerifier, oktaConfig)
     }
 
-    private fun authorizeUrl(state: String, codeChallenge: String): String {
+    /**
+     * Builds url for Okta authorization.
+     * @param oktaConfig Configuration value wrapper
+     * @param state Generated code required by Okta validation
+     * @param codeChallenge Used in Okta's validation
+     * @return
+     */
+    private fun authorizeUrl(oktaConfig: OktaConfig, state: String, codeChallenge: String): String {
         return "${oktaConfig.baseUrl}$oktaAuthorizePath?" +
             "client_id=${oktaConfig.clientId}&" +
             "response_type=code&" +
@@ -138,8 +154,12 @@ class LoginCommand : OktaCommand(
             "code_challenge=$codeChallenge"
     }
 
-    private fun clientCredentialsAuthorize(): JSONObject {
-        if (oktaConfig.authKey == "")  error("A valid OKTA_authKey environment variable is needed for this command")
+    /**
+     * Make a call to Okta's Client Credentials Api for an access token.
+     * @return JSONObject of the Api response.
+     */
+    private fun clientCredentialsAuthorize(oktaConfig: OktaConfig): JSONObject {
+        if (oktaConfig.authKey == null) error("A valid OKTA_authKey environment variable is needed for this command")
         val (_, _, result) = Fuel
             .post("${oktaConfig.baseUrl}$oktaTokenPath?")
             .header(
@@ -157,6 +177,9 @@ class LoginCommand : OktaCommand(
         }
     }
 
+    /**
+     * Create and start the redirect server
+     */
     private fun startRedirectServer() {
         val server = HttpServer.create(InetSocketAddress(redirectPort), 0)
         server.createContext(redirectPath) { transaction ->
@@ -171,6 +194,9 @@ class LoginCommand : OktaCommand(
         this.server = server
     }
 
+    /**
+     * Waiter for when the redirect server is ready
+     */
     private fun waitForRedirect() {
         val server = this.server ?: error("Server hasn't started")
         while (redirectResult == null) {
@@ -179,9 +205,17 @@ class LoginCommand : OktaCommand(
         server.stop(1 /* seconds */)
     }
 
-    private fun fetchAccessToken(
+    /**
+     * Fetch access token for the sign-in process.
+     * @param code Generated code required by Okta validation
+     * @param codeVerifier Okta-required verifier
+     * @param oktaConfig Configuration value wrapper
+     * @return
+     */
+    private fun fetchSignInAccessToken(
         code: String,
-        codeVerifier: String
+        codeVerifier: String,
+        oktaConfig: OktaConfig
     ): JSONObject {
         val body = "grant_type=authorization_code&" +
             "redirect_uri=$redirectHost:$redirectPort$redirectPath&" +
@@ -200,11 +234,20 @@ class LoginCommand : OktaCommand(
         }
     }
 
+    /**
+     * Creates code verifier as part of Okta's auth validation.
+     * @return String of the generated code
+     */
     private fun generateCodeVerifier(): String {
         val bytes = Random.nextBytes(32)
         return Base64.encodeBase64URLSafeString(bytes)
     }
 
+    /**
+     * Creates code challenge as part of Okta's auth validation.
+     * @param verifier Code verifier used to prepare the challenge
+     * @return String of the generated challenge
+     */
     private fun generateCodeChallenge(verifier: String): String {
         val bytes: ByteArray = verifier.toByteArray(StandardCharsets.US_ASCII)
         val md = MessageDigest.getInstance("SHA-256")
@@ -242,8 +285,6 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
     companion object {
         private val jsonMapper = JacksonMapperUtilities.allowUnknownsMapper
 
-        val oktaConfig: OktaConfig = OktaConfig()
-
         /**
          * Returns the access token saved from the last login if valid given [app].
          * @return the Okta access token, a dummy token if [app] is null. or null if there is no valid token
@@ -252,7 +293,7 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             return if (app == null) oktaDummyAccessToken
             else {
                 val accessTokenFile = readAccessTokenFile()
-                if (accessTokenFile != null && isValidToken(accessTokenFile))
+                if (accessTokenFile != null && isValidToken(OktaConfig(app), accessTokenFile))
                     accessTokenFile.token
                 else null
             }
@@ -270,7 +311,7 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             }
         }
 
-        fun isValidToken(accessTokenFile: AccessTokenFile): Boolean {
+        fun isValidToken(oktaConfig: OktaConfig, accessTokenFile: AccessTokenFile): Boolean {
             // Make sure the token is for the right okta app
             if (oktaConfig.clientId != accessTokenFile.clientId) return false
             // Make sure the token will not expire soon
@@ -295,7 +336,7 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             }
         }
 
-        fun writeAccessTokenFile(accessTokenJson: JSONObject): AccessTokenFile {
+        fun writeAccessTokenFile(oktaConfig:OktaConfig, accessTokenJson: JSONObject): AccessTokenFile {
             val token = accessTokenJson.getString("access_token")
             val expiresIn = accessTokenJson.getLong("expires_in")
             val expiresAt = LocalDateTime.now().plusSeconds(expiresIn)
@@ -338,18 +379,18 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
 data class OktaConfig(
     var baseUrl: String = oktaPreviewBaseUrl,
     var clientId: String = oktaPreviewClientId,
-    var authKey: String = oktaDummyAccessToken
+    var authKey: String? = null
 ) {
     /**
      * Load environment variables for the Okta Api
      * @param oktaApp Configuration values
      */
-    fun init(oktaApp: OktaCommand.OktaApp) {
+    constructor(
+        oktaApp: OktaCommand.OktaApp
+    ): this() {
         baseUrl = oktaBaseUrls[oktaApp] ?: error("Invalid app - Okta url")
         clientId = clientIds[oktaApp] ?: error("Invalid app")
-
-        val envAuthKey = System.getenv("OKTA_authKey")
-        if (envAuthKey != null) authKey = envAuthKey
+        authKey = System.getenv("OKTA_authKey")
     }
 
     /**
