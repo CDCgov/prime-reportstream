@@ -288,7 +288,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
                 "test-key"
             )
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any(), any()) } }
             .returns(mockPostReportResponse)
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
@@ -305,7 +305,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
                 "test-assertion"
             )
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any(), any()) } }
             .returns(mockPostReportResponse)
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
@@ -320,7 +320,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserPassCredential("test-user", "test-pass")
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any(), any()) } }
             .returns(mockPostReportResponse)
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
@@ -335,7 +335,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserPassCredential("test-user", "test-pass")
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any(), any()) } }
             .returns(mockPostReportResponse)
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()
@@ -350,7 +350,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any(), any()) } }
             .returns(mockPostReportResponse)
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNotNull()
@@ -365,7 +365,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
             UserApiKeyCredential("test-user", "test-key")
         )
-        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any()) } }
+        every { runBlocking { mockRestTransport.postReport(any(), any(), any(), any(), any(), any(), any()) } }
             .returns(mockPostReportResponse)
         val retryItems = mockRestTransport.send(transportType, header, reportId, null, context, actionHistory)
         assertThat(retryItems).isNull()

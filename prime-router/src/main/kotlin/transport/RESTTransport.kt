@@ -120,10 +120,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                         val response = postReport(
                             reportContent,
                             fileName,
-                            restTransportInfo.reportUrl,
+                            restTransportInfo,
                             httpHeaders,
                             logger,
-                            reportClient
+                            reportClient,
+                            receiver
                         )
                         val responseBody = response.bodyAsText()
                         // update the action history
@@ -442,53 +443,49 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
     suspend fun postReport(
         message: ByteArray,
         fileName: String,
-        restUrl: String,
+        restTransportInfo: RESTTransportType,
         headers: Map<String, String>,
         logger: Logger,
-        httpClient: HttpClient
+        httpClient: HttpClient,
+        receiver: Receiver
     ): HttpResponse {
         logger.info(fileName)
-        val boundary = "WebAppBoundary"
         httpClient.use { client ->
-            val theResponse: HttpResponse = client.post(restUrl) {
+            val theResponse: HttpResponse = client.post(restTransportInfo.reportUrl) {
                 logger.info("posting report to rest API")
                 expectSuccess = true // throw an exception if not successful
                 postHeaders(
                     headers
                 )
                 setBody(
-                    when (restUrl.substringAfterLast('/')) {
-                        // OK or NBS
-                        "hl7", "reports" -> {
-                            TextContent(message.toString(Charsets.UTF_8), ContentType.Text.Plain)
-                        }
-                        // Flexion
-                        "demographics" -> {
-                            TextContent(message.toString(Charsets.UTF_8), ContentType.Application.Json)
-                        }
-                        "orders" -> {
-                            TextContent(message.toString(Charsets.UTF_8), ContentType.Application.Json)
-                        }
-                        // WA
-                        "elr" -> {
+                    // most should use the else branch unless it's not possible on the reciever's end
+                    when (receiver.organizationName) {
+                        "wa-phd" -> {
                             contentType(ContentType.Application.Json)
                             // create JSON object for the BODY. This encodes "/" character as "//", needed for WA to accept as valid JSON
                             JSONObject().put("body", message.toString(Charsets.UTF_8)).toString()
                         }
-                        else -> {
-                            // NY
+                        "ny-phd" -> {
                             MultiPartFormDataContent(
                                 formData {
                                     append(
-                                        "payload", message,
+                                        "payload",
+                                        message,
                                         Headers.build {
-                                            append(HttpHeaders.ContentType, "text/plain")
+                                            append(HttpHeaders.ContentType, restTransportInfo.reportContentType)
                                             append(HttpHeaders.ContentDisposition, "filename=\"${fileName}\"")
                                         }
                                     )
                                 },
-                                boundary
+                                "WebAppBoundary"
                             )
+                        }
+                        // OK, NBS, Flexion
+                        else -> {
+                            // parse content-type header from configuration, bad configs will throw
+                            val contentType = ContentType.parse(restTransportInfo.reportContentType)
+
+                            TextContent(message.toString(Charsets.UTF_8), contentType)
                         }
                     }
                 )

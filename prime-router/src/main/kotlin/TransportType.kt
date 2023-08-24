@@ -3,6 +3,7 @@ package gov.cdc.prime.router
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import io.ktor.http.ContentType
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -121,7 +122,9 @@ data class RESTTransportType
     /** [parameters] The map of parameters to be sent in the message */
     val parameters: Map<String, String> = emptyMap(),
     /** [headers] The map of headers to be sent in the message */
-    val headers: Map<String, String>
+    val headers: Map<String, String>,
+    // content type of the report to be posted (generally either text/plan or application/json)
+    val reportContentType: String = ContentType.Text.Plain.toString(),
 ) : TransportType("REST") {
     override fun toString(): String = "apiUrl=$reportUrl"
 }
