@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import { Card as OrigCard } from "@trussworks/react-uswds";
 
-import styles from "./CardWrapper.module.scss";
+import styles from "./Card.module.scss";
 
 export interface CardProps extends React.ComponentProps<typeof OrigCard> {
     isAlternate?: boolean;
