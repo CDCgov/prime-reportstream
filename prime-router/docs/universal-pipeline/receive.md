@@ -1,4 +1,4 @@
-# Receive
+# Universal Pipeline Receive Step
 `Receive` is the first step a message goes through when entering the Universal Pipeline (UP). Despite its name, this step
 actually occurs in the `ReportFunction.kt` file. 
 
