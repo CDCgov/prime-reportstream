@@ -35,7 +35,7 @@ const env = {
     ...cypressConfig,
     oktaClientId: getEnvOrDefault(
         "oktaClientId",
-        process.env.VITE_OKTA_CLIENTID
+        process.env.VITE_OKTA_CLIENTID,
     ),
     oktaSecret: getEnvOrDefault("oktaSecret", process.env.VITE_OKTA_SECRET),
     oktaUrl: getEnvOrDefault("oktaUrl", process.env.VITE_OKTA_URL),
@@ -50,8 +50,8 @@ export default defineConfig({
         setupNodeEvents(on) {
             // configure plugins here
             on("task", {
-                log(message) {
-                    console.log(`[RS LOG] ${message}`);
+                log(_) {
+                    // console.log(`[RS LOG] ${message}`);
 
                     return null;
                 },

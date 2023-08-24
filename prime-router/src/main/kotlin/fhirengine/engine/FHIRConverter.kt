@@ -114,7 +114,7 @@ class FHIRConverter(
                 )
 
                 // track created report
-                actionHistory.trackCreatedReport(routeEvent, report, blobInfo)
+                actionHistory.trackCreatedReport(routeEvent, report, blobInfo = blobInfo)
 
                 FHIREngineRunResult(
                     routeEvent,

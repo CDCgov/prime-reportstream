@@ -1,21 +1,17 @@
-import classNames from "classnames";
-
 export interface CitationProps
     extends React.PropsWithChildren<
         React.HTMLAttributes<HTMLElement> & CitationItem
     > {}
 
 export const Citation = ({
-    className,
     title,
     quote,
     author,
     authorTitle,
     ...props
 }: CitationProps) => {
-    const classnames = classNames("padding-top-9", className);
     return (
-        <div className={classnames} {...props}>
+        <div className="padding-top-9" {...props}>
             <p data-testid="title" className="font-sans-lg text-bold">
                 {title}
             </p>

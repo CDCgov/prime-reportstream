@@ -1,0 +1,53 @@
+# To submit this to localhost, run:
+# ./prime multiple-settings set --env staging --input ./settings/staging/0154-nbs-staging.yml
+# ./prime multiple-settings set --input ./junk/NBS/0154-nbs-cdc-staging.yml
+---
+- name: dataingestion
+  description: "Data Ingestion CDC NBS"
+  jurisdiction: "FEDERAL"
+  receivers:
+    - name: "datateam-cdc-nbs"
+      organizationName: "dataingestion"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        format: "HL7"
+        defaults: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        type: "HL7"
+      routingFilter: []
+      processingModeFilter:
+        - "matches(processing_mode_code,T,D)"
+      jurisdictionalFilter:
+        - "allowAll()"
+      qualityFilter:
+        - "allowAll()"
+      reverseTheQualityFilter: false
+      conditionFilter: []
+      deidentify: true
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 144
+        initialTime: "00:02"
+        timeZone: "EASTERN"
+        maxReportCount: 1000
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: !<REST>
+        reportUrl: "https://dataingestion.datateam-cdc-nbs.eqsandbox.com/api/reports"
+        authTokenUrl: "https://dataingestion.datateam-cdc-nbs.eqsandbox.com/token"
+        tlsKeystore: null
+        headers:
+          senderLabName: "CDC PRIME REPORTSTREAM"
+          RecordId: "header.reportFile.reportId"
+          sourceLabName: "CDC PRIME REPORTSTREAM"
+          Host: "dataingestion.datateam-cdc-nbs.eqsandbox.com"
+          msgType: "HL7"
+        type: "REST"
+      externalName: null
+      timeZone: null
+      dateTimeFormat: "OFFSET"
