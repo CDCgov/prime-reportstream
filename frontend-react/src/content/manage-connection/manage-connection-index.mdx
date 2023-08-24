@@ -13,6 +13,7 @@ ongoingSupport:
     summary: Our expert team troubleshoots issues throughout your use of ReportStream.
 ---
 import { Tile } from "../../shared/Tile/Tile";
+import CardWrapper from "../../shared/CardWrapper/CardWrapper";
 
 <HeroWrapper className="bg-blue-5">
     <div className="grid-container padding-y-9">
@@ -50,32 +51,34 @@ import { Tile } from "../../shared/Tile/Tile";
         <h2 className="font-sans-xl margin-top-0">Monitoring tools</h2>
         <p className="usa-intro margin-top-4 margin-bottom-8">Providing transparency into your data transfer with ReportStream </p>
         <Tile {...frontmatter.monitoringTools}>
-            <CardGroup>
-                <Card gridLayout={{col: "fill"}}>
-                    <CardMedia>
-                        <img src="/assets/img/SubmissionHistory.png" alt="Submission History" />
-                    </CardMedia>
-                    <CardBody>
-                        **For health care organizations**
+            <CardWrapper isAlternate>
+                <CardGroup>
+                        <Card gridLayout={{col: "fill"}}>
+                            <CardMedia>
+                                <img src="/assets/img/SubmissionHistory.png" alt="Submission History" />
+                            </CardMedia>
+                            <CardBody>
+                                **For health care organizations**
 
-                        The Submission History dashboard provides the status of data you sent through ReportStream.
+                                The Submission History dashboard provides the status of data you sent through ReportStream.
 
-                        [View your submission history](/submissions) <Icon name='Lock' className="text-ttop text-primary" />
-                    </CardBody>
-                </Card>
-                <Card gridLayout={{col: "fill"}}>
-                    <CardMedia>
-                        <img src="/assets/img/DailyData.png" alt="Daily Data" />
-                    </CardMedia>
-                    <CardBody>
-                        **For public health agencies**
+                                [View your submission history](/submissions) <Icon name='Lock' className="text-ttop text-primary" />
+                            </CardBody>
+                        </Card>
+                        <Card gridLayout={{col: "fill"}}>
+                            <CardMedia>
+                                <img src="/assets/img/DailyData.png" alt="Daily Data" />
+                            </CardMedia>
+                            <CardBody>
+                                **For public health agencies**
 
-                        Daily Data is a dashboard that shows the data you’ve received and allows you to dive into detail for each facility or report.
+                                Daily Data is a dashboard that shows the data you’ve received and allows you to dive into detail for each facility or report.
 
-                        [View your Daily Data](/daily-data) <Icon name='Lock' className="text-ttop text-primary" />
-                    </CardBody>
-                </Card>
-            </CardGroup>
+                                [View your Daily Data](/daily-data) <Icon name='Lock' className="text-ttop text-primary" />
+                            </CardBody>
+                        </Card>
+                </CardGroup>
+            </CardWrapper>
         </Tile>
         <div className="grid-row grid-gap">
             <Tile className="grid-col-fill" {...frontmatter.submissionHistory}>
