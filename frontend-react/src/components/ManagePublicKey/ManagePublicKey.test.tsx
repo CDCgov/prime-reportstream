@@ -227,6 +227,10 @@ describe("ManagePublicKey", () => {
                 isSuccess: true,
             });
 
+            mockUseOrganizationPublicKeys({
+                data: mockRSApiKeysResponse,
+            });
+
             renderApp(<ManagePublicKey />);
         });
 
@@ -259,6 +263,8 @@ describe("ManagePublicKey", () => {
                 isLoading: false,
                 isSuccess: false,
             });
+
+            mockUseOrganizationPublicKeys();
 
             renderApp(<ManagePublicKey />);
 

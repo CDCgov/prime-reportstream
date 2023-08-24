@@ -10,7 +10,7 @@ import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import site from "../../content/site.json";
 import { USExtLink, USLink } from "../USLink";
 import { SchemaOption } from "../../senders/hooks/UseSenderSchemaOptions";
-import { WatersResponse } from "../../config/endpoints/waters";
+import { OverallStatus, WatersResponse } from "../../config/endpoints/waters";
 import Alert from "../../shared/Alert/Alert";
 
 import FileHandlerFileUploadStep from "./FileHandlerFileUploadStep";
@@ -25,45 +25,95 @@ export interface FileHandlerStepProps extends FileHandlerState {
     onNextStepClick: () => void;
 }
 
-function mapStateToOrderedSteps(state: FileHandlerState) {
-    const { selectedSchemaOption, file, errors, warnings, overallStatus } =
-        state;
+const WizardSteps = [
+    {
+        order: 0,
+        Component: FileHandlerSchemaSelectionStep,
+        isValid(state: FileHandlerState) {
+            return Boolean(state.selectedSchemaOption.value);
+        },
+    },
+    {
+        order: 1,
+        Component: FileHandlerFileUploadStep,
+        isValid(state: FileHandlerState) {
+            return Boolean(state.file);
+        },
+    },
+    {
+        order: 2,
+        Component: FileHandlerErrorsWarningsStep,
+        isVisible(state: FileHandlerState) {
+            return Boolean(state.errors?.length || state.warnings?.length);
+        },
+    },
+    {
+        order: 3,
+        Component: FileHandlerSuccessStep,
+    },
+] satisfies {
+    order: number;
+    Component: React.ComponentType<any>;
+    isValid?: (state: any) => boolean;
+    isVisible?: (state: any) => boolean;
+}[];
 
-    return [
-        {
-            Component: FileHandlerSchemaSelectionStep,
-            isValid: Boolean(selectedSchemaOption.value),
-        },
-        {
-            Component: FileHandlerFileUploadStep,
-            isValid: Boolean(file),
-        },
-        {
-            Component: FileHandlerErrorsWarningsStep,
-            isValid: false,
-            shouldSkip: Boolean(
-                overallStatus && errors.length === 0 && warnings.length === 0,
-            ),
-        },
-        {
-            Component: FileHandlerSuccessStep,
-            isValid: true,
-        },
-    ];
+function getWizardStepNumber(state: FileHandlerState) {
+    if (
+        Boolean(state.overallStatus === OverallStatus.VALID) &&
+        !Boolean(state.errors?.length || state.warnings?.length)
+    ) {
+        return 3;
+    } else if (Boolean(state.errors?.length || state.warnings?.length)) {
+        return 2;
+    } else if (Boolean(state.selectedSchemaOption.value)) {
+        return 1;
+    }
+    return 0;
+}
+
+function getWizardStep(
+    state: FileHandlerState,
+    n?: number,
+    isForward: boolean = true,
+) {
+    let stepNum = n ?? getWizardStepNumber(state);
+    let step;
+    while (step == null) {
+        const s = WizardSteps[stepNum];
+        if (s.isVisible == null || s.isVisible?.(state)) {
+            step = s;
+        } else {
+            if (isForward && stepNum < WizardSteps.length - 1) {
+                stepNum++;
+            } else if (stepNum > 0) {
+                stepNum--;
+            }
+            throw new Error("Unable to determine next visible step");
+        }
+    }
+    return {
+        ...step,
+        isValid: step.isValid == null ? true : step.isValid(state),
+        isVisible: step.isVisible == null ? true : step.isVisible(state),
+    } satisfies {
+        order: number;
+        Component: React.ComponentType<any>;
+        isValid: boolean;
+        isVisible: boolean;
+    };
 }
 
 export default function FileHandler() {
     const { state, dispatch } = useFileHandler();
     const { fileName, localError } = state;
-    const orderedSteps = mapStateToOrderedSteps(state).filter(
-        (step) => !step.shouldSkip,
+    const [currentStepIndex, setCurrentStepIndex] = useState(
+        getWizardStep(state).order,
     );
-    const [currentStepIndex, setCurrentStepIndex] = useState(0);
-    const {
-        Component: StepComponent,
-        isValid,
-        shouldSkip,
-    } = orderedSteps[currentStepIndex];
+    const { Component, isValid, isVisible } = getWizardStep(
+        state,
+        currentStepIndex,
+    );
 
     useEffect(() => {
         if (localError) {
@@ -72,22 +122,6 @@ export default function FileHandler() {
     }, [localError]);
 
     const { data: organization } = useOrganizationSettings();
-
-    function decrementStepIndex() {
-        if (currentStepIndex === 0) {
-            return;
-        }
-
-        setCurrentStepIndex((idx) => idx - 1);
-    }
-
-    function incrementStepIndex() {
-        if (currentStepIndex >= orderedSteps.length - 1) {
-            return;
-        }
-
-        setCurrentStepIndex((idx) => idx + 1);
-    }
 
     function handleSchemaChange(schemaOption: SchemaOption) {
         dispatch({
@@ -111,10 +145,8 @@ export default function FileHandler() {
             },
         });
 
-        const fileSelectionStepIndex = orderedSteps.findIndex(
-            ({ Component }) => Component === FileHandlerFileUploadStep,
-        );
-        setCurrentStepIndex(fileSelectionStepIndex);
+        setCurrentStepIndex(1);
+
         window.scrollTo(0, 0);
     }
 
@@ -125,10 +157,20 @@ export default function FileHandler() {
         });
     }
 
+    function decrementStepIndex() {
+        setCurrentStepIndex(
+            (idx) => getWizardStep(state, idx - 1, false).order,
+        );
+    }
+
+    function incrementStepIndex() {
+        setCurrentStepIndex((idx) => getWizardStep(state, idx + 1).order);
+    }
+
     const commonStepProps = {
         ...state,
         isValid: isValid,
-        shouldSkip: shouldSkip,
+        shouldSkip: isVisible,
         onPrevStepClick: decrementStepIndex,
         onNextStepClick: incrementStepIndex,
     };
@@ -158,7 +200,7 @@ export default function FileHandler() {
                         // The stages can be seen here: https://figma.fun/fGCeo4
                         //
                         // TODO: generalize the reducer state so we can just render <StepComponent>
-                        switch (StepComponent) {
+                        switch (Component) {
                             case FileHandlerSchemaSelectionStep:
                                 return (
                                     <FileHandlerSchemaSelectionStep
@@ -195,7 +237,7 @@ export default function FileHandler() {
                         }
                     })()}
                 </div>
-                {StepComponent !== FileHandlerSuccessStep && (
+                {Component !== FileHandlerSuccessStep && (
                     <Alert headingLevel="h3" type="tip">
                         Reference{" "}
                         <USLink href="/resources/api/documentation/data-model">
