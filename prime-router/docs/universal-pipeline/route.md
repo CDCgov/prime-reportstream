@@ -4,7 +4,7 @@
 
 The Route function’s purpose is to match FHIR bundles with receivers. Each receiver connected with ReportStream has unique interests in the data that flows through the pipeline. Routing is designed to find the data that meet those interests.
 
-The Route function follows the convert function. At this point all data will be in FHIR format. These messages are passed to the FHIR Router which first decodes a FHIR Bundle. `FHIRRouter.applyFilters` does the work to find receivers that accept the bundle. With the list of acceptable receivers, FHIR Endpoints are added to the Provenance resource identifying those receivers.  An Endpoint resource describes the details of a receiver including which test results to include. With that information, the message is passed to the [Translate](translate.md) function where receiver specific work is done.
+The Route function follows the [Convert](convert.md) function. At this point all data will be in FHIR format. These messages are passed to the FHIR Router which first decodes a FHIR Bundle. `FHIRRouter.applyFilters` does the work to find receivers that accept the bundle. With the list of acceptable receivers, FHIR Endpoints are added to the Provenance resource identifying those receivers.  An Endpoint resource describes the details of a receiver including which test results to include. With that information, the message is passed to the [Translate](translate.md) function where receiver specific work is done.
 
 ### Topic
 
