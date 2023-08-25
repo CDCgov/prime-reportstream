@@ -1,5 +1,4 @@
 import {
-    Button,
     Header,
     Menu,
     NavDropDownButton,
@@ -10,8 +9,12 @@ import {
 import classnames from "classnames";
 import { useState } from "react";
 
-import styles from "./ReportStreamNavbar.module.scss";
 import { USLinkButton } from "../USLink";
+import config from "../../config";
+
+import styles from "./ReportStreamNavbar.module.scss";
+
+const { IS_PREVIEW, CLIENT_ENV } = config;
 
 export const ReportStreamNavbar = ({
     blueVariant,
@@ -92,7 +95,14 @@ export const ReportStreamNavbar = ({
             >
                 <div className="usa-nav-container">
                     <div className="usa-navbar">
-                        <Title>ReportStream</Title>
+                        <Title>
+                            ReportStream
+                            {IS_PREVIEW && (
+                                <span className={styles.ClientEnv}>
+                                    {CLIENT_ENV}
+                                </span>
+                            )}
+                        </Title>
                         <NavMenuButton
                             onClick={toggleMobileMenu}
                             label="Menu"
@@ -111,10 +121,6 @@ export const ReportStreamNavbar = ({
                             >
                                 Connect now
                             </USLinkButton>
-                            {/* <Button outline type="button">
-                                Login
-                            </Button>
-                            <Button type="button">Connect now</Button> */}
                         </div>
                     </PrimaryNav>
                 </div>
