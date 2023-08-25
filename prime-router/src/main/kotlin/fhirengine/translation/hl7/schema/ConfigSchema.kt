@@ -46,6 +46,22 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
      */
     private var validationErrors: MutableSet<String> = mutableSetOf()
 
+    /**
+     * Returns count of duplicate elements in the schema
+     *
+     * Root -> A -> C
+     *         B -> C
+     *
+     *      vs
+     *
+     * Root -> A -> B -> D
+     *           -> C -> D
+     *
+     * The first graph will contain duplicate elements, but the second will not
+     *
+     * @returns the duplicate elements contained in the first or second nested schemas
+     *
+     */
     val duplicateElements: Map<String?, Int>
         get() = (
             elements.filter { it.name != null } +
@@ -90,14 +106,18 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
     }
 
     /**
-     * Merge a [childSchema] into this one overriding any matching schemas found.
+     * This function enables overriding elements in this config schema with the passed overrides
+     *
+     * It works by iterating over the elements of the override schema and finding all the
+     * [ConfigSchemaElement] in [this] with the same [name] and calling merge on the schema elements
+     * @param overrideSchema the schema to override with
      * @return the reference to the schema
      */
-    open fun merge(childSchema: ConfigSchema<T>) = apply {
-        childSchema.elements.forEach { childElement ->
+    open fun override(overrideSchema: ConfigSchema<T>) = apply {
+        overrideSchema.elements.forEach { childElement ->
             // If we find the element in the schema then replace it, otherwise add it.
             if (childElement.name.isNullOrBlank()) {
-                throw SchemaException("Child schema ${childSchema.name} found with element with no name.")
+                throw SchemaException("Child schema ${overrideSchema.name} found with element with no name.")
             }
             val elementInSchemas = findElements(childElement.name!!)
             if (elementInSchemas.isNotEmpty()) {
@@ -106,8 +126,8 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
                 this.elements.add(childElement)
             }
         }
-        this.constants.putAll(childSchema.constants)
-        this.name = childSchema.name
+        this.constants.putAll(overrideSchema.constants)
+        this.name = overrideSchema.name
     }
 
     /**

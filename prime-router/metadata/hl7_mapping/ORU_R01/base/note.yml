@@ -16,5 +16,5 @@ elements:
   - name: note-comment-type-identifier
     resource: '%noteDetails.extension(%`rsext-note-type`).value'
     constants:
-      ceFieldPath: '%{hl7NotePath}/NTE(%{noteIndex})-4'
-    schema: ../../common/datatype/ce-coded-element
+      cweFieldPath: '%{hl7NotePath}/NTE(%{noteIndex})-4'
+    schema: ../../common/datatype/ce-coded-with-exceptions

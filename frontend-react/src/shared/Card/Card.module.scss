@@ -1,0 +1,28 @@
+@use "../../global-modules.scss" as *;
+
+/*
+ * Allows for Card Groups and Cards
+ * with differing style expectations
+ */
+.usa-card--alternate {
+    :global(.usa-card__header) {
+        @include u-padding-left(0);
+    }
+    :global(.usa-card__heading) {
+        @include u-padding-left(0);
+    }
+    :global(.usa-card__body) {
+        @include u-padding-left(0);
+    }
+    :global(.usa-card__footer) {
+        @include u-padding-left(0);
+    }
+
+    :global(.usa-card__container) {
+        border-style: none;
+    }
+
+    :global(.usa-card__img) {
+        border-radius: 0;
+    }
+}
