@@ -85,7 +85,7 @@ typealias DataAccessTransaction = Configuration
  *
  * The companion object does the connection pooling and settings.
  */
-class DatabaseAccess(private val create: DSLContext) : Logging {
+class DatabaseAccess(val create: DSLContext) : Logging {
     constructor(
         dataSource: DataSource = commonDataSource
     ) : this(DSL.using(dataSource, SQLDialect.POSTGRES))

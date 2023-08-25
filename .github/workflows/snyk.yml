@@ -30,10 +30,15 @@ jobs:
         working-directory: prime-router
     steps:
       - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/gradle-jdk17@b98d498629f1c368650224d6d212bf7dfa89e4bf
+      - uses: snyk/actions/setup@b98d498629f1c368650224d6d212bf7dfa89e4bf
+      - name: Set up JDK 17 to generate backend coverage stats
+        uses: actions/setup-java@575d86297c16d8dbeab91eb94e3843410e4f3545
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: "gradle"
+      - uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
+      - name: Snyk Monitor
+        run: snyk monitor -d --org=prime-reportstream
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: monitor
-          args: -d --org=prime-reportstream
