@@ -23,18 +23,24 @@ import org.apache.commons.lang3.StringUtils
  */
 class ProcessHl7Commands : CliktCommand(
     name = "hl7data",
-    help = "Compare HL7 Fields"
+    help = "Compare HL7 Fields. This is the structure used for the segment numbering in th output: " +
+        "https://hl7-definition.caristix.com/v2/HL7v2.5.1/TriggerEvents/ORU_R01. If you just want to count from the " +
+        "top, the number after is the number of that segment from the top of the file."
 ) {
     /**
      * The file to compare to
      */
-    private val starterFile by option("-s", "--starter-file", help = "File to compare to")
+    private val starterFile by option("-s", "--starter-file", help = "Absolute path of the file to compare to")
         .file(true, canBeDir = false, mustBeReadable = true).required()
 
     /**
      * The file to use as comparison
      */
-    private val comparisonFile by option("-c", "--comparison-file", help = "File to compare with")
+    private val comparisonFile by option(
+        "-c",
+        "--comparison-file",
+        help = "Absolute path of the file to compare it with"
+    )
         .file(true, canBeDir = false, mustBeReadable = true).required()
 
     /**
@@ -51,10 +57,8 @@ class ProcessHl7Commands : CliktCommand(
         val starterMessages = HL7Reader(actionLogger).getMessages(starterFile)
         val comparisonMessages = HL7Reader(actionLogger).getMessages(comparisonFile)
 
-        var counter = 0
-        starterMessages.forEach {
-            diffHl7(it, comparisonMessages[counter])
-            counter++
+        starterMessages.forEachIndexed { counter, message ->
+            diffHl7(message, comparisonMessages[counter])
         }
     }
 
@@ -75,29 +79,6 @@ class ProcessHl7Commands : CliktCommand(
         val inputMap: MutableMap<String, Segment> = mutableMapOf()
         val outputMap: MutableMap<String, Segment> = mutableMapOf()
         val differences: MutableList<Hl7Diff> = mutableListOf()
-
-        /**
-         * Map the pieces of the structure to their index and name
-         */
-        fun indexStructure(structure: Structure, index: String, map: MutableMap<String, Segment>) {
-            when (structure) {
-                is Group -> {
-                    echo("is group")
-                    val childrenNames = structure.names.filter { cname -> structure.getAll(cname).isNotEmpty() }
-                    val children = childrenNames.map { structure.getAll(it) }
-                    children.forEach { childrenOfType ->
-                        childrenOfType.forEachIndexed { i, child ->
-                            echo("child: $child")
-                            indexStructure(child, "$index-${i + 1}", map)
-                        }
-                    }
-                }
-
-                is Segment -> {
-                    map["$index-${structure.name}"] = structure
-                }
-            }
-        }
 
         val inputNames = input.names
         inputNames.filter { name -> input.getAll(name).isNotEmpty() }.forEach { iname ->
@@ -161,7 +142,7 @@ class ProcessHl7Commands : CliktCommand(
                 }
 
                 else -> {
-                    return true
+                    return false
                 }
             }
         }
@@ -232,5 +213,39 @@ class ProcessHl7Commands : CliktCommand(
         echo("-------diff output")
         echo("There were ${differences.size} differences between the input and output")
         differences.forEach { echo(it) }
+    }
+
+    companion object {
+        /**
+         * Map the pieces of the structure to their index and name
+         * ex.
+         * ...
+         * OBR|
+         * OCR|
+         * OBX|
+         * SPM|
+         * OBX|
+         * OBR|
+         * OBX|
+         * The last OBX would be indexed as 2-1-1, 2 because it's in the second observation_result
+         * This is the structure used: https://hl7-definition.caristix.com/v2/HL7v2.5.1/TriggerEvents/ORU_R01
+         */
+        fun indexStructure(structure: Structure, index: String, map: MutableMap<String, Segment>) {
+            when (structure) {
+                is Group -> {
+                    val childrenNames = structure.names.filter { cname -> structure.getAll(cname).isNotEmpty() }
+                    val children = childrenNames.map { structure.getAll(it) }
+                    children.forEach { childrenOfType ->
+                        childrenOfType.forEachIndexed { i, child ->
+                            indexStructure(child, "$index-${i + 1}", map)
+                        }
+                    }
+                }
+
+                is Segment -> {
+                    map["$index-${structure.name}"] = structure
+                }
+            }
+        }
     }
 }
