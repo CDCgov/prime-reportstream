@@ -11,9 +11,7 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.RawApiSearch
 import gov.cdc.prime.router.azure.SortDirection
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.db.tables.Action
 import gov.cdc.prime.router.azure.db.tables.CovidResultMetadata
-import gov.cdc.prime.router.azure.db.tables.ReportFile
 import gov.cdc.prime.router.common.BaseEngine
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.Condition
@@ -25,7 +23,6 @@ import org.jooq.impl.DSL
 import org.jooq.impl.SQLDataType
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
-import java.util.UUID
 
 /**
  * Enum containing the list of submitter types
@@ -194,19 +191,18 @@ class SubmitterDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccess
      * @param receiver the specific receiver that the submitters should be fetched for
      */
     fun getSubmitters(search: SubmitterApiSearch, receiver: Receiver): ApiSearchResult<Submitter> {
-        return db.transactReturning { txn ->
 
-            // TODO: https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/9411
-            // Might need to have a date limit set to if the query does perform well to search all time
-            val sentReportIdsForReceiver = DSL
-                .using(txn)
-                .select(ReportFile.REPORT_FILE.REPORT_ID)
-                .from(ReportFile.REPORT_FILE)
-                .join(Action.ACTION).on(Action.ACTION.ACTION_ID.eq(ReportFile.REPORT_FILE.ACTION_ID))
-                .where(Action.ACTION.RECEIVING_ORG.eq(receiver.organizationName))
-                .and(Action.ACTION.RECEIVING_ORG_SVC.eq(receiver.name))
-                .and(Action.ACTION.ACTION_NAME.eq(TaskAction.send))
-                .fetchInto(UUID::class.java)
+        // TODO: https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/9411
+        // Might need to have a date limit set to if the query does perform well to search all time
+        val sentReportIdsForReceiver = reportGraph.fetchReportIdsForReceiverAndTask(
+            receiver,
+            TaskAction.send,
+            db.create
+        )
+
+        if (sentReportIdsForReceiver.isEmpty()) {
+            return ApiSearchResult(0, 0, emptyList())
+        } else {
 
             val itemGraph = reportGraph.itemAncestorGraphCommonTableExpression(sentReportIdsForReceiver)
 
@@ -305,11 +301,11 @@ class SubmitterDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccess
                         .groupBy(CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID)
                 ).asTable(SubmitterTable.SUBMITTER)
 
-            search.fetchResults(
-                DSL.using(txn),
-                DSL.withRecursive(itemGraph)
-                    .select(submitterExpression.asterisk())
-                    .from(submitterExpression)
+            return search.fetchResults(
+                db.create,
+                submitterExpression.asterisk(),
+                submitterExpression,
+                itemGraph
             )
         }
     }
