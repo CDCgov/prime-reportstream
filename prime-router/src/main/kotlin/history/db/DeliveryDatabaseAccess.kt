@@ -11,7 +11,6 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.RawApiSearch
 import gov.cdc.prime.router.azure.SortDirection
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.db.tables.Action
 import gov.cdc.prime.router.azure.db.tables.CovidResultMetadata
 import gov.cdc.prime.router.azure.db.tables.ReportFile
 import gov.cdc.prime.router.common.BaseEngine
@@ -155,17 +154,16 @@ class DeliveryDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessS
     private val reportGraph = ReportGraph(db)
 
     fun getDeliveries(search: DeliveryApiSearch, receiver: Receiver): ApiSearchResult<Delivery> {
-        return db.transactReturning { txn ->
-            val sentReportIdsForReceiver = DSL
-                .using(txn)
-                .select(ReportFile.REPORT_FILE.REPORT_ID)
-                .from(ReportFile.REPORT_FILE)
-                .join(Action.ACTION).on(Action.ACTION.ACTION_ID.eq(ReportFile.REPORT_FILE.ACTION_ID))
-                .where(Action.ACTION.RECEIVING_ORG.eq(receiver.organizationName))
-                .and(Action.ACTION.RECEIVING_ORG_SVC.eq(receiver.name))
-                .and(Action.ACTION.ACTION_NAME.eq(TaskAction.send))
-                .fetchInto(UUID::class.java)
 
+        val sentReportIdsForReceiver = reportGraph.fetchReportIdsForReceiverAndTask(
+            receiver,
+            TaskAction.send,
+            db.create
+        )
+
+        if (sentReportIdsForReceiver.isEmpty()) {
+            return ApiSearchResult(0, 0, emptyList())
+        } else {
             val itemGraph = reportGraph.itemAncestorGraphCommonTableExpression(sentReportIdsForReceiver)
 
             val deliveriesExpression = DSL.select(
@@ -218,12 +216,11 @@ class DeliveryDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessS
                     CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID,
                 ).asTable(DeliveryTable.DELIVERY)
 
-            search.fetchResults(
-                DSL.using(txn),
-                DSL
-                    .withRecursive(itemGraph)
-                    .select(deliveriesExpression.asterisk())
-                    .from(deliveriesExpression.asTable(DeliveryTable.DELIVERY.name))
+            return search.fetchResults(
+                db.create,
+                deliveriesExpression.asterisk(),
+                deliveriesExpression.asTable(DeliveryTable.DELIVERY.name),
+                itemGraph
             )
         }
     }
