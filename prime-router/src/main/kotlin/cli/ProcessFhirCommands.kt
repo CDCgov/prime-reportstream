@@ -28,7 +28,6 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
-import io.github.linuxforhealth.hl7.HL7ToFHIRConverter
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Extension
@@ -71,13 +70,9 @@ class ProcessFhirCommands : CliktCommand(
     /**
      * Schema location for the FHIR to HL7 conversion
      */
-    private val fhirToHl7Schema by option("-s", "--schema", help = "Schema location for the FHIR to HL7 conversion")
+    private val transformSchema by option("-s", "--schema", help = "Schema location for the FHIR to HL7 conversion")
         .file()
 
-     /* Schema location for the FHIR to FHIR conversion
-     */
-    private val fhirTofhirSchema by option("-s", "--schema", help = "Schema location for the FHIR to FHIR conversion")
-        .file()
 
     override fun run() {
         // Read the contents of the file
@@ -92,7 +87,7 @@ class ProcessFhirCommands : CliktCommand(
                 outputResult(convertToFhir(contents, actionLogger), actionLogger)
 
             // FHIR to HL7 conversion
-            inputFileType == "FHIR" || inputFileType == "JSON" -> {
+            (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == Report.Format.HL7.toString() -> {
                 outputResult(convertToHl7(contents))
             }
 
@@ -117,16 +112,16 @@ class ProcessFhirCommands : CliktCommand(
      */
     private fun convertToHl7(jsonString: String): Message {
         return when {
-            fhirToHl7Schema == null ->
+            transformSchema == null ->
                 throw CliktError("You must specify a schema.")
 
-            !fhirToHl7Schema!!.canRead() ->
-                throw CliktError("Unable to read schema file ${fhirToHl7Schema!!.absolutePath}.")
+            !transformSchema!!.canRead() ->
+                throw CliktError("Unable to read schema file ${transformSchema!!.absolutePath}.")
 
             else -> {
                 val bundle = FhirTranscoder.decode(jsonString)
                 FhirToHl7Converter(
-                    fhirToHl7Schema!!.name.split(".")[0], fhirToHl7Schema!!.parent,
+                    transformSchema!!.name.split(".")[0], transformSchema!!.parent,
                     context = FhirToHl7Context(CustomFhirPathFunctions())
                 ).convert(bundle)
             }
@@ -138,15 +133,15 @@ class ProcessFhirCommands : CliktCommand(
     */
     private fun convertToFhirToFhir(jsonString: String): Bundle{
         return when {
-            fhirTofhirSchema == null ->
+            transformSchema == null ->
                 throw CliktError("You must specify a schema.")
 
-            !fhirTofhirSchema!!.canRead() ->
-                throw CliktError("Unable to read schema file ${fhirTofhirSchema!!.absolutePath}.")
+            !transformSchema!!.canRead() ->
+                throw CliktError("Unable to read schema file ${transformSchema!!.absolutePath}.")
 
             else -> {
                 val bundle = FhirTranscoder.decode(jsonString)
-                FhirTransformer(fhirTofhirSchema!!.name.split(".")[0]).transform(bundle)
+                FhirTransformer(transformSchema!!.name.split(".")[0], transformSchema!!.parent).transform(bundle)
             }
         }
     }
