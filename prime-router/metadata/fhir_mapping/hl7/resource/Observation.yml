@@ -40,7 +40,7 @@ status:
   valueOf: OBX.11
   expressionType: HL7Spec
 
-dataAbsentReason:
+dataAbsentReason_1:
   condition: $obx11 EQUALS_STRING X
   vars:
     obx11: STRING, OBX.11
@@ -60,6 +60,20 @@ dataAbsentReason_2:
     alternateSystem: "http://terminology.hl7.org/CodeSystem/data-absent-reason"
   valueOf: datatype/CodeableConcept
   generateList: true
+
+dataAbsentReason_3:
+  condition: $obx2 EQUALS ST && $obx5 EQUALS_STRING $emptyString
+  vars:
+    obx2: STRING, OBX.2
+    obx5: STRING, OBX.5
+  constants:
+    primaryCode: "unknown"
+    primarySystem: "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+    emptyString: ""
+  valueOf: datatype/CodeableConcept
+  expressionType: resource
+  generateList: true
+
 
 
 # When OBX's are missing or TX based, we don't want to create an Observation.

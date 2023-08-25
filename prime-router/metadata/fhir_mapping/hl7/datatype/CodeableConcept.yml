@@ -102,6 +102,11 @@ coding_9:
   constants:
     codeIndex: "identifier"
 
+coding_10:
+  valueOf: $coding
+  condition: $coding NOT_NULL
+  generateList: true
+
 # Require available text, and the absence of an identifierCoding
 text:
   condition: $displayText NOT_NULL && $identifierCoding NULL
