@@ -8,8 +8,6 @@ import classNames from "classnames";
 
 import { USSmartLink, USNavLink } from "../../components/USLink";
 import * as shared from "../../shared";
-import PageHeader from "../../shared/PageHeader/PageHeader";
-import HeroWrapper from "../../shared/HeroWrapper/HeroWrapper";
 
 import { TableOfContents } from "./TableOfContents";
 import MarkdownLayoutContext from "./Context";
@@ -158,8 +156,8 @@ export function MarkdownLayout({
                 >
                     {isHeader &&
                         (isFullWidth ? (
-                            <HeroWrapper isAlternate>
-                                <PageHeader
+                            <shared.HeroWrapper isAlternate>
+                                <shared.PageHeader
                                     title={title}
                                     breadcrumbs={breadcrumbs}
                                     subtitleArr={subtitleArr}
@@ -167,9 +165,9 @@ export function MarkdownLayout({
                                     lastUpdated={lastUpdated}
                                     className="usa-section grid-container"
                                 />
-                            </HeroWrapper>
+                            </shared.HeroWrapper>
                         ) : (
-                            <PageHeader
+                            <shared.PageHeader
                                 title={title}
                                 breadcrumbs={breadcrumbs}
                                 subtitleArr={subtitleArr}

@@ -1,12 +1,18 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import DOMPurify from "dompurify";
 
-export interface TileProps
-    extends React.PropsWithChildren<
-        React.HTMLAttributes<HTMLElement> & ContentSubitem
-    > {}
+export interface TileProps {
+    className?: string;
+    children?: ReactNode;
+    img?: string;
+    imgAlt?: string;
+    imgClassName?: string;
+    title?: string;
+    summary?: string;
+}
 
 export const Tile = ({
+    children,
     className,
     img,
     imgAlt,
@@ -29,16 +35,19 @@ export const Tile = ({
             {title && (
                 <p
                     data-testid="heading"
-                    className="usa-prose maxw-mobile-lg font-sans-lg text-bold padding-top-3 border-top-05 border-primary"
+                    className="usa-prose font-sans-lg text-bold padding-top-3 border-top-05 border-primary"
                 >
                     {title}
                 </p>
             )}
-            <p
-                data-testid="summary"
-                className="usa-prose maxw-mobile-lg"
-                dangerouslySetInnerHTML={{ __html: cleanSummaryHtml }}
-            ></p>
+            {summary && (
+                <p
+                    data-testid="summary"
+                    className="usa-prose"
+                    dangerouslySetInnerHTML={{ __html: cleanSummaryHtml }}
+                ></p>
+            )}
+            {children}
         </div>
     );
 };

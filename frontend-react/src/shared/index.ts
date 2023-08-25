@@ -6,3 +6,5 @@ export * from "./HeroWrapper/HeroWrapper";
 export * from "./ContentSection/ContentSection";
 export * from "./Tile/Tile";
 export * from "./LiveMap/LiveMap";
+export * from "./Card/Card";
+export * from "./PageHeader/PageHeader";
