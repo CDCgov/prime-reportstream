@@ -40,9 +40,6 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
         >
             {/* <ReportStreamHeader className="margin-bottom-5" id="site-header">
                 <DAPHeader env={environment} />
-                <USLink className="usa-skipnav" href="#main-content">
-                    Skip Nav
-                </USLink>
                 <GovBanner aria-label="Official government website" />
                 <SenderModeBanner />
             </ReportStreamHeader> */}
