@@ -327,6 +327,9 @@ updates:
       junit:
         patterns:
           - "org.junit.jupiter:junit*"
+      flyway:
+        patterns:
+          - "org.flywaydb*"
     ignore:
       # ignore updates to sshj so we don't run into future issues connecting to STLTs
       - dependency-name: "sshj"
