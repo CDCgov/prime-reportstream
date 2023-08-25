@@ -1,18 +1,17 @@
 import { screen } from "@testing-library/react";
 
-import { renderApp } from "../../../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 
-import Feature from "./Feature";
+import { Tile } from "./Tile";
 
 describe("Feature rendering", () => {
-    const baseSection = { type: "xyz" };
     const baseFeature = {
         title: "base title",
         summary: "base summary",
     };
 
     beforeEach(() => {
-        renderApp(<Feature section={baseSection} feature={baseFeature} />);
+        renderApp(<Tile {...baseFeature} />);
     });
 
     test("renders without error", () => {
@@ -31,7 +30,6 @@ describe("Feature rendering", () => {
 });
 
 describe("DeliveryMethodFeature rendering", () => {
-    const deliveryMethodSection = { type: "deliveryMethods" };
     const deliveryFeature = {
         title: "delivery title",
         img: "test.png",
@@ -49,16 +47,11 @@ describe("DeliveryMethodFeature rendering", () => {
     };
 
     beforeEach(() => {
-        renderApp(
-            <Feature
-                section={deliveryMethodSection}
-                feature={deliveryFeature}
-            />,
-        );
+        renderApp(<Tile {...deliveryFeature} />);
     });
 
     test("renders without error", () => {
-        const image = screen.getByTestId("image");
+        const image = screen.getByTestId("img");
         const heading = screen.getByTestId("heading");
         expect(image).toBeInTheDocument();
         expect(heading).toBeInTheDocument();
@@ -66,23 +59,21 @@ describe("DeliveryMethodFeature rendering", () => {
 });
 
 describe("LiveMapFeature rendering", () => {
-    const liveMapSection = { type: "liveMap" };
     const liveMapFeature = {
         img: "test.png",
         imgAlt: "test alt",
         linkInternal: "/how-it-works/where-were-live",
+        summary: "This is a summary",
     };
 
     beforeEach(() => {
-        renderApp(
-            <Feature section={liveMapSection} feature={liveMapFeature} />,
-        );
+        renderApp(<Tile {...liveMapFeature} />);
     });
 
     test("renders without error", () => {
-        const heading = screen.getByTestId("heading");
+        const image = screen.getByTestId("img");
         const summary = screen.getByTestId("summary");
-        expect(heading).toBeInTheDocument();
+        expect(image).toBeInTheDocument();
         expect(summary).toBeInTheDocument();
     });
 });

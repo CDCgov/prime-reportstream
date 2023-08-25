@@ -2,7 +2,7 @@ import { GridContainer } from "@trussworks/react-uswds";
 import React from "react";
 import { useParams } from "react-router-dom";
 
-import { FeatureName } from "../../../AppRouter";
+import { FeatureName } from "../../../utils/FeatureName";
 import { AuthElement } from "../../AuthElement";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import Crumbs, { CrumbsProps } from "../../Crumbs";

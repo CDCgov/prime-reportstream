@@ -26,8 +26,9 @@ flowchart LR;
 The sections listed below will aim to describe each step of the pipeline in technical detail. Each step will refer to its part of the detailed architecture diagram found [here](https://lucid.app/lucidchart/invitations/accept/inv_daa20a3a-7979-4463-8932-26033c55abb3). See [Pipeline Steps Overview](#pipeline-steps-overview) for a high level overview of how the different steps combine to form the core functionality of the Universal Pipeline.
 
 - [Receive](./receive.md)
-- [Convert/Translate](./convert-translate.md)
+- [Convert](./convert.md)
 - [Route](./route.md)
+- [Translate](./translate.md)
 - [Batch](./batch.md)
 - [Send](./send.md)
 
@@ -40,11 +41,11 @@ The data that is submitted and flows through ReportStream is referred to as a `R
 
 ### FHIR
 
-The Universal Pipeline is often referred to as the "FHIR" pipeline due to the [Convert](./convert-translate.md) step translating received messages into the [FHIR](https://www.hl7.org/fhir/summary.html) format. This allows most logic in the pipeline to run on only one data format instead of having to have separate logic for each format. FHIR was chosen to be the internal format of the Universal Pipeline due to it being the future format of healthcare data exchange and because of its modularity, flexibility, and mature libraries. 
+The Universal Pipeline is often referred to as the "FHIR" pipeline due to the [Convert](./convert.md) step translating received messages into the [FHIR](https://www.hl7.org/fhir/summary.html) format. This allows most logic in the pipeline to run on only one data format instead of having to have separate logic for each format. FHIR was chosen to be the internal format of the Universal Pipeline due to it being the future format of healthcare data exchange and because of its modularity, flexibility, and mature libraries. 
 
 ### Pipeline Steps Overview
 
-Each step in the pipeline is its own step precisely because it is in charge of a unique and specific task. For example, the [Translate](./convert-translate.md) step will translate the report from its current format to the format the particular receiver the report is destined to has requested via their settings. The [Convert](./convert-translate.md) step, on the other hand, will convert the report that was received from a sender to the Universal Pipeline's internal format of FHIR so that subsequent steps can perform their function on a normalized format. While the pipeline steps perform different tasks, they generally all:
+Each step in the pipeline is its own step precisely because it is in charge of a unique and specific task. For example, the [Translate](./translate.md) step translates the report from FHIR format to the format that a given receiver has specified via their settings. The [Convert](./convert.md) step, on the other hand, will convert the report that was received from a sender to the Universal Pipeline's internal format of FHIR so that subsequent steps can perform their function on a normalized format. While the pipeline steps perform different tasks, they generally all:
 
 1. Download the report outputted by the previous step from the step's specific folder in [ReportStream's internal Azure Storage Container](#internal-azure-storage-container)
 2. Modify the downloaded report or perform some other action. In the case of the [Receive](./receive.md) step, it will just upload what it received from the client POST request
@@ -54,7 +55,7 @@ Each step in the pipeline is its own step precisely because it is in charge of a
 
 There are a few exceptions to the rules outlined above:
 1. The [Receive](./receive.md) step, since it is the first step in the pipeline, is not executed via AQS but by a HTTP POST request to `/api/reports` or `/api/waters`. It also does not modify the report at all, rather just places the report it received on the queue
-2. The [Batch](./batch.md) step runs on its own timer and looks for reports that have passed the [Translate](./convert-translate.md) step successfully
+2. The [Batch](./batch.md) step runs on its own timer and looks for reports that have passed the [Translate](./translate.md) step successfully
 3. The [Send](./send.md) step, since it is the last step in the pipeline, will not place anything on the AQS queue
 
 #### Internal Azure Storage Container
@@ -96,7 +97,7 @@ messagesToSend.forEach {
 }
 ```
 
-In the Convert case above, `messagesToSend` is a list of `RawSubmission` objects which contain the id of the report and some other information that will get sent to the next step in the pipeline. This allows the next step in the pipeline to know which report to work on (`report.id`) and how to get it (`blobInfo.blobUrl`). In the case of [Convert](./convert-translate.md), this code looks like so:
+In the Convert case above, `messagesToSend` is a list of `RawSubmission` objects which contain the id of the report and some other information that will get sent to the next step in the pipeline. This allows the next step in the pipeline to know which report to work on (`report.id`) and how to get it (`blobInfo.blobUrl`). In the case of [Convert](./convert.md), this code looks like so:
 ```Kotlin
 messagesToSend.add(  
     RawSubmission(  
@@ -120,7 +121,7 @@ The two queues shared with Legacy Pipeline are:
 
 ##### Handling Expected Errors
 
-Each step is responsible for validating its own actions. For example, if the [Convert](convert-translate.md) step runs into a problem translating the received report into the Universal Pipeline's internal FHIR format, it is responsible for updating the metadata in the database, specifically the `action_log` table, with what error occurred. The `action_log` table is one of the sources of information for the [history endpoint](#history-endpoint), which means it is user facing.
+Each step is responsible for validating its own actions. For example, if the [Convert](convert.md) step runs into a problem translating the received report into the Universal Pipeline's internal FHIR format, it is responsible for updating the metadata in the database, specifically the `action_log` table, with what error occurred. The `action_log` table is one of the sources of information for the [history endpoint](#history-endpoint), which means it is user facing.
 
 ##### Handling Unexpected Errors
 
@@ -132,7 +133,7 @@ In addition to the built-in AQS retry mechanism, the unexpected failure will als
 
 > Before continuing with this section, make sure you understand the concept of a [Report and Item](#report-and-item) in ReportStream!
 
-Generally, each step takes in one Report, performs some operation, and outputs a different Report, referred to as a `Child Report`. In some steps, like the [Convert](convert-translate.md) step, the received Report may be split up into multiple child reports! For the Convert step specifically, this is the case when a Report contains multiple items. The Convert step will split the Report into multiple Reports, so that each Report contains only one item - this is done to prepare for the [Route](route.md) and [Translate](convert-translate.md) steps.
+Generally, each step takes in one Report, performs some operation, and outputs a different Report, referred to as a `Child Report`. In some steps, like the [Convert](convert.md) step, the received Report may be split up into multiple child reports! For the Convert step specifically, this is the case when a Report contains multiple items. The Convert step will split the Report into multiple Reports, so that each Report contains only one item - this is done to prepare for the [Route](route.md) and [Translate](translate.md) steps.
 
 ![item-lineage.png](../assets/item-lineage.png)
 
@@ -193,7 +194,7 @@ Step 1: User submits a report via the reports API and gets the following object 
 ```
 
 Step 2: Some time later, could be right away or could be days from the original submission, the user calls the history endpoint with the id returned from the submission query (`5036f90b-edd5-4a93-9edd-a71d1fa8fba1`) and gets the following object back in the response. The important things to note here are:
-- `overallStatus` changed from `Received` to `Waiting to Deliver`. This indicates the report made it all the way from the [Receive](receive.md) step in the pipeline to the [Translate](convert-translate.md) step and is now waiting on the [Batch](batch.md) function to run. Once the Batch and [Send](send.md) steps run, the `overallStatus` will be set to `Delivered`.
+- `overallStatus` changed from `Received` to `Waiting to Deliver`. This indicates the report made it all the way from the [Receive](receive.md) step in the pipeline to the [Translate](translate.md) step and is now waiting on the [Batch](batch.md) function to run. Once the Batch and [Send](send.md) steps run, the `overallStatus` will be set to `Delivered`.
 - `destinations` was populated with three receiver objects, indicating the [Route](route.md) step determined the report contained items that matched the initial topic and jurisdiction filters of those receivers. The filters for the *CDC-ELIMS-HL7.CDC-ELIMS-RECEIVER* organization allowed the item in the report through (`itemCount` matches `itemCountBeforeQualityFiltering`) but the filters for *flexion.simulated-lab-2* and *flexion.simulated-lab* filtered out the item (`itemCount` is 0), and the `filteredReportRows` element indicates why. In this case, it was the processing mode filter that determined the item should not go through.
 - `destinationCount` is set to `1`, meaning the item in the submitted report passed all the filters for one receiver, in this case *CDC-ELIMS-HL7.CDC-ELIMS-RECEIVER*.
 ```JSON

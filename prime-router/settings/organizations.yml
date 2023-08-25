@@ -228,7 +228,9 @@
       organizationName: ignore
       topic: etor-ti
       customerStatus: active
-      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
+      jurisdictionalFilter:
+        - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
+        - "Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'"
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
