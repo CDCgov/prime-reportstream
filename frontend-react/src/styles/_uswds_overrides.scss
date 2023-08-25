@@ -89,12 +89,6 @@ main {
 
 // TYPOGRAPHY
 
-.usa-prose {
-    h1 {
-        line-height: lh("sans", 2);
-    }
-}
-
 .usa-intro {
     line-height: units(4);
 }
@@ -214,10 +208,6 @@ main {
 // MEDIA: MOBILE
 
 @media (max-width: 63.99em) {
-    main {
-        padding: 2rem 0;
-        border-top: 1px solid #dfe1e2;
-    }
     .usa-logo {
         margin-left: 1rem;
     }
@@ -239,12 +229,6 @@ main {
         text-align: left;
         margin-bottom: 2rem;
         margin-left: 1rem;
-    }
-    h1 {
-        @include u-line-height("sans", 2);
-    }
-    h2 {
-        @include u-line-height("sans", 3);
     }
     .usa-breadcrumb {
         margin-top: 0;
@@ -322,8 +306,8 @@ main {
 /* custom blockquote from design */
 blockquote {
     @include u-margin-x(0);
-    @include u-padding(1.5);
-    @include u-border-left("primary-darker");
+    @include u-padding(3);
+    @include u-border-left("primary");
     // 6 px
     border-left-width: calc(#{units("05")} + #{units(2px)});
     @include set-text-and-bg(
@@ -332,6 +316,10 @@ blockquote {
         $context: "blockquote"
     );
     @include u-font("sans", "lg");
+
+    > *:first-child {
+        @include u-margin-top(0);
+    }
 
     footer {
         @include u-font("sans", "md");
@@ -345,8 +333,31 @@ blockquote {
 }
 
 .usa-prose {
-    /* Do not apply uswds measure on paragraphs (allow to be full-width) */
-    & > p {
-        max-width: unset;
+    /* Do not apply uswds measure on elements (allow to be full-width) */
+    & > *,
+    li {
+        max-width: unset !important;
+    }
+}
+
+.usa-link {
+    .usa-icon {
+        // fix icons to appear as if text
+        vertical-align: text-top;
+        width: auto;
+        height: 100%;
+        border-bottom: solid units("1px") color($theme-link-color);
+
+        &:visited {
+            border-bottom: solid units("1px") color($theme-link-visited-color);
+        }
+
+        &:hover {
+            border-bottom: solid units("1px") color($theme-link-hover-color);
+        }
+
+        &:active {
+            border-bottom: solid units("1px") color($theme-link-active-color);
+        }
     }
 }
