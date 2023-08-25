@@ -12,10 +12,11 @@ import ca.uhn.hl7v2.model.Varies
 import org.apache.commons.lang3.StringUtils
 
 class HL7DiffHelper {
-    /**
-     * Does the diffing of the [input] message to the [output] message. Results are echoed on the command line.
-     */
+
     companion object {
+        /**
+         * Does the diffing of the [input] message to the [output] message. Results are echoed on the command line.
+         */
         fun diffHl7(input: Message, output: Message): List<Hl7Diff> {
             val inputMap: MutableMap<String, Segment> = mutableMapOf()
             val outputMap: MutableMap<String, Segment> = mutableMapOf()
@@ -209,7 +210,7 @@ class HL7DiffHelper {
          * The last OBX would be indexed as 2-1-1, 2 because it's in the second observation_result
          * This is the structure used: https://hl7-definition.caristix.com/v2/HL7v2.5.1/TriggerEvents/ORU_R01
          */
-        fun indexStructure(structure: Structure, index: String, map: MutableMap<String, Segment>) {
+        private fun indexStructure(structure: Structure, index: String, map: MutableMap<String, Segment>) {
             when (structure) {
                 is Group -> {
                     val childrenNames = structure.names.filter { cname -> structure.getAll(cname).isNotEmpty() }
@@ -238,7 +239,7 @@ class HL7DiffHelper {
         val segmentNumber: Int,
     ) {
         override fun toString(): String {
-            val outputText = if (output == "") {
+            val outputText = if (output.isEmpty()) {
                 ""
             } else {
                 ", $output."
