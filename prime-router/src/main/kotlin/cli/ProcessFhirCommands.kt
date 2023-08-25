@@ -15,6 +15,7 @@ import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.int
 import fhirengine.engine.CustomFhirPathFunctions
+import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.JacksonMapperUtilities
@@ -115,7 +116,11 @@ class ProcessFhirCommands : CliktCommand(
                 val bundle = FhirTranscoder.decode(jsonString)
                 FhirToHl7Converter(
                     fhirToHl7Schema!!.name.split(".")[0], fhirToHl7Schema!!.parent,
-                    context = FhirToHl7Context(CustomFhirPathFunctions())
+                    context = FhirToHl7Context(
+                        CustomFhirPathFunctions(),
+                        null,
+                        translationFunctions = CustomTranslationFunctions()
+                    )
                 ).convert(bundle)
             }
         }
