@@ -312,6 +312,24 @@ updates:
       testcontainers:
         patterns:
           - "org.testcontainers:*"
+      log4j:
+        patterns:
+          - "org.apache.logging.log4j:log4j*"
+      hapi:
+        patterns:
+          - "ca.uhn.hapi:hapi*"
+      poi:
+        patterns:
+          - "org.apache.poi:poi*"
+      jjwt:
+        patterns:
+          - "io.jsonwebtoken:jjwt*"
+      junit:
+        patterns:
+          - "org.junit.jupiter:junit*"
+      flyway:
+        patterns:
+          - "org.flywaydb*"
     ignore:
       # ignore updates to sshj so we don't run into future issues connecting to STLTs
       - dependency-name: "sshj"

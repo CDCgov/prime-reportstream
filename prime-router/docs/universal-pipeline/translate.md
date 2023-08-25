@@ -1,4 +1,4 @@
-# Translate
+# Universal Pipeline Translate Step
 After the [route step](route.md) has determined the receivers for a message, the translate step will determine based on each receiver’s translation settings what format the message should be sent in. If the receiver wants HL7v2, the UP can translate the message using the default receiver transforms or use a custom receiver transform. If the receiver wants FHIR, since the message at this point is already in the FHIR format, we can either send it to them as it is, or we can optionally apply a `FhirTransformer`, similarly to what is used for sender-specific changes in the [convert step](convert.md), but this time as a receiver transform.
 
 ## Transforms
