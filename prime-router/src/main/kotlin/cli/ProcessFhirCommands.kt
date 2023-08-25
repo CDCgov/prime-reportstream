@@ -22,11 +22,13 @@ import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import io.github.linuxforhealth.hl7.HL7ToFHIRConverter
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Extension
@@ -72,7 +74,7 @@ class ProcessFhirCommands : CliktCommand(
     private val fhirToHl7Schema by option("-s", "--schema", help = "Schema location for the FHIR to HL7 conversion")
         .file()
 
-     * Schema location for the FHIR to FHIR conversion
+     /* Schema location for the FHIR to FHIR conversion
      */
     private val fhirTofhirSchema by option("-s", "--schema", help = "Schema location for the FHIR to FHIR conversion")
         .file()
@@ -95,8 +97,8 @@ class ProcessFhirCommands : CliktCommand(
             }
 
             // FHIR to FHIR conversion
-            inputFileType == ("FHIR" || inputFileType == "JSON" ) && outputFormat == Report.Format.FHIR.toString() -> {
-                outputResult(convertToFhirToFhir(contents, actionLogger), actionLogger)  
+            (inputFileType == "FHIR" || inputFileType == "JSON" ) && outputFormat == Report.Format.FHIR.toString() -> {
+                outputResult(convertToFhirToFhir(contents), actionLogger)
             }
             
             // HL7 to FHIR to HL7 conversion
@@ -134,7 +136,7 @@ class ProcessFhirCommands : CliktCommand(
     /**
     * convert an FHIR message to FHIR message
     */
-    private fun convertToFhirToFhir(jsonString: String): Message {
+    private fun convertToFhirToFhir(jsonString: String): Bundle{
         return when {
             fhirTofhirSchema == null ->
                 throw CliktError("You must specify a schema.")
@@ -144,10 +146,7 @@ class ProcessFhirCommands : CliktCommand(
 
             else -> {
                 val bundle = FhirTranscoder.decode(jsonString)
-                FhirConverter(
-                    fhirTofhirSchema!!.name.split(".")[0], fhirTofhirSchema!!.parent,
-                    context = FhirToHl7Context(CustomFhirPathFunctions())
-                ).convert(bundle)
+                FhirTransformer(fhirTofhirSchema!!.name.split(".")[0]).transform(bundle)
             }
         }
     }
