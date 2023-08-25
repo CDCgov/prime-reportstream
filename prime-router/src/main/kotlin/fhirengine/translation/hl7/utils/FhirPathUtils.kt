@@ -156,8 +156,8 @@ object FhirPathUtils : Logging {
             // InstantType and DateTimeType are both subclasses of BaseDateTime and can use the same helper
             evaluated[0] is InstantType || evaluated[0] is DateTimeType -> {
                 // There are two translation functions to handle datetime formatting.
-                // If there is custom transloation function, we will call to the function.
-                // Otherwise, we use our old HL7TranslationFunctions to handle the dataTime formating.
+                // If there is a custom translation function, we will call to the function.
+                // Otherwise, we use our old HL7TranslationFunctions to handle the dataTime formatting.
                 appContext?.translationFunctions?.convertDateTimeToHL7(
                     evaluated[0] as BaseDateTimeType, appContext
                 ) ?: Hl7TranslationFunctions().convertDateTimeToHL7(evaluated[0] as BaseDateTimeType, appContext)

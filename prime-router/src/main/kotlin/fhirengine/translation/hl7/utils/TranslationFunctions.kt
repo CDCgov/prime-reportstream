@@ -5,8 +5,8 @@ import ca.uhn.hl7v2.model.v251.datatype.DTM
 import org.hl7.fhir.r4.model.BaseDateTimeType
 
 /**
- * This interface contains the required method signatures required to implement FHIR transloation
- * functions. It contains the default dateTime convertion function.
+ * This interface contains the required method signatures required to implement FHIR translation
+ * functions. It contains the default dateTime conversion function.
  */
 interface TranslationFunctions {
 
