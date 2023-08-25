@@ -15,7 +15,7 @@ import Crumbs, { CrumbConfig } from "../../components/Crumbs";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
 import { DetailItem } from "../../components/DetailItem/DetailItem";
-import { FeatureName } from "../../AppRouter";
+import { FeatureName } from "../../utils/FeatureName";
 
 /* Custom types */
 type DestinationItemProps = {
