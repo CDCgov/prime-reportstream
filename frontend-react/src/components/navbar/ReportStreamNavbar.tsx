@@ -11,6 +11,7 @@ import classnames from "classnames";
 import { useState } from "react";
 
 import styles from "./ReportStreamNavbar.module.scss";
+import { USLinkButton } from "../USLink";
 
 export const ReportStreamNavbar = ({
     blueVariant,
@@ -103,10 +104,17 @@ export const ReportStreamNavbar = ({
                         onToggleMobileNav={toggleMobileMenu}
                     >
                         <div className="nav-cta-container">
-                            <Button outline type="button">
+                            <USLinkButton href="/login">Login</USLinkButton>
+                            <USLinkButton
+                                href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957"
+                                outline
+                            >
+                                Connect now
+                            </USLinkButton>
+                            {/* <Button outline type="button">
                                 Login
                             </Button>
-                            <Button type="button">Connect now</Button>
+                            <Button type="button">Connect now</Button> */}
                         </div>
                     </PrimaryNav>
                 </div>
