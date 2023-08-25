@@ -864,6 +864,11 @@ main {
             .usa-alert {
                 @include u-font-size("sans", "xs");
             }
+
+            // Subtitle coloring
+            header > p {
+                @include u-color("base");
+            }
         }
     }
 
@@ -883,6 +888,11 @@ main {
                 & {
                     @include u-padding(0, !important);
                 }
+            }
+
+            // Undo specific subtitle coloring
+            header > p {
+                color: unset;
             }
         }
 
