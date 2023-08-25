@@ -7636,14 +7636,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chromatic@npm:^6.22.0":
-  version: 6.22.0
-  resolution: "chromatic@npm:6.22.0"
+"chromatic@npm:^6.24.0":
+  version: 6.24.0
+  resolution: "chromatic@npm:6.24.0"
   bin:
     chroma: dist/bin.js
     chromatic: dist/bin.js
     chromatic-cli: dist/bin.js
-  checksum: 8d28d0e4c8a0093bd3a77545257fb99868763d4abb70e895b66ff0811840c97512926ae3def3e5c5317c9e91b84d14d4b84f6ac7dc1fd88304143834158bca85
+  checksum: 31a433981c4b59398680c51d10b1f0fbe76ec91f0c7b0ded9c422af9697a0363721e8d61eb2e5f108b08b3574f02e2d8bf5d1ee1e174f8542e9f08935ef6cf5e
   languageName: node
   linkType: hard
 
@@ -15625,7 +15625,7 @@ __metadata:
     bfj: ^7.0.2
     browserslist: ^4.21.10
     camelcase: ^6.2.1
-    chromatic: ^6.22.0
+    chromatic: ^6.24.0
     classnames: ^2.3.2
     confusing-browser-globals: ^1.0.11
     cross-env: ^7.0.3
