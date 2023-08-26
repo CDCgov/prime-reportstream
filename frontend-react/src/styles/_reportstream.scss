@@ -864,11 +864,6 @@ main {
             .usa-alert {
                 @include u-font-size("sans", "xs");
             }
-
-            // Subtitle coloring
-            header > p {
-                @include u-color("base");
-            }
         }
     }
 
@@ -899,5 +894,14 @@ main {
         #site-header {
             margin-bottom: unset;
         }
+    }
+}
+
+.rs-subtitle {
+    @include u-font("sans", "lg");
+    @include u-color("base");
+
+    & + * {
+        @include u-margin-top(8);
     }
 }
