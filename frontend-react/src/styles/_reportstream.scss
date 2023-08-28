@@ -891,3 +891,12 @@ main {
         }
     }
 }
+
+.rs-subtitle {
+    @include u-font("sans", "lg");
+    @include u-color("base");
+
+    & + * {
+        @include u-margin-top(8);
+    }
+}

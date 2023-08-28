@@ -318,3 +318,96 @@ main {
 .usa-link--external::after {
     @include u-margin-left(0.5);
 }
+
+/* custom blockquote from design */
+blockquote {
+    @include u-margin-x(0);
+    @include u-padding(3);
+    @include u-border-left("primary");
+    // 6 px
+    border-left-width: calc(#{units("05")} + #{units(2px)});
+    @include set-text-and-bg(
+        $theme-summary-box-background-color,
+        $theme-summary-box-text-color,
+        $context: "blockquote"
+    );
+    @include u-font("sans", "lg");
+
+    > *:first-child {
+        @include u-margin-top(0);
+    }
+
+    footer {
+        @include u-font("sans", "md");
+        font-weight: bold;
+
+        cite {
+            display: block;
+            font-weight: initial;
+        }
+    }
+}
+
+.usa-prose {
+    /* Do not apply uswds measure on elements (allow to be full-width) */
+    & > *:not(.grid-container),
+    li {
+        max-width: unset !important;
+    }
+
+    /* custom spacing per design */
+    & > h1 {
+        margin-top: 0;
+    }
+
+    & > h2,
+    & > h3,
+    & > h4,
+    & > h5,
+    & > h6 {
+        // :first-of-type to win specificity against uswds
+        & + *:first-of-type {
+            @include u-margin-top(4);
+        }
+    }
+
+    & > header + * {
+        @include u-margin-top(8);
+    }
+
+    > p {
+        @include u-margin-top(2);
+        @include u-margin-bottom(4);
+    }
+}
+
+.usa-link {
+    .usa-icon {
+        // try to match icon closer to link baseline
+        vertical-align: middle;
+    }
+}
+
+// Apply font rules at a root (instead of needing usa-prose)
+body {
+    @include typeset($theme-prose-font-family);
+
+    h1 {
+        @include h1;
+    }
+    h2 {
+        @include h2;
+    }
+    h3 {
+        @include h3;
+    }
+    h4 {
+        @include h4;
+    }
+    h5 {
+        @include h5;
+    }
+    h6 {
+        @include h6;
+    }
+}
