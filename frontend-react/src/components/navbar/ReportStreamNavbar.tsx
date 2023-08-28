@@ -1,4 +1,5 @@
 import {
+    Button,
     GovBanner,
     Header,
     Menu,
@@ -12,10 +13,12 @@ import { useState } from "react";
 
 import { USLinkButton } from "../USLink";
 import config from "../../config";
-
-import styles from "./ReportStreamNavbar.module.scss";
 import { DAPHeader } from "../header/DAPHeader";
 import SenderModeBanner from "../SenderModeBanner";
+import { useSessionContext } from "../../contexts/SessionContext";
+import { logout } from "../../utils/UserUtils";
+
+import styles from "./ReportStreamNavbar.module.scss";
 
 const { IS_PREVIEW, CLIENT_ENV, APP_ENV } = config;
 
@@ -24,6 +27,14 @@ export const ReportStreamNavbar = ({
 }: {
     blueVariant?: boolean;
 }) => {
+    const {
+        activeMembership,
+        isAdminStrictCheck,
+        isUserAdmin,
+        isUserReceiver,
+        isUserSender,
+        user,
+    } = useSessionContext();
     const [openMenuItem, setOpenMenuItem] = useState<null | string>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const toggleMobileMenu = () => {
@@ -67,7 +78,7 @@ export const ReportStreamNavbar = ({
             </>
         );
     };
-    const menuItems = [
+    const defaultMenuItems = [
         <div className="primary-nav-link-container">
             <a className="primary-nav-link" href="/product" key="product">
                 Product
@@ -84,6 +95,77 @@ export const ReportStreamNavbar = ({
             </a>
         </div>,
     ];
+
+    const menuItemsReceiver = [
+        <div className="primary-nav-link-container">
+            <a className="primary-nav-link" href="/daily-data" key="daily">
+                Daily Data
+            </a>
+        </div>,
+    ];
+
+    const menuItemsSender = [
+        <div className="primary-nav-link-container">
+            <a className="primary-nav-link" href="/upload" key="upload">
+                Upload
+            </a>
+        </div>,
+        <div className="primary-nav-link-container">
+            <a
+                className="primary-nav-link"
+                href="/submissions"
+                key="submissions"
+            >
+                Submissions
+            </a>
+        </div>,
+    ];
+
+    const menuItemsAdmin = [
+        <Dropdown
+            menuName="Admin"
+            dropdownList={[
+                <a href="/admin/settings" key="settings">
+                    Organization Settings
+                </a>,
+                <a href="/admin/lastmile" key="lastmile">
+                    Feature Flags
+                </a>,
+                <a href="/admin/features" key="features">
+                    Last Mile Failures
+                </a>,
+                <a href="/admin/message-tracker" key="message-tracker">
+                    Message Id Search
+                </a>,
+                <a href="/admin/send-dash" key="send-dash">
+                    Receiver Status Dashboard
+                </a>,
+                <a href="/admin/value-sets" key="value-sets">
+                    Value Sets
+                </a>,
+                <a href="/admin/validate" key="validate">
+                    Validate
+                </a>,
+            ]}
+        />,
+    ];
+    const navbarItemBuilder = () => {
+        let menuItems = defaultMenuItems;
+
+        if (isUserReceiver || isUserAdmin) {
+            menuItems = [...menuItems, ...menuItemsReceiver];
+        }
+
+        if (isUserSender || isUserAdmin) {
+            menuItems = [...menuItems, ...menuItemsSender];
+        }
+
+        if (isAdminStrictCheck) {
+            menuItems = [...menuItems, ...menuItemsAdmin];
+        }
+
+        return menuItems;
+    };
     return (
         <>
             <DAPHeader env={APP_ENV ? APP_ENV : "production"} />
@@ -115,18 +197,46 @@ export const ReportStreamNavbar = ({
                         />
                     </div>
                     <PrimaryNav
-                        items={menuItems}
+                        items={navbarItemBuilder()}
                         mobileExpanded={mobileMenuOpen}
                         onToggleMobileNav={toggleMobileMenu}
                     >
                         <div className="nav-cta-container">
-                            <USLinkButton href="/login">Login</USLinkButton>
-                            <USLinkButton
-                                href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957"
-                                outline
-                            >
-                                Connect now
-                            </USLinkButton>
+                            {user ? (
+                                <>
+                                    <span className={styles.UserEmail}>
+                                        {user?.email ?? "Unknown"}
+                                    </span>
+                                    {isUserAdmin && (
+                                        <USLinkButton
+                                            outline
+                                            href="/admin/settings"
+                                        >
+                                            {activeMembership?.parsedName || ""}
+                                        </USLinkButton>
+                                    )}
+
+                                    <Button
+                                        id="logout"
+                                        type="button"
+                                        onClick={logout}
+                                    >
+                                        Logout
+                                    </Button>
+                                </>
+                            ) : (
+                                <>
+                                    <USLinkButton href="/login">
+                                        Login
+                                    </USLinkButton>
+                                    <USLinkButton
+                                        href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957"
+                                        outline
+                                    >
+                                        Connect now
+                                    </USLinkButton>
+                                </>
+                            )}
                         </div>
                     </PrimaryNav>
                 </div>

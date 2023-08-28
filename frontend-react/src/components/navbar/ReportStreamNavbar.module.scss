@@ -17,6 +17,10 @@
       font-weight: 900;
     }
 
+    .UserEmail {
+      margin-right: 1rem;
+    }
+
     @media (min-width: $tablet) {
         height: 104px;
     }
@@ -41,7 +45,7 @@
             .usa-button {
                 margin-right: 0;
 
-                &:first-child {
+                &:first-of-type {
                     margin-right: 1rem;
                 }
             }
@@ -222,6 +226,10 @@
 .NavbarBlueVariant {
     background-color: color("primary-darker");
     border-bottom: 1px solid color("white");
+
+    .UserEmail {
+      color: color("white");
+    }
 
     :global {
         .usa-nav__link:hover:after,

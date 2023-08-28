@@ -18,8 +18,6 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
     const matches = useMatches() as RsRouteObject[];
     const { handle = {} } = matches.at(-1) ?? {};
     const { isContentPage, isFullWidth, isLoginPage } = handle;
-    // Okta signin widget rudely assumes to be the main element
-    const OuterWrapper = isLoginPage ? React.Fragment : "main";
     // article element is currently handled within markdownlayout for markdown pages
     const InnerWrapper =
         isContentPage || isLoginPage ? React.Fragment : ArticleWrapper;
