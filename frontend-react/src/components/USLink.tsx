@@ -49,6 +49,7 @@ export function getHrefRoute(href?: string): string | undefined {
 }
 
 export interface SafeLinkProps extends React.AnchorHTMLAttributes<Element> {
+    extLinkIcon?: boolean;
     state?: any;
 }
 
@@ -60,6 +61,7 @@ export const SafeLink = ({
     children,
     href,
     state,
+    extLinkIcon,
     ...anchorHTMLAttributes
 }: SafeLinkProps) => {
     const sanitizedHref = href ? DOMPurify.sanitize(href) : href;
@@ -72,7 +74,7 @@ export const SafeLink = ({
     ) : (
         <a href={sanitizedHref} {...anchorHTMLAttributes}>
             {children}
-            {isExternalUrl(sanitizedHref) && (
+            {isExternalUrl(sanitizedHref) && extLinkIcon && (
                 <Icon name="Launch" className="margin-left-1 text-middle" />
             )}
         </a>
@@ -92,7 +94,9 @@ export const USLink = ({ children, className, ...props }: USLinkProps) => {
 
 export interface USLinkButtonProps
     extends USLinkProps,
-        Omit<ButtonProps, "type"> {}
+        Omit<ButtonProps, "type"> {
+    extLinkIcon?: boolean;
+}
 
 export const USLinkButton = ({
     className,
@@ -103,6 +107,7 @@ export const USLinkButton = ({
     inverse,
     size,
     unstyled,
+    extLinkIcon,
     ...anchorHTMLAttributes
 }: USLinkButtonProps) => {
     const linkClassname = classnames(
@@ -118,7 +123,13 @@ export const USLinkButton = ({
         },
         className,
     );
-    return <SafeLink {...anchorHTMLAttributes} className={linkClassname} />;
+    return (
+        <SafeLink
+            {...anchorHTMLAttributes}
+            className={linkClassname}
+            extLinkIcon={extLinkIcon}
+        />
+    );
 };
 
 /** A single link for rendering external links. Uses {@link USLink} as a baseline.

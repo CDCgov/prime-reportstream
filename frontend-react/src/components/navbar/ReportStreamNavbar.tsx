@@ -232,6 +232,7 @@ export const ReportStreamNavbar = ({
                                     <USLinkButton
                                         href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957"
                                         outline
+                                        extLinkIcon
                                     >
                                         Connect now
                                     </USLinkButton>
