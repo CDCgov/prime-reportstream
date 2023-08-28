@@ -148,7 +148,6 @@ export function MarkdownLayout({
             ) : null}
             {article ?? (
                 <article
-                    id="main-content"
                     className={classNames(
                         "usa-prose",
                         sidenavContent

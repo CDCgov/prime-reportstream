@@ -9,9 +9,7 @@ import { ReportStreamFooter } from "../../shared/ReportStreamFooter/ReportStream
 import { ReportStreamNavbar } from "../../components/navbar/ReportStreamNavbar";
 
 const ArticleWrapper = (props: React.PropsWithChildren) => {
-    return (
-        <article id="main-content" className="tablet:grid-col-12" {...props} />
-    );
+    return <article className="tablet:grid-col-12" {...props} />;
 };
 
 export type MainLayoutBaseProps = React.PropsWithChildren<{}>;
@@ -37,14 +35,14 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
             )}
         >
             <ReportStreamNavbar blueVariant={isFullWidth} />
-            <OuterWrapper>
+            <main id="main-content">
                 <InnerWrapper>
                     <RSErrorBoundary>
                         {children}
                         <Outlet />
                     </RSErrorBoundary>
                 </InnerWrapper>
-            </OuterWrapper>
+            </main>
             <ToastContainer limit={4} />
             <ReportStreamFooter id="site-footer" isAlternate />
         </div>
