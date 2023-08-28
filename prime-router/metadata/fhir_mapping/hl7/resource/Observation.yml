@@ -74,16 +74,8 @@ dataAbsentReason_3:
   expressionType: resource
   generateList: true
 
-
-
-# When OBX's are missing or TX based, we don't want to create an Observation.
-# When TX, because content is already appended to an associated DiagnosticReport or DocumentReference
-# Logic: if OBX exists AND ( (OBX.2 exists AND OBX.2 is NOT TX) OR (OBX.2 is null/empty) ) AND OBX.3 NOT NULL CREATE the Observation.
-# 'code' is set 'required: true' to cause all or nothing creation logic
-# The expression is nested and values are passed to the nested so that BOTH values control the 'all or nothing'
 code:
   expressionType: nested
-  # TODO the condition is not working, when OBX.2 is empty this evaluates to false
   required: true
   vars:
     obx3: OBX.3
