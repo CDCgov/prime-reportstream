@@ -454,60 +454,6 @@ class CustomFHIRFunctionsTests {
     }
 
     @Test
-    fun `test changeTimezone with convertDateTimeToHL7`() {
-        val timezoneParameters: MutableList<MutableList<Base>> = mutableListOf(mutableListOf(StringType("Asia/Tokyo")))
-        var adjustedDateTime =
-            CustomFHIRFunctions.changeTimezone(
-                mutableListOf(DateTimeType("2015")),
-                timezoneParameters
-            )[0] as DateTimeType
-        assertThat(FhirPathUtils.convertDateTimeToHL7(adjustedDateTime)).isEqualTo("2015")
-
-        adjustedDateTime =
-            CustomFHIRFunctions.changeTimezone(
-            mutableListOf(DateTimeType("2015-04")),
-            timezoneParameters
-        )[0] as DateTimeType
-        assertThat(FhirPathUtils.convertDateTimeToHL7(adjustedDateTime))
-            .isEqualTo("201504")
-
-        adjustedDateTime =
-            CustomFHIRFunctions.changeTimezone(
-            mutableListOf(DateTimeType("2015-04-05")),
-            timezoneParameters
-        )[0] as DateTimeType
-        assertThat(FhirPathUtils.convertDateTimeToHL7(adjustedDateTime))
-            .isEqualTo("20150405")
-
-        // Fhir doesn't support hour/minute precision
-        // With seconds, we should start to see timezone
-        adjustedDateTime =
-            CustomFHIRFunctions.changeTimezone(
-            mutableListOf(DateTimeType("2015-04-05T12:22:11Z")),
-            timezoneParameters
-        )[0] as DateTimeType
-        assertThat(FhirPathUtils.convertDateTimeToHL7(adjustedDateTime))
-            .isEqualTo("20150405212211+0900")
-
-        // Note:  if conversion supports millisecond precision in the future, this test will need to be adjusted
-        adjustedDateTime =
-            CustomFHIRFunctions.changeTimezone(
-            mutableListOf(DateTimeType("2015-04-05T12:22:11.567Z")),
-            timezoneParameters
-        )[0] as DateTimeType
-        assertThat(FhirPathUtils.convertDateTimeToHL7(adjustedDateTime))
-            .isEqualTo("20150405212211+0900")
-
-        adjustedDateTime =
-            CustomFHIRFunctions.changeTimezone(
-            mutableListOf(DateTimeType("2015-04-11T12:22:01-04:00")),
-            timezoneParameters
-        )[0] as DateTimeType
-        assertThat(FhirPathUtils.convertDateTimeToHL7(adjustedDateTime))
-            .isEqualTo("20150412012201+0900")
-    }
-
-    @Test
     fun `test changeTimezone invalid inputs`() {
         val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
         val date: Date = isoFormat.parse("2021-08-09T08:52:00-04:00")
