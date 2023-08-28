@@ -857,9 +857,11 @@ main {
     * CMS-type pages use a smaller default width
     */
     &--content {
-        main {
+        .grid-container {
             @include grid-container("desktop-lg");
+        }
 
+        main {
             // Smaller font for content alerts
             .usa-alert {
                 @include u-font-size("sans", "xs");
@@ -884,6 +886,11 @@ main {
                     @include u-padding(0, !important);
                 }
             }
+
+            // Undo specific subtitle coloring
+            .rs-subtitle {
+                color: unset;
+            }
         }
 
         #site-header {
@@ -892,9 +899,12 @@ main {
     }
 }
 
-.rs-subtitle {
+.rs-subtitle,
+.usa-prose .rs-subtitle {
     @include u-font("sans", "lg");
     @include u-color("base");
+    @include u-margin-top(4);
+    @include u-margin-bottom(0);
 
     & + * {
         @include u-margin-top(8);
