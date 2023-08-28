@@ -113,7 +113,7 @@ Example:
                               "code": "541131000124102",
                               "display": "Infection caused by novel Influenza A virus variant (disorder)"
                          }
-                    [
+                    ]
                 }
             }
         }
@@ -152,15 +152,15 @@ Not all reportable conditions can be identified from order and result LOINC code
 
 ```yaml
 - name: result-condition
-    resource: 'Bundle.entry.resource.ofType(Observation)'
-    condition: '%resource.code.coding.exists() and %resource.meta.tag.code.not'
-    bundleProperty: '%resource.meta.tag.code'
-    value: ['%resource.valueCodeableConcept.coding.code']
-    valueSet:
-      lookupTable:
-        tableName: Condition-Mapping
-        keyColumn: code
-        valueColumn: condition_code
+  resource: 'Bundle.entry.resource.ofType(Observation)'
+  condition: '%resource.code.coding.exists() and %resource.meta.tag.code.not'
+  bundleProperty: '%resource.meta.tag.code'
+  value: ['%resource.valueCodeableConcept.coding.code']
+  valueSet:
+    lookupTable:
+      tableName: Condition-Mapping
+      keyColumn: code
+      valueColumn: condition_code
 ```
 This element should be placed after the above elements as we only want to check the mapping for a result value if we have failed to find a match in the test ordered and test performed locations. 
 
