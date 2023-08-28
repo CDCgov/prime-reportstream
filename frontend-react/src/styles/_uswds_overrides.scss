@@ -334,34 +334,58 @@ blockquote {
 
 .usa-prose {
     /* Do not apply uswds measure on elements (allow to be full-width) */
-    & > *:not(.grid-container),
+    & > *:not(.grid-container, img),
     li {
         max-width: unset !important;
     }
 
     /* custom spacing per design */
-    & > h1 {
-        margin-top: 0;
-    }
 
-    & > h2,
-    & > h3,
-    & > h4,
-    & > h5,
-    & > h6 {
-        // :first-of-type to win specificity against uswds
-        & + *:first-of-type {
+    // default margin-top
+    > *,
+    > *[class*="usa-"] {
+        // opt-out specific blocks
+        &:not(
+                header,
+                h1,
+                h2,
+                img,
+                blockquote,
+                [class*="margin"],
+                [class*="usa-prose"],
+                [class*="rs-hero-wrapper"]
+            ) {
             @include u-margin-top(4);
         }
     }
 
-    & > header + * {
-        @include u-margin-top(8);
+    // page header flush to top of container.
+    > header,
+    > h1 {
+        @include u-margin-top(0);
     }
 
-    > p {
-        @include u-margin-top(2);
-        @include u-margin-bottom(4);
+    // spacing between h2 sections
+    > h2:not(body) {
+        @include u-margin-top(9);
+    }
+
+    // double spacing on first of special block groups
+    // (not first of type, as there could be multiple separated groups)
+    > img,
+    > blockquote {
+        @include u-margin-top(8);
+
+        & + img,
+        & + blockquote {
+            @include u-margin-top(4);
+        }
+    }
+}
+
+.usa-section.usa-prose {
+    > *:first-child {
+        @include u-margin-top(0);
     }
 }
 
