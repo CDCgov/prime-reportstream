@@ -158,7 +158,7 @@ class HL7DiffHelper {
                             )
                             continue
                         }
-                        inputFields.forEachIndexed { index, input ->
+                        inputFields.foldIndexed(differences) { index, differenceAccumulator, input ->
                             try {
                                 val outputField = outputFields[index]
                                 val matches = compareHl7Type(
@@ -171,12 +171,13 @@ class HL7DiffHelper {
                                     0
                                 )
                                 if (matches != null) {
-                                    differences.add(
-                                        matches
-                                    )
+                                    differenceAccumulator.add(matches)
+                                    differenceAccumulator
+                                } else {
+                                    differenceAccumulator
                                 }
                             } catch (ex: IndexOutOfBoundsException) {
-                                differences.add(
+                                differenceAccumulator.add(
                                     Hl7Diff(
                                         segmentIndex,
                                         "Input had more repeating types for ${input.name}",
@@ -187,6 +188,7 @@ class HL7DiffHelper {
                                         segmentNumber
                                     )
                                 )
+                                differenceAccumulator
                             }
                         }
                     }
