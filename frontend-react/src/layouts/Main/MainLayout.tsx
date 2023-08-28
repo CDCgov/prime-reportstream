@@ -5,7 +5,6 @@ import React from "react";
 
 import App from "../../App";
 import RSErrorBoundary from "../../components/RSErrorBoundary";
-import { useSessionContext } from "../../contexts/SessionContext";
 import { ReportStreamFooter } from "../../shared/ReportStreamFooter/ReportStreamFooter";
 import { ReportStreamNavbar } from "../../components/navbar/ReportStreamNavbar";
 
@@ -18,7 +17,6 @@ const ArticleWrapper = (props: React.PropsWithChildren) => {
 export type MainLayoutBaseProps = React.PropsWithChildren<{}>;
 
 export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
-    const { environment } = useSessionContext();
     const matches = useMatches() as RsRouteObject[];
     const { handle = {} } = matches.at(-1) ?? {};
     const { isContentPage, isFullWidth, isLoginPage } = handle;
@@ -38,11 +36,6 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
                 isFullWidth && "rs-style--alternate",
             )}
         >
-            {/* <ReportStreamHeader className="margin-bottom-5" id="site-header">
-                <DAPHeader env={environment} />
-                <GovBanner aria-label="Official government website" />
-                <SenderModeBanner />
-            </ReportStreamHeader> */}
             <ReportStreamNavbar blueVariant={isFullWidth} />
             <OuterWrapper>
                 <InnerWrapper>

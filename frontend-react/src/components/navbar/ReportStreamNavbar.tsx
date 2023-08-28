@@ -1,4 +1,5 @@
 import {
+    GovBanner,
     Header,
     Menu,
     NavDropDownButton,
@@ -13,8 +14,10 @@ import { USLinkButton } from "../USLink";
 import config from "../../config";
 
 import styles from "./ReportStreamNavbar.module.scss";
+import { DAPHeader } from "../header/DAPHeader";
+import SenderModeBanner from "../SenderModeBanner";
 
-const { IS_PREVIEW, CLIENT_ENV } = config;
+const { IS_PREVIEW, CLIENT_ENV, APP_ENV } = config;
 
 export const ReportStreamNavbar = ({
     blueVariant,
@@ -83,6 +86,9 @@ export const ReportStreamNavbar = ({
     ];
     return (
         <>
+            <DAPHeader env={APP_ENV ? APP_ENV : "production"} />
+            <GovBanner aria-label="Official government website" />
+            <SenderModeBanner />
             <div
                 className={`usa-overlay ${mobileMenuOpen ? "is-visible" : ""}`}
             ></div>
