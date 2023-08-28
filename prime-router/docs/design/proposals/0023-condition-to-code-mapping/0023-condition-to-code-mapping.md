@@ -50,7 +50,7 @@ The column names are taken directly from the RCTC spreadsheet.Both LOINC and SNO
 
 ### Supplemental Condition Mapping Table
 
-The RCTC does a fairly good job of keeping up to date with LOINC and SNOMED codes and is regularly updated. It is anticipated that despite this there will be a requirement to map codes that are not present in the condition mapping table. This will be accomplished by a supplemental condition table in a similar manner to the LIVD supplemental table with the exception that the two tables will not be merged into a single table in the database. Instead the supplemental table will only be queried if there is a failure to find a match on the main table. The supplemental table will contain the same columns as the main table. If a column is not applicable it can be left blank unless if is the "Code", "Condition Name" or "Condition Code" columns.
+The RCTC does a fairly good job of keeping up to date with LOINC and SNOMED codes and is regularly updated. It is anticipated that despite this there will be a requirement to map codes that are not present in the condition mapping table. This will be accomplished by a supplemental condition table in a similar manner to the LIVD supplemental table with the exception that the two tables will not be merged into a single table in the database. Instead the supplemental table will only be queried if there is a failure to find a match on the main table. The supplemental table will contain the same columns as the main table. If a column is not applicable it can be left blank unless it is the "Code", "Condition Name" or "Condition Code" columns.
 
 Example:
 
@@ -119,7 +119,7 @@ Example:
         }
 ```
 
-In order to account for both HL7 and FHIR input from senders, the lookup should occur after conversion of teh incoming HL7 V2 message into a FHIR bundle. Since the sender transforms are used after conversion from HL7 to FHIR, adding the below elements to the default sender transform will add the condition tag to the observation resource.
+In order to account for both HL7 and FHIR input from senders, the lookup should occur after conversion of the incoming HL7 V2 message into a FHIR bundle. Since the sender transforms are used after conversion from HL7 to FHIR, adding the below elements to the default sender transform will add the condition tag to the observation resource.
 
 ```yaml
   - name: test-condition
@@ -135,7 +135,7 @@ In order to account for both HL7 and FHIR input from senders, the lookup should 
         
   - name: test-condition-supplemental
     resource: 'Bundle.entry.resource.ofType(Observation)'
-    condition: '%resource.code.coding.exists() and %resource.meta.tag.code.not'
+    condition: '%resource.code.coding.exists() and %resource.meta.tag.code.not.exists()'
     bundleProperty: '%resource.meta.tag.code'
     value: ['%resource.code.coding.code']
     valueSet:
@@ -153,7 +153,7 @@ Not all reportable conditions can be identified from order and result LOINC code
 ```yaml
 - name: result-condition
   resource: 'Bundle.entry.resource.ofType(Observation)'
-  condition: '%resource.code.coding.exists() and %resource.meta.tag.code.not'
+  condition: '%resource.code.coding.exists() and %resource.meta.tag.code.not.exists()'
   bundleProperty: '%resource.meta.tag.code'
   value: ['%resource.valueCodeableConcept.coding.code']
   valueSet:
