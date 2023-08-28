@@ -5,6 +5,8 @@
  * with differing style expectations
  */
 .rs-hero-wrapper {
+    @include u-margin(0);
+
     :global(.usa-section) {
         @include u-padding-y(9);
     }
