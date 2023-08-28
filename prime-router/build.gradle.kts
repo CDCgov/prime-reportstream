@@ -106,7 +106,7 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 defaultTasks("package")
 
 val ktorVersion = "2.3.2"
-val kotlinVersion = "1.9.0"
+val kotlinVersion = "1.9.10"
 val jacksonVersion = "2.15.2"
 
 jacoco.toolVersion = "0.8.9"
