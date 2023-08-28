@@ -788,10 +788,10 @@ dependencies {
     implementation("com.azure:azure-storage-blob:12.22.3") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.18.0") {
+    implementation("com.azure:azure-storage-queue:12.18.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.6.4") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.6.5") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
