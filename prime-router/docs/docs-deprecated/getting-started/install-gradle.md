@@ -15,12 +15,12 @@ brew install gradle
 
 ## Linux
 
-If your package manager contains a gradle version >=7.0.0, feel free to install it using your package manager of choice. For manual installation, you can do the following:
+If your package manager contains a gradle version >=8.0.0, feel free to install it using your package manager of choice. For manual installation, you can do the following:
 
 ```bash
 mkdir -p ${HOME?}/bin/gradle-bins/
 cd ${HOME?}/bin/gradle-bins/
-VERSION=7.6.2
+VERSION=8.3.0
 wget https://services.gradle.org/distributions/gradle-${VERSION?}-bin.zip
 unzip "gradle-${VERSION?}-bin.zip"
 rm "gradle-${VERSION?}-bin.zip"
