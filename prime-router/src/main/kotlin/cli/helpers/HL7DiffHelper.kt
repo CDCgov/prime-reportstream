@@ -130,7 +130,7 @@ class HL7DiffHelper {
                     differences.add(
                         Hl7Diff(
                             segmentIndex,
-                            "Output missing segment",
+                            "Output missing segment $segmentType",
                             "",
                             0,
                             0,
@@ -189,6 +189,29 @@ class HL7DiffHelper {
                                 )
                             }
                         }
+                    }
+                }
+            }
+
+            if (outputMap.size > inputMap.size) {
+                outputMap.forEach { (segmentIndex) ->
+                    val segmentIndexParts = segmentIndex.split("-")
+                    val segmentType = segmentIndexParts[segmentIndexParts.size - 1]
+                    val segmentNumber = mapNumOfSegment[segmentType] ?: 0
+                    mapNumOfSegment[segmentType] = segmentNumber + 1
+                    val inputSegment = inputMap[segmentIndex]
+                    if (inputSegment == null) {
+                        differences.add(
+                            Hl7Diff(
+                                segmentIndex,
+                                "Input missing segment $segmentType",
+                                "",
+                                0,
+                                0,
+                                segmentType,
+                                segmentNumber
+                            )
+                        )
                     }
                 }
             }
