@@ -817,6 +817,7 @@ html {
 h2.rs-numbered {
     @include numbered(h2);
 }
+
 .faq-wrapper {
     .heading {
         h3 {
@@ -889,5 +890,14 @@ main {
         #site-header {
             margin-bottom: unset;
         }
+    }
+}
+
+.rs-subtitle {
+    @include u-font("sans", "lg");
+    @include u-color("base");
+
+    & + * {
+        @include u-margin-top(8);
     }
 }
