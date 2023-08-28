@@ -4,11 +4,11 @@ import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TranslationFunctions
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.Hl7TranslationFunctions
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import java.time.ZoneId
 
-class CustomTranslationFunctions : TranslationFunctions {
+class CustomTranslationFunctions : Hl7TranslationFunctions() {
     /**
      * Converts a FHIR [dateTime] to the format specified in [appContext] - specific application
      * context which contains receiver translation settings.

@@ -2,6 +2,8 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import ca.uhn.hl7v2.model.v251.datatype.DTM
+import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.fhirengine.translation.hl7.HL7Truncator
 import org.hl7.fhir.r4.model.BaseDateTimeType
 
 /**
@@ -14,7 +16,23 @@ interface TranslationFunctions {
      * Convert a FHIR [dateTime] to the format required by HL7
      * @return the converted HL7 DTM
      */
-    fun convertDateTimeToHL7(dateTime: BaseDateTimeType, appContext: CustomContext? = null): String {
+    fun convertDateTimeToHL7(dateTime: BaseDateTimeType, appContext: CustomContext? = null): String
+
+    fun truncateHL7Field(
+        value: String,
+        hl7Field: String,
+        terser: Terser,
+        truncateHDNamespaceIds: Boolean,
+        truncateHl7Fields: List<String>,
+        customLengthHl7Fields: Map<String, Int> = emptyMap(),
+    ): String
+}
+
+open class Hl7TranslationFunctions(
+    private val hl7Truncator: HL7Truncator = HL7Truncator()
+) : TranslationFunctions {
+
+    override fun convertDateTimeToHL7(dateTime: BaseDateTimeType, appContext: CustomContext?): String {
         /**
          * Set the timezone for an [hl7DateTime] if a timezone was specified.
          * @return the updated [hl7DateTime] object
@@ -63,6 +81,22 @@ interface TranslationFunctions {
             }
         }
     }
-}
 
-class Hl7TranslationFunctions : TranslationFunctions
+    override fun truncateHL7Field(
+        value: String,
+        hl7Field: String,
+        terser: Terser,
+        truncateHDNamespaceIds: Boolean,
+        truncateHl7Fields: List<String>,
+        customLengthHl7Fields: Map<String, Int>
+    ): String {
+        return hl7Truncator.trimAndTruncateValue(
+            value,
+            hl7Field,
+            terser,
+            truncateHDNamespaceIds,
+            truncateHl7Fields,
+            customLengthHl7Fields
+        )
+    }
+}
