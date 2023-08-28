@@ -5,6 +5,7 @@ import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
+import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Hl7Configuration
@@ -144,7 +145,7 @@ class FHIRTranslator(
     internal fun getHL7MessageFromBundle(bundle: Bundle, receiver: Receiver): Message {
         val converter = FhirToHl7Converter(
             receiver.schemaName,
-            context = FhirToHl7Context(CustomFhirPathFunctions())
+            context = FhirToHl7Context(CustomFhirPathFunctions(), receiver, CustomTranslationFunctions())
         )
         val hl7Message = converter.convert(bundle)
 

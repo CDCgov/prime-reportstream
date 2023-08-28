@@ -68,6 +68,7 @@ object DateUtilities {
         "[uuuuMMddHHmmss[.SSS][Z]][uuuuMMddHHmm[.SSS][Z]]",
         "[uuuu-MM-dd'T'HH:mm[:ss]['Z'][xxx]]",
         "[uuuu-MM-dd'T'HH:mm[:ss][.S[S][S]]['Z']]",
+        "[uuuu-MM-dd'T'HH:mm[:ss][.nnn]['Z'][xxx]]",
         "[uuuu-MM-dd'T'HH:mm[:ss][.nnnn]['Z'][xxx]]",
         "[yyyy-MM-dd[ H:mm:ss[.S[S][S]]]]",
         "[yyyyMMdd[ H:mm:ss[.S[S][S]]]]",
