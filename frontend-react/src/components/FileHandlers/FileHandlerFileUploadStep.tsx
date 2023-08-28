@@ -80,7 +80,6 @@ export default function FileHandlerFileUploadStep({
     onFileChange,
     onFileSubmitError,
     onFileSubmitSuccess,
-    onNextStepClick,
     onPrevStepClick,
     selectedSchemaOption,
 }: FileHandlerFileUploadStepProps) {
@@ -149,10 +148,6 @@ export default function FileHandlerFileUploadStep({
             });
 
             onFileSubmitSuccess(response);
-
-            if (onNextStepClick) {
-                onNextStepClick();
-            }
 
             eventData = {
                 warningCount: response?.warnings?.length,

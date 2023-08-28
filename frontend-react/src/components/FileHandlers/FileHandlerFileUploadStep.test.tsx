@@ -236,10 +236,6 @@ describe("FileHandlerFileUploadStep", () => {
                 );
             });
 
-            test("it calls onNextStepClick", () => {
-                expect(onNextStepClickSpy).toHaveBeenCalled();
-            });
-
             test("it calls trackAppInsightEvent with event data", () => {
                 expect(
                     analyticsExports.trackAppInsightEvent,

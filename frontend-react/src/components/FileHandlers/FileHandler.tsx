@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
 
 import { showError } from "../AlertNotifications";
@@ -27,32 +27,27 @@ export interface FileHandlerStepProps extends FileHandlerState {
 
 const WizardSteps = [
     {
-        order: 0,
         Component: FileHandlerSchemaSelectionStep,
         isValid(state: FileHandlerState) {
             return Boolean(state.selectedSchemaOption.value);
         },
     },
     {
-        order: 1,
         Component: FileHandlerFileUploadStep,
         isValid(state: FileHandlerState) {
             return Boolean(state.file);
         },
     },
     {
-        order: 2,
         Component: FileHandlerErrorsWarningsStep,
         isVisible(state: FileHandlerState) {
             return Boolean(state.errors?.length || state.warnings?.length);
         },
     },
     {
-        order: 3,
         Component: FileHandlerSuccessStep,
     },
 ] satisfies {
-    order: number;
     Component: React.ComponentType<any>;
     isValid?: (state: any) => boolean;
     isVisible?: (state: any) => boolean;
@@ -88,12 +83,14 @@ function getWizardStep(
                 stepNum++;
             } else if (stepNum > 0) {
                 stepNum--;
+            } else {
+                throw new Error("Unable to determine next visible step");
             }
-            throw new Error("Unable to determine next visible step");
         }
     }
     return {
         ...step,
+        order: stepNum,
         isValid: step.isValid == null ? true : step.isValid(state),
         isVisible: step.isVisible == null ? true : step.isVisible(state),
     } satisfies {
@@ -107,19 +104,14 @@ function getWizardStep(
 export default function FileHandler() {
     const { state, dispatch } = useFileHandler();
     const { fileName, localError } = state;
+    const initialStep = useRef(getWizardStep(state).order);
     const [currentStepIndex, setCurrentStepIndex] = useState(
-        getWizardStep(state).order,
+        initialStep.current,
     );
     const { Component, isValid, isVisible } = getWizardStep(
         state,
         currentStepIndex,
     );
-
-    useEffect(() => {
-        if (localError) {
-            showError(localError);
-        }
-    }, [localError]);
 
     const { data: organization } = useOrganizationSettings();
 
@@ -174,6 +166,19 @@ export default function FileHandler() {
         onPrevStepClick: decrementStepIndex,
         onNextStepClick: incrementStepIndex,
     };
+
+    useEffect(() => {
+        if (localError) {
+            showError(localError);
+        }
+    }, [localError]);
+
+    // Move to next step after we get a response for file validation
+    useEffect(() => {
+        if (state.overallStatus && currentStepIndex === 1) {
+            setCurrentStepIndex((idx) => getWizardStep(state, idx + 1).order);
+        }
+    }, [currentStepIndex, state]);
 
     return (
         <GridContainer>
