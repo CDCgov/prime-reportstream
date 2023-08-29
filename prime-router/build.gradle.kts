@@ -113,17 +113,17 @@ jacoco.toolVersion = "0.8.10"
 
 // Set the compiler JVM target
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 val compileKotlin: KotlinCompile by tasks
 val compileTestKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions.jvmTarget = "11"
+compileKotlin.kotlinOptions.jvmTarget = "17"
 compileKotlin.kotlinOptions.allWarningsAsErrors = true
 // if you set this to true, you will get a warning, which then gets treated as an error
 compileKotlin.kotlinOptions.useK2 = false
-compileTestKotlin.kotlinOptions.jvmTarget = "11"
+compileTestKotlin.kotlinOptions.jvmTarget = "17"
 compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
 tasks.clean {
@@ -246,7 +246,7 @@ sourceSets.create("testIntegration") {
 }
 
 val compileTestIntegrationKotlin: KotlinCompile by tasks
-compileTestIntegrationKotlin.kotlinOptions.jvmTarget = "11"
+compileTestIntegrationKotlin.kotlinOptions.jvmTarget = "17"
 
 val testIntegrationImplementation: Configuration by configurations.getting {
     extendsFrom(configurations["testImplementation"])

@@ -67,11 +67,11 @@ runs:
           yarn build:$ENV
         shell: bash
 
-    - name: Set up JDK 11 to generate backend coverage stats
+    - name: Set up JDK 17 to generate backend coverage stats
       uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2
       if: github.actor != 'dependabot[bot]'
       with:
-        java-version: "11"
+        java-version: "17"
         distribution: "adopt"
         cache: "gradle"
 
