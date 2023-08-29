@@ -6,7 +6,7 @@ import React from "react";
 import App from "../../App";
 import RSErrorBoundary from "../../components/RSErrorBoundary";
 import { ReportStreamFooter } from "../../shared/ReportStreamFooter/ReportStreamFooter";
-import { ReportStreamNavbar } from "../../components/navbar/ReportStreamNavbar";
+import { ReportStreamNavbar } from "../../components/header/ReportStreamNavbar";
 
 const ArticleWrapper = (props: React.PropsWithChildren) => {
     return <article className="tablet:grid-col-12" {...props} />;
