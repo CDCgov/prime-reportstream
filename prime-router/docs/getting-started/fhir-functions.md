@@ -1,18 +1,67 @@
 # FHIR Functions
+## Context
+### FHIRPath
+
+Access to fields in a FHIR message can be accomplished using [FHIRPath](http://hl7.org/fhirpath/), which is an expression language defined by FHIR. At its simplest, this takes the form of a single dotted path: `Bundle.entry.resource.ofType(Patient).name.family`.
+
+FHIRPath is used in filtering to access values in a bundle. In the example, the value for the patient’s family name (i.e last name) would be provided.
+
+
+### Shorthands
+
+FHIRPath can be verbose and challenging for a user that is not familiar with FHIR or the FHIR bundle structure. To ease some of that complexity, FHIRPath expressions can be simplified by the use of built-in constants that point to specific FHIR resources. This makes expressions simpler to write while keeping the flexibility and logic that it provides. These ReportStream-specific shorthands are prefaced with the percent symbol(%). For example:
+
+<table>
+  <tr>
+   <td><strong>ShortHand Examples</strong>
+   </td>
+   <td><strong>Full FHIRPath Expression</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>%patientState
+   </td>
+   <td>Bundle.entry.resource.ofType(Patient).address.state
+   </td>
+  </tr>
+  <tr>
+   <td>%patientLastname
+   </td>
+   <td>Bundle.entry.resource.ofType(Patient).name.family
+   </td>
+  </tr>
+  <tr>
+   <td>%patientFirstname
+   </td>
+   <td>Bundle.entry.resource.ofType(Patient).name.given
+   </td>
+  </tr>
+</table>
+
+This is how the shorthands would be used in receiver settings:
+
+```yaml
+jurisdictionalFilter:
+	- ‘%patientState = “CO”’
+qualityFilter:
+	- ‘%patientLastname.exists() and %patientFirstname.exists()’
+```
+
+## Basics
 FHIR functions are methods that can be run on a bundle in order to extract data from it (ex. retrieve an age or telephone area code).
 When translating FHIR bundles to other formats, like HL7v2, it is necessary to extract data from the FHIR bundle, so 
 that it can be moved over to the new format. We can often accomplish extracting the data we need via a simple FHIR path 
 expression like so:
 
-``` 
+```yaml
   - name: designator-namespace-id-from-namespace
-   condition: '%resource.extension(%`namespaceExtName`).exists()'
-   value: [ '%resource.extension(%`namespaceExtName`).value' ]
-   hl7Spec: [ '%{hl7HDField}-1' ]
+    condition: '%resource.extension(%`namespaceExtName`).exists()'
+    value: [ '%resource.extension(%`namespaceExtName`).value' ]
+    hl7Spec: [ '%{hl7HDField}-1' ]
 ```
 
 When a simple FHIR path expression is not enough, we use FHIR Functions like so:
-``` 
+```yaml
   - name: specimen-received-time-diagnostic
     condition: '%resource.receivedTime.exists().not() and %resource.collection.collected is dateTime'
     value: [ '%resource.collection.collected.changeTimezone(%timezone)' ]

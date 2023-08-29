@@ -2,20 +2,24 @@ package gov.cdc.prime.router.azure
 
 import com.microsoft.azure.functions.HttpRequestMessage
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
+import org.apache.logging.log4j.kotlin.Logging
+import org.jooq.CommonTableExpression
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.Field
 import org.jooq.Record
-import org.jooq.SelectJoinStep
+import org.jooq.SelectFieldOrAsterisk
 import org.jooq.SortField
+import org.jooq.Table
 import org.jooq.TableField
+import org.jooq.WithStep
+import org.jooq.impl.DSL
 
 data class ApiSearchResult<T>(val totalCount: Int, val filteredCount: Int, val results: List<T>)
 enum class SortDirection {
@@ -135,7 +139,7 @@ abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilte
     private val recordClass: Class<PojoType>,
     val page: Int,
     val limit: Int
-) {
+) : Logging {
     /** The list of filters that should be applied */
     abstract val filters: List<ApiFilterType>
     /** The sort parameter that should be applied */
@@ -186,27 +190,72 @@ abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilte
      *
      *
      * @param dslContext  the JOOQ context that will be used to execute the results
+     * @param selectFields the fields that will be selected from the expression
+     * @param table the table to read results from; this can be a virtual JOOQ table created from an expression
+     * @param recursiveCte a recursive CTE to add to the expression
+     * @return the list of the records parsed into the [PojoType]
+     *
+     */
+
+    open fun <T : Record, R : Record> fetchResults(
+        dslContext: DSLContext,
+        selectFields: SelectFieldOrAsterisk,
+        table: Table<T>,
+        recursiveCte: CommonTableExpression<R>
+    ): ApiSearchResult<PojoType> = fetchResults<T, R>(dslContext, selectFields, table, DSL.withRecursive(recursiveCte))
+
+    /**
+     * Runs the specified select using the passed context applying the where, sort, pagination
+     * clauses and finally reading the results into the specified [PojoType].
+     *
+     *
+     * @param dslContext  the JOOQ context that will be used to execute the results
+     * @param selectFields the fields that will be selected from the expression
+     * @param table the table to read results from; this can be a virtual JOOQ table created from an expression
+     * @return the list of the records parsed into the [PojoType]
+     *
+     */
+    open fun <T : Record> fetchResults(
+        dslContext: DSLContext,
+        selectFields: SelectFieldOrAsterisk,
+        table: Table<T>
+    ): ApiSearchResult<PojoType> = fetchResults<T, Record>(dslContext, selectFields, table, DSL.withRecursive())
+
+    /**
+     * Runs the specified select using the passed context applying the where, sort, pagination
+     * clauses and finally reading the results into the specified [PojoType].
+     *
+     *
+     * @param dslContext  the JOOQ context that will be used to execute the results
      * @param select the JOOQ select that will be used
      * @return the list of the records parsed into the [PojoType]
      *
      */
-    open fun <T : Record> fetchResults(dslContext: DSLContext, select: SelectJoinStep<T>): ApiSearchResult<PojoType> =
+
+    private fun <T : Record, R : Record> fetchResults(
+        dslContext: DSLContext,
+        selectFields: SelectFieldOrAsterisk,
+        table: Table<T>,
+        dsl: WithStep
+    ): ApiSearchResult<PojoType> =
         runBlocking {
             flow<ApiSearchResult<PojoType>> {
                 emit(
                     coroutineScope {
-                        val totalCount = async(Dispatchers.IO, CoroutineStart.UNDISPATCHED) {
-                            dslContext.fetchCount(select)
-                        }
-                        val filteredCount = async(Dispatchers.IO, CoroutineStart.UNDISPATCHED) {
+                        val totalCount = async(Dispatchers.IO) {
                             dslContext.fetchCount(
-                                select
+                                dsl.select(selectFields).from(table)
+                            )
+                        }
+                        val filteredCount = async(Dispatchers.IO) {
+                            dslContext.fetchCount(
+                                dsl.select(selectFields).from(table)
                                     .where(getWhereClause())
                             )
                         }
-                        val results = async(Dispatchers.IO, CoroutineStart.UNDISPATCHED) {
+                        val results = async(Dispatchers.IO) {
                             dslContext.fetch(
-                                select
+                                dsl.select(selectFields).from(table)
                                     .where(getWhereClause())
                                     .orderBy(getSortClause(), getPrimarySortClause())
                                     .limit(limit)

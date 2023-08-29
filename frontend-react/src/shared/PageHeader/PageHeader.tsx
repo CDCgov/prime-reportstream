@@ -13,7 +13,7 @@ export type PageHeaderProps = React.PropsWithChildren<
     } & React.HTMLAttributes<HTMLElement>
 >;
 
-export default function PageHeader({
+export function PageHeader({
     title,
     breadcrumbs,
     subtitleArr,
@@ -44,18 +44,22 @@ export default function PageHeader({
                     {s}
                 </p>
             ))}
-            <div className="grid-row margin-top-8 margin-bottom-2">
-                {callToAction?.map((c) => (
-                    <USLinkButton key={c.label} href={c.href} extLinkIcon>
-                        {c.label}
-                    </USLinkButton>
-                ))}
-                {lastUpdated && (
-                    <p className="text-base text-italic">
-                        Last updated: {lastUpdated}
-                    </p>
-                )}
-            </div>
+            {(callToAction || lastUpdated) && (
+                <div className="grid-row margin-top-8 margin-bottom-2">
+                    {callToAction?.map((c) => (
+                        <USLinkButton key={c.label} href={c.href} extLinkIcon>
+                            {c.label}
+                        </USLinkButton>
+                    ))}
+                    {lastUpdated && (
+                        <p className="text-base text-italic">
+                            Last updated: {lastUpdated}
+                        </p>
+                    )}
+                </div>
+            )}
         </header>
     );
 }
+
+export default PageHeader;

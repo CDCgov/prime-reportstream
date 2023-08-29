@@ -62,9 +62,9 @@ object ConfigSchemaReader : Logging {
             when {
                 // Need to smart cast so the compiler knows which merge is being called
                 parentSchema is ConverterSchema && childSchema is ConverterSchema ->
-                    parentSchema.merge(childSchema)
+                    parentSchema.override(childSchema)
                 parentSchema is FhirTransformSchema && childSchema is FhirTransformSchema ->
-                    parentSchema.merge(childSchema)
+                    parentSchema.override(childSchema)
                 else ->
                     throw SchemaException(
                         "Parent schema ${parentSchema.name} and child schema ${childSchema.name} of incompatible types"
