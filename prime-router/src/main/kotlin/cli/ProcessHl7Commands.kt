@@ -34,6 +34,8 @@ class ProcessHl7Commands : CliktCommand(
     )
         .file(true, canBeDir = false, mustBeReadable = true).required()
 
+    private val hl7DiffHelper = HL7DiffHelper()
+
     /**
      * The run function is what runs when ./prime hl7data is run on the command line
      */
@@ -49,7 +51,7 @@ class ProcessHl7Commands : CliktCommand(
         val comparisonMessages = HL7Reader(actionLogger).getMessages(comparisonFile)
 
         starterMessages.forEachIndexed { counter, message ->
-            val differences = HL7DiffHelper.diffHl7(message, comparisonMessages[counter])
+            val differences = hl7DiffHelper.diffHl7(message, comparisonMessages[counter])
             echo("-------diff output")
             echo("There were ${differences.size} differences between the input and output")
             differences.forEach { echo(it.toString()) }
