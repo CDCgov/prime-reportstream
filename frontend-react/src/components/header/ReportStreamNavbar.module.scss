@@ -19,6 +19,12 @@
 
   .UserEmail {
     margin-right: 1rem;
+
+    @media (max-width: $tablet) {
+      margin-bottom: 1rem;
+      display: block;
+      text-align: center;
+    }
   }
 
   @media (min-width: $tablet) {
@@ -82,6 +88,24 @@
     }
 
     .usa-nav.is-visible {
+      .primary-nav-link-container {
+        padding: 0;
+        width: 100%;
+      }
+
+      .primary-nav-link {
+        color: inherit;
+        padding: 1.5rem 1rem;
+
+        &:hover {
+          color: inherit;
+
+          &:after {
+            content: none;
+          }
+        }
+      }
+
       .usa-accordion {
         padding-bottom: 64px;
       }
@@ -300,12 +324,16 @@
             background-color: color("white");
           }
         }
+
+        &:after {
+          background-color: color("white");
+        }
         
         &:hover {
           background-color: color("primary-dark");
           
           &:after {
-            background-color: color("primary");
+            background-color: color("white");
           }
         }
       }
