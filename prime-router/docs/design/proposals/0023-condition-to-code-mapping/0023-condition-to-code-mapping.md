@@ -1,4 +1,4 @@
-## Proposal for Code-to-Condition Mapping
+# Proposal for Code-to-Condition Mapping
 
 ## Background
 
@@ -8,7 +8,7 @@ own criteria for what conditions need to be reported to that jurisdiction. In th
 Since ReportStream takes on the burden of identifying the appropriate destination for sender’s messages, it will be necessary to implement a feature to ensure only messages for the appropriate conditions/diseases are allowed to route to each connected receiver. This feature will be similar to the COVID-19 LIVD table in that it will be a table of LOINC codes and their associated conditions that is used to reference received LOINC/SNOMED codes and return their associated condition.
 
 ## Assumptions
-1.) The CSTE ValueSets that make up the Reportable Conditions Trigger Codes (RCTC) will be sufficient to capture a majority of codes sent to ReportStream. If this turns out not to be true we can modify the design to include additional data sources.
+1.) The CSTE ValueSets that make up the Reportable Conditions Trigger Codes (RCTC) will be sufficient to capture a majority of codes sent to ReportStream. If this turns out to be false, we can modify the design to include additional data sources.
 
 ## Criteria
 
@@ -40,7 +40,7 @@ The condition mapping table will be made up of CSTE ValueSets and contain the fo
 | Descriptor                    | LOINC or SNOMED term descriptio               | Chlamydia trachomatis rRNA [Presence] in Urine by Probe                        |
 | Code System                   | Indicates whether code is LOINC or SNOMED     | LOINC                                                                          |
 | Version                       | LOINC or SNOMED release version               | 2.74                                                                           |
-| Status                        | Indicates if code is active or depracated     | Active                                                                         |
+| Status                        | Indicates if code is active or deprecated     | Active                                                                         |
 | Condition Name                | Name of associated reportable condition       | Chlamydia trachomatis infection (disorder)                                     |
 | Condition Code                | SONMED value associated with condition        | 240589008                                                                      | 
 | Condition Code System         | System used for condition code                | SNOMEDCT                                                                       |
