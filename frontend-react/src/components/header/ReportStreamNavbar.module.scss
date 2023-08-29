@@ -1,6 +1,14 @@
 // AutoUpdateFileChromatic
 @use "../../global-modules.scss" as *;
 
+// Custom breakpoint for a crowded Navbar so all the nav items are alaways nicely displayed
+@mixin tablet-to-1300px {
+  @media (min-width: $tablet) and (max-width: 1300px) {
+      @content;
+  }
+}
+
+// Shared styles between both variants of the Navbar
 .Navbar {
   display: flex;
   flex-direction: column;
@@ -19,6 +27,14 @@
 
   .UserEmail {
     margin-right: 1rem;
+
+    @include tablet-to-1300px {
+      display: inline-block;
+      max-width: 50px;
+      white-space: nowrap;       
+      overflow: hidden;          
+      text-overflow: ellipsis;
+    }
 
     @media (max-width: $tablet) {
       margin-bottom: 1rem;
@@ -52,7 +68,7 @@
       .usa-button {
         margin-right: 0;
 
-        &:first-of-type {
+        &--outline:first-of-type {
           margin-right: 1rem;
         }
       }
@@ -87,6 +103,7 @@
       }
     }
 
+    // Styling block specific for the mobile state of the Navbar
     .usa-nav.is-visible {
       .primary-nav-link-container {
         padding: 0;
@@ -158,8 +175,9 @@
       bottom: 0;
     }
 
-    @media (min-width: $tablet) and (max-width: 1110px) {
-      .usa-nav__primary button {
+    @include tablet-to-1300px {
+      .usa-nav__primary button,
+      .primary-nav-link-container {
         padding: 1rem 0.4rem;
       }
 
@@ -197,6 +215,7 @@
       background-color: color("primary-darker");
     }
     
+    // Styling block specific for the mobile state of the Navbar
     .usa-nav.is-visible {
       .usa-nav__primary button[aria-expanded="true"] {
         background-color: color("white");
@@ -291,6 +310,7 @@
       }
     }
     
+    // Styling block specific for the mobile state of the Navbar
     .usa-nav.is-visible {
       background-color: color("primary-darker");
       
