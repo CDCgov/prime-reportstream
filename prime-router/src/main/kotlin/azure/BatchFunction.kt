@@ -14,6 +14,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.Configuration
+import java.time.Duration
 import java.time.OffsetDateTime
 
 const val batch = "batch"
@@ -191,6 +192,7 @@ class BatchFunction(
             receiver.timing.operation != Receiver.BatchOperation.MERGE
         ) {
             // Send each report separately
+            val startTime = OffsetDateTime.now()
             runBlocking {
                 validHeaders.forEach {
                     async {
@@ -222,10 +224,13 @@ class BatchFunction(
                     }
                 }
             }
+            val duration = Duration.between(startTime, OffsetDateTime.now())
+            logger.info("BatchFunction Message download and send task creation took $duration")
         } else if (validHeaders.isNotEmpty() ||
             (receiver.timing.whenEmpty.action == Receiver.EmptyOperation.SEND)
         ) {
             // Batch all reports into one
+            val startTime = OffsetDateTime.now()
             val messages = runBlocking {
                 validHeaders.map {
                     async {
@@ -238,6 +243,8 @@ class BatchFunction(
                     }
                 }.awaitAll()
             }
+            val duration = Duration.between(startTime, OffsetDateTime.now())
+            logger.info("BatchFunction Message download took $duration")
 
             // Generate the batch message
             val batchMessage = when (receiver.format) {

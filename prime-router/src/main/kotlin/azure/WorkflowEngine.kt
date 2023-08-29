@@ -39,6 +39,7 @@ import kotlinx.coroutines.runBlocking
 import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
+import java.time.Duration
 import java.time.OffsetDateTime
 
 /**
@@ -50,7 +51,6 @@ import java.time.OffsetDateTime
  * @see DatabaseAccess.Header
  */
 class WorkflowEngine(
-
     val metadata: Metadata = Metadata.getInstance(),
     val settings: SettingsProvider = settingsProviderSingleton,
     val hl7Serializer: Hl7Serializer = hl7SerializerSingleton,
@@ -652,6 +652,7 @@ class WorkflowEngine(
             // This check is needed as long as TASK does not FK to REPORT_FILE.  @todo FK TASK to REPORT_FILE
             ActionHistory.sanityCheckReports(tasks, reportFiles, false)
 
+            val startTime = OffsetDateTime.now()
             val headers = runBlocking {
                 tasks.mapNotNull {
                     async {
@@ -663,6 +664,8 @@ class WorkflowEngine(
                     }
                 }.awaitAll()
             }.filterNotNull()
+            val duration = Duration.between(startTime, OffsetDateTime.now())
+            logger.info("BatchFunction Message download and header creation took $duration")
 
             updateBlock(headers, txn)
             // Here we iterate through the original tasks, rather than headers.
