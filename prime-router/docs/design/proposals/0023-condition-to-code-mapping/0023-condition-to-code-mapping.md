@@ -42,7 +42,7 @@ The condition mapping table will be made up of CSTE ValueSets and contain the fo
 | Version                       | LOINC or SNOMED release version               | 2.74                                                                           |
 | Status                        | Indicates if code is active or deprecated     | Active                                                                         |
 | Condition Name                | Name of associated reportable condition       | Chlamydia trachomatis infection (disorder)                                     |
-| Condition Code                | SONMED value associated with condition        | 240589008                                                                      | 
+| Condition Code                | SNOMED value associated with condition        | 240589008                                                                      | 
 | Condition Code System         | System used for condition code                | SNOMEDCT                                                                       |
 | Condition Code System Version | SNOMED version associated with condition code | 2023-03                                                                        |
 
