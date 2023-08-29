@@ -336,7 +336,7 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             }
         }
 
-        fun writeAccessTokenFile(oktaConfig:OktaConfig, accessTokenJson: JSONObject): AccessTokenFile {
+        fun writeAccessTokenFile(oktaConfig: OktaConfig, accessTokenJson: JSONObject): AccessTokenFile {
             val token = accessTokenJson.getString("access_token")
             val expiresIn = accessTokenJson.getLong("expires_in")
             val expiresAt = LocalDateTime.now().plusSeconds(expiresIn)
@@ -387,7 +387,7 @@ data class OktaConfig(
      */
     constructor(
         oktaApp: OktaCommand.OktaApp
-    ): this() {
+    ) : this() {
         baseUrl = oktaBaseUrls[oktaApp] ?: error("Invalid app - Okta url")
         clientId = clientIds[oktaApp] ?: error("Invalid app")
         authKey = System.getenv("OKTA_authKey")
