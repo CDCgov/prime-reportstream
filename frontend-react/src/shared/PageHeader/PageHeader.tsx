@@ -46,8 +46,8 @@ export default function PageHeader({
             ))}
             <div className="grid-row margin-top-8 margin-bottom-2">
                 {callToAction?.map((c) => (
-                    <USLinkButton key={c.label} href={c.href}>
-                        Login
+                    <USLinkButton key={c.label} href={c.href} extLinkIcon>
+                        {c.label}
                     </USLinkButton>
                 ))}
                 {lastUpdated && (

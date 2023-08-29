@@ -33,7 +33,7 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
             )}
         >
             <ReportStreamNavbar blueVariant={isFullWidth} />
-            <main id="main-content">
+            <main className="padding-top-5" id="main-content">
                 <InnerWrapper>
                     <RSErrorBoundary>
                         {children}
