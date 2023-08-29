@@ -51,23 +51,25 @@ object HL7MessageHelpers : Logging {
         val messageCreateDate = firstMessage?.get("MSH-7") ?: time.value
 
         val builder = StringBuilder()
-        builder.append(
-            "FHS|$hl7BatchHeaderEncodingChar|" +
-                "$sendingApp|" +
-                "$sendingApp|" +
-                "$receivingApp|" +
-                "$receivingFacility|" +
-                messageCreateDate
-        )
-        builder.append(hl7SegmentDelimiter)
-        builder.append(
-            "BHS|$hl7BatchHeaderEncodingChar|" +
-                "$sendingApp|" +
-                "$sendingApp|" +
-                "$receivingApp|" +
-                "$receivingFacility|" +
-                messageCreateDate
-        )
+        if (receiver.translation.useBatchHeaders) {
+            builder.append(
+                "FHS|$hl7BatchHeaderEncodingChar|" +
+                    "$sendingApp|" +
+                    "$sendingApp|" +
+                    "$receivingApp|" +
+                    "$receivingFacility|" +
+                    messageCreateDate
+            )
+            builder.append(hl7SegmentDelimiter)
+            builder.append(
+                "BHS|$hl7BatchHeaderEncodingChar|" +
+                    "$sendingApp|" +
+                    "$sendingApp|" +
+                    "$receivingApp|" +
+                    "$receivingFacility|" +
+                    messageCreateDate
+            )
+        }
         builder.append(hl7SegmentDelimiter)
 
         hl7RawMsgs.forEach {
