@@ -21,7 +21,6 @@ export const Tile = ({
     const cleanSummaryHtml = DOMPurify.sanitize(summary ?? "");
     const classnames = classNames(
         styles["rs-tile"],
-        "usa-prose",
         "padding-bottom-3",
         className,
     );
