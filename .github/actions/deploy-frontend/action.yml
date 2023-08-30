@@ -37,6 +37,11 @@ runs:
       shell: bash
       run: echo "IMAGE_REPO=pdhstagingpublic" >> $GITHUB_ENV
 
+    - name: Set environment variables - staging swagger ui
+      if: inputs.env-name == 'staging'
+      shell: bash
+      run: echo "IMAGE_SWAGGER_UI_REPO=swaggeruiapidocsstg" >> $GITHUB_ENV
+
     - name: Set environment variables - trialfrontend01
       if: inputs.env-name == 'trialfrontend01'
       shell: bash
@@ -87,5 +92,5 @@ runs:
       shell: bash
       working-directory: .
       run: |
-        az storage blob delete-batch --account-name swaggeruiapidocs -s '$web'
-        az storage blob upload-batch --account-name swaggeruiapidocs -s prime-router/build -d '$web'
+        az storage blob delete-batch --account-name ${{ env.IMAGE_SWAGGER_UI_REPO }} -s '$web'
+        az storage blob upload-batch --account-name ${{ env.IMAGE_SWAGGER_UI_REPO }} -s prime-router/build -d '$web'
