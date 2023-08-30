@@ -879,6 +879,7 @@ main {
         main {
             @include grid-container("full");
             @include u-padding(0);
+            @include grid-gap(0);
 
             /*
             * Make flush across all screen sizes
