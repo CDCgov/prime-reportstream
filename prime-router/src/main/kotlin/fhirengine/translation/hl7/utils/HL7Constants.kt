@@ -47,6 +47,17 @@ object HL7Constants {
     )
 
     /**
+     * Current list of fields to truncate in the Universal Pipeline
+     */
+    val UP_TRUNCATION_FIELDS = listOf(
+        "MSH-3-1",
+        "MSH-4-1",
+        "OBR-2-2",
+        "ORC-4-2",
+        "PID-3-6-1"
+    )
+
+    /**
      * List of fields that have a CE type. Note: this is only really used in places
      * where we need to put a CLIA marker in the field as well and there are a
      * lot of CE fields that are *NOT* CLIA fields, so use this correctly.

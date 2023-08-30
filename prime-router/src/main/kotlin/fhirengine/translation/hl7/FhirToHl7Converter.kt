@@ -9,6 +9,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.Converte
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TranslationFunctions
 import org.apache.commons.io.FilenameUtils
@@ -205,7 +206,14 @@ class FhirToHl7Converter(
         element.hl7Spec.forEach { rawHl7Spec ->
             val resolvedHl7Spec = constantSubstitutor.replace(rawHl7Spec, context)
             try {
-                terser!!.set(resolvedHl7Spec, value)
+                val maybeTruncatedValue = context.translationFunctions?.truncateHL7Field(
+                    value,
+                    resolvedHl7Spec,
+                    terser!!,
+                    truncateHDNamespaceIds = true,
+                    HL7Constants.UP_TRUNCATION_FIELDS
+                ) ?: value
+                terser!!.set(resolvedHl7Spec, maybeTruncatedValue)
                 logger.trace("Set HL7 $resolvedHl7Spec = $value")
             } catch (e: HL7Exception) {
                 val msg = "Could not set HL7 value for spec $resolvedHl7Spec for element ${element.name}"
