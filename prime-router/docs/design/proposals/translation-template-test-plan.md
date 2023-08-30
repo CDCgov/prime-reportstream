@@ -8,7 +8,7 @@ Currently, we use integration tests for this purpose, but these do not give us t
 broke/changed or even really what is specifically being tested.
 
 ## Considerations
-- We not only want to check the rules set forth in the spec, but the ones set forth by our users.
+- We not only want to check the rules set forth in the spec, but the specific ones created for senders and receivers.
 
 ## Proposal on *what* to test
 We should write tests when:
@@ -20,15 +20,16 @@ We should write tests when:
 
 ## Options for *how* to test 
 1. Continue with integration tests
-    - These would specific to the field they are trying to test rather than a cluster of fields
+    - These would be specific to the field they are trying to test rather than a cluster of fields
     - Named after the field they are trying to test
+    - We can leverage the new diff tool to check if the output is what we expect.
 
    - Pros:
-     - Setup already exists, works, and it tested 
+     - Setup already exists, works, and is tested 
    - Cons:
      - The file to add/updates/remove tests would become difficult to read and find tests in because of the sheer number
      - Many files would need to be added
-2. Unit Tests (Proposal)
+2. Unit Tests
     - We can leverage the new diff tool to check if the output is what we expect.
 
     - Pros:
@@ -38,6 +39,9 @@ files that you would need to scroll through.
         - Can break tests out into one file per transform file for further organization.
     - Cons: 
         - Many files would need to be added or there will be a lot of lengthy strings within the tests.
+        - Odd fit since this is to test transform changes rather than code changes.
+        - Would cause the jar to not build which seems like a hefty and unwanted consequence for just a misaligned 
+transform
     
 
 
