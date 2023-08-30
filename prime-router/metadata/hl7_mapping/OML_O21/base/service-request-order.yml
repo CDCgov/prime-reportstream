@@ -27,6 +27,6 @@ elements:
     hl7Spec: [ '%{hl7ORCField}-9' ]
 
   - name: ordering-facility-name
-    value: [ '%resource.authoredOn' ]
+    value: [ '%resource.requester.reference.resolve().organization.reference.resolve().name' ]
     required: true
     hl7Spec: [ '%{hl7ORCField}-21' ]
