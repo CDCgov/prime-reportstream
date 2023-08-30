@@ -22,7 +22,7 @@ runs:
       uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2
       with:
         java-version: "17"
-        distribution: "adopt"
+        distribution: "temurin"
         cache: "gradle"
 
     - uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
