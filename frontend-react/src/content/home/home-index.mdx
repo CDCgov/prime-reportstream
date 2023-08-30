@@ -1,9 +1,4 @@
 ---
-title: Your single connection to simplify data transfer and improve public health
-subtitle: ReportStream is CDC’s free, interoperable platform for streamlining public health reporting. We navigate unique, complex requirements and work to make sure your data gets where it needs to be.
-callToAction:
-    - href: https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957
-      label: Connect now
 howWeHelp:
     - title: How we help you
       items:
@@ -29,7 +24,19 @@ liveMapContact:
 ---
 import site from "../site.json";
 
-<HeroWrapper className="bg-blue-5">
+<HeroWrapper isAlternate style={{backgroundImage: "url('/assets/img/home/grid.png')", backgroundSize: "cover", backgroundPosition: "right"}}>
+    <header class="usa-section usa-prose grid-container">
+        <h1>Your single connection to simplify data transfer and improve public health</h1>
+        <p class="rs-subtitle">
+            ReportStream is CDC’s free, interoperable platform for streamlining public health reporting.
+            We navigate unique, complex requirements and work to make sure your data gets where it needs to be.
+        </p>
+        <div class="grid-row margin-top-8 margin-bottom-2">
+            <A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957" class="usa-button" target="_blank">Connect now</A>
+        </div>
+    </header>
+</HeroWrapper>
+<HeroWrapper>
     <div className="grid-container">
         {frontmatter.howWeHelp.map((section, sectionIndex) => {
             return (
@@ -42,16 +49,18 @@ import site from "../site.json";
         })}
     </div>
 </HeroWrapper>
-<HeroWrapper>
-    <section className="grid-container usa-section usa-prose padding-bottom-0">
-        <h2 className="font-sans-xl margin-top-0">How it works</h2>
-        <p className="usa-intro margin-top-4">Our open-source platform aggregates and [securely delivers](/resources/security-practices) healthcare data test results from organizations and testing facilities directly to public health entities. Born in response to the COVID-19 pandemic, ReportStream is built to thrive and evolve within the complex environment of public health.</p>
-        <img
-            className="margin-top-8"
-            src="/assets/img/ReportStreamDiagram_2022.png"
-            alt="Organizations and testing facilities submit data, which ReportStream validates, augments and standardizes. Then, the data is routed as ReportStream determines the destination by subscription management. After this, it is transformed and transported to public health agencies in the desired data model and batch size."
-        />
-    </section>
+<HeroWrapper className="bg-blue-5">
+    <div className="grid-container">
+        <section className="usa-section padding-bottom-0">
+            <h2 className="font-sans-xl margin-top-0">How it works</h2>
+            <p className="usa-intro margin-top-4">Our open-source platform aggregates and [securely delivers](/resources/security-practices) healthcare data test results from organizations and testing facilities directly to public health entities. Born in response to the COVID-19 pandemic, ReportStream is built to thrive and evolve within the complex environment of public health.</p>
+            <img
+                className="margin-top-8"
+                src="/assets/img/ReportStreamDiagram_2022.png"
+                alt="Organizations and testing facilities submit data, which ReportStream validates, augments and standardizes. Then, the data is routed as ReportStream determines the destination by subscription management. After this, it is transformed and transported to public health agencies in the desired data model and batch size."
+            />
+        </section>
+    </div>
 </HeroWrapper>
 <HeroWrapper className="grid-container">
     {frontmatter.liveMapContact.map((section, sectionIndex) => {
