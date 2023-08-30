@@ -236,5 +236,5 @@ class FhirToHl7Converter(
 data class FhirToHl7Context(
     val fhirFunctions: FhirPathFunctions,
     val config: Any? = null,
-    val translationFunctions: TranslationFunctions? = null
+    val translationFunctions: TranslationFunctions
 )

@@ -123,7 +123,11 @@ class ProcessFhirCommands : CliktCommand(
                 val bundle = FhirTranscoder.decode(jsonString)
                 FhirToHl7Converter(
                     transformSchema!!.name.split(".")[0], transformSchema!!.parent,
-                    context = FhirToHl7Context(CustomFhirPathFunctions())
+                    context = FhirToHl7Context(
+                        CustomFhirPathFunctions(),
+                        null,
+                        translationFunctions = CustomTranslationFunctions()
+                    )
                 ).convert(bundle)
             }
         }
