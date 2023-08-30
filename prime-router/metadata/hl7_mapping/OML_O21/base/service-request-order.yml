@@ -6,6 +6,11 @@ elements:
     required: true
     hl7Spec: [ '%{hl7ORCField}-1' ]
 
+  - name: placer-order-number
+    value: [ '%resource.identifier[1].value' ]
+    required: true
+    hl7Spec: [ '%{hl7ORCField}-2' ]
+
   - name: order-status
     value: [ '%resource.status' ]
     valueSet:
@@ -20,3 +25,8 @@ elements:
   - name: order-date-time-of-transaction
     value: [ '%resource.authoredOn' ]
     hl7Spec: [ '%{hl7ORCField}-9' ]
+
+  - name: ordering-facility-name
+    value: [ '%resource.authoredOn' ]
+    required: true
+    hl7Spec: [ '%{hl7ORCField}-21' ]
