@@ -14,12 +14,12 @@ elements:
         temp: ORN
 
   - name: xtn-use-code-from-system
-    condition: '%resource.system = "pager"'
+    condition: '%resource.system = "pager" and %resource.use.exists().not()'
     value: [ '"BPN"' ]
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
   - name: xtn-use-code-from-system
-    condition: '%resource.system = "email"'
+    condition: '%resource.system = "email" and %resource.use.exists().not()'
     value: [ '"NET"' ]
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
