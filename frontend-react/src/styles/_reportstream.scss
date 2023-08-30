@@ -857,6 +857,7 @@ main {
     * CMS-type pages use a smaller default width
     */
     &--content {
+        main,
         .grid-container {
             @include grid-container("desktop-lg");
         }
@@ -866,8 +867,6 @@ main {
             .usa-alert {
                 @include u-font-size("sans", "xs");
             }
-
-            @include grid-gap(5);
         }
     }
 
