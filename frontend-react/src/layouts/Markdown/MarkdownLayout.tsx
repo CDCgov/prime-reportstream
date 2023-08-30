@@ -152,7 +152,7 @@ export function MarkdownLayout({
                     className={classNames(
                         "usa-prose",
                         sidenavContent
-                            ? "tablet:grid-col-8"
+                            ? "tablet:grid-col-9"
                             : "tablet:grid-col-12",
                     )}
                 >
