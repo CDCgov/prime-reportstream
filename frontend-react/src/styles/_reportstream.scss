@@ -867,6 +867,8 @@ main {
             .usa-alert {
                 @include u-font-size("sans", "xs");
             }
+
+            @include grid-gap(5);
         }
     }
 

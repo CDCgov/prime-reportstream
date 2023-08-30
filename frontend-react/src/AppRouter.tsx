@@ -92,7 +92,7 @@ export const appRoutes: RouteObject[] = [
                     {
                         index: true,
                         lazy: lazyRouteMarkdown(
-                            "content/getting-started/landing-page",
+                            "content/getting-started/index",
                         ),
                         handle: {
                             isContentPage: true,
