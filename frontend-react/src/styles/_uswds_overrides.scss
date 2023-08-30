@@ -352,8 +352,9 @@ blockquote {
                 img,
                 blockquote,
                 [class*="margin"],
-                [class*="usa-prose"],
-                [class*="rs-hero-wrapper"]
+                .usa-prose,
+                [class*="rs-hero-wrapper"],
+                .usa-summary-box
             ) {
             @include u-margin-top(4);
         }
@@ -379,6 +380,14 @@ blockquote {
         & + img,
         & + blockquote {
             @include u-margin-top(4);
+        }
+    }
+
+    > .usa-summary-box {
+        @include u-margin-top(3);
+
+        & + * {
+            @include u-margin-top(3);
         }
     }
 }
@@ -418,4 +427,8 @@ body {
     h6 {
         @include h6;
     }
+}
+
+.usa-summary-box {
+    @include u-padding(4);
 }
