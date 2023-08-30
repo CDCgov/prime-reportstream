@@ -1,6 +1,6 @@
 # Installing OpenJDK
 
-Note that we currently target OpenJDK 11 through 17, examples use OpenJDK 17.
+Note that we currently target OpenJDK 17.
 
 ## Windows
 
@@ -60,6 +60,6 @@ echo export "JAVA_HOME=\$(/usr/libexec/java_home)" >> ~/.zshrc
 ```bash
 sudo apt-get update
 # Set to 15 if you so choose
-VERSION=11
+VERSION=17
 sudo apt-get --yes install openjdk-${VERSION?}-jdk
 ```

@@ -53,6 +53,13 @@ val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
 val defaultDuplicateStrategy = DuplicatesStrategy.WARN
 azurefunctions.appName = azureAppName
+val appJvmTarget = "17"
+val javaVersion = when (appJvmTarget) {
+    "17" -> JavaVersion.VERSION_17
+    "19" -> JavaVersion.VERSION_19
+    "21" -> JavaVersion.VERSION_21
+    else -> JavaVersion.VERSION_17
+}
 
 // Local database information, first one wins:
 // 1. Project properties (-P<VAR>=<VALUE> flag)
@@ -113,17 +120,17 @@ jacoco.toolVersion = "0.8.10"
 
 // Set the compiler JVM target
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
 }
 
 val compileKotlin: KotlinCompile by tasks
 val compileTestKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions.jvmTarget = "17"
+compileKotlin.kotlinOptions.jvmTarget = appJvmTarget
 compileKotlin.kotlinOptions.allWarningsAsErrors = true
 // if you set this to true, you will get a warning, which then gets treated as an error
 compileKotlin.kotlinOptions.useK2 = false
-compileTestKotlin.kotlinOptions.jvmTarget = "17"
+compileTestKotlin.kotlinOptions.jvmTarget = appJvmTarget
 compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
 tasks.clean {
@@ -246,7 +253,7 @@ sourceSets.create("testIntegration") {
 }
 
 val compileTestIntegrationKotlin: KotlinCompile by tasks
-compileTestIntegrationKotlin.kotlinOptions.jvmTarget = "17"
+compileTestIntegrationKotlin.kotlinOptions.jvmTarget = appJvmTarget
 
 val testIntegrationImplementation: Configuration by configurations.getting {
     extendsFrom(configurations["testImplementation"])
