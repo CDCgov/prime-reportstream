@@ -15,6 +15,7 @@ import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.int
 import fhirengine.engine.CustomFhirPathFunctions
+import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.JacksonMapperUtilities

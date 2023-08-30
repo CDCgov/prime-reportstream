@@ -20,6 +20,7 @@ import org.jooq.Table
 import org.jooq.TableField
 import org.jooq.WithStep
 import org.jooq.impl.DSL
+import kotlin.time.ExperimentalTime
 
 data class ApiSearchResult<T>(val totalCount: Int, val filteredCount: Int, val results: List<T>)
 enum class SortDirection {
@@ -232,6 +233,7 @@ abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilte
      *
      */
 
+    @OptIn(ExperimentalTime::class)
     private fun <T : Record, R : Record> fetchResults(
         dslContext: DSLContext,
         selectFields: SelectFieldOrAsterisk,
@@ -242,27 +244,46 @@ abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilte
             flow<ApiSearchResult<PojoType>> {
                 emit(
                     coroutineScope {
+                        val overallTimeSource = kotlin.time.TimeSource.Monotonic
+                        val overallStart = overallTimeSource.markNow()
                         val totalCount = async(Dispatchers.IO) {
-                            dslContext.fetchCount(
+                            val timeSource = kotlin.time.TimeSource.Monotonic
+                            val start = timeSource.markNow()
+                            val count = dslContext.fetchCount(
                                 dsl.select(selectFields).from(table)
                             )
+                            val end = timeSource.markNow()
+                            logger.info("Fetching the count took: ${end - start}")
+                            count
                         }
                         val filteredCount = async(Dispatchers.IO) {
-                            dslContext.fetchCount(
+                            val timeSource = kotlin.time.TimeSource.Monotonic
+                            val start = timeSource.markNow()
+                            val filteredCount = dslContext.fetchCount(
                                 dsl.select(selectFields).from(table)
                                     .where(getWhereClause())
                             )
+                            val end = timeSource.markNow()
+                            logger.info("Fetching the filtered count took: ${end - start}")
+                            filteredCount
                         }
                         val results = async(Dispatchers.IO) {
-                            dslContext.fetch(
+                            val timeSource = kotlin.time.TimeSource.Monotonic
+                            val start = timeSource.markNow()
+                            val results = dslContext.fetch(
                                 dsl.select(selectFields).from(table)
                                     .where(getWhereClause())
                                     .orderBy(getSortClause(), getPrimarySortClause())
                                     .limit(limit)
                                     .offset(getOffset())
                             ).into(recordClass)
+                            val end = timeSource.markNow()
+                            logger.info("Fetching the results took: ${end - start}")
+                            results
                         }
-                        ApiSearchResult(totalCount.await(), filteredCount.await(), results.await())
+                        val result = ApiSearchResult(totalCount.await(), filteredCount.await(), results.await())
+                        logger.info("All queries completed in ${overallTimeSource.markNow() - overallStart}")
+                        result
                     }
                 )
             }.first()
