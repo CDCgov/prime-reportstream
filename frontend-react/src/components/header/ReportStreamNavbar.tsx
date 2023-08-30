@@ -17,6 +17,7 @@ import { DAPHeader } from "../header/DAPHeader";
 import SenderModeBanner from "../SenderModeBanner";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { logout } from "../../utils/UserUtils";
+import { Icon } from "../../shared";
 
 import styles from "./ReportStreamNavbar.module.scss";
 
@@ -105,11 +106,6 @@ export const ReportStreamNavbar = ({
     ];
 
     const menuItemsSender = [
-        <div className="primary-nav-link-container">
-            <a className="primary-nav-link" href="/upload" key="upload">
-                Upload
-            </a>
-        </div>,
         <div className="primary-nav-link-container">
             <a
                 className="primary-nav-link"
@@ -212,7 +208,11 @@ export const ReportStreamNavbar = ({
                                             outline
                                             href="/admin/settings"
                                         >
-                                            {activeMembership?.parsedName || ""}
+                                            {activeMembership?.parsedName || ""}{" "}
+                                            <Icon
+                                                name="Loop"
+                                                className="text-tbottom"
+                                            />
                                         </USLinkButton>
                                     )}
 
