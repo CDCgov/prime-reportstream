@@ -349,6 +349,7 @@ blockquote {
                 header,
                 h1,
                 h2,
+                h3,
                 img,
                 blockquote,
                 [class*="margin"],
@@ -446,4 +447,14 @@ body {
 
 .usa-summary-box {
     @include u-padding(4);
+
+    .usa-summary-box__body {
+        > *:first-child {
+            @include u-margin-top(0);
+        }
+
+        > *:last-child {
+            @include u-margin-bottom(0);
+        }
+    }
 }
