@@ -24,6 +24,8 @@ import org.jooq.impl.DSL
 import org.jooq.impl.SQLDataType
 import java.time.OffsetDateTime
 import java.util.UUID
+import kotlin.time.ExperimentalTime
+import kotlin.time.TimeSource
 
 private const val EXPIRATION_DAYS_OFFSET = 60
 
@@ -149,17 +151,23 @@ class DeliveryApiSearch(
     }
 }
 
-class DeliveryDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessSingleton) {
+class DeliveryDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessSingleton) : Logging {
 
     private val reportGraph = ReportGraph(db)
 
+    @OptIn(ExperimentalTime::class)
     fun getDeliveries(search: DeliveryApiSearch, receiver: Receiver): ApiSearchResult<Delivery> {
-
+        val timesource = TimeSource.Monotonic
+        val start = timesource.markNow()
+        logger.info("Beginning to fetch deliveries for ${receiver.fullName}")
         val sentReportIdsForReceiver = reportGraph.fetchReportIdsForReceiverAndTask(
             receiver,
             TaskAction.send,
             db.create
         )
+
+        val afterFetchingIds = timesource.markNow()
+        logger.info("IDs for delivered reports fetched in ${afterFetchingIds - start}")
 
         if (sentReportIdsForReceiver.isEmpty()) {
             return ApiSearchResult(0, 0, emptyList())
@@ -216,12 +224,17 @@ class DeliveryDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessS
                     CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID,
                 ).asTable(DeliveryTable.DELIVERY)
 
-            return search.fetchResults(
+            val results = search.fetchResults(
                 db.create,
                 deliveriesExpression.asterisk(),
                 deliveriesExpression.asTable(DeliveryTable.DELIVERY.name),
                 itemGraph
             )
+            val end = timesource.markNow()
+            logger.info(
+                "Finished fetching deliveries for ${receiver.fullName} in ${end - start}"
+            )
+            return results
         }
     }
 }
