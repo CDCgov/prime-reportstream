@@ -197,9 +197,9 @@ export function MarkdownLayout({
                         {mainContent ?? children}
                     </MDXProvider>
                     {backToTop && (
-                        <p>
-                            <USSmartLink href="#top">Back to top</USSmartLink>
-                        </p>
+                        <USSmartLink id="back-to-top" href="#top">
+                            Back to top
+                        </USSmartLink>
                     )}
                 </article>
             )}
