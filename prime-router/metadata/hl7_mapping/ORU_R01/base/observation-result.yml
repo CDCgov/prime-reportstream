@@ -4,7 +4,7 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-1' ]
 
   - name: result-value-type-st
-    condition: '%resource.value is String or %resource.value.exists().not()'
+    condition: '%resource.value is String or (%resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").exists() and %resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").code = "unknown")'
     value: [ '"ST"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
@@ -89,6 +89,7 @@ elements:
 
   - name: observation-result-status
     value: [ '%resource.status' ]
+    condition: '%resource.dataAbsentReason.exists().not() or %resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").code = "unknown"'
     hl7Spec: [ '%{hl7OBXField}-11' ]
     valueSet:
       values:
@@ -98,6 +99,17 @@ elements:
         corrected: C
         amended: C
         entered-in-error: W
+
+  - name: observation-result-status-cancelled
+    value: ["'X'"]
+    condition: '%resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").exists() and %resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").code = "cannot-be-obtained"'
+    hl7Spec: [ '%{hl7OBXField}-11' ]
+
+  - name: observation-result-status-not-asked
+    value: [ "'N'" ]
+    condition: '%resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "alternate identifier").exists() and %resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "alternate identifier").code = "not-asked"'
+    hl7Spec: [ '%{hl7OBXField}-11' ]
+
 
   - name: observation-date-time
     value: [ '%resource.effective' ]
