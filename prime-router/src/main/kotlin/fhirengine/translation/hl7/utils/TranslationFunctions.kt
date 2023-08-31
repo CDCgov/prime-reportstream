@@ -22,9 +22,7 @@ interface TranslationFunctions {
         value: String,
         hl7Field: String,
         terser: Terser,
-        truncateHDNamespaceIds: Boolean,
-        truncateHl7Fields: List<String>,
-        customLengthHl7Fields: Map<String, Int> = emptyMap(),
+        config: TruncationConfig
     ): String
 }
 
@@ -86,17 +84,13 @@ open class Hl7TranslationFunctions(
         value: String,
         hl7Field: String,
         terser: Terser,
-        truncateHDNamespaceIds: Boolean,
-        truncateHl7Fields: List<String>,
-        customLengthHl7Fields: Map<String, Int>
+        config: TruncationConfig
     ): String {
         return hl7Truncator.trimAndTruncateValue(
             value,
             hl7Field,
             terser,
-            truncateHDNamespaceIds,
-            truncateHl7Fields,
-            customLengthHl7Fields
+            config
         )
     }
 }

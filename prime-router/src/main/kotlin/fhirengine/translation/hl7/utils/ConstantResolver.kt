@@ -26,7 +26,7 @@ data class CustomContext(
     var focusResource: Base,
     val constants: MutableMap<String, String> = mutableMapOf(),
     val customFhirFunctions: FhirPathFunctions? = null,
-    val config: Any? = null,
+    val config: ContextConfig? = null,
     val translationFunctions: TranslationFunctions? = Hl7TranslationFunctions()
 ) {
     companion object {

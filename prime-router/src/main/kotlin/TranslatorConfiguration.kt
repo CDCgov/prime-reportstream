@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TruncationConfig
 
 // Schemas used
 const val HL7_SCHEMA = "covid-19"
@@ -206,15 +207,19 @@ data class Hl7Configuration
     /**
      * Pull apart the comma-delimited HL7 fields and trim them.
      *
-     * If the configuration is missing return an empty list
+     * If the configuration is missing, return an empty list
      */
-    fun parseTruncateHl7Fields(): List<String> {
-        return truncateHl7Fields
-            ?.uppercase()
-            ?.split(",")
-            ?.map { it.trim() }
-            ?: emptyList()
-    }
+    private val parsedTruncateHl7Fields: Set<String> = truncateHl7Fields
+        ?.uppercase()
+        ?.split(",")
+        ?.map { it.trim() }
+        ?.toSet()
+        ?: emptySet()
+
+    val truncationConfig = TruncationConfig(
+        truncateHDNamespaceIds,
+        parsedTruncateHl7Fields
+    )
 }
 
 /**

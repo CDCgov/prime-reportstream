@@ -17,6 +17,7 @@ import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
+import gov.cdc.prime.router.CovidHL7Configuration
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -113,17 +114,17 @@ class FhirPathUtilsTests {
 
         val receiver = mockkClass(Receiver::class)
         val appContext = mockkClass(CustomContext::class)
+        val config = UnitTestUtils.createConfig(
+            useHighPrecisionHeaderDateTimeFormat = true,
+            convertPositiveDateTimeOffsetToNegative = false
+        )
+
         every { appContext.constants.contains(any()) }.returns(false)
         every { appContext.customFhirFunctions }.returns(CustomFhirPathFunctions())
         every { appContext.translationFunctions }.returns(CustomTranslationFunctions())
-        every { appContext.config }.returns(receiver)
+        every { appContext.config }.returns(CovidHL7Configuration(config, receiver))
         every { receiver.dateTimeFormat }.returns(null)
-        every { receiver.translation }.returns(
-            UnitTestUtils.createConfig(
-                useHighPrecisionHeaderDateTimeFormat = true,
-                convertPositiveDateTimeOffsetToNegative = false
-            )
-        )
+        every { receiver.translation }.returns(config)
 
         val observation = Observation()
         observation.effective = DateTimeType("2015-04-11T12:22:01-04:00")

@@ -53,6 +53,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.HD_TRU
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.MAX_FORMATTED_TEXT_LENGTH
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.getHL7ComponentMaxLengthList
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.formPathSpec
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TruncationConfig
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mapper
 import org.apache.logging.log4j.kotlin.Logging
@@ -2297,20 +2298,19 @@ class Hl7Serializer(
         hl7Config: Hl7Configuration?,
         terser: Terser
     ): String {
-        val truncateHDNamespaceIds = hl7Config?.truncateHDNamespaceIds ?: false
-        val truncationFields = hl7Config?.parseTruncateHl7Fields() ?: emptyList()
 
-        return hl7Truncator.trimAndTruncateValue(value, hl7Field, terser, truncateHDNamespaceIds, truncationFields)
+        val truncationConfig = hl7Config?.truncationConfig ?: TruncationConfig.EMPTY
+
+        return hl7Truncator.trimAndTruncateValue(value, hl7Field, terser, truncationConfig)
     }
 
     /**
      * Delegate call to universal pipeline truncation logic
      */
     private fun getMaxLength(hl7Field: String, value: String, hl7Config: Hl7Configuration?, terser: Terser): Int? {
-        val truncateHDNamespaceIds = hl7Config?.truncateHDNamespaceIds ?: false
-        val truncationFields = hl7Config?.parseTruncateHl7Fields() ?: emptyList()
+        val truncationConfig = hl7Config?.truncationConfig ?: TruncationConfig.EMPTY
 
-        return hl7Truncator.getMaxLength(hl7Field, value, terser, truncateHDNamespaceIds, truncationFields)
+        return hl7Truncator.getMaxLength(hl7Field, value, terser, truncationConfig)
     }
 }
 

@@ -7,6 +7,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.HD_FIELDS_LOCAL
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.HD_TRUNCATION_LIMIT
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TruncationConfig
 import kotlin.math.min
 
 class HL7Truncator {
@@ -19,17 +20,13 @@ class HL7Truncator {
         value: String,
         hl7Field: String,
         terser: Terser,
-        truncateHDNamespaceIds: Boolean,
-        truncateHl7Fields: List<String>,
-        customLengthHl7Fields: Map<String, Int> = emptyMap(),
+        truncationConfig: TruncationConfig
     ): String {
         val maxLength = getMaxLength(
             hl7Field,
             value,
             terser,
-            truncateHDNamespaceIds,
-            truncateHl7Fields,
-            customLengthHl7Fields
+            truncationConfig
         )
         return value.trimAndTruncate(maxLength)
     }
@@ -42,9 +39,7 @@ class HL7Truncator {
         hl7Field: String,
         value: String,
         terser: Terser,
-        truncateHDNamespaceIds: Boolean,
-        truncateHl7Fields: List<String>,
-        customLengthHl7Fields: Map<String, Int> = emptyMap(),
+        truncationConfig: TruncationConfig
     ): Int? {
         // The & character in HL7 is a sub sub field separator. A validly
         // produced HL7 message should escape & characters as \T\ so that
@@ -53,14 +48,14 @@ class HL7Truncator {
         // so that string values that contain sub sub field separators (^&~) will be properly truncated.
         return when {
             // This special case takes into account special rules needed by jurisdiction
-            truncateHDNamespaceIds && hl7Field in HD_FIELDS_LOCAL -> {
+            truncationConfig.truncateHDNamespaceIds && hl7Field in HD_FIELDS_LOCAL -> {
                 getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
             }
-            hl7Field in customLengthHl7Fields -> {
-                getTruncationLimitWithEncoding(value, customLengthHl7Fields[hl7Field])
+            hl7Field in truncationConfig.customLengthHl7Fields -> {
+                getTruncationLimitWithEncoding(value, truncationConfig.customLengthHl7Fields[hl7Field])
             }
             // For the fields listed here use the hl7 max length
-            hl7Field in truncateHl7Fields -> {
+            hl7Field in truncationConfig.truncateHl7Fields -> {
                 getTruncationLimitWithEncoding(value, getHl7MaxLength(hl7Field, terser))
             }
             // In general, don't truncate. The thinking is that

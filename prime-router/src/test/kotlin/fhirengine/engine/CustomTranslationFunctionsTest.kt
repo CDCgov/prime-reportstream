@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
+import gov.cdc.prime.router.CovidHL7Configuration
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomFHIRFunctions
@@ -76,15 +77,15 @@ class CustomTranslationFunctionsTest {
     fun `test convertDateTimeToHL7 with CustomContext with receiver setting`() {
         val receiver = mockkClass(Receiver::class)
         val appContext = mockkClass(CustomContext::class)
-        every { appContext.customFhirFunctions }.returns(CustomFhirPathFunctions())
-        every { appContext.config }.returns(receiver)
-        every { receiver.dateTimeFormat }.returns(null)
-        every { receiver.translation }.returns(
-            UnitTestUtils.createConfig(
-                useHighPrecisionHeaderDateTimeFormat = true,
-                convertPositiveDateTimeOffsetToNegative = false
-            )
+        val config = UnitTestUtils.createConfig(
+            useHighPrecisionHeaderDateTimeFormat = true,
+            convertPositiveDateTimeOffsetToNegative = false
         )
+
+        every { appContext.customFhirFunctions }.returns(CustomFhirPathFunctions())
+        every { appContext.config }.returns(CovidHL7Configuration(config, receiver))
+        every { receiver.dateTimeFormat }.returns(null)
+        every { receiver.translation }.returns(config)
         assertThat(
             CustomTranslationFunctions()
                 .convertDateTimeToHL7(

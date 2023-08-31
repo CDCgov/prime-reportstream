@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TruncationConfig
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -51,6 +52,11 @@ class HL7TrucatorTests {
 
     @Test
     fun `test trimAndTruncateValue with truncated HD`() {
+        val config = TruncationConfig(
+            truncateHDNamespaceIds = true,
+            emptySet()
+        )
+
         val inputAndExpected = mapOf(
             "short" to "short",
             "Test & Value ~ Text ^ String" to "Test & Value ~ T",
@@ -62,8 +68,7 @@ class HL7TrucatorTests {
                 input,
                 "MSH-4-1",
                 emptyTerser,
-                truncateHDNamespaceIds = true,
-                emptyList()
+                config
             )
             assertThat(actual).isEqualTo(expected)
         }
@@ -71,6 +76,11 @@ class HL7TrucatorTests {
 
     @Test
     fun `test trimAndTruncateValue with HD`() {
+        val config = TruncationConfig(
+            truncateHDNamespaceIds = false,
+            truncateHl7Fields = setOf("MSH-4-1", "MSH-3-1")
+        )
+
         // The truncation with encoding will subtract 2 from the length for every occurrence of a
         // special characters [&^~]. This is done because the HL7 parser escapes them by replacing them with a three
         // character string. For example, & will get replaced with \T\. This adds 2 to the length of the value.
@@ -89,8 +99,7 @@ class HL7TrucatorTests {
                 input,
                 "MSH-4-1",
                 emptyTerser,
-                truncateHDNamespaceIds = false,
-                truncateHl7Fields = listOf("MSH-4-1", "MSH-3-1")
+                config
             )
             assertThat(actual).isEqualTo(expected)
         }
@@ -98,8 +107,10 @@ class HL7TrucatorTests {
 
     @Test
     fun `test trimAndTruncateValue with custom length map`() {
-        val customMap = mapOf(
-            "MSH-4-1" to 10
+        val config = TruncationConfig(
+            truncateHDNamespaceIds = false,
+            truncateHl7Fields = setOf("MSH-3-1"),
+            customLengthHl7Fields = mapOf("MSH-4-1" to 10)
         )
 
         // see comment on "test trimAndTruncateValue with HD" to understand why truncation ends up having a length of 8
@@ -113,9 +124,7 @@ class HL7TrucatorTests {
                 input,
                 "MSH-4-1",
                 emptyTerser,
-                truncateHDNamespaceIds = false,
-                truncateHl7Fields = emptyList(),
-                customLengthHl7Fields = customMap
+                config
             )
             assertThat(actual).isEqualTo(expected)
         }
@@ -123,6 +132,11 @@ class HL7TrucatorTests {
 
     @Test
     fun `test trimAndTruncateValue when not truncating`() {
+        val config = TruncationConfig(
+            truncateHDNamespaceIds = false,
+            truncateHl7Fields = emptySet()
+        )
+
         val inputAndExpected = mapOf(
             "short" to "short",
             "Test & Value ~ Text ^ String" to "Test & Value ~ Text ^ String",
@@ -133,8 +147,7 @@ class HL7TrucatorTests {
                 input,
                 "MSH-4-1",
                 emptyTerser,
-                truncateHDNamespaceIds = false,
-                truncateHl7Fields = emptyList()
+                config
             )
             assertThat(actual).isEqualTo(expected)
         }

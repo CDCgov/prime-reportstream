@@ -15,7 +15,7 @@ object HL7Constants {
     /**
      * List of fields that have the local HD type.
      */
-    val HD_FIELDS_LOCAL = listOf(
+    val HD_FIELDS_LOCAL = setOf(
         "MSH-3-1",
         "MSH-4-1",
         "OBR-3-2",
@@ -48,6 +48,8 @@ object HL7Constants {
 
     /**
      * Current list of fields to truncate in the Universal Pipeline
+     *
+     * TODO: remove me and fall back on config
      */
     val UP_TRUNCATION_FIELDS = listOf(
         "MSH-3-1",
