@@ -21,3 +21,44 @@ Note for content writer: If there is overlap with the previous "Pipeline Configu
 - Report endpoint - explain how to submit data (Exists in API programmer's guide)
 - History endpoint - explain how to use + example
 - Swagger API Documentation
+
+## Rhapsody Configuration
+
+Rhapsody is a health data pipeline that provides a visual interface representing various flows of health data. It uses
+`Communication Points` of various types to interface with external systems.
+
+
+### Using x-functions-key
+
+One such point, the `HTTP Communications Point` uses a standard HTTP request to send data externally and is perfect
+for use with the x-functions-key auth flow.
+
+#### HTTP Communications Point Configuration
+
+| Name                             | Value                                     |
+|----------------------------------|-------------------------------------------|
+| COMMUNICATION POINT              | HTTP CLIENT                               |
+| MODE                             | Out->In                                   |
+| URL                              | https://staging.prime.cdc.gov/api/reports |
+| HTTP METHOD                      | POST                                      |
+| FOLLOW REDIRECTS                 | YES                                       |
+| USE HTTPS                        | YES                                       |
+| SSL PROTOCOL MODE                | TLSv1.2                                   |
+| SPECIFY EXACT TLS VERSION        | YES                                       |
+| HOSTNAME VERIFICATION            | YES                                       |
+| PROTOCOL SUPPORT                 | Standard HTTP Only                        |
+| READ TIMEOUT (MS)                | 10,000                                    |
+| CONNECTION TIMEOUT (MS)          | 60,000                                    |
+| PROXY TYPE                       | System                                    |
+| REFRESH RATE (MS)                | 60,000                                    |
+| MESSAGE CONTENT                  | Message Body                              |
+| CONTENT TYPE                     | application/hl7-v2                        |
+| ON 4xx ERROR RESPONSE            | Mark as connection failed                 |
+| ON 5xx ERROR RESPONSE            | Mark as connection failed                 |
+| DYNAMIC CONNECTION FAILED ACTION | Treat as message error                    |
+
+##### Request Headers
+| Name            | Value         |
+| --------------- | ------------- |
+| x-functions-key | <suppressed>  |
+| client          | CDC-ELIMS-HL7 |
