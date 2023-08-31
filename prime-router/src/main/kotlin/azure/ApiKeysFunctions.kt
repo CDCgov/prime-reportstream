@@ -15,6 +15,7 @@ import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.JwkSet
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.authenticationFailure
+import io.swagger.v3.oas.annotations.ExternalDocumentation
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -147,7 +148,7 @@ SwIDAQAB
 @OpenAPIDefinition(
     info = Info(
         title = "Prime ReportStream",
-        description = "A router of public health data from senders to receivers",
+        description = "A router of public health data",
         contact = Contact(
             name = "USDS at Centers for Disease Control and Prevention",
             url = "https://reportstream.cdc.gov",
@@ -155,6 +156,14 @@ SwIDAQAB
         ),
         version = "0.2.0-oas3"
     ),
+    externalDocs = ExternalDocumentation(
+        description = "ReportStream API Programmer Guide",
+        url = "https://staging.reportstream.cdc.gov/resources/api/getting-started"
+    ),
+    security = [
+        SecurityRequirement(name = "primeSecurityOAUTH"),
+        SecurityRequirement(name = "primeSecurityServerToServer")
+    ],
     servers = [
         Server(
             url = "http://localhost:7071/api/",
@@ -163,10 +172,6 @@ SwIDAQAB
         Server(
             url = "https://staging.prime.cdc.gov/api/",
             description = "Staging Server"
-        ),
-        Server(
-            url = "https://prime.cdc.gov/api/",
-            description = "Production Server"
         )
     ]
 )
@@ -174,29 +179,21 @@ SwIDAQAB
 @SecuritySchemes(
     value = [
         SecurityScheme(
-            name = "primeSecurity",
+            name = "primeSecurityOAUTH",
             type = SecuritySchemeType.OAUTH2,
             flows = OAuthFlows(
                 authorizationCode = OAuthFlow(
-                    authorizationUrl = "https://hhs-prime.okta.com/oauth/authorize",
-                    tokenUrl = "https://hhs-prime.okta.com/oauth/token",
+                    authorizationUrl = "https://hhs-prime.oktapreview.com/oauth2/default/v1/authorize",
+                    tokenUrl = "https://hhs-prime.oktapreview.com/oauth2/default/v1/token",
                     scopes = [
                         OAuthScope(
-                            name = "org_admin",
-                            description = "Grants write access to single org"
-                        ),
-                        OAuthScope(name = "prime_admin", description = "Grants access to admin operations"),
-                        OAuthScope(name = "user", description = "Grants read access")
+                            name = "openid",
+                            description = "OpenID Request scope"
+                        )
                     ]
                 )
             ),
             description = "OAUTH2 Authorization for Report Stream API Access."
-        ),
-        SecurityScheme(
-            name = "primeSecurityAPIKey",
-            type = SecuritySchemeType.APIKEY,
-            paramName = "x-functions-key",
-            description = "Azure Function Key Authorization for Report Stream API Access."
         ),
         SecurityScheme(
             name = "primeSecurityServerToServer",

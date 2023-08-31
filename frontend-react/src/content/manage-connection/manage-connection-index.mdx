@@ -1,0 +1,90 @@
+---
+title: Managing your connection
+subtitle: Tools and resources to manage your ReportStream account and monitor your data
+isPrimaryDarker: true
+monitoringTools:
+    title: Online data monitoring tools
+    summary: When you log into the ReportStream website, these dashboards show what data you sent or received.
+submissionHistory:
+    title: The submission history API
+    summary: This API endpoint shows health care organizations the status of data they’ve sent.
+ongoingSupport:
+    title: Ongoing support
+    summary: Our expert team troubleshoots issues throughout your use of ReportStream.
+---
+import { Tile } from "../../shared/Tile/Tile";
+
+<HeroWrapper className="bg-blue-5">
+    <div className="grid-container padding-y-9">
+        **Quick Links**
+        <CardGroup>
+            <Card gridLayout={{col: "fill"}}>
+                <CardHeader typeof="div">
+                    ## For health care organizations
+                </CardHeader>
+                <CardBody>
+                    * File validator
+                    * Manage your public key
+                    * View your submission history
+
+                    [Login](/login) or [contact us](https://app.smartsheetgov.com/b/form/ff33efa457be461c9893301d4c0ec12d) to create an account.
+                </CardBody>
+            </Card>
+            <Card gridLayout={{col: "fill"}}>
+                <CardHeader typeof="div">
+                    ## For public health agencies
+                </CardHeader>
+                <CardBody>
+                    * How to download your data
+                    * Refer healthcare organizations
+                    * View Daily Data
+
+                    [Login](/login) or [contact us](https://app.smartsheetgov.com/b/form/ff33efa457be461c9893301d4c0ec12d) to create an account.
+                </CardBody>
+            </Card>
+        </CardGroup>
+    </div>
+</HeroWrapper>
+<HeroWrapper className="manage-connection grid-container">
+    <section className="usa-section padding-top-9 padding-bottom-0">
+        <h2 className="font-sans-xl margin-top-0">Monitoring tools</h2>
+        <p className="usa-intro margin-top-4 margin-bottom-8">Providing transparency into your data transfer with ReportStream </p>
+        <Tile {...frontmatter.monitoringTools}>
+            <CardGroup>
+                    <Card gridLayout={{col: "fill"}} isAlternate>
+                        <CardMedia>
+                            <img src="/assets/img/SubmissionHistory.png" alt="Submission History" />
+                        </CardMedia>
+                        <CardBody>
+                            **For health care organizations**
+
+                            The Submission History dashboard provides the status of data you sent through ReportStream.
+
+                            [View your submission history](/submissions) <Icon name='Lock' className="text-ttop text-primary" />
+                        </CardBody>
+                    </Card>
+                    <Card gridLayout={{col: "fill"}} isAlternate>
+                        <CardMedia>
+                            <img src="/assets/img/DailyData.png" alt="Daily Data" />
+                        </CardMedia>
+                        <CardBody>
+                            **For public health agencies**
+
+                            Daily Data is a dashboard that shows the data you’ve received and allows you to dive into detail for each facility or report.
+
+                            [View your Daily Data](/daily-data) <Icon name='Lock' className="text-ttop text-primary" />
+                        </CardBody>
+                    </Card>
+            </CardGroup>
+        </Tile>
+        <div className="grid-row grid-gap">
+            <Tile className="grid-col-fill" {...frontmatter.submissionHistory}>
+                <p><a href='https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957' className='usa-link'>Contact us</a> to learn more.</p>
+            </Tile>
+            <Tile className="grid-col-fill" {...frontmatter.ongoingSupport}>
+                <p><A href='https://https://app.smartsheetgov.com/b/form/ff33efa457be461c9893301d4c0ec12d'>Submit service request.</A></p>
+            </Tile>
+        </div>
+    </section>
+
+</HeroWrapper>
