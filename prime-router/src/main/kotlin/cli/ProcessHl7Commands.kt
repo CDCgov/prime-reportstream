@@ -15,8 +15,7 @@ import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 class ProcessHl7Commands : CliktCommand(
     name = "hl7data",
     help = "Compare HL7 Fields. This is the structure used for the segment numbering in th output: " +
-        "https://hl7-definition.caristix.com/v2/HL7v2.5.1/TriggerEvents/ORU_R01. If you just want to count from the " +
-        "top, the number after is the number of that segment from the top of the file."
+        "https://hl7-definition.caristix.com/v2/HL7v2.5.1/TriggerEvents/ORU_R01."
 ) {
     /**
      * The file to compare to

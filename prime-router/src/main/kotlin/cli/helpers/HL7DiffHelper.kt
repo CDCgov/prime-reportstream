@@ -35,105 +35,19 @@ class HL7DiffHelper {
             }
         }
 
-        fun compareHl7Type(
-            segmentIndex: String,
-            input: Type,
-            output: Type,
-            segmentType: String,
-            segmentNumber: Int,
-            fieldNum: Int,
-            secondaryFieldNum: Int
-        ): Hl7Diff? {
-            return when {
-                input is Primitive && output is Primitive && !StringUtils.equals(input.value, output.value) -> {
-                    return Hl7Diff(
-                        segmentIndex,
-                        input.value,
-                        output.value,
-                        fieldNum,
-                        secondaryFieldNum,
-                        segmentType,
-                        segmentNumber
-                    )
-                }
-
-                input is Varies && output is Varies -> compareHl7Type(
-                    segmentIndex,
-                    input.data,
-                    output.data,
-                    segmentType,
-                    segmentNumber,
-                    fieldNum,
-                    secondaryFieldNum
-                )
-
-                input is Composite && output is Composite -> {
-                    val inputComponents = input.components.filter { !it.isEmpty }
-                    val outputComponents = output.components.filter { !it.isEmpty }
-                    val inputExtraComponents = input.extraComponents
-                    val outputExtraComponents = output.extraComponents
-                    if (inputComponents.size != outputComponents.size) {
-                        return Hl7Diff(
-                            segmentIndex,
-                            "Difference in number of components.",
-                            "",
-                            fieldNum,
-                            secondaryFieldNum,
-                            segmentType,
-                            segmentNumber
-                        )
-                    } else if (inputExtraComponents.numComponents() != outputExtraComponents.numComponents()) {
-                        return Hl7Diff(
-                            segmentIndex,
-                            "Difference in number of extra components.",
-                            "",
-                            fieldNum,
-                            secondaryFieldNum,
-                            segmentType,
-                            segmentNumber
-                        )
-                    } else {
-                        inputComponents.zip(outputComponents).forEach { (i, o) ->
-                            return compareHl7Type(
-                                segmentIndex,
-                                i,
-                                o,
-                                segmentType,
-                                segmentNumber,
-                                fieldNum,
-                                secondaryFieldNum
-                            )
-                        }
-                        return null
-                    }
-                }
-
-                else -> {
-                    return null
-                }
-            }
-        }
-
         val mapNumOfSegment = mutableMapOf<String, Int>()
 
         inputMap.forEach { (segmentIndex, segment) ->
-            // used to get the name of the segment as well as which number of that segment it is
-            val segmentIndexParts = segmentIndex.split("-")
-            val segmentType = segmentIndexParts[segmentIndexParts.size - 1]
-            val segmentNumber = mapNumOfSegment[segmentType] ?: 0
-            mapNumOfSegment[segmentType] = segmentNumber + 1
-
             val outputSegment = outputMap[segmentIndex]
             if (outputSegment == null) {
                 differences.add(
                     Hl7Diff(
                         segmentIndex,
-                        "Output missing segment $segmentType",
+                        "Output missing segment ${segment.name}",
                         "",
                         0,
                         0,
-                        segmentType,
-                        segmentNumber
+                        segment.name
                     )
                 )
                 return@forEach
@@ -146,12 +60,11 @@ class HL7DiffHelper {
                         differences.add(
                             Hl7Diff(
                                 segmentIndex,
-                                "Output missing segment",
+                                "Output missing field",
                                 "",
                                 i,
                                 0,
-                                segmentType,
-                                segmentNumber
+                                segment.name
                             )
                         )
                         continue
@@ -169,8 +82,7 @@ class HL7DiffHelper {
                                         "",
                                         i,
                                         index,
-                                        segmentType,
-                                        segmentNumber
+                                        segment.name
                                     )
                                 )
                                 differenceAccumulator
@@ -184,8 +96,8 @@ class HL7DiffHelper {
                                 segmentIndex,
                                 input,
                                 outputField,
-                                segmentType,
-                                mapNumOfSegment[segmentType]!!,
+                                segment.name,
+                                0,
                                 0,
                                 0
                             )
@@ -203,8 +115,7 @@ class HL7DiffHelper {
                                     "",
                                     i,
                                     index,
-                                    segmentType,
-                                    segmentNumber
+                                    segment.name
                                 )
                             )
                             differenceAccumulator
@@ -229,8 +140,7 @@ class HL7DiffHelper {
                             "",
                             0,
                             0,
-                            segmentType,
-                            segmentNumber
+                            segmentType
                         )
                     )
                 }
@@ -238,6 +148,93 @@ class HL7DiffHelper {
         }
 
         return differences
+    }
+
+    private fun compareHl7Type(
+        segmentIndex: String,
+        input: Type,
+        output: Type,
+        segmentType: String,
+        segmentNumber: Int,
+        fieldNum: Int,
+        secondaryFieldNum: Int
+    ): Hl7Diff? {
+        return when {
+            input is Primitive && output is Primitive && !StringUtils.equals(input.value, output.value) -> {
+                return Hl7Diff(
+                    segmentIndex,
+                    input.value,
+                    output.value,
+                    fieldNum,
+                    secondaryFieldNum,
+                    segmentType
+                )
+            }
+
+            input is Varies && output is Varies -> compareHl7Type(
+                segmentIndex,
+                input.data,
+                output.data,
+                segmentType,
+                segmentNumber,
+                fieldNum,
+                secondaryFieldNum
+            )
+
+            input is Composite && output is Composite -> {
+                val inputComponents = input.components.filter { !it.isEmpty }
+                val outputComponents = output.components.filter { !it.isEmpty }
+                val inputExtraComponents = input.extraComponents
+                val outputExtraComponents = output.extraComponents
+                if (inputComponents.size != outputComponents.size) {
+                    return Hl7Diff(
+                        segmentIndex,
+                        "Difference in number of components.",
+                        "",
+                        fieldNum,
+                        secondaryFieldNum,
+                        segmentType
+                    )
+                } else if (inputExtraComponents.numComponents() != outputExtraComponents.numComponents()) {
+                    return Hl7Diff(
+                        segmentIndex,
+                        "Difference in number of extra components.",
+                        "",
+                        fieldNum,
+                        secondaryFieldNum,
+                        segmentType
+                    )
+                } else {
+                    inputComponents.zip(outputComponents).forEach { (i, o) ->
+                        return compareHl7Type(
+                            segmentIndex,
+                            i,
+                            o,
+                            segmentType,
+                            segmentNumber,
+                            fieldNum,
+                            secondaryFieldNum
+                        )
+                    }
+                    return null
+                }
+            }
+
+            input.javaClass != output.javaClass -> {
+                return Hl7Diff(
+                    segmentIndex,
+                    "Difference in type of field, ${input.javaClass}, ${output.javaClass}.",
+                    "",
+                    fieldNum,
+                    secondaryFieldNum,
+                    segmentType
+                )
+            }
+
+            else -> {
+                return null
+            }
+        }
     }
 
     /**
@@ -254,20 +251,20 @@ class HL7DiffHelper {
      * The last OBX would be indexed as 2-1-1, 2 because it's in the second observation_result
      * This is the structure used: https://hl7-definition.caristix.com/v2/HL7v2.5.1/TriggerEvents/ORU_R01
      */
-    protected fun indexStructure(structure: Structure, index: String, map: MutableMap<String, Segment>) {
+    private fun indexStructure(structure: Structure, index: String, map: MutableMap<String, Segment>) {
         when (structure) {
             is Group -> {
                 val childrenNames = structure.names.filter { cname -> structure.getAll(cname).isNotEmpty() }
                 val children = childrenNames.map { structure.getAll(it) }
                 children.forEach { childrenOfType ->
                     childrenOfType.forEachIndexed { i, child ->
-                        indexStructure(child, "$index-${i + 1}", map)
+                        indexStructure(child, "$index-${structure.name}(${i + 1})", map)
                     }
                 }
             }
 
             is Segment -> {
-                map["$index-${structure.name}"] = structure
+                map["${structure.name}(${index.substring(0, 1)})${index.substring(1, index.length)}"] = structure
             }
         }
     }
@@ -279,7 +276,6 @@ class HL7DiffHelper {
         val fieldNum: Int,
         val secondaryFieldNum: Int,
         val segmentType: String,
-        val segmentNumber: Int,
     ) {
         override fun toString(): String {
             val outputText = if (output.isEmpty()) {
@@ -289,7 +285,7 @@ class HL7DiffHelper {
             }
 
             return "Difference between messages at $segmentIndex.$fieldNum.$secondaryFieldNum " +
-                "($segmentType number $segmentNumber) Differences: $input$outputText"
+                " Differences: $input$outputText"
         }
     }
 }
