@@ -11,8 +11,6 @@ on:
         - demo2
         - demo3
         type: choice
-  schedule:
-    - cron: "0 0 * * SAT"
 
 jobs:
   destroy_demo_environment:
@@ -38,10 +36,6 @@ jobs:
         uses: ./.github/actions/vpn-azure
         with:
           env-name: ${{ github.event.inputs.env_name }}
-          tls-key: ${{ secrets.TLS_KEY }}
-          ca-cert: ${{ secrets.CA_CRT}}
-          user-crt: ${{ secrets.USER_CRT }}
-          user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
           tf-auth: true
 

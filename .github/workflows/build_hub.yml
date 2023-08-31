@@ -50,6 +50,9 @@ jobs:
 
       - uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
 
+      - name: Lint
+        run: ./gradlew ktlintCheck
+
       - name: Spin up build containers
         run: docker-compose -f docker-compose.postgres.yml up -d
 

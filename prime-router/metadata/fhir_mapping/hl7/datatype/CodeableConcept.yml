@@ -63,7 +63,20 @@ coding_6:
   constants:
     codeIndex: "alternate identifier"
 
+# Allows alternate coding to be added from variables
 coding_7:
+  generateList: true
+  valueOf: datatype/Coding  # uses values from vars
+  expressionType: resource
+  condition: $code NOT_NULL
+  vars:
+    code: $alternateCode
+    display: $alternateDisplay
+    system: $alternateSystem
+  constants:
+    codeIndex: "alternate identifier"
+
+coding_8:
   generateList: true
   valueOf: datatype/Coding
   expressionType: resource
@@ -77,23 +90,22 @@ coding_7:
   constants:
     codeIndex: "identifier"
 
-coding_8:
-  valueOf: $coding
-  condition: $coding NOT_NULL
-  generateList: true
-
-# Allows alternate coding to be added from variables
 coding_9:
   generateList: true
   valueOf: datatype/Coding  # uses values from vars
   expressionType: resource
   condition: $code NOT_NULL
   vars:
-    code: $alternateCode
-    display: $alternateDisplay
-    system: $alternateSystem
+    code: $primaryCode
+    display: $primaryDisplay
+    system: $primarySystem
   constants:
-    codeIndex: "alternate identifier"
+    codeIndex: "identifier"
+
+coding_10:
+  valueOf: $coding
+  condition: $coding NOT_NULL
+  generateList: true
 
 # Require available text, and the absence of an identifierCoding
 text:

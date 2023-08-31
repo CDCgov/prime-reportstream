@@ -379,10 +379,10 @@ extension:
           vars:
             coding: RELIGIOUS_AFFILIATION_CC, PID.17
             text: String, PID.17.2
-            alternateCode: PID.17.1
-            alternateDisplay: PID.17.2
+            primaryCode: PID.17.1
+            primaryDisplay: PID.17.2
           constants:
-            alternateSystem: 'http://terminology.hl7.org/CodeSystem/v2-0006'
+            primarySystem: 'http://terminology.hl7.org/CodeSystem/v2-0006'
 
     - expressionType: nested
       specs: PID.10

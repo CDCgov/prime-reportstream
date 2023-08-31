@@ -4,16 +4,13 @@ description: 'Connect to VPN and login to Azure'
 inputs:
   tls-key:
     description: "TLS key"
-    required: true
   ca-cert:
     description: "CA cert"
-    required: true
+    default: false
   user-crt:
     description: "User cert"
-    required: true
   user-key:
     description: "User key"
-    required: true
   sp-creds:
     description: "Azure Service Principal creds"
     required: true
@@ -21,6 +18,9 @@ inputs:
     required: true
   tf-auth:
     description: "Set Terraform auth env variables. True or False"
+    default: false
+  dns-ip:
+    description: 'VPN DNS IP'
     default: false
 
 runs:
@@ -63,14 +63,21 @@ runs:
       run: echo "VPN_ENV=prod" >> $GITHUB_ENV
 
     - name: Install OpenVPN
+      if: inputs.ca-cert != 'false'
       run: |
         sudo apt-get update
         sudo apt-get install openvpn
         sudo apt install openvpn-systemd-resolved
       shell: bash
 
+    - name: Update VPN DNS IP
+      if: inputs.dns-ip != 'false' && inputs.ca-cert != 'false'
+      run: |
+        sed -i "s/\(dhcp-option DNS \).*/\1${{ inputs.dns-ip }}/" .github/vpn/${{ env.VPN_ENV }}.ovpn
+      shell: bash
+
     - uses: josiahsiegel/action-connect-ovpn@a4c76bd3ba523f065468d633a40d16d1175bcb79
-      if: env.VPN_ENV
+      if: env.VPN_ENV && inputs.ca-cert != 'false'
       id: connect_vpn
       with:
         FILE_OVPN: .github/vpn/${{ env.VPN_ENV }}.ovpn

@@ -1,6 +1,10 @@
 # action.yml
 name: 'Build Variables'
 description: 'Variables shared by build workflows'
+inputs:
+  sp-creds:
+    description: "Azure Service Principal creds"
+    default: false
 outputs:
   env_name:
     value: ${{ steps.build_result.outputs.env_name }}
@@ -20,6 +24,9 @@ outputs:
   prerelease:
     value: ${{ steps.prerelease_result.outputs.prerelease }}
     description: 'GitHub release or pre-release'
+  dns_ip:
+    value: ${{ steps.fetch_vpn_ip.outputs.dns_ip }}
+    description: 'VPN DNS IP'
 
 runs:
   using: "composite"
@@ -173,7 +180,7 @@ runs:
           echo "has_router_change=${{ steps.filter.outputs.router }}" >> $GITHUB_OUTPUT
         fi
 
-    - name: Front frontend change if prod
+    - name: Force frontend change if prod
       if: github.event_name != 'schedule'
       id: frontend_change_result
       shell: bash
@@ -189,3 +196,17 @@ runs:
         else
           echo "has_react_change=${{ steps.filter.outputs.frontend_react }}" >> $GITHUB_OUTPUT
         fi
+
+    - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
+      if: inputs.sp-creds != 'false'
+      with:
+        creds: ${{ inputs.sp-creds }}
+
+    - name: Fetch VPN DNS IP
+      if: inputs.sp-creds != 'false'
+      id: fetch_vpn_ip
+      shell: bash
+      run: |
+        DNS_IP=$(az container show -g prime-data-hub-${{ steps.build_result.outputs.env_name }} \
+        --name pdh${{ steps.build_result.outputs.env_name }}-dns --query 'ipAddress.ip' -o tsv)
+        echo "dns_ip=$DNS_IP" >> $GITHUB_OUTPUT

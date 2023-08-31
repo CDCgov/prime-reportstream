@@ -125,7 +125,7 @@
             "code" : "DNS"
           } ]
         },
-        "value" : "urn:dnscentracare.com"
+        "value" : "urn:dns:centracare.com"
       } ]
     }
   }, {

@@ -2,7 +2,6 @@ import { Link } from "@trussworks/react-uswds";
 
 import usamapsvg from "../../content/usa_w_territories.svg";
 import { USLink } from "../../components/USLink";
-import { Citation } from "../Citation/Citation";
 
 import styles from "./LiveMap.module.scss";
 
@@ -15,7 +14,6 @@ export const LiveMap = ({
     title,
     summary,
     subTitle,
-    citation,
     ...props
 }: LiveMapProps) => {
     return (
@@ -64,15 +62,6 @@ export const LiveMap = ({
                     See all partners
                 </Link>
             </div>
-            {citation?.map((citation, citationIndex) => {
-                return (
-                    <Citation
-                        data-testid="citation"
-                        key={citationIndex}
-                        {...citation}
-                    />
-                );
-            })}
         </section>
     );
 };

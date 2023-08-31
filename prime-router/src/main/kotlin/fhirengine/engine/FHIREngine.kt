@@ -152,7 +152,8 @@ abstract class FHIREngine(
 
     /**
      *
-     * Responsible for invoking the [doWork] function, inserting any new tasks and updating the previous task
+     * Responsible for invoking the [doWork] function, inserting any new tasks and updating the previous task and
+     * returning any messages [RawSubmission] that need to be added to the queue
      * If an exception is encountered it is logged and then rethrown in order to rollback the transaction
      *
      * @param message the message to process

@@ -70,7 +70,7 @@ identifier_5:
     id: $dnsUrlPrefix + MSH.4.2
     systemStr: String, MSH.4.3
   constants:
-    dnsUrlPrefix: "urn:dns"
+    dnsUrlPrefix: "urn:dns:"
     typeCode: DNS
     typeCodeSystem: v2-0301
 

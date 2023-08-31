@@ -331,7 +331,21 @@
       "issued" : "2028-08-07T16:36:01-06:00",
       "performer" : [ {
         "reference" : "PractitionerRole/1674584582206757000.225caf65-b3f1-47a3-93b2-2b90020db496"
-      } ]
+      } ],
+      "dataAbsentReason": {
+              "coding": [
+                {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                      "valueString": "identifier"
+                    }
+                  ],
+                  "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+                  "code": "unknown"
+                }
+              ]
+            }
     }
   }, {
     "fullUrl" : "Location/1674584582203860000.7e41d061-239e-4447-8b1c-b9398e303124",
@@ -1044,7 +1058,21 @@
       "issued" : "2021-08-10T06:25:00-06:00",
       "performer" : [ {
         "reference" : "PractitionerRole/1674584582228945000.6caafda1-4ce3-48ba-91e6-2ba3bc2135c8"
-      } ]
+      } ],
+      "dataAbsentReason": {
+              "coding": [
+                {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                      "valueString": "identifier"
+                    }
+                  ],
+                  "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+                  "code": "unknown"
+                }
+              ]
+            }
     }
   }, {
     "fullUrl" : "Location/1674584582224577000.e29aaf7a-6928-4cb9-aa26-891f3607ca01",
@@ -3426,7 +3454,21 @@
       "issued" : "2021-08-05T01:38:00-06:00",
       "performer" : [ {
         "reference" : "PractitionerRole/1674584582286651000.9026920c-fadc-4a14-bada-a3e2fe72b78a"
-      } ]
+      } ],
+      "dataAbsentReason": {
+              "coding": [
+                {
+                  "extension": [
+                    {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                      "valueString": "identifier"
+                    }
+                  ],
+                  "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+                  "code": "unknown"
+                }
+              ]
+            }
     }
   }, {
     "fullUrl" : "Location/1674584582284946000.5388c5d3-85c6-4d2a-9a1b-1126f0c74a09",

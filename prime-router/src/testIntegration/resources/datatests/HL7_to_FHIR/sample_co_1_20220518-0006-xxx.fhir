@@ -2,7 +2,7 @@
   "resourceType" : "Bundle",
   "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
   "meta" : {
-    "lastUpdated" : "2023-08-14T11:43:31.471-04:00"
+    "lastUpdated" : "2023-08-28T09:28:34.369-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -70,29 +70,6 @@
         "software" : "Laboratory Applicati",
         "version" : "5.67"
       }
-    }
-  }, {
-    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "P"
-        } ]
-      },
-      "identifier" : [ {
-        "value" : "COCSR"
-      } ]
     }
   }, {
     "fullUrl" : "Device/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
@@ -175,6 +152,29 @@
         } ]
       } ],
       "name" : "MEDITECH, Inc."
+    }
+  }, {
+    "fullUrl" : "Organization/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+      "meta" : {
+        "extension" : [ {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ],
+        "tag" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+          "code" : "P"
+        } ]
+      },
+      "identifier" : [ {
+        "value" : "COCSR"
+      } ]
     }
   }, {
     "fullUrl" : "Provenance/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
@@ -3707,7 +3707,17 @@
       "issued" : "2028-08-02T07:34:00-06:00",
       "performer" : [ {
         "reference" : "PractitionerRole/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-      } ]
+      } ],
+      "dataAbsentReason" : {
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
+          "system" : "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+          "code" : "unknown"
+        } ]
+      }
     }
   }, {
     "fullUrl" : "Location/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
@@ -6476,7 +6486,17 @@
       "issued" : "2028-08-02T07:34:00-06:00",
       "performer" : [ {
         "reference" : "PractitionerRole/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-      } ]
+      } ],
+      "dataAbsentReason" : {
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
+          "system" : "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+          "code" : "unknown"
+        } ]
+      }
     }
   }, {
     "fullUrl" : "Location/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
@@ -9245,7 +9265,17 @@
       "issued" : "2028-08-02T07:34:00-06:00",
       "performer" : [ {
         "reference" : "PractitionerRole/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-      } ]
+      } ],
+      "dataAbsentReason" : {
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
+          "system" : "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+          "code" : "unknown"
+        } ]
+      }
     }
   }, {
     "fullUrl" : "Location/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
@@ -12291,7 +12321,17 @@
       "issued" : "2028-08-02T07:34:00-06:00",
       "performer" : [ {
         "reference" : "PractitionerRole/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-      } ]
+      } ],
+      "dataAbsentReason" : {
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
+          "system" : "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+          "code" : "unknown"
+        } ]
+      }
     }
   }, {
     "fullUrl" : "Location/xxxxxxxxxxxxxxxxxxx.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
@@ -13338,7 +13378,7 @@
           "coding" : [ {
             "extension" : [ {
               "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "alternate identifier"
+              "valueString" : "identifier"
             } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "FGN"
@@ -13422,7 +13462,7 @@
           "coding" : [ {
             "extension" : [ {
               "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "alternate identifier"
+              "valueString" : "identifier"
             } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
             "code" : "FGN"
@@ -14818,7 +14858,7 @@
           "coding" : [ {
             "extension" : [ {
               "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "alternate identifier"
+              "valueString" : "identifier"
             } ],
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0006",
             "code" : "PRO"

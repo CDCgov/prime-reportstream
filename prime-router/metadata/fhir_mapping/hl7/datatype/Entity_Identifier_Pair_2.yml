@@ -5,7 +5,7 @@ type:
    expressionType: resource
    specs: $type
    vars:
-     valueIn: $code | $alternateCode | $type
+     valueIn: $code | $primaryCode | $type
 
 system:
   type: STRING

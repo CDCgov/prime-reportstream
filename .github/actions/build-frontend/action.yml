@@ -36,26 +36,36 @@ runs:
 
     - name: Build release for production branch (conditional check)
       if: inputs.env-name == 'prod'
-      working-directory: frontend-react
-      run: |
-        echo "" >> .env.production
-        echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-prod-key }}" >> .env.production
-        yarn test:ci
-        yarn build:production
-      shell: bash
+      uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
+      with:
+        timeout_minutes: 40
+        max_attempts: 2
+        retry_wait_seconds: 30
+        command: |
+          cd frontend-react
+          echo "" >> .env.production
+          echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-prod-key }}" >> .env.production
+          yarn test:ci
+          yarn build:production
+        shell: bash
 
     - name: Build release for non-production branch (conditional check)
       if: inputs.env-name != 'prod'
-      working-directory: frontend-react
-      run: |
-        ENV=${{ inputs.env-name }}
-        if [[ $ENV != demo* && $ENV != "test" && $ENV != trialfrontend* ]]; then ENV="staging"; fi
-        echo "" >> .env.$ENV
-        echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
-        yarn lint
-        yarn test:ci
-        yarn build:$ENV
-      shell: bash
+      uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
+      with:
+        timeout_minutes: 40
+        max_attempts: 2
+        retry_wait_seconds: 30
+        command: |
+          cd frontend-react
+          ENV=${{ inputs.env-name }}
+          if [[ $ENV != demo* && $ENV != "test" && $ENV != trialfrontend* ]]; then ENV="staging"; fi
+          echo "" >> .env.$ENV
+          echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-staging-key }}" >> .env.$ENV
+          yarn lint
+          yarn test:ci
+          yarn build:$ENV
+        shell: bash
 
     - name: Set up JDK 11 to generate backend coverage stats
       uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2

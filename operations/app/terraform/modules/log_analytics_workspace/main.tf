@@ -22,8 +22,8 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostics" {
       category = log.value
 
       retention_policy {
-        enabled = true
-        days    = 60
+        enabled = false
+        days    = 0
       }
     }
   }
@@ -34,8 +34,8 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostics" {
       category = metric.value
 
       retention_policy {
-        enabled = true
-        days    = 60
+        enabled = false
+        days    = 0
       }
     }
   }
