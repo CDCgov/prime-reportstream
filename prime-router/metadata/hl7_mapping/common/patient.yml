@@ -146,8 +146,18 @@ elements:
     value: [ '"2.9"' ]
     hl7Spec: [ '%{hl7PIDField}-22-7' ]
 
-  - name: patient-multiple-birth-order
-    value: [ '%resource.multipleBirth' ]
+  - name: patient-multiple-birth-order-1
+    condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is Boolean'
+    value: ['%resource.multipleBirth']
+    hl7Spec: [ '%{hl7PIDField}-25' ]
+    valueSet:
+      values:
+        true: 1-9
+        false: 0
+
+  - name: patient-multiple-birth-order-2
+    condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is Integer'
+    value: ['%resource.multipleBirth']
     hl7Spec: [ '%{hl7PIDField}-25' ]
 
   - name: patient-death-date-time
