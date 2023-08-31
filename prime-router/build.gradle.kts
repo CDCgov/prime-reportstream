@@ -60,6 +60,10 @@ val javaVersion = when (appJvmTarget) {
     "21" -> JavaVersion.VERSION_21
     else -> JavaVersion.VERSION_17
 }
+val ktorVersion = "2.3.2"
+val kotlinVersion = "1.8.22"
+val jacksonVersion = "2.15.2"
+jacoco.toolVersion = "0.8.10"
 
 // Local database information, first one wins:
 // 1. Project properties (-P<VAR>=<VALUE> flag)
@@ -111,12 +115,6 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 }
 
 defaultTasks("package")
-
-val ktorVersion = "2.3.2"
-val kotlinVersion = "1.9.10"
-val jacksonVersion = "2.15.2"
-
-jacoco.toolVersion = "0.8.10"
 
 // Set the compiler JVM target
 java {
