@@ -154,7 +154,7 @@ class ReportGraph(
      *
      * @param reportIds the set of reports to start from
      */
-    fun itemAncestorGraphCommonTableExpression(reportIds: List<UUID>) =
+    fun itemAncestorGraphCommonTableExpression(receiver: Receiver, taskAction: TaskAction) =
         DSL
             .name(ItemGraphTable.ITEM_GRAPH.name)
             .`as`(
@@ -164,7 +164,16 @@ class ReportGraph(
                     ITEM_LINEAGE.CHILD_REPORT_ID.`as`(STARTING_REPORT_ID_FIELD)
                 )
                     .from(ITEM_LINEAGE)
-                    .where(ITEM_LINEAGE.CHILD_REPORT_ID.`in`(reportIds))
+                    .where(
+                        ITEM_LINEAGE.CHILD_REPORT_ID.`in`(
+                            DSL.select(ReportFile.REPORT_FILE.REPORT_ID)
+                                .from(ReportFile.REPORT_FILE)
+                                .join(Action.ACTION).on(Action.ACTION.ACTION_ID.eq(ReportFile.REPORT_FILE.ACTION_ID))
+                                .where(Action.ACTION.RECEIVING_ORG.eq(receiver.organizationName))
+                                .and(Action.ACTION.RECEIVING_ORG_SVC.eq(receiver.name))
+                                .and(Action.ACTION.ACTION_NAME.eq(taskAction))
+                        )
+                    )
                     .unionAll(
                         DSL.select(
                             ITEM_LINEAGE.PARENT_REPORT_ID,
