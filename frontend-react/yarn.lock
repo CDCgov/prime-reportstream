@@ -2785,7 +2785,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.37.0":
+"@playwright/test@npm:^1.37.1":
   version: 1.37.1
   resolution: "@playwright/test@npm:1.37.1"
   dependencies:
@@ -6860,9 +6860,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001517, caniuse-lite@npm:^1.0.30001520":
-  version: 1.0.30001529
-  resolution: "caniuse-lite@npm:1.0.30001529"
-  checksum: 26a7d42fff3a7e33db543af6b434aceb08c799e5e00795a54296b99b2fdddb7f31a0040600d3fc2ca4b1e6cf7e4ead46cc87ac53751ea8dab47ef355f6809511
+  version: 1.0.30001532
+  resolution: "caniuse-lite@npm:1.0.30001532"
+  checksum: 613abeb15e03dde307d543195a7860f7ba7450c9c9262d45642b2c8fbe097914fa060d68c8647f9d443947b1f62b09d891858bde7d2cac94fae8133a0b518b28
   languageName: node
   linkType: hard
 
@@ -7434,8 +7434,8 @@ __metadata:
   linkType: hard
 
 "cosmiconfig@npm:^8.1.3":
-  version: 8.3.4
-  resolution: "cosmiconfig@npm:8.3.4"
+  version: 8.3.5
+  resolution: "cosmiconfig@npm:8.3.5"
   dependencies:
     import-fresh: ^3.3.0
     js-yaml: ^4.1.0
@@ -7446,7 +7446,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 6e1d46d6f065d4abf6d237cbd60f7a8df2316541e1cd1edc1b742d00c64daf4e225813d14ad8fb8299852ca10ff8f3283978edce660e53906e7c85c5960088cb
+  checksum: c6e44bb3cabf268b70049e7bd4ee8ecf00068854e53cbc32f9104794927ef406817f9e64e1c4949bd10776b604c01f7b50674336fcd2d5b9efc4cf8277fdf025
   languageName: node
   linkType: hard
 
@@ -14389,7 +14389,7 @@ __metadata:
     "@okta/okta-auth-js": ^7.4.2
     "@okta/okta-react": ^6.7.0
     "@okta/okta-signin-widget": ^7.9.1
-    "@playwright/test": ^1.37.0
+    "@playwright/test": ^1.37.1
     "@rest-hooks/rest": ^3.0.3
     "@rest-hooks/test": ^7.3.1
     "@storybook/addon-a11y": ^7.4.0

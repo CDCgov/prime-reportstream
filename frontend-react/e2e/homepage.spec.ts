@@ -3,7 +3,9 @@ import { test, expect } from "@playwright/test";
 test("Has correct title", async ({ page }) => {
     await page.goto("/");
 
-    await expect(page).toHaveTitle(/CDC Prime ReportStream/);
+    await expect(page).toHaveTitle(
+        /Your single connection to simplify data transfer and improve public health/,
+    );
 });
 
 test("has Product link", async ({ page }) => {

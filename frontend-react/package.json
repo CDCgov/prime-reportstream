@@ -106,7 +106,7 @@
         "@babel/runtime": "^7.22.11",
         "@mdx-js/react": "^2.3.0",
         "@mdx-js/rollup": "^2.3.0",
-        "@playwright/test": "^1.37.0",
+        "@playwright/test": "^1.37.1",
         "@rest-hooks/test": "^7.3.1",
         "@storybook/addon-a11y": "^7.4.0",
         "@storybook/addon-actions": "^7.4.0",
