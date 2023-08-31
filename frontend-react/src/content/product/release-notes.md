@@ -2,6 +2,17 @@
 
 ## Stay up to date with new features, enhancements, and fixes
 
+### July 2023
+**New Features**:
+- We launched a pilot program receiving and sending flu data through ReportStream. This is part of continued efforts to expand our capabilities beyond COVID-19. [Let us know](https://app.smartsheetgov.com/b/form/2547924db9fd438ea0fc00dc7b126aec) if you're interested in receiving flu data from ReportStream.
+- You can now view documentation and guidance for errors when generating a signed JWT during onboarding to send data. The documentation is available on [Github](https://github.com/CDCgov/prime-reportstream/blob/e20ac26b0e0be31967fc65def7401382ef786d98/prime-router/examples/generate-jwt-python/jwt-errors.md) and linked in the [API Guide](/resources/api).
+- The ReportStream homepage more accurately reflects the work we are doing and provides a clear action step for starting to send or receive data.
+
+**Bug Fixes**:
+
+- The navigation of the [API Guide](https://reportstream.cdc.gov/resources/api) no longer overlaps with the content of the page on mobile view.
+
+---
 ### June 2023
 **New Features**:
 [The API Programmer's Guide,](https://reportstream.cdc.gov/resources/api) previously only available as a PDF download, is now part of the ReportStream website. The web pages provide a user-friendly format that ensures users always have the most updated information.

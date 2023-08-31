@@ -7,6 +7,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFailure
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEmpty
+import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
@@ -240,7 +241,7 @@ class ConverterSchemaTests {
     fun `test merge of schema with unnamed element`() {
         val schemaA = ConverterSchema(elements = mutableListOf((ConverterSchemaElement())))
         val schemaB = ConverterSchema(elements = mutableListOf((ConverterSchemaElement())))
-        assertThat { schemaA.merge(schemaB) }.isFailure()
+        assertThat { schemaA.override(schemaB) }.isFailure()
     }
 
     @Test
@@ -263,6 +264,71 @@ class ConverterSchemaTests {
 
         assertThat(schema.findElements("parent2")[0]).isEqualTo(schema.elements[1])
         assertThat(schema.findElements("child2")[0]).isEqualTo(childSchema.elements[1])
+    }
+
+    @Test
+    fun `test merge schemas with baseSchema containing duplicates`() {
+        val nestedSchema1 = ConverterSchema(
+            elements = mutableListOf(
+                ConverterSchemaElement("child1"),
+                ConverterSchemaElement("child2", condition = "baseCondition"),
+                ConverterSchemaElement("child3")
+            ),
+        )
+
+        val nestedSchema2 = ConverterSchema(
+            elements = mutableListOf(
+                ConverterSchemaElement("child1"),
+                ConverterSchemaElement("child2", condition = "baseCondition"),
+                ConverterSchemaElement("child3")
+            ),
+        )
+
+        val schemaA = ConverterSchema(
+            elements = mutableListOf(
+                ConverterSchemaElement(
+                    "nested-1",
+                    schema = "nestedSchema",
+                    schemaRef = nestedSchema1
+                )
+            )
+        )
+
+        val schemaB = ConverterSchema(
+            elements = mutableListOf(
+                ConverterSchemaElement(
+                    "nested-2",
+                    schema = "nestedSchema",
+                    schemaRef = nestedSchema2
+                )
+            )
+        )
+
+        val baseSchema = ConverterSchema(
+            hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
+            elements = mutableListOf(
+                ConverterSchemaElement("schemaElement", schema = "schemaElement", schemaRef = schemaA),
+                ConverterSchemaElement("schemaElement2", schema = "childSchema", schemaRef = schemaB)
+            ),
+        )
+
+        val schema = ConverterSchema(
+            elements = mutableListOf(
+                ConverterSchemaElement("parent1", required = true),
+                ConverterSchemaElement("child2", condition = "condition1"),
+            ),
+            constants = sortedMapOf(Pair("K1", "testV1"), Pair("K4", "testV4")),
+        )
+        schema.name = "testSchema"
+
+        val mergedSchema = baseSchema.override(schema)
+        assertThat(mergedSchema.elements[0].schemaRef).isNotEqualTo(mergedSchema.elements[1].schemaRef)
+        assertThat(
+            mergedSchema.elements[0].schemaRef?.elements?.get(0)?.schemaRef?.elements?.get(0)?.condition
+        ).equals("condition1")
+        assertThat(
+            mergedSchema.elements[1].schemaRef?.elements?.get(0)?.schemaRef?.elements?.get(0)?.condition
+        ).equals("condition1")
     }
 
     @Test
@@ -302,7 +368,7 @@ class ConverterSchemaTests {
         )
         schema.name = "testSchema"
 
-        baseSchema.merge(parentSchema).merge(schema)
+        baseSchema.override(parentSchema).override(schema)
         assertThat((baseSchema.elements[0]).required).isEqualTo((schema.elements[0]).required)
         assertThat(referencedSchema.elements[1].condition).isEqualTo(schema.elements[1].condition)
         assertThat(baseSchema.elements.last().name).isEqualTo(schema.elements[2].name)
