@@ -74,7 +74,6 @@ class ProcessFhirCommands : CliktCommand(
     private val transformSchema by option("-s", "--schema", help = "Schema location for the FHIR to HL7 conversion")
         .file()
 
-
     override fun run() {
         // Read the contents of the file
         val contents = inputFile.inputStream().readBytes().toString(Charsets.UTF_8)
@@ -93,10 +92,10 @@ class ProcessFhirCommands : CliktCommand(
             }
 
             // FHIR to FHIR conversion
-            (inputFileType == "FHIR" || inputFileType == "JSON" ) && outputFormat == Report.Format.FHIR.toString() -> {
+            (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == Report.Format.FHIR.toString() -> {
                 outputResult(convertToFhirToFhir(contents), actionLogger)
             }
-            
+
             // HL7 to FHIR to HL7 conversion
             inputFileType == "HL7" && outputFormat == Report.Format.HL7.toString() -> {
                 val bundle = convertToFhir(contents, actionLogger)
@@ -134,9 +133,9 @@ class ProcessFhirCommands : CliktCommand(
     }
 
     /**
-    * convert an FHIR message to FHIR message
-    */
-    private fun convertToFhirToFhir(jsonString: String): Bundle{
+     * convert an FHIR message to FHIR message
+     */
+    private fun convertToFhirToFhir(jsonString: String): Bundle {
         return when {
             transformSchema == null ->
                 throw CliktError("You must specify a schema.")
@@ -150,7 +149,6 @@ class ProcessFhirCommands : CliktCommand(
             }
         }
     }
-    
 
     /**
      * Convert an HL7 message or batch as a [hl7String] to a FHIR bundle. [actionLogger] will contain any
