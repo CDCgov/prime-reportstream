@@ -12,6 +12,16 @@ import ca.uhn.hl7v2.model.Varies
 import org.apache.commons.lang3.StringUtils
 
 class HL7DiffHelper {
+
+    fun filterNames(message: Message, names: Array<String>, map: MutableMap<String, Segment>) {
+        names.filter { name -> message.getAll(name).isNotEmpty() }.forEach { messageName ->
+            val children = message.getAll(messageName)
+            children.forEachIndexed { index, c ->
+                indexStructure(c, (index + 1).toString(), map)
+            }
+        }
+    }
+
     /**
      * Does the diffing of the [input] message to the [output] message. Results are echoed on the command line.
      */
@@ -21,19 +31,10 @@ class HL7DiffHelper {
         val differences: MutableList<Hl7Diff> = mutableListOf()
 
         val inputNames = input.names
-        inputNames.filter { name -> input.getAll(name).isNotEmpty() }.forEach { iname ->
-            val children = input.getAll(iname)
-            children.forEachIndexed { index, c ->
-                indexStructure(c, (index + 1).toString(), inputMap)
-            }
-        }
+        filterNames(input, inputNames, inputMap)
+
         val outputNames = output.names
-        outputNames.filter { name -> output.getAll(name).isNotEmpty() }.forEach { iname ->
-            val children = output.getAll(iname)
-            children.forEachIndexed { index, c ->
-                indexStructure(c, (index + 1).toString(), outputMap)
-            }
-        }
+        filterNames(output, outputNames, outputMap)
 
         val mapNumOfSegment = mutableMapOf<String, Int>()
 
@@ -150,7 +151,7 @@ class HL7DiffHelper {
         return differences
     }
 
-    private fun compareHl7Type(
+    fun compareHl7Type(
         segmentIndex: String,
         input: Type,
         output: Type,
