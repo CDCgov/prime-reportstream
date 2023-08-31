@@ -403,23 +403,12 @@ blockquote {
     > blockquote,
     > .usa-accordion,
     > .usa-process-list,
-    > .usa-card-group {
-        @include u-margin-top(4);
-
-        & + img,
-        & + blockquote,
-        & + .usa-accordion,
-        & + .usa-process-list,
-        & + .usa-card-group {
-            @include u-margin-top(5);
-        }
-    }
-
+    > .usa-card-group,
     > .usa-summary-box {
         @include u-margin-top(4);
 
-        & + * {
-            @include u-margin-top(3);
+        & + & {
+            @include u-margin-top(5);
         }
     }
 }
