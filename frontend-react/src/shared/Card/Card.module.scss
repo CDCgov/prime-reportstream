@@ -5,29 +5,29 @@
  * with differing style expectations
  */
 .usa-card--alternate {
-    :global(.usa-card__header) {
-        @include u-padding-left(0);
-    }
-    :global(.usa-card__heading) {
-        @include u-padding-left(0);
-    }
-    :global(.usa-card__body) {
-        @include u-padding-left(0);
-    }
-    :global(.usa-card__footer) {
-        @include u-padding-left(0);
-    }
+    :global {
+        .usa-card__header {
+            @include u-padding-left(0);
+        }
 
-    :global(.usa-card__container) {
-        border-style: none;
-    }
+        .usa-card__heading {
+            @include u-padding-left(0);
+        }
 
-    :global(.usa-card__img) {
-        border-radius: 0;
-    }
-}
+        .usa-card__body {
+            @include u-padding-left(0);
+        }
 
-:global(.usa-card__container) {
-    border-radius: 0;
-    @include u-margin-right(3)
+        .usa-card__footer {
+            @include u-padding-left(0);
+        }
+
+        .usa-card__container {
+            border-style: none;
+        }
+
+        .usa-card__img {
+            border-radius: 0;
+        }
+    }
 }
