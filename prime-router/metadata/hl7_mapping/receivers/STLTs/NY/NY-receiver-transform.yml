@@ -1,0 +1,11 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: ../../../ORU_R01/ORU_R01-base
+elements:
+  - name: sending-facility_namespace-id
+    condition: true
+    value: [ '"CDC PRIME REPORTSTREAM"' ]
+
+  - name: sending-facility-universal-id
+    condition: true
+    value: [ '"10DRPTSTRM"' ]
