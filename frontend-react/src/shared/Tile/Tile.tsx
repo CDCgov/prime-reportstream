@@ -1,22 +1,27 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import DOMPurify from "dompurify";
 import classNames from "classnames";
 
 import styles from "./Tile.module.scss";
 
-export interface TileProps
-    extends React.PropsWithChildren<
-        React.HTMLAttributes<HTMLElement> & ContentSubitem
-    > {}
+export interface TileProps {
+    className?: string;
+    children?: ReactNode;
+    img?: string;
+    imgAlt?: string;
+    imgClassName?: string;
+    title?: string;
+    summary?: string;
+}
 
 export const Tile = ({
+    children,
     className,
     img,
     imgAlt,
     imgClassName,
     title,
     summary,
-    children,
 }: TileProps) => {
     const cleanSummaryHtml = DOMPurify.sanitize(summary ?? "");
     const classnames = classNames(styles["rs-tile"], className);
@@ -33,7 +38,7 @@ export const Tile = ({
             {title && (
                 <p
                     data-testid="heading"
-                    className="usa-prose maxw-mobile-lg font-sans-lg text-bold"
+                    className="usa-prose font-sans-lg text-bold"
                 >
                     {title}
                 </p>
@@ -41,7 +46,7 @@ export const Tile = ({
             {cleanSummaryHtml && (
                 <p
                     data-testid="summary"
-                    className="usa-prose maxw-mobile-lg"
+                    className="usa-prose"
                     dangerouslySetInnerHTML={{ __html: cleanSummaryHtml }}
                 ></p>
             )}

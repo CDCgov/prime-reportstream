@@ -19,11 +19,13 @@ class FhirTransformSchema(
     constants: SortedMap<String, String> = sortedMapOf(),
     extends: String? = null
 ) : ConfigSchema<FhirTransformSchemaElement>(elements = elements, constants = constants, extends = extends) {
-    override fun merge(childSchema: ConfigSchema<FhirTransformSchemaElement>):
+    override fun override(overrideSchema: ConfigSchema<FhirTransformSchemaElement>):
         ConfigSchema<FhirTransformSchemaElement> =
         apply {
-            check(childSchema is FhirTransformSchema) { "Child schema ${childSchema.name} not a FHIRTransformSchema." }
-            super.merge(childSchema)
+            check(overrideSchema is FhirTransformSchema) {
+                "Child schema ${overrideSchema.name} not a FHIRTransformSchema."
+            }
+            super.override(overrideSchema)
         }
 }
 
