@@ -370,7 +370,7 @@ blockquote {
     }
 
     /* custom margin-top spacing on direct children per design */
-    > *:not([class*="margin-top"], :first-child) {
+    > *:not([class*="margin-top"], :first-child, [class*="rs-hero-wrapper"]) {
         // default margin-top
         @include u-margin-top(2.5);
 
