@@ -19,11 +19,7 @@ export const Tile = ({
     children,
 }: TileProps) => {
     const cleanSummaryHtml = DOMPurify.sanitize(summary ?? "");
-    const classnames = classNames(
-        styles["rs-tile"],
-        "padding-bottom-3",
-        className,
-    );
+    const classnames = classNames(styles["rs-tile"], className);
     return (
         <div className={classnames}>
             {img && (
