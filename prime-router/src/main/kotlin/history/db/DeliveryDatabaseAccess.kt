@@ -172,7 +172,8 @@ class DeliveryDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccessS
         if (sentReportIdsForReceiver.isEmpty()) {
             return ApiSearchResult(0, 0, emptyList())
         } else {
-            val itemGraph = reportGraph.itemAncestorGraphCommonTableExpression(sentReportIdsForReceiver)
+            val itemGraph = reportGraph
+                .itemAncestorGraphCommonTableExpression(receiver, TaskAction.send)
 
             val deliveriesExpression = DSL.select(
                 CovidResultMetadata
