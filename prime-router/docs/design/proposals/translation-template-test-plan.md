@@ -12,13 +12,18 @@ broke/changed or even really what is specifically being tested.
 
 ## Proposal on *what* to test
 We should write tests when:
-- The spec specifies a condition
+- The spec specifies a condition.
 - There is a requirement specified by a sender or receiver. This means that there needs to be a test for every rule in
   a sender or receiver transform, This includes the default transform since these are ReportStream specific rules we
   are implementing
-- We have created an extension not specified in the spec
+  - This can be done by comparing segments rather than field by field.
+- We have created an extension not specified in the spec.
+- We also want to test the losslessness of an HL7 message being transformed into a FHIR message and then back to an
+HL7 message. Losslessness beign defined as the data being in the same place it was when originally passed in.
 
 ## Options for *how* to test 
+This proposal is not choosing a way to test, just documenting the concerns brought up by the team in the process of 
+making the proposal about the different types of tests that we could use.  
 1. Continue with integration tests
     - These would be specific to the field they are trying to test rather than a cluster of fields
     - Named after the field they are trying to test
@@ -29,6 +34,7 @@ We should write tests when:
    - Cons:
      - The file to add/updates/remove tests would become difficult to read and find tests in because of the sheer number
      - Many files would need to be added
+     - Would need to revamp how tests are created to mitigate the other cons. 
 2. Unit Tests
     - We can leverage the new diff tool to check if the output is what we expect.
 
