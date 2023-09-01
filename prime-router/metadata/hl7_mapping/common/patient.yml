@@ -149,11 +149,11 @@ elements:
   - name: patient-multiple-birth-order-1
     condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is Boolean'
     value: ['%resource.multipleBirth']
-    hl7Spec: [ '%{hl7PIDField}-25' ]
+    hl7Spec: [ '%{hl7PIDField}-24' ]
     valueSet:
       values:
-        true: 1-9
-        false: 0
+        true: Y
+        false: N
 
   - name: patient-multiple-birth-order-2
     condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is Integer'
