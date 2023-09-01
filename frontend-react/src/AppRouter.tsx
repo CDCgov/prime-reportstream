@@ -99,6 +99,15 @@ export const appRoutes: RouteObject[] = [
                             isFullWidth: true,
                         },
                     },
+                    {
+                        path: "sending-data",
+                        lazy: lazyRouteMarkdown(
+                            "content/getting-started/sending-data",
+                        ),
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
                 ],
             },
             {
