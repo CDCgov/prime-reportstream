@@ -56,7 +56,7 @@ $-alternate-button-bg: "white";
     }
 
     &:active,
-    &.usa-button--active {
+    &.usa-button-big--active {
         @include set-text-and-bg("gray-10");
     }
 }

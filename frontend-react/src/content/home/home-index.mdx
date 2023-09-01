@@ -31,14 +31,14 @@ liveMapContact:
 import site from "../site.json";
 
 <HeroWrapper isAlternate style={{backgroundImage: "url('/assets/img/home/grid.png')", backgroundSize: "cover", backgroundPosition: "right"}}>
-    <header class="usa-section usa-prose grid-container">
+    <header className="usa-section usa-prose grid-container">
         <h1>Your single connection to simplify data transfer and improve public health</h1>
-        <p class="rs-subtitle">
+        <p className="rs-subtitle">
             ReportStream is CDC’s free, interoperable platform for streamlining public health reporting.
             We navigate unique, complex requirements and work to make sure your data gets where it needs to be.
         </p>
-        <div class="grid-row margin-top-8 margin-bottom-2">
-            <A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957" class="usa-button" target="_blank">Connect now</A>
+        <div className="grid-row margin-top-8 margin-bottom-2">
+            <A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957" className="usa-button usa-button--big">Connect now</A>
         </div>
     </header>
 </HeroWrapper>
@@ -69,7 +69,7 @@ import site from "../site.json";
                         ))}
                     </CardGroup>
                     <div className="grid-row flex-justify-center margin-bottom-2">
-                        <A href={site.forms.connectWithRS.url} className="usa-button">Get started</A>
+                        <A href={site.forms.connectWithRS.url} className="usa-button usa-button--big">Get started</A>
                     </div>
                 </section>
             );
