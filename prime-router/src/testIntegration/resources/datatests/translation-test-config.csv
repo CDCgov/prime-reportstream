@@ -33,3 +33,4 @@ FHIR_to_HL7/sample_truncate_CA_20230406-0001.fhir,,FHIR_to_HL7/sample_truncate_C
 FHIR_to_HL7/sample_RADx_MARS_20230406-0001.fhir,,FHIR_to_HL7/sample_RADx_MARS_20230406-0001.hl7,metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base,HL7,PASS,"","",""
 FHIR_to_HL7/sample_RADx_MARS_20230406-0002.fhir,,FHIR_to_HL7/sample_RADx_MARS_20230406-0002.hl7,metadata/hl7_mapping/ORU_R01/RADx_MARS/RADx_MARS-base-deidentified,HL7,PASS,"","",""
 HL7_to_FHIR/sample_orm_20230809-001.hl7,,HL7_to_FHIR/sample_orm_20230809-001.fhir,,FHIR,PASS,"","",""
+FHIR_to_HL7/sample_OML_20230831-0001.fhir,,FHIR_to_HL7/sample_OML_20230831-0001.hl7,metadata/hl7_mapping/receivers/Flexion/TILabOrder,HL7,PASS,"","",""
