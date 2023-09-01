@@ -90,6 +90,16 @@ export const appRoutes: RouteObject[] = [
                 path: "/getting-started",
                 children: [
                     {
+                        index: true,
+                        lazy: lazyRouteMarkdown(
+                            "content/getting-started/index",
+                        ),
+                        handle: {
+                            isContentPage: true,
+                            isFullWidth: true,
+                        },
+                    },
+                    {
                         path: "sending-data",
                         lazy: lazyRouteMarkdown(
                             "content/getting-started/sending-data",
