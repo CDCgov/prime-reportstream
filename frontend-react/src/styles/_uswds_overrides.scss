@@ -318,3 +318,99 @@ main {
 .usa-link--external::after {
     @include u-margin-left(0.5);
 }
+
+.usa-prose {
+    /* Do not apply uswds measure on elements (allow to be full-width) */
+    > *:not(.grid-container, img),
+    li {
+        max-width: unset !important;
+    }
+
+    /* respect custom margin-tops on paragraph siblings */
+    > p + * {
+        @each $num, $val in $number-to-value {
+            &[class*="margin-top-#{$val}"] {
+                @include u-margin-top($val);
+            }
+        }
+    }
+
+    // content flush to top
+    > :first-child {
+        @include u-margin-top(0);
+    }
+
+    /* custom spacing per design */
+    > *:not([class*="margin-top"], :first-child) {
+        // default margin-top
+        @include u-margin-top(2.5);
+
+        &:is(h3) {
+            @include u-margin-top(4);
+        }
+
+        &:is(
+                img,
+                blockquote,
+                .usa-accordion,
+                .usa-process-list,
+                .usa-card-group,
+                .usa-summary-box
+            ) {
+            @include u-margin-top(4);
+
+            & + & {
+                @include u-margin-top(5);
+            }
+        }
+
+        &:is(h2, #back-to-top) {
+            @include u-margin-top(8);
+        }
+    }
+}
+
+.usa-link {
+    .usa-icon {
+        // try to match icon closer to link baseline
+        vertical-align: middle;
+    }
+}
+
+// Apply font rules at a root (instead of needing usa-prose)
+body {
+    @include typeset($theme-prose-font-family);
+
+    h1 {
+        @include h1;
+    }
+    h2 {
+        @include h2;
+    }
+    h3 {
+        @include h3;
+    }
+    h4 {
+        @include h4;
+    }
+    h5 {
+        @include h5;
+    }
+    h6 {
+        @include h6;
+    }
+}
+
+.usa-summary-box {
+    @include u-padding(4);
+
+    .usa-summary-box__body {
+        > *:first-child {
+            @include u-margin-top(0);
+        }
+
+        > *:last-child {
+            @include u-margin-bottom(0);
+        }
+    }
+}
