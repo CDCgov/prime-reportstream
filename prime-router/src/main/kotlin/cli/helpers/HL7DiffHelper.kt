@@ -265,7 +265,11 @@ class HL7DiffHelper {
             }
 
             is Segment -> {
-                map["${structure.name}(${index.substring(0, 1)})${index.substring(1, index.length)}"] = structure
+                if (index.length > 1) {
+                    map["${index.substring(2, index.length)}-${structure.name}(${index.substring(0, 1)})"] = structure
+                } else {
+                    map["${structure.name}(${index.substring(0, 1)})"] = structure
+                }
             }
         }
     }

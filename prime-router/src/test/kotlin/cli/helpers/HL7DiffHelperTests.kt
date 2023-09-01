@@ -3,6 +3,7 @@ package gov.cdc.prime.router.cli.helpers
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import ca.uhn.hl7v2.model.Segment
+import ca.uhn.hl7v2.model.v251.datatype.ST
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import kotlin.test.Test
@@ -120,5 +121,19 @@ class HL7DiffHelperTests {
         hL7DiffHelper.filterNames(inputMessage[0], inputNames, inputMap)
 
         assertThat(inputMap.size).isEqualTo(11)
+    }
+
+    @Test
+    fun `test compareHl7Type`() {
+        val actionLogger = ActionLogger()
+        val hl7Reader = HL7Reader(actionLogger)
+        val inputMessage = hl7Reader.getMessages(originalMessage)
+        val outputMessage = hl7Reader.getMessages(comparisonMessage)
+        val inputVal = ST(inputMessage[0])
+        inputVal.value = "blah"
+        val outputVal = ST(outputMessage[0])
+        outputVal.value = "blah"
+
+        hL7DiffHelper.compareHl7Type("", inputVal, outputVal, "", 0, 0, 0)
     }
 }
