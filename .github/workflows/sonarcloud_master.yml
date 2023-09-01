@@ -15,31 +15,18 @@ jobs:
     defaults:
       run:
         working-directory: prime-router
-    strategy:
-      fail-fast: false
-      matrix:
-        language: ["java"]
 
     steps:
-      - name: "Check out everything"
+      - name: Check out everything
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
         with:
           fetch-depth: 0
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@575d86297c16d8dbeab91eb94e3843410e4f3545
+      - name: Build backend
+        uses: ./.github/actions/build-backend
         with:
-          java-version: "17"
-          distribution: "temurin"
-          cache: "gradle"
-
-      - uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
-
-      - name: Spin up build containers
-        run: docker-compose -f docker-compose.postgres.yml up -d
-
-      - name: Build Prime Router Package
-        run: ./gradlew package -x fatjar
+          version: ${{ github.run_id }}
+          upload-build: false
 
       - name: Use Node.js with yarn
         uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d
@@ -54,7 +41,7 @@ jobs:
         run: yarn jest --coverage --silent --maxWorkers=100%
         working-directory: frontend-react
 
-      - name: "Run SonarCloud Scan"
+      - name: Run SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@4b4d7634dab97dcee0b75763a54a6dc92a9e6bc1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
