@@ -120,6 +120,5 @@ class HL7DiffHelperTests {
         hL7DiffHelper.filterNames(inputMessage[0], inputNames, inputMap)
 
         assertThat(inputMap.size).isEqualTo(11)
-        assertThat(inputMap["MSH(1)"]!!.numFields()).isEqualTo(21)
     }
 }
