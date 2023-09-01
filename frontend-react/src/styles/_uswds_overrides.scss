@@ -321,83 +321,52 @@ main {
 
 .usa-prose {
     /* Do not apply uswds measure on elements (allow to be full-width) */
-    & > *:not(.grid-container, img),
+    > *:not(.grid-container, img),
     li {
         max-width: unset !important;
     }
 
-    /* custom spacing per design */
+    /* respect custom margin-tops on paragraph siblings */
+    > p + * {
+        @each $num, $val in $number-to-value {
+            &[class*="margin-top-#{$val}"] {
+                @include u-margin-top($val);
+            }
+        }
+    }
 
-    // default margin-top
-    > *,
-    > *[class*="usa-"] {
-        // opt-out specific blocks
-        &:not(
-                header,
-                h1,
-                h2,
-                h3,
+    // content flush to top
+    > :first-child {
+        @include u-margin-top(0);
+    }
+
+    /* custom spacing per design */
+    > *:not([class*="margin-top"], :first-child) {
+        // default margin-top
+        @include u-margin-top(2.5);
+
+        &:is(h3) {
+            @include u-margin-top(4);
+        }
+
+        &:is(
                 img,
                 blockquote,
-                [class*="margin"],
-                .usa-prose,
-                [class*="rs-hero-wrapper"],
-                .usa-summary-box,
                 .usa-accordion,
                 .usa-process-list,
                 .usa-card-group,
-                #back-to-top
+                .usa-summary-box
             ) {
-            @include u-margin-top(2.5);
+            @include u-margin-top(4);
+
+            & + & {
+                @include u-margin-top(5);
+            }
         }
-    }
 
-    // page header flush to top of container.
-    > header,
-    > h1 {
-        @include u-margin-top(0);
-    }
-
-    // spacing between h2 sections and back-to-top
-    > h2:not(body),
-    #back-to-top {
-        @include u-margin-top(8);
-    }
-
-    > h3:not(body) {
-        @include u-margin-top(4);
-    }
-
-    // double spacing on first of special block groups
-    // (not first of type, as there could be multiple separated groups)
-    > img,
-    > blockquote,
-    > .usa-accordion,
-    > .usa-process-list,
-    > .usa-card-group {
-        @include u-margin-top(4);
-
-        & + img,
-        & + blockquote,
-        & + .usa-accordion,
-        & + .usa-process-list,
-        & + .usa-card-group {
-            @include u-margin-top(5);
+        &:is(h2, #back-to-top) {
+            @include u-margin-top(8);
         }
-    }
-
-    > .usa-summary-box {
-        @include u-margin-top(4);
-
-        & + * {
-            @include u-margin-top(3);
-        }
-    }
-}
-
-.usa-section.usa-prose {
-    > *:first-child {
-        @include u-margin-top(0);
     }
 }
 
