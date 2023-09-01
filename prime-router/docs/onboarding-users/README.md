@@ -2,8 +2,9 @@
 
 This section is a step by step walkthrough for an Engagement Engineer (not an external user) to onboard a sender and receiver to the Universal Pipeline (not COVID). This section will change as we integrate more self-service tools.
 
-## Okta Account Creation
+## Step 1. Okta Account Creation
 
+[Okta account creation](./okta-account-creation.md)
 - Walkthrough for setting up a new sender with an Okta account
 - Walkthrough for setting up a new receiver with an Okta account
 
@@ -13,10 +14,10 @@ This section is a step by step walkthrough for an Engagement Engineer (not an ex
 - Define Sender
 - Define Receiver
   - STLT
-  - CDC - (HHS) Protect & DEX
+  - CDC - (HHS) Protect & DEXx
 
-## Common onboarding tasks
+## How to Onboard to ReportStream
 
-- [Configuring a new receiver](./receivers.md)
 - [Configuring a new sender](./senders.md)
+- [Configuring a new receiver](./receivers.md)
 - [Migrarting from the legacy pipeline](./migration.md)
