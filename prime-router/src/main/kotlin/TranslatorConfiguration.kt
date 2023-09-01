@@ -207,7 +207,7 @@ data class Hl7Configuration
     /**
      * Pull apart the comma-delimited HL7 fields and trim them.
      *
-     * If the configuration is missing, return an empty list
+     * If the configuration is missing, this is an empty list
      */
     private val parsedTruncateHl7Fields: Set<String> = truncateHl7Fields
         ?.uppercase()
@@ -216,6 +216,7 @@ data class Hl7Configuration
         ?.toSet()
         ?: emptySet()
 
+    // convenience TruncationConfig to be passed to UP when needed
     val truncationConfig = TruncationConfig(
         truncateHDNamespaceIds,
         parsedTruncateHl7Fields

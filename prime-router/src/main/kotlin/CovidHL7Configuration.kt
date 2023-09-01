@@ -2,6 +2,9 @@ package gov.cdc.prime.router
 
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7TranslationConfig
 
+/**
+ * Covid pipeline custom context configuration
+ */
 data class CovidHL7Configuration(
     val hl7Configuration: Hl7Configuration,
     val receiver: Receiver?
