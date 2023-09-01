@@ -7,14 +7,17 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.model.Varies
+import ca.uhn.hl7v2.model.v251.datatype.ID
+import ca.uhn.hl7v2.model.v251.datatype.NM
 import ca.uhn.hl7v2.model.v251.datatype.ST
+import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import kotlin.test.Test
 
 class HL7DiffHelperTests {
     private val hL7DiffHelper = HL7DiffHelper()
-    private val originalMessage = "MSH|^~\\&#|STARLIMS.CDC.Stag^2.16.840.1.114222.4.3.3.2.1.2^ISO|CDC Atlanta^" +
+    private val originalMessage = "MSH|^~\\&#|STARLIMS.CDC.Stag^2.16.840.1.114222.4.3.3.2.1.2^ISO|CDC Atlanta2^" +
         "11D0668319^CLIA|MEDSS-ELR ^2.16.840.1.114222.4.3.3.6.2.1^ISO|MNDOH^2.16.840.1.114222.4.1.3661^ISO|" +
         "20230501102531-0400||ORU^R01^ORU_R01|3003786103_4988249_33033|T|2.5.1|||NE|NE|USA||||" +
         "PHLabReport-NoAck^PHIN^2.16.840.1.113883.9.11^ISO\n" +
@@ -96,9 +99,9 @@ class HL7DiffHelperTests {
         val inputMessage = hl7Reader.getMessages(originalMessage)
         val outputMessage = hl7Reader.getMessages(comparisonMessage)
         val differences = hL7DiffHelper.diffHl7(inputMessage[0], outputMessage[0])
-        assertThat(differences.size).isEqualTo(14)
+        assertThat(differences.size).isEqualTo(15)
         val differences2 = hL7DiffHelper.diffHl7(outputMessage[0], inputMessage[0])
-        assertThat(differences2.size).isEqualTo(14)
+        assertThat(differences2.size).isEqualTo(15)
     }
 
     @Test
@@ -199,48 +202,38 @@ class HL7DiffHelperTests {
         assertThat(differentVaries).isNotNull()
     }
 
-//    @Test
-//    fun `test compareHl7Type composite`() {
-//        val actionLogger = ActionLogger()
-//        val hl7Reader = HL7Reader(actionLogger)
-//        val inputMessage = hl7Reader.getMessages("MSH|^~\\&|STARLIMS.CDC.Stag^2.16.840.1.114222.4.3.3.2.1.2^ISO|CDC Atlanta^11D0668319^CLIA|MEDSS-ELR ^2.16.840.1.114222.4.3.3.6.2.1^ISO|MNDOH^2.16.840.1.114222.4.1.3661^ISO|20230501102531-0400||ORU^R01^ORU_R01|3003786103_4988249_33033|T|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^PHIN^2.16.840.1.113883.9.11^ISO\n" +
-//            "TQ1|1||||||20280802025201-0600|20280808092805-0600|S\n" +
-//            "OBX|1|ST|600-7^Bacteria identified in Blood by Culture^LN^BLOODC^BLOOD CULTURE^L|1.1|||||||C|||20280802025201-0600|RML^TMCA, SOUTH CAMPUS^LB||||20210810062500-0600||||TMCA, SOUTH CAMPUS^L^^^^TMCA, SOUTH CAMPUS&2.16.840.1.114222.4.1.144&ISO^XX^^^06D0055551|1501 S. POTOMAC^^AURORA^CO^80012^USA^B^^S|1740336429^KOTNIS^GREGORY^R^MD^DR.^^^RML^L^^^FI^TMCA, SOUTH CAMPUS")
-//        val outputMessage = hl7Reader.getMessages("MSH|^~\\&|STARLIMS.CDC.Stag^2.16.840.1.114222.4.3.3.2.1.2^ISO|CDC Atlanta^11D0668319^CLIA|MEDSS-ELR ^2.16.840.1.114222.4.3.3.6.2.1^ISO|MNDOH^2.16.840.1.114222.4.1.3661^ISO|20230501102531-0400||ORU^R01^ORU_R01|3003786103_4988249_33033|T|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^PHIN^2.16.840.1.113883.9.11^ISO\n" +
-//            "TQ1|1||||||20280802025201-0600|20280808092805-0600|S")
-//
-//        ORC()
-//
-//        val retVal: Array<TQ> = originalMessage.get(0)..getTypedField<TQ>(27, arrayOfNulls<TQ>(0))
-//
-//        val tryIt = Terser.get(outputMessage[0].get("TQ1") as Segment?, 1, 1, 1, 1) as TQ
-//        val sameVaries = hL7DiffHelper.compareHl7Type(
-//            "",
-//            TQ(inputMessage[0]),
-//            TQ(tryIt),
-//            "",
-//            0,
-//            0,
-//            0
-//        )
-//
-//        assertThat(sameVaries).isNull()
-//
-// //        val outputMessage2 = hl7Reader.getMessages("MSH|^~\\&#|STARLIMS.CDC.Stag^2.16.840.1.114222.4.3.3.2.1.2^ISO|CDC Atlanta^11D0668319^CLIA|MEDSS-ELR ^2.16.840.1.114222.4.3.3.6.2.1^ISO|MNDOH^2.16.840.1.114222.4.1.3661^ISO|20230501102531-0400||ORU^R01^ORU_R01|3003786103_4988249_33033|T|2.5.1|||NE|NE|USA|UNICODE UTF-8|||PHLabReport-NoAck^PHIN^2.16.840.1.113883.9.11^ISO\n" +
-// //            "OBX|3|CWE|57713123-0^INFANT FACTORS THAT AFFECT NEWBORN SCREENING INTERPRETATION^LN|1|LA12419-0^INFANT IN NICU AT TIME OF SPECIMEN COLLECTION^LN||||||O|||20230506050000-0500|||||||||||||||QST|AOE")
-// //        val outputVal2 = CWE(outputMessage2[0])
-// //        val differentVaries = hL7DiffHelper.compareHl7Type(
-// //            "",
-// //            inputVal,
-// //            outputVal2,
-// //            "",
-// //            0,
-// //            0,
-// //            0
-// //        )
-// //
-// //        assertThat(differentVaries).isNotNull()
-//    }
+    @Test
+    fun `test compareHl7Type composite`() {
+        val actionLogger = ActionLogger()
+        val hl7Reader = HL7Reader(actionLogger)
+        val inputMessage = hl7Reader.getMessages(originalMessage)
+        val id = ID(inputMessage[0])
+        id.value = "blah"
+        val nm = NM(inputMessage[0])
+        nm.value = "blah2"
+        val sameComposite = hL7DiffHelper.compareHl7Type(
+            "",
+            (inputMessage[0] as ORU_R01).msh.getField(4)[0],
+            (inputMessage[0] as ORU_R01).msh.getField(4)[0],
+            "",
+            0,
+            0,
+            0
+        )
+        assertThat(sameComposite).isNull()
+
+        val outputMessage = hl7Reader.getMessages(comparisonMessage)
+        val differentComposite = hL7DiffHelper.compareHl7Type(
+            "",
+            (inputMessage[0] as ORU_R01).msh.getField(4)[0],
+            (outputMessage[0] as ORU_R01).msh.getField(4)[0],
+            "",
+            0,
+            0,
+            0
+        )
+        assertThat(differentComposite).isNotNull()
+    }
 
     @Test
     fun `test compareHl7Type different types`() {
