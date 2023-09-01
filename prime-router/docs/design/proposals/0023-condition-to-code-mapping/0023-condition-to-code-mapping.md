@@ -8,7 +8,7 @@ own criteria for what conditions need to be reported to that jurisdiction. In th
 Since ReportStream takes on the burden of identifying the appropriate destination for sender’s messages, it will be necessary to implement a feature to ensure only messages for the appropriate conditions/diseases are allowed to route to each connected receiver. This feature will be similar to the COVID-19 LIVD table in that it will be a table of LOINC codes and their associated conditions that is used to reference received LOINC/SNOMED codes and return their associated condition.
 
 ## Assumptions
-1.) The CSTE ValueSets that make up the Reportable Conditions Trigger Codes (RCTC) will be sufficient to capture a majority of codes sent to ReportStream. If this turns out to be false, we can modify the design to include additional data sources.
+1.) The Council of State and Territorial Epidemiologist (CSTE) ValueSets that make up the Reportable Conditions Trigger Codes (RCTC) will be sufficient to capture a majority of codes sent to ReportStream. If this turns out to be false, we can modify the design to include additional data sources.
 
 ## Criteria
 
@@ -46,7 +46,7 @@ The condition mapping table will be made up of CSTE ValueSets and contain the fo
 | Condition Code System         | System used for condition code                | SNOMEDCT                                                                       |
 | Condition Code System Version | SNOMED version associated with condition code | 2023-03                                                                        |
 
-The column names are taken directly from the RCTC spreadsheet.Both LOINC and SNOMED codes are combined in this table and can be identified by column "Code System".
+The column names are taken directly from the [RCTC spreadsheet](https://docs.google.com/spreadsheets/d/1rO_p145xXO1AD76vx8vBqXgoQUnLqfc8/edit#gid=739612351). Both LOINC and SNOMED codes are combined in this table and can be identified by column "Code System".
 
 ### Supplemental Condition Mapping Table
 
@@ -148,7 +148,7 @@ In order to account for both HL7 and FHIR input from senders, the lookup should 
 ```
 The first element will check against the RCTC values loaded into the Condition-Mapping tables, while the second will check against the supplemental table if a match was not found in the Condition_Mapping table.
 
-Not all reportable conditions can be identified from order and result LOINC codes. In the case of bacterial cultures. The condition is identified by the found organism which is populated in the result field/resource (OBX-5 or Bundle.entry.resource.ofType(Observation).value.valueCodeableConcept). In order to correctly tag these messages, an additional element will need to be added to the transform like below to check the result code.
+Not all reportable conditions can be identified from order and result LOINC codes. In the case of bacterial cultures the condition is identified by the found organism which is populated in the result field/resource (OBX-5 or Bundle.entry.resource.ofType(Observation).value.valueCodeableConcept). In order to correctly tag these messages, an additional element will need to be added to the transform like below to check the result code.
 
 ```yaml
 - name: result-condition
