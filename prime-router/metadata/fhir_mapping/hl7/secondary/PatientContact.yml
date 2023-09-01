@@ -22,9 +22,9 @@ relationship_2:
     hl7Code: String, NK1.3.1
     hl7System: String, NK1.3.3
   constants:
-    alternateCode: U
-    alternateSystem: PatientContactRelationship
-    alternateDisplay: Unknown
+    primaryCode: U
+    primaryCodeSystem: PatientContactRelationship
+    primaryCodeDisplay: Unknown
 
 relationship_3:
   condition: $hl7System EQUALS HL70063 && $hl7Code EQUALS UNK
@@ -35,9 +35,9 @@ relationship_3:
     hl7Code: String, NK1.3.1
     hl7System: String, NK1.3.3
   constants:
-    alternateCode: U
-    alternateSystem: PatientContactRelationship
-    alternateDisplay: Unknown
+    primaryCode: U
+    primarySystem: PatientContactRelationship
+    primaryDisplay: Unknown
 
 address:
   valueOf: datatype/Address

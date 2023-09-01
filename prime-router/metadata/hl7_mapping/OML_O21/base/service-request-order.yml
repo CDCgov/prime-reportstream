@@ -6,6 +6,16 @@ elements:
     required: true
     hl7Spec: [ '%{hl7ORCField}-1' ]
 
+  - name: order-placer-order-number
+    resource: >
+      %resource.identifier.where(type.coding.system = 'http://terminology.hl7.org/CodeSystem/v2-0203')
+      .where(type.coding.code = 'PLAC')
+    condition: '%resource.count() > 0'
+    constants:
+      entityIdFieldPath: '%{hl7ORCField}(%{entityIdIndex})-2'
+    resourceIndex: entityIdIndex
+    schema: ../../common/datatype/ei-entity-identifier
+
   - name: order-status
     value: [ '%resource.status' ]
     valueSet:
@@ -20,3 +30,9 @@ elements:
   - name: order-date-time-of-transaction
     value: [ '%resource.authoredOn' ]
     hl7Spec: [ '%{hl7ORCField}-9' ]
+
+  - name: ordering-facility-name
+    resource: '%resource.requester.resolve().organization.resolve()'
+    schema: ../../common/datatype/xon-organization
+    constants:
+      hl7OrgField: '%{hl7ORCField}-21'

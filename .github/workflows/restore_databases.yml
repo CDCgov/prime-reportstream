@@ -126,7 +126,6 @@ jobs:
       max-parallel: 1
       matrix:
         db: ${{ fromJson(needs.pre_job.outputs.databases) }}
-    concurrency: ${{ needs.pre_job.outputs.env_name }}
     environment: ${{ needs.pre_job.outputs.env_name }}
     env:
       env_name: ${{ needs.pre_job.outputs.env_name }}
@@ -171,6 +170,7 @@ jobs:
         shell: bash
         run: |
           az postgres server update -g ${{ env.source_resource_group }} -n ${{ env.source_db_server }} --public-network-access "Enabled"
+          sleep 10;
           az postgres server firewall-rule create -g ${{ env.source_resource_group }} -s ${{ env.source_db_server }} -n github_actions_runner \
             --start-ip-address ${{ env.PUBLIC_IP }} --end-ip-address ${{ env.PUBLIC_IP }}
 
@@ -202,6 +202,7 @@ jobs:
         shell: bash
         run: |
           az postgres server firewall-rule delete -g ${{ env.source_resource_group }} -s ${{ env.source_db_server }} -n github_actions_runner --yes
+          sleep 10;
           az postgres server update -g ${{ env.source_resource_group }} -n ${{ env.source_db_server }} --public-network-access "Disabled"
 
   restore_sink:
@@ -241,12 +242,14 @@ jobs:
         uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
         with:
           timeout_minutes: 120
-          max_attempts: 12
-          retry_wait_seconds: 300
+          max_attempts: 4
+          retry_wait_seconds: 30
           command: |
             az postgres server update -g ${{ env.sink_resource_group }} -n ${{ env.sink_db_server }} --public-network-access "Enabled"
+            sleep 30;
             az postgres server firewall-rule create -g ${{ env.sink_resource_group }} -s ${{ env.sink_db_server }} -n github_actions_runner \
               --start-ip-address ${{ env.PUBLIC_IP }} --end-ip-address ${{ env.PUBLIC_IP }}
+            az postgres server firewall-rule show -g ${{ env.sink_resource_group }} -s ${{ env.sink_db_server }} -n github_actions_runner
           shell: bash
 
       # Mount Azure file share to retrieve backup file
@@ -315,7 +318,10 @@ jobs:
       # Remove runner db access
       - name: Remove db access
         if: always() && steps.add-db-access.outcome == 'success'
+        continue-on-error: true
         shell: bash
         run: |
-          az postgres server firewall-rule delete -g ${{ env.sink_resource_group }} -s ${{ env.sink_db_server }} -n github_actions_runner --yes
-          az postgres server update -g ${{ env.sink_resource_group }} -n ${{ env.sink_db_server }} --public-network-access "Disabled"
+          az postgres server firewall-rule delete -g ${{ env.sink_resource_group }} -s ${{ env.sink_db_server }} -n github_actions_runner --yes;
+          sleep 10;
+          az postgres server update -g ${{ env.sink_resource_group }} -n ${{ env.sink_db_server }} --public-network-access "Disabled";
+          sleep 30;

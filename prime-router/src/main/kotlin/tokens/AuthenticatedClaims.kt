@@ -69,6 +69,7 @@ class AuthenticatedClaims : Logging {
                     jwtClaims[oktaMembershipClaim] as? Collection<String> ?: error("No memberships in claims")
                 this.scopes = Scope.mapOktaGroupsToScopes(memberships)
             }
+
             AuthenticationType.Server2Server -> {
                 // todo this assumes a single scope.  Need to add support for multiple scopes.
                 val claimsScope = _jwtClaims["scope"] as String
@@ -169,6 +170,7 @@ class AuthenticatedClaims : Logging {
                     logger.info("Running locally, but will do authentication")
                     false
                 }
+
                 else -> true
             }
         }
@@ -204,7 +206,7 @@ class AuthenticatedClaims : Logging {
                     null
                 else
                     WorkflowEngine().settings.findSender(client)
-                return AuthenticatedClaims.generateTestClaims(sender)
+                return generateTestClaims(sender)
             }
 
             if (accessToken.isNullOrEmpty()) {
@@ -247,6 +249,7 @@ class AuthenticatedClaims : Logging {
                 claims
             }
         }
+
         /**
          * Create fake AuthenticatedClaims, for testing
          * @return fake claims, for testing.
