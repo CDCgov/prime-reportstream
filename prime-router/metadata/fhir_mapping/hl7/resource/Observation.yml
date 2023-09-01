@@ -33,17 +33,47 @@ identifier_3:
   constants:
     sys: "urn:id:extID"
     joinChar: "-"
+
 status:
   type: OBSERVATION_STATUS
   default: unknown
   valueOf: OBX.11
   expressionType: HL7Spec
 
-# When OBX's are missing or TX based, we don't want to create an Observation.
-# When TX, because content is already appended to an associated DiagnosticReport or DocumentReference
-# Logic: if OBX exists AND ( (OBX.2 exists AND OBX.2 is NOT TX) OR (OBX.2 is null/empty) ) AND OBX.3 NOT NULL CREATE the Observation.
-# 'code' is set 'required: true' to cause all or nothing creation logic
-# The expression is nested and values are passed to the nested so that BOTH values control the 'all or nothing'
+dataAbsentReason_1:
+  condition: $obx11 EQUALS_STRING X
+  vars:
+    obx11: STRING, OBX.11
+  constants:
+    primaryCode: cannot-be-obtained
+    primarySystem: http://terminology.hl7.org/CodeSystem/data-absent-reason
+  valueOf: datatype/CodeableConcept
+  expressionType: resource
+  generateList: true
+
+dataAbsentReason_2:
+  condition: $obx11 EQUALS_STRING N
+  vars:
+    obx11: STRING, OBX.11
+  constants:
+    alternateCode: "not-asked"
+    alternateSystem: "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+  valueOf: datatype/CodeableConcept
+  generateList: true
+
+dataAbsentReason_3:
+  condition: $obx2 EQUALS ST && $obx5 EQUALS_STRING $emptyString
+  vars:
+    obx2: STRING, OBX.2
+    obx5: STRING, OBX.5
+  constants:
+    primaryCode: "unknown"
+    primarySystem: "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+    emptyString: ""
+  valueOf: datatype/CodeableConcept
+  expressionType: resource
+  generateList: true
+
 code:
   expressionType: nested
   required: true
@@ -51,7 +81,7 @@ code:
     obx3: OBX.3
     obx2: STRING, OBX.2
   expressions:
-    - condition: $obx3 NOT_NULL && $obx2 NOT_EQUALS_STRING TX
+    - condition: $obx3 NOT_NULL
       valueOf: datatype/CodeableConcept
       expressionType: resource
       specs: $obx3

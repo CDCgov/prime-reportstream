@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isTrue
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import fhirengine.engine.CustomFhirPathFunctions
+import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.FileSettings
@@ -357,7 +358,10 @@ class TranslationTests {
             val hl7 = FhirToHl7Converter(
                 FilenameUtils.getName(schema),
                 FilenameUtils.getPath(schema),
-                context = FhirToHl7Context(CustomFhirPathFunctions())
+                context = FhirToHl7Context(
+                    CustomFhirPathFunctions(),
+                    translationFunctions = CustomTranslationFunctions()
+                )
             ).convert(fhirBundle)
             return hl7.encodePreserveEncodingChars().byteInputStream()
         }
