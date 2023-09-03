@@ -15694,7 +15694,7 @@ __metadata:
     sanitize-html: ^2.11.0
     sass: ^1.66.1
     storybook: ^7.3.2
-    storybook-addon-react-router-v6: ^2.0.5
+    storybook-addon-react-router-v6: ^2.0.7
     ts-node: ^10.9.1
     tslib: ^2.6.2
     typescript: ^5.1.6
@@ -17110,9 +17110,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"storybook-addon-react-router-v6@npm:^2.0.5":
-  version: 2.0.5
-  resolution: "storybook-addon-react-router-v6@npm:2.0.5"
+"storybook-addon-react-router-v6@npm:^2.0.7":
+  version: 2.0.7
+  resolution: "storybook-addon-react-router-v6@npm:2.0.7"
   dependencies:
     compare-versions: ^6.0.0
     react-inspector: 6.0.2
@@ -17126,14 +17126,13 @@ __metadata:
     "@storybook/theming": ^7.0.0
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-    react-router: ^6.4.0
     react-router-dom: ^6.4.0
   peerDependenciesMeta:
     react:
       optional: true
     react-dom:
       optional: true
-  checksum: 19cca302dae97f50f6ec6b91358ca16f9c9b1e6a5ff91c51b762016c1be66390a10438fb7de7eed7130add5e873845f884605a8e3b8188f40153811dc665935d
+  checksum: 5167ba3c01f0f2101b944dd97809e432fce463f35ef678adac824a3c051a9cae80cfbe59b710c2924462ba6b7ede7188d90aacb5f9b50ee5b120de3144d8d69c
   languageName: node
   linkType: hard
 
