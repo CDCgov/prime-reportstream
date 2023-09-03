@@ -3035,9 +3035,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@okta/okta-auth-js@npm:^7.4.1":
-  version: 7.4.1
-  resolution: "@okta/okta-auth-js@npm:7.4.1"
+"@okta/okta-auth-js@npm:^7.4.2":
+  version: 7.4.2
+  resolution: "@okta/okta-auth-js@npm:7.4.2"
   dependencies:
     "@babel/runtime": ^7.12.5
     "@peculiar/webcrypto": ^1.4.0
@@ -3055,7 +3055,7 @@ __metadata:
     tiny-emitter: 1.1.0
     webcrypto-shim: ^0.1.5
     xhr2: 0.1.3
-  checksum: 01a0728b8d124a08c0176e2fd73a8a01903a89c823d3dafedcaf459d7aeb7a8310c733d4cf288245d641d1c2cdcbbf23c50ec67f19c19af973fe33ea76dc4ae9
+  checksum: a7b7814902e21fba6836526fb6aaafba22207db998af1ee5ea329d1956b7ce3fadec6c6c31db4536085d01c0a3459f48fa18701e9538af86c057067fc5106514
   languageName: node
   linkType: hard
 
@@ -15570,7 +15570,7 @@ __metadata:
     "@mdx-js/rollup": ^2.3.0
     "@microsoft/applicationinsights-react-js": ^17.0.0
     "@microsoft/applicationinsights-web": ^3.0.2
-    "@okta/okta-auth-js": ^7.4.1
+    "@okta/okta-auth-js": ^7.4.2
     "@okta/okta-react": ^6.7.0
     "@okta/okta-signin-widget": ^7.9.1
     "@rest-hooks/rest": ^3.0.3
