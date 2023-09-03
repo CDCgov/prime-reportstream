@@ -5725,10 +5725,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mdx@npm:^2.0.6":
-  version: 2.0.6
-  resolution: "@types/mdx@npm:2.0.6"
-  checksum: 61102d5bf6209b1726b5b3f3e62ad208b939e287395e17c7e8988803ad3156ed86120f98eda9ed6eb3662e45ebc38787179796a699aaf10ca1756e440bdb6348
+"@types/mdx@npm:^2.0.7":
+  version: 2.0.7
+  resolution: "@types/mdx@npm:2.0.7"
+  checksum: c746659ebea471535d99a49cc935dc9f831fac22def3fa8c8a0883ad2cae71c4cca1d8563fa60d0e2730b14cb13e95c32af8dfda455a4937476a7d9e2748d641
   languageName: node
   linkType: hard
 
@@ -15608,7 +15608,7 @@ __metadata:
     "@types/lodash.pick": ^4.4.7
     "@types/lodash.range": ^3.2.7
     "@types/lodash.uniq": ^4.5.7
-    "@types/mdx": ^2.0.6
+    "@types/mdx": ^2.0.7
     "@types/node": ^18.17.6
     "@types/react": 18.0.28
     "@types/react-dom": ^18.2.7
