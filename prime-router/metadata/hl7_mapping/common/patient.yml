@@ -146,7 +146,7 @@ elements:
     value: [ '"2.9"' ]
     hl7Spec: [ '%{hl7PIDField}-22-7' ]
 
-  - name: patient-multiple-birth-order-1
+  - name: patient-multiple-birth-indicator
     condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is Boolean'
     value: ['%resource.multipleBirth']
     hl7Spec: [ '%{hl7PIDField}-24' ]
@@ -155,7 +155,7 @@ elements:
         true: Y
         false: N
 
-  - name: patient-multiple-birth-order-2
+  - name: patient-multiple-birth-order
     condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is Integer'
     value: ['%resource.multipleBirth']
     hl7Spec: [ '%{hl7PIDField}-25' ]
