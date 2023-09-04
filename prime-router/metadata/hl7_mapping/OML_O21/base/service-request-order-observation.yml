@@ -1,6 +1,20 @@
 constants:
   hl7OBRField: '%{hl7SegmentGroup}/OBR'
 elements:
+  - name: order-observation-set-id
+    value: [ '"1"' ]
+    hl7Spec: [ '%{hl7OBRField}-1' ]
+
+  - name: order-observation-placer-order-number
+    resource: >
+      %resource.identifier.where(type.coding.system = 'http://terminology.hl7.org/CodeSystem/v2-0203')
+      .where(type.coding.code = 'PLAC')
+    condition: '%resource.count() > 0'
+    constants:
+      entityIdFieldPath: '%{hl7OBRField}(%{entityIdIndex})-2'
+    resourceIndex: entityIdIndex
+    schema: ../../common/datatype/ei-entity-identifier
+
   - name: order-observation-universal-service-identifier
     resource: '%resource.code'
     constants:
