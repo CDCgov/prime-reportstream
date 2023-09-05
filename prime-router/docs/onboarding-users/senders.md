@@ -10,7 +10,7 @@ new data sender to the Universal Pipeline.
 - Get sample files(non-PII) from sender with different reportable conditions
 - [Sender Configuration](#sender-configuration)
 - [Test sample files through the Universal Pipeline](#testing)
-- Sender sends data to RS staging environment
+- [Sender sends data to RS staging environment](#sending-data-to-reportstream)
 - Conduct end-to-end test in staging environment
 
 ## Sender Configuration
@@ -59,8 +59,6 @@ Note: When creating a transform, please reference [Changing/Updating Sender/Rece
 
 ## Testing
 
-## Testing
-
 ### Note
 In order to test a sender, you must create (or have in your possession) a file that matches the format
 you have laid out in the schema, and that matches the format the sender will provide.  Also, it is
@@ -80,32 +78,35 @@ Assuming you have a receiver set up for your sender, follow the below steps to b
 Once that has completed successfully, the next step is to manually check the Universal Pipeline can process 
 the message with no errors and not lose any data while converting it.
 
+#### Testing sender transforms
 ```shell
-./prime data --input-schema ydp/ydp-covid-19 --input "PATH-TO-SAMPLE-FILE" --output-format CSV --output-schema ydp/ydp-covid-19 --output "PATH-TO-OUTPUT-FILE"
+./prime fhirdata --input-file "PATH-TO-SAMPLE-FILE" -s metadata/fhir_transforms/senders/default-sender-transform.yaml --output-format FHIR --output-file "PATH-TO-OUTPUT-FILE"
 ```
 
-This call will take in your sample file, try to read it according to the schema you have defined,
-and then will output it in the same schema for you to examine. If there are any mapping issues, if
+This call will take in your sample input file, and apply any sender transforms specified in the schema passed in,
+and will output a FHIR bundle. If there are any mapping issues, if
 there are any problems with your schema, they should become readily apparent at this point.
 
-### Testing in Docker
-Once your schema has passed running locally, the next step is to run it in Docker and see if it not
+#### Testing receiver transforms
+```shell
+./prime fhirdata --input-file "PATH-TO-SAMPLE-FILE" -s metadata/hl7_mapping/ORU_R01/ORU_R01-base.yaml --output-format HL7 --output-file "PATH-TO-OUTPUT-FILE"
+```
+This call will take in your sample input file, and convert it to HL7 applying any receiver transforms specified in the 
+schema passed in. If there are any mapping issues, if
+there are any problems with your schema, they should become readily apparent at this point.
+
+
+### Testing using API
+Once your schema has passed running locally, the next step is to run it using the report REST API and see if it not
 only parses correctly, but also will route as you expect.
 
 The first step, as always, is to build the package:
 
 `mvn clean package`
 
-Then build the docker image:
+Then run:
 
-`docker-compose build`
-
-Note, you might need to add `--force` to the call for `docker-compose build` if you want to make sure it rebuilds
-the solution: `docker-compose build --force`
-
-Then start the docker container:
-
-`docker-compose up`
+`./gradlew quickRun`
 
 Next, load the new organization and schema into the local DB using the below command:
 
@@ -113,8 +114,10 @@ Next, load the new organization and schema into the local DB using the below com
 
 At this point, once the container is loaded you can submit a file via curl:
 ```shell
-curl -X POST -H 'client: yoyodyne' -H 'Content-Type: text/csv' --data-binary '@/Path/to/test/file.csv' 'http://localhost:7071/api/reports'
+curl -X POST -H 'client: yoyodyne' -H 'Content-Type: application/hl7-v2' --data-binary '@/Path/to/test/file.hl7' 'http://localhost:7071/api/reports'
 ```
+Depending on the contents of the sample file the `Content-Type` can be `application/hl7-v2`,`application/fhir+ndjson`, or `text/csv`
+
 You will then see a JSON object reported back with the result of your post to the local container.
 
 You will then see a report of the result of your post to the local container.  After a few minutes, you can view the
@@ -126,10 +129,56 @@ what the receivers are getting.
 If there are any exceptions, you will see them output in the console for Azure.
 
 ## Sending data to ReportStream
+Once you've successfully verified the samples file are being routed correctly and sender and receiver transforms are 
+in place locally. The sender can start sending data through staging and start testing there. If the sender hasn't been 
+onboarded to ReportStream, make sure to follow the [API programmer's guide](#https://reportstream.cdc.gov/resources/api) 
+to have them start setting up their connection to RS.
 
-- (Exists in API programmer's guide)
-- Authentication - explain how to set up server-server auth to connect with RS (Exists in API programmer's guide and elsewhere)
-- API key management - explain how to manage keys in UI or through API
-- Report endpoint - explain how to submit data (Exists in API programmer's guide)
-- History endpoint - explain how to use + example
-- Swagger API Documentation
+### Initial Set-up - Sender File Testing 
+
+In order to start testing the messages in staging, that organization will need to be given an Okta login and their organization and sender settings need
+to be updated in the staging and production databases.
+
+Update organization and sender settings in DB
+
+Create .yml files in your working branch in:
+- prime-router -> settings -> staging
+
+The .yml files should contain the same information as you used above to create the organization and sender in the
+organization.yml files. Ensure the file begins with “---”.
+
+Example:
+```agsl
+- name: yoyodyne
+  description: Yoyodyne Propulsion Laboratories, the Future Starts Tomorrow!
+  jurisdiction: FEDERAL
+  senders:
+    - name: default
+      organizationName: yoyodyne
+      topic: full-elr
+      schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      format: HL7
+```
+Use the following commands to load the information from the .yml files into the staging database
+
+First obtain a login token for staging
+`./prime login –env staging`
+
+Next update the staging DB
+`./prime multiple-settings set –env staging –input <file-location>`
+
+### Testing in Staging
+After the sender has been configured to send data in staging. The next step is to have to send fake data to the staging 
+environment via our reports REST API. The API will return a report id that can be used keep track of the submission 
+status via our Submission History REST API.
+To view all the submissions a sender has sent should also be available to run this query in the database:
+
+`SELECT * FROM report_file WHERE sending_org = "{sending_org}"`
+
+To view all the report descendants for a given report this query can be used:
+
+`select * from report_file where report_id in (select * from report_descendants('{REPORT_ID}'))`
+
+That query will return where that report got routed to and also the BLOB storage URL. That URL can be used to view the actual 
+file contents of the file the sender sent, and how the file looks through the different steps in the pipeline.
+
