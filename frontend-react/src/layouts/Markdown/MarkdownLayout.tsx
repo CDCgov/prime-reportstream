@@ -163,7 +163,7 @@ export function MarkdownLayout({
                                     subtitleArr={subtitleArr}
                                     callToAction={callToAction}
                                     lastUpdated={lastUpdated}
-                                    className="usa-section grid-container"
+                                    className="usa-section usa-prose grid-container"
                                 />
                             </shared.HeroWrapper>
                         ) : (
@@ -173,7 +173,7 @@ export function MarkdownLayout({
                                 subtitleArr={subtitleArr}
                                 callToAction={callToAction}
                                 lastUpdated={lastUpdated}
-                                className="usa-section"
+                                className="usa-prose"
                             />
                         ))}
                     {tocObj && tocEntries && (
