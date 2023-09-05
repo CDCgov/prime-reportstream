@@ -7,13 +7,16 @@ import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
@@ -22,6 +25,7 @@ import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -114,6 +118,11 @@ class TranslationTests {
          * The sender transform for the report
          */
         SENDER_TRANSFORM("Sender Transform"),
+
+        /**
+         * The conditionFilter of a receiver
+         */
+        RECEIVER_CONDITION_FILTER("Condition Filter"),
     }
 
     /**
@@ -131,7 +140,8 @@ class TranslationTests {
         val ignoreFields: List<String>? = null,
         /** should we hardcode the sender for comparison? */
         val sender: String? = null,
-        val senderTransform: String?
+        val senderTransform: String?,
+        val conditionFilter: String?
     )
 
     /**
@@ -167,6 +177,7 @@ class TranslationTests {
                     val expectedSchema = it[ConfigColumns.OUTPUT_SCHEMA.colName]
                     val sender = it[ConfigColumns.SENDER.colName].trimToNull()
                     val senderTransform = it[ConfigColumns.SENDER_TRANSFORM.colName].trimToNull()
+                    val conditionFilter = it[ConfigColumns.RECEIVER_CONDITION_FILTER.colName].trimToNull()
                     val ignoreFields = it[ConfigColumns.IGNORE_FIELDS.colName].let { colNames ->
                         colNames?.split(",") ?: emptyList()
                     }
@@ -184,7 +195,8 @@ class TranslationTests {
                         shouldPass,
                         ignoreFields,
                         sender,
-                        senderTransform
+                        senderTransform,
+                        conditionFilter
                     )
                 } else {
                     fail("One or more config columns in $configPathname are empty.")
@@ -256,7 +268,7 @@ class TranslationTests {
                                 bundle
                             }
                             val actualStream =
-                                translateFromFhir(afterSenderTransform, config.expectedSchema)
+                                translateFromFhir(afterSenderTransform, config.expectedSchema, config.conditionFilter)
                             result.merge(
                                 CompareData().compare(expectedStream, actualStream, null, null)
                             )
@@ -270,7 +282,7 @@ class TranslationTests {
                             }
                             check(!config.expectedSchema.isNullOrBlank())
                             val actualStream =
-                                translateFromFhir(afterSenderTransform, config.expectedSchema)
+                                translateFromFhir(afterSenderTransform, config.expectedSchema, config.conditionFilter)
                             result.merge(
                                 CompareData().compare(expectedStream, actualStream, null, null)
                             )
@@ -353,8 +365,23 @@ class TranslationTests {
          * Translate a [bundle] to an HL7 message as text using the given [schema].
          * @return an HL7 message as an input stream
          */
-        private fun translateFromFhir(bundle: InputStream, schema: String): InputStream {
-            val fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
+        private fun translateFromFhir(bundle: InputStream, schema: String, condFilter: String?): InputStream {
+            var fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
+            if (!condFilter.isNullOrBlank()) {
+                fhirBundle = FHIRBundleHelpers.filterObservations(
+                    fhirBundle,
+                    Receiver(
+                        "PHD-1",
+                        "STATE-1",
+                        Topic.FULL_ELR,
+                        CustomerStatus.ACTIVE,
+                        "SCHEMA-1",
+                        conditionFilter = listOf(condFilter)
+                    ),
+                    emptyMap<String, String>().toMutableMap()
+                )
+            }
+
             val hl7 = FhirToHl7Converter(
                 FilenameUtils.getName(schema),
                 FilenameUtils.getPath(schema),
