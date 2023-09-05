@@ -10,7 +10,7 @@
 
 ### Steps to Create New Okta User 
 
-1.) Log into Okta with Credentials.<br>
+1.) Log into Okta (for production accounts)/Okta Preview (for staging accounts) with Credentials.<br>
 2.) Select “Admin” button in top right hand corner.<br>
 3.) Select “People” from the "Directory" drop down in the left hand menu.<br>
 4.) Select “Add Person” button.<br>
@@ -33,12 +33,13 @@
 - If the group name is of the incorrect format the user will be unable to access the correct resources (e.g. only users of the DHSender_+orgname group will be able to access the “Submissions” page).
 - Users can be members of multiple groups.
 - Be sure to assign an application to the group.
+- The format for group names is always "Prefix" + "organization name" where the prefix is dependent on whether the group represents a sender or a receiver as shown in the table below:
 
-| Name                  | Permissions |
-|-----------------------|-------------|
-| DHorganization        | Receiver    |
-| DHSender_organization | Sender      |
-| Admins*               | Admin       |
+| Prefix+Name           | Permissions | Example             |
+|-----------------------|-------------|---------------------|
+| DH+organization       | Receiver    | DHmd-phd            |
+| DHSender_organization | Sender      | DHSender_color-labs |
+| Admins*               | Admin       | N/A                 |
 *You should not be creating a new group with admin permissions. There are existing admin groups that users should be added to if they need admin permissions.
 
 ### Group Creation Steps
@@ -62,4 +63,4 @@
 3.) Click on group name hyperlink to open group configuration.<br>
 4.) Click on "Assign people" blue button on right hand side of screen.<br>
 5.) Search for User by typing user name into search box with "Search for users by first name, primary email or username" grey text.<br>
-6.) CLick on blue "+" symbol on right side of screen to add to group
+6.) Click on blue "+" symbol on right side of screen to add to group.
