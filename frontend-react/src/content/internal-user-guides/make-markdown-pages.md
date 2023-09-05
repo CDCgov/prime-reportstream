@@ -46,34 +46,6 @@ export const BUILT_FOR_YOU: MarkdownDirectory[] = [
 ];
 ```
 
-## Create a `DropdownNav`
-
-We can now use `MarkdownDirectory` arrays to generate dropdown navigation items 
-for our header.
-
-```typescript jsx
-export const BuiltForYouDropdown = () => {
-    return (
-        <DropdownNav
-            label="Built For You"
-            root="/built-for-you"
-            directories={BUILT_FOR_YOU}
-        />
-    );
-};
-```
-
-Label, again, shows in the navigation item. The root is the root URL of this set of 
-static pages. It's assumed that a dropdown links to a sub set of pages that stem from 
-this route, so when you pass in your array of directories, each one's `slug` is applied 
-to the url _after_ the `root`. 
-
-```
-https://reportstream.cdc.gov/{root}/{slug}
-```
-
-Once created, you'll need to add this to the `ReportStreamHeader` component.
-
 ## Add the `Route`
 
 In App.tsx, add the `Route` element that links to the root of the markdown pages.

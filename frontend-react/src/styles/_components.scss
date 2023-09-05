@@ -3,12 +3,11 @@
 
 $theme-hr-border-color: "base-lighter";
 
+.usa-prose hr,
 hr {
     border: 1px solid color($theme-hr-border-color);
-    /* TODO: Verify spacing in all uses of hr when enabling this
-    @include u-margin-bottom(6);
-    @include u-margin-top(6);
-    */
+    @include u-margin-bottom(4);
+    @include u-margin-top(4);
 }
 
 .usa-link--unstyled {
