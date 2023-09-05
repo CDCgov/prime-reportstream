@@ -343,11 +343,16 @@ open class BaseHistoryFunction : Logging {
             // get the organization based on the header, if it exists, and if it
             // doesn't, use the organization from the authClaim
             val reportId = ReportId.fromString(reportIdIn)
-            val reportF = workflowEngine.db.fetchReportFile(reportId)
-            val contents = if (reportF.bodyUrl != null)
-                BlobAccess.downloadBlob(reportF.bodyUrl)
+            val requestedReport = workflowEngine.db.fetchReportFile(reportId)
+            val contents = if (requestedReport.bodyUrl != null)
+                BlobAccess.downloadBlob(requestedReport.bodyUrl)
             else {
-                val batchReport = workflowEngine.db.fetchParentReport(reportF.reportId)
+                // If the body URL is missing from the report it is likely a sent report that was generated
+                // before a blob was being generated.  This code can be removed after all of those reports
+                // have expired.
+                // To be backwards compatible, the parent report (from the batch step) is fetched and that report
+                // is downloaded
+                val batchReport = workflowEngine.db.fetchParentReport(requestedReport.reportId)
                 if (batchReport == null || batchReport.bodyUrl == null) {
                     return HttpUtilities.notFoundResponse(request)
                 }
@@ -357,27 +362,27 @@ open class BaseHistoryFunction : Logging {
                 response = request.createResponseBuilder(HttpStatus.NOT_FOUND).build()
             else {
                 val filename = Report.formExternalFilename(
-                    reportF.bodyUrl,
-                    reportF.reportId,
-                    reportF.schemaName,
-                    Report.Format.safeValueOf(reportF.bodyFormat),
-                    reportF.createdAt,
+                    requestedReport.bodyUrl,
+                    requestedReport.reportId,
+                    requestedReport.schemaName,
+                    Report.Format.safeValueOf(requestedReport.bodyFormat),
+                    requestedReport.createdAt,
                 )
-                val mimeType = Report.Format.safeValueOf(reportF.bodyFormat).mimeType
+                val mimeType = Report.Format.safeValueOf(requestedReport.bodyFormat).mimeType
                 val report = ReportView.Builder()
-                    .reportId(reportF.reportId.toString())
-                    .sent(reportF.createdAt.toEpochSecond() * 1000)
-                    .via(reportF.bodyFormat)
-                    .total(reportF.itemCount.toLong())
-                    .fileType(reportF.bodyFormat)
+                    .reportId(requestedReport.reportId.toString())
+                    .sent(requestedReport.createdAt.toEpochSecond() * 1000)
+                    .via(requestedReport.bodyFormat)
+                    .total(requestedReport.itemCount.toLong())
+                    .fileType(requestedReport.bodyFormat)
                     .type("ELR")
-                    .expires(reportF.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
-                    .receivingOrg(reportF.receivingOrg)
-                    .receivingOrgSvc(reportF.receivingOrgSvc)
-                    .sendingOrg(reportF.sendingOrg ?: "")
+                    .expires(requestedReport.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
+                    .receivingOrg(requestedReport.receivingOrg)
+                    .receivingOrgSvc(requestedReport.receivingOrgSvc)
+                    .sendingOrg(requestedReport.sendingOrg ?: "")
                     .displayName(
-                        if (reportF.externalName.isNullOrBlank()) reportF.receivingOrgSvc
-                        else reportF.externalName
+                        if (requestedReport.externalName.isNullOrBlank()) requestedReport.receivingOrgSvc
+                        else requestedReport.externalName
                     )
                     .content(String(contents))
                     .fileName(filename)
@@ -397,7 +402,7 @@ open class BaseHistoryFunction : Logging {
                 // internal blob.   This is going to be very confusing.
                 val externalReportId = UUID.randomUUID()
                 actionHistory.trackDownloadedReport(
-                    reportF,
+                    requestedReport,
                     filename,
                     externalReportId,
                     authClaims.userName,
@@ -405,7 +410,8 @@ open class BaseHistoryFunction : Logging {
                 actionHistory.trackItemLineages(
                     workflowEngine.db.fetchItemLineagesForReport(
                         reportId,
-                        reportF.itemCount
+                        requestedReport.itemCount
+
                     )
                 )
                 workflowEngine.recordAction(actionHistory)
