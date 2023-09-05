@@ -402,7 +402,12 @@ open class BaseHistoryFunction : Logging {
                     externalReportId,
                     authClaims.userName,
                 )
-                actionHistory.trackItemLineages(workflowEngine.db.fetchItemLineagesForReport(reportId, reportF.itemCount))
+                actionHistory.trackItemLineages(
+                    workflowEngine.db.fetchItemLineagesForReport(
+                        reportId,
+                        reportF.itemCount
+                    )
+                )
                 workflowEngine.recordAction(actionHistory)
 
                 return response
