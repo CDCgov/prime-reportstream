@@ -4,7 +4,7 @@ import FaqIndex, {
     toc,
 } from "../../../content/support/faq/FaqIndex.mdx";
 import Crumbs, { CrumbsProps } from "../../../components/Crumbs";
-import { FeatureName } from "../../../AppRouter";
+import { FeatureName } from "../../../utils/FeatureName";
 
 export function FaqPage() {
     const crumbProps: CrumbsProps = {

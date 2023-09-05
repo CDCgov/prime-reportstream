@@ -16,8 +16,8 @@ identifier_2:
   expressionType: resource
   specs: SPM.2
   constants:
-    alternateCode: FGN
-    alternateSystem: v2-0203
+    primaryCode: FGN
+    primarySystem: v2-0203
 
 status:
   type: SPECIMEN_STATUS

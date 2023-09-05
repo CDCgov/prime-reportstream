@@ -29,8 +29,9 @@ export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
     const { dispatch } = useSessionContext();
 
-    const onSuccess = (tokens: Tokens | undefined) => {
+    const onSuccess = (tokens: Tokens) => {
         oktaAuth.handleLoginRedirect(tokens);
+        return tokens;
     };
 
     const onError = (err: any) => {
@@ -47,11 +48,13 @@ export const Login = () => {
     return (
         <>
             <MonitoringAlert />
-            <OktaSignInWidget
-                config={oktaSignInConfig}
-                onSuccess={onSuccess}
-                onError={onError}
-            />
+            <div className="grid-container tablet:grid-col-12">
+                <OktaSignInWidget
+                    config={oktaSignInConfig}
+                    onSuccess={onSuccess}
+                    onError={onError}
+                />
+            </div>
         </>
     );
 };
