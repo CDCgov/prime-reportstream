@@ -18,6 +18,7 @@ import SenderModeBanner from "../SenderModeBanner";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { logout } from "../../utils/UserUtils";
 import { Icon } from "../../shared";
+import site from "../../content/site.json";
 
 import styles from "./ReportStreamNavbar.module.scss";
 
@@ -230,7 +231,7 @@ export const ReportStreamNavbar = ({
                                         Login
                                     </USLinkButton>
                                     <USLinkButton
-                                        href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957"
+                                        href={site.forms.connectWithRS.url}
                                         outline
                                         extLinkIcon
                                     >
