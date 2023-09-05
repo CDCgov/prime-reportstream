@@ -19,8 +19,7 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
     const { handle = {} } = matches.at(-1) ?? {};
     const { isContentPage, isFullWidth, isLoginPage } = handle;
     // article element is currently handled within markdownlayout for markdown pages
-    const InnerWrapper =
-        isContentPage || isLoginPage ? React.Fragment : ArticleWrapper;
+    const InnerWrapper = isContentPage || isLoginPage ? "div" : ArticleWrapper;
 
     return (
         <div

@@ -149,7 +149,7 @@ export function MarkdownLayout({
                     className={classNames(
                         "usa-prose",
                         sidenavContent
-                            ? "tablet:grid-col-8"
+                            ? "tablet:grid-col-9"
                             : "tablet:grid-col-12",
                     )}
                 >
@@ -162,7 +162,7 @@ export function MarkdownLayout({
                                     subtitleArr={subtitleArr}
                                     callToAction={callToAction}
                                     lastUpdated={lastUpdated}
-                                    className="usa-section grid-container"
+                                    className="usa-section usa-prose grid-container"
                                 />
                             </shared.HeroWrapper>
                         ) : (
@@ -172,7 +172,7 @@ export function MarkdownLayout({
                                 subtitleArr={subtitleArr}
                                 callToAction={callToAction}
                                 lastUpdated={lastUpdated}
-                                className="usa-section"
+                                className="usa-prose"
                             />
                         ))}
                     {tocObj && tocEntries && (
@@ -194,9 +194,9 @@ export function MarkdownLayout({
                         {mainContent ?? children}
                     </MDXProvider>
                     {backToTop && (
-                        <p>
-                            <USSmartLink href="#top">Back to top</USSmartLink>
-                        </p>
+                        <USSmartLink id="back-to-top" href="#top">
+                            Back to top
+                        </USSmartLink>
                     )}
                 </article>
             )}
