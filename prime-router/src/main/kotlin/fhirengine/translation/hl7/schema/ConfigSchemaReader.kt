@@ -155,6 +155,7 @@ object ConfigSchemaReader : Logging {
                 readOneYamlSchema(input, schemaClass)
             }
             "azure" -> {
+                // TODO: #10487 will add a new function to download schemas, so this is just a temporary placeholder
                 val blob = BlobAccess.downloadBlob(schemaUri.toString())
                 readOneYamlSchema(blob.inputStream(), schemaClass)
             }
