@@ -20,3 +20,8 @@ elements:
     constants:
       cweFieldPath: '%{hl7OBRField}-4'
     schema: ../../common/datatype/ce-coded-element
+
+  - name: order-observation-date-time-start
+    condition: '%resource.effective is Period'
+    value: [ '%resource.effective.start' ]
+    hl7Spec: [ '%{hl7OBRField}-7' ]
