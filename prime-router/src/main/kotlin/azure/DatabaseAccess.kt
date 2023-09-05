@@ -649,6 +649,13 @@ class DatabaseAccess(val create: DSLContext) : Logging {
             .toList()
     }
 
+    /**
+     * Uses the report lineage table to find the parent report for the passed in UUID
+     *
+     *
+     * @param childReportId the id of the child to fetch the parent
+     * @return the parent report
+     */
     fun fetchParentReport(childReportId: UUID): ReportFile? {
         return create
             .select(REPORT_FILE.asterisk()).from(REPORT_FILE)

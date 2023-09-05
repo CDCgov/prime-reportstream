@@ -334,16 +334,27 @@ open class BaseHistoryFunction : Logging {
         reportIdIn: String,
         context: ExecutionContext
     ): HttpResponseMessage {
-//        val claims = AuthenticatedClaims.authenticate(request)
-        val authClaims = checkAuthenticated(request, context)
-            ?: return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+        val claims = AuthenticatedClaims.authenticate(request)
+        val requestOrgName: String? = request.headers["organization"]
+        if (claims == null || requestOrgName == null || !claims.authorized(
+                setOf(
+                        PRIME_ADMIN_PATTERN,
+                        "$requestOrgName.*.*",
+                        "$requestOrgName.*.admin",
+                        "$requestOrgName.*.user",
+                        "$requestOrgName.*.*"
+                    )
+            )
+        ) {
+            return HttpUtilities.unauthorizedResponse(request)
+        }
 
-        var response: HttpResponseMessage
         try {
-            // get the organization based on the header, if it exists, and if it
-            // doesn't, use the organization from the authClaim
             val reportId = ReportId.fromString(reportIdIn)
             val requestedReport = workflowEngine.db.fetchReportFile(reportId)
+            if (requestedReport.receivingOrg != requestOrgName) {
+                return HttpUtilities.notFoundResponse(request)
+            }
             val contents = if (requestedReport.bodyUrl != null)
                 BlobAccess.downloadBlob(requestedReport.bodyUrl)
             else {
@@ -359,7 +370,7 @@ open class BaseHistoryFunction : Logging {
                 BlobAccess.downloadBlob(batchReport.bodyUrl)
             }
             if (contents.isEmpty())
-                response = request.createResponseBuilder(HttpStatus.NOT_FOUND).build()
+                return HttpUtilities.notFoundResponse(request)
             else {
                 val filename = Report.formExternalFilename(
                     requestedReport.bodyUrl,
@@ -389,7 +400,7 @@ open class BaseHistoryFunction : Logging {
                     .mimeType(mimeType)
                     .build()
 
-                response = request
+                val response = request
                     .createResponseBuilder(HttpStatus.OK)
                     .header("Content-Type", "application/json")
                     .body(report)
@@ -405,7 +416,7 @@ open class BaseHistoryFunction : Logging {
                     requestedReport,
                     filename,
                     externalReportId,
-                    authClaims.userName,
+                    claims.userName,
                 )
                 actionHistory.trackItemLineages(
                     workflowEngine.db.fetchItemLineagesForReport(
@@ -420,12 +431,8 @@ open class BaseHistoryFunction : Logging {
             }
         } catch (ex: Exception) {
             context.logger.warning("Exception during download of $reportIdIn - file not found")
-            response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
-                .body("File $reportIdIn not found")
-                .header("Content-Type", "text/html")
-                .build()
+            return HttpUtilities.notFoundResponse(request, "File $reportIdIn not found")
         }
-        return response
     }
 
     fun getFacilitiesForReportId(
