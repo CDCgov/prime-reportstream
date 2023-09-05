@@ -1,19 +1,4 @@
 ---
-howWeHelp:
-    - title: How we help you
-      items:
-        - title: 1. Create a personalized plan to meet your unique public health data needs
-          summary: Our expert team works with your preferences to accept data in HL7, FHIR and CSV, and deliver data through multiple connection types.
-          img: /assets/img/home/how-we-help-1.png
-          imgAlt: Create a personalized plan to meet your unique public health data needs
-        - title: 2. Start sending or receiving data
-          summary: Through our secure, cloud-based platform, data is validated, routed and transformed to the correct jurisdictions in the correct formatting.
-          img: /assets/img/home/how-we-help-2.png
-          imgAlt: Start sending or receiving data
-        - title: 3. Stay updated on the status of your data
-          summary: Our <A href='/support/contact'>expert support team</A> is on call and ready to solve any problems that arise.
-          img: /assets/img/home/how-we-help-3.png
-          imgAlt: Stay updated on the status of your data
 liveMapContact:
     - title: Who is in our network
       subTitle: Public health entities
@@ -33,10 +18,8 @@ import site from "../site.json";
 <HeroWrapper isAlternate style={{backgroundImage: "url('/assets/img/home/grid.png')", backgroundSize: "cover", backgroundPosition: "right"}}>
     <header className="usa-section usa-prose grid-container">
         <h1>Your single connection to simplify data transfer and improve public health</h1>
-        <p className="rs-subtitle">
-            ReportStream is CDC’s free, interoperable platform for streamlining public health reporting.
-            We navigate unique, complex requirements and work to make sure your data gets where it needs to be.
-        </p>
+        <p className="rs-subtitle">ReportStream is CDC’s free, interoperable platform for streamlining public health reporting.
+            We navigate unique, complex requirements and work to make sure your data gets where it needs to be.</p>
         <div className="grid-row margin-top-8 margin-bottom-2">
             <A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957" className="usa-button usa-button--big">Connect now</A>
         </div>
@@ -44,43 +27,54 @@ import site from "../site.json";
 </HeroWrapper>
 <HeroWrapper>
     <div className="grid-container">
-        {frontmatter.howWeHelp.map((section) => {
-            return (
-                <section className="usa-section">
-                    <h2
-                        data-testid="heading"
-                        className="font-sans-xl margin-top-0"
-                    >
-                        {section.title}
-                    </h2>
-                    <CardGroup>
-                        {section.items?.map((item, itemIndex) => (
-                            <Card key={`item-${itemIndex}`} gridLayout={{col: "fill"}} isAlternate>
-                                <CardMedia>
-                                    <img src={item.img} alt={item.imgAlt} />
-                                </CardMedia>
-                                <CardHeader typeof="div">
-                                    {item.title}
-                                </CardHeader>
-                                <CardBody>
-                                    {item.summary}
-                                </CardBody>
-                            </Card>
-                        ))}
-                    </CardGroup>
-                    <div className="grid-row flex-justify-center margin-y-2">
-                        <A href={site.forms.connectWithRS.url} className="usa-button usa-button--big">Get started</A>
-                    </div>
-                </section>
-            );
-        })}
+        <section className="usa-section">
+            <h2 data-testid="heading" className="font-sans-xl margin-top-0" >How we help you</h2>
+            <CardGroup>
+                <Card gridLayout={{col: "fill"}} isAlternate>
+                    <CardMedia>
+                        <img src="/assets/img/home/how-we-help-1.png" alt="Create a personalized plan to meet your unique public health data needs" />
+                    </CardMedia>
+                    <CardHeader className="font-sans-lg" typeof="div">
+                        Create a personalized plan to meet your unique public health data needs
+                    </CardHeader>
+                    <CardBody>
+                        Our expert team works with your preferences to accept data in HL7, FHIR and CSV, and deliver data through multiple connection types.
+                    </CardBody>
+                </Card>
+                <Card gridLayout={{col: "fill"}} isAlternate>
+                    <CardMedia>
+                        <img src="/assets/img/home/how-we-help-2.png" alt="Start sending or receiving data" />
+                    </CardMedia>
+                    <CardHeader className="font-sans-lg" typeof="div">
+                        Start sending or receiving data
+                    </CardHeader>
+                    <CardBody>
+                        Through our secure, cloud-based platform, data is validated, routed and transformed to the correct jurisdictions in the correct formatting.
+                    </CardBody>
+                </Card>
+                <Card gridLayout={{col: "fill"}} isAlternate>
+                    <CardMedia>
+                        <img src="/assets/img/home/how-we-help-3.png" alt="Stay updated on the status of your data" />
+                    </CardMedia>
+                    <CardHeader className="font-sans-lg" typeof="div">
+                        Stay updated on the status of your data
+                    </CardHeader>
+                    <CardBody>
+                        Our [expert support team](/support/contact) is on call and ready to solve any problems that arise.
+                    </CardBody>
+                </Card>
+            </CardGroup>
+            <div className="grid-row flex-justify-center margin-y-2">
+                <A href={site.forms.connectWithRS.url} className="usa-button usa-button--big">Get started</A>
+            </div>
+        </section>
     </div>
 </HeroWrapper>
 <HeroWrapper className="bg-blue-5">
     <div className="grid-container">
         <section className="usa-section padding-bottom-0">
             <h2 className="font-sans-xl margin-top-0">How it works</h2>
-            <p className="usa-intro margin-top-4">Our open-source platform aggregates and [securely delivers](/resources/security-practices) healthcare data test results from organizations and testing facilities directly to public health entities. Born in response to the COVID-19 pandemic, ReportStream is built to thrive and evolve within the complex environment of public health.</p>
+            <p className="font-sans-lg margin-top-4">Our open-source platform aggregates and [securely delivers](/resources/security-practices) healthcare data test results from organizations and testing facilities directly to public health entities. Born in response to the COVID-19 pandemic, ReportStream is built to thrive and evolve within the complex environment of public health.</p>
             <img
                 className="margin-y-8"
                 src="/assets/img/ReportStreamDiagram_2023.png"
