@@ -89,12 +89,6 @@ main {
 
 // TYPOGRAPHY
 
-.usa-prose {
-    h1 {
-        line-height: lh("sans", 2);
-    }
-}
-
 .usa-intro {
     line-height: units(4);
 }
@@ -214,10 +208,6 @@ main {
 // MEDIA: MOBILE
 
 @media (max-width: 63.99em) {
-    main {
-        padding: 2rem 0;
-        border-top: 1px solid #dfe1e2;
-    }
     .usa-logo {
         margin-left: 1rem;
     }
@@ -239,12 +229,6 @@ main {
         text-align: left;
         margin-bottom: 2rem;
         margin-left: 1rem;
-    }
-    h1 {
-        @include u-line-height("sans", 2);
-    }
-    h2 {
-        @include u-line-height("sans", 3);
     }
     .usa-breadcrumb {
         margin-top: 0;
