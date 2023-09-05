@@ -353,7 +353,7 @@ blockquote {
         @include u-margin-top(0);
     }
 
-    /* custom spacing per design */
+    /* custom margin-top spacing on direct children per design */
     > *:not([class*="margin-top"], :first-child, [class*="rs-hero-wrapper"]) {
         // default margin-top
         @include u-margin-top(2.5);
@@ -379,6 +379,13 @@ blockquote {
 
         &:is(h2, #back-to-top) {
             @include u-margin-top(8);
+        }
+    }
+
+    // remove default margin-bottom on all specific component descendants (not just children)
+    *:not([class*="margin-bottom"]) {
+        &:is(.usa-card) {
+            @include u-margin-bottom(0);
         }
     }
 }
