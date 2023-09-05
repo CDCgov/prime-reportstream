@@ -2,10 +2,65 @@ hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
 
 extends: ../../../ORU_R01/ORU_R01-base
 elements:
+  # MSH 4-1
   - name: sending-facility_namespace-id
     condition: true
+    resource: 'Bundle'
     value: [ '"CDC PRIME REPORTSTREAM"' ]
 
+  # MSH 4-2
   - name: sending-facility-universal-id
+    resource: 'Bundle'
     condition: true
     value: [ '"10DRPTSTRM"' ]
+
+  # MSH-5
+  - name: receiving-application-namespace-id
+    condition: true
+    resource: 'Bundle'
+    value: [ '"ECLRS"' ]
+
+  # MSH-6
+  - name: receiving-facility-namespace-id
+    condition: true
+    resource: 'Bundle'
+    value: [ '"NYSDOH"' ]
+
+  # OBX CWE-CE
+  - name: observation-identifier-code
+    condition: false
+
+  - name: message_profile_id
+    value: [ '"PHLabReport-NoAck"' ]
+    hl7Spec: [ MSH-21-1 ]
+
+  - name: message_profile_id_namespace_id
+    value: [ '"ELR_Receiver"' ]
+    hl7Spec: [ MSH-21-2 ]
+
+  - name: message_profile_id_universal_id
+    value: [ '"2.16.840.1.113883.9.11"' ]
+    hl7Spec: [ MSH-21-3 ]
+
+  - name: message_profile_id_universal_id_type
+    value: [ '"ISO"' ]
+    hl7Spec: [ MSH-21-4 ]
+
+  - name: software-version
+    value: [ '"0.2-SNAPSHOT"' ]
+    hl7Spec: [ SFT-2 ]
+
+  - name: software-name
+    value: [ '"PRIME ReportStream"' ]
+    hl7Spec: [ SFT-3 ]
+
+  - name: software-id
+    value: [ '"0.2-SNAPSHOT"' ]
+    hl7Spec: [ SFT-4 ]
+
+  - name: specimen-observation-result-with-aoe
+    condition: false
+
+
+
+
