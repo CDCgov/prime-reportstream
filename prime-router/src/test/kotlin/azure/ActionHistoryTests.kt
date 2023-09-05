@@ -22,7 +22,9 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkClass
+import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
 import java.time.OffsetDateTime
@@ -279,9 +281,21 @@ class ActionHistoryTests {
                     )
                 )
             )
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.uploadBody(any(), any(), any(), any()) } returns BlobAccess.BlobInfo(
+            Report.Format.HL7,
+            "http://blobUrl",
+            "".toByteArray()
+        )
+        val header = mockk<WorkflowEngine.Header>()
+        val inReportFile = mockk<ReportFile>()
+        every { header.reportFile } returns inReportFile
+        every { header.content } returns "".toByteArray()
+        every { inReportFile.itemCount } returns 15
         val orgReceiver = org.receivers[0]
         val actionHistory1 = ActionHistory(TaskAction.receive)
-        actionHistory1.trackSentReport(orgReceiver, uuid, "filename1", "params1", "result1", 15)
+        actionHistory1.action
+        actionHistory1.trackSentReport(orgReceiver, uuid, "filename1", "params1", "result1", header)
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
         val reportFile = actionHistory1.reportsOut[uuid]!!
         assertThat(reportFile.schemaName).isEqualTo("schema1")
@@ -293,14 +307,14 @@ class ActionHistoryTests {
         assertThat(reportFile.receivingOrgSvc).isEqualTo("myService")
         assertThat(reportFile.bodyFormat).isEqualTo("CSV")
         assertThat(reportFile.sendingOrg).isNull()
-        assertThat(reportFile.bodyUrl).isNull()
-        assertThat(reportFile.blobDigest).isNull()
+        assertThat(reportFile.bodyUrl).isEqualTo("http://blobUrl")
+        assertThat(reportFile.blobDigest).isEqualTo("".toByteArray())
         assertThat(reportFile.itemCount).isEqualTo(15)
         assertThat(actionHistory1.action.externalName).isEqualTo("filename1")
         // not allowed to track the same report twice.
         assertThat {
             actionHistory1.trackSentReport(
-                orgReceiver, uuid, "filename1", "params1", "result1", 15
+                orgReceiver, uuid, "filename1", "params1", "result1", header
             )
         }.isFailure()
     }

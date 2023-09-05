@@ -334,6 +334,7 @@ open class BaseHistoryFunction : Logging {
         reportIdIn: String,
         context: ExecutionContext
     ): HttpResponseMessage {
+//        val claims = AuthenticatedClaims.authenticate(request)
         val authClaims = checkAuthenticated(request, context)
             ?: return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
 
@@ -345,29 +346,35 @@ open class BaseHistoryFunction : Logging {
                 it.name.lowercase() == request.headers["organization"]?.lowercase()
             } ?: authClaims.organization
             val reportId = ReportId.fromString(reportIdIn)
+            val reportF = workflowEngine.db.fetchReportFile(reportId)
+
             val header = workflowEngine.fetchHeader(reportId, reportOrg)
-            if (header.content == null || header.content.isEmpty())
+            val contents = if (reportF.bodyUrl != null)
+                BlobAccess.downloadBlob(reportF.bodyUrl)
+            else
+                header.content
+            if (contents == null || contents.isEmpty())
                 response = request.createResponseBuilder(HttpStatus.NOT_FOUND).build()
             else {
                 val filename = Report.formExternalFilename(header)
                 val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
                 val report = ReportView.Builder()
-                    .reportId(header.reportFile.reportId.toString())
-                    .sent(header.reportFile.createdAt.toEpochSecond() * 1000)
-                    .via(header.reportFile.bodyFormat)
-                    .total(header.reportFile.itemCount.toLong())
-                    .fileType(header.reportFile.bodyFormat)
+                    .reportId(reportF.reportId.toString())
+                    .sent(reportF.createdAt.toEpochSecond() * 1000)
+                    .via(reportF.bodyFormat)
+                    .total(reportF.itemCount.toLong())
+                    .fileType(reportF.bodyFormat)
                     .type("ELR")
-                    .expires(header.reportFile.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
-                    .receivingOrg(header.reportFile.receivingOrg)
-                    .receivingOrgSvc(header.reportFile.receivingOrgSvc)
-                    .sendingOrg(header.reportFile.sendingOrg ?: "")
+                    .expires(reportF.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
+                    .receivingOrg(reportF.receivingOrg)
+                    .receivingOrgSvc(reportF.receivingOrgSvc)
+                    .sendingOrg(reportF.sendingOrg ?: "")
                     .displayName(
-                        if (header.reportFile.externalName.isNullOrBlank()) header.reportFile.receivingOrgSvc
-                        else header.reportFile.externalName
+                        if (reportF.externalName.isNullOrBlank()) reportF.receivingOrgSvc
+                        else reportF.externalName
                     )
-                    .content(String(header.content))
-                    .fileName(filename)
+                    .content(String(contents))
+                    .fileName(reportF.externalName)
                     .mimeType(mimeType)
                     .build()
 
@@ -379,7 +386,7 @@ open class BaseHistoryFunction : Logging {
 
                 val actionHistory = ActionHistory(TaskAction.download)
                 actionHistory.trackActionRequestResponse(request, response)
-                actionHistory.trackActionReceiverInfo(header.reportFile.receivingOrg, header.reportFile.receivingOrgSvc)
+                actionHistory.trackActionReceiverInfo(report.receivingOrg!!, report.receivingOrgSvc!!)
                 // Give the external report_file a new UUID, so we can track its history distinct from the
                 // internal blob.   This is going to be very confusing.
                 val externalReportId = UUID.randomUUID()
