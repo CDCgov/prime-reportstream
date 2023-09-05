@@ -89,12 +89,6 @@ main {
 
 // TYPOGRAPHY
 
-.usa-prose {
-    h1 {
-        line-height: lh("sans", 2);
-    }
-}
-
 .usa-intro {
     line-height: units(4);
 }
@@ -214,10 +208,6 @@ main {
 // MEDIA: MOBILE
 
 @media (max-width: 63.99em) {
-    main {
-        padding: 2rem 0;
-        border-top: 1px solid #dfe1e2;
-    }
     .usa-logo {
         margin-left: 1rem;
     }
@@ -239,12 +229,6 @@ main {
         text-align: left;
         margin-bottom: 2rem;
         margin-left: 1rem;
-    }
-    h1 {
-        @include u-line-height("sans", 2);
-    }
-    h2 {
-        @include u-line-height("sans", 3);
     }
     .usa-breadcrumb {
         margin-top: 0;
@@ -317,4 +301,129 @@ main {
 /* allow for spacing between text and external image */
 .usa-link--external::after {
     @include u-margin-left(0.5);
+}
+
+/* custom blockquote from design */
+blockquote {
+    @include u-margin-x(0);
+    @include u-padding(3);
+    @include u-border-left("primary");
+    // 6 px
+    border-left-width: calc(#{units("05")} + #{units(2px)});
+    @include set-text-and-bg(
+        $theme-summary-box-background-color,
+        $theme-summary-box-text-color,
+        $context: "blockquote"
+    );
+    @include u-font("sans", "lg");
+
+    > *:first-child {
+        @include u-margin-top(0);
+    }
+
+    footer {
+        @include u-font("sans", "md");
+        font-weight: bold;
+
+        cite {
+            display: block;
+            font-weight: initial;
+        }
+    }
+}
+
+.usa-prose {
+    /* Do not apply uswds measure on elements (allow to be full-width) */
+    & > *:not(.grid-container, img),
+    li {
+        max-width: unset !important;
+    }
+
+    /* respect custom margin-tops on paragraph siblings */
+    > p + * {
+        @each $num, $val in $number-to-value {
+            &[class*="margin-top-#{$val}"] {
+                @include u-margin-top($val);
+            }
+        }
+    }
+
+    // content flush to top
+    > :first-child {
+        @include u-margin-top(0);
+    }
+
+    /* custom spacing per design */
+    > *:not([class*="margin-top"], :first-child, [class*="rs-hero-wrapper"]) {
+        // default margin-top
+        @include u-margin-top(2.5);
+
+        &:is(h3) {
+            @include u-margin-top(4);
+        }
+
+        &:is(
+                img,
+                blockquote,
+                .usa-accordion,
+                .usa-process-list,
+                .usa-card-group,
+                .usa-summary-box
+            ) {
+            @include u-margin-top(4);
+
+            & + & {
+                @include u-margin-top(5);
+            }
+        }
+
+        &:is(h2, #back-to-top) {
+            @include u-margin-top(8);
+        }
+    }
+}
+
+.usa-link {
+    .usa-icon {
+        // try to match icon closer to link baseline
+        vertical-align: middle;
+    }
+}
+
+// Apply font rules at a root (instead of needing usa-prose)
+body {
+    @include typeset($theme-prose-font-family);
+
+    h1 {
+        @include h1;
+    }
+    h2 {
+        @include h2;
+    }
+    h3 {
+        @include h3;
+    }
+    h4 {
+        @include h4;
+    }
+    h5 {
+        @include h5;
+    }
+    h6 {
+        @include h6;
+    }
+}
+
+.usa-summary-box {
+    @include u-padding(4);
+
+    .usa-summary-box__body {
+        > *:first-child {
+            @include u-margin-top(0);
+        }
+
+        > *:last-child {
+            @include u-margin-bottom(0);
+        }
+    }
 }
