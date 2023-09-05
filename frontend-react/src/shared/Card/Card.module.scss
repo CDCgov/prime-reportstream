@@ -16,6 +16,11 @@
 
         .usa-card__body {
             @include u-padding-left(0);
+            font-size: size("sans", "md");
+        }
+
+        .usa-card__body:last-child {
+            @include u-padding-bottom(8);
         }
 
         .usa-card__footer {

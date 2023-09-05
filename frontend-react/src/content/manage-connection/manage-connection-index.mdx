@@ -15,9 +15,10 @@ ongoingSupport:
 import { Tile } from "../../shared/Tile/Tile";
 
 <HeroWrapper className="bg-blue-5">
-    <div className="grid-container padding-y-9">
-        **Quick links**
-        <CardGroup>
+    <div className="grid-container">
+        <section className="usa-section">
+            <p className="margin-top-0 text-bold">Quick links</p>
+            <CardGroup>
             <Card gridLayout={{col: "fill"}}>
                 <CardHeader typeof="div">
                     ## For health care organizations
@@ -43,12 +44,13 @@ import { Tile } from "../../shared/Tile/Tile";
                 </CardBody>
             </Card>
         </CardGroup>
+        </section>
     </div>
 </HeroWrapper>
 <HeroWrapper className="manage-connection grid-container">
-    <section className="usa-section padding-top-9 padding-bottom-0">
+    <section className="usa-section">
         <h2 className="font-sans-xl margin-top-0">Monitoring tools</h2>
-        <p className="usa-intro margin-top-4 margin-bottom-8">Providing transparency into your data transfer with ReportStream </p>
+        <p className="font-sans-lg margin-top-4 margin-bottom-8">Providing transparency into your data transfer with ReportStream </p>
         <Tile {...frontmatter.monitoringTools}>
             <CardGroup>
                     <Card gridLayout={{col: "fill"}} isAlternate>
