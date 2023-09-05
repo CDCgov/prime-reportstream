@@ -87,6 +87,20 @@ export const appRoutes: RouteObject[] = [
                 },
             },
             {
+                path: "managing-your-connection",
+                children: [
+                    {
+                        path: "refer-healthcare-organizations",
+                        handle: {
+                            isContentPage: true,
+                        },
+                        lazy: lazyRouteMarkdown(
+                            "content/managing-your-connection/refer-healthcare-organizations",
+                        ),
+                    },
+                ],
+            },
+            {
                 path: "/getting-started",
                 children: [
                     {
