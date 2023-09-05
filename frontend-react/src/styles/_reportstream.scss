@@ -817,6 +817,7 @@ html {
 h2.rs-numbered {
     @include numbered(h2);
 }
+
 .faq-wrapper {
     .heading {
         h3 {
@@ -857,9 +858,12 @@ main {
     * CMS-type pages use a smaller default width
     */
     &--content {
-        main {
+        main,
+        .grid-container {
             @include grid-container("desktop-lg");
+        }
 
+        main {
             // Smaller font for content alerts
             .usa-alert {
                 @include u-font-size("sans", "xs");
@@ -875,6 +879,7 @@ main {
         main {
             @include grid-container("full");
             @include u-padding(0);
+            @include grid-gap(0);
 
             /*
             * Make flush across all screen sizes
@@ -884,10 +889,31 @@ main {
                     @include u-padding(0, !important);
                 }
             }
+
+            // Undo specific subtitle coloring
+            .rs-subtitle {
+                color: unset;
+            }
         }
 
         #site-header {
             margin-bottom: unset;
         }
     }
+}
+
+.rs-subtitle,
+.usa-prose .rs-subtitle {
+    @include u-font("sans", "lg");
+    @include u-color("base");
+    @include u-margin-top(4);
+    @include u-margin-bottom(0);
+
+    & + * {
+        @include u-margin-top(8);
+    }
+}
+
+#back-to-top {
+    display: block;
 }

@@ -1,5 +1,8 @@
 import React, { ReactNode } from "react";
 import DOMPurify from "dompurify";
+import classNames from "classnames";
+
+import styles from "./Tile.module.scss";
 
 export interface TileProps {
     className?: string;
@@ -21,9 +24,9 @@ export const Tile = ({
     summary,
 }: TileProps) => {
     const cleanSummaryHtml = DOMPurify.sanitize(summary ?? "");
-
+    const classnames = classNames(styles["rs-tile"], className);
     return (
-        <div className={className}>
+        <div className={classnames}>
             {img && (
                 <img
                     data-testid="img"
@@ -35,12 +38,12 @@ export const Tile = ({
             {title && (
                 <p
                     data-testid="heading"
-                    className="usa-prose font-sans-lg text-bold padding-top-3 border-top-05 border-primary"
+                    className="usa-prose font-sans-lg text-bold"
                 >
                     {title}
                 </p>
             )}
-            {summary && (
+            {cleanSummaryHtml && (
                 <p
                     data-testid="summary"
                     className="usa-prose"
