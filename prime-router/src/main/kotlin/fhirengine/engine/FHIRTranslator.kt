@@ -7,7 +7,6 @@ import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.CovidHL7Configuration
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
@@ -22,6 +21,7 @@ import gov.cdc.prime.router.azure.db.Tables
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
+import gov.cdc.prime.router.fhirengine.translation.hl7.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFiveChars
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.defaultHl7EncodingFourChars
@@ -145,7 +145,7 @@ class FHIRTranslator(
      */
     internal fun getHL7MessageFromBundle(bundle: Bundle, receiver: Receiver): Message {
         val config = (receiver.translation as? Hl7Configuration)?.let {
-            CovidHL7Configuration(
+            HL7TranslationConfig(
                 it,
                 receiver
             )

@@ -1,11 +1,4 @@
-package gov.cdc.prime.router.fhirengine.translation.hl7.utils
-
-/**
- * HL7 specific custom context configuration
- */
-interface HL7TranslationConfig : ContextConfig {
-    val truncationConfig: TruncationConfig
-}
+package gov.cdc.prime.router.fhirengine.translation.hl7.config
 
 /**
  * HL7 truncation configuration options

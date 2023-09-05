@@ -4,6 +4,7 @@ import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import ca.uhn.hl7v2.model.v251.datatype.DTM
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7Truncator
+import gov.cdc.prime.router.fhirengine.translation.hl7.config.TruncationConfig
 import org.hl7.fhir.r4.model.BaseDateTimeType
 
 /**

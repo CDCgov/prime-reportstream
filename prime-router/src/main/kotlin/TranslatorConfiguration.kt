@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TruncationConfig
+import gov.cdc.prime.router.fhirengine.translation.hl7.config.TruncationConfig
 
 // Schemas used
 const val HL7_SCHEMA = "covid-19"

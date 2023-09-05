@@ -47,13 +47,13 @@ import gov.cdc.prime.router.common.Hl7Utilities
 import gov.cdc.prime.router.common.StringUtilities.trimAndTruncate
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7Truncator
+import gov.cdc.prime.router.fhirengine.translation.hl7.config.TruncationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.CE_FIELDS
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.HD_FIELDS_UNIVERSAL
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.HD_TRUNCATION_LIMIT
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.MAX_FORMATTED_TEXT_LENGTH
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.getHL7ComponentMaxLengthList
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.formPathSpec
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TruncationConfig
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mapper
 import org.apache.logging.log4j.kotlin.Logging

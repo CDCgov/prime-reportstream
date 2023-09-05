@@ -4,14 +4,14 @@ import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.translation.hl7.utils.FhirPathFunctions
+import gov.cdc.prime.router.fhirengine.translation.hl7.config.ContextConfig
+import gov.cdc.prime.router.fhirengine.translation.hl7.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ContextConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TranslationFunctions
 import org.apache.commons.io.FilenameUtils

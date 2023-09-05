@@ -1,7 +1,7 @@
 package fhirengine.engine
 
-import gov.cdc.prime.router.CovidHL7Configuration
 import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.fhirengine.translation.hl7.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.Hl7TranslationFunctions
 import org.hl7.fhir.r4.model.BaseDateTimeType
@@ -18,7 +18,7 @@ class CustomTranslationFunctions : Hl7TranslationFunctions() {
         dateTime: BaseDateTimeType,
         appContext: CustomContext?
     ): String {
-        if (appContext?.config is CovidHL7Configuration) {
+        if (appContext?.config is HL7TranslationConfig) {
             val receiver = appContext.config.receiver
             val config = appContext.config.hl7Configuration
 

@@ -5,7 +5,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TruncationConfig
+import gov.cdc.prime.router.fhirengine.translation.hl7.config.TruncationConfig
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

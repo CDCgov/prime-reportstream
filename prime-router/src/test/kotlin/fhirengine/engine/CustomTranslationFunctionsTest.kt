@@ -4,8 +4,8 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
-import gov.cdc.prime.router.CovidHL7Configuration
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.fhirengine.translation.hl7.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomFHIRFunctions
 import gov.cdc.prime.router.unittest.UnitTestUtils
@@ -83,7 +83,7 @@ class CustomTranslationFunctionsTest {
         )
 
         every { appContext.customFhirFunctions }.returns(CustomFhirPathFunctions())
-        every { appContext.config }.returns(CovidHL7Configuration(config, receiver))
+        every { appContext.config }.returns(HL7TranslationConfig(config, receiver))
         every { receiver.dateTimeFormat }.returns(null)
         every { receiver.translation }.returns(config)
         assertThat(
