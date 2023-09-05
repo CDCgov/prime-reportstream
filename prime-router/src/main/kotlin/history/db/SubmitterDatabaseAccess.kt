@@ -203,8 +203,8 @@ class SubmitterDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccess
         if (sentReportIdsForReceiver.isEmpty()) {
             return ApiSearchResult(0, 0, emptyList())
         } else {
-
-            val itemGraph = reportGraph.itemAncestorGraphCommonTableExpression(sentReportIdsForReceiver)
+            val itemGraph = reportGraph
+                .itemAncestorGraphCommonTableExpression(receiver, TaskAction.send)
 
             val submitterExpression = DSL.select(
                 CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID
