@@ -649,6 +649,15 @@ class DatabaseAccess(val create: DSLContext) : Logging {
             .toList()
     }
 
+    fun fetchParentReport(childReportId: UUID): ReportFile? {
+        return create
+            .select(REPORT_FILE.asterisk()).from(REPORT_FILE)
+            .join(REPORT_LINEAGE)
+            .on(REPORT_LINEAGE.PARENT_REPORT_ID.eq(REPORT_FILE.REPORT_ID))
+            .where(REPORT_LINEAGE.CHILD_REPORT_ID.eq(childReportId))
+            .fetchOneInto(ReportFile::class.java)
+    }
+
     fun fetchChildReports(
         parentReportId: UUID,
         txn: DataAccessTransaction? = null

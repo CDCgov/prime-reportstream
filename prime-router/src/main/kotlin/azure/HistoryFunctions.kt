@@ -342,22 +342,28 @@ open class BaseHistoryFunction : Logging {
         try {
             // get the organization based on the header, if it exists, and if it
             // doesn't, use the organization from the authClaim
-            val reportOrg = workflowEngine.settings.organizations.firstOrNull {
-                it.name.lowercase() == request.headers["organization"]?.lowercase()
-            } ?: authClaims.organization
             val reportId = ReportId.fromString(reportIdIn)
             val reportF = workflowEngine.db.fetchReportFile(reportId)
-
-            val header = workflowEngine.fetchHeader(reportId, reportOrg)
             val contents = if (reportF.bodyUrl != null)
                 BlobAccess.downloadBlob(reportF.bodyUrl)
-            else
-                header.content
-            if (contents == null || contents.isEmpty())
+            else {
+                val batchReport = workflowEngine.db.fetchParentReport(reportF.reportId)
+                if (batchReport == null || batchReport.bodyUrl == null) {
+                    return HttpUtilities.notFoundResponse(request)
+                }
+                BlobAccess.downloadBlob(batchReport.bodyUrl)
+            }
+            if (contents.isEmpty())
                 response = request.createResponseBuilder(HttpStatus.NOT_FOUND).build()
             else {
-                val filename = Report.formExternalFilename(header)
-                val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
+                val filename = Report.formExternalFilename(
+                    reportF.bodyUrl,
+                    reportF.reportId,
+                    reportF.schemaName,
+                    Report.Format.safeValueOf(reportF.bodyFormat),
+                    reportF.createdAt,
+                )
+                val mimeType = Report.Format.safeValueOf(reportF.bodyFormat).mimeType
                 val report = ReportView.Builder()
                     .reportId(reportF.reportId.toString())
                     .sent(reportF.createdAt.toEpochSecond() * 1000)
@@ -374,7 +380,7 @@ open class BaseHistoryFunction : Logging {
                         else reportF.externalName
                     )
                     .content(String(contents))
-                    .fileName(reportF.externalName)
+                    .fileName(filename)
                     .mimeType(mimeType)
                     .build()
 
@@ -384,19 +390,19 @@ open class BaseHistoryFunction : Logging {
                     .body(report)
                     .build()
 
-                val actionHistory = ActionHistory(TaskAction.download)
+                val actionHistory = ActionHistory(TaskAction.download, generatingEmptyReport = true)
                 actionHistory.trackActionRequestResponse(request, response)
                 actionHistory.trackActionReceiverInfo(report.receivingOrg!!, report.receivingOrgSvc!!)
                 // Give the external report_file a new UUID, so we can track its history distinct from the
                 // internal blob.   This is going to be very confusing.
                 val externalReportId = UUID.randomUUID()
                 actionHistory.trackDownloadedReport(
-                    header,
+                    reportF,
                     filename,
                     externalReportId,
                     authClaims.userName,
                 )
-                actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, externalReportId))
+                actionHistory.trackItemLineages(workflowEngine.db.fetchItemLineagesForReport(reportId, reportF.itemCount))
                 workflowEngine.recordAction(actionHistory)
 
                 return response

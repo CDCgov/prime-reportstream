@@ -562,12 +562,11 @@ class ActionHistory(
      * of our custody.
      */
     fun trackDownloadedReport(
-        header: WorkflowEngine.Header,
+        parentReportFile: ReportFile,
         filename: String,
         externalReportId: ReportId,
         downloadedBy: String,
     ) {
-        val parentReportFile = header.reportFile
         trackExistingInputReport(parentReportFile.reportId)
         if (isReportAlreadyTracked(externalReportId)) {
             error(

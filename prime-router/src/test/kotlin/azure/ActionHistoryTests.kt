@@ -19,7 +19,6 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
-import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockk
@@ -329,26 +328,9 @@ class ActionHistoryTests {
         reportFile1.reportId = uuid
         reportFile1.receivingOrg = "myOrg"
         reportFile1.receivingOrgSvc = "myRcvr"
-        // As of this writing, lineage is taken from the parent report obj, not the org/receiver obj.
-        val org =
-            DeepOrganization(
-                name = "orgX",
-                description = "blah blah",
-                jurisdiction = Organization.Jurisdiction.FEDERAL,
-                receivers = listOf(
-                    Receiver(
-                        "receiverX", "myOrg", Topic.TEST, CustomerStatus.INACTIVE, "schema",
-                        format = Report.Format.HL7
-                    )
-                )
-            )
-        val schema = Schema("schema", Topic.TEST)
-        val header = WorkflowEngine.Header(
-            Task(), reportFile1, null, org, org.receivers[0], schema, "".toByteArray(), true
-        )
         val actionHistory1 = ActionHistory(TaskAction.download)
         val uuid2 = UUID.randomUUID()
-        actionHistory1.trackDownloadedReport(header, "filename1", uuid2, "bob")
+        actionHistory1.trackDownloadedReport(reportFile1, "filename1", uuid2, "bob")
         assertThat(actionHistory1.reportsOut[uuid2]).isNotNull()
         val reportFile2 = actionHistory1.reportsOut[uuid2]!!
         assertThat(reportFile2.receivingOrgSvc).isEqualTo("myRcvr")
@@ -362,7 +344,7 @@ class ActionHistoryTests {
         // not allowed to track the same report twice.
         assertThat {
             actionHistory1.trackDownloadedReport(
-                header, "filename1", uuid2, "bob"
+                reportFile1, "filename1", uuid2, "bob"
             )
         }.isFailure()
     }
