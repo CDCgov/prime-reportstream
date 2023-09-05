@@ -52,5 +52,6 @@ elements:
     condition: '%resource.count() > 0'
     required: true
     schema: ./base/service-request-order-observation
+    resourceIndex: orderIndex
     constants:
       hl7SegmentGroup: '/ORDER/OBSERVATION_REQUEST'

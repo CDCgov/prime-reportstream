@@ -2,7 +2,7 @@ constants:
   hl7OBRField: '%{hl7SegmentGroup}/OBR'
 elements:
   - name: order-observation-set-id
-    value: [ '"1"' ]
+    value: [ '%orderIndex + 1' ]
     hl7Spec: [ '%{hl7OBRField}-1' ]
 
   - name: order-observation-placer-order-number
