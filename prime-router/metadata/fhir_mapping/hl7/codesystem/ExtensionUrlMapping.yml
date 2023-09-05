@@ -70,6 +70,9 @@
 # Entering organization
 - id: "entering-organization"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization"
+# Organization assigning authority
+- id: "assigning-authority"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority"
 # Organization assigning authority namespace ID
 - id: "assigning-authority-namespace-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id"

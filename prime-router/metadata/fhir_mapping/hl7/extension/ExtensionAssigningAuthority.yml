@@ -1,0 +1,41 @@
+url:
+  type: SYSTEM_URL
+  valueOf: assigning-authority
+
+extension_1-namespaceId:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, HD.1
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: assigning-authority-namespace-id
+
+extension_2-universalIdISO:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $universalIdType EQUALS ISO
+  vars:
+    idStr: String, HD.2
+    value: $urlPrefix + HD.2
+    universalIdType: String, HD.3
+  constants:
+    urlPrefix: "urn:oid:"
+    KEY_NAME_SUFFIX: Oid
+    urlValue: assigning-authority-universal-id
+
+extension_2-universalIdUUID:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $universalIdType EQUALS UUID
+  vars:
+    idStr: String, HD.2
+    value: $urlPrefix + HD.2
+    universalIdType: String, HD.3
+  constants:
+    urlPrefix: "urn:uuid:"
+    KEY_NAME_SUFFIX: Uuid
+    urlValue: assigning-authority-universal-id

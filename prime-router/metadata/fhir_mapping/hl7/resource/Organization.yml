@@ -123,51 +123,85 @@ type_1:
 extension_1:
   generateList: true
   expressionType: nested
+  condition: $code EQUALS A
+  vars:
+    code: String, XON.2
   expressionsMap:
     url:
       type: SYSTEM_URL
       value: organization-name-type
-    valueCodeableConcept:
-      valueOf: datatype/CodeableConcept_var
+    valueCoding:
+      valueOf: datatype/Coding
       expressionType: resource
       vars:
         code: String, XON.2
         system: SYSTEM_URL, $systemCode
       constants:
+        display: "Alias name"
         systemCode: "v2-0204"
 
 extension_2:
   generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
+  expressionType: nested
+  condition: $code EQUALS L
   vars:
-    value: String, XON.6.1
-  constants:
-    KEY_NAME_SUFFIX: String
-    urlValue: namespace-id
+    code: String, XON.2
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: organization-name-type
+    valueCoding:
+      valueOf: datatype/Coding
+      expressionType: resource
+      vars:
+        code: String, XON.2
+        system: SYSTEM_URL, $systemCode
+      constants:
+        display: "Legal name"
+        systemCode: "v2-0204"
 
 extension_3:
   generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
-  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
+  expressionType: nested
+  condition: $code EQUALS D
   vars:
-    idStr: String, XON.6.2
-    value: $oidUrlPrefix + XON.6.2
-    systemStr: String, XON.6.3
-  constants:
-    oidUrlPrefix: "urn:oid:"
-    KEY_NAME_SUFFIX: Oid
-    urlValue: universal-id
+    code: String, XON.2
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: organization-name-type
+    valueCoding:
+      valueOf: datatype/Coding
+      expressionType: resource
+      vars:
+        code: String, XON.2
+        system: SYSTEM_URL, $systemCode
+      constants:
+        display: "Display name"
+        systemCode: "v2-0204"
 
 extension_4:
   generateList: true
-  valueOf: extension/Extension
-  expressionType: resource
-  condition: $value NOT_NULL && $systemStr NOT_EQUALS ISO
+  expressionType: nested
+  condition: $code EQUALS SL
   vars:
-    value: String, XON.6.2
-    systemStr: String, XON.6.3
-  constants:
-    KEY_NAME_SUFFIX: String
-    urlValue: universal-id
+    code: String, XON.2
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: organization-name-type
+    valueCoding:
+      valueOf: datatype/Coding
+      expressionType: resource
+      vars:
+        code: String, XON.2
+        system: SYSTEM_URL, $systemCode
+      constants:
+        display: "Stock exchange listing name"
+        systemCode: "v2-0204"
+
+extension_5:
+  generateList: true
+  expressionType: resource
+  valueOf: extension/ExtensionAssigningAuthority
+  specs: XON.6
