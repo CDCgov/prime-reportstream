@@ -20,7 +20,7 @@ export const LiveMap = ({
         <section {...props}>
             <h2
                 data-testid="heading"
-                className="font-sans-xl margin-top-0 tablet:margin-bottom-0 padding-top-9 border-top-05 border-primary"
+                className="font-sans-xl margin-top-0 tablet:margin-bottom-0 padding-top-9"
             >
                 {title}
             </h2>
