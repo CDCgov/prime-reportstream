@@ -109,12 +109,11 @@ status:
 
 category:
   valueOf: datatype/CodeableConcept
-  condition: $code NOT_NULL
   generateList: true
   expressionType: resource
   specs: OBR.24
   vars:
-    code: OBR.24
+    primaryCode: OBR.24
 
 code:
   valueOf: datatype/CodeableConcept

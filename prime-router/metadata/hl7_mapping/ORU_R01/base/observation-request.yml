@@ -107,7 +107,7 @@ elements:
     hl7Spec: [ '%{fieldPath}-22' ]
 
   - name: diagnostic-serv-sect-id
-    value: [ '%resource.category' ]
+    value: [ '%resource.category.coding.code' ]
     hl7Spec: [ '%{fieldPath}-24' ]
 
   - name: result-status
