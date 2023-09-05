@@ -3,15 +3,18 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.engine.LookupTableValueSet
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import org.apache.commons.io.FilenameUtils
+import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
 import java.io.InputStream
+import java.net.URI
 
 /**
  * Read schema configuration.
@@ -74,18 +77,12 @@ object ConfigSchemaReader : Logging {
         return parentSchema
     }
 
-    /**
-     * Read a complete schema tree of type [schemaClass] from a file for [schemaName] in [folder].
-     * Note this is a recursive function used to walk through all the schemas to load.
-     * @return the validated schema
-     */
-    internal fun readSchemaTreeFromFile(
+    private fun processFileSchema(
+        file: File,
         schemaName: String,
-        folder: String? = null,
         ancestry: List<String> = listOf(),
-        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java
+        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>
     ): ConfigSchema<*> {
-        val file = File(folder, "$schemaName.yml")
         if (!file.canRead()) throw SchemaException("Cannot read ${file.absolutePath}")
         val rawSchema = try {
             readOneYamlSchema(file.inputStream(), schemaClass)
@@ -110,6 +107,55 @@ object ConfigSchemaReader : Logging {
                 readSchemaTreeFromFile(element.schema!!, rootFolder, rawSchema.ancestry, schemaClass)
         }
         return rawSchema
+    }
+
+    /**
+     * Read a complete schema tree of type [schemaClass] from a file for [schemaName] in [folder].
+     * Note this is a recursive function used to walk through all the schemas to load.
+     * @return the validated schema
+     */
+    internal fun readSchemaTreeFromFile(
+        schemaName: String,
+        folder: String? = null,
+        ancestry: List<String> = listOf(),
+        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java
+    ): ConfigSchema<*> {
+        val schemaUri = URI(schemaName)
+        return when (schemaUri.scheme) {
+            "file" -> {
+                val file = File(schemaUri)
+                processFileSchema(file, schemaName, ancestry, schemaClass)
+            }
+            "azure" -> {
+                val rawSchema =
+                    readOneYamlSchema(BlobAccess.downloadBlob(schemaUri.toString()).inputStream(), schemaClass)
+                rawSchema.name = schemaName
+
+                if (ancestry.contains(rawSchema.name)) {
+                    throw HL7ConversionException("Circular reference detected for schema ${rawSchema.name}")
+                }
+                rawSchema.ancestry = ancestry + rawSchema.name!!
+                rawSchema.elements.filter { !it.schema.isNullOrBlank() }.forEach { element ->
+                    element.schemaRef =
+                        readSchemaTreeFromFile(
+                            element.schema!!,
+                            // This parameter exists to be backwards compatible to support cases where the schema
+                            // has moved to azure but references other schemas via relative pathing
+                            // It assumes that the directory structures are the same in azure and resources
+                            StringUtils.substringBeforeLast(schemaUri.path.substring(1), "/"),
+                            rawSchema.ancestry,
+                            schemaClass
+                        )
+                }
+                rawSchema
+            }
+            else -> {
+                // This branch handles being backwards compatible with schemas that
+                // still use relative pathing rather than a URI
+                val file = File(folder, "$schemaName.yml")
+                processFileSchema(file, schemaName, ancestry, schemaClass)
+            }
+        }
     }
 
     /**

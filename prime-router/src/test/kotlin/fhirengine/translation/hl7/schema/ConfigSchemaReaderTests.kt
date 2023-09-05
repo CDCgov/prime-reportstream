@@ -10,12 +10,16 @@ import assertk.assertions.isNull
 import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import assertk.assertions.messageContains
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.FhirTransformSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.fhirTransform.fhirTransformSchemaFromFile
+import io.mockk.every
+import io.mockk.mockkObject
+import java.io.File
 import kotlin.test.Test
 
 class ConfigSchemaReaderTests {
@@ -377,5 +381,32 @@ class ConfigSchemaReaderTests {
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-05"
             )
         }.isFailure()
+    }
+
+    @Test
+    fun `test reads a file with file protocol`() {
+        val file = File(
+            "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01",
+            "ORU_R01.yml"
+        )
+        assertThat {
+            ConfigSchemaReader.readSchemaTreeFromFile(file.toURI().toURL().toString())
+        }.isSuccess()
+    }
+
+    @Test
+    fun `reads a file with an azure protocol`() {
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.downloadBlob(any()) } returns File(
+            "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01",
+            "ORU_R01.yml"
+        ).readBytes()
+        assertThat {
+            ConfigSchemaReader.readSchemaTreeFromFile(
+                """
+                    azure://azure.container.com/src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01/ORU_R01.yml
+                """.trimIndent()
+            )
+        }.isSuccess()
     }
 }
