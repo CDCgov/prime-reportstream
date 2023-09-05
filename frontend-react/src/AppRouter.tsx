@@ -63,10 +63,21 @@ export const appRoutes: RouteObject[] = [
             },
             {
                 path: "/about",
-                element: <About />,
-                handle: {
-                    isContentPage: true,
-                },
+                children: [
+                    {
+                        path: "our-network",
+                        lazy: lazyRouteMarkdown("content/about/our-network"),
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                    {
+                        element: <About />,
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                ],
             },
             {
                 path: "/login",
