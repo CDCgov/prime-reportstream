@@ -1,0 +1,119 @@
+---
+title: About
+subtitle: Learn who ReportStream is, what we do, and why
+mission:
+    summary: ReportStream’s mission is to provide a free data transfer platform that public health entities and healthcare organizations can rely on to meet all reporting needs. We will build a strong foundation for the <A href="https://www.cdc.gov/ophdst/public-health-data-strategy/index.html">CDC’s public health data strategy</A> and mission to improve public health.
+vision:
+    summary: By making data transfer simple and accessible, public health data will become more accurate and actionable than ever before and revolutionize the public health data ecosystem.
+---
+<HeroWrapper className="bg-blue-5">
+    <section className="usa-section grid-container">
+        <div className="grid-row grid-gap">
+            <div className="grid-col-6">
+                ## Mission
+                <Tile {...frontmatter.mission}></Tile>
+            </div>
+            <div className="grid-col-6">
+                ## Vision
+                <Tile {...frontmatter.vision}></Tile>
+            </div>
+        </div>
+        ## Values
+        <Accordion multiselectable={true} items={[
+            {
+                id: "1",
+                headingLevel:"h3",
+                title:"We meet our partners where they are.",
+                content:(<>
+                    <p>Through:</p>
+                    <ul>
+                        <li>Accepting and delivering data in multiple formats including HL7, FHIR, CSV, and others</li>
+                        <li>Delivering data via many protocols including SFTP, HTTP, and more</li>
+                        <li>An expert support team on call and ready to help</li>
+                    </ul>
+                </>)
+            },
+            {
+                id: "2",
+                headingLevel:"h3",
+                title: "We are free to use.",
+                content: (<>
+                    <p>Through:</p>
+                    <ul>
+                        <li>Prioritized funding and support from the CDC by becoming a foundational part of electronic health reporting</li>
+                    </ul>
+                </>),
+            },
+            {
+                id: "3",
+                headingLevel:"h3",
+                title: "We put better faster data into the hands of public health entities.",
+                content:(<>
+                    <p>By:</p>
+                    <ul>
+                        <li>Continuing to improve the flexibility, reliability, and usability of our platform</li>
+                        <li>Providing services that validate and transform data and promote industry standards</li>
+                    </ul>
+                </>)
+            },
+            {
+            id: "4",
+            headingLevel:"h3",
+            title: "We reduce disparities in healthcare monitoring and surveillance.",
+            content: (<>
+                    <p>By prioritizing:</p>
+                    <ul>
+                        <li>Usability so connecting and reporting is seamless and flawless no matter where you are</li>
+                        <li>Data senders and conditions relevant to the largest disparities in health outcomes</li>
+                        <li>Working with other <A href="https://www.cdc.gov/surveillance/data-modernization/index.html" target="_blank">CDC Data Modernization Initiative</A> projects like SimpleReport, PHDI, and the NBS modernization project for end-to-end data flows</li>
+                    </ul>
+                </>)
+            }
+        ]} />
+    </section>
+</HeroWrapper>
+<HeroWrapper>
+    <section className="usa-section grid-container">
+        ## How ReportStream started
+        <Tile>
+            <p>From the start of the COVID-19 pandemic, public health agencies nationwide were struggling to keep up with an overwhelming number of COVID-19 test results. This flood of test results strained out of date systems and processes, many of which were paper-based and reliant on fax machines. Incomplete and delayed information made the public health response slow and inaccurate.</p>
+            <p>The White House COVID-19 task force worked with the Department of Health and Human Services (HHS) and the Centers for Disease Control and Prevention (CDC). Together, they saw an immediate need to better support state, tribal, local, and territorial public health authorities. There was an opportunity to help these agencies get the data they needed to respond more quickly and accurately.</p>
+            <p>Following <A href="https://digital.gov/topics/user-centered-design/" target="_blank">human centered design</A> principles, a cross-disciplinary team traveled to front line sites to understand the issues public health agencies were facing first-hand. The team visited eight states, more than 20 national, state and local health departments and agencies, and interviewed over 100 people.</p>
+            <p>From that time learning and collaborating, they created SimpleReport and ReportStream. <A href="https://www.simplereport.gov/" target="_blank">SimpleReport</A> allows for easy test result collection. ReportStream delivers the public health data from SimpleReport and other sources through standardization and routing.</p>
+            <p>The goal wasn’t just to improve reporting for COVID-19. We are building the software systems that will be needed for the next pandemic. But could ReportStream really handle that amount of data?</p>
+            <p>When the Omicron variant hit at the end of 2022, ReportStream scaling was put to the test. And succeeded, handling over 5.3 million test results during the height of Omicron.</p>
+            <p>Seeing public health outcomes improve means meeting today's needs and being ready for tomorrow. We are scaling to work with more organizations and accepting more formats and conditions. We’re ready to create a new day for public health reporting. Will you join us?</p>
+        </Tile>
+    </section>
+</HeroWrapper>
+<HeroWrapper className="bg-blue-5">
+    <section className="usa-section grid-container">
+        ## Recommended resources
+        <CardGroup>
+            <Card gridLayout={{col: "fill"}}>
+                <CardHeader typeof="div">
+                    ### ReportStream overview PDF
+                </CardHeader>
+                <CardBody>
+                    Download a quick summary of ReportStream that you can print and share.
+                </CardBody>
+            </Card>
+            <Card gridLayout={{col: "fill"}}>
+                <CardHeader typeof="div">
+                    ### [ReportStream API](/resources/api)
+                </CardHeader>
+                <CardBody>
+                    Download a quick summary of ReportStream that you can print and share.
+                </CardBody>
+            </Card>
+            <Card gridLayout={{col: "fill"}}>
+                <CardHeader typeof="div">
+                    ### [Release notes](https://github.com/CDCgov/prime-reportstream/releases)
+                </CardHeader>
+                <CardBody>
+                    Download a quick summary of ReportStream that you can print and share.
+                </CardBody>
+            </Card>
+        </CardGroup>
+    </section>
+</HeroWrapper>
