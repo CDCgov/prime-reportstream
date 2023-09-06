@@ -1,8 +1,7 @@
 import React from "react";
 import { Breadcrumb, BreadcrumbBar } from "@trussworks/react-uswds";
 
-import { USCrumbLink } from "../../components/USLink";
-import { CallToAction } from "../../layouts/Markdown/CallToAction";
+import { USCrumbLink, USLinkButton } from "../../components/USLink";
 
 export type PageHeaderProps = React.PropsWithChildren<
     {
@@ -48,7 +47,9 @@ export function PageHeader({
             {(callToAction || lastUpdated) && (
                 <div className="grid-row margin-top-8 margin-bottom-2">
                     {callToAction?.map((c) => (
-                        <CallToAction key={c.label} {...c} />
+                        <USLinkButton key={c.label} href={c.href} extLinkIcon>
+                            {c.label}
+                        </USLinkButton>
                     ))}
                     {lastUpdated && (
                         <p className="text-base text-italic">
