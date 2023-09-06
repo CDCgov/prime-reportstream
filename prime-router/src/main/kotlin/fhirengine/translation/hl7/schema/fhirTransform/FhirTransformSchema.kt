@@ -42,7 +42,7 @@ class FhirTransformSchema(
  *  if the schemas contain elements with identical names. This property is mutually exclusive with
  *  [value] and [bundleProperty] parameters.
  * @property schemaRef the reference to the loaded child schema
- * @property resource a FHIR path that points to a FHIR resource
+ * @property resource a FHIR path that evaluates to a FHIR resource
  * @property value The value to set the bundleProperty to value is a yml list type, but only the first value
  *  in the list will get used. See `ConfigSchemaReader.getValue`. Mutually exclusive with [schemaRef] parameter.
  * @property resourceIndex To be used alongside [schema], an arbitrary variable name to be used in the FHIR path

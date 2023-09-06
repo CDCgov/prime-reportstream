@@ -59,6 +59,8 @@ Elements can be configured for one of two "modes": _value mode_ or _schema mode_
 - valueSet
 - debug
 
+> Note that specifying resource is optional. If resource is not specified, then resource will essentially default to the value of `'%resource'`, meaning the resource will be whatever FHIR resource is being processed. See `FHIRTransformer.transformBasedOnElement` for more detail.
+
 ###### Elements using value mode
 Elements configured with value mode consist of the following additional properties:
 
