@@ -178,18 +178,10 @@ ul.rb li .timestamp {
         color: color("base");
     }
 
-    section,
-    hr {
+    section {
         border-top: 1px solid color("base-lighter");
         margin-top: units(4);
         padding-top: units(3);
-    }
-    // for achieving the same as the above <section> class, but in .md content
-    hr {
-        height: 1px;
-        border-right: none;
-        border-bottom: none;
-        border-left: none;
     }
 
     h3 {
