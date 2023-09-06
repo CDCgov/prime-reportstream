@@ -114,7 +114,7 @@ export const ReportStreamFooter = () => {
                     </div>
                     <div className="grid-col-1"></div>
                     <div className="grid-col-3">
-                        <p>Need help?</p>
+                        <h4>Need help?</h4>
                         <hr></hr>
                         <p>
                             Our team will respond to your questions or set up a
@@ -123,6 +123,7 @@ export const ReportStreamFooter = () => {
                         <USLinkButton
                             href={site.forms.connectWithRS.url}
                             outline
+                            inverse
                             extLinkIcon
                         >
                             Connect now
