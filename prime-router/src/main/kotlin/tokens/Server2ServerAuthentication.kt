@@ -75,6 +75,9 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
         // http://hl7.org/fhir/uv/bulkdata/authorization/index.html#signature-verification:~:text=Upon%20registration%2C%20the%20client%20SHALL%20be%20assigned%20a%20client_id%2C%20which%20the%20client%20SHALL%20use%20when%20requesting%20an%20access%20token
         // However, in order to be backwards compatible, the issuer claim can be either the name of the sender
         // or the name of the organization.
+        if (issuer == null) {
+            throw NullPointerException("issuer must not be null")
+        }
         var maybeOrganization = workflowEngine.settings.findOrganization(issuer)
         if (maybeOrganization != null) {
             return ParsedJwt(maybeOrganization, maybeKid, kty, issuer)
