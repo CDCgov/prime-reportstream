@@ -10,12 +10,14 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.verify
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
@@ -54,6 +56,11 @@ class HistoryFunctionsTests {
     @Nested
     inner class GetReportTests {
 
+        @AfterEach
+        fun teardown() {
+            clearAllMocks()
+        }
+
         @Test
         fun `test get report wrong organization`() {
             val request = MockHttpRequestMessage()
@@ -66,8 +73,10 @@ class HistoryFunctionsTests {
             val reportFile = ReportFile()
             reportFile.reportId = UUID.randomUUID()
             reportFile.receivingOrg = "test2"
-            mockkConstructor(DatabaseAccess::class)
-            every { anyConstructed<DatabaseAccess>().fetchReportFile(any()) } returns reportFile
+            val mockDb = mockk<DatabaseAccess>()
+            every { mockDb.fetchReportFile(any()) } returns reportFile
+            mockkConstructor(WorkflowEngine::class)
+            every { anyConstructed<WorkflowEngine>().db } returns mockDb
             val response = BaseHistoryFunction().getReportById(request, reportFile.reportId.toString(), context)
             assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
         }
@@ -83,8 +92,10 @@ class HistoryFunctionsTests {
             val reportFile = ReportFile()
             reportFile.reportId = UUID.randomUUID()
             reportFile.receivingOrg = "test2"
-            mockkConstructor(DatabaseAccess::class)
-            every { anyConstructed<DatabaseAccess>().fetchReportFile(any()) } returns reportFile
+            val mockDb = mockk<DatabaseAccess>()
+            every { mockDb.fetchReportFile(any()) } returns reportFile
+            mockkConstructor(WorkflowEngine::class)
+            every { anyConstructed<WorkflowEngine>().db } returns mockDb
             val response = BaseHistoryFunction().getReportById(request, reportFile.reportId.toString(), context)
             assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
         }
