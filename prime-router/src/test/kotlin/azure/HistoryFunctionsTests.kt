@@ -6,6 +6,7 @@ import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpStatus
+import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
@@ -19,6 +20,7 @@ import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
@@ -62,6 +64,12 @@ class HistoryFunctionsTests {
             clearAllMocks()
         }
 
+        @BeforeEach
+        fun setup() {
+            mockkObject(Metadata.Companion)
+            every { Metadata.getInstance() } returns UnitTestUtils.simpleMetadata
+        }
+
         @Test
         fun `test get report wrong organization`() {
             val request = MockHttpRequestMessage()
@@ -97,7 +105,6 @@ class HistoryFunctionsTests {
             every { mockDb.fetchReportFile(any()) } returns reportFile
             mockkConstructor(WorkflowEngine::class)
             every { anyConstructed<WorkflowEngine>().db } returns mockDb
-            every { anyConstructed<WorkflowEngine>().metadata } returns UnitTestUtils.simpleMetadata
             val response = BaseHistoryFunction().getReportById(request, reportFile.reportId.toString(), context)
             assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
         }
@@ -133,7 +140,6 @@ class HistoryFunctionsTests {
             every { mockDb.fetchItemLineagesForReport(reportFile.reportId, reportFile.itemCount) } returns emptyList()
             mockkConstructor(WorkflowEngine::class)
             every { anyConstructed<WorkflowEngine>().db } returns mockDb
-            every { anyConstructed<WorkflowEngine>().metadata } returns UnitTestUtils.simpleMetadata
             every { anyConstructed<WorkflowEngine>().recordAction(any()) } returns Unit
 
             val response = BaseHistoryFunction().getReportById(request, reportFile.reportId.toString(), context)
@@ -185,7 +191,6 @@ class HistoryFunctionsTests {
             every { mockDb.fetchItemLineagesForReport(reportFile.reportId, reportFile.itemCount) } returns emptyList()
             mockkConstructor(WorkflowEngine::class)
             every { anyConstructed<WorkflowEngine>().db } returns mockDb
-            every { anyConstructed<WorkflowEngine>().metadata } returns UnitTestUtils.simpleMetadata
             every { anyConstructed<WorkflowEngine>().recordAction(any()) } returns Unit
 
             val response = BaseHistoryFunction().getReportById(request, reportFile.reportId.toString(), context)
@@ -228,7 +233,6 @@ class HistoryFunctionsTests {
             every { mockDb.fetchReportFile(any()) } returns reportFile
             mockkConstructor(WorkflowEngine::class)
             every { anyConstructed<WorkflowEngine>().db } returns mockDb
-            every { anyConstructed<WorkflowEngine>().metadata } returns UnitTestUtils.simpleMetadata
             every { anyConstructed<WorkflowEngine>().recordAction(any()) } returns Unit
 
             val response = BaseHistoryFunction().getReportById(request, reportFile.reportId.toString(), context)
