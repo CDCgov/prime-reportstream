@@ -178,7 +178,12 @@ ul.rb li .timestamp {
         color: color("base");
     }
 
-    section,
+    section {
+        border-top: 1px solid color("base-lighter");
+        margin-top: units(4);
+        padding-top: units(3);
+    }
+
     h3 {
         margin-top: 0;
         font-size: size("sans", "lg");
