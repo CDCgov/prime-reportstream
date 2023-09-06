@@ -67,6 +67,9 @@
 # Organization name type
 - id: "organization-name-type"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type"
+# Entered by
+- id: "entered-by"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entered-by"
 # Entering organization
 - id: "entering-organization"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization"

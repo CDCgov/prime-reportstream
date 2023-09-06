@@ -59,9 +59,11 @@ elements:
     hl7Spec: [ '%{hl7Order}-9' ]
 
   - name: order-entered-by
-    condition: false
-    value: [ '' ] # Don't have data yet
-    hl7Spec: [ '%{hl7Order}-10' ]
+    resource: '%service.extension(%`rsext-entered-by`).value.resolve()'
+    constants:
+      hl7XCNField: '%{hl7Order}-10'
+    schema: ../../common/datatype/xcn-contact
+    resourceIndex: contactIndex
 
   - name: order-ordering-provider
     resource: '%service.requester.resolve().practitioner.resolve()'

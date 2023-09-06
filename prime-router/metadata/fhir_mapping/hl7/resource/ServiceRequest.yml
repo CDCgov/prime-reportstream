@@ -374,11 +374,23 @@ extension_11:
       type: SYSTEM_URL
       value: order-effective-date
     valueDateTime:
-        type: STRING
-        valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
-        expressionType: JEXL
-        vars:
-          dateTimeIn: ORC.15
+      type: STRING
+      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+      expressionType: JEXL
+      vars:
+        dateTimeIn: ORC.15
+
+extension_12-enteredBy:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: entered-by
+    valueReference:
+      valueOf: resource/Practitioner
+      expressionType: reference
+      specs: ORC.10
 
 supportingInfo:
   valueOf: resource/Observation
