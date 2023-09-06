@@ -335,8 +335,10 @@ open class BaseHistoryFunction : Logging {
         context: ExecutionContext
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
-        val requestOrgName: String? = request.headers["organization"]
-        if (claims == null || requestOrgName == null || !claims.authorized(
+        val requestOrgName: String = request.headers["organization"]
+            ?: return HttpUtilities.bad(request, "Missing organization ins header")
+
+        if (claims == null || !claims.authorized(
                 setOf(
                         PRIME_ADMIN_PATTERN,
                         "$requestOrgName.*.*",
