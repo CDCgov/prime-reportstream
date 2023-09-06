@@ -10,6 +10,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.AuthenticationType
+import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -96,6 +97,7 @@ class HistoryFunctionsTests {
             every { mockDb.fetchReportFile(any()) } returns reportFile
             mockkConstructor(WorkflowEngine::class)
             every { anyConstructed<WorkflowEngine>().db } returns mockDb
+            every { anyConstructed<WorkflowEngine>().metadata } returns UnitTestUtils.simpleMetadata
             val response = BaseHistoryFunction().getReportById(request, reportFile.reportId.toString(), context)
             assertThat(response.status).isEqualTo(HttpStatus.BAD_REQUEST)
         }
@@ -131,6 +133,7 @@ class HistoryFunctionsTests {
             every { mockDb.fetchItemLineagesForReport(reportFile.reportId, reportFile.itemCount) } returns emptyList()
             mockkConstructor(WorkflowEngine::class)
             every { anyConstructed<WorkflowEngine>().db } returns mockDb
+            every { anyConstructed<WorkflowEngine>().metadata } returns UnitTestUtils.simpleMetadata
             every { anyConstructed<WorkflowEngine>().recordAction(any()) } returns Unit
 
             val response = BaseHistoryFunction().getReportById(request, reportFile.reportId.toString(), context)
@@ -182,6 +185,7 @@ class HistoryFunctionsTests {
             every { mockDb.fetchItemLineagesForReport(reportFile.reportId, reportFile.itemCount) } returns emptyList()
             mockkConstructor(WorkflowEngine::class)
             every { anyConstructed<WorkflowEngine>().db } returns mockDb
+            every { anyConstructed<WorkflowEngine>().metadata } returns UnitTestUtils.simpleMetadata
             every { anyConstructed<WorkflowEngine>().recordAction(any()) } returns Unit
 
             val response = BaseHistoryFunction().getReportById(request, reportFile.reportId.toString(), context)
@@ -224,6 +228,7 @@ class HistoryFunctionsTests {
             every { mockDb.fetchReportFile(any()) } returns reportFile
             mockkConstructor(WorkflowEngine::class)
             every { anyConstructed<WorkflowEngine>().db } returns mockDb
+            every { anyConstructed<WorkflowEngine>().metadata } returns UnitTestUtils.simpleMetadata
             every { anyConstructed<WorkflowEngine>().recordAction(any()) } returns Unit
 
             val response = BaseHistoryFunction().getReportById(request, reportFile.reportId.toString(), context)
