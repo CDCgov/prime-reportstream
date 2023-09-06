@@ -381,13 +381,6 @@ blockquote {
             @include u-margin-top(8);
         }
     }
-
-    // remove default margin-bottom on all specific component descendants (not just children)
-    *:not([class*="margin-bottom"]) {
-        &:is(.usa-card) {
-            @include u-margin-bottom(0);
-        }
-    }
 }
 
 .usa-link {
