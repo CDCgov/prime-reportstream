@@ -29,7 +29,7 @@ liveMapContact:
 ---
 import site from "../site.json";
 
-<HeroWrapper className="bg-primary-lighter">
+<HeroWrapper className="bg-blue-5">
     <div className="grid-container">
         {frontmatter.howWeHelp.map((section, sectionIndex) => {
             return (
@@ -53,9 +53,6 @@ import site from "../site.json";
         />
     </section>
 </HeroWrapper>
-<div className="grid-container padding-y-2 margin-top-0">
-    <hr className="border-primary border-top-05 margin-0" />
-</div>
 <HeroWrapper className="grid-container">
     {frontmatter.liveMapContact.map((section, sectionIndex) => {
         return (
@@ -63,10 +60,10 @@ import site from "../site.json";
         );
     })}
 </HeroWrapper>
-<HeroWrapper className="bg-primary-lighter">
+<HeroWrapper className="bg-blue-5">
     <section className="grid-container grid-row usa-section usa-prose flex-justify-center">
-        <p className="font-sans-3xl text-bold margin-top-0">Still exploring if ReportStream is right for you?</p>
-        <p className="usa-intro">Our team will respond to your questions or set up a time to learn more about how we can help you.</p>
+        <p className="font-sans-xl text-bold margin-top-0">Still exploring if ReportStream is right for you?</p>
+        <p className="font-sans-lg">Our team will respond to your questions or set up a time to learn more about how we can help you.</p>
         <A href={site.forms.connectWithRS.url} className="usa-button">Connect with us</A>
     </section>
 </HeroWrapper>
