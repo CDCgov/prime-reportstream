@@ -90,7 +90,7 @@ class HistoryFunctionsTests {
         }
 
         @Test
-        fun `test get report for sent report id`() {
+        fun `test get report for report id`() {
             val request = MockHttpRequestMessage()
             request.httpHeaders["organization"] = "test1"
 
@@ -108,6 +108,7 @@ class HistoryFunctionsTests {
             reportFile.bodyFormat = Report.Format.HL7.toString()
             reportFile.receivingOrgSvc = "default"
             reportFile.schemaName = "default"
+            reportFile.externalName = "external-name"
 
             mockkObject(BlobAccess.Companion)
             every { BlobAccess.downloadBlob(reportFile.bodyUrl) } returns "test".toByteArray()
@@ -124,6 +125,11 @@ class HistoryFunctionsTests {
             val response = BaseHistoryFunction().getReportById(request, reportFile.reportId.toString(), context)
 
             assertThat(response.status).isEqualTo(HttpStatus.OK)
+            val body = response.body as ReportView
+            assertThat(body.fileType).isEqualTo("HL7")
+            assertThat(body.total).isEqualTo(1)
+            assertThat(body.displayName).isEqualTo("external-name")
+            assertThat(body.content).isEqualTo("test")
 
             verify(exactly = 1) {
                 mockDb.fetchReportFile(reportFile.reportId)
