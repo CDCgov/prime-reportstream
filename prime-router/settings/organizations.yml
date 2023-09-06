@@ -960,9 +960,12 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform"
+        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
         useTestProcessingMode: false
         useBatchHeaders: true
+        truncateHDNamespaceIds: true
+        truncateHl7Fields: "OBX-23-1, ORC-21-1, OBR-16-1, OBR-16-3, ORC-12-1, ORC-12-3,\
+          \ PID-5-1, PID-5-2, PID-5-3"
         type: "HL7"
         receivingApplicationName: ""
         receivingFacilityName: ""
