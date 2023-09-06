@@ -358,6 +358,10 @@ blockquote {
         // default margin-top
         @include u-margin-top(2.5);
 
+        &:is(hr.rs-hr--alternate) {
+            @include u-margin-top(3);
+        }
+
         &:is(h3) {
             @include u-margin-top(4);
         }
