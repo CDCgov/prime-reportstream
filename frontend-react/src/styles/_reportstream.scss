@@ -37,25 +37,10 @@
     }
 }
 
-// Environment watermark above RS wordmark
-.rs-oktapreview-watermark {
-    transform: rotate(343deg);
-    position: absolute;
-    opacity: 0.6;
-    top: 1em;
-    color: crimson;
-    overflow: hidden;
-    font-weight: 900;
-}
-
 .prime-user-account {
     font-size: 0.88rem;
     vertical-align: middle;
     line-height: 1.25rem;
-}
-
-#okta-sign-in {
-    margin-top: 0;
 }
 
 // RS HERO - INDEX PAGES
