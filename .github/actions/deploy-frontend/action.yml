@@ -82,7 +82,7 @@ runs:
         az storage blob upload-batch --account-name ${{ env.IMAGE_REPO }} -s frontend-react/build -d '$web'
 
     - name: Download Backend Artifact (prime-router)
-      uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
+    - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
       with:
         name: prime-router-build-${{ inputs.version }}
         path: prime-router
