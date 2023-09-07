@@ -10,7 +10,7 @@ import {
 } from "@trussworks/react-uswds";
 import classnames from "classnames";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { USLinkButton } from "../USLink";
 import config from "../../config";
@@ -24,6 +24,11 @@ import site from "../../content/site.json";
 import styles from "./ReportStreamNavbar.module.scss";
 
 const { IS_PREVIEW, CLIENT_ENV, APP_ENV } = config;
+
+const primaryLinkClasses = (linkPath: string, currentPath: string) => {
+    if (linkPath === currentPath) return "text-bold primary-nav-link";
+    return "primary-nav-link";
+};
 
 export const ReportStreamNavbar = ({
     blueVariant,
@@ -39,6 +44,7 @@ export const ReportStreamNavbar = ({
         user,
     } = useSessionContext();
     const navigate = useNavigate();
+    const location = useLocation();
     const [openMenuItem, setOpenMenuItem] = useState<null | string>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const toggleMobileMenu = () => {
@@ -84,17 +90,29 @@ export const ReportStreamNavbar = ({
     };
     const defaultMenuItems = [
         <div className="primary-nav-link-container">
-            <a className="primary-nav-link" href="/product" key="product">
+            <a
+                className={primaryLinkClasses("/product", location.pathname)}
+                href="/product"
+                key="product"
+            >
                 Product
             </a>
         </div>,
         <div className="primary-nav-link-container">
-            <a className="primary-nav-link" href="/resources" key="resources">
+            <a
+                className={primaryLinkClasses("/resources", location.pathname)}
+                href="/resources"
+                key="resources"
+            >
                 Resources
             </a>
         </div>,
         <div className="primary-nav-link-container">
-            <a className="primary-nav-link" href="/support" key="support">
+            <a
+                className={primaryLinkClasses("/support", location.pathname)}
+                href="/support"
+                key="support"
+            >
                 Support
             </a>
         </div>,
@@ -102,7 +120,11 @@ export const ReportStreamNavbar = ({
 
     const menuItemsReceiver = [
         <div className="primary-nav-link-container">
-            <a className="primary-nav-link" href="/daily-data" key="daily">
+            <a
+                className={primaryLinkClasses("/daily-data", location.pathname)}
+                href="/daily-data"
+                key="daily"
+            >
                 Daily Data
             </a>
         </div>,
@@ -111,7 +133,10 @@ export const ReportStreamNavbar = ({
     const menuItemsSender = [
         <div className="primary-nav-link-container">
             <a
-                className="primary-nav-link"
+                className={primaryLinkClasses(
+                    "/submissions",
+                    location.pathname,
+                )}
                 href="/submissions"
                 key="submissions"
             >
