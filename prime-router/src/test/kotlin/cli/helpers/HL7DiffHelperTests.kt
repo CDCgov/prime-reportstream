@@ -2,9 +2,10 @@ package gov.cdc.prime.router.cli.helpers
 
 import assertk.assertThat
 import assertk.assertions.contains
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotNull
-import assertk.assertions.isNull
 import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.model.Varies
 import ca.uhn.hl7v2.model.v27.datatype.ID
@@ -144,7 +145,7 @@ class HL7DiffHelperTests {
             0
         )
 
-        assertThat(samePrimitive).isNull()
+        assertThat(samePrimitive).isEmpty()
 
         outputVal.value = "test"
         val differentPrimitive = hL7DiffHelper.compareHl7Type(
@@ -157,7 +158,7 @@ class HL7DiffHelperTests {
             0
         )
 
-        assertThat(differentPrimitive).isNotNull()
+        assertThat(differentPrimitive).isNotEmpty()
     }
 
     @Test
@@ -186,7 +187,7 @@ class HL7DiffHelperTests {
             0
         )
 
-        assertThat(sameVaries).isNull()
+        assertThat(sameVaries).isEmpty()
 
         outputType.value = "test"
         val differentVaries = hL7DiffHelper.compareHl7Type(
@@ -199,7 +200,7 @@ class HL7DiffHelperTests {
             0
         )
 
-        assertThat(differentVaries).isNotNull()
+        assertThat(differentVaries).isNotEmpty()
     }
 
     @Test
@@ -220,7 +221,7 @@ class HL7DiffHelperTests {
             0,
             0
         )
-        assertThat(sameComposite).isNull()
+        assertThat(sameComposite).isEmpty()
 
         val outputMessage = hl7Reader.getMessages(comparisonMessage)
         val differentComposite = hL7DiffHelper.compareHl7Type(
@@ -232,7 +233,7 @@ class HL7DiffHelperTests {
             0,
             0
         )
-        assertThat(differentComposite).isNotNull()
+        assertThat(differentComposite).isNotEmpty()
     }
 
     @Test
