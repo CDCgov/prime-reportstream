@@ -106,38 +106,6 @@ object ConfigSchemaReader : Logging {
         return parentSchema
     }
 
-    private fun processFileSchema(
-        file: File,
-        schemaName: String,
-        ancestry: List<String> = listOf(),
-        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>
-    ): ConfigSchema<*> {
-        if (!file.canRead()) throw SchemaException("Cannot read ${file.absolutePath}")
-        val rawSchema = try {
-            readOneYamlSchema(file.inputStream(), schemaClass)
-        } catch (e: Exception) {
-            val msg = "Error while reading schema configuration from file ${file.absolutePath}"
-            logger.error(msg, e)
-            throw SchemaException(msg, e)
-        }
-
-        // set schema name to match the filename
-        rawSchema.name = schemaName
-
-        if (ancestry.contains(rawSchema.name)) {
-            throw HL7ConversionException("Circular reference detected for schema ${rawSchema.name}")
-        }
-        rawSchema.ancestry = ancestry + rawSchema.name!!
-
-        // Process any schema references
-        val rootFolder = file.parent
-        rawSchema.elements.filter { !it.schema.isNullOrBlank() }.forEach { element ->
-            element.schemaRef =
-                readSchemaTreeRelative(element.schema!!, rootFolder, rawSchema.ancestry, schemaClass)
-        }
-        return rawSchema
-    }
-
     internal fun readSchemaTreeUri(
         schemaUri: URI,
         ancestry: List<String> = listOf(),
