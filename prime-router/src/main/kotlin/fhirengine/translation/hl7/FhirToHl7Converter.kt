@@ -5,13 +5,11 @@ import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.config.ContextConfig
-import gov.cdc.prime.router.fhirengine.translation.hl7.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TranslationFunctions
 import org.apache.commons.io.FilenameUtils
@@ -208,7 +206,12 @@ class FhirToHl7Converter(
         element.hl7Spec.forEach { rawHl7Spec ->
             val resolvedHl7Spec = constantSubstitutor.replace(rawHl7Spec, context)
             try {
-                val maybeTruncatedValue = maybeTruncateField(value, resolvedHl7Spec, terser!!, context)
+                val maybeTruncatedValue = context.translationFunctions?.maybeTruncateHL7Field(
+                    value,
+                    resolvedHl7Spec,
+                    terser!!,
+                    context
+                ) ?: value
                 terser!!.set(resolvedHl7Spec, maybeTruncatedValue)
                 logger.trace("Set HL7 $resolvedHl7Spec = $value")
             } catch (e: HL7Exception) {
@@ -231,32 +234,6 @@ class FhirToHl7Converter(
                 } else logger.warn(msg, e)
             }
         }
-    }
-
-    internal fun maybeTruncateField(
-        value: String,
-        hl7Field: String,
-        terser: Terser,
-        context: CustomContext?
-    ): String {
-        val translationFunctions = context?.translationFunctions
-        val config = context?.config as? HL7TranslationConfig
-        // only pass through truncation logic if configured to do so for that field
-        return if (
-            config != null &&
-            translationFunctions != null &&
-            (
-                HL7Constants.HD_FIELDS_LOCAL.contains(hl7Field) ||
-                    config.truncationConfig.truncateHl7Fields.contains(hl7Field)
-                )
-        ) {
-            translationFunctions.truncateHL7Field(
-                value,
-                hl7Field,
-                terser,
-                config.truncationConfig
-            )
-        } else value
     }
 }
 

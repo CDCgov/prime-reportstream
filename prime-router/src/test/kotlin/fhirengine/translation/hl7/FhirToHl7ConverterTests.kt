@@ -14,7 +14,6 @@ import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
-import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.fhirengine.translation.hl7.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
@@ -37,7 +36,6 @@ import org.hl7.fhir.r4.model.ServiceRequest
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 
 class FhirToHl7ConverterTests {
     @Test
@@ -515,44 +513,13 @@ class FhirToHl7ConverterTests {
     }
 
     @Test
-    fun `test truncation passthrough`() {
-        val mockBundle = mockk<Bundle>()
-        val mockTerser = mockk<Terser>()
-        val mockSchema = mockk<ConverterSchema>()
-
-        val contextWithoutConfig = FhirToHl7Context(
-            CustomFhirPathFunctions(),
-            null,
-            CustomTranslationFunctions()
-        )
-
-        val customContext = CustomContext(mockBundle, mockBundle)
-
-        val converter = FhirToHl7Converter(
-            mockSchema,
-            context = contextWithoutConfig
-        )
-
-        val value = "should not be truncated"
-        val notTruncated = converter.maybeTruncateField(value, "PID-5-1", mockTerser, customContext)
-
-        assertEquals(notTruncated, value)
-    }
-
-    @Test
     fun `test truncation logic`() {
         val mockBundle = mockk<Bundle>()
         val mockSchema = mockk<ConverterSchema>()
         val terser = Terser(ORU_R01())
 
         // dummy config with just truncation config set up
-        val hl7Config = Hl7Configuration(
-            receivingApplicationName = null,
-            receivingApplicationOID = null,
-            receivingFacilityName = null,
-            receivingFacilityOID = null,
-            messageProfileId = null,
-            receivingOrganization = null,
+        val hl7Config = UnitTestUtils.createConfig(
             truncateHl7Fields = "PID-5-1",
             truncateHDNamespaceIds = true
         )
@@ -568,18 +535,30 @@ class FhirToHl7ConverterTests {
             CustomTranslationFunctions()
         )
 
-        val customContext = CustomContext(mockBundle, mockBundle, config = config)
+        val customContext = CustomContext(
+            mockBundle,
+            mockBundle,
+            config = config,
+            translationFunctions = CustomTranslationFunctions()
+        )
 
         val converter = FhirToHl7Converter(
             mockSchema,
+            terser = terser,
             context = contextWithConfig
         )
 
         // should truncate to 194
         val value = "x".repeat(500)
-        val truncated = converter.maybeTruncateField(value, "PID-5-1", terser, customContext)
 
-        assertNotEquals(value, truncated)
-        assertEquals(truncated.length, 194)
+        val element = ConverterSchemaElement(
+            "name",
+            required = true,
+            hl7Spec = listOf("/PATIENT_RESULT/PATIENT/PID-5-1")
+        )
+        converter.setHl7Value(element, value, customContext)
+
+        val shouldBeTruncated = terser.get("/PATIENT_RESULT/PATIENT/PID-5-1")
+        assertEquals(shouldBeTruncated.length, 194)
     }
 }

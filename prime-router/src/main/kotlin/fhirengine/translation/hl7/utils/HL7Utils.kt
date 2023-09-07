@@ -96,6 +96,8 @@ object HL7Utils : Logging {
         return "$segmentSpec$components"
     }
 
+    // TODO: UP supports different types of HL7 messages, and the paths to these segments are different per HL7 type
+    // TODO: write ticket to handle this
     fun formSegSpec(segment: String, rep: Int? = null): String {
         val repSpec = rep?.let { "($rep)" } ?: ""
         return when (segment) {

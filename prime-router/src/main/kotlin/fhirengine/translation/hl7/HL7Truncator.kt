@@ -10,6 +10,9 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.HD_TRU
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import kotlin.math.min
 
+/**
+ * The shared HL7 truncation logic used in both the Covid Pipeline and the Universal Pipeline
+ */
 class HL7Truncator {
 
     /**

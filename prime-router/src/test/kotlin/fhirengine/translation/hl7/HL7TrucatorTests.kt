@@ -54,7 +54,7 @@ class HL7TrucatorTests {
     fun `test trimAndTruncateValue with truncated HD`() {
         val config = TruncationConfig(
             truncateHDNamespaceIds = true,
-            emptySet()
+            emptyList()
         )
 
         val inputAndExpected = mapOf(
@@ -78,7 +78,7 @@ class HL7TrucatorTests {
     fun `test trimAndTruncateValue with HD`() {
         val config = TruncationConfig(
             truncateHDNamespaceIds = false,
-            truncateHl7Fields = setOf("MSH-4-1", "MSH-3-1")
+            truncateHl7Fields = listOf("MSH-4-1", "MSH-3-1")
         )
 
         // The truncation with encoding will subtract 2 from the length for every occurrence of a
@@ -109,7 +109,7 @@ class HL7TrucatorTests {
     fun `test trimAndTruncateValue with custom length map`() {
         val config = TruncationConfig(
             truncateHDNamespaceIds = false,
-            truncateHl7Fields = setOf("MSH-3-1"),
+            truncateHl7Fields = listOf("MSH-3-1"),
             customLengthHl7Fields = mapOf("MSH-4-1" to 10)
         )
 
@@ -134,7 +134,7 @@ class HL7TrucatorTests {
     fun `test trimAndTruncateValue when not truncating`() {
         val config = TruncationConfig(
             truncateHDNamespaceIds = false,
-            truncateHl7Fields = emptySet()
+            truncateHl7Fields = emptyList()
         )
 
         val inputAndExpected = mapOf(

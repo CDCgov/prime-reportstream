@@ -3,8 +3,6 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import ca.uhn.hl7v2.model.v251.datatype.DTM
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.fhirengine.translation.hl7.HL7Truncator
-import gov.cdc.prime.router.fhirengine.translation.hl7.config.TruncationConfig
 import org.hl7.fhir.r4.model.BaseDateTimeType
 
 /**
@@ -19,17 +17,20 @@ interface TranslationFunctions {
      */
     fun convertDateTimeToHL7(dateTime: BaseDateTimeType, appContext: CustomContext? = null): String
 
-    fun truncateHL7Field(
+    fun maybeTruncateHL7Field(
         value: String,
-        hl7Field: String,
+        hl7FieldPath: String,
         terser: Terser,
-        config: TruncationConfig
+        appContext: CustomContext?
     ): String
 }
 
-open class Hl7TranslationFunctions(
-    private val hl7Truncator: HL7Truncator = HL7Truncator()
-) : TranslationFunctions {
+/**
+ * This is the default implementation of TranslationFunctions.
+ *
+ * It is able to overriden for more customized behavior
+ */
+open class Hl7TranslationFunctions : TranslationFunctions {
 
     override fun convertDateTimeToHL7(dateTime: BaseDateTimeType, appContext: CustomContext?): String {
         /**
@@ -81,17 +82,15 @@ open class Hl7TranslationFunctions(
         }
     }
 
-    override fun truncateHL7Field(
+    /**
+     * Default behavior is to not truncate at all and just passthrough the value
+     */
+    override fun maybeTruncateHL7Field(
         value: String,
-        hl7Field: String,
+        hl7FieldPath: String,
         terser: Terser,
-        config: TruncationConfig
+        appContext: CustomContext?
     ): String {
-        return hl7Truncator.trimAndTruncateValue(
-            value,
-            hl7Field,
-            terser,
-            config
-        )
+        return value
     }
 }

@@ -2,35 +2,31 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.fhirengine.translation.hl7.config.TruncationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.Hl7TranslationFunctions
-import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TranslationFunctions
+import gov.cdc.prime.router.unittest.UnitTestUtils
+import io.mockk.mockk
 import kotlin.test.Test
 
 class HL7TranslationFunctionsTest {
 
     @Test
-    fun testHL7Truncation() {
-        val translationFunctions: TranslationFunctions = Hl7TranslationFunctions()
-        val config = TruncationConfig(
-            truncateHDNamespaceIds = false,
-            truncateHl7Fields = setOf("MSH-4-1", "MSH-3-1")
-        )
-        val emptyTerser = Terser(ORU_R01())
+    fun `test hl7 truncation passthrough`() {
+        val translationFunctions = Hl7TranslationFunctions()
+        val mockTerser = mockk<Terser>()
+        val customContext = UnitTestUtils.createCustomContext()
 
         val inputAndExpected = mapOf(
             "short" to "short",
-            "Test & Value ~ Text ^ String" to "Test & Value ~ T",
+            "Test & Value ~ Text ^ String" to "Test & Value ~ Text ^ String",
         )
 
         inputAndExpected.forEach { (input, expected) ->
-            val actual = translationFunctions.truncateHL7Field(
+            val actual = translationFunctions.maybeTruncateHL7Field(
                 input,
-                "MSH-4-1",
-                emptyTerser,
-                config
+                "/PATIENT_RESULT/PATIENT/MSH-4-1",
+                mockTerser,
+                customContext
             )
             assertThat(actual).isEqualTo(expected)
         }

@@ -209,12 +209,11 @@ data class Hl7Configuration
      *
      * If the configuration is missing, this is an empty list
      */
-    private val parsedTruncateHl7Fields: Set<String> = truncateHl7Fields
+    private val parsedTruncateHl7Fields: List<String> = truncateHl7Fields
         ?.uppercase()
         ?.split(",")
         ?.map { it.trim() }
-        ?.toSet()
-        ?: emptySet()
+        ?: emptyList()
 
     // convenience TruncationConfig to be passed to UP when needed
     val truncationConfig = TruncationConfig(

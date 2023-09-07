@@ -15,7 +15,7 @@ object HL7Constants {
     /**
      * List of fields that have the local HD type.
      */
-    val HD_FIELDS_LOCAL = setOf(
+    val HD_FIELDS_LOCAL = listOf(
         "MSH-3-1",
         "MSH-4-1",
         "OBR-3-2",
