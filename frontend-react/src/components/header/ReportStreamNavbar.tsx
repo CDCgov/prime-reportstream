@@ -10,6 +10,7 @@ import {
 } from "@trussworks/react-uswds";
 import classnames from "classnames";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { USLinkButton } from "../USLink";
 import config from "../../config";
@@ -37,6 +38,7 @@ export const ReportStreamNavbar = ({
         isUserSender,
         user,
     } = useSessionContext();
+    const navigate = useNavigate();
     const [openMenuItem, setOpenMenuItem] = useState<null | string>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const toggleMobileMenu = () => {
@@ -180,7 +182,7 @@ export const ReportStreamNavbar = ({
             >
                 <div className="usa-nav-container">
                     <div className="usa-navbar">
-                        <Title>
+                        <Title onClick={() => navigate("/")}>
                             ReportStream
                             {IS_PREVIEW && (
                                 <span className={styles.ClientEnv}>
@@ -233,7 +235,6 @@ export const ReportStreamNavbar = ({
                                     <USLinkButton
                                         href={site.forms.connectWithRS.url}
                                         outline
-                                        extLinkIcon
                                     >
                                         Connect now
                                     </USLinkButton>

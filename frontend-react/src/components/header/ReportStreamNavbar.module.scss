@@ -48,6 +48,10 @@
     }
 
     :global {
+        .usa-navbar .usa-logo {
+            cursor: pointer;
+        }
+
         .usa-nav__primary button,
         .primary-nav-link-container,
         .usa-nav__submenu .usa-nav__submenu-item a {
