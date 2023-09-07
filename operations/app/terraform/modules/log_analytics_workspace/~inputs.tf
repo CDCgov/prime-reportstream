@@ -113,6 +113,6 @@ variable "sftp_instance_01_id" {
 
 variable "law_retention_period" {
   type        = string
-  description  = "How long to keep logs for in LAW"
+  description = "How long to keep logs for in LAW"
   default     = "30"
 }
