@@ -10,7 +10,7 @@ import {
 } from "@trussworks/react-uswds";
 import classnames from "classnames";
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useMatch, useNavigate } from "react-router-dom";
 
 import { USLinkButton } from "../USLink";
 import config from "../../config";
@@ -25,8 +25,11 @@ import styles from "./ReportStreamNavbar.module.scss";
 
 const { IS_PREVIEW, CLIENT_ENV, APP_ENV } = config;
 
-const primaryLinkClasses = (linkPath: string, currentPath: string) => {
-    if (linkPath === currentPath) return "text-bold primary-nav-link";
+const primaryLinkClasses = (isActive: boolean) => {
+    if (isActive) {
+        return "text-bold primary-nav-link";
+    }
+
     return "primary-nav-link";
 };
 
@@ -44,7 +47,6 @@ export const ReportStreamNavbar = ({
         user,
     } = useSessionContext();
     const navigate = useNavigate();
-    const location = useLocation();
     const [openMenuItem, setOpenMenuItem] = useState<null | string>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const toggleMobileMenu = () => {
@@ -91,25 +93,47 @@ export const ReportStreamNavbar = ({
     const defaultMenuItems = [
         <div className="primary-nav-link-container">
             <a
-                className={primaryLinkClasses("/product", location.pathname)}
-                href="/product"
+                className={primaryLinkClasses(!!useMatch("/product/*"))}
+                href="/product/overview"
                 key="product"
             >
-                Product
+                About
             </a>
         </div>,
         <div className="primary-nav-link-container">
             <a
-                className={primaryLinkClasses("/resources", location.pathname)}
-                href="/resources"
+                className={primaryLinkClasses(!!useMatch("/getting-started/*"))}
+                href="/getting-started"
                 key="resources"
             >
-                Resources
+                Getting started
             </a>
         </div>,
         <div className="primary-nav-link-container">
             <a
-                className={primaryLinkClasses("/support", location.pathname)}
+                className={primaryLinkClasses(
+                    !!useMatch("/developer-resources/*"),
+                )}
+                href="/developer-resources"
+                key="support"
+            >
+                Developers
+            </a>
+        </div>,
+        <div className="primary-nav-link-container">
+            <a
+                className={primaryLinkClasses(
+                    !!useMatch("/managing-your-connection/*"),
+                )}
+                href="/managing-your-connection"
+                key="support"
+            >
+                Your connection
+            </a>
+        </div>,
+        <div className="primary-nav-link-container">
+            <a
+                className={primaryLinkClasses(!!useMatch("/support/*"))}
                 href="/support"
                 key="support"
             >
@@ -121,7 +145,7 @@ export const ReportStreamNavbar = ({
     const menuItemsReceiver = [
         <div className="primary-nav-link-container">
             <a
-                className={primaryLinkClasses("/daily-data", location.pathname)}
+                className={primaryLinkClasses(!!useMatch("/daily-data/*"))}
                 href="/daily-data"
                 key="daily"
             >
@@ -133,10 +157,7 @@ export const ReportStreamNavbar = ({
     const menuItemsSender = [
         <div className="primary-nav-link-container">
             <a
-                className={primaryLinkClasses(
-                    "/submissions",
-                    location.pathname,
-                )}
+                className={primaryLinkClasses(!!useMatch("/submissions/*"))}
                 href="/submissions"
                 key="submissions"
             >
