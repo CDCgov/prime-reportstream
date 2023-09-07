@@ -185,6 +185,14 @@
                 padding: 1rem 0.4rem;
             }
 
+            .primary-nav-link:hover:after,
+            .usa-nav__submenu .usa-nav__submenu-item:hover:after,
+            .usa-nav__primary button[aria-expanded="true"]:hover:after,
+            .usa-nav__primary button:hover:after {
+                left: 0.4rem;
+                right: 0.4rem;
+            }
+
             .usa-nav__primary button span::after {
                 right: 0;
             }
