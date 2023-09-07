@@ -47,7 +47,8 @@ class HL7DiffHelper {
                         "Output missing segment ${segment.name}",
                         "",
                         0,
-                        0,
+                        null,
+                        null,
                         segment.name
                     )
                 )
@@ -64,7 +65,8 @@ class HL7DiffHelper {
                                 "Output missing field",
                                 "",
                                 i,
-                                0,
+                                null,
+                                null,
                                 segment.name
                             )
                         )
@@ -79,10 +81,12 @@ class HL7DiffHelper {
                                 differenceAccumulator.add(
                                     Hl7Diff(
                                         segmentIndex,
-                                        "Output had more repeating types for ${output.name}",
+                                        "Output had more repeating types for ${output.name}, " +
+                                            "input has ${inputFields.size} and output has ${outputFields.size}",
                                         "",
                                         i,
                                         index,
+                                        null,
                                         segment.name
                                     )
                                 )
@@ -93,29 +97,28 @@ class HL7DiffHelper {
                     inputFields.foldIndexed(differences) { index, differenceAccumulator, input ->
                         try {
                             val outputField = outputFields[index]
-                            val matches = compareHl7Type(
-                                segmentIndex,
-                                input,
-                                outputField,
-                                segment.name,
-                                0,
-                                0,
-                                0
+                            differenceAccumulator.addAll(
+                                compareHl7Type(
+                                    segmentIndex,
+                                    input,
+                                    outputField,
+                                    segment.name,
+                                    i,
+                                    index + 1,
+                                    null
+                                )
                             )
-                            if (matches != null) {
-                                differenceAccumulator.add(matches)
-                                differenceAccumulator
-                            } else {
-                                differenceAccumulator
-                            }
+                            differenceAccumulator
                         } catch (ex: IndexOutOfBoundsException) {
                             differenceAccumulator.add(
                                 Hl7Diff(
                                     segmentIndex,
-                                    "Input had more repeating types for ${input.name}",
+                                    "Input had more repeating types for ${input.name}, " +
+                                        "input has ${inputFields.size} and output has ${outputFields.size}",
                                     "",
                                     i,
-                                    index,
+                                    index + 1,
+                                    null,
                                     segment.name
                                 )
                             )
@@ -140,7 +143,8 @@ class HL7DiffHelper {
                             "Input missing segment $segmentType",
                             "",
                             0,
-                            0,
+                            null,
+                            null,
                             segmentType
                         )
                     )
@@ -156,19 +160,22 @@ class HL7DiffHelper {
         input: Type,
         output: Type,
         segmentType: String,
-        segmentNumber: Int,
-        fieldNum: Int,
-        secondaryFieldNum: Int
-    ): Hl7Diff? {
+        fieldNumber: Int,
+        secondaryFieldNum: Int?,
+        tertiaryFieldNumber: Int?
+    ): List<Hl7Diff> {
         return when {
             input is Primitive && output is Primitive && !StringUtils.equals(input.value, output.value) -> {
-                return Hl7Diff(
-                    segmentIndex,
-                    input.value,
-                    output.value,
-                    fieldNum,
-                    secondaryFieldNum,
-                    segmentType
+                return listOf(
+                    Hl7Diff(
+                        segmentIndex,
+                        input.value,
+                        output.value,
+                        fieldNumber,
+                        secondaryFieldNum,
+                        tertiaryFieldNumber,
+                        segmentType
+                    )
                 )
             }
 
@@ -177,9 +184,9 @@ class HL7DiffHelper {
                 input.data,
                 output.data,
                 segmentType,
-                segmentNumber,
-                fieldNum,
-                secondaryFieldNum
+                fieldNumber,
+                secondaryFieldNum,
+                tertiaryFieldNumber
             )
 
             input is Composite && output is Composite -> {
@@ -188,52 +195,69 @@ class HL7DiffHelper {
                 val inputExtraComponents = input.extraComponents
                 val outputExtraComponents = output.extraComponents
                 if (inputComponents.size != outputComponents.size) {
-                    return Hl7Diff(
-                        segmentIndex,
-                        "Difference in number of components.",
-                        "",
-                        fieldNum,
-                        secondaryFieldNum,
-                        segmentType
+                    return listOf(
+                        Hl7Diff(
+                            segmentIndex,
+                            "Difference in number of components.",
+                            "",
+                            fieldNumber,
+                            secondaryFieldNum,
+                            tertiaryFieldNumber,
+                            segmentType
+                        )
                     )
                 } else if (inputExtraComponents.numComponents() != outputExtraComponents.numComponents()) {
-                    return Hl7Diff(
-                        segmentIndex,
-                        "Difference in number of extra components.",
-                        "",
-                        fieldNum,
-                        secondaryFieldNum,
-                        segmentType
+                    return listOf(
+                        Hl7Diff(
+                            segmentIndex,
+                            "Difference in number of extra components.",
+                            "",
+                            fieldNumber,
+                            secondaryFieldNum,
+                            tertiaryFieldNumber,
+                            segmentType
+                        )
                     )
                 } else {
-                    inputComponents.zip(outputComponents).forEach { (i, o) ->
-                        return compareHl7Type(
-                            segmentIndex,
-                            i,
-                            o,
-                            segmentType,
-                            segmentNumber,
-                            fieldNum,
-                            secondaryFieldNum
+                    val compositeDifferences = mutableListOf<Hl7Diff>()
+                    inputComponents.zip(outputComponents).forEachIndexed { index, (i, o) ->
+                        val tertiaryFieldNumber2 = if (secondaryFieldNum == null) {
+                            null
+                        } else {
+                            index + 1
+                        }
+                        compositeDifferences.addAll(
+                            compareHl7Type(
+                                segmentIndex,
+                                i,
+                                o,
+                                segmentType,
+                                fieldNumber,
+                                secondaryFieldNum ?: (index + 1),
+                                tertiaryFieldNumber2
+                            )
                         )
                     }
-                    return null
+                    return compositeDifferences
                 }
             }
 
             input.javaClass != output.javaClass -> {
-                return Hl7Diff(
-                    segmentIndex,
-                    "Difference in type of field, ${input.javaClass}, ${output.javaClass}.",
-                    "",
-                    fieldNum,
-                    secondaryFieldNum,
-                    segmentType
+                return listOf(
+                    Hl7Diff(
+                        segmentIndex,
+                        "Difference in type of field, ${input.javaClass}, ${output.javaClass}.",
+                        "",
+                        fieldNumber,
+                        secondaryFieldNum,
+                        tertiaryFieldNumber,
+                        segmentType
+                    )
                 )
             }
 
             else -> {
-                return null
+                return listOf()
             }
         }
     }
@@ -279,7 +303,8 @@ class HL7DiffHelper {
         val input: String,
         val output: String,
         val fieldNum: Int,
-        val secondaryFieldNum: Int,
+        val secondaryFieldNumber: Int?,
+        val tertiaryFieldNumber: Int?,
         val segmentType: String,
     ) {
         override fun toString(): String {
@@ -289,7 +314,20 @@ class HL7DiffHelper {
                 ", $output."
             }
 
-            return "Difference between messages at $segmentIndex.$fieldNum.$secondaryFieldNum " +
+            val tertiaryFieldNumberText = if (tertiaryFieldNumber == null) {
+                ""
+            } else {
+                ".$tertiaryFieldNumber"
+            }
+
+            val secondaryFieldNumberText = if (secondaryFieldNumber == null) {
+                ""
+            } else {
+                ".$secondaryFieldNumber"
+            }
+
+            return "Difference between messages at $segmentIndex." +
+                "$fieldNum$secondaryFieldNumberText$tertiaryFieldNumberText" +
                 " Differences: $input$outputText"
         }
     }
