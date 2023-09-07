@@ -1,0 +1,377 @@
+// AutoUpdateFileChromatic
+@use "../../global-modules.scss" as *;
+
+// Custom breakpoint for a crowded Navbar so all the nav items are alaways nicely displayed
+@mixin tablet-to-1300px {
+    @media (min-width: $tablet) and (max-width: 1300px) {
+        @content;
+    }
+}
+
+// Shared styles between both variants of the Navbar
+.Navbar {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .ClientEnv {
+        transform: rotate(343deg);
+        position: absolute;
+        opacity: 0.6;
+        top: 1em;
+        left: 0;
+        color: crimson;
+        overflow: hidden;
+        font-weight: 900;
+    }
+
+    .UserEmail {
+        margin-right: 1rem;
+
+        @include tablet-to-1300px {
+            display: inline-block;
+            max-width: 50px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        @media (max-width: $tablet) {
+            margin-bottom: 1rem;
+            display: block;
+            text-align: center;
+        }
+    }
+
+    @media (min-width: $tablet) {
+        height: 104px;
+    }
+
+    :global {
+        .usa-nav__primary button,
+        .primary-nav-link-container,
+        .usa-nav__submenu .usa-nav__submenu-item a {
+            padding: 1.5rem 1rem;
+        }
+
+        .usa-menu-btn {
+            cursor: pointer;
+        }
+
+        .usa-nav-container {
+            align-items: center;
+            height: 100%;
+            margin: 0;
+        }
+
+        .nav-cta-container {
+            .usa-button {
+                margin-right: 0;
+
+                &:first-of-type {
+                    margin-right: 1rem;
+                }
+            }
+        }
+
+        .primary-nav-link-container {
+            position: relative;
+            width: fit-content;
+
+            .primary-nav-link,
+            .primary-nav-link:visited,
+            .primary-nav-link:hover,
+            .primary-nav-link:active {
+                color: inherit;
+            }
+        }
+
+        .usa-nav__submenu .usa-nav__submenu-item {
+            position: relative;
+            width: fit-content;
+
+            & a {
+                &:hover {
+                    text-decoration: none;
+                }
+            }
+        }
+
+        .usa-nav__primary button {
+            & span {
+                vertical-align: middle;
+            }
+        }
+
+        // Styling block specific for the mobile state of the Navbar
+        .usa-nav.is-visible {
+            .primary-nav-link-container {
+                padding: 0;
+                width: 100%;
+            }
+
+            .primary-nav-link {
+                color: inherit;
+                padding: 1.5rem 1rem;
+
+                &:hover {
+                    color: inherit;
+
+                    &:after {
+                        content: none;
+                    }
+                }
+            }
+
+            .usa-accordion {
+                padding-bottom: 64px;
+            }
+
+            .nav-cta-container {
+                margin-top: 16px;
+                order: 2;
+
+                & .usa-button {
+                    margin-bottom: 8px;
+                    width: 100%;
+                }
+            }
+
+            .usa-nav__primary button {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+
+                &:after {
+                    left: 0;
+                }
+
+                &:hover:after {
+                    height: auto;
+                    left: 0;
+                    border-radius: 99rem;
+                    bottom: 0.25rem;
+                    top: 0.25rem;
+                    width: 0.25rem;
+                }
+            }
+
+            .usa-nav__primary .usa-accordion__button span {
+                padding-right: 8px;
+            }
+        }
+
+        .primary-nav-link:hover:after,
+        .usa-nav__submenu .usa-nav__submenu-item:hover:after,
+        .usa-nav__primary button[aria-expanded="true"]:hover:after,
+        .usa-nav__primary button:hover:after {
+            border-radius: 0;
+            content: "";
+            display: block;
+            position: absolute;
+            height: 0.25rem;
+            left: 1rem;
+            right: 1rem;
+            bottom: 0;
+        }
+
+        @include tablet-to-1300px {
+            .usa-nav__primary button,
+            .primary-nav-link-container {
+                padding: 1rem 0.4rem;
+            }
+
+            .usa-nav__primary button span::after {
+                right: 0;
+            }
+
+            .usa-nav__link:hover::after,
+            .usa-nav__primary button[aria-expanded="true"]:hover:after,
+            .usa-nav__submenu .usa-nav__submenu-item:hover:after {
+                left: 0.4rem;
+            }
+        }
+    }
+}
+
+.NavbarDefault {
+    background-color: color("white");
+    border-bottom: 1px solid color("primary-darker");
+
+    :global {
+        .usa-nav__link:hover:after,
+        .primary-nav-link:hover:after {
+            background-color: color("primary");
+        }
+
+        .usa-nav__primary button[aria-expanded="true"]:hover:after,
+        .usa-nav__submenu .usa-nav__submenu-item:hover:after {
+            background-color: color("white");
+        }
+
+        .usa-nav__primary button[aria-expanded="true"] {
+            background-color: color("primary-darker");
+        }
+
+        // Styling block specific for the mobile state of the Navbar
+        .usa-nav.is-visible {
+            .usa-nav__primary button[aria-expanded="true"] {
+                background-color: color("white");
+
+                &:hover {
+                    background-color: color("gray-5");
+
+                    &:after {
+                        background-color: color("primary");
+                    }
+                }
+            }
+
+            .usa-nav__primary-item,
+            .usa-nav__submenu-item {
+                width: 100%;
+
+                &:hover:after {
+                    background-color: transparent;
+                }
+            }
+        }
+    }
+}
+
+.NavbarBlueVariant {
+    background-color: color("primary-darker");
+    border-bottom: 1px solid color("white");
+
+    .UserEmail {
+        color: color("white");
+    }
+
+    :global {
+        .usa-nav__link:hover:after,
+        .primary-nav-link:hover:after,
+        .usa-nav__primary button[aria-expanded="false"]:hover span::after,
+        .usa-nav__primary button span::after,
+        .usa-nav__submenu {
+            background-color: color("white");
+        }
+
+        .usa-logo__text,
+        .primary-nav-link-container,
+        .usa-nav__primary button[aria-expanded="false"] span,
+        .usa-button.usa-button--outline {
+            color: color("white");
+        }
+
+        .usa-button.usa-button--outline {
+            box-shadow: inset 0 0 0 2px color("white");
+
+            &:hover {
+                box-shadow: inset 0 0 0 2px color("gray-10");
+                color: color("gray-10");
+            }
+        }
+
+        .usa-button:not(.usa-button.usa-button--outline) {
+            background-color: color("white");
+            color: color("primary-darker");
+
+            &:hover {
+                background-color: color("gray-10");
+            }
+        }
+
+        .usa-nav__primary button[aria-expanded="true"] {
+            background-color: color("white");
+
+            & span {
+                color: color("primary-darker");
+
+                &:after {
+                    background-color: color("primary-darker");
+                }
+            }
+
+            &:hover:after {
+                background-color: color("primary-darker");
+            }
+        }
+
+        .usa-nav__submenu .usa-nav__submenu-item {
+            a {
+                color: color("primary-darker");
+            }
+
+            &:hover:after {
+                background-color: color("primary-darker");
+            }
+        }
+
+        // Styling block specific for the mobile state of the Navbar
+        .usa-nav.is-visible {
+            background-color: color("primary-darker");
+
+            .usa-nav__close svg {
+                fill: color("white");
+            }
+
+            .usa-nav__primary-item,
+            .usa-nav__submenu-item {
+                border-top: 1px solid color("primary");
+                width: 100%;
+
+                &:hover:after {
+                    background-color: transparent;
+                }
+            }
+
+            .usa-nav__primary button {
+                &:hover {
+                    background-color: color("primary-dark");
+                }
+            }
+
+            .usa-nav__primary button[aria-expanded="true"] {
+                background-color: color("primary-dark");
+
+                span {
+                    color: color("white");
+
+                    &:after {
+                        background-color: color("white");
+                    }
+                }
+
+                &:after {
+                    background-color: color("white");
+                }
+
+                &:hover {
+                    background-color: color("primary-dark");
+
+                    &:after {
+                        background-color: color("white");
+                    }
+                }
+            }
+
+            .usa-accordion {
+                border-bottom: 1px solid color("primary");
+            }
+
+            .usa-nav__submenu {
+                background-color: color("primary-darker");
+            }
+
+            .usa-nav__submenu .usa-nav__submenu-item a {
+                color: color("white");
+            }
+
+            .usa-nav__primary a:not(.usa-button) {
+                &:hover {
+                    background-color: color("primary-dark");
+                }
+            }
+        }
+    }
+}
