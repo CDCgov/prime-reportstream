@@ -253,6 +253,10 @@ main {
     font-weight: bold;
 }
 
+.usa-card__container {
+    @include u-margin-right(3)
+}
+
 /**
  * Reset ul style within cards due to usa-card-group.
  */
