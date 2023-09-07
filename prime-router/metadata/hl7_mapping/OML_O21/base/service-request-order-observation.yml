@@ -1,27 +1,10 @@
 constants:
-  hl7OBRField: '%{hl7SegmentGroup}/OBR'
+  fieldPath: '%{hl7SegmentGroup}/OBR'
 elements:
-  - name: order-observation-set-id
-    value: [ '%orderIndex + 1' ]
-    hl7Spec: [ '%{hl7OBRField}-1' ]
-
-  - name: order-observation-placer-order-number
-    resource: >
-      %resource.identifier.where(type.coding.system = 'http://terminology.hl7.org/CodeSystem/v2-0203')
-      .where(type.coding.code = 'PLAC')
-    condition: '%resource.count() > 0'
-    constants:
-      entityIdFieldPath: '%{hl7OBRField}(%{entityIdIndex})-2'
-    resourceIndex: entityIdIndex
-    schema: ../../common/datatype/ei-entity-identifier
-
-  - name: order-observation-universal-service-identifier
-    resource: '%resource.code'
-    constants:
-      cweFieldPath: '%{hl7OBRField}-4'
-    schema: ../../common/datatype/ce-coded-with-exceptions
+  - name: observation-request
+    schema: ../../common/observation-request
 
   - name: order-observation-date-time-start
     condition: 'Bundle.entry.resource.ofType(Specimen).collection.collected.exists()'
     value: [ 'Bundle.entry.resource.ofType(Specimen).collection.collected' ]
-    hl7Spec: [ '%{hl7OBRField}-7' ]
+    hl7Spec: [ '%{fieldPath}-7' ]
