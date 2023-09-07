@@ -48,7 +48,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "",
                 index: true,
-                lazy: lazyRouteMarkdown("content/home/home-index"),
+                lazy: lazyRouteMarkdown("content/home/index"),
                 handle: {
                     isContentPage: true,
                     isFullWidth: true,

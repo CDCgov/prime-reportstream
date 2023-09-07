@@ -15,15 +15,17 @@ liveMapContact:
 ---
 import site from "../site.json";
 
-<HeroWrapper isAlternate style={{backgroundImage: "url('/assets/img/home/grid.png')", backgroundSize: "contain", backgroundPosition: "right center", backgroundRepeat: "no-repeat"}}>
-    <header className="usa-section usa-prose grid-container">
-        <h1>Your single connection to simplify data transfer and improve public health</h1>
-        <p className="rs-subtitle">ReportStream is CDC’s free, interoperable platform for streamlining public health reporting.
-            We navigate unique, complex requirements and work to make sure your data gets where it needs to be.</p>
-        <div className="grid-row margin-top-8 margin-bottom-2">
-            <A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957" className="usa-button usa-button--big">Connect now</A>
-        </div>
-    </header>
+<HeroWrapper isAlternate className="rs-bg-grid">
+    <div className="grid-container">
+        <header className="usa-section usa-prose tablet:grid-col-10">
+            <h1>Your single connection to simplify data transfer and improve public health</h1>
+            <p className="rs-subtitle">ReportStream is CDC’s free, interoperable platform for streamlining public health reporting.
+                <br />We navigate unique, complex requirements and work to make sure your data gets where it needs to be.</p>
+            <div className="grid-row margin-top-8 margin-bottom-2">
+                <A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957" className="usa-button usa-button--big">Connect now</A>
+            </div>
+        </header>
+    </div>
 </HeroWrapper>
 <HeroWrapper>
     <div className="grid-container">
