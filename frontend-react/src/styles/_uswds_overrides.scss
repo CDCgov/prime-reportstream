@@ -253,6 +253,10 @@ main {
     font-weight: bold;
 }
 
+.usa-card__container {
+    @include u-margin-right(3)
+}
+
 /**
  * Reset ul style within cards due to usa-card-group.
  */
@@ -379,13 +383,6 @@ blockquote {
 
         &:is(h2, #back-to-top) {
             @include u-margin-top(8);
-        }
-    }
-
-    // remove default margin-bottom on all specific component descendants (not just children)
-    *:not([class*="margin-bottom"]) {
-        &:is(.usa-card) {
-            @include u-margin-bottom(0);
         }
     }
 }

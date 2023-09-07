@@ -140,7 +140,7 @@ export const ReportStreamNavbar = ({
                 <a href="/admin/value-sets" key="value-sets">
                     Value Sets
                 </a>,
-                <a href="/admin/validate" key="validate">
+                <a href="/file-handler/validate" key="validate">
                     Validate
                 </a>,
             ]}
