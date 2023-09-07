@@ -39,9 +39,9 @@ export function PageHeader({
                     ))}
                 </BreadcrumbBar>
             ) : null}
-            <h1 className="margin-y-2">{title}</h1>
+            <h1>{title}</h1>
             {subtitleArr?.map((s) => (
-                <p key={s.slice(0, 5)} className="font-sans-lg margin-top-4">
+                <p key={s.slice(0, 5)} className="rs-subtitle">
                     {s}
                 </p>
             ))}

@@ -29,8 +29,11 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
     // Okta signin widget rudely assumes to be the main element
     const OuterWrapper = isLoginPage ? React.Fragment : "main";
     // article element is currently handled within markdownlayout for markdown pages
-    const InnerWrapper =
-        isContentPage || isLoginPage ? React.Fragment : ArticleWrapper;
+    const InnerWrapper = isContentPage || isLoginPage ? "div" : ArticleWrapper;
+    const innerWrapperClassnames = classNames(
+        isContentPage && !isFullWidth && "grid-row grid-gap-6",
+        isFullWidth && "width-full",
+    );
 
     return (
         <div
@@ -51,7 +54,7 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
                 <SenderModeBanner />
             </ReportStreamHeader>
             <OuterWrapper>
-                <InnerWrapper>
+                <InnerWrapper className={innerWrapperClassnames}>
                     <RSErrorBoundary>
                         {children}
                         <Outlet />
