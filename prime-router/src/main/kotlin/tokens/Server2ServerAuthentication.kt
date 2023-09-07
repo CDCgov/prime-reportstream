@@ -65,7 +65,7 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
 
         val claims = jwt.body
         val headers = jwt.header
-        val issuer = claims.issuer // client_id
+        val issuer: String? = claims.issuer // client_id
         val maybeKid = headers["kid"] as String?
         val alg = headers["alg"] as String
         val kty = KeyType.forAlgorithm(Algorithm.parse(alg))
@@ -76,7 +76,7 @@ class Server2ServerAuthentication(val workflowEngine: WorkflowEngine) : Logging 
         // However, in order to be backwards compatible, the issuer claim can be either the name of the sender
         // or the name of the organization.
         if (issuer == null) {
-            throw NullPointerException("issuer must not be null")
+            throw Server2ServerAuthenticationException(Server2ServerError.MISSING_ISSUER_IN_JWT, scope, null)
         }
         var maybeOrganization = workflowEngine.settings.findOrganization(issuer)
         if (maybeOrganization != null) {
