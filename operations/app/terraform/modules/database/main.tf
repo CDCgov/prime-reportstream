@@ -20,7 +20,7 @@ resource "azurerm_postgresql_server" "postgres_server" {
 
   threat_detection_policy {
     enabled              = var.db_threat_detection
-    email_account_admins = true
+    email_account_admins = var.db_threat_detection
   }
 
   # Required for customer-managed encryption

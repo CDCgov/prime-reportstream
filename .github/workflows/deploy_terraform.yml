@@ -20,7 +20,7 @@ jobs:
       tf_change: ${{ steps.build_vars.outputs.has_terraform_change }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -39,7 +39,7 @@ jobs:
       change_count: ${{ steps.stats1.outputs.change-count }}
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
@@ -89,7 +89,7 @@ jobs:
         working-directory: operations/app/terraform/vars/${{ needs.pre_job.outputs.env_name }}
     steps:
       - name: Check Out Changes
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
         with:
