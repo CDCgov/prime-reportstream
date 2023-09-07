@@ -392,6 +392,25 @@ extension_12-enteredBy:
       expressionType: reference
       specs: ORC.10
 
+extension_13-enterersLocation:
+  expressionType: nested
+  generateList: true
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: enterers-location
+    valueReference:
+      valueOf: resource/Location
+      expressionType: reference
+      specs: ORC.13
+      vars:
+        poc: String, ORC.13.1
+        bed: String, ORC.13.3
+        room: String, ORC.13.2
+        facility: String, ORC.13.4
+      constants:
+        locationJoinChar: ","
+
 supportingInfo:
   valueOf: resource/Observation
   expressionType: reference

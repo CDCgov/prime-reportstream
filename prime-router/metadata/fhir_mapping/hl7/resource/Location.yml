@@ -6,7 +6,7 @@ id_1:
 
 mode:
   type: STRING
-  condition: $poc NOT_NULL || $room NOT_NULL || $bed NOT_NULL
+  condition: $poc NOT_NULL || $room NOT_NULL || $bed NOT_NULL || $facility NOT_NULL
   value: instance
 
 physicalType_1:
@@ -43,6 +43,21 @@ extension_1:
   constants:
     KEY_NAME_SUFFIX: String
     urlValue: point-of-care
+
+extension_2:
+  condition: $facility NOT_NULL
+  expressionType: nested
+  generateList: true
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: location-facility
+    valueIdentifier:
+      valueOf: dataType/Identifier_SystemID
+      expressionType: resource
+      specs: PL.4
+      vars:
+        code: PL.4.3
 
 identifier_1:
   condition: $bed NOT_NULL

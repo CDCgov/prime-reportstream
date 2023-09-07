@@ -70,6 +70,12 @@
 # Entered by
 - id: "entered-by"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entered-by"
+# Enterers Location
+- id: "enterers-location"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/enterers-location"
+# Location Facility
+- id: "location-facility"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/location-facility"
 # Entering organization
 - id: "entering-organization"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization"
