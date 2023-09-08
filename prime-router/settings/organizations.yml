@@ -975,36 +975,6 @@
         filePath: ./upload
         credentialName: DEFAULT-SFTP
     # THIS RECEIVER IS NOT USED IN ANY TESTS AND CAN BE UPDATED TO YOUR HEARTS CONTENT
-    - name: ny-development
-      externalName: Ignore FULL_ELR Development
-      organizationName: development
-      topic: full-elr
-      customerStatus: active
-      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'NY') or (%patientState.exists() and %patientState = 'NY')" ]
-      conditionFilter:
-        # Accept all conditions except Covid results in the LIVD look up table
-        # Covid flows through the Covid pipeline
-        - "%resource.livdTableLookup('Component').contains('coronavirus').not()"
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
-      translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/receivers/STLTs/NY/NY-receiver-transform"
-        useTestProcessingMode: false
-        useBatchHeaders: true
-        type: "HL7"
-        receivingApplicationName: ""
-        receivingFacilityName: ""
-        convertPositiveDateTimeOffsetToNegative: false
-        useHighPrecisionHeaderDateTimeFormat: false
-      transport:
-        type: SFTP
-        host: sftp
-        port: 22
-        filePath: ./upload
-        credentialName: DEFAULT-SFTP
-    # THIS RECEIVER IS NOT USED IN ANY TESTS AND CAN BE UPDATED TO YOUR HEARTS CONTENT
     - name: RADX_MARS
       externalName: RADx_MARs Test
       organizationName: development

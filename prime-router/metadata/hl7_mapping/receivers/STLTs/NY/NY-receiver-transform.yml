@@ -26,10 +26,6 @@ elements:
     resource: 'Bundle'
     value: [ '"NYSDOH"' ]
 
-  # OBX CWE-CE
-  - name: observation-identifier-code
-    condition: false
-
   - name: message_profile_id
     value: [ '"PHLabReport-NoAck"' ]
     hl7Spec: [ MSH-21-1 ]
@@ -58,6 +54,15 @@ elements:
     value: [ '"0.2-SNAPSHOT"' ]
     hl7Spec: [ SFT-4 ]
 
+  # OBX-2 - To populate this field with CWE, an Observation needs to have one of these values set:
+  #         Observation.coding[0].version, Observation.coding[1].version, or Observation.text
+  #         However, SimpleReport is not sending us any of those values and NY expects this to be CWE
+  - name: result-value-type-cwe
+    condition: true
+
+  # The ORU_R01 mappings look for Observations under ServiceRequest.supportInfo to map OBX segments under SPM.
+  # However, SimpleReport sends AOE questions under ServiceRequest.supportInfo and we need to suppress those
+  # from being mapped to OBX segments under SPM for NY.
   - name: specimen-observation-result-with-aoe
     condition: false
 
