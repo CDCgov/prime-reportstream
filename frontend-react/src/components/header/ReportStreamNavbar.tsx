@@ -10,9 +10,9 @@ import {
 } from "@trussworks/react-uswds";
 import classnames from "classnames";
 import { useState } from "react";
-import { useMatch, useNavigate } from "react-router-dom";
+import { useMatch } from "react-router-dom";
 
-import { USLinkButton } from "../USLink";
+import { USLink, USLinkButton } from "../USLink";
 import config from "../../config";
 import { DAPHeader } from "../header/DAPHeader";
 import SenderModeBanner from "../SenderModeBanner";
@@ -46,7 +46,6 @@ export const ReportStreamNavbar = ({
         isUserSender,
         user,
     } = useSessionContext();
-    const navigate = useNavigate();
     const [openMenuItem, setOpenMenuItem] = useState<null | string>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const toggleMobileMenu = () => {
@@ -228,13 +227,15 @@ export const ReportStreamNavbar = ({
             >
                 <div className="usa-nav-container">
                     <div className="usa-navbar">
-                        <Title onClick={() => navigate("/")}>
-                            ReportStream
-                            {IS_PREVIEW && (
-                                <span className={styles.ClientEnv}>
-                                    {CLIENT_ENV}
-                                </span>
-                            )}
+                        <Title>
+                            <USLink href="/" title="Home" aria-label="Home">
+                                ReportStream
+                                {IS_PREVIEW && (
+                                    <span className={styles.ClientEnv}>
+                                        {CLIENT_ENV}
+                                    </span>
+                                )}
+                            </USLink>
                         </Title>
                         <NavMenuButton
                             onClick={toggleMobileMenu}

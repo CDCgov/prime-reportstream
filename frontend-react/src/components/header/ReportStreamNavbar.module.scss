@@ -48,8 +48,20 @@
     }
 
     :global {
-        .usa-navbar .usa-logo {
-            cursor: pointer;
+        .usa-navbar {
+            & .usa-logo {
+                cursor: pointer;
+            }
+
+            & .usa-link {
+                color: inherit;
+                    &:visited,
+                    &:hover,
+                    &:active {
+                        cursor: pointer;
+                    }
+                
+            }
         }
 
         .usa-nav__primary button,
