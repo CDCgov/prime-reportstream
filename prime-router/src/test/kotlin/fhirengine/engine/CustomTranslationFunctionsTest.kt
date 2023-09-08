@@ -7,7 +7,7 @@ import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.Receiver
-import gov.cdc.prime.router.fhirengine.translation.hl7.config.HL7TranslationConfig
+import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomFHIRFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TranslationFunctions

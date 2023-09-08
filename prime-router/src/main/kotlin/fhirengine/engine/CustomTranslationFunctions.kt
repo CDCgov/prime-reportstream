@@ -2,10 +2,11 @@ package fhirengine.engine
 
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.common.DateUtilities
+import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7Truncator
-import gov.cdc.prime.router.fhirengine.translation.hl7.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.Hl7TranslationFunctions
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import java.time.ZoneId
@@ -58,18 +59,19 @@ class CustomTranslationFunctions(
             val config = appContext.config
             val truncationConfig = config.truncationConfig
 
+            val hl7Field = hl7FieldPath.substringAfterLast("/")
+            val cleanedHL7Field = HL7Utils.removeIndexFromHL7Field(hl7Field).trim()
+
             val shouldTruncateHDNamespaceIds = truncationConfig.truncateHDNamespaceIds &&
-                HL7Constants.HD_FIELDS_LOCAL.any { hl7FieldPath.contains(it) }
+                HL7Constants.HD_FIELDS_LOCAL.contains(cleanedHL7Field)
 
             val shouldTruncateHl7Fields = truncationConfig.truncateHl7Fields.isNotEmpty() &&
-                truncationConfig.truncateHl7Fields.any { hl7FieldPath.contains(it) }
+                truncationConfig.truncateHl7Fields.contains(cleanedHL7Field)
 
             if (shouldTruncateHDNamespaceIds || shouldTruncateHl7Fields) {
-                // TODO: is this safe???
-                val hl7Field = hl7FieldPath.substringAfterLast("/")
                 hl7Truncator.trimAndTruncateValue(
                     value,
-                    hl7Field,
+                    cleanedHL7Field,
                     terser,
                     truncationConfig
                 )

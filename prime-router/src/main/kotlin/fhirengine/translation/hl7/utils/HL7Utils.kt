@@ -110,4 +110,18 @@ object HL7Utils : Logging {
             else -> segment
         }
     }
+
+    /**
+     * removes the index from an HL7 field if one is present
+     *
+     * ex: "ORC-12(0)-1" -> "ORC-12-1"
+     */
+    fun removeIndexFromHL7Field(field: String): String {
+        val start = field.indexOf("(")
+        val end = field.indexOf(")")
+
+        return if (start != -1 && end != -1) {
+            field.replaceRange(start, end + 1, "")
+        } else field
+    }
 }
