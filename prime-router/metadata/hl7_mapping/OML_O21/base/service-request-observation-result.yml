@@ -1,0 +1,7 @@
+constants:
+  hl7OBXField: '%{hl7SegmentGroup}/OBX'
+elements:
+  - name: result-set-id
+    value: [ '%resultIndex + 1' ]
+    hl7Spec: [ '%{hl7OBXField}-1' ]
+

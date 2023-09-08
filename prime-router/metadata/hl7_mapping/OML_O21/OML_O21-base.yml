@@ -54,3 +54,12 @@ elements:
     schema: ./base/service-request-order-observation
     constants:
       hl7SegmentGroup: '/ORDER/OBSERVATION_REQUEST'
+
+  - name: order-observation-result
+    resource: Bundle.entry.resource.ofType(Observation)
+    condition: '%resource.count() > 0'
+    required: true
+    schema: ./base/service-request-observation-result
+    constants:
+      hl7SegmentGroup: '/ORDER/OBSERVATION_REQUEST/OBSERVATION'
+    resourceIndex: resultIndex
