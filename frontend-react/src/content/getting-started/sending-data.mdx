@@ -1,0 +1,128 @@
+---
+title: Get started sending data
+subtitle: How to start simplifying public health reporting for your organization
+backToTop: true
+---
+import Sidenav from "./sidenav.mdx"
+
+<LayoutSidenav>
+<Sidenav/>
+</LayoutSidenav>
+
+## Onboarding at a glance
+
+From the start, we work with your unique requirements and preferences to create a personalized reporting plan.
+
+<Accordion multiselectable={true} items={[
+    {
+        id: "1",
+        headingLevel:"h3", 
+        title:"1. Gather your team", 
+        content:(<>
+        <p>Before you get started, make sure you have the right team members from your organization to set up your connection. You’ll need someone who is managing your account and a technical point of contact who knows how to set up an API connection. Sometimes one person fills both of those roles.</p>
+        <p>If you don’t have someone who can set up your API connection, our sister product, <A href="https://www.simplereport.gov">SimpleReport</A>, might be able to help you.</p>
+        </>)
+    },
+    {
+        id: "2",
+        headingLevel:"h3",
+        title: "2. Complete interest form",
+        content: (<>
+        <p>Let us know you want to get started by filling out and submitting the <A href="https://app.smartsheetgov.com/b/form/8c71931f25e64e42bf1fef32900bdecd" target="_blank">interest form</A>. You’ll answer a few questions about your needs, like how many messages you might be sending and data format.</p>
+        <p>Our terms of service is also available to review in the interest form. You’ll need to agree to our <A href="/terms-of-service">terms of service</A> before you begin sending data. You can sign this at any point during your onboarding or when you fill out the form.</p>
+        <p>Our team will be in touch within 48 hours of receiving your form to schedule a kickoff call.</p>
+        </>),
+    },
+    {
+        id: "3",
+        headingLevel:"h3",
+        title: "3. Attend kickoff call",
+        content:(<p>
+        During this call, your team will talk with our dedicated and supportive team members to answer questions and prepare for the rest of onboarding. You’ll discuss how ReportStream works, the technical set up ahead, and your needs for data reporting. As we learn more about your organization, we'll provide an estimated timeline for your onboarding and when your connection will go live.
+        </p>)
+    },
+    {
+
+        id: "4",
+        headingLevel:"h3",
+        title: "4. Begin the process of connecting to our API",
+        content: (<p>
+        Your technical point of contact will work with our engineers to set up your formatting and test your files and connection. Learn more about <A href="/resources/api/getting-started">our API onboarding</A>.
+        </p>)
+    },
+    {
+        id: "5",
+        headingLevel:"h3",
+        title: "Optional: Create a user account",
+        content: (<p>
+        To access some optional, but helpful <A href="/managing-your-connection">tools and features</A>, you need a ReportStream account. If interested, a ReportStream team member can provide more details.
+        </p>)
+    }
+]} />
+If you're not connected with a ReportStream team member yet, get started by letting us know more about your needs.
+
+<A className="usa-button" href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957" target="_blank">Get started</A>
+
+{
+/* pending approval
+## What to expect from your onboarding experience
+
+<Blockquote author="SimpleHealth Kit" source="An end-to-end platform for diagnostics, treatment and follow-up care who began working with ReportStream in late 2022">
+“The documentation was great and the ReportStream folks were very helpful.”
+</Blockquote>
+
+<Blockquote author="Dendi" source="A network of labs that onboarded to ReportStream in early 2023">
+“ReportStream’s engineering support was upbeat and made the process better.”
+</Blockquote>
+*/
+}
+
+## How ReportStream sends data
+
+<ProcessList>
+<ProcessListItem>
+When you submit data through our API, ReportStream automatically determines what jurisdictions need to receive it and what format it needs to be in.
+</ProcessListItem>
+<ProcessListItem>
+ReportStream transforms data you submit into the format required by jurisdictions receiving the data. 
+</ProcessListItem>
+<ProcessListItem>
+Data is delivered to public health agencies in the format and size they require. 
+</ProcessListItem>
+</ProcessList>
+
+Multiple jurisdictions, multiple formats and requirements. Just one connection for you to manage.
+
+### Where we send data
+
+[See the growing list](/product/where-were-live) of all states and territories where ReportStream can send your data. As a CDC priority, we are consistently scaling and expanding to better meet your needs and prepare for the next pandemic.
+
+## Additional resources
+
+<CardGroup>
+<Card gridLayout={{tablet: {col: 4}}}>
+
+<CardHeader>
+### <A href="/assets/pdf/ReportStream_Onepager_20230621.pdf" target="_blank">ReportStream overview PDF <Icon name='FileDownload'/></A>
+</CardHeader>
+<CardBody>
+Download a quick summary of ReportStream that you can print and share.
+</CardBody>
+</Card>
+<Card gridLayout={{tablet: {col: 4}}}>
+<CardHeader>
+### [ReportStream API](/resources/api)
+</CardHeader>
+<CardBody>
+Learn about our API and how to set up a connection for reporting data to public health departments.
+</CardBody>
+</Card>
+<Card gridLayout={{tablet: {col: 4}}}>
+<CardHeader>
+### [Release notes](/product/release-notes)
+</CardHeader>
+<CardBody>
+Stay up to date with new features, enhancements, and fixes.
+</CardBody>
+</Card>
+</CardGroup>
