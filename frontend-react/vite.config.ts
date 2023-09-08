@@ -4,7 +4,6 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
 import mdx from "@mdx-js/rollup";
-import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import { remarkMdxToc } from "remark-mdx-toc";
 import remarkFrontmatter from "remark-frontmatter";
@@ -27,7 +26,6 @@ export default defineConfig(async () => {
                 mdExtensions: [],
                 providerImportSource: "@mdx-js/react",
                 remarkPlugins: [
-                    remarkGfm,
                     remarkMdxToc,
                     remarkFrontmatter,
                     remarkMdxFrontmatter,
@@ -77,6 +75,9 @@ export default defineConfig(async () => {
                     includePaths: ["node_modules/@uswds/uswds/packages"],
                 },
             },
+            devSourcemap:
+                process.env.NODE_ENV === "development" ||
+                process.env.SOURCEMAPS === "true",
         },
     };
 });

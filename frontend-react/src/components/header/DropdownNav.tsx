@@ -3,7 +3,7 @@ import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 
 import { MarkdownDirectory } from "../Content/MarkdownDirectory";
 import { USLink } from "../USLink";
-import { FeatureName } from "../../AppRouter";
+import { FeatureName } from "../../utils/FeatureName";
 
 export interface NonStaticOption {
     title: string;

@@ -1,4 +1,4 @@
-# Send
+# Universal Pipeline Send Step
 
 This is the final step in the pipeline and is responsible for actually delivering the batched report to a receivers
 configured location

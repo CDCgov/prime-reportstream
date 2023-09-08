@@ -78,7 +78,7 @@ export function MessageDetails() {
                         Back
                     </Button>
                 </div>
-                <hr className="margin-top-4 margin-bottom-4" />
+                <hr />
                 <div className="display-flex flex-column">
                     <span className="text-base font-sans-sm margin-bottom-1">
                         Message ID

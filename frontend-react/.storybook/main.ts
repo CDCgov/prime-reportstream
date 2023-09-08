@@ -1,6 +1,5 @@
 import type { StorybookConfig } from "@storybook/react-vite";
-import remarkGfm from "remark-gfm";
-import remarkToc from "remark-gfm";
+import remarkToc from "remark-mdx-toc";
 import path from "node:path";
 
 const config: StorybookConfig = {
@@ -10,6 +9,7 @@ const config: StorybookConfig = {
         "./UtilizedUSWDSComponents/*.stories.@(js|jsx|ts|tsx)",
     ],
     addons: [
+        "storybook-addon-react-router-v6",
         "@storybook/addon-links",
         "@storybook/addon-essentials",
         "@storybook/addon-interactions",
@@ -19,7 +19,7 @@ const config: StorybookConfig = {
             options: {
                 mdxPluginOptions: {
                     mdxCompileOptions: {
-                        remarkPlugins: [remarkGfm, remarkToc],
+                        remarkPlugins: [remarkToc],
                     },
                 },
             },
@@ -36,7 +36,7 @@ const config: StorybookConfig = {
     async viteFinal(config, options) {
         // Exclude our mdx plugin from vite config in favor of storybook's
         config.plugins = config.plugins?.filter(
-            (x: any, i) => x.name !== "@mdx-js/rollup"
+            (x: any, i) => x.name !== "@mdx-js/rollup",
         );
 
         // Proxy react-uswds storybook website locally so we can supply

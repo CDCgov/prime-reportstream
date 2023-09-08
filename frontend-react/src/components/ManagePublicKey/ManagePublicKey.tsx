@@ -14,7 +14,7 @@ import useCreateOrganizationPublicKey from "../../hooks/network/Organizations/Pu
 import useOrganizationPublicKeys from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
 import useOrganizationSenders from "../../hooks/UseOrganizationSenders";
 import Alert from "../../shared/Alert/Alert";
-import { FeatureName } from "../../AppRouter";
+import { FeatureName } from "../../utils/FeatureName";
 import { trackAppInsightEvent } from "../../utils/Analytics";
 
 import ManagePublicKeyChooseSender from "./ManagePublicKeyChooseSender";
