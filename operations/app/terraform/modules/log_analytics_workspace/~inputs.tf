@@ -110,3 +110,9 @@ variable "sftp_instance_01_id" {
   description = "SFTP instance 01 resource id"
   default     = ""
 }
+
+variable "law_retention_period" {
+  type        = string
+  description = "How long to keep logs for in LAW"
+  default     = "30"
+}
