@@ -48,6 +48,22 @@
     }
 
     :global {
+        .usa-navbar {
+            & .usa-logo {
+                cursor: pointer;
+            }
+
+            & .usa-link {
+                color: inherit;
+                    &:visited,
+                    &:hover,
+                    &:active {
+                        cursor: pointer;
+                    }
+                
+            }
+        }
+
         .usa-nav__primary button,
         .primary-nav-link-container,
         .usa-nav__submenu .usa-nav__submenu-item a {
@@ -179,6 +195,14 @@
             .usa-nav__primary button,
             .primary-nav-link-container {
                 padding: 1rem 0.4rem;
+            }
+
+            .primary-nav-link:hover:after,
+            .usa-nav__submenu .usa-nav__submenu-item:hover:after,
+            .usa-nav__primary button[aria-expanded="true"]:hover:after,
+            .usa-nav__primary button:hover:after {
+                left: 0.4rem;
+                right: 0.4rem;
             }
 
             .usa-nav__primary button span::after {
