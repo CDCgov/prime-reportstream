@@ -35,14 +35,8 @@ system_2:
 value_1:
      type: STRING
      generateList: true
-     valueOf: CX.1 | CWE.1 | EI.1 | HD.1 | $value
+     valueOf: CX.1 | CWE.1 | EI.1 | $value
      expressionType: HL7Spec
-
-value_2:
-  type: STRING
-  generateList: true
-  valueOf: HD.2
-  expressionType: HL7Spec
 
 period:  
     valueOf: datatype/Period

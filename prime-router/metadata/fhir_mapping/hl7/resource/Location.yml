@@ -44,20 +44,14 @@ extension_1:
     KEY_NAME_SUFFIX: String
     urlValue: point-of-care
 
-extension_2:
-  condition: $facility NOT_NULL
-  expressionType: nested
+extension_2-location-facility:
+#  condition: $facility NOT_NULL
   generateList: true
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: location-facility
-    valueIdentifier:
-      valueOf: dataType/Identifier_SystemID
-      expressionType: resource
-      specs: PL.4
-      vars:
-        code: PL.4.3
+  expressionType: resource
+  valueOf: extension/ExtensionAssigningAuthority
+  specs: PL.4
+  constants:
+    urlValue: location-facility
 
 identifier_1:
   condition: $bed NOT_NULL

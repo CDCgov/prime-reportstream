@@ -205,3 +205,5 @@ extension_5:
   expressionType: resource
   valueOf: extension/ExtensionAssigningAuthority
   specs: XON.6
+  constants:
+    urlValue: assigning-authority

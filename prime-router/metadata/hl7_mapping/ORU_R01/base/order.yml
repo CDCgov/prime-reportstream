@@ -72,6 +72,12 @@ elements:
     schema: ../../common/datatype/xcn-contact
     resourceIndex: contactIndex
 
+  - name: order-enterers-location
+    resource: '%service.extension(%`rsext-enterers-location`).value.resolve()'
+    constants:
+      hl7PLField: '%{hl7Order}-13'
+    schema: ../../common/datatype/pl-location
+
   - name: order-callback-phone-number
     resource: '%service.requester.resolve().practitioner.resolve().telecom'
     condition: '%resource.exists()'
