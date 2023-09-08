@@ -12,7 +12,7 @@ howWeHelp:
         - title: 2. Start sending or receiving data
           summary: Through our secure, cloud-based platform, data is validated, routed and transformed to the correct jurisdictions in the correct formatting.
         - title: 3. Stay updated on the status of your data
-          summary: Our <a href='/support/contact' class='usa-link'>expert support team</a> is on call and ready to solve any problems that arise.
+          summary: Our <a href='/support/contact'>expert support team</a> is on call and ready to solve any problems that arise.
 liveMapContact:
     - title: Who is in our network
       subTitle: Public health entities
@@ -29,7 +29,7 @@ liveMapContact:
 ---
 import site from "../site.json";
 
-<HeroWrapper className="bg-primary-lighter">
+<HeroWrapper className="bg-blue-5">
     <div className="grid-container">
         {frontmatter.howWeHelp.map((section, sectionIndex) => {
             return (
@@ -42,8 +42,8 @@ import site from "../site.json";
         })}
     </div>
 </HeroWrapper>
-<HeroWrapper className="grid-container">
-    <section className="usa-section padding-bottom-0">
+<HeroWrapper>
+    <section className="grid-container usa-section usa-prose padding-bottom-0">
         <h2 className="font-sans-xl margin-top-0">How it works</h2>
         <p className="usa-intro margin-top-4">Our open-source platform aggregates and [securely delivers](/resources/security-practices) healthcare data test results from organizations and testing facilities directly to public health entities. Born in response to the COVID-19 pandemic, ReportStream is built to thrive and evolve within the complex environment of public health.</p>
         <img
@@ -60,16 +60,10 @@ import site from "../site.json";
         );
     })}
 </HeroWrapper>
-<HeroWrapper className="bg-primary-lighter">
-    <div className="grid-container">
-        <section className="usa-section">
-            <div className="grid-row flex-justify-center">
-                # Still exploring if ReportStream is right for you?
-                <p className="usa-intro">Our team will respond to your questions or set up a time to learn more about how we can help you.</p>
-            </div>
-            <div className="grid-row flex-justify-center margin-bottom-2">
-                <A href={site.forms.connectWithRS.url} className="usa-button">Connect with us</A>
-            </div>
-        </section>
-    </div>
+<HeroWrapper className="bg-blue-5">
+    <section className="grid-container grid-row usa-section usa-prose flex-justify-center">
+        <p className="font-sans-xl text-bold margin-top-0">Still exploring if ReportStream is right for you?</p>
+        <p className="font-sans-lg">Our team will respond to your questions or set up a time to learn more about how we can help you.</p>
+        <A href={site.forms.connectWithRS.url} className="usa-button">Connect with us</A>
+    </section>
 </HeroWrapper>
