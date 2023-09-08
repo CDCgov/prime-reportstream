@@ -27,11 +27,14 @@ Note for content writer: If there is overlap with the previous "Pipeline Configu
 Rhapsody is a health data pipeline that provides a visual interface representing various flows of health data. It uses
 `Communication Points` of various types to interface with external systems.
 
-
 ### Using x-functions-key
 
-One such point, the `HTTP Communications Point` uses a standard HTTP request to send data externally and is perfect
-for use with the x-functions-key auth flow.
+The `HTTP Communications Point` uses a standard HTTP request to send data externally. It has been used in conjunction
+with the `x-functions-key` authentication flow to connect clients in the `staging` environment. However, this auth flow is
+deprecated and should not be used to onboard any new clients moving forward (documentation kept for posterity).
+
+It is recommended to use oauth2 or server-to-server auth instead. The observed versions of Rhapsody cannot support the
+OAuth2 authentication flow (javascript version too old).
 
 #### HTTP Communications Point Configuration
 
