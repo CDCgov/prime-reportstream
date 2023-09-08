@@ -103,7 +103,7 @@ export const ReportStreamNavbar = ({
             <a
                 className={primaryLinkClasses(!!useMatch("/getting-started/*"))}
                 href="/getting-started"
-                key="resources"
+                key="getting-started"
             >
                 Getting started
             </a>
@@ -114,7 +114,7 @@ export const ReportStreamNavbar = ({
                     !!useMatch("/developer-resources/*"),
                 )}
                 href="/developer-resources"
-                key="support"
+                key="developer-resources"
             >
                 Developers
             </a>
@@ -125,7 +125,7 @@ export const ReportStreamNavbar = ({
                     !!useMatch("/managing-your-connection/*"),
                 )}
                 href="/managing-your-connection"
-                key="support"
+                key="managing-your-connection"
             >
                 Your connection
             </a>
