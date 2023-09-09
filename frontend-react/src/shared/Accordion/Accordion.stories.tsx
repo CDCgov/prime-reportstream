@@ -75,13 +75,9 @@ const testItems: AccordionItemProps[] = [
     },
 ];
 
-const AccordionComponent = () => (
-    <Accordion isAlternate multiselectable={true} items={testItems} />
-);
-
 export const Default = {
     args: {
-        children: <AccordionComponent />,
+        items: testItems,
     },
 };
 export const Alternate = {
