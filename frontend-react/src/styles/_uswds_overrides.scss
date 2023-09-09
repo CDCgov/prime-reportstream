@@ -381,7 +381,7 @@ blockquote {
             }
         }
 
-        &:is(h2, #back-to-top) {
+        &:is(h2, .rs-back-to-top) {
             @include u-margin-top(8);
         }
     }
@@ -415,6 +415,21 @@ body {
     }
     h6 {
         @include h6;
+    }
+
+    // If header parent has font rule applied, inherit it instead
+    // of using the rules above (ex: apply desired header size
+    // to card header instead of having to break out of markdown
+    // syntax on the h1-6 element).
+    [class*="font-"] {
+        > h1,
+        > h2,
+        > h3,
+        > h4,
+        > h5,
+        > h6 {
+            font-size: inherit;
+        }
     }
 }
 
