@@ -336,7 +336,7 @@ open class BaseHistoryFunction : Logging {
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         val requestOrgName: String = request.headers["organization"]
-            ?: return HttpUtilities.bad(request, "Missing organization ins header")
+            ?: return HttpUtilities.bad(request, "Missing organization in header")
 
         if (claims == null || !claims.authorized(
                 setOf(
@@ -344,7 +344,8 @@ open class BaseHistoryFunction : Logging {
                         "$requestOrgName.*.*",
                         "$requestOrgName.*.admin",
                         "$requestOrgName.*.user",
-                        "$requestOrgName.*.*"
+                        "$requestOrgName.*.*",
+                        "$requestOrgName.*.report"
                     )
             )
         ) {
