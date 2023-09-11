@@ -27,7 +27,7 @@ jobs:
       dns_ip: ${{ steps.build_vars.outputs.dns_ip }}
     steps:
       - name: Check out changes
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
 
       - name: Build vars
         id: build_vars
@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
 
       - name: Build backend
         uses: ./.github/actions/build-backend
@@ -61,7 +61,7 @@ jobs:
         working-directory: frontend-react
     steps:
       - name: Check out changes
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
 
       - name: Build frontend
         uses: ./.github/actions/build-frontend
@@ -84,7 +84,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
 
       - name: Use specific version of Terraform
         uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1
@@ -123,7 +123,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
 
   approve_frontend_release:
     name: "Approve Frontend Release: ${{ needs.pre_job.outputs.env_name }}"
@@ -140,7 +140,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
 
   deploy_router_release:
     name: "Deploy Router Release: ${{ needs.pre_job.outputs.env_name }}"
@@ -157,7 +157,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
 
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure
@@ -193,7 +193,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
 
       - name: Connect to VPN and login to Azure
         uses: ./.github/actions/vpn-azure

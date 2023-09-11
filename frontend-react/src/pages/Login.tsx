@@ -15,7 +15,7 @@ const MonitoringAlert = () => {
         <SiteAlert
             variant="info"
             heading="This is a U.S. government service"
-            className="margin-top-neg-4 desktop:margin-top-neg-5 margin-bottom-3 tablet:margin-bottom-6"
+            className="margin-bottom-3 tablet:margin-bottom-6"
         >
             Your use indicates your consent to monitoring, recording, and no
             expectation of privacy. Misuse is subject to criminal and civil
@@ -46,15 +46,14 @@ export const Login = () => {
     }
 
     return (
-        <>
+        <div className="grid-container">
             <MonitoringAlert />
-            <div className="grid-container tablet:grid-col-12">
-                <OktaSignInWidget
-                    config={oktaSignInConfig}
-                    onSuccess={onSuccess}
-                    onError={onError}
-                />
-            </div>
-        </>
+
+            <OktaSignInWidget
+                config={oktaSignInConfig}
+                onSuccess={onSuccess}
+                onError={onError}
+            />
+        </div>
     );
 };
