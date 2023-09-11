@@ -245,10 +245,10 @@ export const appRoutes: RouteObject[] = [
                 },
             },
             {
-                path: "/manage-connection",
+                path: "/managing-your-connection",
                 index: true,
                 lazy: lazyRouteMarkdown(
-                    "content/manage-connection/manage-connection-index",
+                    "content/managing-your-connection/index",
                 ),
                 handle: {
                     isContentPage: true,
