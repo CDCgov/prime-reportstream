@@ -143,3 +143,29 @@ elements:
     constants:
       hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
     schema: ca-patient
+
+  # NTE
+  - name: note-source
+    value:
+      - '%noteDetails.extension(%`rsext-note-source`).value.coding.code'
+      - '"L"'
+    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-2' ]
+
+  - name: xon-organization-name-type
+    resource: '%resource.extension(%`rsext-organization-name-type`)'
+    condition: '%resource.exists()'
+    value: [ '%resource.value.coding[0].code' ]
+    hl7Spec: [ '%{hl7OrgField}-2' ]
+
+
+  # Simple report sends a different format that what we generate in the HL7 -> FHIR conversion
+  # See https://github.com/CDCgov/prime-reportstream/blob/829a2e297785864d65813d7f248e9b2de9a5b0d2/prime-router/src/testIntegration/resources/datatests/FHIR_to_FHIR/sample_AOE_1_20230220-0001.fhir#L1133
+  # vs
+  # TODO reference how the FHIR looks in the HL7 -> Conversion
+  - name: xon-assigning-authority
+    resource: '%resource'
+
+
+  # OBX-10
+  - name: order-entered-by
+    condition: false
