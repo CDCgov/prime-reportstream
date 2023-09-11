@@ -122,10 +122,10 @@ export const ReportStreamNavbar = ({
         <div className="primary-nav-link-container">
             <a
                 className={primaryLinkClasses(
-                    !!useMatch("/manage-connection/*"),
+                    !!useMatch("/managing-your-connection/*"),
                 )}
-                href="/manage-connection"
-                key="manage-connection"
+                href="/managing-your-connection"
+                key="managing-your-connection"
             >
                 Your connection
             </a>
