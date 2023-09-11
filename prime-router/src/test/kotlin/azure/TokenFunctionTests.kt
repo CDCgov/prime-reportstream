@@ -218,13 +218,12 @@ class TokenFunctionTests {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED)
         val error = jacksonObjectMapper().readTree(response.body as String)
         assertThat(error.get("error").textValue()).isEqualTo("invalid_request")
-        assertThat(error.get("error_description").textValue()).isEqualTo("missing_issuer_in_jwt")
-        assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#missing-issuer-in-jwt")
+        assertThat(error.get("error_description").textValue()).isEqualTo("malformed_jwt")
+        assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#malformed-jwt")
         verify {
+            // per feedback, just fix the assertion based on kotlin compiler NPE handling behavior
             anyConstructed<ActionHistory>().trackActionResult(
-                "AccessToken Request Denied: " + "" +
-                    "MISSING_ISSUER_IN_JWT while generating token for scope: " +
-                    "simple_report.default.report"
+                "AccessToken Request Denied: null"
             )
         }
     }

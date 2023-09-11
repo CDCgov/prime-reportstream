@@ -35,9 +35,7 @@ enum class Server2ServerError(val errorUri: String, val oAuthErrorType: OAuthErr
     // Error is generated if the request does not include a client_assertion (the JWS)
     MISSING_CLIENT_ASSERTION("missing-jwt", OAuthErrorType.INVALID_REQUEST),
     // Error is generated if the request does not include a client_assertion (the JWS)
-    MISSING_SCOPE("missing-scope", OAuthErrorType.INVALID_REQUEST),
-    // Error is generated if the request does not include an issuer (the JWS)
-    MISSING_ISSUER_IN_JWT("missing-issuer-in-jwt", OAuthErrorType.INVALID_REQUEST)
+    MISSING_SCOPE("missing-scope", OAuthErrorType.INVALID_REQUEST)
 }
 
 /**
