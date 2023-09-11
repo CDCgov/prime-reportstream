@@ -919,5 +919,8 @@ main {
 }
 
 .rs-column-3 {
-    column-count: 3;
+    > ul,
+    > ol {
+        column-count: 3;
+    }
 }
