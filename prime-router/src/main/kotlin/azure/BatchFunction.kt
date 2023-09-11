@@ -225,7 +225,7 @@ class BatchFunction(
                 }
             }
             val duration = Duration.between(startTime, OffsetDateTime.now())
-            logger.info("BatchFunction Message download and send task creation took $duration")
+            logger.info("BatchFunction Downloading reports and creating send tasks took $duration")
         } else if (validHeaders.isNotEmpty() ||
             (receiver.timing.whenEmpty.action == Receiver.EmptyOperation.SEND)
         ) {
@@ -244,7 +244,7 @@ class BatchFunction(
                 }.awaitAll()
             }
             val duration = Duration.between(startTime, OffsetDateTime.now())
-            logger.info("BatchFunction Message download took $duration")
+            logger.info("BatchFunction Downloading reports for batch took $duration")
 
             // Generate the batch message
             val batchMessage = when (receiver.format) {

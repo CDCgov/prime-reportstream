@@ -665,7 +665,7 @@ class WorkflowEngine(
                 }.awaitAll()
             }.filterNotNull()
             val duration = Duration.between(startTime, OffsetDateTime.now())
-            logger.info("BatchFunction Message download and header creation took $duration")
+            logger.info("BatchFunction Downloading reports for batch and creating headers took $duration")
 
             updateBlock(headers, txn)
             // Here we iterate through the original tasks, rather than headers.
