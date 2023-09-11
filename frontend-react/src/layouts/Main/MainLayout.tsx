@@ -20,6 +20,11 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
     const { isContentPage, isFullWidth, isLoginPage } = handle;
     // article element is currently handled within markdownlayout for markdown pages
     const InnerWrapper = isContentPage || isLoginPage ? "div" : ArticleWrapper;
+    const innerWrapperClassnames = classNames(
+        isContentPage && !isFullWidth && "grid-row grid-gap-6",
+        isFullWidth && "width-full",
+        !isContentPage && !isLoginPage && "tablet:grid-col-12",
+    );
 
     return (
         <div
@@ -33,7 +38,7 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
         >
             <ReportStreamNavbar blueVariant={isFullWidth} />
             <main className="padding-top-5" id="main-content">
-                <InnerWrapper>
+                <InnerWrapper className={innerWrapperClassnames}>
                     <RSErrorBoundary>
                         {children}
                         <Outlet />
