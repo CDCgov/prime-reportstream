@@ -44,6 +44,10 @@ object ConfigSchemaReader : Logging {
         return mergedSchema
     }
 
+    /**
+     * Reads a schema from the file directory via relative pathing.  This is the deprecated way of reading schemas
+     * and continues to exist while the transition is executed
+     */
     private fun fromRelative(
         schemaName: String,
         folder: String? = null,
@@ -64,6 +68,10 @@ object ConfigSchemaReader : Logging {
         return schemaList
     }
 
+    /**
+     * Read a schema from a [URI] using the scheme to determine who to read the schema
+     *
+     */
     private fun fromUri(
         schemaUri: URI,
         schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>
@@ -106,6 +114,12 @@ object ConfigSchemaReader : Logging {
         return parentSchema
     }
 
+    /**
+     * Reads a schema using the scheme to determine how to read it.  Currently supports:
+     * - azure
+     * - classpath
+     * - file system
+     */
     internal fun readSchemaTreeUri(
         schemaUri: URI,
         ancestry: List<String> = listOf(),
