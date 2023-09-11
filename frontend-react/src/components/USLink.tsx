@@ -4,8 +4,6 @@ import classnames from "classnames";
 import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
 import DOMPurify from "dompurify";
 
-import Icon from "../shared/Icon/Icon";
-
 /** React.PropsWithChildren has known issues with generic extension in React 18,
  * so rather than using it here, we are using our own definition of child types.
  * One less headache when updating to React 18 in the future! */
@@ -49,9 +47,12 @@ export function getHrefRoute(href?: string): string | undefined {
 }
 
 export interface SafeLinkProps extends React.AnchorHTMLAttributes<Element> {
-    extLinkIcon?: boolean;
     state?: any;
 }
+
+const sanitizeHref = (href: string | undefined) => {
+    return href ? DOMPurify.sanitize(href) : href;
+};
 
 /**
  * Sanitizes href and determines if href is an app route or regular
@@ -61,22 +62,23 @@ export const SafeLink = ({
     children,
     href,
     state,
-    extLinkIcon,
     ...anchorHTMLAttributes
 }: SafeLinkProps) => {
-    const sanitizedHref = href ? DOMPurify.sanitize(href) : href;
+    const sanitizedHref = sanitizeHref(href);
     const routeHref = getHrefRoute(sanitizedHref);
     const isFile = sanitizedHref?.startsWith("/assets/");
-    return routeHref !== undefined && !isFile ? (
-        <Link to={href!} state={state} {...anchorHTMLAttributes}>
-            {children}
-        </Link>
-    ) : (
+
+    if (routeHref !== undefined && !isFile) {
+        return (
+            <Link to={href!} state={state} {...anchorHTMLAttributes}>
+                {children}
+            </Link>
+        );
+    }
+
+    return (
         <a href={sanitizedHref} {...anchorHTMLAttributes}>
             {children}
-            {isExternalUrl(sanitizedHref) && extLinkIcon && (
-                <Icon name="Launch" className="margin-left-1 text-middle" />
-            )}
         </a>
     );
 };
@@ -94,9 +96,7 @@ export const USLink = ({ children, className, ...props }: USLinkProps) => {
 
 export interface USLinkButtonProps
     extends USLinkProps,
-        Omit<ButtonProps, "type"> {
-    extLinkIcon?: boolean;
-}
+        Omit<ButtonProps, "type"> {}
 
 export const USLinkButton = ({
     className,
@@ -107,7 +107,6 @@ export const USLinkButton = ({
     inverse,
     size,
     unstyled,
-    extLinkIcon,
     ...anchorHTMLAttributes
 }: USLinkButtonProps) => {
     const linkClassname = classnames(
@@ -123,13 +122,12 @@ export const USLinkButton = ({
         },
         className,
     );
-    return (
-        <SafeLink
-            {...anchorHTMLAttributes}
-            className={linkClassname}
-            extLinkIcon={extLinkIcon}
-        />
-    );
+    if (isExternalUrl(sanitizeHref(anchorHTMLAttributes.href))) {
+        return (
+            <USExtLink {...anchorHTMLAttributes} className={linkClassname} />
+        );
+    }
+    return <SafeLink {...anchorHTMLAttributes} className={linkClassname} />;
 };
 
 /** A single link for rendering external links. Uses {@link USLink} as a baseline.

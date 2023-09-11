@@ -15,40 +15,42 @@ ongoingSupport:
 import { Tile } from "../../shared/Tile/Tile";
 
 <HeroWrapper className="bg-blue-5">
-    <div className="grid-container padding-y-9">
-        **Quick Links**
-        <CardGroup>
+    <div className="grid-container">
+        <section className="usa-section">
+            <p className="margin-top-0 text-bold">Quick links</p>
+            <CardGroup>
             <Card gridLayout={{col: "fill"}}>
                 <CardHeader typeof="div">
-                    ## For health care organizations
+                    <p className="font-sans-lg">For health care organizations</p>
                 </CardHeader>
                 <CardBody>
                     * [File validator](/file-handler/validate)
-                    * [Manage your public key](/resources/manage-public-key)
+                    * [Manage your public key](/resources/manage-public-key) <Icon name='Lock' className="text-ttop text-primary" />
                     * [View your submission history](/submissions) <Icon name='Lock' className="text-ttop text-primary" />
 
-                    [Login](/login) or [contact us](https://app.smartsheetgov.com/b/form/ff33efa457be461c9893301d4c0ec12d) to create an account.
+                    [Login](/login) or [contact us](https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599) to create an account.
                 </CardBody>
             </Card>
             <Card gridLayout={{col: "fill"}}>
                 <CardHeader typeof="div">
-                    ## For public health agencies
+                    <p className="font-sans-lg">For public health agencies</p>
                 </CardHeader>
                 <CardBody>
                     * [How to download your data](/resources/data-download-guide)
                     * [Refer healthcare organizations](/resources/referral-guide)
                     * [View Daily Data](/daily-data) <Icon name='Lock' className="text-ttop text-primary" />
 
-                    [Login](/login) or [contact us](https://app.smartsheetgov.com/b/form/ff33efa457be461c9893301d4c0ec12d) to create an account.
+                    [Login](/login) or [contact us](https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599) to create an account.
                 </CardBody>
             </Card>
         </CardGroup>
+        </section>
     </div>
 </HeroWrapper>
 <HeroWrapper className="manage-connection grid-container">
-    <section className="usa-section padding-top-9 padding-bottom-0">
+    <section className="usa-section">
         <h2 className="font-sans-xl margin-top-0">Monitoring tools</h2>
-        <p className="usa-intro margin-top-4 margin-bottom-8">Providing transparency into your data transfer with ReportStream </p>
+        <p className="font-sans-lg margin-top-4 margin-bottom-8">Providing transparency into your data transfer with ReportStream </p>
         <Tile {...frontmatter.monitoringTools}>
             <CardGroup>
                     <Card gridLayout={{col: "fill"}} isAlternate>
@@ -77,12 +79,12 @@ import { Tile } from "../../shared/Tile/Tile";
                     </Card>
             </CardGroup>
         </Tile>
-        <div className="grid-row grid-gap">
-            <Tile className="grid-col-fill" {...frontmatter.submissionHistory}>
-                <p><A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957">Contact us</A> to learn more.</p>
+        <div className="grid-row">
+            <Tile className="grid-col-fill margin-right-3" {...frontmatter.submissionHistory}>
+                <p><A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">Contact us</A> to learn more.</p>
             </Tile>
-            <Tile className="grid-col-fill" {...frontmatter.ongoingSupport}>
-                <p><A href="https://app.smartsheetgov.com/b/form/ff33efa457be461c9893301d4c0ec12d">Submit service request.</A></p>
+            <Tile className="grid-col-fill margin-right-3" {...frontmatter.ongoingSupport}>
+                <p><A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">Submit service request.</A></p>
             </Tile>
         </div>
     </section>
