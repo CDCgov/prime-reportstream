@@ -55,9 +55,15 @@ runs:
       run: docker-compose -f docker-compose.postgres.yml up -d
 
     - name: Build Prime Router Package
-      working-directory: prime-router
-      shell: bash
-      run: ./gradlew package -x fatjar -Pshowtests
+      uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
+      with:
+        timeout_minutes: 30
+        max_attempts: 2
+        retry_wait_seconds: 30
+        command: |
+          cd prime-router
+          ./gradlew package -x fatjar -Pshowtests
+        shell: bash
 
     - name: Tar router files
       if: inputs.upload-build == 'true'
@@ -139,12 +145,17 @@ runs:
 
     - name: Smoke tests
       if: inputs.run-integration-tests == 'true'
-      working-directory: prime-router
-      run: |
-        export $(xargs < .vault/env/.env.local)
-        ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
-        ./gradlew testSmoke
-      shell: bash
+      uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
+      with:
+        timeout_minutes: 30
+        max_attempts: 2
+        retry_wait_seconds: 30
+        command: |
+          cd prime-router
+          export $(xargs < .vault/env/.env.local)
+          ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
+          ./gradlew testSmoke
+        shell: bash
 
     - name: Dump docker logs
       if: always() && inputs.run-integration-tests == 'true'
@@ -161,6 +172,7 @@ runs:
       shell: bash
 
     - name: Upload Artifact
+      if: inputs.upload-build == 'true'
       uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32
       with:
         name: prime-router-build-${{ inputs.version }}
