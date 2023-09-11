@@ -34,7 +34,7 @@ plugins {
     id("org.flywaydb.flyway") version "9.21.2"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("com.microsoft.azure.azurefunctions") version "1.11.1"
+    id("com.microsoft.azure.azurefunctions") version "1.13.0"
     id("org.jlleitschuh.gradle.ktlint") version "11.5.1"
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
@@ -109,7 +109,7 @@ val ktorVersion = "2.3.2"
 val kotlinVersion = "1.9.10"
 val jacksonVersion = "2.15.2"
 
-jacoco.toolVersion = "0.8.9"
+jacoco.toolVersion = "0.8.10"
 
 // Set the compiler JVM target
 java {
@@ -784,7 +784,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
     implementation("com.azure:azure-core:1.42.0")
-    implementation("com.azure:azure-core-http-netty:1.13.5")
+    implementation("com.azure:azure-core-http-netty:1.13.7")
     implementation("com.azure:azure-storage-blob:12.22.3") {
         exclude(group = "com.azure", module = "azure-core")
     }
