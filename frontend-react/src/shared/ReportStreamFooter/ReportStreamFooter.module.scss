@@ -1,6 +1,8 @@
 @use "../../global-modules.scss" as *;
 
 .Footer {
+  background-color: color('primary-darker');
+  
   & :global {
     .usa-identifier {
       background-color: color('primary-darker');

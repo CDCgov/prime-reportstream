@@ -10,7 +10,6 @@ import {
     IdentifierLinkItem,
     IdentifierLink,
 } from "@trussworks/react-uswds";
-import classNames from "classnames";
 
 import site from "../../content/site.json";
 import { USExtLink, USLinkButton } from "../../components/USLink";
@@ -18,10 +17,9 @@ import { USExtLink, USLinkButton } from "../../components/USLink";
 import styles from "./ReportStreamFooter.module.scss";
 
 export const ReportStreamFooter = () => {
-    const classnames = classNames(styles.Footer, "grid-container");
     return (
-        <footer id="site-footer" className={classnames}>
-            <Identifier>
+        <footer id="site-footer" className={styles.Footer}>
+            <Identifier className="grid-container">
                 <div className="grid-row height-full flex-column flex-justify-center">
                     <div className="grid-col-8">
                         <IdentifierMasthead aria-label="Agency identifier">
