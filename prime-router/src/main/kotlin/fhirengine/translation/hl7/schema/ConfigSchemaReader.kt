@@ -69,7 +69,7 @@ object ConfigSchemaReader : Logging {
     }
 
     /**
-     * Read a schema from a [URI] using the scheme to determine who to read the schema
+     * Read a schema from a [URI] using the scheme to determine how to read the schema
      *
      */
     private fun fromUri(
@@ -80,7 +80,9 @@ object ConfigSchemaReader : Logging {
         schemaList.add(readSchemaTreeUri(schemaUri, schemaClass = schemaClass))
         while (!schemaList.last().extends.isNullOrBlank()) {
             // Make sure there are no circular dependencies
-            if (schemaList.any { schemaUri.path == FilenameUtils.getName(schemaList.last().extends) }
+            if (schemaList.any {
+                FilenameUtils.getName(schemaUri.path) == FilenameUtils.getName(schemaList.last().extends)
+            }
             ) {
                 throw SchemaException("Schema circular dependency found while loading schema ${schemaUri.path}")
             }

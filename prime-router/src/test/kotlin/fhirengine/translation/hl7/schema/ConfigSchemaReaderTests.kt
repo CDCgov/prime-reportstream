@@ -423,4 +423,18 @@ class ConfigSchemaReaderTests {
             )
         }.isSuccess()
     }
+
+    @Test
+    fun `correctly flags a circular dependency when using a URI`() {
+        val file = File(
+            "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-08",
+            "ORU_R01_circular.yml"
+        )
+        assertThat {
+            ConfigSchemaReader.fromFile(
+                file.toURI().toString(),
+                schemaClass = ConverterSchema::class.java,
+            )
+        }.isFailure().messageContains("Schema circular dependency")
+    }
 }
