@@ -18,6 +18,7 @@ import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.Event
 import gov.cdc.prime.router.azure.db.Tables
+import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
@@ -143,9 +144,15 @@ class FHIRTranslator(
      * @return HL7 Message in the format required by the receiver
      */
     internal fun getHL7MessageFromBundle(bundle: Bundle, receiver: Receiver): Message {
+        val config = (receiver.translation as? Hl7Configuration)?.let {
+            HL7TranslationConfig(
+                it,
+                receiver
+            )
+        }
         val converter = FhirToHl7Converter(
             receiver.schemaName,
-            context = FhirToHl7Context(CustomFhirPathFunctions(), receiver, CustomTranslationFunctions())
+            context = FhirToHl7Context(CustomFhirPathFunctions(), config, CustomTranslationFunctions())
         )
         val hl7Message = converter.convert(bundle)
 
