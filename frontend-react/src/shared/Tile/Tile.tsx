@@ -46,7 +46,7 @@ export const Tile = ({
             {cleanSummaryHtml && (
                 <p
                     data-testid="summary"
-                    className="usa-prose"
+                    className="usa-prose font-sans-md"
                     dangerouslySetInnerHTML={{ __html: cleanSummaryHtml }}
                 ></p>
             )}
