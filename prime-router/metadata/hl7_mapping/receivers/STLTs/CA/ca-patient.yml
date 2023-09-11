@@ -31,3 +31,13 @@ elements:
     condition: '%resource.extension(%`rsext-ethnic-group`).value.exists()'
     value: [ '"2.9"' ]
     hl7Spec: [ '%{hl7PIDField}-22-7' ]
+
+  # This is covered in 10-2 in CA
+  - name: ca-patient-race-text
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7PIDField}-10-9' ]
+
+  # This is covered in 22-2 in CA
+  - name: ca-patient-ethnicity-text
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7PIDField}-22-9' ]

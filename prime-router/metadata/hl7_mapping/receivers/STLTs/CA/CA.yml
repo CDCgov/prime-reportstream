@@ -167,6 +167,20 @@ elements:
   - name: patient-assigning-authority
     value: [ '%patientOrganization.name.substring(0,20)' ]
 
+  # PID-10-2 gets either display or text
+  - name: patient-race-display
+    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").exists()'
+    value:
+      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[0].display'
+      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.text'
+    hl7Spec: [ '%{hl7PIDField}-10-2' ]
+
+  # PID-10-3 for default value
+  - name: patient-race-coding-system
+    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").exists()'
+    value: [ '"HL70005"' ]
+    hl7Spec: [ '%{hl7PIDField}-10-3' ]
+
   - name: ca-patient
     resource: 'Bundle.entry.resource.ofType(Patient)'
     condition: '%resource.count() = 1'
@@ -178,20 +192,13 @@ elements:
   - name: diagnostic-serv-sect-id
     condition: false
 
-
   # NTE
   - name: note-source
-    value:
-      - '%noteDetails.extension(%`rsext-note-source`).value.coding.code'
-      - '"L"'
-    hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-2' ]
+    value: [ '%noteDetails.extension(%`rsext-note-source`).value.coding.code', '"L"' ]
 
+  # Simple report puts the code in a different spot than what we generate in HL7 -> FHIR conversion
   - name: xon-organization-name-type
-    resource: '%resource.extension(%`rsext-organization-name-type`)'
-    condition: '%resource.exists()'
     value: [ '%resource.value.coding[0].code' ]
-    hl7Spec: [ '%{hl7OrgField}-2' ]
-
 
   # Simple report sends a different format that what we generate in the HL7 -> FHIR conversion
   # See https://github.com/CDCgov/prime-reportstream/blob/829a2e297785864d65813d7f248e9b2de9a5b0d2/prime-router/src/testIntegration/resources/datatests/FHIR_to_FHIR/sample_AOE_1_20230220-0001.fhir#L1133
@@ -199,6 +206,18 @@ elements:
   # TODO reference how the FHIR looks in the HL7 -> Conversion
   - name: xon-assigning-authority
     resource: '%resource'
+
+  - name: designator-namespace-id-from-name
+    condition: >
+      %resource.is(Organization).not() and
+      %resource.system.exists().not() and 
+      %resource.extension(%`namespaceExtName`).exists().not() and 
+      %resource.value.exists().not() and 
+      %resource.name.exists()
+
+  # override xpn-person-name.use to set a default
+  - name: use
+    value: [ '%resource.use', '"official"' ]
 
   # OBX-10
   - name: order-entered-by
