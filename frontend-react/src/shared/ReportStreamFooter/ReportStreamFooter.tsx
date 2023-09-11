@@ -22,7 +22,10 @@ export const ReportStreamFooter = () => {
             <Identifier className="grid-container">
                 <div className="grid-row height-full flex-column flex-justify-center">
                     <div className="grid-col-8">
-                        <IdentifierMasthead aria-label="Agency identifier">
+                        <IdentifierMasthead
+                            className="margin-bottom-4"
+                            aria-label="Agency identifier"
+                        >
                             <IdentifierLogos>
                                 <IdentifierLogo
                                     href="https://cdc.gov"
@@ -102,7 +105,10 @@ export const ReportStreamFooter = () => {
                                 </IdentifierLink>
                             </IdentifierLinkItem>
                         </IdentifierLinks>
-                        <IdentifierGov aria-label="U.S. government information and services">
+                        <IdentifierGov
+                            className="margin-top-1"
+                            aria-label="U.S. government information and services"
+                        >
                             Looking for U.S. government information and
                             services?{" "}
                             <USExtLink href="https://www.usa.gov/">
@@ -113,8 +119,8 @@ export const ReportStreamFooter = () => {
                     <div className="grid-col-1"></div>
                     <div className="grid-col-3">
                         <h4>Need help?</h4>
-                        <hr></hr>
-                        <p>
+                        <hr className="margin-top-2 margin-bottom-2" />
+                        <p className="margin-bottom-4">
                             Our team will respond to your questions or set up a
                             time to learn more about how we can help you.
                         </p>

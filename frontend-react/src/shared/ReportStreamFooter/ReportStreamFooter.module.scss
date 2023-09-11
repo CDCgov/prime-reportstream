@@ -2,12 +2,16 @@
 
 .Footer {
   background-color: color('primary-darker');
-  
+
   & :global {
     .usa-identifier {
       background-color: color('primary-darker');
       height: 340px;
       padding: 0;
+
+      &__required-links-item {
+        margin-bottom: 1rem;
+      }
     }
   }
 }
