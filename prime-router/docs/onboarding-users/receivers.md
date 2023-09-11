@@ -29,8 +29,11 @@ Assumptions
 First and foremost: This assumes you have credentials with the CDC and have been given access to the Azure portal. If you do not have credentials, and access to the Azure portal, stop here. You cannot go any further.
 This also assumes you have access to KeyBase, and are part of the prime_dev_ops team there. Also, we assume you have KeyBase installed, and have in mounted into /Volumes/. If you don't have it mounted as a drive, you can just drag and drop the files into KeyBase. If you feel you should have access to the prime_dev_ops team in KeyBase, contact your dev lead, or the dev ops team lead and request access.
 Finally, this assumes you are working on a Unix-style system such as Linux or MacOS. You can probably do this on Windows as well provided you have a conformant shell with putty and openssl installed. The Git Bash shell would probably do, or the Linux Subsystem for Windows would as well, but no promises are made.
+
 Steps on generating the keys you need and then assigning them to the receiver, and sharing them with a receiver
+
 Creating the private key in Azure
+
 Step One - Generating the Private Key in Azure. 
 Open your browser and navigate to the Azure Portal at https://portal.azure.com/#home
 At the top you should see an option for SSH Keys. If you don't, you can also type "SSH" into the search bar at the top to find it.
@@ -39,6 +42,16 @@ When it loads, you will likely not see any created keys. Make sure that you clic
 In the upper left, click "New". You will be taken to this screen.
 
 On the next screen, select the DMZ subscription, and under "Resource Group" select Prod.
+
+You're prompted to name the SSH key pair. Our old naming convention is DH + the state initials + "_phd" but now, you really don’t need to follow this naming convention.  So, for the example below, with NJ, it would be "DHnj_phd". 
+
+Leave the last option on "Generate new key pair"
+Click the "Next: Tags" button
+On this screen, you can associate tags with the key you're creating. Under "Name" type "state", and under "Value" enter the two letter abbreviation for the state.
+Click "Next". At this point Azure will validate your options and then be prepared to create your key for you.
+
+
+
 
 
 
