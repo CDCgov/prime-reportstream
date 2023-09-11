@@ -9,7 +9,7 @@ import { USExtLink, USLink } from "../../../components/USLink";
 export const DataDownloadGuideIa = () => {
     const navigate = useNavigate();
     return (
-        <>
+        <div className="rs-documentation usa-prose">
             <Helmet>
                 <title>{`${ResourcesDirectories.DOWNLOAD_GUIDE} | Resources`}</title>
             </Helmet>
@@ -124,6 +124,6 @@ export const DataDownloadGuideIa = () => {
                     <USLink href="#anchor-top">Back to top</USLink>
                 </p>
             </section>
-        </>
+        </div>
     );
 };
