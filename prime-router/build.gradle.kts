@@ -784,7 +784,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
     implementation("com.azure:azure-core:1.42.0")
-    implementation("com.azure:azure-core-http-netty:1.13.5")
+    implementation("com.azure:azure-core-http-netty:1.13.7")
     implementation("com.azure:azure-storage-blob:12.22.3") {
         exclude(group = "com.azure", module = "azure-core")
     }

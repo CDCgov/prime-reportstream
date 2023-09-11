@@ -89,7 +89,7 @@ jobs:
       - name: Publish to Chromatic
         id: chromatic_publish
         if: steps.set_vars.outputs.chromatic == 'true'
-        uses: chromaui/action@671728dff1f5d28ae44538038bb18dd21f72a8cc
+        uses: chromaui/action@ebe6961baace1e0d9cc098eb14ae41ab96394958
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}

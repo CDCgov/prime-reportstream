@@ -38,6 +38,9 @@ locals {
     flex_sku_name       = "GP_Standard_D4ds_v4"
     flex_instances      = ["primary"]
   }
+  log_analytics_workspace = {
+    law_retention_period = "30"
+  }
   app = {
     app_tier                 = "PremiumV2"
     app_size                 = "P3v2"

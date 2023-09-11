@@ -1,5 +1,3 @@
-import { GridContainer } from "@trussworks/react-uswds";
-
 import { IACardGridProps } from "../../components/Content/Templates/IACardGridTemplate";
 import {
     supportDirectories,
@@ -26,8 +24,8 @@ const templateProps: IATemplateProps<IACardGridProps> = {
  * and set the Helmet values */
 export function Support() {
     return (
-        <GridContainer>
+        <article id="main-content" className="usa-prose tablet:grid-col-12">
             <IATemplate {...templateProps} />
-        </GridContainer>
+        </article>
     );
 }

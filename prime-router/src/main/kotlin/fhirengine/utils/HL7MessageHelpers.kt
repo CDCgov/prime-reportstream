@@ -31,6 +31,7 @@ object HL7MessageHelpers : Logging {
      */
     fun batchMessages(hl7RawMsgs: List<String>, receiver: Receiver): String {
         check(receiver.translation is Hl7Configuration)
+        val useBatchHeaders = receiver.translation.useBatchHeaders
         // Grab the first message to extract some data if not set in the settings
         val firstMessage = if (hl7RawMsgs.isNotEmpty()) {
             val messages = HL7Reader(ActionLogger()).getMessages(hl7RawMsgs[0])
@@ -51,34 +52,38 @@ object HL7MessageHelpers : Logging {
         val messageCreateDate = firstMessage?.get("MSH-7") ?: time.value
 
         val builder = StringBuilder()
-        builder.append(
-            "FHS|$hl7BatchHeaderEncodingChar|" +
-                "$sendingApp|" +
-                "$sendingApp|" +
-                "$receivingApp|" +
-                "$receivingFacility|" +
-                messageCreateDate
-        )
-        builder.append(hl7SegmentDelimiter)
-        builder.append(
-            "BHS|$hl7BatchHeaderEncodingChar|" +
-                "$sendingApp|" +
-                "$sendingApp|" +
-                "$receivingApp|" +
-                "$receivingFacility|" +
-                messageCreateDate
-        )
-        builder.append(hl7SegmentDelimiter)
+        if (useBatchHeaders) {
+            builder.append(
+                "FHS|$hl7BatchHeaderEncodingChar|" +
+                    "$sendingApp|" +
+                    "$sendingApp|" +
+                    "$receivingApp|" +
+                    "$receivingFacility|" +
+                    messageCreateDate
+            )
+            builder.append(hl7SegmentDelimiter)
+            builder.append(
+                "BHS|$hl7BatchHeaderEncodingChar|" +
+                    "$sendingApp|" +
+                    "$sendingApp|" +
+                    "$receivingApp|" +
+                    "$receivingFacility|" +
+                    messageCreateDate
+            )
+            builder.append(hl7SegmentDelimiter)
+        }
 
         hl7RawMsgs.forEach {
             builder.append(it)
             if (!it.endsWith(hl7SegmentDelimiter)) builder.append(hl7SegmentDelimiter)
         }
 
-        builder.append("BTS|${hl7RawMsgs.size}")
-        builder.append(hl7SegmentDelimiter)
-        builder.append("FTS|1")
-        builder.append(hl7SegmentDelimiter)
+        if (useBatchHeaders) {
+            builder.append("BTS|${hl7RawMsgs.size}")
+            builder.append(hl7SegmentDelimiter)
+            builder.append("FTS|1")
+            builder.append(hl7SegmentDelimiter)
+        }
 
         return builder.toString()
     }

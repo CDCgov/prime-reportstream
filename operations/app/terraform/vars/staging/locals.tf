@@ -45,6 +45,9 @@ locals {
     github_repo            = "JosiahSiegel/hubot-slack-docker"
     github_target_branches = "temp1,demo1,demo2"
   }
+  log_analytics_workspace = {
+    law_retention_period = "30"
+  }
   network = {
     use_cdc_managed_vnet        = true
     dns_vnet                    = "East-vnet"
