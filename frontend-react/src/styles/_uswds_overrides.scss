@@ -441,3 +441,11 @@ figcaption {
     @include u-font("sans", "2xs");
     @include u-text("gray-50");
 }
+
+figure {
+    @include u-margin-x(0);
+
+    > .grid-row {
+        @include u-margin-top(2);
+    }
+}
