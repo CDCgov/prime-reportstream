@@ -150,6 +150,12 @@ elements:
     constants:
       cweFieldPath: '%{hl7OBXField}-17'
 
+  - name: equipment-instance-identifier
+    resource: '%resource.device.resolve().identifier'
+    schema: ../../common/datatype/ei-entity-identifier
+    constants:
+      entityIdFieldPath: '%{hl7OBXField}-18'
+
   - name: analysis-date-time
     value: [ '%resource.issued' ]
     hl7Spec: [ '%{hl7OBXField}-19' ]
