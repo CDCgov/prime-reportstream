@@ -1,10 +1,17 @@
 package gov.cdc.prime.router.unittest
 
+import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.Element
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.fhirengine.translation.hl7.config.ContextConfig
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.Hl7TranslationFunctions
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TranslationFunctions
+import org.hl7.fhir.r4.model.Base
+import org.hl7.fhir.r4.model.Bundle
 
 /**
  * Utilities specific to unit testing.
@@ -58,6 +65,24 @@ object UnitTestUtils {
             convertDateTimesToReceiverLocalTime = convertDateTimesToReceiverLocalTime,
             useTestProcessingMode = useTestProcessingMode,
             schemaName = schemaName
+        )
+    }
+
+    fun createCustomContext(
+        bundle: Bundle = Bundle(),
+        focusResource: Base = Bundle(),
+        constants: MutableMap<String, String> = mutableMapOf(),
+        customFhirFunctions: FhirPathFunctions? = null,
+        config: ContextConfig? = null,
+        translationFunctions: TranslationFunctions? = Hl7TranslationFunctions()
+    ): CustomContext {
+        return CustomContext(
+            bundle,
+            focusResource,
+            constants,
+            customFhirFunctions,
+            config,
+            translationFunctions
         )
     }
 }
