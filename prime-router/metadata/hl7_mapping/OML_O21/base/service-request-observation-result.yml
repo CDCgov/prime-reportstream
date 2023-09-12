@@ -33,3 +33,7 @@ elements:
     value: [ "'N'" ]
     condition: '%resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "alternate identifier").exists() and %resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "alternate identifier").code = "not-asked"'
     hl7Spec: [ '%{hl7OBXField}-11' ]
+
+  - name: observation-date-time
+    value: [ '%resource.effective' ]
+    hl7Spec: [ '%{hl7OBXField}-14' ]
