@@ -132,7 +132,7 @@ class GAENTransport : ITransport, Logging {
             null,
             params.gaenTransportInfo.toString(),
             msg,
-            params.itemCount
+            params.header
         )
         history.trackItemLineages(Report.createItemLineagesFromDb(params.header, params.sentReportId))
     }
