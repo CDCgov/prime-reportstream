@@ -1,0 +1,48 @@
+name:
+  type: STRING
+  valueOf: HD.1
+  expressionType: HL7Spec
+
+physicalType:
+  valueOf: datatype/CodeableConcept_var
+  expressionType: resource
+  constants:
+    code: si
+    system: "http://terminology.hl7.org/CodeSystem/location-physical-type"
+
+identifier_1-universalid-ISO:
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $universalIdType EQUALS ISO
+  vars:
+    idStr: String, HD.2
+    value: $urlPrefix + HD.2
+    universalIdType: String, HD.3
+  constants:
+    urlPrefix: "urn:oid:"
+    KEY_NAME_SUFFIX: Oid
+    urlValue: universal-id
+
+identifier_2-universalid-uuid:
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $idStr NOT_NULL && $universalIdType EQUALS UUID
+  vars:
+    idStr: String, HD.2
+    value: $urlPrefix + HD.2
+    universalIdType: String, HD.3
+  constants:
+    urlPrefix: "urn:uuid:"
+    KEY_NAME_SUFFIX: Uuid
+    urlValue: universal-id
+
+identifier_3-universalIdNoType:
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $value NOT_NULL && $universalIdType NULL
+  vars:
+    value: String, HD.2
+    universalIdType: String, HD.3
+  constants:
+    urlValue: universal-id
+    KEY_NAME_SUFFIX: String
