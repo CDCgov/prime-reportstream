@@ -169,11 +169,7 @@ describe("USLinkButton", () => {
                 Test
             </USLinkButton>,
         );
-        const link = screen.getByRole("link");
-        expect(link.querySelector("svg")).toHaveAttribute(
-            "aria-label",
-            "Launch",
-        );
+        expect(screen.getByRole("link")).toHaveClass("usa-link--external");
     });
 });
 
