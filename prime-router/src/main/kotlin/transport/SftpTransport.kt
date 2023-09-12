@@ -32,7 +32,6 @@ import net.schmizz.sshj.xfer.InMemorySourceFile
 import net.schmizz.sshj.xfer.LocalSourceFile
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
-import org.apache.logging.log4j.kotlin.logger
 import java.io.InputStream
 import java.io.StringReader
 
@@ -67,7 +66,7 @@ class SftpTransport : ITransport, Logging {
                 fileName,
                 sftpTransportType.toString(),
                 msg,
-                header.reportFile.itemCount
+                header
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null
