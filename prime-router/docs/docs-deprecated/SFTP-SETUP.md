@@ -1,8 +1,6 @@
 # SFTP
 
-## Client accessible SFTP
-
-![](assets/client_sftp.png)
+## Provision SFTP container and storage
 
 * Create an Azure SSH key in the appropriate resource group.
     * Send private key to client.
@@ -18,6 +16,15 @@
       >    * sftp user: `lab1`
    * Seperate file shares exist for each instance/user combination in storage account `pdh<env>sftp`.
 * Run Terraform apply to provision the clients SFTP site.
+* Choose a configuration option below.
+
+## Client push to SFTP configuration (option 1)
+
+> ![](assets/client_sftp.png)
+
+## Client pull from SFTP configuration (option 2)
+
+ * Only the initial provisioning is required, as files will not be moved to a seperate storage account.
 
 ---
 
