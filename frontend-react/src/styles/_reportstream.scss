@@ -37,25 +37,10 @@
     }
 }
 
-// Environment watermark above RS wordmark
-.rs-oktapreview-watermark {
-    transform: rotate(343deg);
-    position: absolute;
-    opacity: 0.6;
-    top: 1em;
-    color: crimson;
-    overflow: hidden;
-    font-weight: 900;
-}
-
 .prime-user-account {
     font-size: 0.88rem;
     vertical-align: middle;
     line-height: 1.25rem;
-}
-
-#okta-sign-in {
-    margin-top: 0;
 }
 
 // RS HERO - INDEX PAGES
@@ -193,18 +178,10 @@ ul.rb li .timestamp {
         color: color("base");
     }
 
-    section,
-    hr {
+    section {
         border-top: 1px solid color("base-lighter");
         margin-top: units(4);
         padding-top: units(3);
-    }
-    // for achieving the same as the above <section> class, but in .md content
-    hr {
-        height: 1px;
-        border-right: none;
-        border-bottom: none;
-        border-left: none;
     }
 
     h3 {
@@ -914,6 +891,17 @@ main {
     }
 }
 
-#back-to-top {
+.rs-back-to-top {
     display: block;
+}
+
+.rs-text-align-center {
+    text-align: center;
+}
+
+.rs-column-3 {
+    > ul,
+    > ol {
+        column-count: 3;
+    }
 }

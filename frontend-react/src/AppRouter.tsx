@@ -48,7 +48,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "",
                 index: true,
-                lazy: lazyRouteMarkdown("content/home/home-index"),
+                lazy: lazyRouteMarkdown("content/home/index"),
                 handle: {
                     isContentPage: true,
                     isFullWidth: true,
@@ -63,10 +63,21 @@ export const appRoutes: RouteObject[] = [
             },
             {
                 path: "/about",
-                element: <About />,
-                handle: {
-                    isContentPage: true,
-                },
+                children: [
+                    {
+                        path: "our-network",
+                        lazy: lazyRouteMarkdown("content/about/our-network"),
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                    {
+                        element: <About />,
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                ],
             },
             {
                 path: "/login",
@@ -85,6 +96,20 @@ export const appRoutes: RouteObject[] = [
                 handle: {
                     isContentPage: true,
                 },
+            },
+            {
+                path: "managing-your-connection",
+                children: [
+                    {
+                        path: "refer-healthcare-organizations",
+                        handle: {
+                            isContentPage: true,
+                        },
+                        lazy: lazyRouteMarkdown(
+                            "content/managing-your-connection/refer-healthcare-organizations",
+                        ),
+                    },
+                ],
             },
             {
                 path: "/getting-started",
@@ -106,6 +131,21 @@ export const appRoutes: RouteObject[] = [
                         ),
                         handle: {
                             isContentPage: true,
+                        },
+                    },
+                ],
+            },
+            {
+                path: "/developer-resources",
+                children: [
+                    {
+                        index: true,
+                        lazy: lazyRouteMarkdown(
+                            "content/developer-resources/index-page",
+                        ),
+                        handle: {
+                            isContentPage: true,
+                            isFullWidth: true,
                         },
                     },
                 ],
@@ -216,10 +256,10 @@ export const appRoutes: RouteObject[] = [
                 },
             },
             {
-                path: "/manage-connection",
+                path: "/managing-your-connection",
                 index: true,
                 lazy: lazyRouteMarkdown(
-                    "content/manage-connection/manage-connection-index",
+                    "content/managing-your-connection/index",
                 ),
                 handle: {
                     isContentPage: true,
@@ -238,10 +278,11 @@ export const appRoutes: RouteObject[] = [
                     },
                     {
                         path: "",
-                        element: <Support />,
+                        lazy: lazyRouteMarkdown("content/support/index"),
                         index: true,
                         handle: {
                             isContentPage: true,
+                            isFullWidth: true,
                         },
                     },
                     {

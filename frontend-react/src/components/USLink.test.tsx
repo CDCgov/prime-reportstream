@@ -162,6 +162,15 @@ describe("USLinkButton", () => {
             );
         },
     );
+
+    test("renders USLinkButton with an icon if it has an external link is set", () => {
+        renderApp(
+            <USLinkButton href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957">
+                Test
+            </USLinkButton>,
+        );
+        expect(screen.getByRole("link")).toHaveClass("usa-link--external");
+    });
 });
 
 const externalUrls = [

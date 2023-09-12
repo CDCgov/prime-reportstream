@@ -44,7 +44,16 @@ import gov.cdc.prime.router.ValueSet
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.DateUtilities.formatDateTimeForReceiver
 import gov.cdc.prime.router.common.Hl7Utilities
+import gov.cdc.prime.router.common.StringUtilities.trimAndTruncate
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
+import gov.cdc.prime.router.fhirengine.translation.hl7.HL7Truncator
+import gov.cdc.prime.router.fhirengine.translation.hl7.config.TruncationConfig
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.CE_FIELDS
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.HD_FIELDS_UNIVERSAL
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.HD_TRUNCATION_LIMIT
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.MAX_FORMATTED_TEXT_LENGTH
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.getHL7ComponentMaxLengthList
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils.formPathSpec
 import gov.cdc.prime.router.metadata.ElementAndValue
 import gov.cdc.prime.router.metadata.Mapper
 import org.apache.logging.log4j.kotlin.Logging
@@ -58,12 +67,12 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Properties
 import java.util.TimeZone
-import kotlin.math.min
 
 const val BUFFER_CAPACITY = 40000
 class Hl7Serializer(
     val metadata: Metadata,
-    val settings: SettingsProvider
+    val settings: SettingsProvider,
+    val hl7Truncator: HL7Truncator = HL7Truncator()
 ) : Logging {
     /**
      * HL7 mapping of all messages in a report submission.
@@ -1509,7 +1518,8 @@ class Hl7Serializer(
             // for some state systems, they cannot handle repetition in the PID-13 field, despite what
             // the HL7 specification calls for. In that case, the patient email is not imported. A common
             // workaround is to shove the patient_email into PID-14 which is the business phone
-            val truncatedValue = value.trimAndTruncate(XTN_MAX_LENGTHS[3])
+            // "XTN" is hardcoded in the map so !! is safe
+            val truncatedValue = value.trimAndTruncate(getHL7ComponentMaxLengthList("XTN")!![3])
             if (hl7Config?.usePid14ForPatientEmail == true) {
                 // this is an email address
                 terser.set("/PATIENT_RESULT/PATIENT/PID-14-2", "NET")
@@ -1708,107 +1718,6 @@ class Hl7Serializer(
     }
 
     /**
-     * Get a new truncation limit accounting for the encoding of HL7 special characters.
-     * @param value string value to search for HL7 special characters
-     * @param truncationLimit the starting limit
-     * @return the new truncation limit or starting limit if no special characters are found
-     */
-    internal fun getTruncationLimitWithEncoding(value: String, truncationLimit: Int?): Int? {
-        return if (truncationLimit != null) {
-            val regex = "[&^~|]".toRegex()
-            val endIndex = min(value.length, truncationLimit)
-            val matchCount = regex.findAll(value.substring(0, endIndex)).count()
-
-            if (matchCount > 0) {
-                truncationLimit.minus(matchCount.times(2))
-            } else {
-                truncationLimit
-            }
-        } else {
-            truncationLimit
-        }
-    }
-
-    /**
-     * Trim and truncate the [value] according to the rules in [hl7Config] for [hl7Field].
-     * [terser] provides hl7 standards
-     */
-    internal fun trimAndTruncateValue(
-        value: String,
-        hl7Field: String,
-        hl7Config: Hl7Configuration?,
-        terser: Terser
-    ): String {
-        val maxLength = getMaxLength(hl7Field, value, hl7Config, terser)
-        return value.trimAndTruncate(maxLength)
-    }
-
-    /**
-     * Calculate for [hl7Field] and [value] the length to truncate the value according to the
-     * truncation rules in [hl7Config]. The [terser] is used to determine the HL7 specification length.
-     */
-    internal fun getMaxLength(hl7Field: String, value: String, hl7Config: Hl7Configuration?, terser: Terser): Int? {
-        // get the fields to truncate
-        val hl7TruncationFields = hl7Config
-            ?.truncateHl7Fields
-            ?.uppercase()
-            ?.split(",")
-            ?.map { it.trim() }
-            ?: emptyList()
-
-        // The & character in HL7 is a sub sub field separator. A validly
-        // produced HL7 message should escape & characters as \T\ so that
-        // the HL7 parser doesn't interpret these as sub sub field separators.
-        // Because of this reason, all string values should go through the getTruncationLimitWithEncoding
-        // so that string values that contain sub sub field separators (^&~) will be properly truncated.
-        return when {
-            // This special case takes into account special rules needed by jurisdiction
-            hl7Config?.truncateHDNamespaceIds == true && hl7Field in HD_FIELDS_LOCAL -> {
-                getTruncationLimitWithEncoding(value, HD_TRUNCATION_LIMIT)
-            }
-            // For the fields listed here use the hl7 max length
-            hl7Field in hl7TruncationFields -> {
-                getTruncationLimitWithEncoding(value, getHl7MaxLength(hl7Field, terser))
-            }
-            // In general, don't truncate. The thinking is that
-            // 1. the max length of the specification is "normative" not system specific.
-            // 2. ReportStream is a conduit and truncation is a loss of information
-            // 3. Much of the current HHS guidance implies lengths longer than the 2.5.1 minimums
-            // 4. Later hl7 specifications, relax the minimum length requirements
-            else -> null
-        }
-    }
-
-    /**
-     * Given the internal field or component specified in [hl7Field], return the maximum string length
-     * according to the HL7 specification. The [terser] provides the HL7 specifications
-     */
-    internal fun getHl7MaxLength(hl7Field: String, terser: Terser): Int? {
-        fun getMaxLengthForCompositeType(type: Type, component: Int): Int? {
-            val typeName = type.name
-            val table = HL7_COMPONENT_MAX_LENGTH[typeName] ?: return null
-            return if (component <= table.size) table[component - 1] else null
-        }
-
-        // Dev Note: this function is work in progress.
-        // It is meant to be a general function for all fields and components,
-        // but only has support for the cases of current COVID-19 schema.
-        val segmentName = hl7Field.substring(0, 3)
-        val segmentSpec = formSegSpec(segmentName)
-        val segment = terser.getSegment(segmentSpec)
-        val parts = hl7Field.substring(4).split("-").map { it.toInt() }
-        val field = segment.getField(parts[0], 0)
-        return when (parts.size) {
-            // In general, use the values found in the HAPI library for fields
-            1 -> segment.getLength(parts[0])
-            // use our max-length tables when field and component is specified
-            2 -> getMaxLengthForCompositeType(field, parts[1])
-            // Add cases for sub-components here
-            else -> null
-        }
-    }
-
-    /**
      * Creates the headers for hl7 batch. Generally the [sendingApplicationReportIn], [receivingApplicationReportIn], and
      * [receivingFacilityReportIn] will come from the first item in the file. In the case of empty batch, it
      * must be passed in.
@@ -1851,12 +1760,15 @@ class Hl7Serializer(
         var receivingFacilityTruncationLimit: Int? = null
 
         if (hl7Config?.truncateHDNamespaceIds == true) {
-            sendingAppTruncationLimit = getTruncationLimitWithEncoding(sendingApplicationReport, HD_TRUNCATION_LIMIT)
-            receivingAppTruncationLimit = getTruncationLimitWithEncoding(
+            sendingAppTruncationLimit = hl7Truncator.getTruncationLimitWithEncoding(
+                sendingApplicationReport,
+                HD_TRUNCATION_LIMIT
+            )
+            receivingAppTruncationLimit = hl7Truncator.getTruncationLimitWithEncoding(
                 receivingApplicationReport,
                 HD_TRUNCATION_LIMIT
             )
-            receivingFacilityTruncationLimit = getTruncationLimitWithEncoding(
+            receivingFacilityTruncationLimit = hl7Truncator.getTruncationLimitWithEncoding(
                 receivingFacilityReport,
                 HD_TRUNCATION_LIMIT
             )
@@ -1936,26 +1848,6 @@ class Hl7Serializer(
             return spec.replaceRange(it.range, nextComponent.toString())
         }
         error("Did match on component or subcomponent")
-    }
-
-    internal fun formPathSpec(spec: String, rep: Int? = null): String {
-        val segment = spec.substring(0, 3)
-        val components = spec.substring(3)
-        val segmentSpec = formSegSpec(segment, rep)
-        return "$segmentSpec$components"
-    }
-
-    internal fun formSegSpec(segment: String, rep: Int? = null): String {
-        val repSpec = rep?.let { "($rep)" } ?: ""
-        return when (segment) {
-            "OBR" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBR"
-            "ORC" -> "/PATIENT_RESULT/ORDER_OBSERVATION/ORC"
-            "SPM" -> "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM"
-            "PID" -> "/PATIENT_RESULT/PATIENT/PID"
-            "OBX" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION$repSpec/OBX"
-            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE$repSpec"
-            else -> segment
-        }
     }
 
     private fun formatHD(hdFields: Element.HDFields, separator: String = DEFAULT_COMPONENT_SEPARATOR): String {
@@ -2222,8 +2114,6 @@ class Hl7Serializer(
     }
 
     companion object {
-        /** the length to truncate HD values to. Defaults to 20 */
-        const val HD_TRUNCATION_LIMIT = 20
         const val HL7_SPEC_VERSION: String = "2.5.1"
         const val MESSAGE_CODE = "ORU"
         const val MESSAGE_TRIGGER_EVENT = "R01"
@@ -2240,74 +2130,6 @@ class Hl7Serializer(
         const val DEFAULT_SUBCOMPONENT_SEPARATOR = "&"
 
         val phoneNumberUtil: PhoneNumberUtil = PhoneNumberUtil.getInstance()
-
-        /*
-        From the HL7 2.5.1 Ch 2A spec...
-
-        The Hierarchical Designator identifies an entity that has responsibility for managing or
-        assigning a defined set of instance identifiers.
-
-        The HD is designed to be used either as a local identifier (with only the <namespace ID> valued)
-        or a publicly-assigned identifier, a UID (<universal ID> and <universal ID type> both valued)
-         */
-
-        /**
-         * List of fields that have the local HD type.
-         */
-        val HD_FIELDS_LOCAL = listOf(
-            "MSH-3-1", "MSH-4-1", "OBR-3-2", "OBR-2-2", "ORC-3-2", "ORC-2-2", "ORC-4-2",
-            "PID-3-4-1", "PID-3-6-1", "SPM-2-1-2", "SPM-2-2-2"
-        )
-
-        /**
-         * List of fields that have the universal HD type
-         */
-        val HD_FIELDS_UNIVERSAL = listOf(
-            "MSH-3-2", "MSH-4-2", "OBR-3-3", "OBR-2-3", "ORC-3-3", "ORC-2-3", "ORC-4-3",
-            "PID-3-4-2", "PID-3-6-2", "SPM-2-1-3", "SPM-2-2-3"
-        )
-
-        /**
-         * List of fields that have a CE type. Note: this is only really used in places
-         * where we need to put a CLIA marker in the field as well and there are a
-         * lot of CE fields that are *NOT* CLIA fields, so use this correctly.
-         */
-        val CE_FIELDS = listOf("OBX-15-1")
-
-        /** The max length for the formatted text type (FT) in HL7 */
-        private const val maxFormattedTextLength = 65536
-
-        // Component specific sub-component length from HL7 specification Chapter 2A
-        private val CE_MAX_LENGTHS = arrayOf(20, 199, 20, 20, 199, 20)
-        private val CWE_MAX_LENGTHS = arrayOf(20, 199, 20, 20, 199, 20, 10, 10, 199)
-        private val CX_MAX_LENGTHS = arrayOf(15, 1, 3, 227, 5, 227, 5, 227, 8, 8, 705, 705)
-        private val EI_MAX_LENGTHS = arrayOf(199, 20, 199, 6)
-        private val EIP_MAX_LENGTHS = arrayOf(427, 427)
-        private val HD_MAX_LENGTHS = arrayOf(20, 199, 6)
-        private val XTN_MAX_LENGTHS = arrayOf(199, 3, 8, 199, 3, 5, 9, 5, 199, 4, 6, 199)
-        private val XAD_MAX_LENGTHS = arrayOf(184, 120, 50, 50, 12, 3, 3, 50, 20, 20, 1, 53, 26, 26)
-        private val XCN_MAX_LENGTHS =
-            arrayOf(15, 194, 30, 30, 20, 20, 5, 4, 227, 1, 1, 3, 5, 227, 1, 483, 53, 1, 26, 26, 199, 705, 705)
-        private val XON_MAX_LENGTHS = arrayOf(50, 20, 4, 1, 3, 227, 5, 227, 1, 20)
-        private val XPN_MAX_LENGTHS = arrayOf(194, 30, 30, 20, 20, 6, 1, 1, 483, 53, 1, 26, 26, 199)
-
-        /**
-         * Component length table for composite HL7 types taken from HL7 specification Chapter 2A.
-         */
-        val HL7_COMPONENT_MAX_LENGTH = mapOf(
-            "CE" to CE_MAX_LENGTHS,
-            "CWE" to CWE_MAX_LENGTHS,
-            "CX" to CX_MAX_LENGTHS,
-            "EI" to EI_MAX_LENGTHS,
-            "EIP" to EIP_MAX_LENGTHS,
-            "HD" to HD_MAX_LENGTHS,
-            "XAD" to XAD_MAX_LENGTHS,
-            "XCN" to XCN_MAX_LENGTHS,
-            "XON" to XON_MAX_LENGTHS,
-            "XPN" to XPN_MAX_LENGTHS,
-            "XTN" to XTN_MAX_LENGTHS
-            // Extend further here
-        )
 
         /**
          * List of ordering provider id fields
@@ -2361,7 +2183,7 @@ class Hl7Serializer(
                 }
             }
 
-            return sb.toString().trimAndTruncate(maxFormattedTextLength)
+            return sb.toString().trimAndTruncate(MAX_FORMATTED_TEXT_LENGTH)
         }
 
         /**
@@ -2466,19 +2288,30 @@ class Hl7Serializer(
             return ""
         }
     }
-}
 
-/**
- * Trim and truncate the string to the [maxLength] preserving as much of the non-whitespace as possible
- */
-fun String.trimAndTruncate(maxLength: Int?): String {
-    val startTrimmed = this.trimStart()
-    val truncated = if (maxLength != null && startTrimmed.length > maxLength) {
-        startTrimmed.take(maxLength)
-    } else {
-        startTrimmed
+    /**
+     * Delegate call to universal pipeline truncation logic
+     */
+    internal fun trimAndTruncateValue(
+        value: String,
+        hl7Field: String,
+        hl7Config: Hl7Configuration?,
+        terser: Terser
+    ): String {
+
+        val truncationConfig = hl7Config?.truncationConfig ?: TruncationConfig.EMPTY
+
+        return hl7Truncator.trimAndTruncateValue(value, hl7Field, terser, truncationConfig)
     }
-    return truncated.trimEnd()
+
+    /**
+     * Delegate call to universal pipeline truncation logic
+     */
+    private fun getMaxLength(hl7Field: String, value: String, hl7Config: Hl7Configuration?, terser: Terser): Int? {
+        val truncationConfig = hl7Config?.truncationConfig ?: TruncationConfig.EMPTY
+
+        return hl7Truncator.getMaxLength(hl7Field, value, terser, truncationConfig)
+    }
 }
 
 /**
