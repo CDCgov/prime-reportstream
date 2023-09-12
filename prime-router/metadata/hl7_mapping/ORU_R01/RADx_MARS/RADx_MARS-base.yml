@@ -42,6 +42,11 @@ elements:
       - '%radxMarsPatient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[1].system'
     hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-10-6 ]
 
+  - name: patient-race-coding-system-version
+    condition: '%radxMarsPatient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.exists()'
+    value: [ '"2.5.1"' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-10-7 ]
+
   - name: radx-mars-patient-ethnicity-description
     condition: '%radxMarsPatient.extension(%`rsext-ethnic-group`).value.exists()'
     value: [ '"https://www.hl7.org/fhir/v2/0189/"' ]
@@ -53,7 +58,7 @@ elements:
     hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-3 ]
 
   - name: patient-ethnicity-coding-system-version
-    condition: '%resource.extension(%`rsext-ethnic-group`).value.exists()'
+    condition: '%radxMarsPatient.extension(%`rsext-ethnic-group`).value.exists()'
     value: [ '"2.5.1"' ]
     hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-7 ]
 
