@@ -12,13 +12,13 @@
 
       &__container,
       &__response,
-      &__identity-disclaimer {
+      &__identity-disclaimer,
+      &__section--usagov a {
         font-size: 14px;
         font-weight: 400;
       }
 
-      &__required-links-item,
-      &__section--usagov a {
+      &__required-links-item {
         font-size: 12px;
         font-weight: 400;
         margin-bottom: 1rem;
