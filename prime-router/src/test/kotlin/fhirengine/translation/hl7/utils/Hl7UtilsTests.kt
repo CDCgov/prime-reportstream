@@ -13,6 +13,7 @@ import ca.uhn.hl7v2.model.v251.message.ADT_A01
 import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class Hl7UtilsTests {
     @Test
@@ -58,5 +59,29 @@ class Hl7UtilsTests {
         }
 
         assertThat { HL7Utils.getMessageInstance("java.lang.String") }.isFailure()
+    }
+
+    @Test
+    fun `test removing index from HL7 field`() {
+        val field = "ORC-12(0)-1"
+
+        val cleanedField = HL7Utils.removeIndexFromHL7Field(field)
+        assertEquals("ORC-12-1", cleanedField)
+    }
+
+    @Test
+    fun `test removing huge index from HL7 field`() {
+        val field = "ORC-12(12345)-1"
+
+        val cleanedField = HL7Utils.removeIndexFromHL7Field(field)
+        assertEquals("ORC-12-1", cleanedField)
+    }
+
+    @Test
+    fun `test passthrough HL7 field without index`() {
+        val field = "ORC-12-1"
+
+        val cleanedField = HL7Utils.removeIndexFromHL7Field(field)
+        assertEquals("ORC-12-1", cleanedField)
     }
 }

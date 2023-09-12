@@ -898,3 +898,10 @@ main {
 .rs-text-align-center {
     text-align: center;
 }
+
+.rs-column-3 {
+    > ul,
+    > ol {
+        column-count: 3;
+    }
+}
