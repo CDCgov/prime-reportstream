@@ -64,8 +64,8 @@ export const ReportStreamFooter = () => {
                                 </IdentifierLink>
                             </IdentifierLinkItem>
                             <IdentifierLinkItem>
-                                <IdentifierLink href="https://www.cdc.gov/contact/accessibility.html">
-                                    Accessibilty support
+                                <IdentifierLink href="https://www.cdc.gov/other/accessibility.html">
+                                    Accessibilty
                                 </IdentifierLink>
                             </IdentifierLinkItem>
                             <IdentifierLinkItem>

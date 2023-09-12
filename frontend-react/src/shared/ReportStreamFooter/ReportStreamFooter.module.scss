@@ -11,7 +11,8 @@
       padding: 0;
 
       &__container,
-      &__response {
+      &__response,
+      &__identity-disclaimer {
         font-size: 14px;
         font-weight: 400;
       }
@@ -19,6 +20,7 @@
       &__required-links-item,
       &__section--usagov a {
         font-size: 12px;
+        font-weight: 400;
         margin-bottom: 1rem;
       }
     }
