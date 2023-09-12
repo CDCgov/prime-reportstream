@@ -278,10 +278,11 @@ export const appRoutes: RouteObject[] = [
                     },
                     {
                         path: "",
-                        element: <Support />,
+                        lazy: lazyRouteMarkdown("content/support/index"),
                         index: true,
                         handle: {
                             isContentPage: true,
+                            isFullWidth: true,
                         },
                     },
                     {
