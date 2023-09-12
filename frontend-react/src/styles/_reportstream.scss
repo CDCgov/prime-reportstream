@@ -894,3 +894,10 @@ main {
 #back-to-top {
     display: block;
 }
+
+.rs-column-3 {
+    > ul,
+    > ol {
+        column-count: 3;
+    }
+}
