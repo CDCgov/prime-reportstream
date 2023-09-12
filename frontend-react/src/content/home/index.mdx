@@ -1,0 +1,103 @@
+---
+liveMapContact:
+    - title: Who is in our network
+      subTitle: Public health entities
+      summary: ReportStream works with organizations who need to report data and public health entities who need to receive data.
+      features:
+        - img: rs-live-stlt.svg
+          imgAlt: Map of the U.S. showing states and territories where ReportStream is currently live
+          linkInternal: /how-it-works/where-were-live
+      citation:
+        - title: More test results and improved interoperability
+          quote: All the people we worked with were competent and focused. I will commend the team as to how they have continued to onboard facilities and get those lab results to us timely.  Without it, we wouldn’t have received those reports at all; or, we would have had numerous pages of faxes. This initiative really improved our interoperability.
+          author: Monica Gamez
+          authorTitle: Deputy Associate Commissioner, Texas Department of State Health Services
+---
+import site from "../site.json";
+
+<HeroWrapper isAlternate className="rs-bg-grid">
+    <div className="grid-container">
+        <header className="usa-section usa-prose tablet:grid-col-10">
+            <h1>Your single connection to simplify data transfer and improve public health</h1>
+            <p className="rs-subtitle">ReportStream is CDC’s free, interoperable platform for streamlining public health reporting.
+                <br />We navigate unique, complex requirements and work to make sure your data gets where it needs to be.</p>
+            <div className="grid-row margin-top-8 margin-bottom-2">
+                <A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957" className="usa-button usa-button--big" target="_blank">Connect now</A>
+            </div>
+        </header>
+    </div>
+</HeroWrapper>
+<HeroWrapper>
+    <div className="grid-container">
+        <section className="usa-section">
+            <h2 data-testid="heading" className="font-sans-xl margin-top-0" >How we help you</h2>
+            <CardGroup>
+                <Card gridLayout={{col: "fill"}} isAlternate>
+                    <CardMedia>
+                        <img src="/assets/img/home/how-we-help-1.png" alt="Create a personalized plan to meet your unique public health data needs" />
+                    </CardMedia>
+                    <CardHeader className="font-sans-lg" typeof="div">
+                        Create a personalized plan to meet your unique public health data needs
+                    </CardHeader>
+                    <CardBody>
+                        Our expert team works with your preferences to accept data in HL7, FHIR and CSV, and deliver data through multiple connection types.
+                    </CardBody>
+                </Card>
+                <Card gridLayout={{col: "fill"}} isAlternate>
+                    <CardMedia>
+                        <img src="/assets/img/home/how-we-help-2.png" alt="Start sending or receiving data" />
+                    </CardMedia>
+                    <CardHeader className="font-sans-lg" typeof="div">
+                        Start sending or receiving data
+                    </CardHeader>
+                    <CardBody>
+                        Through our secure, cloud-based platform, data is validated, routed and transformed to the correct jurisdictions in the correct formatting.
+                    </CardBody>
+                </Card>
+                <Card gridLayout={{col: "fill"}} isAlternate>
+                    <CardMedia>
+                        <img src="/assets/img/home/how-we-help-3.png" alt="Stay updated on the status of your data" />
+                    </CardMedia>
+                    <CardHeader className="font-sans-lg" typeof="div">
+                        Stay updated on the status of your data
+                    </CardHeader>
+                    <CardBody>
+                        Our [expert support team](/support) is on call and ready to solve any problems that arise.
+                    </CardBody>
+                </Card>
+            </CardGroup>
+            <div className="grid-row flex-justify-center margin-y-2">
+                <A href={site.forms.connectWithRS.url} className="usa-button usa-button--big">Get started</A>
+            </div>
+        </section>
+    </div>
+</HeroWrapper>
+<HeroWrapper className="bg-blue-5">
+    <div className="grid-container">
+        <section className="usa-section padding-bottom-0">
+            <h2 className="font-sans-xl margin-top-0">How it works</h2>
+            <p className="font-sans-lg margin-top-4">Our open-source platform aggregates and [securely delivers](/resources/security-practices) healthcare data from organizations and testing facilities directly to public health entities. Born in response to the COVID-19 pandemic, ReportStream is built to thrive and evolve within the complex environment of public health.</p>
+            <img
+                className="margin-y-8"
+                src="/assets/img/ReportStreamDiagram_2023.png"
+                alt="Organizations and testing facilities submit data, which ReportStream validates, augments and standardizes. Then, the data is routed as ReportStream determines the destination by subscription management. After this, it is transformed and transported to public health agencies in the desired data model and batch size."
+            />
+            ### Accepted data types and conditions
+            [Check out the current data types](/getting-started) we accept and the growing list of conditions that ReportStream can help you send or receive.
+        </section>
+    </div>
+</HeroWrapper>
+<HeroWrapper className="grid-container">
+    {frontmatter.liveMapContact.map((section, sectionIndex) => {
+        return (
+            <LiveMap key={`livemap-${sectionIndex}`} className="usa-section margin-y-0 tablet:padding-bottom-9" {...section} />
+        );
+    })}
+</HeroWrapper>
+<HeroWrapper className="bg-blue-5">
+    <section className="grid-container grid-row usa-section usa-prose flex-justify-center">
+        <p className="font-sans-xl text-bold margin-top-0">Still exploring if ReportStream is right for you?</p>
+        <p className="font-sans-lg">Our team will respond to your questions or set up a time to learn more about how we can help you.</p>
+        <A href={site.forms.connectWithRS.url} className="usa-button usa-button--big" target="_blank">Connect with us</A>
+    </section>
+</HeroWrapper>
