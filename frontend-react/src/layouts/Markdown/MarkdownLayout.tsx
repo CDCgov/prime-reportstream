@@ -11,7 +11,7 @@ import * as shared from "../../shared";
 
 import { TableOfContents } from "./TableOfContents";
 import MarkdownLayoutContext from "./Context";
-import { LayoutSidenav, LayoutMain } from "./LayoutComponents";
+import { LayoutSidenav, LayoutMain, LayoutBackToTop } from "./LayoutComponents";
 import styles from "./MarkdownLayout.module.scss";
 
 /**
@@ -146,11 +146,10 @@ export function MarkdownLayout({
             ) : null}
             {article ?? (
                 <article
-                    id="main-content"
                     className={classNames(
                         "usa-prose",
                         sidenavContent
-                            ? "tablet:grid-col-8"
+                            ? "tablet:grid-col-9"
                             : "tablet:grid-col-12",
                     )}
                 >
@@ -163,7 +162,7 @@ export function MarkdownLayout({
                                     subtitleArr={subtitleArr}
                                     callToAction={callToAction}
                                     lastUpdated={lastUpdated}
-                                    className="usa-section grid-container"
+                                    className="usa-section usa-prose grid-container"
                                 />
                             </shared.HeroWrapper>
                         ) : (
@@ -173,7 +172,7 @@ export function MarkdownLayout({
                                 subtitleArr={subtitleArr}
                                 callToAction={callToAction}
                                 lastUpdated={lastUpdated}
-                                className="usa-section"
+                                className="usa-prose"
                             />
                         ))}
                     {tocObj && tocEntries && (
@@ -189,16 +188,13 @@ export function MarkdownLayout({
                             ...MDXComponents,
                             LayoutSidenav,
                             LayoutMain,
+                            LayoutBackToTop,
                             ...mdx?.components,
                         }}
                     >
                         {mainContent ?? children}
                     </MDXProvider>
-                    {backToTop && (
-                        <p>
-                            <USSmartLink href="#top">Back to top</USSmartLink>
-                        </p>
-                    )}
+                    {backToTop && !isFullWidth && <LayoutBackToTop />}
                 </article>
             )}
         </MarkdownLayoutContext.Provider>

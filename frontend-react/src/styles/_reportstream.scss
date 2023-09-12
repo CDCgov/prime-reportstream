@@ -37,25 +37,10 @@
     }
 }
 
-// Environment watermark above RS wordmark
-.rs-oktapreview-watermark {
-    transform: rotate(343deg);
-    position: absolute;
-    opacity: 0.6;
-    top: 1em;
-    color: crimson;
-    overflow: hidden;
-    font-weight: 900;
-}
-
 .prime-user-account {
     font-size: 0.88rem;
     vertical-align: middle;
     line-height: 1.25rem;
-}
-
-#okta-sign-in {
-    margin-top: 0;
 }
 
 // RS HERO - INDEX PAGES
@@ -193,18 +178,10 @@ ul.rb li .timestamp {
         color: color("base");
     }
 
-    section,
-    hr {
+    section {
         border-top: 1px solid color("base-lighter");
         margin-top: units(4);
         padding-top: units(3);
-    }
-    // for achieving the same as the above <section> class, but in .md content
-    hr {
-        height: 1px;
-        border-right: none;
-        border-bottom: none;
-        border-left: none;
     }
 
     h3 {
@@ -817,6 +794,7 @@ html {
 h2.rs-numbered {
     @include numbered(h2);
 }
+
 .faq-wrapper {
     .heading {
         h3 {
@@ -857,9 +835,12 @@ main {
     * CMS-type pages use a smaller default width
     */
     &--content {
-        main {
+        main,
+        .grid-container {
             @include grid-container("desktop-lg");
+        }
 
+        main {
             // Smaller font for content alerts
             .usa-alert {
                 @include u-font-size("sans", "xs");
@@ -875,6 +856,7 @@ main {
         main {
             @include grid-container("full");
             @include u-padding(0);
+            @include grid-gap(0);
 
             /*
             * Make flush across all screen sizes
@@ -884,10 +866,42 @@ main {
                     @include u-padding(0, !important);
                 }
             }
+
+            // Undo specific subtitle coloring
+            .rs-subtitle {
+                color: unset;
+            }
         }
 
         #site-header {
             margin-bottom: unset;
         }
+    }
+}
+
+.rs-subtitle,
+.usa-prose .rs-subtitle {
+    @include u-font("sans", "lg");
+    @include u-color("base");
+    @include u-margin-top(4);
+    @include u-margin-bottom(0);
+
+    & + * {
+        @include u-margin-top(8);
+    }
+}
+
+.rs-back-to-top {
+    display: block;
+}
+
+.rs-text-align-center {
+    text-align: center;
+}
+
+.rs-column-3 {
+    > ul,
+    > ol {
+        column-count: 3;
     }
 }

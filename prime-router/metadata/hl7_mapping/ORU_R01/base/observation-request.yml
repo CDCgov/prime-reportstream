@@ -1,25 +1,8 @@
 constants:
   fieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBR
 elements:
-  - name: request-set-id
-    value: [ '%orderIndex  + 1' ]
-    hl7Spec: [ '%{fieldPath}-1' ]
-
-  - name: placer-order
-    resource: '%resource.identifier.where(type.coding.code = "PLAC")'
-    condition: '%resource.exists()'
-    constants:
-      entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-2'
-    schema: ../../common/datatype/ei-entity-identifier
-    resourceIndex: entityIdIndex
-
-  - name: filler-order
-    resource: '%resource.identifier.where(type.coding.code = "FILL")'
-    condition: '%resource.exists()'
-    constants:
-      entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-3'
-    schema: ../../common/datatype/ei-entity-identifier
-    resourceIndex: entityIdIndex
+  - name: observation-request
+    schema: ../../common/observation-request
 
   - name: order-organization-identifier
     condition: '%diagnostic.identifier.type.empty()'
@@ -28,12 +11,6 @@ elements:
       organizationIdFieldPath: '%{fieldPath}-3'
       identifier: '%diagnostic.identifier[0].value'
     schema: ../../common/organization-identifier
-
-  - name: universal-service
-    resource: '%resource.code'
-    constants:
-      cweFieldPath: '%{fieldPath}-4'
-    schema: ../../common/datatype/ce-coded-with-exceptions
 
   - name: observation-request-date-time
     condition: '%resource.effective is dateTime'
