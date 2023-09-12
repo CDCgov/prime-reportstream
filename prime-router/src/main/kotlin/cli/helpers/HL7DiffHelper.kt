@@ -23,7 +23,8 @@ class HL7DiffHelper {
     }
 
     /**
-     * Does the diffing of the [input] message to the [output] message. Results are echoed on the command line.
+     * Does the diffing of the [input] message to the [output] message.
+     * @return The list of differences between the messages.
      */
     fun diffHl7(input: Message, output: Message): List<Hl7Diff> {
         val inputMap: MutableMap<String, Segment> = mutableMapOf()
