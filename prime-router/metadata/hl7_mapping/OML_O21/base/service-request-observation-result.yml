@@ -5,3 +5,8 @@ elements:
     value: [ '%resultIndex + 1' ]
     hl7Spec: [ '%{hl7OBXField}-1' ]
 
+  - name: observation-identifier-code
+    resource: '%resource.code'
+    constants:
+      cweFieldPath: '%{hl7OBXField}-3'
+    schema: ../../common/datatype/ce-coded-with-exceptions
