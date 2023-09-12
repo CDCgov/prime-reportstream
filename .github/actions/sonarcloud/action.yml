@@ -15,7 +15,7 @@ runs:
 
     - name: Run Default SonarCloud Scan
       if: inputs.scan-level == 'default'
-      uses: sonarsource/sonarcloud-github-action@4b4d7634dab97dcee0b75763a54a6dc92a9e6bc1
+      uses: sonarsource/sonarcloud-github-action@c25d2e7e3def96d0d1781000d3c429da22cd6252
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         SONAR_TOKEN: ${{ inputs.sonar-token }}
@@ -32,7 +32,7 @@ runs:
 
     - name: Run Frontend SonarCloud Scan
       if: inputs.scan-level == 'frontend'
-      uses: sonarsource/sonarcloud-github-action@4b4d7634dab97dcee0b75763a54a6dc92a9e6bc1
+      uses: sonarsource/sonarcloud-github-action@c25d2e7e3def96d0d1781000d3c429da22cd6252
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         SONAR_TOKEN: ${{ inputs.sonar-token }}
@@ -49,7 +49,7 @@ runs:
 
     - name: Run Backend SonarCloud Scan
       if: inputs.scan-level == 'backend'
-      uses: sonarsource/sonarcloud-github-action@4b4d7634dab97dcee0b75763a54a6dc92a9e6bc1
+      uses: sonarsource/sonarcloud-github-action@c25d2e7e3def96d0d1781000d3c429da22cd6252
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         SONAR_TOKEN: ${{ inputs.sonar-token }}
