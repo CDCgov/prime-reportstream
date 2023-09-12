@@ -50,6 +50,10 @@ export interface SafeLinkProps extends React.AnchorHTMLAttributes<Element> {
     state?: any;
 }
 
+const sanitizeHref = (href: string | undefined) => {
+    return href ? DOMPurify.sanitize(href) : href;
+};
+
 /**
  * Sanitizes href and determines if href is an app route or regular
  * link.
@@ -60,14 +64,19 @@ export const SafeLink = ({
     state,
     ...anchorHTMLAttributes
 }: SafeLinkProps) => {
-    const sanitizedHref = href ? DOMPurify.sanitize(href) : href;
+    const sanitizedHref = sanitizeHref(href);
     const routeHref = getHrefRoute(sanitizedHref);
     const isFile = sanitizedHref?.startsWith("/assets/");
-    return routeHref !== undefined && !isFile ? (
-        <Link to={href!} state={state} {...anchorHTMLAttributes}>
-            {children}
-        </Link>
-    ) : (
+
+    if (routeHref !== undefined && !isFile) {
+        return (
+            <Link to={href!} state={state} {...anchorHTMLAttributes}>
+                {children}
+            </Link>
+        );
+    }
+
+    return (
         <a href={sanitizedHref} {...anchorHTMLAttributes}>
             {children}
         </a>
@@ -113,6 +122,11 @@ export const USLinkButton = ({
         },
         className,
     );
+    if (isExternalUrl(sanitizeHref(anchorHTMLAttributes.href))) {
+        return (
+            <USExtLink {...anchorHTMLAttributes} className={linkClassname} />
+        );
+    }
     return <SafeLink {...anchorHTMLAttributes} className={linkClassname} />;
 };
 

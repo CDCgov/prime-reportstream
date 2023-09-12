@@ -161,13 +161,18 @@ runs:
       shell: bash
 
     - name: Build Docker image
-      working-directory: prime-router
-      run: |
-        docker build . \
-          --file Dockerfile \
-          --tag ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:latest \
-          --tag ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:${{ env.TAG }}
-      shell: bash
+      uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
+      with:
+        timeout_minutes: 20
+        max_attempts: 3
+        retry_wait_seconds: 60
+        command: |
+          cd prime-router
+          docker build . \
+            --file Dockerfile \
+            --tag ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:latest \
+            --tag ${{ env.ACR_NAME }}/${{ env.IMAGE_REPO }}:${{ env.TAG }}
+        shell: bash
 
     - name: Push Docker image (signed)
       if: env.USE_DCT == 'true'

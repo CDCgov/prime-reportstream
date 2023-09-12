@@ -143,4 +143,55 @@ OBX|1|ST|MLI-4000.15^TEMPERATURE||97.7|deg f|||||R|||19980601184619
         assertThat(Terser(messages[0]).get("/PATIENT_RESULT/PATIENT/PID-2")).isEqualTo("1731-TEST734")
         assertThat(Terser(messages[1]).get("/PATIENT_RESULT/PATIENT/PID-2")).isEqualTo("1731-TEST734")
     }
+
+    @Test
+    fun `test batch file generation without batch headers`() {
+        // With receiver information
+        var receiver = Receiver(
+            "name", "org", Topic.FULL_ELR,
+            translation = Hl7Configuration(
+                receivingApplicationName = "appName", receivingApplicationOID = null,
+                receivingFacilityName = "facName", receivingFacilityOID = null, receivingOrganization = null,
+                messageProfileId = null, useBatchHeaders = false
+            )
+        )
+        var result = HL7MessageHelpers.batchMessages(emptyList(), receiver)
+        result.split(HL7MessageHelpers.hl7SegmentDelimiter).forEach { s ->
+            assertThat(s).isEmpty()
+        }
+
+        val sampleHl7 = """MSH|^~\&#|hl7sendingApp||hl7recApp|hl7recFac|||ORU^R01^ORU_R01|||2.5.1""".trimIndent()
+        var messages = listOf("message1", "message2", sampleHl7)
+        result = HL7MessageHelpers.batchMessages(messages, receiver)
+        result.split(HL7MessageHelpers.hl7SegmentDelimiter).forEachIndexed { index, s ->
+            when (index) {
+                0 -> assertThat(s).isEqualTo(messages[0])
+                1 -> assertThat(s).isEqualTo(messages[1])
+                2 -> {
+                    assertThat(s).startsWith("MSH")
+                }
+                else -> assertThat(s).isEmpty()
+            }
+        }
+
+        // Now the sample HL7 is first, so we can grab data from it
+        receiver = Receiver(
+            "name", "org", Topic.FULL_ELR,
+            translation = Hl7Configuration(
+                receivingApplicationName = null, receivingApplicationOID = null,
+                receivingFacilityName = null, receivingFacilityOID = null, receivingOrganization = null,
+                messageProfileId = null, useBatchHeaders = false
+            )
+        )
+        messages = listOf(sampleHl7, "message1", "message2")
+        result = HL7MessageHelpers.batchMessages(messages, receiver)
+        result.split(HL7MessageHelpers.hl7SegmentDelimiter).forEachIndexed { index, s ->
+            when (index) {
+                0 -> assertThat(s).isEqualTo(sampleHl7)
+                1 -> assertThat(s).isEqualTo(messages[1])
+                2 -> assertThat(s).isEqualTo(messages[2])
+                else -> assertThat(s).isEmpty()
+            }
+        }
+    }
 }
