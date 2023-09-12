@@ -1,6 +1,6 @@
 # Installing OpenJDK
 
-Note that we currently target OpenJDK 11 through 15, examples use OpenJDK 11.
+Note that we currently target OpenJDK 17.
 
 ## Windows
 
@@ -10,7 +10,7 @@ See https://jdk.java.net/ for detailed instructions.
 
 ```bash
 brew update
-VERSION=11
+VERSION=17
 brew install openjdk@${VERSION?}
 ```
 
@@ -27,22 +27,22 @@ Please visit http://www.java.com for information on installing Java.
 You need to follow the rest of the brew install instructions:
 
 ```bash
-VERSION=11
+VERSION=17
 brew info openjdk@${VERSION?}
 # Example output from running the above command, please run yourself
 # just in case brew updates the install instructions
 ==> Caveats
 For the system Java wrappers to find this JDK, symlink it with
-  sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
+  sudo ln -sfn /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
 
-openjdk@11 is keg-only, which means it was not symlinked into /opt/homebrew,
+openjdk@17 is keg-only, which means it was not symlinked into /opt/homebrew,
 because this is an alternate version of another formula.
 
-If you need to have openjdk@11 first in your PATH, run:
-  echo 'export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"' >> ~/.zshrc
+If you need to have openjdk@17 first in your PATH, run:
+  echo 'export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"' >> ~/.zshrc
 
-For compilers to find openjdk@11 you may need to set:
-  export CPPFLAGS="-I/opt/homebrew/opt/openjdk@11/include"
+For compilers to find openjdk@17 you may need to set:
+  export CPPFLAGS="-I/opt/homebrew/opt/openjdk@17/include"
 ```
 
 I had to follow all three commands to get `./cleanslate.sh` to run cleanly.
@@ -60,6 +60,6 @@ echo export "JAVA_HOME=\$(/usr/libexec/java_home)" >> ~/.zshrc
 ```bash
 sudo apt-get update
 # Set to 15 if you so choose
-VERSION=11
+VERSION=17
 sudo apt-get --yes install openjdk-${VERSION?}-jdk
 ```

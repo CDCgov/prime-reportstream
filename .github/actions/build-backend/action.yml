@@ -5,6 +5,16 @@ inputs:
   version:
     description: "Version tag"
     required: true
+  upload-build:
+    default: true
+  run-integration-tests:
+    default: false
+  run-qc:
+    default: false
+  github-token:
+    default: false
+  sonar-token:
+    default: false
 
 runs:
   using: "composite"
@@ -18,6 +28,25 @@ runs:
         echo >> $GITHUB_ENV DB_USER='prime'
         echo >> $GITHUB_ENV DB_PASSWORD='changeIT!'
 
+    - name: Set up JDK 17
+      uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2
+      with:
+        java-version: "17"
+        distribution: "temurin"
+        cache: "gradle"
+
+    - name: Initialize CodeQL
+      if: github.actor != 'dependabot[bot]' && inputs.run-qc == 'true'
+      uses: github/codeql-action/init@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
+      with:
+        languages: java
+
+    - name: Lint
+      if: inputs.run-integration-tests == 'true'
+      working-directory: prime-router
+      run: ./gradlew ktlintCheck
+      shell: bash
+
     - uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
 
     - name: Spin up build containers
@@ -26,11 +55,18 @@ runs:
       run: docker-compose -f docker-compose.postgres.yml up -d
 
     - name: Build Prime Router Package
-      working-directory: prime-router
-      shell: bash
-      run: ./gradlew package -x fatjar -Pshowtests
+      uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
+      with:
+        timeout_minutes: 30
+        max_attempts: 2
+        retry_wait_seconds: 30
+        command: |
+          cd prime-router
+          ./gradlew package -x fatjar -Pshowtests
+        shell: bash
 
     - name: Tar router files
+      if: inputs.upload-build == 'true'
       working-directory: prime-router
       shell: bash
       run: tar -czvf prime-router-build.tar.gz build
@@ -46,9 +82,119 @@ runs:
         # This path is from the root of the repo as needed by the plugin
         files: prime-router/build/test-results/test/**/*.xml
 
+    - name: Spin up vault
+      if: inputs.run-integration-tests == 'true'
+      working-directory: prime-router
+      run: |
+        mkdir .vault/env
+        touch .vault/env/.env.local
+        docker-compose -f docker-compose.yml up -d vault
+        while [ ! -s .vault/env/.env.local ]; do sleep 1; done
+        echo "loaded env vars"
+      shell: bash
+
+    - name: Spin up containers
+      if: inputs.run-integration-tests == 'true'
+      working-directory: prime-router
+      id: spin_containers
+      run: docker-compose -f docker-compose.yml up -d prime_dev sftp azurite
+      shell: bash
+
+    - name: Give some time for the container to start
+      if: inputs.run-integration-tests == 'true'
+      working-directory: prime-router
+      run: |
+        echo "sleeping 30"
+        sleep 30
+        echo "wake up"
+      shell: bash
+
+    - name: Load the configuration
+      if: inputs.run-integration-tests == 'true'
+      working-directory: prime-router
+      run: |
+        ./gradlew reloadTables
+        ./gradlew reloadSettings
+      shell: bash
+
+    # Integrations tests require the metadata catalog
+    - name: Run Integration Tests
+      if: inputs.run-integration-tests == 'true'
+      working-directory: prime-router
+      run: ./gradlew testIntegration -Pshowtests
+      shell: bash
+
+    - name: Publish Integration Test Results
+      uses: EnricoMi/publish-unit-test-result-action@283dea176069279a9076e77b548668a8e4f0c31b
+      # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
+      if: >
+        always() &&
+        github.event.sender.login != 'dependabot[bot]' &&
+        ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository ) &&
+        inputs.run-integration-tests == 'true'
+      with:
+        # This path is from the root of the repo as needed by the plugin
+        files: prime-router/build/test-results/testIntegration/**/*.xml
+        check_name: "Integration Test Results"
+
+    - name: Correct sftp perms
+      if: inputs.run-integration-tests == 'true'
+      working-directory: prime-router
+      run: docker-compose exec -T sftp chmod 777 /home/foo/upload
+      shell: bash
+
+    - name: Smoke tests
+      if: inputs.run-integration-tests == 'true'
+      uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
+      with:
+        timeout_minutes: 30
+        max_attempts: 2
+        retry_wait_seconds: 30
+        command: |
+          cd prime-router
+          export $(xargs < .vault/env/.env.local)
+          ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
+          ./gradlew testSmoke
+        shell: bash
+
+    - name: Dump docker logs
+      if: always() && inputs.run-integration-tests == 'true'
+      uses: jwalton/gh-docker-logs@59c9656cd3cb7542525f3dce7ae2f44c0ff85d66
+      with:
+        images: "prime-router_prime_dev,vault"
+
+    - name: Cleanup Gradle Cache
+      if: inputs.run-integration-tests == 'true'
+      working-directory: prime-router
+      run: |
+        rm -f .gradle/caches/modules-2/modules-2.lock
+        rm -f .gradle/caches/modules-2/gc.properties
+      shell: bash
+
     - name: Upload Artifact
+      if: inputs.upload-build == 'true'
       uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32
       with:
         name: prime-router-build-${{ inputs.version }}
         path: prime-router/prime-router-build.tar.gz
         retention-days: 3
+
+    - name: Perform Java CodeQL Analysis
+      if: github.actor != 'dependabot[bot]' && inputs.run-qc == 'true'
+      uses: github/codeql-action/analyze@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
+
+    - name: Run SonarCloud Scan
+      if: |
+        github.actor != 'dependabot[bot]' && inputs.run-qc == 'true' &&
+        inputs.github-token != 'false' && inputs.sonar-token != 'false'
+      uses: ./.github/actions/sonarcloud
+      with:
+        github-token: ${{ inputs.github-token }}
+        sonar-token: ${{ inputs.sonar-token }}
+        scan-level: backend
+
+    - name: Build Docker Image
+      if: inputs.run-qc == 'true'
+      working-directory: prime-router
+      run: docker build . --file Dockerfile --tag cdcgov/reportstream:latest
+      shell: bash
