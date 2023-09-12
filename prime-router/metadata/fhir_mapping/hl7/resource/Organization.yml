@@ -203,7 +203,7 @@ extension_4:
 extension_5:
   generateList: true
   expressionType: resource
-  valueOf: extension/ExtensionAssigningAuthority
+  valueOf: extension/ExtensionHierarchicDesignator
   specs: XON.6
   constants:
     urlValue: assigning-authority

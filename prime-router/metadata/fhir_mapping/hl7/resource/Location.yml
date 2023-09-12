@@ -45,10 +45,9 @@ extension_1:
     urlValue: point-of-care
 
 extension_2-location-facility:
-#  condition: $facility NOT_NULL
   generateList: true
   expressionType: resource
-  valueOf: extension/ExtensionAssigningAuthority
+  valueOf: extension/ExtensionHierarchicDesignator
   specs: PL.4
   constants:
     urlValue: location-facility

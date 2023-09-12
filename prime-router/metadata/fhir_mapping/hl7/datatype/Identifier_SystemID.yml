@@ -34,7 +34,6 @@ system_2:
 
 value:
   type: STRING
-  generateList: true
   valueOf: CX.1 | CWE.1 | EI.1 | HD.1 | $value
   expressionType: HL7Spec
 
