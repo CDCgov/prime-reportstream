@@ -1,8 +1,8 @@
 # Mapping Inventory Test Plan
 
 ## Problem Statement
-As a ReportStream engineer, I want tests that will validate the following statement: "The Universal Pipeline (UP) shall be
-able to transform valid NIST 2.5.1 messages losslessly to FHIR using the official HL7v2 mapping inventory as a guide. 
+As a ReportStream engineer, I want tests that will validate the following statement: "The Universal Pipeline (UP) shall 
+be able to transform valid NIST 2.5.1 messages losslessly to FHIR using the official HL7v2 mapping inventory as a guide. 
 UP shall be able to transform FHIR ELR messages to valid NIST 2.5.1."
 
 Currently, we have integration tests that test an unknown combination of parts of sender transforms, receiver 
@@ -18,7 +18,12 @@ Integration tests are currently rather challenging to read. At a minimum, we nee
 testing mapping inventory segments, we will name files with the format `segment_#`. An example, 
 `PID_1`. The corresponding FHIR file will be named the same, but will have a `.fhir` extension. This way, it is 
 very apparent not only what the file is testing, but which file goes with it. If it gets down to where there may only 
-be one complicated Computable ANTLR rule being tested, the field should be specified as well since there is only one thing being tested at that point. ex. `PID_patient_name_5`. 
+be one complicated Computable ANTLR rule being tested, the field should be specified as well since there is only one 
+thing being tested at that point. ex. `PID_patient_name_5`. 
+
+There will be exceptions to this. There are datatypes that are within the primary segments, for instance `XPN`. 
+We don't want to test these repeatedly for each segment they appear in, so we will have separate files for each of them
+labeled like so `XPN_1`.
 
 Instead of piling these files into the existing file structure,
 especially since we will be using them for multidirectional tests, we will put them in a folder structure 
