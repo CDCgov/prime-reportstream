@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import ca.uhn.hl7v2.model.v251.datatype.DTM
+import ca.uhn.hl7v2.util.Terser
 import org.hl7.fhir.r4.model.BaseDateTimeType
 
 /**
@@ -14,7 +15,24 @@ interface TranslationFunctions {
      * Convert a FHIR [dateTime] to the format required by HL7
      * @return the converted HL7 DTM
      */
-    fun convertDateTimeToHL7(dateTime: BaseDateTimeType, appContext: CustomContext? = null): String {
+    fun convertDateTimeToHL7(dateTime: BaseDateTimeType, appContext: CustomContext? = null): String
+
+    fun maybeTruncateHL7Field(
+        value: String,
+        hl7FieldPath: String,
+        terser: Terser,
+        appContext: CustomContext?
+    ): String
+}
+
+/**
+ * This is the default implementation of TranslationFunctions.
+ *
+ * It is able to overriden for more customized behavior
+ */
+open class Hl7TranslationFunctions : TranslationFunctions {
+
+    override fun convertDateTimeToHL7(dateTime: BaseDateTimeType, appContext: CustomContext?): String {
         /**
          * Set the timezone for an [hl7DateTime] if a timezone was specified.
          * @return the updated [hl7DateTime] object
@@ -63,6 +81,16 @@ interface TranslationFunctions {
             }
         }
     }
-}
 
-class Hl7TranslationFunctions : TranslationFunctions
+    /**
+     * Default behavior is to not truncate at all and just passthrough the value
+     */
+    override fun maybeTruncateHL7Field(
+        value: String,
+        hl7FieldPath: String,
+        terser: Terser,
+        appContext: CustomContext?
+    ): String {
+        return value
+    }
+}
