@@ -20,10 +20,10 @@ export const ReportStreamFooter = () => {
     return (
         <footer id="site-footer" className={styles.Footer}>
             <Identifier className="grid-container">
-                <div className="grid-row height-full flex-column flex-justify-center">
+                <div className="grid-row height-full flex-column flex-justify-start">
                     <div className="grid-col-8">
                         <IdentifierMasthead
-                            className="margin-bottom-4"
+                            className="margin-bottom-4 padding-top-0"
                             aria-label="Agency identifier"
                         >
                             <IdentifierLogos>
@@ -118,9 +118,9 @@ export const ReportStreamFooter = () => {
                     </div>
                     <div className="grid-col-1"></div>
                     <div className="grid-col-3">
-                        <h4>Need help?</h4>
+                        <h4 className="margin-top-3">Need help?</h4>
                         <hr className="margin-top-2 margin-bottom-2" />
-                        <p className="margin-bottom-4">
+                        <p className="margin-bottom-4 usa-identifier__response">
                             Our team will respond to your questions or set up a
                             time to learn more about how we can help you.
                         </p>

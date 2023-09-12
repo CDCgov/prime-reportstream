@@ -2,6 +2,7 @@
 
 .Footer {
   background-color: color('primary-darker');
+  padding-top: 56px;
 
   & :global {
     .usa-identifier {
@@ -9,9 +10,25 @@
       height: 340px;
       padding: 0;
 
-      &__required-links-item {
+      &__container,
+      &__response {
+        font-size: 14px;
+        font-weight: 400;
+      }
+
+      &__required-links-item,
+      &__section--usagov a {
+        font-size: 12px;
         margin-bottom: 1rem;
       }
+    }
+  }
+}
+
+.usa-resoponse-custom {
+  :global {
+    p {
+      font-size: 69px;
     }
   }
 }
