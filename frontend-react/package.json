@@ -154,7 +154,7 @@
         "chromatic": "^6.24.1",
         "confusing-browser-globals": "^1.0.11",
         "cross-env": "^7.0.3",
-        "cypress": "^12.17.4",
+        "cypress": "^13.2.0",
         "cypress-each": "^1.13.3",
         "cypress-localstorage-commands": "^2.2.4",
         "cypress-plugin-tab": "^1.0.5",
