@@ -2,13 +2,11 @@
 
 .Footer {
   background-color: color('primary-darker');
-  padding-top: 56px;
 
   & :global {
     .usa-identifier {
       background-color: color('primary-darker');
-      height: 340px;
-      padding: 0;
+      padding: 56px 0;
 
       &__container,
       &__response,

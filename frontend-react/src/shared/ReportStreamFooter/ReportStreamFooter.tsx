@@ -20,7 +20,7 @@ export const ReportStreamFooter = () => {
     return (
         <footer id="site-footer" className={styles.Footer}>
             <Identifier className="grid-container">
-                <div className="grid-row height-full flex-column flex-justify-start">
+                <div className="grid-row">
                     <div className="grid-col-8">
                         <IdentifierMasthead
                             className="margin-bottom-4 padding-top-0"
@@ -106,7 +106,7 @@ export const ReportStreamFooter = () => {
                             </IdentifierLinkItem>
                         </IdentifierLinks>
                         <IdentifierGov
-                            className="margin-top-1"
+                            className="margin-top-1 padding-bottom-0"
                             aria-label="U.S. government information and services"
                         >
                             Looking for U.S. government information and
