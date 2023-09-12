@@ -128,7 +128,6 @@ export const ReportStreamFooter = () => {
                             href={site.forms.connectWithRS.url}
                             outline
                             inverse
-                            extLinkIcon
                         >
                             Connect now
                         </USLinkButton>
