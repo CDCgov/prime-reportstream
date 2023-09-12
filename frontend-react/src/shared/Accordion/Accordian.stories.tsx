@@ -1,7 +1,8 @@
 import React from "react";
-import { Meta } from "@storybook/react";
-import { Accordion } from "@trussworks/react-uswds";
 import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accordion/Accordion";
+
+import { Accordion } from "./Accordion";
+
 export default {
     title: "Components/Accordion",
     component: Accordion,
@@ -92,15 +93,15 @@ const testItems: AccordionItemProps[] = [
     },
 ];
 
-export const borderless = (): React.ReactElement => (
+export const Borderless = (): React.ReactElement => (
     <Accordion bordered={false} items={testItems} />
 );
 
-export const bordered = (): React.ReactElement => (
+export const Bordered = (): React.ReactElement => (
     <Accordion bordered={true} items={testItems} />
 );
 
-export const multiselectable = (): React.ReactElement => (
+export const Multiselectable = (): React.ReactElement => (
     <Accordion items={testItems} multiselectable={true} />
 );
 
@@ -159,6 +160,6 @@ const customTestItems: AccordionItemProps[] = [
     },
 ];
 
-export const customTitles = (): React.ReactElement => (
+export const CustomTitles = (): React.ReactElement => (
     <Accordion bordered={true} items={customTestItems} />
 );
