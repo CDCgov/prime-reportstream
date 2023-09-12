@@ -24,6 +24,7 @@ import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.serializers.CsvSerializer
@@ -176,6 +177,7 @@ class TranslationTests {
                     val sender = it[ConfigColumns.SENDER.colName].trimToNull()
                     val receiver = it[ConfigColumns.RECEIVER.colName].trimToNull()
                     val senderTransform = it[ConfigColumns.SENDER_TRANSFORM.colName].trimToNull()
+                    // val conditionFilter = it[ConfigColumns.RECEIVER_CONDITION_FILTER.colName].trimToNull()
                     val ignoreFields = it[ConfigColumns.IGNORE_FIELDS.colName].let { colNames ->
                         colNames?.split(",") ?: emptyList()
                     }
@@ -266,7 +268,7 @@ class TranslationTests {
                                 bundle
                             }
                             val actualStream =
-                                translateFromFhir(afterSenderTransform, config.expectedSchema)
+                                translateFromFhir(afterSenderTransform, config.expectedSchema, config.receiver)
                             result.merge(
                                 CompareData().compare(expectedStream, actualStream, null, null)
                             )
@@ -364,7 +366,7 @@ class TranslationTests {
          * @return an HL7 message as an input stream
          */
         private fun translateFromFhir(bundle: InputStream, schema: String, receiverName: String? = null): InputStream {
-            val fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
+            var fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
             val receiver = settings.receivers.firstOrNull {
                 it.organizationName.plus(".").plus(it.name).lowercase() == receiverName?.lowercase()
             }
@@ -373,6 +375,22 @@ class TranslationTests {
                 if (maybeHl7Config != null) {
                     HL7TranslationConfig(maybeHl7Config, receiver)
                 } else null
+            }
+
+            // not sure how to find an entry point to call into the
+            // FHIRRouter->applyFilters(...) where all filters are applied
+            // including condition filter, so below code at least covers
+            // applying condition filter from a single receiver and check
+            // the result where the observations which match the condition filter
+            // are kept.
+            if (receiver?.name == "FHIR_OBSERVATION_FILTER_1" ||
+                receiver?.name == "FHIR_OBSERVATION_FILTER_2"
+            ) {
+                fhirBundle = FHIRBundleHelpers.filterObservations(
+                    fhirBundle,
+                    receiver,
+                    emptyMap<String, String>().toMutableMap()
+                )
             }
 
             val hl7 = FhirToHl7Converter(

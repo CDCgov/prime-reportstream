@@ -1073,3 +1073,49 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
+    - name: FHIR_OBSERVATION_FILTER_1
+      externalName: Ignore Observation Filter 1
+      organizationName: development
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "true" ]
+      qualityFilter:
+        - "true"
+      conditionFilter:
+        - "%resource.code.coding.code.intersect('94558-5'|'95418-0'|'95417-2'|'95421-4'|'95419-8').exists()"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<FHIR>
+        useBatching: false
+        type: "FHIR"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+    - name: FHIR_OBSERVATION_FILTER_2
+      externalName: Ignore Observation Filter 2
+      organizationName: development
+      topic: full-elr
+      customerStatus: active
+      jurisdictionalFilter: [ "true" ]
+      qualityFilter:
+        - "true"
+      conditionFilter:
+        - "%resource.code.coding.code.intersect('94558-5').exists()"
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      translation: !<FHIR>
+        useBatching: false
+        type: "FHIR"
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
