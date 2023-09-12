@@ -221,7 +221,6 @@ class TokenFunctionTests {
         assertThat(error.get("error_description").textValue()).isEqualTo("malformed_jwt")
         assertThat(error.get("error_uri").textValue()).isEqualTo("$OAUTH_ERROR_BASE_LOCATION#malformed-jwt")
         verify {
-            // per feedback, just fix the assertion based on kotlin compiler NPE handling behavior
             anyConstructed<ActionHistory>().trackActionResult(
                 "AccessToken Request Denied: null"
             )
