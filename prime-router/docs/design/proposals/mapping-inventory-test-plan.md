@@ -32,7 +32,9 @@ add a folder within `datatests/mapping-inventory` labeled as the message type an
 naming convention there. 
 
 Within the files, we will only put the bare minimum number of segments in a file. `MSH` is required, so, for 
-instance, when testing `PID` you would only have an `MSH` segment and a `PID` segment in the file. 
+instance, when testing `PID` you would only have an `MSH` segment and a `PID` segment in the file. To allow this, when 
+converting form the HL7 V2 file to the FHIR file, use the new test schema 
+`metadata/hl7_mapping/testing/ORU_R01-test.yml`
 
 `translation-test-config.csv` is where our current tests like this live. We will create a separate file called 
 `mapping-inventory-test-config.csv` since this file is already bloated, difficult to read, and lacks organization. 
