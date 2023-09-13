@@ -26,7 +26,7 @@ class SettingsFunction(
      * Get a full list of organizations and their settings.
      * @param request Incoming http request
      *      Expected Headers: authorization, content-type
-     * @return HttpResponseMessage resulting json or HTTP error response
+     * @return HttpResponseMessage List of all organizations and settings
      */
     @FunctionName("getOrganizations")
     fun getOrganizations(
@@ -49,7 +49,7 @@ class SettingsFunction(
      * @param request Incoming http request
      *      Expected Headers: authorization, content-type
      * @param organizationName Organization to get settings for
-     * @return HttpResponseMessage resulting json or HTTP error response
+     * @return HttpResponseMessage List of settings for the organization
      */
     @FunctionName("getOneOrganization")
     fun getOneOrganization(
@@ -70,7 +70,7 @@ class SettingsFunction(
      *      Expected Headers: authorization, content-type
      *      Expected PUT Body: JSON (see OrganizationAPI for structure)
      * @param organizationName Organization to update settings for
-     * @return HttpResponseMessage resulting json or HTTP error response
+     * @return HttpResponseMessage Result of update attempt and new value if successful
      */
     @FunctionName("updateOneOrganization")
     fun updateOneOrganization(
@@ -94,7 +94,7 @@ class SettingsFunction(
      * @param request Incoming http request
      *      Expected Headers: authorization, content-type
      * @param organizationName Organization to get senders for
-     * @return HttpResponseMessage resulting json or HTTP error response
+     * @return HttpResponseMessage List of senders for the organization
      */
     @FunctionName("getSenders")
     fun getSenders(
@@ -115,7 +115,7 @@ class SettingsFunction(
      *      Expected Headers: authorization, content-type
      * @param organizationName Organization in which to look for the sender
      * @param senderName Name of the sender we're looking for
-     * @return HttpResponseMessage resulting json or HTTP error response
+     * @return HttpResponseMessage Sender data if found
      */
     @FunctionName("getOneSender")
     fun getOneSender(
@@ -138,7 +138,7 @@ class SettingsFunction(
      *      Expected PUT Body: JSON (see OrganizationAPI for structure)
      * @param organizationName Organization in which to look for the sender
      * @param senderName Name of the sender we're updating
-     * @return HttpResponseMessage resulting json or HTTP error response
+     * @return HttpResponseMessage Result of update attempt and new value if successful
      */
     @FunctionName("updateOneSender")
     fun updateOneSender(
@@ -165,7 +165,7 @@ class SettingsFunction(
      *      Expected Headers: authorization, content-type
      *      Expected PUT Body: JSON (see OrganizationAPI for structure)
      * @param organizationName Organization to get receivers for
-     * @return HttpResponseMessage resulting json or HTTP error response
+     * @return HttpResponseMessage List of receivers for the organization
      */
     @FunctionName("getReceivers")
     fun getReceivers(
@@ -186,7 +186,7 @@ class SettingsFunction(
      *      Expected Headers: authorization, content-type
      * @param organizationName Organization in which to look for the receiver
      * @param receiverName Name of the receiver we're looking for
-     * @return HttpResponseMessage resulting json or HTTP error response
+     * @return HttpResponseMessage Receiver if found
      */
     @FunctionName("getOneReceiver")
     fun getOneReceiver(
@@ -209,7 +209,7 @@ class SettingsFunction(
      *      Expected PUT Body: JSON (see OrganizationAPI for structure)
      * @param organizationName Organization in which to look for the receiver
      * @param receiverName Name of the receiver we're updating
-     * @return HttpResponseMessage resulting json or HTTP error response
+     * @return HttpResponseMessage Result of update attempt and new value if successful
      */
     @FunctionName("updateOneReceiver")
     fun updateOneReceiver(
@@ -245,7 +245,7 @@ class SettingsFunction(
      *   `settings/revision/organizations/{organizationName}/organization`
      * @param organizationName Organization in which to look for the receiver
      * @param settingSelector Name of setting type we're looking for. See SettingType for options
-     * @return HttpResponseMessage resulting json or HTTP error response
+     * @return HttpResponseMessage List of settings changes based on the parameters
      */
     @FunctionName("getSettingRevisionHistory")
     fun getSettingRevisionHistory(
@@ -277,9 +277,10 @@ open class BaseFunction(
     /**
      * Gets the list of settings for a given organization
      * @param request Incoming http request
+     *      Expected Headers: authorization, content-type
      * @param clazz The class used to convert to Json
      * @param organizationName Organization to get settings for
-     * @return HttpResponseMessage resulting json or HTTP error response
+     * @return HttpResponseMessage List of settings for the organization
      */
     fun <T : SettingAPI> getList(
         request: HttpRequestMessage<String?>,
@@ -305,11 +306,11 @@ open class BaseFunction(
 
     /**
      * Returns all revisions of a settings (version) for an org/settingName
-     * Handles Auth
      * @param request Incoming http request
+     *      Expected Headers: authorization, content-type
      * @param organizationName Org name to auth again and use for query
-     * @param settingType SettingType
-     * @result HttpResponseMessage resulting json or HTTP error response
+     * @param settingType Name of setting type we're looking for
+     * @result HttpResponseMessage History of revisions based on the parameters
      */
     fun getListHistory(
         request: HttpRequestMessage<String?>,
@@ -330,9 +331,9 @@ open class BaseFunction(
 
     /**
      * Get header data
-     * Currently it just includes the last modified date for the settings
      * @param request Incoming http request
-     * @return HttpResponseMessage resulting json or HTTP error response
+     *      Expected Headers: authorization, content-type
+     * @return HttpResponseMessage Last modified date for the settings
      */
     fun getHead(
         request: HttpRequestMessage<String?>
@@ -344,11 +345,12 @@ open class BaseFunction(
     }
 
     /**
-     * Return a single setting. Separated from http request for testability reasons
+     * Return a single setting
      * @param request Incoming http request
+     *      Expected Headers: authorization, content-type
      * @param settingName Name column in Setting table to match
      * @param clazz The class used to convert to Json
-     * @return HttpResponseMessage The resulting json or HTTP error response
+     * @return HttpResponseMessage Setting data if found
      */
     fun <T : SettingAPI> getOne(
         request: HttpRequestMessage<String?>,
@@ -375,10 +377,12 @@ open class BaseFunction(
     /**
      * Update a single setting for an organization
      * @param request Incoming http request
+     *      Expected Headers: authorization, content-type
+     *      Expected PUT Body: JSON (see OrganizationAPI for structure)
      * @param settingName Name of the setting being updated
      * @param clazz The SettingType used to structure the response JSON
      * @param organizationName Name of the organization we are looking for the setting in
-     * @return HttpResponseMessage resulting json or HTTP error response
+     * @return HttpResponseMessage Result of update attempt and new value if successful
      */
     fun <T : SettingAPI> updateOne(
         request: HttpRequestMessage<String?>,
@@ -411,9 +415,10 @@ open class BaseFunction(
     /**
      * Convert the output of the facade into a Http response
      * @param request Incoming http request
+     *      Expected Headers: authorization, content-type
      * @param result Output of the facade
      * @param outputBody Body of the HTTP response
-     * @return HttpResponseMessage resulting json or HTTP error response
+     * @return HttpResponseMessage Facade output converted to a Http response
      */
     private fun facadeResultToResponse(
         request: HttpRequestMessage<String?>,
