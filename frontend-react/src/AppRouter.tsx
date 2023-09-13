@@ -249,6 +249,15 @@ export const appRoutes: RouteObject[] = [
                 ],
             },
             {
+                path: "/product/release-notes",
+                index: true,
+                lazy: lazyRouteMarkdown("content/product/release-notes"),
+                handle: {
+                    isContentPage: true,
+                    isFullWidth: true,
+                },
+            },
+            {
                 path: "/product/*",
                 element: <Product />,
                 handle: {
