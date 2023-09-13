@@ -46,7 +46,7 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
                 </InnerWrapper>
             </main>
             <ToastContainer limit={4} />
-            <ReportStreamFooter id="site-footer" isAlternate />
+            <ReportStreamFooter />
         </div>
     );
 };
