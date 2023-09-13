@@ -36,7 +36,7 @@ class BlobStoreTransport() : ITransport {
                 newUrl,
                 blobTransportType.toString(),
                 msg,
-                header.reportFile.itemCount
+                header
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null

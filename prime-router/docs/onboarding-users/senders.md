@@ -1,7 +1,7 @@
 # How to Onboard a New Organization to Send Data
 
-The goal of this document is to define the steps that an engineer on the ReportStream project should take to onboard a
-new data sender to the Universal Pipeline.
+Add subsections that mimic the linked resources: ([Brandon’s version](https://docs.google.com/document/d/1noB3lK2Nc_vbD4s5ZHgdTjgIjhCii63x_2bjBz7GM1I/edit#heading=h.be9yxi8thtdw), [Github version](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/how-to-onboard-a-sender.md))
+Note for content writer: If there is overlap with the previous "Pipeline Configuration" section, hyperlink and reference the content instead of rewriting it..
 
 ## Sender Onboarding Process Overview
 
@@ -129,17 +129,6 @@ what the receivers are getting.
 If there are any exceptions, you will see them output in the console for Azure.
 
 ## Sending data to ReportStream
-Once you've successfully verified the samples file are being routed correctly and sender and receiver transforms are 
-in place locally. The sender can start sending data through staging and start testing there. If the sender hasn't been 
-onboarded to ReportStream, make sure to follow the [API programmer's guide](#https://reportstream.cdc.gov/resources/api) 
-to have them start setting up their connection to RS.
-
-### Initial Set-up - Sender File Testing 
-
-In order to start testing the messages in staging, that organization will need to be given an Okta login and their organization and sender settings need
-to be updated in the staging and production databases.
-
-Update organization and sender settings in DB
 
 Create .yml files in your working branch in:
 - prime-router -> settings -> staging
@@ -182,3 +171,47 @@ To view all the report descendants for a given report this query can be used:
 That query will return where that report got routed to and also the BLOB storage URL. That URL can be used to view the actual 
 file contents of the file the sender sent, and how the file looks through the different steps in the pipeline.
 
+
+## Rhapsody Configuration
+
+Rhapsody is a health data pipeline that provides a visual interface representing various flows of health data. It uses
+`Communication Points` of various types to interface with external systems.
+
+### Using x-functions-key
+
+The `HTTP Communications Point` uses a standard HTTP request to send data externally. It has been used in conjunction
+with the `x-functions-key` authentication flow to connect clients in the `staging` environment. However, this auth flow is
+deprecated and should not be used to onboard any new clients moving forward (documentation kept for posterity).
+
+It is recommended to use oauth2 or server-to-server auth instead. The observed versions of Rhapsody cannot support the
+OAuth2 authentication flow (javascript version too old).
+
+#### HTTP Communications Point Configuration
+
+| Name                             | Value                                     |
+|----------------------------------|-------------------------------------------|
+| COMMUNICATION POINT              | HTTP CLIENT                               |
+| MODE                             | Out->In                                   |
+| URL                              | https://staging.prime.cdc.gov/api/reports |
+| HTTP METHOD                      | POST                                      |
+| FOLLOW REDIRECTS                 | YES                                       |
+| USE HTTPS                        | YES                                       |
+| SSL PROTOCOL MODE                | TLSv1.2                                   |
+| SPECIFY EXACT TLS VERSION        | YES                                       |
+| HOSTNAME VERIFICATION            | YES                                       |
+| PROTOCOL SUPPORT                 | Standard HTTP Only                        |
+| READ TIMEOUT (MS)                | 10,000                                    |
+| CONNECTION TIMEOUT (MS)          | 60,000                                    |
+| PROXY TYPE                       | System                                    |
+| REFRESH RATE (MS)                | 60,000                                    |
+| MESSAGE CONTENT                  | Message Body                              |
+| CONTENT TYPE                     | application/hl7-v2                        |
+| ON 4xx ERROR RESPONSE            | Mark as connection failed                 |
+| ON 5xx ERROR RESPONSE            | Mark as connection failed                 |
+| DYNAMIC CONNECTION FAILED ACTION | Treat as message error                    |
+
+##### Request Headers
+| Name            | Value         |
+| --------------- | ------------- |
+| x-functions-key | <suppressed>  |
+| client          | CDC-ELIMS-HL7 |

@@ -1,0 +1,26 @@
+elements:
+  - name: set-id
+    value: [ '%orderIndex + 1' ]
+    hl7Spec: [ '%{fieldPath}-1' ]
+
+  - name: placer-order
+    resource: '%resource.identifier.where(type.coding.code = "PLAC")'
+    condition: '%resource.exists()'
+    constants:
+      entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-2'
+    schema: ./datatype/ei-entity-identifier
+    resourceIndex: entityIdIndex
+
+  - name: filler-order
+    resource: '%resource.identifier.where(type.coding.code = "FILL")'
+    condition: '%resource.exists()'
+    constants:
+      entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-3'
+    schema: ./datatype/ei-entity-identifier
+    resourceIndex: entityIdIndex
+
+  - name: universal-service
+    resource: '%resource.code'
+    constants:
+      cweFieldPath: '%{fieldPath}-4'
+    schema: ./datatype/ce-coded-with-exceptions

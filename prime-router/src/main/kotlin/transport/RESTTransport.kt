@@ -52,7 +52,6 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import net.schmizz.sshj.common.Base64
 import org.json.JSONObject
@@ -136,7 +135,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             fileName,
                             restTransportInfo.toString(),
                             msg,
-                            header.reportFile.itemCount
+                            header
                         )
                         actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
                     } catch (t: Throwable) {
