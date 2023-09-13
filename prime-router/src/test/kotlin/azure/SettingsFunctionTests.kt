@@ -184,7 +184,6 @@ class SettingsFunctionTests : Logging {
             "authorization" to "Bearer 111.222.333",
             "content-type" to HttpUtilities.jsonMediaType
         )
-
         return httpRequestMessage
     }
 

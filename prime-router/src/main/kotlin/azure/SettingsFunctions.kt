@@ -25,6 +25,7 @@ class SettingsFunction(
     /**
      * Get a full list of organizations and their settings.
      * @param request Incoming http request
+     *      Expected Headers: authorization, content-type
      * @return HttpResponseMessage resulting json or HTTP error response
      */
     @FunctionName("getOrganizations")
@@ -46,6 +47,7 @@ class SettingsFunction(
     /**
      * Get settings for the given organization.
      * @param request Incoming http request
+     *      Expected Headers: authorization, content-type
      * @param organizationName Organization to get settings for
      * @return HttpResponseMessage resulting json or HTTP error response
      */
@@ -65,6 +67,8 @@ class SettingsFunction(
     /**
      * Update settings for an organization
      * @param request Incoming http request
+     *      Expected Headers: authorization, content-type
+     *      Expected PUT Body: JSON (see OrganizationAPI for structure)
      * @param organizationName Organization to update settings for
      * @return HttpResponseMessage resulting json or HTTP error response
      */
@@ -88,6 +92,7 @@ class SettingsFunction(
     /**
      * Get senders for an organization
      * @param request Incoming http request
+     *      Expected Headers: authorization, content-type
      * @param organizationName Organization to get senders for
      * @return HttpResponseMessage resulting json or HTTP error response
      */
@@ -107,8 +112,9 @@ class SettingsFunction(
     /**
      * Get a single sender for an organization
      * @param request Incoming http request
+     *      Expected Headers: authorization, content-type
      * @param organizationName Organization in which to look for the sender
-     * @param senderName
+     * @param senderName Name of the sender we're looking for
      * @return HttpResponseMessage resulting json or HTTP error response
      */
     @FunctionName("getOneSender")
@@ -128,8 +134,10 @@ class SettingsFunction(
     /**
      * Update a single sender for an organization
      * @param request Incoming http request
+     *      Expected Headers: authorization, content-type
+     *      Expected PUT Body: JSON (see OrganizationAPI for structure)
      * @param organizationName Organization in which to look for the sender
-     * @param senderName
+     * @param senderName Name of the sender we're updating
      * @return HttpResponseMessage resulting json or HTTP error response
      */
     @FunctionName("updateOneSender")
@@ -154,6 +162,8 @@ class SettingsFunction(
     /**
      * Get receiver for an organization
      * @param request Incoming http request
+     *      Expected Headers: authorization, content-type
+     *      Expected PUT Body: JSON (see OrganizationAPI for structure)
      * @param organizationName Organization to get receivers for
      * @return HttpResponseMessage resulting json or HTTP error response
      */
@@ -173,6 +183,7 @@ class SettingsFunction(
     /**
      * Get a single receiver for an organization
      * @param request Incoming http request
+     *      Expected Headers: authorization, content-type
      * @param organizationName Organization in which to look for the receiver
      * @param receiverName
      * @return HttpResponseMessage resulting json or HTTP error response
@@ -194,6 +205,8 @@ class SettingsFunction(
     /**
      * Update one receiver for an organization
      * @param request Incoming http request
+     *      Expected Headers: authorization, content-type
+     *      Expected PUT Body: JSON (see OrganizationAPI for structure)
      * @param organizationName Organization in which to look for the receiver
      * @param receiverName
      * @return HttpResponseMessage resulting json or HTTP error response
