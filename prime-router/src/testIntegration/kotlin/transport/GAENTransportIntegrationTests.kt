@@ -10,14 +10,18 @@ import com.github.kittinunf.fuel.core.FuelManager
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.GAENTransportType
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.spyk
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
@@ -87,6 +91,20 @@ class GAENTransportIntegrationTests : TransportIntegrationTests() {
     private fun setupTransport() {
         every { gaenTransport.lookupCredentials(any()) }
             .returns(UserApiKeyCredential("rick", "xzy"))
+    }
+
+    @BeforeEach
+    fun setup() {
+        mockkObject(BlobAccess)
+        every {
+            BlobAccess.uploadBody(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns BlobAccess.BlobInfo(Report.Format.HL7, "", "".toByteArray())
     }
 
     @Test
