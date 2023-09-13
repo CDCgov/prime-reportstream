@@ -254,7 +254,6 @@ export const appRoutes: RouteObject[] = [
                 lazy: lazyRouteMarkdown("content/product/release-notes"),
                 handle: {
                     isContentPage: true,
-                    isFullWidth: true,
                 },
             },
             {
