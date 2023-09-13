@@ -1,0 +1,94 @@
+# ./prime multiple-settings set --env staging --input ./settings/staging/0154-MH-Onboarding.yml
+---
+- name: "rmi-doh"
+  description: "Marshall Island Health Informatics Department"
+  jurisdiction: "STATE"
+  stateCode: "MH"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+    - name: "elr"
+      organizationName: "rmi-doh"
+      topic: "covid-19"
+      customerStatus: "active"
+      translation: !<HL7>
+        schemaName: "covid-19"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "RMI_DOH"
+        receivingApplicationOID: null
+        receivingFacilityName: "RMI_DOH"
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: {}
+        replaceValueAwithB:
+          MSH-6:
+            - '*': "RMI_DOH"
+          MSH-5:
+            - '*': "RMI_DOH"
+          MSH-3:
+            - '*': "CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO"
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter:
+        - "orEquals(ordering_facility_state, MH, patient_state, MH)"
+      qualityFilter:
+        - "doesNotMatch(patient_dob, Unknown)"
+        - "doesNotMatch(patient_first_name, Unknown)"
+        - "doesNotMatch(patient_last_name, Unknown)"
+        - "hasValidDataFor(patient_dob, patient_last_name, patient_first_name)"
+      routingFilter: []
+      processingModeFilter: []
+      reverseTheQualityFilter: false
+      conditionFilter: []
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "01:25"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: !<SFTP>
+        host: "sftp-west.inductivehealth.com"
+        port: "22"
+        filePath: "./staging/"
+        credentialName: null
+        type: "SFTP"
+      externalName: null
+      timeZone: null
+      dateTimeFormat: "OFFSET"
