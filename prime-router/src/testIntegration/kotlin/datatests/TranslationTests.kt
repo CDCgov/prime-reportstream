@@ -89,12 +89,12 @@ class TranslationTests {
         INPUT_SCHEMA("Input schema"),
 
         /**
-         * The organization name for the receiver.
+         * The output message's schema.
          */
         OUTPUT_SCHEMA("Output schema"),
 
         /**
-         * The organization name for the receiver.
+         * The output message's format.
          */
         OUTPUT_FORMAT("Output format"),
 

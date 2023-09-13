@@ -1077,16 +1077,13 @@
       externalName: Ignore Observation Filter 1
       organizationName: development
       topic: full-elr
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "true" ]
       qualityFilter:
         - "true"
       conditionFilter:
         - "%resource.code.coding.code.intersect('94558-5'|'95418-0'|'95417-2'|'95421-4'|'95419-8').exists()"
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
+      timing: null
       translation: !<FHIR>
         useBatching: false
         type: "FHIR"
@@ -1100,16 +1097,13 @@
       externalName: Ignore Observation Filter 2
       organizationName: development
       topic: full-elr
-      customerStatus: active
+      customerStatus: inactive
       jurisdictionalFilter: [ "true" ]
       qualityFilter:
         - "true"
       conditionFilter:
         - "%resource.code.coding.code.intersect('94558-5').exists()"
-      timing:
-        operation: MERGE
-        numberPerDay: 1440 # Every minute
-        initialTime: 00:00
+      timing: null
       translation: !<FHIR>
         useBatching: false
         type: "FHIR"
