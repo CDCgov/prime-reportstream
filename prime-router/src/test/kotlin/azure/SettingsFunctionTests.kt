@@ -29,12 +29,13 @@ import kotlin.test.Test
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SettingsFunctionTests : Logging {
-    private val organizationName = "test-lab"
-    private val oktaClaimsOrganizationName = "DHSender_$organizationName"
+    private val oktaNormalUser = "DHSender_user"
+    private val oktaPrimeAdmin = "DHPrimeAdmins"
+
     private val otherOrganizationName = "test-lab-2"
 
     private val testOrg = Organization(
-        "test",
+        "test-lab",
         "test_org",
         Organization.Jurisdiction.FEDERAL,
         null,
@@ -45,7 +46,7 @@ class SettingsFunctionTests : Logging {
     )
     private val testSender = UniversalPipelineSender(
         "Test Sender",
-        "test",
+        testOrg.name,
         Sender.Format.FHIR,
         allowDuplicates = true,
         customerStatus = CustomerStatus.INACTIVE,
@@ -130,7 +131,7 @@ class SettingsFunctionTests : Logging {
         val settings = MockSettings()
         val sender = CovidSender(
             name = "default",
-            organizationName = organizationName,
+            organizationName = testOrg.description,
             format = Sender.Format.CSV,
             customerStatus = CustomerStatus.INACTIVE,
             schemaName = "one"
@@ -147,7 +148,7 @@ class SettingsFunctionTests : Logging {
 
         val receiver = Receiver(
             "elr-secondary",
-            organizationName,
+            testOrg.name,
             Topic.FULL_ELR,
             CustomerStatus.TESTING,
             "schema1"
@@ -189,7 +190,7 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access user cannot view full organization settings (getOrganizations)`() {
-        val settingsFunction = setupSettingsFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         val response = settingsFunction.getOrganizations(httpRequestMessage)
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
@@ -197,7 +198,7 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access DHPrimeAdmins can view all organization settings (getOrganizations)`() {
-        val settingsFunction = setupSettingsFunctionForTesting("DHPrimeAdmins", mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaPrimeAdmin, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getOrganizations(httpRequestMessage)
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -207,18 +208,18 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access user cannot view their organization's settings (getOneOrganization)`() {
-        val settingsFunction = setupSettingsFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         val response = settingsFunction.getOneOrganization(
             httpRequestMessage,
-            "$organizationName.elr-secondary"
+            "${testOrg.name}.elr-secondary"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 
     @Test
     fun `test access user cannot view another organization's settings (getOneOrganization)`() {
-        val settingsFunction = setupSettingsFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         val response = settingsFunction.getOneOrganization(
             httpRequestMessage,
@@ -229,11 +230,11 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access DHPrimeAdmins can view any organization's settings (getOneOrganization)`() {
-        val settingsFunction = setupSettingsFunctionForTesting("DHPrimeAdmins", mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaPrimeAdmin, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getOneOrganization(
             httpRequestMessage,
-            "$organizationName.elr-secondary"
+            "${testOrg.name}.elr-secondary"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getOneOrganization(
@@ -245,18 +246,18 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access user cannot update their organization's settings (updateOneOrganization)`() {
-        val settingsFunction = setupSettingsFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting(HttpMethod.PUT)
         val response = settingsFunction.updateOneOrganization(
             httpRequestMessage,
-            "$organizationName.elr-secondary"
+            "${testOrg.name}.elr-secondary"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 
     @Test
     fun `test access user cannot update another organization's settings (updateOneOrganization)`() {
-        val settingsFunction = setupSettingsFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting(HttpMethod.PUT)
         val response = settingsFunction.updateOneOrganization(
             httpRequestMessage,
@@ -267,11 +268,11 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access DHPrimeAdmins can update any organization's settings (updateOneOrganization)`() {
-        val settingsFunction = setupSettingsFunctionForTesting("DHPrimeAdmins", mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaPrimeAdmin, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting(HttpMethod.PUT)
         var response = settingsFunction.updateOneOrganization(
             httpRequestMessage,
-            "$organizationName.elr-secondary"
+            "${testOrg.name}.elr-secondary"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.updateOneOrganization(
@@ -283,16 +284,16 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access user cannot get their organization's senders (getSenders-getOneSender)`() {
-        val settingsFunction = setupSettingsFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getSenders(
             httpRequestMessage,
-            "$organizationName.elr-secondary"
+            "${testOrg.name}.elr-secondary"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
         response = settingsFunction.getOneSender(
             httpRequestMessage,
-            "$organizationName.elr-secondary",
+            "${testOrg.name}.elr-secondary",
             "elr-secondary"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
@@ -300,7 +301,7 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access user cannot get another organization's senders (getSenders-getOneSender)`() {
-        val settingsFunction = setupSettingsFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getSenders(
             httpRequestMessage,
@@ -317,11 +318,11 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access DHPrimeAdmins can get any organization's senders (getSenders-getOneSender)`() {
-        val settingsFunction = setupSettingsFunctionForTesting("DHPrimeAdmins", mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaPrimeAdmin, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getSenders(
             httpRequestMessage,
-            "$organizationName.elr-secondary"
+            "${testOrg.name}.elr-secondary"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getSenders(
@@ -331,7 +332,7 @@ class SettingsFunctionTests : Logging {
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getOneSender(
             httpRequestMessage,
-            "$organizationName.elr-secondary",
+            "${testOrg.name}.elr-secondary",
             "default"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -345,11 +346,11 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access user cannot update their organization's senders (updateOneSender)`() {
-        val settingsFunction = setupSettingsFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting(HttpMethod.PUT)
         val response = settingsFunction.updateOneSender(
             httpRequestMessage,
-            "$organizationName.elr-secondary",
+            "${testOrg.name}.elr-secondary",
             "default"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
@@ -357,7 +358,7 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access user cannot update another organization's senders (updateOneSender)`() {
-        val settingsFunction = setupSettingsFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting(HttpMethod.PUT)
         val response = settingsFunction.updateOneSender(
             httpRequestMessage,
@@ -369,11 +370,11 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access DHPrimeAdmins can update any organization's senders (updateOneSender)`() {
-        val settingsFunction = setupSettingsFunctionForTesting("DHPrimeAdmins", mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaPrimeAdmin, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting(HttpMethod.PUT)
         var response = settingsFunction.updateOneSender(
             httpRequestMessage,
-            "$organizationName.elr-secondary",
+            "${testOrg.name}.elr-secondary",
             "default"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -387,16 +388,16 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access user cannot get their organization's receivers (getReceivers-getOneReceiver)`() {
-        val settingsFunction = setupSettingsFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getReceivers(
             httpRequestMessage,
-            "$organizationName.elr-secondary"
+            "${testOrg.name}.elr-secondary"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
         response = settingsFunction.getOneReceiver(
             httpRequestMessage,
-            "$organizationName.elr-secondary",
+            "${testOrg.name}.elr-secondary",
             "elr-secondary"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
@@ -404,7 +405,7 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access user cannot get another organization's receivers (getReceivers-getOneReceiver)`() {
-        val settingsFunction = setupSettingsFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getReceivers(
             httpRequestMessage,
@@ -421,11 +422,11 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access DHPrimeAdmins can get any organization's receivers (getReceivers-getOneReceiver)`() {
-        val settingsFunction = setupSettingsFunctionForTesting("DHPrimeAdmins", mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaPrimeAdmin, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getReceivers(
             httpRequestMessage,
-            "$organizationName.elr-secondary"
+            "${testOrg.name}.elr-secondary"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getReceivers(
@@ -435,7 +436,7 @@ class SettingsFunctionTests : Logging {
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getOneReceiver(
             httpRequestMessage,
-            "$organizationName.elr-secondary",
+            "${testOrg.name}.elr-secondary",
             "elr-secondary"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -449,11 +450,11 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access user cannot update their organization's receivers (updateOneReceiver)`() {
-        val settingsFunction = setupSettingsFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting(HttpMethod.PUT)
         val response = settingsFunction.updateOneReceiver(
             httpRequestMessage,
-            "$organizationName.elr-secondary",
+            "${testOrg.name}.elr-secondary",
             "elr-secondary"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
@@ -461,7 +462,7 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access user cannot update another organization's receivers (updateOneReceiver)`() {
-        val settingsFunction = setupSettingsFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting(HttpMethod.PUT)
         val response = settingsFunction.updateOneReceiver(
             httpRequestMessage,
@@ -473,11 +474,11 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access DHPrimeAdmins can update any organization's receivers (updateOneReceiver)`() {
-        val settingsFunction = setupSettingsFunctionForTesting("DHPrimeAdmins", mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaPrimeAdmin, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting(HttpMethod.PUT)
         var response = settingsFunction.updateOneReceiver(
             httpRequestMessage,
-            organizationName,
+            testOrg.name,
             "elr-secondary"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -491,23 +492,23 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access user cannot get their organization's revision history (getSettingRevisionHistory)`() {
-        val settingsFunction = setupSettingsFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
-            "$organizationName.elr-secondary",
+            "${testOrg.name}.elr-secondary",
             "ORGANIZATION"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
         response = settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
-            "$organizationName.elr-secondary",
+            "${testOrg.name}.elr-secondary",
             "RECEIVER"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
         response = settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
-            "$organizationName.elr-secondary",
+            "${testOrg.name}.elr-secondary",
             "SENDER"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
@@ -515,7 +516,7 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access user cannot get another organization's revision history (getSettingRevisionHistory)`() {
-        val settingsFunction = setupSettingsFunctionForTesting(oktaClaimsOrganizationName, mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
@@ -539,23 +540,23 @@ class SettingsFunctionTests : Logging {
 
     @Test
     fun `test access DHPrimeAdmins can get any organization's revision history (getSettingRevisionHistory)`() {
-        val settingsFunction = setupSettingsFunctionForTesting("DHPrimeAdmins", mockFacade())
+        val settingsFunction = setupSettingsFunctionForTesting(oktaPrimeAdmin, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
-            "$organizationName.elr-secondary",
+            "${testOrg.name}.elr-secondary",
             "ORGANIZATION"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
-            "$organizationName.elr-secondary",
+            "${testOrg.name}.elr-secondary",
             "RECEIVER"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
-            "$organizationName.elr-secondary",
+            "${testOrg.name}.elr-secondary",
             "SENDER"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
