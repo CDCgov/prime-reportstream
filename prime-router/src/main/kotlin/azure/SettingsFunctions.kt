@@ -63,7 +63,7 @@ class SettingsFunction(
     }
 
     /**
-     * TODO
+     * Update settings for an organization
      * @param request Incoming http request
      * @param organizationName Organization to update settings for
      * @return HttpResponseMessage resulting json or HTTP error response
@@ -86,7 +86,7 @@ class SettingsFunction(
     }
 
     /**
-     * TODO
+     * Get senders for an organization
      * @param request Incoming http request
      * @param organizationName Organization to get senders for
      * @return HttpResponseMessage resulting json or HTTP error response
@@ -105,7 +105,7 @@ class SettingsFunction(
     }
 
     /**
-     * TODO
+     * Get a single sender for an organization
      * @param request Incoming http request
      * @param organizationName Organization in which to look for the sender
      * @param senderName
@@ -126,7 +126,7 @@ class SettingsFunction(
     }
 
     /**
-     * TODO
+     * Update a single sender for an organization
      * @param request Incoming http request
      * @param organizationName Organization in which to look for the sender
      * @param senderName
@@ -152,7 +152,7 @@ class SettingsFunction(
     }
 
     /**
-     * TODO
+     * Get receiver for an organization
      * @param request Incoming http request
      * @param organizationName Organization to get receivers for
      * @return HttpResponseMessage resulting json or HTTP error response
@@ -171,7 +171,7 @@ class SettingsFunction(
     }
 
     /**
-     * TODO
+     * Get a single receiver for an organization
      * @param request Incoming http request
      * @param organizationName Organization in which to look for the receiver
      * @param receiverName
@@ -192,7 +192,7 @@ class SettingsFunction(
     }
 
     /**
-     * TODO
+     * Update one receiver for an organization
      * @param request Incoming http request
      * @param organizationName Organization in which to look for the receiver
      * @param receiverName
@@ -316,7 +316,8 @@ open class BaseFunction(
     }
 
     /**
-     * TODO
+     * Get header data
+     * Currently it just includes the last modified date for the settings
      * @param request Incoming http request
      * @return HttpResponseMessage resulting json or HTTP error response
      */
@@ -359,13 +360,11 @@ open class BaseFunction(
     }
 
     /**
-     * TODO
-     *
-     * @param T
+     * Update a single setting for an organization
      * @param request Incoming http request
-     * @param settingName
-     * @param clazz
-     * @param organizationName
+     * @param settingName Name of the setting being updated
+     * @param clazz The SettingType used to structure the response JSON
+     * @param organizationName Name of the organization we are looking for the setting in
      * @return HttpResponseMessage resulting json or HTTP error response
      */
     fun <T : SettingAPI> updateOne(
@@ -397,11 +396,10 @@ open class BaseFunction(
     }
 
     /**
-     * TODO
-     *
+     * Convert the output of the facade into a Http response
      * @param request Incoming http request
-     * @param result
-     * @param outputBody
+     * @param result Output of the facade
+     * @param outputBody Body of the HTTP response
      * @return HttpResponseMessage resulting json or HTTP error response
      */
     private fun facadeResultToResponse(
@@ -418,10 +416,9 @@ open class BaseFunction(
     }
 
     /**
-     * TODO
-     *
-     * @param message
-     * @return
+     * Convert a message to a JSON error
+     * @param message Input string
+     * @return HTTP error response
      */
     private fun errorJson(message: String): String = HttpUtilities.errorJson(message)
 }
