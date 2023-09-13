@@ -11,6 +11,15 @@ elements:
       cweFieldPath: '%{hl7OBXField}-3'
     schema: ../../common/datatype/ce-coded-with-exceptions
 
+  - name: observation-sub-id
+    value: [ '%resource.extension(%`rsext-sub-id`).value' ]
+    hl7Spec: [ '%{hl7OBXField}-4' ]
+
+  - name: observation-value
+    condition: '%resource.value.value.exists()'
+    value: [ '%resource.value.value' ]
+    hl7Spec: [ '%{hl7OBXField}-5' ]
+
   - name: observation-result-status
     value: [ '%resource.status' ]
     condition: '%resource.dataAbsentReason.exists().not() or %resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").code = "unknown"'
