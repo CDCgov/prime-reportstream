@@ -254,7 +254,7 @@ main {
 }
 
 .usa-card__container {
-    @include u-margin-right(3)
+    @include u-margin-right(3);
 }
 
 /**
@@ -304,7 +304,7 @@ main {
 
 /* allow for spacing between text and external image */
 .usa-link--external::after {
-    @include u-margin-left(0.5);
+    @include u-margin-left(1);
 }
 
 /* custom blockquote from design */
@@ -362,11 +362,16 @@ blockquote {
         // default margin-top
         @include u-margin-top(2.5);
 
+        &:is(hr.rs-hr--alternate) {
+            @include u-margin-top(3);
+        }
+
         &:is(h3) {
             @include u-margin-top(4);
         }
 
         &:is(
+                figure,
                 img,
                 blockquote,
                 .usa-accordion,
@@ -381,7 +386,7 @@ blockquote {
             }
         }
 
-        &:is(h2, #back-to-top) {
+        &:is(h2, .rs-back-to-top) {
             @include u-margin-top(8);
         }
     }
@@ -416,6 +421,21 @@ body {
     h6 {
         @include h6;
     }
+
+    // If header parent has font rule applied, inherit it instead
+    // of using the rules above (ex: apply desired header size
+    // to card header instead of having to break out of markdown
+    // syntax on the h1-6 element).
+    [class*="font-"] {
+        > h1,
+        > h2,
+        > h3,
+        > h4,
+        > h5,
+        > h6 {
+            font-size: inherit;
+        }
+    }
 }
 
 .usa-summary-box {
@@ -429,5 +449,19 @@ body {
         > *:last-child {
             @include u-margin-bottom(0);
         }
+    }
+}
+
+figcaption {
+    @include u-margin-top(2.5);
+    @include u-font("sans", "2xs");
+    @include u-text("gray-50");
+}
+
+figure {
+    @include u-margin-x(0);
+
+    > .grid-row {
+        @include u-margin-top(2);
     }
 }

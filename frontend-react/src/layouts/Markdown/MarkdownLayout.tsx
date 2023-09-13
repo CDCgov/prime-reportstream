@@ -11,7 +11,7 @@ import * as shared from "../../shared";
 
 import { TableOfContents } from "./TableOfContents";
 import MarkdownLayoutContext from "./Context";
-import { LayoutSidenav, LayoutMain } from "./LayoutComponents";
+import { LayoutSidenav, LayoutMain, LayoutBackToTop } from "./LayoutComponents";
 import styles from "./MarkdownLayout.module.scss";
 
 /**
@@ -188,16 +188,13 @@ export function MarkdownLayout({
                             ...MDXComponents,
                             LayoutSidenav,
                             LayoutMain,
+                            LayoutBackToTop,
                             ...mdx?.components,
                         }}
                     >
                         {mainContent ?? children}
                     </MDXProvider>
-                    {backToTop && (
-                        <USSmartLink id="back-to-top" href="#top">
-                            Back to top
-                        </USSmartLink>
-                    )}
+                    {backToTop && !isFullWidth && <LayoutBackToTop />}
                 </article>
             )}
         </MarkdownLayoutContext.Provider>

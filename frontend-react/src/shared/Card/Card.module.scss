@@ -6,33 +6,35 @@
  */
 .usa-card--alternate {
     :global {
-        .usa-card__header {
-            @include u-padding-left(0);
-        }
+        .usa-card {
+            &__header {
+                @include u-padding-left(0);
+            }
 
-        .usa-card__heading {
-            @include u-padding-left(0);
-        }
+            &__heading {
+                 @include u-padding-left(0);
+             }
 
-        .usa-card__body {
-            @include u-padding-left(0);
-            font-size: size("sans", "md");
-        }
+            &__body {
+                @include u-padding-left(0);
+                font-size: size("sans", "md");
 
-        .usa-card__body:last-child {
-            @include u-padding-bottom(8);
-        }
+                &:last-child {
+                    @include u-padding-bottom(5);
+                }
+            }
 
-        .usa-card__footer {
-            @include u-padding-left(0);
-        }
+            &__footer {
+                @include u-padding-left(0);
+            }
 
-        .usa-card__container {
-            border-style: none;
-        }
+            &__container {
+                border-style: none;
+            }
 
-        .usa-card__img {
-            border-radius: 0;
+            &__img {
+                border-radius: 0;
+            }
         }
     }
 }

@@ -1,10 +1,30 @@
 @use "../../global-modules.scss" as *;
 
-.rs-footer {
-    &--alternate {
-        &,
-        & :global(.usa-identifier) {
-            @include u-rs-style-alternate-bg;
-        }
+.Footer {
+  background-color: color('primary-darker');
+
+  & :global {
+    .usa-identifier {
+      background-color: color('primary-darker');
+      padding: 56px 0;
+
+      &__container {
+        padding-left: 0;
+      }
+
+      &__container,
+      &__response,
+      &__identity-disclaimer,
+      &__section--usagov a {
+        font-size: 14px;
+        font-weight: 400;
+      }
+
+      &__required-links-item {
+        font-size: 12px;
+        font-weight: 400;
+        margin-bottom: 1rem;
+      }
     }
+  }
 }
