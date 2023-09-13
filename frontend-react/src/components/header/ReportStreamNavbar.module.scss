@@ -55,12 +55,11 @@
 
             & .usa-link {
                 color: inherit;
-                    &:visited,
-                    &:hover,
-                    &:active {
-                        cursor: pointer;
-                    }
-                
+                &:visited,
+                &:hover,
+                &:active {
+                    cursor: pointer;
+                }
             }
         }
 
