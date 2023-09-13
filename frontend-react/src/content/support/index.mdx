@@ -1,0 +1,373 @@
+---
+title: Support
+subtitle: If you need to learn more or solve an issue, we're here to help.
+backToTop: true
+---
+
+<HeroWrapper>
+    <GridContainer className="usa-section">
+        <CardGroup>
+            <Card className="grid-col-fill">
+                <CardHeader className="font-sans-lg">
+                    ## Welcome to ReportStream
+                </CardHeader>
+                <CardBody className="text-base">
+                    Learn more about how ReportStream works and how we can help you.
+
+                    [Will I ever have to pay to use ReportStream?](#will-i-ever-have-to-pay-to-use-reportstream)
+
+                    [What conditions can I send or receive?](#what-conditions-can-i-send-or-receive)
+
+                    [View all topics](#welcome-to-reportstream-1)
+                </CardBody>
+            </Card>
+
+            <Card className="grid-col-fill">
+                <CardHeader className="font-sans-lg">
+                    ## Getting started
+                </CardHeader>
+                <CardBody className="text-base">
+                    Get information and tips for setting up your ReportStream connection.
+
+                    [How do I map to the LIVD table?](#how-do-i-map-to-the-livd-table)
+
+                    [How do I set up my public/private key pair?](#how-do-i-set-up-my-public-private-key-pair)
+
+                    [View all topics](#getting-started-1)
+                </CardBody>
+            </Card>
+
+            <Card className="grid-col-fill">
+                <CardHeader className="font-sans-lg">
+                    ## Using ReportStream
+                </CardHeader>
+                <CardBody className="text-base">
+                    Find solutions as an organization currently connected to ReportStream.
+
+                    [How do I reset my password?](#how-do-i-reset-my-password)
+
+                    [How do I resubmit my data?](#how-do-i-resubmit-my-data)
+
+                    [View all topics](#using-reportstream-1)
+                </CardBody>
+            </Card>
+        </CardGroup>
+    </GridContainer>
+</HeroWrapper>
+
+<HeroWrapper className="bg-blue-5">
+    <GridContainer className="usa-section">
+        <Grid col className="usa-prose rs-text-align-center">
+            ## Support request
+
+            <p className="usa-intro">For issues with an existing connection, [submit a ticket](https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599).<br/>
+            Our support team will respond as soon as possible to keep your data flowing.</p>
+        </Grid>
+    </GridContainer>
+</HeroWrapper>
+
+<HeroWrapper>
+    <GridContainer className="usa-section usa-prose">
+        ## Welcome to ReportStream
+
+        <hr className="rs-hr--alternate" />
+
+        <Grid row gap>
+            <Grid col="fill" className="usa-prose">
+                <h3 className="text-base">Quick answers</h3>
+
+                <Accordion multiselectable items={[
+                    {
+                        id: "what-conditions-can-i-send-or-receive",
+                        headingLevel: "h4",
+                        title: "What conditions can I send or receive?",
+                        content: (<>
+                            <p>
+                            While ReportStream currently works with COVID-19 and mpox data, we are adding more reportable 
+                            conditions soon. 
+                            </p>
+
+                            <p>
+                            <A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">Contact us</A> if 
+                            you would like updates on additional conditions as they become available.
+                            You can submit flu data through <A href="https://www.simplereport.gov">SimpleReport</A>.
+                            </p>
+                        </>)
+                    },
+                    {
+                        id: "should-i-use-reportstream-or-simplereport",
+                        headingLevel: "h4",
+                        title: "Should I use ReportStream or SimpleReport?",
+                        content: (<>
+                            <p>
+                            If you are a <b>public health agency</b>, you only need to connect to ReportStream.
+                            You will get data from testing facilities who connect to ReportStream through our API and those
+                            facilities who report through <A href="https://www.simplereport.gov">SimpleReport</A>. SimpleReport data will flow directly to you through
+                            ReportStream, so you do not need to onboard to SimpleReport.
+                            </p>
+
+                            <p>
+                            If you are a <b>healthcare organization</b>, ReportStream and SimpleReport offer two different 
+                            ways to send your data. ReportStream uses an API connection to send your data to public health 
+                            departments. You can send an HL7 or CSV file through our API. Some technical expertise is required 
+                            to set up an API connection. If you currently send data via SFTP, this may be a process you are 
+                            familiar with. Depending on your resources, capacity, and requirements, it takes about a month 
+                            to establish an API connection with ReportStream.
+                            </p>
+
+                            <p>
+                            <A href="https://www.simplereport.gov">SimpleReport</A> can be used for manual reporting or CSV 
+                            upload. Because there is no technical setup, onboarding is quicker and simpler than for 
+                            ReportStream.
+                            </p>
+
+                            <p>Both SimpleReport and ReportStream are free.</p>
+                        </>)
+                    },
+                    {
+                        id: "will-i-ever-have-to-pay-to-use-reportstream",
+                        headingLevel: "h4",
+                        title: "Will I ever have to pay to use ReportStream?",
+                        content: (<p>ReportStream is 100% free and provided by the CDC.</p>)
+                    },
+                    {
+                        id: "how-does-reportstream-make-sure-public-health-agencies-dont-receive-duplicate-data",
+                        headingLevel: "h4",
+                        title: "How does ReportStream make sure public health agencies don’t receive duplicate data?",
+                        content: (<p>
+                            Our filtering process uses CLIA numbers to remove any duplicate data.
+                            The filters are based on which organizations are already connected directly to a public health 
+                            agency.
+                        </p>)
+                    },
+                    {
+                        id: "what-testing-devices-does-reportstream-support",
+                        headingLevel: "h4",
+                        title: "What testing devices does ReportStream support?",
+                        content: (<p>
+                            All approved devices can be found on the {" "}
+                            <A href="https://www.cdc.gov/csels/dls/livd-codes.html">CDC LIVD mapping table</A>.
+                            Learn more about <A href="#how-do-i-know-if-a-device-is-considered-otc-over-the-counter">devices</A>
+                            {" "} and <A href="#how-do-i-map-to-the-livd-table">LIVD mapping</A>.
+                        </p>)
+                    },
+                ]} />
+            </Grid>
+            <Grid col="4">
+                <CardGroup>
+                    <Card className="width-full">
+                        <CardHeader className="text-base">
+                            ### Related pages
+                        </CardHeader>
+                        <CardBody>
+                            - [About us](/about)
+                            - [Security](/resources/security-practices)
+                            - [Getting started](/getting-started)
+                        </CardBody>
+                    </Card>
+                </CardGroup>
+            </Grid>
+        </Grid>
+
+        ## Getting started
+
+        <hr className="rs-hr--alternate" />
+
+        <Grid row gap>
+            <Grid col="fill" className="usa-prose">
+                <h3 className="text-base">Quick answers</h3>
+
+                <Accordion multiselectable items={[
+                    {
+                        id: "do-i-need-to-report-to-hhs",
+                        headingLevel: "h4",
+                        title: "Do I need to report to HHS?",
+                        content: (<>
+                            <p>
+                            According to the CARES Act, labs are not required to report to both state or local health 
+                            departments and HHS. The CARES Act requires labs to report all data to state or local public 
+                            health departments using existing public health data reporting channels, in accordance with 
+                            state law or policies. The public health department will provide these data to HHS.
+                            </p>
+
+                            <p>
+                            View specific reporting requirements for <A href="https://www.cdc.gov/coronavirus/2019-ncov/lab/reporting-lab-data.html#faqs">COVID-19</A> 
+                            {" "} and for <A href="https://www.cdc.gov/poxvirus/mpox/lab-personnel/report-results.html">mpox</A>.
+                            </p>
+                        </>)
+                    },
+                    {
+                        id: "where-can-i-find-the-hl7-v2-implementation-guide",
+                        headingLevel: "h4",
+                        title: "Where can I find the HL7 v2 Implementation Guide?",
+                        content: (<p>
+                            View the <A href="https://www.nibib.nih.gov/covid-19/radx-tech-program/mars/HL7v2-implementation-guide">HL7 v2 Implementation Guide</A>.
+                        </p>)
+                    },
+                    {
+                        id: "where-can-i-find-a-reportstream-standard-csv-sample-file",
+                        headingLevel: "h4",
+                        title: "Where can I find a ReportStream standard CSV sample file?",
+                        content: (<p>
+                            Download the <A href="https://reportstream.cdc.gov/assets/csv/ReportStream-StandardCSV-ExampleData-20220509.csv">CSV sample file</A>.
+                        </p>)
+                    },
+                    {
+                        id: "how-do-i-set-up-my-public-private-key-pair",
+                        headingLevel: "h4",
+                        title: "How do I set up my public/private key pair?",
+                        content: (<>
+                            <p>You can find detailed instructions in our <A href="/resources/api">API guide</A>.</p>
+
+                            <p><b>Note:</b> Through this authentication process, you generate both a public and private key. 
+                            You only share the public key with ReportStream.</p>
+                        </>)
+                    },
+                    {
+                        id: "what-is-a-loinc-code",
+                        headingLevel: "h4",
+                        title: "What is a LOINC Code?",
+                        content: (<p>
+                            <A href="https://loinc.org/get-started/what-loinc-is/">LOINC</A> codes help distinguish between 
+                            different types of disease-specific tests. These codes are necessary when setting up data 
+                            formatting to send data through ReportStream. Read more about {" "}
+                            <A href="/resources/api/documentation/data-model">our data model</A> to see how LOINC codes are 
+                            used in ReportStream.
+                        </p>)
+                    },
+                    {
+                        id: "how-do-i-map-to-the-livd-table",
+                        headingLevel: "h4",
+                        title: "How do I map to the LIVD table?",
+                        content: (<>
+                            <p>
+                                LOINC In Vitro Diagnostic (LIVD) mapping provides several <A href="/resources/api/documentation/data-model">data elements</A> 
+                                {" "} you’ll need for your ReportStream <A href="/resources/api/getting-started">test file</A>. Including:
+                            </p>
+
+                            <ul>
+                                <li>Equipment model name</li>
+                                <li>Equipment UID</li>
+                                <li>Test performed code</li>
+                            </ul>
+
+                            <p>If you do not know what devices you’ll be reporting for, contact your lab.</p>
+
+                            <p>
+                                When you know the devices you are reporting for, you can use the LIVD mapping table to 
+                                identify the device identifier code. The code is in <A href="https://www.cdc.gov/csels/dls/livd-codes.html">column F</A>, 
+                                labeled Test Performed LOINC Code. 
+                                Then, you can use that code as described in our <A href="/resources/api/documentation/data-model">data model</A>.
+                            </p>
+                        </>)
+                    },
+                    {
+                        id: "how-do-i-know-if-a-device-is-considered-otc-over-the-counter",
+                        headingLevel: "h4",
+                        title: "How do I know if a device is considered OTC (over the counter)?",
+                        content: (<p>
+                            Refer to the <A href="https://www.fda.gov/medical-devices/home-use-devices/frequently-asked-questions-about-home-use-devices">FDA resource</A> on home use devices for more information.
+                        </p>)
+                    },
+                ]} />
+            </Grid>
+            <Grid col="4">
+                <CardGroup>
+                    <Card className="width-full">
+                        <CardHeader className="text-base">
+                            ### Related pages
+                        </CardHeader>
+                        <CardBody>
+                            - [Get started sending data](/getting-started/sending-data)
+                            - [API guide](/resources/api)
+                            - [Developer resources](/developer-resources)
+                        </CardBody>
+                    </Card>
+                </CardGroup>
+            </Grid>
+        </Grid>
+
+        ## Using ReportStream
+
+        <hr className="rs-hr--alternate" />
+
+        <Grid row gap>
+            <Grid col="fill" className="usa-prose">
+                <h3 className="text-base">Quick answers</h3>
+
+                <Accordion multiselectable items={[
+                    {
+                        id: "how-do-i-stop-receiving-negative-test-results",
+                        headingLevel: "h4",
+                        title: "How do I stop receiving negative test results?",
+                        content: (<p>
+                            <A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">Contact us</A> so we can update your filter settings. If you are not a current ReportStream user, you can indicate this preference during the onboarding process.
+                        </p>)
+                    },{
+                        id: "how-do-i-resubmit-my-data",
+                        headingLevel: "h4",
+                        title: "How do I resubmit my data?",
+                        content: (<>
+                            <p>
+                                <A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">Submit a support request</A>, 
+                                and our team will help with your resubmission. Be sure to include the following information 
+                                in your request:
+                            </p>
+
+                            <p><b>Reason for requesting resubmission</b></p>
+
+                            <ul>
+                                <li>Date of the message</li>
+                                <li>Message ID</li>
+                                <li>Report ID or file name, if available</li>
+                                <li>Applicable organizations (e.g. state, lab name, etc).</li>
+                            </ul>
+                        </>)
+                    },
+                    {
+                        id: "how-do-i-reset-my-password",
+                        headingLevel: "h4",
+                        title: "How do I reset my password?",
+                        content: (<p>
+                            On the <A href="/login">login page</A>, select Need help signing in? After following the 
+                            instructions on the screen, you will receive an email with next steps.
+                        </p>)
+                    },
+                    {
+                        id: "how-can-i-start-sending-or-receiving-more-conditions",
+                        headingLevel: "h4",
+                        title: "How can I start sending or receiving more conditions?",
+                        content: (<p>
+                            <A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957">Let us know</A> what conditions you are interested in, and our team will let you know what you 
+                            need to do next.
+                        </p>)
+                    },
+                    {
+                        id: "can-public-health-departments-receive-a-report-on-facilities-reporting-them",
+                        headingLevel: "h4",
+                        title: "Can public health departments receive a report on facilities reporting them?",
+                        content: (<p>
+                            You can view details on the data you have received by logging in and viewing your Daily Data. {" "}
+                            <A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">Contact us</A> if you need an account or to request a report.
+                        </p>)
+                    },
+                ]} />
+            </Grid>
+            <Grid col="4">
+                <CardGroup>
+                    <Card className="width-full">
+                        <CardHeader className="text-base">
+                            ### Related pages
+                        </CardHeader>
+                        <CardBody>
+                            - [Managing your connection](/manage-connection)
+                            - [Developer resources](/developer-resources)
+                        </CardBody>
+                    </Card>
+                </CardGroup>
+            </Grid>
+        </Grid>
+        
+        <LayoutBackToTop />
+    </GridContainer>
+</HeroWrapper>

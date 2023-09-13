@@ -8,6 +8,7 @@ import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.FileSettings
+import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
@@ -17,6 +18,7 @@ import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
+import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
@@ -366,12 +368,19 @@ class TranslationTests {
             val receiver = settings.receivers.firstOrNull {
                 it.organizationName.plus(".").plus(it.name).lowercase() == receiverName?.lowercase()
             }
+            val maybeConfig = receiver?.let {
+                val maybeHl7Config = it.translation as? Hl7Configuration
+                if (maybeHl7Config != null) {
+                    HL7TranslationConfig(maybeHl7Config, receiver)
+                } else null
+            }
+
             val hl7 = FhirToHl7Converter(
                 FilenameUtils.getName(schema),
                 FilenameUtils.getPath(schema),
                 context = FhirToHl7Context(
                     CustomFhirPathFunctions(),
-                    config = receiver,
+                    config = maybeConfig,
                     translationFunctions = CustomTranslationFunctions()
                 )
             ).convert(fhirBundle)
