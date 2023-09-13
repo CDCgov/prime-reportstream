@@ -61,7 +61,7 @@ val javaVersion = when (appJvmTarget) {
     else -> JavaVersion.VERSION_17
 }
 val ktorVersion = "2.3.2"
-val kotlinVersion = "1.8.22"
+val kotlinVersion = "1.9.10"
 val jacksonVersion = "2.15.2"
 jacoco.toolVersion = "0.8.10"
 
