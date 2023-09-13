@@ -7,14 +7,17 @@ import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogger
+import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
+import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
@@ -122,6 +125,11 @@ class TranslationTests {
          * The receiver
          */
         RECEIVER("Receiver"),
+
+        /**
+         * The condition filter
+         */
+        RECEIVER_CONDITION_FILTER("Condition Filter"),
     }
 
     /**
@@ -140,7 +148,8 @@ class TranslationTests {
         /** should we hardcode the sender for comparison? */
         val sender: String? = null,
         val senderTransform: String?,
-        val receiver: String? = null
+        val receiver: String? = null,
+        val conditionFiler: String? = null
     )
 
     /**
@@ -177,7 +186,7 @@ class TranslationTests {
                     val sender = it[ConfigColumns.SENDER.colName].trimToNull()
                     val receiver = it[ConfigColumns.RECEIVER.colName].trimToNull()
                     val senderTransform = it[ConfigColumns.SENDER_TRANSFORM.colName].trimToNull()
-                    // val conditionFilter = it[ConfigColumns.RECEIVER_CONDITION_FILTER.colName].trimToNull()
+                    val conditionFilter = it[ConfigColumns.RECEIVER_CONDITION_FILTER.colName].trimToNull()
                     val ignoreFields = it[ConfigColumns.IGNORE_FIELDS.colName].let { colNames ->
                         colNames?.split(",") ?: emptyList()
                     }
@@ -196,7 +205,8 @@ class TranslationTests {
                         ignoreFields,
                         sender,
                         senderTransform,
-                        receiver
+                        receiver,
+                        conditionFilter
                     )
                 } else {
                     fail("One or more config columns in $configPathname are empty.")
@@ -377,18 +387,17 @@ class TranslationTests {
                 } else null
             }
 
-            // not sure how to find an entry point to call into the
-            // FHIRRouter->applyFilters(...) where all filters are applied
-            // including condition filter, so below code at least covers
-            // applying condition filter from a single receiver and check
-            // the result where the observations which match the condition filter
-            // are kept.
-            if (receiver?.name == "FHIR_OBSERVATION_FILTER_1" ||
-                receiver?.name == "FHIR_OBSERVATION_FILTER_2"
-            ) {
+            if (!config.conditionFiler.isNullOrBlank()) {
                 fhirBundle = FHIRBundleHelpers.filterObservations(
                     fhirBundle,
-                    receiver,
+                    Receiver(
+                        "filter-test-receiver",
+                        "filter-test-org",
+                        Topic.FULL_ELR,
+                        CustomerStatus.ACTIVE,
+                        "one",
+                        conditionFilter = listOf(config.conditionFiler)
+                    ),
                     emptyMap<String, String>().toMutableMap()
                 )
             }
