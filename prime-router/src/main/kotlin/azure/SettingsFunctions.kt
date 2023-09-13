@@ -185,7 +185,7 @@ class SettingsFunction(
      * @param request Incoming http request
      *      Expected Headers: authorization, content-type
      * @param organizationName Organization in which to look for the receiver
-     * @param receiverName
+     * @param receiverName Name of the receiver we're looking for
      * @return HttpResponseMessage resulting json or HTTP error response
      */
     @FunctionName("getOneReceiver")
@@ -208,7 +208,7 @@ class SettingsFunction(
      *      Expected Headers: authorization, content-type
      *      Expected PUT Body: JSON (see OrganizationAPI for structure)
      * @param organizationName Organization in which to look for the receiver
-     * @param receiverName
+     * @param receiverName Name of the receiver we're updating
      * @return HttpResponseMessage resulting json or HTTP error response
      */
     @FunctionName("updateOneReceiver")
@@ -244,7 +244,7 @@ class SettingsFunction(
      *   `settings/revision/organizations/{organizationName}/receiver`
      *   `settings/revision/organizations/{organizationName}/organization`
      * @param organizationName Organization in which to look for the receiver
-     * @param settingSelector
+     * @param settingSelector Name of setting type we're looking for. See SettingType for options
      * @return HttpResponseMessage resulting json or HTTP error response
      */
     @FunctionName("getSettingRevisionHistory")
