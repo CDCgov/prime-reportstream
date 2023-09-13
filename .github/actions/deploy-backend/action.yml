@@ -105,10 +105,10 @@ runs:
     - name: Upload Swagger UI (APIDocs staging only)
       if: inputs.env-name == 'staging'
       shell: bash
-      working-directory: .
+      working-directory: prime-router
       run: |
         az storage blob delete-batch --account-name ${{ env.IMAGE_SWAGGER_UI_REPO }} -s '$web'
-        az storage blob upload-batch --account-name ${{ env.IMAGE_SWAGGER_UI_REPO }} -s prime-router/build -d '$web'
+        az storage blob upload-batch --account-name ${{ env.IMAGE_SWAGGER_UI_REPO }} -s ./build/swagger-ui -d '$web'
 
     - name: ACR login
       working-directory: prime-router
