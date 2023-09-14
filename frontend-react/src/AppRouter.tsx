@@ -345,6 +345,10 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "facilities-providers",
                         element: <FacilitiesProvidersWithAuth />,
+                        handle: {
+                            isContentPage: true,
+                            isFullWidth: true,
+                        },
                     },
                     {
                         path: "facility/:senderId",

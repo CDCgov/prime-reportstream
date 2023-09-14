@@ -41,7 +41,7 @@ export const useOrganizationReceiversFeed = (): ReceiverFeeds => {
         loadingServices:
             (isLoading && fetchStatus !== "idle") ||
             receiversFound === undefined,
-        services: receivers || [],
+        services: receivers?.sort((a, b) => a.name.localeCompare(b.name)) || [],
         activeService: active,
         setActiveService: setActive,
         isDisabled: isLoading && fetchStatus === "idle",

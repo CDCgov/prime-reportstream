@@ -18,9 +18,9 @@ function DataDashboard() {
     const { description } = orgDetails || {};
     return (
         <div className={styles.DataDashboard}>
-            <HeroWrapper isAlternate className="rs-bg-grid">
+            <div className="bg-primary-darker text-white">
                 <div className="grid-container">
-                    <header className="usa-section usa-prose tablet:grid-col-12">
+                    <header className="usa-section usa-prose">
                         <div className="font-sans-lg text-blue-30">
                             {description}
                         </div>
@@ -42,7 +42,7 @@ function DataDashboard() {
                         <hr />
                     </header>
                 </div>
-            </HeroWrapper>
+            </div>
             <HeroWrapper>
                 <div className="grid-container">
                     <section className="usa-section">
