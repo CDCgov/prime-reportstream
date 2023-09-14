@@ -35,12 +35,12 @@ identifier_1:
     id: HD.1
 
 identifier_2:
-  condition: $orgIdValue NULL
+  condition: $orgIdValue NULL && $id NOT_NULL
   valueOf: datatype/Identifier_Gen
   generateList: true
   expressionType: resource
   vars:
-    id: CWE.1 | CE.1 | XON.10 | XON.3
+    id: CWE.1 | CE.1
     system: CWE.3 | CE.3
 
 # Used by IN1/Coverage (Insurance) organizations, which have a more complex identifier
@@ -67,6 +67,15 @@ identifier_4:
     valueIn: $orgCompanyPlanCode   # IN1.35 passed in from Coverage
     # No CXsystem
     # No code
+
+identifier_5:
+  generateList: true
+  expressionType: resource
+  valueOf: datatype/Identifier_XON
+  #  condition: $facility NOT_NULL
+  #  vars:
+  #    facility: String, XON.8
+  specs: XON
 
 name_v1:
   type: STRING
@@ -109,16 +118,6 @@ contact:
     contactPointXTN: $orgContactPointXTN
     contactPointAddressXAD: $orgContactPointAddressXAD
     contactName: $orgContactName
-
-type_1:
-  valueOf: datatype/CodeableConcept_var
-  generateList: true
-  expressionType: resource
-  vars:
-    code: String, XON.7
-    system: SYSTEM_URL, $systemCode
-  constants:
-    systemCode: "v2-0203"
 
 extension_1:
   generateList: true

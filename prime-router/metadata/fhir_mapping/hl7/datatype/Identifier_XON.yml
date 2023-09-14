@@ -1,0 +1,37 @@
+value:
+  type: STRING
+  valueOf: $val
+  vars:
+    val: XON.10 | XON.3
+
+type_1:
+  valueOf: datatype/CodeableConcept_var
+  generateList: true
+  expressionType: resource
+  vars:
+    code: String, XON.7
+    system: SYSTEM_URL, $systemCode
+  constants:
+    systemCode: "v2-0203"
+
+extension_1:
+  generateList: true
+  expressionType: resource
+  valueOf: extension/ExtensionAssigningAuthority
+  specs: XON.6
+  constants:
+    urlValue: assigning-authority
+
+extension_2:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: assigning-facility
+    valueLocation:
+      valueOf: resource/Location
+      expressionType: reference
+      vars:
+        name: String, XON.8.1
+        facility: String, XON.8.2

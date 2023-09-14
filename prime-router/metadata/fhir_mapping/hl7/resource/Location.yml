@@ -68,6 +68,14 @@ identifier_2:
   vars:
     value: $room
 
+identifier_3-facility:
+  condition: $facility NOT_NULL && $bed NULL && $room NULL
+  valueOf: datatype/Identifier
+  expressionType: resource
+  generateList: true
+  vars:
+    value: $facility
+
 name:
   type: STRING
   valueOf: $name
