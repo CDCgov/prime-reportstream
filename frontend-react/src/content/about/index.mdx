@@ -17,15 +17,15 @@ vision:
     <section className="usa-section grid-container">
         <div className="grid-row grid-gap">
             <div className="grid-col-6">
-                <h2 className="margin-top-0">Mission</h2>
+                <h3 className="margin-top-0">Mission</h3>
                 <Tile {...frontmatter.mission}></Tile>
             </div>
             <div className="grid-col-6">
-                <h2 className="margin-top-0">Vision</h2>
+                <h3 className="margin-top-0">Vision</h3>
                 <Tile {...frontmatter.vision}></Tile>
             </div>
         </div>
-        ## Values
+        ### Values
         <Accordion isAlternate multiselectable={true} items={[
             {
                 id: "1",
@@ -80,18 +80,20 @@ vision:
     </section>
 </HeroWrapper>
 <HeroWrapper>
-    <section className="usa-section grid-container">
-        <h2 className="margin-top-0">How ReportStream started</h2>
+    <GridContainer className="usa-section usa-prose">
+        <h3 className="margin-top-0">How ReportStream started</h3>
         <Tile>
-            <p>From the start of the COVID-19 pandemic, public health agencies nationwide were struggling to keep up with an overwhelming number of COVID-19 test results. This flood of test results strained out of date systems and processes, many of which were paper-based and reliant on fax machines. Incomplete and delayed information made the public health response slow and inaccurate.</p>
-            <p>The White House COVID-19 task force worked with the Department of Health and Human Services (HHS) and the Centers for Disease Control and Prevention (CDC). Together, they saw an immediate need to better support state, tribal, local, and territorial public health authorities. There was an opportunity to help these agencies get the data they needed to respond more quickly and accurately.</p>
-            <p>Following <A href="https://digital.gov/topics/user-centered-design/" target="_blank">human centered design</A> principles, a cross-disciplinary team traveled to front line sites to understand the issues public health agencies were facing first-hand. The team visited eight states, more than 20 national, state and local health departments and agencies, and interviewed over 100 people.</p>
-            <p>From that time learning and collaborating, they created SimpleReport and ReportStream. <A href="https://www.simplereport.gov/" target="_blank">SimpleReport</A> allows for easy test result collection. ReportStream delivers the public health data from SimpleReport and other sources through standardization and routing.</p>
-            <p>The goal wasn’t just to improve reporting for COVID-19. We are building the software systems that will be needed for the next pandemic. But could ReportStream really handle that amount of data?</p>
-            <p>When the Omicron variant hit at the end of 2022, ReportStream scaling was put to the test. And succeeded, handling over 5.3 million test results during the height of Omicron.</p>
-            <p>Seeing public health outcomes improve means meeting today's needs and being ready for tomorrow. We are scaling to work with more organizations and accepting more formats and conditions. We’re ready to create a new day for public health reporting. Will you join us?</p>
+            <Grid col="9" className="usa-prose">
+                <p>From the start of the COVID-19 pandemic, public health agencies nationwide were struggling to keep up with an overwhelming number of COVID-19 test results. This flood of test results strained out of date systems and processes, many of which were paper-based and reliant on fax machines. Incomplete and delayed information made the public health response slow and inaccurate.</p>
+                <p>The White House COVID-19 task force worked with the Department of Health and Human Services (HHS) and the Centers for Disease Control and Prevention (CDC). Together, they saw an immediate need to better support state, tribal, local, and territorial public health authorities. There was an opportunity to help these agencies get the data they needed to respond more quickly and accurately.</p>
+                <p>Following <A href="https://digital.gov/topics/user-centered-design/" target="_blank">human centered design</A> principles, a cross-disciplinary team traveled to front line sites to understand the issues public health agencies were facing first-hand. The team visited eight states, more than 20 national, state and local health departments and agencies, and interviewed over 100 people.</p>
+                <p>From that time learning and collaborating, they created SimpleReport and ReportStream. <A href="https://www.simplereport.gov/" target="_blank">SimpleReport</A> allows for easy test result collection. ReportStream delivers the public health data from SimpleReport and other sources through standardization and routing.</p>
+                <p>The goal wasn’t just to improve reporting for COVID-19. We are building the software systems that will be needed for the next pandemic. But could ReportStream really handle that amount of data?</p>
+                <p>When the Omicron variant hit at the end of 2022, ReportStream scaling was put to the test. And succeeded, handling over 5.3 million test results during the height of Omicron.</p>
+                <p>Seeing public health outcomes improve means meeting today's needs and being ready for tomorrow. We are scaling to work with more organizations and accepting more formats and conditions. We’re ready to create a new day for public health reporting. Will you join us?</p>
+            </Grid>
         </Tile>
-    </section>
+    </GridContainer>
 </HeroWrapper>
 <HeroWrapper className="bg-blue-5">
     <section className="usa-section grid-container">
