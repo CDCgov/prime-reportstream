@@ -1,8 +1,9 @@
 # How to Onboard a New Organization to Receive Data
 Add subsections that mimic the linked resources: ([Brandon’s version](https://docs.google.com/document/d/1noB3lK2Nc_vbD4s5ZHgdTjgIjhCii63x_2bjBz7GM1I/edit#heading=h.be9yxi8thtdw), [Github version](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/how-to-onboard-a-sender.md))
 
-
-## The main goal of receiver onboarding is to establish a way (connection?) to send data from ReportStream to the STLT.  In order to do so there are multiple receiver configurations that need to be “setup’?  During pre-onboarding ideally we will be able to know/collect/obtain all the unknown variables in order to set up the receiver configurations.
+The main goal of receiver onboarding is to establish a connection to send data from ReportStream to the STLT.  
+In order to do so there are multiple receiver configurations that need to be configured.  
+During pre-onboarding ideally we will be able to know/collect/obtain all the unknown variables in order to set up the receiver configurations.
 
 ### Pre-Onboarding
 Identify how they want to send data
@@ -18,9 +19,10 @@ Create Okta Accounts (probably once they are set up fully).
 #### Introduction
 This is a introduction on how to create and manage a public/private key pair for a receiver using SSH Keys.
 #### Assumptions
-First and foremost: This assumes you have credentials with the CDC and have been given access to the Azure portal. If you do not have credentials, and access to the Azure portal, stop here. You cannot go any further.
-This also assumes you have access to KeyBase, and are part of the prime_dev_ops team there. Also, we assume you have KeyBase installed, and have in mounted into /Volumes/. If you don't have it mounted as a drive, you can just drag and drop the files into KeyBase. If you feel you should have access to the prime_dev_ops team in KeyBase, contact your dev lead, or the dev ops team lead and request access.
-Finally, this assumes you are working on a Unix-style system such as Linux or MacOS. You can probably do this on Windows as well provided you have a conformant shell with putty and openssl installed. The Git Bash shell would probably do, or the Linux Subsystem for Windows would as well, but no promises are made.
+* First and foremost: This assumes you have credentials with the CDC and have been given access to the Azure portal. If you do not have credentials, and access to the Azure portal, stop here. You cannot go any further.
+* This also assumes you have access to KeyBase, and are part of the prime_dev_ops team there.
+* Also, we assume you have KeyBase installed, and have in mounted into /Volumes/. If you don't have it mounted as a drive, you can just drag and drop the files into KeyBase. If you feel you should have access to the prime_dev_ops team in KeyBase, contact your dev lead, or the dev ops team lead and request access.
+* Finally, this assumes you are working on a Unix-style system such as Linux or MacOS. You can probably do this on Windows as well provided you have a conformant shell with putty and openssl installed. The Git Bash shell would probably do, or the Linux Subsystem for Windows would as well, but no promises are made.
 
 #### Background
 Most of the states that we partner with are using SFTP to send files. (90% of Receivers use this).
@@ -83,19 +85,18 @@ cp ~/development/nj-connection-info.yml /Volumes/Keybase/team/prime_dev_ops/stat
 Or just manually upload the yml file into the respective keybase folder
 
 #### Testing Locally
-Once you've created the files and have credentials from the receiver, you want to test and make sure that your configuration is successful and the
-One SFTP program you can use to test is Cyberduck. You can download it from the AppStore or directly from cyberduck.com.
-Once you have downloaded the app, click on Open connection.
-
-Dropdown to the SFTP transfer. 
-The STLT will provide you with the servername and username. 
-Some will provide you the password. 
-If they don’t provide you with the password, that is okay. Leave it blank.
-Goto SSH PrivateKey, and choose the PEM file.
-You then will get either a “successful connection” message.
-Goto www.reportstream.cdc.gov ->PrimeAdmin (upper right corner) .
-Click edit on the organization you are working on.
-Then click on Check and if you are successful, you will get a 200 success message
+1.    Once you've created the files and have credentials from the receiver, you want to test and make sure that your configuration is successful and the
+2.    One SFTP program you can use to test is Cyberduck. You can download it from the AppStore or directly from cyberduck.com.
+3.    Once you have downloaded the app, click on Open connection.
+4.    Dropdown to the SFTP transfer. 
+5.    The STLT will provide you with the servername and username. 
+6.    Not all STLT will provide you the password. But that is okay.
+7.    If they don’t provide you with the password, that is okay. Leave it blank.
+8.    Goto SSH PrivateKey, and choose the PEM file.
+9.    You then will get either a “successful connection” message.
+10.    Goto www.reportstream.cdc.gov ->PrimeAdmin (upper right corner) .
+11.    Click edit on the organization you are working on.
+12.    Then click on Check and if you are successful, you will get a 200 success message
 
 
 
