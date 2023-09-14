@@ -26,6 +26,7 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.impl.SQLDataType
 import java.io.ByteArrayOutputStream
 import java.time.LocalDateTime
+import java.util.UUID
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -517,7 +518,7 @@ class ActionHistory(
         filename: String?,
         params: String,
         result: String,
-        itemCount: Int
+        header: WorkflowEngine.Header
     ) {
         if (isReportAlreadyTracked(sentReportId)) {
             error(
@@ -525,6 +526,18 @@ class ActionHistory(
                     "we've already associated with this action"
             )
         }
+
+        if (header.content == null) {
+            error("Bug: attempt to track sent report with no contents")
+        }
+
+        val blobInfo = BlobAccess.uploadBody(
+            receiver.format,
+            header.content,
+            filename ?: UUID.randomUUID().toString(),
+            "send",
+            Event.EventAction.NONE
+        )
         val reportFile = ReportFile()
         reportFile.reportId = sentReportId
         reportFile.receivingOrg = receiver.organizationName
@@ -535,10 +548,11 @@ class ActionHistory(
         action.externalName = filename
         reportFile.transportParams = params
         reportFile.transportResult = result
-        reportFile.bodyUrl = null
         reportFile.bodyFormat = receiver.format.toString()
-        reportFile.blobDigest = null // no blob
-        reportFile.itemCount = itemCount
+        reportFile.itemCount = header.reportFile.itemCount
+        reportFile.blobDigest = blobInfo.digest
+        reportFile.bodyUrl = blobInfo.blobUrl
+
         reportsOut[reportFile.reportId] = reportFile
     }
 
@@ -548,12 +562,11 @@ class ActionHistory(
      * of our custody.
      */
     fun trackDownloadedReport(
-        header: WorkflowEngine.Header,
+        parentReportFile: ReportFile,
         filename: String,
         externalReportId: ReportId,
         downloadedBy: String,
     ) {
-        val parentReportFile = header.reportFile
         trackExistingInputReport(parentReportFile.reportId)
         if (isReportAlreadyTracked(externalReportId)) {
             error(
