@@ -29,7 +29,7 @@ import kotlin.test.Test
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SettingsFunctionTests : Logging {
-    private val oktaNormalUser = "DHSender_user"
+    private val oktaNormalUser = "DHSender_test-lab"
     private val oktaPrimeAdmin = "DHPrimeAdmins"
 
     private val otherOrganizationName = "test-lab-2"
@@ -61,7 +61,7 @@ class SettingsFunctionTests : Logging {
 
     private fun buildClaimsMap(organizationName: String): Map<String, Any> {
         return mapOf(
-            "sub" to "test",
+            "sub" to "test-lab",
             "organization" to listOf(organizationName)
         )
     }
@@ -206,14 +206,14 @@ class SettingsFunctionTests : Logging {
     }
 
     @Test
-    fun `test access user cannot view their organization's settings (getOneOrganization)`() {
+    fun `test access user can view their organization's settings (getOneOrganization)`() {
         val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         val response = settingsFunction.getOneOrganization(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary"
+            testOrg.name
         )
-        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
 
     @Test
@@ -222,7 +222,7 @@ class SettingsFunctionTests : Logging {
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         val response = settingsFunction.getOneOrganization(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2"
+            otherOrganizationName
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
