@@ -6,8 +6,11 @@ id_1:
 
 mode:
   type: STRING
-  condition: $poc NOT_NULL || $room NOT_NULL || $bed NOT_NULL || $facility NOT_NULL
+  condition: $locationVar NOT_NULL
   value: instance
+  vars:
+    locationVar: $poc | $room | $bed | $facility
+#    hdVar: String, HD.1
 
 physicalType_1:
   valueOf: datatype/CodeableConcept_var

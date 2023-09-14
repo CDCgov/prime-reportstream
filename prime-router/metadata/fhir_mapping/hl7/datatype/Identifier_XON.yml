@@ -25,13 +25,15 @@ extension_1:
 extension_2:
   generateList: true
   expressionType: nested
+  specs: XON.8
   expressionsMap:
     url:
       type: SYSTEM_URL
       value: assigning-facility
-    valueLocation:
+    valueReference:
       valueOf: resource/Location
       expressionType: reference
+      specs: HD
       vars:
         name: String, XON.8.1
         facility: String, XON.8.2
