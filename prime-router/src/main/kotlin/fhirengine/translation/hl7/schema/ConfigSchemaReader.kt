@@ -3,6 +3,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.schema
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.fhirengine.engine.LookupTableValueSet
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
@@ -12,6 +13,7 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.File
 import java.io.InputStream
+import java.net.URI
 
 /**
  * Read schema configuration.
@@ -28,17 +30,9 @@ object ConfigSchemaReader : Logging {
         schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>
     ): ConfigSchema<*> {
         // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
-        val schemaList = mutableListOf<ConfigSchema<*>>()
-        schemaList.add(readSchemaTreeFromFile(schemaName, folder, schemaClass = schemaClass))
-        while (!schemaList.last().extends.isNullOrBlank()) {
-            // Make sure there are no circular dependencies
-            if (schemaList.any { FilenameUtils.getName(schemaName) == FilenameUtils.getName(schemaList.last().extends) }
-            ) {
-                throw SchemaException("Schema circular dependency found while loading schema $schemaName")
-            }
-            val depSchemaFolder = "$folder/${FilenameUtils.getPath(schemaList.last().extends)}"
-            val depSchemaName = FilenameUtils.getName(schemaList.last().extends)
-            schemaList.add(readSchemaTreeFromFile(depSchemaName, depSchemaFolder, schemaClass = schemaClass))
+        val schemaList = when (URI(schemaName).scheme) {
+            null -> fromRelative(schemaName, folder, schemaClass)
+            else -> fromUri(URI(schemaName), schemaClass)
         }
 
         // Now merge the parent with all the child schemas
@@ -48,6 +42,54 @@ object ConfigSchemaReader : Logging {
             throw SchemaException("Invalid schema $schemaName: \n${mergedSchema.errors.joinToString("\n")}")
         }
         return mergedSchema
+    }
+
+    /**
+     * Reads a schema from the file directory via relative pathing.  This is the deprecated way of reading schemas
+     * and continues to exist while the transition is executed
+     */
+    private fun fromRelative(
+        schemaName: String,
+        folder: String? = null,
+        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>
+    ): List<ConfigSchema<*>> {
+        val schemaList = mutableListOf<ConfigSchema<*>>()
+        schemaList.add(readSchemaTreeRelative(schemaName, folder, schemaClass = schemaClass))
+        while (!schemaList.last().extends.isNullOrBlank()) {
+            // Make sure there are no circular dependencies
+            if (schemaList.any { FilenameUtils.getName(schemaName) == FilenameUtils.getName(schemaList.last().extends) }
+            ) {
+                throw SchemaException("Schema circular dependency found while loading schema $schemaName")
+            }
+            val depSchemaFolder = "$folder/${FilenameUtils.getPath(schemaList.last().extends)}"
+            val depSchemaName = FilenameUtils.getName(schemaList.last().extends)
+            schemaList.add(readSchemaTreeRelative(depSchemaName, depSchemaFolder, schemaClass = schemaClass))
+        }
+        return schemaList
+    }
+
+    /**
+     * Read a schema from a [URI] using the scheme to determine how to read the schema
+     *
+     */
+    private fun fromUri(
+        schemaUri: URI,
+        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>
+    ): List<ConfigSchema<*>> {
+        val schemaList = mutableListOf<ConfigSchema<*>>()
+        schemaList.add(readSchemaTreeUri(schemaUri, schemaClass = schemaClass))
+        while (!schemaList.last().extends.isNullOrBlank()) {
+            // Make sure there are no circular dependencies
+            if (schemaList.any {
+                FilenameUtils.getName(schemaUri.path) == FilenameUtils.getName(schemaList.last().extends)
+            }
+            ) {
+                throw SchemaException("Schema circular dependency found while loading schema ${schemaUri.path}")
+            }
+            schemaList.add(readSchemaTreeUri(URI(schemaList.last().extends!!), schemaClass = schemaClass))
+        }
+
+        return schemaList
     }
 
     /**
@@ -75,11 +117,55 @@ object ConfigSchemaReader : Logging {
     }
 
     /**
+     * Reads a schema using the scheme to determine how to read it.  Currently supports:
+     * - azure
+     * - classpath
+     * - file system
+     */
+    internal fun readSchemaTreeUri(
+        schemaUri: URI,
+        ancestry: List<String> = listOf(),
+        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java
+    ): ConfigSchema<*> {
+        val rawSchema = when (schemaUri.scheme) {
+            "file" -> {
+                val file = File(schemaUri)
+                if (!file.canRead()) throw SchemaException("Cannot read ${file.absolutePath}")
+                readOneYamlSchema(file.inputStream(), schemaClass)
+            }
+            "classpath" -> {
+                val input = javaClass.classLoader.getResourceAsStream(schemaUri.path.substring(1))
+                    ?: throw SchemaException("Cannot read $schemaUri")
+                readOneYamlSchema(input, schemaClass)
+            }
+            "azure" -> {
+                // TODO: #10487 will add a new function to download schemas, so this is just a temporary placeholder
+                val blob = BlobAccess.downloadBlob(schemaUri.toString())
+                readOneYamlSchema(blob.inputStream(), schemaClass)
+            }
+            else -> throw SchemaException("Unexpected scheme: ${schemaUri.scheme}")
+        }
+        rawSchema.name = schemaUri.path
+
+        if (ancestry.contains(rawSchema.name)) {
+            throw HL7ConversionException("Circular reference detected for schema ${rawSchema.name}")
+        }
+        rawSchema.ancestry = ancestry + rawSchema.name!!
+
+        // Process any schema references
+        rawSchema.elements.filter { !it.schema.isNullOrBlank() }.forEach { element ->
+            element.schemaRef =
+                readSchemaTreeUri(URI(element.schema!!), rawSchema.ancestry, schemaClass)
+        }
+        return rawSchema
+    }
+
+    /**
      * Read a complete schema tree of type [schemaClass] from a file for [schemaName] in [folder].
      * Note this is a recursive function used to walk through all the schemas to load.
      * @return the validated schema
      */
-    internal fun readSchemaTreeFromFile(
+    internal fun readSchemaTreeRelative(
         schemaName: String,
         folder: String? = null,
         ancestry: List<String> = listOf(),
@@ -107,7 +193,7 @@ object ConfigSchemaReader : Logging {
         val rootFolder = file.parent
         rawSchema.elements.filter { !it.schema.isNullOrBlank() }.forEach { element ->
             element.schemaRef =
-                readSchemaTreeFromFile(element.schema!!, rootFolder, rawSchema.ancestry, schemaClass)
+                readSchemaTreeRelative(element.schema!!, rootFolder, rawSchema.ancestry, schemaClass)
         }
         return rawSchema
     }

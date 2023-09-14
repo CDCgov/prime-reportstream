@@ -169,7 +169,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                         fileName,
                         soapTransportType.toString(),
                         msg,
-                        header.reportFile.itemCount
+                        header
                     )
                     actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
                 }
