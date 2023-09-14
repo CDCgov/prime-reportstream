@@ -333,6 +333,10 @@ export const appRoutes: RouteObject[] = [
                         path: "",
                         element: <DataDashboardWithAuth />,
                         index: true,
+                        handle: {
+                            isContentPage: true,
+                            isFullWidth: true,
+                        },
                     },
                     {
                         path: "report-details/:reportId",
