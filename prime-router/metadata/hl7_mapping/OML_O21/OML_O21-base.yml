@@ -60,8 +60,9 @@ elements:
     resource: Bundle.entry.resource.ofType(Observation)
     condition: '%resource.count() > 0'
     required: true
-    schema: ./base/service-request-observation-result
+    schema: ../common/observation-result
     constants:
       hl7SegmentGroup: '/ORDER/OBSERVATION_REQUEST/OBSERVATION'
+      hl7OBXField: '%{hl7SegmentGroup}/OBX'
     resourceIndex: resultIndex
-    
+
