@@ -4,6 +4,10 @@ constants:
   otherConstant: '"otherValue"'
 elements:
 
+  - name: message-header-8
+    value: [ '%otherConstant' ]
+    hl7Spec: [ 'MSH-8' ]
+
   - name: message-header-10
     value: ['"10"']
     hl7Spec: ['MSH-10']

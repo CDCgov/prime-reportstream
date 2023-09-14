@@ -8,8 +8,8 @@ elements:
     schema: 'classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01/xon.yml'
 
   - name: software-2
-    value: ['"1"']
-    hl7Spec: ['SFT-2']
+    value: [ '"1"' ]
+    hl7Spec: [ 'SFT-2' ]
 
   - name: software-3
     value: ['%resource.definition']
