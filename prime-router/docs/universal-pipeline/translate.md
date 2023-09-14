@@ -36,21 +36,21 @@ a FHIR resource into an HL7 segment or component.
 
 #### Custom FHIR functions
 
-In order to support custom business logic, the conversion library is extensible and allows for creating custom functions
+In order to support custom business logic, the transform code is extensible and allows for creating custom functions
 that can then be used while defining schema elements.  One example of this is converting a date timestamp to a numerical age.
 
 See CustomFHIRFunctions.kt for more examples
 
 #### Extending schemas
 
-In order to support receivers, that would like small customizations to the bundles or HL7 messages they receive, schemas
+In order to support receivers that would like small customizations to the bundles or HL7 messages they receive, schemas
 can be extended and overrides applied without having to duplicate a whole schema.  A current example of this is that 
-California specifies receiving HL7 ORU_R01 messages that mostly match the conversion specified by the spec, but has the
+California specifies receiving HL7 ORU_R01 messages that mostly match the conversion specified by the base spec, but has the
 datetimes changed to be PST.
 
 #### De-identification
 
-There is a limit support for de-identification in the universal pipeline by applying the RADx_MARS-base-deidentified.yml
+There is limited support for de-identification in the universal pipeline by applying the RADx_MARS-base-deidentified.yml
 schema for a receiver, which performs de-identification according to the RADx_MARS spec.
 
 ## How it works
@@ -63,7 +63,7 @@ That report is then uploaded to azure and a batch task is inserted into the data
 ### Condition Pruning
 
 As part of generating either FHIR or HL7 per receiver, the bundle is pruned so that only the observations that a receiver
-is interested in is included.  This is accomplished via the `Provenance` resource which indicates which `Observations`
+is interested in is included.  This is accomplished via the `Endpoint` resource for that receiver which indicates which `Observations`
 that receiver should receive.  See the example below for more details.
 
 ### Retries
@@ -84,7 +84,7 @@ times before being placed in the poison queue.
 ### A report is intended for two receivers who will each receive different observations
 
 If a sample FHIR bundle being processed contained the following, with one observation being for flu and one observation
-being for covid:
+being for covid and one receiver that is interested in flu results and one interested in covid results:
 
 ```fhir
 {
@@ -135,7 +135,7 @@ being for covid:
 },
 ```
 
-In this example, the bundle was routed to both receivers as it contained observations that they were configured to receive,
+In this example, the bundle was routed to both receivers as it contained a observation that they were configured to receive,
 so it passed the condition filter.  At the end of the route step, an `Endpoint` resource is added to the bundle with references
 to the observations that should be kept when the translation step happens.
 
