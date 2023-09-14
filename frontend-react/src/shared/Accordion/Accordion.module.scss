@@ -7,6 +7,7 @@
     &--alternate {
         :global {
             .usa-accordion__button {
+                font-size: size("sans", "lg");
                 @include u-color("white");
                 background-color: color("primary-darker");
 
