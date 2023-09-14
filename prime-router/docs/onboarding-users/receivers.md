@@ -10,7 +10,7 @@ During pre-onboarding ideally we will be able to know/collect/obtain all the unk
 * Identify how they want to receive data
 * Determine if we need to be whitelisted prior to connecting
 * Identify STLT Specific (HL7) values (e.g. MSH-5, MSH-6, etc)
-* Determine if they need/want specific data quality filters
+* Determine if they need/want specific data quality or condition filters
 *Determine how they want to receive AoE questions
 * Create Okta Accounts (probably once they are set up fully).
 
