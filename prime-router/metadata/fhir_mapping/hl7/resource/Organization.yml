@@ -72,9 +72,6 @@ identifier_5:
   generateList: true
   expressionType: resource
   valueOf: datatype/Identifier_XON
-  #  condition: $facility NOT_NULL
-  #  vars:
-  #    facility: String, XON.8
   specs: XON
 
 name_v1:
@@ -198,11 +195,3 @@ extension_4:
       constants:
         display: "Stock exchange listing name"
         systemCode: "v2-0204"
-
-extension_5:
-  generateList: true
-  expressionType: resource
-  valueOf: extension/ExtensionHierarchicDesignator
-  specs: XON.6
-  constants:
-    urlValue: assigning-authority

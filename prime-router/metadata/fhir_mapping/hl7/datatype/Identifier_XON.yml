@@ -17,7 +17,7 @@ type_1:
 extension_1:
   generateList: true
   expressionType: resource
-  valueOf: extension/ExtensionAssigningAuthority
+  valueOf: extension/ExtensionHierarchicDesignator
   specs: XON.6
   constants:
     urlValue: assigning-authority
@@ -36,4 +36,3 @@ extension_2:
       specs: HD
       vars:
         name: String, XON.8.1
-        facility: String, XON.8.2

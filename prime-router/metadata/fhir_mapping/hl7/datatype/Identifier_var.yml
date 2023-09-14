@@ -5,11 +5,11 @@ type_1:
   generateList: true
   expressionType: resource
     # CodeableConcept_var uses these scope vars: 
-    # $code (for CodeableConcept.Coding.code)
-    # $system (for CodeableConcept.Coding.system)
-    # $display (for CodeableConcept.Coding.display)
-    # $version (for CodeableConcept.Coding.version)
-    # $text (for CodeableConcept.text)
+  # $code (for CodeableConcept.Coding.code)
+  # $system (for CodeableConcept.Coding.system)
+  # $display (for CodeableConcept.Coding.display)
+  # $version (for CodeableConcept.Coding.version)
+  # $text (for CodeableConcept.text)
 
 # Used when a coding is available
 type_2:
