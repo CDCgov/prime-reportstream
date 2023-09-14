@@ -24,7 +24,7 @@ export const LiveMap = ({
             >
                 {title}
             </h2>
-            <p data-testid="summary" className="usa-intro margin-top-4">
+            <p data-testid="summary" className="font-sans-lg margin-top-4">
                 {summary}
             </p>
             <h3 data-testid="subTitle" className="font-sans-lg margin-top-4">
