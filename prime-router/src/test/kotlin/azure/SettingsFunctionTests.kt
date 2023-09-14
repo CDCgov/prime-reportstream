@@ -233,12 +233,12 @@ class SettingsFunctionTests : Logging {
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getOneOrganization(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary"
+            testOrg.name
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getOneOrganization(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2"
+            otherOrganizationName
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
@@ -249,7 +249,7 @@ class SettingsFunctionTests : Logging {
         val httpRequestMessage = setupHttpRequestMessageForTesting(HttpMethod.PUT)
         val response = settingsFunction.updateOneOrganization(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary"
+            testOrg.name
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
@@ -260,7 +260,7 @@ class SettingsFunctionTests : Logging {
         val httpRequestMessage = setupHttpRequestMessageForTesting(HttpMethod.PUT)
         val response = settingsFunction.updateOneOrganization(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2"
+            otherOrganizationName
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
@@ -271,31 +271,31 @@ class SettingsFunctionTests : Logging {
         val httpRequestMessage = setupHttpRequestMessageForTesting(HttpMethod.PUT)
         var response = settingsFunction.updateOneOrganization(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary"
+            testOrg.name
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.updateOneOrganization(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2"
+            otherOrganizationName
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
 
     @Test
-    fun `test access user cannot get their organization's senders (getSenders-getOneSender)`() {
+    fun `test access user can get their organization's senders (getSenders-getOneSender)`() {
         val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getSenders(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary"
+            testOrg.name
         )
-        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getOneSender(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary",
+            testOrg.name,
             "elr-secondary"
         )
-        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
 
     @Test
@@ -304,12 +304,12 @@ class SettingsFunctionTests : Logging {
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getSenders(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2"
+            otherOrganizationName
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
         response = settingsFunction.getOneSender(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2",
+            otherOrganizationName,
             "test-lab-2"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
@@ -321,23 +321,23 @@ class SettingsFunctionTests : Logging {
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getSenders(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary"
+            testOrg.name
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getSenders(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2"
+            otherOrganizationName
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getOneSender(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary",
+            testOrg.name,
             "default"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getOneSender(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2",
+            otherOrganizationName,
             "default"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -349,7 +349,7 @@ class SettingsFunctionTests : Logging {
         val httpRequestMessage = setupHttpRequestMessageForTesting(HttpMethod.PUT)
         val response = settingsFunction.updateOneSender(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary",
+            testOrg.name,
             "default"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
@@ -361,7 +361,7 @@ class SettingsFunctionTests : Logging {
         val httpRequestMessage = setupHttpRequestMessageForTesting(HttpMethod.PUT)
         val response = settingsFunction.updateOneSender(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2",
+            otherOrganizationName,
             "default"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
@@ -373,33 +373,33 @@ class SettingsFunctionTests : Logging {
         val httpRequestMessage = setupHttpRequestMessageForTesting(HttpMethod.PUT)
         var response = settingsFunction.updateOneSender(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary",
+            testOrg.name,
             "default"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.updateOneSender(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2",
+            otherOrganizationName,
             "default"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
 
     @Test
-    fun `test access user cannot get their organization's receivers (getReceivers-getOneReceiver)`() {
+    fun `test access user can get their organization's receivers (getReceivers-getOneReceiver)`() {
         val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getReceivers(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary"
+            testOrg.name
         )
-        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getOneReceiver(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary",
+            testOrg.name,
             "elr-secondary"
         )
-        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
 
     @Test
@@ -408,12 +408,12 @@ class SettingsFunctionTests : Logging {
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getReceivers(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2"
+            otherOrganizationName
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
         response = settingsFunction.getOneReceiver(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2",
+            otherOrganizationName,
             "test-lab-2"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
@@ -425,23 +425,23 @@ class SettingsFunctionTests : Logging {
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getReceivers(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary"
+            testOrg.name
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getReceivers(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2"
+            otherOrganizationName
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getOneReceiver(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary",
+            testOrg.name,
             "elr-secondary"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getOneReceiver(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2",
+            otherOrganizationName,
             "test-lab-2"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
@@ -453,7 +453,7 @@ class SettingsFunctionTests : Logging {
         val httpRequestMessage = setupHttpRequestMessageForTesting(HttpMethod.PUT)
         val response = settingsFunction.updateOneReceiver(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary",
+            testOrg.name,
             "elr-secondary"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
@@ -465,7 +465,7 @@ class SettingsFunctionTests : Logging {
         val httpRequestMessage = setupHttpRequestMessageForTesting(HttpMethod.PUT)
         val response = settingsFunction.updateOneReceiver(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2",
+            otherOrganizationName,
             "test-lab-2"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
@@ -490,27 +490,27 @@ class SettingsFunctionTests : Logging {
     }
 
     @Test
-    fun `test access user cannot get their organization's revision history (getSettingRevisionHistory)`() {
+    fun `test access user can get their organization's revision history (getSettingRevisionHistory)`() {
         val settingsFunction = setupSettingsFunctionForTesting(oktaNormalUser, mockFacade())
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary",
+            testOrg.name,
             "ORGANIZATION"
         )
-        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary",
+            testOrg.name,
             "RECEIVER"
         )
-        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary",
+            testOrg.name,
             "SENDER"
         )
-        assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
+        assertThat(response.status).isEqualTo(HttpStatus.OK)
     }
 
     @Test
@@ -519,19 +519,19 @@ class SettingsFunctionTests : Logging {
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2",
+            otherOrganizationName,
             "ORGANIZATION"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
         response = settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2",
+            otherOrganizationName,
             "RECEIVER"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
         response = settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2",
+            otherOrganizationName,
             "SENDER"
         )
         assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
@@ -543,37 +543,37 @@ class SettingsFunctionTests : Logging {
         val httpRequestMessage = setupHttpRequestMessageForTesting()
         var response = settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary",
+            testOrg.name,
             "ORGANIZATION"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary",
+            testOrg.name,
             "RECEIVER"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
-            "${testOrg.name}.elr-secondary",
+            testOrg.name,
             "SENDER"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2",
+            otherOrganizationName,
             "ORGANIZATION"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2",
+            otherOrganizationName,
             "RECEIVER"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
         response = settingsFunction.getSettingRevisionHistory(
             httpRequestMessage,
-            "$otherOrganizationName.test-lab-2",
+            otherOrganizationName,
             "SENDER"
         )
         assertThat(response.status).isEqualTo(HttpStatus.OK)
