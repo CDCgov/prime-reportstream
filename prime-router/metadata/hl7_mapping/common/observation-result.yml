@@ -38,14 +38,6 @@ elements:
 
   - name: observation-identifier-code
     resource: '%resource.code'
-    condition: '%resource.text.exists().not()'
-    constants:
-      cweFieldPath: '%{hl7OBXField}-3'
-    schema: ./datatype/ce-coded-with-exceptions
-
-  - name: observation-identifier-code
-    resource: '%resource.code'
-    condition: '%resource.text.exists()'
     constants:
       cweFieldPath: '%{hl7OBXField}-3'
     schema: ./datatype/ce-coded-with-exceptions
