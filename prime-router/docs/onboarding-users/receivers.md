@@ -6,13 +6,13 @@ In order to do so there are multiple receiver configurations that need to be con
 During pre-onboarding ideally we will be able to know/collect/obtain all the unknown variables in order to set up the receiver configurations.
 
 ### Pre-Onboarding
-Identify how they want to send data
-Identify how they want to receive data
-Determine if we need to be whitelisted prior to connecting
-Identify STLT Specific (HL7) values (e.g. MSH-5, MSH-6, etc)
-Determine if they need/want specific data quality filters
-Determine how they want to receive AoE questions
-Create Okta Accounts (probably once they are set up fully).
+* Identify how they want to send data
+* Identify how they want to receive data
+* Determine if we need to be whitelisted prior to connecting
+* Identify STLT Specific (HL7) values (e.g. MSH-5, MSH-6, etc)
+* Determine if they need/want specific data quality filters
+*Determine how they want to receive AoE questions
+* Create Okta Accounts (probably once they are set up fully).
 
 ### How to Create and Manage a Key for a Receiver
 #### SFTP
