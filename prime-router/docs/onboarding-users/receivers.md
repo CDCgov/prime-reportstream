@@ -6,7 +6,6 @@ In order to do so there are multiple receiver configurations that need to be con
 During pre-onboarding ideally we will be able to know/collect/obtain all the unknown variables in order to set up the receiver configurations.
 
 ### Pre-Onboarding
-* Identify how they want to send data
 * Identify how they want to receive data
 * Determine if we need to be whitelisted prior to connecting
 * Identify STLT Specific (HL7) values (e.g. MSH-5, MSH-6, etc)
