@@ -394,7 +394,7 @@ class TranslationTests {
                     }.resource as Provenance
                     // pick the only Endpoint reference in sample input
                     val endpoint = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()[0]
-                    fhirBundle = FHIRTranslator().testPruneBundleForReceiver(fhirBundle, endpoint)
+                    fhirBundle = FHIRTranslator().pruneBundleForReceiver(fhirBundle, endpoint)
                 } else {
                     fhirBundle = FHIRBundleHelpers.filterObservations(
                         fhirBundle,

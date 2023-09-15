@@ -175,19 +175,12 @@ class FHIRTranslator(
      *
      * @return a copy of [bundle] with the unwanted observations/endpoints removed
      */
-    internal fun pruneBundleForReceiver(bundle: Bundle, receiverEndpoint: Endpoint): Bundle {
+    fun pruneBundleForReceiver(bundle: Bundle, receiverEndpoint: Endpoint): Bundle {
         // Copy bundle to make sure original stays untouched
         val newBundle = bundle.copy()
         newBundle.removeUnwantedConditions(receiverEndpoint)
         newBundle.removeUnwantedProvenanceEndpoints(receiverEndpoint)
         return newBundle
-    }
-
-    /** adapt to be called from integration tests
-     *
-     */
-    fun testPruneBundleForReceiver(bundle: Bundle, receiverEndpoint: Endpoint): Bundle {
-        return pruneBundleForReceiver(bundle, receiverEndpoint)
     }
 
     /**
