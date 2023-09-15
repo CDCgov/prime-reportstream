@@ -195,7 +195,7 @@ transport:
 
 * At this point, once the container is loaded you can submit a file via curl:
 ```shell
-curl -X POST -H 'client: simple_report' -H 'Content-Type: text/csv' --data-binary '@/Path/to/test/file.csv' 'http://localhost:7071/api/reports'
+curl -X POST -H 'client: simple_report' -H 'Content-Type: application/hl7-v2' --data-binary '@/Path/to/test/file.hl7' 'http://localhost:7071/api/reports'
 ```
 * You will then see a report of the result of your post to the local container.  After a few minutes, you can view the 
 output here: `/prime-router/build/sftp`
