@@ -1,20 +1,71 @@
 # How to Onboard a New Organization to Receive Data
 Add subsections that mimic the linked resources: ([Brandon’s version](https://docs.google.com/document/d/1noB3lK2Nc_vbD4s5ZHgdTjgIjhCii63x_2bjBz7GM1I/edit#heading=h.be9yxi8thtdw), [Github version](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/how-to-onboard-a-sender.md))
 
+## Welcome
+
+Our goal is to onboard as many states and local jurisdictions as we can, to receive Hub data!
+This is our internal documentation for how we _currently_ do that onboarding work.
+
+
 The main goal of receiver onboarding is to establish a connection to send data from ReportStream to the STLT.  
 In order to do so there are multiple receiver configurations that need to be configured.  
 During pre-onboarding ideally we will be able to know/collect/obtain all the unknown variables in order to set up the receiver configurations.
 
-### Pre-Onboarding
+## Pre-Onboarding
 * Identify how they want to receive data
 * Determine if we need to be whitelisted prior to connecting
 * Identify STLT Specific (HL7) values (e.g. MSH-5, MSH-6, etc)
 * Determine if they need/want specific data quality or condition filters
-*Determine how they want to receive AoE questions
+* Determine how they want to receive AoE questions
 * Create Okta Accounts (probably once they are set up fully).
 
+## Steps
+1.    Set up new organization
+2.    Set up transport SSH key for receiver using SFTP
+
+### Set up new organization
+* Create a new branch in git for your changes.
+* Create a new organization for the State, (canonical style: `lt-phd`), in organizations.yml, which is used by your local 
+commandline ./prime cli tool.
+* Follow the pattern of another existing organization.  Carefully set the initial 
+jurisdiction-filter so that data is limited to that state.  (The jurisdiction: STATE and  stateCode: XY  fields should 
+soon provide better enforcement of this)
+* The new organization must have at least one `receiver` defined, but the `receiver` does not need to have a transport 
+defined - the download site can be used until an automated delivery mechanism is set up.
+* There are two fields that will be used as "keys" to further work, below.   The `-name` of the organization 
+(eg, `lt-phd`) will be used as the Okta `group`, and the `translation.schemaName:` value (eg, `lt/lt-covid-19`) will be 
+used as the schema name in the next step.
+* Below is an example of the organization file
+  
+  ```yaml
+- name: lt-pdh
+  description: LT Department of Health
+  jurisdiction: STATE
+  stateCode: LT
+  receivers:
+    - name: elr
+      topic: covid-19
+      jurisdictionalFilter: [ "matches(ordering_facility_state, LT)" ]
+      translation:
+        type: HL7
+        useBatchHeaders: true
+        receivingApplicationName: LT-PDH
+        receivingApplicationOID:
+        receivingFacilityName: LT-PDH
+        receivingFacilityOID:
+    ```
+* In the above example, the jurisdictional filter searches the `ordering_facility_state` field in the report for anything 
+that matches the code LT.
+* Filters can be applied to the organization or receiver. For more information on filters see: 
+(https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/playbooks/how-to-use-filters.md)
+* In addition, there is the translation section, which specifies the output format that will be sent to the receiver. 
+Currently, we have three formats available:
+    - HL7
+    - CSV
+    - FHIR
+
 ### How to Create and Manage a Key for a Receiver
-#### SFTP
+#### SFTP 
 #### Introduction
 This is a introduction on how to create and manage a public/private key pair for a receiver using SSH Keys.
 #### Assumptions
@@ -22,9 +73,10 @@ This is a introduction on how to create and manage a public/private key pair for
 * This also assumes you have access to KeyBase, and are part of the prime_dev_ops team there.
 * Also, we assume you have KeyBase installed, and have in mounted into /Volumes/. If you don't have it mounted as a drive, you can just drag and drop the files into KeyBase. If you feel you should have access to the prime_dev_ops team in KeyBase, contact your dev lead, or the dev ops team lead and request access.
 * Finally, this assumes you are working on a Unix-style system such as Linux or MacOS. You can probably do this on Windows as well provided you have a conformant shell with putty and openssl installed. The Git Bash shell would probably do, or the Linux Subsystem for Windows would as well, but no promises are made.
+* Have an active Okta admin account
 
 #### Background
-Most of the states that we partner with are using SFTP to send files. (90% of Receivers use this).
+Most of the states that we partner with are using SFTP to send files. (90% of Receivers use this). If your receiver is using SOAP, REST, or Azure Blob, stop here. There will be more documentation on how to use these transport methods.
 
 #### Steps
 Steps on generating the keys you need and then assigning them to the receiver, and sharing them with a receiver
