@@ -22,7 +22,7 @@ During pre-onboarding ideally we will be able to know/collect/obtain all the unk
 ## Table of Contents
 1.    Set up new organization
 2.    Set up new schema
-3.    Generate Test Data
+3.    Generate  test data
 4.    Test and commit, and deploy to Test and maybe Prod
 5.    Testing in your Docker container
 6.    Create access to the Download site
@@ -102,9 +102,8 @@ these requirements:
     
 - Processing Code does not equal T nor D
 
-- Only test results that pass all the above requirements will be transferred to the jurisdiction. There are two options 
+- Only test results that pass all the above requirements will be transferred to the jurisdiction. There is only one option 
 for jurisdictions that want all results reported.
-- Use AllowAll() to bypass all quality filters 
 - Create a secondary feed with the reverseQualityFilter() set to true. This will only allow results that fail the 
 quality filters listed above.
 
@@ -115,11 +114,10 @@ The mechanism for how each record is translated is laid out in the schema, which
 
 * By default, any HL7 receiver will use the universal or covid schema and you do not need to create a schema
 specific to your receiver.
-* If they are going to receive a CSV or FHIR file you *MUST* create a schema. In lieu
-of a schema, we use the `TranslationConfig` to set default values and control HL7 processing. 
-(https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/playbooks/how_to_use_translation_configuration_features.md)
-* For additional information on creating a schema see: 
-(https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/how-to-onboard-a-sender.md)
+* In the UP for HL7 v2 we have to check what HL7 message type they want to receive data in. We support ADT_A01, OML_O21 and ORU_R01. Depending on the message type we can set translationSchema to the respective schema.
+* If they are going to receive a FHIR file you *MUST* create a schema.(CSV file is not currently supported in UP)
+* If the receiver wants specific receiver transforms that are not supported by the translation settings a schema can be created for them. More information on how to mange translation schemas can be found here (https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/universal-pipeline/translate.md)
+
 
 ### 3. Generate test data
 * Generate fake, or better, synthesized test data. Prime has two ways to generate anonymous fake data (Fake or Syntheic data):
@@ -134,21 +132,6 @@ goal is to provide a higher-quality, less-random, dataset that can then be used 
 from PRIME to the receivers. *While great care has been taken to ensure we do not leak PII/PHI, this should not be used 
 except with receivers we are in the process of onboarding.*
 
-#### Generate some fake data for testing
-```
-./prime data --input-fake 100 --input-schema lt/lt-covid-19 --output myfile.csv --target-states LT
-```
-
-#### Synthesized data generation:
-If you want to generate a CSV file, here is how you do it:
-```
-./prime data --input file-with-real-test-results.internal --input-schema primedatainput/pdi-covid-19 --synthesize --output path/to/your/output/folder/synthesized_data.csv --output-format CSV --target-states LT
-```
-
-If you want to create the data as HL7, that is easy to do as well:
-```
-./prime data --input file-with-real-test-results.internal --input-schema primedatainput/pdi-covid-19 --synthesize --output path/to/your/output/folder/synthesized_data.csv --output-format HL7_BATCH --target-states LT
-```
 
 ### 4. Test and commit, and deploy to Test and maybe Prod
 
