@@ -50,7 +50,7 @@ used as the schema name in the next step.
   stateCode: LT
   receivers:
     - name: full-elr
-      topic: covid-19
+      topic: full-elr
       jurisdictionalFilter: [ "matches(ordering_facility_state, LT)" ]
       translation:
         type: HL7
