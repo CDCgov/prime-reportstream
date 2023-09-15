@@ -39,7 +39,7 @@ plugins {
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.8.20"
-    id("com.avast.gradle.docker-compose") version "0.17.4"
+    id("com.avast.gradle.docker-compose") version "0.17.5"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
     id("com.nocwriter.runsql") version ("1.0.3")
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.15"
@@ -61,7 +61,7 @@ val javaVersion = when (appJvmTarget) {
     else -> JavaVersion.VERSION_17
 }
 val ktorVersion = "2.3.2"
-val kotlinVersion = "1.8.22"
+val kotlinVersion = "1.9.10"
 val jacksonVersion = "2.15.2"
 jacoco.toolVersion = "0.8.10"
 
