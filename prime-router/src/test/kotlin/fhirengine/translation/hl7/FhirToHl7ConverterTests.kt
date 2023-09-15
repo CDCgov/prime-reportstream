@@ -801,5 +801,23 @@ class FhirToHl7ConverterTests {
             // override it
             assertThat(Terser(message).get("MSH-11")).isEqualTo("overrideOverridden")
         }
+
+        @Test
+        fun `test nested schemas cannot extend`() {
+            val bundle = Bundle()
+            val messageHeader = MessageHeader()
+            messageHeader.definition = "definition"
+            messageHeader.id = "idSft"
+            messageHeader.event = Coding("system", "aCode", "displayCode")
+            bundle.addEntry().resource = messageHeader
+
+            val baseMessage = FhirToHl7Converter(baseSchema).convert(bundle)
+            val message = FhirToHl7Converter(extendedExtendedSchema).convert(bundle)
+
+            assertThat(Terser(baseMessage).get("SFT-1-1")).isEqualTo("system")
+            // Asserts that a nested schema cannot use an extends clause
+            assertThat(Terser(message).get("SFT-1-1")).isNull()
+            assertThat(Terser(message).get("SFT-1-2")).isEqualTo("2")
+        }
     }
 }

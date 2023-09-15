@@ -8,3 +8,7 @@ elements:
   - name: message-header-11
     value: ['"overrideOverridden"']
     hl7Spec: ['MSH-11']
+
+  - name: software-1
+    resource: '%resource.event'
+    schema: 'classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01/xon_extended.yml'
