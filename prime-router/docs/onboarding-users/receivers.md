@@ -51,7 +51,7 @@ used as the schema name in the next step.
   receivers:
     - name: full-elr
       topic: full-elr
-      jurisdictionalFilter: [ "matches(ordering_facility_state, LT)" ]
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'LT') or (%patientState.exists() and %patientState = 'LT')" ]
       translation:
         type: HL7
         useBatchHeaders: true
