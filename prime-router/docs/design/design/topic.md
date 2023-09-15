@@ -18,6 +18,8 @@ the topic for the incoming messages.
 Additionally, each topic is configured with a different set of default filters that are applied if the receiver has not
 specifically defined their own.
 
+**TODO: remove the default filters**
+
 ### Translating
 
 The list of receivers generated from analyzing the `Endpoint` FHIR resources are filtered down to verify that the
@@ -33,9 +35,18 @@ function to use.
 
 **TODO: this usage could be removed by creating a dedicated queue and step for the universal pipeline.**
 
+## Current topics
+
+The current usage of topics is inconsistent and does not necessarily reflect the intention of how they will be used 
+moving forward.  Of note is that current usage is slightly blurry because some initial uses of topic were to delineate
+conditions going through the legacy pipeline (covid vs monkeypox).  Within the universal pipeline, topics currently roughly
+map to senders (FULL_ELR -> SimpleReport, ELR_ELIMS -> ELIMS, ETOR_TI -> ETOR), but this is more of the result of the current
+limited pool of senders.
+
 ## When to create a new topic
 
-TODO
+- The same receiving org will be getting data from two sources that they would like to be kept distinct
+- There are special behaviors that should apply
 
 ## Code Entry
 [Topic Enum](https://github.com/CDCgov/prime-reportstream/blob/3355f1b1d8ffc169346a561569cc432b19ffb69e/prime-router/src/main/kotlin/SettingsProvider.kt#L48)
