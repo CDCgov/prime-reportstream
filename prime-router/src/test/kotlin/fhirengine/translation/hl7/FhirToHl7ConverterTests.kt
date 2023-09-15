@@ -584,6 +584,23 @@ class FhirToHl7ConverterTests {
             schemaClass = ConverterSchema::class.java
         ) as ConverterSchema
 
+        val extendedSchemaOverridesSoftware = ConfigSchemaReader.fromFile(
+            """
+                    classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended_overrides_software.yml
+            """.trimIndent(),
+            schemaClass = ConverterSchema::class.java
+        ) as ConverterSchema
+
+        val extendedSchemaOverridesXon = ConfigSchemaReader.fromFile(
+            "classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended_overrides_xon.yml",
+            schemaClass = ConverterSchema::class.java
+        ) as ConverterSchema
+
+        val extendedExtendedSchema = ConfigSchemaReader.fromFile(
+            "classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended_extended.yml",
+            schemaClass = ConverterSchema::class.java
+        ) as ConverterSchema
+
         @Test
         fun `test overrides an existing element`() {
             val bundle = Bundle()
@@ -658,13 +675,13 @@ class FhirToHl7ConverterTests {
             messageHeader.id = "idSft"
             bundle.addEntry().resource = messageHeader
 
-            val schema = ConfigSchemaReader.fromFile(
-                "classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended.yml",
-                schemaClass = ConverterSchema::class.java
-            ) as ConverterSchema
+            val baseMessage = FhirToHl7Converter(baseSchema).convert(bundle)
+            val message = FhirToHl7Converter(extendedSchema).convert(bundle)
 
-            val message = FhirToHl7Converter(schema).convert(bundle)
+            assertThat(Terser(baseMessage).get("SFT-3")).isEqualTo("definition")
 
+            // Asserts that this override does not work since the constant that is trying
+            // to be overridden is defined at the top of used nested schema
             assertThat(Terser(message).get("SFT-3")).isEqualTo("definition")
             assertThat(Terser(message).get("SFT-4")).isNotEqualTo("definition")
         }
@@ -678,13 +695,12 @@ class FhirToHl7ConverterTests {
             messageHeader.event = Coding("system", "noEvent", "displayCode")
             bundle.addEntry().resource = messageHeader
 
-            val schema = ConfigSchemaReader.fromFile(
-                "classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended.yml",
-                schemaClass = ConverterSchema::class.java
-            ) as ConverterSchema
+            val baseMessage = FhirToHl7Converter(baseSchema).convert(bundle)
+            val message = FhirToHl7Converter(extendedSchema).convert(bundle)
 
-            val message = FhirToHl7Converter(schema).convert(bundle)
-
+            assertThat(Terser(baseMessage).get("SFT-5")).isEqualTo("idSft")
+            // Asserts that the base extending schema can provide for a nested schema element
+            // with a constant in the nested schema
             assertThat(Terser(message).get("SFT-5")).isEqualTo("sftValue")
         }
 
@@ -697,13 +713,12 @@ class FhirToHl7ConverterTests {
             messageHeader.event = Coding("system", "code", "displayCode")
             bundle.addEntry().resource = messageHeader
 
-            val schema = ConfigSchemaReader.fromFile(
-                "classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended.yml",
-                schemaClass = ConverterSchema::class.java
-            ) as ConverterSchema
+            val baseMessage = FhirToHl7Converter(baseSchema).convert(bundle)
+            val message = FhirToHl7Converter(extendedSchema).convert(bundle)
 
-            val message = FhirToHl7Converter(schema).convert(bundle)
-
+            assertThat(Terser(baseMessage).get("SFT-1-1")).isEqualTo("system")
+            // Assert that a deeply nested schema element can be overridden, using a
+            // constant that is provided in the parent schema
             assertThat(Terser(message).get("SFT-1-2")).isEqualTo("system")
         }
 
@@ -716,12 +731,9 @@ class FhirToHl7ConverterTests {
             messageHeader.event = Coding("system", "xon3", "displayCode")
             bundle.addEntry().resource = messageHeader
 
-            val schema = ConfigSchemaReader.fromFile(
-                "classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended.yml",
-                schemaClass = ConverterSchema::class.java
-            ) as ConverterSchema
-
-            assertThat { FhirToHl7Converter(schema).convert(bundle) }.isFailure()
+            // Assert that a new element that would be "part" of an existing schema cannot
+            // reference a constant from the nested schema
+            assertThat { FhirToHl7Converter(extendedSchema).convert(bundle) }.isFailure()
         }
 
         @Test
@@ -733,15 +745,12 @@ class FhirToHl7ConverterTests {
             messageHeader.event = Coding("system", "xon3", "displayCode")
             bundle.addEntry().resource = messageHeader
 
-            val schema = ConfigSchemaReader.fromFile(
-                """
-                    classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended_overrides_software.yml
-                """.trimIndent(),
-                schemaClass = ConverterSchema::class.java
-            ) as ConverterSchema
+            val baseMessage = FhirToHl7Converter(baseSchema).convert(bundle)
+            val message = FhirToHl7Converter(extendedSchemaOverridesSoftware).convert(bundle)
 
-            val message = FhirToHl7Converter(schema).convert(bundle)
-
+            assertThat(Terser(baseMessage).get("SFT-5")).isEqualTo("idSft")
+            // Assert that the override sets a different schema for software that
+            // does not define SFT-5
             assertThat(Terser(message).get("SFT-5")).isNull()
         }
 
@@ -754,13 +763,11 @@ class FhirToHl7ConverterTests {
             messageHeader.event = Coding("system", "aCode", "displayCode")
             bundle.addEntry().resource = messageHeader
 
-            val schema = ConfigSchemaReader.fromFile(
-                "classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended_overrides_xon.yml",
-                schemaClass = ConverterSchema::class.java
-            ) as ConverterSchema
+            val baseMessage = FhirToHl7Converter(baseSchema).convert(bundle)
+            val message = FhirToHl7Converter(extendedSchemaOverridesXon).convert(bundle)
 
-            val message = FhirToHl7Converter(schema).convert(bundle)
-
+            assertThat(Terser(baseMessage).get("SFT-1-1")).isEqualTo("system")
+            // Assert that an extending schema can override the schema for a nested element
             assertThat(Terser(message).get("SFT-1-1")).isEqualTo("aCode")
         }
 
@@ -773,32 +780,25 @@ class FhirToHl7ConverterTests {
             messageHeader.event = Coding("system", "aCode", "displayCode")
             bundle.addEntry().resource = messageHeader
 
-            val schema = ConfigSchemaReader.fromFile(
-                "classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended_overrides_xon.yml",
-                schemaClass = ConverterSchema::class.java
-            ) as ConverterSchema
+            val baseMessage = FhirToHl7Converter(baseSchema).convert(bundle)
+            val message = FhirToHl7Converter(extendedSchemaOverridesXon).convert(bundle)
 
-            val message = FhirToHl7Converter(schema).convert(bundle)
-
+            assertThat(Terser(baseMessage).get("SFT-1-10")).isNull()
+            // Assert that a new element can get added when overriding a nested schema
             assertThat(Terser(message).get("SFT-1-10")).isEqualTo("system")
         }
 
         @Test
         fun `test overrides in an extended schema`() {
             val bundle = Bundle()
-            val messageHeader = MessageHeader()
-            messageHeader.definition = "definition"
-            messageHeader.id = "idSft"
-            messageHeader.event = Coding("system", "aCode", "displayCode")
-            bundle.addEntry().resource = messageHeader
+            bundle.id = "abc123"
 
-            val schema = ConfigSchemaReader.fromFile(
-                "classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended_extended.yml",
-                schemaClass = ConverterSchema::class.java
-            ) as ConverterSchema
+            val baseMessage = FhirToHl7Converter(baseSchema).convert(bundle)
+            val message = FhirToHl7Converter(extendedExtendedSchema).convert(bundle)
 
-            val message = FhirToHl7Converter(schema).convert(bundle)
-
+            assertThat(Terser(baseMessage).get("MSH-11")).isEqualTo("abc123")
+            // Assert that a schema that extends a schema overriding MSH-11 can further
+            // override it
             assertThat(Terser(message).get("MSH-11")).isEqualTo("overrideOverridden")
         }
     }

@@ -4,6 +4,7 @@ constants:
   otherConstant: '"overriddenOtherConstant"'
 elements:
 
+  # This exercises overriding an element that is overridden in the ORU_R01_extended
   - name: message-header-11
     value: ['"overrideOverridden"']
     hl7Spec: ['MSH-11']

@@ -26,18 +26,28 @@ elements:
     value: [ '"not1"' ]
     hl7Spec: [ 'SFT-2' ]
 
+  # This demonstrates functionality that does not work, since fieldThree is a constant
+  # defined at the top of sft.yml, it cannot be overridden
   - name: software-3
     constants:
       fieldThree: '4'
 
+  # This exercises overriding a nested element but using a constant that is defined in the nested
+  # schema, in this case sftConstant exists at the top of sft.yml
   - name: software-5
     value: [ '%sftConstant' ]
     hl7Spec: [ 'SFT-5' ]
 
+  # This exercises overriding an element in a deeply nested schema and uses a constant that is defined
+  # in that schemas parent.  In this case, xon-1 is being overriden in xon.yml and %{xonPath} is a constant
+  # defined in sft.yml
   - name: xon-1
     value: [ '%resource.system' ]
     hl7Spec: [ '%{xonPath}-2' ]
 
+  # This demonstrates a case that does not work; xon-3 is a new element and does not override anything
+  # and will actually cause a failure since %{xonPath} is a constant defined in sft.yml and will not be in
+  # context when this element is evaluated
   - name: xon-3
     condition: 'Bundle.entry.resource.ofType(MessageHeader).event.code="xon3"'
     value: [ '%resource.code' ]

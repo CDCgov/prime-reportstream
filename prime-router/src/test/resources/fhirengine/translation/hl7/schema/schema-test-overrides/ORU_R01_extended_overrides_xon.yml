@@ -32,10 +32,14 @@ elements:
     value: [ '%sftConstant' ]
     hl7Spec: [ 'SFT-5' ]
 
+  # This exercises a base extending overriding the schema for a nested schema. In this case,
+  # software-1 is defined in sft.yml and the schema is getting overridden
   - name: software-1
     resource: '%resource.event'
     schema: 'classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01/xon2.yml'
 
+  # This exercises adding a new element that would be "part" of xon which is also getting overridden
+  # to a new schema
   - name: xon-10
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     value: ['%resource.event.system']
