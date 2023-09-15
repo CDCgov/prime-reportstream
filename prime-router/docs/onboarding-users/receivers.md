@@ -52,7 +52,8 @@ used as the schema name in the next step.
     - name: full-elr
       topic: full-elr
       jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'LT') or (%patientState.exists() and %patientState = 'LT')" ]
-      translation:
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
         type: HL7
         useBatchHeaders: true
         receivingApplicationName: LT-PDH
