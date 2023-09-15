@@ -7,17 +7,14 @@ import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionError
 import gov.cdc.prime.router.ActionLogger
-import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Hl7Configuration
 import gov.cdc.prime.router.InvalidReportMessage
 import gov.cdc.prime.router.LegacyPipelineSender
 import gov.cdc.prime.router.Metadata
-import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
-import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
@@ -401,14 +398,7 @@ class TranslationTests {
                 } else {
                     fhirBundle = FHIRBundleHelpers.filterObservations(
                         fhirBundle,
-                        Receiver(
-                            "filter-test-receiver",
-                            "filter-test-org",
-                            Topic.FULL_ELR,
-                            CustomerStatus.ACTIVE,
-                            "one",
-                            conditionFilter = listOf(config.conditionFiler)
-                        ),
+                        listOf(config.conditionFiler),
                         emptyMap<String, String>().toMutableMap()
                     )
                 }

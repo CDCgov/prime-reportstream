@@ -3,6 +3,7 @@ package gov.cdc.prime.router.fhirengine.utils
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
@@ -254,7 +255,7 @@ object FHIRBundleHelpers {
         shortHandLookupTable: MutableMap<String, String>
     ): List<Extension> {
         val (observationsToKeep, allObservations) =
-            getFilteredObservations(fhirBundle, receiver, shortHandLookupTable)
+            getFilteredObservations(fhirBundle, receiver.conditionFilter, shortHandLookupTable)
 
         val observationExtensionsToKeep = mutableListOf<Extension>()
         if (observationsToKeep.size < allObservations.size) {
@@ -279,11 +280,11 @@ object FHIRBundleHelpers {
      */
     fun filterObservations(
         bundle: Bundle,
-        receiver: Receiver,
+        conditionFilter: ReportStreamFilter,
         shortHandLookupTable: MutableMap<String, String>
     ): Bundle {
         val (observationsToKeep, allObservations) =
-            getFilteredObservations(bundle, receiver, shortHandLookupTable)
+            getFilteredObservations(bundle, conditionFilter, shortHandLookupTable)
         val filteredBundle = bundle.copy()
         val listToKeep = observationsToKeep.map { it.idBase }
         allObservations.forEach {
@@ -296,7 +297,7 @@ object FHIRBundleHelpers {
 
     private fun getFilteredObservations(
         fhirBundle: Bundle,
-        receiver: Receiver,
+        conditionFilter: ReportStreamFilter,
         shortHandLookupTable: MutableMap<String, String>
     ): Pair<List<Base>, List<Base>> {
         val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
@@ -309,7 +310,7 @@ object FHIRBundleHelpers {
 
         val observationsToKeep = mutableListOf<Base>()
         allObservations.forEach { observation ->
-            val passes = receiver.conditionFilter.any { conditionFilter ->
+            val passes = conditionFilter.any { conditionFilter ->
                 FhirPathUtils.evaluateCondition(
                     CustomContext(fhirBundle, observation, shortHandLookupTable, CustomFhirPathFunctions()),
                     observation,
