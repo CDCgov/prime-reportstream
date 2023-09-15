@@ -39,7 +39,7 @@ soon provide better enforcement of this)
 * The new organization must have at least one `receiver` defined, but the `receiver` does not need to have a transport 
 defined - the download site can be used until an automated delivery mechanism is set up.
 * There are two fields that will be used as "keys" to further work, below.   The `-name` of the organization 
-(eg, `lt-phd`) will be used as the Okta `group`, and the `translation.schemaName:` value (eg, `lt/lt-covid-19`) will be 
+(eg, `lt-phd`) will be used as the Okta `group`, and the `translation.schemaName:` value (eg, `metadata/hl7_mapping/ORU_R01/ORU_R01-base`) will be 
 used as the schema name in the next step.
 * Below is an example of the organization file
   
