@@ -2,11 +2,15 @@ package gov.cdc.prime.router.fhirengine.engine
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import ca.uhn.hl7v2.model.v251.message.ORU_R01
+import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomFHIRFunctions
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TranslationFunctions
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockkClass
@@ -76,15 +80,15 @@ class CustomTranslationFunctionsTest {
     fun `test convertDateTimeToHL7 with CustomContext with receiver setting`() {
         val receiver = mockkClass(Receiver::class)
         val appContext = mockkClass(CustomContext::class)
-        every { appContext.customFhirFunctions }.returns(CustomFhirPathFunctions())
-        every { appContext.config }.returns(receiver)
-        every { receiver.dateTimeFormat }.returns(null)
-        every { receiver.translation }.returns(
-            UnitTestUtils.createConfig(
-                useHighPrecisionHeaderDateTimeFormat = true,
-                convertPositiveDateTimeOffsetToNegative = false
-            )
+        val config = UnitTestUtils.createConfig(
+            useHighPrecisionHeaderDateTimeFormat = true,
+            convertPositiveDateTimeOffsetToNegative = false
         )
+
+        every { appContext.customFhirFunctions }.returns(CustomFhirPathFunctions())
+        every { appContext.config }.returns(HL7TranslationConfig(config, receiver))
+        every { receiver.dateTimeFormat }.returns(null)
+        every { receiver.translation }.returns(config)
         assertThat(
             CustomTranslationFunctions()
                 .convertDateTimeToHL7(
@@ -105,5 +109,62 @@ class CustomTranslationFunctionsTest {
             CustomTranslationFunctions()
                 .convertDateTimeToHL7(DateTimeType("2015-04-11T12:22:01-04:00"), appContext)
         ).isEqualTo("20150411122201.0000-0400")
+    }
+
+    @Test
+    fun `test HL7 Truncation`() {
+        val translationFunctions: TranslationFunctions = CustomTranslationFunctions()
+        val emptyTerser = Terser(ORU_R01())
+        val customContext = UnitTestUtils.createCustomContext(
+            config = HL7TranslationConfig(
+                hl7Configuration = UnitTestUtils.createConfig(
+                    truncateHDNamespaceIds = true,
+                    truncateHl7Fields = "MSH-4-1,MSH-3-1",
+                ),
+                null
+            )
+        )
+
+        val inputAndExpected = mapOf(
+            "short" to "short",
+            "Test & Value ~ Text ^ String" to "Test & Value ~ T",
+        )
+
+        inputAndExpected.forEach { (input, expected) ->
+            val actual = translationFunctions.maybeTruncateHL7Field(
+                input,
+                "/PATIENT_RESULT/PATIENT/MSH-4-1",
+                emptyTerser,
+                customContext
+            )
+            assertThat(actual).isEqualTo(expected)
+        }
+    }
+
+    @Test
+    fun `test HL7 Passthrough`() {
+        val translationFunctions: TranslationFunctions = CustomTranslationFunctions()
+        val emptyTerser = Terser(ORU_R01())
+        val customContext = UnitTestUtils.createCustomContext(
+            config = HL7TranslationConfig(
+                hl7Configuration = UnitTestUtils.createConfig(),
+                null
+            )
+        )
+
+        val inputAndExpected = mapOf(
+            "short" to "short",
+            "Test & Value ~ Text ^ String" to "Test & Value ~ Text ^ String",
+        )
+
+        inputAndExpected.forEach { (input, expected) ->
+            val actual = translationFunctions.maybeTruncateHL7Field(
+                input,
+                "/PATIENT_RESULT/PATIENT/MSH-4-1",
+                emptyTerser,
+                customContext
+            )
+            assertThat(actual).isEqualTo(expected)
+        }
     }
 }

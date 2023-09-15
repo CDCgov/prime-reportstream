@@ -3,7 +3,7 @@ resource "azurerm_log_analytics_workspace" "law" {
   location            = var.location
   resource_group_name = var.resource_group
   sku                 = "PerGB2018"
-  retention_in_days   = 30
+  retention_in_days   = var.law_retention_period
 
   tags = {
     environment = var.environment
@@ -22,8 +22,8 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostics" {
       category = log.value
 
       retention_policy {
-        enabled = true
-        days    = 60
+        enabled = false
+        days    = 0
       }
     }
   }
@@ -34,8 +34,8 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostics" {
       category = metric.value
 
       retention_policy {
-        enabled = true
-        days    = 60
+        enabled = false
+        days    = 0
       }
     }
   }

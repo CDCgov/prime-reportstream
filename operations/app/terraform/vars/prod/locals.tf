@@ -36,6 +36,9 @@ locals {
     db_threat_detection = true
     db_replica          = true
   }
+  log_analytics_workspace = {
+    law_retention_period = "730"
+  }
   app = {
     app_tier                 = "PremiumV2"
     app_size                 = "P3v2"
