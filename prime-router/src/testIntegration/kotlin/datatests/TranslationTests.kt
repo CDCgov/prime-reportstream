@@ -388,7 +388,7 @@ class TranslationTests {
             }
 
             if (!config.conditionFiler.isNullOrBlank()) {
-                if (config.conditionFiler.equals("pruneUnwanted")) {
+                if (config.conditionFiler == "pruneUnwanted") {
                     val provenance = fhirBundle.entry.first {
                         it.resource.resourceType.name == "Provenance"
                     }.resource as Provenance
