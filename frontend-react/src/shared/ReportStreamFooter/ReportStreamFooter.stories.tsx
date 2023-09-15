@@ -7,8 +7,3 @@ export default {
 };
 
 export const Default = {};
-export const Alternate = {
-    args: {
-        isAlternate: true,
-    },
-};

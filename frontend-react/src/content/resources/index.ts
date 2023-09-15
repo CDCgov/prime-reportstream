@@ -90,14 +90,7 @@ export const resourcesDirectories = [
         .setDescription(
             "Set up an ELR connection to automatically receive jurisdiction relevant disease data.",
         )
-        .addElement(
-            contentContainer(
-                GettingStartedPhd,
-                ResourcesDirectoryTools.makeCrumb(
-                    ResourcesDirectories.GETTING_STARTED_PHD,
-                ),
-            ),
-        ),
+        .addElement(GettingStartedPhd),
     new ElementDirectory()
         .setTitle(ResourcesDirectories.GETTING_STARTED_SUBMITTING_DATA)
         .setSlug(
@@ -140,14 +133,7 @@ export const resourcesDirectories = [
             ),
         )
         .setDescription("Download data using the ReportStream application.")
-        .addElement(
-            contentContainer(
-                DataDownloadGuideIa,
-                ResourcesDirectoryTools.makeCrumb(
-                    ResourcesDirectories.DOWNLOAD_GUIDE,
-                ),
-            ),
-        ),
+        .addElement(DataDownloadGuideIa),
     new ElementDirectory()
         .setTitle(ResourcesDirectories.REFERRAL_GUIDE)
         .setSlug(
@@ -184,14 +170,7 @@ export const resourcesDirectories = [
         .setDescription(
             "Answers to common questions about ReportStream security and data practices.",
         )
-        .addElement(
-            contentContainer(
-                SecurityPracticesIa,
-                ResourcesDirectoryTools.makeCrumb(
-                    ResourcesDirectories.SECURITY,
-                ),
-            ),
-        ),
+        .addElement(SecurityPracticesIa),
 ];
 
 /* HOW TO CREATE SECTIONS
