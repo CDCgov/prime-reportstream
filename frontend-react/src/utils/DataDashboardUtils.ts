@@ -1,3 +1,5 @@
+import { RSReceiver } from "../config/endpoints/settings";
+
 export enum SenderType {
     FACILITY = "facility",
     PROVIDER = "provider",
@@ -33,4 +35,8 @@ export function transformFacilityTypeClass(facility: string) {
     return facilityTypeDisplay[facilityType]
         ? facilityTypeDisplay[facilityType].className
         : "";
+}
+
+export function activeServicesFilter(services: RSReceiver[]) {
+    return services.filter((service) => service.customerStatus !== "inactive");
 }

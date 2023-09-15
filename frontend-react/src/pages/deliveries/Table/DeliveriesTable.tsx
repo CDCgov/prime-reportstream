@@ -24,6 +24,7 @@ import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import { FeatureName } from "../../../utils/FeatureName";
 import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
+import { activeServicesFilter } from "../../../utils/DataDashboardUtils";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
@@ -39,11 +40,12 @@ const ServiceDisplay = ({
     activeService: RSReceiver | undefined;
     handleSetActive: (v: string) => void;
 }) => {
+    const filteredServices = activeServicesFilter(services);
     return (
         <div className="grid-col-12">
-            {services && services?.length > 1 ? (
+            {filteredServices && filteredServices?.length > 1 ? (
                 <ServicesDropdown
-                    services={services}
+                    services={filteredServices}
                     active={activeService?.name || ""}
                     chosenCallback={handleSetActive}
                 />
@@ -51,7 +53,8 @@ const ServiceDisplay = ({
                 <p>
                     Default service:{" "}
                     <strong>
-                        {(services?.length && services[0].name.toUpperCase()) ||
+                        {(filteredServices?.length &&
+                            filteredServices[0].name.toUpperCase()) ||
                             ""}
                     </strong>
                 </p>
@@ -240,7 +243,6 @@ export const DeliveriesTable = () => {
                 />
             </div>
         );
-
     return (
         <>
             {activeService && (
