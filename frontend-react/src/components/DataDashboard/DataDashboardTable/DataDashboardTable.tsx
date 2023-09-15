@@ -19,6 +19,7 @@ import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import { USLink } from "../../USLink";
+import { activeServicesFilter } from "../../../utils/DataDashboardUtils";
 
 function DashboardFilterAndTable({
     receiverServices,
@@ -105,6 +106,8 @@ function DashboardFilterAndTable({
 
     const currentPageNum = filterManager.pageSettings.currentPage;
 
+    const filteredServices = activeServicesFilter(receiverServices);
+
     return (
         <>
             <div className="text-bold font-sans-md">
@@ -112,7 +115,7 @@ function DashboardFilterAndTable({
             </div>
             <div className="display-flex flex-row">
                 <ReceiverServices
-                    receiverServices={receiverServices}
+                    receiverServices={filteredServices}
                     activeService={activeService}
                     handleSetActive={handleSetActive}
                 />
