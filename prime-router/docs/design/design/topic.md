@@ -35,6 +35,11 @@ function to use.
 
 **TODO: this usage could be removed by creating a dedicated queue and step for the universal pipeline.**
 
+### Reporting
+
+Topic can be used to report on a slice of the data flowing through the universal pipeline and is used as a filtering
+conditions in some custom queries written for organizations. 
+
 ## Current topics
 
 The current usage of topics is inconsistent and does not necessarily reflect the intention of how they will be used 
