@@ -183,6 +183,13 @@ class FHIRTranslator(
         return newBundle
     }
 
+    /** adapt to be called from integration tests
+     *
+     */
+    fun testPruneBundleForReceiver(bundle: Bundle, receiverEndpoint: Endpoint): Bundle {
+        return pruneBundleForReceiver(bundle, receiverEndpoint)
+    }
+
     /**
      * Removes observations from this bundle that are not referenced in [receiverEndpoint]
      *

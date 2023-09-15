@@ -22,6 +22,7 @@ import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
+import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
@@ -34,6 +35,8 @@ import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
 import org.apache.commons.io.FilenameUtils
+import org.hl7.fhir.r4.model.Endpoint
+import org.hl7.fhir.r4.model.Provenance
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.TestInstance
@@ -388,18 +391,27 @@ class TranslationTests {
             }
 
             if (!config.conditionFiler.isNullOrBlank()) {
-                fhirBundle = FHIRBundleHelpers.filterObservations(
-                    fhirBundle,
-                    Receiver(
-                        "filter-test-receiver",
-                        "filter-test-org",
-                        Topic.FULL_ELR,
-                        CustomerStatus.ACTIVE,
-                        "one",
-                        conditionFilter = listOf(config.conditionFiler)
-                    ),
-                    emptyMap<String, String>().toMutableMap()
-                )
+                if (config.conditionFiler.equals("pruneUnwanted")) {
+                    val provenance = fhirBundle.entry.first {
+                        it.resource.resourceType.name == "Provenance"
+                    }.resource as Provenance
+                    // pick the only Endpoint reference in sample input
+                    val endpoint = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()[0]
+                    fhirBundle = FHIRTranslator().testPruneBundleForReceiver(fhirBundle, endpoint)
+                } else {
+                    fhirBundle = FHIRBundleHelpers.filterObservations(
+                        fhirBundle,
+                        Receiver(
+                            "filter-test-receiver",
+                            "filter-test-org",
+                            Topic.FULL_ELR,
+                            CustomerStatus.ACTIVE,
+                            "one",
+                            conditionFilter = listOf(config.conditionFiler)
+                        ),
+                        emptyMap<String, String>().toMutableMap()
+                    )
+                }
             }
 
             val hl7 = FhirToHl7Converter(

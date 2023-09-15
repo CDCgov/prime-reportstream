@@ -33,7 +33,7 @@ object FHIRBundleHelpers {
      * Adds [receiverList] to the [fhirBundle] as targets using the [shortHandLookupTable] to evaluate conditions
      * to determine which observation extensions to add to each receiver.
      */
-    internal fun addReceivers(
+    fun addReceivers(
         fhirBundle: Bundle,
         receiverList: List<Receiver>,
         shortHandLookupTable: MutableMap<String, String>
