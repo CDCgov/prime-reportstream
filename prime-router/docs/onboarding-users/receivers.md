@@ -64,7 +64,7 @@ used as the schema name in the next step.
 * In the above example, the jurisdictional filter searches the `ordering_facility_state` field in the report for anything 
 that matches the code LT.
 * Filters can be applied to the organization or receiver. For more information on filters see: 
-(https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/playbooks/how-to-use-filters.md)
+(https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/universal-pipeline/route.md)
 * In addition, there is the translation section, which specifies the output format that will be sent to the receiver. 
 Currently, we have three formats available:
     - HL7
