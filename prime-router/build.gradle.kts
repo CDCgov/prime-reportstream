@@ -30,7 +30,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "1.8.22"
+    kotlin("jvm") version "1.9.10"
     id("org.flywaydb.flyway") version "9.21.2"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -39,8 +39,8 @@ plugins {
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.8.20"
-    id("com.avast.gradle.docker-compose") version "0.17.4"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
+    id("com.avast.gradle.docker-compose") version "0.17.5"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
     id("com.nocwriter.runsql") version ("1.0.3")
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.15"
 }
@@ -53,6 +53,17 @@ val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
 val defaultDuplicateStrategy = DuplicatesStrategy.WARN
 azurefunctions.appName = azureAppName
+val appJvmTarget = "17"
+val javaVersion = when (appJvmTarget) {
+    "17" -> JavaVersion.VERSION_17
+    "19" -> JavaVersion.VERSION_19
+    "21" -> JavaVersion.VERSION_21
+    else -> JavaVersion.VERSION_17
+}
+val ktorVersion = "2.3.2"
+val kotlinVersion = "1.9.10"
+val jacksonVersion = "2.15.2"
+jacoco.toolVersion = "0.8.10"
 
 // Local database information, first one wins:
 // 1. Project properties (-P<VAR>=<VALUE> flag)
@@ -105,25 +116,19 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "2.3.2"
-val kotlinVersion = "1.9.10"
-val jacksonVersion = "2.15.2"
-
-jacoco.toolVersion = "0.8.10"
-
 // Set the compiler JVM target
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
 }
 
 val compileKotlin: KotlinCompile by tasks
 val compileTestKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions.jvmTarget = "11"
+compileKotlin.kotlinOptions.jvmTarget = appJvmTarget
 compileKotlin.kotlinOptions.allWarningsAsErrors = true
 // if you set this to true, you will get a warning, which then gets treated as an error
 compileKotlin.kotlinOptions.useK2 = false
-compileTestKotlin.kotlinOptions.jvmTarget = "11"
+compileTestKotlin.kotlinOptions.jvmTarget = appJvmTarget
 compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
 tasks.clean {
@@ -246,7 +251,7 @@ sourceSets.create("testIntegration") {
 }
 
 val compileTestIntegrationKotlin: KotlinCompile by tasks
-compileTestIntegrationKotlin.kotlinOptions.jvmTarget = "11"
+compileTestIntegrationKotlin.kotlinOptions.jvmTarget = appJvmTarget
 
 val testIntegrationImplementation: Configuration by configurations.getting {
     extendsFrom(configurations["testImplementation"])
@@ -783,7 +788,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
-    implementation("com.azure:azure-core:1.42.0")
+    implementation("com.azure:azure-core:1.43.0")
     implementation("com.azure:azure-core-http-netty:1.13.7")
     implementation("com.azure:azure-storage-blob:12.22.3") {
         exclude(group = "com.azure", module = "azure-core")

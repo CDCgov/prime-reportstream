@@ -10,10 +10,12 @@ import assertk.assertions.isNotEmpty
 import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.HL7Exception
+import ca.uhn.hl7v2.model.v251.message.ORU_R01
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
@@ -33,6 +35,7 @@ import org.hl7.fhir.r4.model.MessageHeader
 import org.hl7.fhir.r4.model.ServiceRequest
 import java.io.File
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class FhirToHl7ConverterTests {
     @Test
@@ -507,5 +510,55 @@ class FhirToHl7ConverterTests {
         elemA.name = "elementC"
         assertThat { FhirToHl7Converter(rootSchema).convert(bundle) }.isFailure()
             .hasClass(SchemaException::class.java)
+    }
+
+    @Test
+    fun `test truncation logic`() {
+        val mockBundle = mockk<Bundle>()
+        val mockSchema = mockk<ConverterSchema>()
+        val terser = Terser(ORU_R01())
+
+        // dummy config with just truncation config set up
+        val hl7Config = UnitTestUtils.createConfig(
+            truncateHl7Fields = "PID-5-1",
+            truncateHDNamespaceIds = true
+        )
+
+        val config = HL7TranslationConfig(
+            hl7Config,
+            receiver = null
+        )
+
+        val contextWithConfig = FhirToHl7Context(
+            CustomFhirPathFunctions(),
+            config,
+            CustomTranslationFunctions()
+        )
+
+        val customContext = CustomContext(
+            mockBundle,
+            mockBundle,
+            config = config,
+            translationFunctions = CustomTranslationFunctions()
+        )
+
+        val converter = FhirToHl7Converter(
+            mockSchema,
+            terser = terser,
+            context = contextWithConfig
+        )
+
+        // should truncate to 194
+        val value = "x".repeat(500)
+
+        val element = ConverterSchemaElement(
+            "name",
+            required = true,
+            hl7Spec = listOf("/PATIENT_RESULT/PATIENT/PID-5-1")
+        )
+        converter.setHl7Value(element, value, customContext)
+
+        val shouldBeTruncated = terser.get("/PATIENT_RESULT/PATIENT/PID-5-1")
+        assertEquals(shouldBeTruncated.length, 194)
     }
 }

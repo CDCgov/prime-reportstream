@@ -3,7 +3,6 @@ import { LoginCallback } from "@okta/okta-react";
 import React from "react";
 
 import { TermsOfService } from "./pages/TermsOfService";
-import { About } from "./pages/About";
 import { Login } from "./pages/Login";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import { Resources } from "./pages/resources/Resources";
@@ -48,7 +47,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "",
                 index: true,
-                lazy: lazyRouteMarkdown("content/home/home-index"),
+                lazy: lazyRouteMarkdown("content/home/index"),
                 handle: {
                     isContentPage: true,
                     isFullWidth: true,
@@ -63,10 +62,23 @@ export const appRoutes: RouteObject[] = [
             },
             {
                 path: "/about",
-                element: <About />,
-                handle: {
-                    isContentPage: true,
-                },
+                children: [
+                    {
+                        index: true,
+                        lazy: lazyRouteMarkdown("content/about/index"),
+                        handle: {
+                            isContentPage: true,
+                            isFullWidth: true,
+                        },
+                    },
+                    {
+                        path: "our-network",
+                        lazy: lazyRouteMarkdown("content/about/our-network"),
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
+                ],
             },
             {
                 path: "/login",
@@ -245,10 +257,10 @@ export const appRoutes: RouteObject[] = [
                 },
             },
             {
-                path: "/manage-connection",
+                path: "/managing-your-connection",
                 index: true,
                 lazy: lazyRouteMarkdown(
-                    "content/manage-connection/manage-connection-index",
+                    "content/managing-your-connection/index",
                 ),
                 handle: {
                     isContentPage: true,
@@ -267,10 +279,11 @@ export const appRoutes: RouteObject[] = [
                     },
                     {
                         path: "",
-                        element: <Support />,
+                        lazy: lazyRouteMarkdown("content/support/index"),
                         index: true,
                         handle: {
                             isContentPage: true,
+                            isFullWidth: true,
                         },
                     },
                     {
