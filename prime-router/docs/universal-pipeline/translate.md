@@ -34,6 +34,8 @@ The two kinds of transforms work the same at a high level. The schema enumerates
 The primary difference between the FHIR and HL7 schemas is that the HL7 converter has special handling for converting
 a FHIR resource into an HL7 segment or component.
 
+For more details, consult the [transform design doc](../design/design/transformations.md).
+
 #### Custom FHIR functions
 
 In order to support custom business logic, the transform code is extensible and allows for creating custom functions
