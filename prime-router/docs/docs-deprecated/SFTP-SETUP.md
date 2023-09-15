@@ -24,7 +24,8 @@
 
 ## Client pull from SFTP configuration (option 2)
 
- * Only the initial provisioning is required, as files will not be moved to a seperate storage account.
+ * The same configuration is used as *option 1*, except the Data Factory is configured to pull from a storage account and push to the file share used by the SFTP.
+   * In the case of the ELIMS trial, ReportStream pushed files to the "partner" storage account.
 
 ---
 
