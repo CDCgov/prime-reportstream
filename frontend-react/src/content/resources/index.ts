@@ -170,14 +170,7 @@ export const resourcesDirectories = [
         .setDescription(
             "Answers to common questions about ReportStream security and data practices.",
         )
-        .addElement(
-            contentContainer(
-                SecurityPracticesIa,
-                ResourcesDirectoryTools.makeCrumb(
-                    ResourcesDirectories.SECURITY,
-                ),
-            ),
-        ),
+        .addElement(SecurityPracticesIa),
 ];
 
 /* HOW TO CREATE SECTIONS
