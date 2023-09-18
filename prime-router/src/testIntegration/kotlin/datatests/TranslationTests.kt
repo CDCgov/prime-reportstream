@@ -52,11 +52,6 @@ class TranslationTests {
     private val testConfigFile = "translation-test-config.csv"
 
     /**
-     * The path to the configuration file from the mapping inventory test data directory.
-     */
-    private val mappingInventoryTestConfigFile = "mapping-inventory-test-config.csv"
-
-    /**
      * The metadata
      */
     private val metadata = Metadata.getInstance()
@@ -146,17 +141,12 @@ class TranslationTests {
     @TestFactory
     fun generateDataTests(): Collection<DynamicTest> {
         val config = readTestConfig("$testDataDir/$testConfigFile")
-        val config2 = readTestConfig("$testDataDir/$mappingInventoryTestConfigFile")
 
         val map1 = config.map {
             DynamicTest.dynamicTest("Test ${it.inputFile}, ${it.expectedSchema} schema", FileConversionTest(it))
         }
 
-        val map2 = config2.map {
-            DynamicTest.dynamicTest("Test ${it.inputFile}, ${it.expectedSchema} schema", FileConversionTest(it))
-        }
-
-        return map1 + map2
+        return map1
     }
 
     /**
@@ -238,6 +228,10 @@ class TranslationTests {
      */
     inner class FileConversionTest(private val config: TestConfig) : Executable {
         override fun execute() {
+            runTest()
+        }
+
+        fun runTest(): CompareData.Result {
             val result = CompareData.Result()
             // First read in the data
             val inputFile = "$testDataDir/${config.inputFile}"
@@ -349,6 +343,8 @@ class TranslationTests {
             } else {
                 fail("The file ${config.expectedFile} was not found.")
             }
+
+            return result
         }
 
         /**
