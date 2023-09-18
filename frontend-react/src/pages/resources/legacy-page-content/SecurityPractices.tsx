@@ -5,7 +5,7 @@ import { USExtLink, USLink } from "../../../components/USLink";
 
 export const SecurityPracticesIa = () => {
     return (
-        <>
+        <div className="rs-documentation usa-prose">
             <Helmet>
                 <title>{`${ResourcesDirectories.SECURITY} | Resources`}</title>
             </Helmet>
@@ -149,6 +149,6 @@ export const SecurityPracticesIa = () => {
                     <USLink href="#anchor-top">Back to top</USLink>
                 </p>
             </section>
-        </>
+        </div>
     );
 };
