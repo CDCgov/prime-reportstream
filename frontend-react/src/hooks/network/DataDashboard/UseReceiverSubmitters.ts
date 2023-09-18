@@ -15,10 +15,10 @@ const { receiverSubmitters } = dataDashboardEndpoints;
 
 export enum DeliveriesAttr {
     NAME = "name",
-    REPORT_DATE = "firstReportDate",
+    REPORT_DATE = "first_report_date",
     FACILITY_TYPE = "type",
     LOCATION = "location",
-    TEST_RESULT_COUNT = "testResultCount",
+    TEST_RESULT_COUNT = "test_result_count",
 }
 
 const filterManagerDefaults: FilterManagerDefaults = {
