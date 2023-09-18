@@ -1,5 +1,5 @@
 elements:
-  - name: observation-request
+  - name: observation-result
     schema: ../../common/observation-result
 
   - name: observation-note
