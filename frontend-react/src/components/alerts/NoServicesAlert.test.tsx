@@ -5,24 +5,15 @@ import { renderApp } from "../../utils/CustomRenderUtils";
 import { NoServicesBanner } from "./NoServicesAlert";
 
 describe("NoServicesAlert", () => {
-    test("displays with undefined props", () => {
+    test("displays", () => {
         renderApp(<NoServicesBanner />);
-        expect(screen.getByText("Feature unavailable")).toBeInTheDocument();
-        expect(
-            screen.getByText("No valid service found for your organization"),
-        ).toBeInTheDocument();
-    });
-    test("displays with props", () => {
-        renderApp(
-            <NoServicesBanner
-                featureName={"testing"}
-                serviceType={"sender"}
-                organization={"test-org"}
-            />,
+
+        const link = screen.getByRole("link");
+        expect(screen.getByText("No available data")).toBeInTheDocument();
+        expect(link).toHaveAttribute(
+            "href",
+            "https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599",
         );
-        expect(screen.getByText("Testing unavailable")).toBeInTheDocument();
-        expect(
-            screen.getByText("No valid sender found for test-org"),
-        ).toBeInTheDocument();
+        expect(link).toHaveTextContent("contact us");
     });
 });

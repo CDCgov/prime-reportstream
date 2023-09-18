@@ -24,7 +24,7 @@ import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import { FeatureName } from "../../../utils/FeatureName";
 import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
-import { activeServicesFilter } from "../../../utils/DataDashboardUtils";
+import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
@@ -40,12 +40,11 @@ const ServiceDisplay = ({
     activeService: RSReceiver | undefined;
     handleSetActive: (v: string) => void;
 }) => {
-    const filteredServices = activeServicesFilter(services);
     return (
         <div className="grid-col-12">
-            {filteredServices && filteredServices?.length > 1 ? (
+            {services && services?.length > 1 ? (
                 <ServicesDropdown
-                    services={filteredServices}
+                    services={services}
                     active={activeService?.name || ""}
                     chosenCallback={handleSetActive}
                 />
@@ -53,8 +52,7 @@ const ServiceDisplay = ({
                 <p>
                     Default service:{" "}
                     <strong>
-                        {(filteredServices?.length &&
-                            filteredServices[0].name.toUpperCase()) ||
+                        {(services?.length && services[0].name.toUpperCase()) ||
                             ""}
                     </strong>
                 </p>
@@ -233,14 +231,14 @@ export const DeliveriesTable = () => {
         return <AdminFetchAlert />;
     }
 
-    if (!loadingServices && !activeService)
+    if (
+        !loadingServices &&
+        (!activeService ||
+            activeService?.customerStatus === CustomerStatusType.INACTIVE)
+    )
         return (
             <div className="usa-section margin-bottom-10">
-                <NoServicesBanner
-                    featureName="Active Services"
-                    organization=""
-                    serviceType={"receiver"}
-                />
+                <NoServicesBanner />
             </div>
         );
     return (
