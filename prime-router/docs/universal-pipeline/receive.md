@@ -21,5 +21,5 @@ The last thing it does is upload the message to the blob store and triggers the 
 
 ### Retries
 
-There is no async processing for this step, so a sender will get immediete response and are responsible for retrying the
+There is no async processing for this step, so a sender will get an immediate response and is responsible for retrying the
 request in the event of any failure.

@@ -41,7 +41,7 @@ For more details, consult the [transform design doc](../design/design/transforma
 In order to support custom business logic, the transform code is extensible and allows for creating custom functions
 that can then be used while defining schema elements.  One example of this is converting a date timestamp to a numerical age.
 
-See CustomFHIRFunctions.kt for more examples
+See [CustomFHIRFunctions.kt]((https://github.com/CDCgov/prime-reportstream/blob/acbaddc2d6a3f7da06ee99ead34c6ee4f05e9572/prime-router/src/main/kotlin/fhirengine/translation/hl7/utils/CustomFHIRFunctions.kt#L22)) for more examples
 
 #### Extending schemas
 
