@@ -14201,30 +14201,8 @@
               "version" : "2.5.1",
               "code" : "RE",
               "display" : "Remark"
-            }, {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                "valueString" : "alternate identifier"
-              } ],
-              "system" : "L",
-              "version" : "5.67",
-              "code" : "C",
-              "display" : "Comment"
-            } ]
-          }
-        }, {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/note-source",
-          "valueCodeableConcept" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                "valueString" : "identifier"
-              } ],
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0105",
-              "code" : "L"
-            } ]
-          }
-        } ],
+            }
+        }],
         "text" : "Reason for Asymptomatic In House test: Other reason\nOther reason: ROOMMATE REQUIRED IN A DOUBLE BEDROOM\nApproved by (Name and Title): SARAH MORELAND"
       } ]
     }
