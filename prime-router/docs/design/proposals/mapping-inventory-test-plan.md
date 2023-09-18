@@ -19,19 +19,18 @@ testing mapping inventory segments, we will name files with the format `segment_
 `PID_1`. The corresponding FHIR file will be named the same, but will have a `.fhir` extension. This way, it is 
 very apparent not only what the file is testing, but which file goes with it. If it gets down to where there may only 
 be one complicated Computable ANTLR rule being tested, the field should be specified as well since there is only one 
-thing being tested at that point. ex. `PID_patient_name_5`. 
+thing being tested at that point. ex. `PID_patient_name_5`.  
 
 There will be exceptions to this. There are datatypes that are within the primary segments, for instance `XPN`. 
 We don't want to test these repeatedly for each segment they appear in, so we will have separate files for each of them
-labeled like so `XPN_1`.
+labeled like so `XPN_1`. Each file should have a comment description at the top specifying exactly what is tested in 
+that file, since each file will be responsible for testing each piece of the segment.
 
 Instead of piling these files into the existing file structure,
 especially since we will be using them for multidirectional tests, we will put them in a folder structure 
-`datatests/mapping-inventory`. So far, the spreadsheets are shared between message types. If that ever changes, we will
-add a folder within `datatests/mapping-inventory` labeled as the message type and will add the files with the same 
-naming convention there. 
+`datatests/mapping-inventory/segment-name`.
 
-Within the files, we will only put the bare minimum number of segments in a file. `MSH` is required, so, for 
+Within the files, we will only put the bare minimum number of segments in a file. `MSH` is still required, so, for 
 instance, when testing `PID` you would only have an `MSH` segment and a `PID` segment in the file. To allow this, when 
 converting form the HL7 V2 file to the FHIR file, use the new test schema 
 `metadata/hl7_mapping/testing/ORU_R01-test.yml`
