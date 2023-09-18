@@ -69,10 +69,13 @@ identifier_4:
     # No code
 
 identifier_5:
+  condition: $name NOT_NULL
   generateList: true
   expressionType: resource
   valueOf: datatype/Identifier_XON
   specs: XON
+  vars:
+    name: XON.1
 
 name_v1:
   type: STRING

@@ -15,8 +15,8 @@ type_2: # used in instance where objects are passed directly to the codeable con
 
 system_1:
   condition: $systemExists NOT_NULL
-  type: SYSTEM_ID
-  valueOf: CX.4 | CWE.4 |EI.2
+  type: String
+  valueOf: CX.4 | CWE.4 | EI.2
   expressionType: HL7Spec
   vars:
     systemExists: CX.4 | CWE.4 | EI.2
