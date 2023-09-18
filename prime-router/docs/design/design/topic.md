@@ -55,7 +55,7 @@ limited pool of senders.
 ## When to create a new topic
 
 - The same receiving org will be getting data from two sources that they would like to be kept distinct
-- There are special behaviors that should apply
+- There are special behaviors that should apply to a specific slice of data (i.e. disallow receiver transforms)
 
 ## Code Entry
 [Topic Enum](https://github.com/CDCgov/prime-reportstream/blob/3355f1b1d8ffc169346a561569cc432b19ffb69e/prime-router/src/main/kotlin/SettingsProvider.kt#L48)
