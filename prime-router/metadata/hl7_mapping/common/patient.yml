@@ -112,7 +112,7 @@ elements:
 
   # We have to check for system equals "email" because we're not receiving use for email
   - name: phone-number-home-mobile-email
-    resource: '%resource.telecom.where(use != "work" or system = "email")'
+    resource: '%resource.telecom.where(system = "email" or use.empty() or use != "work")'
     constants:
       hl7TelecomField: '%{hl7PIDField}-13'
     schema: datatype/xtn-telecom

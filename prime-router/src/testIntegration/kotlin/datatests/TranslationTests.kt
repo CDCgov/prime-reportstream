@@ -52,6 +52,11 @@ class TranslationTests {
     private val testConfigFile = "translation-test-config.csv"
 
     /**
+     * The path to the configuration file from the mapping inventory test data directory.
+     */
+    private val mappingInventoryTestConfigFile = "mapping-inventory-test-config.csv"
+
+    /**
      * The metadata
      */
     private val metadata = Metadata.getInstance()
@@ -141,9 +146,17 @@ class TranslationTests {
     @TestFactory
     fun generateDataTests(): Collection<DynamicTest> {
         val config = readTestConfig("$testDataDir/$testConfigFile")
-        return config.map {
+        val config2 = readTestConfig("$testDataDir/$mappingInventoryTestConfigFile")
+
+        val map1 = config.map {
             DynamicTest.dynamicTest("Test ${it.inputFile}, ${it.expectedSchema} schema", FileConversionTest(it))
         }
+
+        val map2 = config2.map {
+            DynamicTest.dynamicTest("Test ${it.inputFile}, ${it.expectedSchema} schema", FileConversionTest(it))
+        }
+
+        return map1 + map2
     }
 
     /**
@@ -205,12 +218,15 @@ class TranslationTests {
             File(filename).extension.uppercase() == "INTERNAL" || filename.uppercase().endsWith("INTERNAL.CSV") -> {
                 Report.Format.INTERNAL
             }
+
             File(filename).extension.uppercase() == "HL7" -> {
                 Report.Format.HL7
             }
+
             File(filename).extension.uppercase() == "FHIR" -> {
                 Report.Format.FHIR
             }
+
             else -> {
                 Report.Format.CSV
             }
@@ -409,6 +425,7 @@ class TranslationTests {
                         result.passed = !readResult.actionLogs.hasErrors()
                         readResult.report
                     }
+
                     Report.Format.INTERNAL -> {
                         CsvSerializer(metadata).readInternal(
                             schema.name,
@@ -416,6 +433,7 @@ class TranslationTests {
                             listOf(TestSource)
                         )
                     }
+
                     Report.Format.CSV -> {
                         val readResult = CsvSerializer(metadata).readExternal(
                             schema.name,
@@ -428,6 +446,7 @@ class TranslationTests {
                         result.passed = !readResult.actionLogs.hasErrors()
                         readResult.report
                     }
+
                     else -> {
                         result.passed = false
                         val actionLogger = ActionLogger()

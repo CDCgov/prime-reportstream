@@ -1,0 +1,6 @@
+Input File,Input schema,Expected File,Output schema,Output format,Result,Ignore Fields,Sender,Sender Transform
+mapping-inventory/xtn/xtn_use_code_home.fhir,,mapping-inventory/xtn/xtn_use_code_home.hl7,metadata/hl7_mapping/ORU_R01/ORU_R01-test,HL7,PASS,"","",""
+mapping-inventory/xtn/xtn_use_code_mobile.fhir,,mapping-inventory/xtn/xtn_use_code_mobile.hl7,metadata/hl7_mapping/ORU_R01/ORU_R01-test,HL7,PASS,"","",""
+mapping-inventory/xtn/xtn_use_code_no_use_system_email.fhir,,mapping-inventory/xtn/xtn_use_code_no_use_system_email.hl7,metadata/hl7_mapping/ORU_R01/ORU_R01-test,HL7,PASS,"","",""
+mapping-inventory/xtn/xtn_use_code_temp.fhir,,mapping-inventory/xtn/xtn_use_code_temp.hl7,metadata/hl7_mapping/ORU_R01/ORU_R01-test,HL7,PASS,"","",""
+mapping-inventory/xtn/xtn_use_code_work.fhir,,mapping-inventory/xtn/xtn_use_code_work.hl7,metadata/hl7_mapping/ORU_R01/ORU_R01-test,HL7,PASS,"","",""
