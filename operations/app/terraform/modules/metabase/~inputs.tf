@@ -52,5 +52,7 @@ variable "subnets" {
 }
 
 variable "sendgrid_password" {
+  type        = string
+  sensitive   = true
   description = "Password to send mail to SendGrid"
 }
