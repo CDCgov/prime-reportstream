@@ -5,9 +5,12 @@ intention is to silo data between different use cases.
 
 ## Uses
 
+The primary use right now is to separate group of senders that route data through the universal pipeline and senders
+that route data through the legacy pipeline.  See below for more details.
+
 ### Sender/Receivers
 
-- A sender has a configured topic and reports sent through the Universal pipeline tagged with that topic
+- A sender has a configured topic and reports sent through the pipeline will be tagged with that topic
 - A receiver has configured topic and will only be routed reports that are tagged with that topic
 
 ### Routing
@@ -18,14 +21,15 @@ the topic for the incoming messages.
 Additionally, each topic is configured with a different set of default filters that are applied if the receiver has not
 specifically defined their own.
 
-**TODO: remove the default filters**
+**TODO: remove the default filters associated with topics.  They are currently mostly unused within the universal pipeline and
+being linked to topics creates confusion and makes them less scalable.**
 
 ### Translating
 
 The list of receivers generated from analyzing the `Endpoint` FHIR resources are filtered down to verify that the
 receivers topic is associated with the universal pipeline.
 
-**TODO: this check is likely unnecessary and can be removed**
+**TODO: this [check](https://github.com/CDCgov/prime-reportstream/blob/ce91d6748aae94c5ab7c4cfc27da11c6d189521c/prime-router/src/main/kotlin/fhirengine/engine/FHIRTranslator.kt#L88) is likely unnecessary and can be removed**
 
 ### Batching
 
@@ -33,7 +37,7 @@ The receiver associated with the event is checked to see if it's associated with
 queue is shared between the covid pipeline and the universal pipeline so the topic is checked to see which batching
 function to use.
 
-**TODO: this usage could be removed by creating a dedicated queue and step for the universal pipeline.**
+**TODO: this [usage](https://github.com/CDCgov/prime-reportstream/blob/ce91d6748aae94c5ab7c4cfc27da11c6d189521c/prime-router/src/main/kotlin/azure/BatchFunction.kt#L129) could be removed by creating a dedicated queue and step for the universal pipeline.**
 
 ### Reporting
 
