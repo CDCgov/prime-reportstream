@@ -9,7 +9,7 @@ Currently, we have integration tests that test an unknown combination of parts o
 transforms, and mapping inventory rules. We want a clear and definitive way of knowing what is already tested, and we 
 want the mapping inventory testing to be thorough. This means testing not only that each piece of the message ends up 
 in the Primary Target (as defined in column J of the mapping inventory spreadsheet), but also that the conditions set
-forth in the Computable ANTLR column of the mapping inventory spreedsheet are tested. This will just test moving from 
+forth in the Computable ANTLR column of the mapping inventory spreadsheet are tested. This will just test moving from 
 HL7 V2 -> FHIR. We also need to test that the resulting FHIR message can be converted back to HL7 V2 losslessly. To 
 achieve this, we can reverse the order of the files and ensure that the output from processing the FHIR file matches 
 the HL7 V2 file. This will help keep the number of files needed down. 
@@ -19,12 +19,13 @@ testing mapping inventory segments, we will name files with the format `segment_
 `PID_1`. The corresponding FHIR file will be named the same, but will have a `.fhir` extension. This way, it is 
 very apparent not only what the file is testing, but which file goes with it. If it gets down to where there may only 
 be one complicated Computable ANTLR rule being tested, the field should be specified as well since there is only one 
-thing being tested at that point. ex. `PID_patient_name_5`.  
+thing being tested at that point. ex. `PID_patient_name`. Each file should have a comment description at the top 
+specifying exactly what is tested in that file, since each file will be responsible for testing each piece of the 
+segment. 
 
-There will be exceptions to this. There are datatypes that are within the primary segments, for instance `XPN`. 
-We don't want to test these repeatedly for each segment they appear in, so we will have separate files for each of them
-labeled like so `XPN_1`. Each file should have a comment description at the top specifying exactly what is tested in 
-that file, since each file will be responsible for testing each piece of the segment.
+There are datatypes that are within the primary segments, for instance `XPN`. We don't want to test these repeatedly 
+for each segment they appear in, so we will have separate files for each of them
+labeled like so `XPN_1`. 
 
 Instead of piling these files into the existing file structure,
 especially since we will be using them for multidirectional tests, we will put them in a folder structure 
@@ -35,10 +36,10 @@ instance, when testing `PID` you would only have an `MSH` segment and a `PID` se
 converting form the HL7 V2 file to the FHIR file, use the new test schema 
 `metadata/hl7_mapping/testing/ORU_R01-test.yml`
 
-`translation-test-config.csv` is where our current tests like this live. We will create a separate file called 
-`mapping-inventory-test-config.csv` since this file is already bloated, difficult to read, and lacks organization. 
-Later down the road, we will also have separate files for sender transforms and receiver transforms. These will be 
-broken down by sender/receiver so that, again, there is a lot of organization around the tests.
+`translation-test-config.csv` is where our current tests like this live. We created a a separate file called 
+`MappingInventoryTests` which relieves us of the requirement of using CSV files and allows us to give each test a name
+and description. Later down the road, we will also have separate files for sender transforms and receiver transforms. 
+These will be broken down by sender/receiver so that, again, there is a lot of organization around the tests.
 
 The other important thing that can happen either before or after the creation of the tests is cleaning up the output.
 It is currently challenging to figure out what does not match when the tests break. We want to change the tests to use 
