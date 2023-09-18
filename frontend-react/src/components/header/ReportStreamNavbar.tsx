@@ -92,9 +92,9 @@ export const ReportStreamNavbar = ({
     const defaultMenuItems = [
         <div className="primary-nav-link-container">
             <a
-                className={primaryLinkClasses(!!useMatch("/product/*"))}
-                href="/product/overview"
-                key="product"
+                className={primaryLinkClasses(!!useMatch("/about/*"))}
+                href="/about"
+                key="about"
             >
                 About
             </a>

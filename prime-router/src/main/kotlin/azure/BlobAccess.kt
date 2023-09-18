@@ -153,7 +153,9 @@ class BlobAccess() : Logging {
          */
         fun downloadBlob(blobUrl: String): ByteArray {
             val stream = ByteArrayOutputStream()
+            logger.debug("BlobAccess Starting download for blobUrl $blobUrl")
             stream.use { getBlobClient(blobUrl).downloadStream(it) }
+            logger.debug("BlobAccess Finished download for blobUrl $blobUrl")
             return stream.toByteArray()
         }
 

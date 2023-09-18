@@ -4,7 +4,7 @@ import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accor
 import { Accordion } from "./Accordion";
 
 export default {
-    title: "Components/Accordion",
+    title: "Components/Accordion (original)",
     component: Accordion,
 };
 const testItems: AccordionItemProps[] = [
