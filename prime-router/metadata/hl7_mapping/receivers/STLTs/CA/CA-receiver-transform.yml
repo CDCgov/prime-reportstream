@@ -90,11 +90,24 @@ elements:
 
   # SFT-1-2
   - name: software-vendor-name-type
-    condition: false
+    condition: true
+    value: [ '' ]
+    hl7Spec: [ SFT-1-2 ]
+
 
   # SFT-1-6
-  - name: software-vendor-assigning-authority
-    condition: false
+  - name: software-vendor-assigning-authority-1
+    condition: true
+    value: [ '' ]
+    hl7Spec: [ SFT-1-6-1 ]
+  - name: software-vendor-assigning-authority-2
+    condition: true
+    value: [ '' ]
+    hl7Spec: [ SFT-1-6-2 ]
+  - name: software-vendor-assigning-authority-3
+    condition: true
+    value: [ '' ]
+    hl7Spec: [ SFT-1-6-3 ]
 
   # SFT-3
   - name: software-name

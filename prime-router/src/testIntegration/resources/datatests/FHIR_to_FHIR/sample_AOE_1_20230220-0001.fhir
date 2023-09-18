@@ -163,12 +163,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "MEDITECH"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "MEDITECH",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "MEDITECH, Inc."
@@ -9254,7 +9254,7 @@
             "display" : "Medical record number"
           } ]
         },
-        "system" : "urn:id:MEDITECH",
+        "system" : "MEDITECH",
         "value" : "100001"
       }, {
         "extension" : [ {
@@ -9271,7 +9271,7 @@
             "display" : "Social Security number"
           } ]
         },
-        "system" : "urn:id:MEDITECH",
+        "system" : "MEDITECH",
         "value" : "285-64-4175"
       }, {
         "extension" : [ {
@@ -9288,7 +9288,7 @@
             "display" : "Patient internal identifier"
           } ]
         },
-        "system" : "urn:id:MEDITECH",
+        "system" : "MEDITECH",
         "value" : "X605236"
       }, {
         "extension" : [ {
@@ -9305,7 +9305,7 @@
             "display" : "Account number"
           } ]
         },
-        "system" : "urn:id:MEDITECH",
+        "system" : "MEDITECH",
         "value" : "E40014904640"
       } ],
       "name" : [ {
