@@ -31,8 +31,7 @@ elements:
     schema: hd-location
 
   - name: xon-name-representation-code
-    condition: false # We have no data for this field yet
-    value: [ '' ]
+    value: [ '%resource.identifier.extension(%`rsext-name-representation-code`).value' ]
     hl7Spec: [ '%{hl7OrgField}-9' ]
 
   - name: xon-organization-id

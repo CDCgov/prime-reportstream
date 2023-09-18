@@ -14,7 +14,7 @@ practitioner:
     addressSpec: $rolePractitionerAddress
 
 organization:
-  condition: $rolePractitioner NOT_NULL
+  condition: $roleOrganization NOT_NULL
   valueOf: resource/Organization
   expressionType: reference
   specs: $roleOrganization
@@ -26,3 +26,18 @@ code:
   valueOf: datatype/CodeableConcept_var
   expressionType: resource
   generateList: true
+
+extension_1:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: event-performerFunction
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept_var
+      expressionType: resource
+      vars:
+        code: $extensionCode
+      constants:
+        system: "http://terminology.hl7.org/CodeSystem/v3-ParticipationType"

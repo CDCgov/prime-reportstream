@@ -167,6 +167,26 @@ resultsInterpreter:
   vars:
     interpreter: OBR.32.1
 
+performer_1-technician:
+  condition: $rolePractitioner NOT_NULL
+  valueOf: resource/PractitionerRole
+  generateList: true
+  expressionType: reference
+  vars:
+    rolePractitioner: OBR.34.1
+  constants:
+    extensionCode: "SPRF"
+
+performer_2-transcriptionist:
+  condition: $rolePractitioner NOT_NULL
+  valueOf: resource/PractitionerRole
+  generateList: true
+  expressionType: reference
+  vars:
+    rolePractitioner: OBR.35.1
+  constants:
+    extensionCode: "TRANS"
+
 basedOn:
   valueOf: datatype/Reference
   expressionType: resource

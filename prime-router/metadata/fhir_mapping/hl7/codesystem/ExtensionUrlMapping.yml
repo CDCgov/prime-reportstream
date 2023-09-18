@@ -10,6 +10,9 @@
 # religion
 - id: "religion"
   url: "http://hl7.org/fhir/StructureDefinition/patient-religion"
+# event performer function
+- id: "event-performerFunction"
+  url: "http://hl7.org/fhir/StructureDefinition/event-performerFunction"
 # race
 - id: "race"
   url: "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd"
@@ -79,6 +82,9 @@
 # Entering organization
 - id: "entering-organization"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization"
+# Name representation code
+- id: "name-representation-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-representation-code"
 # Organization assigning authority
 - id: "assigning-authority"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority"
