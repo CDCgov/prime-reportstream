@@ -397,7 +397,6 @@ extension:
           specs: CWE
 
     - expressionType: nested
-      specs: PID.22
       generateList: true
       expressionsMap:
         url:
@@ -406,7 +405,7 @@ extension:
         valueCodeableConcept:
           valueOf: datatype/CodeableConcept
           expressionType: resource
-          specs: CWE
+          specs: PID.22
 
     - expressionType: nested
       generateList: true

@@ -182,7 +182,7 @@ elements:
   # Simple report sends a different format that what we generate in the HL7 -> FHIR conversion
   # See https://github.com/CDCgov/prime-reportstream/blob/829a2e297785864d65813d7f248e9b2de9a5b0d2/prime-router/src/testIntegration/resources/datatests/FHIR_to_FHIR/sample_AOE_1_20230220-0001.fhir#L1133
   # vs
-  # TODO reference how the FHIR looks in the HL7 -> Conversion
+  # https://github.com/CDCgov/prime-reportstream/blob/829a2e297785864d65813d7f248e9b2de9a5b0d2/prime-router/src/testIntegration/resources/datatests/FHIR_to_HL7/sample_RADx_MARS_20230406-0002.fhir#L1170
   - name: xon-assigning-authority
     resource: '%resource'
 

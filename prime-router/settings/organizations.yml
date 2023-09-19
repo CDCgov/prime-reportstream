@@ -90,7 +90,7 @@
       jurisdictionalFilter: [ "matches(ordering_facility_state, IG)" ]
     - topic: full-elr
       jurisdictionalFilter:
-        - "(%performerState.exists() and %performerState = 'NY') or (%patientState.exists() and %patientState = 'NY')"
+        - "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')"
       qualityFilter:
         - "(%hl7MessageType.exists() and %hl7MessageType = 'R01')"
   senders:
@@ -104,7 +104,7 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      # schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      schemaName: metadata/fhir_transforms/senders/default-sender-transform
       format: HL7
     - name: dev-simple-report      # Use this to test full-elr
       organizationName: ignore
@@ -116,7 +116,7 @@
       organizationName: ignore
       topic: etor-ti
       customerStatus: active
-      # schemaName: metadata/fhir_transforms/senders/default-sender-transform
+      schemaName: metadata/fhir_transforms/senders/default-sender-transform
       format: HL7
     - name: ignore-elr-elims      # Use this to test elr-elims
       organizationName: ignore
@@ -205,18 +205,18 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'NY') or (%patientState.exists() and %patientState = 'NY')" ]
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CO/CO"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
-        receivingApplicationName: "NY-ELR"
-        receivingFacilityName: "NY"
+        receivingApplicationName: "CO-ELR"
+        receivingFacilityName: "CO"
       transport:
         type: SFTP
         host: sftp
@@ -236,7 +236,7 @@
         numberPerDay: 1440 # Every minute
         initialTime: 00:00
       translation: !<HL7>
-        schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/CO/CO"
         useTestProcessingMode: false
         useBatchHeaders: true
         type: "HL7"
@@ -273,7 +273,7 @@
       organizationName: ignore
       topic: full-elr
       customerStatus: active
-      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'NY') or (%patientState.exists() and %patientState = 'NY')" ]
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'IG') or (%patientState.exists() and %patientState = 'IG')" ]
       timing:
         operation: MERGE
         numberPerDay: 1440 # Every minute
@@ -1073,123 +1073,3 @@
         port: 22
         filePath: ./upload
         credentialName: DEFAULT-SFTP
-
-- name: "CDC-ELIMS-HL7"
-  description: "Centers for Disease Control ELIMS System"
-  jurisdiction: "FEDERAL"
-  stateCode: null
-  countyName: null
-  filters: []
-  featureFlags: []
-  keys:
-  - scope: "CDC-ELIMS-HL7.*.report"
-    keys:
-    - kty: "RSA"
-      kid: "CDC-ELIMS-HL7.default"
-      "n": "tiMk6KKNNy4le98vH7PdYjUCE0KvmbgiLS3z7LYDWekE4OitM2SyNditdk4de7qVd-77HSeeBLBotnHAzBIV8LgOAPNqozxMVMI7tVkys_zSW02zHX8OPw6rhVBFp_v5KJiOQfHCe715MbkdhNhmQBYK2b7aXUWHaNtNebx-lU05dUm6Tyu4PG2Jombh-nZRYOWsJPgmtjntaIzSfXYNBEQ8vG2sXCfNV2wI1aT1t1T1UNmEMFfEeCuHh96Td-5-vAIsplPo4ZL35gyvqbUjGbeZHQUfxeVBYKvYrr4BylYKRDQgGv5hVmbfKkj_z5VKDvYRBF0_WxCe0HgeIuic7w"
-      e: "AQAB"
-    - kty: "RSA"
-      kid: "dev"
-      "n": "0X4VxRl5qPvJtJemYLb7Y-8hSrBFRyTeJDPgnx-raB3u87Z9_ig4sxrOKuGRWHAafHAvJkXXatx40BdMhb-skw1aH-0-FreXFz75GdsDQObDavGx2ak_kmrJ6U2HVqP8oneUYgduYmnqnca5jsEpKoR7HMAQnEHIwp7-SLNhk_8el55fgUQFTIJfgYyJYu6HLdgzkcBGCy5lwQRtCmNxSSGxJoZ_do19KyC8rVzu2-0-b_vvAN8uCTOixXFoC5CJXuRALyBCq6-PZn7e7G5hfCv1eZPpANzmpwBIrbK9qSxTtyxjaK1V9VBFW12riYQyHJ1sLMT2Z3V9wKnudsv9SQ"
-      e: "AQAB"
-    - kty: "RSA"
-      kid: "default"
-      "n": "tiMk6KKNNy4le98vH7PdYjUCE0KvmbgiLS3z7LYDWekE4OitM2SyNditdk4de7qVd-77HSeeBLBotnHAzBIV8LgOAPNqozxMVMI7tVkys_zSW02zHX8OPw6rhVBFp_v5KJiOQfHCe715MbkdhNhmQBYK2b7aXUWHaNtNebx-lU05dUm6Tyu4PG2Jombh-nZRYOWsJPgmtjntaIzSfXYNBEQ8vG2sXCfNV2wI1aT1t1T1UNmEMFfEeCuHh96Td-5-vAIsplPo4ZL35gyvqbUjGbeZHQUfxeVBYKvYrr4BylYKRDQgGv5hVmbfKkj_z5VKDvYRBF0_WxCe0HgeIuic7w"
-      e: "AQAB"
-    - kty: "RSA"
-      kid: "local-umn2-flexion"
-      "n": "nUBC3WokRK6O3avr91nZjxmif-AegNsFrN7a0p9V38W_Zy5zxTmqRNy9NXcVlQwc3g4p7xuiw2qtIgUBPIcFgRoDe4B7abnIw198oqT4VjeRf5C1n1vlJKKBwxdHsU9yZv4mdSDW8P7TtnIoO_U8RwGmux_AeOjMZESbFP3192swWdjVzsS6pkEhE1U65rhc3psCYseXQ7qMkQyEy9JzMRNNKKg9z1E3YhmJXHfk2yB-LE6c_j1UV9tZtDSLhJnowySVwagLUdfIylBQa87h1hq-Ob3ltbjjSG3GZlifhgnmKGg_Fn2dLfni7tL0brh5Fq6HXU-llvHUZcUoKrJB1Q"
-      e: "AQAB"
-  - scope: "CDC-ELIMS-HL7.sender.report"
-    keys: []
-  senders:
-  - !<full-elr>
-    name: "default"
-    organizationName: "CDC-ELIMS-HL7"
-    format: "HL7"
-    customerStatus: "testing"
-    schemaName: "metadata/fhir_transforms/senders/default-sender-transform"
-    processingType: "sync"
-    allowDuplicates: true
-    senderType: null
-    primarySubmissionMethod: null
-    topic: "elr-elims"
-    version: null
-    createdBy: null
-    createdAt: null
-  receivers:
-  - name: "elr-elims-receiver"
-    organizationName: "CDC-ELIMS-HL7"
-    topic: "elr-elims"
-    customerStatus: "active"
-    translation: !<HL7>
-      schemaName: "metadata/hl7_mapping/ORU_R01/ORU_R01-base"
-      useTestProcessingMode: false
-      useBatchHeaders: true
-      receivingApplicationName: null
-      receivingApplicationOID: null
-      receivingFacilityName: null
-      receivingFacilityOID: null
-      messageProfileId: null
-      replaceValue: {}
-      replaceValueAwithB: {}
-      reportingFacilityName: null
-      reportingFacilityId: null
-      reportingFacilityIdType: null
-      suppressQstForAoe: false
-      suppressHl7Fields: null
-      suppressAoe: false
-      defaultAoeToUnknown: false
-      replaceUnicodeWithAscii: false
-      useBlankInsteadOfUnknown: null
-      truncateHDNamespaceIds: false
-      truncateHl7Fields: null
-      usePid14ForPatientEmail: false
-      convertTimestampToDateTime: null
-      cliaForOutOfStateTesting: null
-      cliaForSender: {}
-      phoneNumberFormatting: "STANDARD"
-      suppressNonNPI: false
-      processingModeCode: null
-      replaceDiiWithOid: null
-      applyOTCDefault: false
-      useOrderingFacilityName: "STANDARD"
-      valueSetOverrides: {}
-      nameFormat: "standard"
-      receivingOrganization: null
-      convertPositiveDateTimeOffsetToNegative: false
-      stripInvalidCharsRegex: null
-      convertDateTimesToReceiverLocalTime: false
-      useHighPrecisionHeaderDateTimeFormat: false
-      type: "HL7"
-    jurisdictionalFilter:
-    - "%performerState.exists()"
-    qualityFilter:
-    - "%performerState.exists()"
-    routingFilter:
-    - "%performerState.exists()"
-    processingModeFilter:
-    - "%performerState.exists()"
-    reverseTheQualityFilter: false
-    conditionFilter: []
-    deidentify: false
-    deidentifiedValue: ""
-    timing:
-      operation: "MERGE"
-      numberPerDay: 1440
-      initialTime: "00:00"
-      timeZone: "EASTERN"
-      maxReportCount: 100
-      whenEmpty:
-        action: "NONE"
-        onlyOncePerDay: false
-    description: ""
-    transport: !<SFTP>
-      host: "pdhstaging-sftp01.eastus.azurecontainer.io"
-      port: "22"
-      filePath: "./uploads"
-      credentialName: null
-      type: "SFTP"
-    externalName: "ELIMS ELR Loopback Receiver"
-    timeZone: null
-    dateTimeFormat: "OFFSET"
