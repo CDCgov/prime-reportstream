@@ -56,28 +56,9 @@ module "postgres_private_endpoint" {
   dns_vnet            = var.dns_vnet
   resource_prefix     = var.resource_prefix
   dns_zone            = var.dns_zones["postgres"].name
-   
-
-
 }
 
-resource "azurerm_private_endpoint" "pgdb_primary" {
-  for_each = var.subnets.primary_endpoint_subnets
-  name                = azurerm_postgresql_server.postgres_server.name
-  location            = var.location
-  resource_group_name = var.resource_group
-  subnet_id           = each.value
-  private_dns_zone_group {
-    name                  = "dns-group"
-    private_dns_zone_ids  = [ azurerm_private_dns_zone.priv-dns.id ]
-  }
-private_service_connection {
-    name                           = "pg-psconn"
-    private_connection_resource_id =  azurerm_postgresql_server.postgres_server.id
-    subresource_names              = ["postgresqlServer"]
-    is_manual_connection           = false
-  }
-}
+
 # Replicate Server
 
 resource "azurerm_postgresql_server" "postgres_server_replica" {
@@ -144,7 +125,6 @@ module "postgres_private_endpoint_replica" {
   dns_vnet            = var.dns_vnet == "East-vnet" ? "West-vnet" : var.dns_vnet
   resource_prefix     = var.resource_prefix
   dns_zone            = var.dns_zones["postgres"].name
-   
 }
 
 
@@ -185,11 +165,6 @@ resource "azurerm_postgresql_active_directory_administrator" "postgres_aad_admin
 #  server_id        = azurerm_postgresql_server.postgres_server.id
 #  key_vault_key_id = var.rsa_key_2048
 #}
-
-resource "azurerm_private_dns_zone" "priv-dns" {
-  name                = "privatelink.postgres.database.azure.com"
-  resource_group_name = var.resource_group
-}
 
 # Databases
 
