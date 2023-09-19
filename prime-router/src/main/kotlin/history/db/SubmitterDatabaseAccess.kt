@@ -11,9 +11,7 @@ import gov.cdc.prime.router.azure.DatabaseAccess
 import gov.cdc.prime.router.azure.RawApiSearch
 import gov.cdc.prime.router.azure.SortDirection
 import gov.cdc.prime.router.azure.db.enums.TaskAction
-import gov.cdc.prime.router.azure.db.tables.Action
 import gov.cdc.prime.router.azure.db.tables.CovidResultMetadata
-import gov.cdc.prime.router.azure.db.tables.ReportFile
 import gov.cdc.prime.router.common.BaseEngine
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.Condition
@@ -25,7 +23,6 @@ import org.jooq.impl.DSL
 import org.jooq.impl.SQLDataType
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
-import java.util.UUID
 
 /**
  * Enum containing the list of submitter types
@@ -194,21 +191,20 @@ class SubmitterDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccess
      * @param receiver the specific receiver that the submitters should be fetched for
      */
     fun getSubmitters(search: SubmitterApiSearch, receiver: Receiver): ApiSearchResult<Submitter> {
-        return db.transactReturning { txn ->
 
-            // TODO: https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/9411
-            // Might need to have a date limit set to if the query does perform well to search all time
-            val sentReportIdsForReceiver = DSL
-                .using(txn)
-                .select(ReportFile.REPORT_FILE.REPORT_ID)
-                .from(ReportFile.REPORT_FILE)
-                .join(Action.ACTION).on(Action.ACTION.ACTION_ID.eq(ReportFile.REPORT_FILE.ACTION_ID))
-                .where(Action.ACTION.RECEIVING_ORG.eq(receiver.organizationName))
-                .and(Action.ACTION.RECEIVING_ORG_SVC.eq(receiver.name))
-                .and(Action.ACTION.ACTION_NAME.eq(TaskAction.send))
-                .fetchInto(UUID::class.java)
+        // TODO: https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/9411
+        // Might need to have a date limit set to if the query does perform well to search all time
+        val sentReportIdsForReceiver = reportGraph.fetchReportIdsForReceiverAndTask(
+            receiver,
+            TaskAction.send,
+            db.create
+        )
 
-            val itemGraph = reportGraph.itemAncestorGraphCommonTableExpression(sentReportIdsForReceiver)
+        if (sentReportIdsForReceiver.isEmpty()) {
+            return ApiSearchResult(0, 0, emptyList())
+        } else {
+            val itemGraph = reportGraph
+                .itemAncestorGraphCommonTableExpression(receiver, TaskAction.send)
 
             val submitterExpression = DSL.select(
                 CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID
@@ -220,14 +216,11 @@ class SubmitterDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccess
                 DSL.count().`as`(SubmitterTable.SUBMITTER.TEST_RESULT_COUNT),
                 DSL.value(SubmitterType.PROVIDER.name).`as`(SubmitterTable.SUBMITTER.TYPE),
                 DSL.`when`(
-                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_CITY.isNotNull,
-                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_CITY
-                ).`when`(
-                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY.isNotNull,
-                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY
+                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_COUNTY.isNotNull,
+                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_COUNTY
                 ).otherwise("n/a")
                     .concat(", ")
-                    .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_STATE)
+                    .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_STATE)
                     .`as`(SubmitterTable.SUBMITTER.LOCATION),
                 CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID
                     .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME)
@@ -241,12 +234,12 @@ class SubmitterDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccess
                         .eq(CovidResultMetadata.COVID_RESULT_METADATA.REPORT_INDEX)
                 )
                 .where(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID.isNotNull)
+                .and(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME.isNotNull)
                 .groupBy(
                     CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_ID,
                     CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_NAME,
-                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_CITY,
-                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_STATE,
-                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY
+                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_COUNTY,
+                    CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_STATE,
                 )
                 .unionAll(
                     DSL.select(
@@ -256,14 +249,17 @@ class SubmitterDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccess
                         DSL.min(CovidResultMetadata.COVID_RESULT_METADATA.CREATED_AT)
                             .`as`(SubmitterTable.SUBMITTER.FIRST_REPORT_DATE),
                         DSL.count().`as`(SubmitterTable.SUBMITTER.TEST_RESULT_COUNT),
-                        DSL.value(SubmitterType.FACILITY.name).`as`("type")
+                        DSL.value(SubmitterType.FACILITY.name).`as`(SubmitterTable.SUBMITTER.TYPE)
                             .`as`(SubmitterTable.SUBMITTER.TYPE),
                         DSL.`when`(
-                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_COUNTY.isNotNull,
-                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_COUNTY
+                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_CITY.isNotNull,
+                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_CITY
+                        ).`when`(
+                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY.isNotNull,
+                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY
                         ).otherwise("n/a")
                             .concat(", ")
-                            .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_STATE)
+                            .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_STATE)
                             .`as`(SubmitterTable.SUBMITTER.LOCATION),
                         DSL.value("null")
                             .concat(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_NAME)
@@ -276,10 +272,12 @@ class SubmitterDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccess
                             ItemGraphTable.ITEM_GRAPH.PARENT_INDEX
                                 .eq(CovidResultMetadata.COVID_RESULT_METADATA.REPORT_INDEX)
                         )
+                        .where(CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_NAME.isNotNull)
                         .groupBy(
                             CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_NAME,
-                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_COUNTY,
-                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_PROVIDER_STATE
+                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_CITY,
+                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_COUNTY,
+                            CovidResultMetadata.COVID_RESULT_METADATA.ORDERING_FACILITY_STATE
                         )
                 ).unionAll(
                     DSL.select(
@@ -288,7 +286,7 @@ class SubmitterDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccess
                         DSL.min(CovidResultMetadata.COVID_RESULT_METADATA.CREATED_AT)
                             .`as`(SubmitterTable.SUBMITTER.FIRST_REPORT_DATE),
                         DSL.count().`as`(SubmitterTable.SUBMITTER.TEST_RESULT_COUNT),
-                        DSL.value(SubmitterType.SUBMITTER.name).`as`("type")
+                        DSL.value(SubmitterType.SUBMITTER.name).`as`(SubmitterTable.SUBMITTER.TYPE)
                             .`as`(SubmitterTable.SUBMITTER.TYPE),
                         DSL.value("n/a").`as`(SubmitterTable.SUBMITTER.LOCATION),
                         DSL.value("null")
@@ -302,14 +300,15 @@ class SubmitterDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccess
                             ItemGraphTable.ITEM_GRAPH.PARENT_INDEX
                                 .eq(CovidResultMetadata.COVID_RESULT_METADATA.REPORT_INDEX)
                         )
+                        .where(CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID.isNotNull)
                         .groupBy(CovidResultMetadata.COVID_RESULT_METADATA.SENDER_ID)
                 ).asTable(SubmitterTable.SUBMITTER)
 
-            search.fetchResults(
-                DSL.using(txn),
-                DSL.withRecursive(itemGraph)
-                    .select(submitterExpression.asterisk())
-                    .from(submitterExpression)
+            return search.fetchResults(
+                db.create,
+                submitterExpression.asterisk(),
+                submitterExpression,
+                itemGraph
             )
         }
     }

@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 
-import { FeatureName } from "../../../AppRouter";
+import { FeatureName } from "../../../utils/FeatureName";
 import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
@@ -126,11 +126,15 @@ function DashboardFilterAndTable({
                     }: {
                         from: string;
                         to: string;
-                    }) =>
+                    }) => {
+                        filterManager?.updatePage({
+                            type: PageSettingsActionType.RESET,
+                        });
+
                         trackAppInsightEvent(featureEvent, {
                             tableFilter: { startRange: from, endRange: to },
-                        })
-                    }
+                        });
+                    }}
                 />
             </div>
             <Table apiSortable borderless rowData={data} />

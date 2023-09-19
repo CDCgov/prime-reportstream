@@ -32,7 +32,7 @@ describe("useOrganizationReceivers", () => {
         expect(result.current.data).toEqual(undefined);
         expect(result.current.isLoading).toEqual(true);
     });
-    test("returns correct organization receivers", async () => {
+    test("returns correct organization receiver services", async () => {
         mockSessionContext.mockReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
@@ -53,7 +53,7 @@ describe("useOrganizationReceivers", () => {
             wrapper: AppWrapper(),
         });
         await waitFor(() =>
-            expect(result.current.data).toEqual(dummyReceivers)
+            expect(result.current.data).toEqual(dummyReceivers),
         );
         expect(result.current.isLoading).toEqual(false);
     });

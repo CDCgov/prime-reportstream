@@ -53,7 +53,7 @@ export function AdminOrgEdit() {
 
     const orgSettings: OrgSettingsResource = useResource(
         OrgSettingsResource.detail(),
-        { orgname: orgname }
+        { orgname: orgname },
     );
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
 
@@ -74,7 +74,7 @@ export function AdminOrgEdit() {
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },
-            }
+            },
         );
 
         return await response.json();
@@ -86,16 +86,16 @@ export function AdminOrgEdit() {
             setLoading(true);
             const latestResponse = await getLatestOrgResponse();
             setOrgSettingsOldJson(
-                JSON.stringify(latestResponse, jsonSortReplacer, 2)
+                JSON.stringify(latestResponse, jsonSortReplacer, 2),
             );
             setOrgSettingsNewJson(
-                JSON.stringify(orgSettings, jsonSortReplacer, 2)
+                JSON.stringify(orgSettings, jsonSortReplacer, 2),
             );
 
             if (latestResponse?.version !== orgSettings?.version) {
                 showError(getVersionWarning(VersionWarningType.POPUP));
                 confirmModalRef?.current?.setWarning(
-                    getVersionWarning(VersionWarningType.FULL, latestResponse)
+                    getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
                 confirmModalRef?.current?.disableSave();
             }
@@ -117,11 +117,11 @@ export function AdminOrgEdit() {
             if (latestResponse.version !== orgSettings?.version) {
                 // refresh left-side panel in compare modal to make it obvious what has changed
                 setOrgSettingsOldJson(
-                    JSON.stringify(latestResponse, jsonSortReplacer, 2)
+                    JSON.stringify(latestResponse, jsonSortReplacer, 2),
                 );
                 showError(getVersionWarning(VersionWarningType.POPUP));
                 confirmModalRef?.current?.setWarning(
-                    getVersionWarning(VersionWarningType.FULL, latestResponse)
+                    getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
                 confirmModalRef?.current?.disableSave();
                 return false;
@@ -132,11 +132,11 @@ export function AdminOrgEdit() {
             await fetchController(
                 OrgSettingsResource.update(),
                 { orgname },
-                data
+                data,
             );
             showAlertNotification(
                 "success",
-                `Item '${orgname}' has been updated`
+                `Item '${orgname}' has been updated`,
             );
             confirmModalRef?.current?.hideModal();
             showAlertNotification("success", `Saved '${orgname}' setting.`);

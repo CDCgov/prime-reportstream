@@ -7,7 +7,7 @@ import { StaticAlert, StaticAlertType } from "./StaticAlert";
 describe("StaticAlert", () => {
     test("renders correct class for success", async () => {
         renderApp(
-            <StaticAlert type={StaticAlertType.Success} heading={"any"} />
+            <StaticAlert type={StaticAlertType.Success} heading={"any"} />,
         );
 
         const wrapper = await screen.findByRole("alert");

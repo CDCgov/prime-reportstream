@@ -1,0 +1,22 @@
+@use "../../global-modules.scss" as *;
+
+/*
+ * Allows for Accordions with differing style expectations
+ */
+.usa-accordion {
+    &--alternate {
+        :global {
+            .usa-accordion__button {
+                font-size: size("sans", "lg");
+                @include u-color("white");
+                background-color: color("primary-darker");
+
+                @include add-background-svg("usa-icons-bg/remove--white");
+
+                &[aria-expanded="false"] {
+                    @include add-background-svg("usa-icons-bg/add--white");
+                }
+            }
+        }
+    }
+}

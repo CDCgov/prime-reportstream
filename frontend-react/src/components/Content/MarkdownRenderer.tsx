@@ -2,18 +2,11 @@ import React, { useEffect, useState } from "react";
 import rehypeRaw from "rehype-raw";
 import ReactMarkdown, { Options } from "react-markdown";
 import rehypeSlug from "rehype-slug";
-import remarkGfm from "remark-gfm";
-import remarkToc from "remark-toc";
 
 import { USSmartLink } from "../USLink";
 
 const baseOptions: Partial<Options> = {
-    remarkPlugins: [
-        // Use GitHub-flavored markdown
-        remarkGfm,
-        // Generate a table of contents
-        [remarkToc, { tight: true }],
-    ],
+    remarkPlugins: [],
     rehypePlugins: [
         // Add ids to headings so the table of contents can link to each section
         rehypeSlug,

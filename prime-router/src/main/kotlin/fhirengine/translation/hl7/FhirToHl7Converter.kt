@@ -4,12 +4,14 @@ import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.translation.hl7.utils.FhirPathFunctions
+import gov.cdc.prime.router.fhirengine.translation.hl7.config.ContextConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.TranslationFunctions
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.Level
 import org.hl7.fhir.r4.model.Base
@@ -94,14 +96,21 @@ class FhirToHl7Converter(
     }
 
     /**
-     * Generate HL7 data for the elements for the given [schema] using [bundle] and [context] starting at the
-     * [focusResource] in the bundle. Set [debug] to true to enable debug statements to the logs.
+     * Generate HL7 data for the elements for the given [schema] using [bundle] and custom [context]
+     * that contains bundle, customFhirFunctions, config object (eg, Receiver object which contains receiver setting),
+     * and the customTransFunctions (eg, handler function to do custom translation).
+     * Starting at the [focusResource] in the bundle. Set [debug] to true to enable debug statements to the logs.
      */
     private fun processSchema(
         schema: ConverterSchema,
         bundle: Bundle,
         focusResource: Base,
-        context: CustomContext = CustomContext(bundle, bundle, customFhirFunctions = this.context?.fhirFunctions),
+        context: CustomContext = CustomContext(
+            bundle, bundle,
+            customFhirFunctions = this.context?.fhirFunctions,
+            config = this.context?.config,
+            translationFunctions = this.context?.translationFunctions
+        ),
         debug: Boolean = false
     ) {
         val logLevel = if (debug) Level.INFO else Level.DEBUG
@@ -197,7 +206,13 @@ class FhirToHl7Converter(
         element.hl7Spec.forEach { rawHl7Spec ->
             val resolvedHl7Spec = constantSubstitutor.replace(rawHl7Spec, context)
             try {
-                terser!!.set(resolvedHl7Spec, value)
+                val maybeTruncatedValue = context.translationFunctions?.maybeTruncateHL7Field(
+                    value,
+                    resolvedHl7Spec,
+                    terser!!,
+                    context
+                ) ?: value
+                terser!!.set(resolvedHl7Spec, maybeTruncatedValue)
                 logger.trace("Set HL7 $resolvedHl7Spec = $value")
             } catch (e: HL7Exception) {
                 val msg = "Could not set HL7 value for spec $resolvedHl7Spec for element ${element.name}"
@@ -227,4 +242,6 @@ class FhirToHl7Converter(
  */
 data class FhirToHl7Context(
     val fhirFunctions: FhirPathFunctions,
+    val config: ContextConfig? = null,
+    val translationFunctions: TranslationFunctions
 )

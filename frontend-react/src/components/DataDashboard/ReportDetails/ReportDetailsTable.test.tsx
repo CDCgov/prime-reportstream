@@ -31,7 +31,7 @@ describe("ReportDetailsTable", () => {
             };
 
             mockUseReportFacilities.mockReturnValue(
-                mockUseReportFacilitiesCallback
+                mockUseReportFacilitiesCallback,
             );
 
             // Render the component
@@ -77,7 +77,7 @@ describe("ReportDetailsTable", () => {
             };
 
             mockUseReportFacilities.mockReturnValue(
-                mockUseReportFacilitiesCallback
+                mockUseReportFacilitiesCallback,
             );
 
             // Render the component

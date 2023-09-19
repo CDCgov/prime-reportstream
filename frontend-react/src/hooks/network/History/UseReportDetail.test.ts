@@ -31,7 +31,7 @@ describe("useReportsList", () => {
             wrapper: AppWrapper(),
         });
         await waitFor(() =>
-            expect(result.current.reportDetail?.reportId).toEqual("123")
+            expect(result.current.reportDetail?.reportId).toEqual("123"),
         );
     });
 });

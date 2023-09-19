@@ -15,7 +15,7 @@ const MonitoringAlert = () => {
         <SiteAlert
             variant="info"
             heading="This is a U.S. government service"
-            className="margin-top-neg-4 desktop:margin-top-neg-5 margin-bottom-3 tablet:margin-bottom-6"
+            className="margin-bottom-3 tablet:margin-bottom-6"
         >
             Your use indicates your consent to monitoring, recording, and no
             expectation of privacy. Misuse is subject to criminal and civil
@@ -29,8 +29,9 @@ export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
     const { dispatch } = useSessionContext();
 
-    const onSuccess = (tokens: Tokens | undefined) => {
+    const onSuccess = (tokens: Tokens) => {
         oktaAuth.handleLoginRedirect(tokens);
+        return tokens;
     };
 
     const onError = (err: any) => {
@@ -45,13 +46,14 @@ export const Login = () => {
     }
 
     return (
-        <>
+        <div className="grid-container">
             <MonitoringAlert />
+
             <OktaSignInWidget
                 config={oktaSignInConfig}
                 onSuccess={onSuccess}
                 onError={onError}
             />
-        </>
+        </div>
     );
 };

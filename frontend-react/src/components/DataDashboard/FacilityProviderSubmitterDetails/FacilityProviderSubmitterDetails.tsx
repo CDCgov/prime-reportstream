@@ -4,7 +4,7 @@ import React from "react";
 import { AuthElement } from "../../AuthElement";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import Crumbs, { CrumbsProps } from "../../Crumbs";
-import { FeatureName } from "../../../AppRouter";
+import { FeatureName } from "../../../utils/FeatureName";
 import HipaaNotice from "../../HipaaNotice";
 import { SenderType } from "../../../utils/DataDashboardUtils";
 import { withCatchAndSuspense } from "../../RSErrorBoundary";
@@ -18,7 +18,7 @@ export type FacilityProviderSubmitterDetailsProps = React.PropsWithChildren<{
 }>;
 
 function FacilityProviderSubmitterDetails(
-    props: FacilityProviderSubmitterDetailsProps
+    props: FacilityProviderSubmitterDetailsProps,
 ) {
     // TODO: get from params once API is complete.
     // const { senderId } = useParams();
@@ -68,12 +68,12 @@ function FacilityProviderSubmitterDetails(
 }
 
 export function FacilityProviderSubmitterDetailsWithAuth(
-    props: FacilityProviderSubmitterDetailsProps
+    props: FacilityProviderSubmitterDetailsProps,
 ) {
     return (
         <AuthElement
             element={withCatchAndSuspense(
-                <FacilityProviderSubmitterDetails {...props} />
+                <FacilityProviderSubmitterDetails {...props} />,
             )}
             requiredUserType={MemberType.RECEIVER}
         />

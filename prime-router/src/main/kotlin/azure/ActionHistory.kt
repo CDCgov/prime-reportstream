@@ -26,6 +26,7 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.impl.SQLDataType
 import java.io.ByteArrayOutputStream
 import java.time.LocalDateTime
+import java.util.UUID
 
 /**
  * This is a container class that holds information to be stored, about a single action,
@@ -460,56 +461,32 @@ class ActionHistory(
     fun trackCreatedReport(
         event: Event,
         report: Report,
-        receiver: Receiver,
-        blobInfo: BlobAccess.BlobInfo,
+        receiver: Receiver? = null,
+        blobInfo: BlobAccess.BlobInfo? = null,
     ) {
         if (isReportAlreadyTracked(report.id)) {
             error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
         }
 
         val reportFile = ReportFile()
+
         reportFile.reportId = report.id
-        reportFile.nextAction = event.eventAction.toTaskAction()
-        reportFile.nextActionAt = event.at
-        reportFile.receivingOrg = receiver.organizationName
-        reportFile.receivingOrgSvc = receiver.name
         reportFile.schemaName = report.schema.name
         reportFile.schemaTopic = report.schema.topic
-        reportFile.bodyUrl = blobInfo.blobUrl
-        reportFile.bodyFormat = blobInfo.format.toString()
-        reportFile.blobDigest = blobInfo.digest
-        reportFile.itemCount = report.itemCount
         reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
-        reportsOut[reportFile.reportId] = reportFile
-        trackFilteredItems(report)
-        trackItemLineages(report)
 
-        // batch queue messages are added by the batchDecider, not ActionHistory
-        // TODO: Need to update this process to have a better way to determine what messages should be sent
-        //  automatically as part of queueMessages and what are being send manually as part of the parent function.
-        //  The automatic queueing uses the action name as the queue name, and this is not the case for FHIR actions
-        if (event.eventAction != Event.EventAction.BATCH &&
-            event.eventAction != Event.EventAction.ROUTE &&
-            event.eventAction != Event.EventAction.TRANSLATE
-        )
-            trackEvent(event) // to be sent to queue later.
-    }
-
-    fun trackCreatedReport(
-        event: Event,
-        report: Report,
-        blobInfo: BlobAccess.BlobInfo?
-    ) {
-        if (isReportAlreadyTracked(report.id)) {
-            error("Bug:  attempt to track history of a report ($report.id) we've already associated with this action")
-        }
-
-        val reportFile = ReportFile()
-        reportFile.reportId = report.id
         reportFile.nextAction = event.eventAction.toTaskAction()
         reportFile.nextActionAt = event.at
-        reportFile.schemaName = report.schema.name
-        reportFile.schemaTopic = report.schema.topic
+
+        if (receiver != null) {
+            reportFile.receivingOrg = receiver.organizationName
+            reportFile.receivingOrgSvc = receiver.name
+        } else if (report.destination != null) {
+            // when no receiver, derive receiving org and svc from report destination
+            reportFile.receivingOrg = report.destination.organizationName
+            reportFile.receivingOrgSvc = report.destination.name
+        }
+
         if (blobInfo != null) {
             reportFile.bodyUrl = blobInfo.blobUrl
             reportFile.bodyFormat = blobInfo.format.toString()
@@ -519,14 +496,10 @@ class ActionHistory(
             reportFile.bodyFormat = Report.Format.FHIR.toString() // currently only the UP sends null blobs
             reportFile.itemCount = 0
         }
-        reportFile.itemCountBeforeQualFilter = report.itemCountBeforeQualFilter
-        if (report.destination != null) {
-            reportFile.receivingOrg = report.destination.organizationName
-            reportFile.receivingOrgSvc = report.destination.name
-        }
+
         reportsOut[reportFile.reportId] = reportFile
-        trackItemLineages(report)
         trackFilteredItems(report)
+        trackItemLineages(report)
 
         // batch queue messages are added by the batchDecider, not ActionHistory
         // TODO: Need to update this process to have a better way to determine what messages should be sent
@@ -545,7 +518,7 @@ class ActionHistory(
         filename: String?,
         params: String,
         result: String,
-        itemCount: Int
+        header: WorkflowEngine.Header
     ) {
         if (isReportAlreadyTracked(sentReportId)) {
             error(
@@ -553,6 +526,18 @@ class ActionHistory(
                     "we've already associated with this action"
             )
         }
+
+        if (header.content == null) {
+            error("Bug: attempt to track sent report with no contents")
+        }
+
+        val blobInfo = BlobAccess.uploadBody(
+            receiver.format,
+            header.content,
+            filename ?: UUID.randomUUID().toString(),
+            "send",
+            Event.EventAction.NONE
+        )
         val reportFile = ReportFile()
         reportFile.reportId = sentReportId
         reportFile.receivingOrg = receiver.organizationName
@@ -563,10 +548,11 @@ class ActionHistory(
         action.externalName = filename
         reportFile.transportParams = params
         reportFile.transportResult = result
-        reportFile.bodyUrl = null
         reportFile.bodyFormat = receiver.format.toString()
-        reportFile.blobDigest = null // no blob
-        reportFile.itemCount = itemCount
+        reportFile.itemCount = header.reportFile.itemCount
+        reportFile.blobDigest = blobInfo.digest
+        reportFile.bodyUrl = blobInfo.blobUrl
+
         reportsOut[reportFile.reportId] = reportFile
     }
 
@@ -576,12 +562,11 @@ class ActionHistory(
      * of our custody.
      */
     fun trackDownloadedReport(
-        header: WorkflowEngine.Header,
+        parentReportFile: ReportFile,
         filename: String,
         externalReportId: ReportId,
         downloadedBy: String,
     ) {
-        val parentReportFile = header.reportFile
         trackExistingInputReport(parentReportFile.reportId)
         if (isReportAlreadyTracked(externalReportId)) {
             error(

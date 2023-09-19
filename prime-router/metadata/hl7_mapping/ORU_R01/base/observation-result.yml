@@ -1,14 +1,10 @@
-constants:
-  hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
-  hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX'
-  observation: '%diagnostic.result[%resultIndex].resolve()'
 elements:
   - name: result-set-id
     value: [ '%resultIndex + 1' ]
     hl7Spec: [ '%{hl7OBXField}-1' ]
 
   - name: result-value-type-st
-    condition: '%resource.value is String or %resource.value.exists().not()'
+    condition: '%resource.value is String or (%resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").exists() and %resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").code = "unknown")'
     value: [ '"ST"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
@@ -19,8 +15,15 @@ elements:
 
   - name: result-value-type-ce
     condition: '%resource.value is CodeableConcept'
-    # Note that for v.2.5 and earlier CWE does not exist.
+    # Note that for v.2.5 and earlier CWE is not in-spec.
     value: [ '"CE"' ]
+    hl7Spec: [ '%{hl7OBXField}-2' ]
+
+  - name: result-value-type-cwe
+    resource: '%resource.value'
+    condition: '%resource is CodeableConcept and (%resource.coding[0].version.exists() or %resource.coding[1].version.exists() or %resource.text.exists())'
+    # Note that for v.2.5 and earlier, CWE is not officially in-spec, but is widely used.
+    value: [ '"CWE"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-sn
@@ -29,35 +32,18 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: observation-identifier-code
-    value: [ '%resource.code.coding.code' ]
-    hl7Spec: [ '%{hl7OBXField}-3-1' ]
+    resource: '%resource.code'
+    condition: '%resource.text.exists().not()'
+    constants:
+      cweFieldPath: '%{hl7OBXField}-3'
+    schema: ../../common/datatype/ce-coded-with-exceptions
 
-  - name: observation-identifier-text
-    value: [ '%resource.code.text' ]
-    hl7Spec: [ '%{hl7OBXField}-3-2' ]
-
-  - name: observation-identifier-coding-system
-    value: [ '%resource.code.coding.system' ]
-    hl7Spec: [ '%{hl7OBXField}-3-3' ]
-
-  # override to handle LN translated to loinc L on HL7->FHIR conversion
-  - name: observation-identifier-coding-system-ln
-    resource: '%resource.code.coding'
-    condition: '%resource.system = "http://loinc.org"'
-    value: [ '%resource.system.getCodingSystemMapping()' ]
-    hl7Spec: [ '%{hl7OBXField}-3-3' ]
-
-  - name: observation-identifier-alternate-code
-    value: [ '%resource.code.extension(%`rsext-alternate-identifier`).value.coding.code' ]
-    hl7Spec: [ '%{hl7OBXField}-3-4' ]
-
-  - name: observation-identifier-alternate-text
-    value: [ '%resource.code.extension(%`rsext-alternate-identifier`).value.coding.display' ]
-    hl7Spec: [ '%{hl7OBXField}-3-5' ]
-
-  - name: observation-identifier-alternate-system
-    value: [ '%resource.code.extension(%`rsext-alternate-identifier`).value.coding.system' ]
-    hl7Spec: [ '%{hl7OBXField}-3-6' ]
+  - name: observation-identifier-code
+    resource: '%resource.code'
+    condition: '%resource.text.exists()'
+    constants:
+      cweFieldPath: '%{hl7OBXField}-3'
+    schema: ../../common/datatype/ce-coded-with-exceptions
 
   - name: observation-value-sub-id
     value: [ '%resource.extension(%`rsext-sub-id`).value' ]
@@ -86,34 +72,10 @@ elements:
     schema: ../../common/datatype/sn-structured-numeric
 
   - name: observation-units-identifier
-    value: [ '%resource.extension(%`rsext-units`).value.coding.code' ]
-    hl7Spec: [ '%{hl7OBXField}-6-1' ]
-
-  - name: observation-units-text
-    value: [ '%resource.extension(%`rsext-units`).value.text' ]
-    hl7Spec: [ '%{hl7OBXField}-6-2' ]
-
-  - name: observation-units-system
-    condition: >
-      %resource.extension(%`rsext-units`).exists() and 
-      %resource.extension(%`rsext-units`).value.coding.system = "http://unitsofmeasure.org"
-    value: [ '"UCUM"' ]
-    hl7Spec: [ '%{hl7OBXField}-6-3' ]
-
-  - name: observation-units-alternate-identifier
-    resource: '%resource.extension(%`rsext-units`).value.extension(%`rsext-alternate-identifier`).value'
-    value: [ '%resource.coding.code' ]
-    hl7Spec: [ '%{hl7OBXField}-6-4' ]
-
-  - name: observation-units-alternate-text
-    resource: '%resource.extension(%`rsext-units`).value.extension(%`rsext-alternate-identifier`).value'
-    value: [ '%resource.coding.display' ]
-    hl7Spec: [ '%{hl7OBXField}-6-5' ]
-
-  - name: observation-units-alternate-system
-    resource: '%resource.extension(%`rsext-units`).value.extension(%`rsext-alternate-identifier`).value'
-    value: [ '%resource.coding.system' ]
-    hl7Spec: [ '%{hl7OBXField}-6-6' ]
+    resource: '%resource.extension(%`rsext-units`).value'
+    constants:
+      cweFieldPath: '%{hl7OBXField}-6'
+    schema: ../../common/datatype/ce-coded-with-exceptions
 
   - name: observation-reference-range
     value: [ '%resource.referenceRange.text' ]
@@ -122,12 +84,12 @@ elements:
   - name: observation-abnormal-flag
     resource: '%resource.interpretation'
     constants:
-      versionId: '2.7'
       cweFieldPath: '%{hl7OBXField}-8'
     schema: ../../common/datatype/ce-coded-with-exceptions
 
   - name: observation-result-status
     value: [ '%resource.status' ]
+    condition: '%resource.dataAbsentReason.exists().not() or %resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").code = "unknown"'
     hl7Spec: [ '%{hl7OBXField}-11' ]
     valueSet:
       values:
@@ -137,6 +99,17 @@ elements:
         corrected: C
         amended: C
         entered-in-error: W
+
+  - name: observation-result-status-cancelled
+    value: ["'X'"]
+    condition: '%resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").exists() and %resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").code = "cannot-be-obtained"'
+    hl7Spec: [ '%{hl7OBXField}-11' ]
+
+  - name: observation-result-status-not-asked
+    value: [ "'N'" ]
+    condition: '%resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "alternate identifier").exists() and %resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "alternate identifier").code = "not-asked"'
+    hl7Spec: [ '%{hl7OBXField}-11' ]
+
 
   - name: observation-date-time
     value: [ '%resource.effective' ]
@@ -183,21 +156,21 @@ elements:
 
   - name: performing-organization-name-pracrole
     condition: '%observation.performer.resolve() is PractitionerRole'
-    resource: '%observation.performer.resolve().organization.resolve()'
+    resource: '%resource.performer.resolve().organization.resolve()'
     schema: ../../common/datatype/xon-organization
     constants:
       hl7OrgField: '%{hl7OBXField}-23'
 
   - name: performing-organization-name-non-pracrole
     condition: '%observation.performer.resolve().is(PractitionerRole).not()'
-    resource: '%observation.performer.resolve()'
+    resource: '%resource.performer.resolve()'
     schema: ../../common/datatype/xon-organization
     constants:
       hl7OrgField: '%{hl7OBXField}-23'
 
   - name: performing-organization-address-pracrole
     condition: '%observation.performer.resolve() is PractitionerRole'
-    resource: '%observation.performer.resolve().organization.resolve().address'
+    resource: '%resource.performer.resolve().organization.resolve().address'
     constants:
       hl7AddressField: '%{hl7OBXField}-24'
     schema: ../../common/datatype/xad-extended-address
@@ -205,7 +178,7 @@ elements:
 
   - name: performing-organization-address-non-pracrole
     condition: '%observation.performer.resolve().is(PractitionerRole).not()'
-    resource: '%observation.performer.resolve().address'
+    resource: '%resource.performer.resolve().address'
     constants:
       hl7AddressField: '%{hl7OBXField}-24'
     schema: ../../common/datatype/xad-extended-address

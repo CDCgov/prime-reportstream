@@ -79,9 +79,8 @@ export function MessageTracker() {
 
     const searchMessageId = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const senderResponse: MessageListResource[] = await search(
-            searchFilter
-        );
+        const senderResponse: MessageListResource[] =
+            await search(searchFilter);
 
         setHasSearched(true);
 
@@ -122,7 +121,7 @@ export function MessageTracker() {
                                     setSearchFilter(
                                         (
                                             evt.target as HTMLInputElement
-                                        ).value.trim()
+                                        ).value.trim(),
                                     )
                                 }
                                 required={true}

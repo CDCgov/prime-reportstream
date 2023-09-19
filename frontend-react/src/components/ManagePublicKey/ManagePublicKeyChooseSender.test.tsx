@@ -48,10 +48,10 @@ describe("ManagePublicKeyChooseSender", () => {
 
             test("renders the sender options", () => {
                 expect(
-                    screen.getByRole("option", { name: "default" })
+                    screen.getByRole("option", { name: "default" }),
                 ).toBeVisible();
                 expect(
-                    screen.getByRole("option", { name: "ignore-full-elr" })
+                    screen.getByRole("option", { name: "ignore-full-elr" }),
                 ).toBeVisible();
             });
 

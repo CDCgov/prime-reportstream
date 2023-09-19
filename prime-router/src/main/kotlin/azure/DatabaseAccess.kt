@@ -85,7 +85,7 @@ typealias DataAccessTransaction = Configuration
  *
  * The companion object does the connection pooling and settings.
  */
-class DatabaseAccess(private val create: DSLContext) : Logging {
+class DatabaseAccess(val create: DSLContext) : Logging {
     constructor(
         dataSource: DataSource = commonDataSource
     ) : this(DSL.using(dataSource, SQLDialect.POSTGRES))
@@ -647,6 +647,22 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             .fetch()
             .into(ReportFile::class.java)
             .toList()
+    }
+
+    /**
+     * Uses the report lineage table to find the parent report for the passed in UUID
+     *
+     *
+     * @param childReportId the id of the child to fetch the parent
+     * @return the parent report
+     */
+    fun fetchParentReport(childReportId: UUID): ReportFile? {
+        return create
+            .select(REPORT_FILE.asterisk()).from(REPORT_FILE)
+            .join(REPORT_LINEAGE)
+            .on(REPORT_LINEAGE.PARENT_REPORT_ID.eq(REPORT_FILE.REPORT_ID))
+            .where(REPORT_LINEAGE.CHILD_REPORT_ID.eq(childReportId))
+            .fetchOneInto(ReportFile::class.java)
     }
 
     fun fetchChildReports(
@@ -1415,9 +1431,8 @@ class DatabaseAccess(private val create: DSLContext) : Logging {
             config.maxLifetime = 180000
             val dataSource = HikariDataSource(config)
 
-            // This is a current issue in flyway https://github.com/flyway/flyway/issues/3508
-            // This setting makes flyway fall back to session locks
-            // This is fixed in flyway 9.19.4
+            // This setting makes flyway fall back to session locks as concurrent index creation cannot be done
+            // within a transaction. This setting is needed as of flyway 9.19.4.
             val flyway = Flyway.configure().configuration(mapOf(Pair("flyway.postgresql.transactional.lock", "false")))
                 .dataSource(dataSource).load()
             if (isFlywayMigrationOK) {

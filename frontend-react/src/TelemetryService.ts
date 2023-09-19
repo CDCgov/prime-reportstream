@@ -66,7 +66,7 @@ export const createTelemetryService = (connectionString: string) => {
 };
 
 export const ai = createTelemetryService(
-    import.meta.env.VITE_APPLICATIONINSIGHTS_CONNECTION_STRING
+    import.meta.env.VITE_APPLICATIONINSIGHTS_CONNECTION_STRING,
 );
 
 export function getAppInsights() {
@@ -101,7 +101,7 @@ export function withInsights(console: Console) {
     Object.entries(LOG_SEVERITY_MAP).forEach((el) => {
         const [method, severityLevel] = el as [
             keyof typeof LOG_SEVERITY_MAP,
-            SeverityLevel
+            SeverityLevel,
         ];
 
         console[method] = (...data: any[]) => {

@@ -235,7 +235,7 @@ class ReportFunctionTests {
         every { accessSpy.insertAction(any(), any()) } returns 0
         every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
         every { actionHistory.trackLogs(any<ActionLog>()) } returns Unit
-        every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.actionName } returns TaskAction.receive
         every { actionHistory.action.sendingOrg } returns "Test Sender"
@@ -509,7 +509,7 @@ class ReportFunctionTests {
         every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
 
         every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
-        every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.sendingOrg } returns "Test Sender"
         every { actionHistory.action.actionName } returns TaskAction.receive
@@ -563,7 +563,7 @@ class ReportFunctionTests {
         every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
 
         every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
-        every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.sendingOrg } returns "Test Sender"
         every { actionHistory.action.actionName } returns TaskAction.receive
@@ -617,7 +617,7 @@ class ReportFunctionTests {
         every { accessSpy.saveActionHistoryToDb(any(), any()) } returns Unit
 
         every { actionHistory.trackLogs(any<List<ActionLog>>()) } returns Unit
-        every { actionHistory.trackCreatedReport(any(), any(), any()) } returns Unit
+        every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
         every { actionHistory.action.actionId } returns 1
         every { actionHistory.action.sendingOrg } returns "Test Sender"
         every { actionHistory.action.actionName } returns TaskAction.receive

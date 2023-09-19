@@ -46,3 +46,13 @@ elements:
       %service.supportingInfo.resolve().where(code.coding.code = %symptomaticAoeLoinc) |
       %service.supportingInfo.resolve().where(code.coding.code = %illnessOnsetAoeLoinc)
 
+  - name: specimen-observation-result-with-aoe
+    condition: false
+
+    #OBX-3
+  - name: observation-identifier-code
+    condition: false
+
+  # OBR-4
+  - name: universal-service
+    condition: false

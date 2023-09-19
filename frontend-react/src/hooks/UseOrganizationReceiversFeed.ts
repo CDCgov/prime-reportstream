@@ -12,7 +12,7 @@ interface ReceiverFeeds {
     setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
     isDisabled: boolean;
 }
-/** Fetches a list of receivers for your active organization, and provides a controller to switch
+/** Fetches a list of receiver services for your active organization, and provides a controller to switch
  * between them */
 export const useOrganizationReceiversFeed = (): ReceiverFeeds => {
     const {
@@ -28,8 +28,8 @@ export const useOrganizationReceiversFeed = (): ReceiverFeeds => {
             setActive(
                 receivers.find(
                     // Checks for an active receiver first
-                    (val) => val.customerStatus === CustomerStatus.ACTIVE
-                ) || receivers[0] // Defaults to first in array
+                    (val) => val.customerStatus === CustomerStatus.ACTIVE,
+                ) || receivers[0], // Defaults to first in array
             );
             setReceiversFound(true);
         } else {
@@ -41,7 +41,7 @@ export const useOrganizationReceiversFeed = (): ReceiverFeeds => {
         loadingServices:
             (isLoading && fetchStatus !== "idle") ||
             receiversFound === undefined,
-        services: receivers || [],
+        services: receivers?.sort((a, b) => a.name.localeCompare(b.name)) || [],
         activeService: active,
         setActiveService: setActive,
         isDisabled: isLoading && fetchStatus === "idle",

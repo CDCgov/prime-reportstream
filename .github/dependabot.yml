@@ -5,7 +5,6 @@
 
 version: 2
 updates:
-
   # Maintain dependencies for GitHub Actions Workflows
   - package-ecosystem: "github-actions"
     # Workflow files stored in the
@@ -97,6 +96,11 @@ updates:
       interval: "daily"
 
   - package-ecosystem: "github-actions"
+    directory: "/.github/actions/sonarcloud"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
     directory: "/.github/actions/vpn-azure"
     schedule:
       interval: "daily"
@@ -112,39 +116,190 @@ updates:
       time: "00:17"
       timezone: "US/Eastern"
     rebase-strategy: "disabled"
+    groups:
+      babel:
+        patterns:
+          - "@babel*"
+      mdx:
+        patterns:
+          - "*mdx*"
+      storybook:
+        patterns:
+          - "*storybook*"
+      testing-library:
+        patterns:
+          - "*testing-library/*"
+      eslint:
+        patterns:
+          - "eslint*"
+        exclude-patterns:
+          - "*prettier"
+          - "*cypress"
+          - "*jest*"
+          - "*storybook"
+          - "*testing-library"
+      jest:
+        patterns:
+          - "*jest*"
+      msw:
+        patterns:
+          - "*msw*"
+      prettier:
+        patterns:
+          - "*prettier*"
+      typescript:
+        patterns:
+          - "typescript"
+          - "tslib"
+          - "ts-node"
+          - "@typescript-eslint*"
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+      react-router:
+        patterns:
+          - "*react-router*"
+      cypress:
+        patterns:
+          - "*cypress*"
+      vite:
+        patterns:
+          - "vite*"
+          - "@vitejs*"
+        exclude-patterns:
+          - "@storybook*"
+      okta:
+        patterns:
+          - "@okta*"
+      applicationinsights:
+        patterns:
+          - "@microsoft/applicationinsights*"
+      react-query:
+        patterns:
+          - "*react-query*"
 
   # OPERATIONS
   - package-ecosystem: "docker"
     directory: "/operations"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "docker"
-    directory: "/.devcocntainer"
+
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/app_service_plan"
     schedule:
       interval: "weekly"
   - package-ecosystem: "terraform"
-    directory: "/operations/app/src/environments/dev"
+    directory: "/operations/app/terraform/modules/application_insights"
     schedule:
       interval: "weekly"
   - package-ecosystem: "terraform"
-    directory: "/operations/app/src/environments/test"
+    directory: "/operations/app/terraform/modules/azure_dashboard"
     schedule:
       interval: "weekly"
   - package-ecosystem: "terraform"
-    directory: "/operations/app/src/environments/staging"
+    directory: "/operations/app/terraform/modules/chatops"
     schedule:
       interval: "weekly"
   - package-ecosystem: "terraform"
-    directory: "/operations/app/src/environments/prod"
+    directory: "/operations/app/terraform/modules/common/private_endpoint"
     schedule:
       interval: "weekly"
-    
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/common/sftp"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/common/vnet_dns_zones"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/container_registry"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/data_factory"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/database"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/front_door"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/function_app"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/init"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/init/subnets"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/key_vault"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/log_analytics_workspace"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/metabase"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/nat_gateway"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/network"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/sftp"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/sftp_container"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/ssh"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/modules/storage"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/vars/demo"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/vars/prod"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/vars/staging"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "terraform"
+    directory: "/operations/app/terraform/vars/test"
+    schedule:
+      interval: "weekly"
+
   # ROUTER
   - package-ecosystem: "docker"
     directory: "/prime-router"
     schedule:
       interval: "weekly"
-    
+
   # All packages weekly
   - package-ecosystem: "gradle"
     directory: "/prime-router"
@@ -155,6 +310,31 @@ updates:
       time: "03:17"
       timezone: "US/Eastern"
     rebase-strategy: "disabled"
+    groups:
+      bouncycastle:
+        patterns:
+          - "org.bouncycastle:bc*"
+      testcontainers:
+        patterns:
+          - "org.testcontainers:*"
+      log4j:
+        patterns:
+          - "org.apache.logging.log4j:log4j*"
+      hapi:
+        patterns:
+          - "ca.uhn.hapi:hapi*"
+      poi:
+        patterns:
+          - "org.apache.poi:poi*"
+      jjwt:
+        patterns:
+          - "io.jsonwebtoken:jjwt*"
+      junit:
+        patterns:
+          - "org.junit.jupiter:junit*"
+      flyway:
+        patterns:
+          - "org.flywaydb*"
     ignore:
       # ignore updates to sshj so we don't run into future issues connecting to STLTs
       - dependency-name: "sshj"

@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
+import gov.cdc.prime.router.fhirengine.translation.hl7.config.ContextConfig
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.text.StringSubstitutor
 import org.apache.commons.text.lookup.StringLookup
@@ -17,13 +18,17 @@ import org.hl7.fhir.r4.utils.FHIRPathEngine
 import org.hl7.fhir.r4.utils.FHIRPathEngine.IEvaluationContext.FunctionDetails
 
 /**
- * Context used for resolving [constants] and custom FHIR functions.
+ * Context used for resolving [constants] and custom FHIR functions. The class is for us to add our customer function
+ * [customFhirFunctions], customer [config] object for us to pass any object to our custom translation function
+ * [translationFunctions] (eg, handler function to do custom translation).
  */
 data class CustomContext(
     val bundle: Bundle,
     var focusResource: Base,
     val constants: MutableMap<String, String> = mutableMapOf(),
-    val customFhirFunctions: FhirPathFunctions? = null
+    val customFhirFunctions: FhirPathFunctions? = null,
+    val config: ContextConfig? = null,
+    val translationFunctions: TranslationFunctions? = Hl7TranslationFunctions()
 ) {
     companion object {
         /**
@@ -37,7 +42,9 @@ data class CustomContext(
                     previousContext.bundle,
                     previousContext.focusResource,
                     previousContext.constants.toMap().toMutableMap(), // This makes a copy of the map
-                    previousContext.customFhirFunctions
+                    previousContext.customFhirFunctions,
+                    previousContext.config,
+                    previousContext.translationFunctions
                 )
                 constants.forEach { newContext.constants[it.key] = it.value }
                 newContext

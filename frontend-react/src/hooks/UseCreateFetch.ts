@@ -10,7 +10,7 @@ import { MembershipSettings } from "./UseOktaMemberships";
 
 export type AuthorizedFetcher<T> = (
     EndpointConfig: RSEndpoint,
-    options?: Partial<AxiosOptionsWithSegments>
+    options?: Partial<AxiosOptionsWithSegments>,
 ) => Promise<T>;
 
 // this wrapper is needed to allow typing of the fetch return value from the location
@@ -24,7 +24,7 @@ export type AuthorizedFetchTypeWrapper = <T>() => AuthorizedFetcher<T>;
 //    a function that can be used to make an API call
 function createTypeWrapperForAuthorizedFetch(
     oktaToken: Partial<AccessToken>,
-    activeMembership: MembershipSettings
+    activeMembership: MembershipSettings,
 ) {
     const authHeaders = {
         ...getAppInsightsHeaders(),
@@ -35,7 +35,7 @@ function createTypeWrapperForAuthorizedFetch(
 
     return async function <T>(
         EndpointConfig: RSEndpoint,
-        options: Partial<AxiosOptionsWithSegments> = {}
+        options: Partial<AxiosOptionsWithSegments> = {},
     ): Promise<T> {
         const headerOverrides = options?.headers || {};
         const headers = { ...authHeaders, ...headerOverrides };
@@ -62,15 +62,15 @@ export const auxExports = {
 
 export const useCreateFetch = (
     oktaToken: Partial<AccessToken>,
-    activeMembership: MembershipSettings
+    activeMembership: MembershipSettings,
 ): AuthorizedFetchTypeWrapper => {
     const generator = useCallback(
         () =>
             auxExports.createTypeWrapperForAuthorizedFetch(
                 oktaToken as Partial<AccessToken>,
-                activeMembership as MembershipSettings
+                activeMembership as MembershipSettings,
             ),
-        [oktaToken, activeMembership]
+        [oktaToken, activeMembership],
     );
 
     return generator;

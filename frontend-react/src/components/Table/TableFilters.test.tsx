@@ -18,7 +18,7 @@ describe("Rendering", () => {
                 endDateLabel={TableFilterDateLabel.END_DATE}
                 filterManager={mockFilterManager}
                 cursorManager={mockCursorManager}
-            />
+            />,
         );
     });
 
@@ -33,7 +33,7 @@ describe("Rendering", () => {
          *  and assert that they are non-null.
          * */
         const datePickers = await screen.findAllByTestId(
-            "date-picker-internal-input"
+            "date-picker-internal-input",
         );
         expect(datePickers).toHaveLength(2);
     });
@@ -55,11 +55,11 @@ describe("when validating values", () => {
                 endDateLabel={TableFilterDateLabel.END_DATE}
                 filterManager={mockFilterManager}
                 cursorManager={mockCursorManager}
-            />
+            />,
         );
 
         [startDateNode, endDateNode] = screen.getAllByTestId(
-            "date-picker-external-input"
+            "date-picker-external-input",
         );
         filterButtonNode = screen.getByText("Filter");
     });

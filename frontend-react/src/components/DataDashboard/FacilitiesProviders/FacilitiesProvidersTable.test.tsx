@@ -1,5 +1,4 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { FacilityResource } from "../../../config/endpoints/dataDashboard";
@@ -11,7 +10,8 @@ import {
 } from "../../../__mocks__/OrganizationMockServer";
 import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
-import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import { makeRSReceiverSubmitterResponseFixture } from "../../../__mocks__/DataDashboardMockServer";
+import { mockUseReceiverSubmitter } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverSubmitter";
 
 import FacilitiesProvidersTable from "./FacilitiesProvidersTable";
 
@@ -91,12 +91,15 @@ describe("FacilitiesProvidersTable", () => {
                 environment: "test",
             });
 
-            // Mock the response from the Deliveries hook
-            const mockUseOrgDeliveriesCallback = {
-                fetchResults: () => Promise.resolve([]),
+            // Mock the response from the Submitters hook
+            const mockUseReceiverSubmitterCallback = {
+                data: makeRSReceiverSubmitterResponseFixture(10),
                 filterManager: mockFilterManager,
+                isLoading: false,
             };
-            mockUseOrgDeliveries.mockReturnValue(mockUseOrgDeliveriesCallback);
+            mockUseReceiverSubmitter.mockReturnValue(
+                mockUseReceiverSubmitterCallback,
+            );
 
             // Render the component
             renderApp(<FacilitiesProvidersTable />);
@@ -104,11 +107,11 @@ describe("FacilitiesProvidersTable", () => {
 
         test("if no activeService display NoServicesBanner", async () => {
             const heading = await screen.findByText(
-                /Active Services unavailable/i
+                /Active Services unavailable/i,
             );
             expect(heading).toBeInTheDocument();
             const message = await screen.findByText(
-                /No valid receiver found for your organization/i
+                /No valid receiver found for your organization/i,
             );
             expect(message).toBeInTheDocument();
         });
@@ -126,7 +129,14 @@ describe("FacilitiesProvidersTable", () => {
                 isDisabled: false,
             });
 
-            // TODO: add mock callback once API is ready
+            const mockUseReceiverSubmitterCallback = {
+                data: makeRSReceiverSubmitterResponseFixture(1),
+                filterManager: mockFilterManager,
+                isLoading: false,
+            };
+            mockUseReceiverSubmitter.mockReturnValue(
+                mockUseReceiverSubmitterCallback,
+            );
 
             // Render the component
             renderApp(<FacilitiesProvidersTable />);
@@ -138,85 +148,12 @@ describe("FacilitiesProvidersTable", () => {
             expect(screen.getByText("Location")).toBeInTheDocument();
             expect(screen.getByText("Facility type")).toBeInTheDocument();
             expect(
-                screen.getByText("Most recent report date")
+                screen.getByText("Most recent report date"),
             ).toBeInTheDocument();
         });
 
         test("renders Facility type column with transformed name", async () => {
-            expect(screen.getByText("ORDERING PROVIDER")).toBeInTheDocument();
-            expect(screen.getByText("PERFORMING FACILITY")).toBeInTheDocument();
-            expect(screen.getByText("SUBMITTER")).toBeInTheDocument();
-        });
-
-        describe("clicking on a name will render the appropriate detail page", () => {
-            test("facility type provider", async () => {
-                expect(screen.getByText("ORDERING PROVIDER")).toBeVisible();
-                await userEvent.click(screen.getByText("Sally Doctor"));
-
-                expect(screen.getByText("ORDERING PROVIDER")).toBeVisible();
-            });
-
-            test("facility type facility", async () => {
-                expect(screen.getByText("PERFORMING FACILITY")).toBeVisible();
-                await userEvent.click(screen.getByText("AFC Urgent Care"));
-
-                expect(screen.getByText("PERFORMING FACILITY")).toBeVisible();
-            });
-
-            test("facility type submitter", async () => {
-                expect(screen.getByText("SUBMITTER")).toBeVisible();
-                await userEvent.click(screen.getByText("SimpleReport"));
-
-                expect(screen.getByText("SUBMITTER")).toBeVisible();
-            });
-        });
-    });
-
-    describe("with no services", () => {
-        beforeEach(() => {
-            // Mock our receiverServices feed data
-            mockUseOrganizationReceiversFeed.mockReturnValue({
-                activeService: undefined,
-                loadingServices: false,
-                services: [],
-                setActiveService: () => {},
-                isDisabled: false,
-            });
-
-            // Mock our SessionProvider's data
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
-                activeMembership: {
-                    memberType: MemberType.RECEIVER,
-                    parsedName: "testOrgNoReceivers",
-                    service: "testReceiver",
-                },
-                dispatch: () => {},
-                initialized: true,
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                environment: "test",
-            });
-
-            // TODO: Mock the response from the API once ready
-
-            // Render the component
-            renderApp(<FacilitiesProvidersTable />);
-        });
-
-        test("renders the NoServicesBanner message", async () => {
-            const heading = await screen.findByText(
-                "Active Services unavailable"
-            );
-            expect(heading).toBeInTheDocument();
-
-            const message = await screen.findByText(
-                "No valid receiver found for your organization"
-            );
-            expect(message).toBeInTheDocument();
+            expect(screen.getAllByText("SUBMITTER")[0]).toBeInTheDocument();
         });
     });
 });

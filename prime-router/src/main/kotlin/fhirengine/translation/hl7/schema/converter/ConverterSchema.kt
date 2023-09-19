@@ -22,6 +22,11 @@ class ConverterSchema(
     constants: SortedMap<String, String> = sortedMapOf(),
     extends: String? = null
 ) : ConfigSchema<ConverterSchemaElement>(elements = elements, constants = constants, extends = extends) {
+
+    override fun toString(): String {
+        return "${if (extends != null) "$extends->" else ""}$name"
+    }
+
     override fun validate(isChildSchema: Boolean): List<String> {
         if (isChildSchema) {
             if (!hl7Class.isNullOrBlank()) {
@@ -43,11 +48,11 @@ class ConverterSchema(
         return super.validate(isChildSchema)
     }
 
-    override fun merge(childSchema: ConfigSchema<ConverterSchemaElement>): ConfigSchema<ConverterSchemaElement> =
+    override fun override(overrideSchema: ConfigSchema<ConverterSchemaElement>): ConfigSchema<ConverterSchemaElement> =
         apply {
-            check(childSchema is ConverterSchema) { "Child schema ${childSchema.name} not a ConverterSchema." }
-            childSchema.hl7Class?.let { this.hl7Class = childSchema.hl7Class }
-            super.merge(childSchema)
+            check(overrideSchema is ConverterSchema) { "Child schema ${overrideSchema.name} not a ConverterSchema." }
+            overrideSchema.hl7Class?.let { this.hl7Class = overrideSchema.hl7Class }
+            super.override(overrideSchema)
         }
 }
 
@@ -93,6 +98,11 @@ class ConverterSchemaElement(
     valueSet = valueSet,
     debug = debug
 ) {
+
+    override fun toString(): String {
+        return "${if (schema != null) "$schema-" else ""}$name"
+    }
+
     override fun validate(): List<String> {
         when {
             !schema.isNullOrBlank() && hl7Spec.isNotEmpty() ->

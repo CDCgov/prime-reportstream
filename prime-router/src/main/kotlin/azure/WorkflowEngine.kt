@@ -33,9 +33,13 @@ import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
 import gov.cdc.prime.router.transport.SoapTransport
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
+import java.time.Duration
 import java.time.OffsetDateTime
 
 /**
@@ -247,7 +251,7 @@ class WorkflowEngine(
             if (isEmptyReport) {
                 actionHistory.trackGeneratedEmptyReport(nextAction, report, receiver, blobInfo)
             } else {
-                actionHistory.trackCreatedReport(nextAction, report, receiver, blobInfo)
+                actionHistory.trackCreatedReport(nextAction, report, receiver = receiver, blobInfo = blobInfo)
             }
         } catch (e: Exception) {
             // Clean up
@@ -470,6 +474,7 @@ class WorkflowEngine(
                 this.dispatchReport(event, report, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
+
             receiver.timing != null && options != Options.SendImmediately -> {
                 val time = receiver.timing.nextTime()
                 // Always force a batched report to be saved in our INTERNAL format
@@ -478,6 +483,7 @@ class WorkflowEngine(
                 this.dispatchReport(event, batchReport, actionHistory, receiver, txn)
                 loggerMsg = "Queue: ${event.toQueueMessage()}"
             }
+
             receiver.format.isSingleItemFormat -> {
                 report.filteringResults.forEach {
                     val emptyReport = Report(
@@ -500,6 +506,7 @@ class WorkflowEngine(
                     }
                 loggerMsg = "Queued to send immediately: HL7 split into ${report.itemCount} individual reports"
             }
+
             else -> {
                 val event = ReportEvent(Event.EventAction.SEND, report.id, actionHistory.generatingEmptyReport)
                 this.dispatchReport(event, report, actionHistory, receiver, txn)
@@ -644,13 +651,21 @@ class WorkflowEngine(
             val (organization, receiver) = findOrganizationAndReceiver(messageEvent.receiverName, txn)
             // This check is needed as long as TASK does not FK to REPORT_FILE.  @todo FK TASK to REPORT_FILE
             ActionHistory.sanityCheckReports(tasks, reportFiles, false)
-            val headers = tasks.mapNotNull {
-                if (reportFiles[it.reportId] != null) {
-                    createHeader(it, reportFiles[it.reportId]!!, null, organization, receiver)
-                } else {
-                    null
-                }
-            }
+
+            val startTime = OffsetDateTime.now()
+            val headers = runBlocking {
+                tasks.mapNotNull {
+                    async {
+                        if (reportFiles[it.reportId] != null) {
+                            createHeader(it, reportFiles[it.reportId]!!, null, organization, receiver)
+                        } else {
+                            null
+                        }
+                    }
+                }.awaitAll()
+            }.filterNotNull()
+            val duration = Duration.between(startTime, OffsetDateTime.now())
+            logger.info("BatchFunction Downloading reports for batch and creating headers took $duration")
 
             updateBlock(headers, txn)
             // Here we iterate through the original tasks, rather than headers.
@@ -689,6 +704,7 @@ class WorkflowEngine(
                 }
                 result.report
             }
+
             "INTERNAL" -> {
                 csvSerializer.readInternal(
                     header.task.schemaName,
@@ -698,6 +714,7 @@ class WorkflowEngine(
                     header.reportFile.reportId
                 )
             }
+
             else -> error("Unsupported read format")
         }
     }
@@ -874,6 +891,7 @@ class WorkflowEngine(
                     )
                 }
             }
+
             Sender.Format.HL7, Sender.Format.HL7_BATCH -> {
                 try {
                     this.hl7Serializer.readExternal(
@@ -894,6 +912,7 @@ class WorkflowEngine(
                     )
                 }
             }
+
             else -> throw IllegalStateException("Sender format ${sender.format} is not supported")
         }
     }

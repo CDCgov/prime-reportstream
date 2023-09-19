@@ -2,7 +2,7 @@ import { GridContainer } from "@trussworks/react-uswds";
 import React from "react";
 import { useParams } from "react-router-dom";
 
-import { FeatureName } from "../../../AppRouter";
+import { FeatureName } from "../../../utils/FeatureName";
 import { AuthElement } from "../../AuthElement";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import Crumbs, { CrumbsProps } from "../../Crumbs";
@@ -26,12 +26,14 @@ export function ReportDetails() {
 
     return (
         <div className={styles.ReportDetails}>
-            <GridContainer className="rs-max-width-100-important">
+            <header className="usa-header usa-header--extended padding-left-4 padding-top-4 margin-top-neg-5">
                 <Crumbs {...crumbProps}></Crumbs>
+            </header>
+            <GridContainer className="rs-max-width-100-important">
                 <article>
                     <ReportDetailsSummary report={reportDetail} />
                     {withCatchAndSuspense(
-                        <ReportDetailsTable reportId={reportId!!} />
+                        <ReportDetailsTable reportId={reportId!!} />,
                     )}
                     <HipaaNotice />
                 </article>

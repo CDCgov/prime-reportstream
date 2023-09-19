@@ -15,6 +15,7 @@ import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.JwkSet
 import gov.cdc.prime.router.tokens.Scope
 import gov.cdc.prime.router.tokens.authenticationFailure
+import io.swagger.v3.oas.annotations.ExternalDocumentation
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -31,6 +32,8 @@ import io.swagger.v3.oas.annotations.security.OAuthFlows
 import io.swagger.v3.oas.annotations.security.OAuthScope
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.security.SecurityScheme
+import io.swagger.v3.oas.annotations.security.SecuritySchemes
+import io.swagger.v3.oas.annotations.servers.Server
 import org.apache.logging.log4j.kotlin.Logging
 import javax.ws.rs.DELETE
 import javax.ws.rs.GET
@@ -145,33 +148,63 @@ SwIDAQAB
 @OpenAPIDefinition(
     info = Info(
         title = "Prime ReportStream",
-        description = "A router of public health data from senders to receivers",
+        description = "A router of public health data",
         contact = Contact(
             name = "USDS at Centers for Disease Control and Prevention",
             url = "https://reportstream.cdc.gov",
             email = "reportstream@cdc.gov"
         ),
         version = "0.2.0-oas3"
-    )
-)
-@SecurityScheme(
-    name = "primeSecurity",
-    type = SecuritySchemeType.OAUTH2,
-    flows = OAuthFlows(
-        authorizationCode = OAuthFlow(
-            authorizationUrl = "https://hhs-prime.okta.com/oauth/authorize",
-            tokenUrl = "https://hhs-prime.okta.com/oauth/token",
-            scopes = [
-                OAuthScope(
-                    name = "org_admin",
-                    description = "Grants write access to single org"
-                ),
-                OAuthScope(name = "prime_admin", description = "Grants access to admin operations"),
-                OAuthScope(name = "user", description = "Grants read access")
-            ]
+    ),
+    externalDocs = ExternalDocumentation(
+        description = "ReportStream API Programmer Guide",
+        url = "https://staging.reportstream.cdc.gov/resources/api/getting-started"
+    ),
+    security = [
+        SecurityRequirement(name = "primeSecurityOAUTH"),
+        SecurityRequirement(name = "primeSecurityServerToServer")
+    ],
+    servers = [
+        Server(
+            url = "http://localhost:7071/api/",
+            description = "Local Server (Local Development Use)"
+        ),
+        Server(
+            url = "https://staging.prime.cdc.gov/api/",
+            description = "Staging Server"
         )
-    )
+    ]
 )
+
+@SecuritySchemes(
+    value = [
+        SecurityScheme(
+            name = "primeSecurityOAUTH",
+            type = SecuritySchemeType.OAUTH2,
+            flows = OAuthFlows(
+                authorizationCode = OAuthFlow(
+                    authorizationUrl = "https://hhs-prime.oktapreview.com/oauth2/default/v1/authorize",
+                    tokenUrl = "https://hhs-prime.oktapreview.com/oauth2/default/v1/token",
+                    scopes = [
+                        OAuthScope(
+                            name = "openid",
+                            description = "OpenID Request scope"
+                        )
+                    ]
+                )
+            ),
+            description = "OAUTH2 Authorization for Report Stream API Access."
+        ),
+        SecurityScheme(
+            name = "primeSecurityServerToServer",
+            type = SecuritySchemeType.HTTP,
+            scheme = "Bearer",
+            bearerFormat = "JWT",
+            description = "HTTP Bearer Token Authorization for Report Stream API Access."
+        )
+    ]
+)
+
 class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFacade.common) : Logging {
     data class ApiKeysResponse(val orgName: String, val keys: List<JwkSet>)
 
@@ -185,7 +218,7 @@ class ApiKeysFunctions(private val settingsFacade: SettingsFacade = SettingsFaca
         useNewApiResponse: Boolean = false
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
-        if (claims == null || !claims.authorized(setOf(PRIME_ADMIN_PATTERN, "$orgName.*.admin"))) {
+        if (claims == null || !claims.authorized(setOf(PRIME_ADMIN_PATTERN, "$orgName.*.admin", "$orgName.*.user"))) {
             logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
             return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
         }

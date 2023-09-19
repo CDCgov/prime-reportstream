@@ -11,6 +11,8 @@ declare global {
              * for an app (functional) focused page.
              */
             isContentPage?: boolean;
+            isFullWidth?: boolean;
+            isLoginPage?: boolean;
         };
     };
 }

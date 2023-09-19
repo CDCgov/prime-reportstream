@@ -334,74 +334,108 @@ open class BaseHistoryFunction : Logging {
         reportIdIn: String,
         context: ExecutionContext
     ): HttpResponseMessage {
-        val authClaims = checkAuthenticated(request, context)
-            ?: return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+        val claims = AuthenticatedClaims.authenticate(request)
+        val requestOrgName: String = request.headers["organization"]
+            ?: return HttpUtilities.bad(request, "Missing organization in header")
 
-        var response: HttpResponseMessage
-        try {
-            // get the organization based on the header, if it exists, and if it
-            // doesn't, use the organization from the authClaim
-            val reportOrg = workflowEngine.settings.organizations.firstOrNull {
-                it.name.lowercase() == request.headers["organization"]?.lowercase()
-            } ?: authClaims.organization
-            val reportId = ReportId.fromString(reportIdIn)
-            val header = workflowEngine.fetchHeader(reportId, reportOrg)
-            if (header.content == null || header.content.isEmpty())
-                response = request.createResponseBuilder(HttpStatus.NOT_FOUND).build()
-            else {
-                val filename = Report.formExternalFilename(header)
-                val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
-                val report = ReportView.Builder()
-                    .reportId(header.reportFile.reportId.toString())
-                    .sent(header.reportFile.createdAt.toEpochSecond() * 1000)
-                    .via(header.reportFile.bodyFormat)
-                    .total(header.reportFile.itemCount.toLong())
-                    .fileType(header.reportFile.bodyFormat)
-                    .type("ELR")
-                    .expires(header.reportFile.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
-                    .receivingOrg(header.reportFile.receivingOrg)
-                    .receivingOrgSvc(header.reportFile.receivingOrgSvc)
-                    .sendingOrg(header.reportFile.sendingOrg ?: "")
-                    .displayName(
-                        if (header.reportFile.externalName.isNullOrBlank()) header.reportFile.receivingOrgSvc
-                        else header.reportFile.externalName
+        if (claims == null || !claims.authorized(
+                setOf(
+                        PRIME_ADMIN_PATTERN,
+                        "$requestOrgName.*.*",
+                        "$requestOrgName.*.admin",
+                        "$requestOrgName.*.user",
+                        "$requestOrgName.*.*",
+                        "$requestOrgName.*.report"
                     )
-                    .content(String(header.content))
+            )
+        ) {
+            return HttpUtilities.unauthorizedResponse(request)
+        }
+
+        try {
+            val reportId = ReportId.fromString(reportIdIn)
+            val requestedReport = workflowEngine.db.fetchReportFile(reportId)
+            if (requestedReport.receivingOrg != requestOrgName) {
+                return HttpUtilities.notFoundResponse(request)
+            }
+            val contents = if (requestedReport.bodyUrl != null)
+                BlobAccess.downloadBlob(requestedReport.bodyUrl)
+            else {
+                // If the body URL is missing from the report it is likely a sent report that was generated
+                // before a blob was being generated.  This code can be removed after all of those reports
+                // have expired.
+                // To be backwards compatible, the parent report (from the batch step) is fetched and that report
+                // is downloaded
+                val batchReport = workflowEngine.db.fetchParentReport(requestedReport.reportId)
+                if (batchReport == null || batchReport.bodyUrl == null) {
+                    return HttpUtilities.notFoundResponse(request)
+                }
+                BlobAccess.downloadBlob(batchReport.bodyUrl)
+            }
+            if (contents.isEmpty())
+                return HttpUtilities.notFoundResponse(request)
+            else {
+                val filename = Report.formExternalFilename(
+                    requestedReport.bodyUrl,
+                    requestedReport.reportId,
+                    requestedReport.schemaName,
+                    Report.Format.safeValueOf(requestedReport.bodyFormat),
+                    requestedReport.createdAt,
+                )
+                val mimeType = Report.Format.safeValueOf(requestedReport.bodyFormat).mimeType
+                val report = ReportView.Builder()
+                    .reportId(requestedReport.reportId.toString())
+                    .sent(requestedReport.createdAt.toEpochSecond() * 1000)
+                    .via(requestedReport.bodyFormat)
+                    .total(requestedReport.itemCount.toLong())
+                    .fileType(requestedReport.bodyFormat)
+                    .type("ELR")
+                    .expires(requestedReport.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
+                    .receivingOrg(requestedReport.receivingOrg)
+                    .receivingOrgSvc(requestedReport.receivingOrgSvc)
+                    .sendingOrg(requestedReport.sendingOrg ?: "")
+                    .displayName(
+                        if (requestedReport.externalName.isNullOrBlank()) requestedReport.receivingOrgSvc
+                        else requestedReport.externalName
+                    )
+                    .content(String(contents))
                     .fileName(filename)
                     .mimeType(mimeType)
                     .build()
 
-                response = request
+                val response = request
                     .createResponseBuilder(HttpStatus.OK)
                     .header("Content-Type", "application/json")
                     .body(report)
                     .build()
 
-                val actionHistory = ActionHistory(TaskAction.download)
+                val actionHistory = ActionHistory(TaskAction.download, generatingEmptyReport = true)
                 actionHistory.trackActionRequestResponse(request, response)
-                actionHistory.trackActionReceiverInfo(header.reportFile.receivingOrg, header.reportFile.receivingOrgSvc)
+                actionHistory.trackActionReceiverInfo(report.receivingOrg!!, report.receivingOrgSvc!!)
                 // Give the external report_file a new UUID, so we can track its history distinct from the
                 // internal blob.   This is going to be very confusing.
                 val externalReportId = UUID.randomUUID()
                 actionHistory.trackDownloadedReport(
-                    header,
+                    requestedReport,
                     filename,
                     externalReportId,
-                    authClaims.userName,
+                    claims.userName,
                 )
-                actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, externalReportId))
+                actionHistory.trackItemLineages(
+                    workflowEngine.db.fetchItemLineagesForReport(
+                        reportId,
+                        requestedReport.itemCount
+
+                    )
+                )
                 workflowEngine.recordAction(actionHistory)
 
                 return response
             }
         } catch (ex: Exception) {
             context.logger.warning("Exception during download of $reportIdIn - file not found")
-            response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
-                .body("File $reportIdIn not found")
-                .header("Content-Type", "text/html")
-                .build()
+            return HttpUtilities.notFoundResponse(request, "File $reportIdIn not found")
         }
-        return response
     }
 
     fun getFacilitiesForReportId(

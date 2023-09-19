@@ -30,17 +30,17 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "1.8.22"
-    id("org.flywaydb.flyway") version "8.5.13"
+    kotlin("jvm") version "1.9.10"
+    id("org.flywaydb.flyway") version "9.21.2"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("com.microsoft.azure.azurefunctions") version "1.11.1"
-    id("org.jlleitschuh.gradle.ktlint") version "11.4.2"
+    id("com.microsoft.azure.azurefunctions") version "1.13.0"
+    id("org.jlleitschuh.gradle.ktlint") version "11.5.1"
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.8.20"
-    id("com.avast.gradle.docker-compose") version "0.16.12"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
+    id("com.avast.gradle.docker-compose") version "0.17.5"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
     id("com.nocwriter.runsql") version ("1.0.3")
     id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.15"
 }
@@ -53,6 +53,17 @@ val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
 val defaultDuplicateStrategy = DuplicatesStrategy.WARN
 azurefunctions.appName = azureAppName
+val appJvmTarget = "17"
+val javaVersion = when (appJvmTarget) {
+    "17" -> JavaVersion.VERSION_17
+    "19" -> JavaVersion.VERSION_19
+    "21" -> JavaVersion.VERSION_21
+    else -> JavaVersion.VERSION_17
+}
+val ktorVersion = "2.3.2"
+val kotlinVersion = "1.9.10"
+val jacksonVersion = "2.15.2"
+jacoco.toolVersion = "0.8.10"
 
 // Local database information, first one wins:
 // 1. Project properties (-P<VAR>=<VALUE> flag)
@@ -105,25 +116,19 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "2.3.2"
-val kotlinVersion = "1.9.0"
-val jacksonVersion = "2.15.2"
-
-jacoco.toolVersion = "0.8.9"
-
 // Set the compiler JVM target
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
 }
 
 val compileKotlin: KotlinCompile by tasks
 val compileTestKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions.jvmTarget = "11"
+compileKotlin.kotlinOptions.jvmTarget = appJvmTarget
 compileKotlin.kotlinOptions.allWarningsAsErrors = true
 // if you set this to true, you will get a warning, which then gets treated as an error
 compileKotlin.kotlinOptions.useK2 = false
-compileTestKotlin.kotlinOptions.jvmTarget = "11"
+compileTestKotlin.kotlinOptions.jvmTarget = appJvmTarget
 compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
 tasks.clean {
@@ -246,7 +251,7 @@ sourceSets.create("testIntegration") {
 }
 
 val compileTestIntegrationKotlin: KotlinCompile by tasks
-compileTestIntegrationKotlin.kotlinOptions.jvmTarget = "11"
+compileTestIntegrationKotlin.kotlinOptions.jvmTarget = appJvmTarget
 
 val testIntegrationImplementation: Configuration by configurations.getting {
     extendsFrom(configurations["testImplementation"])
@@ -290,6 +295,10 @@ tasks.register<Test>("testIntegration") {
     }
 }
 
+val apiDocsBaseDir = File(project.projectDir, "/docs/api/")
+val apiDocsSpecDir = File(apiDocsBaseDir, "generated")
+val apiDocsSwaggerUIDir = File(apiDocsBaseDir, "swagger-ui")
+val buildSwaggerUIDir = File(project.buildDir, "/swagger-ui/")
 tasks.register<ResolveTask>("generateOpenApi") {
     group = rootProject.description ?: ""
     description = "Generate OpenAPI spec for Report Stream APIs"
@@ -299,14 +308,21 @@ tasks.register<ResolveTask>("generateOpenApi") {
     classpath = sourceSets["main"].runtimeClasspath
     buildClasspath = classpath
     resourcePackages = setOf("gov.cdc.prime.router.azure")
-    outputDir = file("docs/api/generated")
+    outputDir = apiDocsSpecDir
+    dependsOn("compileKotlin")
 }
 
-/**
- * Generate OpenAPI spec right after build
- */
-tasks.named("build") {
-    finalizedBy("generateOpenApi")
+tasks.register<Copy>("copyApiSwaggerUI") {
+    // copy generated OpenAPI spec files
+    // to folder /build/swagger-ui, in azure functions docker,
+    // the api docs and swagger ui resources are upload to azure
+    // blob container 'apidocs' - where the api docs is hosted.
+    from(apiDocsSpecDir) {
+        include("*.yaml")
+    }
+    from(apiDocsSwaggerUIDir)
+    into(buildSwaggerUIDir)
+    dependsOn("generateOpenApi")
 }
 
 tasks.withType<Test>().configureEach {
@@ -474,11 +490,13 @@ val azureScriptsTmpDir = File(rootProject.buildDir.path, "$azureFunctionsDir-scr
 val azureScriptsFinalDir = rootProject.buildDir
 val primeScriptName = "prime"
 val startFuncScriptName = "start_func.sh"
+val apiDocsSetupScriptName = "upload_swaggerui.sh"
 tasks.register<Copy>("gatherAzureScripts") {
     from("./")
     into(azureScriptsTmpDir)
     include(primeScriptName)
     include(startFuncScriptName)
+    include(apiDocsSetupScriptName)
 }
 
 tasks.register("copyAzureScripts") {
@@ -488,6 +506,7 @@ tasks.register("copyAzureScripts") {
         FileUtils.copyDirectory(azureScriptsTmpDir, azureScriptsFinalDir)
         File(azureScriptsFinalDir.path, primeScriptName).setExecutable(true)
         File(azureScriptsFinalDir.path, startFuncScriptName).setExecutable(true)
+        File(azureScriptsFinalDir.path, apiDocsSetupScriptName).setExecutable(true)
     }
 }
 
@@ -499,17 +518,19 @@ tasks.azureFunctionsPackage {
 tasks.register("package") {
     group = rootProject.description ?: ""
     description = "Package the code and necessary files to run the Azure functions"
+    // copy the api docs swagger ui to the build location
+    dependsOn("copyApiSwaggerUI")
     dependsOn("azureFunctionsPackage")
-    dependsOn("fatJar")
+    dependsOn("fatJar").mustRunAfter("azureFunctionsPackage")
 }
 
 tasks.register("quickPackage") {
     group = rootProject.description ?: ""
     description = "Package the code and necessary files to run the Azure functions skipping unit tests and migration"
+    // copy the api docs swagger ui to the build location
+    dependsOn("copyApiSwaggerUI")
     // Quick package for development purposes.  Use with caution.
     dependsOn("azureFunctionsPackage")
-    dependsOn("copyAzureResources")
-    dependsOn("copyAzureScripts")
     tasks["test"].enabled = false
     tasks["jacocoTestReport"].enabled = false
     tasks["compileTestKotlin"].enabled = false
@@ -528,10 +549,15 @@ dockerCompose {
     startedServices.addAll("sftp", "soap-webservice", "rest-webservice", "vault", "azurite")
     stopContainers.set(false)
     waitForTcpPorts.set(false)
+    // Starting in version 0.17 the plugin changed the default to true, meaning our docker compose yaml files
+    // get run with `docker compose` rather than `docker-compose`
+    useDockerComposeV2.set(false)
 }
 
 tasks.azureFunctionsRun {
     dependsOn("composeUp")
+    dependsOn("uploadSwaggerUI").mustRunAfter("composeUp")
+
     // This storage account key is not a secret, just a dummy value.
     val devAzureConnectString =
         "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=" +
@@ -558,16 +584,31 @@ tasks.azureFunctionsRun {
     azurefunctions.localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
 }
 
+task<Exec>("uploadSwaggerUI") {
+    dependsOn("copyApiSwaggerUI")
+    group = rootProject.description ?: ""
+    description = "Upload swagger ui and API docs to azure storage blob container"
+    commandLine("./upload_swaggerui.sh")
+}
+
+tasks.register("killFunc") {
+    exec {
+        workingDir = project.rootDir
+        val processName = "func"
+        commandLine = listOf("sh", "-c", "pkill -9 $processName || true")
+    }
+}
+
 tasks.register("run") {
     group = rootProject.description ?: ""
     description = "Run the Azure functions locally.  Note this needs the required services running as well"
-    dependsOn("azureFunctionsRun")
+    dependsOn("killFunc", "azureFunctionsRun")
 }
 
 tasks.register("quickRun") {
     group = rootProject.description ?: ""
     description = "Run the Azure functions locally skipping tests and migration"
-    dependsOn("azureFunctionsRun")
+    dependsOn("killFunc", "azureFunctionsRun")
     tasks["test"].enabled = false
     tasks["jacocoTestReport"].enabled = false
     tasks["compileTestKotlin"].enabled = false
@@ -673,6 +714,7 @@ tasks.register("migrate") {
 tasks.register("resetDB") {
     group = rootProject.description ?: ""
     description = "Delete all tables in the database and recreate from the latest schema"
+    flyway.cleanDisabled = false
     dependsOn("flywayClean")
     dependsOn("flywayMigrate")
 }
@@ -744,21 +786,21 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
-    implementation("com.azure:azure-core:1.41.0")
-    implementation("com.azure:azure-core-http-netty:1.13.5")
+    implementation("com.azure:azure-core:1.43.0")
+    implementation("com.azure:azure-core-http-netty:1.13.7")
     implementation("com.azure:azure-storage-blob:12.22.3") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.15.2") {
+    implementation("com.azure:azure-storage-queue:12.18.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.6.0") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.6.5") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.8.3") {
+    implementation("com.azure:azure-identity:1.10.0") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -766,7 +808,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:[2.17.1,)")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.17.1,)")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.2.0")
-    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.1")
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.2")
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.5.4")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
@@ -781,8 +823,9 @@ dependencies {
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.4.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.16")
-    implementation("org.thymeleaf:thymeleaf:3.1.1.RELEASE")
+    implementation("ca.uhn.hapi:hapi-structures-v27:2.3")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.19")
+    implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1") {
@@ -792,24 +835,22 @@ dependencies {
     implementation("org.json:json:20230618")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.32.0")
-    implementation("org.bouncycastle:bcprov-jdk15on:1.70")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.poi:poi:5.2.3")
     implementation("org.apache.commons:commons-csv:1.10.0")
-    implementation("org.apache.commons:commons-lang3:3.12.0")
+    implementation("org.apache.commons:commons-lang3:3.13.0")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("commons-codec:commons-codec:1.16.0")
     implementation("commons-io:commons-io:2.13.0")
     implementation("org.postgresql:postgresql:42.6.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
-    implementation("org.flywaydb:flyway-core:9.7.0")
+    implementation("org.flywaydb:flyway-core:9.21.2")
     implementation("org.commonmark:commonmark:0.21.0")
-    implementation("com.google.guava:guava:32.1.1-jre")
-    implementation("com.helger.as2:as2-lib:5.1.0")
-    // Prevent mixed versions of these libs based on different versions being included by different packages
-    implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
-    implementation("org.bouncycastle:bcmail-jdk15on:1.70")
-    implementation("org.bouncycastle:bcprov-jdk15on:1.70")
+    implementation("com.google.guava:guava:32.1.2-jre")
+    implementation("com.helger.as2:as2-lib:5.1.1")
+    implementation("org.bouncycastle:bcprov-jdk15to18:1.76")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.76")
+    implementation("org.bouncycastle:bcmail-jdk15to18:1.76")
 
     implementation("commons-net:commons-net:3.9.0")
     implementation("com.cronutils:cron-utils:9.2.1")
@@ -855,17 +896,17 @@ dependencies {
         exclude(group = "com.github.kittinunf.fuel", module = "fuel")
     }
     // kotlinx-coroutines-core is needed by mock-fuel
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.13.5")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.3")
+    testImplementation("io.mockk:mockk:1.13.7")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.3")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
-    testImplementation("org.testcontainers:testcontainers:1.18.3")
-    testImplementation("org.testcontainers:junit-jupiter:1.18.3")
-    testImplementation("org.testcontainers:postgresql:1.18.3")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    testImplementation("org.testcontainers:testcontainers:1.19.0")
+    testImplementation("org.testcontainers:junit-jupiter:1.19.0")
+    testImplementation("org.testcontainers:postgresql:1.19.0")
 
     implementation(kotlin("script-runtime"))
 }

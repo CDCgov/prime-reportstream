@@ -2,6 +2,8 @@ package gov.cdc.prime.router.cli.tests
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.PrintMessage
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.extensions.authentication
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
@@ -11,6 +13,7 @@ import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.Sender
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.WorkflowEngine
+import gov.cdc.prime.router.cli.CommandUtilities
 import gov.cdc.prime.router.cli.DeleteSenderSetting
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.cli.GetSenderSetting
@@ -36,6 +39,7 @@ import java.util.UUID
 class OktaAuthTests : CoolTest() {
     override val name = "oktaauth"
     override val description = "Test Okta Authorization and Authentication of various waters endpoints"
+
     // Not SMOKE because it requires login to do settings stuff.  Can't automate.  Doesn't work on Staging.
     override val status = TestStatus.DRAFT
 
@@ -64,19 +68,26 @@ class OktaAuthTests : CoolTest() {
             )
         }
 
-        fun getOktaAccessTok(environment: Environment): String {
-            return OktaCommand.fetchAccessToken(environment.oktaApp)
-                ?: abort(
-                    "Test needs a valid okta access token for the settings API." +
-                        " Run ./prime login to fetch/refresh your access token."
-                )
-        }
-
-        fun getOktaAccessTokOrLocal(environment: Environment): String {
+        /**
+         * The access token left by a previous login command as specified by the command line parameters
+         * @param environment Where is the test hitting? Staging, Local?
+         * @param testName Name of test for logging
+         * @return The access token if we're in the oktaApp environment, otherwise "dummy"
+         */
+        fun getOktaAccessToken(
+            environment: Environment,
+            testName: String = ""
+        ): String {
             return if (environment.oktaApp == null) {
                 accessTokenDummy
             } else {
-                getOktaAccessTok(environment)
+                OktaCommand.fetchAccessToken(environment.oktaApp)
+                    ?: CommandUtilities.abort(
+                        "Cannot run test $testName. Invalid access token. " +
+                            "Run ./prime login to fetch/refresh a PrimeAdmin access token for " +
+                            "the $environment environment."
+
+                    )
             }
         }
     }
@@ -90,7 +101,7 @@ class OktaAuthTests : CoolTest() {
         val sender2 = defaultIgnoreSender
 
         val myFakeReportFile = createFakeReport(sender1)
-        val oktaToken = getOktaAccessTokOrLocal(environment)
+        val oktaToken = getOktaAccessToken(environment)
 
         // Now submit a report to org1 and get its reportId1
         val (responseCode1, json1) = HttpUtilities.postReportFileToWatersApi(
@@ -467,7 +478,7 @@ class Server2ServerAuthTests : CoolTest() {
             schemaName = "primedatainput/pdi-covid-19"
         )
 
-        val oktaSettingAccessTok = OktaAuthTests.getOktaAccessTokOrLocal(settingsEnv) // ironic: still need okta
+        val oktaSettingAccessTok = OktaAuthTests.getOktaAccessToken(settingsEnv) // ironic: still need okta
 
         // save the new sender to the Settings.
         PutSenderSetting()
@@ -513,7 +524,7 @@ class Server2ServerAuthTests : CoolTest() {
         PutOrganizationSetting()
             .put(
                 settingsEnv,
-                OktaAuthTests.getOktaAccessTokOrLocal(settingsEnv),
+                OktaAuthTests.getOktaAccessToken(settingsEnv),
                 SettingCommand.SettingType.ORGANIZATION,
                 organizationPlusNewKey.name,
                 jacksonObjectMapper().writeValueAsString(organizationPlusNewKey)
@@ -548,7 +559,7 @@ class Server2ServerAuthTests : CoolTest() {
         DeleteSenderSetting()
             .delete(
                 settingsEnv,
-                OktaAuthTests.getOktaAccessTokOrLocal(settingsEnv),
+                OktaAuthTests.getOktaAccessToken(settingsEnv),
                 SettingCommand.SettingType.SENDER,
                 sender.fullName
             )
@@ -924,6 +935,11 @@ class Server2ServerAuthTests : CoolTest() {
             passed = passed and server2ServerReportDetailsAuthTests(
                 environment, org1.name, org2.name, reportId1, reportId2, token1, token2
             )
+            if (environment.envName == Environment.STAGING.envName) {
+                // PrimeAdmin tests cannot be run locally as they need Okta credentials, even in Server2Server
+                passed = passed and server2ServerSettingsAuthTests(environment, token1, org1, org2)
+                passed = passed and server2ServerSettingsAuthTests(environment, token2, org2, org1)
+            }
             passed = passed and server2ServerLookupTableSmokeTests(environment, token1)
             passed = passed and server2ServerLookupTableSmokeTests(environment, token2)
         } finally {
@@ -1124,6 +1140,99 @@ class Server2ServerAuthTests : CoolTest() {
         val passed = historyApiTest.runHistoryTestCases(testCases)
         this.outputMsgs.addAll(historyApiTest.outputMsgs)
         return passed
+    }
+
+    /**
+     * Test fetching organization settings with a normal user and an admin
+     * @param environment Where is the test hitting? Staging, Local?
+     * @param userToken General user token for unauthorized test cases
+     * @param authorizedOrg Organization that the general user belongs to
+     * @param unauthorizedOrg Organization that the general user DOES NOT belong to
+     * @return true if all tests pass, else false
+     */
+    private fun server2ServerSettingsAuthTests(
+        environment: Environment,
+        userToken: String,
+        authorizedOrg: Organization,
+        unauthorizedOrg: Organization
+    ): Boolean {
+        ugly("Starting $name Test: test settings/organizations queries using server2server auth.")
+        val advice = "Run   ./prime login --env staging    " +
+            "to fetch/refresh a **PrimeAdmin** access token for the Staging environment."
+        val adminToken = OktaCommand.fetchAccessToken(OktaCommand.OktaApp.DH_STAGE) ?: OktaAuthTests.abort(
+            "The Okta PrimeAdmin tests use a Staging Okta token, even locally, which is not available. $advice"
+        )
+        val orgEndpoint = "${environment.url}/api/settings/organizations"
+
+        // Case: GET All Org Settings (Admin-only endpoint)
+        // Unhappy Path: user on admin-only endpoint
+        val (_, responseUserGetAllOrgs) = Fuel.get(orgEndpoint)
+            .authentication()
+            .bearer(userToken)
+            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+            .responseString()
+        if (responseUserGetAllOrgs.statusCode != HttpStatus.UNAUTHORIZED.value()) {
+            bad(
+                "***$name Test settings/organizations Unhappy Path (user-GET All Orgs) FAILED:" +
+                    " Expected HttpStatus ${HttpStatus.UNAUTHORIZED}. Got ${responseUserGetAllOrgs.statusCode}"
+            )
+            return false
+        }
+        // Happy Path: admin on admin-only endpoint
+        val (_, responseAdminGetAllOrgs) = Fuel.get(orgEndpoint)
+            .authentication()
+            .bearer(adminToken)
+            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+            .responseString()
+        if (responseAdminGetAllOrgs.statusCode != HttpStatus.OK.value()) {
+            bad(
+                "***$name Test settings/organizations Happy Path (admin-GET All Orgs) FAILED:" +
+                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseAdminGetAllOrgs.statusCode}"
+            )
+            return false
+        }
+
+        // Case: GET Receivers for an Org (Endpoint allowed for admins and members of the org)
+        // Happy Path: user on user-allowed endpoint
+        val (_, responseUserGet) = Fuel.get("$orgEndpoint/${authorizedOrg.name}/receivers")
+            .authentication()
+            .bearer(userToken)
+            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+            .responseString()
+        if (responseUserGet.statusCode != HttpStatus.OK.value()) {
+            bad(
+                "***$name Test settings/organizations Happy Path (user-GET Org Receivers) FAILED:" +
+                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseUserGet.statusCode}"
+            )
+            return false
+        }
+        // Happy Path: admin on user-allowed endpoint
+        val (_, responseAdminGet) = Fuel.get("$orgEndpoint/${authorizedOrg.name}/receivers")
+            .authentication()
+            .bearer(adminToken)
+            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+            .responseString()
+        if (responseAdminGet.statusCode != HttpStatus.OK.value()) {
+            bad(
+                "***$name Test settings/organizations Happy Path (admin-GET Org Receivers) FAILED:" +
+                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseAdminGet.statusCode}"
+            )
+            return false
+        }
+        // UnhappyPath: user on an unauthorized org name
+        val (_, responseUnauthorizedOrg) = Fuel.get("$orgEndpoint/${unauthorizedOrg.name}/receivers")
+            .authentication()
+            .bearer(userToken)
+            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+            .responseString()
+        if (responseUnauthorizedOrg.statusCode != HttpStatus.UNAUTHORIZED.value()) {
+            bad(
+                "***$name Test settings/organizations Unhappy Path (user-GET Unauthorized Org Receivers) FAILED:" +
+                    " Expected HttpStatus ${HttpStatus.UNAUTHORIZED}. Got ${responseUnauthorizedOrg.statusCode}"
+            )
+            return false
+        }
+        return true
     }
 }
 

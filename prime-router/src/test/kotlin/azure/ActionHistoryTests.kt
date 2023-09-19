@@ -19,10 +19,11 @@ import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.ReportFile
-import gov.cdc.prime.router.azure.db.tables.pojos.Task
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkClass
+import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
 import java.time.OffsetDateTime
@@ -202,7 +203,7 @@ class ActionHistoryTests {
         )
         val actionHistory1 = ActionHistory(TaskAction.receive)
         val blobInfo1 = BlobAccess.BlobInfo(Report.Format.CSV, "myUrl", byteArrayOf(0x11, 0x22))
-        actionHistory1.trackCreatedReport(event1, report1, blobInfo1)
+        actionHistory1.trackCreatedReport(event1, report1, blobInfo = blobInfo1)
 
         assertThat(actionHistory1.reportsOut[report1.id]).isNotNull()
         val reportFile = actionHistory1.reportsOut[report1.id]!!
@@ -216,7 +217,7 @@ class ActionHistoryTests {
         assertThat(reportFile.itemCount).isEqualTo(0)
 
         // not allowed to track the same report twice.
-        assertThat { actionHistory1.trackCreatedReport(event1, report1, blobInfo1) }.isFailure()
+        assertThat { actionHistory1.trackCreatedReport(event1, report1, blobInfo = blobInfo1) }.isFailure()
     }
 
     @Test
@@ -230,7 +231,7 @@ class ActionHistoryTests {
             metadata = UnitTestUtils.simpleMetadata
         )
         val actionHistory1 = ActionHistory(TaskAction.receive)
-        actionHistory1.trackCreatedReport(event1, report1, null)
+        actionHistory1.trackCreatedReport(event1, report1)
 
         assertThat(actionHistory1.reportsOut[report1.id]).isNotNull()
         val reportFile = actionHistory1.reportsOut[report1.id]!!
@@ -244,7 +245,7 @@ class ActionHistoryTests {
         assertThat(reportFile.itemCount).isEqualTo(0)
 
         // not allowed to track the same report twice.
-        assertThat { actionHistory1.trackCreatedReport(event1, report1, null) }.isFailure()
+        assertThat { actionHistory1.trackCreatedReport(event1, report1) }.isFailure()
     }
 
     @Test
@@ -279,9 +280,21 @@ class ActionHistoryTests {
                     )
                 )
             )
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.uploadBody(any(), any(), any(), any()) } returns BlobAccess.BlobInfo(
+            Report.Format.HL7,
+            "http://blobUrl",
+            "".toByteArray()
+        )
+        val header = mockk<WorkflowEngine.Header>()
+        val inReportFile = mockk<ReportFile>()
+        every { header.reportFile } returns inReportFile
+        every { header.content } returns "".toByteArray()
+        every { inReportFile.itemCount } returns 15
         val orgReceiver = org.receivers[0]
         val actionHistory1 = ActionHistory(TaskAction.receive)
-        actionHistory1.trackSentReport(orgReceiver, uuid, "filename1", "params1", "result1", 15)
+        actionHistory1.action
+        actionHistory1.trackSentReport(orgReceiver, uuid, "filename1", "params1", "result1", header)
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
         val reportFile = actionHistory1.reportsOut[uuid]!!
         assertThat(reportFile.schemaName).isEqualTo("schema1")
@@ -293,14 +306,14 @@ class ActionHistoryTests {
         assertThat(reportFile.receivingOrgSvc).isEqualTo("myService")
         assertThat(reportFile.bodyFormat).isEqualTo("CSV")
         assertThat(reportFile.sendingOrg).isNull()
-        assertThat(reportFile.bodyUrl).isNull()
-        assertThat(reportFile.blobDigest).isNull()
+        assertThat(reportFile.bodyUrl).isEqualTo("http://blobUrl")
+        assertThat(reportFile.blobDigest).isEqualTo("".toByteArray())
         assertThat(reportFile.itemCount).isEqualTo(15)
         assertThat(actionHistory1.action.externalName).isEqualTo("filename1")
         // not allowed to track the same report twice.
         assertThat {
             actionHistory1.trackSentReport(
-                orgReceiver, uuid, "filename1", "params1", "result1", 15
+                orgReceiver, uuid, "filename1", "params1", "result1", header
             )
         }.isFailure()
     }
@@ -315,26 +328,9 @@ class ActionHistoryTests {
         reportFile1.reportId = uuid
         reportFile1.receivingOrg = "myOrg"
         reportFile1.receivingOrgSvc = "myRcvr"
-        // As of this writing, lineage is taken from the parent report obj, not the org/receiver obj.
-        val org =
-            DeepOrganization(
-                name = "orgX",
-                description = "blah blah",
-                jurisdiction = Organization.Jurisdiction.FEDERAL,
-                receivers = listOf(
-                    Receiver(
-                        "receiverX", "myOrg", Topic.TEST, CustomerStatus.INACTIVE, "schema",
-                        format = Report.Format.HL7
-                    )
-                )
-            )
-        val schema = Schema("schema", Topic.TEST)
-        val header = WorkflowEngine.Header(
-            Task(), reportFile1, null, org, org.receivers[0], schema, "".toByteArray(), true
-        )
         val actionHistory1 = ActionHistory(TaskAction.download)
         val uuid2 = UUID.randomUUID()
-        actionHistory1.trackDownloadedReport(header, "filename1", uuid2, "bob")
+        actionHistory1.trackDownloadedReport(reportFile1, "filename1", uuid2, "bob")
         assertThat(actionHistory1.reportsOut[uuid2]).isNotNull()
         val reportFile2 = actionHistory1.reportsOut[uuid2]!!
         assertThat(reportFile2.receivingOrgSvc).isEqualTo("myRcvr")
@@ -348,7 +344,7 @@ class ActionHistoryTests {
         // not allowed to track the same report twice.
         assertThat {
             actionHistory1.trackDownloadedReport(
-                header, "filename1", uuid2, "bob"
+                reportFile1, "filename1", uuid2, "bob"
             )
         }.isFailure()
     }

@@ -228,7 +228,7 @@ class FhirTransformSchemaTests {
     fun `test merge of schema with unnamed element`() {
         val schemaA = FhirTransformSchema(elements = mutableListOf((FhirTransformSchemaElement())))
         val schemaB = FhirTransformSchema(elements = mutableListOf((FhirTransformSchemaElement())))
-        assertThat { schemaA.merge(schemaB) }.isFailure()
+        assertThat { schemaA.override(schemaB) }.isFailure()
     }
 
     @Test
@@ -249,8 +249,8 @@ class FhirTransformSchemaTests {
             )
         )
 
-        assertThat(schema.findElement("parent2")).isEqualTo(schema.elements[1])
-        assertThat(schema.findElement("child2")).isEqualTo(childSchema.elements[1])
+        assertThat(schema.findElements("parent2")[0]).isEqualTo(schema.elements[1])
+        assertThat(schema.findElements("child2")[0]).isEqualTo(childSchema.elements[1])
     }
 
     @Test
@@ -289,7 +289,7 @@ class FhirTransformSchemaTests {
         )
         schema.name = "testSchema"
 
-        baseSchema.merge(parentSchema).merge(schema)
+        baseSchema.override(parentSchema).override(schema)
         assertThat((baseSchema.elements[0]).required).isEqualTo((schema.elements[0]).required)
         assertThat(referencedSchema.elements[1].condition).isEqualTo(schema.elements[1].condition)
         assertThat(baseSchema.elements.last().name).isEqualTo(schema.elements[2].name)

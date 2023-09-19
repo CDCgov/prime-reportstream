@@ -46,6 +46,22 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
      */
     private var validationErrors: MutableSet<String> = mutableSetOf()
 
+    /**
+     * Returns count of duplicate elements in the schema
+     *
+     * Root -> A -> C
+     *         B -> C
+     *
+     *      vs
+     *
+     * Root -> A -> B -> D
+     *           -> C -> D
+     *
+     * The first graph will contain duplicate elements, but the second will not
+     *
+     * @returns the duplicate elements contained in the first or second nested schemas
+     *
+     */
     val duplicateElements: Map<String?, Int>
         get() = (
             elements.filter { it.name != null } +
@@ -90,32 +106,36 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
     }
 
     /**
-     * Merge a [childSchema] into this one.
+     * This function enables overriding elements in this config schema with the passed overrides
+     *
+     * It works by iterating over the elements of the override schema and finding all the
+     * [ConfigSchemaElement] in [this] with the same [name] and calling merge on the schema elements
+     * @param overrideSchema the schema to override with
      * @return the reference to the schema
      */
-    open fun merge(childSchema: ConfigSchema<T>) = apply {
-        childSchema.elements.forEach { childElement ->
+    open fun override(overrideSchema: ConfigSchema<T>) = apply {
+        overrideSchema.elements.forEach { childElement ->
             // If we find the element in the schema then replace it, otherwise add it.
             if (childElement.name.isNullOrBlank()) {
-                throw SchemaException("Child schema ${childSchema.name} found with element with no name.")
+                throw SchemaException("Child schema ${overrideSchema.name} found with element with no name.")
             }
-            val elementInSchema = findElement(childElement.name!!)
-            if (elementInSchema != null) {
-                elementInSchema.merge(childElement)
+            val elementInSchemas = findElements(childElement.name!!)
+            if (elementInSchemas.isNotEmpty()) {
+                elementInSchemas.forEach { it.merge(childElement) }
             } else {
                 this.elements.add(childElement)
             }
         }
-        this.constants.putAll(childSchema.constants)
-        this.name = childSchema.name
+        this.constants.putAll(overrideSchema.constants)
+        this.name = overrideSchema.name
     }
 
     /**
-     * Find an [elementName] in this schema. This function recursively traverses the entire schema tree to find the
-     * element.
-     * @return the element found or null if not found
+     * Find an [elementName] in this schema. This function recursively traverses the entire schema tree to find all
+     * instances of the element.
+     * @return list of the found elements
      */
-    internal fun findElement(elementName: String): ConfigSchemaElement? {
+    internal fun findElements(elementName: String): List<ConfigSchemaElement> {
         // First try to find the element at this level in the schema.
         var elementsInSchema: List<ConfigSchemaElement> = elements.filter { elementName == it.name }
 
@@ -126,12 +146,10 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
             // Why the distinct? A schema can make references to the same schema multiple times, so you could get
             // a list of elements that are identical, so we make sure to get only those that at different.
             elementsInSchema = elements.filter { it.schemaRef != null }.mapNotNull {
-                it.schemaRef?.findElement(elementName)
-            }.distinct()
+                it.schemaRef?.findElements(elementName)
+            }.flatten().distinct()
         }
-        // Sanity check
-        check(elementsInSchema.size <= 1)
-        return if (elementsInSchema.isEmpty()) null else elementsInSchema[0]
+        return elementsInSchema
     }
 }
 

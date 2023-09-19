@@ -35,13 +35,13 @@ describe("WarningsErrors component", () => {
         const firstCells = await within(rows[1]).findAllByRole("cell");
         expect(firstCells).toHaveLength(3);
         expect(firstCells[0]).toHaveTextContent(
-            "Specimen_type_code (specimen_type)"
+            "Specimen_type_code (specimen_type)",
         );
         expect(firstCells[1]).toHaveTextContent(
-            "Invalid code: is not a display value in altValues set for Specimen_type_code (specimen_type)."
+            "Invalid code: is not a display value in altValues set for Specimen_type_code (specimen_type).",
         );
         expect(firstCells[2]).toHaveTextContent(
-            "gov.cdc.prime.router.InvalidCodeMessage"
+            "gov.cdc.prime.router.InvalidCodeMessage",
         );
     });
 });

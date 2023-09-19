@@ -147,7 +147,8 @@ class ReportFileDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAcces
         return db.transactReturning { txn ->
             search.fetchResults(
                 DSL.using(txn),
-                DSL.select(ReportFile.REPORT_FILE.asterisk()).from(ReportFile.REPORT_FILE)
+                ReportFile.REPORT_FILE.asterisk(),
+                ReportFile.REPORT_FILE,
             )
         }
     }

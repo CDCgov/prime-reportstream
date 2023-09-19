@@ -6,7 +6,9 @@ import assertk.assertions.isNull
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.RESTTransportType
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
@@ -36,6 +38,7 @@ import io.ktor.utils.io.core.Input
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
@@ -51,6 +54,12 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
     private val metadata = Metadata.getInstance()
     private val settings = FileSettings(FileSettings.defaultSettingsDirectory)
     private val responseHeaders = headersOf("Content-Type" to listOf("application/json;charset=UTF-8"))
+
+    private fun mockClientStringTokenOk(): HttpClient {
+        return mockJsonResponseWithSuccess(
+            "RjY2NjM5NzA2OWJjuE7c"
+        )
+    }
 
     private fun mockClientAuthOk(): HttpClient {
         return mockJsonResponseWithSuccess(
@@ -143,8 +152,8 @@ class RESTTransportIntegrationTests : TransportIntegrationTests() {
         headers = mapOf("mock-h1" to "value-h1", "mock-h2" to "value-h2")
     )
     private val flexionRestTransportType = RESTTransportType(
-        "v1/etor/demographics",
-        "v1/auth",
+        "v1/etor/orders",
+        "v1/auth/token",
         "two-legged",
         null,
         mapOf("mock-p1" to "value-p1", "mock-p2" to "value-p2"),
@@ -179,6 +188,15 @@ Q/U1SwKBgQDZF6UkkOeBh4TKDQl0aXTvstIQ/ChdGm6qVm9ksxlupudEeHhDO2MD
 hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
 -----END RSA PRIVATE KEY-----
     """
+
+    private val nbsRestTransportTypeLive = RESTTransportType(
+        "dataingestion.datateam-cdc-nbs.eqsandbox.com/api/reports",
+        "dataingestion.datateam-cdc-nbs.eqsandbox.com/token",
+        headers = mapOf(
+            "Host" to "dataingestion.datateam-cdc-nbs.eqsandbox.com",
+            "msgType" to "HL7"
+        )
+    )
 
     private val task = Task(
         reportId,
@@ -260,6 +278,16 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
     @BeforeEach
     fun reset() {
         actionHistory = ActionHistory(TaskAction.send)
+        mockkObject(BlobAccess.Companion)
+        every {
+            BlobAccess.uploadBody(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns BlobAccess.BlobInfo(Report.Format.HL7, "", "".toByteArray())
     }
 
     @Test
@@ -492,6 +520,56 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
 
         val retryItems = mockRestTransport.send(
             flexionRestTransportType, header, reportId, null,
+            context, actionHistory
+        )
+        assertThat(retryItems).isNull()
+    }
+
+    @Test
+    fun `test getAuthTokenWithUserPass with transport for CDC NBS`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientStringTokenOk()))
+
+        // Given:
+        //      lookupDefaultCredential returns mock UserPassCredential object to allow
+        //      the getAuthTokenWithUserPass() to be called.
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserPassCredential(
+                "test-user",
+                "test-apikey"
+            )
+        )
+
+        // When:
+        //      RESTTransport is called WITH transport.parameters empty
+        val retryItems = mockRestTransport.send(
+            nbsRestTransportTypeLive, header, reportId, null,
+            context, actionHistory
+        )
+
+        // Then:
+        //      getAuthTokenWithUserApiKey should be called with transport.parameters empty
+        verify {
+            runBlocking {
+                mockRestTransport.lookupDefaultCredential(any())
+                mockRestTransport.getAuthTokenWithUserPass(nbsRestTransportTypeLive.authTokenUrl, any(), any(), any())
+            }
+        }
+        assertThat(retryItems).isNull()
+    }
+
+    @Test
+    fun `test with localhost Nbs`() {
+        val header = makeHeader()
+        val mockRestTransport = spyk(RESTTransport(mockClientPostOk()))
+        every { mockRestTransport.lookupDefaultCredential(any()) }.returns(
+            UserPassCredential("mock-user", "mock-pass")
+        )
+        every { runBlocking { mockRestTransport.getAuthTokenWithUserPass(any(), any(), any(), any()) } }.returns(
+            TokenInfo(accessToken = "MockToken", tokenType = "bearer")
+        )
+        val retryItems = mockRestTransport.send(
+            nbsRestTransportTypeLive, header, reportId, null,
             context, actionHistory
         )
         assertThat(retryItems).isNull()

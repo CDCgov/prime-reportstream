@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+FILE="$(dirname -- "$0")/_/husky.sh"
+
+if [ ! -f "$FILE" ]; then
+    echo "$FILE does not exist. Please make sure you run yarn first."
+    exit 1
+fi
+
+. "$FILE"
+# we need to enter frontend-react from monorepo root.
+# won't be needed when frontend is its own repo.
+cd frontend-react
+
+./scripts/yarn-check.sh
+yarn lint-staged
+yarn test -o

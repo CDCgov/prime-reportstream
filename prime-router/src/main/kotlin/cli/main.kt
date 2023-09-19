@@ -130,7 +130,7 @@ class GenerateDocs : CliktCommand(
         metavar = "<path>",
         help = "write documentation to this file (should not include extension)"
     )
-    private val defaultOutputDir = "docs/schema_documentation"
+    private val defaultOutputDir = "docs/docs-deprecated/schema_documentation"
     private val outputDir by option(
         "--output-dir",
         metavar = "<path>",
@@ -291,6 +291,7 @@ fun main(args: Array<String>) = RouterCli()
         SenderFilesCommand(),
         ProcessFhirCommands(),
         FhirPathCommand(),
-        ConvertValuesetsYamlToCSV()
+        ConvertValuesetsYamlToCSV(),
+        ProcessHl7Commands()
     )
     .main(args)

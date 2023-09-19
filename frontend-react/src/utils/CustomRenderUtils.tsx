@@ -32,10 +32,11 @@ function TestLayout() {
 
 function createTestRoutes(
     routes: RouteObject[],
-    element: React.ReactNode
+    element: React.ReactNode,
 ): RouteObject[] {
     return routes.map((r) => ({
         ...r,
+        lazy: undefined,
         element: r.path !== "/" ? element : <TestLayout />,
         children: r.children
             ? createTestRoutes(r.children, element)
@@ -62,7 +63,7 @@ export const AppWrapper = ({
             createTestRoutes(appRoutes, children),
             {
                 initialEntries: initialRouteEntries,
-            }
+            },
         );
         return (
             <CacheProvider>
@@ -98,7 +99,7 @@ export const renderApp = (
         initialRouteEntries,
         restHookFixtures,
         ...options
-    }: Omit<RenderAppOptions, "wrapper"> = {}
+    }: Omit<RenderAppOptions, "wrapper"> = {},
 ) => {
     return render(ui, {
         wrapper: AppWrapper({ initialRouteEntries, restHookFixtures }),

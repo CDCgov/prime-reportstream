@@ -69,6 +69,7 @@ class AuthenticatedClaims : Logging {
                     jwtClaims[oktaMembershipClaim] as? Collection<String> ?: error("No memberships in claims")
                 this.scopes = Scope.mapOktaGroupsToScopes(memberships)
             }
+
             AuthenticationType.Server2Server -> {
                 // todo this assumes a single scope.  Need to add support for multiple scopes.
                 val claimsScope = _jwtClaims["scope"] as String
@@ -169,6 +170,7 @@ class AuthenticatedClaims : Logging {
                     logger.info("Running locally, but will do authentication")
                     false
                 }
+
                 else -> true
             }
         }
@@ -204,7 +206,7 @@ class AuthenticatedClaims : Logging {
                     null
                 else
                     WorkflowEngine().settings.findSender(client)
-                return AuthenticatedClaims.generateTestClaims(sender)
+                return generateTestClaims(sender)
             }
 
             if (accessToken.isNullOrEmpty()) {
@@ -229,6 +231,23 @@ class AuthenticatedClaims : Logging {
                     " using ${authenticatedClaims.authenticationType.name} auth."
             )
             return authenticatedClaims
+        }
+
+        /**
+         * Run authentication then filters out non-admin claims
+         * @param request Http request to authenticate
+         * @return Authenticated claims if primeadmin is authorized, else null
+         */
+        fun authenticateAdmin(
+            request: HttpRequestMessage<String?>
+        ): AuthenticatedClaims? {
+            val claims = authenticate(request)
+            return if (claims == null || !claims.authorized(setOf("*.*.primeadmin"))) {
+                logger.warn("User '${claims?.userName}' FAILED authorized for endpoint ${request.uri}")
+                null
+            } else {
+                claims
+            }
         }
 
         /**

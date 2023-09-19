@@ -17,7 +17,8 @@ object HL7Utils : Logging {
     /**
      * The default HL7 encoding characters.  Note that depending on the message version this will be 4 or 5 characters.
      */
-    private const val defaultHl7EncodingChars = "^~\\&#"
+    const val defaultHl7EncodingFourChars = "^~\\&"
+    const val defaultHl7EncodingFiveChars = "^~\\&#"
 
     /**
      * Gets a new object for the given [hl7Class].
@@ -73,7 +74,7 @@ object HL7Utils : Logging {
             terser.getSegment("MSH").let {
                 val msh2Length = it.getLength(2)
                 terser.set("MSH-1", defaultHl7Delimiter)
-                terser.set("MSH-2", defaultHl7EncodingChars.take(msh2Length))
+                terser.set("MSH-2", defaultHl7EncodingFourChars.take(msh2Length))
                 terser.set("MSH-9-1", typeParts[0])
                 terser.set("MSH-9-2", typeParts[1])
                 terser.set("MSH-9-3", "${typeParts[0]}_${typeParts[1]}")
@@ -86,5 +87,41 @@ object HL7Utils : Logging {
 
         // Sanity check: Check to make sure a mistake was not made when adding types.
         return message
+    }
+
+    fun formPathSpec(spec: String, rep: Int? = null): String {
+        val segment = spec.substring(0, 3)
+        val components = spec.substring(3)
+        val segmentSpec = formSegSpec(segment, rep)
+        return "$segmentSpec$components"
+    }
+
+    // TODO: UP supports different types of HL7 messages, and the paths to these segments are different per HL7 type
+    // TODO: write ticket to handle this
+    fun formSegSpec(segment: String, rep: Int? = null): String {
+        val repSpec = rep?.let { "($rep)" } ?: ""
+        return when (segment) {
+            "OBR" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBR"
+            "ORC" -> "/PATIENT_RESULT/ORDER_OBSERVATION/ORC"
+            "SPM" -> "/PATIENT_RESULT/ORDER_OBSERVATION/SPECIMEN/SPM"
+            "PID" -> "/PATIENT_RESULT/PATIENT/PID"
+            "OBX" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION$repSpec/OBX"
+            "NTE" -> "/PATIENT_RESULT/ORDER_OBSERVATION/OBSERVATION/NTE$repSpec"
+            else -> segment
+        }
+    }
+
+    /**
+     * removes the index from an HL7 field if one is present
+     *
+     * ex: "ORC-12(0)-1" -> "ORC-12-1"
+     */
+    fun removeIndexFromHL7Field(field: String): String {
+        val start = field.indexOf("(")
+        val end = field.indexOf(")")
+
+        return if (start != -1 && end != -1) {
+            field.replaceRange(start, end + 1, "")
+        } else field
     }
 }
