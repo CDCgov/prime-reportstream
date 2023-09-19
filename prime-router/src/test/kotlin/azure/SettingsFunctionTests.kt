@@ -88,37 +88,42 @@ class SettingsFunctionTests : Logging {
         } returns testSender
         every {
             mockFacade.findSettingsAsJson(OrganizationAPI::class.java)
-        } returns ""
+        } returns "[ {\n" +
+            "  \"name\" : \"test\",\n" +
+            "  \"description\" : \"Arizona PHD\",\n" +
+            "  \"jurisdiction\" : \"STATE\",\n" +
+            "  \"stateCode\" : \"CA\"\n" +
+            "} ]"
         every {
             mockFacade.getLastModified()
         } returns OffsetDateTime.now()
         every {
             mockFacade.findSettingHistoryAsJson(any(), any())
-        } returns ""
-        every {
-            mockFacade.findSettingAsJson(any(), OrganizationAPI::class.java, any())
-        } returns ""
+        } returns "{}"
+//        every {
+//            mockFacade.findSettingAsJson(any(), OrganizationAPI::class.java, any())
+//        } returns "{}"
         every {
             mockFacade.findSettingAsJson(any(), ReceiverAPI::class.java, any())
-        } returns ""
+        } returns "{}"
         every {
             mockFacade.findSettingAsJson(any(), Sender::class.java, any())
-        } returns ""
+        } returns "{}"
         every {
             mockFacade.findSettingsAsJson(any(), ReceiverAPI::class.java)
-        } returns Pair(SettingsFacade.AccessResult.SUCCESS, "")
+        } returns Pair(SettingsFacade.AccessResult.SUCCESS, "{}")
         every {
             mockFacade.findSettingsAsJson(any(), Sender::class.java)
-        } returns Pair(SettingsFacade.AccessResult.SUCCESS, "")
+        } returns Pair(SettingsFacade.AccessResult.SUCCESS, "{}")
         every {
             mockFacade.putSetting(any(), any(), any(), ReceiverAPI::class.java, any())
-        } returns Pair(SettingsFacade.AccessResult.SUCCESS, "")
+        } returns Pair(SettingsFacade.AccessResult.SUCCESS, "{}")
         every {
             mockFacade.putSetting(any(), any(), any(), Sender::class.java, any())
-        } returns Pair(SettingsFacade.AccessResult.SUCCESS, "")
+        } returns Pair(SettingsFacade.AccessResult.SUCCESS, "{}")
         every {
             mockFacade.putSetting(any(), any(), any(), OrganizationAPI::class.java, any())
-        } returns Pair(SettingsFacade.AccessResult.SUCCESS, "")
+        } returns Pair(SettingsFacade.AccessResult.SUCCESS, "{}")
 
         return mockFacade
     }
