@@ -21,8 +21,8 @@ class MappingInventoryTests {
     fun `XTN use code home`() {
         assert(
             shouldTranslateLosslessly(
-                "mapping-inventory/xtn/xtn_use_code_home.fhir",
-                "mapping-inventory/xtn/xtn_use_code_home.hl7"
+                "mapping-inventory/xtn/xtn_use_code_home_2.fhir",
+                "mapping-inventory/xtn/xtn_use_code_home_2.hl7"
             ).passed
         )
     }
@@ -31,8 +31,8 @@ class MappingInventoryTests {
     fun `XTN use code mobile`() {
         assert(
             shouldTranslateLosslessly(
-                "mapping-inventory/xtn/xtn_use_code_mobile.fhir",
-                "mapping-inventory/xtn/xtn_use_code_mobile.hl7"
+                "mapping-inventory/xtn/xtn_use_code_mobile_2.fhir",
+                "mapping-inventory/xtn/xtn_use_code_mobile_2.hl7"
             ).passed
         )
     }
@@ -41,8 +41,8 @@ class MappingInventoryTests {
     fun `XTN use code temp`() {
         assert(
             shouldTranslateLosslessly(
-                "mapping-inventory/xtn/xtn_use_code_temp.fhir",
-                "mapping-inventory/xtn/xtn_use_code_temp.hl7"
+                "mapping-inventory/xtn/xtn_use_code_temp_2.fhir",
+                "mapping-inventory/xtn/xtn_use_code_temp_2.hl7"
             ).passed
         )
     }
@@ -51,8 +51,8 @@ class MappingInventoryTests {
     fun `XTN use code work`() {
         assert(
             shouldTranslateLosslessly(
-                "mapping-inventory/xtn/xtn_use_code_work.fhir",
-                "mapping-inventory/xtn/xtn_use_code_work.hl7"
+                "mapping-inventory/xtn/xtn_use_code_work_2.fhir",
+                "mapping-inventory/xtn/xtn_use_code_work_2.hl7"
             ).passed
         )
     }
@@ -61,8 +61,8 @@ class MappingInventoryTests {
     fun `XTN use code no use system email`() {
         assert(
             shouldTranslateLosslessly(
-                "mapping-inventory/xtn/xtn_use_code_no_use_system_email.fhir",
-                "mapping-inventory/xtn/xtn_use_code_no_use_system_email.hl7"
+                "mapping-inventory/xtn/xtn_use_code_no_use_system_email_2_3.fhir",
+                "mapping-inventory/xtn/xtn_use_code_no_use_system_email_2_3.hl7"
             ).passed
         )
     }
@@ -71,8 +71,8 @@ class MappingInventoryTests {
     fun `XTN use code no use system pager`() {
         assert(
             shouldTranslateLosslessly(
-                "mapping-inventory/xtn/xtn_use_code_no_use_system_pager.fhir",
-                "mapping-inventory/xtn/xtn_use_code_no_use_system_pager.hl7"
+                "mapping-inventory/xtn/xtn_use_code_no_use_system_pager_2_3.fhir",
+                "mapping-inventory/xtn/xtn_use_code_no_use_system_pager_2_3.hl7"
             ).passed
         )
     }
