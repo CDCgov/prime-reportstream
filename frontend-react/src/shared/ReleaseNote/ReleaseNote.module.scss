@@ -6,6 +6,7 @@
       color: color('gray-cool-50');
       font-size: 32px;
       font-weight: 700;
+      margin: 64px 0 32px;
     }
 
     .section-title {
@@ -14,7 +15,7 @@
       margin: 32px 0 20px;
     }
 
-    .section-container {
+    .section-content {
       display: flex;
 
       p {
@@ -23,7 +24,7 @@
     }
 
     .tag {
-      color :color('gray-90');
+      color: color('gray-90');
       font-size: 14px;
       height: 18px;
       padding: 0 8px;
@@ -47,6 +48,12 @@
       &--improvement {
         background-color: color('mint-cool-10v');
       }
+    }
+    
+    & .section-container:last-child {
+      border-bottom: 1px solid color('gray-cool-10');
+      margin-bottom: 0;
+      padding-bottom: 64px;
     }
   }
 }

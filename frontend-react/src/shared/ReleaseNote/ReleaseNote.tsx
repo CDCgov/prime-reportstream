@@ -1,5 +1,4 @@
 import { Tag } from "@trussworks/react-uswds";
-import { ReactNode } from "react";
 import classnames from "classnames";
 
 import styles from "./ReleaseNote.module.scss";
@@ -7,7 +6,7 @@ import styles from "./ReleaseNote.module.scss";
 type Section = {
     title: string;
     tag: "feature" | "bug" | "announcement" | "improvement";
-    body: ReactNode;
+    body: JSX.Element;
 };
 
 interface ReleaseNoteProps {
@@ -33,9 +32,9 @@ export function ReleaseNote({ header, sections }: ReleaseNoteProps) {
         <div className={classnames(styles.ReleaseNote, "grid-container")}>
             <p className="header">{header}</p>
             {sections.map((section: Section) => (
-                <div>
+                <div className="section-container">
                     <p className="section-title">{section.title}</p>
-                    <div className="grid-row section-container">
+                    <div className="grid-row section-content">
                         <div className="grid-col-2">
                             <NoteTag tag={section.tag} />
                         </div>
