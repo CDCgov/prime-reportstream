@@ -37,7 +37,7 @@
 
 | Prefix+Name           | Permissions | Example             |
 |-----------------------|-------------|---------------------|
-| DH+organization       | Receiver    | DHmd-phd            |
+| DH{organization}      | Receiver    | DHmd-phd            |
 | DHSender_organization | Sender      | DHSender_color-labs |
 | Admins*               | Admin       | N/A                 |
 *You should not be creating a new group with admin permissions. There are existing admin groups that users should be added to if they need admin permissions.
