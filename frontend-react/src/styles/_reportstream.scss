@@ -891,6 +891,17 @@ main {
     }
 }
 
+.rs-bg-grid {
+    background-image: url("/assets/img/home/grid.png");
+    background-size: contain;
+    background-position: right center;
+    background-repeat: no-repeat;
+
+    @media (max-width: $tablet) {
+        background-image: none;
+    }
+}
+
 .rs-back-to-top {
     display: block;
 }
