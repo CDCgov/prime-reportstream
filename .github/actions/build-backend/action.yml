@@ -147,8 +147,8 @@ runs:
       if: inputs.run-integration-tests == 'true'
       uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
       with:
-        timeout_minutes: 30
-        max_attempts: 2
+        timeout_minutes: 60
+        max_attempts: 1
         retry_wait_seconds: 30
         command: |
           cd prime-router
