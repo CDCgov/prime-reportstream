@@ -10,8 +10,9 @@ that route data through the legacy pipeline.  See below for more details.
 
 ### Sender/Receivers
 
-- A sender has a configured topic and reports sent through the pipeline will be tagged with that topic
-- A receiver has configured topic and will only be routed reports that are tagged with that topic
+- All senders and receivers must be configured with a topic value
+- Reports sent through the pipeline will be tagged with the topic of the sender that initiated the report
+- A receiver will only receive reports that are tagged with that receiver's topic
 
 ### Routing
 
