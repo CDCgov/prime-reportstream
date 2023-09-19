@@ -1,0 +1,27 @@
+@use "../../global-modules.scss" as *;
+
+.ReleaseNote {
+  :global {
+    .section-container {
+      display: flex;
+    }
+    
+    .tag {
+      &--feature {
+        background-color: color('cyan-10v');
+      }
+
+      &--bug {
+        background-color: color('red-cool-30v');
+      }
+
+      &--announcement {
+        background-color: color('indigo-cool-20v');
+      }
+
+      &--improvement {
+        background-color: color('mint-cool-10v');
+      }
+    }
+  }
+}
