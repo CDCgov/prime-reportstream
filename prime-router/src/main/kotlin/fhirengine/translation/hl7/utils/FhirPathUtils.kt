@@ -1,11 +1,12 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import ca.uhn.fhir.context.FhirContext
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import ca.uhn.hl7v2.model.v251.datatype.DT
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import org.apache.logging.log4j.kotlin.Logging
-import org.hl7.fhir.r4.context.SimpleWorkerContext
+import org.hl7.fhir.r4.hapi.ctx.HapiWorkerContext
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import org.hl7.fhir.r4.model.BooleanType
@@ -26,10 +27,12 @@ import java.time.format.DateTimeParseException
  * Utilities to handle FHIR Path parsing.
  */
 object FhirPathUtils : Logging {
+
+    private val fhirContext = FhirContext.forR4()
     /**
      * The FHIR path engine.
      */
-    val pathEngine = FHIRPathEngine(SimpleWorkerContext())
+    val pathEngine = FHIRPathEngine(HapiWorkerContext(fhirContext, fhirContext.validationSupport))
 
     /**
      * The HL7 time format. We are converting from a FHIR TimeType which does not include a time zone.
