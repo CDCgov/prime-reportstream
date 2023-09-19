@@ -1,5 +1,6 @@
 import { Tag } from "@trussworks/react-uswds";
 import { ReactNode } from "react";
+import classnames from "classnames";
 
 import styles from "./ReleaseNote.module.scss";
 
@@ -29,14 +30,16 @@ function NoteTag({ tag }: { tag: Section["tag"] }) {
 
 export function ReleaseNote({ header, sections }: ReleaseNoteProps) {
     return (
-        <div className={styles.ReleaseNote}>
-            <p>{header}</p>
+        <div className={classnames(styles.ReleaseNote, "grid-container")}>
+            <p className="header">{header}</p>
             {sections.map((section: Section) => (
                 <div>
-                    <p>{section.title}</p>
-                    <div className="section-container">
-                        <NoteTag tag={section.tag} />
-                        {section.body}
+                    <p className="section-title">{section.title}</p>
+                    <div className="grid-row section-container">
+                        <div className="grid-col-2">
+                            <NoteTag tag={section.tag} />
+                        </div>
+                        <div className="grid-col-10">{section.body}</div>
                     </div>
                 </div>
             ))}

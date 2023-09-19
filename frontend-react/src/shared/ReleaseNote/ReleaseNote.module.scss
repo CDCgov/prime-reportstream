@@ -2,11 +2,36 @@
 
 .ReleaseNote {
   :global {
+    .header {
+      color: color('gray-cool-50');
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 32px 0 20px;
+    }
+
     .section-container {
       display: flex;
+
+      p {
+        margin: 0;
+      }
     }
-    
+
     .tag {
+      color :color('gray-90');
+      font-size: 14px;
+      height: 18px;
+      padding: 0 8px;
+      text-transform: none;
+      line-height: normal;
+      text-align: center;
+      width: fit-content;
+
       &--feature {
         background-color: color('cyan-10v');
       }
