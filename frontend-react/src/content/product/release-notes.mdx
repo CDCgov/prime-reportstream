@@ -12,3 +12,43 @@ import Sidenav from "./sidenav.mdx"
 **You may also be interested in:**
 * [Release notes in GitHub](https://github.com/CDCgov/prime-reportstream/releases)
 * [News from ReportStream](/)
+
+ <ReleaseNote
+    header="July 2023"
+    sections={[
+        {
+            title: "Flu pilot launched",
+            tag: "feature",
+            body: (
+                <p>
+                    We launched a pilot program receiving and sending
+                    flu data through ReportStream. This is part of
+                    continued efforts to expand our capabilities beyond
+                    COVID-19. Let us know if you're interested in
+                    receiving flu data from ReportStream.
+                </p>
+            ),
+        },
+        {
+            title: "New JWT error documentation in GitHub",
+            tag: "feature",
+            body: (
+                <p>
+                    You can now view documentation and guidance for
+                    errors when generating a signed JWT during
+                    onboarding to send data. The documentation is
+                    available on{" "}
+                    <A
+                        href={
+                            "https://github.com/CDCgov/prime-reportstream/blob/e20ac26b0e0be31967fc65def7401382ef786d98/prime-router/examples/generate-jwt-python/jwt-errors.md"
+                        }
+                    >
+                        GitHub
+                    </A>{" "}
+                    and linked in the{" "}
+                    <A href={"/resources/api"}>API Guide</A>.
+                </p>
+            ),
+        },
+    ]}
+/>
