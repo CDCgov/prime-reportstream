@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, Icon } from "@trussworks/react-uswds";
+import { Grid } from "@trussworks/react-uswds";
 
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import ReportLink from "../../../pages/deliveries/Table/ReportLink";
@@ -32,7 +32,7 @@ export function ReportDetailsSummary(props: Props) {
                     <Grid col={2}>
                         <hr className="margin-top-2 margin-bottom-2" />
                         <span className="text-bold padding-right-3">
-                            Report ID <Icon.Info />
+                            Report ID
                         </span>
                     </Grid>
                     <Grid col={4} className="padding-right-6">
