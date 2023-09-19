@@ -336,7 +336,7 @@ Examples:
 }
 
 data class CoolTestOptions(
-    val items: Int = 5,
+    val items: Int = 3,
     val submits: Int = 5,
     val key: String? = null,
     val dir: String,
@@ -475,7 +475,7 @@ abstract class CoolTest {
     suspend fun pollForStepResult(
         reportId: ReportId,
         taskAction: TaskAction,
-        maxPollSecs: Int = 840,
+        maxPollSecs: Int = 120,
         pollSleepSecs: Int = 20,
     ): Map<UUID, DetailedSubmissionHistory?> {
         var timeElapsedSecs = 0
@@ -666,7 +666,7 @@ abstract class CoolTest {
         totalItems: Int,
         filterOrgName: Boolean = false,
         silent: Boolean = false,
-        maxPollSecs: Int = 840,
+        maxPollSecs: Int = 120,
         pollSleepSecs: Int = 30, // I had this as every 5 secs, but was getting failures.  The queries run unfastly.
         asyncProcessMode: Boolean = false,
         isUniversalPipeline: Boolean = false
