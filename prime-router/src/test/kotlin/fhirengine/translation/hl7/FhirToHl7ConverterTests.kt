@@ -599,7 +599,7 @@ class FhirToHl7ConverterTests {
             context = contextWithConfig
         )
 
-        // should truncate to 194
+        // should truncate to 199
         val value = "x".repeat(500)
 
         val element = ConverterSchemaElement(
