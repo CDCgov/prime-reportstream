@@ -61,6 +61,7 @@ private const val RECEIVER_NAME = "full-elr-hl7"
 private const val VALID_DATA_URL = "src/test/resources/fhirengine/engine/valid_data.fhir"
 private const val DIAGNOSTIC_REPORT_EXPRESSION = "Bundle.entry.resource.ofType(DiagnosticReport)[0]"
 private const val MULTIPLE_OBSERVATIONS_URL = "src/test/resources/fhirengine/engine/bundle_multiple_observations.fhir"
+private const val OBSERVATIONS_FILTER = "%resource.code.coding.code.intersect('94558-5').exists()"
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FHIRBundleHelpersTests {
@@ -606,6 +607,27 @@ class FHIRBundleHelpersTests {
         assertThat(extensions.size).isEqualTo(1)
         assertThat((extensions[0].value as Reference).reference)
             .isEqualTo("Observation/1667861767955966000.f3f94c27-e225-4aac-b6f5-2750f45dac4f")
+    }
+
+    @Test
+    fun `test filterObservations`() {
+        val actionLogger = ActionLogger()
+        val fhirBundle = File(MULTIPLE_OBSERVATIONS_URL)
+            .readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+
+        val bundle = FHIRBundleHelpers.filterObservations(
+            messages[0],
+            listOf(OBSERVATIONS_FILTER),
+            emptyMap<String, String>().toMutableMap()
+        )
+
+        val observations = bundle.entry.map {
+            it.resource
+        }.filterIsInstance<Observation>()
+
+        assertThat(observations.size).isEqualTo(1)
+        assertThat(observations[0].id).isEqualTo("Observation/1667861767955966000.f3f94c27-e225-4aac-b6f5-2750f45dac4f")
     }
 
     @Test
