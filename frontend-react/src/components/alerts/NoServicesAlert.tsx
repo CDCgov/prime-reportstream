@@ -1,6 +1,7 @@
 import React from "react";
 
 import { USExtLink } from "../USLink";
+import site from "../../content/site.json";
 
 export const NoServicesBanner = () => {
     return (
@@ -14,7 +15,7 @@ export const NoServicesBanner = () => {
                 <h3>No available data</h3>
                 <p>
                     If you need more help finding what you're looking for,{" "}
-                    <USExtLink href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">
+                    <USExtLink href={site.forms.contactUs.url}>
                         contact us
                     </USExtLink>
                     .
