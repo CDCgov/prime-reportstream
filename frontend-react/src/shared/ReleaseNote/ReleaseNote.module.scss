@@ -1,6 +1,7 @@
 @use "../../global-modules.scss" as *;
 
 .ReleaseNote {
+  margin-top: 0px;
   :global {
     .header {
       color: color('gray-cool-50');

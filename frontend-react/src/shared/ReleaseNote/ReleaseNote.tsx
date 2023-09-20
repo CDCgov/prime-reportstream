@@ -29,16 +29,18 @@ function NoteTag({ tag }: { tag: Section["tag"] }) {
 
 export function ReleaseNote({ header, sections }: ReleaseNoteProps) {
     return (
-        <div className={classnames(styles.ReleaseNote, "grid-container")}>
+        <div className={classnames(styles.ReleaseNote, "margin-top-0")}>
             <p className="header">{header}</p>
             {sections.map((section: Section) => (
                 <div className="section-container">
                     <p className="section-title">{section.title}</p>
                     <div className="grid-row section-content">
-                        <div className="grid-col-2">
+                        <div className="grid-col-12 desktop:grid-col-2">
                             <NoteTag tag={section.tag} />
                         </div>
-                        <div className="grid-col-10">{section.body}</div>
+                        <div className="grid-col-12 margin-top-205 desktop:grid-col-10 desktop:margin-top-0">
+                            {section.body}
+                        </div>
                     </div>
                 </div>
             ))}
