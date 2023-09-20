@@ -8,6 +8,7 @@ Note for content writer: If there is overlap with the previous "Pipeline Configu
 - Kickoff call
 - [Answer Technical Questions](https://docs.google.com/spreadsheets/d/1iKYB6OmqXMFkwGp960EUU8Y78pWvwQRs1YYYhObsEKI/edit#gid=0)
 - Get sample files(non-PII) from sender with different reportable conditions
+- Sender validates messages using ReportStream validation tool (Not yet implemented)
 - [Sender Configuration](#sender-configuration)
 - [Test sample files through the Universal Pipeline](#testing)
 - [Sender sends data to RS staging environment](#sending-data-to-reportstream)
@@ -158,7 +159,20 @@ Next update the staging DB
 
 ### Testing in Staging
 After the sender has been configured to send data in staging. The next step is to have to send fake data to the staging 
-environment via our reports REST API. The API will return a report id that can be used keep track of the submission 
+environment via our reports REST API. 
+In order to send to the staging environment, the sender will need to authenticate via either a bearer token obtained by 
+using a JWT in combination with a public/private keypair or a shared secret key. Details can be found in the 
+ReportStream Programmer’s Guide (https://staging.reportstream.cdc.gov/resources/programmers-guide).
+
+#### Setting up public/private keypair
+
+Details on how to set up a keypair can be found in the “how-to-use-token-auth.md” documentation in the repo. Keypair is 
+the preferred authentication method. Shared secret can be used as an alternative in cases where keypair presents a 
+barrier to the sender.
+
+#### Submission status
+
+The Reports API will return a report id that can be used keep track of the submission 
 status via our Submission History REST API.
 To view all the submissions a sender has sent should also be available to run this query in the database:
 
