@@ -4,30 +4,30 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-1' ]
 
   - name: result-value-type-st
-    condition: '%resource.value is String or (%resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").exists() and %resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").code = "unknown")'
+    condition: '(%resource.value.exists() and %resource.value.is(string)) or (%resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").exists() and %resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").code = "unknown")'
     value: [ '"ST"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-dt
-    condition: '%resource.value is dateTime'
+    condition: '%resource.value.exists() and %resource.value.is(dateTime)'
     value: [ '"DT"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-ce
-    condition: '%resource.value is CodeableConcept'
+    condition: '%resource.value.exists() and %resource.value.is(CodeableConcept)'
     # Note that for v.2.5 and earlier CWE is not in-spec.
     value: [ '"CE"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-cwe
     resource: '%resource.value'
-    condition: '%resource is CodeableConcept and (%resource.coding[0].version.exists() or %resource.coding[1].version.exists() or %resource.text.exists())'
+    condition: '%resource.exists() and %resource.is(CodeableConcept) and (%resource.coding[0].version.exists() or %resource.coding[1].version.exists() or %resource.text.exists())'
     # Note that for v.2.5 and earlier, CWE is not officially in-spec, but is widely used.
     value: [ '"CWE"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-sn
-    condition: '%resource.value is Ratio'
+    condition: '%resource.value.exists() and %resource.value.is(Ratio)'
     value: [ '"SN"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
@@ -50,25 +50,25 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-4' ]
 
   - name: observation-value-st
-    condition: '%resource.value is string'
+    condition: '%resource.value.exists() and %resource.value.is(string)'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{hl7OBXField}-5' ]
 
   - name: observation-value-dateTime
-    condition: '%resource.value is dateTime'
+    condition: '%resource.value.exists() and %resource.value.is(dateTime)'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{hl7OBXField}-5' ]
 
   - name: observation-value-cwe
     resource: '%resource.value'
-    condition: '%resource is CodeableConcept'
+    condition: '%resource.exists() and %resource.is(CodeableConcept)'
     constants:
       cweFieldPath: '%{hl7OBXField}-5'
     schema: ../../common/datatype/ce-coded-with-exceptions
 
   - name: observation-value-numeric
     resource: '%resource.value'
-    condition: '%resource is Ratio'
+    condition: '%resource.exists() and %resource.is(Ratio)'
     schema: ../../common/datatype/sn-structured-numeric
 
   - name: observation-units-identifier
@@ -155,29 +155,29 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-19' ]
 
   - name: performing-organization-name-pracrole
-    condition: '%observation.performer.resolve() is PractitionerRole'
-    resource: '%resource.performer.resolve().organization.resolve()'
+    condition: '%observation.performer.resolve().ofType(PractitionerRole).exists()'
+    resource: '%resource.performer.resolve().ofType(PractitionerRole).organization.resolve()'
     schema: ../../common/datatype/xon-organization
     constants:
       hl7OrgField: '%{hl7OBXField}-23'
 
   - name: performing-organization-name-non-pracrole
-    condition: '%observation.performer.resolve().is(PractitionerRole).not()'
+    condition: '%observation.performer.resolve().ofType(PractitionerRole).exists().not()'
     resource: '%resource.performer.resolve()'
     schema: ../../common/datatype/xon-organization
     constants:
       hl7OrgField: '%{hl7OBXField}-23'
 
   - name: performing-organization-address-pracrole
-    condition: '%observation.performer.resolve() is PractitionerRole'
-    resource: '%resource.performer.resolve().organization.resolve().address'
+    condition: '%observation.performer.resolve().ofType(PractitionerRole).exists()'
+    resource: '%resource.performer.resolve().ofType(PractitionerRole).organization.resolve().address'
     constants:
       hl7AddressField: '%{hl7OBXField}-24'
     schema: ../../common/datatype/xad-extended-address
     resourceIndex: contactIndex
 
   - name: performing-organization-address-non-pracrole
-    condition: '%observation.performer.resolve().is(PractitionerRole).not()'
+    condition: '%observation.performer.resolve().ofType(PractitionerRole).exists().not()'
     resource: '%resource.performer.resolve().address'
     constants:
       hl7AddressField: '%{hl7OBXField}-24'

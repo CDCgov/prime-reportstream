@@ -4,5 +4,5 @@ elements:
     schema: 'ca-aoe-note'
 
   - name: note
-    condition: '%resource is String'
+    condition: '%resource is string'
     schema: '../../../ORU_R01/base/note'
