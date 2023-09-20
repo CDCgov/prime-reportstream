@@ -31,7 +31,7 @@ labeled like so `XPN_spreadsheetRow#`.
 ### File Structure
 Instead of piling these files into the existing file structure,
 especially since we will be using them for multidirectional tests, we will put them in a folder structure 
-`datatests/mappinginventory/segment-name`.
+`resources/datatests/mappinginventory/segment-name`.
 
 ### Segments
 Within the files, we will only put the bare minimum number of segments in a file. `MSH` is still required, so, for 
@@ -41,8 +41,8 @@ converting from the HL7 V2 file to the FHIR file, use the new test schema
 
 ### Where to test
 `translation-test-config.csv` is where our current tests like this live. We will create separate files for each data 
-type that will follow the pattern laid forth in XTNTests. These will also be stored in
-`datatests/mappinginventory/segment-name`. Using this pattern relieves us of the requirement of using CSV files and 
+type that will follow the pattern laid forth in XTNTests. These will stored in
+`kotlin/datatests/mappinginventory/segment-name`. Using this pattern relieves us of the requirement of using CSV files and 
 allows us to give each test a name, description, and comment. Later down the road, we will also have separate files for
 sender transforms and receiver transforms. These will be broken down by sender/receiver so that, again, there is a 
 lot of organization around the tests.
