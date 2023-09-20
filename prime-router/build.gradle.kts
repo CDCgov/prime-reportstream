@@ -42,7 +42,7 @@ plugins {
     id("com.avast.gradle.docker-compose") version "0.17.5"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
     id("com.nocwriter.runsql") version ("1.0.3")
-    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.15"
+    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.16"
 }
 
 group = "gov.cdc.prime"
