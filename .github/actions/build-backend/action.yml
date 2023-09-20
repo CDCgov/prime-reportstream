@@ -20,6 +20,9 @@ runs:
   using: "composite"
   steps:
 
+    - name: Display runner stats
+      uses: ./.github/actions/runner-stats
+
     # These are for CI and not credentials of any system
     - name: Set Environment Variables
       working-directory: prime-router
@@ -57,8 +60,8 @@ runs:
     - name: Build Prime Router Package
       uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
       with:
-        timeout_minutes: 30
-        max_attempts: 2
+        timeout_minutes: 60
+        max_attempts: 1
         retry_wait_seconds: 30
         command: |
           cd prime-router
@@ -143,19 +146,25 @@ runs:
       run: docker-compose exec -T sftp chmod 777 /home/foo/upload
       shell: bash
 
+    - name: Display runner stats
+      uses: ./.github/actions/runner-stats
+
     - name: Smoke tests
       if: inputs.run-integration-tests == 'true'
       uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
       with:
         timeout_minutes: 30
-        max_attempts: 3
-        retry_wait_seconds: 30
+        max_attempts: 1
+        retry_wait_seconds: 10
         command: |
           cd prime-router
           export $(xargs < .vault/env/.env.local)
           ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
           ./gradlew testSmoke
         shell: bash
+
+    - name: Display runner stats
+      uses: ./.github/actions/runner-stats
 
     - name: Dump docker logs
       if: always() && inputs.run-integration-tests == 'true'

@@ -1,0 +1,12 @@
+name: 'Runner Stats'
+description: 'Display runner resource usage'
+
+runs:
+  using: 'composite'
+  steps:
+
+    - name: Get runner stats
+      shell: bash
+      run: |
+        vmstat -S M
+        ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head

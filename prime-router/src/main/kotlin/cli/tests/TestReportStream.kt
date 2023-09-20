@@ -336,7 +336,7 @@ Examples:
 }
 
 data class CoolTestOptions(
-    val items: Int = 3,
+    val items: Int = 5,
     val submits: Int = 5,
     val key: String? = null,
     val dir: String,
@@ -667,7 +667,7 @@ abstract class CoolTest {
         filterOrgName: Boolean = false,
         silent: Boolean = false,
         maxPollSecs: Int = 120,
-        pollSleepSecs: Int = 30, // I had this as every 5 secs, but was getting failures.  The queries run unfastly.
+        pollSleepSecs: Int = 20, // I had this as every 5 secs, but was getting failures.  The queries run unfastly.
         asyncProcessMode: Boolean = false,
         isUniversalPipeline: Boolean = false
     ): Boolean {
