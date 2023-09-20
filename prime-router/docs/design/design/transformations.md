@@ -27,19 +27,21 @@ The Convert step, in `FHIRConverter.kt`, uses `HL7Reader` to load the message as
 
 ## FHIR-to-HL7v2 Transformations
 
+FHIR-to-HL7v2 transform templates are similar to the others but elements have an added field, `hl7Spec`, which is a list of HL7 fields to which the data in the element map to. This field is required for all elements operating in value mode. Converter schemas are defined and processed in `ConverterSchema.kt`.
+
 TBD: Content to be added in a future story
 
 ## FHIR-to-FHIR Transformations
 
 FHIR bundles are transformed (enriched) to FHIR during the [Convert](../../universal-pipeline/convert.md) and [Translate](../../universal-pipeline/translate.md) steps in the Universal Pipeline. The class `FhirTransformer` is used to perform these FHIR to FHIR transforms.
 
-### FHIR-to-FHIR configurations
+## Transform Templates
 
-FHIR to FHIR transform templates (schemas) are configured as `.yml` files which are presently located in the repository under `prime-router/metadata/fhir_transforms`. Whereas HL7v2-to-FHIR and FHIR-to-HL7v2 templates use a library on top of the respective HAPI library to perform the transformations, FHIR to FHIR transforms are performed using the HAPI FHIR library directly, with the logic for loading templates contained in `ConfigSchemaReader.kt` and the logic for using the loaded templates to perform the transformation contained in `FhirTransformer.kt`.
+Transform templates (schemas) are shared between HL7v2-to-FHIR, FHIR-to-FHIR, and FHIR-to-HL7v2 transformations. They are configured as `.yml` files which are presently located in the repository under `prime-router/metadata/fhir_transforms`. Whereas HL7v2-to-FHIR and FHIR-to-HL7v2 templates use a library on top of the respective HAPI library to perform the transformations, FHIR-to-FHIR transforms are performed using the HAPI FHIR library directly, with the logic for loading templates contained in `ConfigSchemaReader.kt` and the logic for using the loaded templates to perform the transformation contained in `FhirTransformer.kt`.
 
 #### Template Structure
 
-For those familiar with the templates of [LinuxForHealth HL7 to FHIR Converter library](https://github.com/LinuxForHealth/hl7v2-fhir-converter#linuxforhealth-hl7-to-fhir-converter), the FHIR-to-FHIR templates will look like a simpler version. This is because, at their core, they are simply selecting a particular resource in a bundle and setting it to a particular value.
+For those familiar with the templates of [LinuxForHealth HL7 to FHIR Converter library](https://github.com/LinuxForHealth/hl7v2-fhir-converter#linuxforhealth-hl7-to-fhir-converter), the RS transform templates will look like a simpler version. This is because, at their core, they are simply selecting a particular resource in a bundle and setting it to a particular value.
 
 The basic fields that make up a schema are defined as properties in `FhirTransformSchema` class. See `FhirTransformSchema` for more details of what makes up a schema (name, constants, elements, and extends).
 
@@ -67,6 +69,7 @@ Elements configured with value mode consist of the following additional properti
 - bundleProperty
 - value
 - valueSet
+- hl7Spec (FHIR-to-HL7v2 only)
 
 When configuring an element with value mode, the **value** and **bundleProperty** properties must be set. This is the more straightforward of the two modes, where each resource matching the **resource** expression will have each of its properties matching the **bundleProperty** expression set to **value**.
 

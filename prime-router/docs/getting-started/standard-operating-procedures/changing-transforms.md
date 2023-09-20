@@ -22,17 +22,18 @@ flowchart LR
 In short, use a sender transform when data needs to be uniformly adjusted regardless of receiver.
 Use a receiver transform if data adjustments are needed for a specific receiver.
 
-## How to configure a transform schema
+## How to configure a transform template
 
-Transform schemas are have three main sections:
+Transform templates (schemas) are have three main sections:
 * `extends`: A schema which the current schema extends. All values from the specified schema are loaded before the
   elements in the current schema. If there are common elements, the values in the current schema are used.
 * `constants`: A list of constants that are resolved by FHIRPath expressions that are common to all elements in the
-  schema.
-* `elements`: A collection of individual elements that specify which data is selected for transforms and what transforms
-  are performed.
+  template. Refer to constants within elements by prefacing their name with a `%` symbol.
+* `elements`: A collection of individual configurations that specify which data is selected for transforms and what 
+  transforms are performed. Each element is an individual, self-contained action taken on the data.
 
-Here's an example of a transform schema (specifically, a sender transform):
+Transform elements either specify the value to be transformed, or link to another transform template to be processed.
+Here's an example of a transform template (specifically, a sender transform):
 
 ```
 extends: ../default-sender-transform
@@ -50,34 +51,50 @@ elements:
           values:
               Canada: CAN
               United States: USA
+              
     - name: patient-name
       resource: ‘Bundle.entry.resource.ofType(Patient)’
       resourceIndex: patientIndex
       schema: patient-name-schema
 ```
 
-This example specifies an additional schema, `patient-name-schema.yml`. This additional schema might contain:
+This example contains the complete layout of a transform template, with two transform elements. The first is a value
+transform that adds country to a patient's address if it does not exist. The second specifies an additional template, 
+`patient-name-schema.yml`. This additional template might contain:
 
 ```
 elements:
     - name: patient-name
       resource: ‘%resource’
+      condition: true
       bundleProperty: ‘%resource.name.text’
       value: [‘"First name, last name"’]
 ```
 
+In which all patient resources are processed using the above template.
+
+### Translate element definition
+
 Each element contains the following properties, listed in order of execution:
+
+#### Common
 
 - `name` - the name of an element.
 - `constants` - constants passed in to FHIR Path evaluations. They are resolved at the time
   an element uses it. These can be specified at the schema level or at the element level. Elements will inherit
   constants defined at their schema level and will overwrite any that have the same name.
+  - A reserved constant, `%resource`, is automatically provided, which maps to the focus resource
+    (generally, the `resource` property).
 - `resource` - the FHIR resource used as focus on all other FHIR Path expressions. Must
   be used with child schema to set the collection to iterate with.
 - `condition` - FHIR Path boolean expression that must evaluate to true for the element to
   be evaluated. Conditions can be used to check the value of a bundle property that
   another element may have populated, so it could be used to check the result of a
   previous element (elements must be kept in the correct order for this to work).
+  To set a transform to always take place, simply set to `true`.
+
+#### For value transforms
+
 - `bundleProperty` - a FHIR Path expression that denotes where to store the value. If the property does not yet exist,
   ReportStream will attempt to create it, though there are restrictions around which types of resources/properties can
   be dynamically created.
@@ -92,6 +109,11 @@ Each element contains the following properties, listed in order of execution:
   The following data sources are available within the Universal Pipeline:
     - `values` - Key value pairs are listed directly in a configuration schema.
     - `lookupTable` - provide `tableName`, `keyColumn`, `valueColumn` to retrieve key value pairs from a lookup table.
+- `hl7Spec` (only for HL7 receivers) - a list of HL7 fields the transform data maps to. This mapping is performed even
+   if `condition` is not defined.
+
+#### For schema transforms
+ 
 - `schema` - the name of a child schema to process. This points to another sender transform schema which will be used
   with this schema's resource as the focus resource. Cannot be used with `bundleProperty`, `value`, or `valueSet`.
 - `resourceIndex` - the name of a constant with the index of a resource collection. Useful to
@@ -101,13 +123,13 @@ Each element contains the following properties, listed in order of execution:
 
 
 
-Transforms can be used to standardize data. See this example where a patient `gender` resource is standardized
+Transforms can be used to standardize data. See this example element where a patient `gender` resource is standardized
 to a letter code:
 
 ```
   - name: patient-sex
     value: [ '%resource.gender' ]
-    hl7Spec: [ '%{hl7PIDField}-8' ]
+    hl7Spec: [ 'PID-8' ]
     valueSet:
       values:
         unknown: U
