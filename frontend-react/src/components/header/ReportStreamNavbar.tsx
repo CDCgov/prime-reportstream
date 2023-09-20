@@ -20,6 +20,10 @@ import { useSessionContext } from "../../contexts/SessionContext";
 import { logout } from "../../utils/UserUtils";
 import { Icon } from "../../shared";
 import site from "../../content/site.json";
+import {
+    ReceiverOrganizationsMissingTransport,
+    useOrganizationSettings,
+} from "../../hooks/UseOrganizationSettings";
 
 import styles from "./ReportStreamNavbar.module.scss";
 
@@ -31,6 +35,10 @@ const primaryLinkClasses = (isActive: boolean) => {
     }
 
     return "primary-nav-link";
+};
+
+const isOrganizationsMissingTransport = (orgName: string): boolean => {
+    return ReceiverOrganizationsMissingTransport.indexOf(orgName) > -1;
 };
 
 export const ReportStreamNavbar = ({
@@ -62,6 +70,10 @@ export const ReportStreamNavbar = ({
             setOpenMenuItem(menuName);
         }
     };
+    const { data: organization } = useOrganizationSettings();
+    const orgMissingTransport = organization?.name
+        ? isOrganizationsMissingTransport(organization?.name)
+        : false;
 
     const Dropdown = ({
         menuName,
@@ -92,9 +104,9 @@ export const ReportStreamNavbar = ({
     const defaultMenuItems = [
         <div className="primary-nav-link-container">
             <a
-                className={primaryLinkClasses(!!useMatch("/product/*"))}
-                href="/product/overview"
-                key="product"
+                className={primaryLinkClasses(!!useMatch("/about/*"))}
+                href="/about"
+                key="about"
             >
                 About
             </a>
@@ -142,6 +154,18 @@ export const ReportStreamNavbar = ({
     ];
 
     const menuItemsReceiver = [
+        <div className="primary-nav-link-container">
+            <a
+                className={primaryLinkClasses(!!useMatch("/data-dashboard/*"))}
+                href="/data-dashboard"
+                key="dashboard"
+            >
+                Dashboard
+            </a>
+        </div>,
+    ];
+
+    const menuItemsReceiverMissingTransport = [
         <div className="primary-nav-link-container">
             <a
                 className={primaryLinkClasses(!!useMatch("/daily-data/*"))}
@@ -196,8 +220,12 @@ export const ReportStreamNavbar = ({
     const navbarItemBuilder = () => {
         let menuItems = defaultMenuItems;
 
-        if (isUserReceiver || isUserAdmin) {
+        if ((isUserReceiver || isUserAdmin) && !orgMissingTransport) {
             menuItems = [...menuItems, ...menuItemsReceiver];
+        }
+
+        if ((isUserReceiver || isUserAdmin) && orgMissingTransport) {
+            menuItems = [...menuItems, ...menuItemsReceiverMissingTransport];
         }
 
         if (isUserSender || isUserAdmin) {
