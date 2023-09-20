@@ -1,10 +1,11 @@
-package gov.cdc.prime.router.datatests
+package gov.cdc.prime.router.datatests.mappinginventory.xtn
 
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.cli.tests.CompareData
+import gov.cdc.prime.router.datatests.TranslationTests
 import org.junit.jupiter.api.Test
 
-class MappingInventoryTests {
+class XTNTests {
     fun shouldTranslateLosslessly(inputFile: String, outputFile: String): CompareData.Result {
         val outputSchemaPath = "metadata/hl7_mapping/ORU_R01/ORU_R01-test"
 
@@ -17,6 +18,7 @@ class MappingInventoryTests {
         ).runTest()
     }
 
+    // Tests use (line 2)
     @Test
     fun `XTN use code home`() {
         assert(
@@ -27,6 +29,7 @@ class MappingInventoryTests {
         )
     }
 
+    // Tests use (line 2)
     @Test
     fun `XTN use code mobile`() {
         assert(
@@ -37,6 +40,7 @@ class MappingInventoryTests {
         )
     }
 
+    // Tests use (line 2)
     @Test
     fun `XTN use code temp`() {
         assert(
@@ -47,6 +51,7 @@ class MappingInventoryTests {
         )
     }
 
+    // Tests use (line 2)
     @Test
     fun `XTN use code work`() {
         assert(
@@ -57,6 +62,7 @@ class MappingInventoryTests {
         )
     }
 
+    // Tests use (line 2) as well as system (line 3)
     @Test
     fun `XTN use code no use system email`() {
         assert(
@@ -67,6 +73,7 @@ class MappingInventoryTests {
         )
     }
 
+    // Tests use (line 2) as well as system (line 3)
     @Test
     fun `XTN use code no use system pager`() {
         assert(
