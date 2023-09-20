@@ -20,11 +20,15 @@ flowchart LR
 ```
 
 In short, use a sender transform when data needs to be uniformly adjusted regardless of receiver.
-Use a receiver transform if data adjustments are needed for a specific receiver.
+Use a receiver transform if the receiver has specific HL7 mapping requirements or data adjustment needs.
 
 ## How to configure a transform template
 
-Transform templates (schemas) are have three main sections:
+Transform templates (schemas) are `.yml` files that define the transforms and all configuration data needed to perform 
+them. Refer to [Pipeline Configuration](../universal-pipeline-configuration.md) for details on how transform templates
+are defined in an organization's settings.
+
+Transform templates are have three main sections:
 * `extends`: A schema which the current schema extends. All values from the specified schema are loaded before the
   elements in the current schema. If there are common elements, the values in the current schema are used.
 * `constants`: A list of constants that are resolved by FHIRPath expressions that are common to all elements in the
@@ -79,7 +83,8 @@ Each element contains the following properties, listed in order of execution:
 
 #### Common
 
-- `name` - the name of an element.
+- `name` - the name of an element. If an element of the same name already exists,
+  the one loaded last will take precendence.
 - `constants` - constants passed in to FHIR Path evaluations. They are resolved at the time
   an element uses it. These can be specified at the schema level or at the element level. Elements will inherit
   constants defined at their schema level and will overwrite any that have the same name.
@@ -137,3 +142,20 @@ to a letter code:
         male: M
         other: O
 ```
+
+See this example of a sender transform making use of the `npi-lookup` table to replace any instance of the first name
+with the matching last name from the table:
+
+```
+  - name: test-transform
+    resource: 'Bundle.entry.resource.ofType(Patient).name'
+    condition: 'Bundle.entry.resource.ofType(Patient).exists()'
+    bundleProperty: '%resource.family'
+    value: [ '%resource.family' ]
+    valueSet:
+      lookupTable:
+        tableName: npi-lookup
+        keyColumn: first_name
+        valueColumn: last_name
+```
+

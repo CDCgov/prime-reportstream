@@ -9,17 +9,18 @@ This should be a high-level explanation.
 ## How to create and manage a sender or receiver transform
 
 Sender and receiver transforms allow for data meeting certain criteria to be transformed. These transforms are performed
-either when preparing HL7 or FHIR data from a sender to be stored within the pipeline's internal FHIR data structure (a
-sender transform) or when preparing data to be transmitted to a receiver (a receiver transform).
+either when preparing FHIR data (converted from HL7 if necessary) from a sender to be stored within the pipeline's
+internal FHIR data structure (a sender transform) or when preparing data to be transmitted to a receiver
+(a receiver transform).
 
 Sender and receiver transform schemas are currently stored in the project filesystem. (This will change as new features
 are developed.) These schemas control what information is selected for transformation and what transforms are performed.
-Sender and receiver transforms both use a YAML format.
+Sender and receiver transforms both use a `.yml` (YAML) format.
 
 ### Defining Sender Transforms
 
-Sender transforms are currently stored in `metadata/fhir_transforms/senders` and are hooked to a given sender by
-defining the `schemaName` element for the receiver. See this example where the `simple-report-sender-transform`:
+Sender transforms are currently stored in `metadata/fhir_transforms/senders` and are utilized by a given sender when
+defining the `schemaName` element in the sender's settings. See this example where the `simple-report-sender-transform`
 is defined for a sender named `dev-fhir`:
 
 ```
@@ -29,14 +30,15 @@ is defined for a sender named `dev-fhir`:
 ```
 
 Most senders are configured to use the default sender transform, which inserts ReportStream specific values into the
-data. Schemas are designed to be extensible. Transforms created by a specific sender would typically extend the default
-transform while adding additional transforms needed for the sender.
+data. Templates are designed to be extensible. Transforms created for a specific sender would typically extend the default
+transform while adding additional transforms needed for the sender. The `simple-report-sender-transform` template,
+accordingly, extends the default transform as well.
 
 > For more context on how sender transforms are used, please reference [Convert](../universal-pipeline/convert.md).
 
 ### Defining Receiver Transforms
 
-Receiver transforms are currently stored in `metadata/hl7_mapping/receivers` and are hooked to a given receiver by
+Receiver transforms are currently stored in `metadata/hl7_mapping/receivers` and are utilized by a given receiver when
 defining the `schemaName` element within the `translation` settings for the receiver. See this example where the
 `CA-receiver-transform` is defined for a receiver named `CA_FULL_ELR`:
 
@@ -47,6 +49,8 @@ defining the `schemaName` element within the `translation` settings for the rece
 ```
 
 > For more context on how receiver transforms are used, please reference [Translate](../universal-pipeline/translate.md).
+
+Receiver transform templates, in addition to transforming values, can also define HL7v2 mappings as needed for a specific receiver.
 
  > For more details on when a transform should be defined as a sender or receiver transform, and for details on how the
 transform schemas are laid out, please reference
