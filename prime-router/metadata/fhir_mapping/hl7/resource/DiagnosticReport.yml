@@ -22,7 +22,7 @@ identifier_2a:
   expressionType: resource
   vars:
     valueIn: ORC.3.1
-    namespaceId: String, OBR.3.2
+    namespaceId: String, ORC.3.2
     universalId: ORC.3.3
     universalIdType: ORC.3.4
   constants:
