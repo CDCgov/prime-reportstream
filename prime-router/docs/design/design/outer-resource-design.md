@@ -1,5 +1,5 @@
 ## Problem Statement
-The problem is a bit complex, so, to start let's look at an example from `order-observation.yml`:
+The problem is illustrated by this code from `order-observation.yml`:
 ```
 - name: observation-result-with-aoe
   # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
@@ -7,20 +7,24 @@ The problem is a bit complex, so, to start let's look at an example from `order-
   schema: observation-result
   resourceIndex: resultIndex
   constants:
-  hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
-  hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX'
-  observation: '%diagnostic.result[%resultIndex].resolve()'
-condition should be: is the observation's performer a practitionerrole
-%outerResource.performer.resolve() is PractitionerRole
+    hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
+    hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX'
+    observation: '%diagnostic.result[%resultIndex].resolve()'
 ```
+We want to be able to access both the initial observation (`'%diagnostic.result[%resultIndex].resolve()'`) as well as 
+the resource that is the result of this condition 
+`%resource.result.resolve() | %service.supportingInfo.resolve().where(specimen.exists().not())`. 
+However, to do this, we are needing to set the observation constant to the value of the 
+outer resource. This is a problematic workaround because this piece of code isn't actually working how you might 
+expect it to. Currently, if there are 5 items in`%resource.result.resolve()` and 2 items in 
+`%service.supportingInfo.resolve().where(specimen.exists().not())`, the 
+`resourceIndex` will go up to 7. The `observation` expression will be invalid when `resultIndex` is 6 or 7 since
+there are only 5 items in `%diagnostic.result` and that is ultimately what resource will end up being set to.
 
-This piece of code actually isn't working how you might expect it to. Currently if there are 5 items in 
-`%resource.result.resolve()` and 2 items in `%service.supportingInfo.resolve().where(specimen.exists().not())` the 
-index will be 7 but there will only actually be the first 5 items in the resource. We want to have a way to access 
-that outer resource, the one initially defined, so that in places like these we can reference the parent and some of 
-its children without losing the valyue of the initial resource.
+We want to have a way to access that outer resource, the one initially defined, so that in places like these we can
+reference the parent and some of its children without losing the value of the initial resource.
 
-There are two ways we can go about this and they are not mutually exclusive. 
+There are two ways we can go about this, and they are not mutually exclusive. 
 
 ## Proposals
 ### Outer Resource
