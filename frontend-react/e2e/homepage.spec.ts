@@ -1,41 +1,53 @@
 import { test, expect } from "@playwright/test";
 
-test("Has correct title", async ({ page }) => {
-    await page.goto("/");
 
-    await expect(page).toHaveTitle(
-        /Your single connection to simplify data transfer and improve public health/,
-    );
-});
+test.describe("Homepage", () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto("/");
+    });
+    test("Has correct title", async ({ page }) => {
+        await expect(page).toHaveTitle(/CDC Prime ReportStream/);
+    });
 
-test("has Product link", async ({ page }) => {
-    await page.goto("/");
+    test("has About link", async ({ page }) => {
+        await page
+            .getByTestId("header")
+            .getByRole("link", { name: "About" })
+            .click();
 
-    await page
-        .getByTestId("header")
-        .getByRole("link", { name: "Product" })
-        .click();
+        await expect(page).toHaveURL(/product\/overview/);
+    });
 
-    await expect(page).toHaveURL(/.*product\/overview/);
-});
+    test("has Getting Started link", async ({ page }) => {
+        await page
+            .getByTestId("header")
+            .getByRole("link", { name: "Getting Started" })
+            .click();
 
-test("has Resources link", async ({ page }) => {
-    await page.goto("/");
+        await expect(page).toHaveURL(/getting-started/);
+    });
 
-    await page
-        .getByTestId("header")
-        .getByRole("link", { name: "Resources" })
-        .click();
+    test("has Developers link", async ({ page }) => {
+        await page
+            .getByTestId("header")
+            .getByRole("link", { name: "Developers" })
+            .click();
+        await expect(page).toHaveURL(/.*developer-resources/);
+    });
 
-    await expect(page).toHaveURL(/.*resources/);
-});
+    test("has Your Connection link", async ({ page }) => {
+        await page
+            .getByTestId("header")
+            .getByRole("link", { name: "Your Connection" })
+            .click();
+        await expect(page).toHaveURL(/.*managing-your-connection/);
+    });
 
-test("has Support link", async ({ page }) => {
-    await page.goto("/");
-
-    await page
-        .getByTestId("header")
-        .getByRole("link", { name: "Support" })
-        .click();
-    await expect(page).toHaveURL(/.*support/);
+    test("has Support link", async ({ page }) => {
+        await page
+            .getByTestId("header")
+            .getByRole("link", { name: "Support" })
+            .click();
+        await expect(page).toHaveURL(/.*support/);
+    });
 });

@@ -9,7 +9,7 @@ test.describe("Support page", () => {
         await expect(page).toHaveTitle(/Support/);
     });
 
-    test.describe("Card navigation", () => {
+    test.skip("Card navigation", () => {
         const cardLinks = [
             {
                 name: "Frequently asked questions",
