@@ -28,14 +28,10 @@ class CustomTranslationFunctions(
             val receiver = appContext.config.receiver
             val config = appContext.config.hl7Configuration
 
-            val tz: ZoneId = when {
-                config.convertDateTimesToReceiverLocalTime == true -> {
-                    if (receiver?.timeZone?.zoneId.isNullOrBlank()) DateUtilities.utcZone
-                    else ZoneId.of(receiver?.timeZone?.zoneId)
-                }
-                dateTime.timeZone?.id != null -> ZoneId.of(dateTime.timeZone?.id)
-                else -> DateUtilities.utcZone
-            }
+            val tz =
+                if (dateTime.timeZone?.id != null) {
+                    ZoneId.of(dateTime.timeZone?.id)
+                } else DateUtilities.utcZone
 
             return DateUtilities.formatDateForReceiver(
                 DateUtilities.parseDate(dateTime.asStringValue()),
