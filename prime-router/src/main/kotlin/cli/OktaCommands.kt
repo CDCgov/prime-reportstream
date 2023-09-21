@@ -26,7 +26,7 @@ import java.time.LocalDateTime
 import kotlin.random.Random
 
 /**
- * Implements a PKCE OAUTH2 authorization workflow with the HHS-PRIME Okta account. A browser is launched
+ * Implements a PKCE OAUTH2 authorization workflow with the ReportStream Okta account. A browser is launched
  * for the user to enter credentials. A local server is setup to handle the Oauth2 redirect and to capture
  * the authorization code.
  *
@@ -51,7 +51,7 @@ private const val localTokenFileName = "accessToken.json"
  */
 class LoginCommand : OktaCommand(
     name = "login",
-    help = "Login to the HHS-PRIME authorization service"
+    help = "Login to the ReportStream authorization service"
 ) {
     private var redirectResult: String? = null
     private var server: HttpServer? = null
@@ -174,7 +174,7 @@ class LoginCommand : OktaCommand(
  */
 class LogoutCommand : OktaCommand(
     name = "logout",
-    help = "Logout of the HHS-PRIME authorization service"
+    help = "Logout of the ReportStream authorization service"
 ) {
     override fun run() {
         deleteAccessTokenFile()
