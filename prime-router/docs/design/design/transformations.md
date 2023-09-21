@@ -133,3 +133,12 @@ The constants can be used in any FHIR expression belonging to any element in the
 One template can extend another by using the keyword `extends` at the very top of the template. Example `extends: ../default-sender-transform`. When a schema extends another schema, the elements and constants from the referenced schema will be added to the referencing schema. An error will be thrown if there are name collisions for element names.
 
 `ConfigSchemaReader`, a custom ReportStream class for loading FHIR to FHIR templates, has similar features to that of [LinuxForHealth HL7 to FHIR Converter library](https://github.com/LinuxForHealth/hl7v2-fhir-converter#linuxforhealth-hl7-to-fhir-converter), including the ability to override schemas. This means templates can reference each other and the `ConfigSchemaReader` class will combine them into one object. `ConfigSchemaReader` has the ability to detect errors in the template structure, such as circular dependencies, and will throw an error if such an error is found.
+
+###### Implementation details related to extending templates
+
+- Templates can only be extended at the root level, i.e. ORU_R01_extended can extend ORU_R01, but a nested schema element cannot use extends
+- When an element overrides an existing element it is evaluated in the same context and has access to all the same constants
+- When an overriding schema adds a new element, it is evaluated in the context where it is added
+
+For more detailed examples, the [tests](https://github.com/CDCgov/prime-reportstream/blob/438535937071eaf5a76643cffa652dc77415422b/prime-router/src/test/kotlin/fhirengine/translation/hl7/FhirToHl7ConverterTests.kt#L571)
+and schemas used can be referenced for how to override schemas.

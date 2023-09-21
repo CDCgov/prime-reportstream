@@ -770,6 +770,82 @@
           "code": "g"
         }
       }
+    }, {
+      "fullUrl": "Observation/1695154043790888000.b08fd780-96af-4062-8162-d95f5de8e1e1",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "1695154043790888000.b08fd780-96af-4062-8162-d95f5de8e1e1",
+        "meta": {
+          "extension": [ {
+              "url": "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString": "2.5.1"
+            } ],
+          "tag": [ {
+              "extension": [ {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                  "valueString": "identifier"
+                } ],
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code": "P"
+            } ]
+        },
+        "extension": [ {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-sub-type",
+            "valueString": "AOE"
+          }, {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-type",
+            "valueString": "QST"
+          }, {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/observation-status-original-text",
+            "valueString": "O"
+          }, {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/units",
+            "valueCodeableConcept": {
+              "coding": [ {
+                  "extension": [ {
+                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                      "valueString": "identifier"
+                    } ],
+                  "system": "http://unitsofmeasure.org",
+                  "code": "wk",
+                  "display": "week"
+                } ]
+            }
+          }, {
+            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/sub-id",
+            "valueString": "1"
+          } ],
+        "identifier": [ {
+            "system": "urn:id:extID",
+            "value": "421832901"
+          } ],
+        "status": "unknown",
+        "code": {
+          "coding": [ {
+              "extension": [ {
+                  "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                  "valueString": "identifier"
+                } ],
+              "system": "http://loinc.org",
+              "code": "57714-8",
+              "display": "OBSTETRIC ESTIMATION OF GESTATIONAL AGE"
+            } ]
+        },
+        "subject": {
+          "reference": "Patient/1692819371697407000.0555ab57-b084-4b23-9aac-0c90580387be"
+        },
+        "effectiveDateTime": "2023-05-06T05:00:00-05:00",
+        "valueQuantity": {
+          "extension": [ {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/alternate-value",
+              "valueString": "32"
+            } ],
+          "value": 32,
+          "unit": "wk",
+          "system": "http://unitsofmeasure.org",
+          "code": "wk"
+        }
+      }
     },
     {
       "fullUrl": "Specimen/1692819372150657000.2f05a4a6-ed24-4798-ab0c-647dd778d3e0",

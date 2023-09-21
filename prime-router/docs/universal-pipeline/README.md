@@ -126,6 +126,10 @@ Each step is responsible for validating its own actions. For example, if the [Co
 ##### Handling Unexpected Errors
 
 While uncommon, a pipeline step may encounter an unexpected failure at some point. If this happens, the AQS message that initiated the step shall remain on the queue and the AQS message will run again at some point in the future.
+The message will be re-queued five times before the message is moved to the poison queue.  The issue can then be analyzed and fixed
+before the message can then be re-added to the queue.
+
+This retry behavior works differently for the [batch](batch.md#retries) and [send](send.md#retries).
 
 In addition to the built-in AQS retry mechanism, the unexpected failure will also get logged to the Azure logs where it can be troubleshooted.
 
