@@ -39,6 +39,27 @@ const oktaSignInConfig: WidgetOptions = {
     },
     scopes: ["openid", "email"],
     useClassicEngine: true,
+    i18n: {
+        // Overriding English properties
+        en: {
+            "primaryauth.title": "Sign in",
+            "primaryauth.username.placeholder": "Username or email",
+            "error.username.required":
+                "Please enter a username. Your username should be the email address you registered with. Check your activation email.",
+            "password.forgot.question.title":
+                "Answer forgotten password challenge",
+            "password.forgot.emailSent.title": "Email sent",
+            "password.forgot.emailSent.desc":
+                "We sent an email to {0}. If the email is associated with an account, you will receive instructions on resetting your password. ",
+            "password.forgot.sendEmail": "Request password reset",
+            "email.mfa.title": "Verify with email authentication",
+            "enroll.choices.description":
+                "ReportStream requires multifactor authentication to add an additional layer of security when signing in to your Okta account",
+            "enroll.choices.setup": "Set up",
+            "errors.E0000004":
+                "Unable to sign in.  Check your username and password. Your username should be the email you registered with.",
+        },
+    },
 };
 
 const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
