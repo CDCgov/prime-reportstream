@@ -14,7 +14,7 @@ type_1:
   constants:
     systemCode: "v2-0203"
 
-extension_1:
+extension_1-assigning-authority:
   generateList: true
   expressionType: resource
   valueOf: extension/ExtensionHierarchicDesignator
@@ -22,7 +22,7 @@ extension_1:
   constants:
     urlValue: assigning-authority
 
-extension_2:
+extension_2-assigning-facility:
   generateList: true
   expressionType: nested
   specs: XON.8

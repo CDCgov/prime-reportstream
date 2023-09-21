@@ -175,7 +175,7 @@ performer_1-technician:
   vars:
     rolePractitioner: OBR.34.1
   constants:
-    extensionCode: "SPRF"
+    performerParticipationType: "SPRF"
 
 performer_2-transcriptionist:
   condition: $rolePractitioner NOT_NULL
@@ -185,7 +185,7 @@ performer_2-transcriptionist:
   vars:
     rolePractitioner: OBR.35.1
   constants:
-    extensionCode: "TRANS"
+    performerParticipationType: "TRANS"
 
 basedOn:
   valueOf: datatype/Reference
