@@ -1,5 +1,28 @@
 ## Problem Statement
-The problem is illustrated by this code from `order-observation.yml`:
+In HL7 Converter schemas and FHIR Transformer schemas, when a `resource` is specified within an element, fields like condition can no longer reference the original `resource` value, since `resource` will refer to the new value instead. Consider the following example:
+```
+# resource: <Path to organization>
+- name: performing-organization-name-pracrole
+  condition: '%resource.performer.resolve() is PractitionerRole'
+  resource: '%resource.performer.resolve().organization.resolve()'
+  schema: ./datatype/xon-organization
+  constants:
+    hl7OrgField: '%{hl7OBXField}-23'
+```
+
+The condition here, `%resource.performer.resolve() is PractitionerRole`, `%resource` will use the new `resource` value, `%resource.performer.resolve().organization.resolve()`, which will amount to `<Path to organization>.performer.resolve().organization.resolve()`. Then the condition will amount to `<Path to organization>.performer.resolve().organization.resolve().performer.resolve() is PractitionerRole` which is not what we want. We really want to just reference the original resource's `performer` not the new value of `resource` which is set to be passed into the referenced schema `xon-organization`. As a workaround for this, we add a separate variable to contain a reference to the organization, and use that in `condition` instead:
+```
+# resource: <Path to organization>
+# organization: <Path to organization>
+- name: performing-organization-name-pracrole
+  condition: '%organization.performer.resolve() is PractitionerRole'
+  resource: '%resource.performer.resolve().organization.resolve()'
+  schema: ./datatype/xon-organization
+  constants:
+    hl7OrgField: '%{hl7OBXField}-23'
+```
+
+With this new variable, the condition can work more as expected. But in some cases, it's not possible to reliably set that extra variable to point to the same resource as `resource`. The problem with this kind of workaround is illustrated by this code from `order-observation.yml`:
 ```
 - name: observation-result-with-aoe
   # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
