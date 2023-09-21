@@ -32,10 +32,10 @@ import kotlin.random.Random
  *
  * Based on Okta article https://developer.okta.com/blog/2018/12/13/oauth-2-for-native-and-mobile-apps
  */
-private const val oktaProdBaseUrl = "https://hhs-prime.okta.com"
+private const val oktaProdBaseUrl = "https://reportstream.okta.com"
 const val oktaPreviewBaseUrl = "https://reportstream.oktapreview.com"
-private const val oktaProdClientId = "0oa6kt4j3tOFz5SH84h6"
-private const val oktaPreviewClientId = "0oaa5l2ef0X44yjyJ1d7"
+private const val oktaProdClientId = "0oa376pah9o4G2HVJ4h7"
+private const val oktaPreviewClientId = "0oa8uvan2i07YXJLk1d7"
 private const val oktaAuthorizePath = "/oauth2/default/v1/authorize" // Default authorization server
 private const val oktaTokenPath = "/oauth2/default/v1/token"
 private const val oktaUserInfoPath = "/oauth2/default/v1/userinfo"

@@ -8,7 +8,7 @@ locals {
     resource_group_name = "prime-data-hub-${local.environment}"
     resource_prefix     = "pdh${local.environment}"
     okta_redirect_url   = "https://${local.environment}.prime.cdc.gov/download"
-    okta_base_url       = "hhs-prime.oktapreview.com"
+    okta_base_url       = "reportstream.oktapreview.com"
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig"
