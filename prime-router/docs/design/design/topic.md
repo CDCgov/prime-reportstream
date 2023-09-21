@@ -57,6 +57,7 @@ limited pool of senders.
 
 - The same receiving org will be getting data from two sources that they would like to be kept distinct
 - There are special behaviors that should apply to a specific slice of data (i.e. disallow receiver transforms)
+- Simplify routing when a receiver should get all the reports for a given topic
 
 ## Code Entry
 [Topic Enum](https://github.com/CDCgov/prime-reportstream/blob/3355f1b1d8ffc169346a561569cc432b19ffb69e/prime-router/src/main/kotlin/SettingsProvider.kt#L48)
