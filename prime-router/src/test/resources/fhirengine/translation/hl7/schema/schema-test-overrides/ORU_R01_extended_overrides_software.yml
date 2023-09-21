@@ -1,0 +1,34 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+extends: 'classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01.yml'
+constants:
+  otherConstant: '"overriddenOtherConstant"'
+elements:
+
+  - name: message-header-8
+    value: ['%otherConstant']
+    hl7Spec: ['MSH-8']
+
+  - name: message-header-10
+    value: [ '%baseConstant' ]
+    hl7Spec: [ 'MSH-10' ]
+
+  - name: message-header-11
+    value: ['"override"']
+    hl7Spec: ['MSH-11']
+
+  - name: override-message-header-14
+    value: [ '"not14"' ]
+    hl7Spec: [ 'MSH-14' ]
+
+  - name: software-2
+    value: [ '"not1"' ]
+    hl7Spec: [ 'SFT-2' ]
+
+  - name: software-3
+    constants:
+      fieldThree: '4'
+
+  - name: software-segment
+    condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    schema: 'classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01/sft2.yml'
