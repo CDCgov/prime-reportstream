@@ -62,7 +62,7 @@ elements:
     required: true
     schema: ../common/observation-result
     constants:
-      hl7SegmentGroup: '/ORDER/OBSERVATION_REQUEST/OBSERVATION'
+      hl7SegmentGroup: '/ORDER/OBSERVATION_REQUEST/OBSERVATION(%{resultIndex})'
       hl7OBXField: '%{hl7SegmentGroup}/OBX'
     resourceIndex: resultIndex
 
