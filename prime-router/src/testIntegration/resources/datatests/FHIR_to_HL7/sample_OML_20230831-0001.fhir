@@ -1012,7 +1012,34 @@
             "country": "USA"
           }
         ],
-        "multipleBirthBoolean": false
+        "multipleBirthBoolean": false,
+        "contact": [
+          {
+            "relationship": [
+              {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/v2-0131",
+                    "code": "N",
+                    "display": "Next-of-Kin"
+                  }
+                ]
+              }
+            ],
+            "name": {
+              "family": "Organa",
+              "given": [
+                "Leia"
+              ]
+            },
+            "telecom": [
+              {
+                "system": "phone",
+                "value": "+31201234567"
+              }
+            ]
+          }
+        ]
       }
     },
     {
