@@ -24,6 +24,7 @@ import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import { FeatureName } from "../../../utils/FeatureName";
 import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
+import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
@@ -230,17 +231,16 @@ export const DeliveriesTable = () => {
         return <AdminFetchAlert />;
     }
 
-    if (!loadingServices && !activeService)
+    if (
+        !loadingServices &&
+        (!activeService ||
+            activeService?.customerStatus === CustomerStatusType.INACTIVE)
+    )
         return (
             <div className="usa-section margin-bottom-10">
-                <NoServicesBanner
-                    featureName="Active Services"
-                    organization=""
-                    serviceType={"receiver"}
-                />
+                <NoServicesBanner />
             </div>
         );
-
     return (
         <>
             {activeService && (
