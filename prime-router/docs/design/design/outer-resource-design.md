@@ -10,7 +10,7 @@ In HL7 Converter schemas and FHIR Transformer schemas, when a `resource` is spec
     hl7OrgField: '%{hl7OBXField}-23'
 ```
 
-The condition here, `%resource.performer.resolve() is PractitionerRole`, `%resource` will use the new `resource` value, `%resource.performer.resolve().organization.resolve()`, which will amount to `<Path to organization>.performer.resolve().organization.resolve()`. Then the condition will amount to `<Path to organization>.performer.resolve().organization.resolve().performer.resolve() is PractitionerRole` which is not what we want. We really want to just reference the original resource's `performer` not the new value of `resource` which is set to be passed into the referenced schema `xon-organization`. As a workaround for this, we add a separate variable to contain a reference to the organization, and use that in `condition` instead:
+When the condition, `%resource.performer.resolve() is PractitionerRole`, is true, `%resource` will use the new `resource` value, `%resource.performer.resolve().organization.resolve()`, which will amount to `<Path to organization>.performer.resolve().organization.resolve()`. Then the condition will amount to `<Path to organization>.performer.resolve().organization.resolve().performer.resolve() is PractitionerRole` which is not what we want. We really want to just reference the original resource's `performer` not the new value of `resource` which is set to be passed into the referenced schema `xon-organization`. As a workaround for this, we add a separate variable to contain a reference to the organization, and use that in `condition` instead:
 ```
 # resource: <Path to organization>
 # organization: <Path to organization>
