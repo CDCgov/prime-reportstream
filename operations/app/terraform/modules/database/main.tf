@@ -2,6 +2,7 @@
 data "azurerm_client_config" "current" {}
 
 resource "azurerm_postgresql_server" "postgres_server" {
+  #checkov:skip=CKV_AZURE_68: "Ensure that PostgreSQL server disables public network access"
   name                         = "${var.resource_prefix}-pgsql"
   location                     = var.location
   resource_group_name          = var.resource_group
@@ -14,7 +15,7 @@ resource "azurerm_postgresql_server" "postgres_server" {
 
   auto_grow_enabled = var.db_auto_grow
 
-  public_network_access_enabled    = true
+  public_network_access_enabled    = var.environment == "staging" ? true : false
   ssl_enforcement_enabled          = true
   ssl_minimal_tls_version_enforced = "TLS1_2"
 
