@@ -2,9 +2,27 @@
 
 This section explains how a ReportStream engineer will use and configure the pipeline.
 
-## Differences between COVID & Universal Pipeline Configurations
+## Difference between COVID & Universal Pipeline Configurations
 
-This should be a high-level explanation.
+The COVID pipeline was developed to be flexible and meet senders and receivers where they were in order to meet an
+immediate need. In comparison, the Universal Pipeline is built around adherence to data standards in order to represent
+a wider range of reportable conditions. This results in fewer customization options, which leads to a leaner, more
+narrow configuration.
+
+In general terms, the primary means of data manipulation in the Universal Pipeline is accomplished through sender and
+receiver transforms, where data can be copied and manipulated in a rules-based manner.
+
+## Organization Configuration
+
+Consult the following sections to see configuration options for Universal Pipeline senders and receivers:
+
+### Senders
+* [Convert step](../universal-pipeline/convert.md)
+
+### Receivers
+* [Translate step](../universal-pipeline/translate.md)
+* [Batch step](../universal-pipeline/batch.md)
+* [Send step](../universal-pipeline/send.md)
 
 ## How to create and manage a sender or receiver transform
 

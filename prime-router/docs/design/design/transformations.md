@@ -37,7 +37,7 @@ FHIR bundles are transformed (enriched) to FHIR during the [Convert](../../unive
 
 ## Transform Templates
 
-Transform templates (schemas) are shared between HL7v2-to-FHIR, FHIR-to-FHIR, and FHIR-to-HL7v2 transformations. They are configured as `.yml` files which are presently located in the repository under `prime-router/metadata/fhir_transforms`. Whereas HL7v2-to-FHIR and FHIR-to-HL7v2 templates use a library on top of the respective HAPI library to perform the transformations, FHIR-to-FHIR transforms are performed using the HAPI FHIR library directly, with the logic for loading templates contained in `ConfigSchemaReader.kt` and the logic for using the loaded templates to perform the transformation contained in `FhirTransformer.kt`.
+Transform templates (schemas) are shared between FHIR-to-FHIR and FHIR-to-HL7v2 transformations. They are configured as `.yml` files which are presently located in the repository under `prime-router/metadata/fhir_transforms`. Whereas HL7v2-to-FHIR and FHIR-to-HL7v2 templates use a library on top of the respective HAPI library to perform the transformations, FHIR-to-FHIR transforms are performed using the HAPI FHIR library directly, with the logic for loading templates contained in `ConfigSchemaReader.kt` and the logic for using the loaded templates to perform the transformation contained in `FhirTransformer.kt`.
 
 #### Template Structure
 

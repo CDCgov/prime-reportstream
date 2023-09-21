@@ -5,6 +5,9 @@ need to update a transform. If you need more information please read
 [Convert](../../universal-pipeline/convert.md) for sender transforms and
 [Translate](../../universal-pipeline/translate.md) for receiver transforms.
 
+> WARNING: The Universal Pipeline is in active development and some features may not be functioning as intended. 
+> Please consult [the FHIR to HL7 converter tests](/prime-router/src/test/kotlin/fhirengine/translation/hl7/FhirToHl7ConverterTests.kt) for known issues.
+
 ## Choosing the location for a transform
 
 Use the following decision tree when determining where a transform should be performed: 
