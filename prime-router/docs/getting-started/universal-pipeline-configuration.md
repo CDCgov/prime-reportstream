@@ -37,7 +37,7 @@ Sender and receiver transforms both use a `.yml` (YAML) format.
 
 ### Defining Sender Transforms
 
-Sender transforms are currently stored in `metadata/fhir_transforms/senders` and are utilized by a given sender when
+Sender transform schemas are currently stored in `metadata/fhir_transforms/senders` and are utilized by a given sender when
 defining the `schemaName` element in the sender's settings. See this example where the `simple-report-sender-transform`
 is defined for a sender named `dev-fhir`:
 
@@ -48,15 +48,15 @@ is defined for a sender named `dev-fhir`:
 ```
 
 Most senders are configured to use the default sender transform, which inserts ReportStream specific values into the
-data. Templates are designed to be extensible. Transforms created for a specific sender would typically extend the default
-transform while adding additional transforms needed for the sender. The `simple-report-sender-transform` template,
+data. Schemas are designed to be extensible. Transforms created for a specific sender would typically extend the default
+transform while adding additional transforms needed for the sender. The `simple-report-sender-transform` schema,
 accordingly, extends the default transform as well.
 
 > For more context on how sender transforms are used, please reference [Convert](../universal-pipeline/convert.md).
 
 ### Defining Receiver Transforms
 
-Receiver transforms are currently stored in `metadata/hl7_mapping/receivers` and are utilized by a given receiver when
+Receiver transform schemas are currently stored in `metadata/hl7_mapping/receivers` and are utilized by a given receiver when
 defining the `schemaName` element within the `translation` settings for the receiver. See this example where the
 `CA-receiver-transform` is defined for a receiver named `CA_FULL_ELR`:
 
@@ -68,7 +68,7 @@ defining the `schemaName` element within the `translation` settings for the rece
 
 > For more context on how receiver transforms are used, please reference [Translate](../universal-pipeline/translate.md).
 
-Receiver transform templates, in addition to transforming values, can also define HL7v2 mappings as needed for a specific receiver.
+Receiver transform schemas, in addition to transforming values, can also define HL7v2 mappings as needed for a specific receiver.
 
  > For more details on when a transform should be defined as a sender or receiver transform, and for details on how the
 transform schemas are laid out, please reference

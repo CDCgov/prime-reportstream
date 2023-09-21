@@ -25,22 +25,22 @@ flowchart LR
 In short, use a sender transform when data needs to be uniformly adjusted regardless of receiver.
 Use a receiver transform if the receiver has specific HL7 mapping requirements or data adjustment needs.
 
-## How to configure a transform template
+## How to configure a transform schema
 
 Transform templates (schemas) are `.yml` files that define the transforms and all configuration data needed to perform 
-them. Refer to [Pipeline Configuration](../universal-pipeline-configuration.md) for details on how transform templates
+them. Refer to [Pipeline Configuration](../universal-pipeline-configuration.md) for details on how transform schemas
 are defined in an organization's settings.
 
-Transform templates are have three main sections:
+Transform schemas are have three main sections:
 * `extends`: A schema which the current schema extends. All values from the specified schema are loaded before the
   elements in the current schema. If there are common elements, the values in the current schema are used.
 * `constants`: A list of constants that are resolved by FHIRPath expressions that are common to all elements in the
-  template. Refer to constants within elements by prefacing their name with a `%` symbol.
+  schema. Refer to constants within elements by prefacing their name with a `%` symbol.
 * `elements`: A collection of individual configurations that specify which data is selected for transforms and what 
   transforms are performed. Each element is an individual, self-contained action taken on the data.
 
-Transform elements either specify the value to be transformed, or link to another transform template to be processed.
-Here's an example of a transform template (specifically, a sender transform):
+Transform elements either specify the value to be transformed, or link to another transform schema to be processed.
+Here's an example of a transform schema (specifically, a sender transform):
 
 ```
 extends: ../default-sender-transform
@@ -65,9 +65,9 @@ elements:
       schema: patient-name-schema
 ```
 
-This example contains the complete layout of a transform template, with two transform elements. The first is a value
-transform that adds country to a patient's address if it does not exist. The second specifies an additional template, 
-`patient-name-schema.yml`. This additional template might contain:
+This example contains the complete layout of a transform schema, with two transform elements. The first is a value
+transform that adds country to a patient's address if it does not exist. The second specifies an additional schema, 
+`patient-name-schema.yml`. This additional schema might contain:
 
 ```
 elements:
@@ -78,7 +78,7 @@ elements:
       value: [‘"First name, last name"’]
 ```
 
-In which all patient resources are processed using the above template.
+In which all patient resources are processed using the above schema.
 
 ### Translate element definition
 
@@ -146,7 +146,7 @@ to a letter code:
         other: O
 ```
 
-See this example of a sender transform making use of the `npi-lookup` table to replace any instance of the first name
+See this example of a sender transform element making use of the `npi-lookup` table to replace any instance of the first name
 with the matching last name from the table:
 
 ```
