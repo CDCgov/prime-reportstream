@@ -22,10 +22,11 @@ Create a new branch to store your work on the new sender.
 
 ### Set up a New Organization
 
-In your `organization.yml` file create a new organization.
+Create organization .yml files in your working branch in:
+- prime-router -> settings -> staging
+Ensure the file begins with “---”.
 
-Example organization with one sender entry:
-
+Example:
 ```yaml
 - name: yoyodyne
   description: Yoyodyne Propulsion Laboratories, the Future Starts Tomorrow!
@@ -35,8 +36,12 @@ Example organization with one sender entry:
       organizationName: yoyodyne
       topic: full-elr
       schemaName: metadata/fhir_transforms/senders/default-sender-transform
-      format: FHIR
+      format: HL7
 ```
+
+Use the following command to load the information from the .yml file into your local database
+
+`./prime multiple-settings set –env local –input <file-location>`
 
 A few things to note here:
 
@@ -52,7 +57,7 @@ A few things to note here:
 **You should only create new schemas when an existing schema will not fit your use case. Please ensure that an
 existing schema cannot be used prior to creating a new schema.**
 
-Once you've added the sender to the `organizations.yml` file you next need to create a schema file.
+Once you've added a setting file the sender you next need to create a schema file.
 
 The schema provides additional transforms required so that the senders data can be routed correctly.
 
@@ -81,7 +86,7 @@ the message with no errors and not lose any data while converting it.
 
 #### Testing sender transforms
 ```shell
-./prime fhirdata --input-file "PATH-TO-SAMPLE-FILE" -s metadata/fhir_transforms/senders/default-sender-transform.yaml --output-format FHIR --output-file "PATH-TO-OUTPUT-FILE"
+./prime fhirdata --input-file "PATH-TO-SAMPLE-FILE.hl7" -s metadata/fhir_transforms/senders/default-sender-transform.yaml --output-format FHIR --output-file "PATH-TO-OUTPUT-FILE.fhir"
 ```
 
 This call will take in your sample input file, and apply any sender transforms specified in the schema passed in,
@@ -90,11 +95,18 @@ there are any problems with your schema, they should become readily apparent at 
 
 #### Testing receiver transforms
 ```shell
-./prime fhirdata --input-file "PATH-TO-SAMPLE-FILE" -s metadata/hl7_mapping/ORU_R01/ORU_R01-base.yaml --output-format HL7 --output-file "PATH-TO-OUTPUT-FILE"
+./prime fhirdata --input-file "PATH-TO-SAMPLE-FILE.fhir" -s metadata/hl7_mapping/ORU_R01/ORU_R01-base.yaml --output-format HL7 --output-file "PATH-TO-OUTPUT-FILE.hl7"
 ```
 This call will take in your sample input file, and convert it to HL7 applying any receiver transforms specified in the 
 schema passed in. If there are any mapping issues, if
 there are any problems with your schema, they should become readily apparent at this point.
+
+#### Testing both receiver and sender transforms
+```shell
+./prime fhirdata --input-file "PATH-TO-SAMPLE-FILE.hl7" -s metadata/hl7_mapping/ORU_R01/ORU_R01-base.yaml --output-format HL7 --output-file "PATH-TO-OUTPUT-FILE.hl7"
+```
+This call will take in your sample input file, and convert it to HL7 applying any receiver transforms specified in the
+schema passed in. If there are any mapping issues, if there are any problems with your schema, they should become readily apparent at this point.
 
 
 ### Testing using API
@@ -131,24 +143,8 @@ If there are any exceptions, you will see them output in the console for Azure.
 
 ## Sending data to ReportStream
 
-Create .yml files in your working branch in:
-- prime-router -> settings -> staging
+Using the .yml file you created previously and load it into the staging database.
 
-The .yml files should contain the same information as you used above to create the organization and sender in the
-organization.yml files. Ensure the file begins with “---”.
-
-Example:
-```agsl
-- name: yoyodyne
-  description: Yoyodyne Propulsion Laboratories, the Future Starts Tomorrow!
-  jurisdiction: FEDERAL
-  senders:
-    - name: default
-      organizationName: yoyodyne
-      topic: full-elr
-      schemaName: metadata/fhir_transforms/senders/default-sender-transform
-      format: HL7
-```
 Use the following commands to load the information from the .yml files into the staging database
 
 First obtain a login token for staging
