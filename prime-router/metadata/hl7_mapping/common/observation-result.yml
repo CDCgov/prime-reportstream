@@ -13,8 +13,14 @@ elements:
     value: [ '"DT"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
+  - name: result-value-type-ce
+    resource: '%resource.value'
+    condition: false
+    # This element remains here for usage in receiver-transforms
+    value: [ '"CE"' ]
+    hl7Spec: [ '%{hl7OBXField}-2' ]
 
-  - name: result-value-type-codeable-concept
+  - name: result-value-type-cwe
     resource: '%resource.value'
     condition: '%resource is CodeableConcept'
     # Note that for v.2.5 and earlier, CWE is not officially in-spec, but is widely used. If a receiver requires

@@ -82,6 +82,13 @@ elements:
   - name: specimen-observation-result-with-aoe
     condition: false
 
+  # OBX-2
+  - name: result-value-type-ce
+    condition: '%resource is CodeableConcept'
+
+  - name: result-value-type-cwe
+    condition: '%resource is CodeableConcept and (%resource.coding[0].version.exists() or %resource.coding[1].version.exists() or %resource.text.exists())'
+
     #OBX-3
   - name: observation-identifier-code
     condition: false

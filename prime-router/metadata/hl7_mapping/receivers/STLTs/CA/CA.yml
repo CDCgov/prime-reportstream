@@ -155,6 +155,13 @@ elements:
   - name: observation-result-with-aoe
     resource: '%resource.result.resolve()'
 
+  # OBX-2
+  - name: result-value-type-ce
+    condition: '%resource is CodeableConcept'
+
+  - name: result-value-type-cwe
+    condition: '%resource is CodeableConcept and (%resource.coding[0].version.exists() or %resource.coding[1].version.exists() or %resource.text.exists())'
+
   # OBX-3
   - name: observation-identifier-code
     condition: false
@@ -193,13 +200,18 @@ elements:
     value: [ '"HL70005"' ]
     hl7Spec: [ '%{hl7PIDField}-10-3' ]
 
+  # PID-22 use coded element mapping
+  - name: patient-ethnicity
+    constants:
+      ceFieldPath: '%{hl7PIDField}-22'
+    schema: ../../../common/datatype/ce-coded-element
+
   - name: ca-patient
     resource: 'Bundle.entry.resource.ofType(Patient)'
     condition: '%resource.count() = 1'
     constants:
       hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
     schema: ca-patient
-
 
   - name: diagnostic-serv-sect-id
     condition: false
