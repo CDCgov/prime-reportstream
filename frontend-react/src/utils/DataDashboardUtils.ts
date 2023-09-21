@@ -4,6 +4,11 @@ export enum SenderType {
     SUBMITTER = "submitter",
 }
 
+export enum CustomerStatusType {
+    ACTIVE = "active",
+    INACTIVE = "inactive",
+}
+
 export const facilityTypeDisplay = {
     [SenderType.FACILITY]: {
         label: "PERFORMING FACILITY",
