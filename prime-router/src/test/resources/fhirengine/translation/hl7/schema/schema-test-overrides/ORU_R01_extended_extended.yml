@@ -1,0 +1,14 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+extends: 'classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01_extended.yml'
+constants:
+  otherConstant: '"overriddenOtherConstant"'
+elements:
+
+  # This exercises overriding an element that is overridden in the ORU_R01_extended
+  - name: message-header-11
+    value: ['"overrideOverridden"']
+    hl7Spec: ['MSH-11']
+
+  - name: software-1
+    resource: '%resource.event'
+    schema: 'classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01/xon_extended.yml'

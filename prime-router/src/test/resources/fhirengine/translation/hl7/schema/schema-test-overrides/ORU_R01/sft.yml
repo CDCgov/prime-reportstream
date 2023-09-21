@@ -1,0 +1,20 @@
+constants:
+  sftConstant: '"sftValue"'
+  fieldThree: '3'
+  xonPath: 'SFT-1'
+elements:
+  - name: software-1
+    resource: '%resource.event'
+    schema: 'classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01/xon.yml'
+
+  - name: software-2
+    value: [ '"1"' ]
+    hl7Spec: [ 'SFT-2' ]
+
+  - name: software-3
+    value: ['%resource.definition']
+    hl7Spec: ['SFT-%{fieldThree}']
+
+  - name: software-5
+    value: ['%resource.id']
+    hl7Spec: ['SFT-5']
