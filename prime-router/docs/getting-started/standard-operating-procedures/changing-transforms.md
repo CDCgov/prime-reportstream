@@ -27,7 +27,7 @@ Use a receiver transform if the receiver has specific HL7 mapping requirements o
 
 ## How to configure a transform schema
 
-Transform templates (schemas) are `.yml` files that define the transforms and all configuration data needed to perform 
+Transform schemas are `.yml` files that define the transforms and all configuration data needed to perform 
 them. Refer to [Pipeline Configuration](../universal-pipeline-configuration.md) for details on how transform schemas
 are defined in an organization's settings.
 
