@@ -10,7 +10,7 @@ elements:
       values:
         home: PRN
         work: WPN
-        mobile: PRN
+        mobile: PRS
         temp: ORN
 
   - name: xtn-use-code-from-system
