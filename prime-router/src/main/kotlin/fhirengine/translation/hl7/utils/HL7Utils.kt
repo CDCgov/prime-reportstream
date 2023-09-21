@@ -89,6 +89,11 @@ object HL7Utils : Logging {
         return message
     }
 
+    /**
+     * Only call from COVID pipeline!
+     *
+     * This is not generic enough for the UP
+     */
     fun formPathSpec(spec: String, rep: Int? = null): String {
         val segment = spec.substring(0, 3)
         val components = spec.substring(3)
@@ -96,8 +101,11 @@ object HL7Utils : Logging {
         return "$segmentSpec$components"
     }
 
-    // TODO: UP supports different types of HL7 messages, and the paths to these segments are different per HL7 type
-    // TODO: write ticket to handle this
+    /**
+     * Only call from COVID pipeline!
+     *
+     * This is not generic enough for the UP
+     */
     fun formSegSpec(segment: String, rep: Int? = null): String {
         val repSpec = rep?.let { "($rep)" } ?: ""
         return when (segment) {
