@@ -13,16 +13,12 @@ elements:
     value: [ '"DT"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
-  - name: result-value-type-ce
-    condition: '%resource.value is CodeableConcept'
-    # Note that for v.2.5 and earlier CWE is not in-spec.
-    value: [ '"CE"' ]
-    hl7Spec: [ '%{hl7OBXField}-2' ]
 
-  - name: result-value-type-cwe
+  - name: result-value-type-codeable-concept
     resource: '%resource.value'
-    condition: '%resource is CodeableConcept and (%resource.coding[0].version.exists() or %resource.coding[1].version.exists() or %resource.text.exists())'
-    # Note that for v.2.5 and earlier, CWE is not officially in-spec, but is widely used.
+    condition: '%resource is CodeableConcept'
+    # Note that for v.2.5 and earlier, CWE is not officially in-spec, but is widely used. If a receiver requires
+    # CE, that should be handled via receiver transform
     value: [ '"CWE"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
