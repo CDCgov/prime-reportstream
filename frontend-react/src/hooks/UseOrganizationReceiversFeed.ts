@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useState, useEffect } from "react";
 
 import { RSReceiver } from "../config/endpoints/settings";
-import { CustomerStatus } from "../utils/TemporarySettingsAPITypes";
+import { CustomerStatusType } from "../utils/DataDashboardUtils";
 
 import { useOrganizationReceivers } from "./UseOrganizationReceivers";
 
@@ -12,6 +12,15 @@ interface ReceiverFeeds {
     setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
     isDisabled: boolean;
 }
+
+export function sortAndFilterInactiveServices(
+    services: RSReceiver[],
+): RSReceiver[] {
+    const filteredServices = services.filter(
+        (service) => service.customerStatus !== CustomerStatusType.INACTIVE,
+    );
+    return filteredServices?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+}
 /** Fetches a list of receiver services for your active organization, and provides a controller to switch
  * between them */
 export const useOrganizationReceiversFeed = (): ReceiverFeeds => {
@@ -21,16 +30,19 @@ export const useOrganizationReceiversFeed = (): ReceiverFeeds => {
         fetchStatus,
     } = useOrganizationReceivers();
     const [active, setActive] = useState<RSReceiver | undefined>();
+    const [sortedAndFilteredServices, setSortedAndFilteredServices] = useState<
+        RSReceiver[] | []
+    >();
     const [receiversFound, setReceiversFound] = useState<boolean | undefined>();
 
     useEffect(() => {
         if (receivers?.length) {
+            const sortedAndFilteredReceivers =
+                sortAndFilterInactiveServices(receivers);
             setActive(
-                receivers.find(
-                    // Checks for an active receiver first
-                    (val) => val.customerStatus === CustomerStatus.ACTIVE,
-                ) || receivers[0], // Defaults to first in array
+                sortedAndFilteredReceivers[0], // Defaults to first in array
             );
+            setSortedAndFilteredServices(sortedAndFilteredReceivers);
             setReceiversFound(true);
         } else {
             setReceiversFound(false);
@@ -41,7 +53,7 @@ export const useOrganizationReceiversFeed = (): ReceiverFeeds => {
         loadingServices:
             (isLoading && fetchStatus !== "idle") ||
             receiversFound === undefined,
-        services: receivers?.sort((a, b) => a.name.localeCompare(b.name)) || [],
+        services: sortedAndFilteredServices || [],
         activeService: active,
         setActiveService: setActive,
         isDisabled: isLoading && fetchStatus === "idle",
