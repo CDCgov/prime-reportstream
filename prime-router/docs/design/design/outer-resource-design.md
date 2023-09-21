@@ -45,15 +45,25 @@ expect it to. Currently, if there are 5 items in`%resource.result.resolve()` and
 there are only 5 items in `%diagnostic.result` and that is ultimately what resource will end up being set to.
 
 We want to have a way to access that outer resource, the one initially defined, so that in places like these we can
-reference the parent and some of its children without losing the value of the initial resource.
+reference the parent a
+nd some of its children without losing the value of the initial resource.
 
 There are two ways we can go about this, and they are not mutually exclusive. 
 
 ## Proposals
 ### Outer Resource
-This is, by far, the less difficult option. In the code, we would basically set a constant called `outerResource` to 
+This is, by far, the less difficult option. In `FhirToHl7Converter`, we would set a constant called `outerResource` to 
 equal the resource being passed into the file. That way, there would automatically be access in each file to the outer 
-resource. So in `FhirToHl7Converter`, we would basically create a constant that would be set to the focusResource. 
+resource. It could then be used like so:
+```
+# resource: <Path to organization>
+- name: performing-organization-name-pracrole
+  condition: '%{outerResource} is PractitionerRole'
+  resource: '%resource.performer.resolve().organization.resolve()'
+  schema: ./datatype/xon-organization
+  constants:
+    hl7OrgField: '%{hl7OBXField}-23'
+```
 
 ### .parent()
 Initially, it was thought that this would get the outerResource, but calling `.parent()` sounds more like you are 
