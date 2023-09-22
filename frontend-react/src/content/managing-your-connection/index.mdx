@@ -13,6 +13,8 @@ ongoingSupport:
     summary: Our expert team troubleshoots issues throughout your use of ReportStream.
 ---
 
+import site from "../../content/site.json";
+
 <HeroWrapper className="bg-blue-5">
     <div className="grid-container">
         <section className="usa-section">
@@ -80,10 +82,10 @@ ongoingSupport:
         </Tile>
         <div className="grid-row">
             <Tile className="grid-col-fill margin-right-3" {...frontmatter.submissionHistory}>
-                <p><A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">Contact us</A> to learn more.</p>
+                <p><A href={site.forms.contactUs.url}>Contact us</A> to learn more.</p>
             </Tile>
             <Tile className="grid-col-fill margin-right-3" {...frontmatter.ongoingSupport}>
-                <p><A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">Submit service request.</A></p>
+                <p><A href={site.forms.contactUs.url}>Submit service request.</A></p>
             </Tile>
         </div>
     </section>

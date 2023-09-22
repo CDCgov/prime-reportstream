@@ -140,5 +140,13 @@ resource "azurerm_data_factory_pipeline" "sftp_share_to_archive" {
     azurerm_data_factory_dataset_binary.sftp_archive
   ]
 
+  lifecycle {
+    //ignore until temp elims sftp solution is removed
+    ignore_changes = [
+      variables,
+      activities_json
+    ]
+  }
+
   timeouts {}
 }
