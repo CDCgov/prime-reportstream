@@ -14,7 +14,7 @@
 # a tad bit easier when you are rebuilding the builder image
 #
 FROM alpine:3.18 AS downloader
-ARG GRADLE_VERSION=7.6.1
+ARG GRADLE_VERSION=8.3
 ARG AFCT_VERSION=4.0.5198
 
 RUN apk update && apk add wget --no-cache
