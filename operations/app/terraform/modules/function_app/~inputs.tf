@@ -76,6 +76,9 @@ variable "app_config_key_vault_id" {}
 variable "app_config_key_vault_name" {}
 variable "dns_ip" {}
 variable "okta_base_url" {}
+variable "OKTA_authKey" {}
+variable "OKTA_clientId" {}
+variable "OKTA_scope" {}
 
 variable "subnets" {
   description = "A set of all available subnet combinations"
