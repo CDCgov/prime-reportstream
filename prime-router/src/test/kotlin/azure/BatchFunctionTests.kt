@@ -94,7 +94,7 @@ class BatchFunctionTests {
         // empty pathway should be called
         verify(exactly = 1) { engine.generateEmptyReport(any(), any()) }
         // standard batch handling should not be called
-        verify(exactly = 0) { engine.handleBatchEvent(any(), any(), any(), any()) }
+        verify(exactly = 0) { engine.handleBatchEvent(any(), any(), any(), any(), any()) }
     }
 
     @Test

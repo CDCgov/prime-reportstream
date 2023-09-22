@@ -624,6 +624,7 @@ class WorkflowEngine(
         messageEvent: BatchEvent,
         maxCount: Int,
         backstopTime: OffsetDateTime?,
+        fetchContent: Boolean = true,
         updateBlock: (headers: List<Header>, txn: Configuration?) -> Unit
     ) {
         db.transact { txn ->
@@ -657,7 +658,14 @@ class WorkflowEngine(
                 tasks.mapNotNull {
                     async {
                         if (reportFiles[it.reportId] != null) {
-                            createHeader(it, reportFiles[it.reportId]!!, null, organization, receiver)
+                            createHeader(
+                                it,
+                                reportFiles[it.reportId]!!,
+                                null,
+                                organization,
+                                receiver,
+                                fetchContent
+                            )
                         } else {
                             null
                         }

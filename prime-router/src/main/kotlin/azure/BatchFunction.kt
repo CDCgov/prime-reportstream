@@ -103,7 +103,7 @@ class BatchFunction(
                     workflowEngine.recordAction(actionHistory)
                 }
             } else {
-                workflowEngine.handleBatchEvent(event, maxBatchSize, backstopTime) { headers, txn ->
+                workflowEngine.handleBatchEvent(event, maxBatchSize, backstopTime, !receiver.topic.isUniversalPipeline) { headers, txn ->
                     // find any headers that expected to have content but were unable to actually download
                     //  from the blob store.
                     headers.filter { it.expectingContent && it.content == null }
