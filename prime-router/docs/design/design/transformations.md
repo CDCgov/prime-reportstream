@@ -27,27 +27,29 @@ The Convert step, in `FHIRConverter.kt`, uses `HL7Reader` to load the message as
 
 ## FHIR-to-HL7v2 Transformations
 
+FHIR-to-HL7v2 transforms operate similarly to FHIR-to-FHIR transforms described below but schema elements have an added field, `hl7Spec`, which is a list of HL7 fields to which the data in the element map to. This field is required for all elements not operating in schema mode. Converter schemas are defined and processed in `ConverterSchema.kt`.
+
 TBD: Content to be added in a future story
 
 ## FHIR-to-FHIR Transformations
 
 FHIR bundles are transformed (enriched) to FHIR during the [Convert](../../universal-pipeline/convert.md) and [Translate](../../universal-pipeline/translate.md) steps in the Universal Pipeline. The class `FhirTransformer` is used to perform these FHIR to FHIR transforms.
 
-### FHIR-to-FHIR configurations
+## Transform Schemas
 
-FHIR to FHIR transform templates (schemas) are configured as `.yml` files which are presently located in the repository under `prime-router/metadata/fhir_transforms`. Whereas HL7v2-to-FHIR and FHIR-to-HL7v2 templates use a library on top of the respective HAPI library to perform the transformations, FHIR to FHIR transforms are performed using the HAPI FHIR library directly, with the logic for loading templates contained in `ConfigSchemaReader.kt` and the logic for using the loaded templates to perform the transformation contained in `FhirTransformer.kt`.
+RS Transform schemas are shared between FHIR-to-FHIR and FHIR-to-HL7v2 transformations. They are configured as `.yml` files which are presently located in the repository under `prime-router/metadata/fhir_transforms` and `prime-router/metadata/hl7_mappings`. Whereas HL7v2-to-FHIR and FHIR-to-HL7v2 schemas use a library on top of the respective HAPI library to perform the transformations, FHIR-to-FHIR transforms are performed using the HAPI FHIR library directly, with the logic for loading schemas contained in `ConfigSchemaReader.kt` and the logic for using the loaded schemas to perform the transformation contained in `FhirTransformer.kt`.
 
-#### Template Structure
+#### Schema Structure
 
-For those familiar with the templates of [LinuxForHealth HL7 to FHIR Converter library](https://github.com/LinuxForHealth/hl7v2-fhir-converter#linuxforhealth-hl7-to-fhir-converter), the FHIR-to-FHIR templates will look like a simpler version. This is because, at their core, they are simply selecting a particular resource in a bundle and setting it to a particular value.
+For those familiar with the templates of [LinuxForHealth HL7 to FHIR Converter library](https://github.com/LinuxForHealth/hl7v2-fhir-converter#linuxforhealth-hl7-to-fhir-converter), the RS transform schemas will look like a simpler version. This is because, at their core, they are simply selecting a particular resource in a bundle and setting it to a particular value.
 
 The basic fields that make up a schema are defined as properties in `FhirTransformSchema` class. See `FhirTransformSchema` for more details of what makes up a schema (name, constants, elements, and extends).
 
-Example templates can be found in the repo under `prime-router/metadata/fhir_transforms`.
+Example schemas can be found in the repo under `prime-router/metadata/fhir_transforms`.
 
-##### Template Elements
+##### Schema Elements
 
-An "element" is the basic building block of a template and contains a set of parameters that describe what bundle property to set, under what conditions to set it to, and what value to set it to. The `FhirTransformer` class traverses each element in the template and applies the transform following the rules specified by a particular element. 
+An "element" is the basic building block of a schema and contains a set of parameters that describe what bundle property to set, under what conditions to set it to, and what value to set it to. The `FhirTransformer` class traverses each element in the schema and applies the transform following the rules specified by a particular element. 
 
 Elements can be configured for one of two "modes": _value mode_ or _schema mode_. Elements are made up of different properties, which properties exactly depends on the mode. Regardless of mode, however, all elements may have the following properties ( see `FhirTransformSchemaElement` for more details):
 
@@ -67,6 +69,7 @@ Elements configured with value mode consist of the following additional properti
 - bundleProperty
 - value
 - valueSet
+- hl7Spec (FHIR-to-HL7v2 only)
 
 When configuring an element with value mode, the **value** and **bundleProperty** properties must be set. This is the more straightforward of the two modes, where each resource matching the **resource** expression will have each of its properties matching the **bundleProperty** expression set to **value**.
 
@@ -81,7 +84,7 @@ Example Element that sets a resource's value to `"P"`:
     value: [ '"P"' ]
 ```
 
-As seen in the example above, each element can have a name, which is used for the purposes of extending or overriding values from [extended templates](#extending-templates).
+As seen in the example above, each element can have a name, which is used for the purposes of extending or overriding values from [extended schemas](#extending-schemas).
 
 ###### Elements using schema mode
 Elements configured with schema mode consist of the following additional properties:
@@ -115,28 +118,28 @@ Example Element that sets a resource's value to `"P"`. Say this element belongs 
 
 If the input JSON has two MessageHeaders, then the output FHIR bundle will set the `source.endpoint` of the first one to the string "0" and the `source.endpoint` of the second one to the string "1".
 
-Additional example templates, containing elements, can be found in the repo under `prime-router/metadata/fhir_transforms`.
+Additional example schemas, containing elements, can be found in the repo under `prime-router/metadata/fhir_transforms`.
 
-##### Template Constants
+##### Schema Constants
 
-Each template can define a set of constants to use throughout its elements in order to make the template easier to read. Constants are defined by populating the `constants` property. Like so:
+Each schema can define a set of constants to use throughout its elements in order to make the schema easier to read. Constants are defined by populating the `constants` property. Like so:
 
 ```yml
 constants:
   rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
 ```
 
-The constants can be used in any FHIR expression belonging to any element in the template or any child template. When a constant appears in a special string enclosed in %\`\`, the code will look for strings defined as constants and replace them with their values. Example: %\`rsext-software-vendor-org\`
+The constants can be used in any FHIR expression belonging to any element in the schema or any child schema. When a constant appears in a special string enclosed in %\`\`, the code will look for strings defined as constants and replace them with their values. Example: %\`rsext-software-vendor-org\`
 
-##### Extending Templates
+##### Extending Schemas
 
-One template can extend another by using the keyword `extends` at the very top of the template. Example `extends: ../default-sender-transform`. When a schema extends another schema, the elements and constants from the referenced schema will be added to the referencing schema. An error will be thrown if there are name collisions for element names.
+One schema can extend another by using the keyword `extends` at the very top of the schema. Example `extends: ../default-sender-transform`. When a schema extends another schema, the elements and constants from the referenced schema will be added to the referencing schema. An error will be thrown if there are name collisions for element names.
 
-`ConfigSchemaReader`, a custom ReportStream class for loading FHIR to FHIR templates, has similar features to that of [LinuxForHealth HL7 to FHIR Converter library](https://github.com/LinuxForHealth/hl7v2-fhir-converter#linuxforhealth-hl7-to-fhir-converter), including the ability to override schemas. This means templates can reference each other and the `ConfigSchemaReader` class will combine them into one object. `ConfigSchemaReader` has the ability to detect errors in the template structure, such as circular dependencies, and will throw an error if such an error is found.
+`ConfigSchemaReader`, a custom ReportStream class for loading FHIR to FHIR schemas, has similar features to that of [LinuxForHealth HL7 to FHIR Converter library](https://github.com/LinuxForHealth/hl7v2-fhir-converter#linuxforhealth-hl7-to-fhir-converter), including the ability to override schemas. This means schemas can reference each other and the `ConfigSchemaReader` class will combine them into one object. `ConfigSchemaReader` has the ability to detect errors in the schema structure, such as circular dependencies, and will throw an error if such an error is found.
 
-###### Implementation details related to extending templates
+###### Implementation details related to extending schemas
 
-- Templates can only be extended at the root level, i.e. ORU_R01_extended can extend ORU_R01, but a nested schema element cannot use extends
+- Schemas can only be extended at the root level, i.e. ORU_R01_extended can extend ORU_R01, but a nested schema element cannot use extends
 - When an element overrides an existing element it is evaluated in the same context and has access to all the same constants
 - When an overriding schema adds a new element, it is evaluated in the context where it is added
 

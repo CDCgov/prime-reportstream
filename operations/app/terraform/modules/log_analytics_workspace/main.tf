@@ -44,7 +44,9 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostics" {
     ignore_changes = [
       # Case does not apply correctly
       log_analytics_workspace_id,
-      log_analytics_destination_type
+      log_analytics_destination_type,
+      metric,
+      log
     ]
   }
 }
