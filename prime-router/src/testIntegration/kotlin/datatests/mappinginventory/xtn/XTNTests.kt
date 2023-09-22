@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.datatests.mappinginventory.xtn
 
-import gov.cdc.prime.router.datatests.mappinginventory.TranslateAndCompareFile.Companion.translateAndCompareFHIRToHL7
-import gov.cdc.prime.router.datatests.mappinginventory.TranslateAndCompareFile.Companion.translateAndCompareHL7ToFHIR
+import gov.cdc.prime.router.datatests.mappinginventory.translateAndCompareFHIRToHL7
+import gov.cdc.prime.router.datatests.mappinginventory.translateAndCompareHL7ToFHIR
 import org.junit.jupiter.api.Test
 
 class XTNTests {
