@@ -1,0 +1,54 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+extends: 'classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01.yml'
+constants:
+  # This exercises overriding a constant from the base schema
+  otherConstant: '"overriddenOtherConstant"'
+elements:
+
+  # This exercises overriding a schema element setting the value to a constant in the base schema
+  - name: message-header-10
+    value: [ '%baseConstant' ]
+    hl7Spec: [ 'MSH-10' ]
+
+  # This exercises overriding a schema element with a hardcoded value from the base schema
+  - name: message-header-11
+    value: ['"override"']
+    hl7Spec: ['MSH-11']
+
+  # This exercises that an element in the overriding schema is executed last.  Here the element does
+  # not exist in the base, but does set the same HL7 value
+  - name: override-message-header-14
+    value: [ '"not14"' ]
+    hl7Spec: [ 'MSH-14' ]
+
+  # This exercises overriding a nested element from the base of an overriding schema
+  - name: software-2
+    value: [ '"not1"' ]
+    hl7Spec: [ 'SFT-2' ]
+
+  # This demonstrates functionality that does not work, since fieldThree is a constant
+  # defined at the top of sft.yml, it cannot be overridden
+  - name: software-3
+    constants:
+      fieldThree: '4'
+
+  # This exercises overriding a nested element but using a constant that is defined in the nested
+  # schema, in this case sftConstant exists at the top of sft.yml
+  - name: software-5
+    value: [ '%sftConstant' ]
+    hl7Spec: [ 'SFT-5' ]
+
+  # This exercises overriding an element in a deeply nested schema and uses a constant that is defined
+  # in that schemas parent.  In this case, xon-1 is being overriden in xon.yml and %{xonPath} is a constant
+  # defined in sft.yml
+  - name: xon-1
+    value: [ '%resource.system' ]
+    hl7Spec: [ '%{xonPath}-2' ]
+
+  # This demonstrates a case that does not work; xon-3 is a new element and does not override anything
+  # and will actually cause a failure since %{xonPath} is a constant defined in sft.yml and will not be in
+  # context when this element is evaluated
+  - name: xon-3
+    condition: 'Bundle.entry.resource.ofType(MessageHeader).event.code="xon3"'
+    value: [ '%resource.code' ]
+    hl7Spec: [ '%{xonPath}-3' ]

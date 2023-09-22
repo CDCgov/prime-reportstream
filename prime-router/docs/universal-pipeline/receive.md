@@ -19,3 +19,7 @@ We check that the sender is valid and enabled.
 
 The last thing it does is upload the message to the blob store and triggers the convert step via the Azure queue. 
 
+### Retries
+
+There is no async processing for this step, so a sender will get an immediate response and is responsible for retrying the
+request in the event of any failure.
