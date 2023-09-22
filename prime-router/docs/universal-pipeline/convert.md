@@ -25,3 +25,8 @@ Sender Transforms are completely optional, but ReportStream has created a defaul
 > See [FHIR-to-FHIR Transformations](../design/design/transformations.md#fhir-to-fhir-transformations) for more information regarding configuration of Sender Transforms.
 
 > When creating a transform, reference [Changing/Updating Sender/Receiver Transforms](../getting-started/standard-operating-procedures/changing-transforms.md) for guidance.
+ 
+## Retries
+
+There is no custom retry strategy for this step.  If an error occurs during this step, the message is re-queued up to five
+times before being placed in the poison queue.

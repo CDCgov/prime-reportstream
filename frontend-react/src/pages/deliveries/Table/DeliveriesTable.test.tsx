@@ -105,21 +105,15 @@ describe("DeliveriesTable", () => {
         });
 
         test("if no activeService display NoServicesBanner", async () => {
-            const heading = await screen.findByText(
-                /Active Services unavailable/i,
-            );
+            const heading = await screen.findByText(/No available data/i);
             expect(heading).toBeInTheDocument();
-            const message = await screen.findByText(
-                /No valid receiver found for your organization/i,
-            );
-            expect(message).toBeInTheDocument();
         });
     });
 });
 
 describe("DeliveriesTableWithNumbered", () => {
     describe("when enabled", () => {
-        describe("with services and data", () => {
+        describe("with active services and data", () => {
             beforeEach(() => {
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: mockActiveReceiver,
@@ -223,15 +217,8 @@ describe("DeliveriesTableWithNumbered", () => {
             });
 
             test("renders the NoServicesBanner message", async () => {
-                const heading = await screen.findByText(
-                    "Active Services unavailable",
-                );
+                const heading = await screen.findByText("No available data");
                 expect(heading).toBeInTheDocument();
-
-                const message = await screen.findByText(
-                    "No valid receiver found for your organization",
-                );
-                expect(message).toBeInTheDocument();
             });
         });
     });
