@@ -30,7 +30,8 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "1.8.22"
+    val kotlinVersion by System.getProperties()
+    kotlin("jvm") version "$kotlinVersion"
     id("org.flywaydb.flyway") version "9.21.2"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -39,10 +40,10 @@ plugins {
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.8.20"
-    id("com.avast.gradle.docker-compose") version "0.17.4"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
+    id("com.avast.gradle.docker-compose") version "0.17.5"
+    id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
-    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.15"
+    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.16"
 }
 
 group = "gov.cdc.prime"
@@ -61,7 +62,7 @@ val javaVersion = when (appJvmTarget) {
     else -> JavaVersion.VERSION_17
 }
 val ktorVersion = "2.3.2"
-val kotlinVersion = "1.8.22"
+val kotlinVersion by System.getProperties()
 val jacksonVersion = "2.15.2"
 jacoco.toolVersion = "0.8.10"
 
@@ -818,7 +819,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
-    implementation("org.yaml:snakeyaml:2.0")
+    implementation("org.yaml:snakeyaml:2.2")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.4.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
