@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import assertk.fail
+import com.azure.core.util.BinaryData
 import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobClientBuilder
 import com.azure.storage.blob.BlobContainerClient
@@ -238,12 +239,15 @@ class BlobAccessTests {
             { BlobClientBuilder() }
         every { anyConstructed<BlobClientBuilder>().buildClient() } returns mockedBlobClient
 
-        val result = BlobAccess.downloadBlob(testUrl)
+        val resultByteArray = BlobAccess.downloadBlobAsByteArray(testUrl)
+        val resultBinaryData = BlobAccess.downloadBlobAsBinaryData(testUrl)
+        val expectedResult = "test"
 
         verify(exactly = 1) { BlobClientBuilder().connectionString(any()) }
         verify(exactly = 1) { BlobClientBuilder().endpoint(testUrl) }
         verify(exactly = 1) { BlobClientBuilder().buildClient() }
-        assertThat(result).isEqualTo("test".toByteArray())
+        assertThat(resultByteArray).isEqualTo(expectedResult.toByteArray())
+        assertThat(resultBinaryData).isEqualTo(BinaryData.fromString(expectedResult))
     }
 
     @Test
@@ -254,7 +258,7 @@ class BlobAccessTests {
         val testUrl = "http://testurl/testfile"
         val testFile = BlobAccess.BlobInfo.getBlobFilename(testUrl)
 
-        every { BlobAccess.Companion.downloadBlob(testUrl) }.returns("testblob".toByteArray())
+        every { BlobAccess.Companion.downloadBlobAsByteArray(testUrl) }.returns("testblob".toByteArray())
         every {
             BlobAccess.Companion.uploadBlob(
                 testFile,
@@ -266,7 +270,7 @@ class BlobAccessTests {
 
         val result = BlobAccess.copyBlob(testUrl, "testcontainer", "testenvvar")
 
-        verify(exactly = 1) { BlobAccess.Companion.downloadBlob(testUrl) }
+        verify(exactly = 1) { BlobAccess.Companion.downloadBlobAsByteArray(testUrl) }
         verify(exactly = 1) {
             BlobAccess.Companion.uploadBlob(
                 testFile,

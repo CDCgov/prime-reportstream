@@ -131,7 +131,7 @@ class HistoryFunctionsTests {
             reportFile.externalName = "external-name"
 
             mockkObject(BlobAccess.Companion)
-            every { BlobAccess.downloadBlob(reportFile.bodyUrl) } returns "test".toByteArray()
+            every { BlobAccess.downloadBlobAsByteArray(reportFile.bodyUrl) } returns "test".toByteArray()
 
             val context = mockkClass(ExecutionContext::class)
 
@@ -154,7 +154,7 @@ class HistoryFunctionsTests {
             verify(exactly = 1) {
                 mockDb.fetchReportFile(reportFile.reportId)
                 mockDb.fetchItemLineagesForReport(reportFile.reportId, reportFile.itemCount)
-                BlobAccess.downloadBlob(reportFile.bodyUrl)
+                BlobAccess.downloadBlobAsByteArray(reportFile.bodyUrl)
             }
         }
 
@@ -181,7 +181,7 @@ class HistoryFunctionsTests {
             reportFile.schemaName = "default"
 
             mockkObject(BlobAccess.Companion)
-            every { BlobAccess.downloadBlob(parentReportFile.bodyUrl) } returns "test".toByteArray()
+            every { BlobAccess.downloadBlobAsByteArray(parentReportFile.bodyUrl) } returns "test".toByteArray()
 
             val context = mockkClass(ExecutionContext::class)
 
@@ -200,7 +200,7 @@ class HistoryFunctionsTests {
                 mockDb.fetchReportFile(reportFile.reportId)
                 mockDb.fetchItemLineagesForReport(reportFile.reportId, reportFile.itemCount)
                 mockDb.fetchParentReport(reportFile.reportId)
-                BlobAccess.downloadBlob(parentReportFile.bodyUrl)
+                BlobAccess.downloadBlobAsByteArray(parentReportFile.bodyUrl)
             }
         }
 
@@ -225,7 +225,7 @@ class HistoryFunctionsTests {
             reportFile.schemaName = "default"
 
             mockkObject(BlobAccess.Companion)
-            every { BlobAccess.downloadBlob(reportFile.bodyUrl) } returns "".toByteArray()
+            every { BlobAccess.downloadBlobAsByteArray(reportFile.bodyUrl) } returns "".toByteArray()
 
             val context = mockkClass(ExecutionContext::class)
 
@@ -240,7 +240,7 @@ class HistoryFunctionsTests {
             assertThat(response.status).isEqualTo(HttpStatus.NOT_FOUND)
             verify(exactly = 1) {
                 mockDb.fetchReportFile(reportFile.reportId)
-                BlobAccess.downloadBlob(reportFile.bodyUrl)
+                BlobAccess.downloadBlobAsByteArray(reportFile.bodyUrl)
             }
         }
     }
