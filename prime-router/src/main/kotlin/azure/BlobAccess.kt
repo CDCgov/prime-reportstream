@@ -159,12 +159,12 @@ class BlobAccess() : Logging {
         }
 
         /**
-         * Download the blob at the given [blobUrl]
+         * Download the blob at the given [blobUrl] as a ByteArray
          */
-        fun downloadBlobAsByteArray(blobUrl: String): ByteArray {
+        fun downloadBlobAsByteArray(blobUrl: String, retries: Int = getBlobDownloadRetry()): ByteArray {
             val stream = ByteArrayOutputStream()
             logger.debug("BlobAccess Starting download for blobUrl $blobUrl")
-            val options = DownloadRetryOptions().setMaxRetryRequests(getBlobDownloadRetry())
+            val options = DownloadRetryOptions().setMaxRetryRequests(retries)
             stream.use { getBlobClient(blobUrl).downloadStreamWithResponse(
                 it,
                 null,
@@ -179,11 +179,11 @@ class BlobAccess() : Logging {
         }
 
         /**
-         * Download the blob at the given [blobUrl]
+         * Download the blob at the given [blobUrl] as BinaryData
          */
-        fun downloadBlobAsBinaryData(blobUrl: String): BinaryData {
+        fun downloadBlobAsBinaryData(blobUrl: String,  retries: Int = getBlobDownloadRetry()): BinaryData {
             logger.debug("BlobAccess Starting download for blobUrl $blobUrl")
-            val options = DownloadRetryOptions().setMaxRetryRequests(getBlobDownloadRetry())
+            val options = DownloadRetryOptions().setMaxRetryRequests(retries)
             val binaryData = getBlobClient(blobUrl).downloadContentWithResponse(
                 options,
                 null,
