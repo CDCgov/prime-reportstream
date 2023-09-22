@@ -97,6 +97,7 @@ class HL7DiffHelper {
                     }
                     inputFields.foldIndexed(differences) { index, differenceAccumulator, input ->
                         try {
+                            // TODO: Check how many fields there are (if there is just one no need to include the secondary field
                             val outputField = outputFields[index]
                             differenceAccumulator.addAll(
                                 compareHl7Type(
@@ -105,7 +106,7 @@ class HL7DiffHelper {
                                     outputField,
                                     segment.name,
                                     i,
-                                    index + 1,
+                                    if (inputFields.size == 1) null else index + 1,
                                     null
                                 )
                             )
@@ -170,8 +171,8 @@ class HL7DiffHelper {
                 return listOf(
                     Hl7Diff(
                         segmentIndex,
-                        input.value,
-                        output.value,
+                        input.value ?: "null",
+                        output.value ?: "null",
                         fieldNumber,
                         secondaryFieldNum,
                         tertiaryFieldNumber,
@@ -199,7 +200,7 @@ class HL7DiffHelper {
                     return listOf(
                         Hl7Diff(
                             segmentIndex,
-                            "Difference in number of components.",
+                            "Difference in number of components. Input: $inputComponents, Output: $outputComponents ",
                             "",
                             fieldNumber,
                             secondaryFieldNum,
@@ -211,7 +212,9 @@ class HL7DiffHelper {
                     return listOf(
                         Hl7Diff(
                             segmentIndex,
-                            "Difference in number of extra components.",
+                            """Difference in number of extra components. 
+                                |Input: $inputExtraComponents Output: $outputExtraComponents
+                            """.trimMargin(),
                             "",
                             fieldNumber,
                             secondaryFieldNum,
