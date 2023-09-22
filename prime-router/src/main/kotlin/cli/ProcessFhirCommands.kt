@@ -169,7 +169,7 @@ class ProcessFhirCommands : CliktCommand(
      * Convert an HL7 message or batch as a [hl7String] to a FHIR bundle. [actionLogger] will contain any
      * warnings or errors from the reading of the HL7 data to HL7 objects.  Note that the --hl7-msg-index
      * is required for HL7 batch messages as this function only returns one FHIR bundle.
-     * @return a FHIR bundle that represents the data in the one HL7 message
+     * @return a FHIR bundle and the parsed HL7 input that represents the data in the one HL7 message
      */
     private fun convertToFhir(hl7String: String, actionLogger: ActionLogger): Pair<Bundle, Message> {
         val hasFiveEncodingChars = hl7MessageHasFiveEncodingChars(hl7String)

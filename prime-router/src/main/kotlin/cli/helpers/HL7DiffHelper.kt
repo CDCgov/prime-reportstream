@@ -97,7 +97,6 @@ class HL7DiffHelper {
                     }
                     inputFields.foldIndexed(differences) { index, differenceAccumulator, input ->
                         try {
-                            // TODO: Check how many fields there are (if there is just one no need to include the secondary field
                             val outputField = outputFields[index]
                             differenceAccumulator.addAll(
                                 compareHl7Type(
