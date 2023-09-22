@@ -38,100 +38,12 @@ jobs:
       - name: "Check out changes"
         uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
 
-      # Appears not to be needed on GitHub (but needed when running act [https://github.com/nektos/act] locally)
-      # - name: Install docker-compose
-      #   run: apt-get update && apt-get --yes install docker-compose
-      - name: Set up JDK 11
-        uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2
+      - name: Build backend
+        uses: ./.github/actions/build-backend
         with:
-          java-version: "11"
-          distribution: "adopt"
-          cache: "gradle"
-
-      - uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
-
-      - name: Lint
-        run: ./gradlew ktlintCheck
-
-      - name: Spin up build containers
-        run: docker-compose -f docker-compose.postgres.yml up -d
-
-      - name: Build Prime Router Package
-        run: ./gradlew package -Pshowtests
-
-      - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@283dea176069279a9076e77b548668a8e4f0c31b
-        # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
-        if: >
-          always() &&
-          github.event.sender.login != 'dependabot[bot]' &&
-          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
-        with:
-          # This path is from the root of the repo as needed by the plugin
-          files: prime-router/build/test-results/test/**/*.xml
-
-      - name: Spin up vault
-        timeout-minutes: 1
-        run: |
-          mkdir .vault/env
-          touch .vault/env/.env.local
-          docker-compose -f docker-compose.yml up -d vault
-          while [ ! -s .vault/env/.env.local ]; do sleep 1; done
-          echo "loaded env vars"
-
-      - name: Spin up containers
-        id: spin_containers
-        run: |
-          docker-compose -f docker-compose.yml up -d prime_dev sftp azurite
-
-      - name: Give some time for the container to start
-        run: |
-          echo "sleeping 30"
-          sleep 30
-          echo "wake up"
-
-      - name: Load the configuration
-        run: |
-          ./gradlew reloadTables
-          ./gradlew reloadSettings
-
-      # Integrations tests require the metadata catalog
-      - name: Run Integration Tests
-        run: ./gradlew testIntegration -Pshowtests
-
-      - name: Publish Integration Test Results
-        uses: EnricoMi/publish-unit-test-result-action@283dea176069279a9076e77b548668a8e4f0c31b
-        # Per https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
-        if: >
-          always() &&
-          github.event.sender.login != 'dependabot[bot]' &&
-          ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository )
-        with:
-          # This path is from the root of the repo as needed by the plugin
-          files: prime-router/build/test-results/testIntegration/**/*.xml
-          check_name: "Integration Test Results"
-
-      - name: Correct sftp perms
-        run: docker-compose exec -T sftp chmod 777 /home/foo/upload
-
-      - name: Smoke tests
-        run: |
-          export $(xargs < .vault/env/.env.local)
-          ./prime create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass
-          ./gradlew testSmoke
-
-      - name: Dump docker logs
-        if: always()
-        uses: jwalton/gh-docker-logs@59c9656cd3cb7542525f3dce7ae2f44c0ff85d66
-        with:
-          images: "prime-router_prime_dev,vault"
-
-      - name: Cleanup Gradle Cache
-        # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
-        # Restoring these files from a GitHub Actions cache might cause problems for future builds.
-        run: |
-          rm -f .gradle/caches/modules-2/modules-2.lock
-          rm -f .gradle/caches/modules-2/gc.properties
+          version: ${{ github.run_id }}
+          upload-build: false
+          run-integration-tests: true
 
       - name: Generate New Schema Docs
         run: |
@@ -190,55 +102,16 @@ jobs:
     defaults:
       run:
         working-directory: prime-router
-    strategy:
-      fail-fast: false
-      matrix:
-        language: ["java"]
 
     steps:
       - name: "Check out changes"
         uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
-        if: github.actor != 'dependabot[bot]'
+      - name: Build backend
+        uses: ./.github/actions/build-backend
         with:
-          languages: ${{ matrix.language }}
-
-      - name: Set up JDK 11
-        uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2
-        with:
-          java-version: "11"
-          distribution: "adopt"
-          cache: "gradle"
-
-      - uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
-
-      - name: Spin up build containers
-        run: docker-compose -f docker-compose.postgres.yml up -d
-
-      - name: Build Prime Router Package
-        run: ./gradlew package -x fatjar
-
-      - name: Perform Java CodeQL Analysis
-        uses: github/codeql-action/analyze@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
-        if: github.actor != 'dependabot[bot]'
-
-      - name: "Run SonarCloud Scan"
-        uses: sonarsource/sonarcloud-github-action@db501078e936e4b4c8773d1bb949ba9ddb7b6b6a
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        if: github.actor != 'dependabot[bot]'
-        with:
-          args: >
-            -Dsonar.coverage.exclusions=prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**
-            -Dsonar.cpd.exclusions=prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**
-            -Dsonar.sources=prime-router/src,frontend-react/src
-            -Dsonar.projectKey=CDCgov_prime-data-hub
-            -Dsonar.organization=cdcgov
-            -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
-            -Dsonar.coverage.jacoco.xmlReportPaths=prime-router/build/reports/jacoco/test/jacocoTestReport.xml
-
-      - name: Build Docker Image
-        run: docker build . --file Dockerfile --tag cdcgov/reportstream:latest
+          version: ${{ github.run_id }}
+          upload-build: false
+          run-qc: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          sonar-token: ${{ secrets.SONAR_TOKEN }}

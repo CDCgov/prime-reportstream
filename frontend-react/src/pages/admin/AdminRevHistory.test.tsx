@@ -72,7 +72,7 @@ jest.mock("../../network/api/Organizations/SettingRevisions", () => {
 
 describe("AdminRevHistory", () => {
     test("Renders with no errors", async () => {
-        // a REAL test would need Cypress to click revisions in the top two accordian lists
+        // a REAL test would need Cypress to click revisions in the top two accordion lists
         // and verify the diffs are rendering the diffs correctly
 
         // eslint-disable-next-line react/jsx-pascal-case

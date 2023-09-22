@@ -35,7 +35,7 @@ Installing the recommend tools including these for this note.
 
 - [git](./install-git.md)
 - [Docker Desktop](./install-docker.md) Install Docker Desktop directly.
-- [OpenJDK](./install-openjdk.md) Install OpenJDK 11 using Brew.
+- [OpenJDK](./install-openjdk.md) Install OpenJDK 17 using Brew.
 - [Azure Functions Core Tools](./install-afct.md) Install the v3 of Azure Functions.
 - [Gradle](./install-gradle.md) Install Gradle using Brew.
 

@@ -6,7 +6,9 @@ import assertk.assertions.isNull
 import gov.cdc.prime.router.FileSettings
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.RESTTransportType
+import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
@@ -36,6 +38,7 @@ import io.ktor.utils.io.core.Input
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
@@ -275,6 +278,16 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
     @BeforeEach
     fun reset() {
         actionHistory = ActionHistory(TaskAction.send)
+        mockkObject(BlobAccess.Companion)
+        every {
+            BlobAccess.uploadBody(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns BlobAccess.BlobInfo(Report.Format.HL7, "", "".toByteArray())
     }
 
     @Test

@@ -26,7 +26,7 @@ jobs:
 
       - name: Publish to Chromatic and accept baseline
         id: chromatic_publish
-        uses: chromaui/action@ebe6961baace1e0d9cc098eb14ae41ab96394958
+        uses: chromaui/action@a45a922b9a7522a4cbb59a7bb7b288a768968924
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}
