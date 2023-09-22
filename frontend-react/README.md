@@ -5,8 +5,8 @@
 Our new React front-end is easy to get up and running on your machine. First, ensure the following dependencies
 installed:
 
-- `node` (see .nvmrc for version specification) via `nvm`
-- `yarn` package manager
+-   `node` (see .nvmrc for version specification) via `nvm`
+-   `yarn` package manager
 
 Use the directions here to install nvm: https://github.com/nvm-sh/nvm#install--update-script
 Then:
