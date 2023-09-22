@@ -50,3 +50,9 @@ variable "postgres_pass" {
 variable "subnets" {
   description = "A set of all available subnet combinations"
 }
+
+variable "sendgrid_password" {
+  type        = string
+  sensitive   = true
+  description = "Password to send mail to SendGrid"
+}

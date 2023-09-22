@@ -50,6 +50,11 @@ resource "azurerm_key_vault_access_policy" "terraform_access_policy" {
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = var.terraform_object_id
 
+  certificate_permissions = [
+    "Get",
+    "List"
+  ]
+
   key_permissions = [
     "Create",
     "Get",
