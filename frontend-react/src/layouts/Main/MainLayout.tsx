@@ -23,7 +23,7 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
     const innerWrapperClassnames = classNames(
         isContentPage && !isFullWidth && "grid-row grid-gap-6",
         isFullWidth && "width-full",
-        !isContentPage && !isLoginPage && "tablet:grid-col-12",
+        !isContentPage && "tablet:grid-col-12",
     );
 
     return (

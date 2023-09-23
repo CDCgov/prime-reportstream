@@ -3400,7 +3400,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@okta/okta-signin-widget@npm:^7.9.1":
+"@okta/okta-signin-widget@npm:7.9.1":
   version: 7.9.1
   resolution: "@okta/okta-signin-widget@npm:7.9.1"
   dependencies:
@@ -3428,6 +3428,37 @@ __metadata:
     fsevents:
       optional: true
   checksum: 55b1882869dbbaabde0527ed93478b9837dde7f3bae6199af77a92ff5a837987219c1f8f9155636bdbd4746f7c6bf98b458b54c0bdb49bc4b17edaca574cd2e7
+  languageName: node
+  linkType: hard
+
+"@okta/okta-signin-widget@patch:@okta/okta-signin-widget@npm%3A7.9.1#./.yarn/patches/@okta-okta-signin-widget-npm-7.9.1-fa474e31dd.patch::locator=react-frontend%40workspace%3A.":
+  version: 7.9.1
+  resolution: "@okta/okta-signin-widget@patch:@okta/okta-signin-widget@npm%3A7.9.1#./.yarn/patches/@okta-okta-signin-widget-npm-7.9.1-fa474e31dd.patch::version=7.9.1&hash=b4f027&locator=react-frontend%40workspace%3A."
+  dependencies:
+    "@okta/okta-auth-js": ~7.0.0
+    "@sindresorhus/to-milliseconds": ^1.0.0
+    "@types/backbone": ^1.4.15
+    "@types/eslint-scope": ^3.7.3
+    "@types/jquery": ^3.5.14
+    "@types/jqueryui": ^1.12.16
+    "@types/q": ^1.5.5
+    "@types/selectize": ^0.12.35
+    "@types/underscore": ^1.11.4
+    chokidar: ^3.5.1
+    clipboard: ^1.5.16
+    cross-fetch: ^3.1.5
+    ejs: ^3.1.7
+    fsevents: "*"
+    handlebars: ^4.7.7
+    jquery: ^3.6.0
+    parse-ms: ^2.0.0
+    q: 1.4.1
+    u2f-api-polyfill: 0.4.3
+    underscore: 1.13.1
+  dependenciesMeta:
+    fsevents:
+      optional: true
+  checksum: a267b90ca33ba1ed412aa0b64e133a9764eafb76a2c47b1fdaf093e327a3fda94eec321cef32a0f48da563c0716b0a5783855d437e974e7786fbcbdbd59e440e
   languageName: node
   linkType: hard
 
