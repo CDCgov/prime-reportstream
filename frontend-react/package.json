@@ -146,7 +146,7 @@
         "@typescript-eslint/eslint-plugin": "^6.5.0",
         "@typescript-eslint/parser": "^6.5.0",
         "@vitejs/plugin-react": "^4.0.4",
-        "autoprefixer": "^10.4.15",
+        "autoprefixer": "^10.4.16",
         "babel-jest": "^29.6.2",
         "bfj": "^7.0.2",
         "browserslist": "^4.21.10",
