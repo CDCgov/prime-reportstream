@@ -86,7 +86,7 @@ class HL7DiffHelper {
                                             "input has ${inputFields.size} and output has ${outputFields.size}",
                                         "",
                                         i,
-                                        index,
+                                        if (inputFields.size == 1) null else (index + 1),
                                         null,
                                         segment.name
                                     )
@@ -105,7 +105,7 @@ class HL7DiffHelper {
                                     outputField,
                                     segment.name,
                                     i,
-                                    index + 1,
+                                    if (inputFields.size == 1) null else index + 1,
                                     null
                                 )
                             )
@@ -143,7 +143,7 @@ class HL7DiffHelper {
                             segmentIndex,
                             "Input missing segment $segmentType",
                             "",
-                            0,
+                            null,
                             null,
                             null,
                             segmentType
@@ -170,8 +170,8 @@ class HL7DiffHelper {
                 return listOf(
                     Hl7Diff(
                         segmentIndex,
-                        input.value,
-                        output.value,
+                        input.value ?: "null",
+                        output.value ?: "null",
                         fieldNumber,
                         secondaryFieldNum,
                         tertiaryFieldNumber,
@@ -199,7 +199,7 @@ class HL7DiffHelper {
                     return listOf(
                         Hl7Diff(
                             segmentIndex,
-                            "Difference in number of components.",
+                            "Difference in number of components. Input: $inputComponents, Output: $outputComponents ",
                             "",
                             fieldNumber,
                             secondaryFieldNum,
@@ -211,7 +211,9 @@ class HL7DiffHelper {
                     return listOf(
                         Hl7Diff(
                             segmentIndex,
-                            "Difference in number of extra components.",
+                            """Difference in number of extra components. 
+                                |Input: $inputExtraComponents Output: $outputExtraComponents
+                            """.trimMargin(),
                             "",
                             fieldNumber,
                             secondaryFieldNum,
@@ -303,7 +305,7 @@ class HL7DiffHelper {
         val segmentIndex: String,
         val input: String,
         val output: String,
-        val fieldNum: Int,
+        val fieldNum: Int?,
         val secondaryFieldNumber: Int?,
         val tertiaryFieldNumber: Int?,
         val segmentType: String,
@@ -327,8 +329,10 @@ class HL7DiffHelper {
                 ".$secondaryFieldNumber"
             }
 
+            val fieldNumberText = fieldNum?.toString() ?: ""
+
             return "Difference between messages at $segmentIndex." +
-                "$fieldNum$secondaryFieldNumberText$tertiaryFieldNumberText" +
+                "$fieldNumberText$secondaryFieldNumberText$tertiaryFieldNumberText" +
                 " Differences: $input$outputText"
         }
     }

@@ -430,7 +430,7 @@ class FhirTranslatorTests {
 
         // act
         accessSpy.transact { txn ->
-            assertFailsWith<IllegalStateException> (
+            assertFailsWith<IllegalStateException>(
                 message = "Receiver format CSV not supported.",
                 block = { engine.run(message, actionLogger, actionHistory, txn) }
             )
