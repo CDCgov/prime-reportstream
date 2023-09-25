@@ -1,0 +1,27 @@
+extension:
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: "http://hl7.org/fhir/R4/extension-data-absent-reason"
+    valueCode:
+      type: STRING
+      valueOf: $unknown
+      constants:
+        unknown: "unknown"
+
+
+#extension_2-codeIndex:
+#  generateList: true
+#  expressionType: nested
+#  expressionsMap:
+#    url:
+#      type: SYSTEM_URL
+#      value: code-index-name
+#    valueString:
+#      type: STRING
+#      valueOf: $codeIndexStr
+#      vars:
+#        codeIndexStr: String, $codeIndex | $codeIndexDefault
+#      constants:
+#        codeIndexDefault: "identifier"
