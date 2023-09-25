@@ -14,15 +14,17 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-ce
-    condition: '%resource.value is CodeableConcept'
-    # Note that for v.2.5 and earlier CWE is not in-spec.
+    resource: '%resource.value'
+    condition: false
+    # This element remains here for usage in receiver-transforms
     value: [ '"CE"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-cwe
     resource: '%resource.value'
-    condition: '%resource is CodeableConcept and (%resource.coding[0].version.exists() or %resource.coding[1].version.exists() or %resource.text.exists())'
-    # Note that for v.2.5 and earlier, CWE is not officially in-spec, but is widely used.
+    condition: '%resource is CodeableConcept'
+    # Note that for v.2.5 and earlier, CWE is not officially in-spec, but is widely used. If a receiver requires
+    # CE, that should be handled via receiver transform
     value: [ '"CWE"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
@@ -103,7 +105,7 @@ elements:
         entered-in-error: W
 
   - name: observation-result-status-cancelled
-    value: ["'X'"]
+    value: [ "'X'" ]
     condition: '%resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").exists() and %resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").code = "cannot-be-obtained"'
     hl7Spec: [ '%{hl7OBXField}-11' ]
 
@@ -151,6 +153,12 @@ elements:
     schema: ./datatype/ce-coded-with-exceptions
     constants:
       cweFieldPath: '%{hl7OBXField}-17'
+
+  - name: equipment-instance-identifier
+    resource: '%resource.device.resolve().identifier'
+    schema: ./datatype/ei-entity-identifier
+    constants:
+      entityIdFieldPath: '%{hl7OBXField}-18'
 
   - name: analysis-date-time
     value: [ '%resource.issued' ]
