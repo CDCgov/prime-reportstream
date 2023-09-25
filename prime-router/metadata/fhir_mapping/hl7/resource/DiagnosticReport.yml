@@ -22,7 +22,7 @@ identifier_2a:
   expressionType: resource
   vars:
     valueIn: ORC.3.1
-    systemCX: ORC.3.2
+    namespaceId: String, ORC.3.2
     universalId: ORC.3.3
     universalIdType: ORC.3.4
   constants:
@@ -38,7 +38,7 @@ identifier_2b:
   expressionType: resource
   vars:
     valueIn: OBR.3.1
-    systemCX: OBR.3.2
+    namespaceId: String, OBR.3.2
     universalId: OBR.3.3
     universalIdType: OBR.3.4
     valueInORC: ORC.3.1
@@ -109,12 +109,11 @@ status:
 
 category:
   valueOf: datatype/CodeableConcept
-  condition: $code NOT_NULL
   generateList: true
   expressionType: resource
   specs: OBR.24
   vars:
-    code: OBR.24
+    primaryCode: OBR.24
 
 code:
   valueOf: datatype/CodeableConcept
@@ -167,6 +166,26 @@ resultsInterpreter:
   specs: OBR.32.1
   vars:
     interpreter: OBR.32.1
+
+performer_1-technician:
+  condition: $rolePractitioner NOT_NULL
+  valueOf: resource/PractitionerRole
+  generateList: true
+  expressionType: reference
+  vars:
+    rolePractitioner: OBR.34.1
+  constants:
+    performerParticipationType: "SPRF"
+
+performer_2-transcriptionist:
+  condition: $rolePractitioner NOT_NULL
+  valueOf: resource/PractitionerRole
+  generateList: true
+  expressionType: reference
+  vars:
+    rolePractitioner: OBR.35.1
+  constants:
+    performerParticipationType: "TRANS"
 
 basedOn:
   valueOf: datatype/Reference

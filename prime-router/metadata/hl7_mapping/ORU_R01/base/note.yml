@@ -6,7 +6,6 @@ elements:
   - name: note-source
     value:
       - '%noteDetails.extension(%`rsext-note-source`).value.coding.code'
-      - '"L"'
     hl7Spec: [ '%{hl7NotePath}/NTE(%{noteIndex})-2' ]
 
   - name: note-comment
