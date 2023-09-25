@@ -17,7 +17,6 @@ elements:
     condition: '%resource.exists()'
     value:
       - '%resource.use'
-      - '"official"'
     hl7Spec: [ '%{hl7NameField}-7' ]
     valueSet:
       values:
