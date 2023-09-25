@@ -18,15 +18,16 @@ the HL7 V2 file. This will help keep the number of files needed down.
 ### File naming
 Integration tests are currently rather challenging to read. At a minimum, we need a standard for naming the files. When
 testing mapping inventory segments, we will name files with the format `segment_spreadsheetRow#_testDesc`. An example, 
-`PID_1`. The corresponding FHIR file will be named the same, but will have a `.fhir` extension. This way, it is 
-very apparent not only what the file is testing, but which file goes with it. To make sure that these don't get out of 
-sync, we will keep copies of the spreadsheets in our project which we will periodically, manually sync to the actual 
-spreadsheets. During the sync, we will also write tickets for any new or changed rules/fields that need to be tested.
+`PID_1_setting_condition`. The corresponding FHIR file will be named the same, but will have a `.fhir` extension. 
+This way, it is very apparent not only what the file is testing, but which file goes with it. To make sure that these 
+don't get out of sync, we will keep copies of the spreadsheets in our project which we will periodically, manually sync 
+to the actual spreadsheets. During the sync, we will also write tickets for any new or changed rules/fields that need 
+to be tested.
 
 ### Datatypes 
 There are datatypes that are within the primary segments, for instance `XPN`. We don't want to test these repeatedly 
 for each segment they appear in, so we will have separate files for each of them
-labeled like so `XPN_spreadsheetRow#`. 
+labeled like so `XPN_spreadsheetRow#_testDesc`. 
 
 ### File Structure
 Instead of piling these files into the existing file structure,
@@ -41,7 +42,7 @@ converting from the HL7 V2 file to the FHIR file, use the new test schema
 
 ### Where to test
 `translation-test-config.csv` is where our current tests like this live. We will create separate files for each data 
-type that will follow the pattern laid forth in XTNTests. These will stored in
+type that will follow the pattern laid forth in XTNTests. These will be stored in
 `kotlin/datatests/mappinginventory/segment-name`. Using this pattern relieves us of the requirement of using CSV files and 
 allows us to give each test a name, description, and comment. Later down the road, we will also have separate files for
 sender transforms and receiver transforms. These will be broken down by sender/receiver so that, again, there is a 
