@@ -25,8 +25,10 @@ async function showSignInToGetTokens(
 export interface OktaSigninWidgetProps
     extends React.PropsWithChildren<React.HTMLAttributes<HTMLElement>> {
     config: WidgetOptions;
-    onSuccess: (value: Tokens) => Tokens | PromiseLike<Tokens> | void;
-    onError: (reason: any) => PromiseLike<void> | void;
+    onSuccess: (
+        value: Tokens,
+    ) => Tokens | PromiseLike<Tokens> | void | Promise<void>;
+    onError: (reason: any) => PromiseLike<void> | void | Promise<void>;
 }
 
 /**
