@@ -85,7 +85,7 @@ locals {
 
   # Origin records
   cors_all = [
-    "https://hhs-prime.okta.com"
+    "https://reportstream.okta.com",
   ]
   cors_prod = [
     "https://prime.cdc.gov",

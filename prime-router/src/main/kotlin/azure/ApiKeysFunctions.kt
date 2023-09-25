@@ -183,8 +183,8 @@ SwIDAQAB
             type = SecuritySchemeType.OAUTH2,
             flows = OAuthFlows(
                 authorizationCode = OAuthFlow(
-                    authorizationUrl = "https://hhs-prime.oktapreview.com/oauth2/default/v1/authorize",
-                    tokenUrl = "https://hhs-prime.oktapreview.com/oauth2/default/v1/token",
+                    authorizationUrl = "https://reportstream.oktapreview.com/oauth2/default/v1/authorize",
+                    tokenUrl = "https://reportstream.oktapreview.com/oauth2/default/v1/token",
                     scopes = [
                         OAuthScope(
                             name = "openid",
