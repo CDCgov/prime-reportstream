@@ -38,6 +38,11 @@ runs:
         distribution: "temurin"
         cache: "gradle"
 
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+      with:
+        dependency-graph: generate
+
     - name: Initialize CodeQL
       if: github.actor != 'dependabot[bot]' && inputs.run-qc == 'true'
       uses: github/codeql-action/init@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
