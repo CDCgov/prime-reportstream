@@ -7,7 +7,7 @@ import { USExtLink, USLink } from "../../../components/USLink";
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const GettingStartedPhd = () => {
     return (
-        <>
+        <div className="rs-documentation usa-prose">
             <Helmet>
                 <title>{`${ResourcesDirectories.GETTING_STARTED_PHD} | Resources`}</title>
             </Helmet>
@@ -95,6 +95,6 @@ export const GettingStartedPhd = () => {
                     and we'll be in touch!
                 </p>
             </section>
-        </>
+        </div>
     );
 };

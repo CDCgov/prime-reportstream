@@ -72,7 +72,7 @@ elements:
     hl7Spec: [ '%{hl7TelecomPath}-7' ]
 
   - name: xtn-extension
-    condition: '%resource.value.hasPhoneNumberExtension()'
+    condition: '%resource.value.exists() and %resource.value.hasPhoneNumberExtension()'
     value: [ '%resource.value.getPhoneNumberExtension()' ]
     hl7Spec: [ '%{hl7TelecomPath}-8' ]
 

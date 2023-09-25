@@ -370,3 +370,8 @@ All filters for receivers and organizations can be created/updated/deleted via t
 Next update the staging DB
 
 `./prime multiple-settings set –env staging –input <file-location>`
+
+## Retries
+
+There is no custom retry strategy for this step.  If an error occurs during this step, the message is re-queued up to five
+times before being placed in the poison queue.
