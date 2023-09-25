@@ -57,6 +57,6 @@ variable "is_temp_env" {
 variable "storage_queue_name" {
   description = "Default storage queue names that will be created in the storage account."
   type        = list(string)
-  default     = ["process", "batch", "batch-poison", "process-poison", "send", "send-poison"]
+  default     = ["process", "batch", "batch-poison", "elr-fhir-convert", "process-poison", "send", "send-poison", "elr-fhir-convert", "elr-fhir-convert-poison", "elr-fhir-route", "elr-fhir-translate", "elr-fhir-translate-poison", "process-elr"]
 
 }

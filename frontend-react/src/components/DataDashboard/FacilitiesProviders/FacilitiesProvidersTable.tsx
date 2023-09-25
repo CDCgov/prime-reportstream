@@ -18,6 +18,7 @@ import Pagination from "../../Table/Pagination";
 import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { getSlots } from "../../../hooks/UsePagination";
 import {
+    CustomerStatusType,
     transformFacilityTypeClass,
     transformFacilityTypeLabel,
 } from "../../../utils/DataDashboardUtils";
@@ -165,14 +166,14 @@ export default function FacilitiesProvidersTable() {
 
     if (loadingServices) return <Spinner />;
 
-    if (!loadingServices && !activeService)
+    if (
+        !loadingServices &&
+        (!activeService ||
+            activeService?.customerStatus === CustomerStatusType.INACTIVE)
+    )
         return (
             <div className="usa-section margin-bottom-10">
-                <NoServicesBanner
-                    featureName="Active Services"
-                    organization=""
-                    serviceType={"receiver"}
-                />
+                <NoServicesBanner />
             </div>
         );
 

@@ -163,12 +163,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "MEDITECH"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "MEDITECH",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "MEDITECH, Inc."
@@ -1174,12 +1174,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -1406,12 +1406,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -1644,12 +1644,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -1876,12 +1876,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -2114,12 +2114,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -2346,12 +2346,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -2611,12 +2611,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -2852,12 +2852,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -3087,12 +3087,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -3322,12 +3322,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -3570,12 +3570,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -3805,12 +3805,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -4040,12 +4040,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -4275,12 +4275,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -4510,12 +4510,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -4745,12 +4745,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -4980,12 +4980,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -7222,12 +7222,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -7727,12 +7727,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -8243,12 +8243,12 @@
         }
       } ],
       "identifier" : [ {
-        "value" : "06D0055551"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "XX"
+        "value" : "06D0055551",
+        "type" : [ {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code" : "XX"
+          } ]
         } ]
       } ],
       "name" : "TMCA, SOUTH CAMPUS",
@@ -9296,7 +9296,7 @@
             "display" : "Medical record number"
           } ]
         },
-        "system" : "urn:id:MEDITECH",
+        "system" : "MEDITECH",
         "value" : "100001"
       }, {
         "extension" : [ {
@@ -9313,7 +9313,7 @@
             "display" : "Social Security number"
           } ]
         },
-        "system" : "urn:id:MEDITECH",
+        "system" : "MEDITECH",
         "value" : "285-64-4175"
       }, {
         "extension" : [ {
@@ -9330,7 +9330,7 @@
             "display" : "Patient internal identifier"
           } ]
         },
-        "system" : "urn:id:MEDITECH",
+        "system" : "MEDITECH",
         "value" : "X605236"
       }, {
         "extension" : [ {
@@ -9347,7 +9347,7 @@
             "display" : "Account number"
           } ]
         },
-        "system" : "urn:id:MEDITECH",
+        "system" : "MEDITECH",
         "value" : "E40014904640"
       } ],
       "name" : [ {
@@ -9655,7 +9655,7 @@
             "display" : "National provider identifier"
           } ]
         },
-        "system" : "urn:id:Medical_Center_of_Au",
+        "system" : "Medical_Center_of_Au",
         "value" : "1437205069"
       } ],
       "name" : [ {
@@ -9704,7 +9704,7 @@
             "display" : "National provider identifier"
           } ]
         },
-        "system" : "urn:id:Medical_Center_of_Au",
+        "system" : "Medical_Center_of_Au",
         "value" : "1437205069"
       } ],
       "name" : [ {
@@ -9753,7 +9753,7 @@
             "display" : "National provider identifier"
           } ]
         },
-        "system" : "urn:id:Medical_Center_of_Au",
+        "system" : "Medical_Center_of_Au",
         "value" : "1437205069"
       } ],
       "name" : [ {
@@ -9799,7 +9799,7 @@
             "display" : "National provider identifier"
           } ]
         },
-        "system" : "urn:id:Medical_Center_of_Au",
+        "system" : "Medical_Center_of_Au",
         "value" : "1962467126"
       } ],
       "name" : [ {
@@ -9845,7 +9845,7 @@
             "display" : "National provider identifier"
           } ]
         },
-        "system" : "urn:id:Medical_Center_of_Au",
+        "system" : "Medical_Center_of_Au",
         "value" : "1184669806"
       } ],
       "name" : [ {
@@ -9894,7 +9894,7 @@
             "display" : "National provider identifier"
           } ]
         },
-        "system" : "urn:id:Medical_Center_of_Au",
+        "system" : "Medical_Center_of_Au",
         "value" : "1437205069"
       } ],
       "name" : [ {
