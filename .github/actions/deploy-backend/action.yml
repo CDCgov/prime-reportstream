@@ -26,6 +26,7 @@ runs:
         echo "TERRAFORM_ENV=demo1" >> $GITHUB_ENV
         echo "ACR_NAME=pdhdemo1containerregistry.azurecr.io" >> $GITHUB_ENV
         echo "IMAGE_REPO=pdhdemo1" >> $GITHUB_ENV
+        echo "IMAGE_SWAGGER_UI_REPO=swaggeruiapidocsstg" >> $GITHUB_ENV
         echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
         echo "FUNCTION_APP=pdhdemo1-functionapp" >> $GITHUB_ENV
 
@@ -103,7 +104,7 @@ runs:
       shell: bash
 
     - name: Upload Swagger UI (APIDocs staging only)
-      if: inputs.env-name == 'staging'
+      if: inputs.env-name == 'staging' || inputs.env-name == 'demo1'
       shell: bash
       working-directory: prime-router
       run: |
