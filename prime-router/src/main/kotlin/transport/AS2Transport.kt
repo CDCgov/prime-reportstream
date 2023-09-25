@@ -74,7 +74,7 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
                 null,
                 as2Info.toString(),
                 msg,
-                header.reportFile.itemCount
+                header
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null

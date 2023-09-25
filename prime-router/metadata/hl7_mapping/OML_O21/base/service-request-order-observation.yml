@@ -1,8 +1,10 @@
 constants:
-  hl7OBRField: '%{hl7SegmentGroup}/OBR'
+  fieldPath: '%{hl7SegmentGroup}/OBR'
 elements:
-  - name: order-observation-universal-service-identifier
-    resource: '%resource.code'
-    constants:
-      ceFieldPath: '%{hl7OBRField}-4'
-    schema: ../../common/datatype/ce-coded-element
+  - name: observation-request
+    schema: ../../common/observation-request
+
+  - name: order-observation-date-time-start
+    condition: 'Bundle.entry.resource.ofType(Specimen).collection.collected.exists()'
+    value: [ 'Bundle.entry.resource.ofType(Specimen).collection.collected' ]
+    hl7Spec: [ '%{fieldPath}-7' ]

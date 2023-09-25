@@ -5,6 +5,22 @@
 - name: dataingestion
   description: "Data Ingestion CDC NBS"
   jurisdiction: "FEDERAL"
+  senders:
+    - !<covid-19>
+      name: "default"
+      organizationName: "dataingestion"
+      format: "HL7"
+      customerStatus: "testing"
+      schemaName: "hl7/hl7-ingest-covid-19-training"
+      keys: null
+      processingType: "sync"
+      allowDuplicates: true
+      senderType: null
+      primarySubmissionMethod: null
+      topic: "covid-19"
+      version: null
+      createdBy: null
+      createdAt: null
   receivers:
     - name: "datateam-cdc-nbs"
       organizationName: "dataingestion"

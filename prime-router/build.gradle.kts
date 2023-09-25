@@ -30,19 +30,20 @@ import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "1.8.22"
+    val kotlinVersion by System.getProperties()
+    kotlin("jvm") version "$kotlinVersion"
     id("org.flywaydb.flyway") version "9.21.2"
     id("nu.studer.jooq") version "7.1.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("com.microsoft.azure.azurefunctions") version "1.11.1"
+    id("com.microsoft.azure.azurefunctions") version "1.13.0"
     id("org.jlleitschuh.gradle.ktlint") version "11.5.1"
     id("com.adarshr.test-logger") version "3.2.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.8.20"
-    id("com.avast.gradle.docker-compose") version "0.17.4"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
+    id("com.avast.gradle.docker-compose") version "0.17.5"
+    id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
-    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.15"
+    id("io.swagger.core.v3.swagger-gradle-plugin") version "2.2.16"
 }
 
 group = "gov.cdc.prime"
@@ -53,6 +54,17 @@ val azureFunctionsDir = "azure-functions"
 val primeMainClass = "gov.cdc.prime.router.cli.MainKt"
 val defaultDuplicateStrategy = DuplicatesStrategy.WARN
 azurefunctions.appName = azureAppName
+val appJvmTarget = "17"
+val javaVersion = when (appJvmTarget) {
+    "17" -> JavaVersion.VERSION_17
+    "19" -> JavaVersion.VERSION_19
+    "21" -> JavaVersion.VERSION_21
+    else -> JavaVersion.VERSION_17
+}
+val ktorVersion = "2.3.2"
+val kotlinVersion by System.getProperties()
+val jacksonVersion = "2.15.2"
+jacoco.toolVersion = "0.8.10"
 
 // Local database information, first one wins:
 // 1. Project properties (-P<VAR>=<VALUE> flag)
@@ -86,6 +98,8 @@ val reportsApiEndpointHost = (
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
+val buildDir = project.layout.buildDirectory.asFile.get()
+
 /**
  * Add the `VAULT_TOKEN` in the local vault to the [env] map
  */
@@ -105,25 +119,17 @@ fun addVaultValuesToEnv(env: MutableMap<String, Any>) {
 
 defaultTasks("package")
 
-val ktorVersion = "2.3.2"
-val kotlinVersion = "1.9.10"
-val jacksonVersion = "2.15.2"
-
-jacoco.toolVersion = "0.8.10"
-
 // Set the compiler JVM target
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
 }
 
 val compileKotlin: KotlinCompile by tasks
 val compileTestKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions.jvmTarget = "11"
+compileKotlin.kotlinOptions.jvmTarget = appJvmTarget
 compileKotlin.kotlinOptions.allWarningsAsErrors = true
-// if you set this to true, you will get a warning, which then gets treated as an error
-compileKotlin.kotlinOptions.useK2 = false
-compileTestKotlin.kotlinOptions.jvmTarget = "11"
+compileTestKotlin.kotlinOptions.jvmTarget = appJvmTarget
 compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
 tasks.clean {
@@ -192,7 +198,7 @@ tasks.javadoc.configure {
 }
 
 tasks.dokkaHtml.configure {
-    val docsDir = File(project.buildDir, "/docs/dokka")
+    val docsDir = File(buildDir, "/docs/dokka")
     outputDirectory.set(docsDir)
 }
 
@@ -201,7 +207,7 @@ tasks.jacocoTestReport {
     // Jacoco wants the source file directory structure to match the package name like in Java, so
     // move the source files to a temp location with that structure.
     val sourcesDir = File(project.projectDir, "/src/main/kotlin")
-    val jacocoSourcesDir = File(project.buildDir, "/jacoco/sources")
+    val jacocoSourcesDir = File(buildDir, "/jacoco/sources")
     doFirst {
         FileUtils.listFiles(sourcesDir, arrayOf("kt", "java"), true).forEach { sourceFile ->
             // Find the line in the code that has the package name and convert that to a folder then copy the file.
@@ -246,7 +252,7 @@ sourceSets.create("testIntegration") {
 }
 
 val compileTestIntegrationKotlin: KotlinCompile by tasks
-compileTestIntegrationKotlin.kotlinOptions.jvmTarget = "11"
+compileTestIntegrationKotlin.kotlinOptions.jvmTarget = appJvmTarget
 
 val testIntegrationImplementation: Configuration by configurations.getting {
     extendsFrom(configurations["testImplementation"])
@@ -293,7 +299,7 @@ tasks.register<Test>("testIntegration") {
 val apiDocsBaseDir = File(project.projectDir, "/docs/api/")
 val apiDocsSpecDir = File(apiDocsBaseDir, "generated")
 val apiDocsSwaggerUIDir = File(apiDocsBaseDir, "swagger-ui")
-val buildSwaggerUIDir = File(project.buildDir, "/swagger-ui/")
+val buildSwaggerUIDir = File(buildDir, "/swagger-ui/")
 tasks.register<ResolveTask>("generateOpenApi") {
     group = rootProject.description ?: ""
     description = "Generate OpenAPI spec for Report Stream APIs"
@@ -387,8 +393,8 @@ tasks.register<JavaExec>("primeCLI") {
 
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
     doFirst {
-        if (project.extra.has("cliArgs")) {
-            args = project.extra["cliArgs"] as MutableList<String>
+        if (project.extra.has("cliArgs") && project.extra["cliArgs"] is List<*>) {
+            args = (project.extra["cliArgs"] as List<*>).filterIsInstance(String::class.java)
         } else if (args.isNullOrEmpty()) {
             args = listOf("-h")
             println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
@@ -459,8 +465,8 @@ tasks.azureFunctionsPackage {
     dependsOn("test")
 }
 
-val azureResourcesTmpDir = File(rootProject.buildDir.path, "$azureFunctionsDir-resources/$azureAppName")
-val azureResourcesFinalDir = File(rootProject.buildDir.path, "$azureFunctionsDir/$azureAppName")
+val azureResourcesTmpDir = File(buildDir, "$azureFunctionsDir-resources/$azureAppName")
+val azureResourcesFinalDir = File(buildDir, "$azureFunctionsDir/$azureAppName")
 tasks.register<Copy>("gatherAzureResources") {
     from("./")
     into(azureResourcesTmpDir)
@@ -481,8 +487,8 @@ tasks.register("copyAzureResources") {
     }
 }
 
-val azureScriptsTmpDir = File(rootProject.buildDir.path, "$azureFunctionsDir-scripts/$azureAppName")
-val azureScriptsFinalDir = rootProject.buildDir
+val azureScriptsTmpDir = File(buildDir, "$azureFunctionsDir-scripts/$azureAppName")
+val azureScriptsFinalDir = rootProject.layout.buildDirectory.asFile.get()
 val primeScriptName = "prime"
 val startFuncScriptName = "start_func.sh"
 val apiDocsSetupScriptName = "upload_swaggerui.sh"
@@ -783,8 +789,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
-    implementation("com.azure:azure-core:1.42.0")
-    implementation("com.azure:azure-core-http-netty:1.13.5")
+    implementation("com.azure:azure-core:1.43.0")
+    implementation("com.azure:azure-core-http-netty:1.13.7")
     implementation("com.azure:azure-storage-blob:12.22.3") {
         exclude(group = "com.azure", module = "azure-core")
     }
@@ -813,7 +819,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
-    implementation("org.yaml:snakeyaml:2.0")
+    implementation("org.yaml:snakeyaml:2.2")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.4.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")

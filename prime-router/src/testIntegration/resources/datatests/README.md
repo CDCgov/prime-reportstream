@@ -26,6 +26,8 @@ command separated file with a header, and a row per test to perform. The columns
 - **Output format** - HL7, HL7_BATCH, CSV or INTERNAL
 - **Result** - set to PASS to denote the test is expected to pass, FAIL for tests that
   expected to fail.
+- **Condition Filter** - a FHIR Path expression to use as a condition filter; alternatively, set to
+  `pruneUnwanted` to do FHIR bundle pruning during translation.
 
 ## Generating Expected Data Files
 

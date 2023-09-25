@@ -4,6 +4,7 @@ import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.translation.hl7.utils.FhirPathFunctions
+import gov.cdc.prime.router.fhirengine.translation.hl7.config.ContextConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
@@ -205,7 +206,13 @@ class FhirToHl7Converter(
         element.hl7Spec.forEach { rawHl7Spec ->
             val resolvedHl7Spec = constantSubstitutor.replace(rawHl7Spec, context)
             try {
-                terser!!.set(resolvedHl7Spec, value)
+                val maybeTruncatedValue = context.translationFunctions?.maybeTruncateHL7Field(
+                    value,
+                    resolvedHl7Spec,
+                    terser!!,
+                    context
+                ) ?: value
+                terser!!.set(resolvedHl7Spec, maybeTruncatedValue)
                 logger.trace("Set HL7 $resolvedHl7Spec = $value")
             } catch (e: HL7Exception) {
                 val msg = "Could not set HL7 value for spec $resolvedHl7Spec for element ${element.name}"
@@ -235,6 +242,6 @@ class FhirToHl7Converter(
  */
 data class FhirToHl7Context(
     val fhirFunctions: FhirPathFunctions,
-    val config: Any? = null,
+    val config: ContextConfig? = null,
     val translationFunctions: TranslationFunctions
 )
