@@ -39,9 +39,13 @@ const oktaSignInConfig: WidgetOptions = {
     },
     scopes: ["openid", "email"],
     useClassicEngine: true,
+    helpLinks: {
+        help: "https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599",
+    },
     i18n: {
         // Overriding English properties
         en: {
+            help: "Request username or get other help through our service request form.",
             "primaryauth.title": "Sign in",
             "primaryauth.username.placeholder": "Username or email",
             "error.username.required":
@@ -57,7 +61,7 @@ const oktaSignInConfig: WidgetOptions = {
                 "ReportStream requires multifactor authentication to add an additional layer of security when signing in to your Okta account",
             "enroll.choices.setup": "Set up",
             "errors.E0000004":
-                "Unable to sign in.  Check your username and password. Your username should be the email you registered with.",
+                "Unable to sign in.  Check your username and password. Your account will be locked after 5 failed attempts.",
         },
     },
 };
