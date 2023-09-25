@@ -181,6 +181,19 @@ import site from "../../content/site.json";
 
                 <Accordion multiselectable items={[
                     {
+                        id: "how-do-i-register-for-a-reportstream-account",
+                        headingLevel: "h4",
+                        title: "How do I register for a ReportStream account?",
+                        content: (<ol>
+                            <li><strong>Request an account.</strong> <br/>
+                            Submit a <A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">service request</A> with information about your organization and explaining that you would like a ReportStream account.</li>
+                            <li><strong>Accept the terms of service.</strong> <br/>
+                            A ReportStream team member will process your request and confirm that you accept our <A href="/terms-of-service">terms of service</A>.</li>
+                            <li><strong>Activate your account</strong>. <br/>
+                            You will receive an email from Okta with a link to activate your account. After following the activation link, you will be prompted to set up your password, security question, and multi-factor authentication.</li>
+                        </ol>)
+                    },
+                    {
                         id: "do-i-need-to-report-to-hhs",
                         headingLevel: "h4",
                         title: "Do I need to report to HHS?",
@@ -305,7 +318,8 @@ import site from "../../content/site.json";
                         content: (<p>
                             <A href={site.forms.contactUs.url}>Contact us</A> so we can update your filter settings. If you are not a current ReportStream user, you can indicate this preference during the onboarding process.
                         </p>)
-                    },{
+                    },
+                    {
                         id: "how-do-i-resubmit-my-data",
                         headingLevel: "h4",
                         title: "How do I resubmit my data?",
@@ -327,12 +341,22 @@ import site from "../../content/site.json";
                         </>)
                     },
                     {
-                        id: "how-do-i-reset-my-password",
+                        id: "how-do-i-update-or-reset-my-password",
                         headingLevel: "h4",
                         title: "How do I reset my password?",
                         content: (<p>
-                            On the <A href="/login">login page</A>, select Need help signing in? After following the
-                            instructions on the screen, you will receive an email with next steps.
+                            Select <strong>Need help signing in?</strong> on the <A href="/login">login</A> page. 
+                            After selecting <strong>Reset password</strong>, enter your email address. 
+                            Follow the instructions in the reset email you receive.
+                            To update your password, log out and follow the same steps.
+                        </p>)
+                    },
+                    {
+                        id: "how-do-i-manage-team-member-accounts",
+                        headingLevel: "h4",
+                        title: "How do I manage team member accounts?",
+                        content: (<p>
+                            ReportStream manually manages user accounts for your team. To add or remove team members, <A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">contact us</A>.
                         </p>)
                     },
                     {
