@@ -1,0 +1,26 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+constants:
+  baseConstant: '"baseValue"'
+  otherConstant: '"otherValue"'
+elements:
+
+  - name: message-header-8
+    value: [ '%otherConstant' ]
+    hl7Spec: [ 'MSH-8' ]
+
+  - name: message-header-10
+    value: ['"10"']
+    hl7Spec: ['MSH-10']
+
+  - name: message-header-11
+    value: ['%resource.id']
+    hl7Spec: ['MSH-11']
+
+  - name: message-header-14
+    value: ['"14"']
+    hl7Spec: ['MSH-14']
+
+  - name: software-segment
+    condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    schema: 'classpath:/fhirengine/translation/hl7/schema/schema-test-overrides/ORU_R01/sft.yml'

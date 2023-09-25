@@ -225,6 +225,7 @@ module "metabase" {
   postgres_server_name   = module.database.postgres_server_name
   postgres_user          = data.azurerm_key_vault_secret.postgres_user.value
   postgres_pass          = data.azurerm_key_vault_secret.postgres_pass.value
+  sendgrid_password      = data.azurerm_key_vault_secret.sendgrid_password.value
   subnets                = module.network.subnets
 }
 
