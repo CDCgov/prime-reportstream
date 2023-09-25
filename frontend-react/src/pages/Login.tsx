@@ -40,7 +40,7 @@ export const Login = () => {
             <Alert type="info" heading="Changes to ReportStream login">
                 Your login information may have expired due to recent updates to
                 ReportStream's system. <br />
-                Check your email for an activiation link and more information.
+                Check your email for an activation link and more information.
             </Alert>
             <OktaSignInWidget
                 className="margin-top-6 margin-x-auto width-mobile-lg padding-x-8"
