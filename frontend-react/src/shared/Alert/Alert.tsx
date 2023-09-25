@@ -65,9 +65,9 @@ export const Alert = ({
     ...props
 }: AlertProps & React.HTMLAttributes<HTMLDivElement>): React.ReactElement => {
     const classes = classnames(
-        styles["usa-alert"],
+        styles.Alert,
         {
-            [styles["usa-alert--tip"]]: _type === "tip",
+            "usa-alert--tip": _type === "tip",
         },
         className,
     );

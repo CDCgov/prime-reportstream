@@ -1,9 +1,9 @@
 import React from "react";
 import { useOktaAuth } from "@okta/okta-react";
-import { SiteAlert } from "@trussworks/react-uswds";
 import { Navigate } from "react-router-dom";
 import type { Tokens } from "@okta/okta-auth-js";
 
+import Alert from "../shared/Alert/Alert";
 import { oktaSignInConfig } from "../oktaConfig";
 import { useSessionContext } from "../contexts/SessionContext";
 import { USLink } from "../components/USLink";
@@ -37,11 +37,11 @@ export const Login = () => {
 
     return (
         <>
-            <SiteAlert variant="info" heading="Changes to ReportStream login">
+            <Alert type="info" heading="Changes to ReportStream login">
                 Your login information may have expired due to recent updates to
                 ReportStream's system. <br />
                 Check your email for an activiation link and more information.
-            </SiteAlert>
+            </Alert>
             <OktaSignInWidget
                 className="margin-top-6 margin-x-auto width-mobile-lg padding-x-8"
                 config={oktaSignInConfig}
