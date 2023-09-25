@@ -579,57 +579,48 @@
         },
         "extension": [
           {
-            "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-            "valueString": "CMS"
-          },
-          {
             "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
-            "valueCodeableConcept": {
-              "coding": [
+            "valueCoding" : {
+              "extension" : [
                 {
-                  "extension": [
-                    {
-                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString": "identifier"
-                    }
-                  ],
-                  "system": "http://terminology.hl7.org/CodeSystem/v2-0204",
-                  "code": "L"
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                  "valueString" : "identifier"
                 }
-              ]
+              ],
+              "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
+              "code" : "L",
+              "display" : "Legal name"
             }
           }
         ],
-        "identifier": [
+        "identifier" : [
           {
-            "type": {
-              "coding": [
-                {
-                  "extension": [
-                    {
-                      "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString": "identifier"
-                    }
-                  ],
-                  "code": "CMS"
-                }
-              ]
-            },
-            "value": "1043269798"
-          }
-        ],
-        "type": [
-          {
-            "coding": [
+            "value" : "1043269798",
+            "extension" : [
               {
-                "extension": [
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority",
+                "extension" : [
                   {
-                    "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                    "valueString": "identifier"
+                    "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
+                    "valueString" : "CMS"
                   }
-                ],
-                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-                "code": "NPI"
+                ]
+              }
+            ],
+            "type" : [
+              {
+                "coding" : [
+                  {
+                    "extension" : [
+                      {
+                        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                        "valueString" : "identifier"
+                      }
+                    ],
+                    "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                    "code" : "NPI"
+                  }
+                ]
               }
             ]
           }
