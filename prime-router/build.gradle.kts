@@ -393,9 +393,8 @@ tasks.register<JavaExec>("primeCLI") {
 
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
     doFirst {
-        val cliArgs = project.extra["cliArgs"]
-        if (project.extra.has("cliArgs") && cliArgs is List<*>) {
-            args = cliArgs.filterIsInstance(String::class.java)
+        if (project.extra.has("cliArgs") && project.extra["cliArgs"] is List<*>) {
+            args = (project.extra["cliArgs"] as List<*>).filterIsInstance(String::class.java)
         } else if (args.isNullOrEmpty()) {
             args = listOf("-h")
             println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
