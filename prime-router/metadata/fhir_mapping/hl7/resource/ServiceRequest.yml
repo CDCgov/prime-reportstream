@@ -33,7 +33,7 @@ identifier_2a:
   expressionType: resource
   vars:
     valueIn: ORC.3.1
-    systemCX: ORC.3.2
+    namespaceId: String, ORC.3.2
     universalId: ORC.3.3
     universalIdType: ORC.3.4
   constants:
@@ -49,13 +49,14 @@ identifier_2b:
   expressionType: resource
   vars:
     valueIn: OBR.3.1
-    systemCX: OBR.3.2
+    namespaceId: String, OBR.3.2
     universalId: OBR.3.3
     universalIdType: OBR.3.4
     valueInORC: ORC.3.1
   constants:
     system: "http://terminology.hl7.org/CodeSystem/v2-0203"
     code: "FILL"
+    display: "Filler Identifier"
 
 identifier_3a:
   condition: $valueIn NOT_NULL
@@ -88,6 +89,7 @@ identifier_3b:
   constants:
     system: "http://terminology.hl7.org/CodeSystem/v2-0203"
     code: "PLAC"
+    display: "Placer Identifier"
 
 identifier_4:
   condition: $valueIn NOT_NULL
@@ -248,7 +250,52 @@ extension_1:
       constants:
         system: v2-0119
 
-extension_2:
+extension_2-enteredBy:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: entered-by
+    valueReference:
+      valueOf: resource/Practitioner
+      expressionType: reference
+      specs: ORC.10
+
+extension_3-enterersLocation:
+  expressionType: nested
+  generateList: true
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: enterers-location
+    valueReference:
+      valueOf: resource/Location
+      expressionType: reference
+      specs: ORC.13
+      vars:
+        poc: String, ORC.13.1
+        bed: String, ORC.13.3
+        room: String, ORC.13.2
+        facility: String, ORC.13.4
+      constants:
+        locationJoinChar: ","
+
+extension_4-orderEffectiveDate:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: order-effective-date
+    valueDateTime:
+      type: STRING
+      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+      expressionType: JEXL
+      vars:
+        dateTimeIn: ORC.15
+
+extension_5:
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -260,7 +307,7 @@ extension_2:
       valueOf: ORC.17.1 | ORC.17.2
       expressionType: HL7Spec
 
-extension_3:
+extension_6:
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -272,7 +319,7 @@ extension_3:
       expressionType: reference
       specs: OBR.10
 
-extension_4:
+extension_7:
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -284,7 +331,7 @@ extension_4:
       valueOf: OBR.13
       expressionType: HL7Spec
 
-extension_5:
+extension_8:
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -296,7 +343,7 @@ extension_5:
       valueOf: OBR.18
       expressionType: HL7Spec
 
-extension_6:
+extension_9:
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -308,7 +355,7 @@ extension_6:
       valueOf: OBR.19
       expressionType: HL7Spec
 
-extension_7:
+extension_10:
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -320,7 +367,7 @@ extension_7:
       valueOf: OBR.20
       expressionType: HL7Spec
 
-extension_8:
+extension_11:
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -332,7 +379,7 @@ extension_8:
       valueOf: OBR.21
       expressionType: HL7Spec
 
-extension_9:
+extension_12:
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -348,7 +395,7 @@ extension_9:
       constants:
         system_code: "v2-0123"
 
-extension_10:
+extension_13:
   condition: $code NOT_EQUALS S && $code NOT_EQUALS A && $code NOT_EQUALS R && $code NOT_EQUALS U
   generateList: true
   expressionType: nested
@@ -365,20 +412,6 @@ extension_10:
         system: SYSTEM_URL, $system_code
       constants:
         system_code: "v2-0485"
-
-extension_11:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: order-effective-date
-    valueDateTime:
-        type: STRING
-        valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
-        expressionType: JEXL
-        vars:
-          dateTimeIn: ORC.15
 
 supportingInfo:
   valueOf: resource/Observation
