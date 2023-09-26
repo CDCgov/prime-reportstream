@@ -3,6 +3,7 @@ import React, { ReactNode, useState } from "react";
 import { Icon } from "@trussworks/react-uswds";
 
 import { SortSettings } from "../../hooks/filters/UseSortOrder";
+import { NoServicesBanner } from "../../components/alerts/NoServicesAlert";
 
 import styles from "./Table.module.scss";
 
@@ -348,7 +349,9 @@ export const Table = ({
                     )}
                 </table>
             ) : (
-                <h2>No data to show</h2>
+                <div className="usa-section margin-bottom-10">
+                    <NoServicesBanner />
+                </div>
             )}
         </div>
     );
