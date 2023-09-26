@@ -1,7 +1,0 @@
-﻿ReportStream Mapping Note,DONE,Mapping source,Comments,,,,,,,,,,,,,,,,,,
-,,,,Sort Order,Identifier,Name,Data Type,Cardinality - Min,Cardinality - Max,Computable ANTLR,Computable FHIRPath,Narrative,FHIR Attribute,Extension,Data Type,Cardinality - Min,Cardinality - Max,Data Type Mapping,Assignment,"Vocabulary Mapping
-(IS, ID, CE, CEN, CWE)",
-Set to BundleType.Message in FhirTranscoder.getMessageEngine,Added,HL7 Mapping,,0,MSH,,,,,,,,Bundle.type,,Bundle.code,1,1,,,"""message""",
-Added to bundle in HL7FHIRTranslator.enhanceBundleMetadata(),Added,HL7 Mapping,For message type: the date that the content of the message was assembled,7,MSH-7,Date/Time of Message,DTM,1,1,,,,Bundle.timestamp,,Bundle.instant,0,1,,,,
-Added to bundle in HL7FHIRTranslator.enhanceBundleMetadata(). Value is set to Message Control ID (MSH-10),Added,HL7 Mapping,,10,MSH-10,Message Control ID,ST,1,1,,,,Bundle.identifier.value,,Bundle.string,0,1,,,,
-Added to bundle in HL7FHIRTranslator.enhanceBundleMetadata(),,HL7 Mapping,Would like to insert ReportStream client info here,10,MSH-10,Message Control ID,ST,1,1,,,,Bundle.identifier.system,,Bundle.uri,0,1,,,/to be determined by the implementer/,
