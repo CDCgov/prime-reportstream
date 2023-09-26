@@ -30,7 +30,7 @@ elements:
     condition: '%resource.exists()'
     constants:
       hl7SegmentGroup: '/PATIENT'
-    schema: ./base/patient-contact
+    schema: ../common/patient-contact
 
   - name: patient-visit
     resource: 'Bundle.entry.resource.ofType(Encounter)'
