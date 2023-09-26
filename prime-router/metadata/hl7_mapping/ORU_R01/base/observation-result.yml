@@ -4,7 +4,7 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-1' ]
 
   - name: result-value-type-st
-    condition: '%resource.value is String or (%resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").exists() and %resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").code = "unknown")'
+    condition: '%resource.value is String'
     value: [ '"ST"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
