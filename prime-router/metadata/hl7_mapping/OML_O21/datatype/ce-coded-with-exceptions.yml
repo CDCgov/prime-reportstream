@@ -26,6 +26,11 @@ elements:
     condition: '%resource.system.value.startsWith("http") and %resource.extension(%`rsext-code-index-name`).exists().not()'
     value: [ '%resource.system.getCodingSystemMapping()' ]
     hl7Spec: [ '%{cweFieldPath}-3' ]
+  - name: identifier-system-url
+    resource: '%resource.coding[0]'
+    condition: '%resource.system.startsWith("http") and %resource.extension(%`rsext-code-index-name`).exists().not()'
+    value: [ '%resource.system' ]
+    hl7Spec: [ '%{cweFieldPath}-3' ]
   - name: identifier-system
     resource: '%resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").system'
     condition: '%resource.value.startsWith("http").not()'
