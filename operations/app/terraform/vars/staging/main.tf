@@ -226,6 +226,7 @@ module "metabase" {
   postgres_server_name   = module.database.postgres_server_name
   postgres_user          = data.azurerm_key_vault_secret.postgres_user.value
   postgres_pass          = data.azurerm_key_vault_secret.postgres_pass.value
+  sendgrid_password      = data.azurerm_key_vault_secret.sendgrid_password.value
   subnets                = module.network.subnets
 }
 
@@ -275,6 +276,7 @@ module "log_analytics_workspace" {
   action_group_metabase_id   = module.application_insights.action_group_metabase_id
   data_factory_id            = module.data_factory.data_factory_id
   sftp_instance_01_id        = module.sftp.sftp_instance_ids[0]
+  law_retention_period       = local.log_analytics_workspace.law_retention_period
 }
 
 module "application_insights" {

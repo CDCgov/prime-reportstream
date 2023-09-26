@@ -13,7 +13,7 @@ describe("Resources Pages", () => {
                 .getElements()
                 .subheading.should(
                     "contain",
-                    "Explore guides, tools, and resources to optimize ReportStream"
+                    "Explore guides, tools, and resources to optimize ReportStream",
                 );
         });
     });
@@ -57,7 +57,6 @@ describe("Resources Pages", () => {
                     "Full documentation for interacting with the ReportStream API",
             },
             {
-                slug: "data-download-guide",
                 headingText: "Manual data download guide",
                 subheadingText:
                     "Instructions for public health departments to download data manually from the ReportStream application.",
@@ -90,7 +89,7 @@ describe("Resources Pages", () => {
                 showPage
                     .getElements()
                     .subheading.should("contain", subheadingText);
-            }
+            },
         );
     });
 });

@@ -5,24 +5,36 @@
  * with differing style expectations
  */
 .usa-card--alternate {
-    :global(.usa-card__header) {
-        @include u-padding-left(0);
-    }
-    :global(.usa-card__heading) {
-        @include u-padding-left(0);
-    }
-    :global(.usa-card__body) {
-        @include u-padding-left(0);
-    }
-    :global(.usa-card__footer) {
-        @include u-padding-left(0);
-    }
+    :global {
+        .usa-card {
+            &__header {
+                @include u-padding-left(0);
+            }
 
-    :global(.usa-card__container) {
-        border-style: none;
-    }
+            &__heading {
+                @include u-padding-left(0);
+            }
 
-    :global(.usa-card__img) {
-        border-radius: 0;
+            &__body {
+                @include u-padding-left(0);
+                font-size: size("sans", "md");
+
+                &:last-child {
+                    @include u-padding-bottom(5);
+                }
+            }
+
+            &__footer {
+                @include u-padding-left(0);
+            }
+
+            &__container {
+                border-style: none;
+            }
+
+            &__img {
+                border-radius: 0;
+            }
+        }
     }
 }

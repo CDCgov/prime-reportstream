@@ -1,0 +1,73 @@
+- name: "ny-phd"
+  description: "New York Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "NY"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+    - name: "full-elr-test"
+      organizationName: "ny-phd"
+      topic: "full-elr"
+      customerStatus: "testing"
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/NY/NY-receiver-transform"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: "ECLRS"
+        receivingApplicationOID: null
+        receivingFacilityName: "NYSDOH"
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue: {}
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: null
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+      jurisdictionalFilter: [ "(%performerState.exists() and %performerState = 'NY') or (%patientState.exists() and %patientState = 'NY')" ]
+      qualityFilter: []
+      routingFilter: []
+      reverseTheQualityFilter: false
+      conditionFilter: []
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: MERGE
+        numberPerDay: 1440 # Every minute
+        initialTime: 00:00
+      transport:
+        type: SFTP
+        host: sftp
+        port: 22
+        filePath: ./upload
+        credentialName: DEFAULT-SFTP
+      externalName: null
+      timeZone: null
+      dateTimeFormat: "OFFSET"
