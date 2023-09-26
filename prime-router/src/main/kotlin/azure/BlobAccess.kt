@@ -19,6 +19,7 @@ import java.nio.charset.Charset
 import java.security.MessageDigest
 
 const val defaultBlobContainerName = "reports"
+const val defaultBlobDownloadRetryCount = 5
 
 /**
  * Accessor for Azure blob storage.
@@ -122,7 +123,7 @@ class BlobAccess() : Logging {
          * Obtain the download retry value from the given environment.
          */
         fun getBlobDownloadRetry(blobDownloadRetryVar: String = defaultBlobDownloadRetryVar): Int {
-            return System.getenv(blobDownloadRetryVar).toInt()
+            return System.getenv(blobDownloadRetryVar)?.toIntOrNull() ?: defaultBlobDownloadRetryCount
         }
 
         /**
@@ -165,15 +166,17 @@ class BlobAccess() : Logging {
             val stream = ByteArrayOutputStream()
             logger.debug("BlobAccess Starting download for blobUrl $blobUrl")
             val options = DownloadRetryOptions().setMaxRetryRequests(retries)
-            stream.use { getBlobClient(blobUrl).downloadStreamWithResponse(
-                it,
-                null,
-                options,
-                null,
-                false,
-                null,
-                null
-            ) }
+            stream.use {
+                getBlobClient(blobUrl).downloadStreamWithResponse(
+                    it,
+                    null,
+                    options,
+                    null,
+                    false,
+                    null,
+                    null
+                )
+            }
             logger.debug("BlobAccess Finished download for blobUrl $blobUrl")
             return stream.toByteArray()
         }
@@ -181,7 +184,7 @@ class BlobAccess() : Logging {
         /**
          * Download the blob at the given [blobUrl] as BinaryData
          */
-        fun downloadBlobAsBinaryData(blobUrl: String,  retries: Int = getBlobDownloadRetry()): BinaryData {
+        fun downloadBlobAsBinaryData(blobUrl: String, retries: Int = getBlobDownloadRetry()): BinaryData {
             logger.debug("BlobAccess Starting download for blobUrl $blobUrl")
             val options = DownloadRetryOptions().setMaxRetryRequests(retries)
             val binaryData = getBlobClient(blobUrl).downloadContentWithResponse(
