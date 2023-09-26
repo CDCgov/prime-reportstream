@@ -140,7 +140,7 @@ elements:
 
   - name: specimen-observation-result-with-aoe
     resource: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id)'
-    schema: observation-result
+    schema: ../../common/observation-result
     resourceIndex: specimenObservationIndex
     constants:
       hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{specimenIndex})/SPECIMEN_OBSERVATION'

@@ -5,4 +5,4 @@ elements:
 
   - name: note
     condition: '%resource is string'
-    schema: '../../../ORU_R01/base/note'
+    schema: '../../../common/note'
