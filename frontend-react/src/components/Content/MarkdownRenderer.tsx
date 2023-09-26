@@ -3,7 +3,7 @@ import rehypeRaw from "rehype-raw";
 import ReactMarkdown, { Options } from "react-markdown";
 import rehypeSlug from "rehype-slug";
 
-import { USSmartLink } from "../USLink";
+import { Link } from "../../shared/Link/Link";
 
 const baseOptions: Partial<Options> = {
     remarkPlugins: [],
@@ -41,7 +41,7 @@ export const MarkdownRenderer: React.FC<MarkdownContentProps> = ({
             {...baseOptions}
             children={markdownContent}
             components={{
-                a: USSmartLink,
+                a: Link,
             }}
         />
     );

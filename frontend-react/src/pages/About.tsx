@@ -2,7 +2,7 @@ import { Button } from "@trussworks/react-uswds";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 
-import { USExtLink, USLink } from "../components/USLink";
+import { Link } from "../shared/Link/Link";
 
 import site from "./../content/site.json";
 
@@ -41,21 +41,21 @@ export const About = () => {
                 <p>
                     ReportStream (also known as PRIME ReportStream) was created
                     for the public good by the{" "}
-                    <USLink href={site.orgs.CDC.url}>
+                    <Link href={site.orgs.CDC.url}>
                         Centers for Disease Control and Prevention (CDC)
-                    </USLink>
+                    </Link>
                     , and the{" "}
-                    <USExtLink href={site.orgs.USDS.url}>
+                    <Link href={site.orgs.USDS.url}>
                         U.S. Digital Service (USDS)
-                    </USExtLink>
+                    </Link>
                     .
                 </p>
                 <p>
                     Part of the{" "}
-                    <USLink href={site.orgs.PRIME.url}>
+                    <Link href={site.orgs.PRIME.url}>
                         Pandemic-Ready Interoperability Modernization Effort
                         (PRIME)
-                    </USLink>
+                    </Link>
                     , ReportStream helps to streamline and improve public health
                     reporting during the COVID-19 pandemic, and beyond.
                 </p>

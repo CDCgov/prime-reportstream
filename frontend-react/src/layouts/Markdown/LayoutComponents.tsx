@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
 
-import { USSmartLink } from "../../components/USLink";
+import { Link } from "../../shared/Link/Link";
 
 import MarkdownLayoutContext from "./Context";
 
@@ -28,8 +28,8 @@ export const LayoutMain = ({ children }: { children: React.ReactNode }) => {
 
 export const LayoutBackToTop = () => {
     return (
-        <USSmartLink className="rs-back-to-top" href="#top">
+        <Link className="rs-back-to-top" href="#top">
             Back to top
-        </USSmartLink>
+        </Link>
     );
 };

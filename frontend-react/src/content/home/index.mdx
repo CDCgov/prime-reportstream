@@ -13,8 +13,6 @@ liveMapContact:
           author: Monica Gamez
           authorTitle: Deputy Associate Commissioner, Texas Department of State Health Services
 ---
-import site from "../site.json";
-
 <HeroWrapper isAlternate className="rs-bg-grid">
     <div className="grid-container">
         <header className="usa-section usa-prose tablet:grid-col-10">
@@ -22,7 +20,7 @@ import site from "../site.json";
             <p className="rs-subtitle">ReportStream is CDC’s free, interoperable platform for streamlining public health reporting.
                 <br />We navigate unique, complex requirements and work to make sure your data gets where it needs to be.</p>
             <div className="grid-row margin-top-8 margin-bottom-2">
-                <A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957" className="usa-button usa-button--big" target="_blank">Connect now</A>
+                <SiteLink name="forms.connectWithRS" button={{size: "big"}}>Connect now</SiteLink>
             </div>
         </header>
     </div>
@@ -67,7 +65,7 @@ import site from "../site.json";
                 </Card>
             </CardGroup>
             <div className="grid-row flex-justify-center margin-y-2">
-                <A href={site.forms.connectWithRS.url} className="usa-button usa-button--big">Get started</A>
+                <SiteLink name="forms.connectWithRS" button={{size: "big"}}>Get started</SiteLink>
             </div>
         </section>
     </div>
@@ -98,6 +96,6 @@ import site from "../site.json";
     <section className="grid-container grid-row usa-section usa-prose flex-justify-center">
         <p className="font-sans-xl text-bold margin-top-0">Still exploring if ReportStream is right for you?</p>
         <p className="font-sans-lg">Our team will respond to your questions or set up a time to learn more about how we can help you.</p>
-        <A href={site.forms.connectWithRS.url} className="usa-button usa-button--big" target="_blank">Connect with us</A>
+        <SiteLink name="forms.connectWithRS" button={{size: "big"}}>Connect with us</SiteLink>
     </section>
 </HeroWrapper>

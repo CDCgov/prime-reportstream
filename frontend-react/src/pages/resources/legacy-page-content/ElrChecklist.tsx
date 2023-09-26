@@ -7,7 +7,7 @@ import { Helmet } from "react-helmet-async";
 
 import site from "../../../content/site.json";
 import { ResourcesDirectories } from "../../../content/resources";
-import { USExtLink, USLink } from "../../../components/USLink";
+import { Link } from "../../../shared/Link/Link";
 
 export const ELRChecklistIa = () => {
     const navigate = useNavigate();
@@ -51,36 +51,36 @@ export const ELRChecklistIa = () => {
             </p>
             <ul>
                 <li>
-                    <USLink href="#elr-contact-information">
+                    <Link href="#elr-contact-information">
                         ELR contact information
-                    </USLink>
+                    </Link>
                 </li>
                 <li>
-                    <USLink href="#alternate-contact-information">
+                    <Link href="#alternate-contact-information">
                         Program or admin staff contact information
-                    </USLink>
+                    </Link>
                 </li>
                 <li>
-                    <USLink href="#data-requirements-and-preferences">
+                    <Link href="#data-requirements-and-preferences">
                         Data requirements and preferences
-                    </USLink>
+                    </Link>
                 </li>
                 <li>
-                    <USLink href="#testing-facility-registration">
+                    <Link href="#testing-facility-registration">
                         Testing facility registration
-                    </USLink>
+                    </Link>
                 </li>
                 <li>
-                    <USLink href="#hl7-data-fields">
+                    <Link href="#hl7-data-fields">
                         HL7 data fields (Not applicable if using an alternate
                         data format)
-                    </USLink>
+                    </Link>
                 </li>
                 <li>
-                    <USLink href="#sftp-details">SFTP details</USLink>
+                    <Link href="#sftp-details">SFTP details</Link>
                 </li>
                 <li>
-                    <USLink href="#document-uploads">Document uploads</USLink>
+                    <Link href="#document-uploads">Document uploads</Link>
                 </li>
             </ul>
 
@@ -88,13 +88,13 @@ export const ELRChecklistIa = () => {
                 Before gathering information on the checklist or completing the
                 ELR onboarding form, we recommend first reviewing information on
                 our{" "}
-                <USLink href="/getting-started/public-health-departments/overview">
+                <Link href="/getting-started/public-health-departments/overview">
                     Getting started page
-                </USLink>{" "}
+                </Link>{" "}
                 and the technical details outlined in{" "}
-                <USLink href="/how-it-works/systems-and-settings">
+                <Link href="/how-it-works/systems-and-settings">
                     Systems & settings
-                </USLink>{" "}
+                </Link>{" "}
                 with your IT and data specialists.
             </p>
             <section>
@@ -129,17 +129,17 @@ export const ELRChecklistIa = () => {
 
                 <p>
                     ReportStream sends data as an{" "}
-                    <USExtLink href="https://hl7.org/">HL7</USExtLink> file via
-                    Secure File Transfer Protocol (SFTP). We capture Health and
-                    Human Services (HHS) required fields, including “Ask on
-                    Order Entry” questions.{" "}
+                    <Link href="https://hl7.org/">HL7</Link> file via Secure
+                    File Transfer Protocol (SFTP). We capture Health and Human
+                    Services (HHS) required fields, including “Ask on Order
+                    Entry” questions.{" "}
                 </p>
 
                 <p>
                     Please note: ReportStream follows industry standards for{" "}
-                    <USExtLink href="https://github.com/CDCgov/prime-data-hub/blob/production/prime-router/docs/schema_documentation/primedatainput-pdi-covid-19.md">
+                    <Link href="https://github.com/CDCgov/prime-data-hub/blob/production/prime-router/docs/schema_documentation/primedatainput-pdi-covid-19.md">
                         data formatting
-                    </USExtLink>{" "}
+                    </Link>{" "}
                     and reporting. While we can support custom format or sending
                     mechanisms, this will increase the time required to build
                     your connection.{" "}
@@ -160,9 +160,9 @@ export const ELRChecklistIa = () => {
                     <li>
                         <span className="text-bold">Batching:</span> Do you want
                         HL7 message batching{" "}
-                        <USExtLink href="https://www.lyniate.com/knowledge-hub/hl7-batch-file-protocol/">
+                        <Link href="https://www.lyniate.com/knowledge-hub/hl7-batch-file-protocol/">
                             using FHS and BHS segments
-                        </USExtLink>
+                        </Link>
                         ?{" "}
                     </li>
                     <li>
@@ -172,9 +172,9 @@ export const ELRChecklistIa = () => {
                     <li>
                         <span className="text-bold">“Ask on Order Entry”:</span>{" "}
                         Do you want “Ask on Order Entry” questions as{" "}
-                        <USExtLink href="https://hl7-definition.caristix.com/v2/HL7v2.5/Segments/OBX">
+                        <Link href="https://hl7-definition.caristix.com/v2/HL7v2.5/Segments/OBX">
                             OBX fields
-                        </USExtLink>
+                        </Link>
                         ?{" "}
                     </li>
                     <li>
@@ -210,9 +210,7 @@ export const ELRChecklistIa = () => {
                 <p>
                     ReportStream collects unique identifiers from testing
                     facilities when they register to send data, including name,{" "}
-                    <USLink href="https://www.cdc.gov/clia/about.html">
-                        CLIA
-                    </USLink>{" "}
+                    <Link href="https://www.cdc.gov/clia/about.html">CLIA</Link>{" "}
                     number, and address. This information is included with data
                     sent to public health departments.
                 </p>
@@ -249,16 +247,12 @@ export const ELRChecklistIa = () => {
                     <li>Receiving application name</li>
                     <li>
                         Receiving application{" "}
-                        <USExtLink href="https://www.hl7.org/oid/">
-                            OID
-                        </USExtLink>
+                        <Link href="https://www.hl7.org/oid/">OID</Link>
                     </li>
                     <li>Receiving facility name</li>
                     <li>
                         Receiving facility{" "}
-                        <USExtLink href="https://www.hl7.org/oid/">
-                            OID
-                        </USExtLink>
+                        <Link href="https://www.hl7.org/oid/">OID</Link>
                     </li>
                 </ul>
             </section>
@@ -296,9 +290,9 @@ export const ELRChecklistIa = () => {
 
                 <p>
                     Once you have all the information you need, submit our{" "}
-                    <USExtLink href="https://prime.powerappsportals.us/siw/">
+                    <Link href="https://prime.powerappsportals.us/siw/">
                         ReportStream ELR onboarding form
-                    </USExtLink>
+                    </Link>
                     . We'll get back to you within a week.
                 </p>
 

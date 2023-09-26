@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet-async";
 
 import site from "../../../content/site.json";
 import { ResourcesDirectories } from "../../../content/resources";
-import { USExtLink, USLink } from "../../../components/USLink";
+import { Link } from "../../../shared/Link/Link";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const GettingStartedPhd = () => {
@@ -35,10 +35,8 @@ export const GettingStartedPhd = () => {
                     <p className="margin-top-05">
                         Let us know you're interested by filling out and
                         submitting{" "}
-                        <USExtLink href={site.forms.intakeElr.url}>
-                            this form
-                        </USExtLink>{" "}
-                        . We'll be in touch within a week to schedule a kick-off
+                        <Link href={site.forms.intakeElr.url}>this form</Link> .
+                        We'll be in touch within a week to schedule a kick-off
                         meeting and start the integration process.
                     </p>
                 </li>
@@ -79,9 +77,9 @@ export const GettingStartedPhd = () => {
             <p>
                 Interested in downloading data directly from the ReportStream
                 website? Visit the ReportStream Data{" "}
-                <USLink href="/resources/data-download-guide">
+                <Link href="/resources/data-download-guide">
                     Manual Download Guide
-                </USLink>{" "}
+                </Link>{" "}
                 for more info.
             </p>
             <section>
@@ -89,10 +87,8 @@ export const GettingStartedPhd = () => {
                 <p>
                     Ready to bring ReportStream to your jurisdiction, or just
                     have more questions? Fill out{" "}
-                    <USExtLink href={site.forms.intakeElr.url}>
-                        the form
-                    </USExtLink>{" "}
-                    and we'll be in touch!
+                    <Link href={site.forms.intakeElr.url}>the form</Link> and
+                    we'll be in touch!
                 </p>
             </section>
         </div>

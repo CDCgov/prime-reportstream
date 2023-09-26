@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 
 import { ResourcesDirectories } from "../../../content/resources";
-import { USExtLink, USLink } from "../../../components/USLink";
+import { Link } from "../../../shared/Link/Link";
 
 export const SecurityPracticesIa = () => {
     return (
@@ -56,9 +56,9 @@ export const SecurityPracticesIa = () => {
                 </p>
                 <p>
                     Learn more about the FISMA process and the NIST guidance:{" "}
-                    <USExtLink href="https://csrc.nist.gov/projects/risk-management">
+                    <Link href="https://csrc.nist.gov/projects/risk-management">
                         NIST Risk Management Framework (CSRC)
-                    </USExtLink>
+                    </Link>
                 </p>
             </section>
             <section>
@@ -141,12 +141,12 @@ export const SecurityPracticesIa = () => {
                 <p>
                     All organizations that send and receive test results through
                     ReportStream to public health agencies are governed under
-                    these{" "}
-                    <USLink href="/terms-of-service">terms of service</USLink>.
+                    these <Link href="/terms-of-service">terms of service</Link>
+                    .
                 </p>
 
                 <p className="margin-top-8">
-                    <USLink href="#anchor-top">Back to top</USLink>
+                    <Link href="#anchor-top">Back to top</Link>
                 </p>
             </section>
         </div>

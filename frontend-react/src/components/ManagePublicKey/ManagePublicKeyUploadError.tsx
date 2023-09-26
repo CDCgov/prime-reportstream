@@ -3,7 +3,7 @@ import { Button, Grid } from "@trussworks/react-uswds";
 
 import site from "../../content/site.json";
 import { StaticAlert, StaticAlertType } from "../StaticAlert";
-import { USExtLink } from "../USLink";
+import { Link } from "../../shared/Link/Link";
 
 type ManagePublicKeyUploadCompleteProps = {
     onTryAgain: () => void;
@@ -25,9 +25,9 @@ export default function ManagePublicKeyUploadError({
             </div>
             <div className="margin-bottom-4">
                 If you continue to get this error, email{" "}
-                <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
+                <Link href={`mailto: ${site.orgs.RS.email}`}>
                     {site.orgs.RS.email}
-                </USExtLink>{" "}
+                </Link>{" "}
                 for help.
             </div>
             <Grid row>

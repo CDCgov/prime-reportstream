@@ -1,6 +1,6 @@
 import { Alert } from "@trussworks/react-uswds";
 
-import { USExtLink, USLink } from "../components/USLink";
+import { Link } from "../shared/Link/Link";
 import site from "../content/site.json";
 
 export const TermsOfService = () => {
@@ -76,9 +76,9 @@ export const TermsOfService = () => {
                             and agree that you are solely responsible for and
                             shall abide by these Terms of Service, as well as
                             any relevant sections of 
-                            <USLink href="https://www.cdc.gov/other/information.html">
+                            <Link href="https://www.cdc.gov/other/information.html">
                                 CDC’s Privacy Policies
-                            </USLink>
+                            </Link>
                              (collectively, Terms).
                         </p>
 
@@ -201,9 +201,9 @@ export const TermsOfService = () => {
                             or sent through PRIME ReportStream. If you would
                             like more information about the application of the
                             Privacy Act at CDC, 
-                            <USExtLink href="https://www.cms.gov/Research-Statistics-Data-and-Systems/Computer-Data-and-Systems/Privacy/PrivacyActof1974.html">
+                            <Link href="https://www.cms.gov/Research-Statistics-Data-and-Systems/Computer-Data-and-Systems/Privacy/PrivacyActof1974.html">
                                 click here
-                            </USExtLink>
+                            </Link>
                             .
                         </p>
 
@@ -299,11 +299,9 @@ export const TermsOfService = () => {
                             </li>
                             <li>
                                 You will promptly inform CDC (
-                                <USExtLink
-                                    href={`mailto: ${site.orgs.RS.email}`}
-                                >
+                                <Link href={`mailto: ${site.orgs.RS.email}`}>
                                     {site.orgs.RS.email}
-                                </USExtLink>
+                                </Link>
                                 ) in the event you become aware of any misuse of
                                 identifiable information or protected health
                                 information you submit and/or access through
@@ -516,7 +514,7 @@ export const TermsOfService = () => {
                         </p>
 
                         <p className="margin-top-8">
-                            <USLink href="#anchor-top">Back to top</USLink>
+                            <Link href="#anchor-top">Back to top</Link>
                         </p>
                     </section>
                 </div>

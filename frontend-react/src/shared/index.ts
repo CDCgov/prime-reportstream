@@ -10,3 +10,5 @@ export * from "./Blockquote/Blockquote";
 export * from "./Card/Card";
 export * from "./PageHeader/PageHeader";
 export * from "./Accordion/Accordion";
+export * from "./Link/Link";
+export * from "./SiteLink/SiteLink";

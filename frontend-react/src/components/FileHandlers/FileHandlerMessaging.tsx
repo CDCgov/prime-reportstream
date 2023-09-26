@@ -5,7 +5,7 @@ import { renderToString } from "react-dom/server";
 import { StaticAlert, StaticAlertType } from "../StaticAlert";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
 import { Destination } from "../../resources/ActionDetailsResource";
-import { USExtLink } from "../USLink";
+import { Link } from "../../shared/Link/Link";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
 import { saveToCsv } from "../../utils/FileUtils";
 import { removeHTMLFromString } from "../../utils/misc";
@@ -186,9 +186,7 @@ export function ValidationErrorMessage({
                 <>
                     We found an unsupported HL7 message type. Please reformat to
                     ORU-RO1. Refer to{" "}
-                    <USExtLink href={HL7_PRODUCT_MATRIX_URL}>
-                        HL7 specification
-                    </USExtLink>{" "}
+                    <Link href={HL7_PRODUCT_MATRIX_URL}>HL7 specification</Link>{" "}
                     for more details.
                 </>
             );
@@ -198,9 +196,7 @@ export function ValidationErrorMessage({
                 <>
                     Invalid HL7 message format. Check your formatting by
                     referring to{" "}
-                    <USExtLink href={HL7_PRODUCT_MATRIX_URL}>
-                        HL7 specification
-                    </USExtLink>
+                    <Link href={HL7_PRODUCT_MATRIX_URL}>HL7 specification</Link>
                     .
                 </>
             );
@@ -220,9 +216,7 @@ export function ValidationErrorMessage({
             child = (
                 <>
                     Reformat {field} to{" "}
-                    <USExtLink href={HL7_PRODUCT_MATRIX_URL}>
-                        HL7 specification
-                    </USExtLink>
+                    <Link href={HL7_PRODUCT_MATRIX_URL}>HL7 specification</Link>
                     .
                 </>
             );
@@ -234,9 +228,9 @@ export function ValidationErrorMessage({
             child = (
                 <>
                     Reformat field {field}. Refer to{" "}
-                    <USExtLink href={CDC_LIVD_CODES_URL}>
+                    <Link href={CDC_LIVD_CODES_URL}>
                         CDC LIVD table LOINC mapping spreadsheet
-                    </USExtLink>{" "}
+                    </Link>{" "}
                     for acceptable values.
                 </>
             );

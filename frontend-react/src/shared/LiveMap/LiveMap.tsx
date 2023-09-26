@@ -1,7 +1,5 @@
-import { Link } from "@trussworks/react-uswds";
-
 import usamapsvg from "../../content/usa_w_territories.svg";
-import { USLink } from "../../components/USLink";
+import { Link } from "../../shared/Link/Link";
 
 import styles from "./LiveMap.module.scss";
 
@@ -34,13 +32,13 @@ export const LiveMap = ({
                 data-testid="map"
                 className="desktop:grid-col-8 desktop:grid-offset-2 margin-y-8"
             >
-                <USLink href="/product/where-were-live">
+                <Link href="/product/where-were-live">
                     <img
                         src={usamapsvg}
                         title="USA with Territories (Heitordp, CC0, via Wikimedia Commons)"
                         alt="Map of states using ReportStream"
                     />
-                </USLink>
+                </Link>
                 <div className="grid-row flex-justify-center">
                     <ul className={styles.legend}>
                         <li>

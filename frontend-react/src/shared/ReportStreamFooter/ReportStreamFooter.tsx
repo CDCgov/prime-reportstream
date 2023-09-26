@@ -5,14 +5,13 @@ import {
     IdentifierLogo,
     IdentifierIdentity,
     IdentifierLinks,
-    Link,
     IdentifierGov,
     IdentifierLinkItem,
     IdentifierLink,
 } from "@trussworks/react-uswds";
 
 import site from "../../content/site.json";
-import { USExtLink, USLinkButton } from "../../components/USLink";
+import { Link } from "../../shared/Link/Link";
 
 import styles from "./ReportStreamFooter.module.scss";
 
@@ -111,9 +110,9 @@ export const ReportStreamFooter = () => {
                         >
                             Looking for U.S. government information and
                             services?{" "}
-                            <USExtLink href="https://www.usa.gov/">
+                            <Link href="https://www.usa.gov/">
                                 Visit USA.gov
-                            </USExtLink>
+                            </Link>
                         </IdentifierGov>
                     </div>
                     <div className="grid-col-1"></div>
@@ -124,13 +123,15 @@ export const ReportStreamFooter = () => {
                             Our team will respond to your questions or set up a
                             time to learn more about how we can help you.
                         </p>
-                        <USLinkButton
+                        <Link
                             href={site.forms.connectWithRS.url}
-                            outline
-                            inverse
+                            button={{
+                                outline: true,
+                                inverse: true,
+                            }}
                         >
                             Connect now
-                        </USLinkButton>
+                        </Link>
                     </div>
                     <div className="grid-col-1"></div>
                 </div>

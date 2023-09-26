@@ -1,8 +1,13 @@
 import {
     ApplicationInsights,
+    ITelemetryPlugin,
     SeverityLevel,
 } from "@microsoft/applicationinsights-web";
 import { ReactPlugin } from "@microsoft/applicationinsights-react-js";
+import {
+    ClickAnalyticsPlugin,
+    IClickAnalyticsConfiguration,
+} from "@microsoft/applicationinsights-clickanalytics-js";
 
 import { getSessionMembershipState } from "./utils/SessionStorageTools";
 import { OKTA_AUTH } from "./oktaConfig";
@@ -21,17 +26,29 @@ export const createTelemetryService = (connectionString: string) => {
         }
         // Create plugin
         reactPlugin = new ReactPlugin();
+        const clickPluginInstance =
+            new ClickAnalyticsPlugin() as unknown as ITelemetryPlugin;
+
         // Create insights
         appInsights = new ApplicationInsights({
             config: {
                 connectionString,
-                extensions: [reactPlugin],
+                extensions: [reactPlugin, clickPluginInstance],
                 loggingLevelConsole:
                     import.meta.env.NODE_ENV === "development" ? 2 : 0,
                 disableFetchTracking: false,
                 enableAutoRouteTracking: true,
                 loggingLevelTelemetry: 2,
                 maxBatchInterval: 0,
+                extensionConfig: {
+                    [clickPluginInstance.identifier]: {
+                        autoCapture: true,
+                        dropInvalidEvents: true,
+                        dataTags: {
+                            useDefaultContentNameOrId: true,
+                        },
+                    } satisfies IClickAnalyticsConfiguration,
+                },
             },
         });
         // Initialize for use in ReportStream

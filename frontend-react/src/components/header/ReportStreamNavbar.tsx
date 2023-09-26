@@ -12,7 +12,7 @@ import classnames from "classnames";
 import { useState } from "react";
 import { useMatch } from "react-router-dom";
 
-import { USLink, USLinkButton } from "../USLink";
+import { Link } from "../../shared/Link/Link";
 import config from "../../config";
 import { DAPHeader } from "../header/DAPHeader";
 import SenderModeBanner from "../SenderModeBanner";
@@ -256,14 +256,14 @@ export const ReportStreamNavbar = ({
                 <div className="usa-nav-container">
                     <div className="usa-navbar">
                         <Title>
-                            <USLink href="/" title="Home" aria-label="Home">
+                            <Link href="/" title="Home" aria-label="Home">
                                 ReportStream
                                 {IS_PREVIEW && (
                                     <span className={styles.ClientEnv}>
                                         {CLIENT_ENV}
                                     </span>
                                 )}
-                            </USLink>
+                            </Link>
                         </Title>
                         <NavMenuButton
                             onClick={toggleMobileMenu}
@@ -282,16 +282,18 @@ export const ReportStreamNavbar = ({
                                         {user?.email ?? "Unknown"}
                                     </span>
                                     {isUserAdmin && (
-                                        <USLinkButton
-                                            outline
+                                        <Link
                                             href="/admin/settings"
+                                            button={{
+                                                outline: true,
+                                            }}
                                         >
                                             {activeMembership?.parsedName || ""}{" "}
                                             <Icon
                                                 name="Loop"
                                                 className="text-tbottom"
                                             />
-                                        </USLinkButton>
+                                        </Link>
                                     )}
 
                                     <Button
@@ -304,15 +306,15 @@ export const ReportStreamNavbar = ({
                                 </>
                             ) : (
                                 <>
-                                    <USLinkButton href="/login">
+                                    <Link href="/login" button>
                                         Login
-                                    </USLinkButton>
-                                    <USLinkButton
+                                    </Link>
+                                    <Link
                                         href={site.forms.connectWithRS.url}
-                                        outline
+                                        button={{ outline: true }}
                                     >
                                         Connect now
-                                    </USLinkButton>
+                                    </Link>
                                 </>
                             )}
                         </div>

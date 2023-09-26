@@ -1,8 +1,8 @@
 import { BreadcrumbBar, Breadcrumb, Icon } from "@trussworks/react-uswds";
-import { ReactChild } from "react";
+
+import { Link } from "../shared/Link/Link";
 
 import { IconButton } from "./IconButton";
-import { USCrumbLink } from "./USLink";
 
 interface CrumbConfig {
     label: string;
@@ -39,11 +39,9 @@ const Crumbs = ({ crumbList, previousPage }: CrumbsProps) => {
                                     current={!crumbConfig?.path}
                                 >
                                     {crumbConfig?.path ? (
-                                        <USCrumbLink
-                                            href={crumbConfig?.path || ""}
-                                        >
+                                        <Link href={crumbConfig?.path || ""}>
                                             {crumbConfig.label}
-                                        </USCrumbLink>
+                                        </Link>
                                     ) : (
                                         crumbConfig.label
                                     )}
@@ -64,7 +62,7 @@ const Crumbs = ({ crumbList, previousPage }: CrumbsProps) => {
 };
 
 interface WithCrumbsProps extends CrumbsProps {
-    page: ReactChild;
+    page: React.ReactNode;
 }
 /** HOC to provide Crumbs at top of page
  * @param props {WithCrumbsProps} Pass in an array of CrumbConfigs for rendering and

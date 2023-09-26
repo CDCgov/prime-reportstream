@@ -18,7 +18,7 @@ import {
     CheckSettingResult,
     useCheckSettingsCmd,
 } from "../../network/api/CheckSettingCmd";
-import { USLink, USNavLink } from "../USLink";
+import { Link } from "../../shared/Link/Link";
 
 import { DisplayMeta } from "./DisplayMeta";
 
@@ -85,11 +85,11 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
             <h2>
                 Organization Receiver Settings ({orgReceiverSettings.length})
                 {" - "}
-                <USLink
+                <Link
                     href={`/admin/revisionhistory/org/${props.orgname}/settingtype/receiver`}
                 >
                     History
-                </USLink>
+                </Link>
             </h2>
             {!orgReceiverSettings ? (
                 <Spinner />
@@ -109,13 +109,13 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                             <th scope="col">Meta</th>
                             <th scope="col">Action</th>
                             <th scope="col">
-                                <USNavLink
+                                <Link
                                     className="usa-button"
                                     href={`/admin/orgnewsetting/org/${props.orgname}/settingtype/receiver`}
                                     key={`receiver-create-link`}
                                 >
                                     New
-                                </USNavLink>
+                                </Link>
                             </th>
                         </tr>
                     </thead>
@@ -148,20 +148,20 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                                         >
                                             Check
                                         </Button>
-                                        <USNavLink
+                                        <Link
                                             className="usa-button"
                                             href={`/admin/orgreceiversettings/org/${eachOrgSetting.organizationName}/receiver/${eachOrgSetting.name}/action/edit`}
                                             key={`receiver-edit-link-${eachOrgSetting.name}-${index}`}
                                         >
                                             Edit
-                                        </USNavLink>
-                                        <USNavLink
+                                        </Link>
+                                        <Link
                                             className="usa-button"
                                             href={`/admin/orgreceiversettings/org/${eachOrgSetting.organizationName}/receiver/${eachOrgSetting.name}/action/clone`}
                                             key={`receiver-clone-link-${eachOrgSetting.name}-${index}`}
                                         >
                                             Clone
-                                        </USNavLink>
+                                        </Link>
                                     </ButtonGroup>
                                 </td>
                             </tr>

@@ -18,7 +18,7 @@ import { getSlots } from "../../../hooks/UsePagination";
 import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
-import { USLink } from "../../USLink";
+import { Link } from "../../../shared/Link/Link";
 import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
 
 function DashboardFilterAndTable({
@@ -92,11 +92,11 @@ function DashboardFilterAndTable({
             columnKey: DeliveriesAttr.REPORT_ID,
             columnHeader: "Report ID",
             content: (
-                <USLink
+                <Link
                     href={`/data-dashboard/report-details/${dataRow.reportId}`}
                 >
                     {dataRow.reportId}
-                </USLink>
+                </Link>
             ),
             columnCustomSort: () =>
                 onColumnCustomSort(DeliveriesAttr.REPORT_ID),

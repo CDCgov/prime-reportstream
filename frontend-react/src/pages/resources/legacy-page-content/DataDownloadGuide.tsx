@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 
 import site from "../../../content/site.json";
 import { ResourcesDirectories } from "../../../content/resources";
-import { USExtLink, USLink } from "../../../components/USLink";
+import { Link } from "../../../shared/Link/Link";
 
 export const DataDownloadGuideIa = () => {
     const navigate = useNavigate();
@@ -59,9 +59,9 @@ export const DataDownloadGuideIa = () => {
                         <p className="margin-top-05">
                             To gain access to the ReportStream application,
                             follow the steps outlined in the{" "}
-                            <USLink href="/resources/account-registration-guide">
+                            <Link href="/resources/account-registration-guide">
                                 Account Registration Guide
-                            </USLink>
+                            </Link>
                             .
                         </p>
                     </li>
@@ -72,9 +72,9 @@ export const DataDownloadGuideIa = () => {
 
                         <p>
                             Visit{" "}
-                            <USExtLink href={site.orgs.RS.url}>
+                            <Link href={site.orgs.RS.url}>
                                 reportstream.cdc.gov
-                            </USExtLink>{" "}
+                            </Link>{" "}
                             using a modern desktop web browser (ex: Chrome,
                             Firefox, Safari, Edge) and log in.
                         </p>
@@ -89,9 +89,9 @@ export const DataDownloadGuideIa = () => {
                         </h3>
                         <p>
                             Once logged in to ReportStream, visit{" "}
-                            <USLink href="/daily-data" key="daily">
+                            <Link href="/daily-data" key="daily">
                                 reportstream.cdc.gov/daily-data
-                            </USLink>
+                            </Link>
                             .
                         </p>
                         <p>
@@ -121,7 +121,7 @@ export const DataDownloadGuideIa = () => {
                     Contact us
                 </Button>
                 <p className="margin-top-8">
-                    <USLink href="#anchor-top">Back to top</USLink>
+                    <Link href="#anchor-top">Back to top</Link>
                 </p>
             </section>
         </div>

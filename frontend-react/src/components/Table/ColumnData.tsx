@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import { Button } from "@trussworks/react-uswds";
 
-import { USLink } from "../USLink";
+import { Link } from "../../shared/Link/Link";
 
 import { ColumnConfig, LinkableColumn, ActionableColumn } from "./Table";
 import { TableRowData } from "./TableRows";
@@ -76,7 +76,7 @@ export const ColumnData = ({
         // Render column value as NavLink
         const feature = columnConfig?.feature as LinkableColumn;
         return tableData(
-            <USLink
+            <Link
                 href={`${feature.linkBasePath || ""}${
                     rowData[feature.linkAttr || field]
                 }`}
@@ -85,7 +85,7 @@ export const ColumnData = ({
                 {columnConfig.valueMap
                     ? showMappedFieldValue(columnConfig, rowData)
                     : displayValue}
-            </USLink>,
+            </Link>,
         );
     }
 

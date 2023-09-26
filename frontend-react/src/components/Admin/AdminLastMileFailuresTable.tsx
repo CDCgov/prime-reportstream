@@ -23,7 +23,7 @@ import { ErrorPage } from "../../pages/error/ErrorPage";
 import Spinner from "../Spinner";
 import config from "../../config";
 import { getAppInsightsHeaders } from "../../TelemetryService";
-import { USLink } from "../USLink";
+import { Link } from "../../shared/Link/Link";
 import { Table } from "../../shared/Table/Table";
 
 const { RS_API_URL } = config;
@@ -224,14 +224,14 @@ const DataLoadRenderTable = (props: {
                     columnHeader: "Receiver",
                     content: (
                         <>
-                            <USLink
+                            <Link
                                 title={"Jump to Settings"}
                                 href={linkRecvSettings}
                                 key={`recv_link_${eachRow.pk()}`}
                                 className={"font-mono-xs padding-right-4"}
                             >
                                 {eachRow.receiver}
-                            </USLink>
+                            </Link>
                             <Button
                                 key={`retry_${eachRow.pk()}`}
                                 onClick={() =>

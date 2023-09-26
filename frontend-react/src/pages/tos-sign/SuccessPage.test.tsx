@@ -1,6 +1,5 @@
 import { screen } from "@testing-library/react";
 
-import site from "../../content/site.json";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 import { AgreementBody } from "./TermsOfServiceForm";
@@ -11,7 +10,7 @@ describe("Basic rendering", () => {
         title: "",
         firstName: "Kevin",
         lastName: "Haube",
-        email: site.orgs.CDC.email,
+        email: "test-email",
         territory: "Guam",
         organizationName: "Watermelons",
         operatesInMultipleStates: false,

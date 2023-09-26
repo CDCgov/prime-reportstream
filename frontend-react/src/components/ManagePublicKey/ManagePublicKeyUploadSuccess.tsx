@@ -1,7 +1,7 @@
 import React from "react";
 
 import { StaticAlert, StaticAlertType } from "../StaticAlert";
-import { USLink } from "../USLink";
+import { Link } from "../../shared/Link/Link";
 
 export default function ManagePublicKeyUploadSuccess() {
     const heading = "New public key received by ReportStream";
@@ -19,9 +19,9 @@ export default function ManagePublicKeyUploadSuccess() {
             </div>
             <p>
                 Read more about{" "}
-                <USLink href="/resources/api/getting-started#set-up-authentication">
+                <Link href="/resources/api/getting-started#set-up-authentication">
                     your next steps for setting up authentication
-                </USLink>
+                </Link>
                 .
             </p>
         </div>

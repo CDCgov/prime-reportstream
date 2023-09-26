@@ -3,6 +3,7 @@ title: Get started sending data
 subtitle: How to start simplifying public health reporting for your organization
 backToTop: true
 ---
+import site from "../../content/site.json"
 import Sidenav from "./sidenav.mdx"
 
 <LayoutSidenav>
@@ -61,7 +62,7 @@ From the start, we work with your unique requirements and preferences to create 
 ]} />
 If you're not connected with a ReportStream team member yet, get started by letting us know more about your needs.
 
-<A className="usa-button" href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957" target="_blank">Get started</A>
+<Link href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957" button>Get started</Link>
 
 {
 /* pending approval
@@ -103,7 +104,7 @@ Multiple jurisdictions, multiple formats and requirements. Just one connection f
 <Card gridLayout={{tablet: {col: 4}}}>
 
 <CardHeader>
-### <A href="/assets/pdf/ReportStream_Onepager_20230621.pdf" target="_blank">ReportStream overview PDF <Icon name='FileDownload'/></A>
+### <A href={site.assets.onepager}>ReportStream overview PDF <Icon name='FileDownload'/></A>
 </CardHeader>
 <CardBody>
 Download a quick summary of ReportStream that you can print and share.

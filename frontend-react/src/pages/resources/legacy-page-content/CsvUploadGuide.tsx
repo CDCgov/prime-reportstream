@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 
 import site from "../../../content/site.json";
-import { USLink } from "../../../components/USLink";
+import { Link } from "../../../shared/Link/Link";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const CsvUploadGuideIa = () => {
@@ -18,7 +18,7 @@ export const CsvUploadGuideIa = () => {
             </h2>
             <p>
                 Use a simple online tool to submit a CSV file with a{" "}
-                <USLink href="/resources/csv-schema">standard schema</USLink>.
+                <Link href="/resources/csv-schema">standard schema</Link>.
                 Receive real-time validation and feedback on file format and
                 field values before submission.
             </p>
@@ -34,9 +34,9 @@ export const CsvUploadGuideIa = () => {
                     existing Electronic Medical Record (EMR) systems. Pilot
                     partners are selected by recommendation from jurisdictions.
                     Find out if your jurisdiction is{" "}
-                    <USLink href="/product/where-were-live">partnered</USLink>{" "}
-                    with ReportStream and{" "}
-                    <USLink href="/support/contact">contact us</USLink> to learn
+                    <Link href="/product/where-were-live">partnered</Link> with
+                    ReportStream and{" "}
+                    <Link href="/support/contact">contact us</Link> to learn
                     more.
                 </div>
             </div>
@@ -45,14 +45,14 @@ export const CsvUploadGuideIa = () => {
             </p>
             <ul>
                 <li>
-                    <USLink href="#preparing-a-csv" className="usa-link">
+                    <Link href="#preparing-a-csv" className="usa-link">
                         How to prepare a CSV file for ReportStream
-                    </USLink>
+                    </Link>
                 </li>
                 <li>
-                    <USLink href="#upload-a-csv" className="usa-link">
+                    <Link href="#upload-a-csv" className="usa-link">
                         How to upload a CSV file to ReportStream
-                    </USLink>
+                    </Link>
                 </li>
             </ul>
             <p>
@@ -60,9 +60,9 @@ export const CsvUploadGuideIa = () => {
             </p>
             <ul>
                 <li>
-                    <USLink href={site.assets.standardCsv.path}>
+                    <Link href={site.assets.standardCsv.path}>
                         ReportStream standard CSV with example data
-                    </USLink>
+                    </Link>
                 </li>
             </ul>
             <section>
@@ -76,14 +76,14 @@ export const CsvUploadGuideIa = () => {
                         <p className="margin-top-05">
                             If your jurisdiction already has a set format for
                             CSV, compare it to our{" "}
-                            <USLink href={site.assets.standardCsv.path}>
+                            <Link href={site.assets.standardCsv.path}>
                                 standard CSV file
-                            </USLink>{" "}
+                            </Link>{" "}
                             and{" "}
-                            <USLink href="/resources/csv-schema">
+                            <Link href="/resources/csv-schema">
                                 {" "}
                                 CSV schema documentation
-                            </USLink>
+                            </Link>
                             .
                         </p>
                         <p>
@@ -115,10 +115,10 @@ export const CsvUploadGuideIa = () => {
                         </h4>
                         <p>
                             Using the{" "}
-                            <USLink href="/resources/csv-schema">
+                            <Link href="/resources/csv-schema">
                                 {" "}
                                 CSV schema documentation
-                            </USLink>{" "}
+                            </Link>{" "}
                             as a guide, enter properly formatted values in the
                             relevant fields.
                         </p>
@@ -151,9 +151,9 @@ export const CsvUploadGuideIa = () => {
                         <ul className="margin-top-2">
                             <li>
                                 Go to{" "}
-                                <USLink href="/login">
+                                <Link href="/login">
                                     https://reportstream.cdc.gov/login
-                                </USLink>
+                                </Link>
                             </li>
                             <li>Enter username</li>
                             <li>Enter password</li>
@@ -204,9 +204,9 @@ export const CsvUploadGuideIa = () => {
                         </p>
                         <p>
                             ReportStream validates all uploaded files against a{" "}
-                            <USLink href="/resources/csv-schema">
+                            <Link href="/resources/csv-schema">
                                 standard CSV schema
-                            </USLink>
+                            </Link>
                             . If any errors are detected with a file's format or
                             data, the application will alert you to specific
                             changes you need to make before the file can be
@@ -217,9 +217,9 @@ export const CsvUploadGuideIa = () => {
                             <li>
                                 Review the list of errors and recommended
                                 changes suggested by ReportStream. Reference the{" "}
-                                <USLink href="/resources/csv-schema">
+                                <Link href="/resources/csv-schema">
                                     CSV schema documentation
-                                </USLink>{" "}
+                                </Link>{" "}
                                 again for any adjustments to column headers or
                                 values.
                             </li>

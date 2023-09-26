@@ -8,7 +8,7 @@ import OktaSignInWidget from "../components/OktaSignInWidget";
 import { oktaSignInConfig } from "../oktaConfig";
 import { useSessionContext } from "../contexts/SessionContext";
 import { MembershipActionType } from "../hooks/UseOktaMemberships";
-import { USLink } from "../components/USLink";
+import { Link } from "../shared/Link/Link";
 
 const MonitoringAlert = () => {
     return (
@@ -20,7 +20,7 @@ const MonitoringAlert = () => {
             Your use indicates your consent to monitoring, recording, and no
             expectation of privacy. Misuse is subject to criminal and civil
             penalties. By logging in, you are agreeing to our{" "}
-            <USLink href="/terms-of-service">terms of service.</USLink>
+            <Link href="/terms-of-service">terms of service.</Link>
         </SiteAlert>
     );
 };

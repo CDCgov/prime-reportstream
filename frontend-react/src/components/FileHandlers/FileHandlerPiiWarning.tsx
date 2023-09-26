@@ -1,5 +1,5 @@
 import site from "../../content/site.json";
-import { USExtLink } from "../USLink";
+import { Link } from "../../shared/Link/Link";
 
 export default function FileHandlerPiiWarning() {
     return (
@@ -10,9 +10,9 @@ export default function FileHandlerPiiWarning() {
             </p>
             <p className="margin-0">
                 Reminder: Do not submit PII. Email{" "}
-                <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
+                <Link href={`mailto: ${site.orgs.RS.email}`}>
                     {site.orgs.RS.email}
-                </USExtLink>{" "}
+                </Link>{" "}
                 if you need fake data to use.
             </p>
         </div>

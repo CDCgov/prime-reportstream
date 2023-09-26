@@ -1,7 +1,7 @@
 import React from "react";
 import { Breadcrumb, BreadcrumbBar } from "@trussworks/react-uswds";
 
-import { USCrumbLink, USLinkButton } from "../../components/USLink";
+import { Link } from "../../shared/Link/Link";
 
 export type PageHeaderProps = React.PropsWithChildren<
     {
@@ -28,9 +28,7 @@ export function PageHeader({
                     {breadcrumbs.map((b) => (
                         <Breadcrumb key={b.label}>
                             {b.href ? (
-                                <USCrumbLink href={b.href}>
-                                    {b.label}
-                                </USCrumbLink>
+                                <Link href={b.href}>{b.label}</Link>
                             ) : (
                                 b.label
                             )}
@@ -47,9 +45,9 @@ export function PageHeader({
             {(callToAction || lastUpdated) && (
                 <div className="grid-row margin-top-8 margin-bottom-2">
                     {callToAction?.map((c) => (
-                        <USLinkButton key={c.label} href={c.href}>
+                        <Link key={c.label} href={c.href} button>
                             {c.label}
-                        </USLinkButton>
+                        </Link>
                     ))}
                     {lastUpdated && (
                         <p className="text-base text-italic">

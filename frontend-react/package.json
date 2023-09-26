@@ -5,6 +5,7 @@
     "type": "module",
     "npmClient": "yarn",
     "dependencies": {
+        "@microsoft/applicationinsights-clickanalytics-js": "^3.0.3",
         "@microsoft/applicationinsights-react-js": "^17.0.0",
         "@microsoft/applicationinsights-web": "^3.0.2",
         "@okta/okta-auth-js": "^7.4.2",

@@ -4,7 +4,7 @@ import React from "react";
 
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import Spinner from "../Spinner";
-import { USLink, USNavLink } from "../USLink";
+import { Link } from "../../shared/Link/Link";
 
 import { DisplayMeta } from "./DisplayMeta";
 
@@ -25,11 +25,11 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
         >
             <h2>
                 Organization Sender Settings ({orgSenderSettings.length}){" - "}
-                <USLink
+                <Link
                     href={`/admin/revisionhistory/org/${props.orgname}/settingtype/sender`}
                 >
                     History
-                </USLink>
+                </Link>
             </h2>
             {!orgSenderSettings ? (
                 <Spinner />
@@ -49,13 +49,13 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                             <th scope="col">Meta</th>
                             <th scope="col">Action</th>
                             <th scope="col" align="right">
-                                <USNavLink
+                                <Link
                                     className="usa-button"
                                     href={`/admin/orgnewsetting/org/${props.orgname}/settingtype/sender`}
                                     key={`sender-create-link`}
                                 >
                                     New
-                                </USNavLink>
+                                </Link>
                             </th>
                         </tr>
                     </thead>
@@ -75,20 +75,20 @@ export function OrgSenderTable(props: OrgSettingsTableProps) {
                                 </td>
                                 <td colSpan={2}>
                                     <ButtonGroup type="segmented">
-                                        <USNavLink
+                                        <Link
                                             className="usa-button"
                                             href={`/admin/orgsendersettings/org/${eachOrgSetting.organizationName}/sender/${eachOrgSetting.name}/action/edit`}
                                             key={`sender-edit-link-${eachOrgSetting.name}-${index}`}
                                         >
                                             Edit
-                                        </USNavLink>
-                                        <USNavLink
+                                        </Link>
+                                        <Link
                                             className="usa-button"
                                             href={`/admin/orgsendersettings/org/${eachOrgSetting.organizationName}/sender/${eachOrgSetting.name}/action/clone`}
                                             key={`sender-clone-link-${eachOrgSetting.name}-${index}`}
                                         >
                                             Clone
-                                        </USNavLink>
+                                        </Link>
                                     </ButtonGroup>
                                 </td>
                             </tr>

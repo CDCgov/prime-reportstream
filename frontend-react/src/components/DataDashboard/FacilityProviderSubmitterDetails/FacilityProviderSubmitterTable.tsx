@@ -8,7 +8,7 @@ import useFilterManager, {
 } from "../../../hooks/filters/UseFilterManager";
 import { FeatureName } from "../../../utils/FeatureName";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
-import { USLink } from "../../USLink";
+import { Link } from "../../../shared/Link/Link";
 import { SenderTypeDetailResource } from "../../../config/endpoints/dataDashboard";
 
 import styles from "./FacilityProviderSubmitterTable.module.scss";
@@ -61,12 +61,12 @@ function FacilityProviderSubmitterTable(
                     columnKey: "reportId",
                     columnHeader: "Report ID",
                     content: (
-                        <USLink
+                        <Link
                             href={`/report-details/${SenderTypeDetailResource.reportId}`}
                             className="flex-align-self-end height-5"
                         >
                             {SenderTypeDetailResource.reportId}
-                        </USLink>
+                        </Link>
                     ),
                 },
                 {

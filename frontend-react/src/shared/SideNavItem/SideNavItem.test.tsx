@@ -1,21 +1,11 @@
 import { screen } from "@testing-library/react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
-import { USNavLink } from "../../components/USLink";
+import { Link } from "../../shared/Link/Link";
 
 import SideNavItem from "./SideNavItem";
 
 describe("SideNavItem", () => {
-    test("custom component", () => {
-        renderApp(
-            <SideNavItem href="/foo" to="a">
-                Test
-            </SideNavItem>,
-        );
-        const parentLink = screen.getByRole("link");
-        expect(parentLink).toHaveTextContent("Test");
-    });
-
     test("no items", () => {
         renderApp(<SideNavItem href="/foo">Test</SideNavItem>);
         const parentLink = screen.getByRole("link");
@@ -27,7 +17,11 @@ describe("SideNavItem", () => {
             renderApp(
                 <SideNavItem
                     href="/foo"
-                    items={[<USNavLink href="/foo/bar">Sub test</USNavLink>]}
+                    items={[
+                        <Link key="a" href="/foo/bar">
+                            Sub test
+                        </Link>,
+                    ]}
                 >
                     Test
                 </SideNavItem>,
@@ -46,7 +40,11 @@ describe("SideNavItem", () => {
             renderApp(
                 <SideNavItem
                     href="/foo"
-                    items={[<USNavLink href="/foo/bar">Sub test</USNavLink>]}
+                    items={[
+                        <Link key="a" href="/foo/bar">
+                            Sub test
+                        </Link>,
+                    ]}
                 >
                     Test
                 </SideNavItem>,
@@ -62,7 +60,11 @@ describe("SideNavItem", () => {
             renderApp(
                 <SideNavItem
                     href="/foo"
-                    items={[<USNavLink href="/foo/bar">Sub test</USNavLink>]}
+                    items={[
+                        <Link key="a" href="/foo/bar">
+                            Sub test
+                        </Link>,
+                    ]}
                 >
                     Test
                 </SideNavItem>,
@@ -78,7 +80,11 @@ describe("SideNavItem", () => {
             renderApp(
                 <SideNavItem
                     href="/foo"
-                    items={[<USNavLink href="/foo/bar">Sub test</USNavLink>]}
+                    items={[
+                        <Link key="a" href="/foo/bar">
+                            Sub test
+                        </Link>,
+                    ]}
                     isActive={true}
                 >
                     Test
@@ -95,7 +101,11 @@ describe("SideNavItem", () => {
             renderApp(
                 <SideNavItem
                     href="/foo"
-                    items={[<USNavLink href="/foo/bar">Sub test</USNavLink>]}
+                    items={[
+                        <Link key="a" href="/foo/bar">
+                            Sub test
+                        </Link>,
+                    ]}
                     isActive={false}
                 >
                     Test

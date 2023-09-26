@@ -2,7 +2,7 @@ import { Button } from "@trussworks/react-uswds";
 
 import { logout } from "../../utils/UserUtils";
 import config from "../../config";
-import { USLinkButton } from "../USLink";
+import { Link } from "../../shared/Link/Link";
 import { useSessionContext } from "../../contexts/SessionContext";
 
 const { IS_PREVIEW } = config;
@@ -21,9 +21,9 @@ const SignInOrUser = () => {
             </Button>
         </div>
     ) : (
-        <USLinkButton href="/login" inverse={IS_PREVIEW}>
+        <Link href="/login" button={{ inverse: IS_PREVIEW }}>
             Log in {IS_PREVIEW ? "via OktaPreview" : ""}
-        </USLinkButton>
+        </Link>
     );
 };
 

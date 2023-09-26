@@ -40,7 +40,7 @@ import { AuthElement } from "../../components/AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
 import { getAppInsightsHeaders } from "../../TelemetryService";
-import { USLink } from "../../components/USLink";
+import { Link } from "../../shared/Link/Link";
 
 const { RS_API_URL } = config;
 
@@ -161,11 +161,11 @@ export function AdminOrgEdit() {
             <section className="grid-container margin-top-3 margin-bottom-5">
                 <h2>
                     Org name: {orgname} {" - "}
-                    <USLink
+                    <Link
                         href={`/admin/revisionhistory/org/${orgname}/settingtype/organization`}
                     >
                         History
-                    </USLink>
+                    </Link>
                 </h2>
             </section>
             <NetworkErrorBoundary

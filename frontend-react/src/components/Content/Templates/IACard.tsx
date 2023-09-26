@@ -1,5 +1,5 @@
 import { ContentDirectory } from "../MarkdownDirectory";
-import { USNavLink } from "../../USLink";
+import { Link } from "../../../shared/Link/Link";
 
 /** Takes an array of ContentDirectories and returns a gird list of IACards
  * with navigation links to the directories, and descriptions.
@@ -19,9 +19,9 @@ const IACard = ({ dir }: { dir: ContentDirectory }) => {
         <li className="usa-card tablet:grid-col-4">
             <div className="usa-card__container">
                 <div className="usa-card__header padding-top-1">
-                    <USNavLink className={"usa-link"} href={dir.slug}>
+                    <Link className={"usa-link"} href={dir.slug}>
                         <h3 className="margin-bottom-0">{dir.title}</h3>
-                    </USNavLink>
+                    </Link>
                 </div>
                 <div className="usa-card__body">
                     <p>{dir.desc}</p>

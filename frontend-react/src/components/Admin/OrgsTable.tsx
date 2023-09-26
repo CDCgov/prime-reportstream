@@ -11,7 +11,7 @@ import {
     MemberType,
     MembershipSettings,
 } from "../../hooks/UseOktaMemberships";
-import { USNavLink } from "../USLink";
+import { Link } from "../../shared/Link/Link";
 import { Table } from "../../shared/Table/Table";
 
 export function OrgsTable() {
@@ -173,12 +173,12 @@ export function OrgsTable() {
                             onChange={(evt) => setFilter(evt.target.value)}
                         />
                     </div>
-                    <USNavLink
+                    <Link
                         href={"/admin/new/org"}
                         className="usa-button flex-align-self-end height-5"
                     >
                         Create New Organization
-                    </USNavLink>
+                    </Link>
                     <Button
                         key={`savelist`}
                         onClick={() => saveListToCSVFile()}

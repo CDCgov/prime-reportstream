@@ -6,7 +6,6 @@ import type { TocEntry } from "remark-mdx-toc";
 import { useMatches } from "react-router";
 import classNames from "classnames";
 
-import { USSmartLink, USNavLink } from "../../components/USLink";
 import * as shared from "../../shared";
 
 import { TableOfContents } from "./TableOfContents";
@@ -49,12 +48,10 @@ export interface MarkdownLayoutProps {
  * to list (overridden by project shared components).
  */
 const MDXComponents = {
-    a: USSmartLink,
-    A: USSmartLink,
+    a: sharedComponents.Link as React.ComponentType,
+    A: sharedComponents.Link as React.ComponentType,
     ...uswdsComponents,
     ...sharedComponents,
-    Link: USSmartLink,
-    USNavLink,
 };
 
 /**

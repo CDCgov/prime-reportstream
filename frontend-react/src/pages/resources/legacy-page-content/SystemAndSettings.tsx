@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 
 import { ResourcesDirectories } from "../../../content/resources";
-import { USExtLink, USLink } from "../../../components/USLink";
+import { Link } from "../../../shared/Link/Link";
 
 export const SystemAndSettingsIa = () => {
     return (
@@ -19,27 +19,27 @@ export const SystemAndSettingsIa = () => {
             <p className="text-bold">On this page:</p>
             <ul>
                 <li>
-                    <USLink href="#data-security-and-storage">
+                    <Link href="#data-security-and-storage">
                         Data security and storage
-                    </USLink>
+                    </Link>
                 </li>
                 <li>
-                    <USLink href="#data-configuration-and-formatting">
+                    <Link href="#data-configuration-and-formatting">
                         Data configuration and formatting
-                    </USLink>
+                    </Link>
                 </li>
                 <li>
-                    <USLink href="#data-transport-and-sending">
+                    <Link href="#data-transport-and-sending">
                         Data transport and sending
-                    </USLink>
+                    </Link>
                 </li>
                 <li>
-                    <USLink href="#file-testing-and-launch">
+                    <Link href="#file-testing-and-launch">
                         File testing and launch
-                    </USLink>
+                    </Link>
                 </li>
                 <li>
-                    <USLink href="#data-access">Data access</USLink>
+                    <Link href="#data-access">Data access</Link>
                 </li>
             </ul>
 
@@ -59,9 +59,9 @@ export const SystemAndSettingsIa = () => {
                 <p>
                     As a project of the U.S. federal government, ReportStream
                     also complies with the{" "}
-                    <USExtLink href="https://csrc.nist.gov/Projects/risk-management/fisma-background">
+                    <Link href="https://csrc.nist.gov/Projects/risk-management/fisma-background">
                         Federal Information System Management Act
-                    </USExtLink>{" "}
+                    </Link>{" "}
                     (FISMA). FISMA sets standards and requires federal agencies
                     to implement information security plans to protect sensitive
                     data.
@@ -69,9 +69,9 @@ export const SystemAndSettingsIa = () => {
 
                 <p>
                     Get more information on{" "}
-                    <USLink href="/resources/security-practices">
+                    <Link href="/resources/security-practices">
                         ReportStream security practices
-                    </USLink>
+                    </Link>
                     .
                 </p>
             </section>
@@ -84,15 +84,15 @@ export const SystemAndSettingsIa = () => {
 
                 <p>
                     ReportStream data follows{" "}
-                    <USExtLink href="https://www.hhs.gov/answers/is-additional-information-including-technical-specifications-available-to-support-laboratories-with-implementation/index.html">
+                    <Link href="https://www.hhs.gov/answers/is-additional-information-including-technical-specifications-available-to-support-laboratories-with-implementation/index.html">
                         HHS guidance for COVID-19 Lab Data Reporting
-                    </USExtLink>
+                    </Link>
                     , including the recommended Health and Human Services
                     COVID-19 “Ask on Order Entry” questions. Sending Ask on
                     Order Entry questions (via{" "}
-                    <USExtLink href="https://hl7-definition.caristix.com/v2/HL7v2.5/Segments/OBX">
+                    <Link href="https://hl7-definition.caristix.com/v2/HL7v2.5/Segments/OBX">
                         OBX fields
-                    </USExtLink>
+                    </Link>
                     ) is optional.
                 </p>
 
@@ -138,9 +138,9 @@ export const SystemAndSettingsIa = () => {
                             Synthetic data (standard):
                         </span>{" "}
                         ReportStream always sends synthetic data in our{" "}
-                        <USExtLink href="https://github.com/CDCgov/prime-reportstream/blob/production/prime-router/docs/schema_documentation/primedatainput-pdi-covid-19.md">
+                        <Link href="https://github.com/CDCgov/prime-reportstream/blob/production/prime-router/docs/schema_documentation/primedatainput-pdi-covid-19.md">
                             standard data schema
-                        </USExtLink>{" "}
+                        </Link>{" "}
                         for your review.
                     </li>
                     <li>

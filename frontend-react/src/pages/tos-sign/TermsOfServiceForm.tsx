@@ -16,7 +16,7 @@ import Title from "../../components/Title";
 import getStateTerritoryList from "../../utils/StateTerritories";
 import config from "../../config";
 import { getAppInsightsHeaders } from "../../TelemetryService";
-import { USLink } from "../../components/USLink";
+import { Link } from "../../shared/Link/Link";
 
 import SuccessPage from "./SuccessPage";
 
@@ -185,9 +185,9 @@ function TermsOfServiceForm() {
         return (
             <span className="maxw-2">
                 I have read and agree to the ReportSteam{" "}
-                <USLink href="/terms-of-service" target="_blank" rel="noopener">
+                <Link href="/terms-of-service" target="_blank" rel="noopener">
                     terms of service
-                </USLink>
+                </Link>
                 . <Required />
             </span>
         );

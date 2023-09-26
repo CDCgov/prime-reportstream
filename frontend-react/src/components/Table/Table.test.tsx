@@ -195,10 +195,8 @@ describe("Table, basic tests", () => {
 
     test("Link columns are rendered as links", () => {
         renderApp(<SimpleTable />);
-        const linkInCell = screen.getByText("UUID-1");
-        expect(linkInCell).toContainHTML(
-            '<a class="usa-link" href="/base/UUID-1">UUID-1</a>',
-        );
+        const linkInCell = screen.getByRole("link", { name: "UUID-1" });
+        expect(linkInCell).toHaveAttribute("href", "/base/UUID-1");
     });
 
     test("Action columns are rendered as actions", () => {

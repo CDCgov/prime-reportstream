@@ -1,7 +1,7 @@
 import moment from "moment";
 
 import ReportResource from "../../../resources/ReportResource";
-import { USLink } from "../../../components/USLink";
+import { Link } from "../../../shared/Link/Link";
 
 import ReportLink from "./ReportLink";
 
@@ -22,12 +22,12 @@ function TableReportsData(props: Props) {
             {props.reports.map((report, idx) => (
                 <tr key={idx}>
                     <th scope="row">
-                        <USLink
+                        <Link
                             href={"/report-details?reportId=" + report.reportId}
                             key="daily"
                         >
                             {report.reportId}
-                        </USLink>
+                        </Link>
                     </th>
                     <th scope="row">
                         {moment

@@ -2,6 +2,8 @@
 title: About
 subtitle: Learn who ReportStream is, what we do, and why
 ---
+import site from "../../content/site.json";
+
 <HeroWrapper>
     <div className="grid-container">
         <div className="grid-row grid-gap margin-y-3">
@@ -101,7 +103,7 @@ subtitle: Learn who ReportStream is, what we do, and why
         <CardGroup>
             <Card gridLayout={{col: "fill"}}>
                 <CardHeader typeof="div">
-                    ### <A href="/assets/pdf/ReportStream_Onepager_20230621.pdf" target="_blank">ReportStream overview PDF <Icon name='FileDownload'/></A>
+                    ### <SiteLink name="assets.onepager">ReportStream overview PDF</SiteLink>
                 </CardHeader>
                 <CardBody>
                     Download a quick summary of ReportStream that you can print and share.

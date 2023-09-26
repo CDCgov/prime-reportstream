@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 
 import site from "../../../content/site.json";
 import schema from "../../../content/getting_started_csv_upload.json";
-import { USExtLink, USLink } from "../../../components/USLink";
+import { Link } from "../../../shared/Link/Link";
 
 export type CsvSchemaItem = {
     name: string;
@@ -106,13 +106,13 @@ export const CsvSchemaDocumentation = () => {
             <p>
                 The ReportStream standard CSV schema is a blend of the
                 Department of Health and Human Science's (HHS){" "}
-                <USExtLink href="https://www.hhs.gov/coronavirus/testing/covid-19-diagnostic-data-reporting/index.html">
+                <Link href="https://www.hhs.gov/coronavirus/testing/covid-19-diagnostic-data-reporting/index.html">
                     requirements for COVID-19 test data
-                </USExtLink>{" "}
+                </Link>{" "}
                 as well as those of numerous jurisdictions. Data reported using
                 this standard schema will be accepted by state, tribal, local,
                 or territorial (STLT) health departments{" "}
-                <USLink href="/product/where-were-live">partnered</USLink> with
+                <Link href="/product/where-were-live">partnered</Link> with
                 ReportStream.{" "}
             </p>
             <p className="text-base text-italic">Last updated: May 9, 2022</p>
@@ -123,20 +123,18 @@ export const CsvSchemaDocumentation = () => {
                             About CSV upload
                         </h3>
                         This documentation will help you prepare a file for{" "}
-                        <USLink href="/resources/csv-upload-guide">
+                        <Link href="/resources/csv-upload-guide">
                             CSV upload
-                        </USLink>
+                        </Link>
                         . This feature is currently being piloted in select
                         jurisdictions with organizations or facilities that have
                         existing Electronic Medical Record (EMR) systems. Pilot
                         partners are selected by recommendation from
                         jurisdictions. Find out if your jurisdiction is{" "}
-                        <USLink href="/product/where-were-live">
-                            partnered
-                        </USLink>{" "}
+                        <Link href="/product/where-were-live">partnered</Link>{" "}
                         with ReportStream and{" "}
-                        <USLink href="/support/contact">contact us</USLink> to
-                        learn more.
+                        <Link href="/support/contact">contact us</Link> to learn
+                        more.
                     </div>
                 </div>
 
@@ -145,9 +143,9 @@ export const CsvSchemaDocumentation = () => {
                 </p>
                 <ul>
                     <li>
-                        <USLink href="#formatting-guidelines">
+                        <Link href="#formatting-guidelines">
                             General formatting guidelines
-                        </USLink>
+                        </Link>
                     </li>
                     {schema.fields.map((field, fieldIndex) => {
                         return (
@@ -158,11 +156,9 @@ export const CsvSchemaDocumentation = () => {
                                             <li
                                                 key={`toc-${fieldIndex}-${sectionIndex}`}
                                             >
-                                                <USLink
-                                                    href={`#${section.slug}`}
-                                                >
+                                                <Link href={`#${section.slug}`}>
                                                     {section.title}
-                                                </USLink>
+                                                </Link>
                                             </li>
                                         );
                                     },
@@ -176,12 +172,12 @@ export const CsvSchemaDocumentation = () => {
                 </p>
                 <ul>
                     <li>
-                        <USLink
+                        <Link
                             id="standard-csv"
                             href={site.assets.standardCsv.path}
                         >
                             ReportStream standard CSV with example data
-                        </USLink>
+                        </Link>
                     </li>
                 </ul>
             </section>
@@ -266,9 +262,9 @@ export const CsvSchemaDocumentation = () => {
                             );
                         })}
                         <p className="margin-top-8">
-                            <USLink href="#anchor-top" className="usa-link">
+                            <Link href="#anchor-top" className="usa-link">
                                 Return to top
-                            </USLink>
+                            </Link>
                         </p>
                     </div>
                 );

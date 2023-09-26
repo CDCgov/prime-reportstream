@@ -11,7 +11,7 @@ import Spinner from "../Spinner";
 import { MessageListResource } from "../../config/endpoints/messageTracker";
 import { useMessageSearch } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
 import { Table } from "../../shared/Table/Table";
-import { USLink } from "../USLink";
+import { Link } from "../../shared/Link/Link";
 
 interface MessageListTableContentProps {
     isLoading: boolean;
@@ -32,9 +32,9 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
                 columnKey: "messageId",
                 columnHeader: "Message ID",
                 content: (
-                    <USLink href={`/message-details/${row.id}`}>
+                    <Link href={`/message-details/${row.id}`}>
                         {row.messageId}
-                    </USLink>
+                    </Link>
                 ),
             },
             {
@@ -53,9 +53,9 @@ const MessageTrackerTableContent: React.FC<MessageListTableContentProps> = ({
                 columnKey: "reportId",
                 columnHeader: "Incoming Report Id",
                 content: (
-                    <USLink href={`/submissions/${row.reportId}`}>
+                    <Link href={`/submissions/${row.reportId}`}>
                         {row.reportId}
-                    </USLink>
+                    </Link>
                 ),
             },
         ];

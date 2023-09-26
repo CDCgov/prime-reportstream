@@ -4,7 +4,7 @@ import { GridContainer } from "@trussworks/react-uswds";
 import Spinner from "../Spinner";
 import { AuthElement } from "../AuthElement";
 import { withCatchAndSuspense } from "../RSErrorBoundary";
-import { USLink } from "../USLink";
+import { Link } from "../../shared/Link/Link";
 import { showError } from "../AlertNotifications";
 import { ApiKey } from "../../config/endpoints/settings";
 import { useSessionContext } from "../../contexts/SessionContext";
@@ -172,9 +172,9 @@ export function ManagePublicKey() {
                     <Alert type="tip" className="margin-bottom-6">
                         <span className="padding-left-1">
                             Learn more about
-                            <USLink href="/resources/api/getting-started#set-up-authentication">
+                            <Link href="/resources/api/getting-started#set-up-authentication">
                                 generating your public key
-                            </USLink>{" "}
+                            </Link>{" "}
                             and setting up authentication.
                         </span>
                     </Alert>

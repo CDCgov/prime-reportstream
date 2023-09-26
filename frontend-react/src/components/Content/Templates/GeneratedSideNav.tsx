@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { SideNav } from "@trussworks/react-uswds";
 
 import { ContentDirectory } from "../MarkdownDirectory";
-import { USNavLink } from "../../USLink";
+import { Link } from "../../../shared/Link/Link";
 
 export const GeneratedSideNav = ({
     directories,
@@ -10,7 +10,7 @@ export const GeneratedSideNav = ({
     directories: ContentDirectory[];
 }) => {
     const navItems: ReactNode[] = directories.map((dir) => {
-        return <USNavLink href={dir.slug}>{dir.title}</USNavLink>;
+        return <Link href={dir.slug}>{dir.title}</Link>;
     });
     return <SideNav items={navItems} />;
 };

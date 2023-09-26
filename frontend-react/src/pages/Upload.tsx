@@ -3,7 +3,7 @@ import React from "react";
 
 import { MemberType } from "../hooks/UseOktaMemberships";
 import { AuthElement } from "../components/AuthElement";
-import { USExtLink, USLink } from "../components/USLink";
+import { Link } from "../shared/Link/Link";
 
 const TransitionBanner = () => {
     return (
@@ -17,20 +17,20 @@ const TransitionBanner = () => {
                     Starting <b>July 18, 2022</b>, the CSV uploader feature will
                     no longer be available from the ReportStream web portal.
                     However, you’ll still have access to your{" "}
-                    <USLink href="/submissions">CSV submission history</USLink>{" "}
+                    <Link href="/submissions">CSV submission history</Link>{" "}
                     through your ReportStream user account until further notice.
                 </li>
                 <li className="margin-bottom-2">
                     Visit the new CSV uploader by{" "}
-                    <USLink href="https://www.simplereport.gov/app/results/upload">
+                    <Link href="https://www.simplereport.gov/app/results/upload">
                         following this link
-                    </USLink>{" "}
+                    </Link>{" "}
                     (you can use your existing username and password). If you
                     need assistance or have questions, please email the
                     SimpleReport team at{" "}
-                    <USExtLink href={`mailto: support@simplereport.gov`}>
+                    <Link href={`mailto: support@simplereport.gov`}>
                         support@simplereport.gov
-                    </USExtLink>
+                    </Link>
                     .
                 </li>
             </ul>

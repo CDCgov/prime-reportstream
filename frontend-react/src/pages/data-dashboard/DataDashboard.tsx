@@ -4,7 +4,7 @@ import React from "react";
 import { FeatureName } from "../../utils/FeatureName";
 import { AuthElement } from "../../components/AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
-import { USNavLink } from "../../components/USLink";
+import { Link } from "../../shared/Link/Link";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import DataDashboardTable from "../../components/DataDashboard/DataDashboardTable/DataDashboardTable";
@@ -35,9 +35,9 @@ function DataDashboard() {
                         <hr className="margin-bottom-3" />
                         <div className="font-sans-2xs">
                             Jump to:{" "}
-                            <USNavLink href="/data-dashboard/facilities-providers">
+                            <Link href="/data-dashboard/facilities-providers">
                                 All facilities & providers
-                            </USNavLink>
+                            </Link>
                         </div>
                         <hr />
                     </header>

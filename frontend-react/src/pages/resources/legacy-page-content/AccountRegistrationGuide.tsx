@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet-async";
 
 import site from "../../../content/site.json";
 import { ResourcesDirectories } from "../../../content/resources";
-import { USExtLink, USLink } from "../../../components/USLink";
+import { Link } from "../../../shared/Link/Link";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const AccountRegistrationGuideIa = () => {
@@ -46,9 +46,9 @@ export const AccountRegistrationGuideIa = () => {
                         </p>
                         <p className="usa-alert__text">
                             Questions? Get in touch at{" "}
-                            <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
+                            <Link href={`mailto: ${site.orgs.RS.email}`}>
                                 reportstream@cdc.gov
-                            </USExtLink>
+                            </Link>
                         </p>
                     </div>
                 </div>
@@ -56,14 +56,12 @@ export const AccountRegistrationGuideIa = () => {
                 <p className="text-bold">Jump to:</p>
                 <ul>
                     <li>
-                        <USLink href="#anchor-mfa">
+                        <Link href="#anchor-mfa">
                             Set up multi-factor authentication
-                        </USLink>
+                        </Link>
                     </li>
                     <li>
-                        <USLink href="#anchor-acct-mngt">
-                            Account management
-                        </USLink>
+                        <Link href="#anchor-acct-mngt">Account management</Link>
                     </li>
                 </ul>
                 <h1>Register for a ReportStream account</h1>
@@ -74,11 +72,11 @@ export const AccountRegistrationGuideIa = () => {
                         </h3>
                         <p className="margin-top-05">
                             Send an email to{" "}
-                            <USExtLink
+                            <Link
                                 href={`mailto: ${site.orgs.RS.email}?subject=Register a new account: organization or testing facility`}
                             >
                                 reportstream@cdc.gov
-                            </USExtLink>
+                            </Link>
                             . Use the example text below as a template for your
                             message:
                         </p>
@@ -136,9 +134,9 @@ export const AccountRegistrationGuideIa = () => {
                             <p>
                                 Open the link to view the form and review the
                                 ReportStream{" "}
-                                <USLink href="/terms-of-service">
+                                <Link href="/terms-of-service">
                                     terms of service
-                                </USLink>
+                                </Link>
                             </p>
                             <p>
                                 Fill out and submit the form.{" "}
@@ -207,10 +205,10 @@ export const AccountRegistrationGuideIa = () => {
                             "Setup" below it. These authentication options are
                             meant to secure your account. Below, you can review
                             instructions for setting up{" "}
-                            <USLink href="#anchor-mfa">
+                            <Link href="#anchor-mfa">
                                 SMS authentication and Google Authenticator/Okta
                                 Verify
-                            </USLink>
+                            </Link>
                             .
                         </p>
                         <p>
@@ -243,18 +241,18 @@ export const AccountRegistrationGuideIa = () => {
                         <div className="margin-top-2">
                             <p>
                                 Go to{" "}
-                                <USLink href="/login">
+                                <Link href="/login">
                                     https://reportstream.cdc.gov/login
-                                </USLink>{" "}
+                                </Link>{" "}
                                 to log in with your username and password.
                             </p>
                             <p>
                                 Need help? Contact us at{" "}
-                                <USExtLink
+                                <Link
                                     href={`mailto: ${site.orgs.RS.email}?subject=Getting started with ReportStream`}
                                 >
                                     reportstream@cdc.gov
-                                </USExtLink>
+                                </Link>
                             </p>
                         </div>
                     </li>
@@ -341,9 +339,9 @@ export const AccountRegistrationGuideIa = () => {
                 <p>
                     ReportStream will manually manage user accounts for your
                     team. To add or remove team members,{" "}
-                    <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
+                    <Link href={`mailto: ${site.orgs.RS.email}`}>
                         contact us
-                    </USExtLink>
+                    </Link>
                     .
                 </p>
 
@@ -351,9 +349,9 @@ export const AccountRegistrationGuideIa = () => {
                 <p>
                     If you forgot your password, follow the instructions under
                     "Need help signing in?" on the login page at{" "}
-                    <USLink href={`${site.orgs.RS.url}/login`}>
+                    <Link href={`${site.orgs.RS.url}/login`}>
                         {`${site.orgs.RS.url}/login`}
-                    </USLink>
+                    </Link>
                     .
                 </p>
                 <p>

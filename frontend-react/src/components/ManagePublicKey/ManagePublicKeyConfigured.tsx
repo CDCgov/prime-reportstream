@@ -1,6 +1,6 @@
 import React from "react";
 
-import { USLink } from "../USLink";
+import { Link } from "../../shared/Link/Link";
 
 export default function ManagePublicKeyConfigured() {
     return (
@@ -10,9 +10,9 @@ export default function ManagePublicKeyConfigured() {
             </div>
             <div>
                 {" "}
-                <USLink href="/support/service-request">
+                <Link href="/support/service-request">
                     Contact ReportStream
-                </USLink>{" "}
+                </Link>{" "}
                 to upload a new public key.
             </div>
             {/*<Grid row>

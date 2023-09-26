@@ -4,8 +4,8 @@ import { Icon } from "@trussworks/react-uswds";
 import { useSessionContext } from "../contexts/SessionContext";
 import { MemberType } from "../hooks/UseOktaMemberships";
 import useSenderResource from "../hooks/UseSenderResource";
+import { Link } from "../shared/Link/Link";
 
-import { USLink } from "./USLink";
 import { withCatchAndSuspense } from "./RSErrorBoundary";
 
 const isNotActive = (val: string | undefined): boolean => {
@@ -25,9 +25,9 @@ const BannerContent = () => {
                         <div className="grid-col-fill tablet:grid-col-auto">
                             <b>Onboarding: </b> Your account is not yet sending
                             data to your public health authority.{" "}
-                            <USLink href="/getting-started/testing-facilities/overview">
+                            <Link href="/getting-started/testing-facilities/overview">
                                 Learn more about onboarding.
-                            </USLink>
+                            </Link>
                         </div>
                     </div>
                 </header>

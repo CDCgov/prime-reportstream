@@ -1,5 +1,5 @@
 import site from "../../../content/site.json";
-import { USExtLink } from "../../../components/USLink";
+import { Link } from "../../../shared/Link/Link";
 
 export const ErrorUnsupportedBrowser = () => {
     return (
@@ -11,31 +11,31 @@ export const ErrorUnsupportedBrowser = () => {
             </p>
             <ul>
                 <li>
-                    <USExtLink href="https://www.google.com/chrome/">
+                    <Link href="https://www.google.com/chrome/">
                         Google Chrome
-                    </USExtLink>
+                    </Link>
                 </li>
                 <li>
-                    <USExtLink href="https://www.mozilla.org/en-US/firefox/new/">
+                    <Link href="https://www.mozilla.org/en-US/firefox/new/">
                         Mozilla Firefox
-                    </USExtLink>
+                    </Link>
                 </li>
                 <li>
-                    <USExtLink href="https://www.apple.com/safari/">
+                    <Link href="https://www.apple.com/safari/">
                         Apple Safari
-                    </USExtLink>
+                    </Link>
                 </li>
                 <li>
-                    <USExtLink href="https://www.microsoft.com/en-us/edge">
+                    <Link href="https://www.microsoft.com/en-us/edge">
                         Microsoft Edge
-                    </USExtLink>
+                    </Link>
                 </li>
             </ul>
             <p>
                 Still having issues? Contact ReportStream support at{" "}
-                <USExtLink href={`mailto: ${site.orgs.RS.email}`}>
+                <Link href={`mailto: ${site.orgs.RS.email}`}>
                     {site.orgs.RS.email}
-                </USExtLink>
+                </Link>
                 .
             </p>
         </div>

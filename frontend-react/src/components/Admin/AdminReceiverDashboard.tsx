@@ -25,7 +25,7 @@ import { formatDate } from "../../utils/misc";
 import { TableFilterDateLabel, StyleClass } from "../Table/TableFilters";
 import Spinner from "../Spinner";
 import { ErrorPage } from "../../pages/error/ErrorPage";
-import { USLink } from "../USLink";
+import { Link } from "../../shared/Link/Link";
 
 const DAY_BACK_DEFAULT = 3 - 1; // N days (-1 because we add a day later for ranges)
 const SKIP_HOURS = 2; // hrs - should be factor of 24 (e.g. 12,6,4,3,2)
@@ -539,9 +539,9 @@ function renderAllReceiverRows(props: {
             >
                 <Grid className={`title-column ${titleClassName}`}>
                     <div className={"title-text"}>
-                        <USLink href={linkOrgSettings}>{orgName}</USLink>
+                        <Link href={linkOrgSettings}>{orgName}</Link>
                         <br />
-                        <USLink href={linkRecvSettings}>{recvrName}</USLink>
+                        <Link href={linkRecvSettings}>{recvrName}</Link>
                         <br />
                         {successRate}%
                     </div>
