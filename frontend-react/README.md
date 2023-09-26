@@ -108,3 +108,25 @@ NOTE: This only works `run:build-dir` because webpack's dynamic runtime updating
 `.github/workflows/chromatic-master.yml` triggers a Chromatic build anytime a PR gets merged into our `master` branch.
 
 `.github/workflows/chromatic-pr.yml` triggers a Chromatic build anytime a file with `// AutoUpdateFileChromatic` comment on its FIRST LINE is checked in to a PR. The goal here is to automatically update our Chromatic anytime a file that has an associated Storybook is modified.
+
+## Documentation Table of Contents
+
+### General
+
+-   [Best Practices](docs/best-practices.md)
+-   [Content](docs/content.md)
+-   [Data fetching patterns](docs/data-fetching-patterns.md)
+-   [Feature flags](docs/feature-flags.md)
+-   [Patches](docs/patches.md)
+-   [RS Auth Element](docs/rs-auth-element.md)
+-   [RS Error Boundary and Suspense](docs/rs-error-boundary-and-suspense.md)
+-   [RS IA Content System](docs/rs-ia-content-system.md)
+-   [RS IA Template System](docs/rs-ia-template-system.md)
+-   [RS React Testing Network Calls](docs/rs-react-testing-network-calls.md)
+-   [Test Conventions](docs/test-conventions.md)
+
+### Proposals
+
+-   [Permissions Layer](docs/proposals/0001-permissions-layer-proposal.md)
+-   [Domain Driven Directory Structure](docs/proposals/0002-domain-driven-directory-structure.md)
+-   [USWDS React Components](docs/proposals/0003-uswds-react-components.md)
