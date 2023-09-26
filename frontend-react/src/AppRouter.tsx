@@ -3,7 +3,6 @@ import { LoginCallback } from "@okta/okta-react";
 import React from "react";
 
 import { TermsOfService } from "./pages/TermsOfService";
-import { About } from "./pages/About";
 import { Login } from "./pages/Login";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import { Resources } from "./pages/resources/Resources";
@@ -65,14 +64,16 @@ export const appRoutes: RouteObject[] = [
                 path: "/about",
                 children: [
                     {
-                        path: "our-network",
-                        lazy: lazyRouteMarkdown("content/about/our-network"),
+                        index: true,
+                        lazy: lazyRouteMarkdown("content/about/index"),
                         handle: {
                             isContentPage: true,
+                            isFullWidth: true,
                         },
                     },
                     {
-                        element: <About />,
+                        path: "our-network",
+                        lazy: lazyRouteMarkdown("content/about/our-network"),
                         handle: {
                             isContentPage: true,
                         },
@@ -332,6 +333,10 @@ export const appRoutes: RouteObject[] = [
                         path: "",
                         element: <DataDashboardWithAuth />,
                         index: true,
+                        handle: {
+                            isContentPage: true,
+                            isFullWidth: true,
+                        },
                     },
                     {
                         path: "report-details/:reportId",
@@ -340,6 +345,10 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "facilities-providers",
                         element: <FacilitiesProvidersWithAuth />,
+                        handle: {
+                            isContentPage: true,
+                            isFullWidth: true,
+                        },
                     },
                     {
                         path: "facility/:senderId",

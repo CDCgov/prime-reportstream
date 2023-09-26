@@ -1,6 +1,9 @@
 import { Accordion as OrigAccordion } from "@trussworks/react-uswds";
 import { useId } from "react";
 import { useLocation } from "react-router";
+import classNames from "classnames";
+
+import styles from "./Accordion.module.scss";
 
 /**
  * Ensure our accordion urls being added to history is only ever
@@ -24,7 +27,9 @@ function appendHashToURL(hash: string) {
 }
 
 export interface AccordionProps
-    extends React.ComponentProps<typeof OrigAccordion> {}
+    extends React.ComponentProps<typeof OrigAccordion> {
+    isAlternate?: boolean;
+}
 
 /**
  * Enhanced Accordion proxy.
@@ -42,7 +47,12 @@ export interface AccordionProps
  * Will also update history will the last accordion item
  * id interacted with.
  */
-export function Accordion({ items, ...props }: AccordionProps) {
+export function Accordion({
+    isAlternate,
+    className,
+    items,
+    ...props
+}: AccordionProps) {
     const location = useLocation();
     const id = useId();
     const hashId = location.hash.replace("#", "");
@@ -52,6 +62,10 @@ export function Accordion({ items, ...props }: AccordionProps) {
         title: <span id={i.id}>{i.title}</span>,
         expanded: i.id === hashId,
     }));
+    const classnames = classNames(
+        isAlternate && styles["usa-accordion--alternate"],
+        className,
+    );
     return (
         <div
             onClick={(event) => {
@@ -72,6 +86,7 @@ export function Accordion({ items, ...props }: AccordionProps) {
             <OrigAccordion
                 key={`${id}-${location.key}`}
                 {...props}
+                className={classnames}
                 items={finalItems}
             />
         </div>
