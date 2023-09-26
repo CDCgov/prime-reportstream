@@ -64,6 +64,15 @@ resource "azurerm_app_service" "metabase" {
     "XDT_MicrosoftApplicationInsights_BaseExtensions" = "disabled"
     "XDT_MicrosoftApplicationInsights_Mode"           = "recommended"
     "XDT_MicrosoftApplicationInsights_PreemptSdk"     = "disabled"
+    "SMTP_PASSWORD"                                   = var.sendgrid_password
+    "SMTP_PORT"                                       = "587"
+    "SMTP_SERVER"                                     = "smtp.sendgrid.net"
+    "SMTP_USERNAME"                                   = "apikey"
+    "WEBSITE_SMTP_ENABLESSL"                          = "true"
+    "WEBSITE_SMTP_PASSWORD"                           = var.sendgrid_password
+    "WEBSITE_SMTP_SERVER"                             = "smtp.sendgrid.net"
+    "WEBSITE_SMTP_USERNAME"                           = "apikey"
+
   }
 
   lifecycle {

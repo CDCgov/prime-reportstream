@@ -30,7 +30,7 @@ class NullTransport : ITransport {
             fileName,
             transportType.toString(),
             msg,
-            header.reportFile.itemCount
+            header
         )
         actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
         return null

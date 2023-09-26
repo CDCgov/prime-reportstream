@@ -20,13 +20,13 @@ jobs:
     name: Chromatic
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
         with:
           fetch-depth: 0
 
       - name: Get changed files
         id: changed_files
-        uses: tj-actions/changed-files@c860b5c47fa71f461da850094ef2f6e3d6514e44
+        uses: tj-actions/changed-files@41960309398d165631f08c5df47a11147e14712b
 
       - name: List all changed files
         id: set_vars
@@ -73,7 +73,7 @@ jobs:
           reactions: rocket
           reactions-edit-mode: replace
 
-      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
         with:
           fetch-depth: 0 # need commit history for Chromatic
 
@@ -89,7 +89,7 @@ jobs:
       - name: Publish to Chromatic
         id: chromatic_publish
         if: steps.set_vars.outputs.chromatic == 'true'
-        uses: chromaui/action@671728dff1f5d28ae44538038bb18dd21f72a8cc
+        uses: chromaui/action@a45a922b9a7522a4cbb59a7bb7b288a768968924
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}

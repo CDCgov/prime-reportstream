@@ -18,11 +18,13 @@ import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.ActionLogger
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.cli.helpers.HL7DiffHelper
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
+import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
@@ -67,11 +69,18 @@ class ProcessFhirCommands : CliktCommand(
         "--hl7-msg-index", help = "message number to use from an HL7 batch file, 0 based"
     ).int()
 
+    private val diffHl7Output by option(
+        "--diff-hl7-output",
+        help = "when true, diff the the input HL7 with the output, can only be used going HL7 -> FHIR -> HL7"
+    )
+
     /**
      * Schema location for the FHIR to HL7 conversion
      */
-    private val fhirToHl7Schema by option("-s", "--schema", help = "Schema location for the FHIR to HL7 conversion")
+    private val transformSchema by option("-s", "--schema", help = "Schema location for the FHIR to HL7 conversion")
         .file()
+
+    private val hl7DiffHelper = HL7DiffHelper()
 
     override fun run() {
         // Read the contents of the file
@@ -83,17 +92,29 @@ class ProcessFhirCommands : CliktCommand(
         when {
             // HL7 to FHIR conversion
             inputFileType == "HL7" && outputFormat == Report.Format.FHIR.toString() ->
-                outputResult(convertToFhir(contents, actionLogger), actionLogger)
+                outputResult(convertToFhir(contents, actionLogger).first, actionLogger)
 
             // FHIR to HL7 conversion
-            inputFileType == "FHIR" || inputFileType == "JSON" -> {
+            (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == Report.Format.HL7.toString() -> {
                 outputResult(convertToHl7(contents))
+            }
+
+            // FHIR to FHIR conversion
+            (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == Report.Format.FHIR.toString() -> {
+                outputResult(convertToFhirToFhir(contents), actionLogger)
             }
 
             // HL7 to FHIR to HL7 conversion
             inputFileType == "HL7" && outputFormat == Report.Format.HL7.toString() -> {
-                val bundle = convertToFhir(contents, actionLogger)
+                val (bundle, inputMessage) = convertToFhir(contents, actionLogger)
+                val output = convertToHl7(FhirTranscoder.encode(bundle))
                 outputResult(convertToHl7(FhirTranscoder.encode(bundle)))
+                if (diffHl7Output != null) {
+                    val differences = hl7DiffHelper.diffHl7(output, inputMessage)
+                    echo("-------diff output")
+                    echo("There were ${differences.size} differences between the input and output")
+                    differences.forEach { echo(it.toString()) }
+                }
             }
 
             else -> throw CliktError("File extension ${inputFile.extension} is not supported.")
@@ -106,16 +127,16 @@ class ProcessFhirCommands : CliktCommand(
      */
     private fun convertToHl7(jsonString: String): Message {
         return when {
-            fhirToHl7Schema == null ->
+            transformSchema == null ->
                 throw CliktError("You must specify a schema.")
 
-            !fhirToHl7Schema!!.canRead() ->
-                throw CliktError("Unable to read schema file ${fhirToHl7Schema!!.absolutePath}.")
+            !transformSchema!!.canRead() ->
+                throw CliktError("Unable to read schema file ${transformSchema!!.absolutePath}.")
 
             else -> {
                 val bundle = FhirTranscoder.decode(jsonString)
                 FhirToHl7Converter(
-                    fhirToHl7Schema!!.name.split(".")[0], fhirToHl7Schema!!.parent,
+                    transformSchema!!.name.split(".")[0], transformSchema!!.parent,
                     context = FhirToHl7Context(
                         CustomFhirPathFunctions(),
                         null,
@@ -127,12 +148,30 @@ class ProcessFhirCommands : CliktCommand(
     }
 
     /**
+     * convert an FHIR message to FHIR message
+     */
+    private fun convertToFhirToFhir(jsonString: String): Bundle {
+        return when {
+            transformSchema == null ->
+                throw CliktError("You must specify a schema.")
+
+            !transformSchema!!.canRead() ->
+                throw CliktError("Unable to read schema file ${transformSchema!!.absolutePath}.")
+
+            else -> {
+                val bundle = FhirTranscoder.decode(jsonString)
+                FhirTransformer(transformSchema!!.name.split(".")[0], transformSchema!!.parent).transform(bundle)
+            }
+        }
+    }
+
+    /**
      * Convert an HL7 message or batch as a [hl7String] to a FHIR bundle. [actionLogger] will contain any
      * warnings or errors from the reading of the HL7 data to HL7 objects.  Note that the --hl7-msg-index
      * is required for HL7 batch messages as this function only returns one FHIR bundle.
-     * @return a FHIR bundle that represents the data in the one HL7 message
+     * @return a FHIR bundle and the parsed HL7 input that represents the data in the one HL7 message
      */
-    private fun convertToFhir(hl7String: String, actionLogger: ActionLogger): Bundle {
+    private fun convertToFhir(hl7String: String, actionLogger: ActionLogger): Pair<Bundle, Message> {
         val hasFiveEncodingChars = hl7MessageHasFiveEncodingChars(hl7String)
         // Some HL7 2.5.1 implementations have adopted the truncation character # that was added in 2.7
         // However, the library used to encode the HL7 message throws an error it there are more than 4 encoding
@@ -154,7 +193,7 @@ class ProcessFhirCommands : CliktCommand(
             val msh = message.get("MSH") as Segment
             Terser.set(msh, 2, 0, 1, 1, "^~\\&#")
         }
-        return HL7toFhirTranslator.getInstance().translate(message)
+        return Pair(HL7toFhirTranslator.getInstance().translate(message), message)
     }
 
     /**

@@ -5,7 +5,6 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isLessThanOrEqualTo
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
-import assertk.assertions.isNull
 import assertk.assertions.isTrue
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.model.Message
@@ -42,6 +41,7 @@ import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.common.Hl7Utilities
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import gov.cdc.prime.router.unittest.UnitTestUtils.createConfig
 import io.mockk.every
@@ -470,7 +470,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         every { mockTerser.set(any(), any()) } returns Unit
         every { mockTerser.get("/PATIENT_RESULT/PATIENT/PID-13(0)-2") } returns ""
 
-        val patientPathSpec = serializer.formPathSpec("PID-13")
+        val patientPathSpec = HL7Utils.formPathSpec("PID-13")
         val patientElement = Element("patient_phone_number", hl7Field = "PID-13", type = Element.Type.TELEPHONE)
         serializer.setTelephoneComponent(
             mockTerser,
@@ -497,7 +497,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         val mockTerser = mockk<Terser>()
         every { mockTerser.set(any(), any()) } returns Unit
 
-        val facilityPathSpec = serializer.formPathSpec("ORC-23")
+        val facilityPathSpec = HL7Utils.formPathSpec("ORC-23")
         val facilityElement = Element(
             "ordering_facility_phone_number",
             hl7Field = "ORC-23",
@@ -566,7 +566,7 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
         val mockTerser = mockk<Terser>()
         every { mockTerser.set(any(), any()) } returns Unit
 
-        val facilityPathSpec = serializer.formPathSpec("ORC-23")
+        val facilityPathSpec = HL7Utils.formPathSpec("ORC-23")
         val facilityElement = Element(
             "ordering_facility_phone_number",
             hl7Field = "ORC-23",
@@ -726,20 +726,6 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
     }
 
     @Test
-    fun `test setTruncationLimitWithEncoding`() {
-        val settings = FileSettings("./settings")
-        val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
-        val testValueWithSpecialChars = "Test & Value ~ Text ^ String"
-        val testValueNoSpecialChars = "Test Value Text String"
-        val testLimit = 20
-        val newLimitWithSpecialChars = serializer.getTruncationLimitWithEncoding(testValueWithSpecialChars, testLimit)
-        val newLimitNoSpecialChars = serializer.getTruncationLimitWithEncoding(testValueNoSpecialChars, testLimit)
-
-        assertEquals(newLimitWithSpecialChars, 16)
-        assertEquals(newLimitNoSpecialChars, testLimit)
-    }
-
-    @Test
     fun `test truncateValue with truncated HD`() {
         val settings = FileSettings("./settings")
         val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
@@ -800,32 +786,6 @@ SPM|1|||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (
             val actual2 = serializer.trimAndTruncateValue(input, "OBR-16-1", hl7Config, emptyTerser)
             assertThat(actual2).isEqualTo(expected)
         }
-    }
-
-    @Test
-    fun `test getHl7MaxLength`() {
-        val settings = FileSettings("./settings")
-        val serializer = Hl7Serializer(UnitTestUtils.simpleMetadata, settings)
-        // Test the ordering provider id has the right length
-        assertThat(serializer.getHl7MaxLength("ORC-12-1", emptyTerser)).isEqualTo(15)
-        assertThat(serializer.getHl7MaxLength("OBR-16-1", emptyTerser)).isEqualTo(15)
-        // Test that MSH returns reasonable values
-        assertThat(serializer.getHl7MaxLength("MSH-7", emptyTerser)).isEqualTo(26)
-        assertThat(serializer.getHl7MaxLength("MSH-4-1", emptyTerser)).isEqualTo(20)
-        assertThat(serializer.getHl7MaxLength("MSH-3-1", emptyTerser)).isEqualTo(20)
-        assertThat(serializer.getHl7MaxLength("MSH-4-2", emptyTerser)).isEqualTo(199)
-        assertThat(serializer.getHl7MaxLength("MSH-1", emptyTerser)).isEqualTo(1)
-        // Test that OBX returns reasonable values
-        assertThat(serializer.getHl7MaxLength("OBX-2", emptyTerser)).isEqualTo(2)
-        assertThat(serializer.getHl7MaxLength("OBX-5", emptyTerser)).isEqualTo(99999)
-        assertThat(serializer.getHl7MaxLength("OBX-11", emptyTerser)).isEqualTo(1)
-        // This component limit is smaller than the enclosing field. This inconsistency was fixed by v2.9
-        assertThat(serializer.getHl7MaxLength("OBX-18", emptyTerser)).isEqualTo(22)
-        assertThat(serializer.getHl7MaxLength("OBX-18-1", emptyTerser)).isEqualTo(199)
-        assertThat(serializer.getHl7MaxLength("OBX-19", emptyTerser)).isEqualTo(26)
-        assertThat(serializer.getHl7MaxLength("OBX-23-1", emptyTerser)).isEqualTo(50)
-        // Test that a subcomponent returns null
-        assertThat(serializer.getHl7MaxLength("OBR-16-1-2", emptyTerser)).isNull()
     }
 
     @Test

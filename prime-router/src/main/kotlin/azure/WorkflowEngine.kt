@@ -33,9 +33,13 @@ import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
 import gov.cdc.prime.router.transport.SoapTransport
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
+import java.time.Duration
 import java.time.OffsetDateTime
 
 /**
@@ -647,13 +651,21 @@ class WorkflowEngine(
             val (organization, receiver) = findOrganizationAndReceiver(messageEvent.receiverName, txn)
             // This check is needed as long as TASK does not FK to REPORT_FILE.  @todo FK TASK to REPORT_FILE
             ActionHistory.sanityCheckReports(tasks, reportFiles, false)
-            val headers = tasks.mapNotNull {
-                if (reportFiles[it.reportId] != null) {
-                    createHeader(it, reportFiles[it.reportId]!!, null, organization, receiver)
-                } else {
-                    null
-                }
-            }
+
+            val startTime = OffsetDateTime.now()
+            val headers = runBlocking {
+                tasks.mapNotNull {
+                    async {
+                        if (reportFiles[it.reportId] != null) {
+                            createHeader(it, reportFiles[it.reportId]!!, null, organization, receiver)
+                        } else {
+                            null
+                        }
+                    }
+                }.awaitAll()
+            }.filterNotNull()
+            val duration = Duration.between(startTime, OffsetDateTime.now())
+            logger.info("BatchFunction Downloading reports for batch and creating headers took $duration")
 
             updateBlock(headers, txn)
             // Here we iterate through the original tasks, rather than headers.

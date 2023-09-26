@@ -3,8 +3,10 @@ package gov.cdc.prime.router.fhirengine.utils
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.CustomerStatus
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
@@ -32,7 +34,7 @@ object FHIRBundleHelpers {
      * Adds [receiverList] to the [fhirBundle] as targets using the [shortHandLookupTable] to evaluate conditions
      * to determine which observation extensions to add to each receiver.
      */
-    internal fun addReceivers(
+    fun addReceivers(
         fhirBundle: Bundle,
         receiverList: List<Receiver>,
         shortHandLookupTable: MutableMap<String, String>
@@ -252,6 +254,52 @@ object FHIRBundleHelpers {
         receiver: Receiver,
         shortHandLookupTable: MutableMap<String, String>
     ): List<Extension> {
+        val (observationsToKeep, allObservations) =
+            getFilteredObservations(fhirBundle, receiver.conditionFilter, shortHandLookupTable)
+
+        val observationExtensionsToKeep = mutableListOf<Extension>()
+        if (observationsToKeep.size < allObservations.size) {
+            observationsToKeep.forEach {
+                observationExtensionsToKeep.add(
+                    Extension(
+                        conditionExtensionurl,
+                        Reference(it.idBase)
+                    )
+                )
+            }
+        }
+        return observationExtensionsToKeep
+    }
+
+    /**
+     * Filter out observations that pass the condition filter for a [receiver]
+     * The [bundle] and [shortHandLookupTable] will be used to evaluate whether
+     * the observation passes the filter
+     *
+     * @return copy of the bundle with filtered observations removed
+     */
+    fun filterObservations(
+        bundle: Bundle,
+        conditionFilter: ReportStreamFilter,
+        shortHandLookupTable: MutableMap<String, String>
+    ): Bundle {
+        val (observationsToKeep, allObservations) =
+            getFilteredObservations(bundle, conditionFilter, shortHandLookupTable)
+        val filteredBundle = bundle.copy()
+        val listToKeep = observationsToKeep.map { it.idBase }
+        allObservations.forEach {
+            if (it.idBase !in listToKeep) {
+                filteredBundle.deleteResource(it)
+            }
+        }
+        return filteredBundle
+    }
+
+    private fun getFilteredObservations(
+        fhirBundle: Bundle,
+        conditionFilter: ReportStreamFilter,
+        shortHandLookupTable: MutableMap<String, String>
+    ): Pair<List<Base>, List<Base>> {
         val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
         val allObservations = FhirPathUtils.evaluate(
             CustomContext(fhirBundle, fhirBundle, shortHandLookupTable, CustomFhirPathFunctions()),
@@ -260,9 +308,9 @@ object FHIRBundleHelpers {
             allObservationsExpression
         )
 
-        val observationsToKeep = mutableListOf<Extension>()
+        val observationsToKeep = mutableListOf<Base>()
         allObservations.forEach { observation ->
-            val passes = receiver.conditionFilter.any { conditionFilter ->
+            val passes = conditionFilter.any { conditionFilter ->
                 FhirPathUtils.evaluateCondition(
                     CustomContext(fhirBundle, observation, shortHandLookupTable, CustomFhirPathFunctions()),
                     observation,
@@ -272,19 +320,11 @@ object FHIRBundleHelpers {
             }
 
             if (passes) {
-                observationsToKeep.add(
-                    Extension(
-                        conditionExtensionurl,
-                        Reference(observation.idBase)
-                    )
-                )
+                observationsToKeep.add(observation)
             }
         }
 
-        if (observationsToKeep.size == allObservations.size) {
-            return listOf()
-        }
-        return observationsToKeep
+        return Pair(observationsToKeep, allObservations)
     }
 
     /**

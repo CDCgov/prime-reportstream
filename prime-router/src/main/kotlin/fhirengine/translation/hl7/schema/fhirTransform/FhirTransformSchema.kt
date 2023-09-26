@@ -7,10 +7,10 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElemen
 import java.util.SortedMap
 
 /**
- * A FHIR transform schema.
- * @property name the schema name
- * @property elements the elements for the schema
- * @property constants schema level constants
+ * A FHIR transform template (schema) to be processed by the FHIR transformer
+ * @property name the schema name, used by child schemas to extend this schema
+ * @property elements list of [FhirTransformSchemaElement] representing schema elements
+ * @property constants schema level constants that can be used by any element in the schema or child schemas
  * @property extends the name of a schema that this schema extends
  */
 @JsonIgnoreProperties
@@ -30,19 +30,31 @@ class FhirTransformSchema(
 }
 
 /**
- * An element within a Schema.
+ * A FHIR transform template (schema) element, the basic building block of a schema that describes a particular
+ * transform for a particular resource or set of resources. [schema] and [value] are mutually exclusive, that is an
+ * element can either point to a schema that eventually points to a schema with the value property set, or it can
+ * specify the value to set the resource to directly.
  * @property name the name of the element
  * @property condition a FHIR path condition to evaluate. If false then the element is ignored.
  * @property required true if the element must have a value
- * @property schema the name of a child schema
+ * @property schema relative path to template .yml file that will apply each resource to.
+ *  When referencing another schema, during schema loading, the schemas will be MERGED, and an error will be thrown
+ *  if the schemas contain elements with identical names. This property is mutually exclusive with
+ *  [value] and [bundleProperty] parameters.
  * @property schemaRef the reference to the loaded child schema
- * @property resource a FHIR path that points to a FHIR resource
- * @property value a list of FHIR paths each pointing to a FHIR primitive value
- * @property resourceIndex the variable name to store a FHIR collection's index number
+ * @property resource a FHIR path that evaluates to a FHIR resource
+ * @property value The value to set the bundleProperty to value is a yml list type, but only the first value
+ *  in the list will get used. See `ConfigSchemaReader.getValue`. Mutually exclusive with [schemaRef] parameter.
+ * @property resourceIndex To be used alongside [schema], an arbitrary variable name to be used in the FHIR path
+ *  expressions of element properties for elements in the referenced schema. This is helpful when the [resource]
+ *  expression is expected to return multiple resources. Each resource that is processed by the referenced schema
+ *  will automatically have access to the defined variable and the variable will increment to match the
+ *  index of the resource in the resource list.
  * @property constants element level constants
  * @property valueSet a collection of key-value pairs used to convert the value property
  * @property debug log debug information for the element
- * @property bundleProperty a FHIR path denoting where to store the value
+ * @property bundleProperty The FHIR path to the property of the resource returned by the [resource] parameter.
+ *  Used alongside the [value] property and mutually exclusive with schema.
  */
 @JsonIgnoreProperties
 class FhirTransformSchemaElement(
