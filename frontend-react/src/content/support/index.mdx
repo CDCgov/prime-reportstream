@@ -4,6 +4,8 @@ subtitle: If you need to learn more or solve an issue, we're here to help.
 backToTop: true
 ---
 
+import site from "../../content/site.json";
+
 <HeroWrapper>
     <GridContainer className="usa-section">
         <CardGroup>
@@ -83,12 +85,12 @@ backToTop: true
                         title: "What conditions can I send or receive?",
                         content: (<>
                             <p>
-                            While ReportStream currently works with COVID-19 and mpox data, we are adding more reportable 
-                            conditions soon. 
+                            While ReportStream currently works with COVID-19 and mpox data, we are adding more reportable
+                            conditions soon.
                             </p>
 
                             <p>
-                            <A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">Contact us</A> if 
+                            <A href={site.forms.contactUs.url}>Contact us</A> if
                             you would like updates on additional conditions as they become available.
                             You can submit flu data through <A href="https://www.simplereport.gov">SimpleReport</A>.
                             </p>
@@ -107,17 +109,17 @@ backToTop: true
                             </p>
 
                             <p>
-                            If you are a <b>healthcare organization</b>, ReportStream and SimpleReport offer two different 
-                            ways to send your data. ReportStream uses an API connection to send your data to public health 
-                            departments. You can send an HL7 or CSV file through our API. Some technical expertise is required 
-                            to set up an API connection. If you currently send data via SFTP, this may be a process you are 
-                            familiar with. Depending on your resources, capacity, and requirements, it takes about a month 
+                            If you are a <b>healthcare organization</b>, ReportStream and SimpleReport offer two different
+                            ways to send your data. ReportStream uses an API connection to send your data to public health
+                            departments. You can send an HL7 or CSV file through our API. Some technical expertise is required
+                            to set up an API connection. If you currently send data via SFTP, this may be a process you are
+                            familiar with. Depending on your resources, capacity, and requirements, it takes about a month
                             to establish an API connection with ReportStream.
                             </p>
 
                             <p>
-                            <A href="https://www.simplereport.gov">SimpleReport</A> can be used for manual reporting or CSV 
-                            upload. Because there is no technical setup, onboarding is quicker and simpler than for 
+                            <A href="https://www.simplereport.gov">SimpleReport</A> can be used for manual reporting or CSV
+                            upload. Because there is no technical setup, onboarding is quicker and simpler than for
                             ReportStream.
                             </p>
 
@@ -136,7 +138,7 @@ backToTop: true
                         title: "How does ReportStream make sure public health agencies don’t receive duplicate data?",
                         content: (<p>
                             Our filtering process uses CLIA numbers to remove any duplicate data.
-                            The filters are based on which organizations are already connected directly to a public health 
+                            The filters are based on which organizations are already connected directly to a public health
                             agency.
                         </p>)
                     },
@@ -184,14 +186,14 @@ backToTop: true
                         title: "Do I need to report to HHS?",
                         content: (<>
                             <p>
-                            According to the CARES Act, labs are not required to report to both state or local health 
-                            departments and HHS. The CARES Act requires labs to report all data to state or local public 
-                            health departments using existing public health data reporting channels, in accordance with 
+                            According to the CARES Act, labs are not required to report to both state or local health
+                            departments and HHS. The CARES Act requires labs to report all data to state or local public
+                            health departments using existing public health data reporting channels, in accordance with
                             state law or policies. The public health department will provide these data to HHS.
                             </p>
 
                             <p>
-                            View specific reporting requirements for <A href="https://www.cdc.gov/coronavirus/2019-ncov/lab/reporting-lab-data.html#faqs">COVID-19</A> 
+                            View specific reporting requirements for <A href="https://www.cdc.gov/coronavirus/2019-ncov/lab/reporting-lab-data.html#faqs">COVID-19</A>
                             {" "} and for <A href="https://www.cdc.gov/poxvirus/mpox/lab-personnel/report-results.html">mpox</A>.
                             </p>
                         </>)
@@ -219,7 +221,7 @@ backToTop: true
                         content: (<>
                             <p>You can find detailed instructions in our <A href="/resources/api">API guide</A>.</p>
 
-                            <p><b>Note:</b> Through this authentication process, you generate both a public and private key. 
+                            <p><b>Note:</b> Through this authentication process, you generate both a public and private key.
                             You only share the public key with ReportStream.</p>
                         </>)
                     },
@@ -228,10 +230,10 @@ backToTop: true
                         headingLevel: "h4",
                         title: "What is a LOINC Code?",
                         content: (<p>
-                            <A href="https://loinc.org/get-started/what-loinc-is/">LOINC</A> codes help distinguish between 
-                            different types of disease-specific tests. These codes are necessary when setting up data 
+                            <A href="https://loinc.org/get-started/what-loinc-is/">LOINC</A> codes help distinguish between
+                            different types of disease-specific tests. These codes are necessary when setting up data
                             formatting to send data through ReportStream. Read more about {" "}
-                            <A href="/resources/api/documentation/data-model">our data model</A> to see how LOINC codes are 
+                            <A href="/resources/api/documentation/data-model">our data model</A> to see how LOINC codes are
                             used in ReportStream.
                         </p>)
                     },
@@ -241,7 +243,7 @@ backToTop: true
                         title: "How do I map to the LIVD table?",
                         content: (<>
                             <p>
-                                LOINC In Vitro Diagnostic (LIVD) mapping provides several <A href="/resources/api/documentation/data-model">data elements</A> 
+                                LOINC In Vitro Diagnostic (LIVD) mapping provides several <A href="/resources/api/documentation/data-model">data elements</A>
                                 {" "} you’ll need for your ReportStream <A href="/resources/api/getting-started">test file</A>. Including:
                             </p>
 
@@ -254,9 +256,9 @@ backToTop: true
                             <p>If you do not know what devices you’ll be reporting for, contact your lab.</p>
 
                             <p>
-                                When you know the devices you are reporting for, you can use the LIVD mapping table to 
-                                identify the device identifier code. The code is in <A href="https://www.cdc.gov/csels/dls/livd-codes.html">column F</A>, 
-                                labeled Test Performed LOINC Code. 
+                                When you know the devices you are reporting for, you can use the LIVD mapping table to
+                                identify the device identifier code. The code is in <A href="https://www.cdc.gov/csels/dls/livd-codes.html">column F</A>,
+                                labeled Test Performed LOINC Code.
                                 Then, you can use that code as described in our <A href="/resources/api/documentation/data-model">data model</A>.
                             </p>
                         </>)
@@ -301,7 +303,7 @@ backToTop: true
                         headingLevel: "h4",
                         title: "How do I stop receiving negative test results?",
                         content: (<p>
-                            <A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">Contact us</A> so we can update your filter settings. If you are not a current ReportStream user, you can indicate this preference during the onboarding process.
+                            <A href={site.forms.contactUs.url}>Contact us</A> so we can update your filter settings. If you are not a current ReportStream user, you can indicate this preference during the onboarding process.
                         </p>)
                     },{
                         id: "how-do-i-resubmit-my-data",
@@ -309,8 +311,8 @@ backToTop: true
                         title: "How do I resubmit my data?",
                         content: (<>
                             <p>
-                                <A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">Submit a support request</A>, 
-                                and our team will help with your resubmission. Be sure to include the following information 
+                                <A href={site.forms.contactUs.url}>Submit a support request</A>,
+                                and our team will help with your resubmission. Be sure to include the following information
                                 in your request:
                             </p>
 
@@ -329,7 +331,7 @@ backToTop: true
                         headingLevel: "h4",
                         title: "How do I reset my password?",
                         content: (<p>
-                            On the <A href="/login">login page</A>, select Need help signing in? After following the 
+                            On the <A href="/login">login page</A>, select Need help signing in? After following the
                             instructions on the screen, you will receive an email with next steps.
                         </p>)
                     },
@@ -338,7 +340,7 @@ backToTop: true
                         headingLevel: "h4",
                         title: "How can I start sending or receiving more conditions?",
                         content: (<p>
-                            <A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957">Let us know</A> what conditions you are interested in, and our team will let you know what you 
+                            <A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957">Let us know</A> what conditions you are interested in, and our team will let you know what you
                             need to do next.
                         </p>)
                     },
@@ -348,7 +350,7 @@ backToTop: true
                         title: "Can public health departments receive a report on facilities reporting them?",
                         content: (<p>
                             You can view details on the data you have received by logging in and viewing your Daily Data. {" "}
-                            <A href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">Contact us</A> if you need an account or to request a report.
+                            <A href={site.forms.contactUs.url}>Contact us</A> if you need an account or to request a report.
                         </p>)
                     },
                 ]} />
@@ -367,7 +369,7 @@ backToTop: true
                 </CardGroup>
             </Grid>
         </Grid>
-        
+
         <LayoutBackToTop />
     </GridContainer>
 </HeroWrapper>

@@ -14,9 +14,9 @@ import useFilterManager, {
 const { receiverDeliveries } = dataDashboardEndpoints;
 
 export enum DeliveriesAttr {
-    CREATED_AT = "createdAt",
-    ORDERING_PROVIDER = "orderingProvider",
-    ORDERING_FACILITY = "orderingFacility",
+    CREATED_AT = "created_at",
+    ORDERING_PROVIDER = "ordering_provider",
+    ORDERING_FACILITY = "ordering_facility",
     SUBMITTER = "submitter",
     REPORT_ID = "reportId",
 }
@@ -24,7 +24,7 @@ export enum DeliveriesAttr {
 const filterManagerDefaults: FilterManagerDefaults = {
     sortDefaults: {
         column: DeliveriesAttr.CREATED_AT,
-        order: "ASC",
+        order: "DESC",
         locally: true,
     },
     pageDefaults: {

@@ -1,0 +1,4 @@
+elements:
+  - name: xon-1
+    value: ['%resource.code']
+    hl7Spec: ['%{xonPath}-1']
