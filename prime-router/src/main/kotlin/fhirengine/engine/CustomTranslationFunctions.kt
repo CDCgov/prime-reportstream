@@ -3,7 +3,7 @@ package fhirengine.engine
 import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
-import gov.cdc.prime.router.fhirengine.translation.hl7.HL7Truncator
+import gov.cdc.prime.router.fhirengine.translation.hl7.UniversalPipelineHL7Truncator
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
@@ -12,7 +12,7 @@ import org.hl7.fhir.r4.model.BaseDateTimeType
 import java.time.ZoneId
 
 class CustomTranslationFunctions(
-    private val hl7Truncator: HL7Truncator = HL7Truncator()
+    private val hl7Truncator: UniversalPipelineHL7Truncator = UniversalPipelineHL7Truncator()
 ) : Hl7TranslationFunctions() {
     /**
      * Converts a FHIR [dateTime] to the format specified in [appContext] - specific application
@@ -71,7 +71,7 @@ class CustomTranslationFunctions(
             if (shouldTruncateHDNamespaceIds || shouldTruncateHl7Fields) {
                 hl7Truncator.trimAndTruncateValue(
                     value,
-                    cleanedHL7Field,
+                    hl7FieldPath,
                     terser,
                     truncationConfig
                 )
