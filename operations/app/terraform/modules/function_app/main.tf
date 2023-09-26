@@ -68,7 +68,7 @@ locals {
   sticky_slot_implicit_settings_names = tolist([
     "AzureWebJobsStorage",
     "OKTA_authKey",
-    "OKTA_clientId",
+    "fn_OKTA_clientId",
     "OKTA_scope"
   ])
 
@@ -162,7 +162,7 @@ resource "azurerm_function_app" "function_app" {
     # HHS Protect Storage Account
     "PartnerStorage" = var.sa_partner_connection_string
     "OKTA_authKey"   = var.OKTA_authKey
-    "OKTA_clientId"  = var.OKTA_clientId
+    "OKTA_clientId"  = var.fn_OKTA_clientId
     "OKTA_scope"     = var.OKTA_scope
   })
 
