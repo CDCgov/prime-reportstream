@@ -7,6 +7,7 @@ import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.blob.models.BlobErrorCode
 import com.azure.storage.blob.models.BlobStorageException
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.common.Environment
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
@@ -68,6 +69,7 @@ class BlobAccess() : Logging {
 
     companion object : Logging {
         private const val defaultConnEnvVar = "AzureWebJobsStorage"
+        private val defaultEnv = Environment.LOCAL
 
         /**
          * Metadata of a blob container.
