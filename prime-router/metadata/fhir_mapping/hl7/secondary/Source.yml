@@ -1,18 +1,96 @@
-name:
+name_1:
   type: STRING
-  valueOf: MSH.3.1
+  valueOf: HD.1
   expressionType: HL7Spec
+
+# For all other ID types
+name_2:
+  type: URL
+  condition: $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI
+  valueOf: $value
+  expressionType: HL7Spec
+  vars:
+    idStr: String, HD.2
+    systemStr: String, HD.3
+    value: HD.1 + $dash + HD.3 + $colon + HD.2
+  constants:
+    dash: "-"
+    colon: ":"
 
 software:
   type: STRING
-  valueOf: MSH.3.2
+  valueOf: HD.2
   expressionType: HL7Spec
 
+# For OIDs
+endpoint_1:
+  type: URL
+  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
+  valueOf: $value
+  expressionType: HL7Spec
+  vars:
+    idStr: String, HD.2
+    value: $oidUrlPrefix + HD.2
+    systemStr: String, HD.3
+  constants:
+    oidUrlPrefix: "urn:oid:"
 
+# For UUIDs
+endpoint_2:
+  type: URL
+  condition: $idStr NOT_NULL && $systemStr EQUALS UUID
+  valueOf: $value
+  expressionType: HL7Spec
+  vars:
+    idStr: String, HD.2
+    value: $oidUrlPrefix + HD.2
+    systemStr: String, HD.3
+  constants:
+    oidUrlPrefix: "urn:uuid:"
+
+# For DNS
+endpoint_3:
+  type: URL
+  condition: $idStr NOT_NULL && $systemStr EQUALS DNS
+  valueOf: $value
+  expressionType: HL7Spec
+  vars:
+    idStr: String, HD.2
+    value: $oidUrlPrefix + HD.2
+    systemStr: String, HD.3
+  constants:
+    oidUrlPrefix: "urn:dns:"
+
+# For URIs
+endpoint_4:
+  type: URL
+  condition: $idStr NOT_NULL && $systemStr EQUALS URI
+  valueOf: $value
+  expressionType: HL7Spec
+  vars:
+    idStr: String, HD.2
+    value: $oidUrlPrefix + HD.2
+    systemStr: String, HD.3
+  constants:
+    oidUrlPrefix: "urn:uri:"
+
+#endpoint_5:
+#  condition: $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI
+#  valueOf: datatype/Endpoint
+#  expressionType: resource
+#  vars:
+#    systemStr: String, HD.3
+#
+#endpoint_6:
+#  condition: $systemStr NULL
+#  valueOf: datatype/Endpoint
+#  expressionType: resource
+#  vars:
+#    systemStr: String, HD.3
 
 #name_1:
 #  type: STRING
-#  valueOf: MSH.3
+#  valueOf: HD
 #  expressionType: HL7Spec
 #
 ## For all other ID types
@@ -22,9 +100,9 @@ software:
 #  valueOf: $value
 #  expressionType: HL7Spec
 #  vars:
-#    idStr: String, MSH.3.2
-#    systemStr: String, MSH.3.3
-#    value: MSH.3.1 + $dash + MSH.3.3 + $colon + MSH.3.2
+#    idStr: String, HD.2
+#    systemStr: String, HD.3
+#    value: HD.1 + $dash + HD.3 + $colon + HD.2
 #  constants:
 #    dash: "-"
 #    colon: ":"
@@ -35,9 +113,9 @@ software:
 #  valueOf: $value
 #  expressionType: HL7Spec
 #  vars:
-#    idStr: String, MSH.3.2
-#    systemStr: String, MSH.3.3
-#    value: MSH.3.1 + $dash + $colon + MSH.3.2
+#    idStr: String, HD.2
+#    systemStr: String, HD.3
+#    value: HD.1 + $dash + $colon + HD.2
 #  constants:
 #    dash: "-"
 #    colon: ":"
@@ -49,9 +127,9 @@ software:
 #  valueOf: $value
 #  expressionType: HL7Spec
 #  vars:
-#    idStr: String, MSH.3.2
-#    value: $oidUrlPrefix + MSH.3.2
-#    systemStr: String, MSH.3.3
+#    idStr: String, HD.2
+#    value: $oidUrlPrefix + HD.2
+#    systemStr: String, HD.3
 #  constants:
 #    oidUrlPrefix: "urn:oid:"
 #
@@ -62,9 +140,9 @@ software:
 #  valueOf: $value
 #  expressionType: HL7Spec
 #  vars:
-#    idStr: String, MSH.3.2
-#    value: $oidUrlPrefix + MSH.3.2
-#    systemStr: String, MSH.3.3
+#    idStr: String, HD.2
+#    value: $oidUrlPrefix + HD.2
+#    systemStr: String, HD.3
 #  constants:
 #    oidUrlPrefix: "urn:uuid:"
 #
@@ -75,9 +153,9 @@ software:
 #  valueOf: $value
 #  expressionType: HL7Spec
 #  vars:
-#    idStr: String, MSH.3.2
-#    value: $oidUrlPrefix + MSH.3.2
-#    systemStr: String, MSH.3.3
+#    idStr: String, HD.2
+#    value: $oidUrlPrefix + HD.2
+#    systemStr: String, HD.3
 #  constants:
 #    oidUrlPrefix: "urn:dns:"
 #
@@ -88,9 +166,9 @@ software:
 #  valueOf: $value
 #  expressionType: HL7Spec
 #  vars:
-#    idStr: String, MSH.3.2
-#    value: $oidUrlPrefix + MSH.3.2
-#    systemStr: String, MSH.3.3
+#    idStr: String, HD.2
+#    value: $oidUrlPrefix + HD.2
+#    systemStr: String, HD.3
 #  constants:
 #    oidUrlPrefix: "urn:clia:"
 #
@@ -101,9 +179,9 @@ software:
 #  valueOf: $value
 #  expressionType: HL7Spec
 #  vars:
-#    idStr: String, MSH.3.2
-#    value: $oidUrlPrefix + MSH.3.2
-#    systemStr: String, MSH.3.3
+#    idStr: String, HD.2
+#    value: $oidUrlPrefix + HD.2
+#    systemStr: String, HD.3
 #  constants:
 #    oidUrlPrefix: "urn:uri:"
 #
