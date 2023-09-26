@@ -98,6 +98,8 @@ val reportsApiEndpointHost = (
 val jooqSourceDir = "build/generated-src/jooq/src/main/java"
 val jooqPackageName = "gov.cdc.prime.router.azure.db"
 
+val buildDir = project.layout.buildDirectory.asFile.get()
+
 /**
  * Add the `VAULT_TOKEN` in the local vault to the [env] map
  */
@@ -127,8 +129,6 @@ val compileKotlin: KotlinCompile by tasks
 val compileTestKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions.jvmTarget = appJvmTarget
 compileKotlin.kotlinOptions.allWarningsAsErrors = true
-// if you set this to true, you will get a warning, which then gets treated as an error
-compileKotlin.kotlinOptions.useK2 = false
 compileTestKotlin.kotlinOptions.jvmTarget = appJvmTarget
 compileTestKotlin.kotlinOptions.allWarningsAsErrors = true
 
@@ -198,7 +198,7 @@ tasks.javadoc.configure {
 }
 
 tasks.dokkaHtml.configure {
-    val docsDir = File(project.buildDir, "/docs/dokka")
+    val docsDir = File(buildDir, "/docs/dokka")
     outputDirectory.set(docsDir)
 }
 
@@ -207,7 +207,7 @@ tasks.jacocoTestReport {
     // Jacoco wants the source file directory structure to match the package name like in Java, so
     // move the source files to a temp location with that structure.
     val sourcesDir = File(project.projectDir, "/src/main/kotlin")
-    val jacocoSourcesDir = File(project.buildDir, "/jacoco/sources")
+    val jacocoSourcesDir = File(buildDir, "/jacoco/sources")
     doFirst {
         FileUtils.listFiles(sourcesDir, arrayOf("kt", "java"), true).forEach { sourceFile ->
             // Find the line in the code that has the package name and convert that to a folder then copy the file.
@@ -299,7 +299,7 @@ tasks.register<Test>("testIntegration") {
 val apiDocsBaseDir = File(project.projectDir, "/docs/api/")
 val apiDocsSpecDir = File(apiDocsBaseDir, "generated")
 val apiDocsSwaggerUIDir = File(apiDocsBaseDir, "swagger-ui")
-val buildSwaggerUIDir = File(project.buildDir, "/swagger-ui/")
+val buildSwaggerUIDir = File(buildDir, "/swagger-ui/")
 tasks.register<ResolveTask>("generateOpenApi") {
     group = rootProject.description ?: ""
     description = "Generate OpenAPI spec for Report Stream APIs"
@@ -393,8 +393,8 @@ tasks.register<JavaExec>("primeCLI") {
 
     // Use arguments passed by another task in the project.extra["cliArgs"] property.
     doFirst {
-        if (project.extra.has("cliArgs")) {
-            args = project.extra["cliArgs"] as MutableList<String>
+        if (project.extra.has("cliArgs") && project.extra["cliArgs"] is List<*>) {
+            args = (project.extra["cliArgs"] as List<*>).filterIsInstance(String::class.java)
         } else if (args.isNullOrEmpty()) {
             args = listOf("-h")
             println("primeCLI Gradle task usage: gradle primeCLI --args='<args>'")
@@ -465,8 +465,8 @@ tasks.azureFunctionsPackage {
     dependsOn("test")
 }
 
-val azureResourcesTmpDir = File(rootProject.buildDir.path, "$azureFunctionsDir-resources/$azureAppName")
-val azureResourcesFinalDir = File(rootProject.buildDir.path, "$azureFunctionsDir/$azureAppName")
+val azureResourcesTmpDir = File(buildDir, "$azureFunctionsDir-resources/$azureAppName")
+val azureResourcesFinalDir = File(buildDir, "$azureFunctionsDir/$azureAppName")
 tasks.register<Copy>("gatherAzureResources") {
     from("./")
     into(azureResourcesTmpDir)
@@ -487,8 +487,8 @@ tasks.register("copyAzureResources") {
     }
 }
 
-val azureScriptsTmpDir = File(rootProject.buildDir.path, "$azureFunctionsDir-scripts/$azureAppName")
-val azureScriptsFinalDir = rootProject.buildDir
+val azureScriptsTmpDir = File(buildDir, "$azureFunctionsDir-scripts/$azureAppName")
+val azureScriptsFinalDir = rootProject.layout.buildDirectory.asFile.get()
 val primeScriptName = "prime"
 val startFuncScriptName = "start_func.sh"
 val apiDocsSetupScriptName = "upload_swaggerui.sh"
@@ -819,7 +819,7 @@ dependencies {
     implementation("com.github.javafaker:javafaker:1.0.2") {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
-    implementation("org.yaml:snakeyaml:2.0")
+    implementation("org.yaml:snakeyaml:2.2")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.4.0")
     implementation("ca.uhn.hapi:hapi-base:2.3")
@@ -899,7 +899,7 @@ dependencies {
     // kotlinx-coroutines-core is needed by mock-fuel
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     testImplementation("com.github.KennethWussmann:mock-fuel:1.3.0")
-    testImplementation("io.mockk:mockk:1.13.7")
+    testImplementation("io.mockk:mockk:1.13.8")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")

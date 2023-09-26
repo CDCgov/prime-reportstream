@@ -196,10 +196,10 @@ export const ReportStreamNavbar = ({
                 <a href="/admin/settings" key="settings">
                     Organization Settings
                 </a>,
-                <a href="/admin/lastmile" key="lastmile">
+                <a href="/admin/features" key="features">
                     Feature Flags
                 </a>,
-                <a href="/admin/features" key="features">
+                <a href="/admin/lastmile" key="lastmile">
                     Last Mile Failures
                 </a>,
                 <a href="/admin/message-tracker" key="message-tracker">
