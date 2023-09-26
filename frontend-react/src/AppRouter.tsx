@@ -256,15 +256,6 @@ export const appRoutes: RouteObject[] = [
                     },
                 ],
             },
-            // For older links on and off the site
-            {
-                path: "/product/release-notes",
-                index: true,
-                lazy: lazyRouteMarkdown("content/about/release-notes"),
-                handle: {
-                    isContentPage: true,
-                },
-            },
             {
                 path: "/product/*",
                 element: <Product />,
