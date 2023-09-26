@@ -213,4 +213,11 @@ class FhirPathUtilsTests {
             hasClass(SchemaException::class.java)
         }
     }
+
+    @Test
+    fun `test evaluateCondition with empty focus resource`() {
+        val bundle = Bundle()
+        val path = "Bundle.timestamp.is(dateTime)"
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, path)).isFalse()
+    }
 }
