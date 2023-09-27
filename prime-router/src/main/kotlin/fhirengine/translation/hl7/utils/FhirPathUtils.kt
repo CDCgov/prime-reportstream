@@ -104,7 +104,7 @@ object FhirPathUtils : Logging {
             else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
             if (value.size == 1 && value[0].isBooleanPrimitive) {
                 (value[0] as BooleanType).value
-            } else if (focusResource.isEmpty) {
+            } else if (value.isEmpty()) {
                 // The FHIR utilities that test for booleans only return one if the resource exists
                 // if the resource does not exist, they return []
                 // for the purposes of the evaluating a schema condition that is the same as being false

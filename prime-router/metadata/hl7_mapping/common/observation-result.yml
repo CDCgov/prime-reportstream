@@ -165,29 +165,35 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-19' ]
 
   - name: performing-organization-name-pracrole
-    condition: '%observation.performer.resolve().ofType(PractitionerRole).exists() and %observation.performer.resolve().ofType(PractitionerRole).organization.exists()'
+    condition: >
+      %observation.performer.resolve().ofType(PractitionerRole).exists() and 
+      (%observation.performer.resolve().ofType(PractitionerRole).practitioner.exists() or
+       %observation.performer.resolve().ofType(PractitionerRole).practitioner.identifier.type.coding.code="MDIR")
     resource: '%resource.performer.resolve().ofType(PractitionerRole).organization.resolve()'
     schema: ./datatype/xon-organization
     constants:
       hl7OrgField: '%{hl7OBXField}-23'
 
   - name: performing-organization-name-non-pracrole
-    condition: '%observation.performer.resolve().ofType(PractitionerRole).exists().not() or %observation.performer.resolve().ofType(PractitionerRole).organization.exists().not()'
+    condition: '%observation.performer.resolve().ofType(Organization).exists()'
     resource: '%resource.performer.resolve().ofType(Organization)'
     schema: ./datatype/xon-organization
     constants:
       hl7OrgField: '%{hl7OBXField}-23'
 
   - name: performing-organization-address-pracrole
-    condition: '%observation.performer.resolve().ofType(PractitionerRole).exists() and %observation.performer.resolve().ofType(PractitionerRole).organization.exists()'
-    resource: '%resource.performer.resolve().organization.resolve().address'
+    condition: >
+      %observation.performer.resolve().ofType(PractitionerRole).exists() and 
+      (%observation.performer.resolve().ofType(PractitionerRole).practitioner.exists() or
+       %observation.performer.resolve().ofType(PractitionerRole).practitioner.identifier.type.coding.code="MDIR")
+    resource: '%resource.performer.resolve().ofType(PractitionerRole).organization.resolve().address'
     constants:
       hl7AddressField: '%{hl7OBXField}-24'
     schema: ./datatype/xad-extended-address
     resourceIndex: contactIndex
 
   - name: performing-organization-address-non-pracrole
-    condition: '%observation.performer.resolve().ofType(PractitionerRole).exists().not() or %observation.performer.resolve().ofType(PractitionerRole).organization.exists().not()'
+    condition: '%observation.performer.resolve().ofType(Organization).exists()'
     resource: '%resource.performer.resolve().ofType(Organization).address'
     constants:
       hl7AddressField: '%{hl7OBXField}-24'
