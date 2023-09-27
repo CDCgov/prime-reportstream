@@ -16,6 +16,7 @@ source:
   expressionType: resource
   specs: MSH.3 | MSH.24
 
+#map MSH.4
 sender:
   valueOf: resource/MessageSender
   expressionType: reference

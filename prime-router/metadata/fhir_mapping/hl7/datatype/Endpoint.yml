@@ -1,9 +1,0 @@
-extension:
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: URL
-      value: "http://hl7.org/fhir/R4/extension-data-absent-reason"
-    valueCode:
-      type: STRING
-      value: "unknown"
