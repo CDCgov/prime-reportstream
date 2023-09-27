@@ -11,7 +11,8 @@ import java.time.ZoneOffset
 enum class Environment(
     val envName: String,
     val url: URL,
-    val oktaApp: OktaCommand.OktaApp? = null
+    val oktaApp: OktaCommand.OktaApp? = null,
+    val blobEnvVar: String = "AzureWebJobsStorage"
 ) {
     LOCAL(
         "local",
@@ -77,20 +78,6 @@ enum class Environment(
                 get(primeEnv)
             } catch (e: IllegalArgumentException) {
                 LOCAL
-            }
-        }
-
-        /**
-         * Get the blob store environment variable name for the given [environment].
-         * @return environment variable name
-         * @throws IllegalArgumentException if the environment cannot be found
-         */
-        fun getBlobEnvVar(environment: Environment): String {
-            return when (environment) {
-                LOCAL -> "AzureWebJobsStorage"
-                TEST -> "AzureWebJobsStorageTEST"
-                STAGING -> "AzureWebJobsStorageSTAGING"
-                PROD -> "AzureWebJobsStoragePROD"
             }
         }
 

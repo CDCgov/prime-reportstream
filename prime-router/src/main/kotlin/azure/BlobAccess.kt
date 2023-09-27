@@ -68,8 +68,7 @@ class BlobAccess() : Logging {
     }
 
     companion object : Logging {
-        private const val defaultConnEnvVar = "AzureWebJobsStorage"
-        private val defaultEnv by lazy { Environment.get() }
+        private val defaultConnEnvVar = Environment.get().blobEnvVar
 
         /**
          * Metadata of a blob container.
@@ -111,13 +110,6 @@ class BlobAccess() : Logging {
         }
 
         /**
-         * Obtain the blob environment variable name from the given environment.
-         */
-        fun getBlobEnvVar(blobEnvironment: Environment = defaultEnv): String {
-            return Environment.getBlobEnvVar(blobEnvironment)
-        }
-
-        /**
          * Obtain the blob connection string for a given environment variable name.
          */
         fun getBlobConnection(blobConnEnvVar: String = defaultConnEnvVar): String {
@@ -127,8 +119,8 @@ class BlobAccess() : Logging {
         /**
          * Obtain a client for interacting with the blob store.
          */
-        private fun getBlobClient(blobUrl: String, blobEnv: Environment = defaultEnv): BlobClient {
-            val blobConnection = getBlobConnection(getBlobEnvVar(blobEnv))
+        private fun getBlobClient(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar): BlobClient {
+            val blobConnection = getBlobConnection(blobConnEnvVar)
             return BlobClientBuilder().connectionString(blobConnection).endpoint(blobUrl).buildClient()
         }
 
@@ -152,31 +144,18 @@ class BlobAccess() : Logging {
             return blobClient.blobUrl
         }
 
-        /**
-         * Upload a raw blob [bytes] as [blobName]
-         * @return the url for the uploaded blob
-         */
-        internal fun uploadBlob(
-            blobName: String,
-            bytes: ByteArray,
-            blobContainerName: String = defaultBlobContainerName,
-            blobEnv: Environment
-        ): String {
-            return uploadBlob(blobName, bytes, blobContainerName, getBlobEnvVar(blobEnv))
-        }
-
         /** Checks if a blob actually exists in the blobstore */
-        fun exists(blobUrl: String): Boolean {
-            return getBlobClient(blobUrl).exists()
+        fun exists(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar): Boolean {
+            return getBlobClient(blobUrl, blobConnEnvVar).exists()
         }
 
         /**
          * Download the blob at the given [blobUrl]
          */
-        fun downloadBlob(blobUrl: String, blobEnv: Environment = defaultEnv): ByteArray {
+        fun downloadBlob(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar): ByteArray {
             val stream = ByteArrayOutputStream()
             logger.debug("BlobAccess Starting download for blobUrl $blobUrl")
-            stream.use { getBlobClient(blobUrl, blobEnv).downloadStream(it) }
+            stream.use { getBlobClient(blobUrl, blobConnEnvVar).downloadStream(it) }
             logger.debug("BlobAccess Finished download for blobUrl $blobUrl")
             return stream.toByteArray()
         }
@@ -195,17 +174,10 @@ class BlobAccess() : Logging {
         }
 
         /**
-         * Copy a blob at [fromBlobUrl] to a blob in [toBlobContainer]
-         */
-        fun copyBlob(fromBlobUrl: String, toBlobContainer: String, toBlobEnv: Environment): String {
-            return copyBlob(fromBlobUrl, toBlobContainer, getBlobEnvVar(toBlobEnv))
-        }
-
-        /**
          * Delete a blob at [blobUrl]
          */
-        fun deleteBlob(blobUrl: String) {
-            getBlobClient(blobUrl).delete()
+        fun deleteBlob(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar) {
+            getBlobClient(blobUrl, blobConnEnvVar).delete()
         }
 
         /**
