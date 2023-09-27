@@ -200,6 +200,9 @@ elements:
     schema: ./datatype/xad-extended-address
     resourceIndex: contactIndex
 
+  # This is technically incorrect as this should be using the PractitionerRole instead
+  # It works because the HL7 -> FHIR mapping sets the same value on the practitioner
+  # It cannot be changed at this time because this is the shape of the FHIR that SR sends in
   - name: performing-organization-director
     resource: '%resource.performer.resolve().practitioner.resolve()'
     condition: '%resource.identifier.type.coding.code="MDIR"'
