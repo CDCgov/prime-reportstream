@@ -3,8 +3,8 @@ package gov.cdc.prime.router.fhirengine.translation
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.Segment
 import ca.uhn.hl7v2.util.Terser
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.addProvenanceReference
 import io.github.linuxforhealth.hl7.message.HL7MessageEngine
 import io.github.linuxforhealth.hl7.message.HL7MessageModel
 import io.github.linuxforhealth.hl7.resource.ResourceReader
@@ -77,8 +77,9 @@ class HL7toFhirTranslator internal constructor(
 
         val messageModel = getHL7MessageModel(hl7Message)
         val bundle = messageModel.convert(hl7Message, messageEngine)
-        FHIRBundleHelpers.addProvenanceReference(bundle)
-        BundleEnhancer.run(bundle, hl7Message)
+        bundle.enhanceBundleMetadata(hl7Message)
+        bundle.addProvenanceReference()
+        bundle.handleBirthTime(hl7Message)
         return bundle
     }
 

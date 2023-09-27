@@ -24,14 +24,17 @@ import gov.cdc.prime.router.fhirengine.engine.RawSubmission
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.batchMessages
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteChildlessResource
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getObservationExtensions
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceProperties
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.getResourceReferences
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.removePHI
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.addProvenanceReference
+import gov.cdc.prime.router.fhirengine.utils.addReceivers
+import gov.cdc.prime.router.fhirengine.utils.deleteChildlessResource
+import gov.cdc.prime.router.fhirengine.utils.deleteResource
+import gov.cdc.prime.router.fhirengine.utils.filterObservations
+import gov.cdc.prime.router.fhirengine.utils.getDiagnosticReportNoObservations
+import gov.cdc.prime.router.fhirengine.utils.getObservationExtensions
+import gov.cdc.prime.router.fhirengine.utils.getResourceProperties
+import gov.cdc.prime.router.fhirengine.utils.getResourceReferences
+import gov.cdc.prime.router.fhirengine.utils.removePHI
 import io.mockk.clearAllMocks
 import io.mockk.mockkClass
 import io.mockk.spyk
@@ -151,7 +154,7 @@ class FHIRBundleHelpersTests {
         val receiversIn = listOf(oneOrganization.receivers[0])
 
         // act
-        FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
+        bundle.addReceivers(receiversIn, shorthandLookupTable)
 
         // assert
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
@@ -173,7 +176,7 @@ class FHIRBundleHelpersTests {
         val receiversIn = listOf(oneOrganization.receivers[0])
 
         // act
-        FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
+        bundle.addReceivers(receiversIn, shorthandLookupTable)
 
         // assert
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
@@ -195,7 +198,7 @@ class FHIRBundleHelpersTests {
         assertThat(bundle).isNotNull()
 
         // act
-        FHIRBundleHelpers.addProvenanceReference(bundle)
+        bundle.addProvenanceReference()
 
         // assert
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
@@ -217,7 +220,7 @@ class FHIRBundleHelpersTests {
         assertThat(bundle).isNotNull()
 
         // act
-        FHIRBundleHelpers.addProvenanceReference(bundle)
+        bundle.addProvenanceReference()
 
         // assert
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
@@ -235,7 +238,7 @@ class FHIRBundleHelpersTests {
         val receiversIn = listOf(oneOrganization.receivers[1])
 
         // act
-        FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
+        bundle.addReceivers(receiversIn, shorthandLookupTable)
 
         // assert
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
@@ -251,7 +254,7 @@ class FHIRBundleHelpersTests {
         val receiversIn = oneOrganization.receivers
 
         // act
-        FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
+        bundle.addReceivers(receiversIn, shorthandLookupTable)
 
         // assert
         val provenance = bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
@@ -313,7 +316,7 @@ class FHIRBundleHelpersTests {
         assertThat(messages).isNotEmpty()
         val bundle = messages[0]
         assertThat(bundle).isNotNull()
-        assertThat(FHIRBundleHelpers.getDiagnosticReportNoObservations(bundle).count()).isEqualTo(1)
+        assertThat(bundle.getDiagnosticReportNoObservations().count()).isEqualTo(1)
     }
 
     @Test
@@ -325,9 +328,9 @@ class FHIRBundleHelpersTests {
         assertThat(messages).isNotEmpty()
         val bundle = messages[0]
         assertThat(bundle).isNotNull()
-        assertThat(FHIRBundleHelpers.getDiagnosticReportNoObservations(bundle).count()).isEqualTo(1)
+        assertThat(bundle.getDiagnosticReportNoObservations().count()).isEqualTo(1)
         messages[0].deleteChildlessResource(Observation())
-        assertThat(FHIRBundleHelpers.getDiagnosticReportNoObservations(bundle)).isEmpty()
+        assertThat(bundle.getDiagnosticReportNoObservations()).isEmpty()
     }
 
     @Test
@@ -542,7 +545,7 @@ class FHIRBundleHelpersTests {
         assertThat(provenance).isNotNull()
         bundle.deleteResource(provenance)
 
-        FHIRBundleHelpers.addReceivers(bundle, receiversIn, shorthandLookupTable)
+        bundle.addReceivers(receiversIn, shorthandLookupTable)
         assertThat(
             bundle.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         ).isNotNull()
@@ -616,8 +619,7 @@ class FHIRBundleHelpersTests {
             .readText()
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
 
-        val bundle = FHIRBundleHelpers.filterObservations(
-            messages[0],
+        val bundle = messages[0].filterObservations(
             listOf(OBSERVATIONS_FILTER),
             emptyMap<String, String>().toMutableMap()
         )
@@ -638,10 +640,10 @@ class FHIRBundleHelpersTests {
         val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger).map { FhirTranscoder.encode(it) }
         assertThat(messages.size).isGreaterThan(1)
 
-        val batchedMessages = batchMessages(messages)
+        val batchedMessages = FHIRBundleHelpers.batchMessages(messages)
         assertThat(batchedMessages.split('\n')).isEqualTo(messages)
 
-        val emptyBatch = batchMessages(listOf())
+        val emptyBatch = FHIRBundleHelpers.batchMessages(listOf())
         assertThat(emptyBatch).isEqualTo("")
     }
 

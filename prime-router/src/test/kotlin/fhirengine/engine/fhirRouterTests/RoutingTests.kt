@@ -37,6 +37,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.addReceivers
 import gov.cdc.prime.router.metadata.LookupTable
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.clearAllMocks
@@ -44,6 +45,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
 import io.mockk.mockkObject
+import io.mockk.mockkStatic
 import io.mockk.spyk
 import io.mockk.verify
 import org.hl7.fhir.r4.model.Bundle
@@ -468,7 +470,9 @@ class RoutingTests {
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
 
-        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
+        val bundle = Bundle()
+        mockkStatic(Bundle::addReceivers)
+        every { bundle.addReceivers(any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
@@ -478,7 +482,7 @@ class RoutingTests {
 
         // assert
         verify(exactly = 0) {
-            FHIRBundleHelpers.addReceivers(any(), any(), any())
+            bundle.addReceivers(any(), any())
         }
     }
 
@@ -520,7 +524,10 @@ class RoutingTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
+
+        val bundle = Bundle()
+        mockkStatic(Bundle::addReceivers)
+        every { bundle.addReceivers(any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
@@ -530,7 +537,7 @@ class RoutingTests {
 
         // assert
         verify(exactly = 0) {
-            FHIRBundleHelpers.addReceivers(any(), any(), any())
+            bundle.addReceivers(any(), any())
         }
     }
 
@@ -572,7 +579,9 @@ class RoutingTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
+        val bundle = Bundle()
+        mockkStatic(Bundle::addReceivers)
+        every { bundle.addReceivers(any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
@@ -582,7 +591,7 @@ class RoutingTests {
 
         // assert
         verify(exactly = 0) {
-            FHIRBundleHelpers.addReceivers(any(), any(), any())
+            bundle.addReceivers(any(), any())
         }
     }
 
@@ -624,7 +633,9 @@ class RoutingTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
+        val bundle = Bundle()
+        mockkStatic(Bundle::addReceivers)
+        every { bundle.addReceivers(any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter)
 
         // act
@@ -634,7 +645,7 @@ class RoutingTests {
 
         // assert
         verify(exactly = 0) {
-            FHIRBundleHelpers.addReceivers(any(), any(), any())
+            bundle.addReceivers(any(), any())
         }
     }
 
@@ -677,7 +688,9 @@ class RoutingTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
+
+        mockkStatic(Bundle::addReceivers)
+        every { any<Bundle>().addReceivers(any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
@@ -687,7 +700,7 @@ class RoutingTests {
 
         // assert
         verify(exactly = 0) {
-            FHIRBundleHelpers.addReceivers(any(), any(), any())
+            any<Bundle>().addReceivers(any(), any())
         }
     }
 
@@ -730,7 +743,9 @@ class RoutingTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
+
+        mockkStatic(Bundle::addReceivers)
+        every { any<Bundle>().addReceivers(any(), any()) } returns Unit
         engine.setFiltersOnEngine(jurisFilter, qualFilter, routingFilter, procModeFilter, conditionFilter)
 
         // act
@@ -744,7 +759,7 @@ class RoutingTests {
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
             BlobAccess.Companion.uploadBlob(any(), any())
             accessSpy.insertTask(any(), any(), any(), any(), any())
-            FHIRBundleHelpers.addReceivers(any(), any(), any())
+            any<Bundle>().addReceivers(any(), any())
         }
     }
 
@@ -775,7 +790,9 @@ class RoutingTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
+
+        mockkStatic(Bundle::addReceivers)
+        every { any<Bundle>().addReceivers(any(), any()) } returns Unit
 
         // act
         accessSpy.transact { txn ->
@@ -789,7 +806,7 @@ class RoutingTests {
         }
         verify(exactly = 0) {
             accessSpy.insertTask(any(), any(), any(), any())
-            FHIRBundleHelpers.addReceivers(any(), any(), any())
+            any<Bundle>().addReceivers(any(), any())
             BlobAccess.Companion.uploadBlob(any(), any())
         }
     }
@@ -923,7 +940,9 @@ class RoutingTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }.returns(Unit)
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
-        every { FHIRBundleHelpers.addReceivers(any(), any(), any()) } returns Unit
+
+        mockkStatic(Bundle::addReceivers)
+        every { any<Bundle>().addReceivers(any(), any()) } returns Unit
         engine.setFiltersOnEngine(
             jurisFilter,
             engine.qualityFilterDefaults[Topic.FULL_ELR]!!,
