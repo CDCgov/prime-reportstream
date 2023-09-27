@@ -11,7 +11,7 @@ export const NoServicesBanner = () => {
                     src="/assets/folder-search.svg"
                     alt="Map of states using ReportStream"
                 />
-                <h3>No available data</h3>
+                <h3 className="margin-top-0">No available data</h3>
                 <p>
                     If you need more help finding what you're looking for,{" "}
                     <USExtLink href={site.forms.contactUs.url}>
