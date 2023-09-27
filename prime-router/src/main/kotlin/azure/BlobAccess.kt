@@ -69,7 +69,7 @@ class BlobAccess() : Logging {
 
     companion object : Logging {
         private const val defaultConnEnvVar = "AzureWebJobsStorage"
-        private val defaultEnv = Environment.LOCAL
+        private val defaultEnv by lazy { Environment.get() }
 
         /**
          * Metadata of a blob container.
@@ -111,7 +111,14 @@ class BlobAccess() : Logging {
         }
 
         /**
-         * Obtain the blob connection string from the given environment.
+         * Obtain the blob environment variable name from the given environment.
+         */
+        fun getBlobEnvVar(blobEnvironment: Environment = defaultEnv): String {
+            return Environment.getBlobEnvVar(blobEnvironment)
+        }
+
+        /**
+         * Obtain the blob connection string for a given environment variable name.
          */
         fun getBlobConnection(blobConnEnvVar: String = defaultConnEnvVar): String {
             return System.getenv(blobConnEnvVar)
@@ -120,8 +127,8 @@ class BlobAccess() : Logging {
         /**
          * Obtain a client for interacting with the blob store.
          */
-        private fun getBlobClient(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar): BlobClient {
-            val blobConnection = getBlobConnection(blobConnEnvVar)
+        private fun getBlobClient(blobUrl: String, blobEnv: Environment = defaultEnv): BlobClient {
+            val blobConnection = getBlobConnection(getBlobEnvVar(blobEnv))
             return BlobClientBuilder().connectionString(blobConnection).endpoint(blobUrl).buildClient()
         }
 

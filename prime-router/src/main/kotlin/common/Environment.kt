@@ -58,8 +58,6 @@ enum class Environment(
     }
 
     companion object {
-        private const val defaultConnEnvVar = "AzureWebJobsStorage"
-
         /**
          * Get the environment based on the given [environment] string.
          * @return an environment
@@ -83,14 +81,16 @@ enum class Environment(
         }
 
         /**
-         * Get the blob store connection string for the given [environment].
-         * @return blob store connection string
+         * Get the blob store environment variable name for the given [environment].
+         * @return environment variable name
          * @throws IllegalArgumentException if the environment cannot be found
          */
-        fun get(environment: Environment): String {
+        fun getBlobEnvVar(environment: Environment): String {
             return when (environment) {
-                LOCAL -> System.getenv(defaultConnEnvVar)
-                else -> throw IllegalArgumentException("invalid environment")
+                LOCAL -> "AzureWebJobsStorage"
+                TEST -> "AzureWebJobsStorageTEST"
+                STAGING -> "AzureWebJobsStorageSTAGING"
+                PROD -> "AzureWebJobsStoragePROD"
             }
         }
 
