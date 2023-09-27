@@ -10,8 +10,9 @@ import {
 } from "@trussworks/react-uswds";
 import classnames from "classnames";
 import { useState } from "react";
+import { useMatch } from "react-router-dom";
 
-import { USLinkButton } from "../USLink";
+import { USLink, USLinkButton } from "../USLink";
 import config from "../../config";
 import { DAPHeader } from "../header/DAPHeader";
 import SenderModeBanner from "../SenderModeBanner";
@@ -19,10 +20,26 @@ import { useSessionContext } from "../../contexts/SessionContext";
 import { logout } from "../../utils/UserUtils";
 import { Icon } from "../../shared";
 import site from "../../content/site.json";
+import {
+    ReceiverOrganizationsMissingTransport,
+    useOrganizationSettings,
+} from "../../hooks/UseOrganizationSettings";
 
 import styles from "./ReportStreamNavbar.module.scss";
 
 const { IS_PREVIEW, CLIENT_ENV, APP_ENV } = config;
+
+const primaryLinkClasses = (isActive: boolean) => {
+    if (isActive) {
+        return "text-bold primary-nav-link";
+    }
+
+    return "primary-nav-link";
+};
+
+const isOrganizationsMissingTransport = (orgName: string): boolean => {
+    return ReceiverOrganizationsMissingTransport.indexOf(orgName) > -1;
+};
 
 export const ReportStreamNavbar = ({
     blueVariant,
@@ -53,6 +70,10 @@ export const ReportStreamNavbar = ({
             setOpenMenuItem(menuName);
         }
     };
+    const { data: organization } = useOrganizationSettings();
+    const orgMissingTransport = organization?.name
+        ? isOrganizationsMissingTransport(organization?.name)
+        : false;
 
     const Dropdown = ({
         menuName,
@@ -82,17 +103,51 @@ export const ReportStreamNavbar = ({
     };
     const defaultMenuItems = [
         <div className="primary-nav-link-container">
-            <a className="primary-nav-link" href="/product" key="product">
-                Product
+            <a
+                className={primaryLinkClasses(!!useMatch("/about/*"))}
+                href="/about"
+                key="about"
+            >
+                About
             </a>
         </div>,
         <div className="primary-nav-link-container">
-            <a className="primary-nav-link" href="/resources" key="resources">
-                Resources
+            <a
+                className={primaryLinkClasses(!!useMatch("/getting-started/*"))}
+                href="/getting-started"
+                key="getting-started"
+            >
+                Getting started
             </a>
         </div>,
         <div className="primary-nav-link-container">
-            <a className="primary-nav-link" href="/support" key="support">
+            <a
+                className={primaryLinkClasses(
+                    !!useMatch("/developer-resources/*"),
+                )}
+                href="/developer-resources"
+                key="developer-resources"
+            >
+                Developers
+            </a>
+        </div>,
+        <div className="primary-nav-link-container">
+            <a
+                className={primaryLinkClasses(
+                    !!useMatch("/managing-your-connection/*"),
+                )}
+                href="/managing-your-connection"
+                key="managing-your-connection"
+            >
+                Your connection
+            </a>
+        </div>,
+        <div className="primary-nav-link-container">
+            <a
+                className={primaryLinkClasses(!!useMatch("/support/*"))}
+                href="/support"
+                key="support"
+            >
                 Support
             </a>
         </div>,
@@ -100,7 +155,23 @@ export const ReportStreamNavbar = ({
 
     const menuItemsReceiver = [
         <div className="primary-nav-link-container">
-            <a className="primary-nav-link" href="/daily-data" key="daily">
+            <a
+                className={primaryLinkClasses(!!useMatch("/data-dashboard/*"))}
+                href="/data-dashboard"
+                key="dashboard"
+            >
+                Dashboard
+            </a>
+        </div>,
+    ];
+
+    const menuItemsReceiverMissingTransport = [
+        <div className="primary-nav-link-container">
+            <a
+                className={primaryLinkClasses(!!useMatch("/daily-data/*"))}
+                href="/daily-data"
+                key="daily"
+            >
                 Daily Data
             </a>
         </div>,
@@ -109,7 +180,7 @@ export const ReportStreamNavbar = ({
     const menuItemsSender = [
         <div className="primary-nav-link-container">
             <a
-                className="primary-nav-link"
+                className={primaryLinkClasses(!!useMatch("/submissions/*"))}
                 href="/submissions"
                 key="submissions"
             >
@@ -125,10 +196,10 @@ export const ReportStreamNavbar = ({
                 <a href="/admin/settings" key="settings">
                     Organization Settings
                 </a>,
-                <a href="/admin/lastmile" key="lastmile">
+                <a href="/admin/features" key="features">
                     Feature Flags
                 </a>,
-                <a href="/admin/features" key="features">
+                <a href="/admin/lastmile" key="lastmile">
                     Last Mile Failures
                 </a>,
                 <a href="/admin/message-tracker" key="message-tracker">
@@ -149,8 +220,12 @@ export const ReportStreamNavbar = ({
     const navbarItemBuilder = () => {
         let menuItems = defaultMenuItems;
 
-        if (isUserReceiver || isUserAdmin) {
+        if ((isUserReceiver || isUserAdmin) && !orgMissingTransport) {
             menuItems = [...menuItems, ...menuItemsReceiver];
+        }
+
+        if ((isUserReceiver || isUserAdmin) && orgMissingTransport) {
+            menuItems = [...menuItems, ...menuItemsReceiverMissingTransport];
         }
 
         if (isUserSender || isUserAdmin) {
@@ -181,12 +256,14 @@ export const ReportStreamNavbar = ({
                 <div className="usa-nav-container">
                     <div className="usa-navbar">
                         <Title>
-                            ReportStream
-                            {IS_PREVIEW && (
-                                <span className={styles.ClientEnv}>
-                                    {CLIENT_ENV}
-                                </span>
-                            )}
+                            <USLink href="/" title="Home" aria-label="Home">
+                                ReportStream
+                                {IS_PREVIEW && (
+                                    <span className={styles.ClientEnv}>
+                                        {CLIENT_ENV}
+                                    </span>
+                                )}
+                            </USLink>
                         </Title>
                         <NavMenuButton
                             onClick={toggleMobileMenu}
@@ -233,7 +310,6 @@ export const ReportStreamNavbar = ({
                                     <USLinkButton
                                         href={site.forms.connectWithRS.url}
                                         outline
-                                        extLinkIcon
                                     >
                                         Connect now
                                     </USLinkButton>

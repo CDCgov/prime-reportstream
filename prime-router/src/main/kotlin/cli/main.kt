@@ -291,6 +291,7 @@ fun main(args: Array<String>) = RouterCli()
         SenderFilesCommand(),
         ProcessFhirCommands(),
         FhirPathCommand(),
-        ConvertValuesetsYamlToCSV()
+        ConvertValuesetsYamlToCSV(),
+        ProcessHl7Commands()
     )
     .main(args)

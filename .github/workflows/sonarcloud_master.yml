@@ -15,10 +15,6 @@ jobs:
     defaults:
       run:
         working-directory: prime-router
-    strategy:
-      fail-fast: false
-      matrix:
-        language: ["java"]
 
     steps:
       - name: "Check out everything"
@@ -26,20 +22,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up JDK 11
-        uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2
+      - name: Build backend
+        uses: ./.github/actions/build-backend
         with:
-          java-version: "11"
-          distribution: "adopt"
-          cache: "gradle"
-
-      - uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
-
-      - name: Spin up build containers
-        run: docker-compose -f docker-compose.postgres.yml up -d
-
-      - name: Build Prime Router Package
-        run: ./gradlew package -x fatjar
+          version: ${{ github.run_id }}
+          upload-build: false
 
       - name: Use Node.js with yarn
         uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d
@@ -54,18 +41,8 @@ jobs:
         run: yarn jest --coverage --silent --maxWorkers=100%
         working-directory: frontend-react
 
-      - name: "Run SonarCloud Scan"
-        uses: sonarsource/sonarcloud-github-action@db501078e936e4b4c8773d1bb949ba9ddb7b6b6a
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Run SonarCloud Scan
+        uses: ./.github/actions/sonarcloud
         with:
-          args: >
-            -Dsonar.coverage.exclusions=prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**,frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*
-            -Dsonar.cpd.exclusions=frontend-react/**/*.test.*,prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**
-            -Dsonar.sources=frontend-react/src,prime-router/src
-            -Dsonar.projectKey=CDCgov_prime-data-hub
-            -Dsonar.organization=cdcgov
-            -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
-            -Dsonar.coverage.jacoco.xmlReportPaths=prime-router/build/reports/jacoco/test/jacocoTestReport.xml
-            -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          sonar-token: ${{ secrets.SONAR_TOKEN }}

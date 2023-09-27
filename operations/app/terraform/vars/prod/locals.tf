@@ -28,13 +28,16 @@ locals {
     delete_pii_storage_after_days = 60
   }
   database = {
-    db_sku_name         = "GP_Gen5_16"
+    db_sku_name         = "MO_Gen5_32"
     db_version          = "11"
     db_storage_mb       = 5120
     db_auto_grow        = true
     db_prevent_destroy  = true
     db_threat_detection = true
     db_replica          = true
+  }
+  log_analytics_workspace = {
+    law_retention_period = "730"
   }
   app = {
     app_tier                 = "PremiumV2"
