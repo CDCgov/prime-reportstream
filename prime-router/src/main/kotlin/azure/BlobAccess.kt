@@ -152,6 +152,19 @@ class BlobAccess() : Logging {
             return blobClient.blobUrl
         }
 
+        /**
+         * Upload a raw blob [bytes] as [blobName]
+         * @return the url for the uploaded blob
+         */
+        internal fun uploadBlob(
+            blobName: String,
+            bytes: ByteArray,
+            blobContainerName: String = defaultBlobContainerName,
+            blobEnv: Environment
+        ): String {
+            return uploadBlob(blobName, bytes, blobContainerName, getBlobEnvVar(blobEnv))
+        }
+
         /** Checks if a blob actually exists in the blobstore */
         fun exists(blobUrl: String): Boolean {
             return getBlobClient(blobUrl).exists()
@@ -160,10 +173,10 @@ class BlobAccess() : Logging {
         /**
          * Download the blob at the given [blobUrl]
          */
-        fun downloadBlob(blobUrl: String): ByteArray {
+        fun downloadBlob(blobUrl: String, blobEnv: Environment = defaultEnv): ByteArray {
             val stream = ByteArrayOutputStream()
             logger.debug("BlobAccess Starting download for blobUrl $blobUrl")
-            stream.use { getBlobClient(blobUrl).downloadStream(it) }
+            stream.use { getBlobClient(blobUrl, blobEnv).downloadStream(it) }
             logger.debug("BlobAccess Finished download for blobUrl $blobUrl")
             return stream.toByteArray()
         }
@@ -179,6 +192,13 @@ class BlobAccess() : Logging {
             val toBlobUrl = uploadBlob(toFilename, fromBytes, toBlobContainer, toBlobConnEnvVar)
             logger.info("New blob URL is $toBlobUrl")
             return toBlobUrl
+        }
+
+        /**
+         * Copy a blob at [fromBlobUrl] to a blob in [toBlobContainer]
+         */
+        fun copyBlob(fromBlobUrl: String, toBlobContainer: String, toBlobEnv: Environment): String {
+            return copyBlob(fromBlobUrl, toBlobContainer, getBlobEnvVar(toBlobEnv))
         }
 
         /**

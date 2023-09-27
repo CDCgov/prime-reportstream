@@ -254,7 +254,7 @@ class BlobAccessTests {
         val testUrl = "http://testurl/testfile"
         val testFile = BlobAccess.BlobInfo.getBlobFilename(testUrl)
 
-        every { BlobAccess.Companion.downloadBlob(testUrl) }.returns("testblob".toByteArray())
+        every { BlobAccess.Companion.downloadBlob(testUrl, any()) }.returns("testblob".toByteArray())
         every {
             BlobAccess.Companion.uploadBlob(
                 testFile,
@@ -266,7 +266,7 @@ class BlobAccessTests {
 
         val result = BlobAccess.copyBlob(testUrl, "testcontainer", "testenvvar")
 
-        verify(exactly = 1) { BlobAccess.Companion.downloadBlob(testUrl) }
+        verify(exactly = 1) { BlobAccess.Companion.downloadBlob(testUrl, any()) }
         verify(exactly = 1) {
             BlobAccess.Companion.uploadBlob(
                 testFile,
