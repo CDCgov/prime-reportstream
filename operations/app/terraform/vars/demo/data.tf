@@ -10,6 +10,15 @@ data "azurerm_key_vault" "app_config" {
   ]
 }
 
+data "azurerm_key_vault_secret" "sendgrid_password" {
+  name         = "sendgrid-password"
+  key_vault_id = data.azurerm_key_vault.app_config.id
+
+  depends_on = [
+    module.init
+  ]
+}
+
 data "azurerm_key_vault_secret" "postgres_user" {
   name         = "functionapp-postgres-user"
   key_vault_id = data.azurerm_key_vault.app_config.id

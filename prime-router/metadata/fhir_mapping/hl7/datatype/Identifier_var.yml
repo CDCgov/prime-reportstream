@@ -4,12 +4,12 @@ type_1:
   valueOf: datatype/CodeableConcept_var
   generateList: true
   expressionType: resource
-    # CodeableConcept_var uses these scope vars: 
-    # $code (for CodeableConcept.Coding.code)
-    # $system (for CodeableConcept.Coding.system)
-    # $display (for CodeableConcept.Coding.display)
-    # $version (for CodeableConcept.Coding.version)
-    # $text (for CodeableConcept.text)
+  # CodeableConcept_var uses these scope vars:
+  # $code (for CodeableConcept.Coding.code)
+  # $system (for CodeableConcept.Coding.system)
+  # $display (for CodeableConcept.Coding.display)
+  # $version (for CodeableConcept.Coding.version)
+  # $text (for CodeableConcept.text)
 
 # Used when a coding is available
 type_2:
@@ -45,8 +45,19 @@ period:
     start: $start
     end: $end
 
-# For OIDs
 extension_1:
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  condition: $value NOT_NULL
+  vars:
+    value: $namespaceId
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: namespace-id
+
+# For OIDs
+extension_2:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
@@ -61,7 +72,7 @@ extension_1:
     urlValue: universal-id
 
 # For all other ID types
-extension_2:
+extension_3:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource

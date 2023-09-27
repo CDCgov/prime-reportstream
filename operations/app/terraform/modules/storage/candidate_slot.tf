@@ -28,7 +28,8 @@ resource "azurerm_storage_account" "storage_account_candidate" {
     prevent_destroy = false
     ignore_changes = [
       # Temp ignore ip_rules during tf development
-      network_rules[0].ip_rules
+      network_rules[0].ip_rules,
+      network_rules[0].private_link_access
     ]
   }
 
@@ -193,7 +194,8 @@ resource "azurerm_storage_account" "storage_partner_candidate" {
     ignore_changes = [
       # Temp ignore ip_rules during tf development
       secondary_blob_connection_string,
-      network_rules[0].ip_rules
+      network_rules[0].ip_rules,
+      network_rules[0].private_link_access
     ]
   }
 
