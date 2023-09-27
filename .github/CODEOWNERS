@@ -5,5 +5,5 @@
 /.vscode/               @cdcgov/PRIME-ReportStream-DevOps
 /operations/            @cdcgov/PRIME-ReportStream-DevOps
 /CODEOWNERS             @cdcgov/PRIME-ReportStream-DevOps
-/prime-router/          @cdcgov/reportstream-codeowners-backend
+/prime-router/          @cdcgov/PRIME-ReportStream-CODEOWNERS-backend
 
