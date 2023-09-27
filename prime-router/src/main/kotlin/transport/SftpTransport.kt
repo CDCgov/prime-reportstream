@@ -1,7 +1,6 @@
 package gov.cdc.prime.router.transport
 
 import com.google.common.base.Preconditions
-import com.hierynomus.sshj.key.KeyAlgorithm
 import com.hierynomus.sshj.key.KeyAlgorithms
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.Receiver
@@ -34,11 +33,8 @@ import net.schmizz.sshj.xfer.InMemorySourceFile
 import net.schmizz.sshj.xfer.LocalSourceFile
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
-import org.jooq.Log
 import java.io.InputStream
 import java.io.StringReader
-import java.util.logging.Level
-import java.util.logging.Logger
 
 class SftpTransport : ITransport, Logging {
 
@@ -332,7 +328,8 @@ class SftpTransport : ITransport, Logging {
                 KeyAlgorithms.RSASHA256(),
                 KeyAlgorithms.SSHRSACertV01(),
                 KeyAlgorithms.SSHDSSCertV01(),
-                KeyAlgorithms.SSHDSA())
+                KeyAlgorithms.SSHDSA()
+            )
             return SSHClient(sshConfig)
         }
     }
