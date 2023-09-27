@@ -50,6 +50,7 @@ const oktaSignInConfig: WidgetOptions = {
             forgotpassword: "Reset password",
             "primaryauth.title": "Sign in",
             "primaryauth.username.placeholder": "Username or email",
+            "primaryauth.submit": "Sign in",
             "error.username.required":
                 "Please enter a username. Your username should be the email address you registered with. Check your activation email.",
             "password.reset": "Reset password",
@@ -66,8 +67,12 @@ const oktaSignInConfig: WidgetOptions = {
             "enroll.choices.setup": "Set up",
             "error.auth.lockedOut":
                 "Your account is locked because of too many failed attempts. Check your email for next steps to unlock.",
+            "errors.E0000119":
+                "Your account is locked because of too many failed attempts. Check your email for next steps to unlock.",
             "errors.E0000004":
                 "Unable to sign in.  Check your username and password. Your account will be locked after 5 failed attempts.",
+            "account.unlock.email.or.username.placeholder": "Username or email",
+            "account.unlock.email.or.username.tooltip": "Username or email",
         },
     },
 };
