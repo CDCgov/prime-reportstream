@@ -8,7 +8,6 @@ export const NoServicesBanner = () => {
         <>
             <section className="rs-text-align-center">
                 <img
-                    className="margin-bottom-6"
                     src="/assets/folder-search.svg"
                     alt="Map of states using ReportStream"
                 />
