@@ -28,13 +28,13 @@ jobs:
         id: list-test-images
         run: |
           TEST_IMAGES=$(az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2)
-          echo "TEST_IMAGES=$TEST_IMAGES" >> $GITHUB_ENV
+          echo "TEST_IMAGES=$TEST_IMAGES" >> $GITHUB_OUTPUT
 
     #   - name: List test repository images
     #     id: list-stg-images
     #     run: |
     #         STG_IMAGES=$(az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2)
-    #         echo "STG_IMAGES=$STG_IMAGES" >> $GITHUB_ENV
+    #         echo "STG_IMAGES=$STG_IMAGES" >> $GITHUB_OUTPUT
 
       - name: Delete test old images
         run: |
