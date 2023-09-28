@@ -27,7 +27,7 @@ jobs:
       - name: List test repository images
         id: list-test-images
         run: |
-          az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2 > test-images.json
+          az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2 > test-images.txt
 
     #   - name: List test repository images
     #     id: list-stg-images
@@ -39,7 +39,7 @@ jobs:
         run: |
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "TEST_IMAGES<<$EOF" >> $GITHUB_OUTPUT
-          cat test-images.json >> $GITHUB_OUTPUT
+          cat test-images.txt >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
 
       - name: Delete test old images
