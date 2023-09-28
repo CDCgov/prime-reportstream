@@ -156,7 +156,7 @@ jobs:
           ./cleanslate.sh --verbose
           docker-compose -f docker-compose.build.yml up --detach
           docker-compose up --detach vault 1>/dev/null 2>/dev/null
-          ./gradlew run
+          ./gradlew run &
           ./gradlew primeCLI --args "create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass"
           ./gradlew reloadTables
           ./gradlew reloadSettings
