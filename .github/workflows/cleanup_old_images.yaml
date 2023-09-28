@@ -11,11 +11,6 @@ on:
 jobs:
   cleanup:
     runs-on: ubuntu-latest
-    env:
-        ENVIRONMENT: ${{ matrix.environment }}
-    strategy:
-        matrix:
-          environment: [test, staging]
     steps:
       - name: "Check out changes"
         uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
@@ -32,16 +27,26 @@ jobs:
       - name: List test & staging repository images
         id: list-images
         run: |
-          az acr repository show-tags --name pdh${{ matrix.environment }}containerregistry.azurecr.io --repository pdh${{ matrix.environment }} --orderby time_asc --output table | head -n -2 > container_id.txt
-          cat container_id.txt
-         # az acr repository show-tags --name pdhstagingcontainerregistry.azurecr.io --repository pdhstaging --orderby time_asc --output table | head -n -2 >> container_id.txt
-          
+          az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2 > cat test-images.txt
+          az acr repository show-tags --name pdhstagingcontainerregistry --repository pdhstaging --orderby time_asc --output table | head -n -2 >> cat stg-images.txt
+     
+      - name: Format output
+        id: format_out
+        run: |
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "IMAGES<<$EOF" >> $GITHUB_OUTPUT
+          cat test-images.txt >> $GITHUB_OUTPUT
+          cat stg-images.txt >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
 
-    #   - name: Delete test & staging old images
-    #     run: |
-    #         REPOSITORY_NAME="pdhtest"
-    #         IMAGES=${{ steps.list-images.outputs.LIST }}
-    #         for IMAGE in `cat container_id.txt`; do
-    #         echo "Deleting image $IMAGE"
-    #         az acr repository delete --name $REGISTRY_NAME --image pdhtest@$IMAGE --yes
-    #         done
+      - name: Delete test & staging old images
+        run: |
+            IMAGES=${{ steps.list-images.outputs.IMAGES }}
+            for IMAGE in test-images.txt; do
+            echo "Deleting image $IMAGE"
+            az acr repository delete --name pdhtestcontainerregistry --image pdhtest@$IMAGE --yes
+            done
+        # for IMAGE in stg-images.txt; do
+        # echo "Deleting image $IMAGE"
+        # az acr repository delete --name pdhstagingcontainerregistry --image pdhstaging@$IMAGE --yes
+        # done
