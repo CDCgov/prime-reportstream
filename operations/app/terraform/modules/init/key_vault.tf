@@ -19,6 +19,10 @@ locals {
     cyberark-ip-ingress = {
       secret = "158.111.21.0/24,158.111.123.0/25",
       vault  = azurerm_key_vault.init["keyvault"]
+    },
+    sendgrid-password = {
+      secret = "changeIT!",
+      vault  = azurerm_key_vault.init["appconfig"]
     }
   }
   keys = {
