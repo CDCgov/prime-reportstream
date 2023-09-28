@@ -126,7 +126,7 @@ elements:
     schema: datatype/ce-coded-with-exceptions
 
   - name: patient-multiple-birth-indicator
-    condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is Boolean'
+    condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is boolean'
     value: ['%resource.multipleBirth']
     hl7Spec: [ '%{hl7PIDField}-24' ]
     valueSet:
@@ -135,22 +135,22 @@ elements:
         false: N
 
   - name: patient-multiple-birth-order
-    condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is Integer'
+    condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is integer'
     value: ['%resource.multipleBirth']
     hl7Spec: [ '%{hl7PIDField}-25' ]
 
   - name: patient-death-date-time
-    condition: '%resource.deceased.exists() and %resource.deceased is DateTime'
+    condition: '%resource.deceased.exists() and %resource.deceased is dateTime'
     value: [ '%resource.deceased' ]
     hl7Spec: [ '%{hl7PIDField}-29' ]
 
   - name: patient-death-indicator-1
-    condition: '%resource.deceased.exists() and %resource.deceased is DateTime'
+    condition: '%resource.deceased.exists() and %resource.deceased is dateTime'
     value: [ '"Y"' ]
     hl7Spec: [ '%{hl7PIDField}-30' ]
 
   - name: patient-death-indicator-2
-    condition: '%resource.deceased.exists() and %resource.deceased is Boolean'
+    condition: '%resource.deceased.exists() and %resource.deceased is boolean'
     value: [ '%resource.deceased' ]
     hl7Spec: [ '%{hl7PIDField}-30' ]
     valueSet:
