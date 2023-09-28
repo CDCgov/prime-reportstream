@@ -24,19 +24,24 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: List test & staging repository images
-        id: list-images
+      - name: List test repository images
+        id: list-test-images
         run: |
-          az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2 > test-images.txt
-          az acr repository show-tags --name pdhstagingcontainerregistry --repository pdhstaging --orderby time_asc --output table | head -n -2 > stg-images.txt
-          cat test-images.txt
+          TEST_IMAGES=$(az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2)
+          echo "TEST_IMAGES=$TEST_IMAGES" >> $GITHUB_ENV
+
+    #   - name: List test repository images
+    #     id: list-stg-images
+    #     run: |
+    #         STG_IMAGES=$(az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2)
+    #         echo "STG_IMAGES=$STG_IMAGES" >> $GITHUB_ENV
 
       - name: Delete test old images
         run: |
-            IMAGES=$(cat test-images.txt)
-            for IMAGE in IMAGES; do
-            echo "Deleting image $IMAGE"
-            az acr repository delete --name pdhtestcontainerregistry --image $IMAGE --yes
+          TEST_IMAGES=${{ env.TEST_IMAGES }}
+            for IMAGE in TEST_IMAGES; do
+              echo "Deleting image $IMAGE"
+              az acr repository delete --name pdhtestcontainerregistry --image pdhtestcontainerregistry@$IMAGE --yes
             done
 
     #   - name: Delete staging old images
