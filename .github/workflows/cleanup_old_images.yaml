@@ -42,7 +42,7 @@ jobs:
       - name: Delete test old images
         run: |
             IMAGES=$(cat test-images.txt)
-            for IMAGE IMAGES; do
+            for IMAGE in IMAGES; do
             echo "Deleting image $IMAGE"
             az acr repository delete --name pdhtestcontainerregistry --image $IMAGE --yes
             done
