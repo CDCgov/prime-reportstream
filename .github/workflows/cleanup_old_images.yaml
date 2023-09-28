@@ -32,7 +32,7 @@ jobs:
       - name: List test & staging repository images
         id: list-images
         run: |
-          az acr repository show-tags --name pdh${{ matrix.environment }} }}containerregistry.azurecr.io --repository pdh${{ matrix.environment }} }} --orderby time_asc --output table | head -n -2 > container_id.txt
+          az acr repository show-tags --name pdh${{ matrix.environment }}containerregistry.azurecr.io --repository pdh${{ matrix.environment }} --orderby time_asc --output table | head -n -2 > container_id.txt
           cat container_id.txt
          # az acr repository show-tags --name pdhstagingcontainerregistry.azurecr.io --repository pdhstaging --orderby time_asc --output table | head -n -2 >> container_id.txt
           
