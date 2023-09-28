@@ -39,14 +39,18 @@ jobs:
           cat stg-images.txt >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
 
-      - name: Delete test & staging old images
+      - name: Delete test old images
         run: |
-            IMAGES=${{ steps.list-images.outputs.IMAGES }}
-            for IMAGE in test-images.txt; do
+            IMAGES=$(cat test-images.txt)
+            for IMAGE IMAGES; do
             echo "Deleting image $IMAGE"
-            az acr repository delete --name pdhtestcontainerregistry --image pdhtest@$IMAGE --yes
+            az acr repository delete --name pdhtestcontainerregistry --image $IMAGE --yes
             done
-        # for IMAGE in stg-images.txt; do
-        # echo "Deleting image $IMAGE"
-        # az acr repository delete --name pdhstagingcontainerregistry --image pdhstaging@$IMAGE --yes
-        # done
+
+    #   - name: Delete staging old images
+    #     run: |
+    #       IMAGES=$(cat test-images.txt)
+    #       for IMAGE IMAGES; do
+    #       echo "Deleting image $IMAGE"
+    #       az acr repository delete --name pdhtestcontainerregistry --image $IMAGE --yes
+    #       done
