@@ -27,7 +27,7 @@ jobs:
       - name: List test repository images
         id: list-test-images
         run: |
-          az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output json | head -n -2 > test-images.json
+          az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output json | jq -r '.[] | .digest + " " + .lastUpdateTime' | sort -k2 | awk '{print $1}' | head -n -2 > test-images.json
 
     #   - name: List test repository images
     #     id: list-stg-images
