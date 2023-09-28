@@ -148,6 +148,9 @@ export const ReportStreamNavbar = ({
         <Dropdown
             menuName="About"
             dropdownList={[
+                <a href="/about" key="our-network">
+                    About ReportStream
+                </a>,
                 <a href="/about/our-network" key="our-network">
                     Our network
                 </a>,
