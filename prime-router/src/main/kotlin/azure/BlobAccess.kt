@@ -1,11 +1,13 @@
 package gov.cdc.prime.router.azure
 
+import com.azure.core.util.BinaryData
 import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobClientBuilder
 import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.blob.models.BlobErrorCode
 import com.azure.storage.blob.models.BlobStorageException
+import com.azure.storage.blob.models.DownloadRetryOptions
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.Environment
@@ -19,6 +21,7 @@ import java.nio.charset.Charset
 import java.security.MessageDigest
 
 const val defaultBlobContainerName = "reports"
+const val defaultBlobDownloadRetryCount = 5
 
 /**
  * Accessor for Azure blob storage.
@@ -102,6 +105,7 @@ class BlobAccess() : Logging {
                 defaultEnvVar
             )
         }
+        private const val defaultBlobDownloadRetryVar = "AzureBlobDownloadRetryCount"
 
         /**
          * Map of reusable blob containers corresponding with specific blob container Metadata.
@@ -145,6 +149,13 @@ class BlobAccess() : Logging {
         }
 
         /**
+         * Obtain the download retry value from the given environment.
+         */
+        fun getBlobDownloadRetry(blobDownloadRetryVar: String = defaultBlobDownloadRetryVar): Int {
+            return System.getenv(blobDownloadRetryVar)?.toIntOrNull() ?: defaultBlobDownloadRetryCount
+        }
+
+        /**
          * Obtain a client for interacting with the blob store.
          */
         private fun getBlobClient(
@@ -179,21 +190,50 @@ class BlobAccess() : Logging {
         }
 
         /**
-         * Download the blob at the given [blobUrl]
+         * Download the blob at the given [blobUrl] as a ByteArray
          */
-        fun downloadBlob(blobUrl: String, blobConnInfo: BlobContainerMetadata = defaultBlobMetadata): ByteArray {
+        fun downloadBlobAsByteArray(blobUrl: String, 
+                                    blobConnInfo: BlobContainerMetadata = defaultBlobMetadata, 
+                                    retries: Int = getBlobDownloadRetry()): ByteArray {
             val stream = ByteArrayOutputStream()
             logger.debug("BlobAccess Starting download for blobUrl $blobUrl")
-            stream.use { getBlobClient(blobUrl, blobConnInfo).downloadStream(it) }
+            val options = DownloadRetryOptions().setMaxRetryRequests(retries)
+            stream.use {
+                getBlobClient(blobUrl, blobConnInfo).downloadStreamWithResponse(
+                    it,
+                    null,
+                    options,
+                    null,
+                    false,
+                    null,
+                    null
+                )
+            }
             logger.debug("BlobAccess Finished download for blobUrl $blobUrl")
             return stream.toByteArray()
+        }
+
+        /**
+         * Download the blob at the given [blobUrl] as BinaryData
+         */
+        fun downloadBlobAsBinaryData(blobUrl: String, retries: Int = getBlobDownloadRetry()): BinaryData {
+            logger.debug("BlobAccess Starting download for blobUrl $blobUrl")
+            val options = DownloadRetryOptions().setMaxRetryRequests(retries)
+            val binaryData = getBlobClient(blobUrl).downloadContentWithResponse(
+                options,
+                null,
+                null,
+                null
+            ).value
+            logger.debug("BlobAccess Finished download for blobUrl $blobUrl")
+            return binaryData
         }
 
         /**
          * Copy a blob at [fromBlobUrl] to a blob in [toBlobContainer]
          */
         fun copyBlob(fromBlobUrl: String, blobConnInfo: BlobContainerMetadata): String {
-            val fromBytes = downloadBlob(fromBlobUrl)
+            val fromBytes = downloadBlobAsByteArray(fromBlobUrl)
             logger.info("Ready to copy ${fromBytes.size} bytes from $fromBlobUrl")
             val toFilename = BlobInfo.getBlobFilename(fromBlobUrl)
             logger.info("New blob filename will be $toFilename")
