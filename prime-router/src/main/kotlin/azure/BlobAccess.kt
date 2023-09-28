@@ -98,6 +98,7 @@ class BlobAccess() : Logging {
     }
 
     companion object : Logging {
+        private const val defaultBlobDownloadRetryVar = "AzureBlobDownloadRetryCount"
         private val defaultEnvVar = Environment.get().blobEnvVar
         private val defaultBlobMetadata by lazy {
             BlobContainerMetadata.build(
@@ -105,7 +106,8 @@ class BlobAccess() : Logging {
                 defaultEnvVar
             )
         }
-        private const val defaultBlobDownloadRetryVar = "AzureBlobDownloadRetryCount"
+        private val blobDownloadRetryCount = System.getenv(defaultBlobDownloadRetryVar)?.toIntOrNull()
+            ?: defaultBlobDownloadRetryCount
 
         /**
          * Map of reusable blob containers corresponding with specific blob container Metadata.
@@ -149,13 +151,6 @@ class BlobAccess() : Logging {
         }
 
         /**
-         * Obtain the download retry value from the given environment.
-         */
-        fun getBlobDownloadRetry(blobDownloadRetryVar: String = defaultBlobDownloadRetryVar): Int {
-            return System.getenv(blobDownloadRetryVar)?.toIntOrNull() ?: defaultBlobDownloadRetryCount
-        }
-
-        /**
          * Obtain a client for interacting with the blob store.
          */
         private fun getBlobClient(
@@ -192,9 +187,11 @@ class BlobAccess() : Logging {
         /**
          * Download the blob at the given [blobUrl] as a ByteArray
          */
-        fun downloadBlobAsByteArray(blobUrl: String, 
-                                    blobConnInfo: BlobContainerMetadata = defaultBlobMetadata, 
-                                    retries: Int = getBlobDownloadRetry()): ByteArray {
+        fun downloadBlobAsByteArray(
+            blobUrl: String,
+            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
+            retries: Int = blobDownloadRetryCount
+        ): ByteArray {
             val stream = ByteArrayOutputStream()
             logger.debug("BlobAccess Starting download for blobUrl $blobUrl")
             val options = DownloadRetryOptions().setMaxRetryRequests(retries)
@@ -216,10 +213,14 @@ class BlobAccess() : Logging {
         /**
          * Download the blob at the given [blobUrl] as BinaryData
          */
-        fun downloadBlobAsBinaryData(blobUrl: String, retries: Int = getBlobDownloadRetry()): BinaryData {
+        fun downloadBlobAsBinaryData(
+            blobUrl: String,
+            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
+            retries: Int = blobDownloadRetryCount
+        ): BinaryData {
             logger.debug("BlobAccess Starting download for blobUrl $blobUrl")
             val options = DownloadRetryOptions().setMaxRetryRequests(retries)
-            val binaryData = getBlobClient(blobUrl).downloadContentWithResponse(
+            val binaryData = getBlobClient(blobUrl, blobConnInfo).downloadContentWithResponse(
                 options,
                 null,
                 null,
@@ -230,7 +231,7 @@ class BlobAccess() : Logging {
         }
 
         /**
-         * Copy a blob at [fromBlobUrl] to a blob in [toBlobContainer]
+         * Copy a blob at [fromBlobUrl] to a blob in [blobConnInfo]
          */
         fun copyBlob(fromBlobUrl: String, blobConnInfo: BlobContainerMetadata): String {
             val fromBytes = downloadBlobAsByteArray(fromBlobUrl)

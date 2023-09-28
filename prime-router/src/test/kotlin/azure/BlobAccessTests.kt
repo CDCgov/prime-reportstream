@@ -278,7 +278,7 @@ class BlobAccessTests {
         val testFile = BlobAccess.BlobInfo.getBlobFilename(testUrl)
         val testBlobMetadata = BlobAccess.BlobContainerMetadata.build("testcontainer", "testenvvar")
 
-        every { BlobAccess.Companion.downloadBlobAsByteArray(testUrl, any(), any()) }.returns("testblob".toByteArray())
+        every { BlobAccess.Companion.downloadBlobAsByteArray(testUrl) }.returns("testblob".toByteArray())
         every {
             BlobAccess.Companion.uploadBlob(
                 testFile,

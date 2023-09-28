@@ -461,7 +461,7 @@ class FhirFunctionTests {
 
             mockkObject(BlobAccess.Companion)
             mockkObject(Message.Companion)
-            every { BlobAccess.Companion.downloadBlobAsByteArray(any(), any()) } returns hl7_record.toByteArray()
+            every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns hl7_record.toByteArray()
             every {
                 BlobAccess.Companion.uploadBody(
                     any(),
@@ -530,7 +530,7 @@ class FhirFunctionTests {
 
             mockkObject(BlobAccess.Companion)
             mockkObject(Message.Companion)
-            every { BlobAccess.Companion.downloadBlobAsByteArray(any(), any()) } returns hl7_record.toByteArray()
+            every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns hl7_record.toByteArray()
             every {
                 BlobAccess.Companion.uploadBody(
                     any(),
@@ -600,7 +600,7 @@ class FhirFunctionTests {
             val routeFhirBytes =
                 File(VALID_FHIR_PATH).readBytes()
             every {
-                BlobAccess.Companion.downloadBlobAsByteArray(any(), any())
+                BlobAccess.Companion.downloadBlobAsByteArray(any())
             } returns routeFhirBytes
             every {
                 BlobAccess.Companion.uploadBody(
@@ -671,7 +671,7 @@ class FhirFunctionTests {
                 MULTIPLE_TARGETS_FHIR_PATH
             ).readBytes()
             every {
-                BlobAccess.Companion.downloadBlobAsByteArray(any(), any())
+                BlobAccess.Companion.downloadBlobAsByteArray(any())
             } returns translateFhirBytes
             every {
                 BlobAccess.Companion.uploadBody(
