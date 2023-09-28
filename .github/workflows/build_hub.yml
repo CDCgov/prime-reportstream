@@ -141,6 +141,13 @@ jobs:
           echo "/usr/local/bin" >> $GITHUB_PATH
           echo "$(brew --prefix)/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@0ab4596768b603586c0de567f2430c30f5b0d2b0
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: "gradle"
+
       - name: setup-docker
         uses: docker-practice/actions-setup-docker@v1
 
