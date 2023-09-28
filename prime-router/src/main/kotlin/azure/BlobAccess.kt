@@ -24,8 +24,9 @@ const val defaultBlobContainerName = "reports"
  * Accessor for Azure blob storage.
  */
 class BlobAccess() : Logging {
-
-    // Basic info about a blob: its format, url in azure, and its sha256 hash
+    /**
+     * Contains basic info about a Report blob: format, url in Azure, and SHA256 hash
+     */
     data class BlobInfo(
         val format: Report.Format,
         val blobUrl: String,
@@ -54,15 +55,25 @@ class BlobAccess() : Logging {
         }
     }
 
+    /**
+     * Data structure for configuring reusable blob store container access.
+     */
     data class BlobContainerMetadata(
         val containerName: String,
         val connectionString: String
     ) {
         companion object {
+            /**
+             * Builds a [BlobContainerMetadata] object. [envVar] will be resolved to the blobstore connection string.
+             */
             fun build(containerName: String, envVar: String): BlobContainerMetadata {
                 return BlobContainerMetadata(containerName, getBlobConnection(envVar))
             }
 
+            /**
+             * Builds a [BlobContainerMetadata] object. [blobTransport].storageName will be resolved to the blobstore
+             * connection string.
+             */
             fun build(blobTransport: BlobStoreTransportType): BlobContainerMetadata {
                 return BlobContainerMetadata(blobTransport.containerName, getBlobConnection(blobTransport.storageName))
             }
@@ -206,8 +217,8 @@ class BlobAccess() : Logging {
         }
 
         /**
-         * Creates the blob container client for the given blob [name] and connection string
-         * (obtained from the environment variable [blobConnEnvVar]), or reuses an existing one.
+         * Creates the blob container client for the given [blobConnInfo].
+         * If one exists for the container name and connection string, the existing one will be reused.
          * @return the blob container client
          */
         private fun getBlobContainer(blobConnInfo: BlobContainerMetadata): BlobContainerClient {
