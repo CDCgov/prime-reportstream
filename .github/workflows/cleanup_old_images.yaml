@@ -28,19 +28,18 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: List repository images
+      - name: List test & staging repository images
         id: list-images
         run: |
-          REGISTRY_NAME="pdhtestcontainerregistry"
-          IMAGES=$(az acr repository show-tags --name pdhtestcontainerregistry.azurecr.io --repository pdhtest --orderby time_asc --output table | head -n -2)
-          echo "::set-output name=images::$IMAGES"
+          az acr repository show-tags --name pdhtestcontainerregistry.azurecr.io --repository pdhtest --orderby time_asc --output table | head -n -2 > container_id.txt
+          az acr repository show-tags --name pdhstagingcontainerregistry.azurecr.io --repository pdhstaging --orderby time_asc --output table | head -n -2 >> container_id.txt
+          cat container_id.txt
 
-    #   - name: Delete old images
+    #   - name: Delete test & staging old images
     #     run: |
-    #         REGISTRY_NAME="<your-registry-name>"
     #         REPOSITORY_NAME="pdhtest"
     #         IMAGES=${{ steps.list-images.outputs.images }}
-    #         for IMAGE in $IMAGES; do
+    #         for IMAGE in `cat container_id.txt`; do
     #         echo "Deleting image $IMAGE"
     #         az acr repository delete --name $REGISTRY_NAME --image $REPOSITORY_NAME@$IMAGE --yes
     #         done
