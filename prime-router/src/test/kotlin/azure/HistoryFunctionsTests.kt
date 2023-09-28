@@ -131,7 +131,7 @@ class HistoryFunctionsTests {
             reportFile.externalName = "external-name"
 
             mockkObject(BlobAccess.Companion)
-            every { BlobAccess.downloadBlob(reportFile.bodyUrl, any()) } returns "test".toByteArray()
+            every { BlobAccess.downloadBlob(reportFile.bodyUrl) } returns "test".toByteArray()
 
             val context = mockkClass(ExecutionContext::class)
 
@@ -181,7 +181,7 @@ class HistoryFunctionsTests {
             reportFile.schemaName = "default"
 
             mockkObject(BlobAccess.Companion)
-            every { BlobAccess.downloadBlob(parentReportFile.bodyUrl, any()) } returns "test".toByteArray()
+            every { BlobAccess.downloadBlob(parentReportFile.bodyUrl) } returns "test".toByteArray()
 
             val context = mockkClass(ExecutionContext::class)
 
@@ -225,7 +225,7 @@ class HistoryFunctionsTests {
             reportFile.schemaName = "default"
 
             mockkObject(BlobAccess.Companion)
-            every { BlobAccess.downloadBlob(reportFile.bodyUrl, any()) } returns "".toByteArray()
+            every { BlobAccess.downloadBlob(reportFile.bodyUrl) } returns "".toByteArray()
 
             val context = mockkClass(ExecutionContext::class)
 

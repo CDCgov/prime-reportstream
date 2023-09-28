@@ -22,11 +22,12 @@ class BlobStoreTransport() : ITransport {
         val blobTransportType = transportType as BlobStoreTransportType
         val envVar: String = blobTransportType.containerName
         val storageName: String = blobTransportType.storageName
+        val blobInfoType = BlobAccess.BlobContainerMetadata.build(transportType)
         return try {
             val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
             val bodyUrl = header.reportFile.bodyUrl ?: error("Report ${header.reportFile.reportId} has no blob to copy")
             context.logger.info("About to copy $bodyUrl to $envVar:$storageName")
-            var newUrl = BlobAccess.copyBlob(bodyUrl, envVar, storageName)
+            var newUrl = BlobAccess.copyBlob(bodyUrl, blobInfoType)
             val msg = "Successfully copied $bodyUrl to $newUrl"
             context.logger.info(msg)
             actionHistory.trackActionResult(msg)

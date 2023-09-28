@@ -742,7 +742,7 @@ class RoutingTests {
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), any())
+            BlobAccess.Companion.uploadBlob(any(), any(), any())
             accessSpy.insertTask(any(), any(), any(), any(), any())
             FHIRBundleHelpers.addReceivers(any(), any(), any())
         }

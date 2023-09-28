@@ -143,7 +143,7 @@ class BatchFunctionTests {
             every { mockWorkflowEngine.db.insertTask(any(), any(), any(), any(), any()) } returns Unit
             every { mockWorkflowEngine.metadata } returns mockMetadata
             every { mockActionHistory.trackExistingInputReport(any()) } returns Unit
-            every { BlobAccess.Companion.downloadBlob(any(), any()) } returns "somecontent".toByteArray()
+            every { BlobAccess.Companion.downloadBlob(any()) } returns "somecontent".toByteArray()
             every { Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any(), any()) } returns
                 Triple(mockReport, mockEvent, BlobAccess.BlobInfo(Report.Format.HL7, "someurl", "digest".toByteArray()))
             every { HL7MessageHelpers.batchMessages(any(), receiver) } returns "batchstring"
@@ -274,7 +274,7 @@ class BatchFunctionTests {
             every { mockWorkflowEngine.db.insertTask(any(), any(), any(), any(), any()) } returns Unit
             every { mockWorkflowEngine.metadata } returns mockMetadata
             every { mockActionHistory.trackExistingInputReport(any()) } returns Unit
-            every { BlobAccess.Companion.downloadBlob(any(), any()) } returns "somecontent".toByteArray()
+            every { BlobAccess.Companion.downloadBlob(any()) } returns "somecontent".toByteArray()
             every { Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any(), any()) } returns
                 Triple(mockReport, mockEvent, BlobAccess.BlobInfo(Report.Format.HL7, "someurl", "digest".toByteArray()))
             every { FHIRBundleHelpers.batchMessages(any()) } returns "batchstring"
@@ -395,7 +395,7 @@ class BatchFunctionTests {
         every { mockWorkflowEngine.db.insertTask(any(), any(), any(), any(), any()) } returns Unit
         every { mockWorkflowEngine.metadata } returns mockMetadata
         every { mockActionHistory.trackExistingInputReport(any()) } returns Unit
-        every { BlobAccess.Companion.downloadBlob(any(), any()) } returns "somecontent".toByteArray()
+        every { BlobAccess.Companion.downloadBlob(any()) } returns "somecontent".toByteArray()
 
         assertThat { batchFunction.batchUniversalData(headers, mockActionHistory, receiver, mockTxn) }.isFailure()
             .hasClass(java.lang.IllegalStateException::class.java)
