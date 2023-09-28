@@ -27,18 +27,24 @@ jobs:
       - name: List test repository images
         id: list-test-images
         run: |
-          TEST_IMAGES=$(az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2)
-          echo "TEST_IMAGES=$TEST_IMAGES" >> $GITHUB_OUTPUT
+          az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output json | head -n -2 > test-images.json
 
     #   - name: List test repository images
     #     id: list-stg-images
     #     run: |
     #         STG_IMAGES=$(az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2)
     #         echo "STG_IMAGES=$STG_IMAGES" >> $GITHUB_OUTPUT
+      - name: Format output
+        id: format_out
+        run: |
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "TEST_IMAGES<<$EOF" >> $GITHUB_OUTPUT
+          cat test-images.json >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
 
       - name: Delete test old images
         run: |
-          TEST_IMAGES=${{ env.TEST_IMAGES }}
+          TEST_IMAGES=${{ steps.format_out.outputs.TEST_IMAGES }}
             for IMAGE in TEST_IMAGES; do
               echo "Deleting image $IMAGE"
               az acr repository delete --name pdhtestcontainerregistry --image pdhtestcontainerregistry@$IMAGE --yes
