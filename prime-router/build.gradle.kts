@@ -567,6 +567,7 @@ tasks.azureFunctionsRun {
 
     val env = mutableMapOf<String, Any>(
         "AzureWebJobsStorage" to devAzureConnectString,
+        "AzureBlobDownloadRetryCount" to 5,
         "PartnerStorage" to devAzureConnectString,
         "POSTGRES_USER" to dbUser,
         "POSTGRES_PASSWORD" to dbPassword,

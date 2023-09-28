@@ -196,7 +196,7 @@ class SenderFilesFunction(
         return itemsByReport.map { (reportId, senderItems) ->
             val reportFile = dbAccess.fetchReportFile(reportId)
             val blob = try {
-                String(BlobAccess.downloadBlob(reportFile.bodyUrl))
+                String(BlobAccess.downloadBlobAsByteArray(reportFile.bodyUrl))
             } catch (e: IOException) {
                 logger.info("Unable to download $reportId at ${reportFile.bodyUrl}. Details: ${e.message}")
                 notFound("Could not fetch a report file, may have been deleted: $reportId")
