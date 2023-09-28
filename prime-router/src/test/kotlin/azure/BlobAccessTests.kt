@@ -5,11 +5,14 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import assertk.fail
+import com.azure.core.util.BinaryData
 import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobClientBuilder
 import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.BlobServiceClientBuilder
+import com.azure.storage.blob.models.BlobDownloadContentResponse
+import com.azure.storage.blob.models.BlobDownloadResponse
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
@@ -229,8 +232,19 @@ class BlobAccessTests {
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
         val mockedBlobClient = mockkClass(BlobClient::class)
-        every { mockedBlobClient.downloadStream(capture(streamSlot)) } answers
-            { streamSlot.captured.writeBytes("test".toByteArray()) }
+        every {
+            mockedBlobClient.downloadStreamWithResponse(capture(streamSlot), any(), any(), any(), any(), any(), any())
+        } answers
+            {
+                streamSlot.captured.writeBytes("test".toByteArray())
+                mockk<BlobDownloadResponse>()
+            }
+        every { mockedBlobClient.downloadContentWithResponse(any(), any(), any(), any()) } answers
+            {
+                val response = mockk<BlobDownloadContentResponse>()
+                every { response.value } returns BinaryData.fromString("test")
+                response
+            }
         mockkConstructor(BlobClientBuilder::class)
         every { anyConstructed<BlobClientBuilder>().connectionString(any()) } answers
             { BlobClientBuilder() }
@@ -238,12 +252,15 @@ class BlobAccessTests {
             { BlobClientBuilder() }
         every { anyConstructed<BlobClientBuilder>().buildClient() } returns mockedBlobClient
 
-        val result = BlobAccess.downloadBlob(testUrl)
+        val resultByteArray = BlobAccess.downloadBlobAsByteArray(testUrl)
+        val resultBinaryData = BlobAccess.downloadBlobAsBinaryData(testUrl)
+        val expectedResult = "test"
 
-        verify(exactly = 1) { BlobClientBuilder().connectionString(any()) }
-        verify(exactly = 1) { BlobClientBuilder().endpoint(testUrl) }
-        verify(exactly = 1) { BlobClientBuilder().buildClient() }
-        assertThat(result).isEqualTo("test".toByteArray())
+        verify(exactly = 2) { BlobClientBuilder().connectionString(any()) }
+        verify(exactly = 2) { BlobClientBuilder().endpoint(testUrl) }
+        verify(exactly = 2) { BlobClientBuilder().buildClient() }
+        assertThat(resultByteArray).isEqualTo(expectedResult.toByteArray())
+        assertThat(resultBinaryData.toString()).isEqualTo(expectedResult)
     }
 
     @Test
@@ -254,7 +271,7 @@ class BlobAccessTests {
         val testUrl = "http://testurl/testfile"
         val testFile = BlobAccess.BlobInfo.getBlobFilename(testUrl)
 
-        every { BlobAccess.Companion.downloadBlob(testUrl) }.returns("testblob".toByteArray())
+        every { BlobAccess.Companion.downloadBlobAsByteArray(testUrl, any()) }.returns("testblob".toByteArray())
         every {
             BlobAccess.Companion.uploadBlob(
                 testFile,
@@ -266,7 +283,7 @@ class BlobAccessTests {
 
         val result = BlobAccess.copyBlob(testUrl, "testcontainer", "testenvvar")
 
-        verify(exactly = 1) { BlobAccess.Companion.downloadBlob(testUrl) }
+        verify(exactly = 1) { BlobAccess.Companion.downloadBlobAsByteArray(testUrl, any()) }
         verify(exactly = 1) {
             BlobAccess.Companion.uploadBlob(
                 testFile,

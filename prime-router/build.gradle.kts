@@ -567,6 +567,7 @@ tasks.azureFunctionsRun {
 
     val env = mutableMapOf<String, Any>(
         "AzureWebJobsStorage" to devAzureConnectString,
+        "AzureBlobDownloadRetryCount" to 5,
         "PartnerStorage" to devAzureConnectString,
         "POSTGRES_USER" to dbUser,
         "POSTGRES_PASSWORD" to dbPassword,
@@ -821,7 +822,9 @@ dependencies {
     }
     implementation("org.yaml:snakeyaml:2.2")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.4.0")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.8.2")
+    // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:6.8.2")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.3")
@@ -835,7 +838,7 @@ dependencies {
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
     implementation("org.json:json:20230618")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
-    implementation("com.hierynomus:sshj:0.32.0")
+    implementation("com.hierynomus:sshj:0.36.0")
     implementation("com.jcraft:jsch:0.1.55")
     implementation("org.apache.poi:poi:5.2.3")
     implementation("org.apache.commons:commons-csv:1.10.0")
