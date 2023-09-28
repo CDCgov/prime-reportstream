@@ -30,14 +30,6 @@ jobs:
           az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2 > test-images.txt
           az acr repository show-tags --name pdhstagingcontainerregistry --repository pdhstaging --orderby time_asc --output table | head -n -2 > stg-images.txt
           cat test-images.txt
-      - name: Format output
-        id: format_out
-        run: |
-          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "IMAGES<<$EOF" >> $GITHUB_OUTPUT
-          cat test-images.txt >> $GITHUB_OUTPUT
-          cat stg-images.txt >> $GITHUB_OUTPUT
-          echo "$EOF" >> $GITHUB_OUTPUT
 
       - name: Delete test old images
         run: |
