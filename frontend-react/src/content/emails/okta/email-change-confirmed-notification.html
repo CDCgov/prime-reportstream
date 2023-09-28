@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+    <body>
+        <div style="background-color: ${brand.theme.secondaryColor}; margin: 0">
+            <table
+                style="
+                    font-family: &quot;Proxima Nova&quot;,
+                        &quot;Century Gothic&quot;, Arial, Verdana, sans-serif;
+                    font-size: 14px;
+                    color: #5e5e5e;
+                    width: 98%;
+                    max-width: 600px;
+                    float: none;
+                    margin: 0 auto;
+                "
+                border="0"
+                cellpadding="0"
+                cellspacing="0"
+                valign="top"
+                align="left"
+            >
+                <tr align="middle">
+                    <td style="padding-top: 30px; padding-bottom: 32px">
+                        <img src="${brand.theme.logo}" height="37" />
+                    </td>
+                </tr>
+                <tr bgcolor="#ffffff">
+                    <td>
+                        <table
+                            bgcolor="#ffffff"
+                            style="
+                                width: 100%;
+                                line-height: 20px;
+                                padding: 32px;
+                                border: 1px solid;
+                                border-color: #f0f0f0;
+                            "
+                            cellpadding="0"
+                        >
+                            <tr>
+                                <td
+                                    style="
+                                        color: #5e5e5e;
+                                        font-size: 22px;
+                                        line-height: 22px;
+                                    "
+                                >
+                                    ${org.name} - Notice of email address change
+                                </td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="
+                                        padding-top: 24px;
+                                        vertical-align: bottom;
+                                    "
+                                >
+                                    Hi
+                                    $!{StringTool.escapeHtml($!{user.profile.firstName})},
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding-top: 24px">
+                                    A change to your email address was
+                                    confirmed. You will no longer receive email
+                                    from ${org.name} at this address,
+                                    <span id="oldEmail">${oldEmail}</span>; all
+                                    future email will be sent to
+                                    <strong id="newEmail">${newEmail}</strong>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding-top: 24px">
+                                    If you did not make this request, please
+                                    <a
+                                        href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599"
+                                        >submit a service request</a
+                                    >.
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td
+                        style="
+                            font-size: 12px;
+                            padding: 16px 0 30px 50px;
+                            color: #999;
+                        "
+                    >
+                        This is an automatically generated message by
+                        <a href="https://www.okta.com" style="color: #616161"
+                            >Okta</a
+                        >. Replies are not monitored or answered.
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </body>
+</html>

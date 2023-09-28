@@ -37,6 +37,7 @@ import { FacilitiesProvidersWithAuth } from "./components/DataDashboard/Faciliti
 import { FacilityProviderSubmitterDetailsWithAuth } from "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails";
 import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
+import { AdminEmailPreview } from "./pages/admin/AdminEmailPreview";
 
 export const appRoutes: RouteObject[] = [
     /* Public Site */
@@ -437,6 +438,10 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "revisionhistory/org/:org/settingtype/:settingType",
                         element: <AdminRevHistoryWithAuth />,
+                    },
+                    {
+                        path: "email-preview",
+                        element: <AdminEmailPreview />,
                     },
                 ],
             },

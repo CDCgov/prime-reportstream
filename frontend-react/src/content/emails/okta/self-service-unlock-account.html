@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+<div style="background-color: ${brand.theme.secondaryColor}; margin: 0">
+    <table style="font-family: 'Proxima Nova', 'Century Gothic', Arial, Verdana, sans-serif; font-size: 14px; color: #5e5e5e; width:98%; max-width: 600px; float: none; margin: 0 auto;" border="0" cellpadding="0" cellspacing="0" valign="top" align="left">
+        <tr align="middle"><td style="padding-top: 30px; padding-bottom: 32px;"><img src="${brand.theme.logo}" height="37"></td></tr>
+        <tr bgcolor="#ffffff"><td>
+            <table bgcolor="#ffffff" style="width: 100%; line-height: 20px; padding: 32px; border: 1px solid; border-color: #f0f0f0;" cellpadding="0">
+                <tr>
+                    <td style="color: #5e5e5e; font-size: 22px; line-height: 22px;">
+                        ${org.name} - Okta Verify Push Registration
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding-top: 24px; vertical-align: bottom;">Hi $!{StringTool.escapeHtml($!{user.profile.firstName})},</td>
+                </tr>
+                <tr>
+                    <td style="padding-top: 24px;">
+                        Your organization is using Okta Verify Push for multi factor authentication.
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding-top: 24px;">
+                        Click the following link from your mobile device to activate Okta Verify Push for your Okta account, ${user.profile.login}:
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center">
+                        <table border="0" cellpadding="0" cellspacing="0" valign="top">
+                            <tr>
+                                <td align="center" style="height: 32px; padding-top: 24px; padding-bottom: 8px;"><a id="push-verify-activation-link" href="${pushVerifyActivationLink}?fromURI=https://staging.reportstream.cdc.gov/login" style="text-decoration: none;"><span style="padding: 9px 32px 7px 31px; border: 1px solid; text-align: center; cursor: pointer; color: #fff; border-radius: 3px; background-color: ${brand.theme.primaryColor}; border-color: ${brand.theme.primaryColor}; box-shadow: ${brand.theme.primaryColor} 0 1px 0;">Activate Okta Verify Push</span></a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="center" style="color: #999;">
+                                    This link expires in ${expiryTimeString}.
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding-top: 24px;">
+                        If you experience difficulties accessing your account, please <a href="https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599">submit a service request</a>.
+                    </td>
+                </tr>
+            </table>
+        </td></tr>
+        <tr>
+            <td align="center" style="font-size: 12px; padding-top: 32px;">
+                    Download Okta Verify Push for iOS or Android:
+            </td>
+        </tr>
+        <tr>
+            <td align="center" style="font-size: 12px; padding: 16px 0 32px 0;">
+                    <a href="https://itunes.apple.com/us/app/okta-mobile/id580709251"><img src="${baseURL}/assets/img/icons/enduser/AppleIcon_Active.png" height="20"></a>
+                    &nbsp;&nbsp;&nbsp;
+                    <a href="https://play.google.com/store/apps/details?id=com.okta.android.mobile.oktamobile"><img src="${baseURL}/assets/img/icons/enduser/AndroidIcon_Active.png" height="20"></a>
+            </td>
+        </tr>
+        <tr><td><hr  class="space" style="border-width: 0; border-top: #d9d9d9 solid 1px; margin: 0 40px;"></hr></td></tr>
+        <tr>
+            <td style="font-size: 12px; padding: 24px 0 30px 50px; color: #999;">
+                This is an automatically generated message from <a href="https://www.okta.com" style="color: rgb(97,97,97);">Okta</a>. Replies are not monitored or answered.
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>
