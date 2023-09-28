@@ -2,6 +2,7 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import assertk.fail
@@ -15,6 +16,7 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.common.Environment
 import io.mockk.CapturingSlot
 import io.mockk.every
 import io.mockk.mockk
@@ -319,5 +321,31 @@ class BlobAccessTests {
 
         verify(exactly = 1) { BlobServiceClientBuilder().connectionString("testconnection") }
         verify(exactly = 1) { BlobServiceClientBuilder().buildClient() }
+    }
+
+    @Test
+    fun `check alternate environment access`() {
+        val testUrl = "http://blobexists"
+        val defaultEnvVar = Environment.get().blobEnvVar
+        val testEnvVar = "testenv"
+        val testContainer = "testcontainer"
+
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(defaultEnvVar) } returns "defaultconnection"
+        every { BlobAccess.Companion.getBlobConnection(testEnvVar) } returns "testconnection"
+
+        val defaultBlobMetadata = BlobAccess.BlobContainerMetadata.build(testContainer, defaultEnvVar)
+        val testBlobMetadata = BlobAccess.BlobContainerMetadata.build(testContainer, testEnvVar)
+
+        every { BlobAccess.exists(any(), defaultBlobMetadata) } returns true
+        every { BlobAccess.exists(any(), testBlobMetadata) } returns false
+
+        assertThat(defaultBlobMetadata.connectionString).isEqualTo("defaultconnection")
+        assertThat(testBlobMetadata.connectionString).isEqualTo("testconnection")
+        val result = BlobAccess.exists(testUrl, defaultBlobMetadata)
+        val result2 = BlobAccess.exists(testUrl, testBlobMetadata)
+        assertThat(result).isTrue()
+        assertThat(result2).isFalse()
     }
 }
