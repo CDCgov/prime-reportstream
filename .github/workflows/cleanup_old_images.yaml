@@ -11,13 +11,14 @@ on:
 jobs:
   cleanup:
     runs-on: ubuntu-latest
+    env:
+        ENVIRONMENT: ${{ matrix.environment }}
+    strategy:
+        matrix:
+          environment: [test, staging]
     steps:
       - name: "Check out changes"
         uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
-
-      - name: Get runner ip
-        id: runner_ip
-        uses: ./.github/actions/runner-ip
 
       - name: Connect to VPN & Login into Azure
         uses: ./.github/actions/vpn-azure
@@ -31,15 +32,15 @@ jobs:
       - name: List test & staging repository images
         id: list-images
         run: |
-          az acr repository show-tags --name pdhtestcontainerregistry.azurecr.io --repository pdhtest --orderby time_asc --output table | head -n -2 > container_id.txt
-          az acr repository show-tags --name pdhstagingcontainerregistry.azurecr.io --repository pdhstaging --orderby time_asc --output table | head -n -2 >> container_id.txt
+          az acr repository show-tags --name pdh${{ matrix.environment }} }}containerregistry.azurecr.io --repository pdh${{ matrix.environment }} }} --orderby time_asc --output table | head -n -2 > container_id.txt
+         # az acr repository show-tags --name pdhstagingcontainerregistry.azurecr.io --repository pdhstaging --orderby time_asc --output table | head -n -2 >> container_id.txt
           cat container_id.txt
 
     #   - name: Delete test & staging old images
     #     run: |
     #         REPOSITORY_NAME="pdhtest"
-    #         IMAGES=${{ steps.list-images.outputs.images }}
+    #         IMAGES=${{ steps.list-images.outputs.LIST }}
     #         for IMAGE in `cat container_id.txt`; do
     #         echo "Deleting image $IMAGE"
-    #         az acr repository delete --name $REGISTRY_NAME --image $REPOSITORY_NAME@$IMAGE --yes
+    #         az acr repository delete --name $REGISTRY_NAME --image pdhtest@$IMAGE --yes
     #         done
