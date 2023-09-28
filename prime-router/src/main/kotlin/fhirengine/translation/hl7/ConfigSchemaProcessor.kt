@@ -109,11 +109,12 @@ abstract class ConfigSchemaProcessor : Logging {
         element: ConfigSchemaElement,
         bundle: Bundle,
         focusResource: Base,
+        contextResource: Base,
         context: CustomContext
     ): Boolean {
         return element.condition?.let {
             try {
-                FhirPathUtils.evaluateCondition(context, focusResource, bundle, it)
+                FhirPathUtils.evaluateCondition(context, focusResource, contextResource, bundle, it)
             } catch (e: SchemaException) {
                 logger.warn(
                     "Condition for element ${element.name} did not evaluate to a boolean type, " +
