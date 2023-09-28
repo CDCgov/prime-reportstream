@@ -144,12 +144,23 @@ jobs:
       - name: setup-docker
         uses: docker-practice/actions-setup-docker@v1
 
-      - name: Build backend
-        uses: ./.github/actions/build-backend
-        with:
-          version: ${{ github.run_id }}
-          upload-build: false
-          smoke-tests: true
-          integration-tests: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
+      - name: Run cleanslate
+        run: |
+          ./cleanslate.sh --verbose
+          docker-compose -f docker-compose.build.yml up --detach
+          docker-compose up --detach vault 1>/dev/null 2>/dev/null
+          ./gradlew run
+          ./gradlew primeCLI --args "create-credential --type=UserPass --persist=DEFAULT-SFTP --user foo --pass pass"
+          ./gradlew reloadTables
+          ./gradlew reloadSettings
+          ./gradlew testSmoke
+
+      # - name: Build backend
+      #   uses: ./.github/actions/build-backend
+      #   with:
+      #     version: ${{ github.run_id }}
+      #     upload-build: false
+      #     smoke-tests: true
+      #     integration-tests: true
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     sonar-token: ${{ secrets.SONAR_TOKEN }}

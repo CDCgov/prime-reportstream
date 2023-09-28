@@ -90,12 +90,12 @@ elements:
     hl7Spec: [ '%{hl7SpecimenFieldPath}-14' ]
 
   - name: specimen-collection-time
-    condition: '%resource.collection.collected is dateTime'
+    condition: '%resource.collection.collected.exists() and %resource.collection.collected is dateTime'
     value: [ '%resource.collection.collected' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
 
   - name: specimen-observation-date-time-start
-    condition: '%resource.collection.collected is Period'
+    condition: '%resource.collection.collected.exists() and %resource.collection.collected is Period'
     value: [ '%resource.collection.collected.start' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
 
@@ -106,12 +106,12 @@ elements:
     hl7Spec: [ '%{hl7SpecimenFieldPath}-17-1' ]
 
   - name: specimen-observation-date-time-end
-    condition: '%resource.collection.collected is Period'
+    condition: '%resource.collection.collected.exists() and %resource.collection.collected is Period'
     value: [ '%resource.collection.collected.end' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-17-2' ]
 
   - name: specimen-received-time
-    condition: '%resource.receivedTime is dateTime'
+    condition: '%resource.receivedTime.exists() and %resource.receivedTime is dateTime'
     value: [ '%resource.receivedTime' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-18' ]
 
@@ -140,7 +140,7 @@ elements:
 
   - name: specimen-observation-result-with-aoe
     resource: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id)'
-    schema: observation-result
+    schema: ../../common/observation-result
     resourceIndex: specimenObservationIndex
     constants:
       hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{specimenIndex})/SPECIMEN_OBSERVATION'
