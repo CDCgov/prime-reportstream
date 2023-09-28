@@ -74,6 +74,20 @@ endpoint_4:
   constants:
     oidUrlPrefix: "urn:uri:"
 
+endpoint_5:
+  condition: $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI
+  expressionType: resource
+  valueOf: dataType/Endpoint
+  vars:
+    systemStr: String, HD.3
+
+endpoint_6:
+  condition: $systemStr NULL
+  expressionType: resource
+  valueOf: dataType/Endpoint
+  vars:
+    systemStr: String, HD.3
+
 version:
   type: STRING
   valueOf: SFT.2
@@ -125,3 +139,13 @@ extension_4:
       valueOf: resource/Organization
       expressionType: reference
       specs: SFT.1
+
+#extension_5:
+#  generateList: true
+#  expressionType: nested
+#  expressionsMap:
+#    url:
+#      type: SYSTEM_URL
+#      value: "data-absent-reason"
+#    valueCode:
+#      value: "unknown"

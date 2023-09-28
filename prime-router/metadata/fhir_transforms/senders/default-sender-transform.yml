@@ -9,7 +9,7 @@ elements:
     condition: true
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     bundleProperty: '%resource.source.name'
-    value: [ '"CDC PRIME - Atlanta: 2.16.840.1.114222.4.1.237821"' ]
+    value: [ '"CDC PRIME - Atlanta"' ]
 
   - name: sending-application-universal-id
     condition: true

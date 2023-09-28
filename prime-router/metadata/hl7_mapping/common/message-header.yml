@@ -4,27 +4,33 @@ elements:
     value: [ '%resource.extension(%`rsext-encoding-characters`).value' ]
     hl7Spec: [ MSH-2 ]
 
-  - name: sending-application-namespace-id-no-endpoint
-    value: [ '%resource.source.name.split(":").first()' ]
+  - name: sending-application-namespace-id-universal-id-type-known
+    condition: '%resource.source.endpoint.ofType(Url).exists()'
+    value: [ '%resource.source.name' ]
     hl7Spec: [ MSH-3-1 ]
 
-  - name: sending-application-universal-id-with-endpoint
-    condition: '%resource.source.endpoint.exists()'
+  - name: sending-application-namespace-id-universal-id-type-unknown
+    condition: '%resource.source.endpoint.where(extension(%`rsext-data-absent-reason`).value = "unknown").exists()'
+    value: [ '%resource.source.name.split("-").first()' ]
+    hl7Spec: [ MSH-3-1 ]
+
+  - name: sending-application-universal-id-universal-id-type-known
+    condition: '%resource.source.endpoint.ofType(Url).exists()'
     value: [ '%resource.source.endpoint.getId()' ]
     hl7Spec: [ MSH-3-2 ]
 
-  - name: sending-application-universal-id-no-endpoint
-    condition: '%resource.source.endpoint.exists().not() and %resource.source.name.contains(":")'
+  - name: sending-application-universal-id-universal-id-type-unknown
+    condition: '%resource.source.endpoint.where(extension(%`rsext-data-absent-reason`).value = "unknown").exists()'
     value: [ '%resource.source.name.split(":").last()' ]
     hl7Spec: [ MSH-3-2 ]
 
-  - name: sending-application-universal-id-type-with-endpoint
-    condition: '%resource.source.endpoint.exists()'
+  - name: sending-application-universal-id-type-universal-id-type-known
+    condition: '%resource.source.endpoint.ofType(Url).exists()'
     value: [ '%resource.source.endpoint.getIdType()' ]
     hl7Spec: [ MSH-3-3 ]
 
-  - name: sending-application-universal-id-type-no-endpoint
-    condition: '%resource.source.endpoint.exists().not() and %resource.source.name.contains(":")'
+  - name: sending-application-universal-id-type-universal-id-type-unknown
+    condition: '%resource.source.endpoint.where(extension(%`rsext-data-absent-reason`).value = "unknown").exists()'
     value: [ '%resource.source.name.split("-").last().split(":").first()' ]
     hl7Spec: [ MSH-3-3 ]
 
