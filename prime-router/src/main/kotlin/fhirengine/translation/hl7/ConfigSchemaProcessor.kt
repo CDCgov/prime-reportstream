@@ -117,7 +117,7 @@ abstract class ConfigSchemaProcessor : Logging {
             } catch (e: SchemaException) {
                 logger.warn(
                     "Condition for element ${element.name} did not evaluate to a boolean type, " +
-                        "so the condition failed."
+                        "so the condition failed. ${e.message}"
                 )
                 false
             }
