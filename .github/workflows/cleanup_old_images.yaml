@@ -32,7 +32,7 @@ jobs:
         id: list-images
         run: |
           REGISTRY_NAME="pdhtestcontainerregistry"
-          IMAGES=$(az acr repository show-tags --name pdhtestcontainerregistry.azurecr.io --repository pdhtest --orderby time_asc --output table)
+          IMAGES=$(az acr repository show-tags --name pdhtestcontainerregistry.azurecr.io --repository pdhtest --orderby time_asc --output table | head -n -2)
           echo "::set-output name=images::$IMAGES"
 
     #   - name: Delete old images
