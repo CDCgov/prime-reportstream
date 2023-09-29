@@ -38,7 +38,7 @@ We want to be able to access both the initial observation (`'%diagnostic.result[
 the resource that is the result of this condition 
 `%resource.result.resolve() | %service.supportingInfo.resolve().where(specimen.exists().not())`. 
 However, to do this, we are needing to set the observation constant to the value of the 
-contezt resource. This is a problematic workaround because this piece of code isn't actually working how you might 
+context resource. This is a problematic workaround because this piece of code isn't actually working how you might 
 expect it to. Currently, if there are 5 items in`%resource.result.resolve()` and 2 items in 
 `%service.supportingInfo.resolve().where(specimen.exists().not())`, the 
 `resourceIndex` will go up to 7. The `observation` expression will be invalid when `resultIndex` is 6 or 7 since
