@@ -38,7 +38,7 @@ data class CustomContext(
 
         /**
          * Add [constants] to a context.
-         * @return a new context with the [constants] added or the existing context of no new constants are specified
+         * @return a new context with the [constants] added or the existing context if no new constants are specified
          */
         fun addConstants(constants: Map<String, String>, previousContext: CustomContext): CustomContext {
             return if (constants.isEmpty()) previousContext
