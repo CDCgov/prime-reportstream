@@ -26,6 +26,7 @@ runs:
         echo "TERRAFORM_ENV=demo1" >> $GITHUB_ENV
         echo "ACR_NAME=pdhdemo1containerregistry.azurecr.io" >> $GITHUB_ENV
         echo "IMAGE_REPO=pdhdemo1" >> $GITHUB_ENV
+        echo "IMAGE_SWAGGER_UI_REPO=swaggeruiapidocsstg" >> $GITHUB_ENV
         echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
         echo "FUNCTION_APP=pdhdemo1-functionapp" >> $GITHUB_ENV
 
@@ -70,6 +71,7 @@ runs:
         echo "TERRAFORM_ENV=staging" >> $GITHUB_ENV
         echo "ACR_NAME=pdhstagingcontainerregistry.azurecr.io" >> $GITHUB_ENV
         echo "IMAGE_REPO=pdhstaging" >> $GITHUB_ENV
+        echo "IMAGE_SWAGGER_UI_REPO=swaggeruiapidocsstg" >> $GITHUB_ENV
         echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
         #echo "KEY_VAULT=pdhstaging-keyvault" >> $GITHUB_ENV
         #echo "KEY_NAME=pdhstaging-code-sign" >> $GITHUB_ENV
@@ -100,6 +102,14 @@ runs:
       working-directory: prime-router
       run: tar -zxvf prime-router-build.tar.gz
       shell: bash
+
+    - name: Upload Swagger UI (APIDocs staging only)
+      if: inputs.env-name == 'staging' || inputs.env-name == 'demo1'
+      shell: bash
+      working-directory: prime-router
+      run: |
+        az storage blob delete-batch --account-name ${{ env.IMAGE_SWAGGER_UI_REPO }} -s '$web'
+        az storage blob upload-batch --account-name ${{ env.IMAGE_SWAGGER_UI_REPO }} -s ./build/swagger-ui -d '$web'
 
     - name: ACR login
       working-directory: prime-router
