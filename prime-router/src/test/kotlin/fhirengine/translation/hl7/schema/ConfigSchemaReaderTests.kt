@@ -409,7 +409,7 @@ class ConfigSchemaReaderTests {
     @Test
     fun `reads a file with an azure protocol`() {
         mockkObject(BlobAccess.Companion)
-        every { BlobAccess.downloadBlob(any()) } returns File(
+        every { BlobAccess.downloadBlobAsByteArray(any(), any()) } returns File(
             "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-07",
             "ORU_R01.yml"
         ).readBytes()
