@@ -92,6 +92,13 @@ export const appRoutes: RouteObject[] = [
                             isContentPage: true,
                         },
                     },
+                    {
+                        path: "case-studies",
+                        lazy: lazyRouteMarkdown("content/about/case-studies"),
+                        handle: {
+                            isContentPage: true,
+                        },
+                    },
                 ],
             },
             {
