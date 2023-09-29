@@ -25,15 +25,18 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.fhirengine.utils.addProvenanceReference
 import gov.cdc.prime.router.fhirengine.utils.addReceivers
 import gov.cdc.prime.router.fhirengine.utils.deleteChildlessResource
 import gov.cdc.prime.router.fhirengine.utils.deleteResource
+import gov.cdc.prime.router.fhirengine.utils.enhanceBundleMetadata
 import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.fhirengine.utils.getDiagnosticReportNoObservations
 import gov.cdc.prime.router.fhirengine.utils.getObservationExtensions
 import gov.cdc.prime.router.fhirengine.utils.getResourceProperties
 import gov.cdc.prime.router.fhirengine.utils.getResourceReferences
+import gov.cdc.prime.router.fhirengine.utils.handleBirthTime
 import gov.cdc.prime.router.fhirengine.utils.removePHI
 import io.mockk.clearAllMocks
 import io.mockk.mockkClass
@@ -689,5 +692,137 @@ class FHIRBundleHelpersTests {
         assertThat(patient.deceased).isNull()
         assertThat(patient.identifier).isEmpty()
         assertThat(patient.contact).isEmpty()
+    }
+
+    @Test
+    fun `Test birth date time`() {
+        // set up
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/fhir_without_birth_time.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        assertThat(bundle).isNotNull()
+
+        // create the hl7 reader
+        val hl7Reader = HL7Reader(actionLogger)
+        // get the hl7 from the blob store
+        val hl7Message = File("src/test/resources/fhirengine/engine/hl7_with_birth_time.hl7").readText()
+        val hl7messages = hl7Reader.getMessages(hl7Message)
+
+        bundle.handleBirthTime(hl7messages[0])
+
+        val patient = FhirPathUtils.evaluate(
+            CustomContext(bundle, bundle),
+            bundle,
+            bundle,
+            "Bundle.entry.resource.ofType(Patient)"
+        )[0] as Patient
+
+        assertThat(patient).isNotNull()
+        val birthDateTimeValue = patient.birthDateElement.extension[0].value.primitiveValue()
+        assertThat(
+            birthDateTimeValue
+        ).isEqualTo("2023-05-04T13:10:23-05:00")
+    }
+
+    @Test
+    fun `Test birth date time no patient`() {
+        // set up
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/fhir_without_patient.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        assertThat(bundle).isNotNull()
+
+        // create the hl7 reader
+        val hl7Reader = HL7Reader(actionLogger)
+        // get the hl7 from the blob store
+        val hl7Message = File("src/test/resources/fhirengine/engine/hl7_with_birth_time.hl7").readText()
+        val hl7messages = hl7Reader.getMessages(hl7Message)
+
+        bundle.handleBirthTime(hl7messages[0])
+
+        val patient = FhirPathUtils.evaluate(
+            CustomContext(bundle, bundle),
+            bundle,
+            bundle,
+            "Bundle.entry.resource.ofType(Patient)"
+        )[0] as Patient
+
+        assertThat(patient).isNotNull()
+        val birthDateTimeValue = patient.birthDateElement.extension[0].value.primitiveValue()
+        assertThat(
+            birthDateTimeValue
+        ).isEqualTo("2023-05-04T13:10:23-05:00")
+    }
+
+    @Test
+    fun `Test enhance bundle metadata 2-5-1`() {
+        // set up
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/fhir_without_patient.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        assertThat(bundle).isNotNull()
+
+        // create the hl7 reader
+        val hl7Reader = HL7Reader(actionLogger)
+        // get the hl7 from the blob store
+        val hl7Message = File("src/test/resources/fhirengine/engine/hl7_with_birth_time.hl7").readText()
+        val hl7messages = hl7Reader.getMessages(hl7Message)
+
+        bundle.enhanceBundleMetadata(hl7messages[0])
+
+        assertThat(bundle.timestamp.toString()).isEqualTo("Wed Feb 10 17:07:37 PST 2021")
+        assertThat(bundle.identifier.value).isEqualTo("371784")
+        assertThat(bundle.identifier.system).isEqualTo("https://reportstream.cdc.gov/prime-router")
+    }
+
+    @Test
+    fun `Test enhance bundle metadata 2-7`() {
+        // set up
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/fhir_without_patient.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        assertThat(bundle).isNotNull()
+
+        // create the hl7 reader
+        val hl7Reader = HL7Reader(actionLogger)
+        // get the hl7 from the blob store
+        val hl7Message = File("src/test/resources/fhirengine/engine/hl7_2.7.hl7").readText()
+        val hl7messages = hl7Reader.getMessages(hl7Message)
+
+        bundle.enhanceBundleMetadata(hl7messages[0])
+
+        assertThat(bundle.timestamp.toString()).isEqualTo("Wed Feb 10 17:07:37 PST 2021")
+        assertThat(bundle.identifier.value).isEqualTo("371785")
+        assertThat(bundle.identifier.system).isEqualTo("https://reportstream.cdc.gov/prime-router")
+    }
+
+    @Test
+    fun `Test enhance bundle metadata 2-6`() {
+        // set up
+        val actionLogger = ActionLogger()
+        val fhirBundle = File("src/test/resources/fhirengine/engine/fhir_without_patient.fhir").readText()
+        val messages = FhirTranscoder.getBundles(fhirBundle, actionLogger)
+        assertThat(messages).isNotEmpty()
+        val bundle = messages[0]
+        assertThat(bundle).isNotNull()
+
+        // create the hl7 reader
+        val hl7Reader = HL7Reader(actionLogger)
+        // get the hl7 from the blob store
+        val hl7Message = File("src/test/resources/fhirengine/engine/hl7_2.6.hl7").readText()
+        val hl7messages = hl7Reader.getMessages(hl7Message)
+
+        bundle.enhanceBundleMetadata(hl7messages[0])
+
+        assertThat(bundle.identifier.value).isNull()
+        assertThat(bundle.identifier.system).isEqualTo("https://reportstream.cdc.gov/prime-router")
     }
 }
