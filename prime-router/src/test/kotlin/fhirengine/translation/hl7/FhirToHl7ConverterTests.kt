@@ -55,16 +55,16 @@ class FhirToHl7ConverterTests {
         val converter = FhirToHl7Converter(mockSchema, terser = mockTerser)
 
         var element = ConverterSchemaElement("name")
-        assertThat(converter.canEvaluate(element, bundle, bundle, customContext)).isTrue()
+        assertThat(converter.canEvaluate(element, bundle, bundle, bundle, customContext)).isTrue()
 
         element = ConverterSchemaElement("name", condition = "Bundle.id.exists()")
-        assertThat(converter.canEvaluate(element, bundle, bundle, customContext)).isTrue()
+        assertThat(converter.canEvaluate(element, bundle, bundle, bundle, customContext)).isTrue()
 
         element = ConverterSchemaElement("name", condition = "Bundle.id = 'someothervalue'")
-        assertThat(converter.canEvaluate(element, bundle, bundle, customContext)).isFalse()
+        assertThat(converter.canEvaluate(element, bundle, bundle, bundle, customContext)).isFalse()
 
         element = ConverterSchemaElement("name", condition = "Bundle.id")
-        assertThat(converter.canEvaluate(element, bundle, bundle, customContext)).isFalse()
+        assertThat(converter.canEvaluate(element, bundle, bundle, bundle, customContext)).isFalse()
     }
 
     @Test
@@ -355,6 +355,35 @@ class FhirToHl7ConverterTests {
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION(0)/OBX-1", any())
             mockTerser.set("/PATIENT_RESULT/ORDER_OBSERVATION(1)/OBX-1", any())
         }
+    }
+
+    @Test
+    fun `test context constant`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val messageHeader = MessageHeader()
+        val source = MessageHeader.MessageSourceComponent()
+        source.name = "Epic"
+        messageHeader.source = source
+        val servRequest1 = ServiceRequest()
+        servRequest1.id = "def456"
+        bundle.addEntry().resource = servRequest1
+        bundle.addEntry().resource = messageHeader
+
+        val element = ConverterSchemaElement(
+            "name",
+            resource = "Bundle.entry.resource.ofType(MessageHeader).source.name",
+            condition = "%context.entry.resource.ofType(ServiceRequest).id='def456'",
+            value = listOf("%resource"),
+            hl7Spec = listOf("MSH-3-1")
+        )
+        val schema = ConverterSchema(
+            hl7Class = "ca.uhn.hl7v2.model.v27.message.ORU_R01",
+            elements = listOf(element).toMutableList()
+        )
+        val converter = FhirToHl7Converter(schema)
+        val message = converter.convert(bundle)
+        assertThat(Terser(message).get("MSH-3-1")).isEqualTo("Epic")
     }
 
     @Test
