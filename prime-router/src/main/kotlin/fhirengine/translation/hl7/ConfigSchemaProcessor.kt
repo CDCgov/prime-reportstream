@@ -102,18 +102,19 @@ abstract class ConfigSchemaProcessor : Logging {
     }
 
     /**
-     * Test if an [element] can be evaluated based on the [element]'s condition.  Use the [bundle] and [focusResource] * to evaluate the condition expression.
+     * Test if an [element] can be evaluated based on the [element]'s condition.  Use the [bundle], [schemaResource] and [focusResource] * to evaluate the condition expression.
      * @return true if the condition expression evaluates to a boolean or if the condition expression is empty, false otherwise
      */
     internal fun canEvaluate(
         element: ConfigSchemaElement,
         bundle: Bundle,
         focusResource: Base,
+        schemaResource: Base,
         context: CustomContext
     ): Boolean {
         return element.condition?.let {
             try {
-                FhirPathUtils.evaluateCondition(context, focusResource, bundle, it)
+                FhirPathUtils.evaluateCondition(context, focusResource, schemaResource, bundle, it)
             } catch (e: SchemaException) {
                 logger.warn(
                     "Condition for element ${element.name} did not evaluate to a boolean type, " +

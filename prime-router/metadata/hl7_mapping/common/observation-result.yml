@@ -212,7 +212,7 @@ elements:
     resourceIndex: contactIndex
 
   - name: observation-note
-    condition: '%observation.note.exists()'
+    condition: '%context.note.exists()'
     resource: '%resource.note.text.split(''\n'')'
     schema: note
     resourceIndex: noteIndex
