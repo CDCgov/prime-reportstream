@@ -17,7 +17,7 @@ import gov.cdc.prime.router.tokens.authorizationFailure
 import org.apache.logging.log4j.kotlin.Logging
 
 /*
- * Organization Settings API
+ * Settings API
  */
 class SettingsFunction(
     settingsFacade: SettingsFacade = SettingsFacade.common
