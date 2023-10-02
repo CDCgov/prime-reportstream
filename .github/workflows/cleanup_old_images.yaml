@@ -48,51 +48,27 @@ jobs:
                 echo "File not found: $IMAGE_FILE"
           fi
 
-      - name: List test repository images
+      - name: List staging repository images
         id: list-stg-images
         run: |
-          az acr login --name pdhtestcontainerregistry
-          az acr repository show-tags --name pdhstagingcontainerregistry --repository pdhstaging --orderby time_asc --output table | head -n -2 > stg-images.txt
+          az acr login --name pdhstagingcontainerregistry
+          az acr repository show-tags --name pdhstagingcontainerregistry --repository pdhstaging --orderby time_asc --output table | head -n -10 > stg-images.txt
           sed -i '1,2d' stg-images.txt
           cat stg-images.txt
 
-      # - name: Delete old images in TEST env
-      #   env:
-      #     IMAGE_FILE: test-images.txt  
-      #   run: |
-      #     if [ -e "$IMAGE_FILE" ]; then
-      #       while IFS= read -r image_id; do
-      #           az acr repository delete --name pdhstagingcontainerregistry --image pdhstaging:$image_id --yes
-      #           if [ $? -eq 0 ]; then
-      #               echo "Deleted image: pdhstagingcontainerregistry:$image_id"
-      #           else
-      #               echo "Failed to delete image: pdhstagingcontainerregistry:$image_id"
-      #           fi
-      #       done < "$IMAGE_FILE"
-      #         else
-      #           echo "File not found: $IMAGE_FILE"
-      #     fi
-
-
-
-
-            
-    # TEST_IMAGES=${{ steps.format_out.outputs.TEST_IMAGES }}
-    #   for IMAGE in ${TEST_IMAGES}; do
-    #     echo "Deleting image $IMAGE"
-    #     az acr repository delete --name pdhtestcontainerregistry --image pdhtestcontainerregistry@$IMAGE --yes
-    #   done
-
-    #   IFS=$'\n' read -d '' -r -a IMAGES <<< "${TEST_IMAGES}"
-    #   for IMAGE in "${IMAGES[@]}"; do
-    #     echo "Deleting image $IMAGE"
-    #     az acr repository delete --name pdhtestcontainerregistry --image pdhtestcontainerregistry@$IMAGE --yes
-    #   done
-
-    #   - name: Delete staging old images
-    #     run: |
-    #       IMAGES=$(cat test-images.txt)
-    #       for IMAGE IMAGES; do
-    #       echo "Deleting image $IMAGE"
-    #       az acr repository delete --name pdhtestcontainerregistry --image $IMAGE --yes
-    #       done
+      - name: Delete old images in Staging env
+        env:
+          STG_FILE: stg-images.txt  
+        run: |
+          if [ -e "$IMAGE_FILE" ]; then
+            while IFS= read -r image_id; do
+                az acr repository delete --name pdhstagingcontainerregistry --image pdhstaging:$image_id --yes
+                if [ $? -eq 0 ]; then
+                    echo "Deleted image: pdhstagingcontainerregistry:$image_id"
+                else
+                    echo "Failed to delete image: pdhstagingcontainerregistry:$image_id"
+                fi
+            done < "$IMAGE_FILE"
+              else
+                echo "File not found: $IMAGE_FILE"
+          fi
