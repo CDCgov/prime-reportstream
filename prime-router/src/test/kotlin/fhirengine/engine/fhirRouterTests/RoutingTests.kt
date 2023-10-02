@@ -932,7 +932,9 @@ class RoutingTests {
         )
 
         val nonBooleanMsg = "Condition did not evaluate to a boolean type"
-        every { FhirPathUtils.evaluateCondition(any(), any(), any(), any()) } throws SchemaException(nonBooleanMsg)
+        every { FhirPathUtils.evaluateCondition(any(), any(), any(), any(), any()) } throws SchemaException(
+            nonBooleanMsg
+        )
 
         // act
         accessSpy.transact { txn ->
@@ -1254,7 +1256,9 @@ class RoutingTests {
 
         val nonBooleanMsg = "Condition did not evaluate to a boolean type"
         mockkObject(FhirPathUtils)
-        every { FhirPathUtils.evaluateCondition(any(), any(), any(), any()) } throws SchemaException(nonBooleanMsg)
+        every { FhirPathUtils.evaluateCondition(any(), any(), any(), any(), any()) } throws SchemaException(
+            nonBooleanMsg
+        )
 
         // act
         val result = engine.evaluateFilterAndLogResult(
