@@ -28,22 +28,9 @@ jobs:
         id: list-test-images
         run: |
           az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2 > test-images.txt
-
-    #   - name: List test repository images
-    #     id: list-stg-images
-    #     run: |
-    #         STG_IMAGES=$(az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2)
-    #         echo "STG_IMAGES=$STG_IMAGES" >> $GITHUB_OUTPUT
-
-      - name: Format output
-        id: format_out
-        run: |
-          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "TEST_IMAGES<<$EOF" >> $GITHUB_OUTPUT
-          cat test-images.txt >> $GITHUB_OUTPUT
-          echo "$EOF" >> $GITHUB_OUTPUT
-
-      - name: Delete test old images
+          sed -i '1d' test-images.txt
+          
+      - name: Delete old images in TEST env
         env:
           IMAGE_FILE: test-images.txt  
         run: |
