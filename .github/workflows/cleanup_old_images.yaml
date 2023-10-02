@@ -47,10 +47,16 @@ jobs:
       - name: Delete test old images
         run: |
           TEST_IMAGES=${{ steps.format_out.outputs.TEST_IMAGES }}
-            for IMAGE in TEST_IMAGES; do
+            for IMAGE in ${TEST_IMAGES}; do
               echo "Deleting image $IMAGE"
               az acr repository delete --name pdhtestcontainerregistry --image pdhtestcontainerregistry@$IMAGE --yes
             done
+
+      # IFS=$'\n' read -d '' -r -a IMAGES <<< "${TEST_IMAGES}"
+      # for IMAGE in "${IMAGES[@]}"; do
+      #   echo "Deleting image $IMAGE"
+      #   az acr repository delete --name pdhtestcontainerregistry --image pdhtestcontainerregistry@$IMAGE --yes
+      # done
 
     #   - name: Delete staging old images
     #     run: |
