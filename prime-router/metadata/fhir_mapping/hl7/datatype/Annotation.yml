@@ -13,7 +13,7 @@ time:
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
   expressionType: JEXL
   vars:
-    dateTimeIn: NTE.6 | NTE.7
+    dateTimeIn: NTE.6
 
 text:
   type: STRING
@@ -21,7 +21,7 @@ text:
   required: true
   expressionType: HL7Spec
 
-extension_1:
+extension_1-noteSource:
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -36,7 +36,7 @@ extension_1:
       constants:
         system: v2-0105
 
-extension_2:
+extension_2-noteType:
   generateList: true
   expressionType: nested
   expressionsMap:

@@ -17,3 +17,11 @@ elements:
     constants:
       cweFieldPath: '%{hl7NotePath}/NTE(%{noteIndex})-4'
     schema: datatype/ce-coded-with-exceptions
+
+  - name: note-author
+    resource: '%noteDetails.author.resolve()'
+    schema: datatype/xcn-contact
+    constants:
+      hl7XCNField: '%{hl7NotePath}/NTE(%{noteIndex})-5'
+      contactIndex: '0'
+
