@@ -27,7 +27,7 @@ jobs:
       - name: List ACR images
         id: list_images
         run: |
-          images=$(az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_desc --detail --query '[].digest' --output table)
+          images=$(az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_desc --detail --query '[].digest' --output json | jq -r '.[]')
           echo "Images=$images" >> $GITHUB_OUTPUT
     
       - name: Determine images to delete
