@@ -205,7 +205,10 @@ describe("DataDashboardTableWithPagination", () => {
             });
 
             test("without data", () => {
-                expect(screen.getByText("No data to show")).toBeInTheDocument();
+                expect(
+                    screen.getByText("No available data"),
+                ).toBeInTheDocument();
+                expect(screen.getByText("contact us")).toBeInTheDocument();
             });
         });
 
