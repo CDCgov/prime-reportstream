@@ -28,7 +28,6 @@ jobs:
         id: list-test-images
         run: |
           az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2 > test-images.txt
-          sed -i '1d' test-images.txt
 
     #   - name: List test repository images
     #     id: list-stg-images
@@ -47,16 +46,29 @@ jobs:
       - name: Delete test old images
         run: |
           TEST_IMAGES=${{ steps.format_out.outputs.TEST_IMAGES }}
-            for IMAGE in ${TEST_IMAGES}; do
+          IFS=' ' read -ra IMAGES_ARRAY <<< "$TEST_IMAGES"
+            for ((i = 1; i < ${#IMAGES_ARRAY[@]}; i++)); do
+              IMAGE="${IMAGES_ARRAY[i]}"
               echo "Deleting image $IMAGE"
               az acr repository delete --name pdhtestcontainerregistry --image pdhtestcontainerregistry@$IMAGE --yes
             done
 
-      # IFS=$'\n' read -d '' -r -a IMAGES <<< "${TEST_IMAGES}"
-      # for IMAGE in "${IMAGES[@]}"; do
-      #   echo "Deleting image $IMAGE"
-      #   az acr repository delete --name pdhtestcontainerregistry --image pdhtestcontainerregistry@$IMAGE --yes
-      # done
+
+
+
+
+            
+    # TEST_IMAGES=${{ steps.format_out.outputs.TEST_IMAGES }}
+    #   for IMAGE in ${TEST_IMAGES}; do
+    #     echo "Deleting image $IMAGE"
+    #     az acr repository delete --name pdhtestcontainerregistry --image pdhtestcontainerregistry@$IMAGE --yes
+    #   done
+
+    #   IFS=$'\n' read -d '' -r -a IMAGES <<< "${TEST_IMAGES}"
+    #   for IMAGE in "${IMAGES[@]}"; do
+    #     echo "Deleting image $IMAGE"
+    #     az acr repository delete --name pdhtestcontainerregistry --image pdhtestcontainerregistry@$IMAGE --yes
+    #   done
 
     #   - name: Delete staging old images
     #     run: |
