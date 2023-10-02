@@ -50,7 +50,7 @@ jobs:
             for ((i = 1; i < ${#IMAGES_ARRAY[@]}; i++)); do
               IMAGE="${IMAGES_ARRAY[i]}"
               echo "Deleting image $IMAGE"
-              az acr repository delete --name pdhtestcontainerregistry --image pdhtest@$IMAGE --yes
+              az acr repository delete --name pdhtestcontainerregistry.azurecr.io --image pdhtest:$IMAGE --yes
             done
 
 
