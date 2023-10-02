@@ -28,13 +28,14 @@ jobs:
         id: list-test-images
         run: |
           az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2 > test-images.txt
+          sed -i '1d' test-images.txt
 
     #   - name: List test repository images
     #     id: list-stg-images
     #     run: |
     #         STG_IMAGES=$(az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2)
     #         echo "STG_IMAGES=$STG_IMAGES" >> $GITHUB_OUTPUT
-    
+
       - name: Format output
         id: format_out
         run: |
