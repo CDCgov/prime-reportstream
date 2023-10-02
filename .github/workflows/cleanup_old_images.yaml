@@ -50,14 +50,14 @@ jobs:
             for ((i = 1; i < ${#IMAGES_ARRAY[@]}; i++)); do
               IMAGE="${IMAGES_ARRAY[i]}"
               echo "Deleting image $IMAGE"
-              az acr repository delete --name pdhtestcontainerregistry --image pdhtestcontainerregistry@$IMAGE --yes
+              az acr repository delete --name pdhtestcontainerregistry --image pdhtest@$IMAGE --yes
             done
 
 
 
 
 
-            
+
     # TEST_IMAGES=${{ steps.format_out.outputs.TEST_IMAGES }}
     #   for IMAGE in ${TEST_IMAGES}; do
     #     echo "Deleting image $IMAGE"
