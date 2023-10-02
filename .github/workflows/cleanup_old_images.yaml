@@ -29,23 +29,23 @@ jobs:
         run: |
           az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2 > test-images.txt
           sed -i '1d' test-images.txt
-          
+
       - name: Delete old images in TEST env
         env:
           IMAGE_FILE: test-images.txt  
         run: |
           if [ -e "$IMAGE_FILE" ]; then
-          while IFS= read -r image_id; do
-              az acr repository delete --name pdhtestcontainerregistry --image pdhtestcontainerregistry:$image_id --yes
-              if [ $? -eq 0 ]; then
-                  echo "Deleted image: pdhtestcontainerregistry:$image_id"
-              else
-                  echo "Failed to delete image: pdhtestcontainerregistry:$image_id"
-              fi
-          done < "$IMAGE_FILE"
+            while IFS= read -r image_id; do
+                az acr repository delete --name pdhtestcontainerregistry --image pdhtest:$image_id --yes
+                if [ $? -eq 0 ]; then
+                    echo "Deleted image: pdhtestcontainerregistry:$image_id"
+                else
+                    echo "Failed to delete image: pdhtestcontainerregistry:$image_id"
+                fi
+            done < "$IMAGE_FILE"
               else
                 echo "File not found: $IMAGE_FILE"
-             fi
+          fi
 
 
 
