@@ -12,7 +12,7 @@ class HL7ToFhirToHL7 {
         assert(
             translateAndCompareHL7ToFHIR(
                 "mappinginventory/NTE/nte_segment_test_file.hl7",
-                "mappinginventory/nte_note/annotation_resource_test_file.fhir"
+                "mappinginventory/NTE/annotation_resource_test_file.fhir"
             ).passed
         )
     }
@@ -22,7 +22,7 @@ class HL7ToFhirToHL7 {
         assert(
             translateAndCompareFHIRToHL7(
                 "mappinginventory/NTE/annotation_resource_test_file.fhir",
-                "mappinginventory/nte_note/nte_segment_test_file.hl7"
+                "mappinginventory/NTE/nte_segment_test_file.hl7"
             ).passed
         )
     }
@@ -39,7 +39,7 @@ class FhirToHL7 {
         assert(
             translateAndCompareFHIRToHL7(
                 "mappinginventory/NTE/annotation_author_string_resource_test_file.fhir",
-                "mappinginventory/nte_note/nte_segment_author_string_test_file.hl7"
+                "mappinginventory/NTE/nte_segment_author_string_test_file.hl7"
             ).passed
         )
     }
