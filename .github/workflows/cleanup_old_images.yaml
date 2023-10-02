@@ -28,7 +28,7 @@ jobs:
         id: list-test-images
         run: |
           az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2 > test-images.txt
-
+          sed -i '1d' test-images.txt
     #   - name: List test repository images
     #     id: list-stg-images
     #     run: |
