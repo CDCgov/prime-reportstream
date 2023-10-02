@@ -34,7 +34,7 @@ elements:
   - name: observation-result-with-aoe
     # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
     resource: '%resource.result.resolve() | %service.supportingInfo.resolve().where(specimen.exists().not())'
-    schema: observation-result
+    schema: ../../common/observation-result
     resourceIndex: resultIndex
     constants:
       hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
@@ -44,7 +44,7 @@ elements:
   - name: order-note
     resource: '%service.note.text.split(''\n'')'
     condition: '%service.note.exists()'
-    schema: note
+    schema: ../../common/note
     resourceIndex: noteIndex
     constants:
       hl7NotePath: '%{hl7Order}'

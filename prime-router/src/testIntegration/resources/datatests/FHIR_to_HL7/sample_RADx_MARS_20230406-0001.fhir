@@ -148,7 +148,8 @@
               "coding": [
                 {
                   "system": "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
-                  "code": "ASKU"
+                  "code": "ASKU",
+                  "version": "2.5.1"
                 }
               ],
               "text": "refused"
@@ -178,7 +179,8 @@
             "family": "Catski Last Name Too Long Truncate Testing Catski Last Name Too Long Truncate Testing Catski Last Name Too Long Truncate Testing Catski Last Name Too Long Truncate Testing Catski Last Name Too Long truncatethis",
             "given": [
               "JosephineNameTooLongTruncateTesttruncatethis"
-            ]
+            ],
+            "use": "official"
           }
         ],
         "telecom": [
