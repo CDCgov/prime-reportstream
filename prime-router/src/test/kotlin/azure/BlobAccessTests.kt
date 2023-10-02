@@ -2,7 +2,6 @@ package gov.cdc.prime.router.azure
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import assertk.fail
@@ -14,6 +13,7 @@ import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.blob.models.BlobDownloadContentResponse
 import com.azure.storage.blob.models.BlobDownloadResponse
+import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
@@ -341,8 +341,7 @@ class BlobAccessTests {
     }
 
     @Test
-    fun `check alternate environment access`() {
-        val testUrl = "http://blobexists"
+    fun `test build container metadata`() {
         val defaultEnvVar = Environment.get().blobEnvVar
         val testEnvVar = "testenv"
         val testContainer = "testcontainer"
@@ -353,16 +352,12 @@ class BlobAccessTests {
         every { BlobAccess.Companion.getBlobConnection(testEnvVar) } returns "testconnection"
 
         val defaultBlobMetadata = BlobAccess.BlobContainerMetadata.build(testContainer, defaultEnvVar)
-        val testBlobMetadata = BlobAccess.BlobContainerMetadata.build(testContainer, testEnvVar)
+        val testBlobTransport = BlobStoreTransportType(testEnvVar, testContainer)
+        val testBlobMetadata = BlobAccess.BlobContainerMetadata.build(testBlobTransport)
 
-        every { BlobAccess.exists(any(), defaultBlobMetadata) } returns true
-        every { BlobAccess.exists(any(), testBlobMetadata) } returns false
-
+        assertThat(defaultBlobMetadata.containerName).isEqualTo(testContainer)
         assertThat(defaultBlobMetadata.connectionString).isEqualTo("defaultconnection")
+        assertThat(testBlobMetadata.containerName).isEqualTo(testContainer)
         assertThat(testBlobMetadata.connectionString).isEqualTo("testconnection")
-        val result = BlobAccess.exists(testUrl, defaultBlobMetadata)
-        val result2 = BlobAccess.exists(testUrl, testBlobMetadata)
-        assertThat(result).isTrue()
-        assertThat(result2).isFalse()
     }
 }
