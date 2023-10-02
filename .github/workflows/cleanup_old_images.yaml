@@ -27,14 +27,14 @@ jobs:
       - name: List ACR images
         id: list_images
         run: |
-          images=$(az acr repository list --name pdhtestcontainerregistry --output tsv)
-          echo "::set-output name=images::$images"
+          images=$(az acr repository show-manifests --name pdhtestcontainerregistry --repository pdhtest --orderby time_desc --detail --query '[].digest' --output tsv)
+          echo "Images=$images" >> $GITHUB_OUTPUT
     
       - name: Determine images to delete
         id: images_to_delete
         run: |
-          images=(${{ steps.list_images.outputs.images }}) 
-          num_to_keep=2 
+          images=(${{ steps.list_images.outputs.images }})
+          num_to_keep=2
           images_to_delete=()
           for ((i=${#images[@]}-1; i>=0; i--)); do
             if [ ${#images_to_delete[@]} -ge $num_to_keep ]; then
@@ -42,14 +42,14 @@ jobs:
             fi
             images_to_delete+=("${images[i]}")
           done
-          echo "::set-output name=images_to_delete::${images_to_delete[@]}"
+          echo "ImagesToDelete=${images_to_delete[@]}" >> $GITHUB_OUTPUT
   
       - name: Delete old ACR images in Test env
         if: steps.images_to_delete.outputs.images_to_delete != ''
         run: |
           images_to_delete=(${{ steps.images_to_delete.outputs.images_to_delete }})
           for image in "${images_to_delete[@]}"; do
-            az acr repository delete --name pdhtestcontainerregistry --image $image --yes
+            az acr repository delete --name pdhtestcontainerregistry --repository pdhtest --manifest $image --yes
           done
 
       # - name: List test repository images
@@ -90,19 +90,13 @@ jobs:
     # TEST_IMAGES=${{ steps.format_out.outputs.TEST_IMAGES }}
     #   for IMAGE in ${TEST_IMAGES}; do
     #     echo "Deleting image $IMAGE"
-    #     az acr repository delete --name pdhtestcontainerregistry --image pdhtestcontainerregistry@$IMAGE --yes
+    #     az acr repository delete --name pdhtestcontainerregistry --image pdhtest:$IMAGE --yes
     #   done
 
     #   IFS=$'\n' read -d '' -r -a IMAGES <<< "${TEST_IMAGES}"
     #   for IMAGE in "${IMAGES[@]}"; do
     #     echo "Deleting image $IMAGE"
-    #     az acr repository delete --name pdhtestcontainerregistry --image pdhtestcontainerregistry@$IMAGE --yes
+    #     az acr repository delete --name pdhtestcontainerregistry --image pdhtest:$IMAGE --yes
     #   done
 
-    #   - name: Delete staging old images
-    #     run: |
-    #       IMAGES=$(cat test-images.txt)
-    #       for IMAGE IMAGES; do
-    #       echo "Deleting image $IMAGE"
-    #       az acr repository delete --name pdhtestcontainerregistry --image $IMAGE --yes
-    #       done
+   
