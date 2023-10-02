@@ -24,34 +24,63 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: List test repository images
-        id: list-test-images
+      - name: List ACR images
+        id: list_images
         run: |
-          az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2 > test-images.txt
-          sed -i '1d' test-images.txt
+          images=$(az acr repository list --name pdhtestcontainerregistry --output tsv)
+          echo "::set-output name=images::$images"
+    
+      - name: Determine images to delete
+        id: images_to_delete
+        run: |
+          images=(${{ steps.list_images.outputs.images }}) 
+          num_to_keep=2 
+          images_to_delete=()
+          for ((i=${#images[@]}-1; i>=0; i--)); do
+            if [ ${#images_to_delete[@]} -ge $num_to_keep ]; then
+              break
+            fi
+            images_to_delete+=("${images[i]}")
+          done
+          echo "::set-output name=images_to_delete::${images_to_delete[@]}"
+  
+      - name: Delete old ACR images in Test env
+        if: steps.images_to_delete.outputs.images_to_delete != ''
+        run: |
+          images_to_delete=(${{ steps.images_to_delete.outputs.images_to_delete }})
+          for image in "${images_to_delete[@]}"; do
+            az acr repository delete --name pdhtestcontainerregistry --image $image --yes
+          done
+
+      # - name: List test repository images
+      #   id: list-test-images
+      #   run: |
+      #     az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2 > test-images.txt
+      #     sed -i '1d' test-images.txt
     #   - name: List test repository images
     #     id: list-stg-images
     #     run: |
     #         STG_IMAGES=$(az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2)
     #         echo "STG_IMAGES=$STG_IMAGES" >> $GITHUB_OUTPUT
 
-      - name: Format output
-        id: format_out
-        run: |
-          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "TEST_IMAGES<<$EOF" >> $GITHUB_OUTPUT
-          cat test-images.txt >> $GITHUB_OUTPUT
-          echo "$EOF" >> $GITHUB_OUTPUT
+      # - name: Format output
+      #   id: format_out
+      #   run: |
+      #     EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+      #     echo "TEST_IMAGES<<$EOF" >> $GITHUB_OUTPUT
+      #     cat test-images.txt >> $GITHUB_OUTPUT
+      #     echo "$EOF" >> $GITHUB_OUTPUT
 
-      - name: Delete test old images
-        run: |
-          TEST_IMAGES=${{ steps.format_out.outputs.TEST_IMAGES }}
-          IFS=' ' read -ra IMAGES_ARRAY <<< "$TEST_IMAGES"
-            for ((i = 1; i < ${#IMAGES_ARRAY[@]}; i++)); do
-              IMAGE="${IMAGES_ARRAY[i]}"
-              echo "Deleting image $IMAGE"
-              az acr repository delete --name pdhtestcontainerregistry.azurecr.io --image pdhtest:$IMAGE --yes
-            done
+      # - name: Delete test old images
+      #   run: |
+      #     TEST_IMAGES=${{ steps.format_out.outputs.TEST_IMAGES }}
+      #     IFS=' ' read -ra IMAGES_ARRAY <<< "$TEST_IMAGES"
+      #       for ((i = 1; i < ${#IMAGES_ARRAY[@]}; i++)); do
+      #         IMAGE="${IMAGES_ARRAY[i]}"
+      #         echo "Deleting image $IMAGE"
+      #         az acr repository delete --name pdhtestcontainerregistry.azurecr.io --image pdhtest:$IMAGE --yes
+              
+      #       done
 
 
 
