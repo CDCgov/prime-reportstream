@@ -53,10 +53,10 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
-import net.schmizz.sshj.common.Base64
 import org.json.JSONObject
 import java.io.InputStream
 import java.security.KeyStore
+import java.util.Base64
 import java.util.logging.Logger
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
@@ -405,7 +405,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
             if (restUrl.contains("dataingestion.datateam-cdc-nbs")) {
                 val idTokenInfoString: String = client.post(restUrl) {
                     val credentialString = credential.user + ":" + credential.pass
-                    val basicAuth = "Basic " + Base64.encodeBytes(credentialString.encodeToByteArray())
+                    val basicAuth = "Basic " + Base64.getEncoder().encodeToString(credentialString.encodeToByteArray())
                     expectSuccess = true // throw an exception if not successful
                     postHeaders(
                         mapOf(
@@ -549,7 +549,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
          */
         private fun getSslContext(jksCredential: UserJksCredential): SSLContext? {
             // Open the keystore in the UserJksCredential, it's a PKCS12 type
-            val jksDecoded = Base64.decode(jksCredential.jks)
+            val jksDecoded = Base64.getDecoder().decode(jksCredential.jks)
             val inStream: InputStream = jksDecoded.inputStream()
             val jksPasscode = jksCredential.jksPasscode.toCharArray()
             val keyStore: KeyStore = KeyStore.getInstance("PKCS12")
