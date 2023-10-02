@@ -9,7 +9,7 @@ on:
 #     - cron: '0 0 1 * *' # Runs on the first day of every month
 
 jobs:
-  cleanup:
+  cleanup_old_ACR_images:
     runs-on: ubuntu-latest
     steps:
       - name: "Check out changes"
@@ -60,7 +60,7 @@ jobs:
         env:
           STG_FILE: stg-images.txt  
         run: |
-          if [ -e "$IMAGE_FILE" ]; then
+          if [ -e "$STG_FILE" ]; then
             while IFS= read -r image_id; do
                 az acr repository delete --name pdhstagingcontainerregistry --image pdhstaging:$image_id --yes
                 if [ $? -eq 0 ]; then
@@ -68,7 +68,7 @@ jobs:
                 else
                     echo "Failed to delete image: pdhstagingcontainerregistry:$image_id"
                 fi
-            done < "$IMAGE_FILE"
+            done < "$STG_FILE"
               else
-                echo "File not found: $IMAGE_FILE"
+                echo "File not found: $STG_FILE"
           fi
