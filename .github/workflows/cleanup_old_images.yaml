@@ -29,7 +29,7 @@ jobs:
         run: |
           az acr login --name pdhtestcontainerregistry
           az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2 > test-images.txt
-          sed -i '1d' test-images.txt
+          sed -i '1,2d' test-images.txt
 
       - name: Delete old images in TEST env
         env:
