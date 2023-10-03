@@ -1,12 +1,8 @@
-name: Azure Container Registry Cleanup
-
+name: Cleanup old images in Test & Staging ACRs
 on:
-  push:
-    branches:
-        - feature/11576-cleanup-test-staging-old-images
+  schedule:
+    - cron: "0 0 * * *" # Runs daily at midnight UTC
 
-#   schedule:
-#     - cron: '0 0 1 * *' # Runs on the first day of every month
 
 jobs:
   Cleanup_old_ACR_images:
@@ -72,4 +68,3 @@ jobs:
               else
                 echo "File not found: $STG_FILE"
           fi
-          
