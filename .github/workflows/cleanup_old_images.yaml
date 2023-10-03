@@ -9,7 +9,7 @@ on:
 #     - cron: '0 0 1 * *' # Runs on the first day of every month
 
 jobs:
-  cleanup_old_ACR_images:
+  Cleanup_old_ACR_images:
     runs-on: ubuntu-latest
     steps:
       - name: "Check out changes"
@@ -72,3 +72,4 @@ jobs:
               else
                 echo "File not found: $STG_FILE"
           fi
+          
