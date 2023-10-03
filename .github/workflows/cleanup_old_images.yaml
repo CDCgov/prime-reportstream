@@ -48,7 +48,7 @@ jobs:
         id: list-stg-images
         run: |
           az acr login --name pdhstagingcontainerregistry
-          az acr repository show-tags --name pdhstagingcontainerregistry --repository pdhstaging --orderby time_asc --output table | head -n -10 > stg-images.txt
+          az acr repository show-tags --name pdhstagingcontainerregistry --repository pdhstaging --orderby time_asc --output table | head -n -2 > stg-images.txt
           sed -i '1,2d' stg-images.txt
           cat stg-images.txt
 
