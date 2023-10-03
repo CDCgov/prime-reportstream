@@ -13,8 +13,6 @@ inputs:
     default: false
   github-token:
     default: false
-  sonar-token:
-    default: false
 
 runs:
   using: "composite"

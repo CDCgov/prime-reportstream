@@ -17,10 +17,6 @@ inputs:
     description: Github provided token
     required: false
     default: ""
-  SONAR_TOKEN:
-    description: Token to communicate with Sonarcloud
-    required: false
-    default: ""
 
 runs:
   using: "composite"
