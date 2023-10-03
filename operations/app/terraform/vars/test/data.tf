@@ -6,6 +6,11 @@ data "azurerm_key_vault" "app_config" {
   resource_group_name = local.init.resource_group_name
 }
 
+data "azurerm_key_vault_secret" "sendgrid_password" {
+  name         = "sendgrid-password"
+  key_vault_id = data.azurerm_key_vault.app_config.id
+}
+
 data "azurerm_key_vault_secret" "postgres_user" {
   name         = "functionapp-postgres-user"
   key_vault_id = data.azurerm_key_vault.app_config.id
