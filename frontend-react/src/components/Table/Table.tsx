@@ -3,6 +3,7 @@ import React, { ReactNode, useMemo, useCallback, useState } from "react";
 
 import Pagination, { PaginationProps } from "../../components/Table/Pagination";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";
+import { NoServicesBanner } from "../alerts/NoServicesAlert";
 
 import { TableRowData, TableRows } from "./TableRows";
 import { TableHeaders } from "./TableHeaders";
@@ -176,7 +177,11 @@ const Table = ({
                         />
                     ) : undefined}
                 </table>
-                {!memoizedRows ? <span>No data to show</span> : undefined}
+                {!memoizedRows ? (
+                    <span>
+                        <NoServicesBanner />
+                    </span>
+                ) : undefined}
                 {paginationProps && <Pagination {...paginationProps} />}
             </div>
         </div>
