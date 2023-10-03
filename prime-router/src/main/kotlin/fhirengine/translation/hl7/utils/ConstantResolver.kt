@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.config.ContextConfig
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.text.StringSubstitutor
@@ -31,13 +32,25 @@ data class CustomContext(
     val translationFunctions: TranslationFunctions? = Hl7TranslationFunctions()
 ) {
     companion object {
+
+        private val reservedConstantNames =
+            listOf("loinc", "ucum", "resource", "rootResource", "context", "us-zip", "`vs-", "`cs-", "`ext")
+
         /**
          * Add [constants] to a context.
-         * @return a new context with the [constants] added or the existing context of no new constants are specified
+         * @return a new context with the [constants] added or the existing context if no new constants are specified
          */
         fun addConstants(constants: Map<String, String>, previousContext: CustomContext): CustomContext {
             return if (constants.isEmpty()) previousContext
             else {
+
+                if (constants.keys.any { reservedConstantNames.contains(it) }) {
+                    throw SchemaException(
+                        """Constants contained reserved name,
+                        reserved constants are: $reservedConstantNames
+                        """.trimMargin()
+                    )
+                }
                 val newContext = CustomContext(
                     previousContext.bundle,
                     previousContext.focusResource,
