@@ -6,11 +6,15 @@ on:
       - master
     paths-ignore:
       - "prime-router/**"
+      - ".github/workflows/build_hub.yml"
+      - ".github/actions/build-backend/action.yml"
   push:
     branches:
       - master
     paths-ignore:
       - "prime-router/**"
+      - ".github/workflows/build_hub.yml"
+      - ".github/actions/build-backend/action.yml"
 
 jobs:
   Build_Router:
