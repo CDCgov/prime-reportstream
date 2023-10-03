@@ -47,5 +47,6 @@ jobs:
       - name: Run SonarCloud Scan
         uses: ./.github/actions/sonarcloud
         with:
+          scan-level: default
           github-token: ${{ secrets.GITHUB_TOKEN }}
           sonar-token: ${{ secrets.SONAR_TOKEN }}
