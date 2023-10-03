@@ -16,6 +16,7 @@ env:
 
 jobs:
   sonarcloud:
+    if: github.actor != 'dependabot[bot]'
     name: SonarCloud Master
     runs-on: ubuntu-latest
     defaults:
