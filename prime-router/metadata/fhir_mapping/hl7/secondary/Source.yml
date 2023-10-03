@@ -17,10 +17,19 @@ name_2:
     dash: "-"
     colon: ":"
 
-software_1:
-  type: STRING
-  valueOf: HD.2
+# For null ID type
+name_3:
+  type: URL
+  condition: idStr NOT_NULL && $systemStr NULL
+  valueOf: $value
   expressionType: HL7Spec
+  vars:
+    idStr: String, HD.2
+    systemStr: String, HD.3
+    value: HD.1 + $dash + $colon + HD.2
+  constants:
+    dash: "-"
+    colon: ":"
 
 # For OIDs
 endpoint_1:
@@ -93,9 +102,14 @@ version:
   valueOf: SFT.2
   expressionType: HL7Spec
 
-software_2:
+software_1:
   type: STRING
   valueOf: SFT.3
+  expressionType: HL7Spec
+
+software_2:
+  type: STRING
+  valueOf: HD.2
   expressionType: HL7Spec
 
 extension_1:
