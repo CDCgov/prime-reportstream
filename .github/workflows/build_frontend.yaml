@@ -5,9 +5,13 @@ on:
     branches:
       - master
       - production
+    paths:
+      - "frontend-react/**"
   push:
     branches:
       - master
+    paths:
+      - "frontend-react/**"
 
 jobs:
   pre_job:
