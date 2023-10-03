@@ -92,12 +92,6 @@
         "reference" : "Organization/1695741448957921000.da5f6349-3633-4412-af3b-dfd0f4686a20"
       },
       "source" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
-          "valueReference" : {
-            "reference" : "Organization/1695741448220959000.f073313b-c4d7-4089-b3a5-2ae5b40c77eb"
-          }
-        } ],
         "name" : "STARLIMS.CDC.Stag",
         "endpoint" : "urn:oid:2.16.840.1.114222.4.3.3.2.1.2"
       }

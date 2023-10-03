@@ -91,12 +91,6 @@
         "reference" : "Organization/1691603909339331000.746a0ddf-b219-4faf-a395-5c5fc958134d"
       },
       "source" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
-          "valueReference" : {
-            "reference" : "Organization/1691603909356256000.1ed8a99e-919b-4306-9dac-4ec3ca42233f"
-          }
-        } ],
         "name" : "Epic",
         "endpoint" : "urn:oid:1.2.840.114350.1.13.145.2.7.2.695071"
       }

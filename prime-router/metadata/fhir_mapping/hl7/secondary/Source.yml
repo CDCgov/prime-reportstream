@@ -143,6 +143,7 @@ extension_3:
     urlValue: software-install-date
 
 extension_4:
+  condition: $vendor NOT_NULL
   generateList: true
   expressionType: nested
   expressionsMap:
@@ -153,3 +154,5 @@ extension_4:
       valueOf: resource/Organization
       expressionType: reference
       specs: SFT.1
+  vars:
+    vendor: String, SFT.1
