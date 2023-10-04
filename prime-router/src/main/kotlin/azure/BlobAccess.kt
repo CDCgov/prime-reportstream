@@ -1,13 +1,17 @@
 package gov.cdc.prime.router.azure
 
+import com.azure.core.http.rest.PagedIterable
 import com.azure.core.util.BinaryData
 import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobClientBuilder
 import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.blob.models.BlobErrorCode
+import com.azure.storage.blob.models.BlobItem
+import com.azure.storage.blob.models.BlobListDetails
 import com.azure.storage.blob.models.BlobStorageException
 import com.azure.storage.blob.models.DownloadRetryOptions
+import com.azure.storage.blob.models.ListBlobsOptions
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.Environment
@@ -19,9 +23,21 @@ import java.net.URL
 import java.net.URLDecoder
 import java.nio.charset.Charset
 import java.security.MessageDigest
+import java.time.Duration
 
 const val defaultBlobContainerName = "reports"
 const val defaultBlobDownloadRetryCount = 5
+const val listBlobTimeoutSeconds: Long = 30
+
+enum class UniversalpipelineSteps(val step: String) {
+    BATCH("batch"),
+    NONE("none"),
+    PROCESS("process"),
+    READY("ready"),
+    RECEIVE("receive"),
+    ROUTE("route"),
+    TRANSLATE("translate")
+}
 
 /**
  * Accessor for Azure blob storage.
@@ -82,6 +98,16 @@ class BlobAccess() : Logging {
             }
         }
     }
+
+    /**
+     * Data structure represents a blob entry.
+     */
+    data class BlobEntry(
+        val name: String,
+        val isPrefix: Boolean,
+        val versionId: String?,
+        val subEntries: List<BlobEntry>?
+    )
 
     /**
      * Upload the [report] to the blob store using the [action] to determine a folder as needed.
@@ -185,6 +211,72 @@ class BlobAccess() : Logging {
         }
 
         /**
+         * List the blobs given [directory]
+         * delegate to azure SDK [listBlobsByHierarchy]
+         * for reactive behavior (lazy load)
+         */
+        fun listBlobsReactive(
+            directory: String,
+            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata
+        ):
+            PagedIterable<BlobItem> {
+            logger.debug("BlobAccess Starting listBlobsReactive for directory $directory")
+            val options = ListBlobsOptions()
+                .setPrefix(directory)
+                .setDetails(
+                    BlobListDetails()
+                        .setRetrieveVersions(true)
+                )
+            val result = getBlobContainer(blobConnInfo).listBlobsByHierarchy(
+                "/", options, Duration.ofSeconds(listBlobTimeoutSeconds)
+            )
+            logger.debug("BlobAccess Finished listBlobsReactive for directory $directory")
+            return result
+        }
+
+        /**
+         * List the blobs given [directory]
+         * @return list of [BlobEntry] - brief descriptor of entries under given [directory]
+         * Note, [directory] is relative under container root ("reports").
+         * e.g. http://127.0.0.1:10000/devstoreaccount1/reports
+         * a convenient enum defined [UniversalpipelineSteps] where 'folder'
+         * corresponding to a particular step can be used to list blobs under
+         * the folder for that step.
+         */
+        fun listBlobs(directory: String, blobConnInfo: BlobContainerMetadata = defaultBlobMetadata): List<BlobEntry> {
+            logger.debug("BlobAccess Starting listBlobs for directory $directory")
+            val result = listBlob(directory, blobConnInfo)
+            logger.debug("BlobAccess Finished listBlobs for directory $directory")
+            return result
+        }
+
+        /**
+         * helper for list blobs hierarchy
+         */
+        private fun listBlob(
+            directory: String,
+            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata
+        ):
+            List<BlobEntry> {
+            val options = ListBlobsOptions()
+                .setPrefix(directory)
+                .setDetails(
+                    BlobListDetails()
+                        .setRetrieveVersions(true)
+                )
+            return getBlobContainer(blobConnInfo).listBlobsByHierarchy(
+                "/", options, Duration.ofSeconds(listBlobTimeoutSeconds)
+            ).map {
+                BlobEntry(
+                    it.name,
+                    it.isPrefix,
+                    it.versionId,
+                    if (it.isPrefix) listBlob("${it.name}", blobConnInfo) else listOf()
+                )
+            }
+        }
+
+        /**
          * Download the blob at the given [blobUrl] as a ByteArray
          */
         fun downloadBlobAsByteArray(
@@ -262,7 +354,7 @@ class BlobAccess() : Logging {
          * If one exists for the container name and connection string, the existing one will be reused.
          * @return the blob container client
          */
-        private fun getBlobContainer(blobConnInfo: BlobContainerMetadata): BlobContainerClient {
+        fun getBlobContainer(blobConnInfo: BlobContainerMetadata): BlobContainerClient {
             return if (blobContainerClients.containsKey(blobConnInfo)) {
                 blobContainerClients[blobConnInfo]!!
             } else {
