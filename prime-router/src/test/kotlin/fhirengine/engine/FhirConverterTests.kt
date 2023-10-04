@@ -154,7 +154,7 @@ class FhirConverterTests {
             actionHistory.trackExistingInputReport(any())
             transformer.transform(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), any())
+            BlobAccess.Companion.uploadBlob(any(), any(), any())
         }
     }
 
@@ -205,7 +205,7 @@ class FhirConverterTests {
             actionHistory.trackExistingInputReport(any())
             transformer.transform(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), any())
+            BlobAccess.Companion.uploadBlob(any(), any(), any())
         }
     }
 
@@ -336,7 +336,7 @@ class FhirConverterTests {
         }
         verify(exactly = 2) {
             transformer.transform(any())
-            BlobAccess.Companion.uploadBlob(any(), any())
+            BlobAccess.Companion.uploadBlob(any(), any(), any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
         }
     }
