@@ -2,7 +2,7 @@
 # to create the practitioner reference.  Other NTE.5's are ignored.
 
 
-# NTE.5 is not availbe in 2.5.1 version of the spec
+# NTE.5 is not available in 2.5.1 version of the spec
 authorReference:
   condition: $performer NOT_NULL
   valueOf: resource/Practitioner

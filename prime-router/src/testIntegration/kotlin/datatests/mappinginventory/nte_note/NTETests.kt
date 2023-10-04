@@ -4,8 +4,8 @@ import gov.cdc.prime.router.datatests.mappinginventory.translateAndCompareFHIRTo
 import gov.cdc.prime.router.datatests.mappinginventory.translateAndCompareHL7ToFHIR
 import org.junit.jupiter.api.Test
 
-// This test asserts against a sample HL7 that an NTE segment associated with a PID, OBR and OBX and verifies
-// that the no data is loss between each step.  The NTE segments associated with PID and OBX both have NTE.5 populated
+// This test asserts against a sample HL7v2 message that has an NTE segment associated with a PID, OBR and OBX and verifies
+// that no data is lost between each step. The NTE segments associated with PID and OBX both have NTE.5 populated
 class HL7ToFhirToHL7 {
     @Test
     fun `can accurately map NTE segment to annotation resource`() {
