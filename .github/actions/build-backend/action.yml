@@ -158,8 +158,6 @@ runs:
     - name: Dump docker logs
       if: always() && inputs.run-integration-tests == 'true'
       uses: jwalton/gh-docker-logs@59c9656cd3cb7542525f3dce7ae2f44c0ff85d66
-      with:
-        images: "prime-router_prime_dev,vault"
 
     - name: Cleanup Gradle Cache
       if: inputs.run-integration-tests == 'true'
