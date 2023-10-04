@@ -237,7 +237,7 @@ export const DeliveriesTable = () => {
             activeService?.customerStatus === CustomerStatusType.INACTIVE)
     )
         return (
-            <div className="usa-section margin-bottom-10">
+            <div className="usa-section margin-bottom-5">
                 <NoServicesBanner />
             </div>
         );
