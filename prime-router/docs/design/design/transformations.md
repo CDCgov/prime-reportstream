@@ -131,6 +131,39 @@ constants:
 
 The constants can be used in any FHIR expression belonging to any element in the schema or any child schema. When a constant appears in a special string enclosed in %\`\`, the code will look for strings defined as constants and replace them with their values. Example: %\`rsext-software-vendor-org\`
 
+There are a set of reserved names used in the underlying HAPI FHIR library.  Attempting to add them in a schema will result 
+in a thrown exception.  For specifics on how each of these work, see [FhirPathEngine](https://github.com/hapifhir/org.hl7.fhir.core/blob/64f034ebbff80037d0fa24ef0f96031b02956d0a/org.hl7.fhir.r4/src/main/java/org/hl7/fhir/r4/utils/FHIRPathEngine.java#L1711)
+
+- `loinc`
+- `ucum`
+- `resource`
+- `rootResource`
+- `context`
+- `us-zip`
+- `vs-`
+- `cs-`
+- `ext`
+
+`resource`, `rootResource` and `context` are values that are all set in the ReportStream code when invoking the FhirPathEngine
+and are set to specific values when evaluating schema.
+
+- `%resource` will always be the [resource](https://github.com/CDCgov/prime-reportstream/blob/13f9b49ad927263f5c575c68a3c38a4848dd7133/prime-router/src/main/kotlin/fhirengine/translation/hl7/schema/converter/ConverterSchema.kt#L81) set
+for that particular schema element
+- `%context` will always be the FHIR resource that schema as a whole is getting evaluated against
+  - This allows for elements that look like this:
+  ```yaml
+      - name: observation-note
+    condition: '%context.note.exists()'
+    resource: '%resource.note.text.split(''\n'')'
+    schema: note
+    resourceIndex: noteIndex
+    constants:
+      hl7NotePath: '%{hl7ObservationPath}'
+      noteDetails: '%observation.note'
+  ```
+  where `%resource` will be the list of strings from splitting the note text and `%context` will be the observation
+- `%rootResource` will always map to the FHIR bundle that is being converted
+
 ##### Extending Schemas
 
 One schema can extend another by using the keyword `extends` at the very top of the schema. Example `extends: ../default-sender-transform`. When a schema extends another schema, the elements and constants from the referenced schema will be added to the referencing schema. An error will be thrown if there are name collisions for element names.
