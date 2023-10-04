@@ -8,7 +8,9 @@ import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.blob.models.BlobErrorCode
 import com.azure.storage.blob.models.BlobStorageException
 import com.azure.storage.blob.models.DownloadRetryOptions
+import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.Report
+import gov.cdc.prime.router.common.Environment
 import org.apache.commons.io.FilenameUtils
 import org.apache.logging.log4j.kotlin.Logging
 import java.io.ByteArrayInputStream
@@ -25,8 +27,9 @@ const val defaultBlobDownloadRetryCount = 5
  * Accessor for Azure blob storage.
  */
 class BlobAccess() : Logging {
-
-    // Basic info about a blob: its format, url in azure, and its sha256 hash
+    /**
+     * Contains basic info about a Report blob: format, url in Azure, and SHA256 hash
+     */
     data class BlobInfo(
         val format: Report.Format,
         val blobUrl: String,
@@ -56,6 +59,31 @@ class BlobAccess() : Logging {
     }
 
     /**
+     * Data structure for configuring reusable blob store container access.
+     */
+    data class BlobContainerMetadata(
+        val containerName: String,
+        val connectionString: String
+    ) {
+        companion object {
+            /**
+             * Builds a [BlobContainerMetadata] object. [envVar] will be resolved to the blobstore connection string.
+             */
+            fun build(containerName: String, envVar: String): BlobContainerMetadata {
+                return BlobContainerMetadata(containerName, getBlobConnection(envVar))
+            }
+
+            /**
+             * Builds a [BlobContainerMetadata] object. [blobTransport].storageName will be resolved to the blobstore
+             * connection string.
+             */
+            fun build(blobTransport: BlobStoreTransportType): BlobContainerMetadata {
+                return BlobContainerMetadata(blobTransport.containerName, getBlobConnection(blobTransport.storageName))
+            }
+        }
+    }
+
+    /**
      * Upload the [report] to the blob store using the [action] to determine a folder as needed.
      * A [subfolderName] is optional and is added as a prefix to the blob filename.
      * @return the information about the uploaded blob
@@ -70,13 +98,16 @@ class BlobAccess() : Logging {
     }
 
     companion object : Logging {
-        private const val defaultConnEnvVar = "AzureWebJobsStorage"
         private const val defaultBlobDownloadRetryVar = "AzureBlobDownloadRetryCount"
-
-        /**
-         * Metadata of a blob container.
-         */
-        private data class BlobContainerMetadata(val name: String, val connectionString: String)
+        private val defaultEnvVar = Environment.get().blobEnvVar
+        private val defaultBlobMetadata by lazy {
+            BlobContainerMetadata.build(
+                defaultBlobContainerName,
+                defaultEnvVar
+            )
+        }
+        private val blobDownloadRetryCount = System.getenv(defaultBlobDownloadRetryVar)?.toIntOrNull()
+            ?: defaultBlobDownloadRetryCount
 
         /**
          * Map of reusable blob containers corresponding with specific blob container Metadata.
@@ -113,25 +144,20 @@ class BlobAccess() : Logging {
         }
 
         /**
-         * Obtain the blob connection string from the given environment.
+         * Obtain the blob connection string for a given environment variable name.
          */
-        fun getBlobConnection(blobConnEnvVar: String = defaultConnEnvVar): String {
+        fun getBlobConnection(blobConnEnvVar: String = defaultEnvVar): String {
             return System.getenv(blobConnEnvVar)
-        }
-
-        /**
-         * Obtain the download retry value from the given environment.
-         */
-        fun getBlobDownloadRetry(blobDownloadRetryVar: String = defaultBlobDownloadRetryVar): Int {
-            return System.getenv(blobDownloadRetryVar)?.toIntOrNull() ?: defaultBlobDownloadRetryCount
         }
 
         /**
          * Obtain a client for interacting with the blob store.
          */
-        private fun getBlobClient(blobUrl: String, blobConnEnvVar: String = defaultConnEnvVar): BlobClient {
-            val blobConnection = getBlobConnection(blobConnEnvVar)
-            return BlobClientBuilder().connectionString(blobConnection).endpoint(blobUrl).buildClient()
+        private fun getBlobClient(
+            blobUrl: String,
+            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata
+        ): BlobClient {
+            return BlobClientBuilder().connectionString(blobConnInfo.connectionString).endpoint(blobUrl).buildClient()
         }
 
         /**
@@ -141,11 +167,10 @@ class BlobAccess() : Logging {
         internal fun uploadBlob(
             blobName: String,
             bytes: ByteArray,
-            blobContainerName: String = defaultBlobContainerName,
-            blobConnEnvVar: String = defaultConnEnvVar
+            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata
         ): String {
             logger.info("Starting uploadBlob of $blobName")
-            val blobClient = getBlobContainer(blobContainerName, blobConnEnvVar).getBlobClient(blobName)
+            val blobClient = getBlobContainer(blobConnInfo).getBlobClient(blobName)
             blobClient.upload(
                 ByteArrayInputStream(bytes),
                 bytes.size.toLong()
@@ -155,19 +180,23 @@ class BlobAccess() : Logging {
         }
 
         /** Checks if a blob actually exists in the blobstore */
-        fun exists(blobUrl: String): Boolean {
-            return getBlobClient(blobUrl).exists()
+        fun exists(blobUrl: String, blobConnInfo: BlobContainerMetadata = defaultBlobMetadata): Boolean {
+            return getBlobClient(blobUrl, blobConnInfo).exists()
         }
 
         /**
          * Download the blob at the given [blobUrl] as a ByteArray
          */
-        fun downloadBlobAsByteArray(blobUrl: String, retries: Int = getBlobDownloadRetry()): ByteArray {
+        fun downloadBlobAsByteArray(
+            blobUrl: String,
+            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
+            retries: Int = blobDownloadRetryCount
+        ): ByteArray {
             val stream = ByteArrayOutputStream()
             logger.debug("BlobAccess Starting download for blobUrl $blobUrl")
             val options = DownloadRetryOptions().setMaxRetryRequests(retries)
             stream.use {
-                getBlobClient(blobUrl).downloadStreamWithResponse(
+                getBlobClient(blobUrl, blobConnInfo).downloadStreamWithResponse(
                     it,
                     null,
                     options,
@@ -184,10 +213,14 @@ class BlobAccess() : Logging {
         /**
          * Download the blob at the given [blobUrl] as BinaryData
          */
-        fun downloadBlobAsBinaryData(blobUrl: String, retries: Int = getBlobDownloadRetry()): BinaryData {
+        fun downloadBlobAsBinaryData(
+            blobUrl: String,
+            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
+            retries: Int = blobDownloadRetryCount
+        ): BinaryData {
             logger.debug("BlobAccess Starting download for blobUrl $blobUrl")
             val options = DownloadRetryOptions().setMaxRetryRequests(retries)
-            val binaryData = getBlobClient(blobUrl).downloadContentWithResponse(
+            val binaryData = getBlobClient(blobUrl, blobConnInfo).downloadContentWithResponse(
                 options,
                 null,
                 null,
@@ -198,14 +231,14 @@ class BlobAccess() : Logging {
         }
 
         /**
-         * Copy a blob at [fromBlobUrl] to a blob in [toBlobContainer]
+         * Copy a blob at [fromBlobUrl] to a blob in [blobConnInfo]
          */
-        fun copyBlob(fromBlobUrl: String, toBlobContainer: String, toBlobConnEnvVar: String): String {
+        fun copyBlob(fromBlobUrl: String, blobConnInfo: BlobContainerMetadata): String {
             val fromBytes = downloadBlobAsByteArray(fromBlobUrl)
             logger.info("Ready to copy ${fromBytes.size} bytes from $fromBlobUrl")
             val toFilename = BlobInfo.getBlobFilename(fromBlobUrl)
             logger.info("New blob filename will be $toFilename")
-            val toBlobUrl = uploadBlob(toFilename, fromBytes, toBlobContainer, toBlobConnEnvVar)
+            val toBlobUrl = uploadBlob(toFilename, fromBytes, blobConnInfo)
             logger.info("New blob URL is $toBlobUrl")
             return toBlobUrl
         }
@@ -213,39 +246,38 @@ class BlobAccess() : Logging {
         /**
          * Delete a blob at [blobUrl]
          */
-        fun deleteBlob(blobUrl: String) {
-            getBlobClient(blobUrl).delete()
+        fun deleteBlob(blobUrl: String, blobConnInfo: BlobContainerMetadata = defaultBlobMetadata) {
+            getBlobClient(blobUrl, blobConnInfo).delete()
         }
 
         /**
          * Check the connection to the blob store
          */
-        fun checkConnection(blobConnEnvVar: String = defaultConnEnvVar) {
-            val blobConnection = getBlobConnection(blobConnEnvVar)
-            BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
+        fun checkConnection(blobConnInfo: BlobContainerMetadata = defaultBlobMetadata) {
+            BlobServiceClientBuilder().connectionString(blobConnInfo.connectionString).buildClient()
         }
 
         /**
-         * Creates the blob container client for the given blob [name] and connection string
-         * (obtained from the environment variable [blobConnEnvVar]), or reuses an existing one.
+         * Creates the blob container client for the given [blobConnInfo].
+         * If one exists for the container name and connection string, the existing one will be reused.
          * @return the blob container client
          */
-        private fun getBlobContainer(name: String, blobConnEnvVar: String = defaultConnEnvVar): BlobContainerClient {
-            val blobConnection = getBlobConnection(blobConnEnvVar)
-            val blobContainerMetadata = BlobContainerMetadata(name, blobConnection)
-
-            return if (blobContainerClients.containsKey(blobContainerMetadata)) {
-                blobContainerClients[blobContainerMetadata]!!
+        private fun getBlobContainer(blobConnInfo: BlobContainerMetadata): BlobContainerClient {
+            return if (blobContainerClients.containsKey(blobConnInfo)) {
+                blobContainerClients[blobConnInfo]!!
             } else {
-                val blobServiceClient = BlobServiceClientBuilder().connectionString(blobConnection).buildClient()
-                val containerClient = blobServiceClient.getBlobContainerClient(name)
+                val blobServiceClient = BlobServiceClientBuilder()
+                    .connectionString(blobConnInfo.connectionString)
+                    .buildClient()
+                val containerClient = blobServiceClient
+                    .getBlobContainerClient(blobConnInfo.containerName)
                 try {
                     if (!containerClient.exists()) containerClient.create()
-                    blobContainerClients[blobContainerMetadata] = containerClient
+                    blobContainerClients[blobConnInfo] = containerClient
                 } catch (error: BlobStorageException) {
                     // This can happen when there are concurrent calls to the API
                     if (error.errorCode.equals(BlobErrorCode.CONTAINER_ALREADY_EXISTS)) {
-                        logger.warn("Container $name already exists")
+                        logger.warn("Container ${blobConnInfo.containerName} already exists")
                     } else {
                         throw error
                     }
