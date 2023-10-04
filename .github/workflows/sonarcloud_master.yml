@@ -8,7 +8,7 @@ on:
   pull_request:
     branches:
       - master
-  paths:
+    paths:
       - "prime-router/**"
       - "frontend-react/**"
 
