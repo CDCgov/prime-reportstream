@@ -415,7 +415,7 @@ class BatchFunctionTests {
         every { timing1.operation } returns Receiver.BatchOperation.NONE
         mockkObject(BlobAccess.Companion)
         mockkObject(ActionHistory)
-        every { BlobAccess.Companion.downloadBlob(any()) } returns ByteArray(4)
+        every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns ByteArray(4)
         every { BlobAccess.Companion.deleteBlob(any()) } just Runs
         every { BlobAccess.Companion.exists(any()) } returns true
         every { ActionHistory.sanityCheckReports(any(), any(), any()) } just Runs
@@ -453,11 +453,11 @@ class BatchFunctionTests {
         BatchFunction(engine).run(message, context = null)
 
         // verify that we only download blobs once in legacy pipeline
-        verify(exactly = 1) { BlobAccess.Companion.downloadBlob(bodyURL) }
+        verify(exactly = 1) { BlobAccess.Companion.downloadBlobAsByteArray(bodyURL, any(), any()) }
 
         // setup for universal pipeline
         clearMocks(BlobAccess.Companion)
-        every { BlobAccess.Companion.downloadBlob(any()) } returns ByteArray(4)
+        every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns ByteArray(4)
         every {
             BlobAccess.Companion.uploadBody(any(), any(), any(), any(), any())
         } returns mockk<BlobAccess.BlobInfo>()
@@ -469,6 +469,9 @@ class BatchFunctionTests {
         BatchFunction(engine).run(message, context = null)
 
         // verify that we only download blobs once in universal pipeline
-        verify(exactly = 1) { BlobAccess.Companion.downloadBlob(bodyURL) }
+        verify(exactly = 1) { BlobAccess.Companion.downloadBlobAsByteArray(bodyURL, any(), any()) }
+
+        // cleanup
+        unmockkObject(Topic.COVID_19)
     }
 }
