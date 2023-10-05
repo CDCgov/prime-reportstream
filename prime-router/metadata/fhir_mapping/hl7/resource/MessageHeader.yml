@@ -17,11 +17,17 @@ source:
   specs: MSH.3 | MSH.24
 
 #map MSH.4
+#sender:
+#  valueOf: resource/MessageSender
+#  expressionType: reference
+#  vars:
+#    country: MSH.17
+
 sender:
-  valueOf: resource/MessageSender
+  valueOf: datatype/HDToOrganization
   expressionType: reference
-  vars:
-    country: MSH.17
+  generateList: true
+  specs: MSH.4
 
 destination:
   valueOf: resource/messageheader/destination/Destination
