@@ -13,6 +13,7 @@ locals {
     OKTA_clientId       = "0oa2fs6vp3W5MTzjh1d7"
     fn_OKTA_clientId    = "0oa6kjcmi6muNvU8p1d7"
     OKTA_scope          = "simple_report_dev"
+    storage_queue_name  =["process", "batch", "batch-poison", "elr-fhir-convert", "process-poison", "send", "send-poison", "elr-fhir-convert", "elr-fhir-convert-poison", "elr-fhir-route", "elr-fhir-translate", "elr-fhir-translate-poison", "process-elr"]
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig"

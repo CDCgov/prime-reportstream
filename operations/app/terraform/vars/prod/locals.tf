@@ -13,6 +13,8 @@ locals {
     OKTA_clientId       = "0oa6kt4j3tOFz5SH84h6"
     fn_OKTA_clientId    = "0oa6kt4j3tOFz5SH84h6"
     OKTA_scope          = "simple_report_dev"
+    storage_queue_name  =["process"]
+    
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig"
