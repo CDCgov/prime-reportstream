@@ -235,15 +235,19 @@ runs:
         slot-name: candidate
 
     - name: Promote candidate slot
-      id: promote-candidate
-      working-directory: operations
-      run: |
-        make \
-          TF_ENV=${{ env.TERRAFORM_ENV }} \
-          AZ_RESOURCE_PREFIX=${{ env.IMAGE_REPO }} \
-          AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
-          zdd-promote-slot
-      shell: bash
+      uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
+      with:
+        timeout_minutes: 10
+        max_attempts: 2
+        retry_wait_seconds: 30
+        command: |
+          cd operations
+          make \
+            TF_ENV=${{ env.TERRAFORM_ENV }} \
+            AZ_RESOURCE_PREFIX=${{ env.IMAGE_REPO }} \
+            AZ_RESOURCE_GROUP=${{ env.RESOURCE_GROUP }} \
+            zdd-promote-slot
+        shell: bash
 
     - name: Remove GitHub action IP whitelist
       if: ${{ always() }} # This should happen even on a failure
