@@ -139,3 +139,31 @@ requests
     action_group = [local.action_group_id]
   }
 }
+
+resource "azurerm_monitor_scheduled_query_rules_alert" "http_504-alert" {
+  count = local.alerting_enabled
+
+  name                = "${var.environment}-504-alert"
+  description         = "Raise alert on any 504 responses from the Front Door."
+  location            = var.location
+  resource_group_name = var.resource_group
+  severity            = 1
+  frequency           = 5
+  time_window         = 5
+
+  data_source_id = local.app_insights_id
+
+  query = <<-QUERY
+AzureDiagnostics
+| where ResourceType == 'FRONTDOORS' and httpStatusCode_s == '504'
+  QUERY
+
+  trigger {
+    operator  = "GreaterThanOrEqual"
+    threshold = 1
+  }
+
+  action {
+    action_group = [local.action_group_id]
+  }
+}

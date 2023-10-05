@@ -8,20 +8,20 @@ id:
 # However, we do not want empty practitioner resources.
 # Therefore, wherever Practitioner is referenced make sure to verify the value is NOT_NULL.
 identifier_1:
-    valueOf: datatype/Identifier_SystemID 
-    generateList: true
-    expressionType: resource
-    specs: XCN | CNN| NDL | PPN
-    vars:
-      systemID: XCN.9 | CNN.9 | NDL.9 | PPN.9
-      value: XCN.1 | CNN.1 | NDL.1 | PPN.1
-      typeSegment: XCN.13
+  valueOf: datatype/Identifier_SystemID
+  generateList: true
+  expressionType: resource
+  specs: XCN | CNN| NDL | PPN
+  vars:
+    systemID: XCN.9 | CNN.9 | NDL.9 | PPN.9
+    value: XCN.1 | CNN.1 | NDL.1 | PPN.1
+    typeSegment: XCN.13
 
-name: 
-    specs: XCN | XCN | CNN | NDL | PPN
-    valueOf: datatype/HumanName
-    generateList: true
-    expressionType: resource
+name:
+  specs: XCN | XCN | CNN | NDL | PPN
+  valueOf: datatype/HumanName
+  generateList: true
+  expressionType: resource
 
 address:
   valueOf: datatype/Address
@@ -42,11 +42,13 @@ telecom_1:
     obr17: OBR.17
 
 telecom_2:
-  condition: $useObrOrcCallbackNumber NOT_NULL
+  condition: $useObrOrcCallbackNumber NOT_NULL && $obr17 NOT_NULL
   valueOf: datatype/ContactPoint
   expressionType: resource
   generateList: true
   specs: OBR.17
+  vars:
+    obr17: OBR.17
 
 extension_1:
   generateList: true

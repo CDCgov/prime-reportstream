@@ -19,6 +19,7 @@ import { PageSettingsActionType } from "../../../hooks/filters/UsePages";
 import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import { USLink } from "../../USLink";
+import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
 
 function DashboardFilterAndTable({
     receiverServices,
@@ -169,14 +170,14 @@ export default function DataDashboardTable() {
         return <AdminFetchAlert />;
     }
 
-    if (!loadingServices && !activeService)
+    if (
+        !loadingServices &&
+        (!activeService ||
+            activeService?.customerStatus === CustomerStatusType.INACTIVE)
+    )
         return (
             <div className="usa-section margin-bottom-10">
-                <NoServicesBanner
-                    featureName="Active Services"
-                    organization=""
-                    serviceType={"receiver"}
-                />
+                <NoServicesBanner />
             </div>
         );
 

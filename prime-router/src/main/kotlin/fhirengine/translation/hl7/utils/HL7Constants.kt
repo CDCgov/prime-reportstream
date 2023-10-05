@@ -13,6 +13,13 @@ object HL7Constants {
      */
 
     /**
+     * First three characters of a HL7 field
+     *
+     * MSH-3-1 -> MSH
+     */
+    const val SEGMENT_NAME_LENGTH = 3
+
+    /**
      * List of fields that have the local HD type.
      */
     val HD_FIELDS_LOCAL = listOf(

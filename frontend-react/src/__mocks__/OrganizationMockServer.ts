@@ -9,6 +9,7 @@ import {
     RSReceiver,
     RSSender,
 } from "../config/endpoints/settings";
+import { CustomerStatusType } from "../utils/DataDashboardUtils";
 
 const base = `${config.API_ROOT}/settings/organizations`;
 const getSender = (org: string, sender: string) =>
@@ -72,11 +73,27 @@ export const receiversGenerator = (count: number) => {
             organizationName: "testOrg",
         });
     }
+    // Used to test sorting
+    receiverServices.push({
+        name: `abc-1`,
+        organizationName: "testOrg",
+    });
+
+    // Used to test filter
+    receiverServices.push({
+        name: `abc-2`,
+        organizationName: "testOrg",
+        customerStatus: CustomerStatusType.INACTIVE,
+    });
+
     return receiverServices;
 };
 
 export const dummyReceivers = receiversGenerator(5);
-export const dummyActiveReceiver = dummyReceivers[0];
+export const dummyActiveReceiver = {
+    name: `abc-1`,
+    organizationName: "testOrg",
+};
 
 export const publicKeysGenerator = (apiKeyCount: number) => {
     let publicKey: RSApiKeysResponse;

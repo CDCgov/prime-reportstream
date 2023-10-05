@@ -46,7 +46,7 @@ import gov.cdc.prime.router.common.DateUtilities.formatDateTimeForReceiver
 import gov.cdc.prime.router.common.Hl7Utilities
 import gov.cdc.prime.router.common.StringUtilities.trimAndTruncate
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
-import gov.cdc.prime.router.fhirengine.translation.hl7.HL7Truncator
+import gov.cdc.prime.router.fhirengine.translation.hl7.CovidPipelineHL7Truncator
 import gov.cdc.prime.router.fhirengine.translation.hl7.config.TruncationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.CE_FIELDS
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants.HD_FIELDS_UNIVERSAL
@@ -72,7 +72,7 @@ const val BUFFER_CAPACITY = 40000
 class Hl7Serializer(
     val metadata: Metadata,
     val settings: SettingsProvider,
-    val hl7Truncator: HL7Truncator = HL7Truncator()
+    val hl7Truncator: CovidPipelineHL7Truncator = CovidPipelineHL7Truncator()
 ) : Logging {
     /**
      * HL7 mapping of all messages in a report submission.

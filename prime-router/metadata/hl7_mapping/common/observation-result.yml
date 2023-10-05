@@ -9,73 +9,77 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-dt
-    condition: '%resource.value is dateTime'
+    condition: '%resource.value.exists() and %resource.value.is(dateTime)'
     value: [ '"DT"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-ce
-    condition: '%resource.value is CodeableConcept'
-    # Note that for v.2.5 and earlier CWE is not in-spec.
+    resource: '%resource.value'
+    condition: false
+    # This element remains here for usage in receiver-transforms
     value: [ '"CE"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-cwe
     resource: '%resource.value'
-    condition: '%resource is CodeableConcept and (%resource.coding[0].version.exists() or %resource.coding[1].version.exists() or %resource.text.exists())'
-    # Note that for v.2.5 and earlier, CWE is not officially in-spec, but is widely used.
+    condition: '%resource.exists() and %resource.is(CodeableConcept)'
+    # Note that for v.2.5 and earlier, CWE is not officially in-spec, but is widely used. If a receiver requires
+    # CE, that should be handled via receiver transform
     value: [ '"CWE"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-sn
-    condition: '%resource.value is Ratio'
+    condition: '%resource.value.exists() and %resource.value.is(Ratio)'
     value: [ '"SN"' ]
+    hl7Spec: [ '%{hl7OBXField}-2' ]
+
+  - name: result-value-type-nm
+    condition: '%resource.value.exists() and %resource.value.is(Quantity)'
+    value: [ '"NM"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: observation-identifier-code
     resource: '%resource.code'
-    condition: '%resource.text.exists().not()'
     constants:
       cweFieldPath: '%{hl7OBXField}-3'
-    schema: ../../common/datatype/ce-coded-with-exceptions
-
-  - name: observation-identifier-code
-    resource: '%resource.code'
-    condition: '%resource.text.exists()'
-    constants:
-      cweFieldPath: '%{hl7OBXField}-3'
-    schema: ../../common/datatype/ce-coded-with-exceptions
+    schema: ./datatype/ce-coded-with-exceptions
 
   - name: observation-value-sub-id
     value: [ '%resource.extension(%`rsext-sub-id`).value' ]
     hl7Spec: [ '%{hl7OBXField}-4' ]
 
   - name: observation-value-st
-    condition: '%resource.value is string'
+    condition: '%resource.value.exists() and %resource.value is string'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{hl7OBXField}-5' ]
 
   - name: observation-value-dateTime
-    condition: '%resource.value is dateTime'
+    condition: '%resource.value.exists() and %resource.value is dateTime'
     value: [ '%resource.value' ]
     hl7Spec: [ '%{hl7OBXField}-5' ]
 
   - name: observation-value-cwe
     resource: '%resource.value'
-    condition: '%resource is CodeableConcept'
+    condition: '%resource.exists() and %resource is CodeableConcept'
     constants:
       cweFieldPath: '%{hl7OBXField}-5'
-    schema: ../../common/datatype/ce-coded-with-exceptions
+    schema: ./datatype/ce-coded-with-exceptions
+
+  - name: observation-value-quantity
+    condition: '%resource.value.exists() and %resource.value is Quantity'
+    value: [ '%resource.value.value' ]
+    hl7Spec: [ '%{hl7OBXField}-5' ]
 
   - name: observation-value-numeric
     resource: '%resource.value'
-    condition: '%resource is Ratio'
-    schema: ../../common/datatype/sn-structured-numeric
+    condition: '%resource.exists() and %resource is Ratio'
+    schema: ./datatype/sn-structured-numeric
 
   - name: observation-units-identifier
     resource: '%resource.extension(%`rsext-units`).value'
     constants:
       cweFieldPath: '%{hl7OBXField}-6'
-    schema: ../../common/datatype/ce-coded-with-exceptions
+    schema: ./datatype/ce-coded-with-exceptions
 
   - name: observation-reference-range
     value: [ '%resource.referenceRange.text' ]
@@ -85,7 +89,7 @@ elements:
     resource: '%resource.interpretation'
     constants:
       cweFieldPath: '%{hl7OBXField}-8'
-    schema: ../../common/datatype/ce-coded-with-exceptions
+    schema: ./datatype/ce-coded-with-exceptions
 
   - name: observation-result-status
     value: [ '%resource.status' ]
@@ -101,7 +105,7 @@ elements:
         entered-in-error: W
 
   - name: observation-result-status-cancelled
-    value: ["'X'"]
+    value: [ "'X'" ]
     condition: '%resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").exists() and %resource.dataAbsentReason.coding.where(extension(%`rsext-code-index-name`).value = "identifier").code = "cannot-be-obtained"'
     hl7Spec: [ '%{hl7OBXField}-11' ]
 
@@ -119,7 +123,7 @@ elements:
     resource: '%resource.extension(%`rsext-producer-id`).value'
     constants:
       ceFieldPath: '%{hl7OBXField}-15'
-    schema: ../../common/datatype/ce-coded-element
+    schema: ./datatype/ce-coded-element
 
   - name: observation-producer-id-identifier
     resource: '%resource.extension(%`rsext-producer-id`).value.resolve()'
@@ -141,59 +145,74 @@ elements:
     condition: '%resource.identifier.type.coding.code="responsibleObserver"'
     constants:
       hl7XCNField: '%{hl7OBXField}-16'
-    schema: ../../common/datatype/xcn-contact
+    schema: ./datatype/xcn-contact
     resourceIndex: contactIndex
 
   - name: observation-method
     resource: '%resource.method'
-    schema: ../../common/datatype/ce-coded-with-exceptions
+    schema: ./datatype/ce-coded-with-exceptions
     constants:
       cweFieldPath: '%{hl7OBXField}-17'
+
+  - name: equipment-instance-identifier
+    resource: '%resource.device.resolve().identifier'
+    schema: ./datatype/ei-entity-identifier
+    constants:
+      entityIdFieldPath: '%{hl7OBXField}-18'
 
   - name: analysis-date-time
     value: [ '%resource.issued' ]
     hl7Spec: [ '%{hl7OBXField}-19' ]
 
   - name: performing-organization-name-pracrole
-    condition: '%observation.performer.resolve() is PractitionerRole'
-    resource: '%resource.performer.resolve().organization.resolve()'
-    schema: ../../common/datatype/xon-organization
+    condition: >
+      %observation.performer.resolve().ofType(PractitionerRole).exists() and 
+      (%observation.performer.resolve().ofType(PractitionerRole).practitioner.exists() or
+       %observation.performer.resolve().ofType(PractitionerRole).practitioner.identifier.type.coding.code="MDIR")
+    resource: '%resource.performer.resolve().ofType(PractitionerRole).organization.resolve()'
+    schema: ./datatype/xon-organization
     constants:
       hl7OrgField: '%{hl7OBXField}-23'
 
   - name: performing-organization-name-non-pracrole
-    condition: '%observation.performer.resolve().is(PractitionerRole).not()'
-    resource: '%resource.performer.resolve()'
-    schema: ../../common/datatype/xon-organization
+    condition: '%observation.performer.resolve().ofType(Organization).exists()'
+    resource: '%resource.performer.resolve().ofType(Organization)'
+    schema: ./datatype/xon-organization
     constants:
       hl7OrgField: '%{hl7OBXField}-23'
 
   - name: performing-organization-address-pracrole
-    condition: '%observation.performer.resolve() is PractitionerRole'
-    resource: '%resource.performer.resolve().organization.resolve().address'
+    condition: >
+      %observation.performer.resolve().ofType(PractitionerRole).exists() and 
+      (%observation.performer.resolve().ofType(PractitionerRole).practitioner.exists() or
+       %observation.performer.resolve().ofType(PractitionerRole).practitioner.identifier.type.coding.code="MDIR")
+    resource: '%resource.performer.resolve().ofType(PractitionerRole).organization.resolve().address'
     constants:
       hl7AddressField: '%{hl7OBXField}-24'
-    schema: ../../common/datatype/xad-extended-address
+    schema: ./datatype/xad-extended-address
     resourceIndex: contactIndex
 
   - name: performing-organization-address-non-pracrole
-    condition: '%observation.performer.resolve().is(PractitionerRole).not()'
-    resource: '%resource.performer.resolve().address'
+    condition: '%observation.performer.resolve().ofType(Organization).exists()'
+    resource: '%resource.performer.resolve().ofType(Organization).address'
     constants:
       hl7AddressField: '%{hl7OBXField}-24'
-    schema: ../../common/datatype/xad-extended-address
+    schema: ./datatype/xad-extended-address
     resourceIndex: contactIndex
 
+  # This is technically incorrect as this should be using the PractitionerRole instead
+  # It works because the HL7 -> FHIR mapping sets the same value on the practitioner
+  # It cannot be changed at this time because this is the shape of the FHIR that SR sends in
   - name: performing-organization-director
     resource: '%resource.performer.resolve().practitioner.resolve()'
     condition: '%resource.identifier.type.coding.code="MDIR"'
     constants:
       hl7XCNField: '%{hl7OBXField}-25'
-    schema: ../../common/datatype/xcn-contact
+    schema: ./datatype/xcn-contact
     resourceIndex: contactIndex
 
   - name: observation-note
-    condition: '%observation.note.exists()'
+    condition: '%context.note.exists()'
     resource: '%resource.note.text.split(''\n'')'
     schema: note
     resourceIndex: noteIndex
