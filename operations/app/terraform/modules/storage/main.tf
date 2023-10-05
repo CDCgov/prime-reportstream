@@ -185,7 +185,7 @@ resource "azurerm_storage_account" "storage_public" {
   }
 
   network_rules {
-    default_action = "Allow"
+    default_action = "Deny"  # Change the default_action to "Deny"
   }
 
   identity {
