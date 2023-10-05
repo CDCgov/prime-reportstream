@@ -6,6 +6,14 @@ name:
   vars:
     msh25: MSH.25
 
+software:
+  condition: $msh25 NOT_NULL
+  type: STRING
+  valueOf: MSH.5.2
+  expressionType: HL7Spec
+  vars:
+    msh25: MSH.25
+
 endpoint_1:
   condition: $msh25 NULL && $idStr NOT_NULL && $systemStr EQUALS ISO
   type: URL
@@ -72,17 +80,34 @@ endpoint_5:
     urlPrefix: "urn:clia:"
 
 endpoint_6:
-  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI && $systemStr NOT_EQUALS CLIA
   type: URL
-  valueOf: $idValue
+  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI && $systemStr NOT_EQUALS CLIA
+  valueOf: $value
   expressionType: HL7Spec
   vars:
     msh25: MSH.25
     idStr: MSH.5.2
-    idValue: $urlPrefix + MSH.5.2
     systemStr: String, MSH.5.3
+    value: MSH.5.1 + $dash + MSH.5.3 + $colon + MSH.5.2
+  constants:
+    dash: "-"
+    colon: ":"
 
 endpoint_7:
+  type: URL
+  condition: $msh25 NULL && $systemStr NULL
+  valueOf: $value
+  expressionType: HL7Spec
+  vars:
+    msh25: MSH.25
+    idStr: MSH.5.2
+    systemStr: String, MSH.5.3
+    value: MSH.5.1 + $dash + $colon + MSH.5.2
+  constants:
+    dash: "-"
+    colon: ":"
+
+endpoint_8:
   condition: $msh25 NOT_NULL
   type: URL
   valueOf: MSH.25

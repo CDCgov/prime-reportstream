@@ -12,8 +12,9 @@ eventCoding:
   expressionType: HL7Spec
 
 source:
-  valueOf: secondary/Source
+  valueOf: resource/messageheader/source/Source
   expressionType: resource
+  specs: MSH.3 | MSH.24
 
 #map MSH.4
 sender:
@@ -23,7 +24,7 @@ sender:
     country: MSH.17
 
 destination:
-  valueOf: secondary/Destination
+  valueOf: resource/messageheader/destination/Destination
   generateList: true
   expressionType: resource
 
