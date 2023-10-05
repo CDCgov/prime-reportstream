@@ -13,6 +13,8 @@ import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.blob.models.BlobDownloadContentResponse
 import com.azure.storage.blob.models.BlobDownloadResponse
+import com.azure.storage.blob.models.BlobItem
+import com.azure.storage.blob.models.ListBlobsOptions
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
@@ -33,6 +35,7 @@ import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.net.MalformedURLException
+import java.time.Duration
 
 class BlobAccessTests {
     @AfterEach
@@ -226,6 +229,125 @@ class BlobAccessTests {
 
         val result = BlobAccess.exists(testUrl)
         assertThat(result).isTrue()
+    }
+    @Test
+    fun `list blobs`() {
+        // test blobs hierarchy:
+        // start directory
+        // testblobbase/
+        //      |
+        //      +--> foo/
+        //      |      |
+        //      |      +---> foo_file1.txt
+        //      |      |
+        //      |      +---> foo_file2.txt
+        //      |
+        //      +--> bar/
+        //             |
+        //             +---> bar_file1.txt
+        //             |
+        //             +---> bar_file2.txt
+        //      top_file1.txt
+        val optSlot = CapturingSlot<ListBlobsOptions>()
+        val testEnv = "testenvvar"
+        val testContainer = "testcontainer"
+        val testBlobBase = "testblobbase"
+        val expectedResult: List<BlobAccess.BlobEntry> = listOf(
+            BlobAccess.BlobEntry(
+                "$testBlobBase/foo/",
+                isPrefix = true,
+                versionId = "v1",
+                listOf<BlobAccess.BlobEntry>(
+                    BlobAccess.BlobEntry(
+                        "$testBlobBase/foo/foo_file1.txt",
+                        isPrefix = false,
+                        versionId = "v1",
+                        listOf()
+                    ),
+                    BlobAccess.BlobEntry(
+                        "$testBlobBase/foo/foo_file2.txt",
+                        isPrefix = false,
+                        versionId = "v1",
+                        listOf()
+                    )
+                )
+            ),
+            BlobAccess.BlobEntry(
+                "$testBlobBase/bar",
+                isPrefix = true,
+                versionId = "v1",
+                listOf<BlobAccess.BlobEntry>(
+                    BlobAccess.BlobEntry(
+                        "$testBlobBase/bar/bar_file1.txt",
+                        isPrefix = false,
+                        versionId = "v1",
+                        listOf()
+                    ),
+                    BlobAccess.BlobEntry(
+                        "$testBlobBase/bar/bar_file2.txt",
+                        isPrefix = false,
+                        versionId = "v1",
+                        listOf()
+                    )
+                )
+            ),
+            BlobAccess.BlobEntry(
+                "$testBlobBase/top_file.txt",
+                isPrefix = false,
+                versionId = "v1",
+                listOf()
+            )
+        )
+
+        val pathToListItems: Map<String, Array<BlobItem>> = mapOf(
+            Pair(
+                testBlobBase,
+                arrayOf<BlobItem>(
+                    BlobItem().setName("$testBlobBase/foo").setIsPrefix(true).setVersionId("v1"),
+                    BlobItem().setName("$testBlobBase/bar").setIsPrefix(true).setVersionId("v1"),
+                    BlobItem().setName("$testBlobBase/top_file.txt").setIsPrefix(false).setVersionId("v1")
+                )
+            ),
+            Pair(
+                "$testBlobBase/foo",
+                arrayOf<BlobItem>(
+                    BlobItem().setName("$testBlobBase/foo/foo_file1.txt").setIsPrefix(false).setVersionId("v1"),
+                    BlobItem().setName("$testBlobBase/foo/foo_file2.txt").setIsPrefix(false).setVersionId("v1")
+                )
+            ),
+            Pair(
+                "$testBlobBase/bar",
+                arrayOf<BlobItem>(
+                    BlobItem().setName("$testBlobBase/bar/bar_file1.txt").setIsPrefix(false).setVersionId("v1"),
+                    BlobItem().setName("$testBlobBase/bar/bar_file2.txt").setIsPrefix(false).setVersionId("v1")
+                )
+            ),
+        )
+
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+
+        every { BlobAccess.Companion.getBlobConnection(testEnv) } returns "testconnection"
+
+        val testBlobMetadata = BlobAccess
+            .BlobContainerMetadata.build(testContainer, testEnv)
+        val mockedContainerClient = mockkClass(BlobContainerClient::class)
+        every { BlobAccess.Companion.getBlobContainer(testBlobMetadata) } returns mockedContainerClient
+        every {
+            mockedContainerClient.listBlobsByHierarchy(
+                any(), capture(optSlot), any<Duration>()
+            ).iterator()
+        } answers {
+            pathToListItems[optSlot.captured.prefix]?.toMutableList()?.iterator()
+                ?: mutableListOf<BlobItem>().iterator()
+        }
+
+        val result = BlobAccess.listBlobs(
+            testBlobBase,
+            testBlobMetadata
+        )
+        // assert the expected here
+        assertThat(result.size).equals(expectedResult.size)
     }
 
     @Test
