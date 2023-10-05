@@ -231,7 +231,7 @@ class BlobAccessTests {
         assertThat(result).isTrue()
     }
     @Test
-    fun `list blobs`() {
+    fun `listblobs`() {
         // test blobs hierarchy:
         // start directory
         // testblobbase/
