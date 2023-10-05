@@ -1,6 +1,6 @@
 name_1:
   type: STRING
-  valueOf: HD.1
+  valueOf: MSH.3.1
   expressionType: HL7Spec
 
 # For all other ID types
@@ -10,9 +10,9 @@ name_2:
   valueOf: $value
   expressionType: HL7Spec
   vars:
-    idStr: String, HD.2
-    systemStr: String, HD.3
-    value: HD.1 + $dash + HD.3 + $colon + HD.2
+    idStr: String, MSH.3.2
+    systemStr: String, MSH.3.3
+    value: MSH.3.1 + $dash + MSH.3.3 + $colon + MSH.3.2
   constants:
     dash: "-"
     colon: ":"
@@ -24,9 +24,9 @@ name_3:
   valueOf: $value
   expressionType: HL7Spec
   vars:
-    idStr: String, HD.2
-    systemStr: String, HD.3
-    value: HD.1 + $dash + $colon + HD.2
+    idStr: String, MSH.3.2
+    systemStr: String, MSH.3.3
+    value: MSH.3.1 + $dash + $colon + MSH.3.2
   constants:
     dash: "-"
     colon: ":"
@@ -38,9 +38,9 @@ endpoint_1:
   valueOf: $value
   expressionType: HL7Spec
   vars:
-    idStr: String, HD.2
-    value: $oidUrlPrefix + HD.2
-    systemStr: String, HD.3
+    idStr: String, MSH.3.2
+    value: $oidUrlPrefix + MSH.3.2
+    systemStr: String, MSH.3.3
   constants:
     oidUrlPrefix: "urn:oid:"
 
@@ -51,9 +51,9 @@ endpoint_2:
   valueOf: $value
   expressionType: HL7Spec
   vars:
-    idStr: String, HD.2
-    value: $oidUrlPrefix + HD.2
-    systemStr: String, HD.3
+    idStr: String, MSH.3.2
+    value: $oidUrlPrefix + MSH.3.2
+    systemStr: String, MSH.3.3
   constants:
     oidUrlPrefix: "urn:uuid:"
 
@@ -64,9 +64,9 @@ endpoint_3:
   valueOf: $value
   expressionType: HL7Spec
   vars:
-    idStr: String, HD.2
-    value: $oidUrlPrefix + HD.2
-    systemStr: String, HD.3
+    idStr: String, MSH.3.2
+    value: $oidUrlPrefix + MSH.3.2
+    systemStr: String, MSH.3.3
   constants:
     oidUrlPrefix: "urn:dns:"
 
@@ -77,9 +77,9 @@ endpoint_4:
   valueOf: $value
   expressionType: HL7Spec
   vars:
-    idStr: String, HD.2
-    value: $oidUrlPrefix + HD.2
-    systemStr: String, HD.3
+    idStr: String, MSH.3.2
+    value: $oidUrlPrefix + MSH.3.2
+    systemStr: String, MSH.3.3
   constants:
     oidUrlPrefix: "urn:uri:"
 
@@ -88,14 +88,14 @@ endpoint_5:
   expressionType: resource
   valueOf: dataType/Endpoint
   vars:
-    systemStr: String, HD.3
+    systemStr: String, MSH.3.3
 
 endpoint_6:
   condition: $systemStr NULL
   expressionType: resource
   valueOf: dataType/Endpoint
   vars:
-    systemStr: String, HD.3
+    systemStr: String, MSH.3.3
 
 version:
   type: STRING
@@ -109,7 +109,7 @@ software_1:
 
 software_2:
   type: STRING
-  valueOf: HD.2
+  valueOf: MSH.3.2
   expressionType: HL7Spec
 
 extension_1:

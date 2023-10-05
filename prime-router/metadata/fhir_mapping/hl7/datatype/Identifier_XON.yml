@@ -1,4 +1,5 @@
 value:
+  condition: $val NOT_NULL
   type: STRING
   valueOf: $val
   vars:
@@ -15,16 +16,22 @@ type_1:
     systemCode: "v2-0203"
 
 extension_1-assigning-authority:
+  condition: $value NOT_NULL
   generateList: true
   expressionType: resource
   valueOf: extension/ExtensionHierarchicDesignator
   specs: XON.6
+  vars:
+    value: String, XON.6
   constants:
     urlValue: assigning-authority
 
 extension_2-assigning-facility:
+  condition: $value NOT_NULL
   generateList: true
   expressionType: nested
+  vars:
+    value: String, XON.8
   specs: XON.8
   expressionsMap:
     url:

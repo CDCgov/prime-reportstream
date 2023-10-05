@@ -3,6 +3,7 @@ system:
   valueOf: $system
 
 value:
+  condition: $val NOT_NULL
   type: STRING
   valueOf: $val
   required: true
