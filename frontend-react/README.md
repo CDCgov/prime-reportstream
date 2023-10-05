@@ -108,3 +108,112 @@ NOTE: This only works `run:build-dir` because webpack's dynamic runtime updating
 `.github/workflows/chromatic-master.yml` triggers a Chromatic build anytime a PR gets merged into our `master` branch.
 
 `.github/workflows/chromatic-pr.yml` triggers a Chromatic build anytime a file with `// AutoUpdateFileChromatic` comment on its FIRST LINE is checked in to a PR. The goal here is to automatically update our Chromatic anytime a file that has an associated Storybook is modified.
+
+## CSS Norms
+
+For any new components we create, we have the pattern of Folder + Component + CSS + Storybook. If our component is called ExampleTable, then the structure should look like:
+
+```
+/ExampleTable/ExampleTable.tsx
+/ExampleTable/ExampleTable.module.scss
+/ExampleTable/ExampleTable.stories.tsx
+```
+
+Within `ExampleTable.module.scss`, the CSS structures should look as follows:
+
+```
+.ExampleTable {
+  :global {
+
+  }
+}
+```
+
+Within the `ExampleTable.tsx` itself, the top-level element should use the CSS Module syntax:
+
+```
+import styles from "./ExampleTable.module.scss";
+
+export const ExampleTable = () => {
+  return (
+    <div className={styles.ExampleTable}>
+    </div>
+  )
+}
+```
+
+The idea here is that the top-level class of `.ExampleTable` will allow us to write simple, easy-to-read SASS in the component and stylesheet. No need for anymore CSS Module syntax as the `:global {}` allows us to write regular SASS within, which is protected by the name-spaced `.ExampleTable` CSS Module class. (If for some reason you need to revert to locally scoped variable within the `:global {}` block you can use `:local {}`) 
+
+Now, there are two scenarios in which we're writing CSS for our components: 1, writing brand-new styles. 2, overwriting USWDS styles.
+
+For your own custom styles, you should follow a BEM methodology while keeping your naming as semantic as possible, so if our code looks like this:
+
+<!-- ExampleTable.tsx -->
+```
+import styles from "./ExampleTable.module.scss";
+
+export const ExampleTable = () => {
+  return (
+    <div className={styles.ExampleTable}>
+      <div className="section">
+        <div className="logo__container">
+          <img className="logo__img" src="" />
+          <p className="logo__text">Image</p>
+        </div>
+        <p className="content"></p>
+        <p className="content content--alternate"></p>
+      </div>
+    </div>
+  )
+}
+```
+
+Then our CSS would look like: 
+
+<!-- ExampleTable.module.scss -->
+```
+.ExampleTable {
+  :global {
+    .section {
+      padding: 1rem;
+    }
+
+    .logo {
+      &__img {
+        height: 12px;
+        width: 12px;
+      }
+
+      &__text {
+        font-size 8px;
+      }
+    }
+
+    .content {
+      font-size: 22px;
+      line-height: 24px;
+      color: black;
+
+      &--alternate {
+        color: blue;
+      }
+    }
+
+  }
+}
+```
+
+For overwriting USWDS styles, you'd just see look at the rendered DOM elements with Dev Tools, and find what selectors USWDS is using and then apply them like so:
+
+<!-- ExampleTable.module.scss -->
+```
+.ExampleTable {
+  :global {
+    .usa-navbar {
+      text-decoration: none;
+    }
+  }
+}
+```
+ 
+ These overwrites will ONLY be scoped to your particular component.

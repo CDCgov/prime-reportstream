@@ -6,6 +6,8 @@ on:
       - master
     paths:
       - "prime-router/**"
+      - ".github/workflows/build_hub.yml"
+      - ".github/actions/build-backend/action.yml"
 
 env:
   # These are for CI and not credentials of any system
@@ -20,7 +22,7 @@ jobs:
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -36,7 +38,7 @@ jobs:
 
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
 
       - name: Build backend
         uses: ./.github/actions/build-backend
@@ -105,7 +107,7 @@ jobs:
 
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
 
       - name: Build backend
         uses: ./.github/actions/build-backend

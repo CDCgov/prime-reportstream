@@ -146,7 +146,7 @@ class BatchFunctionTests {
             every { mockWorkflowEngine.db.insertTask(any(), any(), any(), any(), any()) } returns Unit
             every { mockWorkflowEngine.metadata } returns mockMetadata
             every { mockActionHistory.trackExistingInputReport(any()) } returns Unit
-            every { BlobAccess.Companion.downloadBlob(any()) } returns "somecontent".toByteArray()
+            every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns "somecontent".toByteArray()
             every { Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any(), any()) } returns
                 Triple(mockReport, mockEvent, BlobAccess.BlobInfo(Report.Format.HL7, "someurl", "digest".toByteArray()))
             every { HL7MessageHelpers.batchMessages(any(), receiver) } returns "batchstring"
@@ -155,7 +155,7 @@ class BatchFunctionTests {
         batchFunction.batchUniversalData(headers, mockActionHistory, receiver, mockTxn)
         verify(exactly = 2) {
             mockActionHistory.trackExistingInputReport(any())
-//            BlobAccess.Companion.downloadBlob(any()) TODO: re-enable after fixing batch test (see #11639)
+//            BlobAccess.Companion.downloadBlobAsByteArray(any(), any(), any()) TODO: re-enable after fixing batch test (see #11639)
             Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any(), any())
             mockWorkflowEngine.db.insertTask(any(), any(), any(), any(), any())
         }
@@ -177,7 +177,7 @@ class BatchFunctionTests {
         batchFunction.batchUniversalData(headers, mockActionHistory, receiver, mockTxn)
         verify(exactly = 2) {
             mockActionHistory.trackExistingInputReport(any())
-//            BlobAccess.Companion.downloadBlob(any()) TODO: re-enable after fixing batch test (see #11639)
+//            BlobAccess.Companion.downloadBlobAsByteArray(any(), any(), any()) TODO: re-enable after fixing batch test (see #11639)
             Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any(), any())
             mockWorkflowEngine.db.insertTask(any(), any(), any(), any(), any())
         }
@@ -199,7 +199,7 @@ class BatchFunctionTests {
         batchFunction.batchUniversalData(headers, mockActionHistory, receiver, mockTxn)
         verify(exactly = 2) {
             mockActionHistory.trackExistingInputReport(any())
-//            BlobAccess.Companion.downloadBlob(any()) TODO: re-enable after fixing batch test (see #11639)
+//            BlobAccess.Companion.downloadBlobAsByteArray(any(), any(), any()) TODO: re-enable after fixing batch test (see #11639)
         }
         verify(exactly = 1) {
             Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any(), any())
@@ -277,7 +277,7 @@ class BatchFunctionTests {
             every { mockWorkflowEngine.db.insertTask(any(), any(), any(), any(), any()) } returns Unit
             every { mockWorkflowEngine.metadata } returns mockMetadata
             every { mockActionHistory.trackExistingInputReport(any()) } returns Unit
-            every { BlobAccess.Companion.downloadBlob(any()) } returns "somecontent".toByteArray()
+            every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns "somecontent".toByteArray()
             every { Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any(), any()) } returns
                 Triple(mockReport, mockEvent, BlobAccess.BlobInfo(Report.Format.HL7, "someurl", "digest".toByteArray()))
             every { FHIRBundleHelpers.batchMessages(any()) } returns "batchstring"
@@ -286,7 +286,7 @@ class BatchFunctionTests {
         batchFunction.batchUniversalData(headers, mockActionHistory, receiver, mockTxn)
         verify(exactly = 2) {
             mockActionHistory.trackExistingInputReport(any())
-//            BlobAccess.Companion.downloadBlob(any()) TODO: re-enable after fixing batch test (see #11639)
+//            BlobAccess.Companion.downloadBlobAsByteArray(any(), any(), any()) TODO: re-enable after fixing batch test (see #11639)
             Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any(), any())
             mockWorkflowEngine.db.insertTask(any(), any(), any(), any(), any())
         }
@@ -306,7 +306,7 @@ class BatchFunctionTests {
         batchFunction.batchUniversalData(headers, mockActionHistory, receiver, mockTxn)
         verify(exactly = 2) {
             mockActionHistory.trackExistingInputReport(any())
-//            BlobAccess.Companion.downloadBlob(any()) TODO: re-enable after fixing batch test (see #11639)
+//            BlobAccess.Companion.downloadBlobAsByteArray(any(), any(), any()) TODO: re-enable after fixing batch test (see #11639)
             Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any(), any())
             mockWorkflowEngine.db.insertTask(any(), any(), any(), any(), any())
         }
@@ -326,7 +326,7 @@ class BatchFunctionTests {
         batchFunction.batchUniversalData(headers, mockActionHistory, receiver, mockTxn)
         verify(exactly = 2) {
             mockActionHistory.trackExistingInputReport(any())
-//            BlobAccess.Companion.downloadBlob(any()) TODO: re-enable after fixing batch test (see #11639)
+//            BlobAccess.Companion.downloadBlobAsByteArray(any(), any(), any()) TODO: re-enable after fixing batch test (see #11639)
         }
         verify(exactly = 1) {
             Report.generateReportAndUploadBlob(any(), any(), any(), any(), any(), any(), any())
@@ -398,7 +398,7 @@ class BatchFunctionTests {
         every { mockWorkflowEngine.db.insertTask(any(), any(), any(), any(), any()) } returns Unit
         every { mockWorkflowEngine.metadata } returns mockMetadata
         every { mockActionHistory.trackExistingInputReport(any()) } returns Unit
-        every { BlobAccess.Companion.downloadBlob(any()) } returns "somecontent".toByteArray()
+        every { BlobAccess.Companion.downloadBlobAsByteArray(any()) } returns "somecontent".toByteArray()
 
         assertThat { batchFunction.batchUniversalData(headers, mockActionHistory, receiver, mockTxn) }.isFailure()
             .hasClass(java.lang.IllegalStateException::class.java)

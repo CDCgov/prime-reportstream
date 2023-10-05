@@ -9,7 +9,10 @@ import {
 import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
 
 import { MemberType } from "./UseOktaMemberships";
-import { useOrganizationReceiversFeed } from "./UseOrganizationReceiversFeed";
+import {
+    sortAndFilterInactiveServices,
+    useOrganizationReceiversFeed,
+} from "./UseOrganizationReceiversFeed";
 import { Organizations } from "./UseAdminSafeOrganizationName";
 
 describe("useOrganizationReceiversFeed", () => {
@@ -109,7 +112,9 @@ describe("useOrganizationReceiversFeed", () => {
                 { wrapper: AppWrapper() },
             );
             await waitFor(() =>
-                expect(result.current.services).toEqual(dummyReceivers),
+                expect(result.current.services).toEqual(
+                    sortAndFilterInactiveServices(dummyReceivers),
+                ),
             );
             expect(result.current.setActiveService).toBeDefined();
             await waitFor(() =>
@@ -143,12 +148,12 @@ describe("useOrganizationReceiversFeed", () => {
         });
         await waitFor(() => expect(result.current.activeService).toBeDefined());
         expect(result.current.activeService).toEqual({
-            name: "elr-0",
+            name: "abc-1",
             organizationName: "testOrg",
         });
         act(() => result.current.setActiveService(result.current.services[1]));
         expect(result.current.activeService).toEqual({
-            name: "elr-1",
+            name: "elr-0",
             organizationName: "testOrg",
         });
     });
