@@ -128,6 +128,10 @@ module "function_app" {
   ai_connection_string              = module.application_insights.connection_string
   okta_base_url                     = local.init.okta_base_url
   okta_redirect_url                 = local.init.okta_redirect_url
+  OKTA_authKey                      = local.init.OKTA_authKey
+  OKTA_clientId                     = local.init.OKTA_clientId
+  fn_OKTA_clientId                  = local.init.fn_OKTA_clientId
+  OKTA_scope                        = local.init.OKTA_scope
   terraform_caller_ip_address       = local.network.terraform_caller_ip_address
   use_cdc_managed_vnet              = local.network.use_cdc_managed_vnet
   primary_access_key                = module.storage.sa_primary_access_key
@@ -225,6 +229,7 @@ module "metabase" {
   postgres_server_name   = module.database.postgres_server_name
   postgres_user          = data.azurerm_key_vault_secret.postgres_user.value
   postgres_pass          = data.azurerm_key_vault_secret.postgres_pass.value
+  sendgrid_password      = data.azurerm_key_vault_secret.sendgrid_password.value
   subnets                = module.network.subnets
 }
 

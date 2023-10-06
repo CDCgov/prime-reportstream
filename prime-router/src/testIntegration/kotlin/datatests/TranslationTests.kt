@@ -19,17 +19,21 @@ import gov.cdc.prime.router.Translator
 import gov.cdc.prime.router.cli.tests.CompareData
 import gov.cdc.prime.router.common.StringUtilities.trimToNull
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
+import gov.cdc.prime.router.fhirengine.engine.FHIRTranslator
 import gov.cdc.prime.router.fhirengine.engine.encodePreserveEncodingChars
 import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
+import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
 import org.apache.commons.io.FilenameUtils
+import org.hl7.fhir.r4.model.Endpoint
+import org.hl7.fhir.r4.model.Provenance
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.TestInstance
@@ -88,12 +92,12 @@ class TranslationTests {
         INPUT_SCHEMA("Input schema"),
 
         /**
-         * The organization name for the receiver.
+         * The output message's schema.
          */
         OUTPUT_SCHEMA("Output schema"),
 
         /**
-         * The organization name for the receiver.
+         * The output message's format.
          */
         OUTPUT_FORMAT("Output format"),
 
@@ -121,6 +125,11 @@ class TranslationTests {
          * The receiver
          */
         RECEIVER("Receiver"),
+
+        /**
+         * The condition filter
+         */
+        RECEIVER_CONDITION_FILTER("Condition Filter"),
     }
 
     /**
@@ -139,7 +148,8 @@ class TranslationTests {
         /** should we hardcode the sender for comparison? */
         val sender: String? = null,
         val senderTransform: String?,
-        val receiver: String? = null
+        val receiver: String? = null,
+        val conditionFiler: String? = null
     )
 
     /**
@@ -149,9 +159,12 @@ class TranslationTests {
     @TestFactory
     fun generateDataTests(): Collection<DynamicTest> {
         val config = readTestConfig("$testDataDir/$testConfigFile")
-        return config.map {
+
+        val map1 = config.map {
             DynamicTest.dynamicTest("Test ${it.inputFile}, ${it.expectedSchema} schema", FileConversionTest(it))
         }
+
+        return map1
     }
 
     /**
@@ -176,6 +189,7 @@ class TranslationTests {
                     val sender = it[ConfigColumns.SENDER.colName].trimToNull()
                     val receiver = it[ConfigColumns.RECEIVER.colName].trimToNull()
                     val senderTransform = it[ConfigColumns.SENDER_TRANSFORM.colName].trimToNull()
+                    val conditionFilter = it[ConfigColumns.RECEIVER_CONDITION_FILTER.colName].trimToNull()
                     val ignoreFields = it[ConfigColumns.IGNORE_FIELDS.colName].let { colNames ->
                         colNames?.split(",") ?: emptyList()
                     }
@@ -194,7 +208,8 @@ class TranslationTests {
                         ignoreFields,
                         sender,
                         senderTransform,
-                        receiver
+                        receiver,
+                        conditionFilter
                     )
                 } else {
                     fail("One or more config columns in $configPathname are empty.")
@@ -215,12 +230,15 @@ class TranslationTests {
             File(filename).extension.uppercase() == "INTERNAL" || filename.uppercase().endsWith("INTERNAL.CSV") -> {
                 Report.Format.INTERNAL
             }
+
             File(filename).extension.uppercase() == "HL7" -> {
                 Report.Format.HL7
             }
+
             File(filename).extension.uppercase() == "FHIR" -> {
                 Report.Format.FHIR
             }
+
             else -> {
                 Report.Format.CSV
             }
@@ -232,6 +250,10 @@ class TranslationTests {
      */
     inner class FileConversionTest(private val config: TestConfig) : Executable {
         override fun execute() {
+            runTest()
+        }
+
+        fun runTest(): CompareData.Result {
             val result = CompareData.Result()
             // First read in the data
             val inputFile = "$testDataDir/${config.inputFile}"
@@ -266,7 +288,7 @@ class TranslationTests {
                                 bundle
                             }
                             val actualStream =
-                                translateFromFhir(afterSenderTransform, config.expectedSchema)
+                                translateFromFhir(afterSenderTransform, config.expectedSchema, config.receiver)
                             result.merge(
                                 CompareData().compare(expectedStream, actualStream, null, null)
                             )
@@ -343,6 +365,8 @@ class TranslationTests {
             } else {
                 fail("The file ${config.expectedFile} was not found.")
             }
+
+            return result
         }
 
         /**
@@ -364,7 +388,7 @@ class TranslationTests {
          * @return an HL7 message as an input stream
          */
         private fun translateFromFhir(bundle: InputStream, schema: String, receiverName: String? = null): InputStream {
-            val fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
+            var fhirBundle = FhirTranscoder.decode(bundle.bufferedReader().readText())
             val receiver = settings.receivers.firstOrNull {
                 it.organizationName.plus(".").plus(it.name).lowercase() == receiverName?.lowercase()
             }
@@ -373,6 +397,23 @@ class TranslationTests {
                 if (maybeHl7Config != null) {
                     HL7TranslationConfig(maybeHl7Config, receiver)
                 } else null
+            }
+
+            if (!config.conditionFiler.isNullOrBlank()) {
+                if (config.conditionFiler == "pruneUnwanted") {
+                    val provenance = fhirBundle.entry.first {
+                        it.resource.resourceType.name == "Provenance"
+                    }.resource as Provenance
+                    // pick the only Endpoint reference in sample input
+                    val endpoint = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()[0]
+                    fhirBundle = FHIRTranslator().pruneBundleForReceiver(fhirBundle, endpoint)
+                } else {
+                    fhirBundle = FHIRBundleHelpers.filterObservations(
+                        fhirBundle,
+                        listOf(config.conditionFiler),
+                        emptyMap<String, String>().toMutableMap()
+                    )
+                }
             }
 
             val hl7 = FhirToHl7Converter(
@@ -430,6 +471,7 @@ class TranslationTests {
                         result.passed = !readResult.actionLogs.hasErrors()
                         readResult.report
                     }
+
                     Report.Format.INTERNAL -> {
                         CsvSerializer(metadata).readInternal(
                             schema.name,
@@ -437,6 +479,7 @@ class TranslationTests {
                             listOf(TestSource)
                         )
                     }
+
                     Report.Format.CSV -> {
                         val readResult = CsvSerializer(metadata).readExternal(
                             schema.name,
@@ -449,6 +492,7 @@ class TranslationTests {
                         result.passed = !readResult.actionLogs.hasErrors()
                         readResult.report
                     }
+
                     else -> {
                         result.passed = false
                         val actionLogger = ActionLogger()

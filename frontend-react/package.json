@@ -213,7 +213,7 @@
         "github-slugger": "^1.5.0"
     },
     "engines": {
-        "node": "~18.17"
+        "node": "~18.18"
     },
-    "packageManager": "yarn@3.6.1"
+    "packageManager": "yarn@3.6.3"
 }

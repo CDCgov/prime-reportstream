@@ -20,6 +20,10 @@ import { useSessionContext } from "../../contexts/SessionContext";
 import { logout } from "../../utils/UserUtils";
 import { Icon } from "../../shared";
 import site from "../../content/site.json";
+import {
+    ReceiverOrganizationsMissingTransport,
+    useOrganizationSettings,
+} from "../../hooks/UseOrganizationSettings";
 
 import styles from "./ReportStreamNavbar.module.scss";
 
@@ -31,6 +35,10 @@ const primaryLinkClasses = (isActive: boolean) => {
     }
 
     return "primary-nav-link";
+};
+
+const isOrganizationsMissingTransport = (orgName: string): boolean => {
+    return ReceiverOrganizationsMissingTransport.indexOf(orgName) > -1;
 };
 
 export const ReportStreamNavbar = ({
@@ -62,6 +70,10 @@ export const ReportStreamNavbar = ({
             setOpenMenuItem(menuName);
         }
     };
+    const { data: organization } = useOrganizationSettings();
+    const orgMissingTransport = organization?.name
+        ? isOrganizationsMissingTransport(organization?.name)
+        : false;
 
     const Dropdown = ({
         menuName,
@@ -144,6 +156,18 @@ export const ReportStreamNavbar = ({
     const menuItemsReceiver = [
         <div className="primary-nav-link-container">
             <a
+                className={primaryLinkClasses(!!useMatch("/data-dashboard/*"))}
+                href="/data-dashboard"
+                key="dashboard"
+            >
+                Dashboard
+            </a>
+        </div>,
+    ];
+
+    const menuItemsReceiverMissingTransport = [
+        <div className="primary-nav-link-container">
+            <a
                 className={primaryLinkClasses(!!useMatch("/daily-data/*"))}
                 href="/daily-data"
                 key="daily"
@@ -172,10 +196,10 @@ export const ReportStreamNavbar = ({
                 <a href="/admin/settings" key="settings">
                     Organization Settings
                 </a>,
-                <a href="/admin/lastmile" key="lastmile">
+                <a href="/admin/features" key="features">
                     Feature Flags
                 </a>,
-                <a href="/admin/features" key="features">
+                <a href="/admin/lastmile" key="lastmile">
                     Last Mile Failures
                 </a>,
                 <a href="/admin/message-tracker" key="message-tracker">
@@ -196,8 +220,12 @@ export const ReportStreamNavbar = ({
     const navbarItemBuilder = () => {
         let menuItems = defaultMenuItems;
 
-        if (isUserReceiver || isUserAdmin) {
+        if ((isUserReceiver || isUserAdmin) && !orgMissingTransport) {
             menuItems = [...menuItems, ...menuItemsReceiver];
+        }
+
+        if ((isUserReceiver || isUserAdmin) && orgMissingTransport) {
+            menuItems = [...menuItems, ...menuItemsReceiverMissingTransport];
         }
 
         if (isUserSender || isUserAdmin) {
