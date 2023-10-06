@@ -7,7 +7,6 @@ import { trackAppInsightEvent } from "../../../utils/Analytics";
 
 export const handleClick = () => {
     trackAppInsightEvent(ResourcesDirectories.REPORTSTREAM_API, {});
-    window.open(DOMPurify.sanitize(site.assets.programmersGuidePdf.path));
 };
 
 <LayoutSidenav>
@@ -30,7 +29,8 @@ export const handleClick = () => {
         </Card>
     </CardGroup>
 
-    <p>Our API guide and documentation is also available as a <Button type="button" unstyled onClick={handleClick}>downloadable PDF</Button>.</p>
+
+    <p>Our API guide and documentation is also available as a <a href={DOMPurify.sanitize(site.assets.programmersGuidePdf.path)} target="_blank" rel="noopener noreferrer" download><Button type="button" unstyled onClick={handleClick}>downloadable PDF</Button></a>.</p>
 
     ***
     <br/>

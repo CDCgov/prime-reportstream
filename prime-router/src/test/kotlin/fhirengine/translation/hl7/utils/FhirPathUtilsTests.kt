@@ -62,17 +62,16 @@ class FhirPathUtilsTests {
 
         var path = "Bundle.id.exists()"
 
-        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, path)).isTrue()
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, path)).isTrue()
 
         path = "Bundle.timestamp.exists()"
-        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, path)).isFalse()
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, path)).isFalse()
 
-        // Bad extension names throw an out of bound exception (a bug in the library)
         path = "Bundle.entry[0].resource.extension('blah')"
-        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, path) }.isFailure()
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, path)).isFalse()
 
         // Empty string
-        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, "") }.isFailure()
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, "")).isFalse()
     }
 
     @Test
@@ -199,18 +198,25 @@ class FhirPathUtilsTests {
 
         // first verify that good syntax is accepted
         var expression = "Bundle.id.exists()"
-        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, expression)).isTrue()
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, expression)).isTrue()
 
         // verify it throws exception for bad syntax
         expression = "Bundle.#*($&id.exists()"
-        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, expression) }.isFailure().all {
+        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, expression) }.isFailure().all {
             hasClass(SchemaException::class.java)
         }
 
         // verify it throws exception for non-boolean expression
         expression = "Bundle.id"
-        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, expression) }.isFailure().all {
+        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, expression) }.isFailure().all {
             hasClass(SchemaException::class.java)
         }
+    }
+
+    @Test
+    fun `test evaluateCondition with empty focus resource`() {
+        val bundle = Bundle()
+        val path = "Bundle.timestamp.is(dateTime)"
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, path)).isFalse()
     }
 }

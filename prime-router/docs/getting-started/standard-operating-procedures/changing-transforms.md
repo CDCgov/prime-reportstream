@@ -93,6 +93,7 @@ Each element contains the following properties, listed in order of execution:
   constants defined at their schema level and will overwrite any that have the same name.
   - A reserved constant, `%resource`, is automatically provided, which maps to the focus resource
     (generally, the `resource` property).
+  - A reserved constant `%context` is provided and maps to the previous `%resource` value
 - `resource` - the FHIR resource used as focus on all other FHIR Path expressions. Must
   be used with child schema to set the collection to iterate with.
 - `condition` - FHIR Path boolean expression that must evaluate to true for the element to

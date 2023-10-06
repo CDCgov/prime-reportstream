@@ -140,7 +140,7 @@ object ConfigSchemaReader : Logging {
             }
             "azure" -> {
                 // TODO: #10487 will add a new function to download schemas, so this is just a temporary placeholder
-                val blob = BlobAccess.downloadBlob(schemaUri.toString())
+                val blob = BlobAccess.downloadBlobAsByteArray(schemaUri.toString())
                 readOneYamlSchema(blob.inputStream(), schemaClass)
             }
             else -> throw SchemaException("Unexpected scheme: ${schemaUri.scheme}")

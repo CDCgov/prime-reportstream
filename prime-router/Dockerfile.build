@@ -3,7 +3,7 @@
 # To build it, you must specify at least the following --build-arg values
 # with some suggested default shown here
 #
-# --build-arg GRADLE_VERSION=7.6.1        - The version of Gradle you want to build with
+# --build-arg GRADLE_VERSION=8.3        - The version of Gradle you want to build with
 # --build-arg AFCT_VERSION=4.0.5198     - The version of the Azure Functions Core Tools
 # --build-arg JAVA_VERSION=17           - The version of the JDK (and thus JRE) you want to build against/with
 #

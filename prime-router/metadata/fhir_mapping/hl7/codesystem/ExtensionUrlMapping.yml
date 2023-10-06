@@ -10,6 +10,9 @@
 # religion
 - id: "religion"
   url: "http://hl7.org/fhir/StructureDefinition/patient-religion"
+# event performer function
+- id: "event-performerFunction"
+  url: "http://hl7.org/fhir/StructureDefinition/event-performerFunction"
 # race
 - id: "race"
   url: "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd"
@@ -67,9 +70,24 @@
 # Organization name type
 - id: "organization-name-type"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type"
+# Entered by
+- id: "entered-by"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entered-by"
+# Enterers Location
+- id: "enterers-location"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/enterers-location"
+# Location Facility
+- id: "location-facility"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/location-facility"
 # Entering organization
 - id: "entering-organization"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/entering-organization"
+# Name representation code
+- id: "name-representation-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-representation-code"
+# Organization assigning authority
+- id: "assigning-authority"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority"
 # Organization assigning authority namespace ID
 - id: "assigning-authority-namespace-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-namespace-id"
