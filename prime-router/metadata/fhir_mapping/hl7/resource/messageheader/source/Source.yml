@@ -6,7 +6,7 @@ name_1:
 # For all other ID types
 name_2:
   type: URL
-  condition: $idStr NOT_NULL && $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI
+  condition: $idStr NOT_NULL && $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI && $systemStr NOT_EQUALS CLIA
   valueOf: $value
   expressionType: HL7Spec
   vars:
@@ -84,13 +84,25 @@ endpoint_4:
     oidUrlPrefix: "urn:uri:"
 
 endpoint_5:
+  type: URL
+  condition: $idStr NOT_NULL && $systemStr EQUALS CLIA
+  valueOf: $value
+  expressionType: HL7Spec
+  vars:
+    idStr: String, HD.2
+    value: $oidUrlPrefix + HD.2
+    systemStr: String, HD.3
+  constants:
+    oidUrlPrefix: "urn:clia:"
+
+endpoint_6:
   condition: $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI
   expressionType: resource
   valueOf: resource/messageheader/common/Endpoint
   vars:
     systemStr: String, HD.3
 
-endpoint_6:
+endpoint_7:
   condition: $systemStr NULL
   expressionType: resource
   valueOf: resource/messageheader/common/Endpoint
