@@ -1,9 +1,9 @@
 elements:
-  - name: xon-organization-name
+  - name: organization-xon-name
     value: [ '%resource.name' ]
     hl7Spec: [ '%{hl7XONField}-1' ]
 
-  - name: xon-organization-name-type
+  - name: organization-xon-name-type
     resource: '%resource.extension(%`rsext-organization-name-type`).value'
     condition: '%resource.exists()'
     constants:
