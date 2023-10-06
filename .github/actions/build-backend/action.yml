@@ -13,8 +13,6 @@ inputs:
     default: false
   github-token:
     default: false
-  sonar-token:
-    default: false
 
 runs:
   using: "composite"
@@ -180,16 +178,6 @@ runs:
     - name: Perform Java CodeQL Analysis
       if: github.actor != 'dependabot[bot]' && inputs.run-qc == 'true'
       uses: github/codeql-action/analyze@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
-
-    - name: Run SonarCloud Scan
-      if: |
-        github.actor != 'dependabot[bot]' && inputs.run-qc == 'true' &&
-        inputs.github-token != 'false' && inputs.sonar-token != 'false'
-      uses: ./.github/actions/sonarcloud
-      with:
-        github-token: ${{ inputs.github-token }}
-        sonar-token: ${{ inputs.sonar-token }}
-        scan-level: backend
 
     - name: Build Docker Image
       if: inputs.run-qc == 'true'
