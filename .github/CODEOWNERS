@@ -7,3 +7,6 @@
 /CODEOWNERS             @cdcgov/PRIME-ReportStream-DevOps
 /prime-router/          @cdcgov/PRIME-ReportStream-CODEOWNERS-backend
 
+# The CODEOWNERS file takes the last matching line into account. You can make definitions with empty owners to specify paths/files without an owner.
+/prime-router/settings/prod/
+/prime-router/settings/staging/
