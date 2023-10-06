@@ -115,16 +115,3 @@ extension_6-assigningAuthority:
   expressionType: resource
   valueOf: datatype/HDToExtensionAssigningAuthority
   specs: $assigningAuthority
-
-extension_7-location:
-  condition: $location NOT_NULL
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: identifier-location
-    valueReference:
-      expressionType: reference
-      valueOf: datatype/HDToLocation
-      specs: $location

@@ -1,0 +1,59 @@
+resourceType: Location
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+name:
+  valueOf: HD.1
+  type: STRING
+  expressionType: HL7Spec
+
+identifier_1:
+  condition: $universalId EQUALS ISO || $universalId EQUALS UUID
+  valueOf: datatype/Identifier_var2
+  generateList: true
+  expressionType: resource
+  vars:
+    checkDigit: $NULL
+    checkDigitScheme: $NULL
+    assigningAuthority: $NULL
+    location: $NULL
+    code: $NULL
+    valueIn: String, HD.2
+    universalId: String, HD.3
+
+extension_1-unknownUniversalIdType:
+  condition: $universalId NOT_EQUALS ISO && $universalId NOT_EQUALS UUID
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: unknown-universal-id-type
+    valueString:
+      expressionType: HL7Spec
+      type: STRING
+      valueOf: HD.3
+  vars:
+    universalId: STRING, HD.3
+
+extension_2-universalIdType:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: universal-id-type
+    valueCode:
+      expressionType: HL7Spec
+      type: STRING
+      valueOf: HD.3
+
+physicalType:
+  valueOf: datatype/CodeableConcept_var
+  expressionType: resource
+  constants:
+    code: si
+    system: "http://terminology.hl7.org/CodeSystem/location-physical-type"

@@ -14,7 +14,6 @@ eventCoding:
 source:
   valueOf: secondary/Source
   expressionType: resource
-  specs: MSH.3 | MSH.24
 
 #map MSH.4
 sender:
@@ -40,6 +39,11 @@ extension_1:
       generateList: true
       valueOf: datatype/Identifier_SystemID
       expressionType: resource
+
+responsible:
+  expressionType: reference
+  valueOf: datatype/XONToOrganization
+  specs: MSH.22
 
 extension_2:
   condition: $msh15 NOT_NULL

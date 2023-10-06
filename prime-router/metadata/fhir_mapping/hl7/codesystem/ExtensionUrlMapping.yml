@@ -269,3 +269,21 @@
 # Code Index Name
 - id: "code-index-name"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name"
+# Check Digit
+- id: "check-digit"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit"
+# Check Digit Scheme
+- id: "check-digit-scheme"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit-scheme"
+# Unknown Universal ID Type
+- id: "universal-id-unknown-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-unknown-type"
+# Identifier Location
+- id: "identifier-location"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location"
+# Universal ID Type
+- id: "universal-id-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type"
+# Organization Prefer XON 10
+- id: "organization-prefer-xon-10"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-prefer-xon-10"

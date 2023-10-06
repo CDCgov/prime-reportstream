@@ -1,0 +1,80 @@
+resourceType: Organization
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+name:
+  type: STRING
+  valueOf: XON.1
+  expressionType: HL7Spec
+
+extension_1-nameType:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: organization-name-type
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept
+      generateList: true
+      expressionType: resource
+      specs: XON.2
+
+identifier_1:
+  condition: $xon10 NULL
+  valueOf: datatype/Identifier_var
+  expressionType: resource
+  vars:
+    valueIn: String, XON.3
+    code: String, XON.7
+    xon10: String, XON.10
+    checkDigit: String, XON.4
+    checkDigitScheme: String, XON.5
+    assigningAuthority: XON.6
+    location: XON.8
+  constants:
+    system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+
+identifier_2:
+  condition: $xon10 NOT_NULL
+  valueOf: datatype/Identifier_var
+  expressionType: resource
+  vars:
+    valueIn: String, XON.10
+    code: String, XON.7
+    xon10: String, XON.10
+    checkDigit: String, XON.4
+    checkDigitScheme: String, XON.5
+    assigningAuthority: XON.6
+    location: XON.8
+  constants:
+    system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+
+extension_1-name-representation-code:
+  condition: $value NOT_NULL
+  generateList: true
+  valueOf: extension/Extension
+  expressionType: resource
+  vars:
+    value: String, XON.9
+  constants:
+    KEY_NAME_SUFFIX: String
+    urlValue: name-representation-code
+
+extension_2-preferXon10:
+  condition: $xon10 NOT_NULL
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: organization-prefer-xon-10
+    valueString:
+      expressionType: HL7Spec
+      type: STRING
+      valueOf: XON.3
+  vars:
+    xon10: String, XON.10

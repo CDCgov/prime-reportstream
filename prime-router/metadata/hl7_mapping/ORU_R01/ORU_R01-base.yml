@@ -13,7 +13,10 @@ elements:
     schema: ../common/message-header
 
   - name: software-segment
-    condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
+    condition: >
+      Bundle.entry.resource.ofType(MessageHeader).exists() and 
+      Bundle.entry.resource.ofType(MessageHeader).source.exists() and
+      Bundle.entry.resource.ofType(MessageHeader).source.extension(%`rsext-software-vendor-org`).exists()
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     schema: ../common/software
 
