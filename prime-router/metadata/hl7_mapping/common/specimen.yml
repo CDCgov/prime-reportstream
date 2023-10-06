@@ -1,0 +1,44 @@
+constants:
+  hl7SegmentGroup: /ORDER/OBSERVATION_REQUEST/SPECIMEN/SPM
+elements:
+  - name: specimen-set-id
+    value: [ '"1"' ]
+    hl7Spec: [ '%{hl7SegmentGroup}-1' ]
+
+  - name: specimen-type
+    resource: '%resource.type'
+    constants:
+      cweFieldPath: '%{hl7SegmentGroup}-4'
+    schema: ../common/datatype/ce-coded-with-exceptions
+
+  - name: specimen-collection-date/time
+    condition: '%resource.collection.collected.exists() and %resource.collection.collected is dateTime'
+    value: [ '%resource.collection.collected' ]
+    hl7Spec: [ '%{hl7SegmentGroup}-17' ]
+
+  - name: specimen-collection-time
+    condition: '%resource.collection.collected.exists() and %resource.collection.collected is dateTime'
+    value: [ '%resource.collection.collected' ]
+    hl7Spec: [ '%{hl7SegmentGroup}-17-1' ]
+
+  - name: specimen-observation-date-time-start
+    condition: '%resource.collection.collected.exists() and %resource.collection.collected is Period'
+    value: [ '%resource.collection.collected.start' ]
+    hl7Spec: [ '%{hl7SegmentGroup}-17-1' ]
+
+  # Alternative to getting specimen collection time from DiagnosticReport instead
+  - name: specimen-collection-time-diagnostic
+    condition: '%resource.collection.collected.exists().not()'
+    value: [ '%diagnostic.effective' ]
+    hl7Spec: [ '%{hl7SegmentGroup}-17-1' ]
+
+
+  - name: specimen-observation-result-with-aoe
+    resource: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id)'
+    schema: ../common/observation-result
+    resourceIndex: specimenObservationIndex
+    constants:
+      hl7ObservationPath: '/ORDER/OBSERVATION_REQUEST/SPECIMEN(%{specimenIndex})/SPECIMEN_OBSERVATION'
+      hl7OBXField: '/ORDER/OBSERVATION_REQUEST/SPECIMEN(%{specimenIndex})/SPECIMEN_OBSERVATION(%{specimenObservationIndex})/OBX'
+      observation: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id)[%specimenObservationIndex]'
+      resultIndex: '%specimenObservationIndex'
