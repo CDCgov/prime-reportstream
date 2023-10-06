@@ -55,7 +55,7 @@ runs:
       run: docker-compose -f docker-compose.postgres.yml up -d
 
     - name: Build Prime Router Package
-      uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
+      uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
       with:
         timeout_minutes: 30
         max_attempts: 2
@@ -145,7 +145,7 @@ runs:
 
     - name: Smoke tests
       if: inputs.run-integration-tests == 'true'
-      uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
+      uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
       with:
         timeout_minutes: 30
         max_attempts: 2
@@ -160,8 +160,6 @@ runs:
     - name: Dump docker logs
       if: always() && inputs.run-integration-tests == 'true'
       uses: jwalton/gh-docker-logs@59c9656cd3cb7542525f3dce7ae2f44c0ff85d66
-      with:
-        images: "prime-router_prime_dev,vault"
 
     - name: Cleanup Gradle Cache
       if: inputs.run-integration-tests == 'true'
