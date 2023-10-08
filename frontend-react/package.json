@@ -15,7 +15,7 @@
         "@tanstack/react-query-devtools": "^4.33.0",
         "@trussworks/react-uswds": "^5.3.0",
         "@uswds/uswds": "3.4.1",
-        "axios": "^1.5.0",
+        "axios": "^1.5.1",
         "classnames": "^2.3.2",
         "dompurify": "^3.0.5",
         "downloadjs": "^1.4.7",
