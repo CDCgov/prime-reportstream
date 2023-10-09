@@ -311,6 +311,9 @@ updates:
       timezone: "US/Eastern"
     rebase-strategy: "disabled"
     groups:
+      azurecore:
+        patterns:
+          - "com.azuzre:azure-core*"
       bouncycastle:
         patterns:
           - "org.bouncycastle:bc*"
