@@ -55,7 +55,6 @@ jobs:
           echo "List all the files that have changed: ${{ steps.changed-files-yaml.outputs.backend_all_changed_files }}"
 
       - name: Set up JDK 17
-        working-directory: prime-router
         uses: actions/setup-java@0ab4596768b603586c0de567f2430c30f5b0d2b0
         with:
           java-version: "17"
