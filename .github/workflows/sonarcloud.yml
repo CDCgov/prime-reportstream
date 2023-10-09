@@ -35,9 +35,15 @@ jobs:
         with:
           files_yaml: |
             frontend:
-              - frontend-react/**
+              - 'frontend-react/**'
             backend:
-              - prime-router/**
+              - 'prime-router/**'
+
+      - name: List all changed files
+        run: |
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo "$file was changed"
+          done
 
 # PLAN:run frontend build if frontend changes or branch = master
       - name: Run step if frontend file(s) change
