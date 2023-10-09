@@ -46,8 +46,10 @@ jobs:
           files_yaml: |
             frontend:
               - 'frontend-react/**'
+              - 'frontend-react'
             backend:
               - 'prime-router/**'
+              - 'prime-router'
 
 # PLAN:run frontend build if frontend changes or branch = master
       - name: Run step if frontend file(s) change
