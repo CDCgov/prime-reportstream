@@ -31,14 +31,3 @@ elements:
     condition: '%resource.collection.collected.exists().not()'
     value: [ '%diagnostic.effective' ]
     hl7Spec: [ '%{hl7SegmentGroup}-17-1' ]
-
-
-  - name: specimen-observation-result-with-aoe
-    resource: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id)'
-    schema: ../common/observation-result
-    resourceIndex: specimenObservationIndex
-    constants:
-      hl7ObservationPath: '/ORDER/OBSERVATION_REQUEST/SPECIMEN(%{specimenIndex})/SPECIMEN_OBSERVATION'
-      hl7OBXField: '/ORDER/OBSERVATION_REQUEST/SPECIMEN(%{specimenIndex})/SPECIMEN_OBSERVATION(%{specimenObservationIndex})/OBX'
-      observation: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id)[%specimenObservationIndex]'
-      resultIndex: '%specimenObservationIndex'
