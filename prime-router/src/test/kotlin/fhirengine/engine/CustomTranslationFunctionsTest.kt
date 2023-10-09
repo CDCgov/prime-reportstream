@@ -114,6 +114,29 @@ class CustomTranslationFunctionsTest {
     }
 
     @Test
+    fun `test parseFlexibleDateToStandard with various date formats`() {
+        // Predefined date formats
+        // Creating a mock context which is not used here but created for reference
+        val appContext = mockkClass(CustomContext::class)
+
+        // Example dates and expected output
+        val dateExamples = listOf(
+            "20230101" to "20230101000000",
+            "2023-01-01T12:34:56Z" to "20230101123456",
+            "2023-01-01 12:34:56.789Z" to "20230101123456",
+            "2023-01-01T12:34:56.789-07:00" to "20230101193456",
+            "20230101123456.789Z" to "20230101123456",
+            "01/01/23 12:34:56" to "20230101123456",
+            "01/01/2023 12:34:56.789" to "20230101123456"
+        )
+
+        dateExamples.forEach { (input, expectedOutput) ->
+            assertThat(CustomTranslationFunctions().parseHl7toDateTime(input, appContext))
+                .isEqualTo(expectedOutput)
+        }
+    }
+
+    @Test
     fun `test HL7 Truncation`() {
         val translationFunctions: TranslationFunctions = CustomTranslationFunctions()
         val emptyTerser = Terser(ORU_R01())

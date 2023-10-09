@@ -10,6 +10,9 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.Hl7TranslationFunctions
 import org.hl7.fhir.r4.model.BaseDateTimeType
 import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 class CustomTranslationFunctions(
     private val hl7Truncator: UniversalPipelineHL7Truncator = UniversalPipelineHL7Truncator()
@@ -81,5 +84,20 @@ class CustomTranslationFunctions(
         } else {
             super.maybeTruncateHL7Field(value, hl7FieldPath, terser, appContext)
         }
+    }
+
+
+    // The goal here is to convert timestamp data type of format YYYY[MM[DD[HHMM[SS[. S[S[S[S]]]]]]]][+/-ZZZZ] to a DateTime format of yyyyMMddHHmmss
+    fun parseHl7toDateTime(input: String, appContext: CustomContext?): String? {
+        val outputPattern = "yyyyMMddHHmmss"
+        for (pattern in DateUtilities.allowedDateFormats) {
+            try {
+                val dateTime = ZonedDateTime.parse(input, DateTimeFormatter.ofPattern(pattern))
+                return dateTime.format(DateTimeFormatter.ofPattern(outputPattern))
+            } catch (e: DateTimeParseException) {
+
+            }
+        }
+        return null
     }
 }
