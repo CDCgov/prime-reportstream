@@ -55,7 +55,6 @@ jobs:
           echo "List all the files that have changed: ${{ steps.changed-files-yaml.outputs.backend_all_changed_files }}"
 
       - name: Set up JDK 17
-        uses: actions/setup-java@0ab4596768b603586c0de567f2430c30f5b0d2b0
         working-directory: prime-router
         with:
           java-version: "17"
@@ -63,7 +62,6 @@ jobs:
           cache: "gradle"
 
       - uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
-        working-directory: prime-router
 
       - name: Spin up build containers
         working-directory: prime-router
