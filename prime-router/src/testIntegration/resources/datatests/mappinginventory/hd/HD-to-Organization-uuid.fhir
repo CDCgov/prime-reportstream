@@ -92,14 +92,8 @@
         "reference" : "Organization/1696523006657447000.4451083d-9d35-441b-8714-190285a48af7"
       },
       "source" : {
-        "name" : "RS.CDC.Stag-:2.16.840.1.114222.4.3.3.2.1.2",
-        "software" : "2.16.840.1.114222.4.3.3.2.1.2",
-        "_endpoint" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/data-absent-reason",
-            "valueCode" : "unknown"
-          } ]
-        }
+        "name" : "RS.CDC.Stag",
+        "endpoint" : "urn:oid:2.16.840.1.114222.4.3.3.2.1.2"
       }
     }
   }, {
