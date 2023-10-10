@@ -11,7 +11,7 @@ import java.time.ZoneOffset
 enum class Environment(
     val envName: String,
     val url: URL,
-    val oktaApp: OktaCommand.OktaApp? = null
+    val oktaApp: OktaCommand.OktaApp? = null,
 ) {
     LOCAL(
         "local",
@@ -25,7 +25,8 @@ enum class Environment(
     ),
     TEST("test", URL("https://test.prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_TEST),
     STAGING("staging", URL("https://staging.prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_STAGE),
-    PROD("prod", URL("https://prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_PROD);
+    PROD("prod", URL("https://prime.cdc.gov"), oktaApp = OktaCommand.OktaApp.DH_PROD),
+    ;
 
     /**
      * Append a [path] to the URL of an environment to generate a new URL.  The starting / for [path] is optional
@@ -34,8 +35,9 @@ enum class Environment(
      */
     fun formUrl(path: String): URL {
         var urlString = url.toString()
-        if (!urlString.endsWith("/") && !path.startsWith("/"))
+        if (!urlString.endsWith("/") && !path.startsWith("/")) {
             urlString += "/"
+        }
         return URL(urlString + path)
     }
 
@@ -48,9 +50,10 @@ enum class Environment(
      * Available feature flags for enabling different features
      */
     enum class FeatureFlags(
-        val enabledByDefault: Boolean = false
+        val enabledByDefault: Boolean = false,
     ) {
-        FHIR_ENGINE_TEST_PIPELINE();
+        FHIR_ENGINE_TEST_PIPELINE(),
+        ;
 
         fun enabled(): Boolean {
             return enabledByDefault || System.getenv(this.toString()) == "enabled"
@@ -89,10 +92,11 @@ enum class Environment(
                     (inputUrl.protocol == "http" && inputUrl.port != 80) ||
                         (inputUrl.protocol == "https" && inputUrl.port != 443)
                     )
-            )
+            ) {
                 "${inputUrl.host}:${inputUrl.port}"
-            else
+            } else {
                 inputUrl.host
+            }
         }
 
         /**
@@ -112,5 +116,5 @@ enum class Environment(
 
 enum class SystemExitCodes(val exitCode: Int) {
     SUCCESS(0),
-    FAILURE(1)
+    FAILURE(1),
 }

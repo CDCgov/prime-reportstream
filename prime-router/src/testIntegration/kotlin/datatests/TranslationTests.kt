@@ -149,7 +149,7 @@ class TranslationTests {
         val sender: String? = null,
         val senderTransform: String?,
         val receiver: String? = null,
-        val conditionFiler: String? = null
+        val conditionFiler: String? = null,
     )
 
     /**
@@ -326,7 +326,9 @@ class TranslationTests {
                             val actualStream = if (inputReport != null) {
                                 val translatedReport = translateReport(inputReport, inputSchema, expectedSchema)
                                 outputReport(translatedReport, config.expectedFormat)
-                            } else fail("Error reading input report.")
+                            } else {
+                                fail("Error reading input report.")
+                            }
                             result.merge(
                                 CompareData().compare(
                                     expectedStream,
@@ -349,17 +351,21 @@ class TranslationTests {
                         result.warnings.joinToString(System.lineSeparator(), "WARNINGS:${System.lineSeparator()}")
                 )
                 // Print the errors and warnings after the test completed successfully.
-                if (result.errors.isNotEmpty()) println(
-                    result.errors
-                        .joinToString(System.lineSeparator(), "ERRORS:${System.lineSeparator()}")
+                if (result.errors.isNotEmpty()) {
+                    println(
+                        result.errors
+                            .joinToString(System.lineSeparator(), "ERRORS:${System.lineSeparator()}")
 
-                )
-                if (result.warnings.isNotEmpty()) println(
-                    result.warnings
-                        .joinToString(
-                            System.lineSeparator(), "WARNINGS:${System.lineSeparator()}"
-                        )
-                )
+                    )
+                }
+                if (result.warnings.isNotEmpty()) {
+                    println(
+                        result.warnings
+                            .joinToString(
+                                System.lineSeparator(), "WARNINGS:${System.lineSeparator()}"
+                            )
+                    )
+                }
             } else if (inputStream == null) {
                 fail("The file ${config.inputFile} was not found.")
             } else {
@@ -396,7 +402,9 @@ class TranslationTests {
                 val maybeHl7Config = it.translation as? Hl7Configuration
                 if (maybeHl7Config != null) {
                     HL7TranslationConfig(maybeHl7Config, receiver)
-                } else null
+                } else {
+                    null
+                }
             }
 
             if (!config.conditionFiler.isNullOrBlank()) {
@@ -444,7 +452,7 @@ class TranslationTests {
             schema: Schema,
             format: Report.Format,
             result: CompareData.Result,
-            senderName: String? = null
+            senderName: String? = null,
         ): Report? {
             // if we have a sender name we want to work off of, we will look it up by organization name here.
             // NOTE: if you pass in a sender name that does not match anything that exists, you will get a null
@@ -524,10 +532,7 @@ class TranslationTests {
          * Outputs a [report] to the specified [format].
          * @return the report output
          */
-        private fun outputReport(
-            report: Report,
-            format: Report.Format
-        ): InputStream {
+        private fun outputReport(report: Report, format: Report.Format): InputStream {
             val outputStream = ByteArrayOutputStream()
             when (format) {
                 Report.Format.HL7_BATCH -> Hl7Serializer(metadata, settings).writeBatch(report, outputStream)

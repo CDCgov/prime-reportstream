@@ -58,7 +58,7 @@ class FHIRTranslator(
     override fun doWork(
         message: RawSubmission,
         actionLogger: ActionLogger,
-        actionHistory: ActionHistory
+        actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
         logger.trace("Translating FHIR file for receivers.")
         // pull fhir document and parse FHIR document
@@ -121,7 +121,7 @@ class FHIRTranslator(
      */
     internal fun getByteArrayFromBundle(
         receiver: Receiver,
-        bundle: Bundle
+        bundle: Bundle,
     ) = when (receiver.format) {
         Report.Format.FHIR -> {
             if (receiver.schemaName.isNotEmpty()) {
@@ -221,8 +221,9 @@ class FHIRTranslator(
     internal fun Bundle.removeUnwantedProvenanceEndpoints(receiverEndpoint: Endpoint): Bundle {
         val provenance = this.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
         provenance.target.map { it.resource }.filterIsInstance<Endpoint>().forEach {
-            if (it != receiverEndpoint)
+            if (it != receiverEndpoint) {
                 this.deleteResource(it)
+            }
         }
         return this
     }

@@ -63,7 +63,7 @@ class WorkflowEngine(
     val as2Transport: AS2Transport = AS2Transport(),
     val soapTransport: SoapTransport = SoapTransport(),
     val gaenTransport: GAENTransport = GAENTransport(),
-    val restTransport: RESTTransport = RESTTransport()
+    val restTransport: RESTTransport = RESTTransport(),
 ) : BaseEngine(queue) {
 
     /**
@@ -76,7 +76,7 @@ class WorkflowEngine(
         var blobAccess: BlobAccess? = null,
         var queueAccess: QueueAccess? = null,
         var hl7Serializer: Hl7Serializer? = null,
-        var csvSerializer: CsvSerializer? = null
+        var csvSerializer: CsvSerializer? = null,
     ) {
         /**
          * Set the metadata instance.
@@ -173,12 +173,15 @@ class WorkflowEngine(
         rawBody: ByteArray,
         sender: Sender,
         actionHistory: ActionHistory,
-        payloadName: String? = null
+        payloadName: String? = null,
     ): BlobAccess.BlobInfo {
         // Save a copy of the original report
         val reportFormat =
-            if (sender.topic.isUniversalPipeline) report.bodyFormat
-            else Report.Format.safeValueOf(sender.format.toString())
+            if (sender.topic.isUniversalPipeline) {
+                report.bodyFormat
+            } else {
+                Report.Format.safeValueOf(sender.format.toString())
+            }
 
         val blobFilename = report.name.replace(report.bodyFormat.ext, reportFormat.ext)
         val blobInfo = BlobAccess.uploadBody(
@@ -197,7 +200,7 @@ class WorkflowEngine(
         report: Report,
         reportFormat: String,
         reportUrl: String,
-        nextAction: Event
+        nextAction: Event,
     ) {
         db.insertTask(report, reportFormat, reportUrl, nextAction, null)
     }
@@ -211,7 +214,7 @@ class WorkflowEngine(
         actionHistory: ActionHistory,
         receiver: Receiver,
         txn: Configuration? = null,
-        isEmptyReport: Boolean = false
+        isEmptyReport: Boolean = false,
     ) {
         val receiverName = "${receiver.organizationName}.${receiver.name}"
 
@@ -221,10 +224,14 @@ class WorkflowEngine(
         val sendingApp: String? = if (isEmptyReport) "CDC PRIME - Atlanta" else null
         val receivingApp: String? = if (isEmptyReport && receiver.translation is Hl7Configuration) {
             receiver.translation.receivingApplicationName
-        } else null
+        } else {
+            null
+        }
         val receivingFacility: String? = if (isEmptyReport && receiver.translation is Hl7Configuration) {
             receiver.translation.receivingFacilityName
-        } else null
+        } else {
+            null
+        }
 
         val blobInfo = try {
             val bodyBytes = ReportWriter.getBodyBytes(
@@ -268,7 +275,7 @@ class WorkflowEngine(
      */
     fun handleReportEvent(
         messageEvent: ReportEvent,
-        updateBlock: (header: Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent
+        updateBlock: (header: Header, retryToken: RetryToken?, txn: Configuration?) -> ReportEvent,
     ) {
         var nextEvent: ReportEvent? = null
         db.transact { txn ->
@@ -313,7 +320,7 @@ class WorkflowEngine(
         reportId: ReportId,
         receiver: Receiver,
         isTest: Boolean,
-        msgs: MutableList<String>
+        msgs: MutableList<String>,
     ) {
         // Send immediately.
         var doSendQueue = false // set to true if all the required actions complete
@@ -378,7 +385,7 @@ class WorkflowEngine(
      */
     fun generateEmptyReport(
         actionHistory: ActionHistory,
-        receiver: Receiver
+        receiver: Receiver,
     ) {
         // generate empty report for receiver's specified foramt
         val toSchema = metadata.findSchema(receiver.schemaName)
@@ -408,7 +415,7 @@ class WorkflowEngine(
         options: Options,
         defaults: Map<String, String>,
         routeTo: List<String>,
-        actionHistory: ActionHistory
+        actionHistory: ActionHistory,
     ): List<ActionLog> {
         val (warnings, emptyReports, preparedReports) = translateAndRouteReport(report, defaults, routeTo)
 
@@ -443,7 +450,7 @@ class WorkflowEngine(
     internal fun translateAndRouteReport(
         report: Report,
         defaults: Map<String, String>,
-        routeTo: List<String>
+        routeTo: List<String>,
     ): Triple<List<ActionLog>, List<Translator.RoutedReport>, List<Translator.RoutedReport>> {
         val (routedReports, warnings) = this.translator
             .filterAndTranslateByReceiver(
@@ -464,7 +471,7 @@ class WorkflowEngine(
         receiver: Receiver,
         options: Options,
         actionHistory: ActionHistory,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ) {
         val loggerMsg: String
         when {
@@ -524,7 +531,7 @@ class WorkflowEngine(
     fun handleProcessFailure(
         numAttempts: Int,
         actionHistory: ActionHistory,
-        message: String
+        message: String,
     ) {
         // if there are already four process_warning records in the database for this reportId, this is the last try
         if (numAttempts >= 5) {
@@ -554,7 +561,7 @@ class WorkflowEngine(
      */
     fun handleProcessEvent(
         messageEvent: ProcessEvent,
-        actionHistory: ActionHistory
+        actionHistory: ActionHistory,
     ) {
         db.transact { txn ->
             val task = db.fetchAndLockTask(messageEvent.reportId, txn)
@@ -624,7 +631,7 @@ class WorkflowEngine(
         messageEvent: BatchEvent,
         maxCount: Int,
         backstopTime: OffsetDateTime?,
-        updateBlock: (headers: List<Header>, txn: Configuration?) -> Unit
+        updateBlock: (headers: List<Header>, txn: Configuration?) -> Unit,
     ) {
         db.transact { txn ->
             val tasks = db.fetchAndLockBatchTasksForOneReceiver(
@@ -736,7 +743,7 @@ class WorkflowEngine(
 
     private fun findOrganizationAndReceiver(
         fullName: String,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): Pair<Organization, Receiver> {
         return if (settings is SettingsFacade) {
             val (organization, receiver) = (settings).findOrganizationAndReceiver(fullName, txn)
@@ -751,7 +758,7 @@ class WorkflowEngine(
 
     fun fetchDownloadableReportFiles(
         since: OffsetDateTime?,
-        organizationName: String
+        organizationName: String,
     ): List<ReportFile> {
         return db.fetchDownloadableReportFiles(since, organizationName)
     }
@@ -770,7 +777,7 @@ class WorkflowEngine(
         // todo: until this can be refactored, we need a way for the calling functions to know
         //  if this header is expecting to have content to detect errors on download (IE, file does not exist
         //  see #3505
-        val expectingContent: Boolean
+        val expectingContent: Boolean,
     )
 
     private fun createHeader(
@@ -779,23 +786,27 @@ class WorkflowEngine(
         itemLineages: List<ItemLineage>?,
         organization: Organization?,
         receiver: Receiver?,
-        fetchBlobBody: Boolean = true
+        fetchBlobBody: Boolean = true,
     ): Header {
         val schema = if (reportFile.schemaName != null) {
             metadata.findSchema(reportFile.schemaName)
-        } else null
+        } else {
+            null
+        }
 
         val downloadContent = (reportFile.bodyUrl != null && fetchBlobBody)
         val content = if (downloadContent && BlobAccess.exists(reportFile.bodyUrl)) {
             BlobAccess.downloadBlob(reportFile.bodyUrl)
-        } else null
+        } else {
+            null
+        }
         return Header(task, reportFile, itemLineages, organization, receiver, schema, content, downloadContent)
     }
 
     fun fetchHeader(
         reportId: ReportId,
         organization: Organization,
-        fetchBlobBody: Boolean = true
+        fetchBlobBody: Boolean = true,
     ): Header {
         val reportFile = db.fetchReportFile(reportId, organization)
         val task = db.fetchTask(reportId)
@@ -818,7 +829,7 @@ class WorkflowEngine(
         nextEventAction: Event.EventAction,
         nextActionAt: OffsetDateTime? = null,
         retryToken: String? = null,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ) {
         fun finishedField(currentEventAction: Event.EventAction): Field<OffsetDateTime> {
             return when (currentEventAction) {
@@ -839,7 +850,8 @@ class WorkflowEngine(
                 Event.EventAction.SEND_ERROR,
                 Event.EventAction.PROCESS_ERROR,
                 Event.EventAction.PROCESS_WARNING,
-                Event.EventAction.WIPE_ERROR -> Tables.TASK.ERRORED_AT
+                Event.EventAction.WIPE_ERROR,
+                -> Tables.TASK.ERRORED_AT
 
                 Event.EventAction.NONE -> error("Internal Error: NONE currentAction")
             }
@@ -867,7 +879,7 @@ class WorkflowEngine(
     fun parseTopicReport(
         sender: LegacyPipelineSender,
         content: String,
-        defaults: Map<String, String>
+        defaults: Map<String, String>,
     ): ReadResult {
         return when (sender.format) {
             Sender.Format.CSV -> {

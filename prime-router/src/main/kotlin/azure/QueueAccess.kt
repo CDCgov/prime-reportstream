@@ -77,7 +77,9 @@ object QueueAccess {
      * @return the queue client
      */
     private fun createQueueClient(name: String): QueueClient {
-        return if (clients.containsKey(name)) clients[name]!! else {
+        return if (clients.containsKey(name)) {
+            clients[name]!!
+        } else {
             clients[name] = QueueServiceClientBuilder()
                 .connectionString(connectionString)
                 .buildClient()

@@ -16,7 +16,7 @@ open class Organization(
     val filters: List<ReportStreamFilters>? = emptyList(), // one ReportStreamFilters obj per topic.
     // enabled features for organization. Features defined in lookup table rs_feature_flags
     val featureFlags: List<String>? = emptyList(),
-    val keys: List<JwkSet>? = emptyList()
+    val keys: List<JwkSet>? = emptyList(),
 ) {
     constructor(org: Organization) : this(
         org.name, org.description, org.jurisdiction, org.stateCode, org.countyName, org.filters, org.featureFlags,
@@ -48,7 +48,7 @@ open class Organization(
     enum class Jurisdiction {
         FEDERAL,
         STATE,
-        COUNTY
+        COUNTY,
     }
 
     /**
@@ -57,19 +57,25 @@ open class Organization(
     fun consistencyErrorMessage(): String? {
         return when (jurisdiction) {
             Jurisdiction.FEDERAL -> {
-                if (stateCode != null || countyName != null)
+                if (stateCode != null || countyName != null) {
                     "stateCode or countyName not allowed for FEDERAL organizations"
-                else null
+                } else {
+                    null
+                }
             }
             Jurisdiction.STATE -> {
-                if (stateCode == null || countyName != null)
+                if (stateCode == null || countyName != null) {
                     "stateCode required for STATE organizations"
-                else null
+                } else {
+                    null
+                }
             }
             Jurisdiction.COUNTY -> {
-                if (stateCode == null || countyName == null)
+                if (stateCode == null || countyName == null) {
                     "stateCode and countyName required for COUNTY organizations"
-                else null
+                } else {
+                    null
+                }
             }
         }
     }

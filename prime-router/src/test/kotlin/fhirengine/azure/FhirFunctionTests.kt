@@ -136,7 +136,7 @@ class FhirFunctionTests {
     private fun makeWorkflowEngine(
         metadata: Metadata,
         settings: SettingsProvider,
-        databaseAccess: DatabaseAccess = accessSpy
+        databaseAccess: DatabaseAccess = accessSpy,
     ): WorkflowEngine {
         return spyk(
             WorkflowEngine.Builder().metadata(metadata).settingsProvider(settings).databaseAccess(databaseAccess)
@@ -419,7 +419,7 @@ class FhirFunctionTests {
         private fun seedTask(
             fileFormat: Report.Format,
             nextAction: TaskAction,
-            nextEventAction: Event.EventAction
+            nextEventAction: Event.EventAction,
         ): Report {
             val report = Report(
                 fileFormat,
@@ -702,11 +702,13 @@ class FhirFunctionTests {
 
             val queueMessage = "{\"type\":\"raw\",\"reportId\":\"${report.id}\"," +
                 "\"blobURL\":\"http://azurite:10000/devstoreaccount1/reports/receive%2Fignore.ignore-full-elr%2F" +
-                "None-${report.id}.hl7\",\"digest\":\"${BlobAccess.digestToString(
-                    BlobAccess.sha256Digest(
-                        translateFhirBytes
+                "None-${report.id}.hl7\",\"digest\":\"${
+                    BlobAccess.digestToString(
+                        BlobAccess.sha256Digest(
+                            translateFhirBytes
+                        )
                     )
-                )}\",\"blobSubFolderName\":" +
+                }\",\"blobSubFolderName\":" +
                 "\"ignore.ignore-full-elr\",\"schemaName\":\"\",\"topic\":\"full-elr\"}"
 
             val fhirFunc = FHIRFunctions(

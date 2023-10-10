@@ -162,7 +162,6 @@ class ConstantResolverTests {
 
     @Test
     fun `test execute additional FHIR functions unknown function`() {
-
         val context = CustomContext(Bundle(), Bundle())
         assertThat {
             FhirPathCustomResolver(CustomFhirPathFunctions()).executeFunction(

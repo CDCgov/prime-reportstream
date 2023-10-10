@@ -31,7 +31,7 @@ const val NUM_BATCH_RETRIES = 2
  * mocking/testing purposes.
  */
 class BatchFunction(
-    private val workflowEngine: WorkflowEngine = WorkflowEngine()
+    private val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
     @FunctionName(batch)
     @StorageAccount("AzureWebJobsStorage")
@@ -66,7 +66,7 @@ class BatchFunction(
     internal fun doBatch(
         message: String,
         event: BatchEvent,
-        actionHistory: ActionHistory
+        actionHistory: ActionHistory,
     ) {
         var backstopTime: OffsetDateTime? = null
         try {
@@ -85,7 +85,6 @@ class BatchFunction(
 
             // if this 'batch' event is for an empty batch, create the empty file
             if (event.isEmptyBatch) {
-
                 // There is a potential use case where a receiver could be using HL7 passthrough. There is no agreed-
                 //  upon format for what an 'empty' HL7 file looks like, and there are no receivers with this type
                 //  in prod as of now (2/2/2022). This short circuit is in case one somehow gets put in in the future
@@ -145,10 +144,11 @@ class BatchFunction(
 
                             else -> inReports
                         }
-                        val outReports = if (receiver.format.isSingleItemFormat)
+                        val outReports = if (receiver.format.isSingleItemFormat) {
                             mergedReports.flatMap { it.split() }
-                        else
+                        } else {
                             mergedReports
+                        }
 
                         outReports.forEach {
                             val outReport = it.copy(destination = receiver, bodyFormat = receiver.format)
@@ -159,9 +159,12 @@ class BatchFunction(
                             )
                             workflowEngine.dispatchReport(outEvent, outReport, actionHistory, receiver, txn)
                         }
-                        val msg = if (inReports.size == 1 && outReports.size == 1) "Success: " +
-                            "No merging needed - batch of 1"
-                        else "Success: merged ${inReports.size} reports into ${outReports.size} reports"
+                        val msg = if (inReports.size == 1 && outReports.size == 1) {
+                            "Success: " +
+                                "No merging needed - batch of 1"
+                        } else {
+                            "Success: merged ${inReports.size} reports into ${outReports.size} reports"
+                        }
                         actionHistory.trackActionResult(msg)
                     }
 
@@ -186,7 +189,7 @@ class BatchFunction(
         validHeaders: List<WorkflowEngine.Header>,
         actionHistory: ActionHistory,
         receiver: Receiver,
-        txn: Configuration?
+        txn: Configuration?,
     ) {
         if (!receiver.useBatching || receiver.timing == null ||
             receiver.timing.operation != Receiver.BatchOperation.MERGE

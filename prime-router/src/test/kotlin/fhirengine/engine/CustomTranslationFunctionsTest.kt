@@ -53,25 +53,25 @@ class CustomTranslationFunctionsTest {
 
         adjustedDateTime =
             CustomFHIRFunctions.changeTimezone(
-            mutableListOf(DateTimeType("2015-04")),
-            timezoneParameters
-        )[0] as DateTimeType
+                mutableListOf(DateTimeType("2015-04")),
+                timezoneParameters
+            )[0] as DateTimeType
         assertThat(CustomTranslationFunctions().convertDateTimeToHL7(adjustedDateTime)).isEqualTo("201504")
 
         adjustedDateTime =
             CustomFHIRFunctions.changeTimezone(
-            mutableListOf(DateTimeType("2015-04-05")),
-            timezoneParameters
-        )[0] as DateTimeType
+                mutableListOf(DateTimeType("2015-04-05")),
+                timezoneParameters
+            )[0] as DateTimeType
         assertThat(CustomTranslationFunctions().convertDateTimeToHL7(adjustedDateTime)).isEqualTo("20150405")
 
         // Fhir doesn't support hour/minute precision
         // With seconds, we should start to see timezone
         adjustedDateTime =
             CustomFHIRFunctions.changeTimezone(
-            mutableListOf(DateTimeType("2015-04-05T12:22:11Z")),
-            timezoneParameters
-        )[0] as DateTimeType
+                mutableListOf(DateTimeType("2015-04-05T12:22:11Z")),
+                timezoneParameters
+            )[0] as DateTimeType
         val tmp = CustomTranslationFunctions().convertDateTimeToHL7(adjustedDateTime)
         assertThat(tmp).isEqualTo("20150405212211+0900")
     }

@@ -29,6 +29,7 @@ import java.time.format.DateTimeParseException
 object FhirPathUtils : Logging {
 
     private val fhirContext = FhirContext.forR4()
+
     /**
      * The FHIR path engine.
      */
@@ -50,8 +51,11 @@ object FhirPathUtils : Logging {
      * @throws Exception if the path is invalid
      */
     fun parsePath(fhirPath: String?): ExpressionNode? {
-        return if (fhirPath.isNullOrBlank()) null
-        else pathEngine.parse(fhirPath)
+        return if (fhirPath.isNullOrBlank()) {
+            null
+        } else {
+            pathEngine.parse(fhirPath)
+        }
     }
 
     /**
@@ -63,13 +67,16 @@ object FhirPathUtils : Logging {
         appContext: CustomContext?,
         focusResource: Base,
         bundle: Bundle,
-        expression: String
+        expression: String,
     ): List<Base> {
         val retVal = try {
             pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
             val expressionNode = parsePath(expression)
-            if (expressionNode == null) emptyList()
-            else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+            if (expressionNode == null) {
+                emptyList()
+            } else {
+                pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+            }
         } catch (e: Exception) {
             // This is due to a bug in at least the extension() function
             logger.error(
@@ -95,13 +102,16 @@ object FhirPathUtils : Logging {
         appContext: CustomContext?,
         focusResource: Base,
         bundle: Bundle,
-        expression: String
+        expression: String,
     ): Boolean {
         val retVal = try {
             pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
             val expressionNode = parsePath(expression)
-            val value = if (expressionNode == null) emptyList()
-            else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+            val value = if (expressionNode == null) {
+                emptyList()
+            } else {
+                pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+            }
             if (value.size == 1 && value[0].isBooleanPrimitive) {
                 (value[0] as BooleanType).value
             } else if (value.isEmpty()) {
@@ -140,12 +150,15 @@ object FhirPathUtils : Logging {
         appContext: CustomContext?,
         focusResource: Base,
         bundle: Bundle,
-        expression: String
+        expression: String,
     ): String {
         pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
         val expressionNode = parsePath(expression)
-        val evaluated = if (expressionNode == null) emptyList()
-        else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+        val evaluated = if (expressionNode == null) {
+            emptyList()
+        } else {
+            pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+        }
         return when {
             // If we couldn't evaluate the path we should return an empty string
             evaluated.isEmpty() -> ""

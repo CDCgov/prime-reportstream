@@ -27,7 +27,7 @@ class BlobAccess() : Logging {
     data class BlobInfo(
         val format: Report.Format,
         val blobUrl: String,
-        val digest: ByteArray
+        val digest: ByteArray,
     ) {
         companion object {
             /**
@@ -37,7 +37,9 @@ class BlobAccess() : Logging {
             fun getBlobFilename(blobUrl: String): String {
                 return if (blobUrl.isNotBlank()) {
                     FilenameUtils.getName(URL(URLDecoder.decode(blobUrl, Charset.defaultCharset())).path)
-                } else ""
+                } else {
+                    ""
+                }
             }
 
             /**
@@ -47,7 +49,9 @@ class BlobAccess() : Logging {
             fun getBlobFileExtension(blobUrl: String): String {
                 return if (blobUrl.isNotBlank()) {
                     FilenameUtils.getExtension(URL(URLDecoder.decode(blobUrl, Charset.defaultCharset())).path)
-                } else ""
+                } else {
+                    ""
+                }
             }
         }
     }
@@ -61,7 +65,7 @@ class BlobAccess() : Logging {
         report: Report,
         blobBytes: ByteArray,
         subfolderName: String? = null,
-        action: Event.EventAction = Event.EventAction.NONE
+        action: Event.EventAction = Event.EventAction.NONE,
     ): BlobInfo {
         return uploadBody(report.bodyFormat, blobBytes, report.name, subfolderName, action)
     }
@@ -90,7 +94,7 @@ class BlobAccess() : Logging {
             blobBytes: ByteArray,
             reportName: String,
             subfolderName: String? = null,
-            action: Event.EventAction = Event.EventAction.NONE
+            action: Event.EventAction = Event.EventAction.NONE,
         ): BlobInfo {
             val subfolderNameChecked = if (subfolderName.isNullOrBlank()) "" else "$subfolderName/"
             val blobName = when (action) {
@@ -131,7 +135,7 @@ class BlobAccess() : Logging {
             blobName: String,
             bytes: ByteArray,
             blobContainerName: String = defaultBlobContainerName,
-            blobConnEnvVar: String = defaultConnEnvVar
+            blobConnEnvVar: String = defaultConnEnvVar,
         ): String {
             logger.info("Starting uploadBlob of $blobName")
             val blobClient = getBlobContainer(blobContainerName, blobConnEnvVar).getBlobClient(blobName)

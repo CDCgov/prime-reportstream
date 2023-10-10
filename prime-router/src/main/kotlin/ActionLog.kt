@@ -1,4 +1,5 @@
 package gov.cdc.prime.router
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import gov.cdc.prime.router.azure.db.tables.pojos.Action
@@ -9,14 +10,21 @@ import java.util.UUID
  * The scope of an action log.
  */
 enum class ActionLogScope {
-    parameter, report, item, translation, internal
+    parameter,
+    report,
+    item,
+    translation,
+    internal,
 }
 
 /**
  * The log level of an action log.
  */
 enum class ActionLogLevel {
-    info, warning, error, filter
+    info,
+    warning,
+    error,
+    filter,
 }
 
 /**
@@ -42,7 +50,7 @@ data class ActionLog(
     var reportId: UUID? = null,
     var action: Action? = null,
     val type: ActionLogLevel = ActionLogLevel.info,
-    val created_at: Instant = Instant.now()
+    val created_at: Instant = Instant.now(),
 ) {
     val scope = detail.scope
 
@@ -109,6 +117,7 @@ class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
         this.itemIndex = itemIndex
         this.trackingId = trackingId
     }
+
     /**
      * The current item index being tracked, or null if no index is tracked.
      */
@@ -172,10 +181,12 @@ class ActionLogger(val logs: MutableList<ActionLog> = mutableListOf()) {
      */
     private fun log(
         actionDetail: ActionLogDetail,
-        level: ActionLogLevel
+        level: ActionLogLevel,
     ) {
-        if (actionDetail.scope == ActionLogScope.item) check(itemIndex != null) {
-            "Index is required for item logs.  Use the item action logger"
+        if (actionDetail.scope == ActionLogScope.item) {
+            check(itemIndex != null) {
+                "Index is required for item logs.  Use the item action logger"
+            }
         }
         logs.add(ActionLog(actionDetail, trackingId, itemIndex, reportId, type = level))
     }

@@ -550,7 +550,6 @@ class FHIRBundleHelpersTests {
 
     @Test
     fun `Test getChildProperties from a Property`() {
-
         val diagnosticReport = DiagnosticReport()
         val observation = Observation()
         observation.id = "Observation/123"

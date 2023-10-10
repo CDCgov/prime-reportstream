@@ -30,7 +30,9 @@ object HL7Utils : Logging {
             if (message is Message) {
                 getMessageTypeString(message) // Just check we can get the type string
                 message
-            } else throw IllegalArgumentException("$hl7Class is not a subclass of ca.uhn.hl7v2.model.Message.")
+            } else {
+                throw IllegalArgumentException("$hl7Class is not a subclass of ca.uhn.hl7v2.model.Message.")
+            }
         } catch (e: Exception) {
             throw IllegalArgumentException("$hl7Class is not a class to use for the conversion.")
         }
@@ -42,9 +44,11 @@ object HL7Utils : Logging {
      */
     internal fun getMessageTypeString(message: Message): List<String> {
         val typeParts = message.javaClass.simpleName.split("_")
-        return if (typeParts.size != 2)
+        return if (typeParts.size != 2) {
             throw IllegalArgumentException("${message.javaClass.simpleName} is not a class to use for the conversion.")
-        else typeParts
+        } else {
+            typeParts
+        }
     }
 
     /**
@@ -130,6 +134,8 @@ object HL7Utils : Logging {
 
         return if (start != -1 && end != -1) {
             field.replaceRange(start, end + 1, "")
-        } else field
+        } else {
+            field
+        }
     }
 }

@@ -30,7 +30,7 @@ class Facility private constructor(
     val location: String?,
     val CLIA: String?,
     val positive: Long?,
-    val total: Long?
+    val total: Long?,
 ) {
 
     data class Builder(
@@ -39,7 +39,7 @@ class Facility private constructor(
         var location: String? = null,
         var CLIA: String? = null,
         var positive: Long? = null,
-        var total: Long? = null
+        var total: Long? = null,
     ) {
 
         fun organization(organization: String) = apply { this.organization = organization }
@@ -55,13 +55,13 @@ class Facility private constructor(
 class Action private constructor(
     val date: String?,
     val user: String?,
-    val action: String?
+    val action: String?,
 ) {
 
     data class Builder(
         var date: String? = null,
         var user: String? = null,
-        var action: String? = null
+        var action: String? = null,
     ) {
 
         fun date(date: String) = apply { this.date = date }
@@ -88,7 +88,7 @@ class ReportView private constructor(
     val displayName: String?,
     val content: String?,
     val fileName: String?,
-    val mimeType: String?
+    val mimeType: String?,
 ) {
     data class Builder(
         var sent: Long? = null,
@@ -107,7 +107,7 @@ class ReportView private constructor(
         var displayName: String? = null,
         var content: String? = null,
         var fileName: String? = null,
-        var mimeType: String? = null
+        var mimeType: String? = null,
     ) {
 
         fun sent(sent: Long) = apply { this.sent = sent }
@@ -182,7 +182,7 @@ class GetReports :
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "v1/reports/search"
-        ) request: HttpRequestMessage<String?>
+        ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims == null || !claims.authorized(setOf("*.*.primeadmin"))) {
@@ -246,7 +246,7 @@ open class BaseHistoryFunction : Logging {
     fun getReports(
         request: HttpRequestMessage<String?>,
         context: ExecutionContext,
-        organizationName: String? = null
+        organizationName: String? = null,
     ): HttpResponseMessage {
         logger.info("Checking authorization for getReports")
         val authClaims = checkAuthenticated(request, context)
@@ -258,6 +258,7 @@ open class BaseHistoryFunction : Logging {
                 OffsetDateTime.now().minusDays(DAYS_TO_SHOW),
                 organizationName ?: authClaims.organization.name
             )
+
             @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
             val reports = headers.sortedByDescending { it.createdAt }.map {
                 // removing the call for facilities for now so we can call a
@@ -332,7 +333,7 @@ open class BaseHistoryFunction : Logging {
     fun getReportById(
         request: HttpRequestMessage<String?>,
         reportIdIn: String,
-        context: ExecutionContext
+        context: ExecutionContext,
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         val requestOrgName: String = request.headers["organization"]
@@ -340,13 +341,13 @@ open class BaseHistoryFunction : Logging {
 
         if (claims == null || !claims.authorized(
                 setOf(
-                        PRIME_ADMIN_PATTERN,
-                        "$requestOrgName.*.*",
-                        "$requestOrgName.*.admin",
-                        "$requestOrgName.*.user",
-                        "$requestOrgName.*.*",
-                        "$requestOrgName.*.report"
-                    )
+                    PRIME_ADMIN_PATTERN,
+                    "$requestOrgName.*.*",
+                    "$requestOrgName.*.admin",
+                    "$requestOrgName.*.user",
+                    "$requestOrgName.*.*",
+                    "$requestOrgName.*.report"
+                )
             )
         ) {
             return HttpUtilities.unauthorizedResponse(request)
@@ -358,9 +359,9 @@ open class BaseHistoryFunction : Logging {
             if (requestedReport.receivingOrg != requestOrgName) {
                 return HttpUtilities.notFoundResponse(request)
             }
-            val contents = if (requestedReport.bodyUrl != null)
+            val contents = if (requestedReport.bodyUrl != null) {
                 BlobAccess.downloadBlob(requestedReport.bodyUrl)
-            else {
+            } else {
                 // If the body URL is missing from the report it is likely a sent report that was generated
                 // before a blob was being generated.  This code can be removed after all of those reports
                 // have expired.
@@ -372,9 +373,9 @@ open class BaseHistoryFunction : Logging {
                 }
                 BlobAccess.downloadBlob(batchReport.bodyUrl)
             }
-            if (contents.isEmpty())
+            if (contents.isEmpty()) {
                 return HttpUtilities.notFoundResponse(request)
-            else {
+            } else {
                 val filename = Report.formExternalFilename(
                     requestedReport.bodyUrl,
                     requestedReport.reportId,
@@ -395,8 +396,11 @@ open class BaseHistoryFunction : Logging {
                     .receivingOrgSvc(requestedReport.receivingOrgSvc)
                     .sendingOrg(requestedReport.sendingOrg ?: "")
                     .displayName(
-                        if (requestedReport.externalName.isNullOrBlank()) requestedReport.receivingOrgSvc
-                        else requestedReport.externalName
+                        if (requestedReport.externalName.isNullOrBlank()) {
+                            requestedReport.receivingOrgSvc
+                        } else {
+                            requestedReport.externalName
+                        }
                     )
                     .content(String(contents))
                     .fileName(filename)
@@ -441,7 +445,7 @@ open class BaseHistoryFunction : Logging {
     fun getFacilitiesForReportId(
         request: HttpRequestMessage<String?>,
         reportId: String?,
-        context: ExecutionContext
+        context: ExecutionContext,
     ): HttpResponseMessage {
         // make sure we're auth'd and error out if we're not
         checkAuthenticated(request, context)
@@ -466,7 +470,7 @@ open class BaseHistoryFunction : Logging {
 
     data class AuthClaims(
         val userName: String,
-        val organization: Organization
+        val organization: Organization,
     )
 
     /**
@@ -480,13 +484,13 @@ open class BaseHistoryFunction : Logging {
         var jwtToken: String? = request.headers["authorization"] /* Format: Bearer ... */
 
         /* INFO:
-        *   JWT cannot be parsed by OktaAuthentication object here because Admins who do not
-        *   exist in one or more DHxx_phd groups on Okta will be unable to see any receiver's
-        *   reports.
-        *
-        *   To fix this, below we apply the same verifier, and then we see if oktaOrganizations.contains(orgName) OR
-        *   oktaOrganizations.contains("DHPrimeAdmins") before authorizing.
-        */
+         *   JWT cannot be parsed by OktaAuthentication object here because Admins who do not
+         *   exist in one or more DHxx_phd groups on Okta will be unable to see any receiver's
+         *   reports.
+         *
+         *   To fix this, below we apply the same verifier, and then we see if oktaOrganizations.contains(orgName) OR
+         *   oktaOrganizations.contains("DHPrimeAdmins") before authorizing.
+         */
         if (jwtToken.isNullOrBlank() || requestOrgName.isNullOrBlank()) return null
 
         try {
@@ -537,7 +541,7 @@ open class BaseHistoryFunction : Logging {
             if (requestedOrgName.isBlank()) return false
             oktaOrgs.forEach {
                 when {
-                    it == null -> { } // do nothing ; skip.
+                    it == null -> {} // do nothing ; skip.
                     it.contains("DHPrimeAdmins") -> return true
                     it.replace('_', '-') == "DH${requestedOrgName.replace('_', '-')}"
                     -> return true

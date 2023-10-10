@@ -33,7 +33,7 @@ class SenderFilesFunctionTests {
 
     private fun buildSenderFilesFunction(
         mockDbAccess: DatabaseAccess? = null,
-        mockBlobAccess: BlobAccess? = null
+        mockBlobAccess: BlobAccess? = null,
     ): SenderFilesFunction {
         val dbAccess = mockDbAccess ?: mockk()
         val blobAccess = mockBlobAccess ?: mockk()
