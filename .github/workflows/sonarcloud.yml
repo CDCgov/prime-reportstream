@@ -29,27 +29,27 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: "Get changed files"
-        id: changed-files
-        uses: tj-actions/changed-files@v39
+#      - name: "Get changed files"
+#        id: changed-files
+#        uses: tj-actions/changed-files@v39
+#
+#      - name: "List all changed files"
+#        run: |
+#          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+#            echo "$file was changed"
+#          done
 
-      - name: "List all changed files"
-        run: |
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            echo "$file was changed"
-          done
-
-      - name: "Run changed-files with dir_names"
-        id: changed-dirs
-        uses: tj-actions/changed-files@v39
-        with:
-          dir_names: "true"
-
-      - name: "List all changed directories"
-        run: |
-          for folder in ${{ steps.changed-dirs.outputs.all_changed_files }}; do
-            echo "$folder was changed"
-          done
+#      - name: "Run changed-files with dir_names"
+#        id: changed-dirs
+#        uses: tj-actions/changed-files@v39
+#        with:
+#          dir_names: "true"
+#
+#      - name: "List all changed directories"
+#        run: |
+#          for folder in ${{ steps.changed-dirs.outputs.all_changed_files }}; do
+#            echo "$folder was changed"
+#          done
 
       - name: "Get changed files with yaml"
         id: changed-files-yaml
@@ -77,32 +77,40 @@ jobs:
           echo "List all the files that have changed: ${{ steps.changed-files-yaml.outputs.backend_all_changed_files }}"
 
       - name: Set up JDK 17
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true'
         uses: actions/setup-java@0ab4596768b603586c0de567f2430c30f5b0d2b0
         with:
           java-version: "17"
           distribution: "temurin"
           cache: "gradle"
 
-      - uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
+      - name: Gradle Validation
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true'
+        uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
 
       - name: Spin up build containers
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true'
         working-directory: prime-router
         run: docker-compose -f docker-compose.postgres.yml up -d
 
       - name: Build Prime Router Package
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true'
         working-directory: prime-router
         run: ./gradlew jacocoTestReport
 
       - name: Use Node.js with yarn
+        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true'  
         uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d
         with:
           node-version-file: "frontend-react/package.json"
 
       - name: Yarn
+        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true'  
         run: yarn install
         working-directory: frontend-react
 
       - name: Frontend Coverage
+        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true'  
         run: yarn jest --coverage --silent --maxWorkers=100%
         working-directory: frontend-react
 
