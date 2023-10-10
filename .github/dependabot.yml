@@ -313,7 +313,7 @@ updates:
     groups:
       azurecore:
         patterns:
-          - "com.azuzre:azure-core*"
+          - "com.azure:azure-core*"
       bouncycastle:
         patterns:
           - "org.bouncycastle:bc*"
