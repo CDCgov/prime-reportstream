@@ -17,8 +17,25 @@ class XONToOrganization {
 
         assert(
             translateAndCompareFHIRToHL7(
-                "mappinginventory/xon/xon-to-organization.fhir",
-                "mappinginventory/xon/xon-to-organization.hl7",
+                "mappinginventory/xon/xon-to-organization-xon10-populated.fhir",
+                "mappinginventory/xon/xon-to-organization-xon10-populated.hl7",
+            ).passed
+        )
+    }
+
+    @Test
+    fun `test translate to HL7 to FHIR to HL7 when XON-10 is populated`() {
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/xon/xon-to-organization-xon10-populated.hl7",
+                "mappinginventory/xon/xon-to-organization-xon10-populated.fhir",
+            ).passed
+        )
+
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/xon/xon-to-organization-xon10-populated.fhir",
+                "mappinginventory/xon/xon-to-organization-xon10-populated.hl7",
             ).passed
         )
     }
