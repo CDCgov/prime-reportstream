@@ -12,8 +12,8 @@ elements:
 
   # This exercises overriding a schema element with a hardcoded value from the base schema
   - name: message-header-11
-    value: ['"override"']
-    hl7Spec: ['MSH-11']
+    value: [ '"override"' ]
+    hl7Spec: [ 'MSH-11' ]
 
   # This exercises that an element in the overriding schema is executed last.  Here the element does
   # not exist in the base, but does set the same HL7 value
