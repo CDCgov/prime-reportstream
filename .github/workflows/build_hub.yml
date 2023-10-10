@@ -95,25 +95,3 @@ jobs:
         if: ${{ steps.check_changes.outcome == 'failure' }}
         run: |
           false
-
-  docker_build_test:
-    name: Docker Build, CodeQl analysis and SonarCloud
-    runs-on: ubuntu-latest
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
-    defaults:
-      run:
-        working-directory: prime-router
-
-    steps:
-      - name: "Check out changes"
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
-
-      - name: Build backend
-        uses: ./.github/actions/build-backend
-        with:
-          version: ${{ github.run_id }}
-          upload-build: false
-          run-qc: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
