@@ -83,9 +83,6 @@ jobs:
             backend:
               - 'prime-router/**'
 
-# PLAN:run frontend build if frontend changes or branch = master
-# PLAN:run backend build if backend changes or branch = master
-
       - name: Set up JDK 17
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         uses: actions/setup-java@0ab4596768b603586c0de567f2430c30f5b0d2b0
@@ -125,9 +122,26 @@ jobs:
         working-directory: frontend-react
 
 # TODO: customize for frontend/backend/full
-      - name: Run SonarCloud Scan
+      - name: Run SonarCloud Scan master
+        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         uses: ./.github/actions/sonarcloud
         with:
           scan-level: default
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Run SonarCloud Scan frontened only
+        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.changed-files-yaml.outputs.backend_any_changed == 'false' || steps.branch-name.outputs.is_default == 'false'
+        uses: ./.github/actions/sonarcloud
+        with:
+          scan-level: frontend
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Run SonarCloud Scan backend only
+        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'false' || steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'false'
+        uses: ./.github/actions/sonarcloud
+        with:
+          scan-level: backend
           github-token: ${{ secrets.GITHUB_TOKEN }}
           sonar-token: ${{ secrets.SONAR_TOKEN }}
