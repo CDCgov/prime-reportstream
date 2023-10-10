@@ -33,46 +33,6 @@ jobs:
         id: branch-name
         uses: tj-actions/branch-names@v7
         
-#      - name: Running on the default branch.
-#        if: steps.branch-name.outputs.is_default == 'true'
-#        run: |
-#          echo "Running on default: ${{ steps.branch-name.outputs.current_branch }}" 
-        # Outputs: "Running on default: main"
-      
-#      - name: Running on a pull request branch.
-#        if: steps.branch-name.outputs.is_default == 'false'
-#        run: |
-#          echo "Running on pr: ${{ steps.branch-name.outputs.current_branch }}"
-        # Outputs: "Running on pr: feature/test"
-      
-#      - name: Running on a pull request branch.
-#        if: steps.branch-name.outputs.is_default == 'false'
-#        run: |
-#          echo "Base branch: ${{ steps.branch-name.outputs.base_ref_branch }}"
-        # Outputs: "Base branch: main"
-
-#      - name: "Get changed files"
-#        id: changed-files
-#        uses: tj-actions/changed-files@v39
-#
-#      - name: "List all changed files"
-#        run: |
-#          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-#            echo "$file was changed"
-#          done
-
-#      - name: "Run changed-files with dir_names"
-#        id: changed-dirs
-#        uses: tj-actions/changed-files@v39
-#        with:
-#          dir_names: "true"
-#
-#      - name: "List all changed directories"
-#        run: |
-#          for folder in ${{ steps.changed-dirs.outputs.all_changed_files }}; do
-#            echo "$folder was changed"
-#          done
-
       - name: "Get changed files with yaml"
         id: changed-files-yaml
         uses: tj-actions/changed-files@v39
@@ -121,7 +81,6 @@ jobs:
         run: yarn jest --coverage --silent --maxWorkers=100%
         working-directory: frontend-react
 
-# TODO: customize for frontend/backend/full
       - name: Run SonarCloud Scan master or full
         if: ( steps.changed-files-yaml.outputs.frontend_any_changed == 'true' && steps.changed-files-yaml.outputs.backend_any_changed == 'true' ) || steps.branch-name.outputs.is_default == 'true'
         uses: ./.github/actions/sonarcloud
@@ -130,7 +89,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           sonar-token: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Run SonarCloud Scan frontened only
+      - name: Run SonarCloud Scan frontened
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' && steps.changed-files-yaml.outputs.backend_any_changed == 'false' && steps.branch-name.outputs.is_default == 'false'
         uses: ./.github/actions/sonarcloud
         with:
@@ -138,7 +97,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           sonar-token: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Run SonarCloud Scan backend only
+      - name: Run SonarCloud Scan backend
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'false' && steps.changed-files-yaml.outputs.backend_any_changed == 'true' && steps.branch-name.outputs.is_default == 'false'
         uses: ./.github/actions/sonarcloud
         with:
