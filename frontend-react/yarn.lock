@@ -15809,7 +15809,7 @@ __metadata:
     rest-hooks: ^6.1.7
     rimraf: ^5.0.1
     sanitize-html: ^2.11.0
-    sass: ^1.66.1
+    sass: ^1.69.1
     storybook: ^7.4.0
     storybook-addon-react-router-v6: ^2.0.7
     ts-node: ^10.9.1
@@ -16755,16 +16755,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass@npm:^1.66.1":
-  version: 1.66.1
-  resolution: "sass@npm:1.66.1"
+"sass@npm:^1.69.1":
+  version: 1.69.1
+  resolution: "sass@npm:1.69.1"
   dependencies:
     chokidar: ">=3.0.0 <4.0.0"
     immutable: ^4.0.0
     source-map-js: ">=0.6.2 <2.0.0"
   bin:
     sass: sass.js
-  checksum: 74fc11d0fcd5e16c5331b57dd59865705a299c64e89f2b99646869caeb011dc8d0b6144a6c74a90c264e9ef70654207dbf44fc9b7e3393f8bd14809b904c8a52
+  checksum: e3f0754fc8e1ffc239919cba8d1cc8d89908d596161992c562d0679a6aa1e1c57b0a11846726f9222f96622495a5bfc00461b3f31182e71a54ad91a86dd10a8f
   languageName: node
   linkType: hard
 
