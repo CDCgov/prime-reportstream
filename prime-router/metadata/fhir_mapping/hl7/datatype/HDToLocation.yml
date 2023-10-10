@@ -35,7 +35,7 @@ extension_1-unknownUniversalIdType:
     valueString:
       expressionType: HL7Spec
       type: STRING
-      valueOf: HD.3
+      valueOf: HD.2
   vars:
     universalId: STRING, HD.3
 

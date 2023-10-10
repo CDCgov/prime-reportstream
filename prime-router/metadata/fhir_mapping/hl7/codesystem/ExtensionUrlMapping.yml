@@ -276,8 +276,8 @@
 - id: "check-digit-scheme"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit-scheme"
 # Unknown Universal ID Type
-- id: "universal-id-unknown-type"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-unknown-type"
+- id: "unknown-universal-id-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/unknown-universal-id-type"
 # Identifier Location
 - id: "identifier-location"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location"

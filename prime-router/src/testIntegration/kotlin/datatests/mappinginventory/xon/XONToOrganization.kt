@@ -4,6 +4,10 @@ import gov.cdc.prime.router.datatests.mappinginventory.translateAndCompareFHIRTo
 import gov.cdc.prime.router.datatests.mappinginventory.translateAndCompareHL7ToFHIR
 import org.junit.jupiter.api.Test
 
+/*
+This test class covers the mapping of XON to Organization and implicitly also tests to other mappings that are internal
+to XON
+ */
 class XONToOrganization {
 
     @Test
