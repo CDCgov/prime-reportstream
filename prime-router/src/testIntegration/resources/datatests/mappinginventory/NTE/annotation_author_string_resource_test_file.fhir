@@ -270,7 +270,7 @@
             "code" : "CLIA"
           } ]
         },
-        "value" : "urn:clia:11D0668319"
+        "value" : "11D0668319"
       } ],
       "address" : [ {
         "country" : "USA"
