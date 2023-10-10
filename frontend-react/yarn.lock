@@ -14280,14 +14280,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"msw-storybook-addon@npm:^1.8.0":
-  version: 1.8.0
-  resolution: "msw-storybook-addon@npm:1.8.0"
+"msw-storybook-addon@npm:^1.9.0":
+  version: 1.9.0
+  resolution: "msw-storybook-addon@npm:1.9.0"
   dependencies:
     is-node-process: ^1.0.1
   peerDependencies:
     msw: ">=0.35.0 <2.0.0"
-  checksum: 14d7ab064fcc548fe8169f029a2f02184387bd85267ea3c36d8076e671a13dc36349123f2f66fbd2930cedac929cf3ecbe7d45221d72918a9e83321305f3072c
+  checksum: 35172b52723d88265678e7e2b46ef6a28b934ee3c5fa359e19e4fb53e021ab30bc6961c19b0bd72e14b3d15a1638b00748c0dc04f637c97368b3cf39ccdc0744
   languageName: node
   linkType: hard
 
@@ -15785,7 +15785,7 @@ __metadata:
     mockdate: ^3.0.5
     moment: ^2.29.4
     msw: ^1.2.5
-    msw-storybook-addon: ^1.8.0
+    msw-storybook-addon: ^1.9.0
     npm-run-all: ^4.1.5
     otplib: ^12.0.1
     patch-package: ^8.0.0
