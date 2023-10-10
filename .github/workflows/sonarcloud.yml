@@ -33,22 +33,22 @@ jobs:
         id: branch-name
         uses: tj-actions/branch-names@v7
         
-      - name: Running on the default branch.
-        if: steps.branch-name.outputs.is_default == 'true'
-        run: |
-          echo "Running on default: ${{ steps.branch-name.outputs.current_branch }}" 
+#      - name: Running on the default branch.
+#        if: steps.branch-name.outputs.is_default == 'true'
+#        run: |
+#          echo "Running on default: ${{ steps.branch-name.outputs.current_branch }}" 
         # Outputs: "Running on default: main"
       
-      - name: Running on a pull request branch.
-        if: steps.branch-name.outputs.is_default == 'false'
-        run: |
-          echo "Running on pr: ${{ steps.branch-name.outputs.current_branch }}"
+#      - name: Running on a pull request branch.
+#        if: steps.branch-name.outputs.is_default == 'false'
+#        run: |
+#          echo "Running on pr: ${{ steps.branch-name.outputs.current_branch }}"
         # Outputs: "Running on pr: feature/test"
       
-      - name: Running on a pull request branch.
-        if: steps.branch-name.outputs.is_default == 'false'
-        run: |
-          echo "Base branch: ${{ steps.branch-name.outputs.base_ref_branch }}"
+#      - name: Running on a pull request branch.
+#        if: steps.branch-name.outputs.is_default == 'false'
+#        run: |
+#          echo "Base branch: ${{ steps.branch-name.outputs.base_ref_branch }}"
         # Outputs: "Base branch: main"
 
 #      - name: "Get changed files"
@@ -87,7 +87,7 @@ jobs:
 # PLAN:run backend build if backend changes or branch = master
 
       - name: Set up JDK 17
-        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true'
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         uses: actions/setup-java@0ab4596768b603586c0de567f2430c30f5b0d2b0
         with:
           java-version: "17"
@@ -95,35 +95,36 @@ jobs:
           cache: "gradle"
 
       - name: Gradle Validation
-        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true'
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
 
       - name: Spin up build containers
-        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true'
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         working-directory: prime-router
         run: docker-compose -f docker-compose.postgres.yml up -d
 
       - name: Build Prime Router Package
-        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true'
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         working-directory: prime-router
         run: ./gradlew jacocoTestReport
 
       - name: Use Node.js with yarn
-        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true'  
+        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d
         with:
           node-version-file: "frontend-react/package.json"
 
       - name: Yarn
-        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true'  
+        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         run: yarn install
         working-directory: frontend-react
 
       - name: Frontend Coverage
-        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true'  
+        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         run: yarn jest --coverage --silent --maxWorkers=100%
         working-directory: frontend-react
 
+# TODO: customize for frontend/backend/full
       - name: Run SonarCloud Scan
         uses: ./.github/actions/sonarcloud
         with:
