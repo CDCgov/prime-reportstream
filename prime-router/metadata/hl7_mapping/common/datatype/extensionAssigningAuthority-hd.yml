@@ -11,7 +11,7 @@ elements:
 
   - name: assigning-authority-universal-id-unknown
     condition: '%resource.extension(%`rsext-universal-id`).exists().not()'
-    value: [ '%resource.extension(%`rsext-universal-id-unknown-type`).value' ]
+    value: [ '%resource.extension(%`rsext-unknown-universal-id-type`).value' ]
     hl7Spec: [ '%{hl7HDField}-2' ]
 
   - name: assigning-authority-universal-type-id

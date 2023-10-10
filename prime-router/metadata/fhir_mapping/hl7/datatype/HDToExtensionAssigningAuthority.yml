@@ -48,7 +48,7 @@ extension_4-universalIdUnknownType:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: universal-id-unknown-type
+      value: unknown-universal-id-type
     valueCode:
       type: STRING
       valueOf: HD.2
