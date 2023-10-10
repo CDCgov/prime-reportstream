@@ -104,15 +104,6 @@ export const ReportStreamNavbar = ({
     const defaultMenuItems = [
         <div className="primary-nav-link-container">
             <a
-                className={primaryLinkClasses(!!useMatch("/about/*"))}
-                href="/about"
-                key="about"
-            >
-                About
-            </a>
-        </div>,
-        <div className="primary-nav-link-container">
-            <a
                 className={primaryLinkClasses(!!useMatch("/getting-started/*"))}
                 href="/getting-started"
                 key="getting-started"
@@ -151,6 +142,29 @@ export const ReportStreamNavbar = ({
                 Support
             </a>
         </div>,
+    ];
+
+    const menuItemsAbout = [
+        <Dropdown
+            menuName="About"
+            dropdownList={[
+                <a href="/about" key="our-network">
+                    About ReportStream
+                </a>,
+                <a href="/about/our-network" key="our-network">
+                    Our network
+                </a>,
+                <a href="/about/case-studies" key="case-studies">
+                    Case studies
+                </a>,
+                <a href="/about/security" key="security">
+                    Security
+                </a>,
+                <a href="/about/release-notes" key="release-notes">
+                    Release notes
+                </a>,
+            ]}
+        />,
     ];
 
     const menuItemsReceiver = [
@@ -218,7 +232,7 @@ export const ReportStreamNavbar = ({
         />,
     ];
     const navbarItemBuilder = () => {
-        let menuItems = defaultMenuItems;
+        let menuItems = [...menuItemsAbout, ...defaultMenuItems];
 
         if ((isUserReceiver || isUserAdmin) && !orgMissingTransport) {
             menuItems = [...menuItems, ...menuItemsReceiver];
