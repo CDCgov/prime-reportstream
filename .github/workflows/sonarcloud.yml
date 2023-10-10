@@ -40,19 +40,19 @@ jobs:
           done
 
       - name: "Run changed-files with dir_names"
-        id: changed-files-dir-names
+        id: changed-dirs
         uses: tj-actions/changed-files@v39
         with:
           dir_names: "true"
 
       - name: "List all changed directories"
         run: |
-          for folder in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          for folder in ${{ steps.changed-dirs.outputs.all_changed_files }}; do
             echo "$folder was changed"
           done
 
       - name: "Get changed files with yaml"
-        id: changed-files-with-yaml
+        id: changed-files-yaml
         uses: tj-actions/changed-files@v39
         with:
           files_yaml: |
