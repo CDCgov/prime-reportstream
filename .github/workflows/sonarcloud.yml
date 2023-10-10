@@ -1,4 +1,4 @@
-name: SonarCloud Master
+name: SonarCloud
 
 on:
   workflow_dispatch:
@@ -28,6 +28,28 @@ jobs:
         uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
         with:
           fetch-depth: 0
+
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v7
+        
+      - name: Running on the default branch.
+        if: steps.branch-name.outputs.is_default == 'true'
+        run: |
+          echo "Running on default: ${{ steps.branch-name.outputs.current_branch }}" 
+        # Outputs: "Running on default: main"
+      
+      - name: Running on a pull request branch.
+        if: steps.branch-name.outputs.is_default == 'false'
+        run: |
+          echo "Running on pr: ${{ steps.branch-name.outputs.current_branch }}"
+        # Outputs: "Running on pr: feature/test"
+      
+      - name: Running on a pull request branch.
+        if: steps.branch-name.outputs.is_default == 'false'
+        run: |
+          echo "Base branch: ${{ steps.branch-name.outputs.base_ref_branch }}"
+        # Outputs: "Base branch: main"
 
 #      - name: "Get changed files"
 #        id: changed-files
@@ -62,19 +84,7 @@ jobs:
               - 'prime-router/**'
 
 # PLAN:run frontend build if frontend changes or branch = master
-      - name: Run step if frontend file(s) change
-        # NOTE: Ensure all outputs are prefixed by the same key used above e.g. `test_(...)` | `doc_(...)` | `src_(...)` when trying to access the `any_changed` output.
-        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true'  
-        run: |
-          echo "One or more frontend file(s) has changed."
-          echo "List all the files that have changed: ${{ steps.changed-files-yaml.outputs.frontend_all_changed_files }}"
-      
 # PLAN:run backend build if backend changes or branch = master
-      - name: Run step if backend file(s) change
-        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true'
-        run: |
-          echo "One or more backend file(s) has changed."
-          echo "List all the files that have changed: ${{ steps.changed-files-yaml.outputs.backend_all_changed_files }}"
 
       - name: Set up JDK 17
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true'
