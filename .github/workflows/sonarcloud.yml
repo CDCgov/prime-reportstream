@@ -31,11 +31,11 @@ jobs:
 
       - name: Get branch name
         id: branch-name
-        uses: tj-actions/branch-names@v7
+        uses: tj-actions/branch-names@033f2358d95522973eee35810e35a86fae4a71d8
         
       - name: "Get changed files with yaml"
         id: changed-files-yaml
-        uses: tj-actions/changed-files@v39
+        uses: tj-actions/changed-files@db153baf731265ad02cd490b07f470e2d55e3345
         with:
           files_yaml: |
             frontend:
