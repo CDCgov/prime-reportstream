@@ -1,4 +1,3 @@
-// gratuitous change
 /*
 Build script for Prime Router.
 
