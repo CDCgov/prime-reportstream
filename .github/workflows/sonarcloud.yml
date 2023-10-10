@@ -122,8 +122,8 @@ jobs:
         working-directory: frontend-react
 
 # TODO: customize for frontend/backend/full
-      - name: Run SonarCloud Scan master
-        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+      - name: Run SonarCloud Scan master or full
+        if: ( steps.changed-files-yaml.outputs.frontend_any_changed == 'true' && steps.changed-files-yaml.outputs.backend_any_changed == 'true' ) || steps.branch-name.outputs.is_default == 'true'
         uses: ./.github/actions/sonarcloud
         with:
           scan-level: default
@@ -131,7 +131,7 @@ jobs:
           sonar-token: ${{ secrets.SONAR_TOKEN }}
 
       - name: Run SonarCloud Scan frontened only
-        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.changed-files-yaml.outputs.backend_any_changed == 'false' || steps.branch-name.outputs.is_default == 'false'
+        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' && steps.changed-files-yaml.outputs.backend_any_changed == 'false' && steps.branch-name.outputs.is_default == 'false'
         uses: ./.github/actions/sonarcloud
         with:
           scan-level: frontend
@@ -139,7 +139,7 @@ jobs:
           sonar-token: ${{ secrets.SONAR_TOKEN }}
 
       - name: Run SonarCloud Scan backend only
-        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'false' || steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'false'
+        if: steps.changed-files-yaml.outputs.frontend_any_changed == 'false' && steps.changed-files-yaml.outputs.backend_any_changed == 'true' && steps.branch-name.outputs.is_default == 'false'
         uses: ./.github/actions/sonarcloud
         with:
           scan-level: backend
