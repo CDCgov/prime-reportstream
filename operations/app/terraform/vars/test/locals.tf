@@ -9,6 +9,10 @@ locals {
     resource_prefix     = "pdh${local.environment}"
     okta_redirect_url   = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
     okta_base_url       = "hhs-prime.oktapreview.com"
+    OKTA_authKey        = "xxx"
+    OKTA_clientId       = "xxx"
+    fn_OKTA_clientId    = "xxx"
+    OKTA_scope          = "simple_report_dev"
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-app-config"
@@ -28,7 +32,7 @@ locals {
     delete_pii_storage_after_days = 30
   }
   database = {
-    db_sku_name         = "GP_Gen5_16"
+    db_sku_name         = "GP_Gen5_8"
     db_version          = "11"
     db_storage_mb       = 5120
     db_auto_grow        = true
@@ -37,6 +41,9 @@ locals {
     db_replica          = true
     flex_sku_name       = "GP_Standard_D4ds_v4"
     flex_instances      = ["primary"]
+  }
+  log_analytics_workspace = {
+    law_retention_period = "30"
   }
   app = {
     app_tier                 = "PremiumV2"

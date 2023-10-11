@@ -33,9 +33,13 @@ import gov.cdc.prime.router.transport.RetryItems
 import gov.cdc.prime.router.transport.RetryToken
 import gov.cdc.prime.router.transport.SftpTransport
 import gov.cdc.prime.router.transport.SoapTransport
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import org.jooq.Configuration
 import org.jooq.Field
 import java.io.ByteArrayInputStream
+import java.time.Duration
 import java.time.OffsetDateTime
 
 /**
@@ -570,7 +574,7 @@ class WorkflowEngine(
                 return@transact
             }
 
-            val blobContent = BlobAccess.downloadBlob(task.bodyUrl)
+            val blobContent = BlobAccess.downloadBlobAsByteArray(task.bodyUrl)
 
             val report = csvSerializer.readInternal(
                 task.schemaName,
@@ -647,13 +651,21 @@ class WorkflowEngine(
             val (organization, receiver) = findOrganizationAndReceiver(messageEvent.receiverName, txn)
             // This check is needed as long as TASK does not FK to REPORT_FILE.  @todo FK TASK to REPORT_FILE
             ActionHistory.sanityCheckReports(tasks, reportFiles, false)
-            val headers = tasks.mapNotNull {
-                if (reportFiles[it.reportId] != null) {
-                    createHeader(it, reportFiles[it.reportId]!!, null, organization, receiver)
-                } else {
-                    null
-                }
-            }
+
+            val startTime = OffsetDateTime.now()
+            val headers = runBlocking {
+                tasks.mapNotNull {
+                    async {
+                        if (reportFiles[it.reportId] != null) {
+                            createHeader(it, reportFiles[it.reportId]!!, null, organization, receiver)
+                        } else {
+                            null
+                        }
+                    }
+                }.awaitAll()
+            }.filterNotNull()
+            val duration = Duration.between(startTime, OffsetDateTime.now())
+            logger.info("BatchFunction Downloading reports for batch and creating headers took $duration")
 
             updateBlock(headers, txn)
             // Here we iterate through the original tasks, rather than headers.
@@ -677,7 +689,7 @@ class WorkflowEngine(
      * Create a report object from a header including loading the blob data associated with it
      */
     fun createReport(header: Header): Report {
-        val bytes = BlobAccess.downloadBlob(header.task.bodyUrl)
+        val bytes = BlobAccess.downloadBlobAsByteArray(header.task.bodyUrl)
         return when (header.task.bodyFormat) {
             // TODO after the CSV internal format is flushed from the system, this code will be safe to remove
             "CSV", "CSV_SINGLE" -> {
@@ -711,7 +723,7 @@ class WorkflowEngine(
      * Create a report object from a header including loading the blob data associated with it
      */
     fun readBody(header: Header): ByteArray {
-        return BlobAccess.downloadBlob(header.task.bodyUrl)
+        return BlobAccess.downloadBlobAsByteArray(header.task.bodyUrl)
     }
 
     fun recordAction(actionHistory: ActionHistory, txn: Configuration? = null) {
@@ -775,7 +787,7 @@ class WorkflowEngine(
 
         val downloadContent = (reportFile.bodyUrl != null && fetchBlobBody)
         val content = if (downloadContent && BlobAccess.exists(reportFile.bodyUrl)) {
-            BlobAccess.downloadBlob(reportFile.bodyUrl)
+            BlobAccess.downloadBlobAsByteArray(reportFile.bodyUrl)
         } else null
         return Header(task, reportFile, itemLineages, organization, receiver, schema, content, downloadContent)
     }

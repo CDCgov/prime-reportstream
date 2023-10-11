@@ -4,6 +4,7 @@ import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.util.Terser
 import fhirengine.translation.hl7.utils.FhirPathFunctions
+import gov.cdc.prime.router.fhirengine.translation.hl7.config.ContextConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchema
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.converterSchemaFromFile
@@ -98,12 +99,12 @@ class FhirToHl7Converter(
      * Generate HL7 data for the elements for the given [schema] using [bundle] and custom [context]
      * that contains bundle, customFhirFunctions, config object (eg, Receiver object which contains receiver setting),
      * and the customTransFunctions (eg, handler function to do custom translation).
-     * Starting at the [focusResource] in the bundle. Set [debug] to true to enable debug statements to the logs.
+     * Starting at the [schemaResource] in the bundle. Set [debug] to true to enable debug statements to the logs.
      */
     private fun processSchema(
         schema: ConverterSchema,
         bundle: Bundle,
-        focusResource: Base,
+        schemaResource: Base,
         context: CustomContext = CustomContext(
             bundle, bundle,
             customFhirFunctions = this.context?.fhirFunctions,
@@ -119,18 +120,18 @@ class FhirToHl7Converter(
         val schemaContext = CustomContext.addConstants(schema.constants, context)
 
         schema.elements.forEach { element ->
-            processElement(element, bundle, focusResource, schemaContext, debug)
+            processElement(element, bundle, schemaResource, schemaContext, debug)
         }
     }
 
     /**
-     * Generate HL7 data for an [element] using [bundle] and [context] and starting at the [focusResource] in the bundle.
+     * Generate HL7 data for an [element] using [bundle] and [context] and starting at the [schemaResource] in the bundle.
      * Set [debug] to true to enable debug statements to the logs.
      */
     internal fun processElement(
         element: ConverterSchemaElement,
         bundle: Bundle,
-        focusResource: Base,
+        schemaResource: Base,
         context: CustomContext,
         debug: Boolean = false
     ) {
@@ -141,16 +142,16 @@ class FhirToHl7Converter(
         var debugMsg = "Processed element name: ${element.name}, required: ${element.required}, "
 
         // First we need to resolve a resource value if available.
-        val focusResources = getFocusResources(element.resource, bundle, focusResource, elementContext)
+        val focusResources = getFocusResources(element.resource, bundle, schemaResource, elementContext)
         if (focusResources.isEmpty() && element.required == true) {
             // There are no sources to parse, but the element was required
             throw RequiredElementException(element)
         } else if (focusResources.isEmpty()) debugMsg += "resource: NONE"
 
-        focusResources.forEachIndexed { index, singleFocusResource ->
+        focusResources.forEachIndexed { index, focusResource ->
             // The element context must now get the focus resource
-            elementContext.focusResource = singleFocusResource
-            if (canEvaluate(element, bundle, singleFocusResource, elementContext)) {
+            elementContext.focusResource = focusResource
+            if (canEvaluate(element, bundle, focusResource, schemaResource, elementContext)) {
                 when {
                     // If this is a schema then process it.
                     element.schemaRef != null -> {
@@ -165,7 +166,7 @@ class FhirToHl7Converter(
                         processSchema(
                             element.schemaRef!! as ConverterSchema,
                             bundle,
-                            singleFocusResource,
+                            focusResource,
                             indexContext,
                             element.debug || debug
                         )
@@ -173,9 +174,9 @@ class FhirToHl7Converter(
 
                     // A value
                     !element.value.isNullOrEmpty() && element.hl7Spec.isNotEmpty() -> {
-                        val value = getValueAsString(element, bundle, singleFocusResource, elementContext)
+                        val value = getValueAsString(element, bundle, focusResource, elementContext)
                         setHl7Value(element, value, context)
-                        debugMsg += "condition: true, resourceType: ${singleFocusResource.fhirType()}, " +
+                        debugMsg += "condition: true, resourceType: ${focusResource.fhirType()}, " +
                             "value: $value, hl7Spec: ${element.hl7Spec}"
                     }
 
@@ -186,7 +187,7 @@ class FhirToHl7Converter(
                 // The condition was not met, but the element was required
                 throw RequiredElementException(element)
             } else {
-                debugMsg += "condition: false, resourceType: ${singleFocusResource.fhirType()}"
+                debugMsg += "condition: false, resourceType: ${focusResource.fhirType()}"
             }
         }
         // Only log for elements that require values
@@ -205,7 +206,13 @@ class FhirToHl7Converter(
         element.hl7Spec.forEach { rawHl7Spec ->
             val resolvedHl7Spec = constantSubstitutor.replace(rawHl7Spec, context)
             try {
-                terser!!.set(resolvedHl7Spec, value)
+                val maybeTruncatedValue = context.translationFunctions?.maybeTruncateHL7Field(
+                    value,
+                    resolvedHl7Spec,
+                    terser!!,
+                    context
+                ) ?: value
+                terser!!.set(resolvedHl7Spec, maybeTruncatedValue)
                 logger.trace("Set HL7 $resolvedHl7Spec = $value")
             } catch (e: HL7Exception) {
                 val msg = "Could not set HL7 value for spec $resolvedHl7Spec for element ${element.name}"
@@ -235,6 +242,6 @@ class FhirToHl7Converter(
  */
 data class FhirToHl7Context(
     val fhirFunctions: FhirPathFunctions,
-    val config: Any? = null,
+    val config: ContextConfig? = null,
     val translationFunctions: TranslationFunctions
 )

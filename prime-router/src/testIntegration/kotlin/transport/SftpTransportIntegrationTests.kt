@@ -9,6 +9,7 @@ import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.azure.ActionHistory
+import gov.cdc.prime.router.azure.BlobAccess
 import gov.cdc.prime.router.azure.WorkflowEngine
 import gov.cdc.prime.router.azure.db.enums.TaskAction
 import gov.cdc.prime.router.azure.db.tables.pojos.Task
@@ -118,6 +119,16 @@ class SftpTransportIntegrationTests : TransportIntegrationTests() {
     @BeforeEach
     fun setUp() {
         mockkObject(CredentialHelper)
+        mockkObject(BlobAccess.Companion)
+        every {
+            BlobAccess.uploadBody(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns BlobAccess.BlobInfo(Report.Format.HL7, "", "".toByteArray())
     }
 
     @AfterEach

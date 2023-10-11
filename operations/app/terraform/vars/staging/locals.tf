@@ -9,6 +9,10 @@ locals {
     resource_prefix     = "pdh${local.environment}"
     okta_redirect_url   = "https://${local.environment}.prime.cdc.gov/download"
     okta_base_url       = "hhs-prime.oktapreview.com"
+    OKTA_authKey        = "MG9hNmtqY21pNm11TnZVOHAxZDc6VXNjN2NOeWU4Q3JBQlgxUEJvQlUwbDhpQTNlck5idGNxTVFFd01sQQ=="
+    OKTA_clientId       = "0oa2fs6vp3W5MTzjh1d7"
+    fn_OKTA_clientId    = "0oa6kjcmi6muNvU8p1d7"
+    OKTA_scope          = "simple_report_dev"
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig"
@@ -44,6 +48,9 @@ locals {
   chatops = {
     github_repo            = "JosiahSiegel/hubot-slack-docker"
     github_target_branches = "temp1,demo1,demo2"
+  }
+  log_analytics_workspace = {
+    law_retention_period = "30"
   }
   network = {
     use_cdc_managed_vnet        = true

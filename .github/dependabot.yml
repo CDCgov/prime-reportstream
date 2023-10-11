@@ -96,6 +96,11 @@ updates:
       interval: "daily"
 
   - package-ecosystem: "github-actions"
+    directory: "/.github/actions/sonarcloud"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
     directory: "/.github/actions/vpn-azure"
     schedule:
       interval: "daily"
@@ -306,6 +311,9 @@ updates:
       timezone: "US/Eastern"
     rebase-strategy: "disabled"
     groups:
+      azurecore:
+        patterns:
+          - "com.azure:azure-core*"
       bouncycastle:
         patterns:
           - "org.bouncycastle:bc*"
@@ -330,6 +338,9 @@ updates:
       flyway:
         patterns:
           - "org.flywaydb*"
+      swagger:
+        patterns:
+          - "io.swagger.core*"
     ignore:
       # ignore updates to sshj so we don't run into future issues connecting to STLTs
       - dependency-name: "sshj"

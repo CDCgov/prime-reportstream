@@ -17,10 +17,6 @@ inputs:
     description: Github provided token
     required: false
     default: ""
-  SONAR_TOKEN:
-    description: Token to communicate with Sonarcloud
-    required: false
-    default: ""
 
 runs:
   using: "composite"
@@ -36,7 +32,7 @@ runs:
 
     - name: Build release for production branch (conditional check)
       if: inputs.env-name == 'prod'
-      uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
+      uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
       with:
         timeout_minutes: 40
         max_attempts: 2
@@ -51,7 +47,7 @@ runs:
 
     - name: Build release for non-production branch (conditional check)
       if: inputs.env-name != 'prod'
-      uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd
+      uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4
       with:
         timeout_minutes: 40
         max_attempts: 2
@@ -67,53 +63,13 @@ runs:
           yarn build:$ENV
         shell: bash
 
-    - name: Set up JDK 11 to generate backend coverage stats
-      uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2
-      if: github.actor != 'dependabot[bot]'
-      with:
-        java-version: "11"
-        distribution: "adopt"
-        cache: "gradle"
-
-    - uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4
-      if: github.actor != 'dependabot[bot]'
-
-    - name: Spin up build containers
-      working-directory: prime-router
-      if: github.actor != 'dependabot[bot]'
-      run: docker-compose -f docker-compose.postgres.yml up -d
-      shell: bash
-
-    - name: Build Prime Router test report
-      working-directory: prime-router
-      if: github.actor != 'dependabot[bot]'
-      run: ./gradlew jacocoTestReport -x fatjar
-      shell: bash
-
-    - name: SonarCloud Scan
-      if: github.actor != 'dependabot[bot]' && inputs.GITHUB_TOKEN != '' && inputs.SONAR_TOKEN != ''
-      uses: sonarsource/sonarcloud-github-action@db501078e936e4b4c8773d1bb949ba9ddb7b6b6a
-      env:
-        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ inputs.SONAR_TOKEN }}
-      with:
-        args: >
-          -Dsonar.cpd.exclusions=frontend-react/**/*.test.*,prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**
-          -Dsonar.javascript.lcov.reportPaths=frontend-react/coverage/lcov.info
-          -Dsonar.coverage.exclusions=prime-router/src/test/**,prime-router/src/testIntegration/**,prime-router/src/main/kotlin/cli/tests/**,frontend-react/**/__mocks__/**,frontend-react/**/mocks/**,frontend-react/**/*.test.*
-          -Dsonar.sources=frontend-react/src,prime-router/src
-          -Dsonar.projectKey=CDCgov_prime-data-hub
-          -Dsonar.organization=cdcgov
-          -Dsonar.java.libraries=prime-router/build/libs/*.jar,prime-router/build/**/*.jar
-          -Dsonar.coverage.jacoco.xmlReportPaths=prime-router/build/reports/jacoco/test/jacocoTestReport.xml
-
     - name: Tar frontend files
       shell: bash
       working-directory: frontend-react
       run: tar -czf static-website-react.tar.gz build
 
     - name: Upload frontend artifact
-      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+      uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32
       with:
         name: static-website-react-${{ inputs.version }}
         path: frontend-react/static-website-react.tar.gz

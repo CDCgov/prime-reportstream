@@ -1,6 +1,7 @@
 package gov.cdc.prime.router.transport
 
 import com.google.common.base.Preconditions
+import com.hierynomus.sshj.key.KeyAlgorithms
 import com.microsoft.azure.functions.ExecutionContext
 import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.Report
@@ -32,7 +33,6 @@ import net.schmizz.sshj.xfer.InMemorySourceFile
 import net.schmizz.sshj.xfer.LocalSourceFile
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.kotlin.Logging
-import org.apache.logging.log4j.kotlin.logger
 import java.io.InputStream
 import java.io.StringReader
 
@@ -67,7 +67,7 @@ class SftpTransport : ITransport, Logging {
                 fileName,
                 sftpTransportType.toString(),
                 msg,
-                header.reportFile.itemCount
+                header
             )
             actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
             null
@@ -307,6 +307,29 @@ class SftpTransport : ITransport, Logging {
         // allow us to mock SSHClient because there is no dependency injection in this class
         fun createDefaultSSHClient(): SSHClient {
             val sshConfig = DefaultConfig()
+
+            // Started from version 0.33.0, SSHJ doesn't try to determine RSA-SHA2-* support on fly.
+            // Instead, it looks only config.getKeyAlgorithms(), which may or may not contain ssh-rsa
+            // and rsa-sha2-* in any order.  The default config stops working with old servers like
+            // Apache SSHD that doesn't rsa-sha2-* signatures.  To make it works with old servers,
+            // we need to include the KeyAlgorithms.SSHRSA at the top of the list or have higher
+            // priority than other as below.
+            sshConfig.keyAlgorithms = listOf(
+                KeyAlgorithms.SSHRSA(),
+                KeyAlgorithms.EdDSA25519CertV01(),
+                KeyAlgorithms.EdDSA25519(),
+                KeyAlgorithms.ECDSASHANistp521CertV01(),
+                KeyAlgorithms.ECDSASHANistp521(),
+                KeyAlgorithms.ECDSASHANistp384CertV01(),
+                KeyAlgorithms.ECDSASHANistp384(),
+                KeyAlgorithms.ECDSASHANistp256CertV01(),
+                KeyAlgorithms.ECDSASHANistp256(),
+                KeyAlgorithms.RSASHA512(),
+                KeyAlgorithms.RSASHA256(),
+                KeyAlgorithms.SSHRSACertV01(),
+                KeyAlgorithms.SSHDSSCertV01(),
+                KeyAlgorithms.SSHDSA()
+            )
             return SSHClient(sshConfig)
         }
     }

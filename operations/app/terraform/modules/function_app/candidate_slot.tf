@@ -62,6 +62,9 @@ resource "azurerm_function_app_slot" "candidate" {
     "POSTGRES_URL" = "jdbc:postgresql://${var.resource_prefix}-pgsql.postgres.database.azure.com:5432/prime_data_hub_candidate?sslmode=require"
     # HHS Protect Storage Account
     "PartnerStorage" = var.primary_connection_string
+    "OKTA_authKey"   = var.OKTA_authKey
+    "OKTA_clientId"  = var.OKTA_clientId
+    "OKTA_scope"     = var.OKTA_scope
   })
 
   identity {

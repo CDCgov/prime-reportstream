@@ -18,6 +18,7 @@ import ca.uhn.hl7v2.util.Terser
 import fhirengine.engine.CustomFhirPathFunctions
 import fhirengine.engine.CustomTranslationFunctions
 import gov.cdc.prime.router.Receiver
+import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
@@ -61,17 +62,16 @@ class FhirPathUtilsTests {
 
         var path = "Bundle.id.exists()"
 
-        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, path)).isTrue()
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, path)).isTrue()
 
         path = "Bundle.timestamp.exists()"
-        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, path)).isFalse()
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, path)).isFalse()
 
-        // Bad extension names throw an out of bound exception (a bug in the library)
         path = "Bundle.entry[0].resource.extension('blah')"
-        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, path) }.isFailure()
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, path)).isFalse()
 
         // Empty string
-        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, "") }.isFailure()
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, "")).isFalse()
     }
 
     @Test
@@ -113,17 +113,17 @@ class FhirPathUtilsTests {
 
         val receiver = mockkClass(Receiver::class)
         val appContext = mockkClass(CustomContext::class)
+        val config = UnitTestUtils.createConfig(
+            useHighPrecisionHeaderDateTimeFormat = true,
+            convertPositiveDateTimeOffsetToNegative = false
+        )
+
         every { appContext.constants.contains(any()) }.returns(false)
         every { appContext.customFhirFunctions }.returns(CustomFhirPathFunctions())
         every { appContext.translationFunctions }.returns(CustomTranslationFunctions())
-        every { appContext.config }.returns(receiver)
+        every { appContext.config }.returns(HL7TranslationConfig(config, receiver))
         every { receiver.dateTimeFormat }.returns(null)
-        every { receiver.translation }.returns(
-            UnitTestUtils.createConfig(
-                useHighPrecisionHeaderDateTimeFormat = true,
-                convertPositiveDateTimeOffsetToNegative = false
-            )
-        )
+        every { receiver.translation }.returns(config)
 
         val observation = Observation()
         observation.effective = DateTimeType("2015-04-11T12:22:01-04:00")
@@ -198,18 +198,25 @@ class FhirPathUtilsTests {
 
         // first verify that good syntax is accepted
         var expression = "Bundle.id.exists()"
-        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, expression)).isTrue()
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, expression)).isTrue()
 
         // verify it throws exception for bad syntax
         expression = "Bundle.#*($&id.exists()"
-        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, expression) }.isFailure().all {
+        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, expression) }.isFailure().all {
             hasClass(SchemaException::class.java)
         }
 
         // verify it throws exception for non-boolean expression
         expression = "Bundle.id"
-        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, expression) }.isFailure().all {
+        assertThat { FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, expression) }.isFailure().all {
             hasClass(SchemaException::class.java)
         }
+    }
+
+    @Test
+    fun `test evaluateCondition with empty focus resource`() {
+        val bundle = Bundle()
+        val path = "Bundle.timestamp.is(dateTime)"
+        assertThat(FhirPathUtils.evaluateCondition(null, bundle, bundle, bundle, path)).isFalse()
     }
 }

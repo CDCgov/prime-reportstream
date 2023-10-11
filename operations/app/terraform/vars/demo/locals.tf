@@ -11,6 +11,10 @@ locals {
     resource_prefix     = "pdh${var.environment}"
     okta_redirect_url   = "https://${var.environment}.prime.cdc.gov/download"
     okta_base_url       = "hhs-prime.oktapreview.com"
+    OKTA_authKey        = "xxx"
+    OKTA_clientId       = "xxx"
+    fn_OKTA_clientId    = "xxx"
+    OKTA_scope          = "simple_report_dev"
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig${local.init.random_id}"
@@ -42,6 +46,9 @@ locals {
     app_tier                 = "PremiumV2"
     app_size                 = "P2v2"
     function_runtime_version = "~4"
+  }
+  log_analytics_workspace = {
+    law_retention_period = "30"
   }
   network = {
     use_cdc_managed_vnet        = true
