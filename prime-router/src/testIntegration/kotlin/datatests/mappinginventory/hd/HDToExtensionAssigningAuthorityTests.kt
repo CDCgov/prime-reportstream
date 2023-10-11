@@ -4,7 +4,7 @@ import gov.cdc.prime.router.datatests.mappinginventory.translateAndCompareFHIRTo
 import gov.cdc.prime.router.datatests.mappinginventory.translateAndCompareHL7ToFHIR
 import org.junit.jupiter.api.Test
 
-class HDToExtensionAssigningAuthority {
+class HDToExtensionAssigningAuthorityTests {
 
     @Test
     fun `test correctly handles ISO universal id type`() {
@@ -53,6 +53,23 @@ class HDToExtensionAssigningAuthority {
             translateAndCompareFHIRToHL7(
                 "mappinginventory/hd/HD-to-extensionAssigningAuthority-clia.fhir",
                 "mappinginventory/hd/HD-to-extensionAssigningAuthority-clia.hl7",
+            ).passed
+        )
+    }
+
+    @Test
+    fun `test correctly handles empty hd3`() {
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/hd/HD-to-extensionAssigningAuthority-empty-hd3.hl7",
+                "mappinginventory/hd/HD-to-extensionAssigningAuthority-empty-hd3.fhir",
+            ).passed
+        )
+
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/hd/HD-to-extensionAssigningAuthority-empty-hd3.fhir",
+                "mappinginventory/hd/HD-to-extensionAssigningAuthority-empty-hd3.hl7",
             ).passed
         )
     }

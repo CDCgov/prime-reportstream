@@ -55,3 +55,18 @@ extension_4-universalIdUnknownType:
       expressionType: HL7Spec
   vars:
     universalIdType: String, HD.3
+
+extension_5-universalIdUnknownType:
+  condition: $universalIdType NULL
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: unknown-universal-id-type
+    valueCode:
+      type: STRING
+      valueOf: HD.2
+      expressionType: HL7Spec
+  vars:
+    universalIdType: String, HD.3
