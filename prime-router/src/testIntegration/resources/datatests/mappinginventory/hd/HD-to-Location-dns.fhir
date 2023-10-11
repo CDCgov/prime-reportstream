@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1696955066920244000.a43399ac-750b-4093-8d36-e28e8c2ceb20",
+  "id" : "1697034017158005000.094dac81-0891-4b67-9ac8-8de8c331f8cb",
   "meta" : {
-    "lastUpdated" : "2023-10-10T12:24:26.935-04:00"
+    "lastUpdated" : "2023-10-11T10:20:17.171-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -19,57 +19,14 @@
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "T"
         } ]
       },
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
         "valueString" : "^~\\&#"
       }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/application-acknowledgement-type",
-        "valueIdentifier" : {
-          "type" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                "valueString" : "identifier"
-              } ],
-              "system" : "http://terminology.hl7.org/CodeSystem/v3-AcknowledgementCondition",
-              "code" : "NE"
-            } ]
-          }
-        }
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/accept-acknowledgement-type",
-        "valueIdentifier" : {
-          "type" : {
-            "coding" : [ {
-              "extension" : [ {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                "valueString" : "identifier"
-              } ],
-              "system" : "http://terminology.hl7.org/CodeSystem/v3-AcknowledgementCondition",
-              "code" : "NE"
-            } ]
-          }
-        }
-      }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
-        "valueIdentifier" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id",
-            "valueOid" : "urn:oid:2.16.840.1.113883.9.11"
-          } ],
-          "system" : "PHIN",
-          "value" : "PHLabReport-NoAck"
-        }
+        "valueIdentifier" : { }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
         "valueString" : "UNICODE UTF-8"
@@ -79,140 +36,35 @@
         "code" : "R01",
         "display" : "ORU/ACK - Unsolicited transmission of an observation message"
       },
-      "destination" : [ {
-        "target" : {
-          "reference" : "Device/1696955067015322000.635941ac-4a1e-4eb3-bbdb-c70c5814bcbe"
-        },
-        "endpoint" : "urn:oid:2.16.840.1.114222.4.3.3.6.2.1",
-        "receiver" : {
-          "reference" : "Organization/urn-oid-2.16.840.1.114222.4.1.3661"
-        }
-      } ],
       "sender" : {
-        "reference" : "Organization/1696955067951428000.8901aab0-3a48-48d4-a692-4b94a82a4f30"
+        "reference" : "Organization/1697034018028911000.c721adea-ca54-40e7-9830-7a14aba4a400"
       },
-      "source" : {
-        "name" : "RS.CDC.Stag",
-        "endpoint" : "urn:oid:2.16.840.1.114222.4.3.3.2.1.2"
-      },
+      "source" : { },
       "responsible" : {
-        "reference" : "Organization/1696955067953775000.fa60fde3-75bd-45b4-b2b0-7ea923831b0a"
+        "reference" : "Organization/1697034018034734000.d0123f57-fa9f-4da6-baef-12e4b95aa802"
       }
     }
   }, {
-    "fullUrl" : "Device/1696955067015322000.635941ac-4a1e-4eb3-bbdb-c70c5814bcbe",
-    "resource" : {
-      "resourceType" : "Device",
-      "id" : "1696955067015322000.635941ac-4a1e-4eb3-bbdb-c70c5814bcbe",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "T"
-        } ]
-      },
-      "identifier" : [ {
-        "value" : "Sending Facility"
-      }, {
-        "type" : {
-          "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
-            "system" : "http://terminology.hl7.org/CodeSystem/v2-0301",
-            "code" : "ISO"
-          } ]
-        },
-        "value" : "urn:oid:2.16.840.1.114222.4.3.3.6.2.1"
-      } ]
-    }
-  }, {
-    "fullUrl" : "Organization/urn-oid-2.16.840.1.114222.4.1.3661",
+    "fullUrl" : "Organization/1697034018028911000.c721adea-ca54-40e7-9830-7a14aba4a400",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "urn-oid-2.16.840.1.114222.4.1.3661",
+      "id" : "1697034018028911000.c721adea-ca54-40e7-9830-7a14aba4a400",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "T"
         } ]
-      },
-      "identifier" : [ {
-        "value" : "MNDOH"
-      }, {
-        "system" : "urn:id:ISO",
-        "value" : "urn:oid:2.16.840.1.114222.4.1.3661"
-      } ],
-      "name" : "MNDOH"
+      }
     }
   }, {
-    "fullUrl" : "Organization/1696955067951428000.8901aab0-3a48-48d4-a692-4b94a82a4f30",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "1696955067951428000.8901aab0-3a48-48d4-a692-4b94a82a4f30",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "T"
-        } ]
-      },
-      "identifier" : [ {
-        "value" : "CDC Atlanta"
-      }, {
-        "type" : {
-          "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
-            "system" : "http://terminology.hl7.org/CodeSystem/v2-0301",
-            "code" : "CLIA"
-          } ]
-        },
-        "value" : "11D0668319"
-      } ]
-    }
-  }, {
-    "fullUrl" : "Location/1696955067954698000.468fabe6-4f89-4a5d-bc59-0f68ae1868dd",
+    "fullUrl" : "Location/1697034018036433000.c96bc222-699f-47bb-a949-b24fbf2fbfd2",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "1696955067954698000.468fabe6-4f89-4a5d-bc59-0f68ae1868dd",
+      "id" : "1697034018036433000.c96bc222-699f-47bb-a949-b24fbf2fbfd2",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "T"
         } ]
       },
       "extension" : [ {
@@ -235,50 +87,34 @@
       }
     }
   }, {
-    "fullUrl" : "Organization/1696955067953775000.fa60fde3-75bd-45b4-b2b0-7ea923831b0a",
+    "fullUrl" : "Organization/1697034018034734000.d0123f57-fa9f-4da6-baef-12e4b95aa802",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1696955067953775000.fa60fde3-75bd-45b4-b2b0-7ea923831b0a",
+      "id" : "1697034018034734000.d0123f57-fa9f-4da6-baef-12e4b95aa802",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "T"
         } ]
       },
       "identifier" : [ {
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location",
           "valueReference" : {
-            "reference" : "Location/1696955067954698000.468fabe6-4f89-4a5d-bc59-0f68ae1868dd"
+            "reference" : "Location/1697034018036433000.c96bc222-699f-47bb-a949-b24fbf2fbfd2"
           }
         } ]
       } ]
     }
   }, {
-    "fullUrl" : "Provenance/1696955068283747000.c14cbe22-d812-48d8-b674-a6f10ea99296",
+    "fullUrl" : "Provenance/1697034018321789000.e30f0120-0237-4204-88a1-528544ed9155",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1696955068283747000.c14cbe22-d812-48d8-b674-a6f10ea99296",
+      "id" : "1697034018321789000.e30f0120-0237-4204-88a1-528544ed9155",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "T"
         } ]
       },
       "recorded" : "2023-05-01T10:25:31-04:00",
@@ -303,178 +139,26 @@
             "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
             "code" : "author"
           } ]
-        },
-        "who" : {
-          "reference" : "Organization/1696955068282928000.1d7a36cd-8b36-44a8-9ce3-c4a0b32b353e"
         }
       } ],
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1696955068286106000.7443320a-c61e-44bb-a6c3-aa49af36489e"
+          "reference" : "Device/1697034018323527000.95e4a862-7dfb-4777-aaea-4ecaedf466a6"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Organization/1696955068282928000.1d7a36cd-8b36-44a8-9ce3-c4a0b32b353e",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "1696955068282928000.1d7a36cd-8b36-44a8-9ce3-c4a0b32b353e",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "T"
-        } ]
-      },
-      "identifier" : [ {
-        "value" : "CDC Atlanta"
-      } ],
-      "name" : "CDC Atlanta",
-      "contact" : [ {
-        "purpose" : {
-          "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
-            "system" : "http://terminology.hl7.org/CodeSystem/contactentity-type",
-            "code" : "ADMIN",
-            "display" : "Administrative"
-          } ],
-          "text" : "Organization Medical Director"
-        }
-      } ]
-    }
-  }, {
-    "fullUrl" : "Device/1696955068286106000.7443320a-c61e-44bb-a6c3-aa49af36489e",
+    "fullUrl" : "Device/1697034018323527000.95e4a862-7dfb-4777-aaea-4ecaedf466a6",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1696955068286106000.7443320a-c61e-44bb-a6c3-aa49af36489e",
+      "id" : "1697034018323527000.95e4a862-7dfb-4777-aaea-4ecaedf466a6",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "T",
-          "display" : "RS.CDC.Stag"
         } ]
-      },
-      "identifier" : [ {
-        "type" : {
-          "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
-            "system" : "http://terminology.hl7.org/NamingSystem/uri",
-            "code" : "2.16.840.1.114222.4.3.3.2.1.2",
-            "display" : "RS.CDC.Stag"
-          } ]
-        }
-      } ],
-      "deviceName" : [ {
-        "name" : "RS.CDC.Stag",
-        "type" : "user-friendly-name"
-      } ]
-    }
-  }, {
-    "fullUrl" : "Patient/1696955068343234000.63ebc405-f47d-4513-b7b5-93e81d4e865a",
-    "resource" : {
-      "resourceType" : "Patient",
-      "id" : "1696955068343234000.63ebc405-f47d-4513-b7b5-93e81d4e865a",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ],
-        "tag" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-          "code" : "T"
-        } ]
-      },
-      "extension" : [ {
-        "url" : "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
-        "valueCodeableConcept" : {
-          "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
-            "system" : "NULLFL",
-            "version" : "2.5.1",
-            "code" : "ASKU",
-            "display" : "Asked, but unknown"
-          } ]
-        }
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group",
-        "valueCodeableConcept" : {
-          "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
-            "system" : "http://terminology.hl7.org/CodeSystem/v2-0189",
-            "version" : "2.9",
-            "code" : "N",
-            "display" : "Non Hispanic or Latino"
-          } ]
-        }
-      } ],
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id",
-          "valueString" : "Any lab USA"
-        } ],
-        "type" : {
-          "coding" : [ {
-            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-            "code" : "PI",
-            "display" : "Patient internal identifier"
-          } ]
-        },
-        "value" : "kc3oy"
-      } ],
-      "name" : [ {
-        "use" : "official",
-        "text" : "Stephenie Davis Schaefer",
-        "family" : "Schaefer",
-        "given" : [ "Stephenie", "Davis" ]
-      } ],
-      "telecom" : [ {
-        "system" : "pager",
-        "value" : "+1 260 759 5016",
-        "use" : "home"
-      }, {
-        "system" : "email",
-        "value" : "otto.daugherty@email.com",
-        "use" : "home"
-      } ],
-      "gender" : "unknown",
-      "birthDate" : "1993-02-27",
-      "deceasedBoolean" : false,
-      "address" : [ {
-        "line" : [ "96633 Gilberto Course" ],
-        "state" : "IG"
-      } ]
+      }
     }
   } ]
 }

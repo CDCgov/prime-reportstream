@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1697033876439944000.c674cdf5-c56a-4d35-acf8-510fc97e6262",
+  "id" : "1697034242308358000.76f3fa3e-5e38-45e3-8596-126a7d3df857",
   "meta" : {
-    "lastUpdated" : "2023-10-11T10:17:56.454-04:00"
+    "lastUpdated" : "2023-10-11T10:24:02.322-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,18 +37,18 @@
         "display" : "ORU/ACK - Unsolicited transmission of an observation message"
       },
       "sender" : {
-        "reference" : "Organization/1697033877389674000.357d32cc-f822-4c8e-8dea-f41ecf06f647"
+        "reference" : "Organization/1697034243183006000.33e4e5df-49bf-42ad-b0e1-1352ebf695ce"
       },
       "source" : { },
       "responsible" : {
-        "reference" : "Organization/1697033877392091000.a8298527-b73a-46b9-9367-7cca67072b97"
+        "reference" : "Organization/1697034243185414000.b657d1e2-2504-44d6-abf6-663d3343888f"
       }
     }
   }, {
-    "fullUrl" : "Organization/1697033877389674000.357d32cc-f822-4c8e-8dea-f41ecf06f647",
+    "fullUrl" : "Organization/1697034243183006000.33e4e5df-49bf-42ad-b0e1-1352ebf695ce",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1697033877389674000.357d32cc-f822-4c8e-8dea-f41ecf06f647",
+      "id" : "1697034243183006000.33e4e5df-49bf-42ad-b0e1-1352ebf695ce",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -57,10 +57,10 @@
       }
     }
   }, {
-    "fullUrl" : "Location/1697033877393275000.2ea2a5a0-32e4-48ba-9270-a259a9075a1f",
+    "fullUrl" : "Location/1697034243186795000.45d5e1f3-b9d6-48d8-ac8f-4af21054de27",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "1697033877393275000.2ea2a5a0-32e4-48ba-9270-a259a9075a1f",
+      "id" : "1697034243186795000.45d5e1f3-b9d6-48d8-ac8f-4af21054de27",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -68,11 +68,8 @@
         } ]
       },
       "extension" : [ {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
-        "valueCode" : "ISO"
-      } ],
-      "identifier" : [ {
-        "value" : "2.16.840.1.113883.9.11"
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/unknown-universal-id-type",
+        "valueString" : "2.16.840.1.113883.9.11"
       } ],
       "name" : "Hospital A",
       "physicalType" : {
@@ -87,10 +84,10 @@
       }
     }
   }, {
-    "fullUrl" : "Organization/1697033877392091000.a8298527-b73a-46b9-9367-7cca67072b97",
+    "fullUrl" : "Organization/1697034243185414000.b657d1e2-2504-44d6-abf6-663d3343888f",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1697033877392091000.a8298527-b73a-46b9-9367-7cca67072b97",
+      "id" : "1697034243185414000.b657d1e2-2504-44d6-abf6-663d3343888f",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -101,16 +98,16 @@
         "extension" : [ {
           "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location",
           "valueReference" : {
-            "reference" : "Location/1697033877393275000.2ea2a5a0-32e4-48ba-9270-a259a9075a1f"
+            "reference" : "Location/1697034243186795000.45d5e1f3-b9d6-48d8-ac8f-4af21054de27"
           }
         } ]
       } ]
     }
   }, {
-    "fullUrl" : "Provenance/1697033877682280000.3c4991d6-dbd5-47b2-86f3-db46fd4a4b6c",
+    "fullUrl" : "Provenance/1697034243462819000.1868c021-c47c-4fab-9ce8-838e12122826",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1697033877682280000.3c4991d6-dbd5-47b2-86f3-db46fd4a4b6c",
+      "id" : "1697034243462819000.1868c021-c47c-4fab-9ce8-838e12122826",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -144,15 +141,15 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1697033877683792000.7a567e65-881e-4f71-b48d-0325faec06b3"
+          "reference" : "Device/1697034243464382000.64965c93-8e03-4a25-a787-9f72c8dd0e5d"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1697033877683792000.7a567e65-881e-4f71-b48d-0325faec06b3",
+    "fullUrl" : "Device/1697034243464382000.64965c93-8e03-4a25-a787-9f72c8dd0e5d",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1697033877683792000.7a567e65-881e-4f71-b48d-0325faec06b3",
+      "id" : "1697034243464382000.64965c93-8e03-4a25-a787-9f72c8dd0e5d",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",

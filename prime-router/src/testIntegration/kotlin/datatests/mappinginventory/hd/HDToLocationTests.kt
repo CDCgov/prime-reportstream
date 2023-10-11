@@ -60,4 +60,21 @@ class HDToLocationTests {
             ).passed
         )
     }
+
+    @Test
+    fun `test correctly handles HD3 being empty`() {
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/hd/HD-to-Location-empty-hd3.hl7",
+                "mappinginventory/hd/HD-to-Location-empty-hd3.fhir",
+            ).passed
+        )
+
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/hd/HD-to-Location-empty-hd3.fhir",
+                "mappinginventory/hd/HD-to-Location-empty-hd3.hl7",
+            ).passed
+        )
+    }
 }

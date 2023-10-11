@@ -39,7 +39,22 @@ extension_1-unknownUniversalIdType:
   vars:
     universalId: STRING, HD.3
 
-extension_2-universalIdType:
+extension_2-unknownUniversalIdType:
+  condition: $universalId NULL
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: unknown-universal-id-type
+    valueString:
+      expressionType: HL7Spec
+      type: STRING
+      valueOf: HD.2
+  vars:
+    universalId: STRING, HD.3
+
+extension_3-universalIdType:
   generateList: true
   expressionType: nested
   expressionsMap:
