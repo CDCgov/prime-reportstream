@@ -39,3 +39,13 @@ system_2:
     telEquipType: String, XTN.3
     commAddress: String, XTN.4
 
+system_3:
+  condition: $telEquipType NULL && $commAddress NOT_NULL
+  valueOf: extension/DataTypeReason
+  expressionType: resource
+  vars:
+    telEquipType: String, XTN.3
+    commAddress: String, XTN.4
+    reason: "unknown"
+
+
