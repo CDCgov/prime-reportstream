@@ -56,4 +56,21 @@ class HDToOrganizationTests {
             ).passed
         )
     }
+
+    @Test
+    fun `test that the mapping handles a missing HD3 value`() {
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/hd/HD-to-Organization-empty-hd3.hl7",
+                "mappinginventory/hd/HD-to-Organization-empty-hd3.fhir"
+            ).passed
+        )
+
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/hd/HD-to-Organization-empty-hd3.fhir",
+                "mappinginventory/hd/HD-to-Organization-empty-hd3.hl7"
+            ).passed
+        )
+    }
 }

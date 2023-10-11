@@ -4,3 +4,6 @@ extends: ORU_R01-base
 elements:
   - name: order-observations
     required: false
+
+  - name: patient-information
+    required: false

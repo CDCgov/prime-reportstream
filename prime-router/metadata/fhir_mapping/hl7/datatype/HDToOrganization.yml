@@ -36,3 +36,18 @@ identifier_3:
     hd3: String, HD.3
   constants:
     system: "http://terminology.hl7.org/CodeSystem/v2-0301"
+
+# This handles the case where HD.3 is not populated
+# Ideally this would be handled via identifier_3, but complex conditions are not supported
+# ($hd3 NOT_EQUALS ISO && $hd3 NOT_EQUALS UUID) || $hd3 NULL
+identifier_4:
+  condition: $hd3 NULL
+  valueOf: datatype/Identifier_var
+  expressionType: resource
+  generateList: true
+  vars:
+    code: HD.3
+    valueIn: HD.2
+    hd3: String, HD.3
+  constants:
+    system: "http://terminology.hl7.org/CodeSystem/v2-0301"
