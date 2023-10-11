@@ -1,0 +1,41 @@
+value_1:
+  condition: $telEquipType NOT_EQUAL Internet && $telEquipType NOT_EQUAL X.400 && $localNum NULL && $unformattedTelNum NULL && $telNum NOT_NULL
+  valueOf: XTN.1
+  vars:
+    telNum: String, XTN.1
+    telEquipType: String, XTN.3
+    localNum: String, XTN.7
+    unformattedTelNum: String, XTN.12
+
+value_2:
+  condition: $telEquipType EQUALS Internet || $telEquipType EQUALS X.400
+  valueOf: XTN.4
+  vars:
+    telEquipType: String, XTN.3
+
+value_3:
+  condition: $telEquipType NOT_EQUAL Internet && $telEquipType NOT_EQUAL X.400 && $unformattedTelNum NOT_NULL
+  valueOf: XTN.12
+  vars:
+    telEquipType: String, XTN.3
+    unformattedTelNum: String, XTN.12
+
+use:
+  condition: $telUseCode NOT_NULL
+  valueOf: XTN.2
+  vars:
+    telUseCode: String, XTN.2
+
+system_1:
+  condition: $telEquipType NOT_NULL
+  valueOf: XTN.3
+  vars:
+    telEquipType: String, XTN.3
+
+system_2:
+  condition: $telEquipType NULL && $commAddress NOT_NULL
+  valueOf: "email"
+  vars:
+    telEquipType: String, XTN.3
+    commAddress: String, XTN.4
+
