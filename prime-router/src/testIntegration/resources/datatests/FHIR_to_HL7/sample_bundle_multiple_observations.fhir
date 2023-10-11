@@ -1478,7 +1478,7 @@
                 }
               ]
             },
-            "system": "urn:id:Winchester_House",
+            "system": "Winchester House",
             "value": "1234d1d1-95fe-462c-8ac6-46728dba581c"
           },
           {
@@ -1497,7 +1497,7 @@
                 }
               ]
             },
-            "system": "urn:id:Winchester_House",
+            "system": "Winchester House",
             "value": "1234d1d1-95fe-462c-8ac6-46728dba581c"
           }
         ],
@@ -1851,7 +1851,7 @@
                 }
               ]
             },
-            "system": "urn:id:Winchester_House",
+            "system": "Winchester House",
             "value": "1234d1d1-95fe-462c-8ac6-46728dba581c"
           },
           {
@@ -1870,7 +1870,7 @@
                 }
               ]
             },
-            "system": "urn:id:Winchester_House",
+            "system": "Winchester House",
             "value": "1234d1d1-95fe-462c-8ac6-46728dba581c"
           }
         ],
@@ -1973,7 +1973,7 @@
                 }
               ]
             },
-            "system": "urn:id:Winchester_House",
+            "system": "Winchester House",
             "value": "09d12345-0987-1234-1234-111b1ee0879f"
           }
         ],
