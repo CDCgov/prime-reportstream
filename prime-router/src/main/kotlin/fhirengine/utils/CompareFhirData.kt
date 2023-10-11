@@ -5,6 +5,7 @@ import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Extension
+import org.hl7.fhir.r4.model.PrimitiveType
 import org.hl7.fhir.r4.model.Property
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.Resource
@@ -53,13 +54,9 @@ class CompareFhirData(
         result.passed = true
         val resourcesToCompare = mutableMapOf<Resource, List<Base>>(expectedBundle to listOf(actualBundle))
 
-        // Only use entries we want.
-        val entriesToCompare = expectedBundle.entry.filter {
-            comparedBundleEntries.contains(it.resource.fhirType())
-        }
-
         // Make a map of resources that can be compared.
-        entriesToCompare.forEach { expectedEntry ->
+        // Use all entries even though there will be some repeated comparisons to ensure we do not miss any orphans
+        expectedBundle.entry.forEach { expectedEntry ->
             val matchingActualEntries = actualBundle.entry.filter {
                 it.resource.fhirType() == expectedEntry.resource.fhirType()
             }.map { it.resource }
@@ -217,7 +214,16 @@ class CompareFhirData(
         }
 
         if (!primitiveResult.passed) {
-            val msg = "FAILED: Property $primitiveIdPath $primitiveTypePath did not match"
+            val msg = if (expectedPrimitive is PrimitiveType<*>) {
+                val actualPrimitivesValues = actualPrimitive
+                    .filterIsInstance<PrimitiveType<*>>()
+                    .joinToString { it.asStringValue() }
+                "FAILED: Property $primitiveIdPath $primitiveTypePath did not match. " +
+                    "expected=${expectedPrimitive.asStringValue()}, actuals=$actualPrimitivesValues"
+            } else {
+                "FAILED: Property $primitiveIdPath $primitiveTypePath did not match."
+            }
+
             primitiveResult.errors.add(msg)
         } else logger.trace("MATCH: Property $primitiveIdPath $primitiveTypePath matches")
         return primitiveResult
@@ -275,16 +281,6 @@ class CompareFhirData(
         private val defaultDynamicProperties = listOf(
             "Bundle.timestamp",
             "Bundle.meta.lastUpdated",
-        )
-
-        /**
-         * The list of bundle entries to test.  Do not include entries that are referenced in other resources listed
-         * here (e.g. Organization is part of MessageHeader and Provenance). If you add a resource that already referenced
-         * it will not break anything just generate more output.
-         * WARNING: Don't include any resources that are referenced or the comparison will be slower.
-         */
-        private val comparedBundleEntries = listOf(
-            "MessageHeader", "Provenance", "DiagnosticReport"
         )
 
         /**

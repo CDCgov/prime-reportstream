@@ -420,7 +420,7 @@
         "given" : [ "Stephenie", "Davis" ]
       } ],
       "telecom" : [ {
-        "system" : "pager",
+        "system" : "phone",
         "value" : "+1 260 759 5016",
         "use" : "mobile"
       } ],
