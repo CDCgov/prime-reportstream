@@ -1,0 +1,29 @@
+- name: namespace-id-universal-id-type-known
+  condition: '%resource.endpoint.exists() and %resource.endpoint.is(url)'
+  value: [ '%resource.name' ]
+  hl7Spec: [ '%{hl7HDField}-1' ]
+
+- name: namespace-id-universal-id-type-unknown
+  condition: '%resource.endpoint.where(extension(%`rsext-data-absent-reason`).value = "unknown").exists()'
+  value: [ '%resource.name.split("-").first()' ]
+  hl7Spec: [ '%{hl7HDField}-1' ]
+
+- name: universal-id-universal-id-type-known
+  condition: '%resource.endpoint.exists() and %resource.endpoint.is(url)'
+  value: [ '%resource.endpoint.getId()' ]
+  hl7Spec: [ '%{hl7HDField}-2' ]
+
+- name: universal-id-universal-id-type-unknown
+  condition: '%resource.endpoint.where(extension(%`rsext-data-absent-reason`).value = "unknown").exists()'
+  value: [ '%resource.name.split(":").last()' ]
+  hl7Spec: [ '%{hl7HDField}-2' ]
+
+- name: universal-id-type-universal-id-type-known
+  condition: '%resource.endpoint.exists() and %resource.endpoint.is(url)'
+  value: [ '%resource.endpoint.getIdType()' ]
+  hl7Spec: [ '%{hl7HDField}-3' ]
+
+- name: sending-application-universal-id-type-universal-id-type-unknown
+  condition: '%resource.endpoint.where(extension(%`rsext-data-absent-reason`).value = "unknown").exists()'
+  value: [ '%resource.name.split("-").last().split(":").first()' ]
+  hl7Spec: [ '%{hl7HDField}-3' ]

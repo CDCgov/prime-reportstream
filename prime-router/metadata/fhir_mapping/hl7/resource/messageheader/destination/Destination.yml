@@ -1,26 +1,19 @@
 name:
-  condition: $msh25 NOT_NULL
   type: STRING
   valueOf: MSH.5.1
   expressionType: HL7Spec
-  vars:
-    msh25: MSH.25
 
 software:
-  condition: $msh25 NOT_NULL
   type: STRING
   valueOf: MSH.5.2
   expressionType: HL7Spec
-  vars:
-    msh25: MSH.25
 
 endpoint_1:
-  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr EQUALS ISO
+  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
   type: URL
   valueOf: $idValue
   expressionType: HL7Spec
   vars:
-    msh25: MSH.25
     idStr: MSH.5.2
     idValue: $urlPrefix + MSH.5.2
     systemStr: String, MSH.5.3
@@ -28,12 +21,11 @@ endpoint_1:
     urlPrefix: "urn:oid:"
 
 endpoint_2:
-  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr EQUALS UUID
+  condition: $idStr NOT_NULL && $systemStr EQUALS UUID
   type: URL
   valueOf: $idValue
   expressionType: HL7Spec
   vars:
-    msh25: MSH.25
     idStr: MSH.5.2
     idValue: $urlPrefix + MSH.5.2
     systemStr: String, MSH.5.3
@@ -41,12 +33,11 @@ endpoint_2:
     urlPrefix: "urn:uuid:"
 
 endpoint_3:
-  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr EQUALS DNS
+  condition: $idStr NOT_NULL && $systemStr EQUALS DNS
   type: URL
   valueOf: $idValue
   expressionType: HL7Spec
   vars:
-    msh25: MSH.25
     idStr: MSH.5.2
     idValue: $urlPrefix + MSH.5.2
     systemStr: String, MSH.5.3
@@ -54,12 +45,11 @@ endpoint_3:
     urlPrefix: "urn:dns:"
 
 endpoint_4:
-  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr EQUALS URI
+  condition: $idStr NOT_NULL && $systemStr EQUALS URI
   type: URL
   valueOf: $idValue
   expressionType: HL7Spec
   vars:
-    msh25: MSH.25
     idStr: MSH.5.2
     idValue: $urlPrefix + MSH.5.2
     systemStr: String, MSH.5.3
@@ -67,12 +57,11 @@ endpoint_4:
     urlPrefix: "urn:uri:"
 
 endpoint_5:
-  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr EQUALS CLIA
+  condition: $idStr NOT_NULL && $systemStr EQUALS CLIA
   type: URL
   valueOf: $idValue
   expressionType: HL7Spec
   vars:
-    msh25: MSH.25
     idStr: MSH.5.2
     idValue: $urlPrefix + MSH.5.2
     systemStr: String, MSH.5.3
@@ -81,11 +70,10 @@ endpoint_5:
 
 endpoint_6:
   type: URL
-  condition: $msh25 NULL && $idStr NOT_NULL && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI && $systemStr NOT_EQUALS CLIA
+  condition: $idStr NOT_NULL && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI && $systemStr NOT_EQUALS CLIA
   valueOf: $value
   expressionType: HL7Spec
   vars:
-    msh25: MSH.25
     idStr: MSH.5.2
     systemStr: String, MSH.5.3
     value: MSH.5.1 + $dash + MSH.5.3 + $colon + MSH.5.2
@@ -95,60 +83,16 @@ endpoint_6:
 
 endpoint_7:
   type: URL
-  condition: $msh25 NULL && $systemStr NULL
+  condition: $systemStr NULL
   valueOf: $value
   expressionType: HL7Spec
   vars:
-    msh25: MSH.25
     idStr: MSH.5.2
     systemStr: String, MSH.5.3
     value: MSH.5.1 + $dash + $colon + MSH.5.2
   constants:
     dash: "-"
     colon: ":"
-
-endpoint_8:
-  condition: $msh25 NOT_NULL
-  type: URL
-  valueOf: MSH.25
-  expressionType: HL7Spec
-  vars:
-    msh25: MSH.25
-
-receiver_1:
-  condition: $idStr NOT_NULL && $orgIdSystem EQUALS ISO
-  valueOf: resource/Organization
-  expressionType: reference
-  specs: MSH.6
-  vars:
-    orgName: String, MSH.6.1
-    orgIdValue: $urlPrefix + MSH.6.2
-    orgIdSystem: String, MSH.6.3
-    idStr: String, MSH.6.2
-  constants:
-    urlPrefix: "urn:oid:"
-
-receiver_2:
-  condition: $idStr NOT_NULL && $orgIdSystem EQUALS UUID
-  valueOf: resource/Organization
-  expressionType: reference
-  specs: MSH.6
-  vars:
-    orgName: String, MSH.6.1
-    orgIdValue: $urlPrefix + MSH.6.2
-    orgIdSystem: String, MSH.6.3
-    idStr: String, MSH.6.2
-  constants:
-    urlPrefix: "urn:uuid:"
-
-receiver_3:
-  condition: $idStr NULL && $orgName NOT_NULL
-  valueOf: resource/Organization
-  expressionType: reference
-  specs: MSH.6
-  vars:
-    orgName: String, MSH.6.1
-    idStr: String, MSH.6.2
 
 target:
   condition: $msh5 NOT_NULL
@@ -158,3 +102,11 @@ target:
   specs: MSH.5
   vars:
     msh5: MSH.5
+
+receiver:
+  condition: $msh6 NOT_NULL
+  valueOf: datatype/HDToOrganization
+  expressionType: reference
+  specs: MSH.6
+  vars:
+    msh6: MSH.6

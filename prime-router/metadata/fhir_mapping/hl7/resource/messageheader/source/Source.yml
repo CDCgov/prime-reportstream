@@ -96,7 +96,7 @@ endpoint_5:
     oidUrlPrefix: "urn:clia:"
 
 endpoint_6:
-  condition: $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI
+  condition: $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI && $systemStr NOT_EQUALS CLIA
   expressionType: resource
   valueOf: resource/messageheader/common/Endpoint
   vars:

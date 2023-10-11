@@ -106,4 +106,21 @@ class `MSH-HDTests` {
             ).passed
         )
     }
+
+    @Test
+    fun `MSH HD use type CLIA`() {
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/hd/hd_use_type_CLIA.hl7",
+                "mappinginventory/hd/hd_use_type_CLIA.FHIR",
+            ).passed
+        )
+
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/hd/hd_use_type_CLIA.FHIR",
+                "mappinginventory/hd/hd_use_type_CLIA.hl7",
+            ).passed
+        )
+    }
 }
