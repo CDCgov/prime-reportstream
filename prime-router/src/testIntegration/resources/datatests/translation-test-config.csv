@@ -1,5 +1,4 @@
 Input File,Input schema,Expected File,Output schema,Output format,Result,Ignore Fields,Sender,Sender Transform,Receiver,Condition Filter
-FHIR_to_HL7/sample_AOE_1_20230220-0001.fhir,,FHIR_to_HL7/sample_AOE_1_20230220-0001-custom-datetime.hl7,metadata/hl7_mapping/receivers/STLTs/CA/CA-receiver-transform,HL7,PASS,"","","metadata/fhir_transforms/senders/default-sender-transform","development.DEV_FULL_ELR",""
 CSV_to_HL7/sample-batch-pdi-20210608-0001.csv,primedatainput/pdi-covid-19,CSV_to_HL7/sample-batch-pdi-20210608-0001.hl7,fl/fl-covid-19,HL7_BATCH,PASS,"","","","",""
 CSV_to_HL7/sample-single-pdi-20210608-0002.csv,primedatainput/pdi-covid-19,CSV_to_HL7/sample-single-pdi-20210608-0002.hl7,fl/fl-covid-19,HL7,PASS,"","","","",""
 HL7_to_INTERNAL/CE-20200415-0001.hl7,hl7/test-covid-19,HL7_to_INTERNAL/CE-20200415-0001.internal.csv,covid-19,INTERNAL,PASS,"","","","",""
