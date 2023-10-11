@@ -7,17 +7,21 @@ resource "azurerm_storage_account" "sftp" {
   account_replication_type = "GRS"
   min_tls_version          = "TLS1_2"
 
-  network_rules {
-    default_action = "Deny"
-    bypass         = ["AzureServices"]
-
-    ip_rules = var.terraform_caller_ip_address
-    #virtual_network_subnet_ids = var.subnets.primary_subnets
-  }
-
   tags = {
     environment = var.environment
   }
+}
+
+resource "azurerm_storage_account_network_rules" "sftp" {
+  storage_account_id = azurerm_storage_account.sftp.id
+
+  default_action = "Deny"
+  ip_rules       = [for k, v in module.instance : v.ip_address]
+  bypass         = ["AzureServices"]
+
+  depends_on = [
+    module.instance
+  ]
 }
 
 # SSH host keys share

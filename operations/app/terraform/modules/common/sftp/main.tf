@@ -98,14 +98,3 @@ resource "azurerm_container_group" "sftp" {
     environment = var.environment
   }
 }
-
-# Grant the managed identity access to the Azure Storage Account
-resource "azurerm_role_assignment" "container_to_storage" {
-  for_each = toset(local.users)
-  principal_id         = azurerm_container_group.sftp.identity[0].principal_id
-  role_definition_name = "Storage Blob Data Contributor" # Use an appropriate role
-  scope                = "/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/${var.resource_group}/providers/Microsoft.Storage/storageAccounts/${var.storage_account.name}/fileServices/default/fileShare/${var.resource_prefix}-share-${each.key}"
-  depends_on = [
-    azurerm_container_group.sftp
-  ]
-}
