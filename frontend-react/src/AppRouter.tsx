@@ -5,9 +5,6 @@ import React from "react";
 import { TermsOfService } from "./pages/TermsOfService";
 import { Login } from "./pages/Login";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
-import { Resources } from "./pages/resources/Resources";
-import { Product } from "./pages/product/ProductIndex";
-import { Support } from "./pages/support/Support";
 import { UploadWithAuth } from "./pages/Upload";
 import { FeatureFlagUIWithAuth } from "./pages/misc/FeatureFlags";
 import { SubmissionDetailsWithAuth } from "./pages/submissions/SubmissionDetails";
@@ -37,6 +34,7 @@ import { FacilitiesProvidersWithAuth } from "./components/DataDashboard/Faciliti
 import { FacilityProviderSubmitterDetailsWithAuth } from "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails";
 import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
+import { DataDownloadGuideIa } from "./pages/DataDownloadGuide";
 
 export const appRoutes: RouteObject[] = [
     /* Public Site */
@@ -138,6 +136,13 @@ export const appRoutes: RouteObject[] = [
                             "content/managing-your-connection/refer-healthcare-organizations",
                         ),
                     },
+                    {
+                        path: "data-download-guide",
+                        handle: {
+                            isContentPage: true,
+                        },
+                        element: <DataDownloadGuideIa />,
+                    },
                 ],
             },
             {
@@ -177,11 +182,6 @@ export const appRoutes: RouteObject[] = [
                             isFullWidth: true,
                         },
                     },
-                ],
-            },
-            {
-                path: "/resources",
-                children: [
                     {
                         path: "api",
                         children: [
@@ -189,7 +189,7 @@ export const appRoutes: RouteObject[] = [
                                 path: "",
                                 index: true,
                                 lazy: lazyRouteMarkdown(
-                                    "content/resources/reportstream-api/ReportStreamApi",
+                                    "content/developer-resources/reportstream-api/ReportStreamApi",
                                 ),
                                 handle: {
                                     isContentPage: true,
@@ -198,7 +198,7 @@ export const appRoutes: RouteObject[] = [
                             {
                                 path: "getting-started",
                                 lazy: lazyRouteMarkdown(
-                                    "content/resources/reportstream-api/getting-started/GettingStarted",
+                                    "content/developer-resources/reportstream-api/getting-started/GettingStarted",
                                 ),
                                 handle: {
                                     isContentPage: true,
@@ -210,7 +210,7 @@ export const appRoutes: RouteObject[] = [
                                     {
                                         path: "",
                                         lazy: lazyRouteMarkdown(
-                                            "content/resources/reportstream-api/documentation/Documentation",
+                                            "content/developer-resources/reportstream-api/documentation/Documentation",
                                         ),
                                         index: true,
                                         handle: {
@@ -220,7 +220,7 @@ export const appRoutes: RouteObject[] = [
                                     {
                                         path: "data-model",
                                         lazy: lazyRouteMarkdown(
-                                            "content/resources/reportstream-api/documentation/data-model/DataModel",
+                                            "content/developer-resources/reportstream-api/documentation/data-model/DataModel",
                                         ),
                                         handle: {
                                             isContentPage: true,
@@ -229,7 +229,7 @@ export const appRoutes: RouteObject[] = [
                                     {
                                         path: "responses-from-reportstream",
                                         lazy: lazyRouteMarkdown(
-                                            "content/resources/reportstream-api/documentation/ResponsesFromReportStream",
+                                            "content/developer-resources/reportstream-api/documentation/ResponsesFromReportStream",
                                         ),
                                         handle: {
                                             isContentPage: true,
@@ -238,7 +238,7 @@ export const appRoutes: RouteObject[] = [
                                     {
                                         path: "sample-payloads-and-output",
                                         lazy: lazyRouteMarkdown(
-                                            "content/resources/reportstream-api/documentation/SamplePayloadsAndOutput",
+                                            "content/developer-resources/reportstream-api/documentation/SamplePayloadsAndOutput",
                                         ),
                                         handle: {
                                             isContentPage: true,
@@ -251,46 +251,10 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "programmers-guide",
                         loader: async () => {
-                            return redirect("/resources/api");
-                        },
-                    },
-                    {
-                        path: "manage-public-key",
-                        element: <ManagePublicKeyWithAuth />,
-                    },
-                    {
-                        path: "",
-                        index: true,
-                        lazy: lazyRouteMarkdown(
-                            "content/resources/ResourcesIndex",
-                        ),
-                        handle: {
-                            isContentPage: true,
-                        },
-                    },
-                    {
-                        path: "*",
-                        element: <Resources />,
-                        handle: {
-                            isContentPage: true,
+                            return redirect("/developer-resources/api");
                         },
                     },
                 ],
-            },
-            {
-                path: "/product/release-notes",
-                index: true,
-                lazy: lazyRouteMarkdown("content/about/release-notes"),
-                handle: {
-                    isContentPage: true,
-                },
-            },
-            {
-                path: "/product/*",
-                element: <Product />,
-                handle: {
-                    isContentPage: true,
-                },
             },
             {
                 path: "/managing-your-connection",
@@ -322,13 +286,6 @@ export const appRoutes: RouteObject[] = [
                             isFullWidth: true,
                         },
                     },
-                    {
-                        path: "*",
-                        element: <Support />,
-                        handle: {
-                            isContentPage: true,
-                        },
-                    },
                 ],
             },
             {
@@ -338,6 +295,10 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "/daily-data",
                 element: <DeliveriesWithAuth />,
+            },
+            {
+                path: "manage-public-key",
+                element: <ManagePublicKeyWithAuth />,
             },
             {
                 path: "/report-details/:reportId",

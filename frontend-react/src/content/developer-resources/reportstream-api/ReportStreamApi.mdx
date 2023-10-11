@@ -1,12 +1,11 @@
 import DOMPurify from "dompurify";
 
 import Sidenav from "./Sidenav.mdx";
-import site from "../../../content/site.json";
-import { ResourcesDirectories } from "../../../content/resources";
+import site from "../../site.json";
 import { trackAppInsightEvent } from "../../../utils/Analytics";
 
 export const handleClick = () => {
-    trackAppInsightEvent(ResourcesDirectories.REPORTSTREAM_API, {});
+    trackAppInsightEvent("ReportStream API", {});
 };
 
 <LayoutSidenav>
@@ -35,7 +34,7 @@ export const handleClick = () => {
     ***
     <br/>
 
-    ## <a href="#onboarding-overview" className="usa-link usa-link--unstyled">Onboarding overview</a>
+    ## <a href="frontend-react/src/content/developer-resources/reportstream-api/ReportStreamApi.mdx#onboarding-overview" className="usa-link usa-link--unstyled">Onboarding overview</a>
     We’ll give you and your team resources and support as you begin connecting with ReportStream’s API. [Learn more](getting-started) about setting up your connection and formatting your data.
 
     If you haven’t connected with us yet, [contact us](/support/contact) to set up your kickoff call.
@@ -70,7 +69,7 @@ export const handleClick = () => {
     ***
     <br/>
 
-    ## <a href="#about-our-api" className="usa-link usa-link--unstyled">About our API</a>
+    ## <a href="frontend-react/src/content/developer-resources/reportstream-api/ReportStreamApi.mdx#about-our-api" className="usa-link usa-link--unstyled">About our API</a>
 
     **Waters API**
 
