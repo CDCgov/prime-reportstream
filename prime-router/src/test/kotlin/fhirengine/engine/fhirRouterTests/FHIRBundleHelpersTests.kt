@@ -56,7 +56,7 @@ import org.jooq.tools.jdbc.MockResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import java.io.File
-import java.lang.IllegalStateException
+import java.util.Date
 import java.util.UUID
 import java.util.stream.Collectors
 import kotlin.test.Test
@@ -706,7 +706,6 @@ class FHIRBundleHelpersTests {
 
         // create the hl7 reader
         val hl7Reader = HL7Reader(actionLogger)
-        // get the hl7 from the blob store
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_with_birth_time.hl7").readText()
         val hl7messages = hl7Reader.getMessages(hl7Message)
 
@@ -738,7 +737,6 @@ class FHIRBundleHelpersTests {
 
         // create the hl7 reader
         val hl7Reader = HL7Reader(actionLogger)
-        // get the hl7 from the blob store
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_with_birth_time.hl7").readText()
         val hl7messages = hl7Reader.getMessages(hl7Message)
 
@@ -770,13 +768,15 @@ class FHIRBundleHelpersTests {
 
         // create the hl7 reader
         val hl7Reader = HL7Reader(actionLogger)
-        // get the hl7 from the blob store
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_with_birth_time.hl7").readText()
-        val hl7messages = hl7Reader.getMessages(hl7Message)
+        val hl7Messages = hl7Reader.getMessages(hl7Message)
 
-        bundle.enhanceBundleMetadata(hl7messages[0])
+        assertThat(hl7Messages[0]["MSH"] is ca.uhn.hl7v2.model.v251.segment.MSH).isTrue()
 
-        assertThat(bundle.timestamp.toString()).isEqualTo("Wed Feb 10 17:07:37 PST 2021")
+        bundle.enhanceBundleMetadata(hl7Messages[0])
+
+        var expectedDate = Date(1612994857000) // Wednesday, February 10, 2021 10:07:37 PM GMT
+        assertThat(bundle.timestamp).isEqualTo(expectedDate)
         assertThat(bundle.identifier.value).isEqualTo("371784")
         assertThat(bundle.identifier.system).isEqualTo("https://reportstream.cdc.gov/prime-router")
     }
@@ -793,19 +793,21 @@ class FHIRBundleHelpersTests {
 
         // create the hl7 reader
         val hl7Reader = HL7Reader(actionLogger)
-        // get the hl7 from the blob store
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_2.7.hl7").readText()
-        val hl7messages = hl7Reader.getMessages(hl7Message)
+        val hl7Messages = hl7Reader.getMessages(hl7Message)
 
-        bundle.enhanceBundleMetadata(hl7messages[0])
+        assertThat(hl7Messages[0]["MSH"] is ca.uhn.hl7v2.model.v27.segment.MSH).isTrue()
 
-        assertThat(bundle.timestamp.toString()).isEqualTo("Wed Feb 10 17:07:37 PST 2021")
+        bundle.enhanceBundleMetadata(hl7Messages[0])
+
+        var expectedDate = Date(1612994857000) // Wednesday, February 10, 2021 10:07:37 PM GMT
+        assertThat(bundle.timestamp).isEqualTo(expectedDate)
         assertThat(bundle.identifier.value).isEqualTo("371785")
         assertThat(bundle.identifier.system).isEqualTo("https://reportstream.cdc.gov/prime-router")
     }
 
     @Test
-    fun `Test enhance bundle metadata 2-6`() {
+    fun `Test enhance bundle metadata - unexpected message version`() {
         // set up
         val actionLogger = ActionLogger()
         val fhirBundle = File("src/test/resources/fhirengine/engine/fhir_without_patient.fhir").readText()
@@ -816,12 +818,15 @@ class FHIRBundleHelpersTests {
 
         // create the hl7 reader
         val hl7Reader = HL7Reader(actionLogger)
-        // get the hl7 from the blob store
         val hl7Message = File("src/test/resources/fhirengine/engine/hl7_2.6.hl7").readText()
-        val hl7messages = hl7Reader.getMessages(hl7Message)
+        val hl7Messages = hl7Reader.getMessages(hl7Message)
 
-        bundle.enhanceBundleMetadata(hl7messages[0])
+        assertThat(hl7Messages[0]["MSH"] is ca.uhn.hl7v2.model.v251.segment.MSH).isFalse()
+        assertThat(hl7Messages[0]["MSH"] is ca.uhn.hl7v2.model.v27.segment.MSH).isFalse()
 
+        bundle.enhanceBundleMetadata(hl7Messages[0])
+
+        assertThat(bundle.timestamp).isNull()
         assertThat(bundle.identifier.value).isNull()
         assertThat(bundle.identifier.system).isEqualTo("https://reportstream.cdc.gov/prime-router")
     }
