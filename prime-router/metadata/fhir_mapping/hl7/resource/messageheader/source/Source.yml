@@ -1,6 +1,6 @@
 name_1:
   type: STRING
-  valueOf: MSH.3
+  valueOf: HD.1
   expressionType: HL7Spec
 
 # For all other ID types
@@ -10,22 +10,23 @@ name_2:
   valueOf: $value
   expressionType: HL7Spec
   vars:
-    idStr: String, MSH.3.2
-    systemStr: String, MSH.3.3
-    value: MSH.3.1 + $dash + MSH.3.3 + $colon + MSH.3.2
+    idStr: String, HD.2
+    systemStr: String, HD.3
+    value: HD.1 + $dash + HD.3 + $colon + HD.2
   constants:
     dash: "-"
     colon: ":"
 
+# For null ID type
 name_3:
   type: URL
   condition: $idStr NOT_NULL && $systemStr NULL
   valueOf: $value
   expressionType: HL7Spec
   vars:
-    idStr: String, MSH.3.2
-    systemStr: String, MSH.3.3
-    value: MSH.3.1 + $dash + $colon + MSH.3.2
+    idStr: String, HD.2
+    systemStr: String, HD.3
+    value: HD.1 + $dash + $colon + HD.2
   constants:
     dash: "-"
     colon: ":"
@@ -37,9 +38,9 @@ endpoint_1:
   valueOf: $value
   expressionType: HL7Spec
   vars:
-    idStr: String, MSH.3.2
-    value: $oidUrlPrefix + MSH.3.2
-    systemStr: String, MSH.3.3
+    idStr: String, HD.2
+    value: $oidUrlPrefix + HD.2
+    systemStr: String, HD.3
   constants:
     oidUrlPrefix: "urn:oid:"
 
@@ -50,9 +51,9 @@ endpoint_2:
   valueOf: $value
   expressionType: HL7Spec
   vars:
-    idStr: String, MSH.3.2
-    value: $oidUrlPrefix + MSH.3.2
-    systemStr: String, MSH.3.3
+    idStr: String, HD.2
+    value: $oidUrlPrefix + HD.2
+    systemStr: String, HD.3
   constants:
     oidUrlPrefix: "urn:uuid:"
 
@@ -63,46 +64,64 @@ endpoint_3:
   valueOf: $value
   expressionType: HL7Spec
   vars:
-    idStr: String, MSH.3.2
-    value: $oidUrlPrefix + MSH.3.2
-    systemStr: String, MSH.3.3
+    idStr: String, HD.2
+    value: $oidUrlPrefix + HD.2
+    systemStr: String, HD.3
   constants:
     oidUrlPrefix: "urn:dns:"
 
-# For CLIA
-endpoint_4:
-  type: URL
-  condition: $idStr NOT_NULL && $systemStr EQUALS CLIA
-  valueOf: $value
-  expressionType: HL7Spec
-  vars:
-    idStr: String, MSH.3.2
-    value: $oidUrlPrefix + MSH.3.2
-    systemStr: String, MSH.3.3
-  constants:
-    oidUrlPrefix: "urn:clia:"
-
 # For URIs
-endpoint_5:
+endpoint_4:
   type: URL
   condition: $idStr NOT_NULL && $systemStr EQUALS URI
   valueOf: $value
   expressionType: HL7Spec
   vars:
-    idStr: String, MSH.3.2
-    value: $oidUrlPrefix + MSH.3.2
-    systemStr: String, MSH.3.3
+    idStr: String, HD.2
+    value: $oidUrlPrefix + HD.2
+    systemStr: String, HD.3
   constants:
     oidUrlPrefix: "urn:uri:"
+
+endpoint_5:
+  type: URL
+  condition: $idStr NOT_NULL && $systemStr EQUALS CLIA
+  valueOf: $value
+  expressionType: HL7Spec
+  vars:
+    idStr: String, HD.2
+    value: $oidUrlPrefix + HD.2
+    systemStr: String, HD.3
+  constants:
+    oidUrlPrefix: "urn:clia:"
+
+endpoint_6:
+  condition: $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI && $systemStr NOT_EQUALS CLIA
+  expressionType: resource
+  valueOf: resource/messageheader/common/Endpoint
+  vars:
+    systemStr: String, HD.3
+
+endpoint_7:
+  condition: $systemStr NULL
+  expressionType: resource
+  valueOf: resource/messageheader/common/Endpoint
+  vars:
+    systemStr: String, HD.3
 
 version:
   type: STRING
   valueOf: SFT.2
   expressionType: HL7Spec
 
-software:
+software_1:
   type: STRING
   valueOf: SFT.3
+  expressionType: HL7Spec
+
+software_2:
+  type: STRING
+  valueOf: HD.2
   expressionType: HL7Spec
 
 extension_1:
@@ -136,7 +155,9 @@ extension_3:
     urlValue: software-install-date
 
 extension_4:
+  condition: $vendor NOT_NULL
   generateList: true
+  useGroup: true
   expressionType: nested
   expressionsMap:
     url:
@@ -146,3 +167,5 @@ extension_4:
       valueOf: resource/Organization
       expressionType: reference
       specs: SFT.1
+  vars:
+    vendor: String, SFT.1

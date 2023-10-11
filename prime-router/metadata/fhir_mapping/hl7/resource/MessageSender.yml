@@ -80,5 +80,3 @@ address:
   generateList: true
   vars:
     country: MSH.17
-
-

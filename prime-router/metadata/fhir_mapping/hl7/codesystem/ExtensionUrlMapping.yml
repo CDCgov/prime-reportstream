@@ -269,3 +269,6 @@
 # Code Index Name
 - id: "code-index-name"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name"
+# Code Index Name
+- id: "data-absent-reason"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/data-absent-reason"

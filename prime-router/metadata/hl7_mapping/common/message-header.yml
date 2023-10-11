@@ -4,83 +4,33 @@ elements:
     value: [ '%resource.extension(%`rsext-encoding-characters`).value' ]
     hl7Spec: [ MSH-2 ]
 
-  - name: sending-application-namespace-id-no-endpoint
-    value: [ '%resource.source.name.split(":").first()' ]
-    hl7Spec: [ MSH-3-1 ]
-
-  - name: sending-application-universal-id-with-endpoint
-    condition: '%resource.source.endpoint.exists()'
-    value: [ '%resource.source.endpoint.getId()' ]
-    hl7Spec: [ MSH-3-2 ]
-
-  - name: sending-application-universal-id-no-endpoint
-    condition: '%resource.source.endpoint.exists().not() and %resource.source.name.contains(":")'
-    value: [ '%resource.source.name.split(":").last()' ]
-    hl7Spec: [ MSH-3-2 ]
-
-  - name: sending-application-universal-id-type-with-endpoint
-    condition: '%resource.source.endpoint.exists()'
-    value: [ '%resource.source.endpoint.getIdType()' ]
-    hl7Spec: [ MSH-3-3 ]
-
-  - name: sending-application-universal-id-type-no-endpoint
-    condition: '%resource.source.endpoint.exists().not() and %resource.source.name.contains(":")'
-    value: [ '%resource.source.name.split("-").last().split(":").first()' ]
-    hl7Spec: [ MSH-3-3 ]
-
-  - name: sending-facility_namespace-id
-    resource: '%resource.sender.resolve().identifier.where(type.exists().not()).first()'
+  - name: sending-application
+    resource: '%resource.source'
     condition: '%resource.exists()'
-    value: [ '%resource.value.getId()' ]
-    hl7Spec: [ MSH-4-1 ]
+    constants:
+      hl7HDField: 'MSH-3'
+    schema: datatype/endpoint-hd
 
-  - name: sending-facility-universal-id
-    resource: '%resource.sender.resolve().identifier.where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v2-0301").first()'
+  - name: sending-facility
+    resource: '%resource.sender.resolve()'
     condition: '%resource.exists()'
-    value: [ '%resource.value.getId()' ]
-    hl7Spec: [ MSH-4-2 ]
+    constants:
+      hl7HDField: 'MSH-4'
+    schema: datatype/organization-hd
 
-  - name: sending-facility-universal-id-type
-    resource: '%resource.sender.resolve().identifier.where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v2-0301").first()'
+  - name: receiving-application
+    resource: '%resource.destination'
     condition: '%resource.exists()'
-    value: [ '%resource.value.getIdType()' ]
-    hl7Spec: [ MSH-4-3 ]
+    constants:
+      hl7HDField: 'MSH-5'
+    schema: datatype/endpoint-hd
 
-  - name: receiving-application-namespace-id
-    resource: '%resource.destination[0].target.resolve().identifier.where(type.exists().not()).first()'
+  - name: receiving-facility
+    resource: '%resource.destination.receiver.resolve()'
     condition: '%resource.exists()'
-    value: [ '%resource.value.getId()' ]
-    hl7Spec: [ MSH-5-1 ]
-
-  - name: receiving-application-universal-id
-    resource: '%resource.destination[0].target.resolve().identifier.where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v2-0301").first()'
-    condition: '%resource.exists()'
-    value: [ '%resource.value.getId()' ]
-    hl7Spec: [ MSH-5-2 ]
-
-  - name: receiving-application-universal-id-type
-    resource: '%resource.destination[0].target.resolve().identifier.where(type.coding.system = "http://terminology.hl7.org/CodeSystem/v2-0301").first()'
-    condition: '%resource.exists() and %resource.type.coding.code.exists()'
-    value: [ '%resource.value.getIdType()' ]
-    hl7Spec: [ MSH-5-3 ]
-
-  - name: receiving-facility-namespace-id
-    resource: '%resource.destination.receiver.resolve().identifier'
-    condition: '%resource.where(system.exists().not()).exists()'
-    value: [ '%resource.where(system.exists().not()).value' ]
-    hl7Spec: [ MSH-6-1 ]
-
-  - name: receiving-facility-universal-id
-    resource: '%resource.destination.receiver.resolve().identifier'
-    condition: '%resource.where(system.exists()).exists()'
-    value: [ '%resource.where(system.exists()).value.getId()' ]
-    hl7Spec: [ MSH-6-2 ]
-
-  - name: receiving-facility-universal-id-type
-    resource: '%resource.destination.receiver.resolve().identifier'
-    condition: '%resource.where(system.exists()).exists()'
-    value: [ '%resource.where(system.exists()).value.getIdType()' ]
-    hl7Spec: [ MSH-6-3 ]
+    constants:
+      hl7HDField: 'MSH-6'
+    schema: datatype/organization-hd
 
   - name: message-date-time
     value:
@@ -144,3 +94,17 @@ elements:
       entityIdFieldPath: 'MSH-21(%{entityIdIndex})'
     schema: datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
+
+  - name: sending-network-address
+    resource: '%resource.source'
+    condition: '%resource.exists()'
+    constants:
+      hl7HDField: 'MSH-24'
+    schema: datatype/endpoint-hd
+
+  - name: receiving-network-address
+    resource: '%resource.destination'
+    condition: '%resource.exists()'
+    constants:
+      hl7HDField: 'MSH-25'
+    schema: datatype/endpoint-hd

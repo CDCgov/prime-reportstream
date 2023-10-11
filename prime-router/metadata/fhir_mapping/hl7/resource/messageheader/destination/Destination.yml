@@ -1,0 +1,112 @@
+name:
+  type: STRING
+  valueOf: MSH.5.1
+  expressionType: HL7Spec
+
+software:
+  type: STRING
+  valueOf: MSH.5.2
+  expressionType: HL7Spec
+
+endpoint_1:
+  condition: $idStr NOT_NULL && $systemStr EQUALS ISO
+  type: URL
+  valueOf: $idValue
+  expressionType: HL7Spec
+  vars:
+    idStr: MSH.5.2
+    idValue: $urlPrefix + MSH.5.2
+    systemStr: String, MSH.5.3
+  constants:
+    urlPrefix: "urn:oid:"
+
+endpoint_2:
+  condition: $idStr NOT_NULL && $systemStr EQUALS UUID
+  type: URL
+  valueOf: $idValue
+  expressionType: HL7Spec
+  vars:
+    idStr: MSH.5.2
+    idValue: $urlPrefix + MSH.5.2
+    systemStr: String, MSH.5.3
+  constants:
+    urlPrefix: "urn:uuid:"
+
+endpoint_3:
+  condition: $idStr NOT_NULL && $systemStr EQUALS DNS
+  type: URL
+  valueOf: $idValue
+  expressionType: HL7Spec
+  vars:
+    idStr: MSH.5.2
+    idValue: $urlPrefix + MSH.5.2
+    systemStr: String, MSH.5.3
+  constants:
+    urlPrefix: "urn:dns:"
+
+endpoint_4:
+  condition: $idStr NOT_NULL && $systemStr EQUALS URI
+  type: URL
+  valueOf: $idValue
+  expressionType: HL7Spec
+  vars:
+    idStr: MSH.5.2
+    idValue: $urlPrefix + MSH.5.2
+    systemStr: String, MSH.5.3
+  constants:
+    urlPrefix: "urn:uri:"
+
+endpoint_5:
+  condition: $idStr NOT_NULL && $systemStr EQUALS CLIA
+  type: URL
+  valueOf: $idValue
+  expressionType: HL7Spec
+  vars:
+    idStr: MSH.5.2
+    idValue: $urlPrefix + MSH.5.2
+    systemStr: String, MSH.5.3
+  constants:
+    urlPrefix: "urn:clia:"
+
+endpoint_6:
+  type: URL
+  condition: $idStr NOT_NULL && $systemStr NOT_EQUALS UUID && $systemStr NOT_EQUALS ISO && $systemStr NOT_EQUALS DNS && $systemStr NOT_EQUALS URI && $systemStr NOT_EQUALS CLIA
+  valueOf: $value
+  expressionType: HL7Spec
+  vars:
+    idStr: MSH.5.2
+    systemStr: String, MSH.5.3
+    value: MSH.5.1 + $dash + MSH.5.3 + $colon + MSH.5.2
+  constants:
+    dash: "-"
+    colon: ":"
+
+endpoint_7:
+  type: URL
+  condition: $systemStr NULL
+  valueOf: $value
+  expressionType: HL7Spec
+  vars:
+    idStr: MSH.5.2
+    systemStr: String, MSH.5.3
+    value: MSH.5.1 + $dash + $colon + MSH.5.2
+  constants:
+    dash: "-"
+    colon: ":"
+
+target:
+  condition: $msh5 NOT_NULL
+  valueOf: resource/Device
+  generateList: true
+  expressionType: reference
+  specs: MSH.5
+  vars:
+    msh5: MSH.5
+
+receiver:
+  condition: $msh6 NOT_NULL
+  valueOf: datatype/HDToOrganization
+  expressionType: reference
+  specs: MSH.6
+  vars:
+    msh6: MSH.6
