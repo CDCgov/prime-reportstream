@@ -5,7 +5,6 @@ import { CsvSchemaDocumentation } from "./legacy-page-content/CsvSchemaDocumenta
 import { CsvUploadGuideIa } from "./legacy-page-content/CsvUploadGuide";
 import { DataDownloadGuideIa } from "./legacy-page-content/DataDownloadGuide";
 import { SystemAndSettingsIa } from "./legacy-page-content/SystemAndSettings";
-import { SecurityPracticesIa } from "./legacy-page-content/SecurityPractices";
 
 export {
     AccountRegistrationGuideIa,
@@ -15,5 +14,4 @@ export {
     CsvUploadGuideIa,
     DataDownloadGuideIa,
     SystemAndSettingsIa,
-    SecurityPracticesIa,
 };

@@ -15,6 +15,7 @@ import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
 import fhirengine.engine.CustomFhirPathFunctions
 import gov.cdc.prime.router.Metadata
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.unittest.UnitTestUtils
 import io.mockk.every
 import io.mockk.mockkObject
@@ -26,9 +27,20 @@ import org.hl7.fhir.r4.model.Observation
 import org.hl7.fhir.r4.model.Organization
 import org.hl7.fhir.r4.model.StringType
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.util.UUID
 
 class ConstantResolverTests {
+
+    @Test
+    fun `test cannot add reserved constant name`() {
+        val context = CustomContext(Bundle(), Bundle())
+        val constantValue = "value1"
+        assertThrows<SchemaException> {
+            CustomContext.addConstants(mapOf("context" to constantValue), context)
+        }
+    }
+
     @Test
     fun `test custom context`() {
         val previousContext = CustomContext(Bundle(), Bundle())

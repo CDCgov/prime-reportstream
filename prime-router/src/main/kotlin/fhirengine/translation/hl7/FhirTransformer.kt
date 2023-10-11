@@ -102,7 +102,7 @@ class FhirTransformer(
         focusResources.forEachIndexed { index, singleFocusResource ->
             // The element context must now get the focus resource
             elementContext.focusResource = singleFocusResource
-            if (canEvaluate(element, bundle, singleFocusResource, elementContext)) {
+            if (canEvaluate(element, bundle, singleFocusResource, focusResource, elementContext)) {
                 when {
                     // If this is a schema then process it.
                     element.schemaRef != null -> {

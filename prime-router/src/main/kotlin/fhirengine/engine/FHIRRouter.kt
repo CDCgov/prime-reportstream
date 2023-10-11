@@ -490,6 +490,7 @@ class FHIRRouter(
                     CustomContext(bundle, focusResource, shorthandLookupTable, CustomFhirPathFunctions()),
                     focusResource,
                     bundle,
+                    bundle,
                     filterElement
                 )
                 if (!filterElementResult) failingFilters += filterElement
@@ -546,6 +547,7 @@ class FHIRRouter(
                 val filterElementResult = FhirPathUtils.evaluateCondition(
                     CustomContext(bundle, focusResource, shorthandLookupTable, CustomFhirPathFunctions()),
                     focusResource,
+                    bundle,
                     bundle,
                     filterElement
                 )

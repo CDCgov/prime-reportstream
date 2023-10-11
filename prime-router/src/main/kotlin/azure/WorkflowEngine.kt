@@ -581,7 +581,7 @@ class WorkflowEngine(
                 return@transact
             }
 
-            val blobContent = BlobAccess.downloadBlob(task.bodyUrl)
+            val blobContent = BlobAccess.downloadBlobAsByteArray(task.bodyUrl)
 
             val report = csvSerializer.readInternal(
                 task.schemaName,
@@ -696,7 +696,7 @@ class WorkflowEngine(
      * Create a report object from a header including loading the blob data associated with it
      */
     fun createReport(header: Header): Report {
-        val bytes = BlobAccess.downloadBlob(header.task.bodyUrl)
+        val bytes = BlobAccess.downloadBlobAsByteArray(header.task.bodyUrl)
         return when (header.task.bodyFormat) {
             // TODO after the CSV internal format is flushed from the system, this code will be safe to remove
             "CSV", "CSV_SINGLE" -> {
@@ -730,7 +730,7 @@ class WorkflowEngine(
      * Create a report object from a header including loading the blob data associated with it
      */
     fun readBody(header: Header): ByteArray {
-        return BlobAccess.downloadBlob(header.task.bodyUrl)
+        return BlobAccess.downloadBlobAsByteArray(header.task.bodyUrl)
     }
 
     fun recordAction(actionHistory: ActionHistory, txn: Configuration? = null) {
@@ -796,7 +796,7 @@ class WorkflowEngine(
 
         val downloadContent = (reportFile.bodyUrl != null && fetchBlobBody)
         val content = if (downloadContent && BlobAccess.exists(reportFile.bodyUrl)) {
-            BlobAccess.downloadBlob(reportFile.bodyUrl)
+            BlobAccess.downloadBlobAsByteArray(reportFile.bodyUrl)
         } else {
             null
         }

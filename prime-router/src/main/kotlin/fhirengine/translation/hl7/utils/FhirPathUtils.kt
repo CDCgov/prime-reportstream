@@ -91,8 +91,9 @@ object FhirPathUtils : Logging {
     }
 
     /**
-     * Gets a boolean result from the given [expression] using [bundle] and starting from a specific [focusResource].
-     * [focusResource] can be the same as [bundle] when starting from the root.
+     * Gets a boolean result from the given [expression] using [rootResource], [contextResource] (which in most cases is
+     * the resource the schema is being evaluated against) and starting from a specific [focusResource].
+     * [focusResource] can be the same as [rootResource] when starting from the root.
      * [appContext] provides custom context (e.g. variables) used for the evaluation.
      * Note that if the [expression] does not evaluate to a boolean then the result is false.
      * @return true if the expression evaluates to true, otherwise false
@@ -101,17 +102,15 @@ object FhirPathUtils : Logging {
     fun evaluateCondition(
         appContext: CustomContext?,
         focusResource: Base,
-        bundle: Bundle,
-        expression: String,
+        contextResource: Base,
+        rootResource: Bundle,
+        expression: String
     ): Boolean {
         val retVal = try {
             pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
             val expressionNode = parsePath(expression)
-            val value = if (expressionNode == null) {
-                emptyList()
-            } else {
-                pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
-            }
+            val value = if (expressionNode == null) emptyList()
+            else pathEngine.evaluate(appContext, focusResource, rootResource, contextResource, expressionNode)
             if (value.size == 1 && value[0].isBooleanPrimitive) {
                 (value[0] as BooleanType).value
             } else if (value.isEmpty()) {

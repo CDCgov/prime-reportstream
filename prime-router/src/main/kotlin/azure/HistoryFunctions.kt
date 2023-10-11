@@ -359,9 +359,10 @@ open class BaseHistoryFunction : Logging {
             if (requestedReport.receivingOrg != requestOrgName) {
                 return HttpUtilities.notFoundResponse(request)
             }
-            val contents = if (requestedReport.bodyUrl != null) {
-                BlobAccess.downloadBlob(requestedReport.bodyUrl)
-            } else {
+
+            val contents = if (requestedReport.bodyUrl != null)
+                BlobAccess.downloadBlobAsByteArray(requestedReport.bodyUrl)
+            else {
                 // If the body URL is missing from the report it is likely a sent report that was generated
                 // before a blob was being generated.  This code can be removed after all of those reports
                 // have expired.
@@ -371,7 +372,7 @@ open class BaseHistoryFunction : Logging {
                 if (batchReport == null || batchReport.bodyUrl == null) {
                     return HttpUtilities.notFoundResponse(request)
                 }
-                BlobAccess.downloadBlob(batchReport.bodyUrl)
+                BlobAccess.downloadBlobAsByteArray(batchReport.bodyUrl)
             }
             if (contents.isEmpty()) {
                 return HttpUtilities.notFoundResponse(request)

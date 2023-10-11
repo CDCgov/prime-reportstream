@@ -203,7 +203,7 @@ class BatchFunction(
                         actionHistory.trackExistingInputReport(it.task.reportId)
 
                         // download message
-                        val bodyBytes = BlobAccess.downloadBlob(it.task.bodyUrl)
+                        val bodyBytes = BlobAccess.downloadBlobAsByteArray(it.task.bodyUrl)
 
                         // get a Report from the message
                         val (report, sendEvent, blobInfo) = Report.generateReportAndUploadBlob(
@@ -241,7 +241,7 @@ class BatchFunction(
                         actionHistory.trackExistingInputReport(it.task.reportId)
 
                         // download message
-                        val bodyBytes = BlobAccess.downloadBlob(it.task.bodyUrl)
+                        val bodyBytes = BlobAccess.downloadBlobAsByteArray(it.task.bodyUrl)
                         String(bodyBytes)
                     }
                 }.awaitAll()

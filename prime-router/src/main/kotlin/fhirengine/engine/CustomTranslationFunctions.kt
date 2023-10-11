@@ -29,8 +29,8 @@ class CustomTranslationFunctions(
             val config = appContext.config.hl7Configuration
 
             val tz =
-                if (dateTime.timeZone?.id != null) {
-                    ZoneId.of(dateTime.timeZone?.id)
+                if (config.convertDateTimesToReceiverLocalTime == true && !receiver?.timeZone?.zoneId.isNullOrBlank()) {
+                    ZoneId.of(receiver?.timeZone?.zoneId)
                 } else {
                     DateUtilities.utcZone
                 }

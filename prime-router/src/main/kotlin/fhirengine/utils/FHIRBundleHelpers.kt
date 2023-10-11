@@ -6,7 +6,6 @@ import gov.cdc.prime.router.Receiver
 import gov.cdc.prime.router.ReportStreamFilter
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers.deleteResource
 import io.github.linuxforhealth.hl7.data.Hl7RelatedGeneralUtils
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
@@ -312,6 +311,7 @@ object FHIRBundleHelpers {
                 FhirPathUtils.evaluateCondition(
                     CustomContext(fhirBundle, observation, shortHandLookupTable, CustomFhirPathFunctions()),
                     observation,
+                    fhirBundle,
                     fhirBundle,
                     conditionFilter
                 )
