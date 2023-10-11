@@ -287,3 +287,9 @@
 # Organization Prefer XON 10
 - id: "organization-prefer-xon-10"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-prefer-xon-10"
+# Identifier Namespace ID
+- id: "identifier-namespace-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id"
+# Universal Namespace ID
+- id: "identifier-universal-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id"

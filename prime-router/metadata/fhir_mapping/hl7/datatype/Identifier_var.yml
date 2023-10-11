@@ -128,3 +128,25 @@ extension_7-location:
       expressionType: reference
       valueOf: datatype/HDToLocation
       specs: $location
+
+extension_8-namespaceId:
+  condition: $isNamespaceId NOT_NULL
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: identifier-namespace-id
+    valueBoolean:
+      valueOf: $isNamespaceId
+
+extension_9-universalId:
+  condition: $isUniversalId NOT_NULL
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: identifier-universal-id
+    valueBoolean:
+      valueOf: $isUniversalId
