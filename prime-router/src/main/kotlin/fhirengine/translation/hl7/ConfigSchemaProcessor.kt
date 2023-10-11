@@ -1,6 +1,8 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7
 
 import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
 import org.apache.logging.log4j.kotlin.Logging
@@ -16,17 +18,18 @@ abstract class ConfigSchemaProcessor : Logging {
      * @return the value for the element or an empty string if no value found
      */
     internal fun getValueAsString(
-        element: ConfigSchemaElement,
+        element: ConverterSchemaElement,
         bundle: Bundle,
         focusResource: Base,
-        context: CustomContext
+        context: CustomContext,
+        constantSubstitutor: ConstantSubstitutor? = null
     ): String {
         var retVal = ""
         run findValue@{
             element.value?.forEach {
                 val value = if (it.isBlank()) ""
                 else try {
-                    FhirPathUtils.evaluateString(context, focusResource, bundle, it)
+                    FhirPathUtils.evaluateString(context, focusResource, bundle, it, element, constantSubstitutor)
                 } catch (e: SchemaException) {
                     logger.error("Error while getting value for element ${element.name}", e)
                     ""

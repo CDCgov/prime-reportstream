@@ -45,6 +45,7 @@ object UnitTestUtils {
         useHighPrecisionHeaderDateTimeFormat: Boolean = false,
         convertDateTimesToReceiverLocalTime: Boolean = false,
         useTestProcessingMode: Boolean = false,
+        convertTimestampToDateTime: String? = null,
         schemaName: String = "covid-19"
     ): Hl7Configuration {
         return Hl7Configuration(
@@ -64,7 +65,8 @@ object UnitTestUtils {
             useHighPrecisionHeaderDateTimeFormat = useHighPrecisionHeaderDateTimeFormat,
             convertDateTimesToReceiverLocalTime = convertDateTimesToReceiverLocalTime,
             useTestProcessingMode = useTestProcessingMode,
-            schemaName = schemaName
+            schemaName = schemaName,
+            convertTimestampToDateTime = convertTimestampToDateTime
         )
     }
 

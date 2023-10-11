@@ -174,7 +174,13 @@ class FhirToHl7Converter(
 
                     // A value
                     !element.value.isNullOrEmpty() && element.hl7Spec.isNotEmpty() -> {
-                        val value = getValueAsString(element, bundle, focusResource, elementContext)
+                        val value = getValueAsString(
+                            element,
+                            bundle,
+                            focusResource,
+                            elementContext,
+                            constantSubstitutor
+                        )
                         setHl7Value(element, value, context)
                         debugMsg += "condition: true, resourceType: ${focusResource.fhirType()}, " +
                             "value: $value, hl7Spec: ${element.hl7Spec}"
