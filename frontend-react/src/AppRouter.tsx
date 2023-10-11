@@ -35,6 +35,7 @@ import { FacilityProviderSubmitterDetailsWithAuth } from "./components/DataDashb
 import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
 import { DataDownloadGuideIa } from "./pages/DataDownloadGuide";
+import { GettingStartedPhd } from "./pages/GettingStartedPhd";
 
 export const appRoutes: RouteObject[] = [
     /* Public Site */
@@ -166,6 +167,13 @@ export const appRoutes: RouteObject[] = [
                         handle: {
                             isContentPage: true,
                         },
+                    },
+                    {
+                        path: "getting-started-public-health-departments",
+                        handle: {
+                            isContentPage: true,
+                        },
+                        element: <GettingStartedPhd />,
                     },
                 ],
             },
