@@ -272,3 +272,15 @@
 # Data Type Absent Reason
 - id: "data-absent-reason"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/data-absent-reason"
+# Contact Point Country
+- id: "contactpoint-country"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/contactpoint-country"
+# Contact Point Area
+- id: "contactpoint-area"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/contactpoint-area"
+# Contact Point Local
+- id: "contactpoint-local"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/contactpoint-local"
+# Contact Point Extension
+- id: "contactpoint-extension"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/contactpoint-extension"

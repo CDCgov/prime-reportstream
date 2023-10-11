@@ -48,4 +48,55 @@ system_3:
     commAddress: String, XTN.4
     reason: "unknown"
 
+extension_1:
+  condition: $countryCode NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    countryCode: String, XTN.5
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: "contactpoint-country"
+    valueString:
+      value: $countryCode
 
+extension_2:
+  condition: $areaCode NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    areaCode: String, XTN.6
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: "contactpoint-area"
+    valueString:
+      value: $areaCode
+
+extension_3:
+  condition: $telEquipType NOT_EQUAL Internet && $telEquipType NOT_EQUAL X.400 && $localNum NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    telEquipType: String, XTN.3
+    localNum: String, XTN.7
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: "contactpoint-local"
+    valueString:
+      value: $localNum
+
+extension_4:
+  condition: $numExt NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    numExt: String, XTN.8
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: "contactpoint-extension"
+    valueString:
+      value: $numExt
