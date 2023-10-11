@@ -757,7 +757,7 @@ class RoutingTests {
         verify(exactly = 1) {
             actionHistory.trackExistingInputReport(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), any())
+            BlobAccess.Companion.uploadBlob(any(), any(), any())
             accessSpy.insertTask(any(), any(), any(), any(), any())
             any<Bundle>().addReceivers(any(), any())
         }
@@ -951,7 +951,9 @@ class RoutingTests {
         )
 
         val nonBooleanMsg = "Condition did not evaluate to a boolean type"
-        every { FhirPathUtils.evaluateCondition(any(), any(), any(), any()) } throws SchemaException(nonBooleanMsg)
+        every { FhirPathUtils.evaluateCondition(any(), any(), any(), any(), any()) } throws SchemaException(
+            nonBooleanMsg
+        )
 
         // act
         accessSpy.transact { txn ->
@@ -1273,7 +1275,9 @@ class RoutingTests {
 
         val nonBooleanMsg = "Condition did not evaluate to a boolean type"
         mockkObject(FhirPathUtils)
-        every { FhirPathUtils.evaluateCondition(any(), any(), any(), any()) } throws SchemaException(nonBooleanMsg)
+        every { FhirPathUtils.evaluateCondition(any(), any(), any(), any(), any()) } throws SchemaException(
+            nonBooleanMsg
+        )
 
         // act
         val result = engine.evaluateFilterAndLogResult(

@@ -292,6 +292,7 @@ private fun getFilteredObservations(
                 CustomContext(fhirBundle, observation, shortHandLookupTable, CustomFhirPathFunctions()),
                 observation,
                 fhirBundle,
+                fhirBundle,
                 conditionFilter
             )
         }
