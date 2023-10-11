@@ -13,11 +13,13 @@ import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.blob.models.BlobDownloadContentResponse
 import com.azure.storage.blob.models.BlobDownloadResponse
+import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.Schema
 import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
+import gov.cdc.prime.router.common.Environment
 import io.mockk.CapturingSlot
 import io.mockk.every
 import io.mockk.mockk
@@ -166,15 +168,18 @@ class BlobAccessTests {
 
     @Test
     fun `upload blob`() {
-        val testName = "testblob"
-        val testContainer = "testcontainer"
-        val testBytes = "testbytes".toByteArray()
         val testEnv = "testenvvar"
-        val testUrl = "testurlname"
 
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
         every { BlobAccess.Companion.getBlobConnection(testEnv) } returns "testconnection"
+
+        val testName = "testblob"
+        val testContainer = "testcontainer"
+        val testBytes = "testbytes".toByteArray()
+        val testUrl = "testurlname"
+        val testBlobMetadata = BlobAccess.BlobContainerMetadata.build(testContainer, testEnv)
+
         val mockedBlobClient = mockkClass(BlobClient::class)
         every { mockedBlobClient.upload(any<ByteArrayInputStream>(), any<Long>()) } returns(Unit)
         every { mockedBlobClient.blobUrl } returns testUrl
@@ -193,9 +198,9 @@ class BlobAccessTests {
             { BlobClientBuilder() }
         every { anyConstructed<BlobClientBuilder>().buildClient() } returns mockedBlobClient
 
-        val result = BlobAccess.uploadBlob(testName, testBytes, testContainer, testEnv)
+        val result = BlobAccess.uploadBlob(testName, testBytes, testBlobMetadata)
         // upload a second blob to the same container to test container client reuse
-        val result2 = BlobAccess.uploadBlob(testName, testBytes, testContainer, testEnv)
+        val result2 = BlobAccess.uploadBlob(testName, testBytes, testBlobMetadata)
 
         verify(exactly = 1) { mockedContainerClient.create() }
         verify(exactly = 2) { mockedBlobClient.upload(any<ByteArrayInputStream>(), testBytes.size.toLong()) }
@@ -267,29 +272,29 @@ class BlobAccessTests {
     fun `copy blob`() {
         mockkClass(BlobAccess::class)
         mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(any()) } returns "testconnection"
 
         val testUrl = "http://testurl/testfile"
         val testFile = BlobAccess.BlobInfo.getBlobFilename(testUrl)
+        val testBlobMetadata = BlobAccess.BlobContainerMetadata.build("testcontainer", "testenvvar")
 
-        every { BlobAccess.Companion.downloadBlobAsByteArray(testUrl, any()) }.returns("testblob".toByteArray())
+        every { BlobAccess.Companion.downloadBlobAsByteArray(testUrl) }.returns("testblob".toByteArray())
         every {
             BlobAccess.Companion.uploadBlob(
                 testFile,
                 "testblob".toByteArray(),
-                "testcontainer",
-                "testenvvar"
+                testBlobMetadata
             )
         }.returns("http://testurl2")
 
-        val result = BlobAccess.copyBlob(testUrl, "testcontainer", "testenvvar")
+        val result = BlobAccess.copyBlob(testUrl, testBlobMetadata)
 
-        verify(exactly = 1) { BlobAccess.Companion.downloadBlobAsByteArray(testUrl, any()) }
+        verify(exactly = 1) { BlobAccess.Companion.downloadBlobAsByteArray(testUrl, any(), any()) }
         verify(exactly = 1) {
             BlobAccess.Companion.uploadBlob(
                 testFile,
                 "testblob".toByteArray(),
-                "testcontainer",
-                "testenvvar"
+                testBlobMetadata
             )
         }
         assertThat(result).isEqualTo("http://testurl2")
@@ -327,10 +332,32 @@ class BlobAccessTests {
         every { anyConstructed<BlobServiceClientBuilder>().connectionString(any()) } answers
             { BlobServiceClientBuilder() }
         every { anyConstructed<BlobServiceClientBuilder>().buildClient() } returns mockk()
+        val testBlobMetadata = BlobAccess.BlobContainerMetadata.build("testcontainer", "test")
 
-        BlobAccess.checkConnection("test")
+        BlobAccess.checkConnection(testBlobMetadata)
 
         verify(exactly = 1) { BlobServiceClientBuilder().connectionString("testconnection") }
         verify(exactly = 1) { BlobServiceClientBuilder().buildClient() }
+    }
+
+    @Test
+    fun `test build container metadata`() {
+        val defaultEnvVar = Environment.get().blobEnvVar
+        val testEnvVar = "testenv"
+        val testContainer = "testcontainer"
+
+        mockkClass(BlobAccess::class)
+        mockkObject(BlobAccess.Companion)
+        every { BlobAccess.Companion.getBlobConnection(defaultEnvVar) } returns "defaultconnection"
+        every { BlobAccess.Companion.getBlobConnection(testEnvVar) } returns "testconnection"
+
+        val defaultBlobMetadata = BlobAccess.BlobContainerMetadata.build(testContainer, defaultEnvVar)
+        val testBlobTransport = BlobStoreTransportType(testEnvVar, testContainer)
+        val testBlobMetadata = BlobAccess.BlobContainerMetadata.build(testBlobTransport)
+
+        assertThat(defaultBlobMetadata.containerName).isEqualTo(testContainer)
+        assertThat(defaultBlobMetadata.connectionString).isEqualTo("defaultconnection")
+        assertThat(testBlobMetadata.containerName).isEqualTo(testContainer)
+        assertThat(testBlobMetadata.connectionString).isEqualTo("testconnection")
     }
 }
