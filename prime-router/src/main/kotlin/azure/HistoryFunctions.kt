@@ -360,9 +360,9 @@ open class BaseHistoryFunction : Logging {
                 return HttpUtilities.notFoundResponse(request)
             }
 
-            val contents = if (requestedReport.bodyUrl != null)
+            val contents = if (requestedReport.bodyUrl != null) {
                 BlobAccess.downloadBlobAsByteArray(requestedReport.bodyUrl)
-            else {
+            } else {
                 // If the body URL is missing from the report it is likely a sent report that was generated
                 // before a blob was being generated.  This code can be removed after all of those reports
                 // have expired.

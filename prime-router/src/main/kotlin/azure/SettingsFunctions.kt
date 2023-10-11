@@ -20,7 +20,7 @@ import org.apache.logging.log4j.kotlin.Logging
  * Settings API
  */
 class SettingsFunction(
-    settingsFacade: SettingsFacade = SettingsFacade.common
+    settingsFacade: SettingsFacade = SettingsFacade.common,
 ) : BaseFunction(settingsFacade) {
     /**
      * Get a full list of organizations and their settings.

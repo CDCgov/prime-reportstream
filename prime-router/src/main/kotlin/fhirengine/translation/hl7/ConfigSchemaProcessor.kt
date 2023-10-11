@@ -116,7 +116,7 @@ abstract class ConfigSchemaProcessor : Logging {
         bundle: Bundle,
         focusResource: Base,
         schemaResource: Base,
-        context: CustomContext
+        context: CustomContext,
     ): Boolean {
         return element.condition?.let {
             try {

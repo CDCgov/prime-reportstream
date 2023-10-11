@@ -90,7 +90,7 @@ class CustomTranslationFunctionsTest {
         every { appContext.config }.returns(HL7TranslationConfig(config, receiver))
         every { receiver.dateTimeFormat }.returns(null)
         every { receiver.translation }.returns(config)
-        every { receiver.timeZone } returns(USTimeZone.UTC)
+        every { receiver.timeZone } returns (USTimeZone.UTC)
         assertThat(
             CustomTranslationFunctions()
                 .convertDateTimeToHL7(

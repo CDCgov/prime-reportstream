@@ -104,13 +104,16 @@ object FhirPathUtils : Logging {
         focusResource: Base,
         contextResource: Base,
         rootResource: Bundle,
-        expression: String
+        expression: String,
     ): Boolean {
         val retVal = try {
             pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
             val expressionNode = parsePath(expression)
-            val value = if (expressionNode == null) emptyList()
-            else pathEngine.evaluate(appContext, focusResource, rootResource, contextResource, expressionNode)
+            val value = if (expressionNode == null) {
+                emptyList()
+            } else {
+                pathEngine.evaluate(appContext, focusResource, rootResource, contextResource, expressionNode)
+            }
             if (value.size == 1 && value[0].isBooleanPrimitive) {
                 (value[0] as BooleanType).value
             } else if (value.isEmpty()) {

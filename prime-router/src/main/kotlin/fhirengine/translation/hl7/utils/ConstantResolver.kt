@@ -41,9 +41,9 @@ data class CustomContext(
          * @return a new context with the [constants] added or the existing context if no new constants are specified
          */
         fun addConstants(constants: Map<String, String>, previousContext: CustomContext): CustomContext {
-            return if (constants.isEmpty()) previousContext
-            else {
-
+            return if (constants.isEmpty()) {
+                previousContext
+            } else {
                 if (constants.keys.any { reservedConstantNames.contains(it) }) {
                     throw SchemaException(
                         """Constants contained reserved name,
