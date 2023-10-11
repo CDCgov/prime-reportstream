@@ -279,13 +279,6 @@ export const appRoutes: RouteObject[] = [
                 path: "/support",
                 children: [
                     {
-                        path: "faq",
-                        lazy: lazyRouteMarkdown("content/support/faq/FaqIndex"),
-                        handle: {
-                            isContentPage: true,
-                        },
-                    },
-                    {
                         path: "",
                         lazy: lazyRouteMarkdown("content/support/index"),
                         index: true,
