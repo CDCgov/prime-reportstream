@@ -4,9 +4,9 @@ import gov.cdc.prime.router.datatests.mappinginventory.translateAndCompareFHIRTo
 import gov.cdc.prime.router.datatests.mappinginventory.translateAndCompareHL7ToFHIR
 import org.junit.jupiter.api.Test
 
-/*
-The mapping of HD to Location is typically used within an existing HL7 Data type -> FHIR resource
-These tests use MSH.22.6 to test the mapping.
+/**
+ * The mapping of HD to Location is typically used within an existing HL7 Data type -> FHIR resource
+ * These tests use MSH.22.6 to test the mapping.
  */
 class HDToLocationTests {
 
