@@ -357,30 +357,26 @@
         } ]
       },
       "extension" : [ {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
-        "valueString" : "CMS"
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
-        "valueCodeableConcept" : {
-          "coding" : [ {
-            "system" : "http://terminology.hl7.org/CodeSystem/v2-0204",
-            "code" : "L"
-          } ]
+        "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type",
+        "valueCoding": {
+          "extension": [
+            {
+              "url": "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString": "identifier"
+            }
+          ],
+          "system": "http://terminology.hl7.org/CodeSystem/v2-0204",
+          "code": "L",
+          "display": "Legal name"
         }
       } ],
       "identifier" : [ {
         "type" : {
           "coding" : [ {
-            "code" : "CMS"
+            "code" : "NPI"
           } ]
         },
         "value" : "1043269798"
-      } ],
-      "type" : [ {
-        "coding" : [ {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-          "code" : "NPI"
-        } ]
       } ],
       "name" : "ST. CLOUD HOSPITAL"
     }
@@ -1110,7 +1106,7 @@
             "display" : "Medical record number"
           } ]
         },
-        "system" : "urn:id:CRPMRN",
+        "system" : "CRPMRN",
         "value" : "11102779"
       } ],
       "name" : [ {
