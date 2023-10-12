@@ -25,9 +25,9 @@ import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
@@ -159,9 +159,12 @@ class TranslationTests {
     @TestFactory
     fun generateDataTests(): Collection<DynamicTest> {
         val config = readTestConfig("$testDataDir/$testConfigFile")
-        return config.map {
+
+        val map1 = config.map {
             DynamicTest.dynamicTest("Test ${it.inputFile}, ${it.expectedSchema} schema", FileConversionTest(it))
         }
+
+        return map1
     }
 
     /**
@@ -227,12 +230,15 @@ class TranslationTests {
             File(filename).extension.uppercase() == "INTERNAL" || filename.uppercase().endsWith("INTERNAL.CSV") -> {
                 Report.Format.INTERNAL
             }
+
             File(filename).extension.uppercase() == "HL7" -> {
                 Report.Format.HL7
             }
+
             File(filename).extension.uppercase() == "FHIR" -> {
                 Report.Format.FHIR
             }
+
             else -> {
                 Report.Format.CSV
             }
@@ -244,6 +250,10 @@ class TranslationTests {
      */
     inner class FileConversionTest(private val config: TestConfig) : Executable {
         override fun execute() {
+            runTest()
+        }
+
+        fun runTest(): CompareData.Result {
             val result = CompareData.Result()
             // First read in the data
             val inputFile = "$testDataDir/${config.inputFile}"
@@ -355,6 +365,8 @@ class TranslationTests {
             } else {
                 fail("The file ${config.expectedFile} was not found.")
             }
+
+            return result
         }
 
         /**
@@ -396,8 +408,7 @@ class TranslationTests {
                     val endpoint = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()[0]
                     fhirBundle = FHIRTranslator().pruneBundleForReceiver(fhirBundle, endpoint)
                 } else {
-                    fhirBundle = FHIRBundleHelpers.filterObservations(
-                        fhirBundle,
+                    fhirBundle = fhirBundle.filterObservations(
                         listOf(config.conditionFiler),
                         emptyMap<String, String>().toMutableMap()
                     )
@@ -459,6 +470,7 @@ class TranslationTests {
                         result.passed = !readResult.actionLogs.hasErrors()
                         readResult.report
                     }
+
                     Report.Format.INTERNAL -> {
                         CsvSerializer(metadata).readInternal(
                             schema.name,
@@ -466,6 +478,7 @@ class TranslationTests {
                             listOf(TestSource)
                         )
                     }
+
                     Report.Format.CSV -> {
                         val readResult = CsvSerializer(metadata).readExternal(
                             schema.name,
@@ -478,6 +491,7 @@ class TranslationTests {
                         result.passed = !readResult.actionLogs.hasErrors()
                         readResult.report
                     }
+
                     else -> {
                         result.passed = false
                         val actionLogger = ActionLogger()

@@ -11,7 +11,6 @@ import {
     ELRChecklistIa,
     DataDownloadGuideIa,
     SystemAndSettingsIa,
-    SecurityPracticesIa,
 } from "../../pages/resources/index-legacy";
 import {
     ReferralGuideMd,
@@ -25,7 +24,6 @@ export enum ResourcesDirectories {
     REPORTSTREAM_API = "ReportStream API",
     ELR_CHECKLIST = "ELR onboarding checklist",
     SYSTEM = "System and settings",
-    SECURITY = "Security practices",
     GETTING_STARTED_PHD = "Guide to receiving ReportStream data",
     GETTING_STARTED_SUBMITTING_DATA = "Guide to submitting data to ReportStream",
 }
@@ -41,7 +39,6 @@ const slugs: SlugParams[] = [
     { key: ResourcesDirectories.REPORTSTREAM_API, slug: "api" },
     { key: ResourcesDirectories.ELR_CHECKLIST, slug: "elr-checklist" },
     { key: ResourcesDirectories.SYSTEM, slug: "system-and-settings" },
-    { key: ResourcesDirectories.SECURITY, slug: "security-practices" },
     {
         key: ResourcesDirectories.GETTING_STARTED_PHD,
         slug: "getting-started-public-health-departments",
@@ -164,13 +161,6 @@ export const resourcesDirectories = [
                 ResourcesDirectoryTools.makeCrumb(ResourcesDirectories.SYSTEM),
             ),
         ),
-    new ElementDirectory()
-        .setTitle(ResourcesDirectories.SECURITY)
-        .setSlug(ResourcesDirectoryTools.getSlug(ResourcesDirectories.SECURITY))
-        .setDescription(
-            "Answers to common questions about ReportStream security and data practices.",
-        )
-        .addElement(SecurityPracticesIa),
 ];
 
 /* HOW TO CREATE SECTIONS
