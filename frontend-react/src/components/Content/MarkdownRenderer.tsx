@@ -1,18 +1,10 @@
 import React, { useEffect, useState } from "react";
 import rehypeRaw from "rehype-raw";
-import ReactMarkdown, { Options } from "react-markdown";
+import ReactMarkdown from "react-markdown";
 import rehypeSlug from "rehype-slug";
+import { PluggableList } from "react-markdown/lib";
 
 import { USSmartLink } from "../USLink";
-
-const baseOptions: Partial<Options> = {
-    remarkPlugins: [],
-    rehypePlugins: [
-        // Add ids to headings so the table of contents can link to each section
-        rehypeSlug,
-        rehypeRaw,
-    ],
-};
 
 type MarkdownContentProps = {
     // Relative URL of the webpack-bundled markdown file. This value can be determined by importing
@@ -38,7 +30,7 @@ export const MarkdownRenderer: React.FC<MarkdownContentProps> = ({
 
     return (
         <ReactMarkdown
-            {...baseOptions}
+            rehypePlugins={[rehypeSlug, rehypeRaw] as PluggableList}
             children={markdownContent}
             components={{
                 a: USSmartLink,
