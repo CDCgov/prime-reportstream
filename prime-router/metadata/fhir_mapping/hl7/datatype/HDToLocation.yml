@@ -12,7 +12,7 @@ name:
 
 identifier_1:
   condition: $universalId EQUALS ISO || $universalId EQUALS UUID
-  valueOf: datatype/Identifier_var2
+  valueOf: datatype/Identifier_var
   generateList: true
   expressionType: resource
   vars:

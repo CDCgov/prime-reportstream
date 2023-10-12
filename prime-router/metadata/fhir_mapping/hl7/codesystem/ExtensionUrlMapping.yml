@@ -284,9 +284,12 @@
 # Universal ID Type
 - id: "universal-id-type"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type"
-# Organization Prefer XON 10
-- id: "organization-prefer-xon-10"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/organization-prefer-xon-10"
+# XON.3 ID Number
+- id: "xon3-id-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xon3-id-number"
+# XON.10 Organization Identifier
+- id: "xon10-organization-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xon10-organization-identifier"
 # Identifier Namespace ID
 - id: "identifier-namespace-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id"

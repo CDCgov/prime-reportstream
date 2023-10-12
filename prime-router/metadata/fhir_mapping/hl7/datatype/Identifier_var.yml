@@ -86,50 +86,7 @@ extension_3:
     KEY_NAME_SUFFIX: String
     urlValue: universal-id
 
-extension_4-checkDigit:
-  condition: $checkDigit NOT_NULL
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: check-digit
-    valueString:
-      type: String
-      valueOf: $checkDigit
-
-extension_5-checkDigitScheme:
-  condition: $checkDigitScheme NOT_NULL
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: check-digit-scheme
-    valueCode:
-      valueOf: $checkDigitScheme
-
-extension_6-assigningAuthority:
-  condition: $assigningAuthority NOT_NULL
-  generateList: true
-  expressionType: resource
-  valueOf: datatype/HDToExtensionAssigningAuthority
-  specs: $assigningAuthority
-
-extension_7-location:
-  condition: $location NOT_NULL
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: identifier-location
-    valueReference:
-      expressionType: reference
-      valueOf: datatype/HDToLocation
-      specs: $location
-
-extension_8-namespaceId:
+extension_4-namespaceId:
   condition: $isNamespaceId NOT_NULL
   generateList: true
   expressionType: nested
@@ -140,7 +97,7 @@ extension_8-namespaceId:
     valueBoolean:
       valueOf: $isNamespaceId
 
-extension_9-universalId:
+extension_5-universalId:
   condition: $isUniversalId NOT_NULL
   generateList: true
   expressionType: nested

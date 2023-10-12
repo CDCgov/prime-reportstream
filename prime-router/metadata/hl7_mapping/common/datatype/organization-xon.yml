@@ -11,13 +11,7 @@ elements:
     schema: ce-coded-with-exceptions
 
   - name: id-number
-    condition: '%resource.extension(%`rsext-organization-prefer-xon-10`).exists().not()'
-    value: [ '%resource.identifier[0].value' ]
-    hl7Spec: [ '%{hl7XONField}-3' ]
-
-  - name: id-number-xon-10-valuted
-    condition: '%resource.extension(%`rsext-organization-prefer-xon-10`).exists()'
-    value: [ '%resource.extension(%`rsext-organization-prefer-xon-10`).value' ]
+    value: [ '%resource.extension(%`rsext-xon3-id-number`).value' ]
     hl7Spec: [ '%{hl7XONField}-3' ]
 
   - name: identifier-check-digit
@@ -51,6 +45,5 @@ elements:
     hl7Spec: [ '%{hl7XONField}-9' ]
 
   - name: xon-organization-id
-    condition: '%resource.extension(%`rsext-organization-prefer-xon-10`).exists()'
-    value: [ '%resource.identifier[0].value' ]
+    value: [ '%resource.extension(%`rsext-xon10-organization-identifier`).value' ]
     hl7Spec: [ '%{hl7XONField}-10' ]
