@@ -113,4 +113,38 @@ class XTNTests {
             ).passed
         )
     }
+
+    @Test
+    fun `XTN no value in XTN-3, XTN-7, XTN-12`() {
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/xtn/xtn_1_no_value_in_xtn3_xtn7_xtn12.fhir",
+                "mappinginventory/xtn/xtn_1_no_value_in_xtn3_xtn7_xtn12.hl7"
+            ).passed
+        )
+
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/xtn/xtn_1_no_value_in_xtn3_xtn7_xtn12.hl7",
+                "mappinginventory/xtn/xtn_1_no_value_in_xtn3_xtn7_xtn12.fhir"
+            ).passed
+        )
+    }
+
+    @Test
+    fun `XTN test value in XTN-3 and no value in XTN-7, XTN-12`() {
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/xtn/xtn_1_3_test_value_in_xtn3_no_value_in_xtn7_xtn12.fhir",
+                "mappinginventory/xtn/xtn_1_3_test_value_in_xtn3_no_value_in_xtn7_xtn12.hl7"
+            ).passed
+        )
+
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/xtn/xtn_1_3_test_value_in_xtn3_no_value_in_xtn7_xtn12.hl7",
+                "mappinginventory/xtn/xtn_1_3_test_value_in_xtn3_no_value_in_xtn7_xtn12.fhir"
+            ).passed
+        )
+    }
 }

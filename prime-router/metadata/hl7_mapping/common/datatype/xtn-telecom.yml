@@ -3,6 +3,10 @@ constants:
 
 #TODO: Need to look for a way to set use code to ORN when home and cell phone is passed
 elements:
+  - name: xtn-telephone-number
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{hl7TelecomPath}-1' ]
+
   - name: xtn-use-code
     value: [ '%resource.use' ]
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
@@ -23,20 +27,9 @@ elements:
     value: [ '"NET"' ]
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
-  - name: xtn-system
-    condition: '%resource.use.exists().not() or  %resource.use != "mobile"'
-    value: [ '%resource.system' ]
-    hl7Spec: [ '%{hl7TelecomPath}-3' ]
-    valueSet:
-      values:
-        phone: PH
-        pager: BP
-        email: Internet
-        fax: FX
-
-  - name: xtn-system-from-use
-    condition: '%resource.use.exists() and %resource.use = "mobile"'
-    value: [ '"CP"' ]
+  - name: xtn-telecom-equipment-type
+    condition: '%resource.extension(%`rsext-telecom-equipment-type`).exists()'
+    value: [ '%resource.extension(%`rsext-telecom-equipment-type`).value' ]
     hl7Spec: [ '%{hl7TelecomPath}-3' ]
 
   - name: xtn-email
@@ -44,32 +37,32 @@ elements:
     value: [ '%resource.value' ]
     hl7Spec: [ '%{hl7TelecomPath}-4' ]
 
-  - name: xtn-country-code
-    condition: '%resource.value.exists()'
-    value: [ '%resource.value.getPhoneNumberCountryCode()' ]
-    hl7Spec: [ '%{hl7TelecomPath}-5' ]
-
-  - name: xtn-area-code
-    condition: '%resource.value.exists()'
-    value: [ '%resource.value.getPhoneNumberAreaCode()' ]
-    hl7Spec: [ '%{hl7TelecomPath}-6' ]
-
-  # RADx MARS format wants this value to be <deidentified>, but Hapi library does not allow that, so setting it to empty
-  - name: xtn-area-code-deidentified
-    condition: '%resource.value.exists() and %deidentifiedValue.empty().not()'
-    value: [ '""' ]
-    hl7Spec: [ '%{hl7TelecomPath}-6' ]
-
-  - name: xtn-local-number
-    condition: '%resource.value.exists()'
-    value: [ '%resource.value.getPhoneNumberLocalNumber()' ]
-    hl7Spec: [ '%{hl7TelecomPath}-7' ]
-
-  # RADx MARS format wants this value to be <deidentified>, but Hapi library does not allow that, so setting it to empty
-  - name: xtn-local-number-deidentified
-    condition: '%resource.value.exists() and %deidentifiedValue.empty().not()'
-    value: [ '""' ]
-    hl7Spec: [ '%{hl7TelecomPath}-7' ]
+#  - name: xtn-country-code
+#    condition: '%resource.value.exists()'
+#    value: [ '%resource.value.getPhoneNumberCountryCode()' ]
+#    hl7Spec: [ '%{hl7TelecomPath}-5' ]
+#
+#  - name: xtn-area-code
+#    condition: '%resource.value.exists()'
+#    value: [ '%resource.value.getPhoneNumberAreaCode()' ]
+#    hl7Spec: [ '%{hl7TelecomPath}-6' ]
+#
+#  # RADx MARS format wants this value to be <deidentified>, but Hapi library does not allow that, so setting it to empty
+#  - name: xtn-area-code-deidentified
+#    condition: '%resource.value.exists() and %deidentifiedValue.empty().not()'
+#    value: [ '""' ]
+#    hl7Spec: [ '%{hl7TelecomPath}-6' ]
+#
+#  - name: xtn-local-number
+#    condition: '%resource.value.exists()'
+#    value: [ '%resource.value.getPhoneNumberLocalNumber()' ]
+#    hl7Spec: [ '%{hl7TelecomPath}-7' ]
+#
+#  # RADx MARS format wants this value to be <deidentified>, but Hapi library does not allow that, so setting it to empty
+#  - name: xtn-local-number-deidentified
+#    condition: '%resource.value.exists() and %deidentifiedValue.empty().not()'
+#    value: [ '""' ]
+#    hl7Spec: [ '%{hl7TelecomPath}-7' ]
 
   - name: xtn-extension
     condition: '%resource.value.exists() and %resource.value.hasPhoneNumberExtension()'

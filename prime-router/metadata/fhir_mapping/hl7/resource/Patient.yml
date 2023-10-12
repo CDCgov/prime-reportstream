@@ -7,6 +7,7 @@ id:
   expressionType: JEXL
 
 identifier_1:
+  condition: PID.3 NOT_NULL
   valueOf: datatype/Identifier_SystemID
   generateList: true
   expressionType: resource
@@ -246,7 +247,7 @@ telecom_1:
 
 telecom_2:
   condition: $pid13 NOT_NULL
-  valueOf: datatype/ContactPoint
+  valueOf: datatype/XTNToContactPoint
   generateList: true
   expressionType: resource
   specs: PID.13

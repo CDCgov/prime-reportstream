@@ -1,6 +1,6 @@
 value_1:
-  condition: $telEquipType NOT_EQUAL Internet && $telEquipType NOT_EQUAL X.400 && $localNum NULL && $unformattedTelNum NULL && $telNum NOT_NULL
-  valueOf: XTN.1
+  condition: $telEquipType NOT_EQUALS Internet && $telEquipType NOT_EQUALS X.400 && $localNum NULL && $unformattedTelNum NULL && $telNum NOT_NULL
+  valueOf: $telNum
   vars:
     telNum: String, XTN.1
     telEquipType: String, XTN.3
@@ -8,13 +8,23 @@ value_1:
     unformattedTelNum: String, XTN.12
 
 value_2:
+  condition: $telEquipType NULL && $localNum NULL && $unformattedTelNum NULL && $telNum NOT_NULL
+  valueOf: $telNum
+  vars:
+    telNum: String, XTN.1
+    telEquipType: String, XTN.3
+    localNum: String, XTN.7
+    unformattedTelNum: String, XTN.12
+
+value_3:
   condition: $telEquipType EQUALS Internet || $telEquipType EQUALS X.400
   valueOf: XTN.4
+  expressionType: HL7Spec
   vars:
     telEquipType: String, XTN.3
 
-value_3:
-  condition: $telEquipType NOT_EQUAL Internet && $telEquipType NOT_EQUAL X.400 && $unformattedTelNum NOT_NULL
+value_4:
+  condition: $telEquipType NOT_EQUALS Internet && $telEquipType NOT_EQUALS X.400 && $unformattedTelNum NOT_NULL
   valueOf: XTN.12
   vars:
     telEquipType: String, XTN.3
@@ -27,19 +37,48 @@ use:
     telUseCode: String, XTN.2
 
 system_1:
-  condition: $telEquipType NOT_NULL
-  valueOf: XTN.3
+  condition: $equipType EQUALS PH
+  type: STRING
+  valueOf: "phone"
   vars:
-    telEquipType: String, XTN.3
+    equipType: String, XTN.3
 
 system_2:
+  condition: $equipType EQUALS FX
+  type: STRING
+  valueOf: "fax"
+  vars:
+    equipType: String, XTN.3
+
+system_3:
+  condition: $equipType EQUALS Internet || $equipType EQUALS X.400
+  type: STRING
+  valueOf: "email"
+  vars:
+    equipType: String, XTN.3
+
+system_4:
+  condition: $equipType EQUALS BP
+  type: STRING
+  valueOf: "pager"
+  vars:
+    equipType: String, XTN.3
+
+system_5:
+  condition: $equipType EQUALS MD || $equipType EQUALS SAT || $equipType EQUALS TDD || $equipType EQUALS TTY
+  type: STRING
+  valueOf: "other"
+  vars:
+    equipType: String, XTN.3
+
+system_6:
   condition: $telEquipType NULL && $commAddress NOT_NULL
   valueOf: "email"
   vars:
     telEquipType: String, XTN.3
     commAddress: String, XTN.4
 
-system_3:
+system_7:
   condition: $telEquipType NULL && $commAddress NOT_NULL
   valueOf: extension/DataTypeReason
   expressionType: resource
@@ -48,7 +87,21 @@ system_3:
     commAddress: String, XTN.4
     reason: "unknown"
 
-extension_1-country-code:
+extension_1-telecom-equipment-type:
+  condition: $equipType NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    equipType: String, XTN.3
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: "telecom-equipment-type"
+    valueString:
+      value: $equipType
+
+
+extension_2-country-code:
   condition: $countryCode NOT_NULL
   generateList: true
   expressionType: nested
@@ -61,7 +114,7 @@ extension_1-country-code:
     valueString:
       value: $countryCode
 
-extension_2-area-code:
+extension_3-area-code:
   condition: $areaCode NOT_NULL
   generateList: true
   expressionType: nested
@@ -74,8 +127,8 @@ extension_2-area-code:
     valueString:
       value: $areaCode
 
-extension_3-local-number:
-  condition: $telEquipType NOT_EQUAL Internet && $telEquipType NOT_EQUAL X.400 && $localNum NOT_NULL
+extension_4-local-number:
+  condition: $telEquipType NOT_EQUALS Internet && $telEquipType NOT_EQUALS X.400 && $localNum NOT_NULL
   generateList: true
   expressionType: nested
   vars:
@@ -88,7 +141,7 @@ extension_3-local-number:
     valueString:
       value: $localNum
 
-extension_4-phone-extension:
+extension_5-phone-extension:
   condition: $numExt NOT_NULL
   generateList: true
   expressionType: nested
@@ -101,7 +154,7 @@ extension_4-phone-extension:
     valueString:
       value: $numExt
 
-extension_5-any-text:
+extension_6-any-text:
   condition: $anyText NOT_NULL
   generateList: true
   expressionType: nested

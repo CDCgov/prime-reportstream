@@ -284,3 +284,6 @@
 # Contact Point Extension
 - id: "contactpoint-extension"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/contactpoint-extension"
+# Telecom Equipment Type
+- id: "telecom-equipment-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/telecom-equipment-type"
