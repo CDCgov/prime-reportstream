@@ -5578,12 +5578,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-scroll-sync@npm:^0.8.4":
-  version: 0.8.4
-  resolution: "@types/react-scroll-sync@npm:0.8.4"
+"@types/react-scroll-sync@npm:^0.8.5":
+  version: 0.8.5
+  resolution: "@types/react-scroll-sync@npm:0.8.5"
   dependencies:
     "@types/react": "*"
-  checksum: 74c34b10bf5c0ceae944fa43da647b66213e2354402874baecdac45b32648094fe3c274a1ea18e4c24e66388db597725fce6db4b4dd484c4e723e043ac5effae
+  checksum: d06895643d831de415ddec7ec2a4f57f6740765f3619ebd92cbdf1a26e66048b4095d99f8874a955fe852fe42ce310a201d93564e2161d3ab059d602f50cd175
   languageName: node
   linkType: hard
 
@@ -15648,7 +15648,7 @@ __metadata:
     "@types/react": 18.0.28
     "@types/react-dom": ^18.2.7
     "@types/react-router-dom": ^5.3.3
-    "@types/react-scroll-sync": ^0.8.4
+    "@types/react-scroll-sync": ^0.8.5
     "@types/sanitize-html": ^2.9.0
     "@typescript-eslint/eslint-plugin": ^6.7.5
     "@typescript-eslint/parser": ^6.7.5
