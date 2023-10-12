@@ -79,13 +79,6 @@ export const appRoutes: RouteObject[] = [
                         },
                     },
                     {
-                        path: "news",
-                        lazy: lazyRouteMarkdown("content/about/news"),
-                        handle: {
-                            isContentPage: true,
-                        },
-                    },
-                    {
                         path: "security",
                         lazy: lazyRouteMarkdown("content/about/security"),
                         handle: {
