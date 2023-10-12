@@ -355,6 +355,11 @@ fun Bundle.handleBirthTime(hl7Message: Message) {
     }
 }
 
+/*
+ * This class is not necessary from a functional perspective, although removing it seems to result in out of memory
+ * issues when running unit tests. It is harmless to keep this, but if the root cause of the out of memory issues can be
+ * addressed, then this can be removed, and its functions can become top level functions like the rest of this file.
+ */
 class FHIRBundleHelpers {
     companion object {
         /**
