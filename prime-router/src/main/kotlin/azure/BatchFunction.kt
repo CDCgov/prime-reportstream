@@ -9,12 +9,8 @@ import gov.cdc.prime.router.Report
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.HL7MessageHelpers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.Logging
 import org.jooq.Configuration
-import java.time.Duration
 import java.time.OffsetDateTime
 
 const val batch = "batch"
@@ -103,20 +99,8 @@ class BatchFunction(
                     workflowEngine.recordAction(actionHistory)
                 }
             } else {
-                workflowEngine.handleBatchEvent(event, maxBatchSize, backstopTime) { headers, txn ->
-                    // find any headers that expected to have content but were unable to actually download
-                    //  from the blob store.
-                    headers.filter { it.expectingContent && it.content == null }
-                        .forEach {
-                            // TODO: Need to add Action with error state of batch_error. See ticket #3642
-                            logger.error(
-                                "Failure to download ${it.task.bodyUrl} from blobstore. " +
-                                    "ReportId: ${it.task.reportId}"
-                            )
-                        }
-
-                    // get a list of valid headers to process.
-                    val validHeaders = headers.filter { it.content != null }
+                workflowEngine.handleBatchEvent(event, maxBatchSize, backstopTime) {
+                        validHeaders, txn ->
 
                     if (validHeaders.isEmpty()) {
                         logger.info("Batch $message: empty batch")
@@ -192,59 +176,41 @@ class BatchFunction(
             receiver.timing.operation != Receiver.BatchOperation.MERGE
         ) {
             // Send each report separately
-            val startTime = OffsetDateTime.now()
-            runBlocking {
-                validHeaders.forEach {
-                    async {
-                        // track reportId as 'parent'
-                        actionHistory.trackExistingInputReport(it.task.reportId)
+            validHeaders.forEach {
+                // track reportId as 'parent'
+                actionHistory.trackExistingInputReport(it.task.reportId)
 
-                        // download message
-                        val bodyBytes = BlobAccess.downloadBlobAsByteArray(it.task.bodyUrl)
+                // get a Report from the message
+                val (report, sendEvent, blobInfo) = Report.generateReportAndUploadBlob(
+                    Event.EventAction.SEND,
+                    it.content!!,
+                    listOf(it.task.reportId),
+                    receiver,
+                    workflowEngine.metadata,
+                    actionHistory,
+                    topic = receiver.topic,
+                )
 
-                        // get a Report from the message
-                        val (report, sendEvent, blobInfo) = Report.generateReportAndUploadBlob(
-                            Event.EventAction.SEND,
-                            bodyBytes,
-                            listOf(it.task.reportId),
-                            receiver,
-                            workflowEngine.metadata,
-                            actionHistory,
-                            topic = receiver.topic,
-                        )
-
-                        // insert the 'Send' task
-                        workflowEngine.db.insertTask(
-                            report,
-                            blobInfo.format.toString(),
-                            blobInfo.blobUrl,
-                            sendEvent,
-                            txn
-                        )
-                    }
-                }
+                // insert the 'Send' task
+                workflowEngine.db.insertTask(
+                    report,
+                    blobInfo.format.toString(),
+                    blobInfo.blobUrl,
+                    sendEvent,
+                    txn
+                )
             }
-            val duration = Duration.between(startTime, OffsetDateTime.now())
-            logger.info("BatchFunction Downloading reports and creating send tasks took $duration")
         } else if (validHeaders.isNotEmpty() ||
             (receiver.timing.whenEmpty.action == Receiver.EmptyOperation.SEND)
         ) {
             // Batch all reports into one
-            val startTime = OffsetDateTime.now()
-            val messages = runBlocking {
-                validHeaders.map {
-                    async {
-                        // track reportId as 'parent'
-                        actionHistory.trackExistingInputReport(it.task.reportId)
+            val messages = validHeaders.map {
+                // track reportId as 'parent'
+                actionHistory.trackExistingInputReport(it.task.reportId)
 
-                        // download message
-                        val bodyBytes = BlobAccess.downloadBlobAsByteArray(it.task.bodyUrl)
-                        String(bodyBytes)
-                    }
-                }.awaitAll()
+                // return message as string
+                String(it.content!!)
             }
-            val duration = Duration.between(startTime, OffsetDateTime.now())
-            logger.info("BatchFunction Downloading reports for batch took $duration")
 
             // Generate the batch message
             val batchMessage = when (receiver.format) {
