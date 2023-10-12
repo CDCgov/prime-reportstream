@@ -56,3 +56,9 @@ identifier_4:
   constants:
     system: "http://terminology.hl7.org/CodeSystem/v2-0301"
     isUniversalId: "true"
+
+address:
+  condition: $country NOT_NULL
+  valueOf: datatype/Address
+  expressionType: resource
+  generateList: true

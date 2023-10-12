@@ -15,12 +15,13 @@ source:
   valueOf: secondary/Source
   expressionType: resource
 
-#map MSH.4
 sender:
   valueOf: datatype/HDToOrganization
   expressionType: reference
   generateList: true
   specs: MSH.4
+  vars:
+    country: MSH.17
 
 destination:
   valueOf: secondary/Destination
