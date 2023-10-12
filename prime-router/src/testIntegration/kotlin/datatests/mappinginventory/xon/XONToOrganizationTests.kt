@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 This test class covers the mapping of XON to Organization and implicitly also tests to other mappings that are internal
 to XON
  */
-class XONToOrganization {
+class XONToOrganizationTests {
 
     @Test
     fun `test translate to HL7 to FHIR to HL7`() {
