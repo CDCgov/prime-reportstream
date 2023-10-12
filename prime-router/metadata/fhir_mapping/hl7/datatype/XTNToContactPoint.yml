@@ -121,3 +121,8 @@ period:
   vars:
     start: $start
     end: $end
+
+rank:
+  type: POSITIVEINT
+  valueOf: XTN.18
+  expressionType: HL7Spec
