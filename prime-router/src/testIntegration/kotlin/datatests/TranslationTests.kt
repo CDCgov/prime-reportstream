@@ -25,9 +25,9 @@ import gov.cdc.prime.router.fhirengine.translation.HL7toFhirTranslator
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Context
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirToHl7Converter
 import gov.cdc.prime.router.fhirengine.translation.hl7.FhirTransformer
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
 import gov.cdc.prime.router.fhirengine.utils.HL7Reader
+import gov.cdc.prime.router.fhirengine.utils.filterObservations
 import gov.cdc.prime.router.serializers.CsvSerializer
 import gov.cdc.prime.router.serializers.Hl7Serializer
 import gov.cdc.prime.router.serializers.ReadResult
@@ -416,8 +416,7 @@ class TranslationTests {
                     val endpoint = provenance.target.map { it.resource }.filterIsInstance<Endpoint>()[0]
                     fhirBundle = FHIRTranslator().pruneBundleForReceiver(fhirBundle, endpoint)
                 } else {
-                    fhirBundle = FHIRBundleHelpers.filterObservations(
-                        fhirBundle,
+                    fhirBundle = fhirBundle.filterObservations(
                         listOf(config.conditionFiler),
                         emptyMap<String, String>().toMutableMap()
                     )
