@@ -276,6 +276,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
         HL70006("http://terminology.hl7.org/CodeSystem/v2-0006", "HL70006"),
         HL70136("http://terminology.hl7.org/ValueSet/v2-0136", "HL70136"),
         HL70078("http://terminology.hl7.org/CodeSystem/v2-0078", "HL70078"),
+        HL70131("http://terminology.hl7.org/CodeSystem/v2-0131", "HL70131"),
         UCUM("http://unitsofmeasure.org", "UCUM"),
         NONE("", ""),
         ;

@@ -154,6 +154,9 @@ export const ReportStreamNavbar = ({
                 <a href="/about/our-network" key="our-network">
                     Our network
                 </a>,
+                <a href="/about/news" key="news">
+                    News
+                </a>,
                 <a href="/about/case-studies" key="case-studies">
                     Case studies
                 </a>,

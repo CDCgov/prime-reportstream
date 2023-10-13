@@ -4,10 +4,10 @@ import React, {
     SetStateAction,
     useMemo,
     useEffect,
+    ReactNode,
 } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
-import { ReactNode } from "react-markdown/lib/react-markdown";
 
 import Table, {
     ColumnConfig,
