@@ -54,12 +54,14 @@ runs:
     - name: Add Runner IP to Key Vault Firewall
       run: |
         az keyvault network-rule add --name pdhdemo1-keyvaults5m --ip-address ${{ steps.runner_ip.outputs.ip-address }}
+      shell: bash
 
     - name: Retrieve the IPs secret value from Azure KeyVault
       run: |
         secret_ip_addresses=$(az keyvault secret show --name terraform-caller-ip --vault-name pdhdemo1-keyvaults5m --query 'value' -o tsv)
         echo "SECRET_IP_ADDRESSES=$secret_ip_addresses" >> $GITHUB_OUTPUT
       #echo "::set-env name=SECRET_IP_ADDRESSES::$secret_ip_addresses"
+      shell: bash
 
     - name: Terraform - init
       working-directory: operations/app/terraform/vars/demo
