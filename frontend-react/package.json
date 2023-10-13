@@ -71,7 +71,7 @@
         "cypress:production:open": "echo 'not implemented yet'",
         "test": "jest",
         "test:debug": "jest --watch --runInBand",
-        "test:ci": "jest --ci --runInBand --coverage --verbose --silent",
+        "test:ci": "jest --ci --runInBand --coverage --verbose",
         "lint": "cross-env NODE_ENV=production eslint \"src/**/*.{js,ts,jsx,tsx}\"",
         "lint:write": "cross-env NODE_ENV=production eslint --fix \"src/**/*.{js,ts,jsx,tsx}\"",
         "yarn:show-outdated-packages": "yarn outdated",
