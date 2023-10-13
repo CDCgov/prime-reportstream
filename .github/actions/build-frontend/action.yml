@@ -38,6 +38,7 @@ runs:
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
+          set -e
           cd frontend-react
           echo "" >> .env.production
           echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-prod-key }}" >> .env.production
@@ -53,6 +54,7 @@ runs:
         max_attempts: 2
         retry_wait_seconds: 30
         command: |
+          set -e
           cd frontend-react
           ENV=${{ inputs.env-name }}
           if [[ $ENV != demo* && $ENV != "test" && $ENV != trialfrontend* ]]; then ENV="staging"; fi
