@@ -11,12 +11,7 @@ elements:
       cweFieldPath: '%{hl7SegmentGroup}-4'
     schema: ../common/datatype/ce-coded-with-exceptions
 
-  - name: specimen-collection-date/time
-    condition: '%resource.collection.collected.exists() and %resource.collection.collected is dateTime'
-    value: [ '%resource.collection.collected' ]
-    hl7Spec: [ '%{hl7SegmentGroup}-17' ]
-
-  - name: specimen-collection-time
+  - name: specimen-collection-date-time
     condition: '%resource.collection.collected.exists() and %resource.collection.collected is dateTime'
     value: [ '%resource.collection.collected' ]
     hl7Spec: [ '%{hl7SegmentGroup}-17-1' ]
@@ -31,3 +26,4 @@ elements:
     condition: '%resource.collection.collected.exists().not()'
     value: [ '%diagnostic.effective' ]
     hl7Spec: [ '%{hl7SegmentGroup}-17-1' ]
+
