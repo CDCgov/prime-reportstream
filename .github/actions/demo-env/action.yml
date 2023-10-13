@@ -55,7 +55,7 @@ runs:
       run: |
         az keyvault network-rule add --name pdhdemo1-keyvaults5m --ip-address ${{ steps.runner_ip.outputs.ip-address }}
       shell: bash
-
+      
     - name: Retrieve the IPs secret value from Azure KeyVault
       run: |
         secret_ip_addresses=$(az keyvault secret show --name terraform-caller-ip --vault-name pdhdemo1-keyvaults5m --query 'value' -o tsv)
