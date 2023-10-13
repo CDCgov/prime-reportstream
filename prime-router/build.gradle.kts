@@ -373,6 +373,12 @@ tasks.ktlintCheck {
     tasks["migrate"].enabled = false
     tasks["flywayMigrate"].enabled = false
 }
+tasks.ktlintFormat {
+    // DB tasks are not needed by ktlint, but gradle adds them by automatic configuration
+    tasks["generateJooq"].enabled = false
+    tasks["migrate"].enabled = false
+    tasks["flywayMigrate"].enabled = false
+}
 
 /**
  * PRIME CLI tasks
