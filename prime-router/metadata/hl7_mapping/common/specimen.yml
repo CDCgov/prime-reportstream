@@ -21,9 +21,3 @@ elements:
     value: [ '%resource.collection.collected.start' ]
     hl7Spec: [ '%{hl7SegmentGroup}-17-1' ]
 
-  # Alternative to getting specimen collection time from DiagnosticReport instead
-  - name: specimen-collection-time-diagnostic
-    condition: '%resource.collection.collected.exists().not()'
-    value: [ '%diagnostic.effective' ]
-    hl7Spec: [ '%{hl7SegmentGroup}-17-1' ]
-
