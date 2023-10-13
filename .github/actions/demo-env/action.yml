@@ -55,12 +55,10 @@ runs:
       run: |
         az keyvault network-rule add --name pdhdemo1-keyvaults5m --ip-address ${{ steps.runner_ip.outputs.ip-address }}
       shell: bash
-      
+
     - name: Retrieve the IPs secret value from Azure KeyVault
       run: |
-        secret_ip_addresses=$(az keyvault secret show --name terraform-caller-ip --vault-name pdhdemo1-keyvaults5m --query 'value' -o tsv)
-        echo "SECRET_IP_ADDRESSES=$secret_ip_addresses" >> $GITHUB_OUTPUT
-      #echo "::set-env name=SECRET_IP_ADDRESSES::$secret_ip_addresses"
+        $secret_ip_addresses=az keyvault secret show --name terraform-caller-ip --vault-name pdhdemo1-keyvaults5m --query 'value' -o tsv
       shell: bash
 
     - name: Terraform - init
@@ -69,7 +67,9 @@ runs:
         terraform init \
         -reconfigure \
         -var-file=${{ inputs.env-name }}/env.tfvars.json \
-        -var='terraform_caller_ip_address=[$SECRET_IP_ADDRESSES, "${{ steps.runner_ip.outputs.ip-address }}"]' \
+        -var='terraform_caller_ip_address=[echo $secret_ip_addresses , "${{ steps.runner_ip.outputs.ip-address }}"]' \
+        -var='terraform_caller_ip_address=["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191", "${{ steps.runner_ip.outputs.ip-address }}"]' \
+
         -backend-config=${{ inputs.env-name }}/env.tfbackend
       shell: bash
 
