@@ -634,7 +634,7 @@ class WorkflowEngine(
         tasks: List<Task>,
         reportFiles: Map<UUID, ReportFile>,
         organization: Organization,
-        receiver: Receiver
+        receiver: Receiver,
     ): List<Header> {
         val startTime = OffsetDateTime.now()
         val headers = runBlocking {

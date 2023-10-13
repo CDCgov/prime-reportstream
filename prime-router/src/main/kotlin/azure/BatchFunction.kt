@@ -98,8 +98,7 @@ class BatchFunction(
                     workflowEngine.recordAction(actionHistory)
                 }
             } else {
-                workflowEngine.handleBatchEvent(event, maxBatchSize, backstopTime) {
-                        validHeaders, txn ->
+                workflowEngine.handleBatchEvent(event, maxBatchSize, backstopTime) { validHeaders, txn ->
 
                     if (validHeaders.isEmpty()) {
                         logger.info("Batch $message: empty batch")
