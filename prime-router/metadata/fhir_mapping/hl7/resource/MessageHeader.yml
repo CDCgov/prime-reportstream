@@ -21,7 +21,7 @@ sender:
   generateList: true
   specs: MSH.4
   vars:
-    country: MSH.17
+    organizationCountry: MSH.17
 
 destination:
   valueOf: secondary/Destination

@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1697034778065616000.2fa29349-da1d-454e-be26-fc57e2fc6583",
+  "id" : "1697226904474945000.483c3243-2d8d-4b20-9e7f-3a5adca04814",
   "meta" : {
-    "lastUpdated" : "2023-10-11T10:32:58.080-04:00"
+    "lastUpdated" : "2023-10-13T15:55:04.493-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,30 +37,33 @@
         "display" : "ORU/ACK - Unsolicited transmission of an observation message"
       },
       "sender" : {
-        "reference" : "Organization/1697034778927427000.02d1a16b-5a63-40e2-9766-ed57e6ea4b5d"
+        "reference" : "Organization/1697226905439611000.60943a3d-9a85-46ae-9d1d-03632bab3489"
       },
       "source" : { },
       "responsible" : {
-        "reference" : "Organization/1697034778930100000.c6c014c8-3bad-450e-851a-2e64597bac4b"
+        "reference" : "Organization/1697226905441261000.56eeb809-d2f9-4792-98a1-527080cc8643"
       }
     }
   }, {
-    "fullUrl" : "Organization/1697034778927427000.02d1a16b-5a63-40e2-9766-ed57e6ea4b5d",
+    "fullUrl" : "Organization/1697226905439611000.60943a3d-9a85-46ae-9d1d-03632bab3489",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1697034778927427000.02d1a16b-5a63-40e2-9766-ed57e6ea4b5d",
+      "id" : "1697226905439611000.60943a3d-9a85-46ae-9d1d-03632bab3489",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
         } ]
-      }
+      },
+      "address" : [ {
+        "country" : "USA"
+      } ]
     }
   }, {
-    "fullUrl" : "Organization/1697034778930100000.c6c014c8-3bad-450e-851a-2e64597bac4b",
+    "fullUrl" : "Organization/1697226905441261000.56eeb809-d2f9-4792-98a1-527080cc8643",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1697034778930100000.c6c014c8-3bad-450e-851a-2e64597bac4b",
+      "id" : "1697226905441261000.56eeb809-d2f9-4792-98a1-527080cc8643",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -74,7 +77,7 @@
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id",
             "valueString" : "Assigning Authority"
           }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/unknown-universal-id-type",
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-unknown-type",
             "valueCode" : "2.1.4.1"
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type"
@@ -83,10 +86,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Provenance/1697034779207064000.e5905016-5de1-4c1b-8d8d-2554cac94576",
+    "fullUrl" : "Provenance/1697226905721143000.ee39bac1-252e-40c1-abc5-f8f9275994a6",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1697034779207064000.e5905016-5de1-4c1b-8d8d-2554cac94576",
+      "id" : "1697226905721143000.ee39bac1-252e-40c1-abc5-f8f9275994a6",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -120,15 +123,15 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1697034779208751000.f71f689e-dfa2-4535-92dd-841b7a10a9f0"
+          "reference" : "Device/1697226905726235000.093b4cc3-684f-4e64-9197-7007616cf9e2"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1697034779208751000.f71f689e-dfa2-4535-92dd-841b7a10a9f0",
+    "fullUrl" : "Device/1697226905726235000.093b4cc3-684f-4e64-9197-7007616cf9e2",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1697034779208751000.f71f689e-dfa2-4535-92dd-841b7a10a9f0",
+      "id" : "1697226905726235000.093b4cc3-684f-4e64-9197-7007616cf9e2",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",

@@ -11,18 +11,16 @@ name:
   expressionType: HL7Spec
 
 identifier_1:
-  condition: $universalId EQUALS ISO || $universalId EQUALS UUID
-  valueOf: datatype/Identifier_var
+  expressionType: nested
   generateList: true
-  expressionType: resource
   vars:
-    checkDigit: $NULL
-    checkDigitScheme: $NULL
-    assigningAuthority: $NULL
-    location: $NULL
-    code: $NULL
-    valueIn: String, HD.2
     universalId: String, HD.3
+  expressionsMap:
+    value_1:
+      condition: $universalId EQUALS ISO || $universalId EQUALS UUID
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: HD.2
 
 extension_1-unknownUniversalIdType:
   condition: $universalId NOT_EQUALS ISO && $universalId NOT_EQUALS UUID
@@ -31,7 +29,7 @@ extension_1-unknownUniversalIdType:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: unknown-universal-id-type
+      value: universal-id-unknown-type
     valueString:
       expressionType: HL7Spec
       type: STRING
@@ -46,7 +44,7 @@ extension_2-unknownUniversalIdType:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: unknown-universal-id-type
+      value: universal-id-unknown-type
     valueString:
       expressionType: HL7Spec
       type: STRING

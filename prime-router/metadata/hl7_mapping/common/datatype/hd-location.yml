@@ -5,7 +5,7 @@ elements:
     hl7Spec: [ '%{hl7HDField}-1' ]
 
   - name: location-universal-id
-    value: [ '%resource.identifier.value', '%resource.extension(%`rsext-unknown-universal-id-type`).value' ]
+    value: [ '%resource.identifier.value', '%resource.extension(%`rsext-universal-id-unknown-type`).value' ]
     hl7Spec: [ '%{hl7HDField}-2' ]
 
   - name: location-universal-id-type

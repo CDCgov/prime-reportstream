@@ -68,13 +68,19 @@ identifier_1:
           expressionType: HL7Spec
           valueOf: XON.4
     extension_3-assigningAuthority:
+      condition: $xon6 NOT_NULL
+      vars:
+        xon6: String, XON.6
       generateList: true
       expressionType: resource
       valueOf: datatype/HDToExtensionAssigningAuthority
       specs: XON.6
     extension_4-location:
+      condition: $xon8 NOT_NULL
       generateList: true
       expressionType: nested
+      vars:
+        xon8: String, XON.8
       expressionsMap:
         url:
           type: SYSTEM_URL
