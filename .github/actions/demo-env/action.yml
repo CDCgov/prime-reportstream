@@ -51,15 +51,6 @@ runs:
         fi
       shell: bash
 
-    - name: Connect to VPN & Login into Azure
-      uses: ./.github/actions/vpn-azure
-      with:
-        tls-key: ${{ secrets.TLS_KEY }}
-        ca-cert: ${{ secrets.CA_CRT}}
-        user-crt: ${{ secrets.USER_CRT }}
-        user-key: ${{ secrets.USER_KEY }}
-        sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
-
     - name: Add Runner IP to Key Vault Firewall
       run: |
         az keyvault network-rule add --name pdhdemo1-keyvaults5m --ip-address ${{ steps.runner_ip.outputs.ip-address }}
