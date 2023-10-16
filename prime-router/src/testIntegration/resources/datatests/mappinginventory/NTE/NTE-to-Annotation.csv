@@ -1,0 +1,11 @@
+HL7 v2,,,,,,Condition (IF True),,,HL7 FHIR,,,,,,,,,Comments
+Sort Order,Identifier,Name,Data Type,Cardinality - Min,Cardinality - Max,Computable ANTLR,Computable FHIRPath,Narrative,FHIR Attribute,,Data Type,Cardinality - Min,Cardinality - Max,Data Type Mapping,"Vocabulary Mapping
+(IS, ID, CE, CNE, CWE)",Assignment,,
+1,NTE-1,Set ID,SI,0,1,,,,,,,,,,,,,
+2,NTE-2,Source of Comment,ID,0,1,,,,,,,,,,,,,
+3,NTE-3,Comment,FT,0,1,,,,note.text,,markdown,1,1,,,,,
+4,NTE-4,Comment Type,CWE,0,1,,,,,extension??-noteType,CodeableConcept,0,1,CWE[CodeableConcept],CommentType,,,
+5,NTE-5,Entered By,XCN,0,1,,,,note.authorReference(Practitioner),,Reference(Practitioner),0,1,XCN[Practitioner],,,,
+6,NTE-6,Entered Date/Time,DTM,0,1,,,,note.time,,dateTime,0,1,,,,,
+7,NTE-7,Effective Start Date ,DTM,0,1,,,,,,,,,,,,,
+8,NTE-8,Expiration Date,DTM,0,1,,,,,,,,,,,,,

@@ -66,7 +66,10 @@ locals {
 
   # Any settings provided implicitly by Azure that we don't want to swap
   sticky_slot_implicit_settings_names = tolist([
-    "AzureWebJobsStorage"
+    "AzureWebJobsStorage",
+    "OKTA_authKey",
+    "fn_OKTA_clientId",
+    "OKTA_scope"
   ])
 
   # Any settings that we want to exclude from sticky settings
@@ -85,7 +88,7 @@ locals {
 
   # Origin records
   cors_all = [
-    "https://hhs-prime.okta.com"
+    "https://reportstream.okta.com",
   ]
   cors_prod = [
     "https://prime.cdc.gov",
@@ -94,7 +97,8 @@ locals {
   cors_lower = [
     "https://${var.environment}.reportstream.cdc.gov",
     "https://${var.environment}.prime.cdc.gov",
-    "https://swaggeruiapidocs.z13.web.core.windows.net"
+    "https://swaggeruiapidocs.z13.web.core.windows.net",
+
   ]
   cors_trial_frontends = [
     "https://pdhstagingpublictrial01.z13.web.core.windows.net",
@@ -157,6 +161,9 @@ resource "azurerm_function_app" "function_app" {
     "POSTGRES_REPLICA_URL" = "jdbc:postgresql://${var.resource_prefix}-pgsql-replica.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
     # HHS Protect Storage Account
     "PartnerStorage" = var.sa_partner_connection_string
+    "OKTA_authKey"   = var.OKTA_authKey
+    "OKTA_clientId"  = var.fn_OKTA_clientId
+    "OKTA_scope"     = var.OKTA_scope
   })
 
   identity {
