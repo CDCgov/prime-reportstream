@@ -58,7 +58,7 @@ runs:
 
     - name: Retrieve the IPs secret value from Azure KeyVault
       run: |
-        IPS_JSON=$(az keyvault secret show --name IPS_SECRET --vault-name pdhdemo1-keyvaults5m --query 'value' -o tsv)
+        IPS_JSON=$(az keyvault secret show --name IPS-SECRET --vault-name pdhdemo1-keyvaults5m --query 'value' -o tsv)
         IFS=$'\n' read -d '' -r -a IPS <<< "$IPS_JSON"
         IPS+=("${{ steps.runner_ip.outputs.ip-address }}")
         IPS_STRING=$(printf ',"%s"' "${IPS[@]}")
