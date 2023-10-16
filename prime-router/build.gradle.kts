@@ -637,7 +637,7 @@ flyway {
 
 // Database code generation configuration
 jooq {
-    version.set("3.15.4")
+    version.set("3.18.6")
     configurations {
         create("main") { // name of the jOOQ configuration
             jooqConfiguration.apply {

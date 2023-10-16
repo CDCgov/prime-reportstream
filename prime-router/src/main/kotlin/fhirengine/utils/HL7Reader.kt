@@ -229,6 +229,8 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
                 Terser(message).get("${getPatientPath(message)}/PID-7")
             } catch (e: HL7Exception) {
                 ""
+            } catch (e: NullPointerException) {
+                ""
             }
         }
 
