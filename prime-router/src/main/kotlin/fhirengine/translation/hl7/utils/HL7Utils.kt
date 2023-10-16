@@ -1,8 +1,12 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
+import ca.uhn.hl7v2.model.AbstractMessage
 import ca.uhn.hl7v2.model.Message
+import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
+import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
 import org.apache.logging.log4j.kotlin.Logging
 
 /**
@@ -26,9 +30,14 @@ object HL7Utils : Logging {
      */
     internal fun getMessage(hl7Class: String): Message {
         return try {
-            val message = Class.forName(hl7Class).getDeclaredConstructor().newInstance()
-            if (message is Message) {
-                getMessageTypeString(message) // Just check we can get the type string
+            val messageClass = Class.forName(hl7Class)
+            if (AbstractMessage::class.java.isAssignableFrom(messageClass)) {
+                // We verify above that we have a valid subclass of Message as required for parsing
+                // but the compiler does not know that, so we have to cast
+                @Suppress("UNCHECKED_CAST") val context =
+                    DefaultHapiContext(CanonicalModelClassFactory(messageClass as Class<out Message>))
+                context.validationContext = ValidationContextFactory.noValidation()
+                val message = context.newMessage(messageClass)
                 message
             } else throw IllegalArgumentException("$hl7Class is not a subclass of ca.uhn.hl7v2.model.Message.")
         } catch (e: Exception) {

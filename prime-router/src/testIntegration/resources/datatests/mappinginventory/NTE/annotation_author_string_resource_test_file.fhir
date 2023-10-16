@@ -258,8 +258,16 @@
         } ]
       },
       "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id",
+          "valueBoolean" : true
+        } ],
         "value" : "ReportStream"
       }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id",
+          "valueBoolean" : true
+        } ],
         "type" : {
           "coding" : [ {
             "extension" : [ {
@@ -270,7 +278,7 @@
             "code" : "CLIA"
           } ]
         },
-        "value" : "urn:clia:11D0668319"
+        "value" : "11D0668319"
       } ],
       "address" : [ {
         "country" : "USA"
