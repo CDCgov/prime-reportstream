@@ -1,0 +1,113 @@
+---
+title: Get started receiving data
+subtitle: How to connect your public health entity with ReportStream 
+backToTop: true
+---
+import Sidenav from "./sidenav.mdx"
+
+<LayoutSidenav>
+<Sidenav/>
+</LayoutSidenav>
+
+## Onboarding at a glance
+
+Through each step of the process, our team will make sure your connection meets your needs and gets you the public health data you require.
+
+Connecting to ReportStream is similar to setting up an Electronic Lab Reporting (ELR) feed with a lab or hospital. Through ReportStream, you can also download data directly instead of using an ELR connection.
+
+<Accordion multiselectable={true} items={[
+    {
+        id: "1",
+        headingLevel:"h3",
+        title:"1. Gather your team",
+        content:(<>
+        <p>Before you get started, make sure you have the right team members from your organization to set up your connection. While one person can fill multiple roles, you’ll need someone who can:</p>
+        <ul>
+            <li>Set up a new connection with your system. This may be a networking point of contact and would be familiar with acceptable transport methods for your organization.</li>
+            <li>Manage receiving data into your surveillance system or other applications you use.</li>
+            <li>Evaluate ELR messages. This person may hold the title of informaticist or ELR analyst and is often the one who approves moving into production.</li>
+            <li>Be a main contact for issues or questions.</li>
+            <li>Make decisions on behalf of your organization and remove blockers. Often this person is a director or manager.</li>
+        </ul>
+        </>)
+    },
+    {
+        id: "2",
+        headingLevel:"h3",
+        title: "2. Fill out our onboarding form",
+        content: (<p>This form helps us understand more about your specific situation, such as data requirements and preferences or any required documents from your agency. Learn more about what you need to complete the form.</p>),
+    },
+    {
+        id: "3",
+        headingLevel:"h3",
+        title: "3. Attend kickoff call",
+        content:(<p>During this call, you’ll discuss how ReportStream works, the technical set up ahead, and your needs for data reporting. As we learn more about your organization, we'll provide an estimated timeline and meeting cadence for your onboarding.</p>)
+    },
+    {
+        id: "4",
+        headingLevel:"h3",
+        title: "4. Connect and test",
+        content: (<>
+            <p>Through weekly technical syncs, we work through five phases of set up to ensure everything is working correctly.</p>
+            <ol>
+                <li>Connecting ReportStream to your system and making sure that a message can be sent</li>
+                <li>Sending test messages to make sure the filters and formats are correct</li>
+                <li>Testing real data from ReportStream production to your validation system</li>
+                <li>Beginning full production of sending real data into your system</li>
+                <li>Monitoring in close detail for the first few weeks to ensure everything is working correctly</li>
+            </ol>
+        </>)
+    },
+    {
+        id: "5",
+        headingLevel:"h3",
+        title: "Optional: Create a user account",
+        content: (<>
+            <p>For an ELR connection, an optional ReportStream user account provides access to helpful tools and features like your Data Dashboard.</p>
+            <p>If you are downloading data as your primary way of using ReportStream, then you will need a user account to access that Daily Data table.</p>
+            <p>Submit a service request to set up an account.</p>
+        </>)
+    }
+]} />
+
+## What you need
+
+In addition to gathering your team and setting aside time for the weekly calls, you’ll need to provide us with more information about your requirements and preferences. Our onboarding form collects the specific details about your needs.
+
+Review what you need to gather to start onboarding.
+
+### For the form
+<hr>
+
+
+
+
+## Recommended resources
+
+<CardGroup>
+<Card gridLayout={{tablet: {col: 4}}}>
+
+<CardHeader>
+### <A href="/assets/pdf/ReportStream_Onepager_20230621.pdf" target="_blank">ReportStream overview PDF <Icon name='FileDownload'/></A>
+</CardHeader>
+<CardBody>
+Download a quick summary of ReportStream that you can print and share.
+</CardBody>
+</Card>
+<Card gridLayout={{tablet: {col: 4}}}>
+<CardHeader>
+### [ReportStream API](/resources/api)
+</CardHeader>
+<CardBody>
+Learn about our API and how to set up a connection for reporting data to public health departments.
+</CardBody>
+</Card>
+<Card gridLayout={{tablet: {col: 4}}}>
+<CardHeader>
+### [Release notes](/about/release-notes)
+</CardHeader>
+<CardBody>
+Stay up to date with new features, enhancements, and fixes.
+</CardBody>
+</Card>
+</CardGroup>
