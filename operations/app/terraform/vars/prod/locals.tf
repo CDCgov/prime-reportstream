@@ -10,8 +10,8 @@ locals {
     okta_redirect_url   = "https://prime.cdc.gov/download"
     okta_base_url       = "reportstream.okta.com"
     OKTA_authKey        = "MG9hNmtqY21pNm11TnZVOHAxZDc6VXNjN2NOeWU4Q3JBQlgxUEJvQlUwbDhpQTNlck5idGNxTVFFd01sQQ=="
-    OKTA_clientId       = "0oa6kt4j3tOFz5SH84h6"
-    fn_OKTA_clientId    = "0oa6kt4j3tOFz5SH84h6"
+    OKTA_clientId       = "0oa376pah9o4G2HVJ4h7"
+    fn_OKTA_clientId    = "0oa376pah9o4G2HVJ4h7"
     OKTA_scope          = "simple_report_dev"
   }
   key_vault = {
