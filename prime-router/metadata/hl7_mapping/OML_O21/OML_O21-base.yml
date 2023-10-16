@@ -72,4 +72,4 @@ elements:
     required: true
     schema: ../common/specimen
     constants:
-      hl7SegmentGroup: /ORDER/OBSERVATION_REQUEST/SPECIMEN/SPM
+      hl7SpecimenFieldPath: /ORDER/OBSERVATION_REQUEST/SPECIMEN/SPM
