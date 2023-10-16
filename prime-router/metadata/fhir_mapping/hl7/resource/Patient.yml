@@ -235,17 +235,6 @@ address:
     distPatient: PID
 
 telecom_1:
-  condition: $pid14 NOT_NULL
-  valueOf: datatype/ContactPoint
-  generateList: true
-  expressionType: resource
-  specs: PID.14
-  vars:
-    pid14: PID.14
-  constants:
-    use: work
-
-telecom_2:
   condition: $pid13 NOT_NULL
   valueOf: datatype/XTNToContactPoint
   generateList: true
@@ -254,7 +243,18 @@ telecom_2:
   vars:
     pid13: PID.13
   constants:
-    use: home
+    hl7Use: home
+
+telecom_2:
+  condition: $pid14 NOT_NULL
+  valueOf: datatype/XTNToContactPoint
+  generateList: true
+  expressionType: resource
+  specs: PID.14
+  vars:
+    pid14: PID.14
+  constants:
+    use: work
 
 # The yaml is processed in reverse order, therefore
 # Put the PID.13 last in yaml so it is first to be processed

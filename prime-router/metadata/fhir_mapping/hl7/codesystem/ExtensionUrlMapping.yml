@@ -287,3 +287,12 @@
 # Telecom Equipment Type
 - id: "telecom-equipment-type"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/telecom-equipment-type"
+# Telecom Use Code
+- id: "telecom-use-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/telecom-use-code"
+# HL7 Use
+- id: "hl7-use"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use"
+# Communication Address
+- id: "communication-address"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/communication-address"

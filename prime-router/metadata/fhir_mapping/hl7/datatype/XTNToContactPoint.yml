@@ -30,11 +30,34 @@ value_4:
     telEquipType: String, XTN.3
     unformattedTelNum: String, XTN.12
 
-use:
-  condition: $telUseCode NOT_NULL
-  valueOf: XTN.2
+use_1:
+  condition: $useCode EQUALS PRN
+  type: STRING
+  value: "home"
   vars:
-    telUseCode: String, XTN.2
+    useCode: String, XTN.2
+
+use_2:
+  condition: $useCode EQUALS WPN
+  type: STRING
+  value: "work"
+  vars:
+    useCode: String, XTN.2
+
+use_3:
+  condition: $useCode EQUALS BPN
+  type: STRING
+  value: "mobile"
+  vars:
+    useCode: String, XTN.2
+
+#from the PID[Patient] mapping inventory
+use_4:
+  condition: $useCode NULL
+  type: STRING
+  value: "home"
+  vars:
+    useCode: String, XTN.2
 
 system_1:
   condition: $equipType EQUALS PH
@@ -79,7 +102,7 @@ system_6:
     commAddress: String, XTN.4
 
 system_7:
-  condition: $telEquipType NULL && $commAddress NOT_NULL
+  condition: $telEquipType NULL && $commAddress NULL
   valueOf: extension/DataTypeReason
   expressionType: resource
   vars:
@@ -167,6 +190,43 @@ extension_6-any-text:
     valueString:
       type: STRING
       valueOf: $anyText
+
+extension_7-telecom-use-code:
+  condition: $useCode NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    useCode: String, XTN.2
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: "telecom-use-code"
+    valueString:
+      value: $useCode
+
+extension_8-hl7-use:
+  condition: $hl7Use NOT_NULL
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: "hl7-use"
+    valueString:
+      value: $hl7Use
+
+extension_9-communication-address:
+  condition: $commAddress NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    commAddress: String, XTN.4
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: "communication-address"
+    valueString:
+      value: $commAddress
 
 period:
   valueOf: datatype/Period
