@@ -58,18 +58,21 @@ runs:
 
     - name: Retrieve the IPs secret value from Azure KeyVault
       run: |
-        secret_ip_addresses=$(az keyvault secret show --name terraform-caller-ip-address --vault-name pdhdemo1-keyvaults5m --query 'value' -o tsv)
-        echo "TF_CALLER_IP=$secret_ip_addresses" >> $GITHUB_OUTPUT  
+        IPS_JSON=$(az keyvault secret show --name IPS_SECRET --vault-name pdhdemo1-keyvaults5m --query 'value' -o tsv)
+        IFS=$'\n' read -d '' -r -a IPS <<< "$IPS_JSON"
+        IPS+=("${{ steps.runner_ip.outputs.ip-address }}")
+        IPS_STRING=$(printf ',"%s"' "${IPS[@]}")
+        IPS_STRING="[${IPS_STRING#,}]"
       shell: bash
 
     - name: Terraform - init
       working-directory: operations/app/terraform/vars/demo
-      run: |
+      run: |   
         terraform init \
-        -reconfigure \
-        -var-file=${{ inputs.env-name }}/env.tfvars.json \
-        -var='terraform_caller_ip_address=["${{ TF_CALLER_IP }}", "${{ steps.runner_ip.outputs.ip-address }}"]' \
-        -backend-config=${{ inputs.env-name }}/env.tfbackend
+          -reconfigure \
+          -var-file=${{ inputs.env-name }}/env.tfvars.json \
+          -var="terraform_caller_ip_address=$IPS_STRING" \
+          -backend-config=${{ inputs.env-name }}/env.tfbackend
       shell: bash
 
     - name: Terraform - destroy
@@ -133,7 +136,7 @@ runs:
           terraform -chdir=operations/app/terraform/vars/demo apply \
           -target=module.init \
           -var-file=${{ inputs.env-name }}/env.tfvars.json \
-          -var='terraform_caller_ip_address=["${{ TF_CALLER_IP }}", "108.48.23.191", "${{ steps.runner_ip.outputs.ip-address }}"]' \
+          -var="terraform_caller_ip_address=$IPS_STRING" \
           -auto-approve; \
           sleep 60; \
           done
@@ -150,7 +153,7 @@ runs:
           for i in {1..2}; do \
           terraform -chdir=operations/app/terraform/vars/demo apply \
           -var-file=${{ inputs.env-name }}/env.tfvars.json \
-          -var='terraform_caller_ip_address=["${{ TF_CALLER_IP }}", "${{ steps.runner_ip.outputs.ip-address }}"]' \
+          -var="terraform_caller_ip_address=$IPS_STRING" \
           -auto-approve; \
           sleep 120; \
           done
