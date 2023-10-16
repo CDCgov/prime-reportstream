@@ -3,9 +3,9 @@ package gov.cdc.prime.router.datatests.mappinginventory.xon
 import gov.cdc.prime.router.datatests.mappinginventory.verifyHL7ToFHIRToHL7Mapping
 import org.junit.jupiter.api.Test
 
-/*
-This test class covers the mapping of XON to Organization and implicitly also tests to other mappings that are internal
-to XON
+/**
+ * This test class covers the mapping of XON to Organization and implicitly also tests to other mappings that are internal
+ * to XON
  */
 class XONToOrganizationTests {
 
