@@ -25,7 +25,7 @@ A self-documenting directory structure would allow the developer to see the sour
 For message types, each message type would have a directory named after itself. Ideally, the only content within that directory should be a schema that references the other top level segments and datatypes. If there are segments or datatypes that need to be defined differently from the standard, then this directory would have its own segments and datatypes directories as needed to store schemas specific to this message type.
 
 - hl7/messages/ADT_A01/ADT_A01.yml
-- hl7/messages/ADT_A01/resources ← only if base level resource cannot be used
+- hl7/messages/ADT_A01/segments ← only if base level segment cannot be used
 
 For segments and datatypes, the basic structure is to define the HL7v2 segment or datatype being mapped, followed by the FHIR path the data is being mapped to. For example:
 
@@ -33,7 +33,7 @@ For segments and datatypes, the basic structure is to define the HL7v2 segment o
 - hl7/segments/MSH/HD/MessageHeader-source.yml ← HD datatype in MSH maps to MessageHeader.source
 - hl7/datatypes/HD/Organization.yml ← HD datatype maps to Organization
 - hl7/datatypes/MSG/Coding.yml ← MSG datatype maps to Coding
-- hl7/datatypes/XON/Identifier.yml ← XON datatype maps to Identifier
+- hl7/datatypes/XON/Organization.yml ← XON datatype maps to Organization
 
 ## FHIR to HL7v2 mapping file organization
 
@@ -51,8 +51,8 @@ Currently, the schema files under the hl7_mapping directory, where all FHIR to H
 In order for the directory structure to be self-documenting, it should follow a defined hierarchy. The following structure would make both the source of data and the target mapping immediately apparent:
 
 - hl7_mapping/messages/_**[HL7v2 message type]**_/ ← target message types, such as ADT_A01, ORU_R01, etc.
-- hl7_mapping/resources/_**[FHIR path to resource]**_/_**[HL7v2 segment]**_.yml
-- hl7_mapping/datatypes/_**[FHIR path to datatype]**_/_**[HL7v2 segment]**_.yml
+- hl7_mapping/resources/_**[FHIR path to resource]**_/_**[HL7v2 segment or datatype]**_.yml
+- hl7_mapping/datatypes/_**[FHIR path to datatype]**_/_**[HL7v2 segment or datatype]**_.yml
 
 Similarly to the HL7v2 to FHIR message schemas, each message type would have a directory named after itself, with subdirectories for message specific resources or datatypes schemas.
 
