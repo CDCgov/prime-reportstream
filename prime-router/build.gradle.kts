@@ -792,11 +792,18 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
     implementation("com.azure:azure-core:1.44.0")
     implementation("com.azure:azure-core-http-netty:1.13.8")
-    implementation("com.azure:azure-storage-blob:12.22.3") {
+    implementation("com.azure:azure-storage-common:12.23.0")
+    // azure-storage-* updates failing
+    implementation("com.azure:azure-storage-blob:12.23.0") {
         exclude(group = "com.azure", module = "azure-core")
+        exclude(group = "com.azure", module = "azure-core-http-netty")
+        exclude(group = "com.azure", module = "azure-storage-common")
     }
-    implementation("com.azure:azure-storage-queue:12.18.1") {
+    implementation("com.azure:azure-storage-queue:12.19.0") {
         exclude(group = "com.azure", module = "azure-core")
+        exclude(group = "com.azure", module = "azure-core-http-netty")
+        exclude(group = "com.azure", module = "azure-storage-common")
+        exclude(group = "com.fasterxml.jackson.dataformat", module = "jackson-dataformat-xml")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.6.5") {
         exclude(group = "com.azure", module = "azure-core")
