@@ -43,7 +43,7 @@ runs:
           echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-prod-key }}" >> .env.production
           yarn test:ci
           yarn build:production
-        shell: bash
+        shell: bash --noprofile --norc -eo pipefail
 
     - name: Build release for non-production branch (conditional check)
       if: inputs.env-name != 'prod'
@@ -61,7 +61,7 @@ runs:
           yarn lint
           yarn test:ci
           yarn build:$ENV
-        shell: bash
+        shell: bash --noprofile --norc -eo pipefail
 
     - name: Tar frontend files
       shell: bash
