@@ -20,7 +20,7 @@ class HDToLocationTests {
     }
 
     @Test
-    fun `test correctly handles and unknown universal id type`() {
+    fun `test correctly handles unknown universal id type`() {
         assert(verifyHL7ToFHIRToHL7Mapping("hd/HD-to-Location-dns").passed)
     }
 
