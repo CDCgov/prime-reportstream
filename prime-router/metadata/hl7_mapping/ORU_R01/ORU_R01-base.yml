@@ -4,10 +4,7 @@ constants:
   rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
 elements:
   - name: message-headers
-    condition: >
-      Bundle.entry.resource.ofType(MessageHeader).exists() and
-      Bundle.entry.resource.ofType(MessageHeader).event is Coding and
-      Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'
+    condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     required: true
     schema: ../common/message-header

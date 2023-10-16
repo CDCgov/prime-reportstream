@@ -2,6 +2,12 @@ hl7Class: ca.uhn.hl7v2.model.v27.message.ORU_R01
 
 extends: ORU_R01-base
 elements:
+  - name: software-segment
+    condition: >
+      Bundle.entry.resource.ofType(MessageHeader).exists() and 
+      Bundle.entry.resource.ofType(MessageHeader).source.exists() and
+      Bundle.entry.resource.ofType(MessageHeader).source.extension(%`rsext-software-vendor-org`).exists()
+
   - name: order-observations
     required: false
 
