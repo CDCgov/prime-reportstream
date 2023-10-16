@@ -34,7 +34,8 @@ object HL7Utils : Logging {
             if (AbstractMessage::class.java.isAssignableFrom(messageClass)) {
                 // We verify above that we have a valid subclass of Message as required for parsing
                 // but the compiler does not know that, so we have to cast
-                @Suppress("UNCHECKED_CAST") val context =
+                @Suppress("UNCHECKED_CAST")
+                val context =
                     DefaultHapiContext(CanonicalModelClassFactory(messageClass as Class<out Message>))
                 context.validationContext = ValidationContextFactory.noValidation()
                 val message = context.newMessage(messageClass)
