@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 isModified=0
+set -o pipefail
 
 function modified_check() {
     MODIFIED_COUNT=$(git status --porcelain | grep "frontend-react/" | wc -l | xargs)
