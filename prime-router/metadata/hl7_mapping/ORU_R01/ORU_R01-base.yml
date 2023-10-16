@@ -13,7 +13,7 @@ elements:
     schema: ../common/message-header
 
   - name: software-segment
-    condition: Bundle.entry.resource.ofType(MessageHeader).exists() and
+    condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     schema: ../common/software
 
