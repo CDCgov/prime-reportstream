@@ -25,8 +25,8 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.addReceivers
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Observation
@@ -219,7 +219,7 @@ class FHIRRouter(
         if (listOfReceivers.isNotEmpty()) {
             // this bundle has receivers; send message to translate function
             // add the receivers to the fhir bundle
-            FHIRBundleHelpers.addReceivers(bundle, listOfReceivers, shorthandLookupTable)
+            bundle.addReceivers(listOfReceivers, shorthandLookupTable)
 
             // create translate event
             val nextEvent = ProcessEvent(
@@ -487,6 +487,7 @@ class FHIRRouter(
                     CustomContext(bundle, focusResource, shorthandLookupTable, CustomFhirPathFunctions()),
                     focusResource,
                     bundle,
+                    bundle,
                     filterElement
                 )
                 if (!filterElementResult) failingFilters += filterElement
@@ -537,6 +538,7 @@ class FHIRRouter(
                 val filterElementResult = FhirPathUtils.evaluateCondition(
                     CustomContext(bundle, focusResource, shorthandLookupTable, CustomFhirPathFunctions()),
                     focusResource,
+                    bundle,
                     bundle,
                     filterElement
                 )

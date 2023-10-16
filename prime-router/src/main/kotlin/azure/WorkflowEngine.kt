@@ -41,6 +41,7 @@ import org.jooq.Field
 import java.io.ByteArrayInputStream
 import java.time.Duration
 import java.time.OffsetDateTime
+import java.util.UUID
 
 /**
  * A top-level object that contains all the helpers and accessors to power the workflow.
@@ -574,7 +575,7 @@ class WorkflowEngine(
                 return@transact
             }
 
-            val blobContent = BlobAccess.downloadBlob(task.bodyUrl)
+            val blobContent = BlobAccess.downloadBlobAsByteArray(task.bodyUrl)
 
             val report = csvSerializer.readInternal(
                 task.schemaName,
@@ -611,6 +612,62 @@ class WorkflowEngine(
                 txn
             )
         }
+    }
+
+    /**
+     * Creates Header objects for all Tasks passed in with content downloaded.
+     * TODO: rename function or handle other nullable attributes if Header survives refactor (see #11636)
+     *
+     * @param tasks list of tasks to process
+     * @param map of reportfiles keyed by reportID
+     * @param organization associated with these tasks
+     * @param receiver associated with these tasks
+     */
+    fun createDeepHeaders(
+        tasks: List<Task>,
+        reportFiles: Map<UUID, ReportFile>,
+        organization: Organization,
+        receiver: Receiver
+    ): List<Header> {
+        val startTime = OffsetDateTime.now()
+        val headers = runBlocking {
+            tasks.mapNotNull {
+                async {
+                    if (reportFiles[it.reportId] == null) {
+                        logger.error(
+                            "Failed reportFile lookup on ReportId: ${it.reportId}"
+                        )
+                        null
+                    } else if (reportFiles[it.reportId]!!.bodyUrl == null) {
+                        logger.error(
+                            "Missing bodyURL on ReportId: ${it.reportId}"
+                        )
+                        null
+                    } else {
+                        val header = createHeader(
+                            it,
+                            reportFiles[it.reportId]!!,
+                            null,
+                            organization,
+                            receiver,
+                            true
+                        )
+                        if (header.content!!.isEmpty()) {
+                            logger.error(
+                                "Failure to download ${it.bodyUrl} from blobstore. " +
+                                    "ReportId: ${it.reportId}"
+                            )
+                            null
+                        } else {
+                            header
+                        }
+                    }
+                }
+            }.awaitAll()
+        }.filterNotNull()
+        val duration = Duration.between(startTime, OffsetDateTime.now())
+        logger.info("BatchFunction Downloading blobs and creating rich headers took $duration")
+        return headers
     }
 
     /**
@@ -652,20 +709,7 @@ class WorkflowEngine(
             // This check is needed as long as TASK does not FK to REPORT_FILE.  @todo FK TASK to REPORT_FILE
             ActionHistory.sanityCheckReports(tasks, reportFiles, false)
 
-            val startTime = OffsetDateTime.now()
-            val headers = runBlocking {
-                tasks.mapNotNull {
-                    async {
-                        if (reportFiles[it.reportId] != null) {
-                            createHeader(it, reportFiles[it.reportId]!!, null, organization, receiver)
-                        } else {
-                            null
-                        }
-                    }
-                }.awaitAll()
-            }.filterNotNull()
-            val duration = Duration.between(startTime, OffsetDateTime.now())
-            logger.info("BatchFunction Downloading reports for batch and creating headers took $duration")
+            val headers = createDeepHeaders(tasks, reportFiles, organization, receiver)
 
             updateBlock(headers, txn)
             // Here we iterate through the original tasks, rather than headers.
@@ -689,13 +733,12 @@ class WorkflowEngine(
      * Create a report object from a header including loading the blob data associated with it
      */
     fun createReport(header: Header): Report {
-        val bytes = BlobAccess.downloadBlob(header.task.bodyUrl)
         return when (header.task.bodyFormat) {
             // TODO after the CSV internal format is flushed from the system, this code will be safe to remove
             "CSV", "CSV_SINGLE" -> {
                 val result = csvSerializer.readExternal(
                     header.task.schemaName,
-                    ByteArrayInputStream(bytes),
+                    ByteArrayInputStream(header.content!!),
                     emptyList(),
                     header.receiver
                 )
@@ -708,7 +751,7 @@ class WorkflowEngine(
             "INTERNAL" -> {
                 csvSerializer.readInternal(
                     header.task.schemaName,
-                    ByteArrayInputStream(bytes),
+                    ByteArrayInputStream(header.content!!),
                     emptyList(),
                     header.receiver,
                     header.reportFile.reportId
@@ -723,7 +766,7 @@ class WorkflowEngine(
      * Create a report object from a header including loading the blob data associated with it
      */
     fun readBody(header: Header): ByteArray {
-        return BlobAccess.downloadBlob(header.task.bodyUrl)
+        return BlobAccess.downloadBlobAsByteArray(header.task.bodyUrl)
     }
 
     fun recordAction(actionHistory: ActionHistory, txn: Configuration? = null) {
@@ -787,7 +830,7 @@ class WorkflowEngine(
 
         val downloadContent = (reportFile.bodyUrl != null && fetchBlobBody)
         val content = if (downloadContent && BlobAccess.exists(reportFile.bodyUrl)) {
-            BlobAccess.downloadBlob(reportFile.bodyUrl)
+            BlobAccess.downloadBlobAsByteArray(reportFile.bodyUrl)
         } else null
         return Header(task, reportFile, itemLineages, organization, receiver, schema, content, downloadContent)
     }

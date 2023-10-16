@@ -4,7 +4,7 @@ elements:
     schema: 'ca-aoe-note'
 
   - name: note
-    condition: '%resource is String'
-    schema: '../../../ORU_R01/base/note'
+    condition: '%resource is string'
+    schema: '../../../common/note'
     constants:
       noteDetails: '%resource.note'
