@@ -79,14 +79,14 @@ class DeliveryFunctionTests : Logging {
 
     data class ExpectedAPIResponse(
         val status: HttpStatus,
-        val body: List<ExpectedDelivery>? = null
+        val body: List<ExpectedDelivery>? = null,
     )
 
     data class DeliveryUnitTestCase(
         val headers: Map<String, String>,
         val parameters: Map<String, String>,
         val expectedResponse: ExpectedAPIResponse,
-        val name: String?
+        val name: String?,
     )
 
     /**
@@ -100,7 +100,7 @@ class DeliveryFunctionTests : Logging {
         val reportId: String,
         val topic: String,
         val reportItemCount: Int,
-        val fileName: String
+        val fileName: String,
     )
 
     private val testData = listOf(
@@ -314,7 +314,7 @@ class DeliveryFunctionTests : Logging {
 
     private fun setupDeliveryFunctionForTesting(
         oktaClaimsOrganizationName: String,
-        facade: DeliveryFacade
+        facade: DeliveryFacade,
     ): DeliveryFunction {
         val claimsMap = buildClaimsMap(oktaClaimsOrganizationName)
         val metadata = Metadata(schema = Schema(name = "one", topic = Topic.TEST))
@@ -664,6 +664,7 @@ class DeliveryFunctionTests : Logging {
             Topic.COVID_19,
             schemaName = ""
         )
+
         @BeforeEach
         fun setUp() {
             mockkObject(BaseEngine)
@@ -713,6 +714,7 @@ class DeliveryFunctionTests : Logging {
             val response = DeliveryFunction().getSubmitters(httpRequestMessage, receiver2.fullName)
             assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
         }
+
         @Test
         fun `test organization members can fetch their data`() {
             val httpRequestMessage = MockHttpRequestMessage(
@@ -894,6 +896,7 @@ class DeliveryFunctionTests : Logging {
             Topic.COVID_19,
             schemaName = ""
         )
+
         @BeforeEach
         fun setUp() {
             mockkObject(BaseEngine)
@@ -943,6 +946,7 @@ class DeliveryFunctionTests : Logging {
             val response = DeliveryFunction().getDeliveriesV1(httpRequestMessage, receiver2.fullName)
             assertThat(response.status).isEqualTo(HttpStatus.UNAUTHORIZED)
         }
+
         @Test
         fun `test organization members can fetch their data`() {
             val httpRequestMessage = MockHttpRequestMessage(

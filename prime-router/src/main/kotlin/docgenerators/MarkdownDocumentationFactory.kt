@@ -40,7 +40,8 @@ object MarkdownDocumentationFactory : StringBasedDocumentationFactory(), Logging
         if (element.type?.name == "CODE") {
             when (csvField?.format) {
                 "\$display",
-                "\$alt" ->
+                "\$alt",
+                ->
                     appendLabelAndData(sb, "Format", "use value found in the Display column")
                 else ->
                     appendLabelAndData(sb, "Format", "use value found in the Code column")
@@ -156,7 +157,7 @@ object MarkdownDocumentationFactory : StringBasedDocumentationFactory(), Logging
         schema: Schema,
         outputDir: String,
         outputFileName: String?,
-        includeTimestamps: Boolean
+        includeTimestamps: Boolean,
     ) {
         // change any slashes to dashes for the file name
         val sb = StringBuilder()

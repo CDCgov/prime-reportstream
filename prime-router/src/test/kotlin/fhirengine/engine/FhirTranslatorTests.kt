@@ -206,7 +206,6 @@ class FhirTranslatorTests {
      */
     @Test
     fun `test when customerStatus = testing`() {
-
         // set up
         val schemaName = ORU_R01_SCHEMA
         val receiver = Receiver(
