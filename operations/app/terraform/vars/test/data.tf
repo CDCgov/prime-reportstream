@@ -52,7 +52,7 @@ data "azurerm_key_vault_secret" "slack_email_address" {
   key_vault_id = data.azurerm_key_vault.tf-secrets.id
 }
 
-# data "azurerm_key_vault_secret" "terraform_caller_ip_address" {
-#   name         = "terraform-caller-ip-address"
-#   key_vault_id = "/subscriptions/7d1e3999-6577-4cd5-b296-f518e5c8e677/resourceGroups/prime-data-hub-test/providers/Microsoft.KeyVault/vaults/pdhtest-keyvault"
-# }
+data "azurerm_key_vault_secret" "caller_ip_addresses" {
+  name         = "tf-caller-ip-addresses"
+  key_vault_id = data.azurerm_key_vault.tf-secrets.id
+}
