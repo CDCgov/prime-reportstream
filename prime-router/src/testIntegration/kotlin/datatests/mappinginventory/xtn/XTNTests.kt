@@ -249,4 +249,21 @@ class XTNTests {
             ).passed
         )
     }
+
+    @Test
+    fun `XTN test value of 1 in XTN-5`() {
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/xtn/xtn_9_10_xtn5_value_of_1.fhir",
+                "mappinginventory/xtn/xtn_9_10_xtn5_value_of_1.hl7"
+            ).passed
+        )
+
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/xtn/xtn_9_10_xtn5_value_of_1.hl7",
+                "mappinginventory/xtn/xtn_9_10_xtn5_value_of_1.fhir"
+            ).passed
+        )
+    }
 }
