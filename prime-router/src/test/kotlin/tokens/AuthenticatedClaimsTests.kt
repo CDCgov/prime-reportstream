@@ -433,6 +433,7 @@ class AuthenticatedClaimsTests {
         tok = AuthenticatedClaims.getAccessToken(req)
         assertThat(tok).isNull()
     }
+
     @Test
     fun `test authorizeForSubmission with claims run through authenticate`() {
         val req = MockHttpRequestMessage("test")

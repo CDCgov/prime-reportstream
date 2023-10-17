@@ -39,14 +39,14 @@ enum class ErrorCode {
     INVALID_HL7_MSG_TYPE_MISSING,
     INVALID_HL7_MSG_TYPE_UNSUPPORTED,
     INVALID_HL7_MSG_FORMAT_INVALID,
-    UNKNOWN
+    UNKNOWN,
 }
 
 /**
  * Action details for item logs for specific [fieldMapping] and [errorCode].
  */
 abstract class ItemActionLogDetail(
-    val fieldMapping: String = ""
+    val fieldMapping: String = "",
 ) : ActionLogDetail {
     override val scope = ActionLogScope.item
     override val errorCode = ErrorCode.UNKNOWN
@@ -58,7 +58,7 @@ abstract class ItemActionLogDetail(
 abstract class GenericActionLogDetail(
     override val message: String,
     override val scope: ActionLogScope,
-    override val errorCode: ErrorCode = ErrorCode.UNKNOWN
+    override val errorCode: ErrorCode = ErrorCode.UNKNOWN,
 ) :
     ActionLogDetail
 
@@ -77,16 +77,17 @@ class MissingFieldMessage(fieldMapping: String) : ItemActionLogDetail(fieldMappi
 class InvalidDateMessage(
     private val formattedValue: String = "",
     fieldMapping: String,
-    private val format: String? = null
+    private val format: String? = null,
 ) : ItemActionLogDetail(fieldMapping) {
     override val scope = ActionLogScope.item
-    override val message: String get() {
-        var msg = "Invalid date: '$formattedValue' for element $fieldMapping."
-        if (format !== null) {
-            msg += " Reformat to $format."
+    override val message: String
+        get() {
+            var msg = "Invalid date: '$formattedValue' for element $fieldMapping."
+            if (format !== null) {
+                msg += " Reformat to $format."
+            }
+            return msg
         }
-        return msg
-    }
     override val errorCode = ErrorCode.INVALID_MSG_PARSE_DATE
 }
 
@@ -96,15 +97,16 @@ class InvalidDateMessage(
 class InvalidCodeMessage(
     private val formattedValue: String = "",
     fieldMapping: String,
-    private val format: String? = null
+    private val format: String? = null,
 ) : ItemActionLogDetail(fieldMapping) {
-    override val message: String get() {
-        var msg = "The code '$formattedValue' for field $fieldMapping is invalid. Reformat to HL7 specification."
-        if (format !== null) {
-            msg += " Reformat to $format."
+    override val message: String
+        get() {
+            var msg = "The code '$formattedValue' for field $fieldMapping is invalid. Reformat to HL7 specification."
+            if (format !== null) {
+                msg += " Reformat to $format."
+            }
+            return msg
         }
-        return msg
-    }
     override val errorCode = ErrorCode.INVALID_MSG_PARSE_CODE
 }
 
@@ -113,7 +115,7 @@ class InvalidCodeMessage(
  */
 class InvalidPhoneMessage(
     formattedValue: String = "",
-    fieldMapping: String
+    fieldMapping: String,
 ) : ItemActionLogDetail(fieldMapping) {
     override val message = "Invalid phone number '$formattedValue' for $fieldMapping. Reformat to a 10-digit phone " +
         "number (e.g. (555) - 555-5555)."
@@ -126,15 +128,16 @@ class InvalidPhoneMessage(
 class InvalidPostalMessage(
     private val formattedValue: String = "",
     fieldMapping: String,
-    private val format: String? = null
+    private val format: String? = null,
 ) : ItemActionLogDetail(fieldMapping) {
-    override val message: String get() {
-        var msg = "Invalid postal code '$formattedValue' for $fieldMapping."
-        if (format !== null) {
-            msg += " Reformat to $format."
+    override val message: String
+        get() {
+            var msg = "Invalid postal code '$formattedValue' for $fieldMapping."
+            if (format !== null) {
+                msg += " Reformat to $format."
+            }
+            return msg
         }
-        return msg
-    }
     override val errorCode = ErrorCode.INVALID_MSG_PARSE_POSTAL_CODE
 }
 
@@ -143,7 +146,7 @@ class InvalidPostalMessage(
  */
 class UnsupportedHDMessage(
     formattedValue: String = "",
-    fieldMapping: String
+    fieldMapping: String,
 ) : ItemActionLogDetail(fieldMapping) {
     override val message = "Unsupported HD format for input: '$formattedValue' in $fieldMapping"
     override val errorCode = ErrorCode.INVALID_MSG_PARSE_HD
@@ -154,7 +157,7 @@ class UnsupportedHDMessage(
  */
 class UnsupportedEIMessage(
     formattedValue: String = "",
-    fieldMapping: String
+    fieldMapping: String,
 ) : ItemActionLogDetail(fieldMapping) {
     override val message = "Unsupported EI format for input: '$formattedValue' in $fieldMapping"
     override val errorCode = ErrorCode.INVALID_MSG_PARSE_EI
@@ -164,7 +167,7 @@ class UnsupportedEIMessage(
  * A message to denote that equipment was not found in the LIVD table for a given [fieldMapping].
  */
 class InvalidEquipmentMessage(
-    fieldMapping: String
+    fieldMapping: String,
 ) : ItemActionLogDetail(fieldMapping) {
     override val message = "No match found for $fieldMapping; please refer to the " +
         "CDC LIVD table LOINC Mapping spreadsheet for acceptable values."
@@ -177,7 +180,7 @@ class InvalidEquipmentMessage(
 class FieldPrecisionMessage(
     fieldMapping: String = "", // Default to empty for backwards compatibility
     override val message: String,
-    override val errorCode: ErrorCode = ErrorCode.UNKNOWN
+    override val errorCode: ErrorCode = ErrorCode.UNKNOWN,
 ) : ItemActionLogDetail(fieldMapping)
 
 /**
@@ -186,7 +189,7 @@ class FieldPrecisionMessage(
 class FieldProcessingMessage(
     fieldMapping: String = "", // Default to empty for backwards compatibility
     override val message: String,
-    override val errorCode: ErrorCode = ErrorCode.UNKNOWN
+    override val errorCode: ErrorCode = ErrorCode.UNKNOWN,
 ) : ItemActionLogDetail(fieldMapping)
 
 /**
@@ -195,7 +198,7 @@ class FieldProcessingMessage(
  */
 class InvalidHL7Message(
     override val message: String,
-    override val errorCode: ErrorCode = ErrorCode.UNKNOWN
+    override val errorCode: ErrorCode = ErrorCode.UNKNOWN,
 ) : ItemActionLogDetail("")
 
 /**
@@ -220,13 +223,14 @@ class InvalidTranslationMessage(override val message: String) :
 class DuplicateSubmissionMessage(val payloadName: String?) : ActionLogDetail {
     override val scope = ActionLogScope.report
     override val errorCode = ErrorCode.UNKNOWN
-    override val message: String get() {
-        var msg = "All items in this submission are duplicates."
-        if (!payloadName.isNullOrEmpty()) {
-            msg += " Payload name: $payloadName"
+    override val message: String
+        get() {
+            var msg = "All items in this submission are duplicates."
+            if (!payloadName.isNullOrEmpty()) {
+                msg += " Payload name: $payloadName"
+            }
+            return msg
         }
-        return msg
-    }
 }
 
 /**
@@ -242,7 +246,7 @@ class DuplicateItemMessage() : ActionLogDetail {
  * A [message] for non-error details.
  */
 class FhirActionLogDetail(
-    override val message: String
+    override val message: String,
 ) : GenericActionLogDetail(message, ActionLogScope.report, ErrorCode.UNKNOWN)
 
 /**

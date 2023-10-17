@@ -66,7 +66,7 @@ class AuthUtils {
             privateKey: PrivateKey,
             keyId: String,
             expirationSecondsFromNow: Int = 300,
-            jti: String? = UUID.randomUUID().toString()
+            jti: String? = UUID.randomUUID().toString(),
         ): String {
             return generateToken(organization.name, baseUrl, privateKey, keyId, jti, expirationSecondsFromNow)
         }
@@ -108,8 +108,9 @@ class AuthUtils {
             if (nimbusdsJwk.keyType == KeyType.EC) {
                 val prefix = "Cannot convert pemFile to EC Key. "
                 if (jwk.d != null) error("$prefix This looks like a private key.  Key must be a public key.")
-                if (jwk.x.isNullOrEmpty() || jwk.y.isNullOrEmpty())
+                if (jwk.x.isNullOrEmpty() || jwk.y.isNullOrEmpty()) {
                     error("$prefix. Key missing elliptic point (x,y) value")
+                }
                 // actually generate an ECPublicKey obj, just to confirm it can be done.
                 val ecPublicKey = jwk.toECPublicKey()
                 if (ecPublicKey.w == null) error("$prefix.  'w' Point obj not created")
@@ -121,8 +122,9 @@ class AuthUtils {
                 if (jwk.n.isNullOrEmpty()) error("$prefix. Key missing modulus (n) value")
                 // actually generate an RSAPublicKey obj, just to confirm it can be done.
                 val rsaPublicKey = jwk.toRSAPublicKey()
-                if (rsaPublicKey.algorithm != "RSA")
+                if (rsaPublicKey.algorithm != "RSA") {
                     error("$prefix. Alg is ${rsaPublicKey.algorithm}. Expecting 'RSA'.")
+                }
             } else {
                 error("keyType is ${nimbusdsJwk.keyType}.  Expecting 'EC or RSA'.")
             }
@@ -143,12 +145,14 @@ class AuthUtils {
                 KeyType.EC -> {
                     val prefix = "Cannot convert pemFile to EC Key. "
                     if (jwk.d == null) error("$prefix This looks like a public key.  Key must be a private key.")
-                    if (jwk.x.isNullOrEmpty() || jwk.y.isNullOrEmpty())
+                    if (jwk.x.isNullOrEmpty() || jwk.y.isNullOrEmpty()) {
                         error("$prefix. Key missing elliptic point (x,y) value")
+                    }
                     // actually generate an ECPrivateKey obj, just to confirm it can be done.
                     val ecPrivateKey = jwk.toECPrivateKey()
-                    if (ecPrivateKey.algorithm != "EC")
+                    if (ecPrivateKey.algorithm != "EC") {
                         error("$prefix.  Alg is ${ecPrivateKey.algorithm}.  Expecting 'EC'.")
+                    }
                     return ecPrivateKey
                 }
                 KeyType.RSA -> {
@@ -158,8 +162,9 @@ class AuthUtils {
                     if (jwk.n.isNullOrEmpty()) error("$prefix. Key missing modulus (n) value")
                     // actually generate an RSAPrivateKey obj, just to confirm it can be done.
                     val rsaPrivateKey = jwk.toRSAPrivateKey()
-                    if (rsaPrivateKey.algorithm != "RSA")
+                    if (rsaPrivateKey.algorithm != "RSA") {
                         error("$prefix.  Alg is ${rsaPrivateKey.algorithm}.  Expecting 'RSA'.")
+                    }
                     return rsaPrivateKey
                 }
                 else -> {

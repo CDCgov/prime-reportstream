@@ -17,7 +17,7 @@ data class Credentials(
     @field:JacksonXmlProperty(localName = "elr:TimeStamp")
     val timestamp: String,
     @field:JacksonXmlProperty(localName = "elr:UserName")
-    val userName: String
+    val userName: String,
 ) : XmlObject
 
 /**
@@ -43,7 +43,7 @@ data class LabFile(
     val purpose: String = "HL7251",
     /** The extension of the file we're sending in */
     @field:JacksonXmlProperty(localName = "elr:strFileExtension")
-    val fileExtension: String = ".HL7"
+    val fileExtension: String = ".HL7",
 ) : XmlObject
 
 /**
@@ -62,7 +62,7 @@ data class UploadFiles(
     // the value we use for each element in the list
     @field:JacksonXmlProperty(localName = "elr:LabFile")
     @field:JacksonXmlElementWrapper(localName = "elr:arrLabFile")
-    val labFiles: Array<LabFile>
+    val labFiles: Array<LabFile>,
 ) : XmlObject {
     /**
      * checks for equality with other data classes
