@@ -27,7 +27,7 @@ object ConfigSchemaReader : Logging {
     fun fromFile(
         schemaName: String,
         folder: String? = null,
-        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>
+        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>,
     ): ConfigSchema<*> {
         // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
         val schemaList = when (URI(schemaName).scheme) {
@@ -51,7 +51,7 @@ object ConfigSchemaReader : Logging {
     private fun fromRelative(
         schemaName: String,
         folder: String? = null,
-        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>
+        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>,
     ): List<ConfigSchema<*>> {
         val schemaList = mutableListOf<ConfigSchema<*>>()
         schemaList.add(readSchemaTreeRelative(schemaName, folder, schemaClass = schemaClass))
@@ -74,15 +74,15 @@ object ConfigSchemaReader : Logging {
      */
     private fun fromUri(
         schemaUri: URI,
-        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>
+        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>>,
     ): List<ConfigSchema<*>> {
         val schemaList = mutableListOf<ConfigSchema<*>>()
         schemaList.add(readSchemaTreeUri(schemaUri, schemaClass = schemaClass))
         while (!schemaList.last().extends.isNullOrBlank()) {
             // Make sure there are no circular dependencies
             if (schemaList.any {
-                FilenameUtils.getName(schemaUri.path) == FilenameUtils.getName(schemaList.last().extends)
-            }
+                    FilenameUtils.getName(schemaUri.path) == FilenameUtils.getName(schemaList.last().extends)
+                }
             ) {
                 throw SchemaException("Schema circular dependency found while loading schema ${schemaUri.path}")
             }
@@ -125,7 +125,7 @@ object ConfigSchemaReader : Logging {
     internal fun readSchemaTreeUri(
         schemaUri: URI,
         ancestry: List<String> = listOf(),
-        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java
+        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java,
     ): ConfigSchema<*> {
         val rawSchema = when (schemaUri.scheme) {
             "file" -> {
@@ -169,7 +169,7 @@ object ConfigSchemaReader : Logging {
         schemaName: String,
         folder: String? = null,
         ancestry: List<String> = listOf(),
-        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java
+        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java,
     ): ConfigSchema<*> {
         val file = File(folder, "$schemaName.yml")
         if (!file.canRead()) throw SchemaException("Cannot read ${file.absolutePath}")
@@ -204,7 +204,7 @@ object ConfigSchemaReader : Logging {
      */
     internal fun readOneYamlSchema(
         inputStream: InputStream,
-        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java
+        schemaClass: Class<out ConfigSchema<out ConfigSchemaElement>> = ConverterSchema::class.java,
     ): ConfigSchema<*> {
         val mapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
         mapper.registerSubtypes(LookupTableValueSet::class.java)

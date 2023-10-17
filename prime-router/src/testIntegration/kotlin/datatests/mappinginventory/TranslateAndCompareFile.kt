@@ -25,3 +25,66 @@ fun translateAndCompareHL7ToFHIR(inputFile: String, expectedOutputFile: String):
         testConfig
     ).runTest()
 }
+
+fun verifyHL7ToFHIRToHL7Mapping(testFileName: String): CompareData.Result {
+    val hl7ToFhirConfig = TranslationTests.TestConfig(
+        "mappinginventory/$testFileName.hl7",
+        Report.Format.HL7,
+        "",
+        "mappinginventory/$testFileName.fhir",
+        Report.Format.FHIR,
+        null,
+        true,
+        null,
+        null,
+        null
+    )
+
+    val fhirToHl7Config = TranslationTests.TestConfig(
+        "mappinginventory/$testFileName.fhir",
+        Report.Format.FHIR,
+        "",
+        "mappinginventory/$testFileName.hl7",
+        Report.Format.HL7,
+        "metadata/hl7_mapping/ORU_R01/ORU_R01-test",
+        true,
+        null,
+        null,
+        null
+    )
+
+    val hl7toFhirToHl7Config = TranslationTests.TestConfig(
+        "mappinginventory/$testFileName.hl7",
+        Report.Format.HL7,
+        "",
+        "mappinginventory/$testFileName.hl7",
+        Report.Format.HL7,
+        "metadata/hl7_mapping/ORU_R01/ORU_R01-test",
+        true,
+        null,
+        null,
+        null
+    )
+
+    val hl7ToFhirResult = TranslationTests().FileConversionTest(
+        hl7ToFhirConfig
+    ).runTest()
+
+    if (!hl7ToFhirResult.passed) {
+        return hl7ToFhirResult
+    }
+
+    val fhirToHl7Result = TranslationTests().FileConversionTest(
+        fhirToHl7Config
+    ).runTest()
+
+    if (!fhirToHl7Result.passed) {
+        return fhirToHl7Result
+    }
+
+    val hl7ToFhirToHl7Result = TranslationTests().FileConversionTest(
+        hl7toFhirToHl7Config
+    ).runTest()
+
+    return hl7ToFhirToHl7Result
+}

@@ -38,7 +38,7 @@ class ApiSearchTest {
     data class TestPojo(val foo: String, val createdAt: OffsetDateTime)
 
     enum class TestApiFilterNames : ApiFilterNames {
-        FOO
+        FOO,
     }
 
     sealed class TestApiFilter<T> : ApiFilter<TestRecord, T> {
@@ -59,7 +59,7 @@ class ApiSearchTest {
         override val sortParameter: Field<*>?,
         override val sortDirection: SortDirection = SortDirection.DESC,
         page: Int = 1,
-        limit: Int = 25
+        limit: Int = 25,
     ) :
         ApiSearch<TestPojo, TestRecord, TestApiFilter<*>>(TestPojo::class.java, page, limit) {
         override fun getCondition(filter: TestApiFilter<*>): Condition {
@@ -78,10 +78,11 @@ class ApiSearchTest {
 
         companion object : ApiSearchParser<TestPojo, TestApiSearch, TestRecord, TestApiFilter<*>>() {
             override fun parseRawApiSearch(rawApiSearch: RawApiSearch): TestApiSearch {
-                val sort = if (rawApiSearch.sort != null)
+                val sort = if (rawApiSearch.sort != null) {
                     TestTable.TEST.field(rawApiSearch.sort!!.property)
-                else
+                } else {
                     TestTable.TEST.CREATED_AT
+                }
                 val filters = rawApiSearch.filters.mapNotNull { filter ->
                     when (TestApiFilters.getTerm(TestApiFilterNames.valueOf(filter.filterName))) {
                         TestApiFilter.FooFilter::class.java -> TestApiFilter.FooFilter(filter.value)
