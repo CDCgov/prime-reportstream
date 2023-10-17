@@ -16,7 +16,7 @@ abstract class DocumentationFactory {
         schema: Schema,
         outputDir: String = ".",
         outputFileName: String? = null,
-        includeTimestamps: Boolean = false
+        includeTimestamps: Boolean = false,
     )
 
     companion object {
@@ -36,7 +36,7 @@ abstract class DocumentationFactory {
             outputFileName: String?,
             schema: Schema,
             includeTimestamps: Boolean,
-            fileExtension: String
+            fileExtension: String,
         ): String {
             return (outputFileName ?: canonicalizeSchemaName(schema)) + if (includeTimestamps) {
                 "-${LocalDate.now().format(formatter)}.$fileExtension"

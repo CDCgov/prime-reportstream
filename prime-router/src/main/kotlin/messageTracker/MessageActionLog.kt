@@ -14,5 +14,5 @@ import gov.cdc.prime.router.ActionLogDetail
 @JsonIgnoreProperties(ignoreUnknown = true)
 class MessageActionLog(
     val trackingId: String?,
-    val detail: ActionLogDetail
+    val detail: ActionLogDetail,
 )

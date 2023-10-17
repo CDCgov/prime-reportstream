@@ -25,7 +25,7 @@ import kotlin.time.ExperimentalTime
 data class ApiSearchResult<T>(val totalCount: Int, val filteredCount: Int, val results: List<T>)
 enum class SortDirection {
     ASC,
-    DESC
+    DESC,
 }
 
 /**
@@ -66,7 +66,7 @@ abstract class ApiSearchParser<
     PojoType,
     ApiSearchType : ApiSearch<PojoType, RecordType, Names>,
     RecordType : Record,
-    Names : ApiFilter<RecordType, *>
+    Names : ApiFilter<RecordType, *>,
     > {
     /**
      * Converts a query string into a RawApiSearch. Currently, not implemented
@@ -115,10 +115,13 @@ abstract class ApiSearchParser<
  * A raw filter that a parser will convert
  */
 data class RawFilter(val value: String, val filterName: String)
+
 /** Pagination data */
 data class RawPagination(val page: Int, val limit: Int)
+
 /** A raw sort that a parser will convert */
 data class RawApiSort(val direction: SortDirection, val property: String)
+
 /** A raw API search that is parsed via Jackson and then parsed by a specific API Search type */
 data class RawApiSearch(val sort: RawApiSort?, val pagination: RawPagination, val filters: List<RawFilter>)
 
@@ -139,12 +142,14 @@ data class RawApiSearch(val sort: RawApiSort?, val pagination: RawPagination, va
 abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilter<RecordType, *>>(
     private val recordClass: Class<PojoType>,
     val page: Int,
-    val limit: Int
+    val limit: Int,
 ) : Logging {
     /** The list of filters that should be applied */
     abstract val filters: List<ApiFilterType>
+
     /** The sort parameter that should be applied */
     abstract val sortParameter: Field<*>?
+
     /** The sort direction that should be applied */
     open val sortDirection: SortDirection = SortDirection.DESC
 
@@ -202,7 +207,7 @@ abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilte
         dslContext: DSLContext,
         selectFields: SelectFieldOrAsterisk,
         table: Table<T>,
-        recursiveCte: CommonTableExpression<R>
+        recursiveCte: CommonTableExpression<R>,
     ): ApiSearchResult<PojoType> = fetchResults<T, R>(dslContext, selectFields, table, DSL.withRecursive(recursiveCte))
 
     /**
@@ -219,7 +224,7 @@ abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilte
     open fun <T : Record> fetchResults(
         dslContext: DSLContext,
         selectFields: SelectFieldOrAsterisk,
-        table: Table<T>
+        table: Table<T>,
     ): ApiSearchResult<PojoType> = fetchResults<T, Record>(dslContext, selectFields, table, DSL.withRecursive())
 
     /**
@@ -238,7 +243,7 @@ abstract class ApiSearch<PojoType, RecordType : Record, ApiFilterType : ApiFilte
         dslContext: DSLContext,
         selectFields: SelectFieldOrAsterisk,
         table: Table<T>,
-        dsl: WithStep
+        dsl: WithStep,
     ): ApiSearchResult<PojoType> =
         runBlocking {
             flow<ApiSearchResult<PojoType>> {

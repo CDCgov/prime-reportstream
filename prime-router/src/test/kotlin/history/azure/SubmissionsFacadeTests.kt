@@ -136,6 +136,7 @@ class SubmissionsFacadeTests {
         // This auth also denied, regardless of the sender channel.
         assertThat(facade.checkAccessAuthorizationForOrg(claims, badOrg, "quux", mockRequest)).isFalse()
     }
+
     @Test
     fun `test checkAccessAuthorizationForAction`() {
         val mockSubmissionAccess = mockk<DatabaseSubmissionsAccess>()

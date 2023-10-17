@@ -50,7 +50,7 @@ object CsvDocumentationFactory : TableBasedDocumentationFactory(), Logging {
         schema: Schema,
         outputDir: String,
         outputFileName: String?,
-        includeTimestamps: Boolean
+        includeTimestamps: Boolean,
     ) {
         // ensure the output directory
         ensureOutputDirectory(outputDir)

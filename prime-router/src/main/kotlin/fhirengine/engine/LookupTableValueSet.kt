@@ -18,7 +18,7 @@ import java.util.SortedMap
 data class LookupTableValueSetConfig(
     val tableName: String,
     val keyColumn: String,
-    val valueColumn: String
+    val valueColumn: String,
 )
 
 /**
@@ -26,7 +26,7 @@ data class LookupTableValueSetConfig(
  * Provide [LookupTableValueSetConfig] to configure the lookup table source.
  */
 class LookupTableValueSet
-(@JsonProperty("lookupTable") private val configData: LookupTableValueSetConfig) : ValueSetCollection {
+    (@JsonProperty("lookupTable") private val configData: LookupTableValueSetConfig) : ValueSetCollection {
     private val metadata = Metadata.getInstance()
     private val mapVal: SortedMap<String, String> by lazy {
         val lookupTable = metadata.findLookupTable(name = configData.tableName)

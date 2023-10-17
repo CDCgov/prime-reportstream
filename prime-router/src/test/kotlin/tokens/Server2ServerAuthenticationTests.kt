@@ -213,8 +213,9 @@ class Server2ServerAuthenticationTests {
         val claims = server2ServerAuthentication.authenticate(token.accessToken, rslookup)
         // if claims is non-null then the sender's accessToken is valid.
         assertNotNull(claims)
-        if (! claims.authorized(setOf("*.*.primeadmin")))
+        if (!claims.authorized(setOf("*.*.primeadmin"))) {
             error("Authorization failed")
+        }
         // if claims is non-null then the sender's accessToken is valid.
         assertEquals(token.expiresAtSeconds, claims.jwtClaims["exp"])
         assertTrue(claims.scopes.contains("*.*.primeadmin"))
@@ -222,10 +223,10 @@ class Server2ServerAuthenticationTests {
     }
 
     /*
-    * I thought it would be nice to show an end-to-end flow, as a happy path example.
-    * This is a repeat of all the above tests, but all in one place.
-    *
-    * Vocabulary note:
+     * I thought it would be nice to show an end-to-end flow, as a happy path example.
+     * This is a repeat of all the above tests, but all in one place.
+     *
+     * Vocabulary note:
      * There are two different tokens, which we're calling the SenderToken and the AccessToken.
      * Upon validation of a SenderToken, ReportStream will return a short duration AccessToken, which can be used
      * to call one of our endpoints, assuming a valid 'scope' for that endpoint.
@@ -267,8 +268,9 @@ class Server2ServerAuthenticationTests {
         // if claims is non-null then the sender's accessToken is valid.
         assertNotNull(claims)
 
-        if (! claims.authorized(setOf("simple_report.*.report")))
+        if (!claims.authorized(setOf("simple_report.*.report"))) {
             error("Authorization failed")
+        }
         assertEquals(accessToken.expiresAtSeconds, claims.jwtClaims["exp"])
         assertEquals("simple_report.*.report", claims.jwtClaims["scope"])
     }
@@ -428,8 +430,9 @@ class Server2ServerAuthenticationTests {
         val accessToken = server2ServerAuthentication.createAccessToken("a.b.report", rslookup)
         val claims = server2ServerAuthentication.authenticate(accessToken.accessToken, rslookup)
         assertNotNull(claims)
-        if (! claims.authorized(setOf("a.b.report")))
+        if (!claims.authorized(setOf("a.b.report"))) {
             error("Claims not authorized")
+        }
         assertEquals(accessToken.expiresAtSeconds, claims.jwtClaims["exp"])
         assertTrue(claims.scopes.contains("a.b.report"))
     }
@@ -600,6 +603,7 @@ class Server2ServerAuthenticationTests {
 
         assertThat(server2ServerAuthentication.verifyJwtWithKey(token, publicKey, jtiCache)).isFalse()
     }
+
     @Test
     fun `test verifyJwt with missing JTI`() {
         val privateKey = jacksonObjectMapper().readValue(exampleRsaPrivateKeyStr, Jwk::class.java).toRSAPrivateKey()
