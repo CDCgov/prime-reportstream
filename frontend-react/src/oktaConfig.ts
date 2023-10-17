@@ -20,7 +20,7 @@ const oktaAuthConfig: OktaAuthOptions = {
         autoRenew: false,
     },
     async transformAuthState(oktaAuth, authState) {
-        // Prevent existing sessions from old okta environments
+        // Prevent pulling incorrect token from a different okta environment
         if (
             authState.isAuthenticated &&
             authState.accessToken?.claims.iss !== OKTA_ISSUER
