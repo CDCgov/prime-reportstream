@@ -421,7 +421,7 @@ class XTNTests {
     }
 
     @Test
-    fun `XTN test value in XTN-18`() {
+    fun `XTN test positive value in XTN-18`() {
         assert(
             translateAndCompareFHIRToHL7(
                 "mappinginventory/xtn/xtn_23_xtn18_has_positive_value.fhir",
@@ -436,4 +436,21 @@ class XTNTests {
             ).passed
         )
     }
+
+//    @Test
+//    fun `XTN test negative value in XTN-18`() {
+//        assert(
+//            !translateAndCompareFHIRToHL7(
+//                "mappinginventory/xtn/xtn_23_xtn18_has_negative_value.fhir",
+//                "mappinginventory/xtn/xtn_23_xtn18_has_negative_value.hl7"
+//            ).passed
+//        )
+//
+//        assert(
+//            !translateAndCompareHL7ToFHIR(
+//                "mappinginventory/xtn/xtn_23_xtn18_has_negative_value.hl7",
+//                "mappinginventory/xtn/xtn_23_xtn18_has_negative_value.fhir"
+//            ).passed
+//        )
+//    }
 }
