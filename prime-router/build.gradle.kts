@@ -806,10 +806,7 @@ dependencies {
         exclude(group = "com.azure", module = "azure-storage-common")
     }
     implementation("com.azure:azure-storage-queue:12.19.0") {
-        exclude(group = "com.azure", module = "azure-core")
-        exclude(group = "com.azure", module = "azure-core-http-netty")
-        exclude(group = "com.azure", module = "azure-storage-common")
-        exclude(group = "com.fasterxml.jackson.dataformat", module = "jackson-dataformat-xml")
+        isTransitive = false
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.6.5") {
         exclude(group = "com.azure", module = "azure-core")
