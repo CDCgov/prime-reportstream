@@ -190,10 +190,10 @@ describe("ManagePublicKey", () => {
 
             renderApp(<ManagePublicKey />);
         });
-        /*
-        test("shows the configured screen and allows the user to upload a new public key", async () => {
+
+        test.skip("shows the configured screen and allows the user to upload a new public key", async () => {
             expect(
-                screen.getByText("Your public key is already configured.")
+                screen.getByText("Your public key is already configured."),
             ).toBeVisible();
 
             await userEvent.click(screen.getByText("Upload new public key"));
@@ -201,7 +201,6 @@ describe("ManagePublicKey", () => {
             expect(screen.getByTestId("file-input-input")).toBeVisible();
             expect(screen.getByText("Submit")).toBeDisabled();
         });
-        */
 
         test("shows the configured screen and displays a message to the user", async () => {
             expect(
@@ -214,78 +213,78 @@ describe("ManagePublicKey", () => {
         });
     });
 
-    // describe("when a valid pem file is being submitted", () => {
-    //     beforeEach(() => {
-    //         // Selected sender
-    //         mockUseOrganizationSenders({
-    //             isLoading: false,
-    //             data: DEFAULT_SENDERS.slice(1),
-    //         });
+    describe("when a valid pem file is being submitted", () => {
+        beforeEach(() => {
+            // Selected sender
+            mockUseOrganizationSenders({
+                isLoading: false,
+                data: DEFAULT_SENDERS.slice(1),
+            });
 
-    //         mockUseCreateOrganizationPublicKey({
-    //             isLoading: false,
-    //             isSuccess: true,
-    //         });
+            mockUseCreateOrganizationPublicKey({
+                isLoading: false,
+                isSuccess: true,
+            });
 
-    //         renderApp(<ManagePublicKey />);
-    //     });
+            renderApp(<ManagePublicKey />);
+        });
 
-    //     test("uploads the file and shows the success screen", async () => {
-    //         expect(screen.getByTestId("file-input-input")).toBeVisible();
-    //         expect(screen.getByText("Submit")).toBeDisabled();
-    //         await chooseFile(fakeFile);
-    //         expect(screen.getByText("Submit")).toBeVisible();
-    //         /* eslint-disable testing-library/no-unnecessary-act */
-    //         await act(async () => {
-    //             fireEvent.submit(screen.getByTestId("form"));
-    //         });
-    //         /* eslint-enable testing-library/no-unnecessary-act */
+        test.skip("uploads the file and shows the success screen", async () => {
+            expect(screen.getByTestId("file-input-input")).toBeVisible();
+            expect(screen.getByText("Submit")).toBeDisabled();
+            await chooseFile(fakeFile);
+            expect(screen.getByText("Submit")).toBeVisible();
+            /* eslint-disable testing-library/no-unnecessary-act */
+            await act(async () => {
+                fireEvent.submit(screen.getByTestId("form"));
+            });
+            /* eslint-enable testing-library/no-unnecessary-act */
 
-    //         expect(
-    //             screen.getByText("You can now submit data to ReportStream."),
-    //         ).toBeVisible();
-    //     });
-    // });
+            expect(
+                screen.getByText("You can now submit data to ReportStream."),
+            ).toBeVisible();
+        });
+    });
 
-    // describe("when an invalid pem file is being submitted", () => {
-    //     beforeEach(async () => {
-    //         // Selected sender
-    //         mockUseOrganizationSenders({
-    //             isLoading: false,
-    //             data: DEFAULT_SENDERS.slice(0, 1),
-    //         });
+    describe("when an invalid pem file is being submitted", () => {
+        beforeEach(async () => {
+            // Selected sender
+            mockUseOrganizationSenders({
+                isLoading: false,
+                data: DEFAULT_SENDERS.slice(0, 1),
+            });
 
-    //         mockUseCreateOrganizationPublicKey({
-    //             isLoading: false,
-    //             isSuccess: false,
-    //         });
+            mockUseCreateOrganizationPublicKey({
+                isLoading: false,
+                isSuccess: false,
+            });
 
-    //         renderApp(<ManagePublicKey />);
+            renderApp(<ManagePublicKey />);
 
-    //         expect(screen.getByTestId("file-input-input")).toBeVisible();
-    //         expect(screen.getByText("Submit")).toBeDisabled();
-    //         await chooseFile(fakeFile);
-    //         expect(screen.getByText("Submit")).toBeVisible();
-    //         /* eslint-disable testing-library/no-unnecessary-act */
-    //         await act(async () => {
-    //             fireEvent.submit(screen.getByTestId("form"));
-    //         });
-    //         /* eslint-enable testing-library/no-unnecessary-act */
-    //     });
+            expect(screen.getByTestId("file-input-input")).toBeVisible();
+            expect(screen.getByText("Submit")).toBeDisabled();
+            await chooseFile(fakeFile);
+            expect(screen.getByText("Submit")).toBeVisible();
+            /* eslint-disable testing-library/no-unnecessary-act */
+            await act(async () => {
+                fireEvent.submit(screen.getByTestId("form"));
+            });
+            /* eslint-enable testing-library/no-unnecessary-act */
+        });
 
-    //     test("shows the upload error screen", () => {
-    //         expect(
-    //             screen.getByText("Key could not be submitted"),
-    //         ).toBeVisible();
-    //     });
+        test.skip("shows the upload error screen", () => {
+            expect(
+                screen.getByText("Key could not be submitted"),
+            ).toBeVisible();
+        });
 
-    //     test("allows the user to try again", async () => {
-    //         expect(
-    //             screen.getByText("Key could not be submitted"),
-    //         ).toBeVisible();
-    //         await userEvent.click(screen.getByText("Try again"));
+        test.skip("allows the user to try again", async () => {
+            expect(
+                screen.getByText("Key could not be submitted"),
+            ).toBeVisible();
+            await userEvent.click(screen.getByText("Try again"));
 
-    //         expect(screen.getByText("Drag file here or")).toBeVisible();
-    //     });
-    // });
+            expect(screen.getByText("Drag file here or")).toBeVisible();
+        });
+    });
 });
