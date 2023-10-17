@@ -57,6 +57,11 @@
       "resource" : {
         "resourceType" : "Organization",
         "id" : "1697038628683395000.911deb20-4ed2-4f3f-ba09-8ee7f6283329",
+        "address": [
+          {
+            "country": "USA"
+          }
+        ],
         "meta" : {
           "extension" : [
             {
@@ -107,6 +112,10 @@
       "resource" : {
         "resourceType" : "Organization",
         "id" : "1697038628687313000.6bb61b55-5546-474b-97b8-3695e8aa6ebc",
+        "identifier": [
+          {
+          }
+        ],
         "meta" : {
           "extension" : [
             {

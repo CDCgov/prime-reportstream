@@ -1,5 +1,8 @@
 package gov.cdc.prime.router.fhirengine.utils
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ArrayNode
+import com.flipkart.zjsonpatch.JsonDiff
 import gov.cdc.prime.router.cli.tests.CompareData
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.model.Base
@@ -10,6 +13,7 @@ import org.hl7.fhir.r4.model.Property
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.Resource
 import java.io.InputStream
+import java.lang.IllegalArgumentException
 
 /**
  * Compare two FHIR files.
@@ -40,11 +44,33 @@ class CompareFhirData(
     ): CompareData.Result {
         val expectedJson = expected.bufferedReader().readText()
         val actualJson = actual.bufferedReader().readText()
+
+        jamieTest(expectedJson, actualJson)
+
         val expectedBundle = FhirTranscoder.decode(expectedJson)
         val actualBundle = FhirTranscoder.decode(actualJson)
 
         compareBundle(actualBundle, expectedBundle, result)
         return result
+    }
+
+    private fun jamieTest(
+        expectedJson: String,
+        actualJson: String,
+    ) {
+        val mapper = ObjectMapper()
+        val expectedParsedJson = mapper.readTree(expectedJson)
+        val actualParsedJson = mapper.readTree(actualJson)
+
+        val patches = JsonDiff.asJson(expectedParsedJson, actualParsedJson) as ArrayNode
+        val filtered = listOf("/id", "/fullUrl", "/lastUpdated", "/timestamp", "/reference")
+        val filteredList = patches.filter { patch ->
+            !filtered.any { filteredField ->
+                patch.at("/path").asText().endsWith(filteredField)
+            }
+        }
+        val array = mapper.createArrayNode().addAll(filteredList)
+        logger.info("JSON diff:\n${array.toPrettyString()}")
     }
 
     /**
@@ -154,8 +180,17 @@ class CompareFhirData(
         // Only compare properties we need
         filterResourceProperties(expectedProperty).forEach { expectedChild ->
             val actualChild = actualProperty.getChildByName(expectedChild.name)
-            // Properties with no expected values are ignored
-            if (expectedChild.values.isNotEmpty() && actualChild != null) {
+            if (expectedChild.values.size != actualChild.values.size) {
+                val differentChildSizesError = createDifferentChildSizesError(
+                    expectedChild,
+                    actualChild,
+                    expectedIdPath,
+                    actualIdPath,
+                    parentTypePath
+                )
+                result.merge(differentChildSizesError)
+            } else if (expectedChild.values.isNotEmpty() && actualChild != null) {
+                // Properties with no expected values are ignored
                 val actualValues = actualChild.values
                 val expectedValues = expectedChild.values
                 expectedValues.forEach { expectedValue ->
@@ -277,6 +312,35 @@ class CompareFhirData(
             val isBundleEntry = (resource.hasType("Bundle") && it.name == "entry")
             !(isSkipped || isResourceId || isBundleEntry)
         }
+    }
+
+    private fun createDifferentChildSizesError(
+        expectedChild: Property,
+        actualChild: Property,
+        expectedIdPath: String,
+        actualIdPath: String,
+        parentTypePath: String,
+    ): CompareData.Result {
+        val failure = CompareData.Result(passed = false)
+
+        val propertyTypePath = "$parentTypePath.${expectedChild.name}"
+
+        val errorMsg = if (actualChild.values.isEmpty() && expectedChild.values.isNotEmpty()) {
+            "Expected property at $expectedIdPath $propertyTypePath is missing"
+        } else if (actualChild.values.isNotEmpty() && expectedChild.values.isEmpty()) {
+            "Property at $actualIdPath $propertyTypePath is not expected to be present"
+        } else if (actualChild.values.size > expectedChild.values.size) {
+            "Extra properties found at $actualIdPath $propertyTypePath. " +
+                "actual=${actualChild.values.size}, expected=${expectedChild.values.size}"
+        } else if (actualChild.values.size < expectedChild.values.size) {
+            "Fewer properties found at $actualIdPath $propertyTypePath. " +
+                "actual=${actualChild.values.size}, expected=${expectedChild.values.size}"
+        } else {
+            throw IllegalArgumentException("Expected child size and actual child size cannot be equal")
+        }
+
+        failure.errors.add(errorMsg)
+        return failure
     }
 
     companion object {
