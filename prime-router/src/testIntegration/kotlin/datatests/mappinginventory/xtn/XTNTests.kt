@@ -232,4 +232,21 @@ class XTNTests {
             ).passed
         )
     }
+
+    @Test
+    fun `XTN test XTN-3 is Internet and XTN-4 has a value`() {
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/xtn/xtn_contact_point_8_xtn3_internet_xtn4_test_email.fhir",
+                "mappinginventory/xtn/xtn_contact_point_8_xtn3_internet_xtn4_test_email.hl7"
+            ).passed
+        )
+
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/xtn/xtn_contact_point_8_xtn3_internet_xtn4_test_email.hl7",
+                "mappinginventory/xtn/xtn_contact_point_8_xtn3_internet_xtn4_test_email.fhir"
+            ).passed
+        )
+    }
 }

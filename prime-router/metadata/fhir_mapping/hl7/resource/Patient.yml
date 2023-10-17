@@ -254,10 +254,8 @@ telecom_2:
   vars:
     pid14: PID.14
   constants:
-    use: work
+    hl7Use: work
 
-# The yaml is processed in reverse order, therefore
-# Put the PID.13 last in yaml so it is first to be processed
 birthDate:
   type: DATE
   valueOf: PID.7

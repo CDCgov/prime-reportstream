@@ -274,7 +274,7 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/data-absent-reason"
 # Contact Point Country
 - id: "contactpoint-country"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/contactpoint-country"
+  url: "http://hl7.org/fhir/StructureDefinition/contactpoint-country"
 # Contact Point Area
 - id: "contactpoint-area"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/contactpoint-area"
@@ -293,6 +293,12 @@
 # HL7 Use
 - id: "hl7-use"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use"
+# Telephone Number
+- id: "telephone-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/telephone-number"
 # Communication Address
 - id: "communication-address"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/communication-address"
+# Unformatted Telephone Number
+- id: "unformatted-telephone-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/unformatted-telephone-number"

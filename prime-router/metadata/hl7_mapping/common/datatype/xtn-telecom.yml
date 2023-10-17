@@ -4,7 +4,13 @@ constants:
 #TODO: Need to look for a way to set use code to ORN when home and cell phone is passed
 elements:
   - name: xtn-telephone-number
+    condition: '%resource.extension(%`rsext-telephone-number`).exists().not'
     value: [ '%resource.value' ]
+    hl7Spec: [ '%{hl7TelecomPath}-1' ]
+
+  - name: xtn-telephone-number-from-extension
+    condition: '%resource.extension(%`rsext-telephone-number`).exists()'
+    value: [ '%resource.extension(%`rsext-telephone-number`).value' ]
     hl7Spec: [ '%{hl7TelecomPath}-1' ]
 
   - name: xtn-use-code
@@ -48,10 +54,15 @@ elements:
     value: [ '%resource.extension(%`rsext-communication-address`).value' ]
     hl7Spec: [ '%{hl7TelecomPath}-4' ]
 
-#  - name: xtn-country-code
-#    condition: '%resource.value.exists()'
-#    value: [ '%resource.value.getPhoneNumberCountryCode()' ]
-#    hl7Spec: [ '%{hl7TelecomPath}-5' ]
+  - name: xtn-country-code
+    condition: '%resource.value.exists() and %resource.extension(%`ext-contactpoint-country`).exists().not'
+    value: [ '%resource.value.getPhoneNumberCountryCode()' ]
+    hl7Spec: [ '%{hl7TelecomPath}-5' ]
+
+  - name: xtn-country-code-from-extension-contactpoint-country
+    condition: '%resource.extension(%`ext-contactpoint-country`).exists()'
+    value: [ '%resource.extension(%`ext-contactpoint-country`).value' ]
+    hl7Spec: [ '%{hl7TelecomPath}-5' ]
 #
 #  - name: xtn-area-code
 #    condition: '%resource.value.exists()'
@@ -86,6 +97,11 @@ elements:
     hl7Spec: [ '%{hl7TelecomPath}-9' ]
 
   - name: xtn-unformatted-text
-    condition: '%resource.value.exists() and %resource.system != "email"'
+    condition: '%resource.value.exists() and %resource.system != "email" and %resource.extension(%`rsext-unformatted-telephone-number`).exists().not()'
     value: [ '%deidentifiedValue','%resource.value' ]
+    hl7Spec: [ '%{hl7TelecomPath}-12' ]
+
+  - name: xtn-unformatted-text
+    condition: '%resource.extension(%`rsext-unformatted-telephone-number`).exists()'
+    value: [ '%deidentifiedValue','%resource.extension(%`rsext-unformatted-telephone-number`).value' ]
     hl7Spec: [ '%{hl7TelecomPath}-12' ]
