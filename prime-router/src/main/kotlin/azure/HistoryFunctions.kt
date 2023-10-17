@@ -30,7 +30,7 @@ class Facility private constructor(
     val location: String?,
     val CLIA: String?,
     val positive: Long?,
-    val total: Long?
+    val total: Long?,
 ) {
 
     data class Builder(
@@ -39,7 +39,7 @@ class Facility private constructor(
         var location: String? = null,
         var CLIA: String? = null,
         var positive: Long? = null,
-        var total: Long? = null
+        var total: Long? = null,
     ) {
 
         fun organization(organization: String) = apply { this.organization = organization }
@@ -55,13 +55,13 @@ class Facility private constructor(
 class Action private constructor(
     val date: String?,
     val user: String?,
-    val action: String?
+    val action: String?,
 ) {
 
     data class Builder(
         var date: String? = null,
         var user: String? = null,
-        var action: String? = null
+        var action: String? = null,
     ) {
 
         fun date(date: String) = apply { this.date = date }
@@ -88,7 +88,7 @@ class ReportView private constructor(
     val displayName: String?,
     val content: String?,
     val fileName: String?,
-    val mimeType: String?
+    val mimeType: String?,
 ) {
     data class Builder(
         var sent: Long? = null,
@@ -107,7 +107,7 @@ class ReportView private constructor(
         var displayName: String? = null,
         var content: String? = null,
         var fileName: String? = null,
-        var mimeType: String? = null
+        var mimeType: String? = null,
     ) {
 
         fun sent(sent: Long) = apply { this.sent = sent }
@@ -182,7 +182,7 @@ class GetReports :
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "v1/reports/search"
-        ) request: HttpRequestMessage<String?>
+        ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims == null || !claims.authorized(setOf("*.*.primeadmin"))) {
@@ -246,7 +246,7 @@ open class BaseHistoryFunction : Logging {
     fun getReports(
         request: HttpRequestMessage<String?>,
         context: ExecutionContext,
-        organizationName: String? = null
+        organizationName: String? = null,
     ): HttpResponseMessage {
         logger.info("Checking authorization for getReports")
         val authClaims = checkAuthenticated(request, context)
@@ -258,6 +258,7 @@ open class BaseHistoryFunction : Logging {
                 OffsetDateTime.now().minusDays(DAYS_TO_SHOW),
                 organizationName ?: authClaims.organization.name
             )
+
             @Suppress("NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER")
             val reports = headers.sortedByDescending { it.createdAt }.map {
                 // removing the call for facilities for now so we can call a
@@ -332,82 +333,120 @@ open class BaseHistoryFunction : Logging {
     fun getReportById(
         request: HttpRequestMessage<String?>,
         reportIdIn: String,
-        context: ExecutionContext
+        context: ExecutionContext,
     ): HttpResponseMessage {
-        val authClaims = checkAuthenticated(request, context)
-            ?: return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).build()
+        val claims = AuthenticatedClaims.authenticate(request)
+        val requestOrgName: String = request.headers["organization"]
+            ?: return HttpUtilities.bad(request, "Missing organization in header")
 
-        var response: HttpResponseMessage
+        if (claims == null || !claims.authorized(
+                setOf(
+                    PRIME_ADMIN_PATTERN,
+                    "$requestOrgName.*.*",
+                    "$requestOrgName.*.admin",
+                    "$requestOrgName.*.user",
+                    "$requestOrgName.*.*",
+                    "$requestOrgName.*.report"
+                )
+            )
+        ) {
+            return HttpUtilities.unauthorizedResponse(request)
+        }
+
         try {
-            // get the organization based on the header, if it exists, and if it
-            // doesn't, use the organization from the authClaim
-            val reportOrg = workflowEngine.settings.organizations.firstOrNull {
-                it.name.lowercase() == request.headers["organization"]?.lowercase()
-            } ?: authClaims.organization
             val reportId = ReportId.fromString(reportIdIn)
-            val header = workflowEngine.fetchHeader(reportId, reportOrg)
-            if (header.content == null || header.content.isEmpty())
-                response = request.createResponseBuilder(HttpStatus.NOT_FOUND).build()
-            else {
-                val filename = Report.formExternalFilename(header)
-                val mimeType = Report.Format.safeValueOf(header.reportFile.bodyFormat).mimeType
+            val requestedReport = workflowEngine.db.fetchReportFile(reportId)
+            if (requestedReport.receivingOrg != requestOrgName) {
+                return HttpUtilities.notFoundResponse(request)
+            }
+
+            val contents = if (requestedReport.bodyUrl != null) {
+                BlobAccess.downloadBlobAsByteArray(requestedReport.bodyUrl)
+            } else {
+                // If the body URL is missing from the report it is likely a sent report that was generated
+                // before a blob was being generated.  This code can be removed after all of those reports
+                // have expired.
+                // To be backwards compatible, the parent report (from the batch step) is fetched and that report
+                // is downloaded
+                val batchReport = workflowEngine.db.fetchParentReport(requestedReport.reportId)
+                if (batchReport == null || batchReport.bodyUrl == null) {
+                    return HttpUtilities.notFoundResponse(request)
+                }
+                BlobAccess.downloadBlobAsByteArray(batchReport.bodyUrl)
+            }
+            if (contents.isEmpty()) {
+                return HttpUtilities.notFoundResponse(request)
+            } else {
+                val filename = Report.formExternalFilename(
+                    requestedReport.bodyUrl,
+                    requestedReport.reportId,
+                    requestedReport.schemaName,
+                    Report.Format.safeValueOf(requestedReport.bodyFormat),
+                    requestedReport.createdAt,
+                )
+                val mimeType = Report.Format.safeValueOf(requestedReport.bodyFormat).mimeType
                 val report = ReportView.Builder()
-                    .reportId(header.reportFile.reportId.toString())
-                    .sent(header.reportFile.createdAt.toEpochSecond() * 1000)
-                    .via(header.reportFile.bodyFormat)
-                    .total(header.reportFile.itemCount.toLong())
-                    .fileType(header.reportFile.bodyFormat)
+                    .reportId(requestedReport.reportId.toString())
+                    .sent(requestedReport.createdAt.toEpochSecond() * 1000)
+                    .via(requestedReport.bodyFormat)
+                    .total(requestedReport.itemCount.toLong())
+                    .fileType(requestedReport.bodyFormat)
                     .type("ELR")
-                    .expires(header.reportFile.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
-                    .receivingOrg(header.reportFile.receivingOrg)
-                    .receivingOrgSvc(header.reportFile.receivingOrgSvc)
-                    .sendingOrg(header.reportFile.sendingOrg ?: "")
+                    .expires(requestedReport.createdAt.plusDays(DAYS_TO_SHOW).toEpochSecond() * 1000)
+                    .receivingOrg(requestedReport.receivingOrg)
+                    .receivingOrgSvc(requestedReport.receivingOrgSvc)
+                    .sendingOrg(requestedReport.sendingOrg ?: "")
                     .displayName(
-                        if (header.reportFile.externalName.isNullOrBlank()) header.reportFile.receivingOrgSvc
-                        else header.reportFile.externalName
+                        if (requestedReport.externalName.isNullOrBlank()) {
+                            requestedReport.receivingOrgSvc
+                        } else {
+                            requestedReport.externalName
+                        }
                     )
-                    .content(String(header.content))
+                    .content(String(contents))
                     .fileName(filename)
                     .mimeType(mimeType)
                     .build()
 
-                response = request
+                val response = request
                     .createResponseBuilder(HttpStatus.OK)
                     .header("Content-Type", "application/json")
                     .body(report)
                     .build()
 
-                val actionHistory = ActionHistory(TaskAction.download)
+                val actionHistory = ActionHistory(TaskAction.download, generatingEmptyReport = true)
                 actionHistory.trackActionRequestResponse(request, response)
-                actionHistory.trackActionReceiverInfo(header.reportFile.receivingOrg, header.reportFile.receivingOrgSvc)
+                actionHistory.trackActionReceiverInfo(report.receivingOrg!!, report.receivingOrgSvc!!)
                 // Give the external report_file a new UUID, so we can track its history distinct from the
                 // internal blob.   This is going to be very confusing.
                 val externalReportId = UUID.randomUUID()
                 actionHistory.trackDownloadedReport(
-                    header,
+                    requestedReport,
                     filename,
                     externalReportId,
-                    authClaims.userName,
+                    claims.userName,
                 )
-                actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, externalReportId))
+                actionHistory.trackItemLineages(
+                    workflowEngine.db.fetchItemLineagesForReport(
+                        reportId,
+                        requestedReport.itemCount
+
+                    )
+                )
                 workflowEngine.recordAction(actionHistory)
 
                 return response
             }
         } catch (ex: Exception) {
             context.logger.warning("Exception during download of $reportIdIn - file not found")
-            response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
-                .body("File $reportIdIn not found")
-                .header("Content-Type", "text/html")
-                .build()
+            return HttpUtilities.notFoundResponse(request, "File $reportIdIn not found")
         }
-        return response
     }
 
     fun getFacilitiesForReportId(
         request: HttpRequestMessage<String?>,
         reportId: String?,
-        context: ExecutionContext
+        context: ExecutionContext,
     ): HttpResponseMessage {
         // make sure we're auth'd and error out if we're not
         checkAuthenticated(request, context)
@@ -432,7 +471,7 @@ open class BaseHistoryFunction : Logging {
 
     data class AuthClaims(
         val userName: String,
-        val organization: Organization
+        val organization: Organization,
     )
 
     /**
@@ -446,13 +485,13 @@ open class BaseHistoryFunction : Logging {
         var jwtToken: String? = request.headers["authorization"] /* Format: Bearer ... */
 
         /* INFO:
-        *   JWT cannot be parsed by OktaAuthentication object here because Admins who do not
-        *   exist in one or more DHxx_phd groups on Okta will be unable to see any receiver's
-        *   reports.
-        *
-        *   To fix this, below we apply the same verifier, and then we see if oktaOrganizations.contains(orgName) OR
-        *   oktaOrganizations.contains("DHPrimeAdmins") before authorizing.
-        */
+         *   JWT cannot be parsed by OktaAuthentication object here because Admins who do not
+         *   exist in one or more DHxx_phd groups on Okta will be unable to see any receiver's
+         *   reports.
+         *
+         *   To fix this, below we apply the same verifier, and then we see if oktaOrganizations.contains(orgName) OR
+         *   oktaOrganizations.contains("DHPrimeAdmins") before authorizing.
+         */
         if (jwtToken.isNullOrBlank() || requestOrgName.isNullOrBlank()) return null
 
         try {
@@ -503,7 +542,7 @@ open class BaseHistoryFunction : Logging {
             if (requestedOrgName.isBlank()) return false
             oktaOrgs.forEach {
                 when {
-                    it == null -> { } // do nothing ; skip.
+                    it == null -> {} // do nothing ; skip.
                     it.contains("DHPrimeAdmins") -> return true
                     it.replace('_', '-') == "DH${requestedOrgName.replace('_', '-')}"
                     -> return true

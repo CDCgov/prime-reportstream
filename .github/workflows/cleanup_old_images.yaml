@@ -1,0 +1,70 @@
+name: Cleanup old images in Test & Staging ACRs
+on:
+  schedule:
+    - cron: "0 0 * * *" # Runs daily at midnight UTC
+
+
+jobs:
+  Cleanup_old_ACR_images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out changes"
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Connect to VPN & Login into Azure
+        uses: ./.github/actions/vpn-azure
+        with:
+          tls-key: ${{ secrets.TLS_KEY }}
+          ca-cert: ${{ secrets.CA_CRT}}
+          user-crt: ${{ secrets.USER_CRT }}
+          user-key: ${{ secrets.USER_KEY }}
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+      - name: List test repository images
+        id: list-test-images
+        run: |
+          az acr login --name pdhtestcontainerregistry
+          az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2 > test-images.txt
+          sed -i '1,2d' test-images.txt
+
+      - name: Delete old images in TEST env
+        env:
+          IMAGE_FILE: test-images.txt  
+        run: |
+          if [ -e "$IMAGE_FILE" ]; then
+            while IFS= read -r image_id; do
+                az acr repository delete --name pdhtestcontainerregistry --image pdhtest:$image_id --yes
+                if [ $? -eq 0 ]; then
+                    echo "Deleted image: pdhtestcontainerregistry:$image_id"
+                else
+                    echo "Failed to delete image: pdhtestcontainerregistry:$image_id"
+                fi
+            done < "$IMAGE_FILE"
+              else
+                echo "File not found: $IMAGE_FILE"
+          fi
+
+      - name: List staging repository images
+        id: list-stg-images
+        run: |
+          az acr login --name pdhstagingcontainerregistry
+          az acr repository show-tags --name pdhstagingcontainerregistry --repository pdhstaging --orderby time_asc --output table | head -n -2 > stg-images.txt
+          sed -i '1,2d' stg-images.txt
+          cat stg-images.txt
+
+      - name: Delete old images in Staging env
+        env:
+          STG_FILE: stg-images.txt  
+        run: |
+          if [ -e "$STG_FILE" ]; then
+            while IFS= read -r image_id; do
+                az acr repository delete --name pdhstagingcontainerregistry --image pdhstaging:$image_id --yes
+                if [ $? -eq 0 ]; then
+                    echo "Deleted image: pdhstagingcontainerregistry:$image_id"
+                else
+                    echo "Failed to delete image: pdhstagingcontainerregistry:$image_id"
+                fi
+            done < "$STG_FILE"
+              else
+                echo "File not found: $STG_FILE"
+          fi

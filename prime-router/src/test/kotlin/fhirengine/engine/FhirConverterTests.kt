@@ -154,7 +154,7 @@ class FhirConverterTests {
             actionHistory.trackExistingInputReport(any())
             transformer.transform(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), any())
+            BlobAccess.Companion.uploadBlob(any(), any(), any())
         }
     }
 
@@ -205,7 +205,7 @@ class FhirConverterTests {
             actionHistory.trackExistingInputReport(any())
             transformer.transform(any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
-            BlobAccess.Companion.uploadBlob(any(), any())
+            BlobAccess.Companion.uploadBlob(any(), any(), any())
         }
     }
 
@@ -317,7 +317,7 @@ class FhirConverterTests {
         every { accessSpy.insertTask(any(), bodyFormat.toString(), bodyUrl, any()) }.returns(Unit)
         // Throw an exception the second time trackCreatedReport is called to exit processing early and demonstrate sendMessage is not called
         every { actionHistory.trackCreatedReport(any(), any(), blobInfo = any()) }
-            .returns(Unit) andThenThrows(RuntimeException())
+            .returns(Unit) andThenThrows (RuntimeException())
         every { actionHistory.trackExistingInputReport(any()) }.returns(Unit)
         every { engine.getTransformerFromSchema(SCHEMA_NAME) }.returns(transformer)
         every { transformer.transform(any()) } returnsArgument (0)
@@ -336,7 +336,7 @@ class FhirConverterTests {
         }
         verify(exactly = 2) {
             transformer.transform(any())
-            BlobAccess.Companion.uploadBlob(any(), any())
+            BlobAccess.Companion.uploadBlob(any(), any(), any())
             actionHistory.trackCreatedReport(any(), any(), blobInfo = any())
         }
     }

@@ -55,7 +55,7 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
      * The Access Token.
      */
     private val accessToken = useThisToken ?: OktaCommand.fetchAccessToken(environment.oktaApp)
-        ?: throw PrintMessage("Missing access token. Run ./prime login to fetch/refresh your access token.", true)
+    ?: throw PrintMessage("Missing access token. Run ./prime login to fetch/refresh your access token.", true)
 
     /**
      * Fetches the list of tables from the API.
@@ -84,8 +84,7 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
      * @throws TableNotFoundException if the table and/or version is not found
      * @throws IOException if there is a server or API error
      */
-    fun activateTable(tableName: String, version: Int):
-        LookupTableVersion {
+    fun activateTable(tableName: String, version: Int): LookupTableVersion {
         val apiUrl = environment.formUrl("$endpointRoot/$tableName/$version/activate")
         val (_, response, result) = Fuel
             .put(apiUrl.toString())
@@ -186,15 +185,18 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
          */
         internal fun getTableInfoFromResponse(
             result: Result<FuelJson, FuelError>,
-            response: Response
+            response: Response,
         ): LookupTableVersion {
             checkCommonErrorsFromResponse(result, response)
             try {
                 val info = mapper.readValue<LookupTableVersion>(result.get().content)
                 if (info.tableName.isNullOrBlank() || info.tableVersion < 1 || info.createdBy.isNullOrBlank() ||
                     info.createdBy.isNullOrBlank()
-                ) throw IOException("Invalid version information in the response.")
-                else return info
+                ) {
+                    throw IOException("Invalid version information in the response.")
+                } else {
+                    return info
+                }
             } catch (e: MismatchedInputException) {
                 throw IOException("Invalid JSON response.")
             }
@@ -310,7 +312,7 @@ class LookupTableCommands : CliktCommand(
         fun rowsToPrintableTable(
             tableRows: List<Map<String, String>>,
             colNames: List<String>,
-            addRowNum: Boolean = true
+            addRowNum: Boolean = true,
         ): StringBuilder {
             Preconditions.checkArgument(tableRows.isNotEmpty())
 
@@ -366,7 +368,7 @@ class LookupTableCommands : CliktCommand(
         fun generateDiff(
             version1Table: List<Map<String, String>>,
             version2Table: List<Map<String, String>>,
-            showAll: Boolean
+            showAll: Boolean,
         ): List<String> {
             val generator = DiffRowGenerator.create()
                 .showInlineDiffs(true)
@@ -398,9 +400,9 @@ class LookupTableCommands : CliktCommand(
                 } else {
                     var changed = true
                     diff.forEachIndexed { index, row ->
-                        if (index < 2)
+                        if (index < 2) {
                             diffBuffer.add(row.oldLine)
-                        else if (row.tag == DiffRow.Tag.EQUAL && changed) {
+                        } else if (row.tag == DiffRow.Tag.EQUAL && changed) {
                             diffBuffer.add("...")
                             changed = false
                         } else if (row.tag != DiffRow.Tag.EQUAL) {
@@ -414,7 +416,9 @@ class LookupTableCommands : CliktCommand(
                 diffBuffer.add("\tChanges  : ${diff.count { it.tag == DiffRow.Tag.CHANGE }}")
                 diffBuffer.add("\tAdditions: ${diff.count { it.tag == DiffRow.Tag.INSERT }}")
                 diffBuffer.add("\tDeletions: ${diff.count { it.tag == DiffRow.Tag.DELETE }}")
-            } else diffBuffer.clear()
+            } else {
+                diffBuffer.clear()
+            }
             return diffBuffer
         }
     }
@@ -607,7 +611,9 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
         }
         val activeVersion = (tableList.firstOrNull { it.tableName == tableName })?.tableVersion ?: 0
         if (!silent && activeVersion > 0) {
-            val activeTable = try { tableUtil.fetchTableContent(tableName, activeVersion) } catch (e: Exception) {
+            val activeTable = try {
+                tableUtil.fetchTableContent(tableName, activeVersion)
+            } catch (e: Exception) {
                 throw PrintMessage("Error fetching active table content for table $tableName: ${e.message}", true)
             }
             echo("Generating a diff view of the changes.  For large tables this can take a while...")
@@ -627,9 +633,9 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
 
         // Now we are ready.  Ask if we should proceed.
         if ((
-            !silent && confirm("Continue to create a new version of $tableName with ${inputData.size} rows?")
-                == true
-            ) || silent
+                !silent && confirm("Continue to create a new version of $tableName with ${inputData.size} rows?")
+                    == true
+                ) || silent
         ) {
             val newTableInfo = try {
                 tableUtil.createTable(tableName, inputData, forceTableToCreate)
@@ -649,7 +655,9 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
             )
             // Always have an active version, so if this is the first version then activate it.
             if (activate || newTableInfo.tableVersion == 1) {
-                try { tableUtil.activateTable(tableName, newTableInfo.tableVersion) } catch (e: Exception) {
+                try {
+                    tableUtil.activateTable(tableName, newTableInfo.tableVersion)
+                } catch (e: Exception) {
                     throw PrintMessage(
                         "\tError activating table $tableName version ${newTableInfo.tableVersion}. " +
                             "Table was created.  Try to activate it. : ${e.message}",
@@ -657,13 +665,15 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
                     )
                 }
                 echo("\tTable version ${newTableInfo.tableVersion} is now active.")
-            } else
+            } else {
                 echo(
                     "\tTable version ${newTableInfo.tableVersion} " +
                         "left inactive, so don't forget to activate it."
                 )
-        } else
+            }
+        } else {
             echo("\tAborted the creation of the lookup table.")
+        }
     }
 }
 
@@ -681,13 +691,16 @@ class LookupTableListCommand : GenericLookupTableCommand(
         .flag(default = false)
 
     override fun run() {
-        val data = try { tableUtil.fetchList(showInactive) } catch (e: IOException) {
+        val data = try {
+            tableUtil.fetchList(showInactive)
+        } catch (e: IOException) {
             throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
         }
-        if (showInactive)
+        if (showInactive) {
             echo("Listing all lookup tables including inactive.")
-        else
+        } else {
             echo("Listing only active lookup tables.")
+        }
 
         if (data.isNotEmpty()) {
             echo(
@@ -696,10 +709,11 @@ class LookupTableListCommand : GenericLookupTableCommand(
             )
             echo("")
         } else {
-            if (data.isEmpty() && !showInactive)
+            if (data.isEmpty() && !showInactive) {
                 echo("No lookup tables were found.")
-            else
+            } else {
                 echo("No active lookup tables were found.")
+            }
         }
     }
 }
@@ -753,10 +767,14 @@ class LookupTableDiffCommand : GenericLookupTableCommand(
         }
 
         // Now get the content.
-        val version1Table = try { tableUtil.fetchTableContent(tableName, version1) } catch (e: Exception) {
+        val version1Table = try {
+            tableUtil.fetchTableContent(tableName, version1)
+        } catch (e: Exception) {
             throw PrintMessage("Error fetching table content for $tableName version $version1: ${e.message}", true)
         }
-        val version2Table = try { tableUtil.fetchTableContent(tableName, version2) } catch (e: Exception) {
+        val version2Table = try {
+            tableUtil.fetchTableContent(tableName, version2)
+        } catch (e: Exception) {
             throw PrintMessage("Error fetching table content for $tableName version $version2: ${e.message}", true)
         }
 
@@ -769,8 +787,9 @@ class LookupTableDiffCommand : GenericLookupTableCommand(
 
         if (output.isNotEmpty()) {
             output.forEach { echo(it) }
-        } else
+        } else {
             echo("Lookup table $tableName version $version1 and $version2 are identical.")
+        }
     }
 }
 
@@ -803,7 +822,9 @@ class LookupTableActivateCommand : GenericLookupTableCommand(
         }
 
         // Find the currently active version
-        val tableList = try { tableUtil.fetchList(true) } catch (e: IOException) {
+        val tableList = try {
+            tableUtil.fetchList(true)
+        } catch (e: IOException) {
             throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
         }
         val currentlyActiveTable = tableList.firstOrNull { it.tableName == tableName && it.isActive }
@@ -826,12 +847,14 @@ class LookupTableActivateCommand : GenericLookupTableCommand(
 
         if (confirm("Set $version as active?") == true) {
             val activatedStatus = tableUtil.activateTable(tableName, version)
-            if (activatedStatus.isActive)
+            if (activatedStatus.isActive) {
                 echo("Version $version for lookup table $tableName was set active.")
-            else
+            } else {
                 error("Unknown error when setting lookup table $tableName Version $version to active.")
-        } else
+            }
+        } else {
             echo("Aborted the activation of the lookup table.")
+        }
     }
 }
 
@@ -893,11 +916,13 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
         CommandUtilities.waitForApi(environment, connRetries)
 
         // Get the list of current tables to only update or create new ones.
-        val tableUpdateTimes = if (checkLastModified)
+        val tableUpdateTimes = if (checkLastModified) {
             LookupTableEndpointUtilities(environment).fetchList().map {
                 it.tableName to it.createdAt
             }.toMap()
-        else emptyMap()
+        } else {
+            emptyMap()
+        }
 
         // Loop through all the files
         val files = try {

@@ -19,17 +19,20 @@ abstract class ConfigSchemaProcessor : Logging {
         element: ConfigSchemaElement,
         bundle: Bundle,
         focusResource: Base,
-        context: CustomContext
+        context: CustomContext,
     ): String {
         var retVal = ""
         run findValue@{
             element.value?.forEach {
-                val value = if (it.isBlank()) ""
-                else try {
-                    FhirPathUtils.evaluateString(context, focusResource, bundle, it)
-                } catch (e: SchemaException) {
-                    logger.error("Error while getting value for element ${element.name}", e)
+                val value = if (it.isBlank()) {
                     ""
+                } else {
+                    try {
+                        FhirPathUtils.evaluateString(context, focusResource, bundle, it)
+                    } catch (e: SchemaException) {
+                        logger.error("Error while getting value for element ${element.name}", e)
+                        ""
+                    }
                 }
                 logger.trace("Evaluated value expression '$it' to '$value'")
                 if (value.isNotBlank()) {
@@ -53,13 +56,16 @@ abstract class ConfigSchemaProcessor : Logging {
         element: ConfigSchemaElement,
         bundle: Bundle,
         focusResource: Base,
-        context: CustomContext
+        context: CustomContext,
     ): Base? {
         var retVal: Base? = null
         run findValue@{
             element.value?.forEach {
-                val value = if (it.isBlank()) emptyList()
-                else FhirPathUtils.evaluate(context, focusResource, bundle, it)
+                val value = if (it.isBlank()) {
+                    emptyList()
+                } else {
+                    FhirPathUtils.evaluate(context, focusResource, bundle, it)
+                }
                 logger.trace("Evaluated value expression '$it' to '$value'")
                 if (value.isNotEmpty()) {
                     retVal = value[0]
@@ -88,7 +94,7 @@ abstract class ConfigSchemaProcessor : Logging {
         resourceStr: String?,
         bundle: Bundle,
         previousFocusResource: Base,
-        context: CustomContext
+        context: CustomContext,
     ): List<Base> {
         val resourceList = if (resourceStr == null || resourceStr == "") {
             listOf(previousFocusResource)
@@ -102,22 +108,23 @@ abstract class ConfigSchemaProcessor : Logging {
     }
 
     /**
-     * Test if an [element] can be evaluated based on the [element]'s condition.  Use the [bundle] and [focusResource] * to evaluate the condition expression.
+     * Test if an [element] can be evaluated based on the [element]'s condition.  Use the [bundle], [schemaResource] and [focusResource] * to evaluate the condition expression.
      * @return true if the condition expression evaluates to a boolean or if the condition expression is empty, false otherwise
      */
     internal fun canEvaluate(
         element: ConfigSchemaElement,
         bundle: Bundle,
         focusResource: Base,
-        context: CustomContext
+        schemaResource: Base,
+        context: CustomContext,
     ): Boolean {
         return element.condition?.let {
             try {
-                FhirPathUtils.evaluateCondition(context, focusResource, bundle, it)
+                FhirPathUtils.evaluateCondition(context, focusResource, schemaResource, bundle, it)
             } catch (e: SchemaException) {
                 logger.warn(
                     "Condition for element ${element.name} did not evaluate to a boolean type, " +
-                        "so the condition failed."
+                        "so the condition failed. ${e.message}"
                 )
                 false
             }

@@ -2,6 +2,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
 import fhirengine.translation.hl7.utils.FhirPathFunctions
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
+import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.config.ContextConfig
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.text.StringSubstitutor
@@ -28,16 +29,28 @@ data class CustomContext(
     val constants: MutableMap<String, String> = mutableMapOf(),
     val customFhirFunctions: FhirPathFunctions? = null,
     val config: ContextConfig? = null,
-    val translationFunctions: TranslationFunctions? = Hl7TranslationFunctions()
+    val translationFunctions: TranslationFunctions? = Hl7TranslationFunctions(),
 ) {
     companion object {
+
+        private val reservedConstantNames =
+            listOf("loinc", "ucum", "resource", "rootResource", "context", "us-zip", "`vs-", "`cs-", "`ext")
+
         /**
          * Add [constants] to a context.
-         * @return a new context with the [constants] added or the existing context of no new constants are specified
+         * @return a new context with the [constants] added or the existing context if no new constants are specified
          */
         fun addConstants(constants: Map<String, String>, previousContext: CustomContext): CustomContext {
-            return if (constants.isEmpty()) previousContext
-            else {
+            return if (constants.isEmpty()) {
+                previousContext
+            } else {
+                if (constants.keys.any { reservedConstantNames.contains(it) }) {
+                    throw SchemaException(
+                        """Constants contained reserved name,
+                        reserved constants are: $reservedConstantNames
+                        """.trimMargin()
+                    )
+                }
                 val newContext = CustomContext(
                     previousContext.bundle,
                     previousContext.focusResource,
@@ -101,7 +114,7 @@ class ConstantSubstitutor {
  */
 class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions? = null) :
     FHIRPathEngine.IEvaluationContext, Logging {
-    override fun resolveConstant(appContext: Any?, name: String?, beforeContext: Boolean): List<Base>? {
+    override fun resolveConstant(appContext: Any?, name: String?, beforeContext: Boolean): List<Base> {
         // Name is always passed in from the FHIR path engine
         require(!name.isNullOrBlank())
 
@@ -140,11 +153,12 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
         }
 
         // Evaluate the constant before it is used.
-        return if (constantValue.isNullOrBlank()) null
-        else {
+        return if (constantValue.isNullOrBlank()) {
+            emptyList()
+        } else {
             val values = FhirPathUtils.evaluate(appContext, appContext.focusResource, appContext.bundle, constantValue)
             if (values.isEmpty()) {
-                null
+                emptyList()
             } else {
                 logger.trace("Evaluated FHIR Path constant $name to: $values")
                 // Convert string constants that are whole integers to Integer type to facilitate math operations
@@ -174,7 +188,7 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
     override fun checkFunction(
         appContext: Any?,
         functionName: String?,
-        parameters: MutableList<TypeDetails>?
+        parameters: MutableList<TypeDetails>?,
     ): TypeDetails {
         throw NotImplementedError("Not implemented")
     }
@@ -183,7 +197,7 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
         appContext: Any?,
         focus: MutableList<Base>?,
         functionName: String?,
-        parameters: MutableList<MutableList<Base>>?
+        parameters: MutableList<MutableList<Base>>?,
     ): MutableList<Base> {
         check(focus != null)
         return when {
@@ -195,7 +209,7 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
         }
     }
 
-    override fun resolveReference(appContext: Any?, url: String?): Base? {
+    override fun resolveReference(appContext: Any?, url: String?, refContext: Base?): Base? {
         // Name is always passed in from the FHIR path engine
         require(!url.isNullOrBlank())
 

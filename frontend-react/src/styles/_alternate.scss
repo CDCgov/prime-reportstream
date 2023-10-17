@@ -7,7 +7,7 @@
  */
 
 $-alternate-bg: "primary-darker";
-$-alternate-button-bg: "accent-cool";
+$-alternate-button-bg: "white";
 
 // Split text and bg mixins for singular application
 @mixin u-rs-style-alternate-color {
@@ -52,12 +52,12 @@ $-alternate-button-bg: "accent-cool";
     }
 
     &:hover {
-        @include set-text-and-bg("accent-cool-dark");
+        @include set-text-and-bg("gray-5");
     }
 
     &:active,
-    &.usa-button--active {
-        @include set-text-and-bg("accent-cool-darker");
+    &.usa-button-big--active {
+        @include set-text-and-bg("gray-10");
     }
 }
 @mixin u-rs-style-alternate-container {

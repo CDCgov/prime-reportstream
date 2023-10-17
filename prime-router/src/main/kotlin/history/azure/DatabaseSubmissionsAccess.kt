@@ -22,7 +22,7 @@ import java.util.UUID
  * Class to access lookup tables stored in the database.
  */
 class DatabaseSubmissionsAccess(
-    db: DatabaseAccess = BaseEngine.databaseAccessSingleton
+    db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
 ) : HistoryDatabaseAccess(db), Logging {
 
     /**
@@ -34,7 +34,7 @@ class DatabaseSubmissionsAccess(
      */
     override fun organizationFilter(
         organization: String,
-        orgService: String?
+        orgService: String?,
     ): Condition {
         var senderFilter = ACTION.ACTION_NAME.eq(TaskAction.receive)
             .and(REPORT_FILE.SENDING_ORG.eq(organization))
@@ -58,7 +58,7 @@ class DatabaseSubmissionsAccess(
     override fun <T> fetchAction(
         actionId: Long,
         orgName: String?,
-        klass: Class<T>
+        klass: Class<T>,
     ): T? {
         if (orgName == null) error("Submission query must be constrained by a sender's organization name")
         return db.transactReturning { txn ->
@@ -154,7 +154,9 @@ class DatabaseSubmissionsAccess(
                     .on(ACTION.ACTION_ID.eq(cte.field("action_id", SQLDataType.BIGINT)))
                     .where(ACTION.ACTION_ID.ne(actionId))
                     .fetchInto(klass)
-            } else emptyList()
+            } else {
+                emptyList()
+            }
         }
     }
 

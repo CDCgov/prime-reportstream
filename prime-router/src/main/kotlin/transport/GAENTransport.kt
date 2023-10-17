@@ -132,7 +132,7 @@ class GAENTransport : ITransport, Logging {
             null,
             params.gaenTransportInfo.toString(),
             msg,
-            params.itemCount
+            params.header
         )
         history.trackItemLineages(Report.createItemLineagesFromDb(params.header, params.sentReportId))
     }
@@ -166,7 +166,7 @@ class GAENTransport : ITransport, Logging {
         actionHistory: ActionHistory,
         receiverFullName: String,
         reportId: ReportId,
-        gaenTransportInfo: GAENTransportType
+        gaenTransportInfo: GAENTransportType,
     ) {
         val msg = "FAILED GAEN notification of inputReportId $reportId to $gaenTransportInfo " +
             "(receiver = $receiverFullName);" +
@@ -186,7 +186,7 @@ class GAENTransport : ITransport, Logging {
         table: List<Map<String, String>>,
         reportId: ReportId, /* = java.util.UUID */
         uuidFormat: GAENUUIDFormat?,
-        uuidIV: String?
+        uuidIV: String?,
     ) {
         val symptomDate: String
         val testDate: String
@@ -200,7 +200,7 @@ class GAENTransport : ITransport, Logging {
             if (table.size != 1) error("Internal Error: Expected a single item GAEN report")
             testDate = table[0]["date_result_released"] ?: ""
             // As a backup for missing symptomDate, use the testDate per conversation with WA-PHD
-            symptomDate = table[0][ "illness_onset_date"] ?: testDate
+            symptomDate = table[0]["illness_onset_date"] ?: testDate
             phone = table[0]["patient_phone_number"] ?: ""
             padding = RandomStringUtils.randomAlphanumeric(16)
             uuid = formatUUID(uuidFormat, reportId, phone, testDate, uuidIV)
@@ -293,7 +293,7 @@ class GAENTransport : ITransport, Logging {
             reportId: ReportId,
             phone: String,
             testDate: String,
-            uuidIV: String?
+            uuidIV: String?,
         ): String {
             if (uuidFormat == null || uuidIV == null) return "$reportId"
             val hmacGenerator = HmacUtils(HmacAlgorithms.HMAC_MD5, uuidIV)

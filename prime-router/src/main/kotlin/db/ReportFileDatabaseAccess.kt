@@ -45,7 +45,7 @@ sealed class ReportFileApiFilter<T> : ApiFilter<ReportFileRecord, T> {
 
 enum class ReportFileApiFilterNames : ApiFilterNames {
     SINCE,
-    UNTIL
+    UNTIL,
 }
 
 /**
@@ -72,7 +72,7 @@ class ReportFileApiSearch internal constructor(
     override val sortParameter: Field<*>?,
     override val sortDirection: SortDirection = SortDirection.DESC,
     page: Int = 1,
-    limit: Int = 25
+    limit: Int = 25,
 ) : ApiSearch<ReportFilePojo, ReportFileRecord, ReportFileApiFilter<*>>(
     ReportFilePojo::class.java,
     page,
@@ -104,16 +104,17 @@ class ReportFileApiSearch internal constructor(
 
         override fun parseRawApiSearch(rawApiSearch: RawApiSearch): ReportFileApiSearch {
             val sortProperty =
-                if (rawApiSearch.sort != null)
+                if (rawApiSearch.sort != null) {
                     ReportFile.REPORT_FILE.field(rawApiSearch.sort.property)
-                else
+                } else {
                     ReportFile.REPORT_FILE.CREATED_AT
+                }
             val filters = rawApiSearch.filters.mapNotNull { filter ->
                 when (ReportFileApiFilters.getTerm(ReportFileApiFilterNames.valueOf(filter.filterName))) {
-                    ReportFileApiFilter.Since::class.java
+                    ReportFileApiFilter.Since::class.java,
                     -> ReportFileApiFilter.Since(OffsetDateTime.parse(filter.value))
 
-                    ReportFileApiFilter.Until::class.java
+                    ReportFileApiFilter.Until::class.java,
                     -> ReportFileApiFilter.Until(OffsetDateTime.parse(filter.value))
 
                     else -> {

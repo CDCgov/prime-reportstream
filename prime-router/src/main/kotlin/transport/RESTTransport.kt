@@ -52,12 +52,11 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import net.schmizz.sshj.common.Base64
 import org.json.JSONObject
 import java.io.InputStream
 import java.security.KeyStore
+import java.util.Base64
 import java.util.logging.Logger
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
@@ -93,10 +92,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         // get the file name, or create one from the report ID, NY requires a file name in the POST
         val fileName = header.reportFile.externalName ?: "$reportId.hl7"
         // get the username/password to authenticate with OAuth
-        val credential: RestCredential = if (restTransportInfo.authType == "two-legged")
+        val credential: RestCredential = if (restTransportInfo.authType == "two-legged") {
             lookupTwoLeggedCredential(receiver)
-        else
+        } else {
             lookupDefaultCredential(receiver)
+        }
         // get the TLS/SSL cert in a JKS if needed, NY uses a specific one
         val jksCredential = restTransportInfo.tlsKeystore?.let { lookupJksCredentials(it) }
 
@@ -136,7 +136,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                             fileName,
                             restTransportInfo.toString(),
                             msg,
-                            header.reportFile.itemCount
+                            header
                         )
                         actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
                     } catch (t: Throwable) {
@@ -261,7 +261,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         reportId: String,
         jksCredential: UserJksCredential?,
         credential: RestCredential,
-        logger: Logger
+        logger: Logger,
     ): Pair<Map<String, String>, BearerTokens?> {
         var httpHeaders = restTransportInfo.headers.mapValues {
             if (it.value == "header.reportFile.reportId") {
@@ -325,7 +325,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         restUrl: String,
         credential: UserAssertionCredential,
         logger: Logger,
-        httpClient: HttpClient
+        httpClient: HttpClient,
     ): TokenInfo {
         httpClient.use { client ->
             val tokenInfo: TokenInfo = client.submitForm(
@@ -356,7 +356,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         restTransportInfo: RESTTransportType,
         credential: UserApiKeyCredential,
         logger: Logger,
-        httpClient: HttpClient
+        httpClient: HttpClient,
     ): TokenInfo {
         httpClient.use { client ->
             val tokenInfo: TokenInfo = client.submitForm(
@@ -400,13 +400,13 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         restUrl: String,
         credential: UserPassCredential,
         logger: Logger,
-        httpClient: HttpClient
+        httpClient: HttpClient,
     ): TokenInfo {
         httpClient.use { client ->
             if (restUrl.contains("dataingestion.datateam-cdc-nbs")) {
                 val idTokenInfoString: String = client.post(restUrl) {
                     val credentialString = credential.user + ":" + credential.pass
-                    val basicAuth = "Basic " + Base64.encodeBytes(credentialString.encodeToByteArray())
+                    val basicAuth = "Basic " + Base64.getEncoder().encodeToString(credentialString.encodeToByteArray())
                     expectSuccess = true // throw an exception if not successful
                     postHeaders(
                         mapOf(
@@ -445,7 +445,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         restUrl: String,
         headers: Map<String, String>,
         logger: Logger,
-        httpClient: HttpClient
+        httpClient: HttpClient,
     ): HttpResponse {
         logger.info(fileName)
         val boundary = "WebAppBoundary"
@@ -550,7 +550,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
          */
         private fun getSslContext(jksCredential: UserJksCredential): SSLContext? {
             // Open the keystore in the UserJksCredential, it's a PKCS12 type
-            val jksDecoded = Base64.decode(jksCredential.jks)
+            val jksDecoded = Base64.getDecoder().decode(jksCredential.jks)
             val inStream: InputStream = jksDecoded.inputStream()
             val jksPasscode = jksCredential.jksPasscode.toCharArray()
             val keyStore: KeyStore = KeyStore.getInstance("PKCS12")

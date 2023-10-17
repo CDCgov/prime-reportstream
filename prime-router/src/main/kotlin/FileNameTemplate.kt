@@ -132,11 +132,11 @@ open class FileNameTemplate(
     val elements: List<String>,
     val lowerCase: Boolean? = null,
     val upperCase: Boolean? = null,
-    val name: String? = null
+    val name: String? = null,
 ) {
     fun getFileName(
         translatorConfig: TranslatorConfiguration? = null,
-        reportId: ReportId
+        reportId: ReportId,
     ): String {
         val fileName = StringBuilder()
         val parsedElements = fixupFileNameElements(elements)

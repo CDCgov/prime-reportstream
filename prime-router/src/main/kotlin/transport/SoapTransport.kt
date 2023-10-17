@@ -78,7 +78,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
         soapEndpoint: String,
         soapAction: String,
         context: ExecutionContext,
-        httpClient: HttpClient
+        httpClient: HttpClient,
     ): String {
         httpClient.use { client ->
             context.logger.info("Connecting to $soapEndpoint")
@@ -118,7 +118,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
         sentReportId: ReportId,
         retryItems: RetryItems?,
         context: ExecutionContext,
-        actionHistory: ActionHistory
+        actionHistory: ActionHistory,
     ): RetryItems? {
         // verify that we have a SOAP transport type for our parameters. I think if we ever fell
         // into this scenario with different parameters there's something seriously wrong in the system,
@@ -169,7 +169,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                         fileName,
                         soapTransportType.toString(),
                         msg,
-                        header.reportFile.itemCount
+                        header
                     )
                     actionHistory.trackItemLineages(Report.createItemLineagesFromDb(header, sentReportId))
                 }

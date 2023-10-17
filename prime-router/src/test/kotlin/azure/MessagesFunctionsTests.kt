@@ -33,9 +33,7 @@ import kotlin.test.Test
 class MessagesFunctionsTests {
     val id: Long = 6
 
-    private fun buildMessagesFunction(
-        mockDbAccess: DatabaseAccess? = null
-    ): MessagesFunctions {
+    private fun buildMessagesFunction(mockDbAccess: DatabaseAccess? = null): MessagesFunctions {
         val dbAccess = mockDbAccess ?: mockk()
         return MessagesFunctions(dbAccess)
     }
@@ -43,7 +41,7 @@ class MessagesFunctionsTests {
     private fun buildCovidResultMetadata(
         reportId: UUID? = null,
         messageId: String? = null,
-        id: Long? = 0
+        id: Long? = 0,
     ): CovidResultMetadata {
         return CovidResultMetadata(
             id,
@@ -135,8 +133,7 @@ class MessagesFunctionsTests {
         )
     }
 
-    private fun buildReportDescendantsFromReportId():
-        List<ReportFile> {
+    private fun buildReportDescendantsFromReportId(): List<ReportFile> {
         return listOf(
             ReportFile(
                 UUID.randomUUID(),
@@ -192,8 +189,7 @@ class MessagesFunctionsTests {
         )
     }
 
-    private fun buildActionLogsByReportIdAndFilterType(trackingId: String):
-        List<MessageActionLog> {
+    private fun buildActionLogsByReportIdAndFilterType(trackingId: String): List<MessageActionLog> {
         val actionLogDetail1 = InvalidCodeMessage("", "Specimen_type_code (specimen_type)", null)
         val actionLogDetail2 = InvalidCodeMessage("", "Specimen_type_code (specimen_type)", null)
 
