@@ -34,7 +34,7 @@ export const LiveMap = ({
                 data-testid="map"
                 className="desktop:grid-col-8 desktop:grid-offset-2 margin-y-8"
             >
-                <USLink href="/product/where-were-live">
+                <USLink href="/about/our-network">
                     <img
                         src={usamapsvg}
                         title="USA with Territories (Heitordp, CC0, via Wikimedia Commons)"
@@ -56,7 +56,7 @@ export const LiveMap = ({
             </div>
             <div className="grid-row flex-justify-center">
                 <Link
-                    href="/product/where-were-live"
+                    href="/about/our-network"
                     className="usa-button usa-button--outline"
                 >
                     See all partners
