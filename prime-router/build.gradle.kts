@@ -798,6 +798,8 @@ dependencies {
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
     implementation("com.azure:azure-core:1.44.0")
     implementation("com.azure:azure-core-http-netty:1.13.8")
+// pin netty-codec-http2:4.1.100.Final due to CVE-2023-44487
+    implementation("io.netty:netty-codec-http2:4.1.100.Final")
     implementation("com.azure:azure-storage-blob:12.22.3") {
         exclude(group = "com.azure", module = "azure-core")
     }
