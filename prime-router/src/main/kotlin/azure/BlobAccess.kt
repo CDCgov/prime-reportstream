@@ -33,7 +33,7 @@ class BlobAccess() : Logging {
     data class BlobInfo(
         val format: Report.Format,
         val blobUrl: String,
-        val digest: ByteArray
+        val digest: ByteArray,
     ) {
         companion object {
             /**
@@ -43,7 +43,9 @@ class BlobAccess() : Logging {
             fun getBlobFilename(blobUrl: String): String {
                 return if (blobUrl.isNotBlank()) {
                     FilenameUtils.getName(URL(URLDecoder.decode(blobUrl, Charset.defaultCharset())).path)
-                } else ""
+                } else {
+                    ""
+                }
             }
 
             /**
@@ -53,7 +55,9 @@ class BlobAccess() : Logging {
             fun getBlobFileExtension(blobUrl: String): String {
                 return if (blobUrl.isNotBlank()) {
                     FilenameUtils.getExtension(URL(URLDecoder.decode(blobUrl, Charset.defaultCharset())).path)
-                } else ""
+                } else {
+                    ""
+                }
             }
         }
     }
@@ -63,7 +67,7 @@ class BlobAccess() : Logging {
      */
     data class BlobContainerMetadata(
         val containerName: String,
-        val connectionString: String
+        val connectionString: String,
     ) {
         companion object {
             /**
@@ -92,7 +96,7 @@ class BlobAccess() : Logging {
         report: Report,
         blobBytes: ByteArray,
         subfolderName: String? = null,
-        action: Event.EventAction = Event.EventAction.NONE
+        action: Event.EventAction = Event.EventAction.NONE,
     ): BlobInfo {
         return uploadBody(report.bodyFormat, blobBytes, report.name, subfolderName, action)
     }
@@ -125,7 +129,7 @@ class BlobAccess() : Logging {
             blobBytes: ByteArray,
             reportName: String,
             subfolderName: String? = null,
-            action: Event.EventAction = Event.EventAction.NONE
+            action: Event.EventAction = Event.EventAction.NONE,
         ): BlobInfo {
             val subfolderNameChecked = if (subfolderName.isNullOrBlank()) "" else "$subfolderName/"
             val blobName = when (action) {
@@ -155,7 +159,7 @@ class BlobAccess() : Logging {
          */
         private fun getBlobClient(
             blobUrl: String,
-            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata
+            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
         ): BlobClient {
             return BlobClientBuilder().connectionString(blobConnInfo.connectionString).endpoint(blobUrl).buildClient()
         }
@@ -167,7 +171,7 @@ class BlobAccess() : Logging {
         internal fun uploadBlob(
             blobName: String,
             bytes: ByteArray,
-            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata
+            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
         ): String {
             logger.info("Starting uploadBlob of $blobName")
             val blobClient = getBlobContainer(blobConnInfo).getBlobClient(blobName)
@@ -190,7 +194,7 @@ class BlobAccess() : Logging {
         fun downloadBlobAsByteArray(
             blobUrl: String,
             blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
-            retries: Int = blobDownloadRetryCount
+            retries: Int = blobDownloadRetryCount,
         ): ByteArray {
             val stream = ByteArrayOutputStream()
             logger.debug("BlobAccess Starting download for blobUrl $blobUrl")
@@ -216,7 +220,7 @@ class BlobAccess() : Logging {
         fun downloadBlobAsBinaryData(
             blobUrl: String,
             blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
-            retries: Int = blobDownloadRetryCount
+            retries: Int = blobDownloadRetryCount,
         ): BinaryData {
             logger.debug("BlobAccess Starting download for blobUrl $blobUrl")
             val options = DownloadRetryOptions().setMaxRetryRequests(retries)

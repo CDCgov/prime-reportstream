@@ -22,7 +22,7 @@ import java.time.OffsetDateTime
  */
 class AdminApiFunctions(
     private val db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
-    private var oktaAuthentication: OktaAuthentication? = null
+    private var oktaAuthentication: OktaAuthentication? = null,
 ) : Logging {
     /**
      * Mapper to convert objects to JSON.
@@ -143,6 +143,7 @@ class AdminApiFunctions(
          * Days back is not very flexible. Moving calls to start and end dated.
          */
         const val startDateParam = "start_date"
+
         /**
          * End date *may* be optional. If missing assumes current date.
          */

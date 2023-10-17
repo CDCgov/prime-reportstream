@@ -16,7 +16,7 @@ import java.util.SortedMap
 abstract class ConfigSchema<T : ConfigSchemaElement>(
     var elements: MutableList<T> = mutableListOf(),
     var constants: SortedMap<String, String> = sortedMapOf(),
-    var extends: String? = null
+    var extends: String? = null,
 ) {
     /**
      * Name used to identify this schema.
@@ -179,7 +179,7 @@ abstract class ConfigSchemaElement(
     var resourceIndex: String? = null,
     var constants: SortedMap<String, String> = sortedMapOf(),
     var valueSet: ValueSetCollection? = null,
-    var debug: Boolean = false
+    var debug: Boolean = false,
 ) {
     private var validationErrors: MutableSet<String> = mutableSetOf()
 

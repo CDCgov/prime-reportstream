@@ -18,7 +18,7 @@ data class PaginationApiResponse(
     @JsonInclude(JsonInclude.Include.NON_NULL)
     val previousPage: Int? = null,
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    val nextPage: Int? = null
+    val nextPage: Int? = null,
 ) {
     /**
      * Static functions for generating a [PaginationApiResponse]
@@ -34,7 +34,7 @@ data class PaginationApiResponse(
          */
         fun buildPaginationFromApiSearch(
             search: ApiSearch<*, *, *>,
-            results: ApiSearchResult<*>
+            results: ApiSearchResult<*>,
         ): PaginationApiResponse {
             val totalPages = ceil(results.filteredCount.toDouble() / search.limit).toInt()
             return PaginationApiResponse(
@@ -62,7 +62,7 @@ data class MetaApiResponse(
     val totalFilteredCount: Int? = null,
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonUnwrapped
-    val paginationApiResponse: PaginationApiResponse? = null
+    val paginationApiResponse: PaginationApiResponse? = null,
 )
 
 /**
@@ -87,7 +87,7 @@ data class ApiResponse<T>(val data: T, @JsonProperty("meta") val metaApiResponse
         fun <T> buildFromApiSearch(
             type: String,
             search: ApiSearch<T, *, *>,
-            results: ApiSearchResult<T>
+            results: ApiSearchResult<T>,
         ): ApiResponse<List<T>> {
             return ApiResponse(
                 results.results,

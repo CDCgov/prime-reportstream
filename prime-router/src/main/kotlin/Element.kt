@@ -102,7 +102,7 @@ data class Element(
     // used to be able to send blank values for fields that get validated/normalized
     // in serializers.
     // for instance, a badly formatted yet optional date field.
-    val nullifyValue: Boolean = false
+    val nullifyValue: Boolean = false,
 ) {
     /**
      * Types of elements. Types imply a specific format and fake generator.
@@ -131,25 +131,25 @@ data class Element(
         PERSON_NAME,
         TELEPHONE,
         EMAIL,
-        BLANK
+        BLANK,
     }
 
     data class CsvField(
         val name: String,
-        val format: String?
+        val format: String?,
     )
 
     data class HDFields(
         val name: String,
         val universalId: String?,
-        val universalIdSystem: String?
+        val universalIdSystem: String?,
     )
 
     data class EIFields(
         val name: String,
         val namespace: String?,
         val universalId: String?,
-        val universalIdSystem: String?
+        val universalIdSystem: String?,
     )
 
     /**
@@ -159,7 +159,7 @@ data class Element(
     data class SubValue(
         val name: String,
         val value: String,
-        val format: String?
+        val format: String?,
     )
 
     /**
@@ -168,7 +168,9 @@ data class Element(
      */
     enum class Cardinality {
         ZERO_OR_ONE,
-        ONE;
+        ONE,
+        ;
+
         // ZERO is not a value, just remove the element to represent this concept
         // Other values including conditionals in the future.
 
@@ -200,14 +202,15 @@ data class Element(
     /**
      * String showing the external field name(s) if any and the element name.
      */
-    val fieldMapping: String get() {
-        return when {
-            !csvFields.isNullOrEmpty() -> "${csvFields.map { it.name }.joinToString(",")} ($name)"
-            !hl7Field.isNullOrBlank() -> "$hl7Field ($name)"
-            !hl7OutputFields.isNullOrEmpty() -> "${hl7OutputFields.joinToString(",")}} ($name)"
-            else -> "($name)"
+    val fieldMapping: String
+        get() {
+            return when {
+                !csvFields.isNullOrEmpty() -> "${csvFields.map { it.name }.joinToString(",")} ($name)"
+                !hl7Field.isNullOrBlank() -> "$hl7Field ($name)"
+                !hl7OutputFields.isNullOrEmpty() -> "${hl7OutputFields.joinToString(",")}} ($name)"
+                else -> "($name)"
+            }
         }
-    }
 
     fun inheritFrom(baseElement: Element): Element {
         return Element(
@@ -304,7 +307,7 @@ data class Element(
      */
     fun toFormatted(
         normalizedValue: String,
-        format: String? = null
+        format: String? = null,
     ): String {
         // trim the normalized value down to null and if it is null return empty string
         val cleanedNormalizedValue = normalizedValue.trimToNull() ?: return ""
@@ -423,7 +426,8 @@ data class Element(
                 val hdFields = parseHD(cleanedNormalizedValue)
                 when (format) {
                     null,
-                    hdNameToken -> hdFields.name
+                    hdNameToken,
+                    -> hdFields.name
                     hdUniversalIdToken -> hdFields.universalId ?: ""
                     hdSystemToken -> hdFields.universalIdSystem ?: ""
                     else -> error("Schema Error: unsupported HD format for output: '$format' in $fieldMapping")
@@ -433,7 +437,8 @@ data class Element(
                 val eiFields = parseEI(cleanedNormalizedValue)
                 when (format) {
                     null,
-                    eiNameToken -> eiFields.name
+                    eiNameToken,
+                    -> eiFields.name
                     eiNamespaceIdToken -> eiFields.namespace ?: ""
                     eiUniversalIdToken -> eiFields.universalId ?: ""
                     eiSystemToken -> eiFields.universalIdSystem ?: ""
@@ -456,7 +461,8 @@ data class Element(
             Type.STREET_OR_BLANK,
             Type.CITY,
             Type.PERSON_NAME,
-            Type.EMAIL -> {
+            Type.EMAIL,
+            -> {
                 if (str.length <= maxLength) {
                     str
                 } else {
@@ -493,24 +499,32 @@ data class Element(
             Type.CODE -> {
                 // First, prioritize use of a local $alt format, even if no value set exists.
                 return if (format == altDisplayToken) {
-                    if (toAltCode(cleanedValue) != null) null else {
+                    if (toAltCode(cleanedValue) != null) {
+                        null
+                    } else {
                         InvalidCodeMessage(cleanedValue, fieldMapping, format)
                     }
                 } else {
                     if (valueSetRef == null) error("Schema Error: missing value set for $fieldMapping")
                     when (format) {
                         displayToken ->
-                            if (valueSetRef.toCodeFromDisplay(cleanedValue) != null) null else {
+                            if (valueSetRef.toCodeFromDisplay(cleanedValue) != null) {
+                                null
+                            } else {
                                 InvalidCodeMessage(cleanedValue, fieldMapping, format)
                             }
                         codeToken -> {
                             val values = altValues ?: valueSetRef.values
-                            if (values.find { it.code == cleanedValue } != null) null else {
+                            if (values.find { it.code == cleanedValue } != null) {
+                                null
+                            } else {
                                 InvalidCodeMessage(cleanedValue, fieldMapping, format)
                             }
                         }
                         else ->
-                            if (valueSetRef.toNormalizedCode(cleanedValue) != null) null else {
+                            if (valueSetRef.toNormalizedCode(cleanedValue) != null) {
+                                null
+                            } else {
                                 InvalidCodeMessage(cleanedValue, fieldMapping, format)
                             }
                     }
@@ -530,7 +544,8 @@ data class Element(
             Type.HD -> {
                 when (format) {
                     null,
-                    hdNameToken -> null
+                    hdNameToken,
+                    -> null
                     hdUniversalIdToken -> null
                     hdSystemToken -> null
                     hdCompleteFormat -> {
@@ -543,7 +558,8 @@ data class Element(
             Type.EI -> {
                 when (format) {
                     null,
-                    eiNameToken -> null
+                    eiNameToken,
+                    -> null
                     eiNamespaceIdToken -> null
                     eiSystemToken -> null
                     eiCompleteFormat -> {
@@ -685,7 +701,8 @@ data class Element(
                 try {
                     when (format) {
                         null,
-                        hdCompleteFormat -> {
+                        hdCompleteFormat,
+                        -> {
                             parseHD(cleanedFormattedValue) // to check
                             cleanedFormattedValue
                         }
@@ -713,7 +730,8 @@ data class Element(
                 try {
                     when (format) {
                         null,
-                        eiCompleteFormat -> {
+                        eiCompleteFormat,
+                        -> {
                             parseEI(cleanedFormattedValue) // to check
                             cleanedFormattedValue
                         }
@@ -751,7 +769,8 @@ data class Element(
                 for (subValue in subValues) {
                     when (subValue.format) {
                         null,
-                        hdCompleteFormat -> {
+                        hdCompleteFormat,
+                        -> {
                             val hdFields = parseHD(subValue.value)
                             name = hdFields.name
                             if (hdFields.universalId != null) universalId = hdFields.universalId
@@ -778,7 +797,8 @@ data class Element(
                 for (subValue in subValues) {
                     when (subValue.format) {
                         null,
-                        eiCompleteFormat -> {
+                        eiCompleteFormat,
+                        -> {
                             val eiFields = parseEI(subValue.value)
                             name = eiFields.name
                             if (eiFields.namespace != null) namespace = eiFields.namespace
@@ -806,36 +826,44 @@ data class Element(
     }
 
     fun toAltDisplay(code: String): String? {
-        if (!isCodeType) throw ElementNormalizeException(
-            "Internal Error: asking for an altDisplay for a non-code type",
-            fieldMapping,
-            code,
-            ErrorCode.INVALID_MSG_PARSE_CODE_ALT_VALUES
-        )
-        if (altValues == null) throw ElementNormalizeException(
-            "Schema Error: missing alt values for $fieldMapping",
-            fieldMapping,
-            code,
-            ErrorCode.INVALID_MSG_PARSE_CODE_ALT_VALUES
-        )
+        if (!isCodeType) {
+            throw ElementNormalizeException(
+                "Internal Error: asking for an altDisplay for a non-code type",
+                fieldMapping,
+                code,
+                ErrorCode.INVALID_MSG_PARSE_CODE_ALT_VALUES
+            )
+        }
+        if (altValues == null) {
+            throw ElementNormalizeException(
+                "Schema Error: missing alt values for $fieldMapping",
+                fieldMapping,
+                code,
+                ErrorCode.INVALID_MSG_PARSE_CODE_ALT_VALUES
+            )
+        }
         val altValue = altValues.find { code.equals(it.code, ignoreCase = true) }
             ?: altValues.find { "*" == it.code }
         return altValue?.display
     }
 
     fun toAltCode(altDisplay: String): String? {
-        if (!isCodeType) throw ElementNormalizeException(
-            "Internal Error: asking for an altDisplay for a non-code type",
-            fieldMapping,
-            altDisplay,
-            ErrorCode.INVALID_MSG_PARSE_CODE_ALT_VALUES
-        )
-        if (altValues == null) throw ElementNormalizeException(
-            "Schema Error: missing alt values for $fieldMapping",
-            fieldMapping,
-            altDisplay,
-            ErrorCode.INVALID_MSG_PARSE_CODE_ALT_VALUES
-        )
+        if (!isCodeType) {
+            throw ElementNormalizeException(
+                "Internal Error: asking for an altDisplay for a non-code type",
+                fieldMapping,
+                altDisplay,
+                ErrorCode.INVALID_MSG_PARSE_CODE_ALT_VALUES
+            )
+        }
+        if (altValues == null) {
+            throw ElementNormalizeException(
+                "Schema Error: missing alt values for $fieldMapping",
+                fieldMapping,
+                altDisplay,
+                ErrorCode.INVALID_MSG_PARSE_CODE_ALT_VALUES
+            )
+        }
         val altValue = altValues.find { altDisplay.equals(it.display, ignoreCase = true) }
             ?: altValues.find { "*" == it.display }
         return altValue?.code
@@ -846,12 +874,14 @@ data class Element(
      * @return a code of null if the code is not found
      */
     fun toCode(code: String): String? {
-        if (!isCodeType) throw ElementNormalizeException(
-            "Internal Error: asking for codeValue for a non-code type",
-            fieldMapping,
-            code,
-            ErrorCode.INVALID_MSG_PARSE_CODE_VALUES
-        )
+        if (!isCodeType) {
+            throw ElementNormalizeException(
+                "Internal Error: asking for codeValue for a non-code type",
+                fieldMapping,
+                code,
+                ErrorCode.INVALID_MSG_PARSE_CODE_VALUES
+            )
+        }
         // if there are alt values, use those, otherwise, use the valueSet
         val values = valueSetRef?.values ?: throw ElementNormalizeException(
             "Unable to find a value set for $fieldMapping.",
@@ -898,7 +928,7 @@ data class Element(
         schema: Schema,
         defaultOverrides: Map<String, String> = emptyMap(),
         itemIndex: Int,
-        sender: Sender? = null
+        sender: Sender? = null,
     ): ElementResult {
         check(itemIndex > 0) { "Item index was $itemIndex, but must be larger than 0" }
         val retVal = ElementResult(if (allElementValues[name].isNullOrEmpty()) "" else allElementValues[name]!!)
@@ -1225,7 +1255,7 @@ data class Element(
 data class ElementResult(
     var value: String?,
     val errors: MutableList<ActionLogDetail> = mutableListOf(),
-    val warnings: MutableList<ActionLogDetail> = mutableListOf()
+    val warnings: MutableList<ActionLogDetail> = mutableListOf(),
 ) {
     /**
      * Add an error [message] to the result.
@@ -1256,5 +1286,5 @@ data class ElementNormalizeException(
     override val message: String,
     val field: String,
     val value: String,
-    val errorCode: ErrorCode
+    val errorCode: ErrorCode,
 ) : Exception(message)

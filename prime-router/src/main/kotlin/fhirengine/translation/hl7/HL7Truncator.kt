@@ -26,7 +26,7 @@ sealed interface HL7Truncator {
         value: String,
         hl7FieldOrPath: String,
         terser: Terser,
-        truncationConfig: TruncationConfig
+        truncationConfig: TruncationConfig,
     ): String {
         val maxLength = getMaxLength(
             hl7FieldOrPath,
@@ -45,7 +45,7 @@ sealed interface HL7Truncator {
         hl7FieldOrPath: String,
         value: String,
         terser: Terser,
-        truncationConfig: TruncationConfig
+        truncationConfig: TruncationConfig,
     ): Int? {
         val hl7Field = hl7FieldFromPath(hl7FieldOrPath)
 
@@ -103,7 +103,9 @@ sealed interface HL7Truncator {
         return table?.let {
             if (component <= it.size) {
                 it[component - 1]
-            } else null
+            } else {
+                null
+            }
         }
     }
 
@@ -124,7 +126,7 @@ sealed interface HL7Truncator {
     fun getHl7MaxLength(
         segment: Segment,
         field: Type,
-        parts: HL7FieldComponents
+        parts: HL7FieldComponents,
     ): Int? {
         return if (parts.third != null) {
             null // Add cases for sub-components here
@@ -141,7 +143,7 @@ sealed interface HL7Truncator {
     data class HL7FieldComponents(
         val first: Int,
         val second: Int?,
-        val third: Int?
+        val third: Int?,
     ) {
         companion object {
             /**

@@ -35,8 +35,9 @@ class CsvUtilities {
             // Start with header of the first table
             val mergedTable = mutableListOf<List<String>>(inputTables[0][0])
             inputTables.forEach {
-                if (mergedTable[0] != it[0])
+                if (mergedTable[0] != it[0]) {
                     error("One of the tables does not match the other in a merge")
+                }
                 mergedTable.addAll(it.takeLast(it.size - 1))
             }
             return tableToString(mergedTable)

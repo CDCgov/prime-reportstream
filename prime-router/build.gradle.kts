@@ -365,9 +365,15 @@ tasks.register("fatJar") {
 
 configure<KtlintExtension> {
     // See ktlint versions at https://github.com/pinterest/ktlint/releases
-    version.set("0.44.0")
+    version.set("1.0.0")
 }
 tasks.ktlintCheck {
+    // DB tasks are not needed by ktlint, but gradle adds them by automatic configuration
+    tasks["generateJooq"].enabled = false
+    tasks["migrate"].enabled = false
+    tasks["flywayMigrate"].enabled = false
+}
+tasks.ktlintFormat {
     // DB tasks are not needed by ktlint, but gradle adds them by automatic configuration
     tasks["generateJooq"].enabled = false
     tasks["migrate"].enabled = false
@@ -631,7 +637,7 @@ flyway {
 
 // Database code generation configuration
 jooq {
-    version.set("3.15.4")
+    version.set("3.18.6")
     configurations {
         create("main") { // name of the jOOQ configuration
             jooqConfiguration.apply {
