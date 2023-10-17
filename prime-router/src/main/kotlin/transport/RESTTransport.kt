@@ -92,10 +92,11 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         // get the file name, or create one from the report ID, NY requires a file name in the POST
         val fileName = header.reportFile.externalName ?: "$reportId.hl7"
         // get the username/password to authenticate with OAuth
-        val credential: RestCredential = if (restTransportInfo.authType == "two-legged")
+        val credential: RestCredential = if (restTransportInfo.authType == "two-legged") {
             lookupTwoLeggedCredential(receiver)
-        else
+        } else {
             lookupDefaultCredential(receiver)
+        }
         // get the TLS/SSL cert in a JKS if needed, NY uses a specific one
         val jksCredential = restTransportInfo.tlsKeystore?.let { lookupJksCredentials(it) }
 
@@ -260,7 +261,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         reportId: String,
         jksCredential: UserJksCredential?,
         credential: RestCredential,
-        logger: Logger
+        logger: Logger,
     ): Pair<Map<String, String>, BearerTokens?> {
         var httpHeaders = restTransportInfo.headers.mapValues {
             if (it.value == "header.reportFile.reportId") {
@@ -324,7 +325,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         restUrl: String,
         credential: UserAssertionCredential,
         logger: Logger,
-        httpClient: HttpClient
+        httpClient: HttpClient,
     ): TokenInfo {
         httpClient.use { client ->
             val tokenInfo: TokenInfo = client.submitForm(
@@ -355,7 +356,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         restTransportInfo: RESTTransportType,
         credential: UserApiKeyCredential,
         logger: Logger,
-        httpClient: HttpClient
+        httpClient: HttpClient,
     ): TokenInfo {
         httpClient.use { client ->
             val tokenInfo: TokenInfo = client.submitForm(
@@ -399,7 +400,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         restUrl: String,
         credential: UserPassCredential,
         logger: Logger,
-        httpClient: HttpClient
+        httpClient: HttpClient,
     ): TokenInfo {
         httpClient.use { client ->
             if (restUrl.contains("dataingestion.datateam-cdc-nbs")) {
@@ -444,7 +445,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         restUrl: String,
         headers: Map<String, String>,
         logger: Logger,
-        httpClient: HttpClient
+        httpClient: HttpClient,
     ): HttpResponse {
         logger.info(fileName)
         val boundary = "WebAppBoundary"

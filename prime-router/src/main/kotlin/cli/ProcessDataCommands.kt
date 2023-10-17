@@ -474,12 +474,14 @@ class ProcessData(
 
         if (!validate) TODO("validation cannot currently be disabled")
         if (send) TODO("--send is not implemented")
-        if (synthesize) inputReport = inputReport.synthesizeData(
-            synthesizeStrategies,
-            targetStates,
-            targetCounties,
-            metadata
-        )
+        if (synthesize) {
+            inputReport = inputReport.synthesizeData(
+                synthesizeStrategies,
+                targetStates,
+                targetCounties,
+                metadata
+            )
+        }
 
         // Transform reports
         val translator = Translator(metadata, fileSettings)
@@ -498,10 +500,11 @@ class ProcessData(
                     toReceiver = routeTo!!,
                     defaultValues = getDefaultValues()
                 )
-                if (pair != null)
+                if (pair != null) {
                     listOf(pair.first to getOutputFormat(pair.second.format))
-                else
+                } else {
                     emptyList()
+                }
             }
             outputSchema != null -> {
                 val toSchema = metadata.findSchema(outputSchema!!) ?: error("outputSchema is invalid")

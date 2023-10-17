@@ -14,7 +14,7 @@ data class ReadResult(
     /**
      * The list of errors that caused a item to not be reported
      */
-    val actionLogs: ActionLogger
+    val actionLogs: ActionLogger,
 ) {
     init {
         actionLogs.setReportId(report.id)

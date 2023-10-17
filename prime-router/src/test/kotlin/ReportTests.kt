@@ -910,10 +910,10 @@ class ReportTests {
 
     @Test
     fun `test generateReportAndUploadBlob for hl7`() {
-        val mockMetadata = mockk<Metadata>() {
+        val mockMetadata = mockk<Metadata> {
             every { fileNameTemplates } returns emptyMap()
         }
-        val mockActionHistory = mockk<ActionHistory>() {
+        val mockActionHistory = mockk<ActionHistory> {
             every { trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
         }
         val hl7MockData = UUID.randomUUID().toString().toByteArray() // Just some data
@@ -974,10 +974,10 @@ class ReportTests {
 
     @Test
     fun `test generateReportAndUploadBlob for fhir`() {
-        val mockMetadata = mockk<Metadata>() {
+        val mockMetadata = mockk<Metadata> {
             every { fileNameTemplates } returns emptyMap()
         }
-        val mockActionHistory = mockk<ActionHistory>() {
+        val mockActionHistory = mockk<ActionHistory> {
             every { trackCreatedReport(any(), any(), blobInfo = any()) } returns Unit
         }
         val fhirMockData = UUID.randomUUID().toString().toByteArray() // Just some data
@@ -1046,7 +1046,7 @@ class OptionTests {
         assertThat(noneOption).equals(Options.None)
 
         val invalidOption = "INVALID OPTION"
-        assertFailsWith<Options.InvalidOptionException>() { Options.valueOfOrNone(invalidOption) }
+        assertFailsWith<Options.InvalidOptionException> { Options.valueOfOrNone(invalidOption) }
     }
 
     @Test

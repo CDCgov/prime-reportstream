@@ -42,7 +42,7 @@ class GetFilterTests {
         Organization.Jurisdiction.FEDERAL,
         receivers = listOf(
             Receiver
-            (
+                (
                 RECEIVER_NAME,
                 ORGANIZATION_NAME,
                 Topic.FULL_ELR,
@@ -50,7 +50,7 @@ class GetFilterTests {
                 "one"
             ),
             Receiver
-            (
+                (
                 "full-elr-hl7-2",
                 ORGANIZATION_NAME,
                 Topic.FULL_ELR,

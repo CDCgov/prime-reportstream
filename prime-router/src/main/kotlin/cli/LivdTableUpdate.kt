@@ -98,10 +98,11 @@ class LivdTableUpdate : CliktCommand(
         tempRawLivdOutFile.delete()
 
         // Now, store the data as a LIVD lookup table.
-        if (!updateTheLivdLookupTable(tempMergedLivdOutFile))
+        if (!updateTheLivdLookupTable(tempMergedLivdOutFile)) {
             error("There was an error storing the LIVD lookup table.")
-        else
+        } else {
             echo("The lookup table was updated successfully.")
+        }
     }
 
     /**
@@ -153,8 +154,9 @@ class LivdTableUpdate : CliktCommand(
                     // Get cell object from the sheet.
                     val cell = row.getCell(cn, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL)
 
-                    val cellValue = if (cell == null) "" // Insert blank if cell is null.
-                    else {
+                    val cellValue = if (cell == null) {
+                        "" // Insert blank if cell is null.
+                    } else {
                         // Fill in string csv data according the cell type.
                         when (cell.cellType) {
                             CellType.BOOLEAN -> cell.booleanCellValue.toString()
@@ -219,11 +221,12 @@ class LivdTableUpdate : CliktCommand(
 
         // Cleanup any models that have * at the end.
         supplLivdTable.forEach {
-            if (it.getString(LivdTableColumns.MODEL.colName).endsWith("*"))
+            if (it.getString(LivdTableColumns.MODEL.colName).endsWith("*")) {
                 it.setString(
                     LivdTableColumns.MODEL.colName,
                     it.getString(LivdTableColumns.MODEL.colName).dropLast(1)
                 )
+            }
         }
 
         // Get the columns we need to process and add any new columns to the LIVD table
@@ -254,9 +257,11 @@ class LivdTableUpdate : CliktCommand(
             commonColList.forEach { colName ->
                 if (!supplRow.getString(colName).isNullOrBlank()) {
                     val newSelector = rawLivdTable.stringColumn(colName).isEqualTo(supplRow.getString(colName))
-                    if (selector == null)
+                    if (selector == null) {
                         selector = newSelector
-                    else selector!!.and(newSelector)
+                    } else {
+                        selector!!.and(newSelector)
+                    }
                 }
             }
             if (!silent) echo("Here is the list of changes added from $livdSupplementalPathname")
@@ -294,10 +299,12 @@ class LivdTableUpdate : CliktCommand(
             echo("Modified $modRows LIVD records with supplemental LIVD information.")
             echo("Added $addedRows LIVD records from supplemental LIVD information.")
         }
-        if (badRows > 0)
+        if (badRows > 0) {
             error("Found $badRows row(s) in $livdSupplementalPathname that do not have device information")
-        if (nonUniqueRows > 0)
+        }
+        if (nonUniqueRows > 0) {
             error("Found $nonUniqueRows row(s) in $livdSupplementalPathname that do not match to a unique LIVD record.")
+        }
 
         val outputFile = File.createTempFile(
             livdSARSCov2FilenamePrefix, "_final.csv",
@@ -332,7 +339,6 @@ class LivdTableUpdate : CliktCommand(
      * table.  Note, it always creates the new version regardless since it uses -f option.
      */
     fun updateTheLivdLookupTable(livdLookupTable: File): Boolean {
-
         // The environment the command needs to run on.
         val environment = Environment.get(env)
 
