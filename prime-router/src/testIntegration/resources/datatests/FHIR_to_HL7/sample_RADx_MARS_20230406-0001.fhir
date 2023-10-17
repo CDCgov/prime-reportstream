@@ -220,6 +220,10 @@
         "id": "1a0139b9-fc23-450b-9b6c-cd081e5cea9d",
         "identifier": [
           {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id",
+              "valueBoolean" : true
+            } ],
             "use": "official",
             "type": {
               "coding": [
