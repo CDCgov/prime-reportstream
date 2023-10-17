@@ -36,7 +36,7 @@ abstract class ReportHistory(
     @JsonProperty("id")
     var reportId: String? = null,
     var topic: Topic? = null,
-    var reportItemCount: Int? = null
+    var reportItemCount: Int? = null,
 )
 
 /**
@@ -77,7 +77,7 @@ data class DetailedReport(
     @JsonIgnore
     val itemCountBeforeQualFilter: Int?,
     @JsonIgnore
-    val receiverHasTransport: Boolean
+    val receiverHasTransport: Boolean,
 )
 
 /**
@@ -178,5 +178,5 @@ class DetailedActionLog(
     val index: Int?,
     val trackingId: String?,
     val type: ActionLogLevel,
-    val detail: ActionLogDetail
+    val detail: ActionLogDetail,
 )

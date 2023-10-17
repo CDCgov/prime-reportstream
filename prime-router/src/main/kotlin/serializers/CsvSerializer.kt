@@ -39,7 +39,7 @@ import java.io.OutputStream
 class CsvSerializer(val metadata: Metadata) : Logging {
     private data class CsvMapping(
         val useCsv: Map<String, List<Element.CsvField>>,
-        val defaultOverrides: Map<String, String> = emptyMap()
+        val defaultOverrides: Map<String, String> = emptyMap(),
     )
 
     private data class RowResult(
@@ -133,8 +133,9 @@ class CsvSerializer(val metadata: Metadata) : Logging {
             val result = mapRow(schema, csvMapping, row, rowIndex, sender = sender)
             val trackingColumn = schema.findElementColumn(schema.trackingElement ?: "")
             var trackingId = if (trackingColumn != null) result.row[trackingColumn] else ""
-            if (trackingId.isEmpty())
+            if (trackingId.isEmpty()) {
                 trackingId = "row$rowIndex"
+            }
 
             val itemLogger = actionLogs.getItemLogger(rowIndex, trackingId)
             itemLogger.error(result.errors)
@@ -161,7 +162,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         input: InputStream,
         sources: List<Source>,
         destination: Receiver? = null,
-        blobReportId: ReportId? = null
+        blobReportId: ReportId? = null,
     ): Report {
         val schema = metadata.findSchema(schemaName) ?: error("Internal Error: invalid schema name '$schemaName'")
         val rows = csvReader().readAllWithHeader(input).map {
@@ -214,10 +215,12 @@ class CsvSerializer(val metadata: Metadata) : Logging {
                             } catch (e: Exception) {
                                 // When exceptions occur in toFormatted, its hard to tell what data caused them.
                                 // So we catch, log, and rethrow here.
-                                val usefulTrackingElementInfo = if (schema.trackingElement != null)
+                                val usefulTrackingElementInfo = if (schema.trackingElement != null) {
                                     "${schema.trackingElement}=" +
                                         report.getString(row, schema.trackingElement)
-                                else "[tracking element column missing]"
+                                } else {
+                                    "[tracking element column missing]"
+                                }
                                 logger.error(
                                     e.toString() +
                                         "  Exception in row with $usefulTrackingElementInfo:" +
@@ -257,7 +260,7 @@ class CsvSerializer(val metadata: Metadata) : Logging {
         schema: Schema,
         defaultValues: Map<String, String>,
         row: Map<String, String>,
-        actionLogs: ActionLogger
+        actionLogs: ActionLogger,
     ): CsvMapping {
         fun rowContainsAll(fields: List<Element.CsvField>): Boolean {
             return fields.find { !row.containsKey(it.name) } == null

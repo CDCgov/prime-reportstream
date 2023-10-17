@@ -83,7 +83,7 @@ fun convertDateToAge(focus: MutableList<Base>, parameters: MutableList<MutableLi
 internal fun calculateAgeWithSpecifiedTimeUnit(
     dateOfBirth: LocalDate,
     referenceDate: LocalDate,
-    ageUnit: TemporalPrecisionEnum?
+    ageUnit: TemporalPrecisionEnum?,
 ): Age {
     return when (ageUnit) {
         TemporalPrecisionEnum.DAY -> {

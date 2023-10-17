@@ -76,7 +76,7 @@ class OktaAuthTests : CoolTest() {
          */
         fun getOktaAccessToken(
             environment: Environment,
-            testName: String = ""
+            testName: String = "",
         ): String {
             return if (environment.oktaApp == null) {
                 accessTokenDummy
@@ -162,8 +162,9 @@ class OktaAuthTests : CoolTest() {
         if (responseCode != 201) {
             passed = passed and bad("Local auth: Should get a 201 response, but but instead got $responseCode")
         } else {
-            if (getReportIdFromResponse(json) == null)
+            if (getReportIdFromResponse(json) == null) {
                 passed = passed and bad("Local auth:  got a 201 json, but no reportId. json is $json")
+            }
         }
         val testCases = listOf(
             HistoryApiTestCase(
@@ -513,7 +514,7 @@ class Server2ServerAuthTests : CoolTest() {
         organization: Organization,
         key: String,
         kid: String,
-        scope: String
+        scope: String,
     ): Organization {
         // associate a public key to the organization
         val publicKeyStr = AuthUtils.readPublicKeyPem(key)
@@ -542,7 +543,7 @@ class Server2ServerAuthTests : CoolTest() {
         environment: Environment,
         privateKeyStr: String,
         kid: String,
-        scope: String
+        scope: String,
     ): Pair<Int, String> {
         val baseUrl = environment.url.toString() + HttpUtilities.tokenApi
         val privateKey = AuthUtils.readPrivateKeyPem(privateKeyStr)
@@ -1154,7 +1155,7 @@ class Server2ServerAuthTests : CoolTest() {
         environment: Environment,
         userToken: String,
         authorizedOrg: Organization,
-        unauthorizedOrg: Organization
+        unauthorizedOrg: Organization,
     ): Boolean {
         ugly("Starting $name Test: test settings/organizations queries using server2server auth.")
         val advice = "Run   ./prime login --env staging    " +

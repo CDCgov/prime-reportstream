@@ -20,7 +20,7 @@ import org.apache.logging.log4j.kotlin.Logging
  * Settings API
  */
 class SettingsFunction(
-    settingsFacade: SettingsFacade = SettingsFacade.common
+    settingsFacade: SettingsFacade = SettingsFacade.common,
 ) : BaseFunction(settingsFacade) {
     /**
      * Get a full list of organizations and their settings.
@@ -35,7 +35,7 @@ class SettingsFunction(
             methods = [HttpMethod.GET, HttpMethod.HEAD],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations"
-        ) request: HttpRequestMessage<String?>
+        ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         return when (request.httpMethod) {
             HttpMethod.HEAD -> getHead(request)
@@ -59,7 +59,7 @@ class SettingsFunction(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations/{organizationName}"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("organizationName") organizationName: String
+        @BindingName("organizationName") organizationName: String,
     ): HttpResponseMessage {
         return getOne(request, organizationName, OrganizationAPI::class.java, organizationName)
     }
@@ -80,7 +80,7 @@ class SettingsFunction(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations/{organizationName}"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("organizationName") organizationName: String
+        @BindingName("organizationName") organizationName: String,
     ): HttpResponseMessage {
         return updateOne(
             request,
@@ -104,7 +104,7 @@ class SettingsFunction(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations/{organizationName}/senders"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("organizationName") organizationName: String
+        @BindingName("organizationName") organizationName: String,
     ): HttpResponseMessage {
         return getList(request, Sender::class.java, organizationName)
     }
@@ -126,7 +126,7 @@ class SettingsFunction(
             route = "settings/organizations/{organizationName}/senders/{senderName}"
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String,
-        @BindingName("senderName") senderName: String
+        @BindingName("senderName") senderName: String,
     ): HttpResponseMessage {
         return getOne(request, senderName, Sender::class.java, organizationName)
     }
@@ -149,7 +149,7 @@ class SettingsFunction(
             route = "settings/organizations/{organizationName}/senders/{senderName}"
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String,
-        @BindingName("senderName") senderName: String
+        @BindingName("senderName") senderName: String,
     ): HttpResponseMessage {
         return updateOne(
             request,
@@ -175,7 +175,7 @@ class SettingsFunction(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "settings/organizations/{organizationName}/receivers"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("organizationName") organizationName: String
+        @BindingName("organizationName") organizationName: String,
     ): HttpResponseMessage {
         return getList(request, ReceiverAPI::class.java, organizationName)
     }
@@ -197,7 +197,7 @@ class SettingsFunction(
             route = "settings/organizations/{organizationName}/receivers/{receiverName}"
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String,
-        @BindingName("receiverName") receiverName: String
+        @BindingName("receiverName") receiverName: String,
     ): HttpResponseMessage {
         return getOne(request, receiverName, ReceiverAPI::class.java, organizationName)
     }
@@ -220,7 +220,7 @@ class SettingsFunction(
             route = "settings/organizations/{organizationName}/receivers/{receiverName}"
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String,
-        @BindingName("receiverName") receiverName: String
+        @BindingName("receiverName") receiverName: String,
     ): HttpResponseMessage {
         return updateOne(
             request,
@@ -256,7 +256,7 @@ class SettingsFunction(
             route = "waters/org/{organizationName}/settings/revs/{settingSelector}"
         ) request: HttpRequestMessage<String?>,
         @BindingName("organizationName") organizationName: String,
-        @BindingName("settingSelector") settingSelector: String
+        @BindingName("settingSelector") settingSelector: String,
     ): HttpResponseMessage {
         return try {
             // verify the settingsTypeString is in the allowed setting enumeration.
@@ -272,7 +272,7 @@ class SettingsFunction(
  * Common Settings API
  */
 open class BaseFunction(
-    private val facade: SettingsFacade
+    private val facade: SettingsFacade,
 ) : Logging {
     /**
      * Gets the list of settings for a given organization
@@ -285,7 +285,7 @@ open class BaseFunction(
     fun <T : SettingAPI> getList(
         request: HttpRequestMessage<String?>,
         clazz: Class<T>,
-        organizationName: String? = null
+        organizationName: String? = null,
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims == null ||
@@ -315,7 +315,7 @@ open class BaseFunction(
     fun getListHistory(
         request: HttpRequestMessage<String?>,
         organizationName: String,
-        settingType: SettingType
+        settingType: SettingType,
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims == null || !claims.authorized(
@@ -336,7 +336,7 @@ open class BaseFunction(
      * @return HttpResponseMessage Last modified date for the settings
      */
     fun getHead(
-        request: HttpRequestMessage<String?>
+        request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         authenticateAdmin(request)
             ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
@@ -356,7 +356,7 @@ open class BaseFunction(
         request: HttpRequestMessage<String?>,
         settingName: String,
         clazz: Class<T>,
-        organizationName: String? = null
+        organizationName: String? = null,
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims == null || !claims.authorized(
@@ -388,7 +388,7 @@ open class BaseFunction(
         request: HttpRequestMessage<String?>,
         settingName: String,
         clazz: Class<T>,
-        organizationName: String? = null
+        organizationName: String? = null,
     ): HttpResponseMessage {
         val claims = authenticateAdmin(request)
             ?: return HttpUtilities.unauthorizedResponse(request, authenticationFailure)
@@ -423,7 +423,7 @@ open class BaseFunction(
     private fun facadeResultToResponse(
         request: HttpRequestMessage<String?>,
         result: SettingsFacade.AccessResult,
-        outputBody: String
+        outputBody: String,
     ): HttpResponseMessage {
         return when (result) {
             SettingsFacade.AccessResult.SUCCESS -> HttpUtilities.okResponse(request, outputBody)

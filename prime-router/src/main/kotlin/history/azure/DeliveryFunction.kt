@@ -35,7 +35,7 @@ import java.util.UUID
  */
 class DeliveryFunction(
     val deliveryFacade: DeliveryFacade = DeliveryFacade.instance,
-    workflowEngine: WorkflowEngine = WorkflowEngine()
+    workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : ReportFileFunction(
     deliveryFacade,
     workflowEngine
@@ -120,7 +120,7 @@ class DeliveryFunction(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "v1/receivers/{receiverName}/deliveries"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("receiverName") receiverName: String
+        @BindingName("receiverName") receiverName: String,
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         val receiver =
@@ -160,7 +160,7 @@ class DeliveryFunction(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/org/{organization}/deliveries"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("organization") organization: String
+        @BindingName("organization") organization: String,
     ): HttpResponseMessage {
         return this.getListByOrg(request, organization)
     }
@@ -180,7 +180,7 @@ class DeliveryFunction(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/report/{id}/delivery"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("id") id: String
+        @BindingName("id") id: String,
     ): HttpResponseMessage {
         return this.getDetailedView(request, id)
     }
@@ -200,7 +200,7 @@ class DeliveryFunction(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "waters/report/{id}/facilities"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("id") id: String
+        @BindingName("id") id: String,
     ): HttpResponseMessage {
         try {
             // Do authentication
@@ -258,7 +258,7 @@ class DeliveryFunction(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "v1/report/{reportId}/items"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("reportId") reportId: UUID
+        @BindingName("reportId") reportId: UUID,
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         if (claims == null || !claims.authorized(setOf("*.*.primeadmin"))) {
@@ -278,9 +278,9 @@ class DeliveryFunction(
      * @property sortColumn sort the table by specific column; default created_at.
      */
     data class FacilityListApiParameters(
-        val sortColumn: DatabaseDeliveryAccess.FacilitySortColumn
+        val sortColumn: DatabaseDeliveryAccess.FacilitySortColumn,
     ) {
-        constructor(query: Map<String, String>) : this (
+        constructor(query: Map<String, String>) : this(
             sortColumn = extractSortCol(query)
         )
 
@@ -312,7 +312,7 @@ class DeliveryFunction(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "v1/receivers/{receiverName}/deliveries/submitters/search"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("receiverName") receiverName: String
+        @BindingName("receiverName") receiverName: String,
     ): HttpResponseMessage {
         val claims = AuthenticatedClaims.authenticate(request)
         val receiver =
@@ -350,6 +350,6 @@ class DeliveryFunction(
         @JsonProperty("CLIA")
         val clia: String?,
         val positive: Long?,
-        val total: Long?
+        val total: Long?,
     )
 }

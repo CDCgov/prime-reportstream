@@ -13,6 +13,7 @@ interface ReportStreamSecretFinder {
     companion object {
         const val TOKEN_SIGNING_SECRET_NAME = "TokenSigningSecret"
         private val TOKEN_SIGNING_KEY_ALGORITHM = SignatureAlgorithm.HS384
+
         // convenience method that knows how to generate the right kind of secret.
         fun generateSecret(): String {
             return Encoders.BASE64.encode(Keys.secretKeyFor(TOKEN_SIGNING_KEY_ALGORITHM).encoded)

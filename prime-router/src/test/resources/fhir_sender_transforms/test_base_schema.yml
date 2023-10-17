@@ -1,4 +1,3 @@
-
 elements:
   - name: note
     resource: 'Bundle.entry.resource.ofType(DiagnosticReport)[0]'

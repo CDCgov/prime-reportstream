@@ -159,8 +159,9 @@ class FakeDataService : Logging {
                 }
 
                 element.table?.startsWith("LIVD-Supplemental") == true -> {
-                    if (element.tableColumn == null)
+                    if (element.tableColumn == null) {
                         return ""
+                    }
                     element.default ?: ""
                 }
 
@@ -378,7 +379,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
         val schemaName: String? = null,
         reportCounty: String? = null,
         includeNcesFacilities: Boolean = false,
-        locale: Locale? = null
+        locale: Locale? = null,
     ) {
         val findLookupTable = localMetadata::findLookupTable
         val faker = if (locale == null) Faker() else Faker(locale)
@@ -488,7 +489,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
         schema: Schema,
         targetState: String? = null,
         targetCounty: String? = null,
-        includeNcesFacilities: Boolean = false
+        includeNcesFacilities: Boolean = false,
     ): List<String> {
         val context = RowContext(
             metadata,
@@ -499,10 +500,11 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
             locale
         )
         return schema.elements.map {
-            if (it.mapper.isNullOrEmpty())
+            if (it.mapper.isNullOrEmpty()) {
                 buildColumn(it, context)
-            else
+            } else {
                 buildMappedColumn(it, context)
+            }
         }
     }
 
@@ -512,7 +514,7 @@ class FakeReport(val metadata: Metadata, val locale: Locale? = null) {
         source: Source,
         targetStates: String? = null,
         targetCounties: String? = null,
-        includeNcesFacilities: Boolean = false
+        includeNcesFacilities: Boolean = false,
     ): Report {
         val counties = targetCounties?.split(",")
         val states = if (targetStates.isNullOrEmpty()) {

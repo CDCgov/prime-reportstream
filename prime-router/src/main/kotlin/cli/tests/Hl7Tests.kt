@@ -64,8 +64,9 @@ class Hl7Ingest : CoolTest() {
                 // verify each result is valid
                 for (result in processResults.values)
                     passed = passed && examineProcessResponse(result)
-                if (!passed)
+                if (!passed) {
                     bad("***$name FAILED***: Process result invalid")
+                }
             }
 
             passed = passed and pollForLineageResults(
@@ -113,12 +114,14 @@ class BadHl7 : CoolTest() {
     override val description = "Submit bad hl7 scenarios - should get errors"
     override val status = TestStatus.DRAFT // This test fails or hangs sometimes when part of the smokes.  Not sure why
     val failures = mutableSetOf<String>()
-    val strHl7Message = """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime Data Hub|20210210170737||ORU^R01^ORU_R01|3719999|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
+    val strHl7Message =
+        """MSH|^~\&|CDC PRIME - Atlanta, Georgia (Dekalb)^2.16.840.1.114222.4.1.237821^ISO|Avante at Ormond Beach^10D0876999^CLIA|PRIME_DOH|Prime Data Hub|20210210170737||ORU^R01^ORU_R01|3719999|P|2.5.1|||NE|NE|USA||||PHLabReportNoAck^ELR_Receiver^2.16.840.1.113883.9.11^ISO
 PID|1|ABC123DF|AND234DA_PID3|PID_4_ALTID|Patlast^Patfirst^Mid||19670202|F|||4505 21 st^^LAKE COUNTRY^MD^FO||222-555-8484|||||MF0050356/15|
 ORC|RE|73a6e9bd-aaec-418e-813a-0ad33366ca85|73a6e9bd-aaec-418e-813a-0ad33366ca85|||||||||1629082607^Eddin^Husam^^^^^^CMS&2.16.840.1.113883.3.249&ISO^^^^NPI||^WPN^^^1^386^6825220|202102090000-0500||||||Avante at Ormond Beach|170 North King Road^^Ormond Beach^IG^32174^^^^12127|^WPN^^jbrush@avantecenters.com^1^407^7397506|^^^^32174
 OBX|1|CWE|94558-4^SARS-CoV-2 (COVID-19) Ag [Presence] in Respiratory specimen by Rapid immunoassay^LN||260415000^Not detected^SCT|||N^Normal (applies to non-numeric results)^HL70078|||F|||202102090000-0600|||CareStart COVID-19 Antigen test_Access Bio, Inc._EUA^^99ELR||202102090000-0600||||Avante at Ormond Beach^^^^^CLIA&2.16.840.1.113883.19.4.6&ISO^^^^10D08761999^CLIA|170 North King Road^^Ormond Beach^FL^32174^^^^12127
 SPM|1|b518ef23-1d9a-40c1-ac4b-ed7b438dfc4b||258500001^Nasopharyngeal swab^SCT||||71836000^Nasopharyngeal structure (body structure)^SCT^^^^2020-09-01|||||||||20201102063552-0500|20201102063552-0500
     """
+
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
         val sender = hl7Sender
         val csv = """

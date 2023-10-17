@@ -15,7 +15,7 @@ internal object AzureCredentialService : CredentialService() {
 
     internal fun initSecretClient(
         secretClientBuilder: SecretClientBuilder = SecretClientBuilder(),
-        credential: TokenCredential = DefaultAzureCredentialBuilder().build()
+        credential: TokenCredential = DefaultAzureCredentialBuilder().build(),
     ): SecretClient {
         return secretClientBuilder
             .vaultUrl("https://$KEY_VAULT_NAME.vault.azure.net")
