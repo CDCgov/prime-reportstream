@@ -42,6 +42,7 @@ const oktaSignInConfig: WidgetOptions = {
     },
     i18n: {
         // Overriding English properties
+        // List available at: node_modules/@okta/okta-signin-widget/dist/labels/properties/login.properties
         en: {
             help: "Request username or get other help through our service request form.",
             signin: "Sign in",
