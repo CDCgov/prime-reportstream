@@ -266,4 +266,174 @@ class XTNTests {
             ).passed
         )
     }
+
+    @Test
+    fun `XTN test value XTN-6`() {
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/xtn/xtn_11_xtn6_has_value.fhir",
+                "mappinginventory/xtn/xtn_11_xtn6_has_value.hl7"
+            ).passed
+        )
+
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/xtn/xtn_11_xtn6_has_value.hl7",
+                "mappinginventory/xtn/xtn_11_xtn6_has_value.fhir"
+            ).passed
+        )
+    }
+
+    @Test
+    fun `XTN test value in XTN-7 and XTN-3 is Internet`() {
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/xtn/xtn_12_xtn7_has_value_xtn3_is_Internet.fhir",
+                "mappinginventory/xtn/xtn_12_xtn7_has_value_xtn3_is_Internet.hl7"
+            ).passed
+        )
+
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/xtn/xtn_12_xtn7_has_value_xtn3_is_Internet.hl7",
+                "mappinginventory/xtn/xtn_12_xtn7_has_value_xtn3_is_Internet.fhir"
+            ).passed
+        )
+    }
+
+    @Test
+    fun `XTN test value in XTN-7 and XTN-3 is WPN`() {
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/xtn/xtn_12_xtn7_has_value_xtn3_is_WPN.fhir",
+                "mappinginventory/xtn/xtn_12_xtn7_has_value_xtn3_is_WPN.hl7"
+            ).passed
+        )
+
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/xtn/xtn_12_xtn7_has_value_xtn3_is_WPN.hl7",
+                "mappinginventory/xtn/xtn_12_xtn7_has_value_xtn3_is_WPN.fhir"
+            ).passed
+        )
+    }
+
+    @Test
+    fun `XTN test value in XTN-8`() {
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/xtn/xtn_13_xtn8_has_value.fhir",
+                "mappinginventory/xtn/xtn_13_xtn8_has_value.hl7"
+            ).passed
+        )
+
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/xtn/xtn_13_xtn8_has_value.hl7",
+                "mappinginventory/xtn/xtn_13_xtn8_has_value.fhir"
+            ).passed
+        )
+    }
+
+    @Test
+    fun `XTN test value in XTN-9`() {
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/xtn/xtn_14_xtn9_has_value.fhir",
+                "mappinginventory/xtn/xtn_14_xtn9_has_value.hl7"
+            ).passed
+        )
+
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/xtn/xtn_14_xtn9_has_value.hl7",
+                "mappinginventory/xtn/xtn_14_xtn9_has_value.fhir"
+            ).passed
+        )
+    }
+
+    @Test
+    fun `XTN test value in XTN-12 and XTN-3 is Internet`() {
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/xtn/xtn_17_xtn12_has_value_xtn3_is_Internet.fhir",
+                "mappinginventory/xtn/xtn_17_xtn12_has_value_xtn3_is_Internet.hl7"
+            ).passed
+        )
+
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/xtn/xtn_17_xtn12_has_value_xtn3_is_Internet.hl7",
+                "mappinginventory/xtn/xtn_17_xtn12_has_value_xtn3_is_Internet.fhir"
+            ).passed
+        )
+    }
+
+    @Test
+    fun `XTN test value in XTN-12 and XTN-3 is WPN`() {
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/xtn/xtn_17_xtn12_has_value_xtn3_is_WPN.fhir",
+                "mappinginventory/xtn/xtn_17_xtn12_has_value_xtn3_is_WPN.hl7"
+            ).passed
+        )
+
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/xtn/xtn_17_xtn12_has_value_xtn3_is_WPN.hl7",
+                "mappinginventory/xtn/xtn_17_xtn12_has_value_xtn3_is_WPN.fhir"
+            ).passed
+        )
+    }
+
+    @Test
+    fun `XTN test value in XTN-13`() {
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/xtn/xtn_18_xtn13_has_value.fhir",
+                "mappinginventory/xtn/xtn_18_xtn13_has_value.hl7"
+            ).passed
+        )
+
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/xtn/xtn_18_xtn13_has_value.hl7",
+                "mappinginventory/xtn/xtn_18_xtn13_has_value.fhir"
+            ).passed
+        )
+    }
+
+    @Test
+    fun `XTN test value in XTN-14`() {
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/xtn/xtn_19_xtn14_has_value.fhir",
+                "mappinginventory/xtn/xtn_19_xtn14_has_value.hl7"
+            ).passed
+        )
+
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/xtn/xtn_19_xtn14_has_value.hl7",
+                "mappinginventory/xtn/xtn_19_xtn14_has_value.fhir"
+            ).passed
+        )
+    }
+
+    @Test
+    fun `XTN test value in XTN-18`() {
+        assert(
+            translateAndCompareFHIRToHL7(
+                "mappinginventory/xtn/xtn_23_xtn18_has_value.fhir",
+                "mappinginventory/xtn/xtn_23_xtn18_has_value.hl7"
+            ).passed
+        )
+
+        assert(
+            translateAndCompareHL7ToFHIR(
+                "mappinginventory/xtn/xtn_23_xtn18_has_value.hl7",
+                "mappinginventory/xtn/xtn_23_xtn18_has_value.fhir"
+            ).passed
+        )
+    }
 }

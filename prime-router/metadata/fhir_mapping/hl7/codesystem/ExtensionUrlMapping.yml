@@ -302,3 +302,9 @@
 # Unformatted Telephone Number
 - id: "unformatted-telephone-number"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/unformatted-telephone-number"
+# Local Number
+- id: "local-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/local-number"
+# Any Text
+- id: "any-text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/any-text"

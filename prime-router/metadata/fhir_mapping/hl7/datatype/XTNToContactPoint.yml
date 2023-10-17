@@ -110,7 +110,7 @@ system_7:
     commAddress: String, XTN.4
 
 extension_1-telecom-equipment-type:
-#  condition: $equipType NOT_NULL
+  condition: $equipType NOT_NULL
   generateList: true
   expressionType: nested
   vars:
@@ -124,7 +124,7 @@ extension_1-telecom-equipment-type:
 
 
 extension_2-country-code:
-#  condition: $countryCode NOT_NULL
+  condition: $countryCode NOT_NULL
   generateList: true
   expressionType: nested
   vars:
@@ -137,7 +137,7 @@ extension_2-country-code:
       value: $countryCode
 
 extension_3-area-code:
-#  condition: $areaCode NOT_NULL
+  condition: $areaCode NOT_NULL
   generateList: true
   expressionType: nested
   vars:
@@ -149,22 +149,35 @@ extension_3-area-code:
     valueString:
       value: $areaCode
 
-extension_4-local-number:
-  condition: $telEquipType NOT_EQUALS Internet && $telEquipType NOT_EQUALS X.400 && $localNum NOT_NULL
+extension_4-contactpoint-local:
+  condition: $telEquipType NOT_EQUALS Internet && $telEquipType NOT_EQUALS X.400 && $contactPointLocal NOT_NULL
   generateList: true
   expressionType: nested
   vars:
     telEquipType: String, XTN.3
-    localNum: String, XTN.7
+    contactPointLocal: String, XTN.7
   expressionsMap:
     url:
       type: SYSTEM_URL
       value: "contactpoint-local"
     valueString:
+      value: $contactPointLocal
+
+extension_5-local-number:
+  condition: $localNum NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    localNum: String, XTN.7
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: "local-number"
+    valueString:
       value: $localNum
 
-extension_5-phone-extension:
-#  condition: $numExt NOT_NULL
+extension_6-phone-extension:
+  condition: $numExt NOT_NULL
   generateList: true
   expressionType: nested
   vars:
@@ -176,8 +189,8 @@ extension_5-phone-extension:
     valueString:
       value: $numExt
 
-extension_6-any-text:
-#  condition: $anyText NOT_NULL
+extension_7-any-text:
+  condition: $anyText NOT_NULL
   generateList: true
   expressionType: nested
   vars:
@@ -185,13 +198,13 @@ extension_6-any-text:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "text"
+      value: "any-text"
     valueString:
       type: STRING
       valueOf: $anyText
 
-extension_7-telecom-use-code:
-#  condition: $useCode NOT_NULL
+extension_8-telecom-use-code:
+  condition: $useCode NOT_NULL
   generateList: true
   expressionType: nested
   vars:
@@ -203,7 +216,7 @@ extension_7-telecom-use-code:
     valueString:
       value: $useCode
 
-extension_8-hl7-use:
+extension_9-hl7-use:
   condition: $hl7Use NOT_NULL
   generateList: true
   expressionType: nested
@@ -214,12 +227,12 @@ extension_8-hl7-use:
     valueString:
       value: $hl7Use
 
-extension_9-telephone-number:
-#  condition: $telNum NOT_NULL
+extension_10-telephone-number:
+  condition: $telNum NOT_NULL
   generateList: true
   expressionType: nested
   vars:
-    commAddress: String, XTN.1
+    telNum: String, XTN.1
   expressionsMap:
     url:
       type: SYSTEM_URL
@@ -227,8 +240,8 @@ extension_9-telephone-number:
     valueString:
       value: $telNum
 
-extension_10-communication-address:
-#  condition: $commAddress NOT_NULL
+extension_11-communication-address:
+  condition: $commAddress NOT_NULL
   generateList: true
   expressionType: nested
   vars:
@@ -240,8 +253,8 @@ extension_10-communication-address:
     valueString:
       value: $commAddress
 
-extension_11-unformatted-telephone-number:
-#  condition: $unformattedTelNum NOT_NULL
+extension_12-unformatted-telephone-number:
+  condition: $unformattedTelNum NOT_NULL
   generateList: true
   expressionType: nested
   vars:
@@ -252,6 +265,7 @@ extension_11-unformatted-telephone-number:
       value: "unformatted-telephone-number"
     valueString:
       value: $unformattedTelNum
+
 period:
   valueOf: datatype/Period
   expressionType: resource
