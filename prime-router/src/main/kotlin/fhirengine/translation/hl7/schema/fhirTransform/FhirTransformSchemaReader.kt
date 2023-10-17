@@ -10,8 +10,9 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.schema.ConfigSchemaReader
  */
 fun fhirTransformSchemaFromFile(schemaName: String, folder: String? = null): FhirTransformSchema {
     val schema = ConfigSchemaReader.fromFile(schemaName, folder, schemaClass = FhirTransformSchema::class.java)
-    if (schema is FhirTransformSchema)
+    if (schema is FhirTransformSchema) {
         return schema
-    else
+    } else {
         throw SchemaException("Schema ${schema.name} is not a FHIRTransformSchema")
+    }
 }

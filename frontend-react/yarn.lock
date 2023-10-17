@@ -12,7 +12,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@adobe/css-tools@npm:^4.3.0":
+"@adobe/css-tools@npm:^4.3.1":
   version: 4.3.1
   resolution: "@adobe/css-tools@npm:4.3.1"
   checksum: ad43456379ff391132aff687ece190cb23ea69395e23c9b96690eeabe2468da89a4aaf266e4f8b6eaab53db3d1064107ce0f63c3a974e864f4a04affc768da3f
@@ -1629,9 +1629,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cypress/request@npm:2.88.12":
-  version: 2.88.12
-  resolution: "@cypress/request@npm:2.88.12"
+"@cypress/request@npm:^3.0.0":
+  version: 3.0.1
+  resolution: "@cypress/request@npm:3.0.1"
   dependencies:
     aws-sign2: ~0.7.0
     aws4: ^1.8.0
@@ -1646,12 +1646,12 @@ __metadata:
     json-stringify-safe: ~5.0.1
     mime-types: ~2.1.19
     performance-now: ^2.1.0
-    qs: ~6.10.3
+    qs: 6.10.4
     safe-buffer: ^5.1.2
     tough-cookie: ^4.1.3
     tunnel-agent: ^0.6.0
     uuid: ^8.3.2
-  checksum: 2c6fbf7f3127d41bffca8374beaa8cf95450495a8a077b00309ea9d94dd2a4da450a77fe038e8ad26c97cdd7c39b65c53c850f8338ce9bc2dbe23ce2e2b48329
+  checksum: 7175522ebdbe30e3c37973e204c437c23ce659e58d5939466615bddcd58d778f3a8ea40f087b965ae8b8138ea8d102b729c6eb18c6324f121f3778f4a2e8e727
   languageName: node
   linkType: hard
 
@@ -4803,35 +4803,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/cypress@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "@testing-library/cypress@npm:9.0.0"
+"@testing-library/cypress@npm:^10.0.1":
+  version: 10.0.1
+  resolution: "@testing-library/cypress@npm:10.0.1"
   dependencies:
     "@babel/runtime": ^7.14.6
-    "@testing-library/dom": ^8.1.0
+    "@testing-library/dom": ^9.0.0
   peerDependencies:
-    cypress: ^12.0.0
-  checksum: fbd24e8f0b8a60279b336de5f6bc0e7ad6fb31316eacab5128dacc7fccde1eb40935b90f2c3bddc7d814115fe3965c6dbf011785448cd15b5a5b0bc40ef5bb4c
+    cypress: ^12.0.0 || ^13.0.0
+  checksum: 737e16563844851e830786da1862ea2c29d9f67155d8d2ea4d5178c98b77621c67c89e47a91a633d36c0528adfff9592f7228a5f19666af9882c837eeacbd08e
   languageName: node
   linkType: hard
 
-"@testing-library/dom@npm:^8.1.0":
-  version: 8.20.0
-  resolution: "@testing-library/dom@npm:8.20.0"
-  dependencies:
-    "@babel/code-frame": ^7.10.4
-    "@babel/runtime": ^7.12.5
-    "@types/aria-query": ^5.0.1
-    aria-query: ^5.0.0
-    chalk: ^4.1.0
-    dom-accessibility-api: ^0.5.9
-    lz-string: ^1.4.4
-    pretty-format: ^27.0.2
-  checksum: 1e599129a2fe91959ce80900a0a4897232b89e2a8e22c1f5950c36d39c97629ea86b4986b60b173b5525a05de33fde1e35836ea597b03de78cc51b122835c6f0
-  languageName: node
-  linkType: hard
-
-"@testing-library/dom@npm:^9.0.0, @testing-library/dom@npm:^9.3.1":
+"@testing-library/dom@npm:^9.0.0":
   version: 9.3.1
   resolution: "@testing-library/dom@npm:9.3.1"
   dependencies:
@@ -4847,11 +4831,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/jest-dom@npm:^6.1.3":
-  version: 6.1.3
-  resolution: "@testing-library/jest-dom@npm:6.1.3"
+"@testing-library/dom@npm:^9.3.3":
+  version: 9.3.3
+  resolution: "@testing-library/dom@npm:9.3.3"
   dependencies:
-    "@adobe/css-tools": ^4.3.0
+    "@babel/code-frame": ^7.10.4
+    "@babel/runtime": ^7.12.5
+    "@types/aria-query": ^5.0.1
+    aria-query: 5.1.3
+    chalk: ^4.1.0
+    dom-accessibility-api: ^0.5.9
+    lz-string: ^1.5.0
+    pretty-format: ^27.0.2
+  checksum: 34e0a564da7beb92aa9cc44a9080221e2412b1a132eb37be3d513fe6c58027674868deb9f86195756d98d15ba969a30fe00632a4e26e25df2a5a4f6ac0686e37
+  languageName: node
+  linkType: hard
+
+"@testing-library/jest-dom@npm:^6.1.3":
+  version: 6.1.4
+  resolution: "@testing-library/jest-dom@npm:6.1.4"
+  dependencies:
+    "@adobe/css-tools": ^4.3.1
     "@babel/runtime": ^7.9.2
     aria-query: ^5.0.0
     chalk: ^3.0.0
@@ -4873,7 +4873,7 @@ __metadata:
       optional: true
     vitest:
       optional: true
-  checksum: 5bd14ba31fd3d64cff8ca55cccd335bedadf1db1119643954ca8cd30af835defe6f3a21e7d7617d20205b07abba1b2e668be1b9d6743504800f17fdc4344db75
+  checksum: c6bd9469554136a25d94b55ea16736d56b8c5d200526023774dbf35ca35551a721257e6734f1b404bbd07ae0a1950f1912b5be60e113db2ff2ff50af14f7085c
   languageName: node
   linkType: hard
 
@@ -4913,21 +4913,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/user-event@npm:^14.4.0":
+"@testing-library/user-event@npm:^14.4.0, @testing-library/user-event@npm:^14.5.1":
   version: 14.5.1
   resolution: "@testing-library/user-event@npm:14.5.1"
   peerDependencies:
     "@testing-library/dom": ">=7.21.4"
   checksum: 3e6bc9fd53dfe2f3648190193ed2fd4bca2a1bfb47f68810df3b33f05412526e5fd5c4ef9dc5375635e0f4cdf1859916867b597eed22bda1321e04242ea6c519
-  languageName: node
-  linkType: hard
-
-"@testing-library/user-event@npm:^14.4.3":
-  version: 14.4.3
-  resolution: "@testing-library/user-event@npm:14.4.3"
-  peerDependencies:
-    "@testing-library/dom": ">=7.21.4"
-  checksum: 852c48ea6db1c9471b18276617c84fec4320771e466cd58339a732ca3fd73ad35e5a43ae14f51af51a8d0a150dcf60fcaab049ef367871207bea8f92c4b8195e
   languageName: node
   linkType: hard
 
@@ -4938,14 +4929,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trussworks/react-uswds@npm:^5.3.0":
-  version: 5.3.0
-  resolution: "@trussworks/react-uswds@npm:5.3.0"
+"@trussworks/react-uswds@npm:^5.4.0":
+  version: 5.4.0
+  resolution: "@trussworks/react-uswds@npm:5.4.0"
   peerDependencies:
-    "@uswds/uswds": 3.5.0
+    "@uswds/uswds": ^3.6.0
     react: ^16.x || ^17.x || ^18.x
     react-dom: ^16.x || ^17.x || ^18.x
-  checksum: b2e512b72415dc0b1a29d358e01291e584d0e172ba7c06021e7c9e694fab0a584c93fbbae666ed999ded012c3cac1f7cef4a710655629548e777a9d02e63c657
+  checksum: b8218bbe8b7a6ac543b1eea46f388730b45f13047aeb3bc272503f073520d53e8e2b0287cf9fe13995c4ddf969463ecabf74b7a4fc82f1fb569f3f070030250f
   languageName: node
   linkType: hard
 
@@ -5102,12 +5093,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/dompurify@npm:^3.0.2":
-  version: 3.0.2
-  resolution: "@types/dompurify@npm:3.0.2"
+"@types/dompurify@npm:^3.0.3":
+  version: 3.0.3
+  resolution: "@types/dompurify@npm:3.0.3"
   dependencies:
     "@types/trusted-types": "*"
-  checksum: dc017e16a46bcc77086af7d4dc5d2bf4102f16bf1a11b2937e90380da50e77716a2a608ff52990b1293250fefc2ad7593a1378fe07e3a7e21f200d702f0a7878
+  checksum: ff629277db4d19d836b0d878e93efb27d876d1073db81507c39d44d509b30ee3bcdc9e951dbbf9574b1fc6c52e1eaa95abf4279fa45aca281868717f8a7298da
   languageName: node
   linkType: hard
 
@@ -5264,10 +5255,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/html-to-text@npm:^9.0.1":
-  version: 9.0.1
-  resolution: "@types/html-to-text@npm:9.0.1"
-  checksum: 5efed629a8d667164c4618645e88582153cf4b5f94d57124484c3da0511d6550391c34859ee5bab6f0bfa93e2a56ae6169a6097ce3038400513507727c773150
+"@types/html-to-text@npm:^9.0.2":
+  version: 9.0.2
+  resolution: "@types/html-to-text@npm:9.0.2"
+  checksum: 9ad76f5ff2c303c6a66f6a03ecccee60da85bed06769c14bc31bf1113c88ac1ea323790f2340b1b6bd7560570fb9e3d8ba0158c123e249a1c3779ddcb78635d5
   languageName: node
   linkType: hard
 
@@ -5492,7 +5483,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^16.0.0, @types/node@npm:^16.18.39":
+"@types/node@npm:^16.0.0":
   version: 16.18.39
   resolution: "@types/node@npm:16.18.39"
   checksum: eac9b202b76013256cb517ca8d3e3f61df206edb1615ca8d8df4c80616e92879fe4d3f8570a11d60f4216a82724a3265d5888b24c6994c80b057a0423c9ff1d2
@@ -5503,6 +5494,13 @@ __metadata:
   version: 18.17.14
   resolution: "@types/node@npm:18.17.14"
   checksum: f96ce1e588426a26cf82440193084f8bbab47bfb3c2e668cf174095f99ce808a20654b2137448c7e88cfd7b6c2b8521ffb6f714f521b3502ac595a0df0bff679
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^18.17.5":
+  version: 18.18.5
+  resolution: "@types/node@npm:18.18.5"
+  checksum: fc8c9b2bf226270cf9085a7dac76ce09dd7c3519ec9b687ee2b50385954ab3709c45ca82d002d1536e24286803cd194d7ab7008acebdcd6681b8b19d4277fa5c
   languageName: node
   linkType: hard
 
@@ -5607,12 +5605,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sanitize-html@npm:^2.9.0":
-  version: 2.9.0
-  resolution: "@types/sanitize-html@npm:2.9.0"
+"@types/sanitize-html@npm:^2.9.2":
+  version: 2.9.2
+  resolution: "@types/sanitize-html@npm:2.9.2"
   dependencies:
     htmlparser2: ^8.0.0
-  checksum: b60f42b740bbfb1b1434ce8b43925a38ecc608b60aa654fd009d2e22e33f324b61d370768c55bd2fd98e03de08518ffa8911d61606c483526fb931bb8b59d1b0
+  checksum: bdd0db4a39125b8836573ede5ec5cc2f7b0dff5ecfbeae68aefb40163c916429cfb500d581ad3a18613e8d6a53f707abb279350e0811122e84e21b0223b8d560
   languageName: node
   linkType: hard
 
@@ -7927,13 +7925,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress@npm:^12.17.4":
-  version: 12.17.4
-  resolution: "cypress@npm:12.17.4"
+"cypress@npm:^13.3.1":
+  version: 13.3.1
+  resolution: "cypress@npm:13.3.1"
   dependencies:
-    "@cypress/request": 2.88.12
+    "@cypress/request": ^3.0.0
     "@cypress/xvfb": ^1.2.4
-    "@types/node": ^16.18.39
+    "@types/node": ^18.17.5
     "@types/sinonjs__fake-timers": 8.1.1
     "@types/sizzle": ^2.3.2
     arch: ^2.2.0
@@ -7976,7 +7974,7 @@ __metadata:
     yauzl: ^2.10.0
   bin:
     cypress: bin/cypress
-  checksum: c9c79f5493b23e9c8cfb92d45d50ea9d0fae54210dde203bfa794a79436faf60108d826fe9007a7d67fddf7919802ad8f006b7ae56c5c198c75d5bc85bbc851b
+  checksum: 51798ecc6c5a33860012ecf39c428540911c3cf4df6ee63ea950cafea4a6c415d18da87951721f45b8601637e9731af4cf1464d37d62a36ce7243f8bfc8a59d2
   languageName: node
   linkType: hard
 
@@ -8934,14 +8932,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-cypress@npm:^2.14.0":
-  version: 2.14.0
-  resolution: "eslint-plugin-cypress@npm:2.14.0"
+"eslint-plugin-cypress@npm:^2.15.1":
+  version: 2.15.1
+  resolution: "eslint-plugin-cypress@npm:2.15.1"
   dependencies:
     globals: ^13.20.0
   peerDependencies:
     eslint: ">= 3.2.1"
-  checksum: 3fa118a757aebb1aa6b419b2944744796aa4fa3cc1e2e19fa97777fd6792fba12b5ae117bf19bf7e7d9a1abdd48398cfba9ca6f2c62fd690a2108a9a02f3f2ae
+  checksum: 3e66fa9a943fff52eaf3758250a63c2a0f8ffd60c50572beaf3688b33a55fbf0060d18ef32bc26abb57aef070517db827c22fd3d607582861d464970f95e550e
   languageName: node
   linkType: hard
 
@@ -12948,7 +12946,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lz-string@npm:^1.4.4, lz-string@npm:^1.5.0":
+"lz-string@npm:^1.5.0":
   version: 1.5.0
   resolution: "lz-string@npm:1.5.0"
   bin:
@@ -15445,6 +15443,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"qs@npm:6.10.4":
+  version: 6.10.4
+  resolution: "qs@npm:6.10.4"
+  dependencies:
+    side-channel: ^1.0.4
+  checksum: 31e4fedd759d01eae52dde6692abab175f9af3e639993c5caaa513a2a3607b34d8058d3ae52ceeccf37c3025f22ed5e90e9ddd6c2537e19c0562ddd10dc5b1eb
+  languageName: node
+  linkType: hard
+
 "qs@npm:6.11.0":
   version: 6.11.0
   resolution: "qs@npm:6.11.0"
@@ -15460,15 +15467,6 @@ __metadata:
   dependencies:
     side-channel: ^1.0.4
   checksum: e812f3c590b2262548647d62f1637b6989cc56656dc960b893fe2098d96e1bd633f36576f4cd7564dfbff9db42e17775884db96d846bebe4f37420d073ecdc0b
-  languageName: node
-  linkType: hard
-
-"qs@npm:~6.10.3":
-  version: 6.10.5
-  resolution: "qs@npm:6.10.5"
-  dependencies:
-    side-channel: ^1.0.4
-  checksum: b3873189a11bcf48445864b3ba66f7a76db0d9d874955d197779f561addfa604884f7b107971526ce1eca02c99bf7d1e47f28a3e7e6e29204d798fb279164226
   languageName: node
   linkType: hard
 
@@ -15636,16 +15634,16 @@ __metadata:
     "@storybook/theming": ^7.4.6
     "@tanstack/react-query": ^4.36.1
     "@tanstack/react-query-devtools": ^4.36.1
-    "@testing-library/cypress": ^9.0.0
-    "@testing-library/dom": ^9.3.1
+    "@testing-library/cypress": ^10.0.1
+    "@testing-library/dom": ^9.3.3
     "@testing-library/jest-dom": ^6.1.3
     "@testing-library/react": ^14.0.0
-    "@testing-library/user-event": ^14.4.3
-    "@trussworks/react-uswds": ^5.3.0
-    "@types/dompurify": ^3.0.2
+    "@testing-library/user-event": ^14.5.1
+    "@trussworks/react-uswds": ^5.4.0
+    "@types/dompurify": ^3.0.3
     "@types/downloadjs": ^1.4.4
     "@types/github-slugger": ^1.3.0
-    "@types/html-to-text": ^9.0.1
+    "@types/html-to-text": ^9.0.2
     "@types/jest": ^29.5.5
     "@types/lodash.chunk": ^4.2.7
     "@types/lodash.omit": ^4.5.7
@@ -15658,7 +15656,7 @@ __metadata:
     "@types/react-dom": ^18.2.13
     "@types/react-router-dom": ^5.3.3
     "@types/react-scroll-sync": ^0.8.5
-    "@types/sanitize-html": ^2.9.0
+    "@types/sanitize-html": ^2.9.2
     "@typescript-eslint/eslint-plugin": ^6.7.5
     "@typescript-eslint/parser": ^6.7.5
     "@uswds/uswds": 3.4.1
@@ -15673,7 +15671,7 @@ __metadata:
     classnames: ^2.3.2
     confusing-browser-globals: ^1.0.11
     cross-env: ^7.0.3
-    cypress: ^12.17.4
+    cypress: ^13.3.1
     cypress-each: ^1.13.3
     cypress-localstorage-commands: ^2.2.4
     cypress-plugin-tab: ^1.0.5
@@ -15682,7 +15680,7 @@ __metadata:
     eslint: ^8.51.0
     eslint-config-prettier: ^9.0.0
     eslint-plugin-chai-friendly: ^0.7.2
-    eslint-plugin-cypress: ^2.14.0
+    eslint-plugin-cypress: ^2.15.1
     eslint-plugin-import: ^2.28.1
     eslint-plugin-jest: ^27.4.2
     eslint-plugin-jest-dom: ^5.1.0

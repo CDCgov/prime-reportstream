@@ -35,7 +35,7 @@ private const val PROCESSING_TYPE_PARAMETER = "processing"
  */
 class ReportFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
-    private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
+    private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive),
 ) : Logging, RequestFunction(workflowEngine) {
 
     /**
@@ -50,7 +50,7 @@ class ReportFunction(
             name = "req",
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.FUNCTION
-        ) request: HttpRequestMessage<String?>
+        ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         val senderName = extractClient(request)
         if (senderName.isBlank()) {
@@ -86,7 +86,7 @@ class ReportFunction(
             name = "waters",
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.ANONYMOUS
-        ) request: HttpRequestMessage<String?>
+        ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         val senderName = extractClient(request)
         if (senderName.isBlank()) {
@@ -126,7 +126,7 @@ class ReportFunction(
      */
     internal fun processRequest(
         request: HttpRequestMessage<String?>,
-        sender: Sender
+        sender: Sender,
     ): HttpResponseMessage {
         // determine if we should be following the sync or async workflow
         val isAsync = processingType(request, sender) == ProcessingType.async
@@ -154,18 +154,22 @@ class ReportFunction(
 
                 // if the override parameter is populated, use that, otherwise use the sender value
                 val allowDuplicates =
-                    if (!allowDuplicatesParam.isNullOrEmpty())
+                    if (!allowDuplicatesParam.isNullOrEmpty()) {
                         allowDuplicatesParam == "true"
-                    else
+                    } else {
                         sender.allowDuplicates
+                    }
 
                 // Only process the report if we are not checking for connection or validation.
                 if (option != Options.CheckConnections && option != Options.ValidatePayload) {
                     val receiver = SubmissionReceiver.getSubmissionReceiver(sender, workflowEngine, actionHistory)
                     val content =
-                        if (receiver is UniversalPipelineReceiver) validatedRequest.content
-                        // removes incoming '#' if included in separation characters
-                        else validatedRequest.content.replace("|^~\\&#", "|^~\\&")
+                        if (receiver is UniversalPipelineReceiver) {
+                            validatedRequest.content
+                        } // removes incoming '#' if included in separation characters
+                        else {
+                            validatedRequest.content.replace("|^~\\&#", "|^~\\&")
+                        }
                     val rawBody = content.toByteArray()
                     // send report on its way, either via the COVID pipeline or the full ELR pipeline
                     receiver.validateAndMoveToProcessing(
@@ -182,7 +186,9 @@ class ReportFunction(
 
                     // return CREATED status, report submission was successful
                     HttpStatus.CREATED
-                } else HttpStatus.OK
+                } else {
+                    HttpStatus.OK
+                }
             } catch (e: ActionError) {
                 actionHistory.trackLogs(e.details)
                 HttpStatus.BAD_REQUEST

@@ -29,7 +29,7 @@ data class CustomContext(
     val constants: MutableMap<String, String> = mutableMapOf(),
     val customFhirFunctions: FhirPathFunctions? = null,
     val config: ContextConfig? = null,
-    val translationFunctions: TranslationFunctions? = Hl7TranslationFunctions()
+    val translationFunctions: TranslationFunctions? = Hl7TranslationFunctions(),
 ) {
     companion object {
 
@@ -41,9 +41,9 @@ data class CustomContext(
          * @return a new context with the [constants] added or the existing context if no new constants are specified
          */
         fun addConstants(constants: Map<String, String>, previousContext: CustomContext): CustomContext {
-            return if (constants.isEmpty()) previousContext
-            else {
-
+            return if (constants.isEmpty()) {
+                previousContext
+            } else {
                 if (constants.keys.any { reservedConstantNames.contains(it) }) {
                     throw SchemaException(
                         """Constants contained reserved name,
@@ -153,8 +153,9 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
         }
 
         // Evaluate the constant before it is used.
-        return if (constantValue.isNullOrBlank()) emptyList()
-        else {
+        return if (constantValue.isNullOrBlank()) {
+            emptyList()
+        } else {
             val values = FhirPathUtils.evaluate(appContext, appContext.focusResource, appContext.bundle, constantValue)
             if (values.isEmpty()) {
                 emptyList()
@@ -187,7 +188,7 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
     override fun checkFunction(
         appContext: Any?,
         functionName: String?,
-        parameters: MutableList<TypeDetails>?
+        parameters: MutableList<TypeDetails>?,
     ): TypeDetails {
         throw NotImplementedError("Not implemented")
     }
@@ -196,7 +197,7 @@ class FhirPathCustomResolver(private val customFhirFunctions: FhirPathFunctions?
         appContext: Any?,
         focus: MutableList<Base>?,
         functionName: String?,
-        parameters: MutableList<MutableList<Base>>?
+        parameters: MutableList<MutableList<Base>>?,
     ): MutableList<Base> {
         check(focus != null)
         return when {

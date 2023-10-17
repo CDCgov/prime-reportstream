@@ -121,7 +121,7 @@ data class Hl7Configuration
      * Some receivers need a higher precision batch and file header date time
      * value, so I am adding the option here for those who need it
      */
-    val useHighPrecisionHeaderDateTimeFormat: Boolean? = false
+    val useHighPrecisionHeaderDateTimeFormat: Boolean? = false,
 ) : TranslatorConfiguration("HL7") {
     /**
      * Formatting for XTN fields
@@ -140,7 +140,7 @@ data class Hl7Configuration
         /**
          * (area)local format in component 1. Backward compatibility to an earlier format.
          */
-        AREA_LOCAL_IN_COMPONENT_ONE
+        AREA_LOCAL_IN_COMPONENT_ONE,
     }
 
     /**
@@ -160,7 +160,7 @@ data class Hl7Configuration
         /**
          * Override with the organization_name field
          */
-        ORGANIZATION_NAME
+        ORGANIZATION_NAME,
     }
 
     @get:JsonIgnore
@@ -244,7 +244,7 @@ data class FHIRConfiguration
  */
 data class GAENConfiguration
 @JsonCreator constructor(
-    val dummy: String? = null
+    val dummy: String? = null,
 ) : TranslatorConfiguration("GAEN") {
     @get:JsonIgnore
     override val format: Report.Format get() = Report.Format.CSV_SINGLE // Single item CSV
