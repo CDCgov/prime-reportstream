@@ -77,37 +77,130 @@ In addition to gathering your team and setting aside time for the weekly calls, 
 Review what you need to gather to start onboarding.
 
 ### For the form
-<hr>
+
+<hr className="rs-hr--alternate" />
+
+<Accordion multiselectable={true} items={[
+    {
+        id: "1",
+        headingLevel:"h3",
+        title:"Primary contact information",
+        content:(<p>You need the name, email, and phone number of the main point of contact for your organization. This person is often a program leader or administrator.</p>)
+    },
+    {
+        id: "2",
+        headingLevel:"h3",
+        title: "ELR contact information",
+        content: (<p>You need the name, email, and phone number of the person who helps set up the ELR connection. It is often an IT person or a third party agency.</p>),
+    },
+    {
+        id: "3",
+        headingLevel:"h3",
+        title: "Data requirements and preferences",
+        content: (<>
+            <p>ReportStream follows industry standards for data formatting and reporting. While we can support custom format or sending mechanisms, note that your onboarding time will usually depend on the amount of customization required.</p>
+            <p>You will need to provide details for the following data requirements and preferences:</p>
+            <ul>
+                <li><b>Transport method:</b> Would you prefer SFTP, SOAP, REST or download?</li>
+                <li><b>File format preference:</b> Would you prefer HL7 v2.5.1, CSV, or FHIR?</li>
+                <li><b>Timing:</b> Do you want realtime, hourly or daily reports?</li>
+                <li><b>"Ask on Order Entry":</b> Do you want Ask on Entry question data? They will be sent as OBX fields.</li>
+                <li><b>Additional fields:</b> Any other data or fields you’d like collected?</li>
+                <li><b>Test data:</b> Do you need synthetic and/or real patient data before going live?</li>
+                <li><b>Local public health agency reporting:</b> Explain any local public health department reporting requirements that are different from the state.</li>
+            </ul>
+        </>)
+    },
+    {
+        id: "4",
+        headingLevel:"h3",
+        title: "Document uploads",
+        content: (<>
+            <ul>
+                <li><b>Required documentation for your organization:</b> Provide any necessary registration, data use agreements, legal agreements or other documents that you need ReportStream to complete.</li>
+                <li><b>Sample files:</b> Attach sample files of your required data formatting, rules or regulations.</li>
+            </ul>
+        </>)
+    }
+]} />
+
+### For your kickoff call
+
+<hr className="rs-hr--alternate" />
+
+<Accordion multiselectable={true} items={[
+    {
+        id: "1",
+        headingLevel:"h3",
+        title:"Testing facility registration",
+        content:(<>
+            <p>ReportStream collects unique identifiers from testing facilities when they register to send data, including name, CLIA number, and address. This information is included with data sent to public health entities.</p>
+            <ul>
+                <li><b>Facility onboarding requirements:</b> Do you require testing facilities sending data through third parties like ReportStream to onboard with you before data is sent to you?</li>
+                <li><b>Custom data fields:</b> Do you require information in addition to the standard fields of name, CLIA number and address?</li>
+            </ul>
+        </>)
+    },
+    {
+        id: "2",
+        headingLevel:"h3",
+        title: "HL7 data fields, if using HL7",
+        content: (<>
+            <ul>
+                <li>Receiving application name (MSH-5-1)</li>
+                <li>Receiving application OID (MSH-5-2)</li>
+                <li>Receiving facility name (MSH-6-1)</li>
+                <li>Receiving facility OID (MSH-6-2)</li>
+            </ul>
+        </>),
+    },
+    {
+        id: "3",
+        headingLevel:"h3",
+        title: "SFTP details, if using SFTP",
+        content: (<>
+            <ul>
+                <li>Staging host name (DNS name)</li>
+                <li>Staging folder name </li>
+                <li>Production host name (DNS name)</li>
+                <li>Production host folder name</li>
+            </ul>
+        </>)
+    }
+]} />
 
 
+### Ready to get started?
 
+Once you have all the information you need, submit the onboarding form. We'll get back to you within a week.
+
+<A href="https://app.smartsheetgov.com/b/form/b0935d5d1e924c57b2d293b4ed0f2cd5" className="usa-button">Submit form</A>
 
 ## Recommended resources
 
 <CardGroup>
-<Card gridLayout={{tablet: {col: 4}}}>
-
-<CardHeader>
-### <A href="/assets/pdf/ReportStream_Onepager_20230621.pdf" target="_blank">ReportStream overview PDF <Icon name='FileDownload'/></A>
-</CardHeader>
-<CardBody>
-Download a quick summary of ReportStream that you can print and share.
-</CardBody>
-</Card>
-<Card gridLayout={{tablet: {col: 4}}}>
-<CardHeader>
-### [ReportStream API](/resources/api)
-</CardHeader>
-<CardBody>
-Learn about our API and how to set up a connection for reporting data to public health departments.
-</CardBody>
-</Card>
-<Card gridLayout={{tablet: {col: 4}}}>
-<CardHeader>
-### [Release notes](/about/release-notes)
-</CardHeader>
-<CardBody>
-Stay up to date with new features, enhancements, and fixes.
-</CardBody>
-</Card>
+    <Card gridLayout={{ tablet: { col: 4 } }}>
+        <CardHeader>
+            ### <A href="/assets/pdf/ReportStream_Onepager_20230621.pdf" target="_blank">ReportStream overview PDF <Icon name='FileDownload'/></A>
+        </CardHeader>
+        <CardBody>
+            Download a quick summary of ReportStream that you can print and share.
+        </CardBody>
+    </Card>
+    <Card gridLayout={{ tablet: { col: 4 } }}>
+        <CardHeader>
+            ### [Security](/about/security)
+        </CardHeader>
+        <CardBody>
+            Explore details on the standards, systems, and settings that keep data secure.
+        </CardBody>
+    </Card>
+    <Card gridLayout={{ tablet: { col: 4 } }}>
+        <CardHeader>
+            ### [Managing your connection](/managing-your-connection)
+        </CardHeader>
+        <CardBody>
+            Learn about tools and resources to help you monitor your data.
+        </CardBody>
+    </Card>
 </CardGroup>

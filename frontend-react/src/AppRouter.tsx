@@ -5,6 +5,9 @@ import React from "react";
 import { TermsOfService } from "./pages/TermsOfService";
 import { Login } from "./pages/Login";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
+import { Resources } from "./pages/resources/Resources";
+import { Product } from "./pages/product/ProductIndex";
+import { Support } from "./pages/support/Support";
 import { UploadWithAuth } from "./pages/Upload";
 import { FeatureFlagUIWithAuth } from "./pages/misc/FeatureFlags";
 import { SubmissionDetailsWithAuth } from "./pages/submissions/SubmissionDetails";
@@ -174,6 +177,15 @@ export const appRoutes: RouteObject[] = [
                             isContentPage: true,
                         },
                         element: <GettingStartedPhd />,
+                    },
+                    {
+                        path: "receiving-data",
+                        lazy: lazyRouteMarkdown(
+                            "content/getting-started/receiving-data",
+                        ),
+                        handle: {
+                            isContentPage: true,
+                        },
                     },
                 ],
             },
