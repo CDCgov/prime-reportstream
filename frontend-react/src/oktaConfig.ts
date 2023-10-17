@@ -4,9 +4,10 @@ import { WidgetOptions } from "@okta/okta-signin-widget";
 import config from "./config";
 
 const { OKTA_URL, OKTA_CLIENT_ID, APP_ENV } = config;
+const OKTA_ISSUER = `${OKTA_URL}/oauth2/default`;
 
 const oktaAuthConfig: OktaAuthOptions = {
-    issuer: `${OKTA_URL}/oauth2/default`,
+    issuer: OKTA_ISSUER,
     clientId: OKTA_CLIENT_ID as string,
     redirectUri: window.location.origin + "/login/callback",
     postLogoutRedirectUri: window.location.origin,
@@ -17,6 +18,24 @@ const oktaAuthConfig: OktaAuthOptions = {
     scopes: ["openid", "email"],
     services: {
         autoRenew: false,
+    },
+    async transformAuthState(oktaAuth, authState) {
+        // Prevent existing sessions from old okta environments
+        if (
+            authState.isAuthenticated &&
+            authState.accessToken?.claims.iss !== OKTA_ISSUER
+        ) {
+            OKTA_AUTH.clearStorage();
+            return {
+                ...authState,
+                accessToken: undefined,
+                idToken: undefined,
+                refreshToken: undefined,
+                isAuthenticated: false,
+            };
+        }
+
+        return authState;
     },
 };
 
