@@ -29,7 +29,7 @@ const val MESSAGE_ID_PARAMETER = "messageId"
  * specific records in the `covid_result_metadata` table
  */
 class MessagesFunctions(
-    private val dbAccess: DatabaseAccess = DatabaseAccess()
+    private val dbAccess: DatabaseAccess = DatabaseAccess(),
 ) : Logging {
     /**
      * entry point for the /messages endpoint,
@@ -43,7 +43,7 @@ class MessagesFunctions(
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "messages"
-        ) request: HttpRequestMessage<String?>
+        ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         return try {
             val claims = AuthenticatedClaims.authenticate(request)
@@ -71,7 +71,7 @@ class MessagesFunctions(
      * @return Returns a HttpResponseMessage indicating the result of the operation and any resulting information
      */
     internal fun processSearchRequest(
-        request: HttpRequestMessage<String?>
+        request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         val messageId = request.queryParameters
             .getOrDefault(
@@ -127,7 +127,7 @@ class MessagesFunctions(
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "message/{id}"
         ) request: HttpRequestMessage<String?>,
-        @BindingName("id") id: Long
+        @BindingName("id") id: Long,
     ): HttpResponseMessage {
         return try {
             val claims = AuthenticatedClaims.authenticate(request)
@@ -161,7 +161,7 @@ class MessagesFunctions(
      */
     internal fun processMessageDetailRequest(
         request: HttpRequestMessage<String?>,
-        id: Long
+        id: Long,
     ): HttpResponseMessage {
         // return a message or an error
         var response: Any = ""
@@ -214,7 +214,7 @@ class MessagesFunctions(
         httpStatus: HttpStatus,
         errorMessage: String?,
         response: Any,
-        request: HttpRequestMessage<String?>
+        request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         val responseMessage = if (httpStatus == HttpStatus.BAD_REQUEST) {
             mapOf(

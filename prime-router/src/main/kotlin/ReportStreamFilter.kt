@@ -16,7 +16,8 @@ enum class ReportStreamFilterType(val field: String) {
     QUALITY_FILTER("qualityFilter"),
     ROUTING_FILTER("routingFilter"),
     PROCESSING_MODE_FILTER("processingModeFilter"),
-    CONDITION_FILTER("conditionFilter");
+    CONDITION_FILTER("conditionFilter"),
+    ;
 
     // Reflection, so that we can write a single routine to handle all types of filters.
     @Suppress("UNCHECKED_CAST")
@@ -46,7 +47,7 @@ data class ReportStreamFilters(
     val qualityFilter: ReportStreamFilter?,
     val routingFilter: ReportStreamFilter?,
     val processingModeFilter: ReportStreamFilter?,
-    val conditionFilter: ReportStreamFilter? = null
+    val conditionFilter: ReportStreamFilter? = null,
 ) {
 
     companion object {

@@ -33,7 +33,7 @@ abstract class FHIREngine(
     val metadata: Metadata = Metadata.getInstance(),
     val settings: SettingsProvider = this.settingsProviderSingleton,
     val db: DatabaseAccess = this.databaseAccessSingleton,
-    val blob: BlobAccess = BlobAccess()
+    val blob: BlobAccess = BlobAccess(),
 ) : BaseEngine() {
 
     /**
@@ -51,7 +51,7 @@ abstract class FHIREngine(
         var databaseAccess: DatabaseAccess? = null,
         var blobAccess: BlobAccess? = null,
         var hl7Serializer: Hl7Serializer? = null,
-        var csvSerializer: CsvSerializer? = null
+        var csvSerializer: CsvSerializer? = null,
     ) {
         /**
          * Set the metadata instance.
@@ -121,7 +121,7 @@ abstract class FHIREngine(
     abstract fun doWork(
         message: RawSubmission,
         actionLogger: ActionLogger,
-        actionHistory: ActionHistory
+        actionHistory: ActionHistory,
     ): List<FHIREngineRunResult>
 
     /**
@@ -147,7 +147,7 @@ abstract class FHIREngine(
         val nextEvent: Event,
         val report: Report,
         val reportUrl: String,
-        val message: RawSubmission?
+        val message: RawSubmission?,
     )
 
     /**
@@ -166,7 +166,7 @@ abstract class FHIREngine(
         message: RawSubmission,
         actionLogger: ActionLogger,
         actionHistory: ActionHistory,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ): List<RawSubmission> {
         try {
             // Do the FHIR work (convert, route, translate)

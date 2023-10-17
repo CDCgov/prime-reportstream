@@ -25,7 +25,7 @@ import java.util.UUID
 class SenderFilesFunction(
     private val oktaAuthentication: OktaAuthentication = OktaAuthentication(PrincipalLevel.SYSTEM_ADMIN),
     private val dbAccess: DatabaseAccess = DatabaseAccess(),
-    private val blobAccess: BlobAccess = BlobAccess()
+    private val blobAccess: BlobAccess = BlobAccess(),
 ) : Logging {
     /**
      * The sender file end-point retrieves the reports that contributed to the specified output report.
@@ -37,7 +37,7 @@ class SenderFilesFunction(
             methods = [HttpMethod.GET],
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "sender-files"
-        ) request: HttpRequestMessage<String?>
+        ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         return oktaAuthentication.checkAccess(request) {
             try {
@@ -79,7 +79,7 @@ class SenderFilesFunction(
         val messageId: String?,
         val onlyDestinationReportItems: Boolean,
         val offset: Int,
-        val limit: Int
+        val limit: Int,
     )
 
     /**
@@ -148,7 +148,7 @@ class SenderFilesFunction(
 
     data class ProcessResult(
         val payload: String,
-        val reportsIds: List<String>? = null
+        val reportsIds: List<String>? = null,
     )
 
     /**
@@ -189,7 +189,7 @@ class SenderFilesFunction(
      */
     private fun downloadSenderReports(
         items: List<SenderItems>,
-        parameters: FunctionParameters
+        parameters: FunctionParameters,
     ): List<ReportFileMessage> {
         // Group by senderReportId to avoid downloading blobs multiple times
         val itemsByReport = items.groupBy { it.senderReportId!! }

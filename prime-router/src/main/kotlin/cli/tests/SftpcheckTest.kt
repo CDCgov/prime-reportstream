@@ -89,7 +89,7 @@ class SftpcheckTest : CoolTest() {
      */
     private fun listReceiverNames(
         path: String,
-        accessToken: String
+        accessToken: String,
     ): List<String> {
         val (_, _, result) = Fuel
             .get(path)

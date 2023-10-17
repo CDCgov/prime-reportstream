@@ -21,7 +21,7 @@ interface TranslationFunctions {
         value: String,
         hl7FieldPath: String,
         terser: Terser,
-        appContext: CustomContext?
+        appContext: CustomContext?,
     ): String
 }
 
@@ -89,7 +89,7 @@ open class Hl7TranslationFunctions : TranslationFunctions {
         value: String,
         hl7FieldPath: String,
         terser: Terser,
-        appContext: CustomContext?
+        appContext: CustomContext?,
     ): String {
         return value
     }

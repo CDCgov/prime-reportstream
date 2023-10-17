@@ -1,0 +1,130 @@
+resourceType: Organization
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+name:
+  type: STRING
+  valueOf: XON.1
+  expressionType: HL7Spec
+
+extension_1-nameType:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: organization-name-type
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept
+      generateList: true
+      expressionType: resource
+      specs: XON.2
+
+identifier_1:
+  expressionType: nested
+  vars:
+    xon10: String, XON.10
+  expressionsMap:
+    value_1:
+      condition: $xon10 NULL
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: XON.3
+    value_2:
+      condition: $xon10 NOT_NULL
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: XON.10
+    type:
+      valueOf: datatype/CodeableConcept_var
+      expressionType: resource
+      vars:
+        code: String, XON.7
+      constants:
+        system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+    extension_1-checkDigitSchema:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: check-digit-scheme
+        valueCode:
+          valueOf: XON.5
+          type: STRING
+          expressionType: HL7Spec
+    extension_2-checkDigit:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: check-digit
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XON.4
+    extension_3-assigningAuthority:
+      condition: $xon6 NOT_NULL
+      vars:
+        xon6: String, XON.6
+      generateList: true
+      expressionType: resource
+      valueOf: datatype/HDToExtensionAssigningAuthority
+      specs: XON.6
+    extension_4-location:
+      condition: $xon8 NOT_NULL
+      generateList: true
+      expressionType: nested
+      vars:
+        xon8: String, XON.8
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: identifier-location
+        valueReference:
+          expressionType: reference
+          valueOf: datatype/HDToLocation
+          specs: XON.8
+
+extension_1-name-representation-code:
+  condition: $value NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    value: String, XON.9
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: name-representation-code
+    valueString:
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: XON.9
+
+extension_2-xon3IdNumber:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xon3-id-number
+    valueString:
+      expressionType: HL7Spec
+      type: STRING
+      valueOf: XON.3
+
+extension_3-xon10OrganizationIdentifier:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xon10-organization-identifier
+    valueString:
+      expressionType: HL7Spec
+      type: STRING
+      valueOf: XON.10

@@ -38,7 +38,7 @@ enum class CustomerStatus {
     TESTING,
 
     @JsonProperty("active")
-    ACTIVE
+    ACTIVE,
 }
 
 /**

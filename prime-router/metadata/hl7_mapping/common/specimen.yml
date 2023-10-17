@@ -1,6 +1,3 @@
-constants:
-  hl7SpecimenFieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPM
-  performerOrganization: '%diagnostic.basedOn.resolve().performer.resolve()'
 elements:
   - name: specimen-set-id
     value: [ '"1"' ]
@@ -11,7 +8,7 @@ elements:
     condition: '%resource.exists()'
     constants:
       entityIdFieldPath: '%{hl7SpecimenFieldPath}-2-1'
-    schema: ../../common/datatype/ei-entity-identifier
+    schema: datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
   - name: specimen-identifier-filler
@@ -19,7 +16,7 @@ elements:
     condition: '%resource.exists()'
     constants:
       entityIdFieldPath: '%{hl7SpecimenFieldPath}-2-2'
-    schema: ../../common/datatype/ei-entity-identifier
+    schema: datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
   #  If there's only one identifier and system is empty get identifier from performer org
@@ -29,7 +26,7 @@ elements:
     constants:
       organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-1'
       identifier: '%specimen.identifier[0].value'
-    schema: ../../common/organization-identifier
+    schema: organization-identifier
 
   #  If there's only one identifier and system is empty get identifier from performer org
   - name: specimen-organization-identifier-2
@@ -38,48 +35,48 @@ elements:
     constants:
       organizationIdFieldPath: '%{hl7SpecimenFieldPath}-2-2'
       identifier: '%specimen.identifier[0].value'
-    schema: ../../common/organization-identifier
+    schema: organization-identifier
 
   - name: specimen-type
     resource: '%resource.type'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-4'
-    schema: ../../common/datatype/ce-coded-with-exceptions
+    schema: datatype/ce-coded-with-exceptions
 
   - name: specimen-type-modifier
     resource: '%resource.extension(%`rsext-specimen-type-modifier`).value'
     condition: '%resource.exists()'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-5'
-    schema: ../../common/datatype/ce-coded-with-exceptions
+    schema: datatype/ce-coded-with-exceptions
 
   - name: specimen-additives
     resource: '%resource.container.additive[0]'
     condition: '%resource.exists()'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-6'
-    schema: ../../common/datatype/ce-coded-with-exceptions
+    schema: datatype/ce-coded-with-exceptions
 
   - name: specimen-collection-method
     resource: '%resource.collection.method'
     condition: '%resource.exists()'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-7'
-    schema: ../../common/datatype/ce-coded-with-exceptions
+    schema: datatype/ce-coded-with-exceptions
 
   - name: specimen-source-site
     resource: '%resource.collection.bodySite'
     condition: '%resource.exists()'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-8'
-    schema: ../../common/datatype/ce-coded-with-exceptions
+    schema: datatype/ce-coded-with-exceptions
 
   - name: specimen-source-site-modifier
     resource: '%resource.collection.extension(%`rsext-specimen-source-site-modifier`).value'
     condition: '%resource.exists()'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-9'
-    schema: ../../common/datatype/ce-coded-with-exceptions
+    schema: datatype/ce-coded-with-exceptions
 
   - name: specimen-role
     value: [ '""' ]
@@ -124,7 +121,7 @@ elements:
     condition: '%resource.exists()'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-24'
-    schema: ../../common/datatype/ce-coded-with-exceptions
+    schema: datatype/ce-coded-with-exceptions
 
   - name: specimen-number-of-containers
     resource: '%resource.container.specimenQuantity'
@@ -136,11 +133,11 @@ elements:
     resource: '%resource.container.type'
     constants:
       cweFieldPath: '%{hl7SpecimenFieldPath}-27'
-    schema: ../../common/datatype/ce-coded-with-exceptions
+    schema: datatype/ce-coded-with-exceptions
 
   - name: specimen-observation-result-with-aoe
     resource: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id)'
-    schema: ../../common/observation-result
+    schema: observation-result
     resourceIndex: specimenObservationIndex
     constants:
       hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN(%{specimenIndex})/SPECIMEN_OBSERVATION'

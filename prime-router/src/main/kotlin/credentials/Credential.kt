@@ -62,7 +62,7 @@ data class UserJksCredential(
     /**
      * [trustAlias] is the alias for the trust/public certificate stored in the JKS
      */
-    val trustAlias: String
+    val trustAlias: String,
 ) : Credential()
 
 /**
@@ -76,7 +76,7 @@ data class UserApiKeyCredential(
     /**
      * [apiKey] is the api key
      */
-    val apiKey: String
+    val apiKey: String,
 ) : Credential(), RestCredential
 
 /**
@@ -87,7 +87,7 @@ data class UserAssertionCredential(
     /**
      * [assertion] is the api key
      */
-    val assertion: String
+    val assertion: String,
 ) : Credential(), RestCredential
 
 /**
@@ -162,7 +162,7 @@ sealed class Credential {
             input: String,
             prefix: String,
             addlCharsToRemove: Int,
-            replaceWith: String
+            replaceWith: String,
         ): String {
             if (input.isEmpty() || prefix.isEmpty()) return input
             if (replaceWith.contains(prefix)) error("Infinite loop")
@@ -170,8 +170,9 @@ sealed class Credential {
             while (true) {
                 // Work from the back to the front, to avoid erasing the prefix but not the secret.
                 val index = tmp.lastIndexOf(prefix, ignoreCase = true)
-                if (index < 0)
+                if (index < 0) {
                     break
+                }
                 tmp.replace(index, index + prefix.length + addlCharsToRemove, replaceWith)
             }
             return tmp.toString()
