@@ -229,7 +229,6 @@ These overwrites will ONLY be scoped to your particular component.
 -   [Content](docs/content.md)
 -   [Data fetching patterns](docs/data-fetching-patterns.md)
 -   [Feature flags](docs/feature-flags.md)
--   [Patches](docs/patches.md)
 -   [RS Auth Element](docs/rs-auth-element.md)
 -   [RS Error Boundary and Suspense](docs/rs-error-boundary-and-suspense.md)
 -   [RS IA Content System](docs/rs-ia-content-system.md)

@@ -210,8 +210,7 @@
         "word-wrap": "aashutoshrathi/word-wrap",
         "semver": ">=7.5.3",
         "@types/react": "18.0.28",
-        "github-slugger": "^1.5.0",
-        "@okta/okta-signin-widget@^7.9.1": "patch:@okta/okta-signin-widget@npm%3A7.9.1#./.yarn/patches/@okta-okta-signin-widget-npm-7.9.1-fa474e31dd.patch"
+        "github-slugger": "^1.5.0"
     },
     "engines": {
         "node": "^18.18"
