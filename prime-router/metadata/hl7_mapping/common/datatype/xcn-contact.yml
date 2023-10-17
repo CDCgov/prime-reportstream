@@ -18,13 +18,27 @@ elements:
     value: [ '%resource.name.given.tail()' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-4' ]
 
-  - name: xcn-suffix
+  - name: xcn-suffix-from-value
+    condition: >
+      %resource.name.extension(%`rsext-name-suffix`).exists().not() and 
+      %resource.name.extension(%`rsext-name-suffix-degree`).exists().not() and 
+      %resource.name.extension(%`rsext-name-suffix-professional`).exists().not()
     value: [ '%resource.name.suffix.toString()' ]
+    hl7Spec: [ '%{hl7XCNFieldPath}-5' ]
+
+  - name: xcn-suffix-from-extension
+    condition: '%resource.name.extension(%`rsext-name-suffix`).exists()'
+    value: [ '%resource.name.extension(%`rsext-name-suffix`).value' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-5' ]
 
   - name: xcn-prefix
     value: [ '%resource.name.prefix.toString()' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-6' ]
+
+  - name: xcn-suffix-degree
+    condition: '%resource.name.extension(%`rsext-name-suffix-degree`).exists()'
+    value: [ '%resource.name.extension(%`rsext-name-suffix-degree`).value' ]
+    hl7Spec: [ '%{hl7XCNFieldPath}-7' ]
 
   - name: xcn-assigning-authority
     resource: '%resource.identifier[0]'
@@ -38,7 +52,7 @@ elements:
 
   - name: xcn-name-type-code
     condition: '%resource.name.use.exists() and %resource.name.use = "official"'
-    value: [ '"L"']
+    value: [ '"L"' ]
     hl7Spec: [ '%{hl7XCNFieldPath}(%{contactIndex})-10' ]
 
   - name: xcn-identifier-type
@@ -54,3 +68,8 @@ elements:
       namespaceExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id"'
       universalIdExtName: '"https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id"'
     schema: hd-hierarchic-designator
+
+  - name: xcn-suffix-professional
+    condition: '%resource.name.extension(%`rsext-name-suffix-professional`).exists()'
+    value: [ '%resource.name.extension(%`rsext-name-suffix-professional`).value' ]
+    hl7Spec: [ '%{hl7XCNFieldPath}-21' ]

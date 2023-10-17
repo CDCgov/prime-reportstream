@@ -117,13 +117,11 @@ elements:
     hl7Spec: [ MSH-16 ]
 
   - name: country-code
-    value:
-      - '%resource.sender.resolve().address.country'
-      - '"USA"'
+    value: [ '%resource.sender.resolve().address.country' ]
     hl7Spec: [ MSH-17 ]
 
   - name: message-character-set
-    value: [ '%resource.extension(%`rsext-character-set`).value', '"UNICODE UTF-8"' ]
+    value: [ '%resource.extension(%`rsext-character-set`).value' ]
     hl7Spec: [ MSH-18 ]
 
   - name: message-profile-identifier
