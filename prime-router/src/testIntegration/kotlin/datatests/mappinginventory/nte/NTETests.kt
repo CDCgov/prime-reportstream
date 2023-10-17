@@ -1,4 +1,4 @@
-package gov.cdc.prime.router.datatests.mappinginventory.nte_note
+package gov.cdc.prime.router.datatests.mappinginventory.nte
 
 import gov.cdc.prime.router.datatests.mappinginventory.translateAndCompareFHIRToHL7
 import gov.cdc.prime.router.datatests.mappinginventory.translateAndCompareHL7ToFHIR

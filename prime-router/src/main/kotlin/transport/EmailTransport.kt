@@ -31,7 +31,6 @@ class EmailTransport : ITransport {
         context: ExecutionContext,
         actionHistory: ActionHistory, // not used by emailer
     ): RetryItems? {
-
         val emailTransport = transportType as EmailTransportType
         val content = buildContent(header)
         val mail = buildMail(content, emailTransport)

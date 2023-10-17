@@ -25,8 +25,8 @@ import gov.cdc.prime.router.azure.db.tables.pojos.ItemLineage
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.FhirPathUtils
-import gov.cdc.prime.router.fhirengine.utils.FHIRBundleHelpers
 import gov.cdc.prime.router.fhirengine.utils.FhirTranscoder
+import gov.cdc.prime.router.fhirengine.utils.addReceivers
 import org.hl7.fhir.r4.model.Base
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Observation
@@ -176,7 +176,7 @@ class FHIRRouter(
     override fun doWork(
         message: RawSubmission,
         actionLogger: ActionLogger,
-        actionHistory: ActionHistory
+        actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
         logger.trace("Processing HL7 data for FHIR conversion.")
         this.actionLogger = actionLogger
@@ -219,7 +219,7 @@ class FHIRRouter(
         if (listOfReceivers.isNotEmpty()) {
             // this bundle has receivers; send message to translate function
             // add the receivers to the fhir bundle
-            FHIRBundleHelpers.addReceivers(bundle, listOfReceivers, shorthandLookupTable)
+            bundle.addReceivers(listOfReceivers, shorthandLookupTable)
 
             // create translate event
             val nextEvent = ProcessEvent(
@@ -290,7 +290,7 @@ class FHIRRouter(
         report: Report,
         reportFormat: String,
         reportUrl: String,
-        nextAction: Event
+        nextAction: Event,
     ) {
         db.insertTask(report, reportFormat, reportUrl, nextAction, null)
     }
@@ -421,7 +421,7 @@ class FHIRRouter(
         defaultResponse: Boolean,
         reverseFilter: Boolean = false,
         focusResource: Base = bundle,
-        useOr: Boolean = false
+        useOr: Boolean = false,
     ): Boolean {
         val evaluationFunction = if (useOr) ::evaluateFilterConditionAsOr else ::evaluateFilterConditionAsAnd
         val (passes, failingFilterName) = evaluationFunction(
@@ -434,8 +434,11 @@ class FHIRRouter(
 
         if (!passes) {
             val filterToLog = "${
-            if (isDefaultFilter(filterType, filters)) "(default filter) "
-            else ""
+                if (isDefaultFilter(filterType, filters)) {
+                    "(default filter) "
+                } else {
+                    ""
+                }
             }${failingFilterName ?: "unknown"}"
             logFilterResults(filterToLog, bundle, report, receiver, filterType, focusResource)
         }
@@ -500,11 +503,17 @@ class FHIRRouter(
         return if (exceptionFilters.isNotEmpty()) {
             Pair(false, "(exception found) $exceptionFilters")
         } else if (failingFilters.isEmpty()) {
-            if (reverseFilter) Pair(false, "(reversed) $filter")
-            else Pair(true, null)
+            if (reverseFilter) {
+                Pair(false, "(reversed) $filter")
+            } else {
+                Pair(true, null)
+            }
         } else {
-            if (reverseFilter) Pair(true, null)
-            else Pair(false, failingFilters.toString())
+            if (reverseFilter) {
+                Pair(true, null)
+            } else {
+                Pair(false, failingFilters.toString())
+            }
         }
     }
 
@@ -542,8 +551,11 @@ class FHIRRouter(
                     bundle,
                     filterElement
                 )
-                if (!filterElementResult) failingFilters += filterElement
-                else successfulFilters += filterElement
+                if (!filterElementResult) {
+                    failingFilters += filterElement
+                } else {
+                    successfulFilters += filterElement
+                }
             } catch (e: SchemaException) {
                 actionLogger?.warn(EvaluateFilterConditionErrorMessage(e.message))
                 exceptionFilters += filterElement
@@ -553,11 +565,17 @@ class FHIRRouter(
         return if (exceptionFilters.isNotEmpty()) {
             Pair(false, "(exception found) $exceptionFilters")
         } else if (successfulFilters.isNotEmpty()) {
-            if (reverseFilter) Pair(false, "(reversed) $successfulFilters")
-            else Pair(true, null)
+            if (reverseFilter) {
+                Pair(false, "(reversed) $successfulFilters")
+            } else {
+                Pair(true, null)
+            }
         } else {
-            if (reverseFilter) Pair(true, null)
-            else Pair(false, failingFilters.toString())
+            if (reverseFilter) {
+                Pair(true, null)
+            } else {
+                Pair(false, failingFilters.toString())
+            }
         }
     }
 
@@ -577,7 +595,7 @@ class FHIRRouter(
         report: Report,
         receiver: Receiver,
         filterType: ReportStreamFilterType,
-        focusResource: Base
+        focusResource: Base,
     ) {
         var filteredTrackingElement = bundle.identifier.value ?: ""
         if (focusResource != bundle) {

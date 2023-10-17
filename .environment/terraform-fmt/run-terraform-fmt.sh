@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-
+set -o pipefail
 function checkExec() {
     terraform version &>/dev/null
 
-    if [ $? -eq 0 ]; 
+    if [ $? -eq 0 ];
     then
        echo "Great! $(Terraform version | head -1) is istalled"
-       echo -e "\033[32mNow runing Terraform format Check...\033[m" 
+       echo -e "\033[32mNow runing Terraform format Check...\033[m"
     else
        echo -e "\033[31mError: Terraform executable is missing.\033[m"
        echo -e "Please follow https://www.terraform.io/downloads.html for the installation steps"

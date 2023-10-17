@@ -46,7 +46,7 @@ class CovidResultMetaDataFunction : Logging {
 
     private fun saveCovidResultMetaDataForAllReports(
         context: ExecutionContext,
-        request: HttpRequestMessage<String?>
+        request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         val results = mutableMapOf<UUID, String>()
         val createdDateTime = OffsetDateTime.now().minusDays(30)
@@ -84,7 +84,7 @@ class CovidResultMetaDataFunction : Logging {
     private fun saveCovidResultMetaDataForSingleReport(
         reportId: UUID,
         context: ExecutionContext,
-        request: HttpRequestMessage<String?>
+        request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         return try {
             val reportFile = workflowEngine.db.fetchReportFile(reportId)
@@ -135,7 +135,7 @@ class CovidResultMetaDataFunction : Logging {
 
     private fun getReport(
         reportFile: ReportFile,
-        schema: Schema
+        schema: Schema,
     ): Report {
         val bytes = BlobAccess.downloadBlobAsByteArray(reportFile.bodyUrl)
         return workflowEngine.csvSerializer.readInternal(

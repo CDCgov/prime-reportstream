@@ -56,8 +56,9 @@ class FhirBundleUtilsTests {
 
         convertedValue = FhirBundleUtils.convertFhirType(BooleanType("true"), "boolean", "boolean")
         assertThat(convertedValue).isInstanceOf(BooleanType::class)
-        if (convertedValue is BooleanType)
+        if (convertedValue is BooleanType) {
             assertThat(convertedValue.booleanValue()).isTrue()
+        }
     }
 
     @Test

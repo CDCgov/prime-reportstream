@@ -18,7 +18,7 @@ val authorizationFailure = HttpUtilities.errorJson("Unauthorized")
  */
 enum class AuthenticationType {
     Okta,
-    Server2Server;
+    Server2Server,
 }
 
 /**
@@ -73,10 +73,12 @@ class AuthenticatedClaims : Logging {
             AuthenticationType.Server2Server -> {
                 // todo this assumes a single scope.  Need to add support for multiple scopes.
                 val claimsScope = _jwtClaims["scope"] as String
-                if (claimsScope.isEmpty())
+                if (claimsScope.isEmpty()) {
                     error("For $userName, server2server token had no scope defined. Not authenticated")
-                if (!Scope.isValidScope(claimsScope))
+                }
+                if (!Scope.isValidScope(claimsScope)) {
                     error("For $userName, server2server scope $claimsScope: invalid format")
+                }
                 this.scopes = setOf(claimsScope)
             }
             // else -> error("$authenticationType authentication is not implemented")
@@ -93,7 +95,7 @@ class AuthenticatedClaims : Logging {
      */
     fun authorizedForSendOrReceive(
         requiredSender: Sender,
-        request: HttpRequestMessage<String?>
+        request: HttpRequestMessage<String?>,
     ): Boolean {
         return authorizedForSendOrReceive(requiredSender.organizationName, requiredSender.name, request)
     }
@@ -109,7 +111,7 @@ class AuthenticatedClaims : Logging {
     fun authorizedForSendOrReceive(
         requiredOrganization: String? = null,
         requiredSenderOrReceiver: String? = null,
-        request: HttpRequestMessage<String?>
+        request: HttpRequestMessage<String?>,
     ): Boolean {
         val requiredScopes = mutableSetOf(Scope.primeAdminScope)
         // Remember that authorized(...), called below, does an exact string match, char for char, only.
@@ -202,10 +204,11 @@ class AuthenticatedClaims : Logging {
             if (isLocal(accessToken)) {
                 logger.info("Granted test auth request for ${request.httpMethod}:${request.uri.path}")
                 val client = request.headers["client"]
-                val sender = if (client == null)
+                val sender = if (client == null) {
                     null
-                else
+                } else {
                     WorkflowEngine().settings.findSender(client)
+                }
                 return generateTestClaims(sender)
             }
 
@@ -239,7 +242,7 @@ class AuthenticatedClaims : Logging {
          * @return Authenticated claims if primeadmin is authorized, else null
          */
         fun authenticateAdmin(
-            request: HttpRequestMessage<String?>
+            request: HttpRequestMessage<String?>,
         ): AuthenticatedClaims? {
             val claims = authenticate(request)
             return if (claims == null || !claims.authorized(setOf("*.*.primeadmin"))) {

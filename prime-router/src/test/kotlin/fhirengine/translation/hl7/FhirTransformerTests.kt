@@ -623,7 +623,6 @@ class FhirTransformerTests {
 
     @Test
     fun `test split bundleProperty`() {
-
         val transformer = FhirTransformer(FhirTransformSchema())
 
         assertThat(transformer.splitBundlePropertyPath("")).isEmpty()

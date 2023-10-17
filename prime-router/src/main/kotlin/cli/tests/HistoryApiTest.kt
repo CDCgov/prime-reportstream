@@ -23,7 +23,7 @@ data class ExpectedSubmissionList(
     val id: ReportId?,
     val topic: String?,
     val reportItemCount: Int?,
-    val externalName: String? = ""
+    val externalName: String? = "",
 )
 
 /**
@@ -61,7 +61,7 @@ data class HistoryApiTestCase(
     val expectedReports: Set<ReportId>,
     val jsonResponseChecker: HistoryJsonResponseChecker,
     val doMinimalChecking: Boolean,
-    val extraCheck: ((Array<ExpectedSubmissionList>) -> String?)? = null
+    val extraCheck: ((Array<ExpectedSubmissionList>) -> String?)? = null,
 )
 
 class HistoryApiTest : CoolTest() {
@@ -206,8 +206,9 @@ class HistoryApiTest : CoolTest() {
                 extraCheck = {
                     var retVal: String? = null
                     for (submission in it) {
-                        if (submission.sender != "$org1Name.$fullELRSenderName")
+                        if (submission.sender != "$org1Name.$fullELRSenderName") {
                             retVal = "Mismatched sender"
+                        }
                     }
                     retVal
                 }
@@ -224,8 +225,9 @@ class HistoryApiTest : CoolTest() {
                 doMinimalChecking = true,
                 extraCheck = {
                     var retVal: String? = null
-                    if (it.map { it.sender }.toSet().size == 1)
+                    if (it.map { it.sender }.toSet().size == 1) {
                         retVal = "Only one sender channel returned"
+                    }
                     retVal
                 }
             )
@@ -292,7 +294,7 @@ class SubmissionListChecker(testBeingRun: CoolTest) : HistoryJsonResponseChecker
      */
     override fun checkJsonResponse(
         testCase: HistoryApiTestCase,
-        json: String
+        json: String,
     ): Boolean {
         val jsonMapper = jacksonObjectMapper()
         jsonMapper.registerModule(JavaTimeModule())
@@ -338,7 +340,7 @@ class ReportDetailsChecker(testBeingRun: CoolTest) : HistoryJsonResponseChecker(
      */
     override fun checkJsonResponse(
         testCase: HistoryApiTestCase,
-        json: String
+        json: String,
     ): Boolean {
         val jsonMapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         jsonMapper.registerModule(JavaTimeModule())

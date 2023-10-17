@@ -365,9 +365,15 @@ tasks.register("fatJar") {
 
 configure<KtlintExtension> {
     // See ktlint versions at https://github.com/pinterest/ktlint/releases
-    version.set("0.44.0")
+    version.set("1.0.0")
 }
 tasks.ktlintCheck {
+    // DB tasks are not needed by ktlint, but gradle adds them by automatic configuration
+    tasks["generateJooq"].enabled = false
+    tasks["migrate"].enabled = false
+    tasks["flywayMigrate"].enabled = false
+}
+tasks.ktlintFormat {
     // DB tasks are not needed by ktlint, but gradle adds them by automatic configuration
     tasks["generateJooq"].enabled = false
     tasks["migrate"].enabled = false
@@ -631,7 +637,7 @@ flyway {
 
 // Database code generation configuration
 jooq {
-    version.set("3.15.4")
+    version.set("3.18.6")
     configurations {
         create("main") { // name of the jOOQ configuration
             jooqConfiguration.apply {
@@ -770,7 +776,7 @@ buildscript {
     dependencies {
         // Now force the gradle build script to get the proper library for com.nimbusds:oauth2-oidc-sdk:9.15.  This
         // will need to be removed once this issue is resolved in Maven.
-        classpath("net.minidev:json-smart:2.4.11")
+        classpath("net.minidev:json-smart:2.5.0")
     }
 }
 
@@ -790,8 +796,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
-    implementation("com.azure:azure-core:1.43.0")
-    implementation("com.azure:azure-core-http-netty:1.13.7")
+    implementation("com.azure:azure-core:1.44.0")
+    implementation("com.azure:azure-core-http-netty:1.13.8")
     implementation("com.azure:azure-storage-blob:12.22.3") {
         exclude(group = "com.azure", module = "azure-core")
     }
@@ -802,7 +808,7 @@ dependencies {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
-    implementation("com.azure:azure-identity:1.10.0") {
+    implementation("com.azure:azure-identity:1.10.3") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }

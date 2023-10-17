@@ -12,7 +12,7 @@ import org.hl7.fhir.r4.model.BaseDateTimeType
 import java.time.ZoneId
 
 class CustomTranslationFunctions(
-    private val hl7Truncator: UniversalPipelineHL7Truncator = UniversalPipelineHL7Truncator()
+    private val hl7Truncator: UniversalPipelineHL7Truncator = UniversalPipelineHL7Truncator(),
 ) : Hl7TranslationFunctions() {
     /**
      * Converts a FHIR [dateTime] to the format specified in [appContext] - specific application
@@ -22,16 +22,18 @@ class CustomTranslationFunctions(
      */
     override fun convertDateTimeToHL7(
         dateTime: BaseDateTimeType,
-        appContext: CustomContext?
+        appContext: CustomContext?,
     ): String {
         if (appContext?.config is HL7TranslationConfig) {
             val receiver = appContext.config.receiver
             val config = appContext.config.hl7Configuration
 
             val tz =
-                if (dateTime.timeZone?.id != null) {
-                    ZoneId.of(dateTime.timeZone?.id)
-                } else DateUtilities.utcZone
+                if (config.convertDateTimesToReceiverLocalTime == true && !receiver?.timeZone?.zoneId.isNullOrBlank()) {
+                    ZoneId.of(receiver?.timeZone?.zoneId)
+                } else {
+                    DateUtilities.utcZone
+                }
 
             return DateUtilities.formatDateForReceiver(
                 DateUtilities.parseDate(dateTime.asStringValue()),
@@ -53,7 +55,7 @@ class CustomTranslationFunctions(
         value: String,
         hl7FieldPath: String,
         terser: Terser,
-        appContext: CustomContext?
+        appContext: CustomContext?,
     ): String {
         return if (appContext?.config is HL7TranslationConfig) {
             val config = appContext.config
@@ -75,7 +77,9 @@ class CustomTranslationFunctions(
                     terser,
                     truncationConfig
                 )
-            } else value
+            } else {
+                value
+            }
         } else {
             super.maybeTruncateHL7Field(value, hl7FieldPath, terser, appContext)
         }

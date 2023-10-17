@@ -15,7 +15,7 @@ enum class LivdTableColumns(val colName: String) {
     MODEL("Model"),
     TEST_PERFORMED_CODE("Test Performed LOINC Code"),
     PROCESSING_MODE_CODE("processing_mode_code"),
-    MANUFACTURER("Manufacturer")
+    MANUFACTURER("Manufacturer"),
 }
 
 /**
@@ -40,6 +40,7 @@ object LivdLookupUtilities {
         return if (modelName.endsWith("*")) modelName.dropLast(1) else modelName
     }
 }
+
 /**
  * This is a lookup mapper specialized for the LIVD table. The LIVD table has multiple columns
  * which could be used for lookup. Different senders send different information, so this mapper
@@ -64,8 +65,9 @@ class LIVDLookupMapper : Mapper {
     override val name = "livdLookup"
 
     override fun valueNames(element: Element, args: List<String>): List<String> {
-        if (args.isNotEmpty())
+        if (args.isNotEmpty()) {
             error("Schema Error: livdLookup mapper does not expect args")
+        }
         // EQUIPMENT_MODEL_NAME is the more stable id so it goes first. Device_id will change as devices change from
         // emergency use to fully authorized status in the LIVD table
         return listOf(
@@ -129,8 +131,9 @@ class LIVDLookupMapper : Mapper {
             // Hide any warnings to fields the user does not send to us
             if (!element.csvFields.isNullOrEmpty() || !element.hl7Field.isNullOrBlank() ||
                 !element.hl7OutputFields.isNullOrEmpty()
-            )
+            ) {
                 it.warning(InvalidEquipmentMessage(element.fieldMapping))
+            }
         }
     }
 }
@@ -144,8 +147,9 @@ class Obx17Mapper : Mapper {
     override val name = "obx17"
 
     override fun valueNames(element: Element, args: List<String>): List<String> {
-        if (args.isNotEmpty())
+        if (args.isNotEmpty()) {
             error("Schema Error: obx17 mapper does not expect args")
+        }
         return listOf("equipment_model_name")
     }
 
@@ -153,7 +157,7 @@ class Obx17Mapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         return ElementResult(
             if (values.isEmpty()) {
@@ -166,8 +170,11 @@ class Obx17Mapper : Mapper {
                     ?: error("Schema Error: no tableColumn for element '${indexElement.name}'")
 
                 // Remove any * coming in the model value
-                val sanitizedValue = if (indexElement.name == ElementNames.EQUIPMENT_MODEL_NAME.elementName)
-                    LivdLookupUtilities.getCleanedModelName(indexValue) else indexValue
+                val sanitizedValue = if (indexElement.name == ElementNames.EQUIPMENT_MODEL_NAME.elementName) {
+                    LivdLookupUtilities.getCleanedModelName(indexValue)
+                } else {
+                    indexValue
+                }
 
                 val testKitNameId = lookupTable.FilterBuilder().equalsIgnoreCase(indexColumn, sanitizedValue)
                     .findSingleResult("Testkit Name ID")
@@ -192,8 +199,9 @@ class Obx17TypeMapper : Mapper {
     override val name = "obx17Type"
 
     override fun valueNames(element: Element, args: List<String>): List<String> {
-        if (args.isNotEmpty())
+        if (args.isNotEmpty()) {
             error("Schema Error: obx17Type mapper does not expect args")
+        }
         return listOf(ElementNames.EQUIPMENT_MODEL_NAME.elementName)
     }
 
@@ -201,7 +209,7 @@ class Obx17TypeMapper : Mapper {
         element: Element,
         args: List<String>,
         values: List<ElementAndValue>,
-        sender: Sender?
+        sender: Sender?,
     ): ElementResult {
         return ElementResult(
             if (values.isEmpty()) {
@@ -216,8 +224,12 @@ class Obx17TypeMapper : Mapper {
                         indexColumn,
                         LivdLookupUtilities.getCleanedModelName(indexValue)
                     )
-                    .findSingleResult("Testkit Name ID") != null
-                ) "99ELR" else null
+                        .findSingleResult("Testkit Name ID") != null
+                ) {
+                    "99ELR"
+                } else {
+                    null
+                }
             }
         )
     }

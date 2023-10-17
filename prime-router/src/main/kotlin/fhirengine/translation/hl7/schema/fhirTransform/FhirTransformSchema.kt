@@ -17,7 +17,7 @@ import java.util.SortedMap
 class FhirTransformSchema(
     elements: MutableList<FhirTransformSchemaElement> = mutableListOf(),
     constants: SortedMap<String, String> = sortedMapOf(),
-    extends: String? = null
+    extends: String? = null,
 ) : ConfigSchema<FhirTransformSchemaElement>(elements = elements, constants = constants, extends = extends) {
     override fun override(overrideSchema: ConfigSchema<FhirTransformSchemaElement>):
         ConfigSchema<FhirTransformSchemaElement> =
