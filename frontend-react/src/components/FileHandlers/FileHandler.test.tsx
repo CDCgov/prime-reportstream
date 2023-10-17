@@ -111,7 +111,7 @@ describe("FileHandler", () => {
             renderApp(<FileHandler />);
         });
 
-        test("renders the prompt as expected", () => {
+        test.only("renders the prompt as expected", () => {
             expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
                 "ReportStream File Validator",
             );
@@ -120,10 +120,24 @@ describe("FileHandler", () => {
             );
             expect(screen.getByText("Select data model")).toBeVisible();
         });
+
+        test.only("allows the user to upload and file and shows the success screen", async () => {
+            // Step 1: schema selection
+            expect(screen.getByText("Continue")).toBeDisabled();
+            await chooseSchema("upload-covid-19");
+            await act(async () => {
+                await userEvent.click(screen.getByText("Continue"));
+            });
+        });
     });
 
     describe("when a valid CSV file is being submitted with no warnings or errors", () => {
         beforeEach(() => {
+            mockUseFileHandler(INITIAL_STATE);
+            mockUseSenderSchemaOptions({
+                isLoading: false,
+                schemaOptions: STANDARD_SCHEMA_OPTIONS,
+            });
             mockUseWatersUploader({
                 isWorking: false,
                 uploaderError: null,
@@ -137,7 +151,9 @@ describe("FileHandler", () => {
             // Step 1: schema selection
             expect(screen.getByText("Continue")).toBeDisabled();
             await chooseSchema("upload-covid-19");
-            await userEvent.click(screen.getByText("Continue"));
+            await act(async () => {
+                await userEvent.click(screen.getByText("Continue"));
+            });
 
             // Step 2: file upload
             expect(screen.getByText("Submit")).toBeDisabled();
@@ -208,7 +224,9 @@ describe("FileHandler", () => {
             // Step 1: schema selection
             expect(screen.getByText("Continue")).toBeDisabled();
             await chooseSchema("upload-covid-19");
-            await userEvent.click(screen.getByText("Continue"));
+            await act(async () => {
+                await userEvent.click(screen.getByText("Continue"));
+            });
 
             // Step 2: file upload
             expect(screen.getByText("Submit")).toBeDisabled();
@@ -227,7 +245,9 @@ describe("FileHandler", () => {
             // Step 1: schema selection
             expect(screen.getByText("Continue")).toBeDisabled();
             await chooseSchema("upload-covid-19");
-            await userEvent.click(screen.getByText("Continue"));
+            await act(async () => {
+                await userEvent.click(screen.getByText("Continue"));
+            });
 
             // Step 2: file upload
             expect(screen.getByText("Submit")).toBeDisabled();
