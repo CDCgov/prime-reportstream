@@ -20,7 +20,7 @@ class ConverterSchema(
     var hl7Class: String? = null,
     elements: MutableList<ConverterSchemaElement> = mutableListOf(),
     constants: SortedMap<String, String> = sortedMapOf(),
-    extends: String? = null
+    extends: String? = null,
 ) : ConfigSchema<ConverterSchemaElement>(elements = elements, constants = constants, extends = extends) {
 
     override fun toString(): String {
@@ -84,7 +84,7 @@ class ConverterSchemaElement(
     resourceIndex: String? = null,
     constants: SortedMap<String, String> = sortedMapOf(),
     valueSet: ValueSetCollection? = null,
-    debug: Boolean = false
+    debug: Boolean = false,
 ) : ConfigSchemaElement(
     name = name,
     condition = condition,

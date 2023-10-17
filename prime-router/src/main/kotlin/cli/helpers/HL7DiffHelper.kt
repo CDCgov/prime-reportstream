@@ -163,7 +163,7 @@ class HL7DiffHelper {
         segmentType: String,
         fieldNumber: Int,
         secondaryFieldNum: Int?,
-        tertiaryFieldNumber: Int?
+        tertiaryFieldNumber: Int?,
     ): List<Hl7Diff> {
         return when {
             input is Primitive && output is Primitive && !StringUtils.equals(input.value, output.value) -> {

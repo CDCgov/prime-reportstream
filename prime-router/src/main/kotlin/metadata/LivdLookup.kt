@@ -4,6 +4,7 @@ import gov.cdc.prime.router.Metadata
 
 object LivdLookup {
     val livdTableName = "LIVD-SARS-CoV-2"
+
     /**
      * Will find a value in the LIVD table based on the test kit name id, equipment model name, equipment model id, or
      * the device id
@@ -26,7 +27,7 @@ object LivdLookup {
         testKitNameId: String? = null,
         equipmentModelName: String? = null,
         tableColumn: String,
-        tableRef: LookupTable? = Metadata.getInstance().findLookupTable(name = livdTableName)
+        tableRef: LookupTable? = Metadata.getInstance().findLookupTable(name = livdTableName),
     ): String? {
         val filters = tableRef?.FilterBuilder() ?: error("Could not find table '$tableRef'\"")
         // get the test performed code for additional filtering of the test information in case we are
@@ -88,7 +89,7 @@ object LivdLookup {
     private fun lookupByDeviceId(
         tableColumn: String,
         deviceId: String,
-        filters: LookupTable.FilterBuilder
+        filters: LookupTable.FilterBuilder,
     ): String? {
         /*
          Dev Note:
@@ -134,7 +135,7 @@ object LivdLookup {
     private fun lookupByEquipmentUid(
         tableColumn: String,
         value: String,
-        filters: LookupTable.FilterBuilder
+        filters: LookupTable.FilterBuilder,
     ): String? {
         return lookup(tableColumn, value, LivdTableColumns.EQUIPMENT_UID.colName, filters)
     }
@@ -149,7 +150,7 @@ object LivdLookup {
     private fun lookupByTestkitId(
         tableColumn: String,
         value: String,
-        filters: LookupTable.FilterBuilder
+        filters: LookupTable.FilterBuilder,
     ): String? {
         if (value.isBlank()) return null
         return lookup(tableColumn, value, LivdTableColumns.TESTKIT_NAME_ID.colName, filters)
@@ -165,7 +166,7 @@ object LivdLookup {
     internal fun lookupByEquipmentModelName(
         tableColumn: String,
         value: String,
-        filters: LookupTable.FilterBuilder
+        filters: LookupTable.FilterBuilder,
     ): String? {
         if (value.isBlank()) return null
         return lookup(
@@ -188,7 +189,7 @@ object LivdLookup {
         lookupColumn: String,
         lookup: String,
         onColumn: String,
-        filters: LookupTable.FilterBuilder
+        filters: LookupTable.FilterBuilder,
     ): String? {
         return filters.equalsIgnoreCase(onColumn, lookup).findSingleResult(lookupColumn)
     }
@@ -206,7 +207,7 @@ object LivdLookup {
         lookupColumn: String,
         lookup: String,
         onColumn: String,
-        filters: LookupTable.FilterBuilder
+        filters: LookupTable.FilterBuilder,
     ): String? {
         return filters.startsWithIgnoreCase(onColumn, lookup).findSingleResult(lookupColumn)
     }

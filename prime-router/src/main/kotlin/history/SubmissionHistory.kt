@@ -179,7 +179,8 @@ class DetailedSubmissionHistory(
         NOT_DELIVERING("Not Delivering"),
         WAITING_TO_DELIVER("Waiting to Deliver"),
         PARTIALLY_DELIVERED("Partially Delivered"),
-        DELIVERED("Delivered");
+        DELIVERED("Delivered"),
+        ;
 
         @JsonValue
         override fun toString(): String {
@@ -264,8 +265,7 @@ class DetailedSubmissionHistory(
      * with a list of items they relate to.
      * @return the consolidated list of logs
      */
-    internal fun consolidateLogs(filterBy: ActionLogLevel? = null):
-        List<ConsolidatedActionLog> {
+    internal fun consolidateLogs(filterBy: ActionLogLevel? = null): List<ConsolidatedActionLog> {
         val consolidatedList = mutableListOf<ConsolidatedActionLog>()
 
         // First filter the logs and sort by the message.  This first sorting can take care of sorting old messages
@@ -546,10 +546,15 @@ class DetailedSubmissionHistory(
              */
             return if (actionsPerformed.contains(TaskAction.route) && !nextActionScheduled) {
                 Status.NOT_DELIVERING
-            } else Status.RECEIVED
+            } else {
+                Status.RECEIVED
+            }
         } else if (realDestinations.isEmpty()) {
-            return if (nextActionScheduled) Status.RECEIVED
-            else Status.NOT_DELIVERING
+            return if (nextActionScheduled) {
+                Status.RECEIVED
+            } else {
+                Status.NOT_DELIVERING
+            }
         }
 
         var finishedDestinations = 0

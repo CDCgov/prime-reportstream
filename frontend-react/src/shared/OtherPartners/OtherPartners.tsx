@@ -14,7 +14,7 @@ export const OtherPartners = ({
             </h3>
             <div className="grid-row margin-top-8 margin-bottom-9">
                 <Link
-                    href="/product/where-were-live"
+                    href="/about/our-network"
                     className="usa-button usa-button--outline grid-offset-5"
                 >
                     See all partners

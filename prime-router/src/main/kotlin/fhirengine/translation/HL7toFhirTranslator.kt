@@ -17,7 +17,7 @@ import org.hl7.fhir.r4.model.Bundle
  * Translate an HL7 message to FHIR.
  */
 class HL7toFhirTranslator internal constructor(
-    private val messageEngine: HL7MessageEngine = FhirTranscoder.getMessageEngine()
+    private val messageEngine: HL7MessageEngine = FhirTranscoder.getMessageEngine(),
 ) : Logging {
     companion object {
         init {
@@ -53,7 +53,7 @@ class HL7toFhirTranslator internal constructor(
      * @return the message model
      */
     internal fun getHL7MessageModel(
-        hl7Message: Message
+        hl7Message: Message,
     ): HL7MessageModel {
         val messageTemplateType = getMessageTemplateType(hl7Message)
         return defaultMessageTemplates[messageTemplateType]
