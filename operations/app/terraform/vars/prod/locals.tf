@@ -56,7 +56,7 @@ locals {
     use_cdc_managed_vnet        = true
     dns_vnet                    = "East-vnet"
     dns_ip                      = "172.17.0.135"
-    terraform_caller_ip_address = ["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191"]
+    terraform_caller_ip_address = jsondecode(data.azurerm_key_vault_secret.caller_ip_addresses.value)
     config = {
       "East-vnet" = {
         "address_space"           = "172.17.${local.address_id}.0/25"
