@@ -7,7 +7,6 @@ id:
   expressionType: JEXL
 
 identifier_1:
-  condition: PID.3 NOT_NULL
   valueOf: datatype/Identifier_SystemID
   generateList: true
   expressionType: resource
@@ -235,27 +234,29 @@ address:
     distPatient: PID
 
 telecom_1:
-  condition: $pid13 NOT_NULL
-  valueOf: datatype/XTNToContactPoint
-  generateList: true
-  expressionType: resource
-  specs: PID.13
-  vars:
-    pid13: PID.13
-  constants:
-    hl7Use: home
-
-telecom_2:
   condition: $pid14 NOT_NULL
-  valueOf: datatype/XTNToContactPoint
+  valueOf: datatype/ContactPoint
   generateList: true
   expressionType: resource
   specs: PID.14
   vars:
     pid14: PID.14
   constants:
-    hl7Use: work
+    use: work
 
+telecom_2:
+  condition: $pid13 NOT_NULL
+  valueOf: datatype/ContactPoint
+  generateList: true
+  expressionType: resource
+  specs: PID.13
+  vars:
+    pid13: PID.13
+  constants:
+    use: home
+
+# The yaml is processed in reverse order, therefore
+# Put the PID.13 last in yaml so it is first to be processed
 birthDate:
   type: DATE
   valueOf: PID.7
