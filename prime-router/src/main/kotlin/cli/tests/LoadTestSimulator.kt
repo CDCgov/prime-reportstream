@@ -83,7 +83,7 @@ abstract class LoadTestSimulator : CoolTest() {
     fun runOneSimulation(
         simulation: Simulation,
         environment: Environment,
-        options: CoolTestOptions
+        options: CoolTestOptions,
     ): SimulatorResult {
         var result = SimulatorResult(simulation)
         val file = FileUtilities.createFakeCovidFile(
@@ -167,7 +167,7 @@ abstract class LoadTestSimulator : CoolTest() {
         environment: Environment,
         file: File,
         simulation: Simulation,
-        options: CoolTestOptions
+        options: CoolTestOptions,
     ): Pair<Int, String> {
         return HttpUtilities.postReportFile(
             environment,
@@ -357,7 +357,7 @@ abstract class LoadTestSimulator : CoolTest() {
         results: List<SimulatorResult>,
         totalSubmissionTimeMillis: Long,
         afterActionId: Int,
-        isAsyncProcessMode: Boolean
+        isAsyncProcessMode: Boolean,
     ): Boolean {
         val totalSubmissions = results.map { it.totalSubmissionsCount }.sum()
         val totalItems = results.map { it.totalItemsCount }.sum()
@@ -469,7 +469,7 @@ abstract class LoadTestSimulator : CoolTest() {
         receivingOrg: String,
         receivingOrgService: String,
         maxPollSecs: Int = 180,
-        pollSleepSecs: Int = 10
+        pollSleepSecs: Int = 10,
     ): Boolean {
         var resultsFound = 0
 
@@ -497,11 +497,12 @@ abstract class LoadTestSimulator : CoolTest() {
                 if (resultsFound >= expectedResults) {
                     println("Found $resultsFound $taskToCheck items, finished looking.")
                     break
-                } else
+                } else {
                     println("Found $resultsFound $taskToCheck items, checking again in $pollSleepSecs seconds")
+                }
             }
         }
-        echo("Polling for $taskToCheck records finished in ${actualTimeElapsedMillis / 1000 } seconds")
+        echo("Polling for $taskToCheck records finished in ${actualTimeElapsedMillis / 1000} seconds")
 
         // verify results found count is greater than or equal to expected number
         val passed = resultsFound >= expectedResults
@@ -536,7 +537,7 @@ abstract class LoadTestSimulator : CoolTest() {
         afterActionId: Int,
         actionType: TaskAction,
         receivingOrg: String,
-        receivingOrgService: String
+        receivingOrgService: String,
     ): Int {
         var itemsFound = 0
         db = WorkflowEngine().db

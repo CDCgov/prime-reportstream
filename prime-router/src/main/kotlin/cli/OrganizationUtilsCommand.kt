@@ -63,7 +63,7 @@ class AddPublicKey : SettingCommand(
 
     override fun run() {
         val publicKeyFile = File(publicKeyFilename)
-        if (! publicKeyFile.exists()) {
+        if (!publicKeyFile.exists()) {
             echo("Unable to fine pem file " + publicKeyFile.absolutePath)
             return
         }
@@ -94,20 +94,28 @@ class AddPublicKey : SettingCommand(
         val newOrganizationJson = jsonMapper.writeValueAsString(newOrganization)
 
         echo("** Original Organization **")
-        if (useJson) writeOutput(origOrganizationJson) else writeOutput(
-            toYaml(
-                origOrganizationJson,
-                SettingType.ORGANIZATION
+        if (useJson) {
+            writeOutput(origOrganizationJson)
+        } else {
+            writeOutput(
+                toYaml(
+                    origOrganizationJson,
+                    SettingType.ORGANIZATION
+                )
             )
-        )
+        }
         echo("** End Original Organization **")
         echo("*** Modified Organization, including new key *** ")
-        if (useJson) writeOutput(newOrganizationJson) else writeOutput(
-            toYaml(
-                newOrganizationJson,
-                SettingType.ORGANIZATION
+        if (useJson) {
+            writeOutput(newOrganizationJson)
+        } else {
+            writeOutput(
+                toYaml(
+                    newOrganizationJson,
+                    SettingType.ORGANIZATION
+                )
             )
-        )
+        }
         echo("*** End Modified Organization, including new key *** ")
 
         if (!doIt) {
@@ -160,6 +168,7 @@ class RemoveKey : SettingCommand(
         "--doit",
         help = "Save the modified Organization setting to the database (default is to just print the modified setting)"
     ).flag(default = false)
+
     override fun run() {
         val origOrganizationJson =
             get(environment, oktaAccessToken, SettingType.ORGANIZATION, orgName)
@@ -178,20 +187,28 @@ class RemoveKey : SettingCommand(
         val newOrganization = Organization(origOrganization, updatedKeys)
         val newOrganizationJson = jsonMapper.writeValueAsString(newOrganization)
         echo("** Original Organization **")
-        if (useJson) writeOutput(origOrganizationJson) else writeOutput(
-            toYaml(
-                origOrganizationJson,
-                SettingType.ORGANIZATION
+        if (useJson) {
+            writeOutput(origOrganizationJson)
+        } else {
+            writeOutput(
+                toYaml(
+                    origOrganizationJson,
+                    SettingType.ORGANIZATION
+                )
             )
-        )
+        }
         echo("** End Original Organization **")
         echo("*** Modified Organization, including new key *** ")
-        if (useJson) writeOutput(newOrganizationJson) else writeOutput(
-            toYaml(
-                newOrganizationJson,
-                SettingType.ORGANIZATION
+        if (useJson) {
+            writeOutput(newOrganizationJson)
+        } else {
+            writeOutput(
+                toYaml(
+                    newOrganizationJson,
+                    SettingType.ORGANIZATION
+                )
             )
-        )
+        }
         echo("*** End Modified Organization, after removing key *** ")
         if (!doIt) {
             echo(
@@ -245,7 +262,7 @@ class TokenUrl : SettingCommand(
     override fun run() {
         val environment = Environment.get(env)
         val privateKeyFile = File(privateKeyFilename)
-        if (! privateKeyFile.exists()) {
+        if (!privateKeyFile.exists()) {
             echo("Unable to fine pem file " + privateKeyFile.absolutePath)
             return
         }

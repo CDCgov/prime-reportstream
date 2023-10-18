@@ -136,7 +136,7 @@ class LoginCommand : OktaCommand(
         code: String,
         codeVerifier: String,
         clientId: String,
-        oktaBaseUrl: String
+        oktaBaseUrl: String,
     ): JSONObject {
         val body = "grant_type=authorization_code&" +
             "redirect_uri=$redirectHost:$redirectPort$redirectPath&" +
@@ -220,12 +220,15 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
          * @return the Okta access token, a dummy token if [app] is null. or null if there is no valid token
          */
         fun fetchAccessToken(app: OktaApp?): String? {
-            return if (app == null) dummyOktaAccessToken
-            else {
+            return if (app == null) {
+                dummyOktaAccessToken
+            } else {
                 val accessTokenFile = readAccessTokenFile()
-                if (accessTokenFile != null && isValidToken(app, accessTokenFile))
+                if (accessTokenFile != null && isValidToken(app, accessTokenFile)) {
                     accessTokenFile.token
-                else null
+                } else {
+                    null
+                }
             }
         }
 

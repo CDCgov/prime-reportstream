@@ -87,8 +87,9 @@ typealias DataAccessTransaction = Configuration
  */
 class DatabaseAccess(val create: DSLContext) : Logging {
     constructor(
-        dataSource: DataSource = commonDataSource
+        dataSource: DataSource = commonDataSource,
     ) : this(DSL.using(dataSource, SQLDialect.POSTGRES))
+
     constructor(connection: Connection) : this(DSL.using(connection, SQLDialect.POSTGRES))
 
     fun checkConnection() {
@@ -137,7 +138,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         receiverFullName: String,
         limit: Int,
         backstopTime: OffsetDateTime?,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ): List<Task> {
         val cond =
             if (at == null) {
@@ -168,7 +169,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
      */
     fun isDuplicateItem(
         itemHash: String,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): Boolean {
         val ctx = if (txn != null) DSL.using(txn) else create
         val weekAgo = OffsetDateTime.now().minusDays(7)
@@ -186,7 +187,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
     fun fetchNumReportsNeedingBatch(
         receiverFullName: String,
         backstopTime: OffsetDateTime,
-        txn: DataAccessTransaction?
+        txn: DataAccessTransaction?,
     ): Int {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
@@ -206,7 +207,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         receiverOrg: String,
         receiverSvc: String,
         checkTime: OffsetDateTime,
-        txn: DataAccessTransaction?
+        txn: DataAccessTransaction?,
     ): Boolean {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
@@ -260,7 +261,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         bodyFormat: String,
         bodyUrl: String,
         nextAction: Event,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ) {
         fun insert(txn: Configuration) {
             val task = createTaskRecord(report, bodyFormat, bodyUrl, nextAction)
@@ -280,7 +281,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         nextActionAt: OffsetDateTime?,
         retryToken: String?,
         finishedField: Field<OffsetDateTime>,
-        txn: DataAccessTransaction?
+        txn: DataAccessTransaction?,
     ) {
         val ctx = if (txn != null) DSL.using(txn) else create
         ctx.update(TASK)
@@ -301,11 +302,15 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         val fromInfo =
             if (!reportFile.sendingOrg.isNullOrEmpty()) {
                 "${reportFile.sendingOrg}.${reportFile.sendingOrgClient} --> "
-            } else ""
+            } else {
+                ""
+            }
         val toInfo =
             if (!reportFile.receivingOrg.isNullOrEmpty()) {
                 " --> ${reportFile.receivingOrg}.${reportFile.receivingOrgSvc}"
-            } else ""
+            } else {
+                ""
+            }
         logger.debug(
             "Saved to REPORT_FILE: ${reportFile.reportId} (${fromInfo}action ${action.actionName}$toInfo)"
         )
@@ -315,7 +320,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
     fun fetchReportFile(
         reportId: ReportId,
         org: Organization? = null,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): ReportFile {
         val ctx = if (txn != null) DSL.using(txn) else create
         val cond =
@@ -335,7 +340,9 @@ class DatabaseAccess(val create: DSLContext) : Logging {
                 "Could not find $reportId in REPORT_FILE" +
                     if (org != null) {
                         " associated with organization ${org.name}"
-                    } else ""
+                    } else {
+                        ""
+                    }
             )
     }
 
@@ -344,7 +351,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
      */
     fun fetchReportFileByBlobURL(
         fileName: String,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): ReportFile? {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx.selectFrom(Tables.REPORT_FILE)
@@ -357,7 +364,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
      */
     fun fetchReportFileByIds(
         reportIds: List<ReportId>,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<ReportFile> {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx.selectFrom(Tables.REPORT_FILE)
@@ -367,7 +374,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
 
     fun fetchAllInternalReports(
         createdDateTime: OffsetDateTime? = null,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<ReportFile> {
         val createdDt = createdDateTime ?: OffsetDateTime.now().minusDays(30)
         val ctx = if (txn != null) DSL.using(txn) else create
@@ -386,7 +393,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         receiverReportId: ReportId,
         receiverReportIndex: Int,
         limit: Int,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<SenderItems> {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
@@ -396,7 +403,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
 
     fun fetchSingleMetadata(
         messageID: String,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): CovidResultMetadata? {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx.selectFrom(Tables.COVID_RESULT_METADATA)
@@ -407,7 +414,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
 
     fun fetchSingleMetadataById(
         id: Long,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): CovidResultMetadata? {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
@@ -432,7 +439,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
      */
     fun fetchCovidResultMetadatasByMessageId(
         messageId: String,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<CovidResultMetadata> {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
@@ -464,7 +471,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         reportId: ReportId,
         trackingId: String,
         type: ActionLogType,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<DetailedActionLog> {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
@@ -482,7 +489,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
     fun fetchItemLineagesForReport(
         reportId: ReportId,
         itemCount: Int,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<ItemLineage>? {
         val ctx = if (txn != null) DSL.using(txn) else create
         val itemLineages =
@@ -523,7 +530,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
      */
     fun fetchReportDescendantsFromReportId(
         parentReportId: ReportId,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<ReportFile> {
         val ctx = if (txn != null) DSL.using(txn) else create
         val sql = """select * FROM 
@@ -549,7 +556,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         reportId: ReportId,
         trackingId: String,
         filterType: String,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<MessageActionLog> {
         val ctx = if (txn != null) DSL.using(txn) else create
         val detailField: Field<String> = field("detail ->> 'filterType'", String::class.java)
@@ -572,7 +579,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
      */
     fun fetchActionForReportId(
         reportId: UUID,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): Action? {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx.select(ACTION.asterisk())
@@ -594,7 +601,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
      */
     fun fetchReportForActionId(
         actionId: Long,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): ReportFile? {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx.select(REPORT_FILE.asterisk())
@@ -613,7 +620,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
      */
     fun fetchAction(
         actionId: Long,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): Action? {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx.selectFrom(ACTION)
@@ -625,7 +632,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
     fun fetchDownloadableReportFiles(
         since: OffsetDateTime?,
         orgName: String,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<ReportFile> {
         val ctx = if (txn != null) DSL.using(txn) else create
         val cond =
@@ -667,7 +674,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
 
     fun fetchChildReports(
         parentReportId: UUID,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<ReportId> {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx.select(REPORT_LINEAGE.CHILD_REPORT_ID)
@@ -683,7 +690,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         type: SettingType,
         name: String,
         parentId: Int?,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ): Setting? {
         return DSL.using(txn)
             .selectFrom(SETTING)
@@ -691,8 +698,11 @@ class DatabaseAccess(val create: DSLContext) : Logging {
                 SETTING.IS_ACTIVE.isTrue,
                 SETTING.TYPE.eq(type),
                 SETTING.NAME.eq(name),
-                if (parentId != null) SETTING.ORGANIZATION_ID.eq(parentId)
-                else SETTING.ORGANIZATION_ID.isNull
+                if (parentId != null) {
+                    SETTING.ORGANIZATION_ID.eq(parentId)
+                } else {
+                    SETTING.ORGANIZATION_ID.isNull
+                }
             )
             .fetchOne()
             ?.into(Setting::class.java)
@@ -702,7 +712,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         type: SettingType,
         name: String,
         organizationName: String,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ): Setting? {
         val org = SETTING.`as`("org")
         val item = SETTING.`as`("item")
@@ -731,7 +741,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         type: SettingType,
         name: String,
         organizationName: String,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): Pair<Setting, Setting>? {
         val org = SETTING.`as`("org")
         val item = SETTING.`as`("item")
@@ -794,7 +804,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
     fun fetchSettings(
         type: SettingType,
         organizationId: Int,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ): List<Setting> {
         return DSL.using(txn)
             .select()
@@ -828,7 +838,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         val createdAt: OffsetDateTime? = null,
         val isDeleted: Boolean? = true,
         val isActive: Boolean? = false,
-        val settingJson: String? = ""
+        val settingJson: String? = "",
     )
 
     /**
@@ -852,7 +862,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
     fun fetchSettingRevisionHistory(
         organizationName: String,
         settingType: SettingType,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ): List<SettingsHistoryData> {
         val org = SETTING.`as`("org")
         val settings = SETTING.`as`("settings")
@@ -920,7 +930,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
     fun updateOrganizationId(
         currentOrganizationId: Int,
         newOrganizationId: Int,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ) {
         DSL.using(txn)
             .update(SETTING)
@@ -934,7 +944,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         settingId: Int,
         createdBy: String,
         createdAt: OffsetDateTime,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ) {
         DSL.using(txn)
             .insertInto(
@@ -999,7 +1009,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         type: SettingType,
         name: String,
         organizationId: Int?,
-        txn: DataAccessTransaction
+        txn: DataAccessTransaction,
     ): Int {
         return DSL.using(txn)
             .select(DSL.max(SETTING.VERSION))
@@ -1007,8 +1017,11 @@ class DatabaseAccess(val create: DSLContext) : Logging {
             .where(
                 SETTING.TYPE.eq(type),
                 SETTING.NAME.eq(name),
-                if (organizationId == null) SETTING.ORGANIZATION_ID.isNull
-                else SETTING.ORGANIZATION_ID.eq(organizationId)
+                if (organizationId == null) {
+                    SETTING.ORGANIZATION_ID.isNull
+                } else {
+                    SETTING.ORGANIZATION_ID.eq(organizationId)
+                }
             )
             .fetchOne()
             ?.getValue(DSL.max(SETTING.VERSION))
@@ -1074,7 +1087,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
 
     fun getFacilitiesForDownloadableReport(
         reportId: ReportId,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<Facility> {
         val ctx = if (txn != null) DSL.using(txn) else create
         val result =
@@ -1097,7 +1110,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
                 positive = it.get(REPORT_FACILITIES.POSITIVE),
                 location =
                 if (it.get(COVID_RESULT_METADATA.TESTING_LAB_CITY)
-                    .isNullOrBlank()
+                        .isNullOrBlank()
                 ) {
                     it.get(COVID_RESULT_METADATA.TESTING_LAB_STATE)
                 } else {
@@ -1141,7 +1154,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
      */
     fun saveRemoteConnectionCheck(
         txn: DataAccessTransaction? = null,
-        connectionCheck: CheckFunction.RemoteConnectionCheck
+        connectionCheck: CheckFunction.RemoteConnectionCheck,
     ) {
         val ctx = if (txn != null) DSL.using(txn) else create
         val initiatedOn = connectionCheck.initiatedOn.atOffset(Environment.rsTimeZone)
@@ -1174,7 +1187,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
         val connectionCheckCompletedAt: OffsetDateTime,
         // Fields added by our join below
         val organizationName: String? = null,
-        val receiverName: String? = null
+        val receiverName: String? = null,
     )
 
     /**
@@ -1190,7 +1203,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
     fun fetchReceiverConnectionCheckResults(
         startDateTime: OffsetDateTime,
         endDateTime: OffsetDateTime? = null,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<ReceiverConnectionCheckResultJoined> {
         val orgInnerTable = SETTING.`as`("org")
         val recvrInnerTable = SETTING.`as`("recvr")
@@ -1240,7 +1253,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
      */
     fun fetchSendFailures(
         daysBackSpan: Int = 30,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<ListSendFailures> {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
@@ -1366,7 +1379,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
      */
     fun fetchResends(
         since: OffsetDateTime,
-        txn: DataAccessTransaction? = null
+        txn: DataAccessTransaction? = null,
     ): List<Action> {
         val ctx = if (txn != null) DSL.using(txn) else create
         return ctx
@@ -1461,7 +1474,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
             report: Report,
             bodyFormat: String,
             bodyUrl: String,
-            nextAction: Event
+            nextAction: Event,
         ): TaskRecord {
             return TaskRecord(
                 report.id,
@@ -1488,7 +1501,7 @@ class DatabaseAccess(val create: DSLContext) : Logging {
             report: Report,
             bodyFormat: String,
             bodyUrl: String,
-            nextAction: Event
+            nextAction: Event,
         ): Task {
             return Task(
                 report.id,

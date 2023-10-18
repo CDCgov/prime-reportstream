@@ -10,7 +10,7 @@ enum class PhonePart {
     Country,
     AreaCode,
     Local,
-    Extension
+    Extension,
 }
 
 /**

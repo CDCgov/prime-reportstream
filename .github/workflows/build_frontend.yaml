@@ -7,11 +7,13 @@ on:
       - production
     paths:
       - "frontend-react/**"
+      - ".github/actions/build-frontend/**"
   push:
     branches:
       - master
     paths:
       - "frontend-react/**"
+      - ".github/actions/build-frontend/**"
 
 jobs:
   pre_job:
@@ -23,7 +25,7 @@ jobs:
       version: ${{ steps.build_vars.outputs.version }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -40,7 +42,7 @@ jobs:
 
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Build frontend
         uses: ./.github/actions/build-frontend
