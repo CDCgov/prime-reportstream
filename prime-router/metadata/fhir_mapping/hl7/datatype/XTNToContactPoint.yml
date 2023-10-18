@@ -277,3 +277,14 @@ rank:
   type: POSITIVEINT
   valueOf: XTN.18
   expressionType: HL7Spec
+
+extension_13-hl7v2Name:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: "hl7v2Name"
+    valueString:
+      type: STRING
+      valueOf: $hl7v2Name

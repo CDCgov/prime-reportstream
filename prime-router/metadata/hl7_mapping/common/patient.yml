@@ -96,19 +96,19 @@ elements:
     resourceIndex: orderIndex
 
   - name: phone-number-home-mobile-email
-    resource: '%resource.telecom.where(extension(%`rsext-hl7-use`).value = "home")'
-    condition: '%context.telecom.where(extension(%`rsext-hl7-use`).value = "home").exists()'
+    resource: '%resource.telecom.where(use.empty() or use != "work")'
+    condition: '%context.telecom.where(extension(%`rsext-hl7v2Name`)).exists().not()'
     constants:
       hl7TelecomField: '%{hl7PIDField}-13'
-    schema: datatype/contact-point-to-xtn
+    schema: datatype/xtn-telecom
     resourceIndex: telecomIndex
 
   - name: phone-number-business
-    resource: '%resource.telecom.where(extension(%`rsext-hl7-use`).value = "work")'
-    condition: '%context.telecom.where(extension(%`rsext-hl7-use`).value = "work").exists()'
+    resource: '%resource.telecom.where(use = "work")'
+    condition: '%context.telecom.where(extension(%`rsext-hl7v2Name`)).exists().not()'
     constants:
       hl7TelecomField: '%{hl7PIDField}-14'
-    schema: datatype/contact-point-to-xtn
+    schema: datatype/xtn-telecom
     resourceIndex: telecomIndex
 
   - name: patient-marital-status

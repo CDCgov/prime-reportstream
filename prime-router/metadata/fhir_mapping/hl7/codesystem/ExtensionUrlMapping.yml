@@ -308,3 +308,6 @@
 # Any Text
 - id: "any-text"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/any-text"
+# HL7 v2 Name
+- id: "hl7v2Name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name"
