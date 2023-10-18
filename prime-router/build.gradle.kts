@@ -32,7 +32,7 @@ import java.util.Properties
 plugins {
     val kotlinVersion by System.getProperties()
     kotlin("jvm") version "$kotlinVersion"
-    id("org.flywaydb.flyway") version "9.21.2"
+    id("org.flywaydb.flyway") version "9.22.3"
     id("nu.studer.jooq") version "8.2.1"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.13.0"
@@ -801,7 +801,7 @@ dependencies {
     implementation("com.azure:azure-storage-blob:12.22.3") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.18.1") {
+    implementation("com.azure:azure-storage-queue:12.19.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.7.0") {
@@ -842,7 +842,7 @@ dependencies {
         exclude(group = "org.json", module = "json")
     }
     implementation("com.github.kittinunf.fuel:fuel-json:2.3.1")
-    implementation("org.json:json:20230618")
+    implementation("org.json:json:20231013")
     // DO NOT INCREMENT SSHJ to a newer version without first thoroughly testing it locally.
     implementation("com.hierynomus:sshj:0.36.0")
     implementation("com.jcraft:jsch:0.1.55")
@@ -854,7 +854,7 @@ dependencies {
     implementation("commons-io:commons-io:2.13.0")
     implementation("org.postgresql:postgresql:42.6.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
-    implementation("org.flywaydb:flyway-core:9.21.2")
+    implementation("org.flywaydb:flyway-core:9.22.3")
     implementation("org.commonmark:commonmark:0.21.0")
     implementation("com.google.guava:guava:32.1.2-jre")
     implementation("com.helger.as2:as2-lib:5.1.1")
@@ -914,9 +914,9 @@ dependencies {
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
-    testImplementation("org.testcontainers:testcontainers:1.19.0")
-    testImplementation("org.testcontainers:junit-jupiter:1.19.0")
-    testImplementation("org.testcontainers:postgresql:1.19.0")
+    testImplementation("org.testcontainers:testcontainers:1.19.1")
+    testImplementation("org.testcontainers:junit-jupiter:1.19.1")
+    testImplementation("org.testcontainers:postgresql:1.19.1")
 
     implementation(kotlin("script-runtime"))
 }

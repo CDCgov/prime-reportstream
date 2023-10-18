@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1697033876439944000.c674cdf5-c56a-4d35-acf8-510fc97e6262",
+  "id" : "1697636640773345000.05054d8c-b31a-49db-84c0-8efe0f99a1ef",
   "meta" : {
-    "lastUpdated" : "2023-10-11T10:17:56.454-04:00"
+    "lastUpdated" : "2023-10-18T09:44:00.787-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -44,19 +44,19 @@
           "display" : "ORU/ACK - Unsolicited transmission of an observation message"
         },
         "sender" : {
-          "reference" : "Organization/1697033877389674000.357d32cc-f822-4c8e-8dea-f41ecf06f647"
+          "reference" : "Organization/1697636641698506000.825ac202-580b-4e0f-9799-e8d83e6d5cc3"
         },
         "source" : {},
         "responsible" : {
-          "reference" : "Organization/1697033877392091000.a8298527-b73a-46b9-9367-7cca67072b97"
+          "reference" : "Organization/1697636641700401000.5866c95b-5570-429b-bf36-e581468efa69"
         }
       }
     },
     {
-      "fullUrl" : "Organization/1697033877389674000.357d32cc-f822-4c8e-8dea-f41ecf06f647",
+      "fullUrl" : "Organization/1697636641698506000.825ac202-580b-4e0f-9799-e8d83e6d5cc3",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1697033877389674000.357d32cc-f822-4c8e-8dea-f41ecf06f647",
+        "id" : "1697636641698506000.825ac202-580b-4e0f-9799-e8d83e6d5cc3",
         "meta" : {
           "extension" : [
             {
@@ -64,14 +64,19 @@
               "valueString" : "2.5.1"
             }
           ]
-        }
+        },
+        "address" : [
+          {
+            "country" : "USA"
+          }
+        ]
       }
     },
     {
-      "fullUrl" : "Location/1697033877393275000.2ea2a5a0-32e4-48ba-9270-a259a9075a1f",
+      "fullUrl" : "Location/1697636641701627000.b20ea1ae-94af-4205-9ede-3e67ab7726c4",
       "resource" : {
         "resourceType" : "Location",
-        "id" : "1697033877393275000.2ea2a5a0-32e4-48ba-9270-a259a9075a1f",
+        "id" : "1697636641701627000.b20ea1ae-94af-4205-9ede-3e67ab7726c4",
         "meta" : {
           "extension" : [
             {
@@ -109,10 +114,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1697033877392091000.a8298527-b73a-46b9-9367-7cca67072b97",
+      "fullUrl" : "Organization/1697636641700401000.5866c95b-5570-429b-bf36-e581468efa69",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1697033877392091000.a8298527-b73a-46b9-9367-7cca67072b97",
+        "id" : "1697636641700401000.5866c95b-5570-429b-bf36-e581468efa69",
         "meta" : {
           "extension" : [
             {
@@ -127,7 +132,7 @@
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location",
                 "valueReference" : {
-                  "reference" : "Location/1697033877393275000.2ea2a5a0-32e4-48ba-9270-a259a9075a1f"
+                  "reference" : "Location/1697636641701627000.b20ea1ae-94af-4205-9ede-3e67ab7726c4"
                 }
               }
             ]
@@ -136,10 +141,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1697033877682280000.3c4991d6-dbd5-47b2-86f3-db46fd4a4b6c",
+      "fullUrl" : "Provenance/1697636641988838000.bd6036bc-98ca-49b4-8d95-03d4805cc398",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1697033877682280000.3c4991d6-dbd5-47b2-86f3-db46fd4a4b6c",
+        "id" : "1697636641988838000.bd6036bc-98ca-49b4-8d95-03d4805cc398",
         "meta" : {
           "extension" : [
             {
@@ -186,17 +191,17 @@
           {
             "role" : "source",
             "what" : {
-              "reference" : "Device/1697033877683792000.7a567e65-881e-4f71-b48d-0325faec06b3"
+              "reference" : "Device/1697636641990504000.e8f687ad-b93c-4b49-a987-4eb2314ae79c"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Device/1697033877683792000.7a567e65-881e-4f71-b48d-0325faec06b3",
+      "fullUrl" : "Device/1697636641990504000.e8f687ad-b93c-4b49-a987-4eb2314ae79c",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1697033877683792000.7a567e65-881e-4f71-b48d-0325faec06b3",
+        "id" : "1697636641990504000.e8f687ad-b93c-4b49-a987-4eb2314ae79c",
         "meta" : {
           "extension" : [
             {

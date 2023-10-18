@@ -42,6 +42,9 @@ extension_1:
       expressionType: resource
 
 responsible:
+  vars:
+    msh22: MSH.22
+  condition: $msh22 NOT_NULL
   expressionType: reference
   valueOf: datatype/XONToOrganization
   specs: MSH.22
