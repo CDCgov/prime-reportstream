@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.azure
 
-import com.azure.core.http.rest.PagedIterable
 import com.azure.core.util.BinaryData
 import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobClientBuilder
@@ -29,16 +28,6 @@ const val defaultBlobContainerName = "reports"
 const val defaultBlobDownloadRetryCount = 5
 const val listBlobTimeoutSeconds: Long = 30
 
-enum class UniversalpipelineSteps(val step: String) {
-    BATCH("batch"),
-    NONE("none"),
-    PROCESS("process"),
-    READY("ready"),
-    RECEIVE("receive"),
-    ROUTE("route"),
-    TRANSLATE("translate")
-}
-
 /**
  * Accessor for Azure blob storage.
  */
@@ -49,7 +38,7 @@ class BlobAccess() : Logging {
     data class BlobInfo(
         val format: Report.Format,
         val blobUrl: String,
-        val digest: ByteArray
+        val digest: ByteArray,
     ) {
         companion object {
             /**
@@ -79,7 +68,7 @@ class BlobAccess() : Logging {
      */
     data class BlobContainerMetadata(
         val containerName: String,
-        val connectionString: String
+        val connectionString: String,
     ) {
         companion object {
             /**
@@ -100,16 +89,6 @@ class BlobAccess() : Logging {
     }
 
     /**
-     * Data structure represents a blob entry.
-     */
-    data class BlobEntry(
-        val name: String,
-        val isPrefix: Boolean,
-        val versionId: String?,
-        val subEntries: List<BlobEntry>?
-    )
-
-    /**
      * Upload the [report] to the blob store using the [action] to determine a folder as needed.
      * A [subfolderName] is optional and is added as a prefix to the blob filename.
      * @return the information about the uploaded blob
@@ -118,7 +97,7 @@ class BlobAccess() : Logging {
         report: Report,
         blobBytes: ByteArray,
         subfolderName: String? = null,
-        action: Event.EventAction = Event.EventAction.NONE
+        action: Event.EventAction = Event.EventAction.NONE,
     ): BlobInfo {
         return uploadBody(report.bodyFormat, blobBytes, report.name, subfolderName, action)
     }
@@ -151,7 +130,7 @@ class BlobAccess() : Logging {
             blobBytes: ByteArray,
             reportName: String,
             subfolderName: String? = null,
-            action: Event.EventAction = Event.EventAction.NONE
+            action: Event.EventAction = Event.EventAction.NONE,
         ): BlobInfo {
             val subfolderNameChecked = if (subfolderName.isNullOrBlank()) "" else "$subfolderName/"
             val blobName = when (action) {
@@ -181,7 +160,7 @@ class BlobAccess() : Logging {
          */
         private fun getBlobClient(
             blobUrl: String,
-            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata
+            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
         ): BlobClient {
             return BlobClientBuilder().connectionString(blobConnInfo.connectionString).endpoint(blobUrl).buildClient()
         }
@@ -193,7 +172,7 @@ class BlobAccess() : Logging {
         internal fun uploadBlob(
             blobName: String,
             bytes: ByteArray,
-            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata
+            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
         ): String {
             logger.info("Starting uploadBlob of $blobName")
             val blobClient = getBlobContainer(blobConnInfo).getBlobClient(blobName)
@@ -211,68 +190,59 @@ class BlobAccess() : Logging {
         }
 
         /**
-         * List the blobs given [directory]
-         * delegate to azure SDK [listBlobsByHierarchy]
-         * for reactive behavior (lazy load)
+         * Data class for returning the current version of a blob
+         * and optionally it's past versions
          */
-        fun listBlobsReactive(
+        data class BlobItemAndPreviousVersions(
+            val currentBlobItem: BlobItem,
+            val previousBlobItemVersions: List<BlobItem>?
+        )
+
+        /**
+         * Fetches all the blobs prefixed with [directory].  Azure stores blobs in a flat
+         * structure (i.e. no actual folders).
+         *
+         * If the following blobs were stored
+         * foo/item.txt
+         * foo/baz/item2.txt
+         * bar/item3.txt
+         *
+         * using "foo" as the directory would return foo/item.txt and foo/baz/item2.txt
+         *
+         * @param directory - the prefix to filter the blobs by
+         * @param blobConnInfo - metadata of which azure storage account to read from
+         * @param includeVersion - whether or not to return the past versions of the blobs
+         * @returns the list of current blob items with optionally the previous versions
+         */
+        fun listBlobs(
             directory: String,
-            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata
-        ):
-            PagedIterable<BlobItem> {
-            logger.debug("BlobAccess Starting listBlobsReactive for directory $directory")
-            val options = ListBlobsOptions()
-                .setPrefix(directory)
-                .setDetails(
-                    BlobListDetails()
-                        .setRetrieveVersions(true)
-                )
-            val result = getBlobContainer(blobConnInfo).listBlobsByHierarchy(
-                "/", options, Duration.ofSeconds(listBlobTimeoutSeconds)
+            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
+            includeVersion: Boolean = false,
+        ): List<BlobItemAndPreviousVersions> {
+            val options = ListBlobsOptions().setPrefix(directory).setDetails(
+                BlobListDetails().setRetrieveVersions(includeVersion)
             )
-            logger.debug("BlobAccess Finished listBlobsReactive for directory $directory")
-            return result
-        }
-
-        /**
-         * List the blobs given [directory]
-         * @return list of [BlobEntry] - brief descriptor of entries under given [directory]
-         * Note, [directory] is relative under container root ("reports").
-         * e.g. http://127.0.0.1:10000/devstoreaccount1/reports
-         * a convenient enum defined [UniversalpipelineSteps] where 'folder'
-         * corresponding to a particular step can be used to list blobs under
-         * the folder for that step.
-         */
-        fun listBlobs(directory: String, blobConnInfo: BlobContainerMetadata = defaultBlobMetadata): List<BlobEntry> {
-            logger.debug("BlobAccess Starting listBlobs for directory $directory")
-            val result = listBlob(directory, blobConnInfo)
-            logger.debug("BlobAccess Finished listBlobs for directory $directory")
-            return result
-        }
-
-        /**
-         * helper for list blobs hierarchy
-         */
-        private fun listBlob(
-            directory: String,
-            blobConnInfo: BlobContainerMetadata = defaultBlobMetadata
-        ):
-            List<BlobEntry> {
-            val options = ListBlobsOptions()
-                .setPrefix(directory)
-                .setDetails(
-                    BlobListDetails()
-                        .setRetrieveVersions(true)
-                )
-            return getBlobContainer(blobConnInfo).listBlobsByHierarchy(
-                "/", options, Duration.ofSeconds(listBlobTimeoutSeconds)
-            ).map {
-                BlobEntry(
-                    it.name,
-                    it.isPrefix,
-                    it.versionId,
-                    if (it.isPrefix) listBlob("${it.name}", blobConnInfo) else listOf()
-                )
+            val blobContainer = getBlobContainer(blobConnInfo)
+            val results = blobContainer.listBlobs(options, Duration.ofSeconds(listBlobTimeoutSeconds))
+            return if (!includeVersion) {
+                results.map { BlobItemAndPreviousVersions(it, null) }
+            } else {
+                val grouped = results.groupBy { it.name }
+                grouped.values.mapNotNull { blobs ->
+                    val current = blobs.find { it.isCurrentVersion }
+                    if (current == null) {
+                        // If there is no current version that means the blob has been soft-deleted and we
+                        // will not include it in the results
+                        return@mapNotNull null
+                    }
+                    // Blob version IDs are the timestamps of when the version is created
+                    // so perform a sort previousBlobItemVersions such that first item is the most
+                    // recent previous version
+                    val previousVersions = blobs
+                        .filter { !it.isCurrentVersion }
+                        .sortedByDescending { it.versionId }
+                    BlobItemAndPreviousVersions(current, previousVersions)
+                }
             }
         }
 
@@ -282,7 +252,7 @@ class BlobAccess() : Logging {
         fun downloadBlobAsByteArray(
             blobUrl: String,
             blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
-            retries: Int = blobDownloadRetryCount
+            retries: Int = blobDownloadRetryCount,
         ): ByteArray {
             val stream = ByteArrayOutputStream()
             logger.debug("BlobAccess Starting download for blobUrl $blobUrl")
@@ -308,7 +278,7 @@ class BlobAccess() : Logging {
         fun downloadBlobAsBinaryData(
             blobUrl: String,
             blobConnInfo: BlobContainerMetadata = defaultBlobMetadata,
-            retries: Int = blobDownloadRetryCount
+            retries: Int = blobDownloadRetryCount,
         ): BinaryData {
             logger.debug("BlobAccess Starting download for blobUrl $blobUrl")
             val options = DownloadRetryOptions().setMaxRetryRequests(retries)
