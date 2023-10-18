@@ -193,6 +193,13 @@ class BlobAccess() : Logging {
             return getBlobClient(blobUrl, blobConnInfo).exists()
         }
 
+        /**
+         * Copies all blobs prefixed with the [directory] value from the soure to destination
+         *
+         * @param directory - the prefix (or directory) containing the blobs to be copied
+         * @param source - the source account to copy from
+         * @param destination - the destination to copy to
+         */
         fun copyDir(directory: String, source: BlobContainerMetadata, destination: BlobContainerMetadata) {
             val sourceContainer = getBlobContainer(source)
             val destinationContainer = getBlobContainer(destination)
