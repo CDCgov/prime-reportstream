@@ -187,7 +187,7 @@
         "patch-package": "^8.0.0",
         "postcss": "^8.4.31",
         "prettier": "^3.0.3",
-        "remark-frontmatter": "^4.0.1",
+        "remark-frontmatter": "^5.0.0",
         "remark-mdx-frontmatter": "^3.0.0",
         "remark-mdx-toc": "^0.3.1",
         "rimraf": "^5.0.5",
