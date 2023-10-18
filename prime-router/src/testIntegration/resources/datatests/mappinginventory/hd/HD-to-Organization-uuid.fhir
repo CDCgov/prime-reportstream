@@ -92,11 +92,6 @@
             "system" : "urn:ietf:rfc:3986",
             "value" : "2.16.840.1.114222.4.3.3.2.1.2"
           }
-        ],
-        "address" : [
-          {
-            "country" : "USA"
-          }
         ]
       }
     },
