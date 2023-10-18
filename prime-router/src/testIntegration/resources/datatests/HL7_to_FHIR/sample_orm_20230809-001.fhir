@@ -134,9 +134,6 @@
         "source" : {
           "name" : "Epic",
           "endpoint" : "urn:oid:1.2.840.114350.1.13.145.2.7.2.695071"
-        },
-        "responsible" : {
-          "reference" : "Organization/1696625950971395000.6dc87097-dcd0-4c83-a470-be396ba508fb"
         }
       }
     },
@@ -273,33 +270,6 @@
             "value" : "centracare.com"
           }
         ]
-      }
-    },
-    {
-      "fullUrl" : "Organization/1696625950971395000.6dc87097-dcd0-4c83-a470-be396ba508fb",
-      "resource" : {
-        "resourceType" : "Organization",
-        "id" : "1696625950971395000.6dc87097-dcd0-4c83-a470-be396ba508fb",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ],
-          "tag" : [
-            {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                  "valueString" : "identifier"
-                }
-              ],
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
-              "code" : "P"
-            }
-          ]
-        }
       }
     },
     {
