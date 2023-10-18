@@ -66,7 +66,7 @@ open class Receiver(
      * while someone set to LOCAL would have their date formatted "uuuuMMdd HH:mm:ss" without the offset. Instead,
      * the date time would have the offset applied to it
      */
-    val dateTimeFormat: DateUtilities.DateTimeFormat? = DateUtilities.DateTimeFormat.OFFSET
+    val dateTimeFormat: DateUtilities.DateTimeFormat? = DateUtilities.DateTimeFormat.OFFSET,
 ) {
     /** A custom constructor primarily used for testing */
     constructor(
@@ -91,7 +91,7 @@ open class Receiver(
         routingFilter: ReportStreamFilter = emptyList(),
         processingModeFilter: ReportStreamFilter = emptyList(),
         conditionFilter: ReportStreamFilter = emptyList(),
-        reverseTheQualityFilter: Boolean = false
+        reverseTheQualityFilter: Boolean = false,
     ) : this(
         name,
         organizationName,
@@ -163,7 +163,7 @@ open class Receiver(
         val initialTime: String = "00:00",
         val timeZone: USTimeZone = USTimeZone.EASTERN,
         val maxReportCount: Int = 100,
-        val whenEmpty: WhenEmpty = WhenEmpty()
+        val whenEmpty: WhenEmpty = WhenEmpty(),
     ) {
         /**
          * Calculate the next event time.
@@ -212,7 +212,7 @@ open class Receiver(
 
     enum class BatchOperation {
         NONE,
-        MERGE
+        MERGE,
     }
 
     /**
@@ -220,7 +220,7 @@ open class Receiver(
      */
     data class WhenEmpty(
         val action: EmptyOperation = EmptyOperation.NONE,
-        val onlyOncePerDay: Boolean = false
+        val onlyOncePerDay: Boolean = false,
     )
 
     /**

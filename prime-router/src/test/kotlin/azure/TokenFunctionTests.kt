@@ -177,7 +177,6 @@ class TokenFunctionTests {
 
     @Test
     fun `Test no jwt`() {
-
         var httpRequestMessage = MockHttpRequestMessage()
         httpRequestMessage.parameters.put("client_assertion", "verylong.signed.jwtstring")
         httpRequestMessage.parameters.put("scope", validScope)
@@ -317,7 +316,6 @@ class TokenFunctionTests {
 
     @Test
     fun `Test no key for scope`() {
-
         settings.senderStore.put(sender.fullName, sender)
         settings.organizationStore.put(organization.name, Organization(organization, "test.scope", jwk))
 
@@ -407,7 +405,6 @@ class TokenFunctionTests {
 
     @Test
     fun `Test success using parameters in URL`() {
-
         mockkConstructor(Server2ServerAuthentication::class)
         every {
             anyConstructed<Server2ServerAuthentication>().createAccessToken(any(), any(), any())
@@ -434,7 +431,6 @@ class TokenFunctionTests {
 
     @Test
     fun `Test success using parameters in body`() {
-
         mockkConstructor(Server2ServerAuthentication::class)
         every {
             anyConstructed<Server2ServerAuthentication>().createAccessToken(any(), any(), any())

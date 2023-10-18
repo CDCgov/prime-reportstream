@@ -1,0 +1,3 @@
+# Image referenced in Dockerfile, as Dependabot does not yet support docker-compose
+# https://github.com/dependabot/dependabot-core/issues/390
+FROM mcr.microsoft.com/azure-storage/azurite:3.26.0

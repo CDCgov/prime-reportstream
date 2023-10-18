@@ -37,7 +37,7 @@ const val conditionExtensionurl = "https://reportstream.cdc.gov/fhir/StructureDe
  */
 fun Bundle.addReceivers(
     receiverList: List<Receiver>,
-    shortHandLookupTable: MutableMap<String, String>
+    shortHandLookupTable: MutableMap<String, String>,
 ) {
     val provenanceResource = try {
         this.entry.first { it.resource.resourceType.name == "Provenance" }.resource as Provenance
@@ -147,7 +147,6 @@ fun Bundle.getDiagnosticReportNoObservations(): List<Base> {
  *
  */
 fun Bundle.deleteResource(resource: Base) {
-
     if (this.entry.find { it.fullUrl == resource.idBase } == null) {
         throw IllegalStateException("Cannot delete resource. FHIR bundle does not contain this resource")
     }
@@ -189,7 +188,6 @@ fun Bundle.deleteResource(resource: Base) {
  *  Removes PHI data from a [Bundle]
  */
 fun Bundle.removePHI() {
-
     /**
      *  The covid-19.schema file lists which fields contain PII.
      *  This function removes data for the fields listed there.
@@ -230,7 +228,7 @@ internal fun Bundle.deleteChildlessResource(resource: Base) {
 internal fun getObservationExtensions(
     fhirBundle: Bundle,
     receiver: Receiver,
-    shortHandLookupTable: MutableMap<String, String>
+    shortHandLookupTable: MutableMap<String, String>,
 ): List<Extension> {
     val (observationsToKeep, allObservations) =
         getFilteredObservations(fhirBundle, receiver.conditionFilter, shortHandLookupTable)
@@ -258,7 +256,7 @@ internal fun getObservationExtensions(
  */
 fun Bundle.filterObservations(
     conditionFilter: ReportStreamFilter,
-    shortHandLookupTable: MutableMap<String, String>
+    shortHandLookupTable: MutableMap<String, String>,
 ): Bundle {
     val (observationsToKeep, allObservations) =
         getFilteredObservations(this, conditionFilter, shortHandLookupTable)
@@ -275,7 +273,7 @@ fun Bundle.filterObservations(
 private fun getFilteredObservations(
     fhirBundle: Bundle,
     conditionFilter: ReportStreamFilter,
-    shortHandLookupTable: MutableMap<String, String>
+    shortHandLookupTable: MutableMap<String, String>,
 ): Pair<List<Base>, List<Base>> {
     val allObservationsExpression = "Bundle.entry.resource.ofType(DiagnosticReport).result.resolve()"
     val allObservations = FhirPathUtils.evaluate(
@@ -370,8 +368,11 @@ class FHIRBundleHelpers {
         fun batchMessages(messages: List<String>): String {
             var result = ""
             messages.forEach {
-                result += if (result.isEmpty()) it
-                else "\n$it"
+                result += if (result.isEmpty()) {
+                    it
+                } else {
+                    "\n$it"
+                }
             }
             return result
         }

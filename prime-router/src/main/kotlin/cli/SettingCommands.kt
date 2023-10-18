@@ -150,7 +150,7 @@ abstract class SettingCommand(
         accessToken: String,
         settingType: SettingType,
         settingName: String,
-        payload: String
+        payload: String,
     ): String {
         val path = formPath(environment, Operation.PUT, settingType, settingName)
         verbose("PUT $path :: $payload")
@@ -163,10 +163,11 @@ abstract class SettingCommand(
                     HttpStatus.SC_OK -> {
                         // need to account for an older version of the API PUT method which only returned the "meta"
                         // object- whereas now we're returning the full JSON response
-                        val version = if (result.value.obj().has("version"))
+                        val version = if (result.value.obj().has("version")) {
                             result.value.obj().getInt("version")
-                        else
+                        } else {
                             "[unknown - legacy data]"
+                        }
                         "Success. Setting $settingName at version $version"
                     }
                     HttpStatus.SC_CREATED -> "Success. Created $settingName\n"
@@ -198,20 +199,21 @@ abstract class SettingCommand(
         accessToken: String,
         settingType: SettingType,
         settingName: String,
-        abortOnError: Boolean = true
+        abortOnError: Boolean = true,
     ): String {
         val path = formPath(environment, Operation.GET, settingType, settingName)
         verbose("GET $path")
         val (_, response, result) = SettingsUtilities.get(path, accessToken)
         return when (result) {
             is Result.Failure -> {
-                if (abortOnError)
+                if (abortOnError) {
                     abort(
                         "Error getting $settingName in the $env environment:" +
                             " ${response.responseMessage} ${String(response.data)}"
                     )
-                else
+                } else {
                     ""
+                }
             }
             is Result.Success -> result.value
         }
@@ -243,7 +245,7 @@ abstract class SettingCommand(
         environment: Environment,
         accessToken: String,
         settingType: SettingType,
-        settingName: String
+        settingName: String,
     ): List<String> {
         val path = formPath(environment, Operation.LIST, settingType, settingName)
         verbose("GET $path")
@@ -276,7 +278,7 @@ abstract class SettingCommand(
     data class SettingsDiff(
         val settingType: SettingType,
         val settingName: String,
-        val differences: List<CommandUtilities.Companion.DiffRow>
+        val differences: List<CommandUtilities.Companion.DiffRow>,
     )
 
     /**
@@ -288,15 +290,16 @@ abstract class SettingCommand(
         accessToken: String,
         settingType: SettingType,
         settingName: String,
-        payload: String
+        payload: String,
     ): List<SettingsDiff> {
         val base = get(environment, accessToken, settingType, settingName, abortOnError = false)
         val diffList = CommandUtilities.diffJson(base, payload)
             .filter { !it.name.startsWith("meta") } // Remove the meta differences
-        return if (diffList.isNotEmpty())
+        return if (diffList.isNotEmpty()) {
             listOf(SettingsDiff(settingType, settingName, diffList))
-        else
+        } else {
             emptyList()
+        }
     }
 
     /**
@@ -313,7 +316,7 @@ abstract class SettingCommand(
     protected fun diffAll(
         deepOrganizations: List<DeepOrganization>,
         env: Environment = environment,
-        accessToken: String = oktaAccessToken
+        accessToken: String = oktaAccessToken,
     ): List<SettingsDiff> {
         val settingsDiff = mutableListOf<SettingsDiff>()
         // diff organizations
@@ -375,7 +378,7 @@ abstract class SettingCommand(
     protected fun putAll(
         deepOrganizations: List<DeepOrganization>,
         env: Environment = environment,
-        accessToken: String = oktaAccessToken
+        accessToken: String = oktaAccessToken,
     ): List<String> {
         val results = mutableListOf<String>()
         // Put organizations
@@ -412,8 +415,11 @@ abstract class SettingCommand(
         outStream.write(output.toByteArray())
     }
 
-    private fun handleHttpFailure(settingName: String, response: Response, result: Result<FuelJson, FuelError>):
-        Nothing {
+    private fun handleHttpFailure(
+        settingName: String,
+        response: Response,
+        result: Result<FuelJson, FuelError>,
+    ): Nothing {
         abort(
             "Error: \n" +
                 "  Setting Name: $settingName\n" +
@@ -472,12 +478,14 @@ abstract class SettingCommand(
     fun echo(message: String) {
         // clickt moved the echo command into the CliktCommand class, which means this needs to call
         // into the parent class, but Kotlin doesn't allow calls to super with default parameters
-        if (!silent) super.echo(
-            message,
-            trailingNewline = true,
-            err = false,
-            currentContext.console.lineSeparator
-        )
+        if (!silent) {
+            super.echo(
+                message,
+                trailingNewline = true,
+                err = false,
+                currentContext.console.lineSeparator
+            )
+        }
     }
 
     /**
@@ -496,10 +504,11 @@ abstract class SettingCommand(
      */
     fun abort(message: String): Nothing {
         try {
-            if (silent)
+            if (silent) {
                 throw ProgramResult(statusCode = 1)
-            else
+            } else {
                 throw PrintMessage(message, error = true)
+            }
         } catch (e: IllegalStateException) {
             // The if (silent) test can cause this exception if directly calling SettingsCommands, and not from cmdline.
             throw PrintMessage(message, error = true)
@@ -529,8 +538,9 @@ abstract class SettingCommand(
      * Confirm that the api is available and that the CLI can access it. Abort if not available.
      */
     fun checkApi(environment: Environment) {
-        if (!CommandUtilities.isApiAvailable(environment))
+        if (!CommandUtilities.isApiAvailable(environment)) {
             abort("The $env environment's API is not available or you have an invalid access token.")
+        }
     }
 
     companion object {
@@ -538,7 +548,7 @@ abstract class SettingCommand(
             environment: Environment,
             operation: Operation,
             settingType: SettingType,
-            settingName: String
+            settingName: String,
         ): String {
             return environment.formUrl("$apiPath${settingPath(operation, settingType, settingName)}").toString()
         }
@@ -578,8 +588,9 @@ abstract class ListSettingCommand(
     private val settingName: String by nameOption
 
     override fun run() {
-        if (settingType != SettingType.ORGANIZATION && settingName.isBlank())
+        if (settingType != SettingType.ORGANIZATION && settingName.isBlank()) {
             abort("Missing organization name argument")
+        }
         checkApi(environment)
         val output = listNames(environment, oktaAccessToken, settingType, settingName)
         writeOutput(output.joinToString("\n"))
@@ -592,7 +603,7 @@ abstract class ListSettingCommand(
 abstract class GetSettingCommand(
     name: String,
     help: String,
-    val settingType: SettingType
+    val settingType: SettingType,
 ) : SettingCommand(name, help) {
     private val settingName: String by nameOption
     private val useJson: Boolean by jsonOption
@@ -610,7 +621,7 @@ abstract class GetSettingCommand(
 abstract class DeleteSettingCommand(
     name: String,
     help: String,
-    val settingType: SettingType
+    val settingType: SettingType,
 ) : SettingCommand(name, help) {
     private val settingName: String by nameOption
 
@@ -627,17 +638,18 @@ abstract class DeleteSettingCommand(
 abstract class PutSettingCommand(
     name: String,
     help: String,
-    val settingType: SettingType
+    val settingType: SettingType,
 ) : SettingCommand(name, help) {
     private val inputFile by inputOption
     private val useJson: Boolean by jsonOption
 
     override fun run() {
         checkApi(environment)
-        val (name, payload) = if (useJson)
+        val (name, payload) = if (useJson) {
             fromJson(readInput(inputFile), settingType)
-        else
+        } else {
             fromYaml(readInput(inputFile), settingType)
+        }
         if (!silent) {
             val differences = diff(environment, oktaAccessToken, settingType, name, payload)
             if (differences.isNotEmpty()) {
@@ -656,22 +668,24 @@ abstract class PutSettingCommand(
 abstract class DiffSettingCommand(
     name: String,
     help: String,
-    val settingType: SettingType
+    val settingType: SettingType,
 ) : SettingCommand(name, help) {
     private val inputFile by inputOption
     private val useJson: Boolean by jsonOption
 
     override fun run() {
         checkApi(environment)
-        val (name, payload) = if (useJson)
+        val (name, payload) = if (useJson) {
             fromJson(readInput(inputFile), settingType)
-        else
+        } else {
             fromYaml(readInput(inputFile), settingType)
+        }
         val differences = diff(environment, oktaAccessToken, settingType, name, payload)
-        if (differences.isNotEmpty())
+        if (differences.isNotEmpty()) {
             echoDiff(differences)
-        else
+        } else {
             echo("No differences")
+        }
     }
 }
 
@@ -919,7 +933,9 @@ class PutMultipleSettings : SettingCommand(
                     } catch (e: DateTimeParseException) {
                         error("Unable to decode last modified data from API call. $e")
                     }
-                } else true // We have no last modified time, which means the DB is empty
+                } else {
+                    true // We have no last modified time, which means the DB is empty
+                }
             }
             else -> error("Unable to fetch settings last update time from API.  $result")
         }

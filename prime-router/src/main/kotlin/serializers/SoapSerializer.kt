@@ -57,7 +57,7 @@ class SoapEnvelope(
     /** The payload gets wrapped in the SOAP envelope */
     val payload: Any,
     /** A map of namespaces that get injected into the XML header */
-    val namespaces: Map<String, String>
+    val namespaces: Map<String, String>,
 ) : XmlObject
 
 /**
@@ -108,8 +108,10 @@ class SoapSerializer(private val envelope: Class<SoapEnvelope>?) : StdSerializer
     companion object {
         /** our default SOAP namespace */
         private const val soapNamespace = "http://schemas.xmlsoap.org/soap/envelope/"
+
         /** our default alias */
         private const val soapNamespaceAlias = "soapenv"
+
         /** if we don't get a value for the payload via an annotation we use this */
         private const val defaultPayloadName = "payload"
     }
@@ -127,7 +129,7 @@ object SoapObjectService {
         soapTransportType: SoapTransportType,
         header: WorkflowEngine.Header,
         context: ExecutionContext,
-        credential: SoapCredential
+        credential: SoapCredential,
     ): XmlObject? {
         context.logger.info("Creating object for ${soapTransportType.soapAction}")
         val userPassCredential = credential as? UserPassCredential

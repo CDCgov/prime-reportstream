@@ -9,8 +9,9 @@ class MemoryJtiCache : JtiCache() {
 
     override fun cleanupCache() {
         cache.forEach {
-            if (it.value.isBefore(OffsetDateTime.now()))
+            if (it.value.isBefore(OffsetDateTime.now())) {
                 cache.remove(it.key)
+            }
         }
     }
 
