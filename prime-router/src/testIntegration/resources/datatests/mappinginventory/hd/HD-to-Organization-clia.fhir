@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1697038875804266000.54c80e99-8fbf-43cf-8e05-085657f988bf",
+  "id" : "1697636920114486000.e7948e8e-e11d-479e-935a-07f3530b9c0a",
   "meta" : {
-    "lastUpdated" : "2023-10-11T11:41:15.818-04:00"
+    "lastUpdated" : "2023-10-18T09:48:40.127-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -44,19 +44,16 @@
           "display" : "ORU/ACK - Unsolicited transmission of an observation message"
         },
         "sender" : {
-          "reference" : "Organization/1697038876669958000.24af1227-0b7d-4a41-951a-558c7cd8b2d1"
+          "reference" : "Organization/1697636921036050000.dcffa1fb-3b8b-4869-9d1b-9a6e327def05"
         },
-        "source" : {},
-        "responsible" : {
-          "reference" : "Organization/1697038876673051000.25fe21b1-2f8d-40b7-b6fd-a27ead7dc1d1"
-        }
+        "source" : {}
       }
     },
     {
-      "fullUrl" : "Organization/1697038876669958000.24af1227-0b7d-4a41-951a-558c7cd8b2d1",
+      "fullUrl" : "Organization/1697636921036050000.dcffa1fb-3b8b-4869-9d1b-9a6e327def05",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1697038876669958000.24af1227-0b7d-4a41-951a-558c7cd8b2d1",
+        "id" : "1697636921036050000.dcffa1fb-3b8b-4869-9d1b-9a6e327def05",
         "meta" : {
           "extension" : [
             {
@@ -98,29 +95,19 @@
             },
             "value" : "2.16.840.1.114222.4.3.3.2.1.2"
           }
+        ],
+        "address" : [
+          {
+            "country" : "USA"
+          }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1697038876673051000.25fe21b1-2f8d-40b7-b6fd-a27ead7dc1d1",
-      "resource" : {
-        "resourceType" : "Organization",
-        "id" : "1697038876673051000.25fe21b1-2f8d-40b7-b6fd-a27ead7dc1d1",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "fullUrl" : "Provenance/1697038876948323000.87d74b16-feb2-448a-b3ff-856bacf21c90",
+      "fullUrl" : "Provenance/1697636921322105000.a923b282-6775-47c7-a056-542b4229c9eb",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1697038876948323000.87d74b16-feb2-448a-b3ff-856bacf21c90",
+        "id" : "1697636921322105000.a923b282-6775-47c7-a056-542b4229c9eb",
         "meta" : {
           "extension" : [
             {
@@ -162,7 +149,7 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1697038876947568000.02ce748a-2b4a-458b-9763-9886aea3be0b"
+              "reference" : "Organization/1697636921321194000.7df7e229-96e7-4737-8c5b-883690a86974"
             }
           }
         ],
@@ -170,17 +157,17 @@
           {
             "role" : "source",
             "what" : {
-              "reference" : "Device/1697038876949867000.7d3dba31-ca84-4a0f-9644-ba88e73150fc"
+              "reference" : "Device/1697636921323890000.7c5c12e1-863d-4a61-92c8-f6ad9d7481cc"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1697038876947568000.02ce748a-2b4a-458b-9763-9886aea3be0b",
+      "fullUrl" : "Organization/1697636921321194000.7df7e229-96e7-4737-8c5b-883690a86974",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1697038876947568000.02ce748a-2b4a-458b-9763-9886aea3be0b",
+        "id" : "1697636921321194000.7df7e229-96e7-4737-8c5b-883690a86974",
         "meta" : {
           "extension" : [
             {
@@ -218,10 +205,10 @@
       }
     },
     {
-      "fullUrl" : "Device/1697038876949867000.7d3dba31-ca84-4a0f-9644-ba88e73150fc",
+      "fullUrl" : "Device/1697636921323890000.7c5c12e1-863d-4a61-92c8-f6ad9d7481cc",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1697038876949867000.7d3dba31-ca84-4a0f-9644-ba88e73150fc",
+        "id" : "1697636921323890000.7c5c12e1-863d-4a61-92c8-f6ad9d7481cc",
         "meta" : {
           "extension" : [
             {
