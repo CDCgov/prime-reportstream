@@ -1,5 +1,4 @@
-import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, screen } from "@testing-library/react";
 
 import { ReceiverData } from "../../config/endpoints/messageTracker";
 import { renderApp } from "../../utils/CustomRenderUtils";
@@ -67,7 +66,8 @@ describe("MessageReceivers component", () => {
                 .getElementsByClassName("column-data")[0],
         ).toHaveTextContent("md-phd");
 
-        await userEvent.click(screen.getByText(/^Report Id$/));
+        fireEvent.click(screen.getByText(/^Report Id$/));
+
         expect(
             screen
                 .getAllByRole("row")[1]

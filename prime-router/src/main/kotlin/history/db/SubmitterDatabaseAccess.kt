@@ -30,7 +30,7 @@ import java.time.OffsetDateTime
 enum class SubmitterType {
     SUBMITTER,
     FACILITY,
-    PROVIDER
+    PROVIDER,
 }
 
 /**
@@ -69,7 +69,7 @@ data class Submitter(
     val firstReportDate: OffsetDateTime,
     val testResultCount: Int,
     val type: SubmitterType,
-    val location: String?
+    val location: String?,
 )
 
 /**
@@ -77,7 +77,7 @@ data class Submitter(
  */
 enum class SubmitterApiFilterNames : ApiFilterNames {
     SINCE,
-    UNTIL
+    UNTIL,
 }
 
 sealed class SubmitterApiSearchFilter<T> : ApiFilter<SubmitterRecord, T> {
@@ -118,7 +118,7 @@ class SubmitterApiSearch(
     override val sortParameter: Field<*>?,
     override val sortDirection: SortDirection = SortDirection.DESC,
     page: Int = 1,
-    limit: Int = 25
+    limit: Int = 25,
 ) : ApiSearch<Submitter, SubmitterRecord, SubmitterApiSearchFilter<*>>(
     Submitter::class.java,
     page,
@@ -143,15 +143,17 @@ class SubmitterApiSearch(
         ApiSearchParser<Submitter, SubmitterApiSearch, SubmitterRecord, SubmitterApiSearchFilter<*>>(), Logging {
         override fun parseRawApiSearch(rawApiSearch: RawApiSearch): SubmitterApiSearch {
             val sortProperty =
-                if (rawApiSearch.sort != null)
+                if (rawApiSearch.sort != null) {
                     SubmitterTable.SUBMITTER.field(rawApiSearch.sort.property)
-                else SubmitterTable.SUBMITTER.FIRST_REPORT_DATE
+                } else {
+                    SubmitterTable.SUBMITTER.FIRST_REPORT_DATE
+                }
             val filters = rawApiSearch.filters.mapNotNull { filter ->
                 when (SubmitterApiSearchFilters.getTerm(SubmitterApiFilterNames.valueOf(filter.filterName))) {
-                    SubmitterApiSearchFilter.Since::class.java
+                    SubmitterApiSearchFilter.Since::class.java,
                     -> SubmitterApiSearchFilter.Since(OffsetDateTime.parse(filter.value).toLocalDateTime())
 
-                    SubmitterApiSearchFilter.Until::class.java
+                    SubmitterApiSearchFilter.Until::class.java,
                     -> SubmitterApiSearchFilter.Until(OffsetDateTime.parse(filter.value).toLocalDateTime())
 
                     else -> {
@@ -191,7 +193,6 @@ class SubmitterDatabaseAccess(val db: DatabaseAccess = BaseEngine.databaseAccess
      * @param receiver the specific receiver that the submitters should be fetched for
      */
     fun getSubmitters(search: SubmitterApiSearch, receiver: Receiver): ApiSearchResult<Submitter> {
-
         // TODO: https://app.zenhub.com/workspaces/platform-6182b02547c1130010f459db/issues/gh/cdcgov/prime-reportstream/9411
         // Might need to have a date limit set to if the query does perform well to search all time
         val sentReportIdsForReceiver = reportGraph.fetchReportIdsForReceiverAndTask(

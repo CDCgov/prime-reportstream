@@ -99,7 +99,7 @@ class End2EndUniversalPipeline : CoolTest() {
         environment: Environment,
         options: CoolTestOptions,
         sender: Sender,
-        expectedReceivers: List<Receiver>
+        expectedReceivers: List<Receiver>,
     ): Boolean {
         var passed = true
         // load a valid HL7 file
@@ -125,8 +125,9 @@ class End2EndUniversalPipeline : CoolTest() {
 
         echo(json)
         passed = passed and examinePostResponse(json, false)
-        if (!passed)
+        if (!passed) {
             bad("***async end2end_up FAILED***: Error in post response")
+        }
         // gets back 'received' reportId
         val reportId = getReportIdFromResponse(json)
 
@@ -136,8 +137,9 @@ class End2EndUniversalPipeline : CoolTest() {
             // verify each result is valid
             for (result in convertResults.values)
                 passed = passed && examineStepResponse(result, "convert", sender.topic)
-            if (!passed)
+            if (!passed) {
                 bad("***async end2end_up FAILED***: Convert result invalid")
+            }
 
             // check route step
             val convertReportId = getSingleChildReportId(reportId)
@@ -147,8 +149,9 @@ class End2EndUniversalPipeline : CoolTest() {
             // verify each result is valid
             for (result in routeResults.values)
                 passed = passed && examineStepResponse(result, "route", sender.topic)
-            if (!passed)
+            if (!passed) {
                 bad("***async end2end_up FAILED***: Route result invalid")
+            }
 
             // check translate step
             val routeReportId = getSingleChildReportId(convertReportId)
@@ -157,16 +160,18 @@ class End2EndUniversalPipeline : CoolTest() {
             // verify each result is valid
             for (result in translateResults.values)
                 passed = passed && examineStepResponse(result, "translate", sender.topic)
-            if (!passed)
+            if (!passed) {
                 bad("***async end2end_up FAILED***: Translate result invalid")
+            }
 
             // check batch step
             val translateReportIds = getAllChildrenReportId(routeReportId)
-            if (translateReportIds.size < expectedReceivers.size)
+            if (translateReportIds.size < expectedReceivers.size) {
                 return bad(
                     "***async end2end_up FAILED***: Expected at least ${expectedReceivers.size} translate" +
                         "report id(s), but got ${translateReportIds.size}."
                 )
+            }
             val receiverNames = translateResults.values.flatMap { it?.reports ?: emptyList() }
                 .map { "${it.receivingOrg}.${it.receivingOrgSvc}" }
             expectedReceivers.forEach { receiver ->
@@ -185,8 +190,9 @@ class End2EndUniversalPipeline : CoolTest() {
                 // verify each result is valid
                 for (result in batchResults.values)
                     passed = passed && examineStepResponse(result, "batch", sender.topic)
-                if (!passed)
+                if (!passed) {
                     bad("***async end2end_up FAILED***: Batch result invalid")
+                }
 
                 // check send step
                 val batchReportId = getSingleChildReportId(translateReportId)
@@ -195,8 +201,9 @@ class End2EndUniversalPipeline : CoolTest() {
                 // verify each result is valid
                 for (result in sendResults.values)
                     passed = passed && examineStepResponse(result, "send", sender.topic)
-                if (!passed)
+                if (!passed) {
                     bad("***async end2end_up FAILED***: Send result invalid")
+                }
             }
 
             // check that lineages were generated properly
@@ -264,8 +271,9 @@ class End2End : CoolTest() {
             //  verified that the topic is covid-19. This will need to be updated once we are supporting
             //  non-covid record types
             passed = passed and queryForCovidResults(reportId)
-            if (!passed)
+            if (!passed) {
                 bad("***sync end2end FAILED***: Covid metadata record not found")
+            }
 
             // check that lineages were generated properly
             passed = passed and pollForLineageResults(
@@ -312,8 +320,9 @@ class End2End : CoolTest() {
         }
         echo(json)
         passed = passed and examinePostResponse(json, false)
-        if (!passed)
+        if (!passed) {
             bad("***async end2end FAILED***: Error in post response")
+        }
         // gets back 'received' reportId
         val reportId = getReportIdFromResponse(json)
 
@@ -326,15 +335,17 @@ class End2End : CoolTest() {
             // verify each result is valid
             for (result in processResults.values)
                 passed = passed && examineProcessResponse(result)
-            if (!passed)
+            if (!passed) {
                 bad("***async end2end FAILED***: Process result invalid")
+            }
 
             // check for covid result metadata - the examinePostResponse function above has already
             //  verified that the topic is covid-19. This will need to be updated once we are supporting
             //  non-covid record types
             passed = passed and queryForCovidResults(reportId)
-            if (!passed)
+            if (!passed) {
                 bad("***async end2end FAILED***: Covid metadata record not found")
+            }
 
             // check that lineages were generated properly
             passed = passed and pollForLineageResults(
@@ -433,10 +444,11 @@ class Merge : CoolTest() {
         }
         if (!silent) {
             queryResults.forEach {
-                if (it.first)
+                if (it.first) {
                     good(it.second)
-                else
+                } else {
                     bad(it.second)
+                }
             }
         }
         return !queryResults.map { it.first }.contains(false) // no falses == it passed!
@@ -783,7 +795,7 @@ class QualityFilter : CoolTest() {
     private fun checkJsonItemCountForReceiver(
         receiver: Receiver,
         expectedCount: Int,
-        history: DetailedSubmissionHistory
+        history: DetailedSubmissionHistory,
     ): Boolean {
         try {
             val reportId = history.reportId
@@ -801,10 +813,11 @@ class QualityFilter : CoolTest() {
                     }
                 }
             }
-            if (expectedCount == 0)
+            if (expectedCount == 0) {
                 return good("Test Passed: No data went to ${receiver.name} dest")
-            else
+            } else {
                 return bad("***Test FAILED***: No data went to ${receiver.name} dest")
+            }
         } catch (e: Exception) {
             return bad("***$name Test FAILED***: Unexpected json returned for ${receiver.name}")
         }
@@ -835,10 +848,11 @@ class QualityFilter : CoolTest() {
                     }
                 }
             }
-            if (expectedCount == 0)
+            if (expectedCount == 0) {
                 return good("Test Passed: No data went to ${receiver.name} dest")
-            else
+            } else {
                 return bad("***Test FAILED***: No data went to ${receiver.name} dest")
+            }
         } catch (e: Exception) {
             return bad("***$name Test FAILED***: Unexpected json returned for ${receiver.name}")
         }
@@ -888,8 +902,9 @@ class QualityFilter : CoolTest() {
                         examineProcessResponse(result) &&
                         checkJsonItemCountForReceiver(qualityAllReceiver, expectItemCount, result!!)
             }
-        } else
+        } else {
             passed = passed && checkJsonItemCountForReceiver(qualityAllReceiver, expectItemCount, json)
+        }
 
         // QUALITY_PASS
         ugly("\nTest a QualityFilter that allows some data through")
@@ -930,8 +945,9 @@ class QualityFilter : CoolTest() {
                         examineProcessResponse(result) &&
                         checkJsonItemCountForReceiver(qualityGoodReceiver, expectItemCount, result!!)
             }
-        } else
+        } else {
             passed = passed && checkJsonItemCountForReceiver(qualityGoodReceiver, expectItemCount, json2)
+        }
 
         // FAIL
         ugly("\nTest a QualityFilter that allows NO data through.")
@@ -972,8 +988,9 @@ class QualityFilter : CoolTest() {
                         examineProcessResponse(result) &&
                         checkJsonItemCountForReceiver(qualityFailReceiver, expectItemCount, result!!)
             }
-        } else
+        } else {
             passed = passed && checkJsonItemCountForReceiver(qualityFailReceiver, expectItemCount, json3)
+        }
 
         // QUALITY_REVERSED
         ugly("\nTest the REVERSE of the QualityFilter that allows some data through")
@@ -1014,8 +1031,9 @@ class QualityFilter : CoolTest() {
                         examineProcessResponse(result) &&
                         checkJsonItemCountForReceiver(qualityReversedReceiver, expectItemCount, result!!)
             }
-        } else
+        } else {
             passed = passed && checkJsonItemCountForReceiver(qualityReversedReceiver, expectItemCount, json4)
+        }
 
         return passed
     }
@@ -1315,9 +1333,8 @@ class SantaClaus : CoolTest() {
     private fun waitWithConditionalRetry(
         retries: Int,
         block: () -> Boolean,
-        callback: (succeed: Boolean, retryCount: Int) -> Unit
+        callback: (succeed: Boolean, retryCount: Int) -> Unit,
     ): Boolean {
-
         var retriesCopy = retries
 
         while (retriesCopy > 0) {
@@ -1385,8 +1402,9 @@ class OtcProctored : CoolTest() {
                         val processResults = pollForStepResult(internalReportId, TaskAction.process)
                         // verify each result is valid
                         for (result in processResults.values)
-                            if (!examineProcessResponse(result))
+                            if (!examineProcessResponse(result)) {
                                 bad("*** otcproctored FAILED***: Process result invalid")
+                            }
                     }
                 }
                 good("Test PASSED: ${pair.first}")

@@ -10,7 +10,7 @@ import gov.cdc.prime.router.fhirengine.translation.hl7.config.TruncationConfig
  */
 data class HL7TranslationConfig(
     val hl7Configuration: Hl7Configuration,
-    val receiver: Receiver?
+    val receiver: Receiver?,
 ) : ContextConfig {
     val truncationConfig: TruncationConfig = hl7Configuration.truncationConfig
 }

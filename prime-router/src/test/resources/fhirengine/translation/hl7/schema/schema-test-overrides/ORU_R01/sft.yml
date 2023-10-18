@@ -12,9 +12,9 @@ elements:
     hl7Spec: [ 'SFT-2' ]
 
   - name: software-3
-    value: ['%resource.definition']
-    hl7Spec: ['SFT-%{fieldThree}']
+    value: [ '%resource.definition' ]
+    hl7Spec: [ 'SFT-%{fieldThree}' ]
 
   - name: software-5
-    value: ['%resource.id']
-    hl7Spec: ['SFT-5']
+    value: [ '%resource.id' ]
+    hl7Spec: [ 'SFT-5' ]

@@ -10,7 +10,7 @@ import gov.cdc.prime.router.azure.db.enums.TaskAction
  */
 class ValidationReceiver(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
-    private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
+    private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive),
 ) {
 
     fun validateAndRoute(

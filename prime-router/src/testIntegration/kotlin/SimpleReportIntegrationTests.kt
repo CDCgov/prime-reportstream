@@ -89,10 +89,11 @@ class SimpleReportIntegrationTests {
             metadata = metadata
         )
         val fakeReportFile = File(outputPath, fakeReportFileName)
-        if (useInternal)
+        if (useInternal) {
             csvSerializer.writeInternal(fakeReport, fakeReportFile.outputStream())
-        else
+        } else {
             csvSerializer.write(fakeReport, fakeReportFile.outputStream())
+        }
         assertThat(fakeReportFile).exists()
         return fakeReportFile
     }
@@ -190,7 +191,7 @@ class SimpleReportIntegrationTests {
             lines: List<String>,
             recordId: String = "Patient_ID",
             skipHeader: Boolean = true,
-            delimiter: String = ","
+            delimiter: String = ",",
         ): Map<String, Any?> {
             val expectedLines = mutableMapOf<String, Any?>()
             val headerLine = lines[0]
@@ -221,7 +222,7 @@ class SimpleReportIntegrationTests {
         private fun compareLinesOfMaps(
             expected: Map<String, Any?>,
             actual: Map<String, Any?>,
-            headerRow: List<String>? = null
+            headerRow: List<String>? = null,
         ) {
             val linesInError = mutableListOf<String>()
 
@@ -231,6 +232,7 @@ class SimpleReportIntegrationTests {
                 @Suppress("UNCHECKED_CAST")
                 val actualLines: List<String> = actual[expectedKey] as? List<String>
                     ?: fail("Cast failed for actual values")
+
                 @Suppress("UNCHECKED_CAST")
                 val expectedLines: List<String> = expected[expectedKey] as? List<String>
                     ?: fail("Cast failed for expected values")
@@ -269,7 +271,7 @@ class SimpleReportIntegrationTests {
             expectedResultsFile: File,
             compareKeys: Boolean = true,
             compareLines: Boolean = true,
-            recordId: String = "Patient_ID"
+            recordId: String = "Patient_ID",
         ) {
             assertThat(testFile).exists()
             assertThat(expectedResultsFile).exists()
