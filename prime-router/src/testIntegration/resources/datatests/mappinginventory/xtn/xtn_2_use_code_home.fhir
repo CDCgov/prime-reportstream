@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1697229865041941000.ae1f4688-9be8-481d-9165-c95bc18aa233",
+  "id" : "1697639498642427000.a5ef0d78-30f9-43f6-a97c-077cd5a43bbe",
   "meta" : {
-    "lastUpdated" : "2023-10-13T16:44:25.055-04:00"
+    "lastUpdated" : "2023-10-18T10:31:38.657-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -40,19 +40,16 @@
           "display" : "ORU/ACK - Unsolicited transmission of an observation message"
         },
         "sender" : {
-          "reference" : "Organization/1697229865984312000.ffbcb00f-4154-49a1-9471-59604888a726"
+          "reference" : "Organization/1697639499623049000.534cd334-357d-453c-bd11-22dd5801084b"
         },
-        "source" : {},
-        "responsible" : {
-          "reference" : "Organization/1697229865986191000.ab697d40-e6c0-4572-bc5a-17bba2765472"
-        }
+        "source" : {}
       }
     },
     {
-      "fullUrl" : "Organization/1697229865984312000.ffbcb00f-4154-49a1-9471-59604888a726",
+      "fullUrl" : "Organization/1697639499623049000.534cd334-357d-453c-bd11-22dd5801084b",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1697229865984312000.ffbcb00f-4154-49a1-9471-59604888a726",
+        "id" : "1697639499623049000.534cd334-357d-453c-bd11-22dd5801084b",
         "meta" : {
           "extension" : [
             {
@@ -64,28 +61,10 @@
       }
     },
     {
-      "fullUrl" : "Organization/1697229865986191000.ab697d40-e6c0-4572-bc5a-17bba2765472",
-      "resource" : {
-        "resourceType" : "Organization",
-        "id" : "1697229865986191000.ab697d40-e6c0-4572-bc5a-17bba2765472",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
-        "identifier" : [
-          {}
-        ]
-      }
-    },
-    {
-      "fullUrl" : "Provenance/1697229866304460000.0894e510-1a1c-45fd-804f-b23bebf59846",
+      "fullUrl" : "Provenance/1697639499941339000.26bb322c-5c33-400c-b983-149caaab84b6",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1697229866304460000.0894e510-1a1c-45fd-804f-b23bebf59846",
+        "id" : "1697639499941339000.26bb322c-5c33-400c-b983-149caaab84b6",
         "meta" : {
           "extension" : [
             {
@@ -132,17 +111,17 @@
           {
             "role" : "source",
             "what" : {
-              "reference" : "Device/1697229866306224000.e74b1281-7d59-47a9-8d0d-3834e60ee5de"
+              "reference" : "Device/1697639499943651000.935de4ab-8b69-47d6-ba27-374b26b94b45"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Device/1697229866306224000.e74b1281-7d59-47a9-8d0d-3834e60ee5de",
+      "fullUrl" : "Device/1697639499943651000.935de4ab-8b69-47d6-ba27-374b26b94b45",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1697229866306224000.e74b1281-7d59-47a9-8d0d-3834e60ee5de",
+        "id" : "1697639499943651000.935de4ab-8b69-47d6-ba27-374b26b94b45",
         "meta" : {
           "extension" : [
             {
@@ -154,10 +133,10 @@
       }
     },
     {
-      "fullUrl" : "Patient/1697229866377835000.bf7f87be-dcee-4ed2-be1b-7702ece7c89f",
+      "fullUrl" : "Patient/1697639499990419000.a258f86a-a2c4-4fcc-ad0e-c3b2a71d666e",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1697229866377835000.bf7f87be-dcee-4ed2-be1b-7702ece7c89f",
+        "id" : "1697639499990419000.a258f86a-a2c4-4fcc-ad0e-c3b2a71d666e",
         "meta" : {
           "extension" : [
             {
