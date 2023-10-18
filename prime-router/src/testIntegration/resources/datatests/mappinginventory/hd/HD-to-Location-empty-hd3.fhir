@@ -32,10 +32,6 @@
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
             "valueIdentifier" : {}
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
-            "valueString" : "UNICODE UTF-8"
           }
         ],
         "eventCoding" : {
@@ -64,12 +60,7 @@
               "valueString" : "2.5.1"
             }
           ]
-        },
-        "address" : [
-          {
-            "country" : "USA"
-          }
-        ]
+        }
       }
     },
     {

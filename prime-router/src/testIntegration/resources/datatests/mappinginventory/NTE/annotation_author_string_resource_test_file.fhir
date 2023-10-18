@@ -91,10 +91,6 @@
               "system" : "PHIN",
               "value" : "PHLabReport-NoAck"
             }
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
-            "valueString" : "8859/1"
           }
         ],
         "eventCoding" : {
@@ -374,11 +370,6 @@
               ]
             },
             "value" : "11D0668319"
-          }
-        ],
-        "address" : [
-          {
-            "country" : "USA"
           }
         ]
       }
