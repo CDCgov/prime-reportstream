@@ -28,6 +28,7 @@ object QuickTestUtils {
      * The output directory for the test files.
      */
     val outputDir = "build/csv_test_files"
+
     /**
      * Translate an [inputFile] report to the given [schema].
      * @return the pathname to the generated file
@@ -70,7 +71,7 @@ object QuickTestUtils {
         numReports: Int,
         outputFormat: Report.Format = Report.Format.CSV,
         targetState: String = "",
-        targetCounty: String = ""
+        targetCounty: String = "",
     ): String {
         val dataGenerator = ProcessData(metadata, fileSettings)
         val args = mutableListOf(

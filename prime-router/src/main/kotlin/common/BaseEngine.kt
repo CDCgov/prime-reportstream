@@ -18,7 +18,7 @@ import org.apache.logging.log4j.kotlin.Logging
  *  included in this file at this time to limit scope
  */
 abstract class BaseEngine(
-    val queue: QueueAccess = QueueAccess
+    val queue: QueueAccess = QueueAccess,
 ) : Logging {
     companion object {
         /**

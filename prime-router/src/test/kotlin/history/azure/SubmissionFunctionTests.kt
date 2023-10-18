@@ -63,14 +63,14 @@ class SubmissionFunctionTests : Logging {
 
     data class ExpectedAPIResponse(
         val status: HttpStatus,
-        val body: List<ExpectedSubmissionList>? = null
+        val body: List<ExpectedSubmissionList>? = null,
     )
 
     data class SubmissionUnitTestCase(
         val headers: Map<String, String>,
         val parameters: Map<String, String>,
         val expectedResponse: ExpectedAPIResponse,
-        val name: String?
+        val name: String?,
     )
 
     /**

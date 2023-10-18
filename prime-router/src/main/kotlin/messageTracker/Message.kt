@@ -28,7 +28,7 @@ data class Message(
     val fileUrl: String?,
     val warnings: List<DetailedActionLog> = emptyList(),
     val errors: List<DetailedActionLog> = emptyList(),
-    val receiverData: List<MessageReceiver>? = emptyList()
+    val receiverData: List<MessageReceiver>? = emptyList(),
 )
 
 /**
@@ -51,5 +51,5 @@ data class MessageReceiver(
     val fileName: String?,
     val fileUrl: String?,
     val createdAt: LocalDateTime,
-    val qualityFilters: List<MessageActionLog>? = emptyList()
+    val qualityFilters: List<MessageActionLog>? = emptyList(),
 )

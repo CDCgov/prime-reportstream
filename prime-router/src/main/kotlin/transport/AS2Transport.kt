@@ -107,7 +107,7 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
         credential: UserJksCredential,
         externalFileName: String,
         sentReportId: ReportId,
-        contents: ByteArray
+        contents: ByteArray,
     ) {
         val jks = Base64.getDecoder().decode(credential.jks)
         val settings = AS2ClientSettings()
@@ -135,12 +135,15 @@ class AS2Transport(val metadata: Metadata? = null) : ITransport, Logging {
         val response = AS2Client().sendSynchronous(settings, request)
 
         // Check the response
-        if (response.hasException())
+        if (response.hasException()) {
             throw response.exception!!
-        if (!response.hasMDN())
+        }
+        if (!response.hasMDN()) {
             error("AS2 upload for $externalFileName: No MDN in response")
-        if (response.mdnDisposition?.contains("processed") != true)
+        }
+        if (response.mdnDisposition?.contains("processed") != true) {
             error("AS2 Upload for $externalFileName: Bad MDN ${response.mdnDisposition} ")
+        }
     }
 
     /**

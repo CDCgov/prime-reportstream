@@ -111,7 +111,7 @@ object DateUtilities {
         OFFSET(datetimePattern),
         LOCAL(localDateTimePattern),
         HIGH_PRECISION_OFFSET(highPrecisionDateTimePattern),
-        DATE_ONLY(datePattern)
+        DATE_ONLY(datePattern),
     }
 
     /**
@@ -119,7 +119,7 @@ object DateUtilities {
      */
     fun getFormatter(
         dateTimeFormat: DateTimeFormat? = null,
-        useHighPrecisionOffset: Boolean? = null
+        useHighPrecisionOffset: Boolean? = null,
     ): DateTimeFormatter {
         return when (dateTimeFormat) {
             DateTimeFormat.HIGH_PRECISION_OFFSET -> highPrecisionDateTimeFormatter
@@ -207,7 +207,7 @@ object DateUtilities {
     fun getDateAsFormattedString(
         temporalAccessor: TemporalAccessor,
         outputFormat: String = datetimePattern,
-        convertPositiveOffsetToNegative: Boolean = false
+        convertPositiveOffsetToNegative: Boolean = false,
     ): String {
         val outputFormatter = DateTimeFormatter.ofPattern(outputFormat)
         val formattedDate = when (temporalAccessor) {
@@ -292,7 +292,7 @@ object DateUtilities {
         timeZone: ZoneId,
         dateTimeFormat: DateTimeFormat,
         convertPositiveDateTimeOffsetToNegative: Boolean,
-        useHighPrecisionHeaderDateTimeFormat: Boolean
+        useHighPrecisionHeaderDateTimeFormat: Boolean,
     ): String {
         // get the formatter based on the high precision header date time format
         val formatter: DateTimeFormatter = getFormatter(
@@ -324,7 +324,7 @@ object DateUtilities {
         timeZone: ZoneId?,
         dateTimeFormat: DateTimeFormat?,
         convertPositiveDateTimeOffsetToNegative: Boolean? = false,
-        useHighPrecisionHeaderDateTimeFormat: Boolean? = false
+        useHighPrecisionHeaderDateTimeFormat: Boolean? = false,
     ): String {
         val tz = timeZone ?: utcZone
         // now format the date to what the receiver wants
@@ -548,7 +548,7 @@ object DateUtilities {
      **/
     fun TemporalAccessor.asFormattedString(
         dateTimeFormat: String? = null,
-        convertPositiveDateTimeOffsetToNegative: Boolean = false
+        convertPositiveDateTimeOffsetToNegative: Boolean = false,
     ): String {
         return getDateAsFormattedString(
             this,

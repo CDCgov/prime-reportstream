@@ -36,7 +36,7 @@ class Delivery(
     val reportId: UUID,
     val createdAt: OffsetDateTime,
     val expirationDate: OffsetDateTime,
-    val testResultCount: Int
+    val testResultCount: Int,
 )
 
 class DeliveryTable : CustomTable<DeliveryRecord>(DSL.name("delivery")) {
@@ -63,7 +63,7 @@ class DeliveryRecord : CustomRecord<DeliveryRecord>(DeliveryTable.DELIVERY)
 
 enum class DeliveryApiFilterNames : ApiFilterNames {
     SINCE,
-    UNTIL
+    UNTIL,
 }
 
 sealed class DeliveryApiSearchFilter<T> : ApiFilter<DeliveryRecord, T> {
@@ -98,7 +98,7 @@ class DeliveryApiSearch(
     override val sortParameter: Field<*>?,
     override val sortDirection: SortDirection = SortDirection.DESC,
     page: Int = 1,
-    limit: Int = 25
+    limit: Int = 25,
 ) : ApiSearch<Delivery, DeliveryRecord, DeliveryApiSearchFilter<*>>(
     Delivery::class.java,
     page,
@@ -123,15 +123,17 @@ class DeliveryApiSearch(
         ApiSearchParser<Delivery, DeliveryApiSearch, DeliveryRecord, DeliveryApiSearchFilter<*>>(),
         Logging {
         override fun parseRawApiSearch(rawApiSearch: RawApiSearch): DeliveryApiSearch {
-            val sortProperty = if (rawApiSearch.sort != null)
+            val sortProperty = if (rawApiSearch.sort != null) {
                 DeliveryTable.DELIVERY.field(rawApiSearch.sort.property)
-            else DeliveryTable.DELIVERY.CREATED_AT
+            } else {
+                DeliveryTable.DELIVERY.CREATED_AT
+            }
             val filters = rawApiSearch.filters.mapNotNull { filter ->
                 when (DeliveryApiSearchFilters.getTerm(DeliveryApiFilterNames.valueOf(filter.filterName))) {
-                    DeliveryApiSearchFilter.Since::class.java
+                    DeliveryApiSearchFilter.Since::class.java,
                     -> DeliveryApiSearchFilter.Since(OffsetDateTime.parse(filter.value))
 
-                    DeliveryApiSearchFilter.Until::class.java
+                    DeliveryApiSearchFilter.Until::class.java,
                     -> DeliveryApiSearchFilter.Until(OffsetDateTime.parse(filter.value))
 
                     else -> {

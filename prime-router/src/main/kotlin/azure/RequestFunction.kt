@@ -27,7 +27,7 @@ const val FORMAT_PARAMETER = "format"
  * Base class for ReportFunction and ValidateFunction
  */
 abstract class RequestFunction(
-    private val workflowEngine: WorkflowEngine = WorkflowEngine()
+    private val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) {
     /**
      * The data that wraps a request that we receive from a sender.
@@ -37,7 +37,7 @@ abstract class RequestFunction(
         val defaults: Map<String, String> = emptyMap(),
         val routeTo: List<String> = emptyList(),
         val sender: Sender?,
-        val topic: String = "covid-19"
+        val topic: String = "covid-19",
     )
 
     /**

@@ -34,7 +34,8 @@ class Scope {
             Report("report"), // ability to submit a report
             Admin("admin"), // local org administrator role
             PrimeAdmin("primeadmin"), // overall administrator role
-            User("user"); // user role
+            User("user"), // user role
+            ;
 
             companion object {
                 /**
