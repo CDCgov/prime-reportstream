@@ -199,7 +199,7 @@ class BlobAccess() : Logging {
          */
         data class BlobItemAndPreviousVersions(
             val currentBlobItem: BlobItem,
-            val previousBlobItemVersions: List<BlobItem>?
+            val previousBlobItemVersions: List<BlobItem>?,
         )
 
         /**
