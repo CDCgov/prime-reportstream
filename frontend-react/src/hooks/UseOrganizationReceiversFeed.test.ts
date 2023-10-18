@@ -6,7 +6,7 @@ import {
     dummyReceivers,
     orgServer,
 } from "../__mocks__/OrganizationMockServer";
-import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
 
 import { MemberType } from "./UseOktaMemberships";
 import {
@@ -23,13 +23,12 @@ describe("useOrganizationReceiversFeed", () => {
     afterAll(() => orgServer.close());
     describe("with no active membership parsed name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "TOKEN",
                 },
                 activeMembership: undefined,
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: false,
@@ -54,7 +53,7 @@ describe("useOrganizationReceiversFeed", () => {
 
     describe("with an admin parsed name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "TOKEN",
                 },
@@ -62,8 +61,7 @@ describe("useOrganizationReceiversFeed", () => {
                     memberType: MemberType.PRIME_ADMIN,
                     parsedName: Organizations.PRIMEADMINS,
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: true,
                 isUserReceiver: false,
                 isUserSender: false,
@@ -88,7 +86,7 @@ describe("useOrganizationReceiversFeed", () => {
 
     describe("with a non-admin parsed name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "TOKEN",
                 },
@@ -97,8 +95,7 @@ describe("useOrganizationReceiversFeed", () => {
                     parsedName: "testOrg",
                     service: "testReceiver",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
@@ -127,7 +124,7 @@ describe("useOrganizationReceiversFeed", () => {
     });
 
     test("setActiveService sets an active receiver", async () => {
-        mockSessionContext.mockReturnValue({
+        mockSessionContentReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
@@ -136,8 +133,7 @@ describe("useOrganizationReceiversFeed", () => {
                 parsedName: "testOrg",
                 service: "testReceiver",
             },
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: false,
             isUserReceiver: true,
             isUserSender: false,

@@ -19,10 +19,7 @@ import {
     showAlertNotification,
     showError,
 } from "../../components/AlertNotifications";
-import {
-    getStoredOktaToken,
-    getStoredOrg,
-} from "../../utils/SessionStorageTools";
+import { getStoredOktaToken } from "../../utils/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     ConfirmSaveSettingModal,
@@ -41,6 +38,7 @@ import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
 import { getAppInsightsHeaders } from "../../TelemetryService";
 import { USLink } from "../../components/USLink";
+import { useSessionContext } from "../../contexts/SessionContext";
 
 const { RS_API_URL } = config;
 
@@ -50,6 +48,7 @@ type AdminOrgEditProps = {
 
 export function AdminOrgEdit() {
     const { orgname } = useParams<AdminOrgEditProps>();
+    const { activeMembership } = useSessionContext();
 
     const orgSettings: OrgSettingsResource = useResource(
         OrgSettingsResource.detail(),
@@ -64,7 +63,7 @@ export function AdminOrgEdit() {
 
     async function getLatestOrgResponse() {
         const accessToken = getStoredOktaToken();
-        const organization = getStoredOrg();
+        const organization = activeMembership?.parsedName;
 
         const response = await fetch(
             `${RS_API_URL}/api/settings/organizations/${orgname}`,

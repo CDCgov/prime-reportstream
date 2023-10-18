@@ -1,6 +1,6 @@
 import { AccessToken, CustomUserClaims, UserClaims } from "@okta/okta-auth-js";
 
-import { PERMISSIONS } from "./PermissionsUtils";
+import { PERMISSIONS } from "./UsefulTypes";
 
 enum RSOrgType {
     SENDER = "sender",

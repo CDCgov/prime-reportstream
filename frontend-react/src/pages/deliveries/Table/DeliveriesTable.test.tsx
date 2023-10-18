@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
@@ -42,7 +42,7 @@ jest.mock("../../../TelemetryService", () => ({
 
 beforeEach(() => {
     // Mock our SessionProvider's data
-    mockSessionContext.mockReturnValue({
+    mockSessionContentReturnValue({
         oktaToken: {
             accessToken: "TOKEN",
         },
@@ -51,8 +51,7 @@ beforeEach(() => {
             parsedName: "testOrg",
             service: "testReceiver",
         },
-        dispatch: () => {},
-        initialized: true,
+
         isUserAdmin: false,
         isUserReceiver: true,
         isUserSender: false,
@@ -76,7 +75,7 @@ describe("DeliveriesTable", () => {
             });
 
             // Mock our SessionProvider's data
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "TOKEN",
                 },
@@ -85,8 +84,7 @@ describe("DeliveriesTable", () => {
                     parsedName: "testOrgNoReceivers",
                     service: "testReceiver",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
@@ -185,7 +183,7 @@ describe("DeliveriesTableWithNumbered", () => {
                 });
 
                 // Mock our SessionProvider's data
-                mockSessionContext.mockReturnValue({
+                mockSessionContentReturnValue({
                     oktaToken: {
                         accessToken: "TOKEN",
                     },
@@ -194,8 +192,7 @@ describe("DeliveriesTableWithNumbered", () => {
                         parsedName: "testOrgNoReceivers",
                         service: "testReceiver",
                     },
-                    dispatch: () => {},
-                    initialized: true,
+
                     isUserAdmin: false,
                     isUserReceiver: true,
                     isUserSender: false,
@@ -235,7 +232,7 @@ describe("DeliveriesTableWithNumbered", () => {
             });
 
             // Mock our SessionProvider's data
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "TOKEN",
                 },
@@ -244,8 +241,7 @@ describe("DeliveriesTableWithNumbered", () => {
                     parsedName: "testOrgNoReceivers",
                     service: "testReceiver",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,

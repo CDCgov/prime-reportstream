@@ -2,7 +2,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 
 import { AppWrapper } from "../utils/CustomRenderUtils";
 import { fakeOrg, orgServer } from "../__mocks__/OrganizationMockServer";
-import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
 
 import { MemberType } from "./UseOktaMemberships";
 import { useOrganizationSettings } from "./UseOrganizationSettings";
@@ -16,13 +16,12 @@ describe("useOrganizationSettings", () => {
     afterAll(() => orgServer.close());
     describe("with no Organization name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "TOKEN",
                 },
                 activeMembership: undefined,
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: false,
@@ -41,7 +40,7 @@ describe("useOrganizationSettings", () => {
 
     describe("with a non-admin Organization name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "TOKEN",
                 },
@@ -50,8 +49,7 @@ describe("useOrganizationSettings", () => {
                     parsedName: "testOrg",
                     service: "testSender",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: true,
@@ -70,7 +68,7 @@ describe("useOrganizationSettings", () => {
 
     describe("with an admin Organization name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "TOKEN",
                 },
@@ -78,8 +76,7 @@ describe("useOrganizationSettings", () => {
                     memberType: MemberType.PRIME_ADMIN,
                     parsedName: Organizations.PRIMEADMINS,
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: true,
                 isUserReceiver: false,
                 isUserSender: false,

@@ -1,10 +1,9 @@
 import { screen } from "@testing-library/react";
 
-import { MembershipSettings, MemberType } from "../hooks/UseOktaMemberships";
-import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
+import { MemberType } from "../hooks/UseOktaMemberships";
+import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
 import { mockFeatureFlagContext } from "../contexts/__mocks__/FeatureFlagContext";
 import { FeatureFlagName } from "../pages/misc/FeatureFlags";
-import { RSSessionContext } from "../contexts/SessionContext";
 import { renderApp } from "../utils/CustomRenderUtils";
 
 import { AuthElement } from "./AuthElement";
@@ -31,7 +30,7 @@ describe("AuthElement unit tests", () => {
     });
     test("Renders component when all checks pass", () => {
         mockCheckFlag = jest.fn((flag) => flag === FeatureFlagName.FOR_TEST);
-        mockSessionContext.mockReturnValue({
+        mockSessionContentReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
@@ -39,8 +38,7 @@ describe("AuthElement unit tests", () => {
                 memberType: MemberType.PRIME_ADMIN,
                 parsedName: "PrimeAdmins",
             },
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: true,
             isUserReceiver: false,
             isUserSender: false,
@@ -62,11 +60,10 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).not.toHaveBeenCalled();
     });
     test("Redirects when user not logged in (no token, no membership)", () => {
-        mockSessionContext.mockReturnValue({
+        mockSessionContentReturnValue({
             oktaToken: undefined,
             activeMembership: undefined,
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: false,
@@ -81,14 +78,13 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).toHaveBeenCalledWith("/login");
     });
     test("Does not redirect when user refreshes app (token loads after membership)", () => {
-        mockSessionContext.mockReturnValue({
+        mockSessionContentReturnValue({
             oktaToken: undefined,
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "all-in-one-health-ca",
             },
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,
@@ -104,7 +100,7 @@ describe("AuthElement unit tests", () => {
         expect(screen.getByText("Test Passed")).toBeInTheDocument();
     });
     test("Redirects when user is unauthorized user type", () => {
-        mockSessionContext.mockReturnValue({
+        mockSessionContentReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
@@ -112,8 +108,7 @@ describe("AuthElement unit tests", () => {
                 memberType: MemberType.SENDER,
                 parsedName: "all-in-one-health-ca",
             },
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,
@@ -130,7 +125,7 @@ describe("AuthElement unit tests", () => {
     });
     test("Redirects when user lacks feature flag", () => {
         mockCheckFlag = jest.fn((flag) => flag !== FeatureFlagName.FOR_TEST);
-        mockSessionContext.mockReturnValue({
+        mockSessionContentReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
@@ -138,8 +133,7 @@ describe("AuthElement unit tests", () => {
                 memberType: MemberType.SENDER,
                 parsedName: "all-in-one-health-ca",
             },
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,
@@ -159,7 +153,7 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).toHaveBeenCalledWith("/");
     });
     test("Considers all given authorized user types (affirmative)", () => {
-        mockSessionContext.mockReturnValue({
+        mockSessionContentReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
@@ -167,8 +161,7 @@ describe("AuthElement unit tests", () => {
                 memberType: MemberType.SENDER,
                 parsedName: "PrimeAdmins",
             },
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: true,
             isUserReceiver: false,
             isUserSender: false,
@@ -184,7 +177,7 @@ describe("AuthElement unit tests", () => {
         expect(mockUseNavigate).not.toHaveBeenCalled();
     });
     test("Considers all given authorized user types (negative)", () => {
-        mockSessionContext.mockReturnValue({
+        mockSessionContentReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
@@ -192,8 +185,7 @@ describe("AuthElement unit tests", () => {
                 memberType: MemberType.NON_STAND,
                 parsedName: "PrimeAdmins",
             },
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: true,
             isUserReceiver: false,
             isUserSender: false,
@@ -207,60 +199,27 @@ describe("AuthElement unit tests", () => {
         );
         expect(mockUseNavigate).toHaveBeenCalledWith("/");
     });
-    test("renders a spinner when user hooks have not initialized", async () => {
-        mockSessionContext.mockReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
-            activeMembership: {
-                memberType: MemberType.NON_STAND,
-                parsedName: "PrimeAdmins",
-            },
-            dispatch: () => {},
-            initialized: false,
-            isUserAdmin: true,
-            isUserReceiver: false,
-            isUserSender: false,
-            environment: "test",
-        });
-        renderApp(
-            <AuthElement
-                element={<TestElement />}
-                requiredUserType={[MemberType.SENDER, MemberType.RECEIVER]}
-            />,
-        );
-        const spinner = await screen.findByTestId("rs-spinner");
-        expect(spinner).toBeInTheDocument();
-    });
     /* This can happen if a user is a member of multiple Okta orgs, and the one set for them
      * was a non-admin memberType. Because admins are the only ones able to mock memberType, we assign
      * it based on a users first Okta group.
      *
      * In this example, you can see what that session state would look like. */
     test("Permits admins whose active membership is not DHPrimeAdmins", () => {
-        mockSessionContext.mockReturnValue({
+        mockSessionContentReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
-            memberships: new Map<string, MembershipSettings>().set(
-                "DHPrimeAdmins",
-                {
-                    memberType: MemberType.PRIME_ADMIN,
-                    parsedName: "PrimeAdmins",
-                },
-            ),
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "xx-phd",
             },
-            dispatch: () => {},
-            initialized: true,
+
             isAdminStrictCheck: true,
             isUserAdmin: true,
             isUserReceiver: true,
             isUserSender: false,
             environment: "test",
-        } as RSSessionContext);
+        });
         renderApp(
             <AuthElement
                 element={<TestElement />}

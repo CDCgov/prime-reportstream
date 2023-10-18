@@ -2,7 +2,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 
 import { AppWrapper } from "../../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../UseOktaMemberships";
-import { mockSessionContext } from "../../../../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../../../../contexts/__mocks__/SessionContext";
 import {
     dummyPublicKey,
     orgServer,
@@ -17,13 +17,12 @@ describe("useOrganizationPublicKeys", () => {
 
     describe("with no Organization name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "TOKEN",
                 },
                 activeMembership: undefined,
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: false,
@@ -42,7 +41,7 @@ describe("useOrganizationPublicKeys", () => {
 
     describe("with Organization name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "TOKEN",
                 },
@@ -51,8 +50,7 @@ describe("useOrganizationPublicKeys", () => {
                     parsedName: "testOrg",
                     service: "testOrgPublicKey",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: true,

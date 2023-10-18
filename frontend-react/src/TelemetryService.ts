@@ -4,9 +4,6 @@ import {
 } from "@microsoft/applicationinsights-web";
 import { ReactPlugin } from "@microsoft/applicationinsights-react-js";
 
-import { getSessionMembershipState } from "./utils/SessionStorageTools";
-import { OKTA_AUTH } from "./oktaConfig";
-
 let reactPlugin: ReactPlugin | null = null;
 let appInsights: ApplicationInsights | null = null;
 
@@ -17,7 +14,10 @@ export const createTelemetryService = (connectionString: string) => {
             console.warn("App Insights connection string not provided");
             reactPlugin = null;
             appInsights = null;
-            return;
+            return {
+                reactPlugin,
+                appInsights,
+            };
         }
         // Create plugin
         reactPlugin = new ReactPlugin();
@@ -32,28 +32,20 @@ export const createTelemetryService = (connectionString: string) => {
                 enableAutoRouteTracking: true,
                 loggingLevelTelemetry: 2,
                 maxBatchInterval: 0,
+                autoTrackPageVisitTime: true,
+                enableCorsCorrelation: true,
+                enableRequestHeaderTracking: true,
+                enableResponseHeaderTracking: true,
             },
         });
         // Initialize for use in ReportStream
         appInsights.loadAppInsights();
 
-        // Add active membership information to all tracking events
-        appInsights.addTelemetryInitializer((envelope) => {
-            const { activeMembership } = getSessionMembershipState() || {};
-            if (activeMembership) {
-                (envelope.data as any).activeMembership = activeMembership;
-            }
-        });
+        return {
+            reactPlugin,
+            appInsights,
+        };
     };
-
-    // Add user email as user_AuthenticatedId to all tracking events
-    OKTA_AUTH.authStateManager.subscribe((authState) => {
-        const { email } = authState?.idToken?.claims || {};
-
-        if (email) {
-            appInsights?.setAuthenticatedUserContext(email);
-        }
-    });
 
     return {
         // Use for React integration

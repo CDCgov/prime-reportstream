@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { mockAppInsights } from "../../../utils/__mocks__/ApplicationInsights";
-import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import {
     dataDashboardServer,
@@ -26,7 +26,7 @@ jest.mock("../../../TelemetryService", () => ({
 
 beforeEach(() => {
     // Mock our SessionProvider's data
-    mockSessionContext.mockReturnValue({
+    mockSessionContentReturnValue({
         oktaToken: {
             accessToken: "TOKEN",
         },
@@ -35,8 +35,7 @@ beforeEach(() => {
             parsedName: "testOrg",
             service: "testReceiverService",
         },
-        dispatch: () => {},
-        initialized: true,
+
         isUserAdmin: false,
         isUserReceiver: true,
         isUserSender: false,
@@ -61,7 +60,7 @@ describe("DataDashboardTable", () => {
             });
 
             // Mock our SessionProvider's data
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "TOKEN",
                 },
@@ -70,8 +69,7 @@ describe("DataDashboardTable", () => {
                     parsedName: "testOrgNoReceivers",
                     service: "testReceiver",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
@@ -224,7 +222,7 @@ describe("DataDashboardTableWithPagination", () => {
                 });
 
                 // Mock our SessionProvider's data
-                mockSessionContext.mockReturnValue({
+                mockSessionContentReturnValue({
                     oktaToken: {
                         accessToken: "TOKEN",
                     },
@@ -233,8 +231,7 @@ describe("DataDashboardTableWithPagination", () => {
                         parsedName: "testOrgNoReceivers",
                         service: "testReceiver",
                     },
-                    dispatch: () => {},
-                    initialized: true,
+
                     isUserAdmin: false,
                     isUserReceiver: true,
                     isUserSender: false,
@@ -274,7 +271,7 @@ describe("DataDashboardTableWithPagination", () => {
             });
 
             // Mock our SessionProvider's data
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "TOKEN",
                 },
@@ -283,8 +280,7 @@ describe("DataDashboardTableWithPagination", () => {
                     parsedName: "testOrgNoReceivers",
                     service: "testReceiver",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,

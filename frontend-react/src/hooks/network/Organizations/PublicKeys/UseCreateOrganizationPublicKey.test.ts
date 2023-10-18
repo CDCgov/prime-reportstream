@@ -5,7 +5,7 @@ import {
     orgServer,
 } from "../../../../__mocks__/OrganizationMockServer";
 import { AppWrapper } from "../../../../utils/CustomRenderUtils";
-import { mockSessionContext } from "../../../../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../../UseOktaMemberships";
 
 import useCreateOrganizationPublicKey from "./UseCreateOrganizationPublicKey";
@@ -22,7 +22,7 @@ describe("useCreateOrganizationPublicKey", () => {
 
     describe("when authorized, 200", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "TOKEN",
                 },
@@ -31,8 +31,7 @@ describe("useCreateOrganizationPublicKey", () => {
                     parsedName: "testOrg",
                     service: "testOrgPublicKey",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: true,
@@ -55,7 +54,7 @@ describe("useCreateOrganizationPublicKey", () => {
 
     describe("when unauthorized, 401", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "",
                 },
@@ -64,8 +63,7 @@ describe("useCreateOrganizationPublicKey", () => {
                     parsedName: "testOrg",
                     service: "testOrgPublicKey",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: true,

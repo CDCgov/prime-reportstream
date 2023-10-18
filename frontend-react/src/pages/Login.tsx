@@ -5,14 +5,11 @@ import type { Tokens } from "@okta/okta-auth-js";
 
 import Alert from "../shared/Alert/Alert";
 import { oktaSignInConfig } from "../oktaConfig";
-import { useSessionContext } from "../contexts/SessionContext";
 import { USLink } from "../components/USLink";
-import { MembershipActionType } from "../hooks/UseOktaMemberships";
 import OktaSignInWidget from "../shared/OktaSignInWidget/OktaSignInWidget";
 
 export const Login = () => {
     const { oktaAuth, authState } = useOktaAuth();
-    const { dispatch } = useSessionContext();
 
     const onSuccess = React.useCallback(
         (tokens: Tokens) => {
@@ -22,14 +19,7 @@ export const Login = () => {
         [oktaAuth],
     );
 
-    const onError = React.useCallback(
-        (_: any) => {
-            dispatch({
-                type: MembershipActionType.RESET,
-            });
-        },
-        [dispatch],
-    );
+    const onError = React.useCallback((_: any) => {}, []);
 
     if (authState?.isAuthenticated) {
         return <Navigate replace to={"/"} />;

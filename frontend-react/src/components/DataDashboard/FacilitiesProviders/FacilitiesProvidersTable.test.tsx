@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { FacilityResource } from "../../../config/endpoints/dataDashboard";
-import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import {
     orgServer,
@@ -74,7 +74,7 @@ describe("FacilitiesProvidersTable", () => {
             });
 
             // Mock our SessionProvider's data
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "TOKEN",
                 },
@@ -83,8 +83,7 @@ describe("FacilitiesProvidersTable", () => {
                     parsedName: "testOrgNoReceivers",
                     service: "testReceiver",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
@@ -121,6 +120,23 @@ describe("FacilitiesProvidersTable", () => {
                 services: mockReceivers,
                 setActiveService: () => {},
                 isDisabled: false,
+            });
+
+            // Mock our SessionProvider's data
+            mockSessionContentReturnValue({
+                oktaToken: {
+                    accessToken: "TOKEN",
+                },
+                activeMembership: {
+                    memberType: MemberType.RECEIVER,
+                    parsedName: "testOrgNoReceivers",
+                    service: "testReceiver",
+                },
+
+                isUserAdmin: false,
+                isUserReceiver: true,
+                isUserSender: false,
+                environment: "test",
             });
 
             const mockUseReceiverSubmitterCallback = {

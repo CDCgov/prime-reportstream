@@ -2,7 +2,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 
 import { AppWrapper } from "../utils/CustomRenderUtils";
 import { dummySender, orgServer } from "../__mocks__/OrganizationMockServer";
-import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
 
 import useSenderResource from "./UseSenderResource";
 import { MembershipSettings, MemberType } from "./UseOktaMemberships";
@@ -14,7 +14,7 @@ describe("useSenderResource", () => {
     afterEach(() => orgServer.resetHandlers());
     afterAll(() => orgServer.close());
     test("returns undefined if no sender available on membership", () => {
-        mockSessionContext.mockReturnValue({
+        mockSessionContentReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
@@ -22,8 +22,7 @@ describe("useSenderResource", () => {
                 memberType: MemberType.NON_STAND,
                 service: undefined,
             } as MembershipSettings,
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,
@@ -36,7 +35,7 @@ describe("useSenderResource", () => {
         expect(result.current.isLoading).toEqual(true);
     });
     test("returns correct sender match", async () => {
-        mockSessionContext.mockReturnValue({
+        mockSessionContentReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
@@ -45,8 +44,7 @@ describe("useSenderResource", () => {
                 parsedName: "testOrg",
                 service: "testSender",
             },
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,

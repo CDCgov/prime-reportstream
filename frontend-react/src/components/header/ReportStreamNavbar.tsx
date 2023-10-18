@@ -17,7 +17,6 @@ import config from "../../config";
 import { DAPHeader } from "../header/DAPHeader";
 import SenderModeBanner from "../SenderModeBanner";
 import { useSessionContext } from "../../contexts/SessionContext";
-import { logout } from "../../utils/UserUtils";
 import { Icon } from "../../shared";
 import site from "../../content/site.json";
 import {
@@ -53,6 +52,7 @@ export const ReportStreamNavbar = ({
         isUserReceiver,
         isUserSender,
         user,
+        logout,
     } = useSessionContext();
     const [openMenuItem, setOpenMenuItem] = useState<null | string>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

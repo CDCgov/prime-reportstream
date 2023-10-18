@@ -4,24 +4,6 @@ import type { Tokens } from "@okta/okta-auth-js";
 
 import "./OktaSignInWidget.scss";
 
-async function showSignInToGetTokens(
-    widget: OktaSignIn,
-    el: string,
-    onSuccess?: (value: Tokens) => void,
-    onFailure?: (reason: any) => void,
-): Promise<void> {
-    try {
-        const tokens = await widget.showSignInToGetTokens({
-            el,
-        });
-
-        onSuccess?.(tokens);
-    } catch (e: any) {
-        onFailure?.(e);
-        console.error("error logging in", e);
-    }
-}
-
 export interface OktaSigninWidgetProps
     extends React.PropsWithChildren<React.HTMLAttributes<HTMLElement>> {
     config: WidgetOptions;
@@ -41,31 +23,30 @@ const OktaSignInWidget = ({
     onSuccess,
     onError,
     children,
+    id = "osw-container",
     ...props
 }: OktaSigninWidgetProps) => {
-    const containerId = "okta-wrapper";
-    const widget = React.useMemo(() => new OktaSignIn(config), [config]);
-    const onRef = React.useCallback<React.RefCallback<HTMLElement>>(
-        (el) => {
-            // Render widget only once when we have an
-            // element reference
-            if (!el || el.querySelector("#okta-sign-in")) return;
+    const widgetRef = React.useRef<HTMLElement | null>(null);
+    React.useEffect(() => {
+        if (!widgetRef.current) return void 0;
 
-            // not awaited as its side effects
-            // are expected to be async so as not
-            // to block rendering
-            showSignInToGetTokens(
-                widget,
-                `#${containerId}`,
-                onSuccess,
-                onError,
-            );
-        },
-        [widget, onSuccess, onError],
-    );
+        const widget = new OktaSignIn(config);
+
+        widget
+            .showSignInToGetTokens({
+                el: `#${widgetRef.current.id}`,
+            })
+            .then(onSuccess)
+            .catch((e: any) => {
+                onError?.(e);
+                console.error("error logging in", e);
+            });
+
+        return () => widget.remove();
+    }, [config, onError, onSuccess]);
 
     return (
-        <article ref={onRef} id={containerId} {...props}>
+        <article ref={widgetRef} {...props} id={id}>
             {children}
         </article>
     );

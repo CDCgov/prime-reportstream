@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useMemo } from "react";
 import { AccessToken } from "@okta/okta-auth-js";
 import {
     MutationFunction,
@@ -58,12 +58,10 @@ type RSUseMutation<
 
 interface IAuthorizedFetchContext {
     authorizedFetchGenerator: AuthorizedFetchTypeWrapper;
-    initialized: boolean;
 }
 export const AuthorizedFetchContext = createContext<IAuthorizedFetchContext>({
     authorizedFetchGenerator: () => () =>
         Promise.reject("fetcher uninitialized"),
-    initialized: false,
 });
 
 export function wrapUseQuery<
@@ -71,7 +69,7 @@ export function wrapUseQuery<
     TError,
     TData,
     TQueryKey extends QueryKey,
->(initialized: boolean) {
+>() {
     return function (
         queryKey: QueryKey,
         queryFn: QueryFunction<TQueryFnData, TQueryKey>,
@@ -84,9 +82,7 @@ export function wrapUseQuery<
             queryKey as TQueryKey,
             queryFn,
             {
-                enabled: options?.enabled
-                    ? options.enabled && initialized
-                    : initialized,
+                enabled: options?.enabled != null ? options?.enabled : true,
                 ...options,
             },
         );
@@ -120,21 +116,21 @@ export function wrapUseMutation<
 
 export const AuthorizedFetchProvider = ({
     children,
-    initializedOverride = false,
 }: React.PropsWithChildren<{ initializedOverride?: boolean }>) => {
-    const { oktaToken, activeMembership, initialized } = useSessionContext();
+    const { oktaToken, activeMembership } = useSessionContext();
     const generator = useCreateFetch(
         oktaToken as AccessToken,
         activeMembership as MembershipSettings,
     );
+    const value = useMemo(
+        () => ({
+            authorizedFetchGenerator: generator,
+        }),
+        [generator],
+    );
 
     return (
-        <AuthorizedFetchContext.Provider
-            value={{
-                authorizedFetchGenerator: generator,
-                initialized: initializedOverride || initialized,
-            }}
-        >
+        <AuthorizedFetchContext.Provider value={value}>
             {children}
         </AuthorizedFetchContext.Provider>
     );
@@ -150,14 +146,10 @@ export function useAuthorizedFetch<
     authorizedFetch: AuthorizedFetcher<TQueryFnData>;
     rsUseQuery: RSUseQuery<TQueryFnData, TError, TData, TQueryKey>;
 } {
-    const { authorizedFetchGenerator, initialized } = useContext(
-        AuthorizedFetchContext,
-    );
+    const { authorizedFetchGenerator } = useContext(AuthorizedFetchContext);
     return {
         authorizedFetch: authorizedFetchGenerator<TQueryFnData>(),
-        rsUseQuery: wrapUseQuery<TQueryFnData, TError, TData, TQueryKey>(
-            initialized,
-        ),
+        rsUseQuery: wrapUseQuery<TQueryFnData, TError, TData, TQueryKey>(),
     };
 }
 

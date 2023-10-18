@@ -1,15 +1,20 @@
-import { OktaAuthOptions, OktaAuth } from "@okta/okta-auth-js";
+import { OktaAuthOptions, OktaAuth, AuthState } from "@okta/okta-auth-js";
 import { WidgetOptions } from "@okta/okta-signin-widget";
+import type { Feature } from "@okta/okta-signin-widget";
 
 import config from "./config";
 
 const { OKTA_URL, OKTA_CLIENT_ID, APP_ENV } = config;
 const OKTA_ISSUER = `${OKTA_URL}/oauth2/default`;
 
-const oktaAuthConfig: OktaAuthOptions = {
+const sharedConfig = {
     issuer: OKTA_ISSUER,
     clientId: OKTA_CLIENT_ID as string,
-    redirectUri: window.location.origin + "/login/callback",
+    redirectUri: `${window.location.origin}/login/callback`,
+};
+
+const oktaAuthConfig: OktaAuthOptions = {
+    ...sharedConfig,
     postLogoutRedirectUri: window.location.origin,
     responseMode: "fragment",
     tokenManager: {
@@ -20,13 +25,15 @@ const oktaAuthConfig: OktaAuthOptions = {
         autoRenew: false,
     },
     async transformAuthState(oktaAuth, authState) {
+        let finalAuthState: AuthState = structuredClone(authState);
+
         // Prevent pulling incorrect token from a different okta environment
         if (
             authState.isAuthenticated &&
             authState.accessToken?.claims.iss !== OKTA_ISSUER
         ) {
-            OKTA_AUTH.clearStorage();
-            return {
+            oktaAuth.clearStorage();
+            finalAuthState = {
                 ...authState,
                 accessToken: undefined,
                 idToken: undefined,
@@ -35,26 +42,27 @@ const oktaAuthConfig: OktaAuthOptions = {
             };
         }
 
-        return authState;
+        return finalAuthState;
     },
 };
+const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
 
 const oktaSignInConfig: WidgetOptions = {
+    ...sharedConfig,
     logo: "/assets/cdc-logo.svg",
     language: "en",
     features: {
         registration: false, // Disable self-service registration flow
         rememberMe: false, // Setting to false will remove the checkbox to save username
-        router: true, // Leave this set to true for the API demo
+        router: false, // Leave this set to true for the API demo
         webauthn: true, // enable webauthn (yubi, passkey, etc.)
-    },
-    baseUrl: OKTA_URL as string,
-    clientId: OKTA_CLIENT_ID as string,
-    redirectUri: `${window.location.origin}/login/callback`,
-    authParams: {
-        issuer: `${OKTA_URL}/oauth2/default`,
-    },
-    scopes: ["openid", "email"],
+        selfServiceUnlock: true,
+        emailRecovery: true,
+        callRecovery: true,
+        smsRecovery: true,
+        showPasswordToggleOnSignInPage: true,
+        autoPush: true,
+    } satisfies Partial<Record<Feature, boolean>>,
     useClassicEngine: true,
     helpLinks: {
         help: "https://app.smartsheetgov.com/b/form/da894779659b45768079200609b3a599",
@@ -94,8 +102,5 @@ const oktaSignInConfig: WidgetOptions = {
         },
     },
 };
-
-const OKTA_AUTH = new OktaAuth(oktaAuthConfig);
-OKTA_AUTH.start();
 
 export { oktaAuthConfig, oktaSignInConfig, OKTA_AUTH };

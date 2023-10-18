@@ -11,7 +11,7 @@ import { UseOrganizationPublicKeysResult } from "../../hooks/network/Organizatio
 import * as useOrganizationSendersExports from "../../hooks/UseOrganizationSenders";
 import { UseOrganizationSendersResult } from "../../hooks/UseOrganizationSenders";
 import { MemberType } from "../../hooks/UseOktaMemberships";
-import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
 
 import { ManagePublicKey } from "./ManagePublicKey";
 
@@ -82,14 +82,13 @@ describe("ManagePublicKey", () => {
     }
 
     beforeEach(() => {
-        mockSessionContext.mockReturnValue({
+        mockSessionContentReturnValue({
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "testOrg",
                 service: "serviceName",
             },
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,

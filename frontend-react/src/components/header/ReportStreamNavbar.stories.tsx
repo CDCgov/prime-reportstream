@@ -45,9 +45,9 @@ LoggedInNavbarDefault.decorators = [
                 isUserSender: false,
                 user: { email: "test@testing.com", sub: "" },
                 oktaToken: {},
-                dispatch: () => {},
-                initialized: false,
                 environment: "production",
+                logout: () => undefined,
+                setActiveMembership: () => undefined,
             }}
         >
             <Story />
@@ -73,9 +73,9 @@ LoggedInNavbarBlueVariant.decorators = [
                 isUserSender: false,
                 user: { email: "test@testing.com", sub: "" },
                 oktaToken: {},
-                dispatch: () => {},
-                initialized: false,
                 environment: "production",
+                logout: () => undefined,
+                setActiveMembership: () => undefined,
             }}
         >
             <Story />

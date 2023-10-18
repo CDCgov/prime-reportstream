@@ -1,6 +1,5 @@
 import { Resource } from "@rest-hooks/rest";
 
-import { getStoredOktaToken, getStoredOrg } from "../utils/SessionStorageTools";
 import { getAppInsightsHeaders } from "../TelemetryService";
 
 export default class AuthResource extends Resource {
@@ -13,16 +12,17 @@ export default class AuthResource extends Resource {
     }
 
     static useFetchInit = (init: RequestInit): RequestInit => {
-        const accessToken = getStoredOktaToken();
-        const organization = getStoredOrg();
+        const { organization, token } = JSON.parse(
+            sessionStorage.getItem("__deprecatedFetchInit") ?? "{}",
+        );
 
         return {
             ...init,
             headers: {
                 ...init.headers,
                 ...getAppInsightsHeaders(),
-                Authorization: `Bearer ${accessToken}`,
-                Organization: organization || "",
+                Authorization: `Bearer ${token ?? ""}`,
+                Organization: organization ?? "",
                 "authentication-type": "okta",
             },
         };

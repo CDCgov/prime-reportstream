@@ -3,7 +3,7 @@ import * as OktaReact from "@okta/okta-react";
 
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { FileType } from "../../../utils/TemporarySettingsAPITypes";
-import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { AccessTokenWithRSClaims } from "../../../utils/OrganizationUtils";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
@@ -47,7 +47,7 @@ beforeEach(() => {
         },
     });
     // Mock our SessionProvider's data
-    mockSessionContext.mockReturnValue({
+    mockSessionContentReturnValue({
         oktaToken: {
             accessToken: "TOKEN",
         },
@@ -56,8 +56,7 @@ beforeEach(() => {
             parsedName: "testOrg",
             service: "testReceiverService",
         },
-        dispatch: () => {},
-        initialized: true,
+
         isUserAdmin: false,
         isUserReceiver: true,
         isUserSender: false,

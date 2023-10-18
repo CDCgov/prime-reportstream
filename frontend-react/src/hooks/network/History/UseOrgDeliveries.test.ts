@@ -1,6 +1,6 @@
 import { renderHook } from "@testing-library/react";
 
-import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../UseOktaMemberships";
 import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
 import { Organizations } from "../../UseAdminSafeOrganizationName";
@@ -13,7 +13,7 @@ describe("useReportsList", () => {
         afterEach(() => deliveryServer.resetHandlers());
         afterAll(() => deliveryServer.close());
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "TOKEN",
                 },
@@ -21,8 +21,7 @@ describe("useReportsList", () => {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrg",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
@@ -45,7 +44,7 @@ describe("useReportsList", () => {
         afterEach(() => deliveryServer.resetHandlers());
         afterAll(() => deliveryServer.close());
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "TOKEN",
                 },
@@ -53,8 +52,7 @@ describe("useReportsList", () => {
                     memberType: MemberType.PRIME_ADMIN,
                     parsedName: Organizations.PRIMEADMINS,
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: true,
                 isUserReceiver: false,
                 isUserSender: false,

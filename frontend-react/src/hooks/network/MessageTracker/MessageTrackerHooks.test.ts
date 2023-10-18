@@ -4,7 +4,7 @@ import {
     messageTrackerServer,
     MOCK_MESSAGE_SENDER_DATA,
 } from "../../../__mocks__/MessageTrackerMockServer";
-import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../UseOktaMemberships";
 import { AppWrapper } from "../../../utils/CustomRenderUtils";
 
@@ -16,7 +16,7 @@ afterAll(() => messageTrackerServer.close());
 
 describe("useMessageSearch", () => {
     test("returns expected data values when fetching messages", async () => {
-        mockSessionContext.mockReturnValue({
+        mockSessionContentReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
@@ -24,8 +24,7 @@ describe("useMessageSearch", () => {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
             },
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: false,
             isUserReceiver: true,
             isUserSender: false,
@@ -54,7 +53,7 @@ describe("useMessageSearch", () => {
 
 describe("useMessageDetails", () => {
     test("returns expected data values when fetching message details", async () => {
-        mockSessionContext.mockReturnValue({
+        mockSessionContentReturnValue({
             oktaToken: {
                 accessToken: "TOKEN",
             },
@@ -62,8 +61,7 @@ describe("useMessageDetails", () => {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
             },
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: false,
             isUserReceiver: true,
             isUserSender: false,

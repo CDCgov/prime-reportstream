@@ -1,5 +1,4 @@
 import { createBrowserRouter, redirect, RouteObject } from "react-router-dom";
-import { LoginCallback } from "@okta/okta-react";
 import React from "react";
 
 import { TermsOfService } from "./pages/TermsOfService";
@@ -31,18 +30,18 @@ import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetai
 import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
 import FileHandler from "./components/FileHandlers/FileHandler";
 import { DataDashboardWithAuth } from "./pages/data-dashboard/DataDashboard";
-import MainLayout from "./layouts/Main/MainLayout";
 import { ReportDetailsWithAuth } from "./components/DataDashboard/ReportDetails/ReportDetails";
 import { FacilitiesProvidersWithAuth } from "./components/DataDashboard/FacilitiesProviders/FacilitiesProviders";
 import { FacilityProviderSubmitterDetailsWithAuth } from "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails";
 import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
+import LoginCallback from "./shared/LoginCallback/LoginCallback";
+import LogoutCallback from "./shared/LogoutCallback/LogoutCallback";
 
 export const appRoutes: RouteObject[] = [
     /* Public Site */
     {
         path: "/",
-        element: <MainLayout />,
         children: [
             {
                 path: "",
@@ -110,14 +109,23 @@ export const appRoutes: RouteObject[] = [
             },
             {
                 path: "/login",
-                element: <Login />,
-                handle: {
-                    isLoginPage: true,
-                },
+                children: [
+                    {
+                        element: <Login />,
+                        index: true,
+                        handle: {
+                            isLoginPage: true,
+                        },
+                    },
+                    {
+                        path: "callback",
+                        element: <LoginCallback />,
+                    },
+                ],
             },
             {
-                path: "/login/callback",
-                element: <LoginCallback />,
+                path: "/logout/callback",
+                element: <LogoutCallback />,
             },
             {
                 path: "/sign-tos",
@@ -492,4 +500,8 @@ export const appRoutes: RouteObject[] = [
     },
 ] satisfies RsRouteObject[];
 
-export const router = createBrowserRouter(appRoutes);
+export function createRouter(root: React.ReactElement) {
+    appRoutes[0].element = root;
+    const router = createBrowserRouter(appRoutes);
+    return router;
+}

@@ -4,10 +4,10 @@ import { useOktaAuth } from "@okta/okta-react";
 import React from "react";
 
 import ReportResource from "../../../resources/ReportResource";
-import { getStoredOrg } from "../../../utils/SessionStorageTools";
 import config from "../../../config";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
+import { useSessionContext } from "../../../contexts/SessionContext";
 
 const { RS_API_URL } = config;
 
@@ -34,7 +34,8 @@ const formatFileType = (fileType: string) => {
 */
 function ReportLink(props: Props) {
     const { authState } = useOktaAuth();
-    const organization = getStoredOrg();
+    const { activeMembership } = useSessionContext();
+    const organization = activeMembership?.parsedName;
 
     const handleClick = (e: any) => {
         e.preventDefault();

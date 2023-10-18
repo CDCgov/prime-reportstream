@@ -1,10 +1,7 @@
-import {
-    getUserPermissions,
-    permissionCheck,
-    PERMISSIONS,
-} from "./PermissionsUtils";
+import { getUserPermissions, permissionCheck } from "./PermissionsUtils";
 import { AccessTokenWithRSClaims } from "./OrganizationUtils";
 import { mockToken } from "./TestUtils";
+import { PERMISSIONS } from "./UsefulTypes";
 
 const senderToken = mockToken({
     claims: {

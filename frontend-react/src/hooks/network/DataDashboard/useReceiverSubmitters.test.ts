@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from "@testing-library/react";
 
 import { dataDashboardServer } from "../../../__mocks__/DataDashboardMockServer";
-import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { AppWrapper } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../UseOktaMemberships";
 
@@ -14,13 +14,12 @@ describe("useReceiverSubmitters", () => {
 
     describe("with no Organization name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "TOKEN",
                 },
                 activeMembership: undefined,
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: false,
@@ -39,7 +38,7 @@ describe("useReceiverSubmitters", () => {
 
     describe("with Organization and service name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 oktaToken: {
                     accessToken: "TOKEN",
                 },
@@ -48,8 +47,7 @@ describe("useReceiverSubmitters", () => {
                     parsedName: "testOrg",
                     service: "testService",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
