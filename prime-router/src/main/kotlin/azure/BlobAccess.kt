@@ -193,6 +193,29 @@ class BlobAccess() : Logging {
             return getBlobClient(blobUrl, blobConnInfo).exists()
         }
 
+        fun copyDir(directory: String, source: BlobContainerMetadata, destination: BlobContainerMetadata) {
+            val sourceContainer = getBlobContainer(source)
+            val destinationContainer = getBlobContainer(destination)
+            val blobsToCopy = listBlobs(directory, source)
+            blobsToCopy.forEach { blob ->
+                val sourceBlobClient = sourceContainer.getBlobClient(blob.currentBlobItem.name)
+                val destinationBlobClient = destinationContainer.getBlobClient(blob.currentBlobItem.name)
+                // Azurite does not support copying between instances of azurite
+                // https://github.com/Azure/Azurite/issues/767
+                // which would be the correct way to implement this functionality rather than
+                // downloading the content and uploading.  That solution would be:
+                //  val expiryTime = OffsetDateTime.now().plusDays(1)
+                //  val sasPermission = BlobSasPermission()
+                //    .setReadPermission(true)
+                //  val sasSignatureValues = BlobServiceSasSignatureValues(expiryTime, sasPermission)
+                //    .setStartTime(OffsetDateTime.now())
+                //  val sasToken = fromBlobClient.generateSas(sasSignatureValues)
+                //  toBlobClient.copyFromUrl("${fromBlobClient.blobUrl}?$sasToken")
+                val data = sourceBlobClient.downloadContent()
+                destinationBlobClient.upload(data, true)
+            }
+        }
+
         /**
          * Data class for returning the current version of a blob
          * and optionally its past versions
