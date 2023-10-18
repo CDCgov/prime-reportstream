@@ -11,8 +11,8 @@ locals {
     okta_base_url       = "reportstream.okta.com"
     OKTA_authKey        = "MG9hNmtqY21pNm11TnZVOHAxZDc6VXNjN2NOeWU4Q3JBQlgxUEJvQlUwbDhpQTNlck5idGNxTVFFd01sQQ=="
     OKTA_clientId       = "0oa376pah9o4G2HVJ4h7"
-    fn_OKTA_clientId    = "0oa376pah9o4G2HVJ4h7"
-    OKTA_scope          = "simple_report_dev"
+    fn_OKTA_clientId    = "0oa5vkprvf7YhuLYN4h7"
+    OKTA_scope          = "reportstream_prod"
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig"
