@@ -24,7 +24,7 @@ export default function FileHandlerSuccessStep() {
             </p>
             <p className="font-size-18 margin-0">
                 Learn more about your next steps in{" "}
-                <USLink href="/resources/api/getting-started#set-up-authentication">
+                <USLink href="/developer-resources/api/getting-started#set-up-authentication">
                     the onboarding process
                 </USLink>
                 .
