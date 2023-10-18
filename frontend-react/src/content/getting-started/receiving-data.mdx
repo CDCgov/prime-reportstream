@@ -1,9 +1,11 @@
 ---
 title: Get started receiving data
-subtitle: How to connect your public health entity with ReportStream 
+subtitle: How to connect your public health entity with ReportStream
 backToTop: true
 ---
+
 import Sidenav from "./sidenav.mdx"
+import site from "../../content/site.json";
 
 <LayoutSidenav>
 <Sidenav/>
@@ -35,7 +37,7 @@ Connecting to ReportStream is similar to setting up an Electronic Lab Reporting 
         id: "2",
         headingLevel:"h3",
         title: "2. Fill out our onboarding form",
-        content: (<p>This form helps us understand more about your specific situation, such as data requirements and preferences or any required documents from your agency. Learn more about what you need to complete the form.</p>),
+        content: (<p>This form helps us understand more about your specific situation, such as data requirements and preferences or any required documents from your agency. Learn more about <a href="#anchor-what-you-need">what you need</a> to complete the form.</p>),
     },
     {
         id: "3",
@@ -63,16 +65,16 @@ Connecting to ReportStream is similar to setting up an Electronic Lab Reporting 
         headingLevel:"h3",
         title: "Optional: Create a user account",
         content: (<>
-            <p>For an ELR connection, an optional ReportStream user account provides access to helpful tools and features like your Data Dashboard.</p>
+            <p>For an ELR connection, an optional ReportStream user account provides access to helpful <a href="/managing-your-connection">tools and features</a> like your Data Dashboard.</p>
             <p>If you are downloading data as your primary way of using ReportStream, then you will need a user account to access that Daily Data table.</p>
-            <p>Submit a service request to set up an account.</p>
+            <p>Submit a <a href={site.forms.contactUs.url}>service request</a> to set up an account.</p>
         </>)
     }
 ]} />
 
-## What you need
+<h2 id="anchor-what-you-need">What you need</h2>
 
-In addition to gathering your team and setting aside time for the weekly calls, you’ll need to provide us with more information about your requirements and preferences. Our onboarding form collects the specific details about your needs.
+In addition to gathering your team and setting aside time for the weekly calls, you’ll need to provide us with more information about your requirements and preferences. Our [onboarding form](https://app.smartsheetgov.com/b/form/b0935d5d1e924c57b2d293b4ed0f2cd5) collects the specific details about your needs.
 
 Review what you need to gather to start onboarding.
 
@@ -104,7 +106,7 @@ Review what you need to gather to start onboarding.
                 <li><b>Transport method:</b> Would you prefer SFTP, SOAP, REST or download?</li>
                 <li><b>File format preference:</b> Would you prefer HL7 v2.5.1, CSV, or FHIR?</li>
                 <li><b>Timing:</b> Do you want realtime, hourly or daily reports?</li>
-                <li><b>"Ask on Order Entry":</b> Do you want Ask on Entry question data? They will be sent as OBX fields.</li>
+                <li><b>"Ask on Order Entry":</b> Do you want Ask on Entry question data? They will be sent as <A href="https://hl7-definition.caristix.com/v2/HL7v2.5/Segments/OBX">OBX fields</A>.</li>
                 <li><b>Additional fields:</b> Any other data or fields you’d like collected?</li>
                 <li><b>Test data:</b> Do you need synthetic and/or real patient data before going live?</li>
                 <li><b>Local public health agency reporting:</b> Explain any local public health department reporting requirements that are different from the state.</li>
@@ -174,7 +176,7 @@ Review what you need to gather to start onboarding.
 
 Once you have all the information you need, submit the onboarding form. We'll get back to you within a week.
 
-<A href="https://app.smartsheetgov.com/b/form/b0935d5d1e924c57b2d293b4ed0f2cd5" className="usa-button">Submit form</A>
+<A href={site.forms.intakeElr.url} className="usa-button">Submit form</A>
 
 ## Recommended resources
 

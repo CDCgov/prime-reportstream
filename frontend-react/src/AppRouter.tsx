@@ -5,9 +5,6 @@ import React from "react";
 import { TermsOfService } from "./pages/TermsOfService";
 import { Login } from "./pages/Login";
 import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
-import { Resources } from "./pages/resources/Resources";
-import { Product } from "./pages/product/ProductIndex";
-import { Support } from "./pages/support/Support";
 import { UploadWithAuth } from "./pages/Upload";
 import { FeatureFlagUIWithAuth } from "./pages/misc/FeatureFlags";
 import { SubmissionDetailsWithAuth } from "./pages/submissions/SubmissionDetails";
@@ -37,8 +34,6 @@ import { FacilitiesProvidersWithAuth } from "./components/DataDashboard/Faciliti
 import { FacilityProviderSubmitterDetailsWithAuth } from "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails";
 import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
-import { DataDownloadGuideIa } from "./pages/DataDownloadGuide";
-import { GettingStartedPhd } from "./pages/GettingStartedPhd";
 
 export const appRoutes: RouteObject[] = [
     /* Public Site */
@@ -140,13 +135,6 @@ export const appRoutes: RouteObject[] = [
                             "content/managing-your-connection/refer-healthcare-organizations",
                         ),
                     },
-                    {
-                        path: "data-download-guide",
-                        handle: {
-                            isContentPage: true,
-                        },
-                        element: <DataDownloadGuideIa />,
-                    },
                 ],
             },
             {
@@ -170,13 +158,6 @@ export const appRoutes: RouteObject[] = [
                         handle: {
                             isContentPage: true,
                         },
-                    },
-                    {
-                        path: "getting-started-public-health-departments",
-                        handle: {
-                            isContentPage: true,
-                        },
-                        element: <GettingStartedPhd />,
                     },
                     {
                         path: "receiving-data",
