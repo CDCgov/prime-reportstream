@@ -51,3 +51,9 @@ data "azurerm_key_vault_secret" "slack_email_address" {
   name         = "slack-email"
   key_vault_id = data.azurerm_key_vault.tf-secrets.id
 }
+
+data "azurerm_key_vault_secret" "caller_ip_addresses" {
+  name         = "tf-caller-ip-addresses"
+  key_vault_id = data.azurerm_key_vault.tf-secrets.id
+}
+

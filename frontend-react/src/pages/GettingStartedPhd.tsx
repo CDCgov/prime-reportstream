@@ -1,17 +1,16 @@
 import { Helmet } from "react-helmet-async";
 
-import site from "../../../content/site.json";
-import { ResourcesDirectories } from "../../../content/resources";
-import { USExtLink, USLink } from "../../../components/USLink";
+import site from "../content/site.json";
+import { USExtLink, USLink } from "../components/USLink";
 
 /* eslint-disable jsx-a11y/anchor-has-content */
 export const GettingStartedPhd = () => {
     return (
         <div className="rs-documentation usa-prose">
             <Helmet>
-                <title>{`${ResourcesDirectories.GETTING_STARTED_PHD} | Resources`}</title>
+                <title>Guide to receiving ReportStream data | Resources</title>
             </Helmet>
-            <h1 id="anchor-top">{ResourcesDirectories.GETTING_STARTED_PHD}</h1>
+            <h1 id="anchor-top">Guide to receiving ReportStream data</h1>
             <h2>
                 A step-by-step process for connecting your jurisdiction to
                 ReportStream
