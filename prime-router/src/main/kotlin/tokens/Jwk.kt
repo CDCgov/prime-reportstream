@@ -105,7 +105,7 @@ data class JwkSet(
     val scope: String,
     // Each scope has a list of keys associated with it.  Having a list of keys allows for
     // overlapping key rotation
-    val keys: List<Jwk>
+    val keys: List<Jwk>,
 ) {
     fun filterByKid(kid: String): List<Jwk> {
         return keys.filter { !it.kid.isNullOrEmpty() && kid == it.kid }
@@ -176,7 +176,7 @@ data class JwkSet(
         fun addKeyToScope(
             jwkSets: List<JwkSet>?,
             scope: String,
-            jwk: Jwk
+            jwk: Jwk,
         ): List<JwkSet> {
             val nullSafeJwkSets = jwkSets ?: emptyList()
             val updatedJwkSet =
@@ -205,7 +205,6 @@ data class JwkSet(
          *
          */
         fun removeKeyFromScope(jwkSets: List<JwkSet>, scope: String, jwk: Jwk): List<JwkSet> {
-
             val updatedJwkSet = jwkSets.find { it.scope == scope }.let { jwkSet ->
                 {
                     if (jwkSet == null) {

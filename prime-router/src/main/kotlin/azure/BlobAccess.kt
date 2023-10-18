@@ -48,7 +48,9 @@ class BlobAccess() : Logging {
             fun getBlobFilename(blobUrl: String): String {
                 return if (blobUrl.isNotBlank()) {
                     FilenameUtils.getName(URL(URLDecoder.decode(blobUrl, Charset.defaultCharset())).path)
-                } else ""
+                } else {
+                    ""
+                }
             }
 
             /**
@@ -58,7 +60,9 @@ class BlobAccess() : Logging {
             fun getBlobFileExtension(blobUrl: String): String {
                 return if (blobUrl.isNotBlank()) {
                     FilenameUtils.getExtension(URL(URLDecoder.decode(blobUrl, Charset.defaultCharset())).path)
-                } else ""
+                } else {
+                    ""
+                }
             }
         }
     }

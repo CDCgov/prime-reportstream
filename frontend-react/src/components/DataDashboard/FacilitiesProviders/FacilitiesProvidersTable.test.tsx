@@ -123,6 +123,24 @@ describe("FacilitiesProvidersTable", () => {
                 isDisabled: false,
             });
 
+            // Mock our SessionProvider's data
+            mockSessionContext.mockReturnValue({
+                oktaToken: {
+                    accessToken: "TOKEN",
+                },
+                activeMembership: {
+                    memberType: MemberType.RECEIVER,
+                    parsedName: "testOrgNoReceivers",
+                    service: "testReceiver",
+                },
+                dispatch: () => {},
+                initialized: true,
+                isUserAdmin: false,
+                isUserReceiver: true,
+                isUserSender: false,
+                environment: "test",
+            });
+
             const mockUseReceiverSubmitterCallback = {
                 data: makeRSReceiverSubmitterResponseFixture(1),
                 filterManager: mockFilterManager,

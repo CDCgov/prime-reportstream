@@ -30,6 +30,7 @@ import kotlin.random.Random
  * Azure Functions with HTTP Trigger. Write to blob.
  */
 const val send = "send"
+
 // needed in case retry index is out-of-bounds call but should not be every be used
 const val defaultMaxDurationValue = 120L
 
@@ -152,7 +153,7 @@ class SendFunction(private val workflowEngine: WorkflowEngine = WorkflowEngine()
         receiver: Receiver,
         retryToken: RetryToken?,
         actionHistory: ActionHistory,
-        isEmptyBatch: Boolean
+        isEmptyBatch: Boolean,
     ): ReportEvent {
         return if (nextRetryItems.isEmpty()) {
             // All OK

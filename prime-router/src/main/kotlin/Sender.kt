@@ -77,7 +77,8 @@ abstract class Sender(
      */
     enum class ProcessingType {
         sync,
-        async;
+        async,
+        ;
 
         companion object {
             fun valueOfIgnoreCase(value: String): ProcessingType {
@@ -103,7 +104,7 @@ abstract class Sender(
         testManufacturer,
         dataAggregator,
         facility,
-        hospitalSystem
+        hospitalSystem,
     }
 
     /**
@@ -124,7 +125,7 @@ abstract class Sender(
      */
     enum class PrimarySubmissionMethod {
         automated,
-        manual
+        manual,
     }
 
     @get:JsonIgnore
@@ -243,7 +244,7 @@ open class LegacyPipelineSender : Sender {
         processingType: ProcessingType = sync,
         allowDuplicates: Boolean = true,
         senderType: SenderType? = null,
-        primarySubmissionMethod: PrimarySubmissionMethod? = null
+        primarySubmissionMethod: PrimarySubmissionMethod? = null,
     ) : super(
         topic,
         name,
@@ -298,7 +299,7 @@ class CovidSender : LegacyPipelineSender {
         processingType: ProcessingType = sync,
         allowDuplicates: Boolean = true,
         senderType: SenderType? = null,
-        primarySubmissionMethod: PrimarySubmissionMethod? = null
+        primarySubmissionMethod: PrimarySubmissionMethod? = null,
     ) : super(
         name,
         organizationName,
@@ -342,7 +343,7 @@ class MonkeypoxSender : LegacyPipelineSender {
         processingType: ProcessingType = sync,
         allowDuplicates: Boolean = true,
         senderType: SenderType? = null,
-        primarySubmissionMethod: PrimarySubmissionMethod? = null
+        primarySubmissionMethod: PrimarySubmissionMethod? = null,
     ) : super(
         name,
         organizationName,

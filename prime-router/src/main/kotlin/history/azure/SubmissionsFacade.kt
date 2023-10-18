@@ -18,7 +18,7 @@ import java.util.UUID
  */
 class SubmissionsFacade(
     private val dbSubmissionAccess: HistoryDatabaseAccess = DatabaseSubmissionsAccess(),
-    dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton
+    dbAccess: DatabaseAccess = BaseEngine.databaseAccessSingleton,
 ) : ReportFileFacade(
     dbAccess,
 ) {
@@ -49,7 +49,7 @@ class SubmissionsFacade(
         since: OffsetDateTime?,
         until: OffsetDateTime?,
         pageSize: Int,
-        showFailed: Boolean
+        showFailed: Boolean,
     ): String {
         val result = findSubmissions(
             organization,
@@ -89,7 +89,7 @@ class SubmissionsFacade(
         since: OffsetDateTime?,
         until: OffsetDateTime?,
         pageSize: Int,
-        showFailed: Boolean
+        showFailed: Boolean,
     ): List<SubmissionHistory> {
         require(organization.isNotBlank()) {
             "Invalid organization."
@@ -116,7 +116,7 @@ class SubmissionsFacade(
      * @return Report details
      */
     fun findDetailedSubmissionHistory(
-        action: Action
+        action: Action,
     ): DetailedSubmissionHistory? {
         // This assumes that ReportFileFunction.authSingleBlocks has already run, and has checked that the
         // sendingOrg is good.  If that assumption is incorrect, die here.

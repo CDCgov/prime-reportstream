@@ -15,8 +15,8 @@ elements:
   - name: contact-relationship-id
     resource: '%resource.relationship.where(coding.system != "http://hl7.org/fhir/ValueSet/patient-contactrelationship")'
     constants:
-      ceFieldPath: '%{hl7NK1Field}-3'
-    schema: ../common/datatype/ce-coded-element
+      cweFieldPath: '%{hl7NK1Field}-3'
+    schema: ../common/datatype/ce-coded-with-exceptions
 
   - name: contact-address
     resource: '%resource.address'
