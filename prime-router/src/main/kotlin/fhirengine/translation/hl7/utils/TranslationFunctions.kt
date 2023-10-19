@@ -3,6 +3,7 @@ package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import ca.uhn.hl7v2.model.v251.datatype.DTM
 import ca.uhn.hl7v2.util.Terser
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import org.hl7.fhir.r4.model.BaseDateTimeType
 
 /**
@@ -15,7 +16,12 @@ interface TranslationFunctions {
      * Convert a FHIR [dateTime] to the format required by HL7
      * @return the converted HL7 DTM
      */
-    fun convertDateTimeToHL7(dateTime: BaseDateTimeType, appContext: CustomContext? = null): String
+    fun convertDateTimeToHL7(
+        dateTime: BaseDateTimeType,
+        appContext: CustomContext? = null,
+        element: ConverterSchemaElement? = null,
+        constantSubstitutor: ConstantSubstitutor? = null,
+    ): String
 
     fun maybeTruncateHL7Field(
         value: String,
@@ -32,7 +38,12 @@ interface TranslationFunctions {
  */
 open class Hl7TranslationFunctions : TranslationFunctions {
 
-    override fun convertDateTimeToHL7(dateTime: BaseDateTimeType, appContext: CustomContext?): String {
+    override fun convertDateTimeToHL7(
+        dateTime: BaseDateTimeType,
+        appContext: CustomContext?,
+        element: ConverterSchemaElement?,
+        constantSubstitutor: ConstantSubstitutor?,
+    ): String {
         /**
          * Set the timezone for an [hl7DateTime] if a timezone was specified.
          * @return the updated [hl7DateTime] object

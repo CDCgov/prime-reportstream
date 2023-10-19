@@ -5,6 +5,7 @@ import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import ca.uhn.hl7v2.model.v251.datatype.DT
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.hapi.ctx.HapiWorkerContext
 import org.hl7.fhir.r4.model.Base
@@ -153,6 +154,8 @@ object FhirPathUtils : Logging {
         focusResource: Base,
         bundle: Bundle,
         expression: String,
+        element: ConverterSchemaElement? = null,
+        constantSubstitutor: ConstantSubstitutor? = null,
     ): String {
         pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
         val expressionNode = parsePath(expression)
@@ -183,8 +186,13 @@ object FhirPathUtils : Logging {
                 // If there is a custom translation function, we will call to the function.
                 // Otherwise, we use our old HL7TranslationFunctions to handle the dataTime formatting.
                 appContext?.translationFunctions?.convertDateTimeToHL7(
-                    evaluated[0] as BaseDateTimeType, appContext
-                ) ?: Hl7TranslationFunctions().convertDateTimeToHL7(evaluated[0] as BaseDateTimeType, appContext)
+                    evaluated[0] as BaseDateTimeType, appContext, element, constantSubstitutor
+                ) ?: Hl7TranslationFunctions().convertDateTimeToHL7(
+                    evaluated[0] as BaseDateTimeType,
+                    appContext,
+                    element,
+                    constantSubstitutor
+                )
             }
             evaluated[0] is DateType -> convertDateToHL7(evaluated[0] as DateType)
 
