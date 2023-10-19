@@ -4,7 +4,7 @@
     margin-top: 0px;
     :global {
         .header {
-            color: color("gray-cool-50");
+            color: color('gray-cool-50');
             font-size: 32px;
             font-weight: 700;
             margin: 64px 0 32px;
@@ -25,7 +25,7 @@
         }
 
         .tag {
-            color: color("gray-90");
+            color: color('gray-90');
             font-size: 14px;
             height: 18px;
             padding: 0 8px;
@@ -35,24 +35,24 @@
             width: fit-content;
 
             &--feature {
-                background-color: color("cyan-10v");
+                background-color: color('cyan-10v');
             }
 
             &--bug {
-                background-color: color("red-cool-30v");
+                background-color: color('red-cool-30v');
             }
 
             &--announcement {
-                background-color: color("indigo-cool-20v");
+                background-color: color('indigo-cool-20v');
             }
 
             &--improvement {
-                background-color: color("mint-cool-10v");
+                background-color: color('mint-cool-10v');
             }
         }
 
         & .section-container:last-child {
-            border-bottom: 1px solid color("gray-cool-10");
+            border-bottom: 1px solid color('gray-cool-10');
             margin-bottom: 0;
             padding-bottom: 64px;
         }
