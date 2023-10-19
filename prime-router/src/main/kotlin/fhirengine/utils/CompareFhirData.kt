@@ -57,6 +57,11 @@ class CompareFhirData(
         return result
     }
 
+    /**
+     * Log JSON diff between the expected JSON and actual JSON
+     *
+     * @see https://datatracker.ietf.org/doc/html/rfc6902
+     */
     private fun logJsonDiff(expectedJson: String, actualJson: String) {
         val mapper = ObjectMapper()
         val expectedParsedJson = mapper.readTree(expectedJson)
@@ -72,6 +77,7 @@ class CompareFhirData(
             }
         }
 
+        // pretty print array of diff objects if there are any
         val array = mapper.createArrayNode().addAll(filteredList)
         if (filteredList.isNotEmpty()) {
             logger.info(
@@ -339,6 +345,11 @@ class CompareFhirData(
         }
     }
 
+    /**
+     * There can be many reasons that the expected and actual child values differ.
+     *
+     * This function creates a more human-readable error for each case
+     */
     private fun createDifferentChildSizesError(
         expectedChild: Property,
         actualChild: Property,
