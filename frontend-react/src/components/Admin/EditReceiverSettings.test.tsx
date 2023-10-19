@@ -85,6 +85,14 @@ jest.mock("react-router-dom", () => ({
 
 describe("EditReceiverSettings", () => {
     beforeAll(() => {
+        global.window = Object.create(window);
+        const url = "http://test.com";
+        Object.defineProperty(window, "location", {
+            value: {
+                href: url,
+            },
+            writable: true,
+        });
         settingsServer.listen();
         settingsServer.use(
             rest.get(
@@ -93,7 +101,9 @@ describe("EditReceiverSettings", () => {
             ),
         );
     });
-    afterAll(() => settingsServer.close());
+    afterAll(() => {
+        settingsServer.close();
+    });
     beforeEach(() => {
         renderApp(<EditReceiverSettings />);
     });

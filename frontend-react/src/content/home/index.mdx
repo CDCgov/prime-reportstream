@@ -3,13 +3,14 @@ liveMapContact:
     - title: Who is in our network
       subTitle: Public health entities
       summary: ReportStream works with organizations who need to report data and public health entities who need to receive data.
+      description: ReportStream helps state, local, and territorial agencies across the United States get the data they need for the best possible public health responses.
       features:
         - img: rs-live-stlt.svg
           imgAlt: Map of the U.S. showing states and territories where ReportStream is currently live
           linkInternal: /how-it-works/where-were-live
       citation:
         - title: More test results and improved interoperability
-          quote: All the people we worked with were competent and focused. I will commend the team as to how they have continued to onboard facilities and get those lab results to us timely.  Without it, we wouldn’t have received those reports at all; or, we would have had numerous pages of faxes. This initiative really improved our interoperability.
+          quote: All the people we worked with were competent and focused. I will commend the team as to how they have continued to onboard facilities and get those lab results to us timely. Without it, we wouldn’t have received those reports at all; or, we would have had numerous pages of faxes. This initiative really improved our interoperability.
           author: Monica Gamez
           authorTitle: Deputy Associate Commissioner, Texas Department of State Health Services
 ---
@@ -22,7 +23,7 @@ import site from "../site.json";
             <p className="rs-subtitle">ReportStream is CDC’s free, interoperable platform for streamlining public health reporting.
                 <br />We navigate unique, complex requirements and work to make sure your data gets where it needs to be.</p>
             <div className="grid-row margin-top-8 margin-bottom-2">
-                <A href="https://app.smartsheetgov.com/b/form/48f580abb9b440549b1a9cf996ba6957" className="usa-button usa-button--big" target="_blank">Connect now</A>
+                <A href={site.forms.connectWithRS.url} className="usa-button usa-button--big" target="_blank">Connect now</A>
             </div>
         </header>
     </div>
@@ -82,17 +83,54 @@ import site from "../site.json";
                 src="/assets/img/ReportStreamDiagram_2023.png"
                 alt="Organizations and testing facilities submit data, which ReportStream validates, augments and standardizes. Then, the data is routed as ReportStream determines the destination by subscription management. After this, it is transformed and transported to public health agencies in the desired data model and batch size."
             />
-            ### Accepted data types and conditions
-            [Check out the current data types](/getting-started) we accept and the growing list of conditions that ReportStream can help you send or receive.
+            <div className="grid-row">
+                <div className="grid-col-fill margin-right-3">
+                    ### Accepted data types and conditions
+                    [Check out the current data types](/getting-started) we accept and the growing list of conditions that ReportStream can help you send or receive.
+                </div>
+                <div className="grid-col-fill margin-right-3">
+                    ### What is ReportStream compatible with?
+                    ReportStream is flexible and can often integrate with systems and products you are already using. <A href={site.forms.connectWithRS.url}>Connect with our team</A> to explore specific integration options for you.
+                </div>
+            </div>
         </section>
     </div>
 </HeroWrapper>
 <HeroWrapper className="grid-container">
-    {frontmatter.liveMapContact.map((section, sectionIndex) => {
-        return (
-            <LiveMap key={`livemap-${sectionIndex}`} className="usa-section margin-y-0 tablet:padding-bottom-9" {...section} />
-        );
-    })}
+    <section className="usa-section">
+        {frontmatter.liveMapContact.map((section, sectionIndex) => {
+            return (
+                <LiveMap key={`livemap-${sectionIndex}`} className="margin-top-2 margin-bottom-0" {...section} />
+            );
+        })}
+        <CardGroup>
+            <Card
+                gridLayout={{col: "fill"}}
+                layout="flagMediaRight"
+                headerFirst
+                isAlternate>
+                <CardHeader className="font-sans-lg">
+                    Health care organizations, facilities, and labs
+                </CardHeader>
+                <CardBody className="grid-col-8">
+                    Throughout the country, a wide range of labs, testing facilities, and other healthcare organizations connect to ReportStream for their data transfer.
+
+                    ReportStream also receives data from the expansive network of testing sites and providers using SimpleReport. [SimpleReport](https://www.simplereport.gov) is easy to use for non-traditional and under-resourced settings like schools and labs without electronic medical records. Enabling reporting from these senders empowers public health entities with more accurate and complete data.
+                </CardBody>
+                <CardMedia>
+                    <img src="/assets/img/home/network.png" alt="Health care organizations, facilities, and labs" />
+                </CardMedia>
+            </Card>
+        </CardGroup>
+        <div className="grid-row flex-justify-center margin-y-2">
+            <a
+                href="/about/our-network"
+                className="usa-button usa-button--outline padding-bottom-0 padding-top-0"
+            >
+                See our full network
+            </a>
+        </div>
+    </section>
 </HeroWrapper>
 <HeroWrapper className="bg-blue-5">
     <section className="grid-container grid-row usa-section usa-prose flex-justify-center">

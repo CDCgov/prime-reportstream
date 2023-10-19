@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1697038831089115000.d16484f7-d2e6-4578-8074-23b924e4cc57",
+  "id" : "1697636952758209000.4e08e3ea-9631-4976-a4d7-438a25bca963",
   "meta" : {
-    "lastUpdated" : "2023-10-11T11:40:31.103-04:00"
+    "lastUpdated" : "2023-10-18T09:49:12.772-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -44,19 +44,16 @@
           "display" : "ORU/ACK - Unsolicited transmission of an observation message"
         },
         "sender" : {
-          "reference" : "Organization/1697038831989890000.3ce08695-eaef-4c05-af8d-13fff5037b26"
+          "reference" : "Organization/1697636953614053000.9c2830c0-1889-4e7e-95ef-c483ed7f903c"
         },
-        "source" : {},
-        "responsible" : {
-          "reference" : "Organization/1697038831994401000.f3962b61-1c35-441f-8b0d-d3d10e5ed877"
-        }
+        "source" : {}
       }
     },
     {
-      "fullUrl" : "Organization/1697038831989890000.3ce08695-eaef-4c05-af8d-13fff5037b26",
+      "fullUrl" : "Organization/1697636953614053000.9c2830c0-1889-4e7e-95ef-c483ed7f903c",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1697038831989890000.3ce08695-eaef-4c05-af8d-13fff5037b26",
+        "id" : "1697636953614053000.9c2830c0-1889-4e7e-95ef-c483ed7f903c",
         "meta" : {
           "extension" : [
             {
@@ -99,29 +96,19 @@
             "system" : "urn:ietf:rfc:3986",
             "value" : "2.16.840.1.114222.4.3.3.2.1.2"
           }
+        ],
+        "address" : [
+          {
+            "country" : "USA"
+          }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1697038831994401000.f3962b61-1c35-441f-8b0d-d3d10e5ed877",
-      "resource" : {
-        "resourceType" : "Organization",
-        "id" : "1697038831994401000.f3962b61-1c35-441f-8b0d-d3d10e5ed877",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "fullUrl" : "Provenance/1697038832282436000.6678c514-9753-413b-adeb-9e5a2777e008",
+      "fullUrl" : "Provenance/1697636953918850000.d18f8348-ac0c-4b8d-8c71-233b3048fe54",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1697038832282436000.6678c514-9753-413b-adeb-9e5a2777e008",
+        "id" : "1697636953918850000.d18f8348-ac0c-4b8d-8c71-233b3048fe54",
         "meta" : {
           "extension" : [
             {
@@ -163,7 +150,7 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1697038832281554000.6fdb5bc9-3634-4325-85af-a3ddde213ce8"
+              "reference" : "Organization/1697636953917952000.59e0c131-76a8-4833-8017-2ce475ef80c8"
             }
           }
         ],
@@ -171,17 +158,17 @@
           {
             "role" : "source",
             "what" : {
-              "reference" : "Device/1697038832284244000.b2e60a34-2c7e-4559-9304-c0e746389c2d"
+              "reference" : "Device/1697636953920620000.71d22d93-d723-4a9a-9943-f1a8b8bd461f"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1697038832281554000.6fdb5bc9-3634-4325-85af-a3ddde213ce8",
+      "fullUrl" : "Organization/1697636953917952000.59e0c131-76a8-4833-8017-2ce475ef80c8",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1697038832281554000.6fdb5bc9-3634-4325-85af-a3ddde213ce8",
+        "id" : "1697636953917952000.59e0c131-76a8-4833-8017-2ce475ef80c8",
         "meta" : {
           "extension" : [
             {
@@ -219,10 +206,10 @@
       }
     },
     {
-      "fullUrl" : "Device/1697038832284244000.b2e60a34-2c7e-4559-9304-c0e746389c2d",
+      "fullUrl" : "Device/1697636953920620000.71d22d93-d723-4a9a-9943-f1a8b8bd461f",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1697038832284244000.b2e60a34-2c7e-4559-9304-c0e746389c2d",
+        "id" : "1697636953920620000.71d22d93-d723-4a9a-9943-f1a8b8bd461f",
         "meta" : {
           "extension" : [
             {

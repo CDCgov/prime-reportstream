@@ -65,3 +65,8 @@ data "azurerm_key_vault_secret" "chatops_github_token" {
   name         = "chatops-github-token"
   key_vault_id = data.azurerm_key_vault.tf-secrets.id
 }
+
+data "azurerm_key_vault_secret" "caller_ip_addresses" {
+  name         = "tf-caller-ip-addresses"
+  key_vault_id = data.azurerm_key_vault.tf-secrets.id
+}
