@@ -26,6 +26,9 @@ class CompareFhirData(
     private val skippedProperties: List<String> = defaultSkippedProperties,
     private val dynamicProperties: List<String> = defaultDynamicProperties,
 ) : Logging {
+
+    private val visitedResources = mutableSetOf<String>()
+
     /**
      * Compare the data in the [actual] report to the data in the [expected] report.  This
      * comparison steps through all the resources in the FHIR bundle and compares all the values in the
@@ -45,7 +48,7 @@ class CompareFhirData(
         val expectedJson = expected.bufferedReader().readText()
         val actualJson = actual.bufferedReader().readText()
 
-        jamieTest(expectedJson, actualJson)
+        logJsonDiff(expectedJson, actualJson)
 
         val expectedBundle = FhirTranscoder.decode(expectedJson)
         val actualBundle = FhirTranscoder.decode(actualJson)
@@ -54,23 +57,28 @@ class CompareFhirData(
         return result
     }
 
-    private fun jamieTest(
-        expectedJson: String,
-        actualJson: String,
-    ) {
+    private fun logJsonDiff(expectedJson: String, actualJson: String) {
         val mapper = ObjectMapper()
         val expectedParsedJson = mapper.readTree(expectedJson)
         val actualParsedJson = mapper.readTree(actualJson)
 
         val patches = JsonDiff.asJson(expectedParsedJson, actualParsedJson) as ArrayNode
+
+        // remove all diffs that are expected
         val filtered = listOf("/id", "/fullUrl", "/lastUpdated", "/timestamp", "/reference")
         val filteredList = patches.filter { patch ->
             !filtered.any { filteredField ->
                 patch.at("/path").asText().endsWith(filteredField)
             }
         }
+
         val array = mapper.createArrayNode().addAll(filteredList)
-        logger.info("JSON diff:\n${array.toPrettyString()}")
+        if (filteredList.isNotEmpty()) {
+            logger.info(
+                "JSON diff. Make the following changes to the expected JSON " +
+                "for it to match the actual JSON:\n${array.toPrettyString()}"
+            )
+        }
     }
 
     /**
@@ -94,28 +102,37 @@ class CompareFhirData(
             resourcesToCompare[expectedEntry.resource] = matchingActualEntries
         }
 
-        // Compare all the resources.
-        resourcesToCompare.keys.forEach { expectedResource ->
-            resourcesToCompare[expectedResource]?.let {
-                if (resourcesToCompare[expectedResource]!!.isNotEmpty()) {
-                    val resourceResult = compareResource(
-                        expectedResource, resourcesToCompare[expectedResource]!!,
-                        getFhirIdPath("", expectedResource),
-                        getFhirTypePath("", expectedResource)
-                    )
-                    result.merge(resourceResult)
-                } else {
-                    val msg = "There were no actual resources to compare to ${expectedResource.id}"
-                    logger.error(msg)
-                    result.errors.add(msg)
-                    result.passed = false
-                }
+        // Cause error if trying to compare empty resources
+        val nonEmptyResources = resourcesToCompare.filter { (expectedResource, actualResources) ->
+            val empty = actualResources.isEmpty()
+            if (empty) {
+                val msg = "There were no actual resources to compare to ${expectedResource.id}"
+                logger.error(msg)
+                result.errors.add(msg)
+                result.passed = false
             }
+
+            !empty
         }
+
+        // Compare all the resources
+        nonEmptyResources.forEach { (expectedResource, actualResources) ->
+            val resourceResult = compareResource(
+                expectedResource,
+                actualResources,
+                getFhirIdPath("", expectedResource),
+                getFhirTypePath("", expectedResource)
+            )
+            result.merge(resourceResult)
+        }
+
         logger.info("FINAL RESULT: FHIR bundles are ${if (result.passed) "IDENTICAL" else "DIFFERENT"}")
         result.errors.forEach {
             logger.error(it)
         }
+
+        // clear visited resources set in case we decided to run the same comparison again
+        visitedResources.clear()
     }
 
     /**
@@ -129,6 +146,15 @@ class CompareFhirData(
         parentIdPath: String,
         parentTypePath: String,
     ): CompareData.Result {
+        // early return if we've already checked this resource
+        val maybeResourcesId = generateResourcesId(actualResources)
+        if (maybeResourcesId != null && visitedResources.contains(maybeResourcesId)) {
+            return CompareData.Result(true)
+        }
+
+        // add resources ID to visited Set to avoid double-checking resources
+        maybeResourcesId?.let { visitedResources.add(it) }
+
         var result = CompareData.Result(true)
         result.passed = false
         var actualIdPath = ""
@@ -179,8 +205,8 @@ class CompareFhirData(
         }
         // Only compare properties we need
         filterResourceProperties(expectedProperty).forEach { expectedChild ->
-            val actualChild = actualProperty.getChildByName(expectedChild.name)
-            if (expectedChild.values.size != actualChild.values.size) {
+            val actualChild: Property? = actualProperty.getChildByName(expectedChild.name)
+            if (actualChild != null && expectedChild.values.size != actualChild.values.size) {
                 val differentChildSizesError = createDifferentChildSizesError(
                     expectedChild,
                     actualChild,
@@ -255,7 +281,6 @@ class CompareFhirData(
                 expectedPrimitive.equalsDeep(it)
             }
         }
-
         if (!primitiveResult.passed) {
             val msg = if (expectedPrimitive is PrimitiveType<*>) {
                 val actualPrimitivesValues = actualPrimitive
@@ -384,6 +409,18 @@ class CompareFhirData(
                         "$parentIdPath->${resource.idBase}"
                     }
                 else -> parentIdPath
+            }
+        }
+
+        /**
+         * comma delimited list of IDs
+         */
+        internal fun generateResourcesId(resources: List<Base>): String? {
+            val ids = resources.filter { it.idBase != null }
+            return if (ids.isNotEmpty()) {
+                ids.joinToString { it.idBase }
+            } else {
+                null
             }
         }
     }
