@@ -195,7 +195,7 @@ class BlobAccess() : Logging {
 
         /**
          * Data class for returning the current version of a blob
-         * and optionally it's past versions
+         * and optionally its past versions
          */
         data class BlobItemAndPreviousVersions(
             val currentBlobItem: BlobItem,
@@ -215,7 +215,7 @@ class BlobAccess() : Logging {
          *
          * @param directory - the prefix to filter the blobs by
          * @param blobConnInfo - metadata of which azure storage account to read from
-         * @param includeVersion - whether or not to return the past versions of the blobs
+         * @param includeVersion - whether to return the past versions of the blobs
          * @returns the list of current blob items with optionally the previous versions
          */
         fun listBlobs(
@@ -233,12 +233,9 @@ class BlobAccess() : Logging {
             } else {
                 val grouped = results.groupBy { it.name }
                 grouped.values.mapNotNull { blobs ->
-                    val current = blobs.find { it.isCurrentVersion }
-                    if (current == null) {
-                        // If there is no current version that means the blob has been soft-deleted and we
-                        // will not include it in the results
-                        return@mapNotNull null
-                    }
+                    // If there is no current version that means the blob has been soft-deleted and we
+                    // will not include it in the results
+                    val current = blobs.find { it.isCurrentVersion } ?: return@mapNotNull null
                     // Blob version IDs are the timestamps of when the version is created
                     // so perform a sort previousBlobItemVersions such that first item is the most
                     // recent previous version
@@ -328,7 +325,7 @@ class BlobAccess() : Logging {
          * If one exists for the container name and connection string, the existing one will be reused.
          * @return the blob container client
          */
-        fun getBlobContainer(blobConnInfo: BlobContainerMetadata): BlobContainerClient {
+        private fun getBlobContainer(blobConnInfo: BlobContainerMetadata): BlobContainerClient {
             return if (blobContainerClients.containsKey(blobConnInfo)) {
                 blobContainerClients[blobConnInfo]!!
             } else {
