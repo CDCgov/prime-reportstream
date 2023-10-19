@@ -167,7 +167,7 @@ valueCodeableConcept:
 
 valuePeriod:
   condition: $obx2 EQUALS DR
-  valueOf: datatypes/common/Period
+  valueOf: datatype/Period
   expressionType: resource
   vars:
     code: OBX.5

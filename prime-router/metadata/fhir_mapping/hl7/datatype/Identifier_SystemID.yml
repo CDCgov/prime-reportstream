@@ -38,7 +38,7 @@ value:
   expressionType: HL7Spec
 
 period:
-  valueOf: datatypes/common/Period
+  valueOf: datatype/Period
   expressionType: resource
   vars:
     start: CX.7 | CWE.7 | XCN.19

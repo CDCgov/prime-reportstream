@@ -81,7 +81,7 @@ use_4:
     useCode: String, XTN.2
 
 period:
-  valueOf: datatypes/common/Period
+  valueOf: datatype/Period
   expressionType: resource
   vars:
     start: XTN.13

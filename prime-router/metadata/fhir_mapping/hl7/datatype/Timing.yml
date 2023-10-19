@@ -2,7 +2,7 @@ repeat:
   expressionType: nested
   expressionsMap:
     boundsPeriod:
-      valueOf: datatypes/common/Period
+      valueOf: datatype/Period
       expressionType: resource
       vars:
         start: $startTiming

@@ -18,7 +18,7 @@ type:
     system: $typeCodeSystem
 
 period:
-  valueOf: datatypes/common/Period
+  valueOf: datatype/Period
   expressionType: resource
   vars:
     start: $start

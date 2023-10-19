@@ -48,7 +48,7 @@ suffix_3:
   expressionType: HL7Spec
 
 period:
-  valueOf: datatypes/common/Period
+  valueOf: datatype/Period
   expressionType: resource
   vars:
     start: XPN.12 | XCN.19

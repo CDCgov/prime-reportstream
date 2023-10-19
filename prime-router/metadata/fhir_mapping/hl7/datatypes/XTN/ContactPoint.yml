@@ -267,11 +267,22 @@ extension_12-unformatted-telephone-number:
       value: $unformattedTelNum
 
 period:
-  valueOf: datatypes/common/Period
-  expressionType: resource
+  generateList: true
+  expressionType: nested
   vars:
     start: XTN.13
     end: XTN.14
+  expressionsMap:
+    start:
+      condition: $start NOT_NULL
+      type: STRING
+      valueOf: "GeneralUtils.dateTimeWithZoneId(start,ZONEID)"
+      expressionType: JEXL
+    end:
+      condition: $end NOT_NULL
+      type: STRING
+      valueOf: "GeneralUtils.dateTimeWithZoneId(end,ZONEID)"
+      expressionType: JEXL
 
 rank:
   type: POSITIVEINT

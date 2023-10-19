@@ -57,7 +57,7 @@ type:
 
 # date range        
 period_1:
-  valueOf: datatypes/common/Period
+  valueOf: datatype/Period
   expressionType: resource
   vars:
     start: XAD.12.1

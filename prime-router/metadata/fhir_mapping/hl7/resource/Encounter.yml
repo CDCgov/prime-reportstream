@@ -72,7 +72,7 @@ episodeOfCare:
   expressionType: HL7Spec
 
 period:
-  valueOf: datatypes/common/Period
+  valueOf: datatype/Period
   expressionType: resource
   vars:
     start: PV1.44 | EVN.6 | EVN.2
