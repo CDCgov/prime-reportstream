@@ -73,7 +73,7 @@ identifier_1:
         xon6: String, XON.6
       generateList: true
       expressionType: resource
-      valueOf: datatype/HDToExtensionAssigningAuthority
+      valueOf: datatypes/HD/ExtensionAssigningAuthority
       specs: XON.6
     extension_4-location:
       condition: $xon8 NOT_NULL
@@ -87,7 +87,7 @@ identifier_1:
           value: identifier-location
         valueReference:
           expressionType: reference
-          valueOf: datatype/HDToLocation
+          valueOf: datatypes/HD/Location
           specs: XON.8
 
 extension_1-name-representation-code:
