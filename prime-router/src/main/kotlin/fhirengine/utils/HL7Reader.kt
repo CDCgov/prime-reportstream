@@ -164,7 +164,7 @@ class HL7Reader(private val actionLogger: ActionLogger) : Logging {
      */
     private fun logHL7ParseFailure(
         exception: Hl7InputStreamMessageStringIterator.ParseFailureError,
-        isError: Boolean = true
+        isError: Boolean = true,
     ) {
         logger.error("Failed to parse message", exception)
         // Get the exception root cause and log it accordingly

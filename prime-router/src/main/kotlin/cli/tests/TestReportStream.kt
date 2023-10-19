@@ -346,7 +346,7 @@ data class CoolTestOptions(
     val sender: String? = null, // who is santa sending from?
     val targetStates: String? = null, // who is santa sending to?
     val runSequential: Boolean = false,
-    val asyncProcessMode: Boolean = false // if true, pass 'processing=async' on all tests
+    val asyncProcessMode: Boolean = false, // if true, pass 'processing=async' on all tests
 )
 
 abstract class CoolTest {
@@ -364,7 +364,7 @@ abstract class CoolTest {
         message: Any?,
         trailingNewline: Boolean,
         err: Boolean,
-        lineSeparator: String
+        lineSeparator: String,
     ) -> Unit = fun(
         /** [message] is what you want to write to the command line. it will have `toString` called on it */
         message: Any?,
@@ -373,7 +373,7 @@ abstract class CoolTest {
         /** Flag for whether or not to write to stderr instead of stdout */
         err: Boolean,
         /** The line separator, typically \n, though could be \r\n if you're on Windows */
-        lineSeparator: String
+        lineSeparator: String,
     ) {
         // munge the text
         val text = message?.toString()?.replace(Regex("\r?\n"), lineSeparator) ?: "null"
@@ -390,7 +390,7 @@ abstract class CoolTest {
 
     abstract suspend fun run(
         environment: Environment,
-        options: CoolTestOptions
+        options: CoolTestOptions,
     ): Boolean
 
     lateinit var db: DatabaseAccess
@@ -399,10 +399,11 @@ abstract class CoolTest {
      * Store a message [msg] string.
      */
     private fun storeMsg(msg: String) {
-        if (outputToConsole)
+        if (outputToConsole) {
             echoFn(msg, true, false, "\n")
-        else
+        } else {
             outputMsgs.add(msg)
+        }
     }
 
     /**
@@ -495,8 +496,9 @@ abstract class CoolTest {
                 }
                 timeElapsedSecs += pollSleepSecs
                 queryResult = queryForStepResults(reportId, taskAction)
-                if (queryResult.isNotEmpty())
+                if (queryResult.isNotEmpty()) {
                     break
+                }
             }
         }
         echo("Polling for PROCESS records finished in ${actualTimeElapsedMillis / 1000} seconds")
@@ -508,7 +510,7 @@ abstract class CoolTest {
      * Looks for at least one row in the covidResultMetadata table for [reportId]
      */
     fun queryForCovidResults(
-        reportId: ReportId
+        reportId: ReportId,
     ): Boolean {
         var passed = false
         db = WorkflowEngine().db
@@ -522,8 +524,9 @@ abstract class CoolTest {
             @Suppress("SENSELESS_COMPARISON")
             passed = ret != null && ret.size > 0
         }
-        if (passed)
+        if (passed) {
             good("Covid result metadata found.")
+        }
         return passed
     }
 
@@ -568,7 +571,7 @@ abstract class CoolTest {
      */
     private fun queryForStepResults(
         reportId: ReportId,
-        taskAction: TaskAction
+        taskAction: TaskAction,
     ): Map<UUID, DetailedSubmissionHistory?> {
         var queryResult = emptyMap<UUID, DetailedSubmissionHistory?>()
         db = WorkflowEngine().db
@@ -584,12 +587,12 @@ abstract class CoolTest {
      * @return true if there are no errors in the response, false otherwise
      */
     fun examineProcessResponse(history: DetailedSubmissionHistory?): Boolean {
-
         var passed = true
         try {
             // if there is no process response, this test fails
-            if (history == null)
+            if (history == null) {
                 return bad("Test Failed: No process response")
+            }
 
             val reportId = history.reportId
             echo("Id of submitted report: $reportId")
@@ -624,12 +627,12 @@ abstract class CoolTest {
      * @return true if there are no errors in the response, false otherwise
      */
     fun examineStepResponse(history: DetailedSubmissionHistory?, step: String, senderTopic: Topic): Boolean {
-
         var passed = true
         try {
             // if there is no response, this test fails
-            if (history == null)
+            if (history == null) {
                 return bad("Test Failed: No $step response")
+            }
 
             val reportId = history.reportId
             echo("Id of submitted report: $reportId")
@@ -669,7 +672,7 @@ abstract class CoolTest {
         maxPollSecs: Int = 840,
         pollSleepSecs: Int = 30, // I had this as every 5 secs, but was getting failures.  The queries run unfastly.
         asyncProcessMode: Boolean = false,
-        isUniversalPipeline: Boolean = false
+        isUniversalPipeline: Boolean = false,
     ): Boolean {
         var timeElapsedSecs = 0
         var queryResults = listOf<Pair<Boolean, String>>()
@@ -695,17 +698,19 @@ abstract class CoolTest {
                     asyncProcessMode,
                     isUniversalPipeline
                 )
-                if (!queryResults.map { it.first }.contains(false))
+                if (!queryResults.map { it.first }.contains(false)) {
                     break // everything passed!
+                }
             }
         }
         echo("Test $name finished in ${actualTimeElapsedMillis / 1000} seconds")
         if (!silent) {
             queryResults.forEach {
-                if (it.first)
+                if (it.first) {
                     good(it.second)
-                else
+                } else {
                     bad(it.second)
+                }
             }
         }
         return !queryResults.map { it.first }.contains(false) // no falses == it passed!
@@ -717,7 +722,7 @@ abstract class CoolTest {
         totalItems: Int,
         filterOrgName: Boolean = false,
         asyncProcessMode: Boolean = false,
-        isUniversalPipeline: Boolean
+        isUniversalPipeline: Boolean,
     ): List<Pair<Boolean, String>> {
         val queryResults = mutableListOf<Pair<Boolean, String>>()
         db = WorkflowEngine().db
@@ -751,7 +756,9 @@ abstract class CoolTest {
                     )
                     val expected = if (action == TaskAction.receive && asyncProcessMode && !isUniversalPipeline) {
                         totalItems
-                    } else totalItems / receivers.size
+                    } else {
+                        totalItems / receivers.size
+                    }
                     queryResults += if (count == null || expected != count) {
                         Pair(
                             false,
@@ -804,11 +811,11 @@ abstract class CoolTest {
             if (topic != null && !topic.isNull &&
                 (
                     listOf(
-                            Topic.COVID_19.jsonVal,
-                            Topic.FULL_ELR.jsonVal,
-                            Topic.ETOR_TI.jsonVal,
-                            Topic.ELR_ELIMS.jsonVal
-                        ).contains(topic.textValue())
+                        Topic.COVID_19.jsonVal,
+                        Topic.FULL_ELR.jsonVal,
+                        Topic.ETOR_TI.jsonVal,
+                        Topic.ELR_ELIMS.jsonVal
+                    ).contains(topic.textValue())
                     )
             ) {
                 good("'topic' is in response and correctly set")
@@ -824,12 +831,13 @@ abstract class CoolTest {
                 passed = bad("***$name Test FAILED***: There were errors reported.")
             }
 
-            if (shouldHaveDestination)
+            if (shouldHaveDestination) {
                 if (destCount != null && !destCount.isNull && destCount.intValue() > 0) {
                     good("Data going to be sent to one or more destinations.")
                 } else {
                     passed = bad("***$name Test FAILED***: There are no destinations set for sending the data.")
                 }
+            }
 
             if (reportId == null) {
                 passed = bad("***$name Test FAILED***: Report ID was empty.")
@@ -1012,7 +1020,7 @@ abstract class CoolTest {
         fun stepActionResultQuery(
             txn: DataAccessTransaction,
             reportId: UUID,
-            taskAction: TaskAction
+            taskAction: TaskAction,
         ): Map<UUID, DetailedSubmissionHistory?> {
             val ctx = DSL.using(txn)
 
@@ -1041,8 +1049,9 @@ abstract class CoolTest {
                         ret.reportItemCount = report.itemCount
                         ret.externalName = report.externalName
                         ret.topic = report.schemaTopic
-                        if (!report.sendingOrg.isNullOrBlank() && !report.sendingOrgClient.isNullOrBlank())
+                        if (!report.sendingOrg.isNullOrBlank() && !report.sendingOrgClient.isNullOrBlank()) {
                             ret.sender = ClientSource(report.sendingOrg, report.sendingOrgClient).name
+                        }
 
                         // Get errors and warnings
                         ret.logs = ctx.selectFrom(ACTION_LOG).where(
@@ -1052,7 +1061,9 @@ abstract class CoolTest {
                         ).fetchInto(DetailedActionLog::class.java)
                     }
                     actionResponses[childReportId] = ret
-                } else actionResponses[childReportId] = null
+                } else {
+                    actionResponses[childReportId] = null
+                }
             }
 
             return actionResponses
@@ -1071,7 +1082,7 @@ abstract class CoolTest {
             receivingOrgSvc: String? = null,
             receivingOrg: String? = null,
             action: TaskAction,
-            isUniversalPipeline: Boolean
+            isUniversalPipeline: Boolean,
         ): Int? {
             val ctx = DSL.using(txn)
             return if (isUniversalPipeline) {
@@ -1137,7 +1148,7 @@ abstract class CoolTest {
         fun sftpFilenameQuery(
             txn: DataAccessTransaction,
             reportId: ReportId,
-            receivingOrgSvc: String
+            receivingOrgSvc: String,
         ): String? {
             val ctx = DSL.using(txn)
             val sql = """select RF.external_name

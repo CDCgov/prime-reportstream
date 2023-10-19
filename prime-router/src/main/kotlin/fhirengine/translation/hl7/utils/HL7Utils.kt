@@ -34,12 +34,15 @@ object HL7Utils : Logging {
             if (AbstractMessage::class.java.isAssignableFrom(messageClass)) {
                 // We verify above that we have a valid subclass of Message as required for parsing
                 // but the compiler does not know that, so we have to cast
-                @Suppress("UNCHECKED_CAST") val context =
+                @Suppress("UNCHECKED_CAST")
+                val context =
                     DefaultHapiContext(CanonicalModelClassFactory(messageClass as Class<out Message>))
                 context.validationContext = ValidationContextFactory.noValidation()
                 val message = context.newMessage(messageClass)
                 message
-            } else throw IllegalArgumentException("$hl7Class is not a subclass of ca.uhn.hl7v2.model.Message.")
+            } else {
+                throw IllegalArgumentException("$hl7Class is not a subclass of ca.uhn.hl7v2.model.Message.")
+            }
         } catch (e: Exception) {
             throw IllegalArgumentException("$hl7Class is not a class to use for the conversion.")
         }
@@ -51,9 +54,11 @@ object HL7Utils : Logging {
      */
     internal fun getMessageTypeString(message: Message): List<String> {
         val typeParts = message.javaClass.simpleName.split("_")
-        return if (typeParts.size != 2)
+        return if (typeParts.size != 2) {
             throw IllegalArgumentException("${message.javaClass.simpleName} is not a class to use for the conversion.")
-        else typeParts
+        } else {
+            typeParts
+        }
     }
 
     /**
@@ -139,6 +144,8 @@ object HL7Utils : Logging {
 
         return if (start != -1 && end != -1) {
             field.replaceRange(start, end + 1, "")
-        } else field
+        } else {
+            field
+        }
     }
 }

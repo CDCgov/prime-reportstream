@@ -181,11 +181,11 @@ class BlobAccessTests {
         val testBlobMetadata = BlobAccess.BlobContainerMetadata.build(testContainer, testEnv)
 
         val mockedBlobClient = mockkClass(BlobClient::class)
-        every { mockedBlobClient.upload(any<ByteArrayInputStream>(), any<Long>()) } returns(Unit)
+        every { mockedBlobClient.upload(any<ByteArrayInputStream>(), any<Long>()) } returns (Unit)
         every { mockedBlobClient.blobUrl } returns testUrl
         val mockedContainerClient = mockkClass(BlobContainerClient::class)
         every { mockedContainerClient.exists() } returns false
-        every { mockedContainerClient.create() } returns(Unit)
+        every { mockedContainerClient.create() } returns (Unit)
         every { mockedContainerClient.getBlobClient(testName) } returns mockedBlobClient
         val mockedServiceClient = mockkClass(BlobServiceClient::class)
         every { mockedServiceClient.getBlobContainerClient(testContainer) } returns mockedContainerClient

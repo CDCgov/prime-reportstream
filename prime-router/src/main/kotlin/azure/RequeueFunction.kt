@@ -31,7 +31,7 @@ class RequeueFunction : Logging {
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.FUNCTION, // Azure function auth `x-functions-key`
             route = "requeue/send"
-        ) request: HttpRequestMessage<String?>
+        ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         logger.info("Entering requeue/send api")
         return handleRequest(request, null)
@@ -76,10 +76,11 @@ class RequeueFunction : Logging {
         workflowEngine: WorkflowEngine,
         msgs: MutableList<String>,
     ): HttpResponseMessage {
-        val isTest = ! request.queryParameters["test"].isNullOrEmpty()
+        val isTest = !request.queryParameters["test"].isNullOrEmpty()
         if (isTest) msgs.add("Here is what would happen if this were NOT a test:")
-        if (request.queryParameters.size < 2 || request.queryParameters.size > 4)
+        if (request.queryParameters.size < 2 || request.queryParameters.size > 4) {
             return HttpUtilities.bad(request, "Expecting 2 to 4 parameters\n")
+        }
         val reportIdStr = request.queryParameters["reportId"]
             ?: return HttpUtilities.bad(request, "Missing option reportId\n")
         val reportId = UUID.fromString(reportIdStr)

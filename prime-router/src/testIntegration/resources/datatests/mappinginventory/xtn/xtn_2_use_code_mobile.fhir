@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1697229891402572000.c2969352-73f8-408b-92f3-b1342ea5506d",
+  "id" : "1697639629884334000.e94c5696-a5a7-4f20-9de5-e7b6c4576e3e",
   "meta" : {
-    "lastUpdated" : "2023-10-13T16:44:51.416-04:00"
+    "lastUpdated" : "2023-10-18T10:33:49.898-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -10,194 +10,240 @@
   },
   "type" : "message",
   "timestamp" : "2023-05-01T10:25:31.000-04:00",
-  "entry" : [ {
-    "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
-    "resource" : {
-      "resourceType" : "MessageHeader",
-      "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ]
-      },
-      "extension" : [ {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
-        "valueString" : "^~\\&#"
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
-        "valueIdentifier" : { }
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
-        "valueString" : "UNICODE UTF-8"
-      } ],
-      "eventCoding" : {
-        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
-        "code" : "R01",
-        "display" : "ORU/ACK - Unsolicited transmission of an observation message"
-      },
-      "sender" : {
-        "reference" : "Organization/1697229892331615000.7514b471-2604-451f-b9e2-dd369971efb2"
-      },
-      "source" : { },
-      "responsible" : {
-        "reference" : "Organization/1697229892333462000.ed6640f0-7450-4550-a217-e73770ccdd33"
-      }
-    }
-  }, {
-    "fullUrl" : "Organization/1697229892331615000.7514b471-2604-451f-b9e2-dd369971efb2",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "1697229892331615000.7514b471-2604-451f-b9e2-dd369971efb2",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ]
-      },
-      "address" : [ {
-        "country" : "USA"
-      } ]
-    }
-  }, {
-    "fullUrl" : "Organization/1697229892333462000.ed6640f0-7450-4550-a217-e73770ccdd33",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "1697229892333462000.ed6640f0-7450-4550-a217-e73770ccdd33",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ]
-      },
-      "identifier" : [ { } ]
-    }
-  }, {
-    "fullUrl" : "Provenance/1697229892643754000.6f2375b9-15df-4706-81d2-f260d1d44e46",
-    "resource" : {
-      "resourceType" : "Provenance",
-      "id" : "1697229892643754000.6f2375b9-15df-4706-81d2-f260d1d44e46",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ]
-      },
-      "recorded" : "2023-05-01T10:25:31-04:00",
-      "activity" : {
-        "coding" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-            "valueString" : "identifier"
-          } ],
+  "entry" : [
+    {
+      "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
+      "resource" : {
+        "resourceType" : "MessageHeader",
+        "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
+        "meta" : {
+          "extension" : [
+            {
+              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString" : "2.5.1"
+            }
+          ]
+        },
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+            "valueString" : "^~\\&#"
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
+            "valueIdentifier" : {}
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
+            "valueString" : "UNICODE UTF-8"
+          }
+        ],
+        "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "R01",
-          "display" : "ORU_R01"
-        } ]
-      },
-      "agent" : [ {
-        "type" : {
-          "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
-            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
-            "code" : "author"
-          } ]
+          "display" : "ORU/ACK - Unsolicited transmission of an observation message"
+        },
+        "sender" : {
+          "reference" : "Organization/1697639630897303000.5cf4195f-8880-4dd8-910d-aa1d4dec56fb"
+        },
+        "source" : {}
+      }
+    },
+    {
+      "fullUrl" : "Organization/1697639630897303000.5cf4195f-8880-4dd8-910d-aa1d4dec56fb",
+      "resource" : {
+        "resourceType" : "Organization",
+        "id" : "1697639630897303000.5cf4195f-8880-4dd8-910d-aa1d4dec56fb",
+        "meta" : {
+          "extension" : [
+            {
+              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString" : "2.5.1"
+            }
+          ]
+        },
+        "address" : [
+          {
+            "country" : "USA"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1697639631210379000.4c0f1edf-9e83-4b96-b464-549c10a5c538",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1697639631210379000.4c0f1edf-9e83-4b96-b464-549c10a5c538",
+        "meta" : {
+          "extension" : [
+            {
+              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString" : "2.5.1"
+            }
+          ]
+        },
+        "recorded" : "2023-05-01T10:25:31-04:00",
+        "activity" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                  "valueString" : "identifier"
+                }
+              ],
+              "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+              "code" : "R01",
+              "display" : "ORU_R01"
+            }
+          ]
+        },
+        "agent" : [
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                      "valueString" : "identifier"
+                    }
+                  ],
+                  "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+                  "code" : "author"
+                }
+              ]
+            }
+          }
+        ],
+        "entity" : [
+          {
+            "role" : "source",
+            "what" : {
+              "reference" : "Device/1697639631212401000.37cd7161-c7b3-4ba8-9c74-9ee949072ad8"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Device/1697639631212401000.37cd7161-c7b3-4ba8-9c74-9ee949072ad8",
+      "resource" : {
+        "resourceType" : "Device",
+        "id" : "1697639631212401000.37cd7161-c7b3-4ba8-9c74-9ee949072ad8",
+        "meta" : {
+          "extension" : [
+            {
+              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString" : "2.5.1"
+            }
+          ]
         }
-      } ],
-      "entity" : [ {
-        "role" : "source",
-        "what" : {
-          "reference" : "Device/1697229892645907000.ad022f5d-f9d2-4bde-92f2-4d0a925ce9e4"
-        }
-      } ]
-    }
-  }, {
-    "fullUrl" : "Device/1697229892645907000.ad022f5d-f9d2-4bde-92f2-4d0a925ce9e4",
-    "resource" : {
-      "resourceType" : "Device",
-      "id" : "1697229892645907000.ad022f5d-f9d2-4bde-92f2-4d0a925ce9e4",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ]
+      }
+    },
+    {
+      "fullUrl" : "Patient/1697639631259059000.f4df168b-a094-41cf-8554-e726f52033bd",
+      "resource" : {
+        "resourceType" : "Patient",
+        "id" : "1697639631259059000.f4df168b-a094-41cf-8554-e726f52033bd",
+        "meta" : {
+          "extension" : [
+            {
+              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+              "valueString" : "2.5.1"
+            }
+          ]
+        },
+        "extension" : [
+          {
+            "url" : "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
+            "valueCodeableConcept" : {
+              "coding" : [
+                {
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                      "valueString" : "identifier"
+                    }
+                  ],
+                  "system" : "NULLFL",
+                  "version" : "2.5.1",
+                  "code" : "ASKU",
+                  "display" : "Asked, but unknown"
+                }
+              ]
+            }
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group",
+            "valueCodeableConcept" : {
+              "coding" : [
+                {
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                      "valueString" : "identifier"
+                    }
+                  ],
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0189",
+                  "version" : "2.9",
+                  "code" : "N",
+                  "display" : "Non Hispanic or Latino"
+                }
+              ]
+            }
+          }
+        ],
+        "identifier" : [
+          {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id",
+                "valueString" : "Any lab USA"
+              }
+            ],
+            "type" : {
+              "coding" : [
+                {
+                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code" : "PI",
+                  "display" : "Patient internal identifier"
+                }
+              ]
+            },
+            "value" : "kc3oy"
+          }
+        ],
+        "name" : [
+          {
+            "use" : "official",
+            "text" : "Stephenie Davis Schaefer",
+            "family" : "Schaefer",
+            "given" : [
+              "Stephenie",
+              "Davis"
+            ]
+          }
+        ],
+        "telecom" : [
+          {
+            "system" : "phone",
+            "value" : "+1 260 759 5016",
+            "use" : "mobile"
+          }
+        ],
+        "gender" : "unknown",
+        "birthDate" : "1993-02-27",
+        "deceasedBoolean" : false,
+        "address" : [
+          {
+            "line" : [
+              "96633 Gilberto Course"
+            ],
+            "state" : "IG"
+          }
+        ]
       }
     }
-  }, {
-    "fullUrl" : "Patient/1697229892690392000.0fffc1e4-eb88-4ab9-ab0c-f4461f81d558",
-    "resource" : {
-      "resourceType" : "Patient",
-      "id" : "1697229892690392000.0fffc1e4-eb88-4ab9-ab0c-f4461f81d558",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ]
-      },
-      "extension" : [ {
-        "url" : "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",
-        "valueCodeableConcept" : {
-          "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
-            "system" : "NULLFL",
-            "version" : "2.5.1",
-            "code" : "ASKU",
-            "display" : "Asked, but unknown"
-          } ]
-        }
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group",
-        "valueCodeableConcept" : {
-          "coding" : [ {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-              "valueString" : "identifier"
-            } ],
-            "system" : "http://terminology.hl7.org/CodeSystem/v2-0189",
-            "version" : "2.9",
-            "code" : "N",
-            "display" : "Non Hispanic or Latino"
-          } ]
-        }
-      } ],
-      "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id",
-          "valueString" : "Any lab USA"
-        } ],
-        "type" : {
-          "coding" : [ {
-            "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-            "code" : "PI",
-            "display" : "Patient internal identifier"
-          } ]
-        },
-        "value" : "kc3oy"
-      } ],
-      "name" : [ {
-        "use" : "official",
-        "text" : "Stephenie Davis Schaefer",
-        "family" : "Schaefer",
-        "given" : [ "Stephenie", "Davis" ]
-      } ],
-      "telecom" : [ {
-        "system" : "phone",
-        "value" : "+1 260 759 5016",
-        "use" : "mobile"
-      } ],
-      "gender" : "unknown",
-      "birthDate" : "1993-02-27",
-      "deceasedBoolean" : false,
-      "address" : [ {
-        "line" : [ "96633 Gilberto Course" ],
-        "state" : "IG"
-      } ]
-    }
-  } ]
+  ]
 }
