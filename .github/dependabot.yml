@@ -8,7 +8,15 @@ updates:
 
   # Docker
   - package-ecosystem: "docker"
-    directory: "/"
+    directory: "/operations"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/prime-router"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/.environment/docker/docker-compose"
     schedule:
       interval: "weekly"
 
