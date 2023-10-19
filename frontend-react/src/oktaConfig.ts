@@ -54,7 +54,7 @@ const oktaSignInConfig: WidgetOptions = {
     features: {
         registration: false, // Disable self-service registration flow
         rememberMe: false, // Setting to false will remove the checkbox to save username
-        router: false, // Leave this set to true for the API demo
+        router: false, // router enabled allows the widget to change the URL (/signin/*), which we don't want
         webauthn: true, // enable webauthn (yubi, passkey, etc.)
         selfServiceUnlock: true,
         emailRecovery: true,
