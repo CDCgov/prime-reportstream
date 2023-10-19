@@ -11,6 +11,7 @@ hr {
     @include u-margin-top(4);
 
     &.rs-hr--alternate {
+        @include u-border("2px", $theme-hr-alternate-border-color);
         @include u-border("2px", "blue-warm-70v");
         margin-bottom: unset;
     }
