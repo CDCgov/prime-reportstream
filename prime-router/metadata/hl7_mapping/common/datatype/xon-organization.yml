@@ -28,7 +28,7 @@ elements:
     resource: '%resource.identifier.extension(%`rsext-assigning-facility`).value.resolve()'
     constants:
       hl7HDField: '%{hl7OrgField}-8'
-    schema: hd-location
+    schema: ../../resources/Location/HD
 
   - name: xon-name-representation-code
     value: [ '%resource.identifier.extension(%`rsext-name-representation-code`).value' ]
