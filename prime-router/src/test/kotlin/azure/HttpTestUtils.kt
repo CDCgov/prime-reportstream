@@ -49,7 +49,7 @@ class MockHttpResponseMessage : HttpResponseMessage.Builder, HttpResponseMessage
 
 class MockHttpRequestMessage(
     val content: String? = null,
-    val method: HttpMethod = HttpMethod.GET
+    val method: HttpMethod = HttpMethod.GET,
 ) : HttpRequestMessage<String?> {
     val httpHeaders = mutableMapOf<String, String>()
     val parameters = mutableMapOf<String, String>()

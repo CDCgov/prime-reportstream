@@ -22,7 +22,10 @@ class CustomFhirPathFunctions : FhirPathFunctions {
      */
     enum class CustomFhirPathFunctionNames {
 
-        LivdTableLookup;
+        LivdTableLookup,
+
+        ;
+
         companion object {
             /**
              * Get from a [functionName].
@@ -44,10 +47,9 @@ class CustomFhirPathFunctions : FhirPathFunctions {
      */
     override fun resolveFunction(
         functionName: String?,
-        additionalFunctions: FhirPathFunctions?
+        additionalFunctions: FhirPathFunctions?,
     ): FHIRPathEngine.IEvaluationContext.FunctionDetails? {
         return when (CustomFhirPathFunctionNames.get(functionName)) {
-
             CustomFhirPathFunctionNames.LivdTableLookup -> {
                 FHIRPathEngine.IEvaluationContext.FunctionDetails(
                     "looks up data in the LIVD table that match the information provided",
@@ -68,12 +70,11 @@ class CustomFhirPathFunctions : FhirPathFunctions {
         focus: MutableList<Base>?,
         functionName: String?,
         parameters: MutableList<MutableList<Base>>?,
-        additionalFunctions: FhirPathFunctions?
+        additionalFunctions: FhirPathFunctions?,
     ): MutableList<Base> {
         check(focus != null)
         return (
             when (CustomFhirPathFunctionNames.get(functionName)) {
-
                 CustomFhirPathFunctionNames.LivdTableLookup -> {
                     livdTableLookup(focus, parameters)
                 }
@@ -91,7 +92,7 @@ class CustomFhirPathFunctions : FhirPathFunctions {
     fun livdTableLookup(
         focus: MutableList<Base>,
         parameters: MutableList<MutableList<Base>>?,
-        metadata: Metadata = Metadata.getInstance()
+        metadata: Metadata = Metadata.getInstance(),
     ): MutableList<Base> {
         val lookupTable = metadata.findLookupTable(name = LivdLookup.livdTableName)
 

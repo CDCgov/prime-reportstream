@@ -22,7 +22,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
         val useValueSet: Map<String, String>,
         val useMapper: Map<String, Mapper>,
         val useDefault: Map<String, String>,
-        val missing: Set<String>
+        val missing: Set<String>,
     )
 
     data class RoutedReport(
@@ -167,17 +167,19 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
     ): Report {
         // First, retrieve the default filter for this topic and filterType
         val defaultFilters = ReportStreamFilters.defaultFiltersByTopic[receiver.topic]
-        val defaultFilter = if (defaultFilters != null)
+        val defaultFilter = if (defaultFilters != null) {
             filterType.filterProperty.get(defaultFilters)
-        else
+        } else {
             null
+        }
 
         // Next, retrieve the organization-level filter for this topic and filterType
         val orgFilters = organization.filters?.find { it.topic == receiver.topic }
-        var orgFilter = if (orgFilters != null)
+        var orgFilter = if (orgFilters != null) {
             filterType.filterProperty.get(orgFilters)
-        else
+        } else {
             null
+        }
         if (orgFilter.isNullOrEmpty()) orgFilter = null // force null to avoid empty strings
 
         // Last, retrieve the receiver-level filter for this filter type.
@@ -243,7 +245,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
     fun translateByReceiver(
         input: Report,
         receiver: Receiver,
-        defaultValues: DefaultValues = emptyMap()
+        defaultValues: DefaultValues = emptyMap(),
     ): Report {
         // Apply mapping to change schema
         val toReport: Report = if (receiver.schemaName != input.schema.name) {
@@ -255,9 +257,9 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
             if (mapping.missing.isNotEmpty()) {
                 error(
                     "Error: To translate to ${receiver.fullName}, ${toSchema.name}, these elements are missing: ${
-                    mapping.missing.joinToString(
-                        ", "
-                    )
+                        mapping.missing.joinToString(
+                            ", "
+                        )
                     }"
                 )
             }
@@ -268,8 +270,9 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
 
         // Transform reports
         var transformed = toReport
-        if (receiver.deidentify)
+        if (receiver.deidentify) {
             transformed = transformed.deidentify(receiver.deidentifiedValue)
+        }
         val copy = transformed.copy(destination = receiver, bodyFormat = receiver.format)
         copy.filteringResults.addAll(input.filteringResults)
         return copy
@@ -287,7 +290,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
     fun translate(
         input: Report,
         toReceiver: String,
-        defaultValues: DefaultValues = emptyMap()
+        defaultValues: DefaultValues = emptyMap(),
     ): Pair<Report, Receiver>? {
         if (input.isEmpty()) return null
         val receiver = settings.findReceiver(toReceiver) ?: error("invalid receiver name $toReceiver")
@@ -303,7 +306,7 @@ class Translator(private val metadata: Metadata, private val settings: SettingsP
     fun buildMapping(
         toSchema: Schema,
         fromSchema: Schema,
-        defaultValues: DefaultValues
+        defaultValues: DefaultValues,
     ): Mapping {
         if (toSchema.topic != fromSchema.topic) error("Trying to match schema with different topics")
 

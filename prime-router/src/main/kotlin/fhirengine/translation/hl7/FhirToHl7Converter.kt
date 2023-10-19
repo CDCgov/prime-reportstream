@@ -32,7 +32,7 @@ class FhirToHl7Converter(
     private var terser: Terser? = null,
     // the constant substitutor is not thread safe, so we need one instance per converter instead of using a shared copy
     private val constantSubstitutor: ConstantSubstitutor = ConstantSubstitutor(),
-    private val context: FhirToHl7Context? = null
+    private val context: FhirToHl7Context? = null,
 ) : ConfigSchemaProcessor() {
     /**
      * Convert a FHIR bundle to an HL7 message using the [schema] in the [schemaFolder] location to perform the conversion.
@@ -47,7 +47,7 @@ class FhirToHl7Converter(
         schemaFolder: String,
         strict: Boolean = false,
         terser: Terser? = null,
-        context: FhirToHl7Context? = null
+        context: FhirToHl7Context? = null,
     ) : this(
         schemaRef = converterSchemaFromFile(schema, schemaFolder),
         strict = strict,
@@ -66,7 +66,7 @@ class FhirToHl7Converter(
         schema: String,
         strict: Boolean = false,
         terser: Terser? = null,
-        context: FhirToHl7Context? = null
+        context: FhirToHl7Context? = null,
     ) : this(
         schemaRef = converterSchemaFromFile(
             FilenameUtils.getName(schema),
@@ -111,7 +111,7 @@ class FhirToHl7Converter(
             config = this.context?.config,
             translationFunctions = this.context?.translationFunctions
         ),
-        debug: Boolean = false
+        debug: Boolean = false,
     ) {
         val logLevel = if (debug) Level.INFO else Level.DEBUG
         logger.log(logLevel, "Processing schema: ${schema.name} with ${schema.elements.size} elements")
@@ -133,7 +133,7 @@ class FhirToHl7Converter(
         bundle: Bundle,
         schemaResource: Base,
         context: CustomContext,
-        debug: Boolean = false
+        debug: Boolean = false,
     ) {
         val logLevel = if (element.debug || debug) Level.INFO else Level.DEBUG
         logger.trace("Started processing of element ${element.name}...")
@@ -156,12 +156,15 @@ class FhirToHl7Converter(
                     // If this is a schema then process it.
                     element.schemaRef != null -> {
                         // Schema references can have new index references
-                        val indexContext = if (element.resourceIndex.isNullOrBlank()) elementContext
-                        else CustomContext.addConstant(
-                            element.resourceIndex!!,
-                            index.toString(),
+                        val indexContext = if (element.resourceIndex.isNullOrBlank()) {
                             elementContext
-                        )
+                        } else {
+                            CustomContext.addConstant(
+                                element.resourceIndex!!,
+                                index.toString(),
+                                elementContext
+                            )
+                        }
                         logger.log(logLevel, "Processing element ${element.name} with schema ${element.schema} ...")
                         processSchema(
                             element.schemaRef!! as ConverterSchema,
@@ -225,19 +228,25 @@ class FhirToHl7Converter(
                 if (strict) {
                     logger.error(msg, e)
                     throw HL7ConversionException(msg, e)
-                } else logger.warn(msg, e)
+                } else {
+                    logger.warn(msg, e)
+                }
             } catch (e: IllegalArgumentException) {
                 val msg = "Invalid Hl7 spec $resolvedHl7Spec specified in schema for element ${element.name}"
                 if (strict) {
                     logger.error(msg, e)
                     throw SchemaException(msg, e)
-                } else logger.warn(msg, e)
+                } else {
+                    logger.warn(msg, e)
+                }
             } catch (e: Exception) {
                 val msg = "Unknown error while processing element ${element.name}."
                 if (strict) {
                     logger.error(msg, e)
                     throw HL7ConversionException(msg, e)
-                } else logger.warn(msg, e)
+                } else {
+                    logger.warn(msg, e)
+                }
             }
         }
     }
@@ -249,5 +258,5 @@ class FhirToHl7Converter(
 data class FhirToHl7Context(
     val fhirFunctions: FhirPathFunctions,
     val config: ContextConfig? = null,
-    val translationFunctions: TranslationFunctions
+    val translationFunctions: TranslationFunctions,
 )

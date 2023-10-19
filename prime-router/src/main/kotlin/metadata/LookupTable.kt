@@ -57,7 +57,7 @@ open class LookupTable : Logging {
     constructor(
         name: String = "",
         table: List<List<String>>,
-        dbAccess: DatabaseLookupTableAccess? = null
+        dbAccess: DatabaseLookupTableAccess? = null,
     ) {
         this.name = name
         setTableData(table)
@@ -70,7 +70,7 @@ open class LookupTable : Logging {
     constructor(
         name: String = "",
         table: Table = Table.create(),
-        dbAccess: DatabaseLookupTableAccess? = null
+        dbAccess: DatabaseLookupTableAccess? = null,
     ) {
         this.name = name
         this.table = table
@@ -81,15 +81,17 @@ open class LookupTable : Logging {
      * Set the table's data with [tableData].
      */
     private fun setTableData(tableData: List<List<String>>) {
-        if (tableData.isEmpty()) table = Table.create()
-        else {
+        if (tableData.isEmpty()) {
+            table = Table.create()
+        } else {
             // convert to columns
             val colNames = mutableListOf<String>()
             val tableByCols = MutableList<MutableList<String>>(tableData[0].size) { mutableListOf() }
             tableData.forEachIndexed { rowIndex, tableRow ->
                 tableRow.forEachIndexed { colIndex, value ->
-                    if (rowIndex == 0) colNames.add(colIndex, value)
-                    else {
+                    if (rowIndex == 0) {
+                        colNames.add(colIndex, value)
+                    } else {
                         tableByCols[colIndex].add(value)
                     }
                 }
@@ -330,7 +332,9 @@ open class LookupTable : Logging {
         fun filterRows(): Table {
             return if (filterColumn != null && filterValue != null) {
                 FilterBuilder().equalsIgnoreCase(filterColumn, filterValue).filter().table
-            } else table
+            } else {
+                table
+            }
         }
 
         // Split into words
@@ -381,7 +385,9 @@ open class LookupTable : Logging {
         return if (maxRow != null && maxRow.first > 0.0) {
             // If a match, do a lookup
             filteredRows.column(lookupColumn).getString(maxRow.second)
-        } else null
+        } else {
+            null
+        }
     }
 
     /**

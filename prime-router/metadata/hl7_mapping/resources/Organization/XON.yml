@@ -1,0 +1,49 @@
+elements:
+  - name: organization-xon-name
+    value: [ '%resource.name' ]
+    hl7Spec: [ '%{hl7XONField}-1' ]
+
+  - name: organization-xon-name-type
+    resource: '%resource.extension(%`rsext-organization-name-type`).value'
+    condition: '%resource.exists()'
+    constants:
+      cweFieldPath: '%{hl7XONField}-2'
+    schema: ../../common/datatype/ce-coded-with-exceptions
+
+  - name: id-number
+    value: [ '%resource.extension(%`rsext-xon3-id-number`).value' ]
+    hl7Spec: [ '%{hl7XONField}-3' ]
+
+  - name: identifier-check-digit
+    value: [ '%resource.identifier.extension(%`rsext-check-digit`).value' ]
+    hl7Spec: [ '%{hl7XONField}-4' ]
+
+  - name: identifier-check-digit-scheme
+    value: [ '%resource.identifier.extension(%`rsext-check-digit-scheme`).value' ]
+    hl7Spec: [ '%{hl7XONField}-5' ]
+
+  - name: xon-assigning-authority
+    resource: '%resource.identifier.extension(%`rsext-assigning-authority`)'
+    constants:
+      hl7HDField: '%{hl7XONField}-6'
+    schema: ../../datatypes/extensionAssigningAuthority/HD
+
+  - name: xon-organization-id-type
+    resource: '%resource.identifier.type.where(coding.system = ''http://terminology.hl7.org/CodeSystem/v2-0203'')'
+    condition: '%resource.exists()'
+    value: [ '%resource.coding[0].code' ]
+    hl7Spec: [ '%{hl7XONField}-7' ]
+
+  - name: xon-assigning-facility
+    resource: '%resource.identifier.extension(%`rsext-identifier-location`).value.resolve()'
+    constants:
+      hl7HDField: '%{hl7XONField}-8'
+    schema: ../Location/HD
+
+  - name: xon-name-representation-code
+    value: [ '%resource.identifier.extension(%`rsext-name-representation-code`).value' ]
+    hl7Spec: [ '%{hl7XONField}-9' ]
+
+  - name: xon-organization-id
+    value: [ '%resource.extension(%`rsext-xon10-organization-identifier`).value' ]
+    hl7Spec: [ '%{hl7XONField}-10' ]

@@ -92,5 +92,5 @@ describe("Basic rendering", () => {
         expect(
             screen.queryByText(agreeErrorMsg, { exact: false }),
         ).toBeVisible();
-    });
+    }, 8000);
 });

@@ -24,7 +24,7 @@ import java.util.UUID
  */
 abstract class ReportFileFunction(
     private val reportFileFacade: ReportFileFacade,
-    internal val workflowEngine: WorkflowEngine = WorkflowEngine()
+    internal val workflowEngine: WorkflowEngine = WorkflowEngine(),
 ) : Logging {
 
     /**
@@ -76,7 +76,7 @@ abstract class ReportFileFunction(
      */
     fun getListByOrg(
         request: HttpRequestMessage<String?>,
-        organization: String
+        organization: String,
     ): HttpResponseMessage {
         try {
             // Do authentication
@@ -117,7 +117,7 @@ abstract class ReportFileFunction(
      */
     fun getDetailedView(
         request: HttpRequestMessage<String?>,
-        id: String
+        id: String,
     ): HttpResponseMessage {
         try {
             // Do authentication
@@ -154,7 +154,7 @@ abstract class ReportFileFunction(
      */
     fun authSingleBlocks(
         request: HttpRequestMessage<String?>,
-        id: String
+        id: String,
     ): HttpResponseMessage? {
         // Do authentication
         val claims = AuthenticatedClaims.authenticate(request)
@@ -222,9 +222,9 @@ abstract class ReportFileFunction(
         val since: OffsetDateTime?,
         val until: OffsetDateTime?,
         val pageSize: Int,
-        val showFailed: Boolean
+        val showFailed: Boolean,
     ) {
-        constructor(query: Map<String, String>) : this (
+        constructor(query: Map<String, String>) : this(
             sortDir = extractSortDir(query),
             sortColumn = extractSortCol(query),
             cursor = extractDateTime(query, "cursor"),
@@ -277,7 +277,9 @@ abstract class ReportFileFunction(
                     } catch (e: DateTimeParseException) {
                         throw IllegalArgumentException("\"$name\" must be a valid datetime")
                     }
-                } else null
+                } else {
+                    null
+                }
             }
 
             /**

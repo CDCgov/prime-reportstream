@@ -63,6 +63,7 @@ class ConvertValuesetsYamlToCSV : CliktCommand(
             .configure(KotlinFeature.StrictNullChecks, false)
             .build()
     )
+
     init {
         yamlMapper.registerModule(JavaTimeModule())
         yamlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)

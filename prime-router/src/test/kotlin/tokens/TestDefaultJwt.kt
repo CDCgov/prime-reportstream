@@ -9,7 +9,7 @@ class TestDefaultJwt(
     tokenValue: String,
     issuedAt: Instant,
     expiresAt: Instant,
-    claims: Map<String, Any>
+    claims: Map<String, Any>,
 ) : Jwt {
     private val tokenValue: String
     private val claims: Map<String, Any>

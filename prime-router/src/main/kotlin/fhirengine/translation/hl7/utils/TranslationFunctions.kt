@@ -20,14 +20,14 @@ interface TranslationFunctions {
         dateTime: BaseDateTimeType,
         appContext: CustomContext? = null,
         element: ConverterSchemaElement? = null,
-        constantSubstitutor: ConstantSubstitutor? = null
+        constantSubstitutor: ConstantSubstitutor? = null,
     ): String
 
     fun maybeTruncateHL7Field(
         value: String,
         hl7FieldPath: String,
         terser: Terser,
-        appContext: CustomContext?
+        appContext: CustomContext?,
     ): String
 }
 
@@ -42,7 +42,7 @@ open class Hl7TranslationFunctions : TranslationFunctions {
         dateTime: BaseDateTimeType,
         appContext: CustomContext?,
         element: ConverterSchemaElement?,
-        constantSubstitutor: ConstantSubstitutor?
+        constantSubstitutor: ConstantSubstitutor?,
     ): String {
         /**
          * Set the timezone for an [hl7DateTime] if a timezone was specified.
@@ -100,7 +100,7 @@ open class Hl7TranslationFunctions : TranslationFunctions {
         value: String,
         hl7FieldPath: String,
         terser: Terser,
-        appContext: CustomContext?
+        appContext: CustomContext?,
     ): String {
         return value
     }
