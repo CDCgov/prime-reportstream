@@ -1,9 +1,0 @@
-extension:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: "data-absent-reason"
-    valueCode:
-      value: unknown
