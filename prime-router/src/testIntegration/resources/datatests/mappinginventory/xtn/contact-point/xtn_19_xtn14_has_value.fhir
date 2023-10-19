@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1697657055274722000.d2863537-06f2-4ec7-9125-df6d9db022b8",
+  "id" : "1697725283545071000.17d14143-fe2b-4f9d-9efc-4b29cc07d57e",
   "meta" : {
-    "lastUpdated" : "2023-10-18T15:24:15.306-04:00"
+    "lastUpdated" : "2023-10-19T10:21:23.571-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,34 +37,15 @@
         "display" : "ORU/ACK - Unsolicited transmission of an observation message"
       },
       "sender" : {
-        "reference" : "Organization/1697657056979728000.d2b6d9f4-ab89-46bd-94da-534900c09057"
+        "reference" : "Organization/1697725285171836000.7dffc3c0-d6a6-4985-9a9d-1925b553faf8"
       },
-      "source" : {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/software-vendor-org",
-          "valueReference" : {
-            "reference" : "Organization/1697657055419583000.3ef18450-0a23-4215-a9d8-5964471de6f1"
-          }
-        } ]
-      }
+      "source" : { }
     }
   }, {
-    "fullUrl" : "Organization/1697657055419583000.3ef18450-0a23-4215-a9d8-5964471de6f1",
+    "fullUrl" : "Organization/1697725285171836000.7dffc3c0-d6a6-4985-9a9d-1925b553faf8",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1697657055419583000.3ef18450-0a23-4215-a9d8-5964471de6f1",
-      "meta" : {
-        "extension" : [ {
-          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-          "valueString" : "2.5.1"
-        } ]
-      }
-    }
-  }, {
-    "fullUrl" : "Organization/1697657056979728000.d2b6d9f4-ab89-46bd-94da-534900c09057",
-    "resource" : {
-      "resourceType" : "Organization",
-      "id" : "1697657056979728000.d2b6d9f4-ab89-46bd-94da-534900c09057",
+      "id" : "1697725285171836000.7dffc3c0-d6a6-4985-9a9d-1925b553faf8",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -76,10 +57,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Provenance/1697657057470579000.3b974a15-04f1-4ade-9837-bf986859cdcf",
+    "fullUrl" : "Provenance/1697725285678874000.5da50011-6b59-4be0-85b9-2f0e35d44a65",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1697657057470579000.3b974a15-04f1-4ade-9837-bf986859cdcf",
+      "id" : "1697725285678874000.5da50011-6b59-4be0-85b9-2f0e35d44a65",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -113,15 +94,15 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1697657057473656000.31fa8db4-8926-4430-af3f-c0957dd0dd5f"
+          "reference" : "Device/1697725285682499000.a2dde70e-96d9-4a2d-b992-94278ef96b38"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1697657057473656000.31fa8db4-8926-4430-af3f-c0957dd0dd5f",
+    "fullUrl" : "Device/1697725285682499000.a2dde70e-96d9-4a2d-b992-94278ef96b38",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1697657057473656000.31fa8db4-8926-4430-af3f-c0957dd0dd5f",
+      "id" : "1697725285682499000.a2dde70e-96d9-4a2d-b992-94278ef96b38",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -130,10 +111,10 @@
       }
     }
   }, {
-    "fullUrl" : "Patient/1697657057497337000.8618642a-878c-446d-97a0-aa60a0402627",
+    "fullUrl" : "Patient/1697725285709756000.6647462e-9b72-4de1-aec0-a2dd57a3eff3",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1697657057497337000.8618642a-878c-446d-97a0-aa60a0402627",
+      "id" : "1697725285709756000.6647462e-9b72-4de1-aec0-a2dd57a3eff3",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
