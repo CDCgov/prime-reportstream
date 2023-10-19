@@ -63,5 +63,5 @@ elements:
     condition: '%resource.exists()'
     constants:
       hl7TelecomField: '%{hl7NK1Field}-40'
-    schema: datatype/contact-point-to-xtn
+    schema: ../datatypes/contactPoint/XTN
     resourceIndex: telecomIndex
