@@ -267,7 +267,7 @@ extension_12-unformatted-telephone-number:
       value: $unformattedTelNum
 
 period:
-  valueOf: datatype/Period
+  valueOf: datatypes/common/Period
   expressionType: resource
   vars:
     start: XTN.13

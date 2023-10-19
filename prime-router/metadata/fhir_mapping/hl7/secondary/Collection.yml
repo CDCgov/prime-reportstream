@@ -9,7 +9,7 @@ collectedDateTime:
 
 collectedPeriod:
   condition: $end NOT_NULL
-  valueOf: datatype/Period
+  valueOf: datatypes/common/Period
   expressionType: resource
   vars:
     start: SPM.17.1 | OBR.7

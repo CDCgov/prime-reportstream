@@ -144,7 +144,7 @@ effectiveDateTime:
     end: OBR.8
 
 effectivePeriod:
-  valueOf: datatype/Period
+  valueOf: datatypes/common/Period
   condition: $start NOT_NULL && $end NOT_NULL
   expressionType: resource
   vars:

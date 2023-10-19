@@ -24,7 +24,7 @@ value:
   required: true
 
 period:
-  valueOf: datatype/Period
+  valueOf: datatypes/common/Period
   expressionType: resource
   vars:
     start: CX.7 | CWE.7

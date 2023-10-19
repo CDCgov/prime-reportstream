@@ -39,7 +39,7 @@ use:
 
 period:
   condition: $start NOT_NULL || $end NOT_NULL
-  valueOf: datatype/Period
+  valueOf: datatypes/common/Period
   expressionType: resource
   vars:
     start: $start
