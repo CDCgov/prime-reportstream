@@ -22,8 +22,7 @@ The below items are not necessary to accomplish the main task of mapping code-to
 
 1.) Utility to check sender test compendiums against current mapping table<br>
 2.) Utility to automatically update tables from Value Set Authority Center API (https://www.nlm.nih.gov/vsac/support/usingvsac/vsacfhirapi.html) <br>
-3.) Reporting mechanism to inform RS/sender when unmapped value was found.<br>
-4.) Mechanism to automate which conditions each state considers reportable.
+3.) Mechanism to automate which conditions each state considers reportable.
 
 ## Design
 
@@ -45,28 +44,10 @@ The condition mapping table will be made up of CSTE ValueSets and contain the fo
 | Condition Code                | SNOMED value associated with condition        | 240589008                                                                      | 
 | Condition Code System         | System used for condition code                | SNOMEDCT                                                                       |
 | Condition Code System Version | SNOMED version associated with condition code | 2023-03                                                                        |
+| Value Source                  | Source of value (e.g. RCTC vs manual mapping) | RCTC                                                                           |   
 
 The column names are taken directly from the [RCTC spreadsheet](https://docs.google.com/spreadsheets/d/1rO_p145xXO1AD76vx8vBqXgoQUnLqfc8/edit#gid=739612351). Both LOINC and SNOMED codes are combined in this table and can be identified by column "Code System".
-
-### Supplemental Condition Mapping Table
-
-The RCTC does a fairly good job of keeping up to date with LOINC and SNOMED codes and is regularly updated. It is anticipated that despite this there will be a requirement to map codes that are not present in the condition mapping table. This will be accomplished by a supplemental condition table in a similar manner to the LIVD supplemental table with the exception that the two tables will not be merged into a single table in the database. Instead the supplemental table will only be queried if there is a failure to find a match on the main table. The supplemental table will contain the same columns as the main table. If a column is not applicable it can be left blank unless it is the "Code", "Condition Name" or "Condition Code" columns.
-
-Example:
-
-| Column Name                   | Description                                   | Example                                        |
-|-------------------------------|-----------------------------------------------|------------------------------------------------|
-| Member OID                    | ValueSet Identifier                           | 2.16.840.1.114222.4.5.288                      |
-| Name                          | ValueSet Name                                 | Lab Test (PHLIP)                               |
-| Code                          | LOINC or SNOMED coded value                   | PLT1483                                        |
-| Descriptor                    | LOINC or SNOMED term descriptio               | Cabapenemase [Presence] in isolate by Carba NP |
-| Code System                   | Indicates whether code is LOINC or SNOMED     | PLT                                            |
-| Version                       | LOINC or SNOMED release version               | 2022-09-22                                     |
-| Status                        | Indicates if code is active or depracated     | Active                                         |
-| Condition Name                | Name of associated reportable condition       | Carbapenem resistant Enterobacteriaceae        |
-| Condition Code                | SONMED value associated with condition        | 712662001                                      | 
-| Condition Code System         | System used for condition code                | SNOMEDCT                                       |
-| Condition Code System Version | SNOMED version associated with condition code | 2023-03                                        |
+The RCTC does a fairly good job of keeping up to date with LOINC and SNOMED codes and is regularly updated. It is anticipated that despite this there will be a requirement to map codes that are not present in the condition mapping table. These will have to be mapped manually after review by RS personnel in order to ensure that the proper condition code is mapped to the LOINC or SNOMED code. These codes can be submitted to CSTE valueset reviewers to be included in future releases. If a column is not applicable it can be left blank unless it is the "Code", "Condition Name", "Condition Code" or "Source" columns.
 
 ### Appending condition information to FHIR Bundle
 
@@ -132,19 +113,6 @@ In order to account for both HL7 and FHIR input from senders, the lookup should 
         tableName: Condition-Mapping
         keyColumn: code
         valueColumn: condition_code
-        
-  - name: test-condition-supplemental
-    resource: 'Bundle.entry.resource.ofType(Observation)'
-    condition: '%resource.code.coding.exists() and %resource.meta.tag.code.not.exists()'
-    bundleProperty: '%resource.meta.tag.code'
-    value: ['%resource.code.coding.code']
-    valueSet:
-      lookupTable:
-        tableName: Supplemental-Condition
-        keyColumn: code
-        valueColumn: condition_code      
-        
-        
 ```
 The first element will check against the RCTC values loaded into the Condition-Mapping tables, while the second will check against the supplemental table if a match was not found in the Condition_Mapping table.
 
@@ -226,4 +194,68 @@ This will potentially pass along results for conditions that are not desired by 
 
 ## Monitoring Mapping
 
-A key component for long term success of mapping code-to-condition will be the ability to capture codes that are unmapped and subsequently map them and re-send any affected messages. This will require that processes are in place to review and map any codes that do not have a mapping at time of receipt. This is called out in the "out-of-scope" section but reiterated here for greater clarity as it is the single most important factor to long term viability of this method.
+A key component for long term success of mapping code-to-condition will be the ability to capture codes that are unmapped and subsequently map them and re-send any affected messages. This will require that processes are in place to review and map any codes that do not have a mapping at time of receipt.
+In order to monitor for unmapped codes we need to log in the Action Log when an unmapped value is sent from a sender and have a process to add that mapping to the table. Below are two proposed strategies to add an entry to the Action Log when an unmapped value is encountered. For both strategies it is recommended to add a new ActionLogLevel in ActionLog.kt of "mapping" to differentiate missing mappings from other logged issues.
+
+Example:
+```kotlin
+enum class ActionLogLevel {
+    info,
+    warning,
+    error,
+    filter,
+    mapping
+}
+```
+### Logging Missing Mapping Strategy #1 (recommended)
+
+The first proposed way of monitoring mapping is to add functionality to LookupTableValueSet.kt to log a mapping error to the Action Log if the LOINC/SNOMED from the targeted observation resource used as the Key does not return a Value.
+
+Example:
+
+For the below resource:
+```json
+"resource": {
+                "resourceType": "Observation",
+                "id": "d683b42a-bf50-45e8-9fce-6c0531994f09",
+                "status": "final",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "80382-5"
+                        }
+                    ],
+                    "text": "Flu A"
+```
+the below element in the default transformation utilizes LookupTableValueSet to use key "80382-5" to search Condition-Mapping table stored in the database to return a value from the condition_code column
+
+```yaml
+- name: test-condition
+  resource: 'Bundle.entry.resource.ofType(Observation)'
+  condition: '%resource.code.coding.exists()'
+  bundleProperty: '%resource.meta.tag.code'
+  value: ['%resource.code.coding.code']
+  valueSet:
+    lookupTable:
+      tableName: Condition-Mapping
+      keyColumn: code
+      valueColumn: condition_code
+```
+In the example table below we can see that there is no match found for code "80382-5"
+
+| Member OID                     | Name                                                 | Code    | Descriptor                                                                          | Code System | Version | Status | Condition Name                                                 | Condition Code   | Condition Code System | Condition Code System Version | Value Source |
+|--------------------------------|------------------------------------------------------|---------|-------------------------------------------------------------------------------------|-------------|---------|--------|----------------------------------------------------------------|------------------|-----------------------|-------------------------------|--------------|
+| 2.16.840.1.113762.1.4.1146.798 | Influenza (Tests for influenza A virus Nucleic Acid) | 80588-7 | Influenza virus A M gene [Presence] in Nasopharynx by NAA with probe detection      | LOINC       | 2.74    | Active | Infection caused by novel Influenza A virus variant (disorder) | 541000000000000  | SNOMEDCT              | 2023-03                       | RCTC         |
+| 2.16.840.1.113762.1.4.1146.799 | Influenza (Tests for influenza A virus Antigen)      | 88904-8 | Influenza virus A Ag [Presence] in Lower respiratory specimen by Immunofluorescence | LOINC       | 2.74    | Active | Infection caused by novel Influenza A virus variant (disorder) | 541000000000000  | SNOMEDCT              | 2023-03                       | RCTC         |
+|                                | Influenza - (ABC TESTING LABS)                       | 123456  | Influenza virus A                                                                   | LOCAL       |         | Active | Infection caused by novel Influenza A virus variant (disorder) | 541000000000000  | SNOMEDCT              | 2023-03                       | LOCAL        |   
+
+ In this instance we would add want to add an entry to the Action Log if a null value or empty string was returned. The content of the error message should include both the keyValue and the tableName as in the below example:
+ 
+"Missing mapping for: " + keyValue + " for table:" + tableName". 
+
+By following this strategy we could also log and monitor missing mappings for any lookupTable which is used in a translation schema, not just condition mappings.
+
+### Logging Missing Mapping Strategy #2
+
+Strategy number two makes use of fhirpath and tags to stamp an "unmapped" fhir tag
