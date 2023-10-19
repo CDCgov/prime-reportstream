@@ -22,7 +22,7 @@ describe("Basic rendering", () => {
         ).toBeInTheDocument();
     });
 
-    test.skip("Required fields remove error once field is filled in and re-submitted", async () => {
+    test("Required fields remove error once field is filled in and re-submitted", async () => {
         const DATA = [
             {
                 dataTestId: "first-name",
@@ -92,5 +92,5 @@ describe("Basic rendering", () => {
         expect(
             screen.queryByText(agreeErrorMsg, { exact: false }),
         ).toBeVisible();
-    });
+    }, 8000);
 });
