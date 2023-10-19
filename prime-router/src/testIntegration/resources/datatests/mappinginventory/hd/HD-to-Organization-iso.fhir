@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1697038627766065000.43106a27-64c8-47c5-b934-ae82f8989b02",
+  "id" : "1697636871214703000.3ec3729b-16a0-4baa-8be3-a4b833f2286c",
   "meta" : {
-    "lastUpdated" : "2023-10-11T11:37:07.780-04:00"
+    "lastUpdated" : "2023-10-18T09:47:51.228-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -44,24 +44,16 @@
           "display" : "ORU/ACK - Unsolicited transmission of an observation message"
         },
         "sender" : {
-          "reference" : "Organization/1697038628683395000.911deb20-4ed2-4f3f-ba09-8ee7f6283329"
+          "reference" : "Organization/1697636872089332000.b351d3d5-1dd3-4ee4-83f3-3e693feb2d0c"
         },
-        "source" : {},
-        "responsible" : {
-          "reference" : "Organization/1697038628687313000.6bb61b55-5546-474b-97b8-3695e8aa6ebc"
-        }
+        "source" : {}
       }
     },
     {
-      "fullUrl" : "Organization/1697038628683395000.911deb20-4ed2-4f3f-ba09-8ee7f6283329",
+      "fullUrl" : "Organization/1697636872089332000.b351d3d5-1dd3-4ee4-83f3-3e693feb2d0c",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1697038628683395000.911deb20-4ed2-4f3f-ba09-8ee7f6283329",
-        "address": [
-          {
-            "country": "USA"
-          }
-        ],
+        "id" : "1697636872089332000.b351d3d5-1dd3-4ee4-83f3-3e693feb2d0c",
         "meta" : {
           "extension" : [
             {
@@ -104,33 +96,19 @@
             "system" : "urn:ietf:rfc:3986",
             "value" : "2.16.840.1.114222.4.3.3.2.1.2"
           }
+        ],
+        "address" : [
+          {
+            "country" : "USA"
+          }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1697038628687313000.6bb61b55-5546-474b-97b8-3695e8aa6ebc",
-      "resource" : {
-        "resourceType" : "Organization",
-        "id" : "1697038628687313000.6bb61b55-5546-474b-97b8-3695e8aa6ebc",
-        "identifier": [
-          {
-          }
-        ],
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "fullUrl" : "Provenance/1697038628962715000.af9f23b5-2a12-43c2-8a47-6b9122f922a0",
+      "fullUrl" : "Provenance/1697636872389472000.8c06a370-fd3d-42b7-86de-7c291343c1b4",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1697038628962715000.af9f23b5-2a12-43c2-8a47-6b9122f922a0",
+        "id" : "1697636872389472000.8c06a370-fd3d-42b7-86de-7c291343c1b4",
         "meta" : {
           "extension" : [
             {
@@ -172,7 +150,7 @@
               ]
             },
             "who" : {
-              "reference" : "Organization/1697038628961958000.1d05a22f-6a7c-46d9-801d-acfa25bca63d"
+              "reference" : "Organization/1697636872388672000.2c5c4597-6882-4a52-8c5f-c3c7dba23773"
             }
           }
         ],
@@ -180,17 +158,17 @@
           {
             "role" : "source",
             "what" : {
-              "reference" : "Device/1697038628964395000.450cc4b3-26a4-439c-8c06-d85f48319b35"
+              "reference" : "Device/1697636872391426000.ba540a4b-3282-4336-9fc0-eabf2ac1c53e"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1697038628961958000.1d05a22f-6a7c-46d9-801d-acfa25bca63d",
+      "fullUrl" : "Organization/1697636872388672000.2c5c4597-6882-4a52-8c5f-c3c7dba23773",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1697038628961958000.1d05a22f-6a7c-46d9-801d-acfa25bca63d",
+        "id" : "1697636872388672000.2c5c4597-6882-4a52-8c5f-c3c7dba23773",
         "meta" : {
           "extension" : [
             {
@@ -228,10 +206,10 @@
       }
     },
     {
-      "fullUrl" : "Device/1697038628964395000.450cc4b3-26a4-439c-8c06-d85f48319b35",
+      "fullUrl" : "Device/1697636872391426000.ba540a4b-3282-4336-9fc0-eabf2ac1c53e",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1697038628964395000.450cc4b3-26a4-439c-8c06-d85f48319b35",
+        "id" : "1697636872391426000.ba540a4b-3282-4336-9fc0-eabf2ac1c53e",
         "meta" : {
           "extension" : [
             {
