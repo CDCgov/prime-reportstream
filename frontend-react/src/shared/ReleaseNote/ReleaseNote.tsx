@@ -31,8 +31,11 @@ export function ReleaseNote({ header, sections }: ReleaseNoteProps) {
     return (
         <div className={classnames(styles.ReleaseNote, "margin-top-0")}>
             <p className="header">{header}</p>
-            {sections.map((section: Section) => (
-                <div className="section-container">
+            {sections.map((section: Section, index) => (
+                <div
+                    className="section-container"
+                    key={`${section.title}-${index}`}
+                >
                     <p className="section-title">{section.title}</p>
                     <div className="grid-row section-content">
                         <div className="grid-col-12 desktop:grid-col-2">

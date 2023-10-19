@@ -8,7 +8,7 @@ typealias RetryItems = List<String>
 
 data class RetryToken(
     var retryCount: Int,
-    val items: List<String>
+    val items: List<String>,
 ) {
     fun toJSON(): String {
         return mapper.writeValueAsString(this)
@@ -24,6 +24,7 @@ data class RetryToken(
                 .configure(KotlinFeature.StrictNullChecks, false)
                 .build()
         )
+
         fun fromJSON(json: String?): RetryToken? {
             if (json == null || json.isBlank()) return null
             return mapper.readValue(json, RetryToken::class.java)

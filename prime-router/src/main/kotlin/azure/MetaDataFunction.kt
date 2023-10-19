@@ -38,7 +38,7 @@ data class LivdData(
     val scale: String,
     val method: String,
     val publicationVersionId: String,
-    val loincVersionId: String
+    val loincVersionId: String,
 ) {
     companion object {
         /**
@@ -99,7 +99,7 @@ class MetaDataFunction : Logging {
             route = "metadata/livd"
         ) request: HttpRequestMessage<String?>,
         @Suppress("UNUSED_PARAMETER")
-        context: ExecutionContext
+        context: ExecutionContext,
     ): HttpResponseMessage {
         val filters = request.queryParameters
         val rows = getLivdTable(filters) ?: return HttpUtilities.internalErrorResponse(request)

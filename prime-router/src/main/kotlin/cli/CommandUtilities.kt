@@ -34,8 +34,9 @@ class CommandUtilities {
             var retryCount = 0
             while (!isEndpointAvailable(url, accessToken)) {
                 retryCount++
-                if (retryCount > retries)
+                if (retryCount > retries) {
                     throw IOException("Unable to connect to the API at $url")
+                }
                 runBlocking {
                     delay(pollIntervalSecs * 1000)
                 }
@@ -75,7 +76,6 @@ class CommandUtilities {
          * Create a list of differences between two JSON strings.
          */
         fun diffJson(base: String, compareTo: String): List<DiffRow> {
-
             /**
              * Given the [node] call [visitor] all descendant value nodes
              */

@@ -34,9 +34,30 @@ tab_width = 2
 
 
 # follow the official Kotlin Style Guide
+# ktlint is more strict, so we disable some of those rules
 [{*.gradle.kts,*.kt,*.kts,*.main.kts}]
 indent_size = 4
 indent_style = space
+ktlint_code_style = intellij_idea
+# the following rule prevented EOL comments in some places where it is useful
+ktlint_standard_discouraged-comment-location = disabled
+# the following rule was required to disable `discouraged-comment-location`
+ktlint_standard_if-else-wrapping = disabled
+# the following rule is unnecessarily strict about comment placement and type
+ktlint_standard_comment-wrapping = disabled
+# the following rule is disabled to leave trailing commas at call site optional
+ktlint_standard_trailing-comma-on-call-site = disabled
+# the following rule has too many edge cases that conflict with the built-in formatter
+ktlint_standard_indent = disabled
+# the following rule is unnecessarily strict and can eat up a lot of vertical space
+ktlint_standard_argument-list-wrapping = disabled
+# the following rule unnecessarily prevents certain forms of listing parameters
+ktlint_standard_function-signature = disabled
+# the following rules can be re-enabled in the future with manual changes and sufficient testing
+ktlint_standard_property-naming = disabled
+ktlint_standard_enum-entry-name-case = disabled
+ktlint_standard_function-naming = disabled
+ktlint_standard_filename = disabled
 
 [{*.har,*.jsb2,*.jsb3,*.json,*.fhir,.babelrc,.eslintrc,.stylelintrc,bowerrc,jest.config}]
 indent_size = 2

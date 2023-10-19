@@ -33,13 +33,13 @@ import java.time.OffsetDateTime
  */
 class SettingsFacade(
     private val metadata: Metadata,
-    private val db: DatabaseAccess = DatabaseAccess()
+    private val db: DatabaseAccess = DatabaseAccess(),
 ) : SettingsProvider, Logging {
     enum class AccessResult {
         SUCCESS,
         CREATED,
         NOT_FOUND,
-        BAD_REQUEST
+        BAD_REQUEST,
     }
 
     private val mapper = JacksonMapperUtilities.allowUnknownsMapper
@@ -103,17 +103,18 @@ class SettingsFacade(
     private fun <T : SettingAPI> findSetting(
         name: String,
         clazz: Class<T>,
-        organizationName: String? = null
+        organizationName: String? = null,
     ): T? {
         val setting = db.transactReturning { txn ->
             val settingType = settingTypeFromClass(clazz.name)
             // When getting the organization setting (settingType == Organization), organizationName has to be null
             // and name has to be the organizationName, due to how the database and query is structured. An Organization
             // cannot have a parent, whereas Senders and Receivers do have a parent (their org)
-            if (organizationName != null && settingType != SettingType.ORGANIZATION)
+            if (organizationName != null && settingType != SettingType.ORGANIZATION) {
                 db.fetchSetting(settingType, name, organizationName, txn)
-            else
+            } else {
                 db.fetchSetting(settingType, name, parentId = null, txn)
+            }
         } ?: return null
         val result = mapper.readValue(setting.values.data(), clazz)
         // Add the metadata
@@ -190,7 +191,7 @@ class SettingsFacade(
         json: String,
         claims: AuthenticatedClaims,
         clazz: Class<T>,
-        organizationName: String? = null
+        organizationName: String? = null,
     ): Pair<AccessResult, String> {
         return db.transactReturning { txn ->
             // Check that the orgName is valid (or null)
@@ -201,8 +202,9 @@ class SettingsFacade(
             }
             // Check the payload
             val (valid, error, normalizedJson) = validateAndNormalize(json, clazz, name, organizationName)
-            if (!valid)
+            if (!valid) {
                 return@transactReturning Pair(AccessResult.BAD_REQUEST, errorJson(error ?: "validation error"))
+            }
             if (normalizedJson == null) error("Internal Error: validation error")
 
             // Find the current setting to see if this is a create or an update operation
@@ -233,8 +235,9 @@ class SettingsFacade(
                     db.deactivateSetting(current.settingId, txn)
                     val newId = db.insertSetting(setting, txn)
                     // If inserting an org, update all children settings to point to the new org
-                    if (settingType == SettingType.ORGANIZATION)
+                    if (settingType == SettingType.ORGANIZATION) {
                         db.updateOrganizationId(current.settingId, newId, txn)
+                    }
                     AccessResult.SUCCESS
                 }
             }
@@ -265,10 +268,12 @@ class SettingsFacade(
         } catch (ex: Exception) {
             return Triple(false, "Could not parse JSON payload", null)
         }
-        if (input.name != name)
+        if (input.name != name) {
             return Triple(false, "Payload and path name do not match", null)
-        if (input.organizationName != organizationName)
+        }
+        if (input.organizationName != organizationName) {
             return Triple(false, "Payload and path organization name do not match", null)
+        }
         input.consistencyErrorMessage(metadata)?.let { return Triple(false, it, null) }
         val normalizedJson = JSONB.valueOf(mapper.writeValueAsString(input))
         return Triple(true, null, normalizedJson)
@@ -278,14 +283,15 @@ class SettingsFacade(
         name: String,
         claims: AuthenticatedClaims,
         clazz: Class<T>,
-        organizationName: String? = null
+        organizationName: String? = null,
     ): Pair<AccessResult, String> {
         return db.transactReturning { txn ->
             val settingType = settingTypeFromClass(clazz.name)
-            val current = if (organizationName != null)
+            val current = if (organizationName != null) {
                 db.fetchSetting(settingType, name, organizationName, txn)
-            else
+            } else {
                 db.fetchSetting(settingType, name, parentId = null, txn)
+            }
             if (current == null) return@transactReturning Pair(AccessResult.NOT_FOUND, errorJson("Item not found"))
 
             db.insertDeletedSettingAndChildren(current.settingId, claims.userName, OffsetDateTime.now(), txn)
