@@ -1,51 +1,79 @@
 extends: ../default-sender-transform
 elements:
-  # TODO: Remove this once Covid results for CA are routed through the UP
-  #       Simple Report subtracts 15 minutes from dates being sent to us through the Covid pipeline
-  #       CA wants Simple Report to stop doing that for them, but Simple Report can't just turn it off for every
-  #       message we receive. They will stop doing this for reports sent through the UP, but we will have to continue
-  #       doing this in the UP until we start routing the Covid results through the UP to keep dates consistent across.
-  - name: results-reported-at
-    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
-    condition: '%resource.issued is instant'
-    bundleProperty: '%resource.issued'
-    value: [ '%resource.issued - 15 minutes' ]
+
+  - name: sr-observation-request-identifier-filler
+    bundleProperty: 'Bundle.entry.resource.ofType(DiagnosticReport).identifier[0].type.coding.code'
+    value: [ '"FILL"' ]
+
+  - name: sr-observation-request-identifier-filler-system
+    bundleProperty: 'Bundle.entry.resource.ofType(DiagnosticReport).identifier[0].system'
+    value: [ 'Bundle.entry.resource.ofType(DiagnosticReport).basedOn.resolve().performer.resolve().name' ]
+
+  - name: sr-observation-request-identifier-filler-id
+    bundleProperty: 'Bundle.entry.resource.ofType(DiagnosticReport).identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ 'Bundle.entry.resource.ofType(DiagnosticReport).basedOn.resolve().performer.resolve().identifier.value' ]
+
+  - name: sr-observation-request-identifier-placer
+    bundleProperty: 'Bundle.entry.resource.ofType(DiagnosticReport).identifier[1].type.coding.code'
+    value: [ '"PLAC"' ]
+
+  - name: sr-observation-request-identifier-placer-value
+    bundleProperty: 'Bundle.entry.resource.ofType(DiagnosticReport).identifier[1].value'
+    value: [ 'Bundle.entry.resource.ofType(DiagnosticReport).identifier[0].value' ]
+
+  - name: sr-observation-request-identifier-placer-system
+    bundleProperty: 'Bundle.entry.resource.ofType(DiagnosticReport).identifier[1].system'
+    value: [ 'Bundle.entry.resource.ofType(DiagnosticReport).basedOn.resolve().performer.resolve().name' ]
+
+  - name: sr-observation-request-identifier-placer-id
+    bundleProperty: 'Bundle.entry.resource.ofType(DiagnosticReport).identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ 'Bundle.entry.resource.ofType(DiagnosticReport).basedOn.resolve().performer.resolve().identifier.value' ]
+
+  - name: sr-patient-assigning-facility-name
+    bundleProperty: 'Bundle.entry.resource.ofType(Patient).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id").value[x]'
+    value: [ 'Bundle.entry.resource.ofType(DiagnosticReport).basedOn.resolve().performer.resolve().name' ]
 
 
-  - name: observation-date-time
-    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
-    condition: '%resource.effective is dateTime'
-    bundleProperty: '%resource.effective[x]'
-    value: [ '%resource.effective - 15 minutes' ]
+  - name: sr-patient-assigning-facility-id
+    bundleProperty: 'Bundle.entry.resource.ofType(Patient).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id").value[x]'
+    value: [ 'Bundle.entry.resource.ofType(DiagnosticReport).basedOn.resolve().performer.resolve().identifier.value' ]
 
-  #  The received date time for the specimen. This field is very important to many states for their HL7,
-  #  but for most of our senders, the received date time is the same as the collected date time. Unfortunately,
-  #  setting them to the same time breaks many validation rules. Most ELR systems apparently look for them to
-  #  be offset, so this field takes the `specimen_collection_date_time` field and offsets it by a small amount.
-  # TODO: Move this to default sender transform once simple report starts sending us covid through the UP
-  #       THE Covid pipeline adds 6 seconds to received date time to avoid having the same date for
-  #       both collected and received.
-  #       Right now we can't subtract the 15 minutes SR subtracts from dates in the covid pipeline and add the 6 seconds
-  #       the Covid Pipeline adds. So we have to do it all at once by subtracting 894 seconds. Adding the 6
-  #       should be part of the default sender transforms.
-  - name: specimen-received-date-time-collected
-    resource: 'Bundle.entry.resource.ofType(Specimen)'
-    condition: '%resource.receivedTime.exists().not() and %resource.collection.collected is dateTime'
-    bundleProperty: '%resource.receivedTime'
-    value: [ '%resource.collection.collected - 894 seconds' ]
+  - name: sr-observation-request-identifier-placer-system
+    bundleProperty: 'Bundle.entry.resource.ofType(DiagnosticReport).identifier[1].system'
+    value: [ 'Bundle.entry.resource.ofType(DiagnosticReport).basedOn.resolve().performer.resolve().name' ]
 
-  - name: specimen-received-date-time-effective
-    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
-    condition: >
-      %resource.specimen.resolve().receivedTime.exists().not() 
-      and %resource.specimen.resolve().collection.collected.exists().not()
-      and %resource.effective is dateTime
-    bundleProperty: '%resource.specimen.resolve().receivedTime'
-    value: [ '%resource.effective + 6 seconds' ]
+  - name: sr-observation-request-identifier-placer-id
+    bundleProperty: 'Bundle.entry.resource.ofType(DiagnosticReport).identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ 'Bundle.entry.resource.ofType(DiagnosticReport).basedOn.resolve().performer.resolve().identifier.value' ]
 
-  - name: specimen-collection-time
-    resource: 'Bundle.entry.resource.ofType(Specimen)'
-    condition: '%resource.collection.collected is dateTime'
-    bundleProperty: '%resource.collection.collected[x]'
-    value: [ '%resource.collection.collected - 15 minutes' ]
+  - name: sr-supporting-info
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
+    schema: sr-supporting-info
+    resourceIndex: supportInfoIndex
+
+  - name: sr-ordering-facility-name-type-code
+    bundleProperty: 'Bundle.entry.resource.ofType(ServiceRequest).requester.resolve().organization.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type").valueCoding.code'
+    value: ['"L"']
+
+  #  Simple report is not sending a unique Specimen identifier, grabbing it from Diagnostic Report
+  #  STLTs use SPM identifier as their Accession number to uniquely identify reports sent to them
+  - name: sr-specimen-identifier
+    bundleProperty: 'Bundle.entry.resource.ofType(DiagnosticReport).specimen.resolve().identifier.value'
+    value: [ 'Bundle.entry.resource.ofType(DiagnosticReport).identifier.value' ]
+
+  - name: sr-ordering-provider-id-authority-type
+    condition: '%resource.identifier.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type").valueCodeableConcept.coding.code'
+    value: [ '"NPI"' ]
+
+  - name: sr-ordering-provider-name-type-code
+    condition: '%resource.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    bundleProperty: '%resource.name.use'
+    value: [ '"official"' ]
+
+
+
+
 

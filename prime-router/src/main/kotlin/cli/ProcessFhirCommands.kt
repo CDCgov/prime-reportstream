@@ -75,10 +75,22 @@ class ProcessFhirCommands : CliktCommand(
     )
 
     /**
-     * Schema location for the FHIR to HL7 conversion
+     * Sender Schema location for the FHIR to FHIR conversion
      */
-    private val transformSchema by option("-s", "--schema", help = "Schema location for the FHIR to HL7 conversion")
-        .file()
+    private val senderTransformSchema by option(
+        "-s",
+        "--sender-schema",
+        help = "Schema location for the FHIR to FHIR conversion"
+    ).file()
+
+    /**
+     * Receiver Schema location for the FHIR to HL7 conversion
+     */
+    private val transformSchema by option(
+        "-r",
+        "--receiver-schema",
+        help = "Schema location for the FHIR to HL7 conversion"
+    ).file()
 
     private val hl7DiffHelper = HL7DiffHelper()
 
@@ -96,7 +108,11 @@ class ProcessFhirCommands : CliktCommand(
 
             // FHIR to HL7 conversion
             (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == Report.Format.HL7.toString() -> {
-                outputResult(convertToHl7(contents))
+                var bundle = FhirTranscoder.decode(contents)
+                if (senderTransformSchema != null) {
+                    bundle = convertToFhirToFhir(contents)
+                }
+                outputResult(convertToHl7(FhirTranscoder.encode(bundle)))
             }
 
             // FHIR to FHIR conversion
@@ -106,7 +122,11 @@ class ProcessFhirCommands : CliktCommand(
 
             // HL7 to FHIR to HL7 conversion
             inputFileType == "HL7" && outputFormat == Report.Format.HL7.toString() -> {
-                val (bundle, inputMessage) = convertToFhir(contents, actionLogger)
+                var (bundle, inputMessage) = convertToFhir(contents, actionLogger)
+                if (senderTransformSchema != null) {
+                    bundle = convertToFhirToFhir(contents)
+                }
+
                 val output = convertToHl7(FhirTranscoder.encode(bundle))
                 outputResult(convertToHl7(FhirTranscoder.encode(bundle)))
                 if (diffHl7Output != null) {
@@ -152,15 +172,17 @@ class ProcessFhirCommands : CliktCommand(
      */
     private fun convertToFhirToFhir(jsonString: String): Bundle {
         return when {
-            transformSchema == null ->
+            senderTransformSchema == null ->
                 throw CliktError("You must specify a schema.")
 
-            !transformSchema!!.canRead() ->
-                throw CliktError("Unable to read schema file ${transformSchema!!.absolutePath}.")
+            !senderTransformSchema!!.canRead() ->
+                throw CliktError("Unable to read schema file ${senderTransformSchema!!.absolutePath}.")
 
             else -> {
                 val bundle = FhirTranscoder.decode(jsonString)
-                FhirTransformer(transformSchema!!.name.split(".")[0], transformSchema!!.parent).transform(bundle)
+                FhirTransformer(senderTransformSchema!!.name.split(".")[0], senderTransformSchema!!.parent).transform(
+                    bundle
+                )
             }
         }
     }

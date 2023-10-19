@@ -7,12 +7,14 @@ elements:
     condition: true
     resource: 'Bundle'
     value: [ '"CDC PRIME REPORTSTREAM"' ]
+    hl7Spec: [MSH-4-1]
 
   # MSH 4-2
   - name: sending-facility-universal-id
     resource: 'Bundle'
     condition: true
     value: [ '"10DRPTSTRM"' ]
+    hl7Spec: [MSH-4-2]
 
   # MSH-5
   - name: receiving-application-namespace-id
@@ -60,11 +62,9 @@ elements:
   - name: result-value-type-cwe
     condition: true
 
-  # The ORU_R01 mappings look for Observations under ServiceRequest.supportInfo to map OBX segments under SPM.
-  # However, SimpleReport sends AOE questions under ServiceRequest.supportInfo and we need to suppress those
-  # from being mapped to OBX segments under SPM for NY.
-  - name: specimen-observation-result-with-aoe
-    condition: false
+  - name: observation-result-with-aoe
+    # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
+    resource: '%resource.result.resolve() | %service.supportingInfo.resolve().where(specimen.exists().not()) | %service.supportingInfo.resolve().where(meta.tag.code = "AOE")'
 
 
 

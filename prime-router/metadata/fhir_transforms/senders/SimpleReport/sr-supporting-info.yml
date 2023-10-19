@@ -1,0 +1,10 @@
+elements:
+  - name: sr-aoe-tag
+    bundleProperty: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()[%supportInfoIndex].meta.tag.code'
+    value: [ '"AOE"' ]
+
+
+
+
+
+
