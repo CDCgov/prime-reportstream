@@ -27,6 +27,7 @@ class CompareFhirData(
     private val dynamicProperties: List<String> = defaultDynamicProperties,
 ) : Logging {
 
+    // set of visited resources used during compairisons to avoid repeats (and maybe circular dependencies)
     private val visitedResources = mutableSetOf<String>()
 
     /**
@@ -158,7 +159,7 @@ class CompareFhirData(
             return CompareData.Result(true)
         }
 
-        // add resources ID to visited Set to avoid double-checking resources
+        // add resources id to Set to avoid repeat resource comparisons
         maybeResourcesId?.let { visitedResources.add(it) }
 
         var result = CompareData.Result(true)

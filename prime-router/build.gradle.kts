@@ -894,7 +894,7 @@ dependencies {
     // https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api
     implementation("javax.annotation:javax.annotation-api:1.3.2")
 
-    // TODO: use this as a test dependency when CompareFhirData lives under src/test
+    // TODO: move this to a test dependency when CompareFhirData lives under src/test
     implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.14")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
