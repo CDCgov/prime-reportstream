@@ -63,7 +63,7 @@ jobs:
       - name: Create comment
         id: comment_create
         if: steps.set_vars.outputs.chromatic == 'true'
-        uses: peter-evans/create-or-update-comment@c6c9a1a66007646a28c153e2a8580a5bad27bcfa
+        uses: peter-evans/create-or-update-comment@23ff15729ef2fc348714a3bb66d2f655ca9066f2
         with:
           comment-id: ${{ steps.comment_find.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
@@ -101,7 +101,7 @@ jobs:
 
       - name: Update comment
         if: steps.comment_find.outputs.comment-id != '' || steps.comment_create.outputs.comment-id != ''
-        uses: peter-evans/create-or-update-comment@c6c9a1a66007646a28c153e2a8580a5bad27bcfa
+        uses: peter-evans/create-or-update-comment@23ff15729ef2fc348714a3bb66d2f655ca9066f2
         with:
           comment-id: ${{ steps.comment_find.outputs.comment-id || steps.comment_create.outputs.comment-id }}
           body: |
