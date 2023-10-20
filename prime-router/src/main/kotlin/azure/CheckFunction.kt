@@ -16,7 +16,6 @@ import gov.cdc.prime.router.SFTPTransportType
 import gov.cdc.prime.router.azure.db.enums.SettingType
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import gov.cdc.prime.router.credentials.RestCredential
 import gov.cdc.prime.router.tokens.AuthenticatedClaims
 import gov.cdc.prime.router.tokens.authenticationFailure
 import gov.cdc.prime.router.transport.RESTTransport
@@ -348,10 +347,7 @@ class CheckFunction : Logging {
             val reportId = UUID.randomUUID().toString()
             // REST transport throws exception with error method to handle fails
             // get the username/password to authenticate with OAuth, fail throws exception
-            val credential: RestCredential = theRESTTransport.getCredential(restTransportType.authType, receiver)
-
-            // get the TLS/SSL cert in a JKS if needed, NY uses a specific one, fail throws exception
-            val jksCredential = restTransportType.tlsKeystore?.let { theRESTTransport.lookupJksCredentials(it) }
+            val (credential, jksCredential) = theRESTTransport.getCredential(restTransportType, receiver)
 
             responseBody.add("Attempting to authenticate at: ${restTransportType.authTokenUrl}")
             val aLogger: Logger = Logger.getLogger(this.toString())
