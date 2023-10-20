@@ -92,11 +92,7 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
         // get the file name, or create one from the report ID, NY requires a file name in the POST
         val fileName = header.reportFile.externalName ?: "$reportId.hl7"
         // get the username/password to authenticate with OAuth
-        val credential: RestCredential = if (restTransportInfo.authType == "two-legged") {
-            lookupTwoLeggedCredential(receiver)
-        } else {
-            lookupDefaultCredential(receiver)
-        }
+        val credential: RestCredential = getCredential(restTransportInfo.authType, receiver)
         // get the TLS/SSL cert in a JKS if needed, NY uses a specific one
         val jksCredential = restTransportInfo.tlsKeystore?.let { lookupJksCredentials(it) }
 
@@ -199,6 +195,19 @@ class RESTTransport(private val httpClient: HttpClient? = null) : ITransport {
                     RetryToken.allItems
                 }
             }
+        }
+    }
+
+    /**
+     * Get credential either two-legged or default.
+     * @param transportType the transport type of two-legged or default
+     * @param receiver the receiver setting
+     */
+    fun getCredential(transportType: String?, receiver: Receiver): RestCredential {
+        return if (transportType == "two-legged") {
+            lookupTwoLeggedCredential(receiver)
+        } else {
+            lookupDefaultCredential(receiver)
         }
     }
 

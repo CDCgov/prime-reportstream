@@ -348,11 +348,7 @@ class CheckFunction : Logging {
             val reportId = UUID.randomUUID().toString()
             // REST transport throws exception with error method to handle fails
             // get the username/password to authenticate with OAuth, fail throws exception
-            val credential: RestCredential = if (restTransportType.authType == "two-legged") {
-                theRESTTransport.lookupTwoLeggedCredential(receiver)
-            } else {
-                theRESTTransport.lookupDefaultCredential(receiver)
-            }
+            val credential: RestCredential = theRESTTransport.getCredential(restTransportType.authType, receiver)
 
             // get the TLS/SSL cert in a JKS if needed, NY uses a specific one, fail throws exception
             val jksCredential = restTransportType.tlsKeystore?.let { theRESTTransport.lookupJksCredentials(it) }
