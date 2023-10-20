@@ -175,6 +175,7 @@ updates:
           - "*react-query*"
 
   # IAC
+  # hashicorp/azurerm >= 3.0.0 has breaking changes
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/modules/app_service_plan"
     schedule:
@@ -271,34 +272,18 @@ updates:
     directory: "/operations/app/terraform/vars/demo"
     schedule:
       interval: "weekly"
-    ignore:
-      - dependency-name: "hashicorp/azurerm"
-        # >= 3.0.0 has breaking changes
-        versions: [">= 3.0.0"]
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/vars/prod"
     schedule:
       interval: "weekly"
-    ignore:
-      - dependency-name: "hashicorp/azurerm"
-        # >= 3.0.0 has breaking changes
-        versions: [">= 3.0.0"]
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/vars/staging"
     schedule:
       interval: "weekly"
-    ignore:
-      - dependency-name: "hashicorp/azurerm"
-        # >= 3.0.0 has breaking changes
-        versions: [">= 3.0.0"]
   - package-ecosystem: "terraform"
     directory: "/operations/app/terraform/vars/test"
     schedule:
       interval: "weekly"
-    ignore:
-      - dependency-name: "hashicorp/azurerm"
-        # >= 3.0.0 has breaking changes
-        versions: [">= 3.0.0"]
 
   # Backend
   - package-ecosystem: "gradle"
