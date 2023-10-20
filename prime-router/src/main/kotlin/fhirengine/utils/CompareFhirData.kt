@@ -1,7 +1,7 @@
 package gov.cdc.prime.router.fhirengine.utils
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.flipkart.zjsonpatch.JsonDiff
 import gov.cdc.prime.router.cli.tests.CompareData
 import org.apache.logging.log4j.kotlin.Logging
@@ -13,7 +13,6 @@ import org.hl7.fhir.r4.model.Property
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.Resource
 import java.io.InputStream
-import java.lang.IllegalArgumentException
 
 /**
  * Compare two FHIR files.
@@ -64,7 +63,7 @@ class CompareFhirData(
      * @see https://datatracker.ietf.org/doc/html/rfc6902
      */
     private fun logJsonDiff(expectedJson: String, actualJson: String) {
-        val mapper = ObjectMapper()
+        val mapper = jacksonObjectMapper()
         val expectedParsedJson = mapper.readTree(expectedJson)
         val actualParsedJson = mapper.readTree(actualJson)
 
