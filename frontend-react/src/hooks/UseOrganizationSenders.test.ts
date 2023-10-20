@@ -1,6 +1,6 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 
-import { AppWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
 import { dummySenders, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
 
@@ -16,9 +16,9 @@ describe("useOrganizationSenders", () => {
     describe("with no Organization name", () => {
         beforeEach(() => {
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: undefined,
 
                 isUserAdmin: false,
@@ -40,9 +40,9 @@ describe("useOrganizationSenders", () => {
     describe("returns organization senders", () => {
         beforeEach(() => {
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.SENDER,
                     parsedName: "testOrg",

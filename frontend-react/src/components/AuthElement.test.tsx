@@ -31,9 +31,9 @@ describe("AuthElement unit tests", () => {
     test("Renders component when all checks pass", () => {
         mockCheckFlag = jest.fn((flag) => flag === FeatureFlagName.FOR_TEST);
         mockSessionContentReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.PRIME_ADMIN,
                 parsedName: "PrimeAdmins",
@@ -101,9 +101,9 @@ describe("AuthElement unit tests", () => {
     });
     test("Redirects when user is unauthorized user type", () => {
         mockSessionContentReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "all-in-one-health-ca",
@@ -126,9 +126,9 @@ describe("AuthElement unit tests", () => {
     test("Redirects when user lacks feature flag", () => {
         mockCheckFlag = jest.fn((flag) => flag !== FeatureFlagName.FOR_TEST);
         mockSessionContentReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "all-in-one-health-ca",
@@ -154,9 +154,9 @@ describe("AuthElement unit tests", () => {
     });
     test("Considers all given authorized user types (affirmative)", () => {
         mockSessionContentReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "PrimeAdmins",
@@ -178,9 +178,9 @@ describe("AuthElement unit tests", () => {
     });
     test("Considers all given authorized user types (negative)", () => {
         mockSessionContentReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.NON_STAND,
                 parsedName: "PrimeAdmins",
@@ -206,14 +206,13 @@ describe("AuthElement unit tests", () => {
      * In this example, you can see what that session state would look like. */
     test("Permits admins whose active membership is not DHPrimeAdmins", () => {
         mockSessionContentReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "xx-phd",
             },
-
             isAdminStrictCheck: true,
             isUserAdmin: true,
             isUserReceiver: true,

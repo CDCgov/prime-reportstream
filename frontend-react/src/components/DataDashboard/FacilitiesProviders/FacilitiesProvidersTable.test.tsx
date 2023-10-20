@@ -75,9 +75,9 @@ describe("FacilitiesProvidersTable", () => {
 
             // Mock our SessionProvider's data
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrgNoReceivers",
@@ -124,9 +124,9 @@ describe("FacilitiesProvidersTable", () => {
 
             // Mock our SessionProvider's data
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrgNoReceivers",

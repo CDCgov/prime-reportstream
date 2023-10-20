@@ -1,5 +1,4 @@
 import React, {
-    ReactNode,
     createContext,
     useCallback,
     useContext,
@@ -8,9 +7,14 @@ import React, {
     useRef,
     useState,
 } from "react";
-import { AccessToken, CustomUserClaims, UserClaims } from "@okta/okta-auth-js";
+import OktaAuth, {
+    AccessToken,
+    CustomUserClaims,
+    UserClaims,
+    AuthState,
+} from "@okta/okta-auth-js";
 import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
-import { useOktaAuth } from "@okta/okta-react";
+import { Security, useOktaAuth } from "@okta/okta-react";
 
 import {
     MembershipSettings,
@@ -24,10 +28,13 @@ import {
 import { RSUserClaims } from "../utils/OrganizationUtils";
 import config from "../config";
 import { updateApiSessions } from "../network/Apis";
+import { OKTA_AUTH } from "../oktaConfig";
 
 export interface RSSessionContext extends RSUserPermissions {
-    activeMembership?: MembershipSettings | null;
-    _activeMembership?: MembershipSettings | null;
+    oktaAuth: OktaAuth;
+    authState: AuthState;
+    activeMembership?: MembershipSettings;
+    _activeMembership?: MembershipSettings;
     oktaToken?: Partial<AccessToken>;
     isAdminStrictCheck?: boolean;
     isUserAdmin: boolean;
@@ -44,6 +51,7 @@ export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
 const { APP_ENV = "production" } = config;
 
 export const SessionContext = createContext<RSSessionContext>({
+    oktaAuth: OKTA_AUTH,
     oktaToken: {} as Partial<AccessToken>,
     activeMembership: {} as MembershipSettings,
     isAdminStrictCheck: false,
@@ -53,12 +61,43 @@ export const SessionContext = createContext<RSSessionContext>({
     environment: APP_ENV,
     logout: () => void 0,
     setActiveMembership: () => void 0,
-});
+} as any);
 
-const SessionProvider = ({ children }: { children: ReactNode }) => {
-    // HACK: empty object fallback to account for tests not being rendered in Security
-    // will be fixed once all rendering is funneled through a custom renderer
-    const { authState = {}, oktaAuth } = useOktaAuth() || {};
+export interface SessionProviderProps
+    extends React.ComponentProps<typeof Security> {}
+
+function SessionProvider({ children, ...props }: SessionProviderProps) {
+    return (
+        <Security {...props}>
+            <SessionAuthStateGate>{children}</SessionAuthStateGate>
+        </Security>
+    );
+}
+
+function SessionAuthStateGate({ children }: React.PropsWithChildren) {
+    const { authState, ...props } = useOktaAuth();
+
+    if (!authState) return null;
+
+    return (
+        <SessionProviderBase authState={authState} {...props}>
+            {children}
+        </SessionProviderBase>
+    );
+}
+
+export interface SessionProviderBaseProps
+    extends React.PropsWithChildren<
+        Omit<ReturnType<typeof useOktaAuth>, "authState">
+    > {
+    authState: AuthState;
+}
+
+export function SessionProviderBase({
+    children,
+    oktaAuth,
+    authState,
+}: SessionProviderBaseProps) {
     const initActiveMembership = useRef(
         JSON.parse(
             sessionStorage.getItem("__deprecatedActiveMembership") ?? "null",
@@ -73,7 +112,7 @@ const SessionProvider = ({ children }: { children: ReactNode }) => {
         );
 
         if (actualMembership == null || !authState?.isAuthenticated)
-            return null;
+            return undefined;
 
         return { ...actualMembership, ...(_activeMembership ?? {}) };
     }, [authState, _activeMembership]);
@@ -90,6 +129,8 @@ const SessionProvider = ({ children }: { children: ReactNode }) => {
 
     const context = useMemo(() => {
         return {
+            oktaAuth,
+            authState,
             oktaToken: authState?.accessToken,
             activeMembership,
             /* This logic is a for when admins have other orgs present on their Okta claims
@@ -105,7 +146,7 @@ const SessionProvider = ({ children }: { children: ReactNode }) => {
             _activeMembership,
             setActiveMembership,
         };
-    }, [activeMembership, authState, logout, _activeMembership]);
+    }, [oktaAuth, authState, activeMembership, logout, _activeMembership]);
 
     useEffect(() => {
         updateApiSessions({
@@ -140,7 +181,7 @@ const SessionProvider = ({ children }: { children: ReactNode }) => {
             {children}
         </SessionContext.Provider>
     );
-};
+}
 
 export const useSessionContext = () => useContext(SessionContext);
 

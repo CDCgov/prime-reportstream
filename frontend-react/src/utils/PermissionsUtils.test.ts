@@ -1,19 +1,19 @@
 import { getUserPermissions, permissionCheck } from "./PermissionsUtils";
 import { AccessTokenWithRSClaims } from "./OrganizationUtils";
-import { mockToken } from "./TestUtils";
+import { mockAccessToken } from "./TestUtils";
 import { PERMISSIONS } from "./UsefulTypes";
 
-const senderToken = mockToken({
+const senderToken = mockAccessToken({
     claims: {
         organization: ["DHSender_ignore"],
     },
 } as AccessTokenWithRSClaims);
-const receiverToken = mockToken({
+const receiverToken = mockAccessToken({
     claims: {
         organization: ["DHxx_phd"],
     },
 } as AccessTokenWithRSClaims);
-const adminToken = mockToken({
+const adminToken = mockAccessToken({
     claims: {
         organization: ["DHPrimeAdmins"],
     },

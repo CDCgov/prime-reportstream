@@ -88,7 +88,6 @@ describe("ManagePublicKey", () => {
                 parsedName: "testOrg",
                 service: "serviceName",
             },
-
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,
@@ -215,6 +214,7 @@ describe("ManagePublicKey", () => {
 
     describe("when a valid pem file is being submitted", () => {
         beforeEach(() => {
+            mockUseOrganizationPublicKeys();
             // Selected sender
             mockUseOrganizationSenders({
                 isLoading: false,
@@ -248,6 +248,7 @@ describe("ManagePublicKey", () => {
 
     describe("when an invalid pem file is being submitted", () => {
         beforeEach(async () => {
+            mockUseOrganizationPublicKeys();
             // Selected sender
             mockUseOrganizationSenders({
                 isLoading: false,

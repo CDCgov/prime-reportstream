@@ -4,19 +4,18 @@ import userEvent from "@testing-library/user-event";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { mockUseReportFacilities } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { makeFacilityFixtureArray } from "../../../__mocks__/DeliveriesMockServer";
-import { mockAppInsights } from "../../../utils/__mocks__/ApplicationInsights";
+import {
+    mockAppInsights,
+    mockAppInsightsContextReturnValue,
+} from "../../../contexts/__mocks__/AppInsightsContext";
 
 import ReportDetailsTable from "./ReportDetailsTable";
 
 const TEST_ID = "123";
 
-jest.mock("../../../TelemetryService", () => ({
-    ...jest.requireActual("../../../TelemetryService"),
-    getAppInsights: () => mockAppInsights,
-}));
-
 describe("ReportDetailsTable", () => {
     test("url param (reportId) feeds into network hook", () => {
+        mockAppInsightsContextReturnValue();
         mockUseReportFacilities.mockReturnValue({
             reportFacilities: [],
         });
@@ -26,6 +25,7 @@ describe("ReportDetailsTable", () => {
 
     describe("with data", () => {
         beforeEach(() => {
+            mockAppInsightsContextReturnValue();
             const mockUseReportFacilitiesCallback = {
                 reportFacilities: makeFacilityFixtureArray(10),
             };
@@ -72,6 +72,7 @@ describe("ReportDetailsTable", () => {
 
     describe("without data", () => {
         beforeEach(() => {
+            mockAppInsightsContextReturnValue();
             const mockUseReportFacilitiesCallback = {
                 reportFacilities: [],
             };

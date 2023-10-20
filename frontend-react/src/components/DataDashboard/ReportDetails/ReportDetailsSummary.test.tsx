@@ -1,5 +1,4 @@
 import { screen } from "@testing-library/react";
-import * as OktaReact from "@okta/okta-react";
 
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { FileType } from "../../../utils/TemporarySettingsAPITypes";
@@ -10,7 +9,6 @@ import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 
 import { ReportDetailsSummary } from "./ReportDetailsSummary";
 
-const mockAuth = jest.spyOn(OktaReact, "useOktaAuth");
 const mockGetUser = jest.fn();
 
 const currentDate = new Date();
@@ -30,7 +28,8 @@ const DEFAULT_RSDELIVERY = {
 };
 
 beforeEach(() => {
-    mockAuth.mockReturnValue({
+    // Mock our SessionProvider's data
+    mockSessionContentReturnValue({
         //@ts-ignore
         oktaAuth: {
             getUser: mockGetUser.mockResolvedValue({
@@ -40,16 +39,11 @@ beforeEach(() => {
         authState: {
             isAuthenticated: true,
             accessToken: {
+                accessToken: "TOKEN",
                 claims: {
                     organization: ["Test-Org"],
                 },
             } as AccessTokenWithRSClaims,
-        },
-    });
-    // Mock our SessionProvider's data
-    mockSessionContentReturnValue({
-        oktaToken: {
-            accessToken: "TOKEN",
         },
         activeMembership: {
             memberType: MemberType.RECEIVER,

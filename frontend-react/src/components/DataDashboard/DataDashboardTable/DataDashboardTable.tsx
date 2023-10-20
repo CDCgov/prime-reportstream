@@ -1,7 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 
 import { FeatureName } from "../../../utils/FeatureName";
-import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
 import Spinner from "../../Spinner";
@@ -20,6 +19,10 @@ import { SortSettingsActionType } from "../../../hooks/filters/UseSortOrder";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import { USLink } from "../../USLink";
 import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
+import {
+    EventName,
+    useAppInsightsContext,
+} from "../../../contexts/AppInsightsContext";
 
 function DashboardFilterAndTable({
     receiverServices,
@@ -30,6 +33,7 @@ function DashboardFilterAndTable({
     activeService: RSReceiver;
     setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
 }) {
+    const { appInsights } = useAppInsightsContext();
     const featureEvent = `${FeatureName.DATA_DASHBOARD} | ${EventName.TABLE_FILTER}`;
 
     const handleSetActive = (name: string) => {
@@ -132,8 +136,11 @@ function DashboardFilterAndTable({
                             type: PageSettingsActionType.RESET,
                         });
 
-                        trackAppInsightEvent(featureEvent, {
-                            tableFilter: { startRange: from, endRange: to },
+                        appInsights?.trackEvent({
+                            name: featureEvent,
+                            properties: {
+                                tableFilter: { startRange: from, endRange: to },
+                            },
                         });
                     }}
                 />

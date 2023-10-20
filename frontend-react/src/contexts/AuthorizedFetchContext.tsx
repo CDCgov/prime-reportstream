@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useMemo } from "react";
-import { AccessToken } from "@okta/okta-auth-js";
 import {
     MutationFunction,
     MutationKey,
@@ -18,9 +17,6 @@ import {
     AuthorizedFetchTypeWrapper,
     AuthorizedFetcher,
 } from "../hooks/UseCreateFetch";
-import { MembershipSettings } from "../hooks/UseOktaMemberships";
-
-import { useSessionContext } from "./SessionContext";
 
 // this is synthesized copy pasta from the react query codebase since they don't export function types
 // see https://github.com/TanStack/query/blob/f6eeab079d88df811fd827767db1457083e85b01/packages/react-query/src/useQuery.ts
@@ -117,11 +113,7 @@ export function wrapUseMutation<
 export const AuthorizedFetchProvider = ({
     children,
 }: React.PropsWithChildren<{ initializedOverride?: boolean }>) => {
-    const { oktaToken, activeMembership } = useSessionContext();
-    const generator = useCreateFetch(
-        oktaToken as AccessToken,
-        activeMembership as MembershipSettings,
-    );
+    const generator = useCreateFetch();
     const value = useMemo(
         () => ({
             authorizedFetchGenerator: generator,

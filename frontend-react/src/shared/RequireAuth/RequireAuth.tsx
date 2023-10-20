@@ -1,8 +1,8 @@
 import { Navigate, useLocation } from "react-router";
-import { useOktaAuth } from "@okta/okta-react";
 
 import { ErrorNoPage } from "../../pages/error/legacy-content/ErrorNoPage";
 import { PERMISSIONS } from "../../utils/UsefulTypes";
+import { useSessionContext } from "../../contexts/SessionContext";
 
 export interface RequireAuthProps extends React.PropsWithChildren {
     type?: PERMISSIONS | PERMISSIONS[];
@@ -17,7 +17,7 @@ export function RequireAuth({
     type = [PERMISSIONS.PRIME_ADMIN],
     children,
 }: RequireAuthProps) {
-    const { authState } = useOktaAuth();
+    const { authState } = useSessionContext();
     const location = useLocation();
     const typeArr = Array.isArray(type) ? type : [type];
 

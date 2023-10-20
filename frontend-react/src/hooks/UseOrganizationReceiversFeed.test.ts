@@ -1,6 +1,6 @@
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
 
-import { AppWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
 import {
     dummyActiveReceiver,
     dummyReceivers,
@@ -24,9 +24,9 @@ describe("useOrganizationReceiversFeed", () => {
     describe("with no active membership parsed name", () => {
         beforeEach(() => {
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: undefined,
 
                 isUserAdmin: false,
@@ -54,9 +54,9 @@ describe("useOrganizationReceiversFeed", () => {
     describe("with an admin parsed name", () => {
         beforeEach(() => {
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.PRIME_ADMIN,
                     parsedName: Organizations.PRIMEADMINS,
@@ -87,9 +87,9 @@ describe("useOrganizationReceiversFeed", () => {
     describe("with a non-admin parsed name", () => {
         beforeEach(() => {
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrg",
@@ -125,9 +125,9 @@ describe("useOrganizationReceiversFeed", () => {
 
     test("setActiveService sets an active receiver", async () => {
         mockSessionContentReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",

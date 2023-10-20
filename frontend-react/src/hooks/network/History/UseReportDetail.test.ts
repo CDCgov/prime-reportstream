@@ -1,9 +1,9 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../UseOktaMemberships";
 import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
-import { AppWrapper } from "../../../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../../../utils/CustomRenderUtils";
 
 import { useReportsDetail } from "./DeliveryHooks";
 
@@ -13,9 +13,9 @@ describe("useReportsList", () => {
     afterAll(() => deliveryServer.close());
     test("useReportDetail", async () => {
         mockSessionContentReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",

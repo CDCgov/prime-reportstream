@@ -13,13 +13,17 @@ import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import * as useSenderResourceExports from "../../hooks/UseSenderResource";
 import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
-import * as analyticsExports from "../../utils/Analytics";
 import {
     fakeFile,
     mockSendFileWithErrors,
     mockSendValidFile,
 } from "../../__mocks__/validation";
 import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
+import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
+import {
+    mockAppInsightsContextReturnValue,
+    mockAppInsights,
+} from "../../contexts/__mocks__/AppInsightsContext";
 
 import FileHandlerFileUploadStep, {
     getClientHeader,
@@ -58,6 +62,8 @@ describe("FileHandlerFileUploadStep", () => {
                 isInitialLoading: true,
                 isLoading: true,
             });
+            mockSessionContentReturnValue();
+            mockAppInsightsContextReturnValue();
 
             renderApp(<FileHandlerFileUploadStep {...DEFAULT_PROPS} />);
         });
@@ -77,6 +83,8 @@ describe("FileHandlerFileUploadStep", () => {
 
         describe("when a CSV schema is chosen", () => {
             beforeEach(() => {
+                mockAppInsightsContextReturnValue();
+                mockSessionContentReturnValue();
                 renderApp(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
@@ -101,6 +109,8 @@ describe("FileHandlerFileUploadStep", () => {
 
         describe("when an HL7 schema is chosen", () => {
             beforeEach(() => {
+                mockAppInsightsContextReturnValue();
+                mockSessionContentReturnValue();
                 renderApp(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
@@ -129,6 +139,8 @@ describe("FileHandlerFileUploadStep", () => {
             const onFileChangeSpy = jest.fn();
 
             beforeEach(async () => {
+                mockAppInsightsContextReturnValue();
+                mockSessionContentReturnValue();
                 renderApp(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
@@ -157,6 +169,8 @@ describe("FileHandlerFileUploadStep", () => {
 
         describe("when a file is being submitted", () => {
             beforeEach(async () => {
+                mockSessionContentReturnValue();
+                mockAppInsightsContextReturnValue();
                 jest.spyOn(
                     useWatersUploaderExports,
                     "useWatersUploader",
@@ -192,6 +206,9 @@ describe("FileHandlerFileUploadStep", () => {
             const onNextStepClickSpy = jest.fn();
 
             beforeEach(async () => {
+                mockSessionContentReturnValue();
+                mockAppInsightsContextReturnValue();
+
                 jest.spyOn(
                     useWatersUploaderExports,
                     "useWatersUploader",
@@ -200,8 +217,6 @@ describe("FileHandlerFileUploadStep", () => {
                     uploaderError: null,
                     sendFile: () => Promise.resolve(mockSendValidFile),
                 });
-
-                jest.spyOn(analyticsExports, "trackAppInsightEvent");
 
                 renderApp(
                     <FileHandlerFileUploadStep
@@ -241,16 +256,17 @@ describe("FileHandlerFileUploadStep", () => {
             });
 
             test("it calls trackAppInsightEvent with event data", () => {
-                expect(
-                    analyticsExports.trackAppInsightEvent,
-                ).toHaveBeenCalledWith("File Validator", {
-                    fileValidator: {
-                        errorCount: 0,
-                        fileType: undefined,
-                        overallStatus: "Valid",
-                        schema: "whatever",
-                        sender: undefined,
-                        warningCount: 0,
+                expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
+                    name: "File Validator",
+                    properties: {
+                        fileValidator: {
+                            errorCount: 0,
+                            fileType: undefined,
+                            overallStatus: "Valid",
+                            schema: "whatever",
+                            sender: undefined,
+                            warningCount: 0,
+                        },
                     },
                 });
             });
@@ -260,6 +276,9 @@ describe("FileHandlerFileUploadStep", () => {
             const onFileSubmitErrorSpy = jest.fn();
 
             beforeEach(async () => {
+                mockSessionContentReturnValue();
+                mockAppInsightsContextReturnValue();
+
                 jest.spyOn(
                     useWatersUploaderExports,
                     "useWatersUploader",
@@ -269,8 +288,6 @@ describe("FileHandlerFileUploadStep", () => {
                     sendFile: () =>
                         Promise.reject({ data: mockSendFileWithErrors }),
                 });
-
-                jest.spyOn(analyticsExports, "trackAppInsightEvent");
 
                 renderApp(
                     <FileHandlerFileUploadStep
@@ -303,17 +320,18 @@ describe("FileHandlerFileUploadStep", () => {
             });
 
             test("it calls trackAppInsightEvent with event data", () => {
-                expect(
-                    analyticsExports.trackAppInsightEvent,
-                ).toHaveBeenCalledWith("File Validator", {
-                    fileValidator: {
-                        errorCount: 2,
-                        fileType: undefined,
-                        schema: "whatever",
-                        sender: undefined,
-                        warningCount: 0,
+                expect(mockAppInsights.trackEvent).toHaveBeenCalledWith(
+                    "File Validator",
+                    {
+                        fileValidator: {
+                            errorCount: 2,
+                            fileType: undefined,
+                            schema: "whatever",
+                            sender: undefined,
+                            warningCount: 0,
+                        },
                     },
-                });
+                );
             });
         });
     });

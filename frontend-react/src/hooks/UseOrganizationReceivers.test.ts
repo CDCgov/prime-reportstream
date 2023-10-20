@@ -1,6 +1,6 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 
-import { AppWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
 import { dummyReceivers, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
 
@@ -15,9 +15,9 @@ describe("useOrganizationReceivers", () => {
     afterAll(() => orgServer.close());
     test("returns undefined if no active membership parsed name", () => {
         mockSessionContentReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: undefined,
 
             isUserAdmin: false,
@@ -33,9 +33,9 @@ describe("useOrganizationReceivers", () => {
     });
     test("returns correct organization receiver services", async () => {
         mockSessionContentReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",

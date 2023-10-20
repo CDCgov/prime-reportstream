@@ -1,6 +1,6 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 
-import { AppWrapper } from "../../../../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../UseOktaMemberships";
 import { mockSessionContentReturnValue } from "../../../../contexts/__mocks__/SessionContext";
 import {
@@ -18,9 +18,9 @@ describe("useOrganizationPublicKeys", () => {
     describe("with no Organization name", () => {
         beforeEach(() => {
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: undefined,
 
                 isUserAdmin: false,
@@ -42,9 +42,9 @@ describe("useOrganizationPublicKeys", () => {
     describe("with Organization name", () => {
         beforeEach(() => {
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.SENDER,
                     parsedName: "testOrg",

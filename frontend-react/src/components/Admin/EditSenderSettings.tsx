@@ -20,8 +20,8 @@ import { AuthElement } from "../AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
 import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
-import { getAppInsightsHeaders } from "../../TelemetryService";
 import { useSessionContext } from "../../contexts/SessionContext";
+import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
 
 import {
     CheckboxComponent,
@@ -47,6 +47,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
     sendername,
     action,
 }) => {
+    const { fetchHeaders } = useAppInsightsContext();
     const navigate = useNavigate();
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
     const { activeMembership } = useSessionContext();
@@ -106,7 +107,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
             `${RS_API_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
             {
                 headers: {
-                    ...getAppInsightsHeaders(),
+                    ...fetchHeaders,
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },

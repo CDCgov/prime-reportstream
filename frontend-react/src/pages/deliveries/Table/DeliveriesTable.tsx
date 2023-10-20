@@ -20,11 +20,14 @@ import usePagination from "../../../hooks/UsePagination";
 import { NoServicesBanner } from "../../../components/alerts/NoServicesAlert";
 import { RSReceiver } from "../../../config/endpoints/settings";
 import { useOrganizationReceiversFeed } from "../../../hooks/UseOrganizationReceiversFeed";
-import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import { FeatureName } from "../../../utils/FeatureName";
 import AdminFetchAlert from "../../../components/alerts/AdminFetchAlert";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
 import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
+import {
+    EventName,
+    useAppInsightsContext,
+} from "../../../contexts/AppInsightsContext";
 
 import { getReportAndDownload } from "./ReportsUtils";
 import ServicesDropdown from "./ServicesDropdown";
@@ -74,6 +77,7 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
     isLoading,
     serviceReportsList,
 }) => {
+    const { appInsights } = useAppInsightsContext();
     const { oktaToken, activeMembership } = useSessionContext();
     const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
     const handleFetchAndDownload = (id: string) => {
@@ -141,8 +145,11 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
                 showDateHints={true}
                 filterManager={filterManager}
                 onFilterClick={({ from, to }: { from: string; to: string }) =>
-                    trackAppInsightEvent(featureEvent, {
-                        tableFilter: { startRange: from, endRange: to },
+                    appInsights?.trackEvent({
+                        name: featureEvent,
+                        properties: {
+                            tableFilter: { startRange: from, endRange: to },
+                        },
                     })
                 }
             />

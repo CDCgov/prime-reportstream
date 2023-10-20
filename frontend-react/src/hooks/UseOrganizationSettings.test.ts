@@ -1,6 +1,6 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 
-import { AppWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
 import { fakeOrg, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
 
@@ -17,9 +17,9 @@ describe("useOrganizationSettings", () => {
     describe("with no Organization name", () => {
         beforeEach(() => {
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: undefined,
 
                 isUserAdmin: false,
@@ -41,9 +41,9 @@ describe("useOrganizationSettings", () => {
     describe("with a non-admin Organization name", () => {
         beforeEach(() => {
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.SENDER,
                     parsedName: "testOrg",
@@ -69,9 +69,9 @@ describe("useOrganizationSettings", () => {
     describe("with an admin Organization name", () => {
         beforeEach(() => {
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.PRIME_ADMIN,
                     parsedName: Organizations.PRIMEADMINS,

@@ -1,7 +1,5 @@
 import { Resource } from "@rest-hooks/rest";
 
-import { getAppInsightsHeaders } from "../TelemetryService";
-
 export default class AuthResource extends Resource {
     // Turn schema-mismatch errors (that break the app) into just console warnings.
     // These happen when extra fields are returned that are not defined in the schema
@@ -12,7 +10,7 @@ export default class AuthResource extends Resource {
     }
 
     static useFetchInit = (init: RequestInit): RequestInit => {
-        const { organization, token } = JSON.parse(
+        const { organization, token, fetchHeaders } = JSON.parse(
             sessionStorage.getItem("__deprecatedFetchInit") ?? "{}",
         );
 
@@ -20,7 +18,7 @@ export default class AuthResource extends Resource {
             ...init,
             headers: {
                 ...init.headers,
-                ...getAppInsightsHeaders(),
+                ...fetchHeaders,
                 Authorization: `Bearer ${token ?? ""}`,
                 Organization: organization ?? "",
                 "authentication-type": "okta",

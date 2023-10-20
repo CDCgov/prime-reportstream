@@ -1,5 +1,3 @@
-import { getAppInsightsHeaders } from "../TelemetryService";
-
 import AuthResource from "./AuthResource";
 
 export default class SenderAuthResource extends AuthResource {
@@ -8,15 +6,17 @@ export default class SenderAuthResource extends AuthResource {
     }
 
     static useFetchInit = (init: RequestInit): RequestInit => {
-        const { organization, token } = JSON.parse(
-            sessionStorage.getItem("__deprecatedFetchInit") ?? "{}",
-        );
+        const {
+            organization,
+            token,
+            fetchHeaders = {},
+        } = JSON.parse(sessionStorage.getItem("__deprecatedFetchInit") ?? "{}");
 
         return {
             ...init,
             headers: {
                 ...init.headers,
-                ...getAppInsightsHeaders(),
+                ...fetchHeaders,
                 Authorization: `Bearer ${token ?? ""}`,
                 Organization: organization || "",
                 "authentication-type": "okta",

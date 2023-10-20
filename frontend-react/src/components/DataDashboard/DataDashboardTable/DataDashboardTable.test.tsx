@@ -1,7 +1,6 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { mockAppInsights } from "../../../utils/__mocks__/ApplicationInsights";
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../../hooks/UseOktaMemberships";
 import {
@@ -13,6 +12,10 @@ import { mockUseReceiverDeliveries } from "../../../hooks/network/DataDashboard/
 import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import { renderApp } from "../../../utils/CustomRenderUtils";
+import {
+    mockAppInsights,
+    mockAppInsightsContextReturnValue,
+} from "../../../contexts/__mocks__/AppInsightsContext";
 
 import DataDashboardTable from "./DataDashboardTable";
 
@@ -27,9 +30,9 @@ jest.mock("../../../TelemetryService", () => ({
 beforeEach(() => {
     // Mock our SessionProvider's data
     mockSessionContentReturnValue({
-        oktaToken: {
-            accessToken: "TOKEN",
-        },
+        authState: {
+            accessToken: { accessToken: "TOKEN" },
+        } as any,
         activeMembership: {
             memberType: MemberType.RECEIVER,
             parsedName: "testOrg",
@@ -50,6 +53,7 @@ describe("DataDashboardTable", () => {
 
     describe("useOrganizationReceiversFeed without data", () => {
         beforeEach(() => {
+            mockAppInsightsContextReturnValue();
             // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
@@ -61,9 +65,9 @@ describe("DataDashboardTable", () => {
 
             // Mock our SessionProvider's data
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrgNoReceivers",
@@ -101,6 +105,7 @@ describe("DataDashboardTableWithPagination", () => {
     describe("when enabled", () => {
         describe("with multiple receiver services and data", () => {
             beforeEach(() => {
+                mockAppInsightsContextReturnValue();
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: mockActiveReceiver,
                     loadingServices: false,
@@ -173,6 +178,7 @@ describe("DataDashboardTableWithPagination", () => {
 
         describe("with one active receiver service", () => {
             beforeEach(() => {
+                mockAppInsightsContextReturnValue();
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: mockActiveReceiver,
                     loadingServices: false,
@@ -212,6 +218,7 @@ describe("DataDashboardTableWithPagination", () => {
 
         describe("with no receiver services", () => {
             beforeEach(() => {
+                mockAppInsightsContextReturnValue();
                 // Mock our receiver services feed data
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: undefined,
@@ -223,9 +230,9 @@ describe("DataDashboardTableWithPagination", () => {
 
                 // Mock our SessionProvider's data
                 mockSessionContentReturnValue({
-                    oktaToken: {
-                        accessToken: "TOKEN",
-                    },
+                    authState: {
+                        accessToken: { accessToken: "TOKEN" },
+                    } as any,
                     activeMembership: {
                         memberType: MemberType.RECEIVER,
                         parsedName: "testOrgNoReceivers",
@@ -261,6 +268,7 @@ describe("DataDashboardTableWithPagination", () => {
 
     describe("when disabled", () => {
         beforeEach(() => {
+            mockAppInsightsContextReturnValue();
             // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
@@ -272,9 +280,9 @@ describe("DataDashboardTableWithPagination", () => {
 
             // Mock our SessionProvider's data
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrgNoReceivers",

@@ -1,4 +1,3 @@
-import { ApplicationInsights } from "@microsoft/applicationinsights-web";
 import type { RouteObject } from "react-router";
 
 declare global {
@@ -16,11 +15,4 @@ declare global {
             isLoginPage?: boolean;
         };
     };
-}
-
-declare module "@microsoft/applicationinsights-react-js" {
-    // Override for our proxy
-    export interface ReactPlugin {
-        sdk: ApplicationInsights;
-    }
 }

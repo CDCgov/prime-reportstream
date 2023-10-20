@@ -1,9 +1,8 @@
-import { renderHook } from "@testing-library/react";
-
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../UseOktaMemberships";
 import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
 import { Organizations } from "../../UseAdminSafeOrganizationName";
+import { renderHook } from "../../../utils/CustomRenderUtils";
 
 import { useOrgDeliveries } from "./DeliveryHooks";
 
@@ -14,9 +13,9 @@ describe("useReportsList", () => {
         afterAll(() => deliveryServer.close());
         beforeEach(() => {
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrg",
@@ -45,9 +44,9 @@ describe("useReportsList", () => {
         afterAll(() => deliveryServer.close());
         beforeEach(() => {
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.PRIME_ADMIN,
                     parsedName: Organizations.PRIMEADMINS,

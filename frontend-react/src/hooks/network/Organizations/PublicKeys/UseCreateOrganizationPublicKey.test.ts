@@ -1,10 +1,8 @@
-import { renderHook } from "@testing-library/react";
-
 import {
     dummyPublicKey,
     orgServer,
 } from "../../../../__mocks__/OrganizationMockServer";
-import { AppWrapper } from "../../../../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../../../../utils/CustomRenderUtils";
 import { mockSessionContentReturnValue } from "../../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../../UseOktaMemberships";
 
@@ -23,9 +21,9 @@ describe("useCreateOrganizationPublicKey", () => {
     describe("when authorized, 200", () => {
         beforeEach(() => {
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.SENDER,
                     parsedName: "testOrg",
@@ -55,9 +53,9 @@ describe("useCreateOrganizationPublicKey", () => {
     describe("when unauthorized, 401", () => {
         beforeEach(() => {
             mockSessionContentReturnValue({
-                oktaToken: {
+                authState: {
                     accessToken: "",
-                },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.SENDER,
                     parsedName: "testOrg",

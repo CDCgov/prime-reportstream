@@ -1,3 +1,4 @@
+import { OKTA_AUTH } from "../../oktaConfig";
 import * as SessionContextModule from "../SessionContext";
 
 export const mockSessionContext = jest.spyOn(
@@ -6,9 +7,11 @@ export const mockSessionContext = jest.spyOn(
 );
 
 export function mockSessionContentReturnValue(
-    impl: Partial<SessionContextModule.RSSessionContext>,
+    impl?: Partial<SessionContextModule.RSSessionContext>,
 ) {
     return mockSessionContext.mockReturnValue({
+        oktaAuth: OKTA_AUTH,
+        authState: {},
         logout: () => void 0,
         isUserAdmin: false,
         isUserSender: false,

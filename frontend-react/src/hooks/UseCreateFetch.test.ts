@@ -1,9 +1,11 @@
-import { renderHook } from "@testing-library/react";
 import * as axios from "axios";
 
 import config from "../config";
 import { RSEndpoint } from "../config/endpoints";
-import { mockToken } from "../utils/TestUtils";
+import { mockAccessToken } from "../utils/TestUtils";
+import * as AppInsightsContext from "../contexts/AppInsightsContext";
+import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
+import { renderHook } from "../utils/CustomRenderUtils";
 
 import * as UseCreateFetch from "./UseCreateFetch";
 import { MemberType } from "./UseOktaMemberships";
@@ -12,15 +14,13 @@ let generatorSpy: jest.SpyInstance;
 
 // a possible pattern for mocking axios in the future, which is difficult
 jest.mock("axios");
+const useAppInsightsContextSpy = jest.spyOn(
+    AppInsightsContext,
+    "useAppInsightsContext",
+);
 const mockedAxios = jest.mocked(axios);
 
-jest.mock("../TelemetryService", () => ({
-    getAppInsightsHeaders: () => ({
-        "x-ms-session-id": "DUMMY",
-    }),
-}));
-
-const fakeOktaToken = mockToken();
+const fakeOktaToken = mockAccessToken();
 const fakeMembership = {
     parsedName: "any",
     memberType: MemberType.SENDER,
@@ -30,6 +30,8 @@ const fakeEndpoint = new RSEndpoint({
     path: "/anything",
     method: "GET",
 });
+
+const fakeAppInsightsHeaders = { "x-ms-session-id": "DUMMY" };
 
 describe("useCreateFetch", () => {
     // This spy based mock DOES NOT WORK unless reinstantiated for each test as shown here
@@ -44,20 +46,33 @@ describe("useCreateFetch", () => {
     });
 
     test("returns a function that calls createWrapperForAuthorizedFetch with auth params", () => {
-        const oktaToken = mockToken();
+        const oktaToken = mockAccessToken();
         const activeMembership = {
             parsedName: "any",
             memberType: MemberType.SENDER,
         };
-        const { result } = renderHook(() =>
-            UseCreateFetch.useCreateFetch(fakeOktaToken, fakeMembership),
+        const fetchHeaders = {};
+        mockSessionContentReturnValue({
+            authState: { accessToken: oktaToken },
+            activeMembership,
+        } as any);
+        useAppInsightsContextSpy.mockImplementation(
+            () =>
+                ({
+                    fetchHeaders,
+                }) as any,
         );
+        const { result } = renderHook(() => UseCreateFetch.useCreateFetch());
         expect(result.current).toBeInstanceOf(Function);
         expect(generatorSpy).not.toHaveBeenCalled();
 
         const invocationValue = result.current();
         expect(invocationValue).toBeInstanceOf(Function);
-        expect(generatorSpy).toHaveBeenCalledWith(oktaToken, activeMembership);
+        expect(generatorSpy).toHaveBeenCalledWith(
+            oktaToken,
+            activeMembership,
+            fetchHeaders,
+        );
     });
 });
 
@@ -76,6 +91,7 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
         const authorizedFetch = createTypeWrapperForAuthorizedFetch(
             fakeOktaToken,
             fakeMembership,
+            fakeAppInsightsHeaders,
         );
         const authorizedFetchResult = authorizedFetch(fakeEndpoint);
         expect(authorizedFetchResult).toBeInstanceOf(Promise);
@@ -83,8 +99,9 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
 
     test("returns a function that returns a function that calls axios with expected arguments", async () => {
         await createTypeWrapperForAuthorizedFetch(
-            mockToken({ accessToken: "this token" }),
+            mockAccessToken({ accessToken: "this token" }),
             fakeMembership,
+            fakeAppInsightsHeaders,
         )(fakeEndpoint, {
             data: "some data",
             timeout: 1,
@@ -106,8 +123,9 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
 
     test("returns a function that returns a function that calls axios with expected arguments (custom headers)", async () => {
         await createTypeWrapperForAuthorizedFetch(
-            mockToken({ accessToken: "this token" }),
+            mockAccessToken({ accessToken: "this token" }),
             fakeMembership,
+            fakeAppInsightsHeaders,
         )(fakeEndpoint, {
             data: "some data",
             timeout: 1,
@@ -134,8 +152,9 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
 
     test("returns a function that returns a function that calls axios with expected arguments and does not override key options", async () => {
         await createTypeWrapperForAuthorizedFetch(
-            mockToken({ accessToken: "this token" }),
+            mockAccessToken({ accessToken: "this token" }),
             fakeMembership,
+            fakeAppInsightsHeaders,
         )(fakeEndpoint, {
             url: "do not use me",
             method: "POST",
@@ -159,8 +178,9 @@ describe("createTypeWrapperForAuthorizedFetch", () => {
 
     test("returns a function that returns a function that returns the data object from axios response", async () => {
         const dataResult = await createTypeWrapperForAuthorizedFetch(
-            mockToken({ accessToken: "this token" }),
+            mockAccessToken({ accessToken: "this token" }),
             fakeMembership,
+            {},
         )(fakeEndpoint, {
             data: "some data",
             timeout: 1,

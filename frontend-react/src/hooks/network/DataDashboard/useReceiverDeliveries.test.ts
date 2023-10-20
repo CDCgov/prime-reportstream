@@ -1,8 +1,8 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 
 import { dataDashboardServer } from "../../../__mocks__/DataDashboardMockServer";
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
-import { AppWrapper } from "../../../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../UseOktaMemberships";
 
 import useReceiverDeliveries from "./UseReceiverDeliveries";
@@ -15,9 +15,9 @@ describe("useReceiverDeliveries", () => {
     describe("with no Organization name", () => {
         beforeEach(() => {
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: undefined,
 
                 isUserAdmin: false,
@@ -39,9 +39,9 @@ describe("useReceiverDeliveries", () => {
     describe("with Organization and service name", () => {
         beforeEach(() => {
             mockSessionContentReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrg",

@@ -1,4 +1,4 @@
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
 
 import {
     messageTrackerServer,
@@ -6,7 +6,7 @@ import {
 } from "../../../__mocks__/MessageTrackerMockServer";
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../UseOktaMemberships";
-import { AppWrapper } from "../../../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../../../utils/CustomRenderUtils";
 
 import { useMessageSearch, useMessageDetails } from "./MessageTrackerHooks";
 
@@ -17,9 +17,9 @@ afterAll(() => messageTrackerServer.close());
 describe("useMessageSearch", () => {
     test("returns expected data values when fetching messages", async () => {
         mockSessionContentReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
@@ -54,9 +54,9 @@ describe("useMessageSearch", () => {
 describe("useMessageDetails", () => {
     test("returns expected data values when fetching message details", async () => {
         mockSessionContentReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",

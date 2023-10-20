@@ -1,6 +1,7 @@
-import { useOktaAuth } from "@okta/okta-react";
 import type { OnAuthResumeFunction } from "@okta/okta-react/bundles/types/OktaContext";
 import * as React from "react";
+
+import { useSessionContext } from "../../contexts/SessionContext";
 
 const OktaError: React.FC<{ error: Error }> = ({ error }) => {
     if (error.name && error.message) {
@@ -32,7 +33,7 @@ const LoginCallback: React.FC<LoginCallbackProps> = ({
     loadingElement = null,
     onAuthResume,
 }) => {
-    const { oktaAuth, authState } = useOktaAuth();
+    const { oktaAuth, authState } = useSessionContext();
     const [callbackError, setCallbackError] = React.useState(null);
 
     const ErrorReporter = errorComponent || OktaError;

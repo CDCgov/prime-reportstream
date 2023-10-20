@@ -15,8 +15,8 @@ import { Helmet } from "react-helmet-async";
 import Title from "../../components/Title";
 import getStateTerritoryList from "../../utils/StateTerritories";
 import config from "../../config";
-import { getAppInsightsHeaders } from "../../TelemetryService";
 import { USLink } from "../../components/USLink";
+import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
 
 import SuccessPage from "./SuccessPage";
 
@@ -48,6 +48,7 @@ export interface AgreementBody {
 }
 
 function TermsOfServiceForm() {
+    const { fetchHeaders } = useAppInsightsContext();
     const STATES = getStateTerritoryList();
 
     /* Form field values are stored here */
@@ -91,7 +92,7 @@ function TermsOfServiceForm() {
         const response = await fetch(`${RS_API_URL}/api/email-registered`, {
             method: "POST",
             headers: {
-                ...getAppInsightsHeaders(),
+                ...fetchHeaders,
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(body),

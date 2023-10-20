@@ -1,5 +1,4 @@
 import React from "react";
-import { useOktaAuth } from "@okta/okta-react";
 import { Navigate } from "react-router-dom";
 import type { Tokens } from "@okta/okta-auth-js";
 
@@ -7,9 +6,10 @@ import Alert from "../shared/Alert/Alert";
 import { oktaSignInConfig } from "../oktaConfig";
 import { USLink } from "../components/USLink";
 import OktaSignInWidget from "../shared/OktaSignInWidget/OktaSignInWidget";
+import { useSessionContext } from "../contexts/SessionContext";
 
 export const Login = () => {
-    const { oktaAuth, authState } = useOktaAuth();
+    const { oktaAuth, authState } = useSessionContext();
 
     const onSuccess = React.useCallback(
         (tokens: Tokens) => {

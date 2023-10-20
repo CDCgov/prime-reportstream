@@ -19,7 +19,7 @@ export const AuthElement = ({
 }: AuthElementProps): React.ReactElement => {
     // Router's new navigation hook for redirecting
     const navigate = useNavigate();
-    const { oktaToken, activeMembership, isAdminStrictCheck } =
+    const { authState, activeMembership, isAdminStrictCheck } =
         useSessionContext();
 
     const { checkFlag } = useFeatureFlags();
@@ -41,8 +41,8 @@ export const AuthElement = ({
     // All the checks before returning the route
 
     const needsLogin = useMemo(
-        () => !oktaToken || !activeMembership,
-        [oktaToken, activeMembership],
+        () => !authState.accessToken || !activeMembership,
+        [authState.accessToken, activeMembership],
     );
     useEffect(() => {
         // Not logged in, needs to log in.

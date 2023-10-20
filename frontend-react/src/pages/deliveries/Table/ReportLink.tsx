@@ -1,6 +1,5 @@
 import download from "downloadjs";
 import { Button, Icon } from "@trussworks/react-uswds";
-import { useOktaAuth } from "@okta/okta-react";
 import React from "react";
 
 import ReportResource from "../../../resources/ReportResource";
@@ -33,7 +32,7 @@ const formatFileType = (fileType: string) => {
     details page
 */
 function ReportLink(props: Props) {
-    const { authState } = useOktaAuth();
+    const { authState } = useSessionContext();
     const { activeMembership } = useSessionContext();
     const organization = activeMembership?.parsedName;
 

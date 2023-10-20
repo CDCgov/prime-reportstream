@@ -16,9 +16,9 @@ describe("SenderModeBanner", () => {
 
     test("renders when sender is testing", async () => {
         mockSessionContentReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "testOrg",

@@ -24,8 +24,8 @@ import { AuthElement } from "../AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
 import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
-import { getAppInsightsHeaders } from "../../TelemetryService";
 import { useSessionContext } from "../../contexts/SessionContext";
+import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
 
 import {
     ConfirmSaveSettingModal,
@@ -52,6 +52,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
     receivername,
     action,
 }) => {
+    const { fetchHeaders } = useAppInsightsContext();
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { activeMembership } = useSessionContext();
@@ -111,7 +112,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             `${RS_API_URL}/api/settings/organizations/${orgname}/receivers/${receivername}`,
             {
                 headers: {
-                    ...getAppInsightsHeaders(),
+                    ...fetchHeaders,
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },
