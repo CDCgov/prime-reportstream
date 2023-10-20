@@ -19,7 +19,7 @@ export default function ManagePublicKeyUploadSuccess() {
             </div>
             <p>
                 Read more about{" "}
-                <USLink href="/resources/api/getting-started#set-up-authentication">
+                <USLink href="/developer-resources/api/getting-started#set-up-authentication">
                     your next steps for setting up authentication
                 </USLink>
                 .

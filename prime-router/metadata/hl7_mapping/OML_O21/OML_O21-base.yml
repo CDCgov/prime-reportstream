@@ -10,7 +10,7 @@ elements:
       Bundle.entry.resource.ofType(MessageHeader).event.code = 'O21'
     resource: 'Bundle.entry.resource.ofType(MessageHeader)'
     required: true
-    schema: ../common/message-header
+    schema: ../resources/MessageHeader/MSH
 
   - name: software-segment
     condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
