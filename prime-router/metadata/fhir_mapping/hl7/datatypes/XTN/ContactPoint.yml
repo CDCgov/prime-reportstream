@@ -103,11 +103,20 @@ system_6:
 
 system_7:
   condition: $telEquipType NULL && $commAddress NULL
-  valueOf: extension/DataAbsentReason
-  expressionType: resource
+  expressionType: nested
   vars:
     telEquipType: String, XTN.3
     commAddress: String, XTN.4
+  expressionsMap:
+    extension:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: "data-absent-reason"
+        valueCode:
+          value: unknown
 
 extension_1-telecom-equipment-type:
   condition: $equipType NOT_NULL
