@@ -51,9 +51,9 @@ export interface AppInsightsContextProviderProps
 }
 
 /**
- * Replacement for AppInsights-React's context provider. Handles adding
- * the react plugin to the provided ai instance, creating a proxy that contains
- * a reference to that instance, and creating our custom AppInsights context.
+ * Replacement for AppInsights-React's context provider. Handles creating a proxy
+ * that contains a reference to that instance, and creating our custom AppInsights
+ * context.
  */
 export function AppInsightsContextProvider({
     children,
@@ -110,7 +110,6 @@ export function AppInsightsContextProvider({
     useEffect(() => {
         // using dependency as using the `properties` method is preferred way
         const handler = appInsights?.addTelemetryInitializer((item) => {
-            debugger;
             item.data = {
                 ...item.data,
                 ...telemetryCustomProperties,
