@@ -142,12 +142,12 @@ class CompareFhirData(
     ): CompareData.Result {
         // early return if we've already checked this resource
         val maybeResourcesId = generateResourcesId(actualResources)
-        if (maybeResourcesId != null && visitedResources.contains(maybeResourcesId)) {
+        if (visitedResources.contains(maybeResourcesId)) {
             return CompareData.Result(true)
         }
 
         // add resources id to Set to avoid repeat resource comparisons
-        maybeResourcesId?.let { visitedResources.add(it) }
+        maybeResourcesId?.also { visitedResources.add(it) }
 
         var result = CompareData.Result(true)
         result.passed = false
