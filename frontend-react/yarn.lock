@@ -5524,10 +5524,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/html-to-text@npm:^9.0.2":
-  version: 9.0.2
-  resolution: "@types/html-to-text@npm:9.0.2"
-  checksum: 9ad76f5ff2c303c6a66f6a03ecccee60da85bed06769c14bc31bf1113c88ac1ea323790f2340b1b6bd7560570fb9e3d8ba0158c123e249a1c3779ddcb78635d5
+"@types/html-to-text@npm:^9.0.3":
+  version: 9.0.3
+  resolution: "@types/html-to-text@npm:9.0.3"
+  checksum: 9ca1a3927f1c08738ea395e1b9cd91af36808adf2916972330a0f8d1512d75e2951c21d8e324d0eb3588498965f58b5929bfcc1c6ff1d113fadf3d10eb7584de
   languageName: node
   linkType: hard
 
@@ -16019,7 +16019,7 @@ __metadata:
     "@types/dompurify": ^3.0.3
     "@types/downloadjs": ^1.4.4
     "@types/github-slugger": ^1.3.0
-    "@types/html-to-text": ^9.0.2
+    "@types/html-to-text": ^9.0.3
     "@types/jest": ^29.5.5
     "@types/lodash.chunk": ^4.2.7
     "@types/lodash.omit": ^4.5.7
