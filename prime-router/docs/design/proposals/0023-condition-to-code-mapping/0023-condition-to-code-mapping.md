@@ -225,6 +225,7 @@ For the below resource:
                         }
                     ],
                     "text": "Flu A"
+            }
 ```
 the below element in the default transformation utilizes LookupTableValueSet to use key "80382-5" to search Condition-Mapping table stored in the database to return a value from the condition_code column
 
@@ -345,3 +346,4 @@ test code,test description,coding system
 97099-6,Influenza virus A and B and SARS-CoV-2 (COVID-19) Ag panel - Upper respiratory specimen by Rapid immunoassay, LOINC
 47457-7,Influenza virus A H8 Ab [Titer] in Serum, LOINC
 123456, LDT Flu Test, LOCAL
+```
