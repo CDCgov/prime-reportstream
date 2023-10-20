@@ -1,0 +1,10 @@
+elements:
+  - name: aoe-note
+    condition: '%resource is Observation'
+    schema: 'classpath:/metadata/hl7_mapping/receivers/STLTs/CA/ca-aoe-note.yml'
+
+  - name: note
+    condition: '%resource is string'
+    schema: 'classpath:/metadata/hl7_mapping/common/note.yml'
+    constants:
+      noteDetails: '%resource.note'

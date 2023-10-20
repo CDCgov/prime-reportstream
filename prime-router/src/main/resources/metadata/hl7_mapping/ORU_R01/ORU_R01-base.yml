@@ -1,0 +1,57 @@
+hl7Class: ca.uhn.hl7v2.model.v27.message.ORU_R01
+constants:
+  # Prefix for RS custom extension URLs
+  rsext: '"https://reportstream.cdc.gov/fhir/StructureDefinition/"'
+elements:
+  - name: message-headers
+    condition: >
+      Bundle.entry.resource.ofType(MessageHeader).exists() and
+      Bundle.entry.resource.ofType(MessageHeader).event is Coding and
+      Bundle.entry.resource.ofType(MessageHeader).event.code = 'R01'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    required: true
+    schema: classpath:/metadata/hl7_mapping/resources/MessageHeader/MSH.yml
+
+  - name: software-segment
+    condition: 'Bundle.entry.resource.ofType(MessageHeader).exists()'
+    resource: 'Bundle.entry.resource.ofType(MessageHeader)'
+    schema: classpath:/metadata/hl7_mapping/common/software.yml
+
+  - name: patient-information
+    resource: 'Bundle.entry.resource.ofType(Patient)'
+    condition: '%resource.count() = 1'
+    required: true
+    constants:
+      hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
+    schema: classpath:/metadata/hl7_mapping/common/patient.yml
+
+  - name: patient-note
+    resource: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).value.text.split(''\n'')'
+    condition: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).exists()'
+    schema: classpath:/metadata/hl7_mapping/common/note.yml
+    resourceIndex: noteIndex
+    constants:
+      hl7NotePath: '/PATIENT_RESULT/PATIENT'
+      # Cannot use %resource here as this constant will be resolved in the note schema
+      noteDetails: 'Bundle.entry.resource.ofType(Patient).extension(%`rsext-patient-notes`).value'
+
+  - name: patient-contact
+    resource: 'Bundle.entry.resource.ofType(Patient).contact'
+    condition: '%resource.exists()'
+    constants:
+      hl7SegmentGroup: '/PATIENT_RESULT/PATIENT'
+    schema: classpath:/metadata/hl7_mapping/common/patient-contact.yml
+
+  - name: patient-visit
+    resource: 'Bundle.entry.resource.ofType(Encounter)'
+    condition: '%resource.count() = 1'
+    constants:
+      hl7SegmentGroup: '/PATIENT_RESULT/PATIENT/VISIT'
+    schema: classpath:/metadata/hl7_mapping/common/patient-visit.yml
+
+  - name: order-observations
+    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+    condition: '%resource.count() > 0'
+    required: true
+    schema: classpath:/metadata/hl7_mapping/ORU_R01/base/order-observation.yml
+    resourceIndex: orderIndex

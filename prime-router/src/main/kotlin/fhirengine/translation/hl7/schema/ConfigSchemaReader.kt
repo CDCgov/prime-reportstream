@@ -31,7 +31,9 @@ object ConfigSchemaReader : Logging {
     ): ConfigSchema<*> {
         // Load a schema including any parent schemas.  Note that child schemas are loaded first and the parents last.
         val schemaList = when (URI(schemaName).scheme) {
-            null -> fromRelative(schemaName, folder, schemaClass)
+            null -> {
+                fromRelative(schemaName, folder, schemaClass)
+            }
             else -> fromUri(URI(schemaName), schemaClass)
         }
 
@@ -139,11 +141,10 @@ object ConfigSchemaReader : Logging {
                 readOneYamlSchema(input, schemaClass)
             }
             "azure" -> {
-                // TODO: #10487 will add a new function to download schemas, so this is just a temporary placeholder
-                val blob = BlobAccess.downloadBlobAsByteArray(schemaUri.toString())
-                readOneYamlSchema(blob.inputStream(), schemaClass)
+                val blob = BlobAccess.downloadBlobAsBinaryData(schemaUri.toString())
+                readOneYamlSchema(blob.toStream(), schemaClass)
             }
-            else -> throw SchemaException("Unexpected scheme: ${schemaUri.scheme}")
+            else -> throw SchemaException("Unexpected scheme: ${schemaUri.scheme} for $schemaUri")
         }
         rawSchema.name = schemaUri.path
 

@@ -1,0 +1,55 @@
+constants:
+  hl7Order: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})'
+  diagnostic: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex]'
+  service: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].basedOn.resolve()'
+  specimen: 'Bundle.entry.resource.ofType(DiagnosticReport)[%orderIndex].specimen.resolve()'
+  hl7ObservationNotes: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION'
+  hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION'
+elements:
+  - name: order-segment
+    # Only create the segment if we have data for it
+    condition: '%service.extension(%`rsext-order-control`).exists()'
+    schema: classpath:/metadata/hl7_mapping/ORU_R01/base/order.yml
+
+  - name: observation-request
+    # Condition from ORU_RO1 covers this schema as well
+    schema: classpath:/metadata/hl7_mapping/ORU_R01/base/observation-request.yml
+
+  - name: specimen
+    resource: '%specimen'
+    resourceIndex: specimenIndex
+    condition: '%specimen.exists()'
+    schema: classpath:/metadata/hl7_mapping/common/specimen.yml
+    constants:
+      hl7SpecimenFieldPath: /PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/SPECIMEN/SPM
+      performerOrganization: '%diagnostic.basedOn.resolve().performer.resolve()'
+
+  - name: timing-segment
+    resource: '%service'
+    # Only create the segment if we have data for it
+    condition: >
+      %resource.occurrence.repeat.bounds.start.exists() or
+      %resource.occurrence.repeat.bounds.end.exists() or
+      %resource.priority.exists() or
+      %resource.extension(%`rsext-service-priority`).exists()
+    schema: classpath:/metadata/hl7_mapping/ORU_R01/base/timing-quantity.yml
+
+  - name: observation-result-with-aoe
+    # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
+    resource: '%resource.result.resolve() | %service.supportingInfo.resolve().where(specimen.exists().not())'
+    schema: classpath:/metadata/hl7_mapping/common/observation-result.yml
+    resourceIndex: resultIndex
+    constants:
+      hl7ObservationPath: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})'
+      hl7OBXField: '/PATIENT_RESULT/ORDER_OBSERVATION(%{orderIndex})/OBSERVATION(%{resultIndex})/OBX'
+      observation: '%diagnostic.result[%resultIndex].resolve()'
+
+  - name: order-note
+    resource: '%service.note.text.split(''\n'')'
+    condition: '%service.note.exists()'
+    schema: classpath:/metadata/hl7_mapping/common/note.yml
+    resourceIndex: noteIndex
+    constants:
+      hl7NotePath: '%{hl7Order}'
+      # Cannot use %resource here as this constant will be resolved in the note schema
+      noteDetails: '%service.note'
