@@ -73,7 +73,7 @@ class HttpUtilities {
 
         fun <T> okJSONResponse(
             request: HttpRequestMessage<String?>,
-            body: T
+            body: T,
         ): HttpResponseMessage {
             return request
                 .createResponseBuilder(HttpStatus.OK)
@@ -84,7 +84,7 @@ class HttpUtilities {
 
         fun <T> okJSONResponse(
             request: HttpRequestMessage<String?>,
-            body: ApiResponse<T>
+            body: ApiResponse<T>,
         ): HttpResponseMessage {
             return request
                 .createResponseBuilder(HttpStatus.OK)
@@ -134,7 +134,7 @@ class HttpUtilities {
         }
 
         fun unauthorizedResponse(
-            request: HttpRequestMessage<String?>
+            request: HttpRequestMessage<String?>,
         ): HttpResponseMessage {
             return request
                 .createResponseBuilder(HttpStatus.UNAUTHORIZED)
@@ -147,7 +147,7 @@ class HttpUtilities {
          */
         fun <T> unauthorizedResponse(
             request: HttpRequestMessage<String?>,
-            responseBody: T
+            responseBody: T,
         ): HttpResponseMessage {
             return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).body(mapper.writeValueAsString(responseBody))
                 .header(HttpHeaders.CONTENT_TYPE, jsonMediaType)
@@ -167,16 +167,17 @@ class HttpUtilities {
 
         fun notFoundResponse(
             request: HttpRequestMessage<String?>,
-            errorMessage: String? = null
+            errorMessage: String? = null,
         ): HttpResponseMessage {
             val response = request.createResponseBuilder(HttpStatus.NOT_FOUND)
-            if (!errorMessage.isNullOrBlank())
+            if (!errorMessage.isNullOrBlank()) {
                 response.body(errorJson(errorMessage))
+            }
             return response.build()
         }
 
         fun internalErrorResponse(
-            request: HttpRequestMessage<String?>
+            request: HttpRequestMessage<String?>,
         ): HttpResponseMessage {
             val body = """{"error": "Internal error at ${OffsetDateTime.now()}"}"""
             return request
@@ -192,11 +193,12 @@ class HttpUtilities {
          */
         fun internalErrorConflictResponse(
             request: HttpRequestMessage<String?>,
-            errorMessage: String? = null
+            errorMessage: String? = null,
         ): HttpResponseMessage {
             val response = request.createResponseBuilder(HttpStatus.CONFLICT)
-            if (!errorMessage.isNullOrBlank())
+            if (!errorMessage.isNullOrBlank()) {
                 response.body(errorJson(errorMessage))
+            }
             return response.build()
         }
 
@@ -206,7 +208,7 @@ class HttpUtilities {
 
         private fun addHeaderIfModified(
             builder: HttpResponseMessage.Builder,
-            lastModified: OffsetDateTime?
+            lastModified: OffsetDateTime?,
         ) {
             if (lastModified == null) return
             // https://datatracker.ietf.org/doc/html/rfc7232#section-2.2 defines this header format
@@ -224,7 +226,7 @@ class HttpUtilities {
         fun bad(
             request: HttpRequestMessage<String?>,
             msg: String,
-            status: HttpStatus = HttpStatus.BAD_REQUEST
+            status: HttpStatus = HttpStatus.BAD_REQUEST,
         ): HttpResponseMessage {
             logger.error(msg)
             return httpResponse(request, msg, status)
@@ -278,7 +280,7 @@ class HttpUtilities {
             asyncProcessMode: Boolean = false,
             key: String? = null,
             option: Options? = null,
-            payloadName: String? = null
+            payloadName: String? = null,
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
             return postReportBytes(
@@ -297,7 +299,7 @@ class HttpUtilities {
             environment: Environment,
             file: File,
             sendingOrgClient: Sender,
-            token: String? = null
+            token: String? = null,
         ): Pair<Int, String> {
             if (!file.exists()) error("Unable to find file ${file.absolutePath}")
             return postReportBytesToWatersApi(environment, file.readBytes(), sendingOrgClient, token)
@@ -326,18 +328,22 @@ class HttpUtilities {
                 if (sendingOrgClient.name.isNotBlank()) ".${sendingOrgClient.name}" else ""
             headers.add("client" to clientStr)
             if (key == null && environment == Environment.TEST) error("key is required for Test environment")
-            if (key != null)
+            if (key != null) {
                 headers.add("x-functions-key" to key)
+            }
 
             val urlBuilder = URIBuilder(environment.url.toString() + oldApi)
-            if (option != null)
+            if (option != null) {
                 urlBuilder.setParameter("option", option.toString())
-            if (payloadName != null)
+            }
+            if (payloadName != null) {
                 urlBuilder.setParameter("payloadName", payloadName)
+            }
 
             // if asyncProcessMode is present and true, add the 'processing=async' query param
-            if (asyncProcessMode)
+            if (asyncProcessMode) {
                 urlBuilder.setParameter("processing", "async")
+            }
 
             return postHttp(urlBuilder.toString(), bytes, headers)
         }
@@ -347,7 +353,7 @@ class HttpUtilities {
             bytes: ByteArray,
             sendingOrgClient: Sender,
             token: String? = null,
-            option: Options? = null
+            option: Options? = null,
         ): Pair<Int, String> {
             val headers = mutableListOf<Pair<String, String>>()
             when (sendingOrgClient.format) {
@@ -376,7 +382,7 @@ class HttpUtilities {
          */
         fun getHttp(
             urlStr: String,
-            headers: List<Pair<String, String>>? = null
+            headers: List<Pair<String, String>>? = null,
         ): Pair<Int, String> {
             return httpRequest("GET", urlStr, null, headers)
         }
@@ -388,7 +394,7 @@ class HttpUtilities {
         fun deleteHttp(
             urlStr: String,
             bytes: ByteArray,
-            headers: List<Pair<String, String>>? = null
+            headers: List<Pair<String, String>>? = null,
         ): Pair<Int, String> {
             return httpRequest("DELETE", urlStr, bytes, headers)
         }
@@ -400,7 +406,7 @@ class HttpUtilities {
             method: String,
             urlStr: String,
             bytes: ByteArray?,
-            headers: List<Pair<String, String>>? = null
+            headers: List<Pair<String, String>>? = null,
         ): Pair<Int, String> {
             val urlObj = URL(urlStr)
             with(urlObj.openConnection() as HttpURLConnection) {

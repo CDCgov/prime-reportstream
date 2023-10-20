@@ -14,7 +14,7 @@ locals {
     OKTA_authKey        = "xxx"
     OKTA_clientId       = "xxx"
     fn_OKTA_clientId    = "xxx"
-    OKTA_scope          = "simple_report_dev"
+    OKTA_scope          = "reportstream_dev"
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig${local.init.random_id}"

@@ -23,7 +23,7 @@ object FileUtilities {
         targetCounties: String? = null,
         directory: String = ".",
         format: Report.Format = Report.Format.CSV,
-        locale: Locale? = null
+        locale: Locale? = null,
     ): File {
         val report = createFakeCovidReport(
             metadata,
@@ -42,7 +42,7 @@ object FileUtilities {
         count: Int,
         targetStates: String? = null,
         targetCounties: String? = null,
-        locale: Locale? = null
+        locale: Locale? = null,
     ): Report {
         return FakeReport(metadata, locale).build(
             metadata.findSchema(schemaName)
@@ -60,7 +60,7 @@ object FileUtilities {
         settings: SettingsProvider,
         outputDir: String?,
         outputFileName: String?,
-        echo: (message: Any?) -> Unit
+        echo: (message: Any?) -> Unit,
     ) {
         if (outputDir == null && outputFileName == null) return
 
@@ -88,7 +88,7 @@ object FileUtilities {
         metadata: Metadata,
         outputDir: String?,
         outputFileName: String?,
-        settings: SettingsProvider
+        settings: SettingsProvider,
     ): File {
         val outputFile = if (outputFileName != null) {
             File(outputFileName)

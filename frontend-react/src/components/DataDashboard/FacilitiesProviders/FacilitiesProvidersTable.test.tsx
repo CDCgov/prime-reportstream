@@ -132,7 +132,6 @@ describe("FacilitiesProvidersTable", () => {
                     parsedName: "testOrgNoReceivers",
                     service: "testReceiver",
                 },
-
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,

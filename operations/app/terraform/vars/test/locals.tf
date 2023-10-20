@@ -12,7 +12,7 @@ locals {
     OKTA_authKey        = "xxx"
     OKTA_clientId       = "xxx"
     fn_OKTA_clientId    = "xxx"
-    OKTA_scope          = "simple_report_dev"
+    OKTA_scope          = "reportstream_dev"
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-app-config"
@@ -54,7 +54,7 @@ locals {
     use_cdc_managed_vnet        = true
     dns_vnet                    = "East-vnet"
     dns_ip                      = "168.63.129.16"
-    terraform_caller_ip_address = ["162.224.209.174", "24.163.118.70", "75.191.122.59"]
+    terraform_caller_ip_address = jsondecode(data.azurerm_key_vault_secret.caller_ip_addresses.value)
     config = {
       "East-vnet" = {
         "address_space"           = "172.17.${local.address_id}.0/25"

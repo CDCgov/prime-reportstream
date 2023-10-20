@@ -24,7 +24,7 @@ object HtmlDocumentationFactory : StringBasedDocumentationFactory(), Logging {
         schema: Schema,
         outputDir: String,
         outputFileName: String?,
-        includeTimestamps: Boolean
+        includeTimestamps: Boolean,
     ) {
         // get the schema documentation as a sequence and then write it out to a single string
         val mdText = getSchemaDocumentation(schema).joinToString(separator = "")

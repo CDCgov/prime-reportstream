@@ -11,7 +11,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 
 abstract class HistoryDatabaseAccess(
-    internal val db: DatabaseAccess = BaseEngine.databaseAccessSingleton
+    internal val db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
 ) {
     /**
      * Values that results can be sorted by.
@@ -27,7 +27,7 @@ abstract class HistoryDatabaseAccess(
      * wish to sort by is indexed.
      */
     enum class SortColumn {
-        CREATED_AT
+        CREATED_AT,
     }
 
     /**
@@ -67,7 +67,7 @@ abstract class HistoryDatabaseAccess(
         until: OffsetDateTime?,
         pageSize: Int,
         showFailed: Boolean,
-        klass: Class<T>
+        klass: Class<T>,
     ): List<T> {
         val sortedColumn = createColumnSort(sortColumn, sortDir)
         val whereClause = createWhereCondition(organization, orgService, since, until, showFailed)
@@ -107,7 +107,7 @@ abstract class HistoryDatabaseAccess(
      */
     private fun createColumnSort(
         sortColumn: SortColumn,
-        sortDir: SortDir
+        sortDir: SortDir,
     ): SortField<OffsetDateTime> {
         val column = when (sortColumn) {
             /* Decides sort column by enum */
@@ -138,7 +138,7 @@ abstract class HistoryDatabaseAccess(
         orgService: String?,
         since: OffsetDateTime?,
         until: OffsetDateTime?,
-        showFailed: Boolean
+        showFailed: Boolean,
     ): Condition {
         var filter = this.organizationFilter(organization, orgService)
 
@@ -168,7 +168,7 @@ abstract class HistoryDatabaseAccess(
     abstract fun <T> fetchAction(
         actionId: Long,
         orgName: String? = null,
-        klass: Class<T>
+        klass: Class<T>,
     ): T?
 
     /**
@@ -181,6 +181,6 @@ abstract class HistoryDatabaseAccess(
      */
     abstract fun <T> fetchRelatedActions(
         reportId: UUID,
-        klass: Class<T>
+        klass: Class<T>,
     ): List<T>
 }

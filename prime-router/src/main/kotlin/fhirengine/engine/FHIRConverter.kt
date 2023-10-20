@@ -39,6 +39,7 @@ class FHIRConverter(
     override val finishedField: Field<OffsetDateTime> = Tables.TASK.PROCESSED_AT
 
     override val engineType: String = "Convert"
+
     /**
      * Accepts a [message] in either HL7 or FHIR format
      * HL7 messages will be converted into FHIR.
@@ -50,7 +51,7 @@ class FHIRConverter(
     override fun doWork(
         message: RawSubmission,
         actionLogger: ActionLogger,
-        actionHistory: ActionHistory
+        actionHistory: ActionHistory,
     ): List<FHIREngineRunResult> {
         val format = Report.getFormatFromBlobURL(message.blobURL)
         logger.trace("Processing $format data for FHIR conversion.")
@@ -142,7 +143,9 @@ class FHIRConverter(
     fun getTransformerFromSchema(schemaName: String): FhirTransformer? {
         return if (schemaName.isNotBlank()) {
             FhirTransformer(schemaName)
-        } else null
+        } else {
+            null
+        }
     }
 
     /**
@@ -153,7 +156,7 @@ class FHIRConverter(
      */
     internal fun getContentFromHL7(
         message: RawSubmission,
-        actionLogger: ActionLogger
+        actionLogger: ActionLogger,
     ): List<Bundle> {
         // create the hl7 reader
         val hl7Reader = HL7Reader(actionLogger)
@@ -182,7 +185,7 @@ class FHIRConverter(
      */
     internal fun getContentFromFHIR(
         message: RawSubmission,
-        actionLogger: ActionLogger
+        actionLogger: ActionLogger,
     ): List<Bundle> {
         return FhirTranscoder.getBundles(message.downloadContent(), actionLogger)
     }
@@ -198,7 +201,7 @@ class FHIRConverter(
         report: Report,
         reportFormat: String,
         reportUrl: String,
-        nextAction: Event
+        nextAction: Event,
     ) {
         db.insertTask(report, reportFormat, reportUrl, nextAction, null)
     }
