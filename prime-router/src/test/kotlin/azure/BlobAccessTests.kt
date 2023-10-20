@@ -1,10 +1,15 @@
 package gov.cdc.prime.router.azure
 
 import assertk.assertThat
+import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import assertk.fail
+import com.azure.core.http.HttpRequest
+import com.azure.core.http.rest.PagedIterable
+import com.azure.core.http.rest.PagedResponse
+import com.azure.core.http.rest.PagedResponseBase
 import com.azure.core.util.BinaryData
 import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobClientBuilder
@@ -13,6 +18,7 @@ import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.blob.models.BlobDownloadContentResponse
 import com.azure.storage.blob.models.BlobDownloadResponse
+import com.azure.storage.blob.models.BlobItem
 import gov.cdc.prime.router.BlobStoreTransportType
 import gov.cdc.prime.router.Metadata
 import gov.cdc.prime.router.Report
@@ -21,6 +27,7 @@ import gov.cdc.prime.router.TestSource
 import gov.cdc.prime.router.Topic
 import gov.cdc.prime.router.common.Environment
 import io.mockk.CapturingSlot
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -29,15 +36,254 @@ import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.testcontainers.containers.GenericContainer
+import org.testcontainers.utility.DockerImageName
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.net.MalformedURLException
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 
 class BlobAccessTests {
     @AfterEach
     fun tearDown() {
         unmockkAll()
+    }
+
+    @Nested
+    class BlobAccessIntegrationTests {
+        val azuriteContainer1 =
+            GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite:3.25.1"))
+                .withEnv("AZURITE_ACCOUNTS", "devstoreaccount1:keydevstoreaccount1")
+                .withExposedPorts(10000, 10001, 10002)
+
+        val azuriteContainer2 =
+            GenericContainer(DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite:3.25.1"))
+                .withEnv("AZURITE_ACCOUNTS", "devstoreaccount2:keydevstoreaccount2")
+                .withExposedPorts(10000, 10001, 10002)
+
+        init {
+            azuriteContainer1.start()
+            azuriteContainer2.start()
+        }
+
+        @AfterEach
+        fun afterEach() {
+            clearAllMocks()
+        }
+
+        @Test
+        fun `can upload a blob`() {
+            val testContent = "test content"
+            val blobContainerMetadata1 = BlobAccess.BlobContainerMetadata(
+                "container1",
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
+                azuriteContainer1.getMappedPort(
+                    10000
+                )
+                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                azuriteContainer1.getMappedPort(
+                    10001
+                )
+                }/devstoreaccount1;"""
+            )
+            val url = BlobAccess.uploadBlob(
+                "test.txt",
+                testContent.toByteArray(),
+                blobContainerMetadata1
+            )
+            assertThat(url).isNotNull()
+
+            val downloadedData =
+                BlobAccess.downloadBlobAsByteArray(url, blobContainerMetadata1).toString(Charsets.UTF_8)
+            assertThat(downloadedData).isEqualTo(testContent)
+        }
+
+        @Test
+        fun `can list blobs in a directory`() {
+            val blobContainerMetadata1 = BlobAccess.BlobContainerMetadata(
+                "container1",
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
+                azuriteContainer1.getMappedPort(
+                    10000
+                )
+                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                azuriteContainer1.getMappedPort(
+                    10001
+                )
+                }/devstoreaccount1;"""
+            )
+            val contentToUpload = listOf("foo/item1.txt", "bar/item2.txt", "foo/baz/item3.txt")
+            contentToUpload.forEach { content ->
+                BlobAccess.uploadBlob(
+                    content,
+                    content.toByteArray(),
+                    blobContainerMetadata1
+                )
+            }
+
+            val blobsInFoo =
+                BlobAccess.listBlobs("foo", blobContainerMetadata1)
+            assertThat(blobsInFoo).hasSize(2)
+            assertThat(blobsInFoo.map { it.currentBlobItem.name })
+                .isEqualTo(listOf("foo/baz/item3.txt", "foo/item1.txt"))
+
+            val blobsInBar =
+                BlobAccess.listBlobs("bar", blobContainerMetadata1)
+            assertThat(blobsInBar).hasSize(1)
+            assertThat(blobsInBar.map { it.currentBlobItem.name }).isEqualTo(listOf("bar/item2.txt"))
+
+            val blobsInFooBaz =
+                BlobAccess.listBlobs("foo/baz", blobContainerMetadata1)
+            assertThat(blobsInFooBaz).hasSize(1)
+            assertThat(blobsInFooBaz.map { it.currentBlobItem.name }).isEqualTo(listOf("foo/baz/item3.txt"))
+
+            val blobsInRoot =
+                BlobAccess.listBlobs("", blobContainerMetadata1)
+            assertThat(blobsInRoot).hasSize(3)
+            assertThat(blobsInRoot.map { it.currentBlobItem.name })
+                .isEqualTo(listOf("bar/item2.txt", "foo/baz/item3.txt", "foo/item1.txt"))
+        }
+
+        // Azurite does not support the versioning functionality that azure does, so we cannot test it without mocking
+        // https://github.com/Azure/Azurite/issues/665
+        // The test here lines up with the expected return from the API which is to include versions in the response in
+        // order of oldest to the current version
+        @Test
+        fun `can list blobs with their versions`() {
+            val blobContainerMetadata1 = BlobAccess.BlobContainerMetadata(
+                "container1",
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
+                azuriteContainer1.getMappedPort(
+                    10000
+                )
+                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                azuriteContainer1.getMappedPort(
+                    10001
+                )
+                }/devstoreaccount1;"""
+            )
+
+            val now = OffsetDateTime.now()
+            val blobName = "foo/blob.txt"
+            val blobVersion1 = mockk<BlobItem>()
+            val blobVersion2 = mockk<BlobItem>()
+            val blobVersion3 = mockk<BlobItem>()
+            // Current version
+            val blobVersion4 = mockk<BlobItem>()
+
+            every { blobVersion1.versionId } returns now.minusMinutes(5).format(DateTimeFormatter.ISO_DATE_TIME)
+            every { blobVersion1.isCurrentVersion } returns false
+            every { blobVersion1.name } returns blobName
+
+            every { blobVersion2.versionId } returns now.minusMinutes(4).format(DateTimeFormatter.ISO_DATE_TIME)
+            every { blobVersion2.isCurrentVersion } returns false
+            every { blobVersion2.name } returns blobName
+
+            every { blobVersion3.versionId } returns now.minusMinutes(3).format(DateTimeFormatter.ISO_DATE_TIME)
+            every { blobVersion3.isCurrentVersion } returns false
+            every { blobVersion3.name } returns blobName
+
+            every { blobVersion4.versionId } returns now.minusMinutes(2).format(DateTimeFormatter.ISO_DATE_TIME)
+            every { blobVersion4.isCurrentVersion } returns true
+            every { blobVersion4.name } returns blobName
+
+            val pagedResponse: () -> PagedResponse<BlobItem> = {
+                PagedResponseBase(
+                    mockk<HttpRequest>(),
+                    200,
+                    null,
+                    // Return the versions starting with the oldest version
+                    mutableListOf(blobVersion1, blobVersion2, blobVersion3, blobVersion4),
+                    null,
+                    null
+                )
+            }
+            mockkConstructor(BlobContainerClient::class)
+            every { anyConstructed<BlobContainerClient>().listBlobs(any(), any()) } returns PagedIterable(pagedResponse)
+
+            val results = BlobAccess.listBlobs(
+                "",
+                blobContainerMetadata1,
+                true
+            )
+
+            assertThat(results).hasSize(1)
+
+            assertThat(results.get(0).currentBlobItem.name).isEqualTo(blobName)
+            assertThat(results.get(0).previousBlobItemVersions).isNotNull()
+            assertThat(results.get(0).previousBlobItemVersions!!.size).isEqualTo(3)
+            assertThat(results.get(0).previousBlobItemVersions!!.map { it.versionId }).isEqualTo(
+                listOf(
+                    now.minusMinutes(3).format(DateTimeFormatter.ISO_DATE_TIME),
+                    now.minusMinutes(4).format(DateTimeFormatter.ISO_DATE_TIME),
+                    now.minusMinutes(5).format(DateTimeFormatter.ISO_DATE_TIME)
+                )
+            )
+        }
+
+        @Test
+        fun `listBlobs with versions should not include a result that has been soft-deleted`() {
+            val blobContainerMetadata1 = BlobAccess.BlobContainerMetadata(
+                "container1",
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
+                azuriteContainer1.getMappedPort(
+                    10000
+                )
+                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                azuriteContainer1.getMappedPort(
+                    10001
+                )
+                }/devstoreaccount1;"""
+            )
+
+            val now = OffsetDateTime.now()
+            val blobName1 = "foo.txt"
+            val blobName2 = "bar.txt"
+            // Soft-deleted blob with no current version
+            val fooBlobVersion1 = mockk<BlobItem>()
+            val barBlobVersion1 = mockk<BlobItem>()
+            // Current version
+            val barBlobVersion2 = mockk<BlobItem>()
+
+            every { fooBlobVersion1.versionId } returns now.minusMinutes(5).format(DateTimeFormatter.ISO_DATE_TIME)
+            every { fooBlobVersion1.isCurrentVersion } returns false
+            every { fooBlobVersion1.name } returns blobName1
+
+            every { barBlobVersion1.versionId } returns now.minusMinutes(4).format(DateTimeFormatter.ISO_DATE_TIME)
+            every { barBlobVersion1.isCurrentVersion } returns false
+            every { barBlobVersion1.name } returns blobName2
+
+            every { barBlobVersion2.versionId } returns now.minusMinutes(2).format(DateTimeFormatter.ISO_DATE_TIME)
+            every { barBlobVersion2.isCurrentVersion } returns true
+            every { barBlobVersion2.name } returns blobName2
+
+            val pagedResponse: () -> PagedResponse<BlobItem> = {
+                PagedResponseBase(
+                    mockk<HttpRequest>(),
+                    200,
+                    null,
+                    // Return the versions starting with the oldest version
+                    mutableListOf(fooBlobVersion1, barBlobVersion1, barBlobVersion2),
+                    null,
+                    null
+                )
+            }
+            mockkConstructor(BlobContainerClient::class)
+            every { anyConstructed<BlobContainerClient>().listBlobs(any(), any()) } returns PagedIterable(pagedResponse)
+
+            val results = BlobAccess.listBlobs(
+                "",
+                blobContainerMetadata1,
+                true
+            )
+
+            // fooBlob does not have a current version and should not be included in the results
+            assertThat(results).hasSize(1)
+            assertThat(results.get(0).currentBlobItem.name).isEqualTo(blobName2)
+        }
     }
 
     @Test

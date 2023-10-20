@@ -80,6 +80,13 @@ use_4:
   vars:
     useCode: String, XTN.2
 
+use_5:
+  condition: $useCode EQUALS ORN
+  type: STRING
+  value: "temp"
+  vars:
+    useCode: String, XTN.2
+
 period:
   valueOf: datatype/Period
   expressionType: resource
