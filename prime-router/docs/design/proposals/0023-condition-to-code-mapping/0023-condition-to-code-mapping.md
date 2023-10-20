@@ -20,9 +20,7 @@ Since ReportStream takes on the burden of identifying the appropriate destinatio
 ## Out of Scope
 The below items are not necessary to accomplish the main task of mapping code-to-condition but are instead enhancements to the core functionality that will have their own work effort.
 
-1.) Utility to check sender test compendiums against current mapping table<br>
-2.) Utility to automatically update tables from Value Set Authority Center API (https://www.nlm.nih.gov/vsac/support/usingvsac/vsacfhirapi.html) <br>
-3.) Mechanism to automate which conditions each state considers reportable.
+1.) Mechanism to automate which conditions each state considers reportable.
 
 ## Design
 
@@ -45,8 +43,9 @@ The condition mapping table will be made up of CSTE ValueSets and contain the fo
 | Condition Code System         | System used for condition code                | SNOMEDCT                                                                       |
 | Condition Code System Version | SNOMED version associated with condition code | 2023-03                                                                        |
 | Value Source                  | Source of value (e.g. RCTC vs manual mapping) | RCTC                                                                           |   
+| Created At                    | Date/Time that table entry was added/updated  | 20231020 00:00:00                                                              |
 
-The column names are taken directly from the [RCTC spreadsheet](https://docs.google.com/spreadsheets/d/1rO_p145xXO1AD76vx8vBqXgoQUnLqfc8/edit#gid=739612351). Both LOINC and SNOMED codes are combined in this table and can be identified by column "Code System".
+The column names are taken directly from the [RCTC spreadsheet](https://docs.google.com/spreadsheets/d/1rO_p145xXO1AD76vx8vBqXgoQUnLqfc8/edit#gid=739612351) with the exception of "Value Source" and "Created At" which are additional columns added for administrative purposes that will be used when updating the table. Both LOINC and SNOMED codes are combined in this table and can be identified by column "Code System".
 The RCTC does a fairly good job of keeping up to date with LOINC and SNOMED codes and is regularly updated. It is anticipated that despite this there will be a requirement to map codes that are not present in the condition mapping table. These will have to be mapped manually after review by RS personnel in order to ensure that the proper condition code is mapped to the LOINC or SNOMED code. These codes can be submitted to CSTE valueset reviewers to be included in future releases. If a column is not applicable it can be left blank unless it is the "Code", "Condition Name", "Condition Code" or "Source" columns.
 
 ### Appending condition information to FHIR Bundle
@@ -65,10 +64,10 @@ Example:
                     "coding": [
                         {
                             "system": "http://loinc.org",
-                            "code": "80382-5"
+                            "code": "123456"
                         }
                     ],
-                    "text": "Flu A"
+                    "text": "Some Unmapped Value"
                 },
                 "subject": {
                     "reference": "Patient/9473889b-b2b9-45ac-a8d8-191f27132912"
@@ -90,9 +89,8 @@ Example:
                 "meta": {
                     "tag": [
                           {
-                              "system": "http://snomed.info/sct",
-                              "code": "541131000124102",
-                              "display": "Infection caused by novel Influenza A virus variant (disorder)"
+                              "code": "Unmapped",
+                              "display": "This value is Unmapped"
                          }
                     ]
                 }
@@ -195,7 +193,7 @@ This will potentially pass along results for conditions that are not desired by 
 ## Monitoring Mapping
 
 A key component for long term success of mapping code-to-condition will be the ability to capture codes that are unmapped and subsequently map them and re-send any affected messages. This will require that processes are in place to review and map any codes that do not have a mapping at time of receipt.
-In order to monitor for unmapped codes we need to log in the Action Log when an unmapped value is sent from a sender and have a process to add that mapping to the table. Below are two proposed strategies to add an entry to the Action Log when an unmapped value is encountered. For both strategies it is recommended to add a new ActionLogLevel in ActionLog.kt of "mapping" to differentiate missing mappings from other logged issues.
+In order to monitor for unmapped codes we need to log in the Action Log when an unmapped value is sent from a sender and have a process to add that mapping to the table. Below are two proposed strategies to add an entry to the Action Log when an unmapped value is encountered. For both strategies it is recommended to add a new ActionLogLevel in ActionLog.kt of "mapping" to differentiate missing mappings from other logged issues. Errors logged in the action log will contain a "tracking Id" and creation time to allow for follow=up on messages containing mapping errors.
 
 Example:
 ```kotlin
@@ -207,7 +205,7 @@ enum class ActionLogLevel {
     mapping
 }
 ```
-### Logging Missing Mapping Strategy #1 (recommended)
+### Logging Missing Mapping Strategy #1
 
 The first proposed way of monitoring mapping is to add functionality to LookupTableValueSet.kt to log a mapping error to the Action Log if the LOINC/SNOMED from the targeted observation resource used as the Key does not return a Value.
 
@@ -250,12 +248,100 @@ In the example table below we can see that there is no match found for code "803
 | 2.16.840.1.113762.1.4.1146.799 | Influenza (Tests for influenza A virus Antigen)      | 88904-8 | Influenza virus A Ag [Presence] in Lower respiratory specimen by Immunofluorescence | LOINC       | 2.74    | Active | Infection caused by novel Influenza A virus variant (disorder) | 541000000000000  | SNOMEDCT              | 2023-03                       | RCTC         |
 |                                | Influenza - (ABC TESTING LABS)                       | 123456  | Influenza virus A                                                                   | LOCAL       |         | Active | Infection caused by novel Influenza A virus variant (disorder) | 541000000000000  | SNOMEDCT              | 2023-03                       | LOCAL        |   
 
- In this instance we would add want to add an entry to the Action Log if a null value or empty string was returned. The content of the error message should include both the keyValue and the tableName as in the below example:
+In this instance we would add want to add an entry to the Action Log if a null value or empty string was returned. The content of the error message should include both the keyValue and the tableName as in the below example:
  
 "Missing mapping for: " + keyValue + " for table:" + tableName". 
 
-By following this strategy we could also log and monitor missing mappings for any lookupTable which is used in a translation schema, not just condition mappings.
+By following this strategy we could also log and monitor missing mappings for any lookupTable which is used in a translation schema, not just condition mappings. The downside of this strategy is that if the value in the observation is not a test performed code (if for example it is an AOE), then we will always be logging a mapping error for that value when it is received. 
 
-### Logging Missing Mapping Strategy #2
+### Logging Missing Mapping Strategy #2 (recommended)
 
-Strategy number two makes use of fhirpath and tags to stamp an "unmapped" fhir tag
+Strategy number two makes use of fhirpath and tags to stamp an "Unmapped" tag on an observation resource that does not find a match. We can then add logic that records an action log error when an unmapped value is received during the evaluation of the condition filters. 
+
+Example:
+```json
+        {
+            "fullUrl": "Observation/d683b42a-bf50-45e8-9fce-6c0531994f09",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "d683b42a-bf50-45e8-9fce-6c0531994f09",
+                "status": "final",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "123456"
+                        }
+                    ],
+                    "text": "Some Unmapped Value"
+                },
+                "subject": {
+                    "reference": "Patient/9473889b-b2b9-45ac-a8d8-191f27132912"
+                },
+                "performer": [
+                    {
+                        "reference": "Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"
+                    }
+                ],
+                "valueCodeableConcept": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "260373001",
+                            "display": "Detected"
+                        }
+                    ]
+                },
+                "meta": {
+                    "tag": [
+                          {
+                              "code": "Unmapped",
+                              "display": "123456 is Unmapped"
+                         }
+                    ]
+                }
+            }
+        }
+```
+The following logic would need to be added to the default transform to tag the observations with "Unmapped" during the conversion step.
+
+```yaml
+- name: unmapped-test-code
+  resource: 'Bundle.entry.resource.ofType(Observation)'
+  condition: '%resource.meta.tag.code.exists().not()'
+  bundleProperty: '%resource.meta.tag.code'
+  value: ['Unmapped']
+
+- name: unmapped-test-description
+  resource: 'Bundle.entry.resource.ofType(Observation)'
+  condition: '%resource.meta.tag.code.exists().not()'
+  bundleProperty: '%resource.meta.tag.display'
+  value: ['%resource.code.coding.code + " is unmapped"']
+```
+In this instance we would add want to add an entry to the Action Log when the observation was filtered out by the condition filter that included the value of "Bundle.entry.resource.ofType(Observation).meta.tag.display".
+
+## Monitoring Logged Errors
+
+Mapping errors logged by the action log can be monitored through metabase queries on a regular basis by the engagement/customer service team. The following is an example query that would be monitored on a regular cadence (dependent on error volume).
+
+```yaml
+select * from action_log
+where type = 'mapping'
+and created_at >= current date -1
+```
+As we become more confident in our mapping coverage we can shift away from manual report monitoring to having an alert thrown similar to the "last mile failure" alerts which post a message to the engagement slack channel when there is a failure to send a report to an receiver due to a communication issue.
+
+## Automated Mapping updates
+
+Since the bulk of the mapping table will be made up of values taken from CSTE codesets that are stored in the Value Set Authority Center (VSAC). We can make use of the VSAC's [FHIR Terminology Service](https://www.nlm.nih.gov/vsac/support/usingvsac/vsacfhirapi.html) to query and update the table. Using the "Member OID" and "Version" columns from the table we can create a utility to query each Member OID for which the "Value Source" column is "RCTC" to see if we have the latest version and if not to update to the latest version.
+
+## Sender Compendium Comparison Utility
+
+In order to greatly reduce the number of unmapped errors that we will have to deal with. It is recommended that we build a utility where senders can submit their test compendiums during the onboarding process to allow engagement to pre-emptively map. This will be a utility that takes in a csv file prepared by the sender and compares the codes against the condition mapping table. The utility should then return which codes are not found in the table so that the engagment team can map them prior to the sender moving to production.
+
+Example compendium CSV:
+```csv
+test code,test description,coding system
+97099-6,Influenza virus A and B and SARS-CoV-2 (COVID-19) Ag panel - Upper respiratory specimen by Rapid immunoassay, LOINC
+47457-7,Influenza virus A H8 Ab [Titer] in Serum, LOINC
+123456, LDT Flu Test, LOCAL
