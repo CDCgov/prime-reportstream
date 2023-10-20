@@ -27,7 +27,7 @@ class CompareFhirData(
     private val dynamicProperties: List<String> = defaultDynamicProperties,
 ) : Logging {
 
-    // set of visited resources used during compairisons to avoid repeats (and maybe circular dependencies)
+    // set of visited resources used during comparisons to avoid repeats (and maybe circular references?)
     private val visitedResources = mutableSetOf<String>()
 
     /**
@@ -109,21 +109,8 @@ class CompareFhirData(
             resourcesToCompare[expectedEntry.resource] = matchingActualEntries
         }
 
-        // Cause error if trying to compare empty resources
-        val nonEmptyResources = resourcesToCompare.filter { (expectedResource, actualResources) ->
-            val empty = actualResources.isEmpty()
-            if (empty) {
-                val msg = "There were no actual resources to compare to ${expectedResource.id}"
-                logger.error(msg)
-                result.errors.add(msg)
-                result.passed = false
-            }
-
-            !empty
-        }
-
         // Compare all the resources
-        nonEmptyResources.forEach { (expectedResource, actualResources) ->
+        resourcesToCompare.forEach { (expectedResource, actualResources) ->
             val resourceResult = compareResource(
                 expectedResource,
                 actualResources,
@@ -428,12 +415,10 @@ class CompareFhirData(
          * comma delimited list of IDs
          */
         internal fun generateResourcesId(resources: List<Base>): String? {
-            val ids = resources.filter { it.idBase != null }
-            return if (ids.isNotEmpty()) {
-                ids.joinToString { it.idBase }
-            } else {
-                null
-            }
+            return resources
+                .mapNotNull { it.idBase }
+                .joinToString()
+                .ifEmpty { null }
         }
     }
 }
