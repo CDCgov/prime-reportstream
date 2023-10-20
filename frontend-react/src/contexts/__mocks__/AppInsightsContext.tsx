@@ -1,17 +1,16 @@
 import * as AppInsightsContextModule from "../AppInsightsContext";
 
-export const mockAppInsightsContext = jest.spyOn(
-    AppInsightsContextModule,
-    "useAppInsightsContext",
-);
-
 export const mockAppInsights = {
     trackEvent: jest.fn(),
-} as any;
+};
 
 export function mockAppInsightsContextReturnValue(
     impl?: Partial<AppInsightsContextModule.AppInsightsCtx>,
 ) {
+    const mockAppInsightsContext = jest.spyOn(
+        AppInsightsContextModule,
+        "useAppInsightsContext",
+    );
     return mockAppInsightsContext.mockReturnValue({
         fetchHeaders: {},
         appInsights: mockAppInsights,
