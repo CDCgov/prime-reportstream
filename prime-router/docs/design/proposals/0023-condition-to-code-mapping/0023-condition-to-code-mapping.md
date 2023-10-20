@@ -212,6 +212,7 @@ The first proposed way of monitoring mapping is to add functionality to LookupTa
 Example:
 
 For the below resource:
+
 ```json
 "resource": {
                 "resourceType": "Observation",
@@ -241,6 +242,7 @@ the below element in the default transformation utilizes LookupTableValueSet to 
       keyColumn: code
       valueColumn: condition_code
 ```
+
 In the example table below we can see that there is no match found for code "80382-5"
 
 | Member OID                     | Name                                                 | Code    | Descriptor                                                                          | Code System | Version | Status | Condition Name                                                 | Condition Code   | Condition Code System | Condition Code System Version | Value Source |
@@ -260,6 +262,7 @@ By following this strategy we could also log and monitor missing mappings for an
 Strategy number two makes use of fhirpath and tags to stamp an "Unmapped" tag on an observation resource that does not find a match. We can then add logic that records an action log error when an unmapped value is received during the evaluation of the condition filters. 
 
 Example:
+
 ```json
         {
             "fullUrl": "Observation/d683b42a-bf50-45e8-9fce-6c0531994f09",
@@ -341,6 +344,7 @@ Since the bulk of the mapping table will be made up of values taken from CSTE co
 In order to greatly reduce the number of unmapped errors that we will have to deal with. It is recommended that we build a utility where senders can submit their test compendiums during the onboarding process to allow engagement to pre-emptively map. This will be a utility that takes in a csv file prepared by the sender and compares the codes against the condition mapping table. The utility should then return which codes are not found in the table so that the engagment team can map them prior to the sender moving to production.
 
 Example compendium CSV:
+
 ```csv
 test code,test description,coding system
 97099-6,Influenza virus A and B and SARS-CoV-2 (COVID-19) Ag panel - Upper respiratory specimen by Rapid immunoassay, LOINC
