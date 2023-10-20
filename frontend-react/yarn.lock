@@ -5371,10 +5371,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/downloadjs@npm:^1.4.4":
-  version: 1.4.4
-  resolution: "@types/downloadjs@npm:1.4.4"
-  checksum: 226faa39f1d1863e97305473894ed2952cffa5f96402528e1bfded7ecc1e74422e876aa5e1bbcbcfe07b48171d161c96cbf6bff985148f4a664141555af4f6e3
+"@types/downloadjs@npm:^1.4.5":
+  version: 1.4.5
+  resolution: "@types/downloadjs@npm:1.4.5"
+  checksum: 593ef512616298f5219f7532df54e68840784a8e015c205f992c2b893dad4fe05a5394c9377a4a3f12e38d1f6bc64828098eb592c1cad79418de6b79f8ad0d67
   languageName: node
   linkType: hard
 
@@ -16017,7 +16017,7 @@ __metadata:
     "@testing-library/user-event": ^14.5.1
     "@trussworks/react-uswds": ^5.4.0
     "@types/dompurify": ^3.0.3
-    "@types/downloadjs": ^1.4.4
+    "@types/downloadjs": ^1.4.5
     "@types/github-slugger": ^1.3.0
     "@types/html-to-text": ^9.0.2
     "@types/jest": ^29.5.5
