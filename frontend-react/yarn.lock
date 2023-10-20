@@ -5652,12 +5652,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash.uniq@npm:^4.5.7":
-  version: 4.5.7
-  resolution: "@types/lodash.uniq@npm:4.5.7"
+"@types/lodash.uniq@npm:^4.5.8":
+  version: 4.5.8
+  resolution: "@types/lodash.uniq@npm:4.5.8"
   dependencies:
     "@types/lodash": "*"
-  checksum: b7e94c32efb52c354ac3aacbebd29b27a304b7fb05258d0d511627ac64d9147d04ad5d0a3bdbc6d1dcc32699296f8af668ba73f1909904482c2e3554df6b4d27
+  checksum: f9b5e4116501648caafbeaa6b016b79d450fc2d8597e5a2a9db1e5bb65c22745b6f9ce683419c5f83534dab9caf2e9542bb37e2e680e818198f478d8fe9b6b85
   languageName: node
   linkType: hard
 
@@ -16025,7 +16025,7 @@ __metadata:
     "@types/lodash.omit": ^4.5.7
     "@types/lodash.pick": ^4.4.7
     "@types/lodash.range": ^3.2.7
-    "@types/lodash.uniq": ^4.5.7
+    "@types/lodash.uniq": ^4.5.8
     "@types/mdx": ^2.0.8
     "@types/node": ^18.17.12
     "@types/react": 18.0.28
