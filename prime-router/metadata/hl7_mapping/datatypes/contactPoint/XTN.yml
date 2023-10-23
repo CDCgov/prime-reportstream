@@ -1,7 +1,6 @@
 constants:
   hl7TelecomPath: '%{hl7TelecomField}(%{telecomIndex})'
 
-#TODO: Need to look for a way to set use code to ORN when home and cell phone is passed
 elements:
 
   - name: xtn-telephone-number-from-extension
@@ -45,7 +44,7 @@ elements:
     hl7Spec: [ '%{hl7TelecomPath}-12' ]
 
   - name: xtn-effective-start-date
-    value: [ '%resource.period.start']
+    value: [ '%resource.period.start' ]
     hl7Spec: [ '%{hl7TelecomPath}-13' ]
 
   - name: xtn-expiration-date
