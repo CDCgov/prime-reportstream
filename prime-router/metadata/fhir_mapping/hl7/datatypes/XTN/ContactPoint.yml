@@ -37,6 +37,8 @@ value_5:
     telEquipType: String, XTN.3
     unformattedTelNum: String, XTN.12
 
+#mapping from HL7 Concept Map: TelecomUseCode
+#https://docs.google.com/spreadsheets/d/1EE3a5UIGXLi8wMDr49fWTEVx8QS2GFqYgitE3vLOQTQ/edit#gid=0
 use_1:
   condition: $useCode EQUALS PRN
   type: STRING
@@ -58,7 +60,7 @@ use_3:
   vars:
     useCode: String, XTN.2
 
-#from the PID[Patient] mapping inventory
+#Element is not in XTN[ContactPoint] but rather is specified in PID[Patient] mapping inventory
 use_4:
   condition: $useCode NULL
   type: STRING
@@ -66,6 +68,8 @@ use_4:
   vars:
     useCode: String, XTN.2
 
+#mapping from HL7 Concept Map: TelecomEquipmentType
+#https://docs.google.com/spreadsheets/d/1FhoR5oxEWdHmpR5S0_wYPstdy1lwv7rL-JWJu_DE_Vs/edit#gid=0
 system_1:
   condition: $equipType EQUALS PH
   type: STRING
