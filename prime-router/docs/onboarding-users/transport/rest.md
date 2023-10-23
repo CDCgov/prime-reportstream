@@ -66,8 +66,8 @@ Next refer to the above image, click on the  [+ Generate/Import] as the red arro
 
 </ol>
 
-## 3.) How to configure the receiver's RESTTransport
-The receiver's RESTtransport includes the following fields:
+## 3.) How to configure the receiver's REST transport
+The receiver's RESTTransport includes the following fields:
 
     - reportUrl:      The URL to post to. e.g. https://api2.health.ny.gov/services/uphn/V1.0/ECLRSPRE.
     - authTokenUrl:   The URL to get the OAuth token. e.g. https://api2.health.ny.gov/services/uphn/V1.0/auth.
