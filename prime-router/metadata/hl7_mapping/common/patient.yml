@@ -127,7 +127,7 @@ elements:
 
   - name: patient-multiple-birth-indicator
     condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is boolean'
-    value: ['%resource.multipleBirth']
+    value: [ '%resource.multipleBirth' ]
     hl7Spec: [ '%{hl7PIDField}-24' ]
     valueSet:
       values:
@@ -136,7 +136,7 @@ elements:
 
   - name: patient-multiple-birth-order
     condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is integer'
-    value: ['%resource.multipleBirth']
+    value: [ '%resource.multipleBirth' ]
     hl7Spec: [ '%{hl7PIDField}-25' ]
 
   - name: patient-death-date-time
