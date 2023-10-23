@@ -4,19 +4,19 @@ constants:
 elements:
 
   - name: xtn-telephone-number-from-extension
-    value: [ '%resource.extension(%`rsext-telephone-number`).value' ]
+    value: [ '%resource.extension(%`rsext-xtn1-telephone-number`).value' ]
     hl7Spec: [ '%{hl7TelecomPath}-1' ]
 
   - name: xtn-telecom-use-code-from-extension
-    value: [ '%resource.extension(%`rsext-telecom-use-code`).value' ]
+    value: [ '%resource.extension(%`rsext-xtn2-telecom-use-code`).value' ]
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
   - name: xtn-telecom-equipment-type
-    value: [ '%resource.extension(%`rsext-telecom-equipment-type`).value' ]
+    value: [ '%resource.extension(%`rsext-xtn3-telecom-equipment-type`).value' ]
     hl7Spec: [ '%{hl7TelecomPath}-3' ]
 
   - name: xtn-communication-address
-    value: [ '%resource.extension(%`rsext-communication-address`).value' ]
+    value: [ '%resource.extension(%`rsext-xtn4-communication-address`).value' ]
     hl7Spec: [ '%{hl7TelecomPath}-4' ]
 
   - name: xtn-country-code-from-extension-contactpoint-country
@@ -28,7 +28,7 @@ elements:
     hl7Spec: [ '%{hl7TelecomPath}-6' ]
 
   - name: xtn-local-number-from-extension-local-number
-    value: [ '%resource.extension(%`rsext-local-number`).value' ]
+    value: [ '%resource.extension(%`rsext-xtn7-local-number`).value' ]
     hl7Spec: [ '%{hl7TelecomPath}-7' ]
 
   - name: xtn-extension-from-extension-contactpoint-extension
@@ -39,7 +39,7 @@ elements:
     value: [ '%resource.extension(%`rsext-any-text`).value' ]
     hl7Spec: [ '%{hl7TelecomPath}-9' ]
 
-  - name: xtn-unformatted-text
+  - name: xtn-unformatted-telephone-number-from-extension-unformatted-telephone-number
     value: [ '%deidentifiedValue','%resource.extension(%`rsext-unformatted-telephone-number`).value' ]
     hl7Spec: [ '%{hl7TelecomPath}-12' ]
 

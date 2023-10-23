@@ -118,7 +118,7 @@ system_7:
         valueCode:
           value: unknown
 
-extension_1-telecom-equipment-type:
+extension_1-xtn3-telecom-equipment-type:
   condition: $equipType NOT_NULL
   generateList: true
   expressionType: nested
@@ -127,7 +127,7 @@ extension_1-telecom-equipment-type:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "telecom-equipment-type"
+      value: "xtn3-telecom-equipment-type"
     valueString:
       value: $equipType
 
@@ -172,7 +172,7 @@ extension_4-contactpoint-local:
     valueString:
       value: $contactPointLocal
 
-extension_5-local-number:
+extension_5-xtn7-local-number:
   condition: $localNum NOT_NULL
   generateList: true
   expressionType: nested
@@ -181,7 +181,7 @@ extension_5-local-number:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "local-number"
+      value: "xtn7-local-number"
     valueString:
       value: $localNum
 
@@ -198,7 +198,7 @@ extension_6-phone-extension:
     valueString:
       value: $numExt
 
-extension_7-any-text:
+extension_7-xtn9-any-text:
   condition: $anyText NOT_NULL
   generateList: true
   expressionType: nested
@@ -207,12 +207,12 @@ extension_7-any-text:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "any-text"
+      value: "xtn9-any-text"
     valueString:
       type: STRING
       valueOf: $anyText
 
-extension_8-telecom-use-code:
+extension_8-xtn2-telecom-use-code:
   condition: $useCode NOT_NULL
   generateList: true
   expressionType: nested
@@ -221,7 +221,7 @@ extension_8-telecom-use-code:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "telecom-use-code"
+      value: "xtn2-telecom-use-code"
     valueString:
       value: $useCode
 
@@ -245,11 +245,11 @@ extension_10-telephone-number:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "telephone-number"
+      value: "xtn1-telephone-number"
     valueString:
       value: $telNum
 
-extension_11-communication-address:
+extension_11-xtn4-communication-address:
   condition: $commAddress NOT_NULL
   generateList: true
   expressionType: nested
@@ -258,11 +258,11 @@ extension_11-communication-address:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "communication-address"
+      value: "xtn4-communication-address"
     valueString:
       value: $commAddress
 
-extension_12-unformatted-telephone-number:
+extension_12-xtn12-unformatted-telephone-number:
   condition: $unformattedTelNum NOT_NULL
   generateList: true
   expressionType: nested
@@ -271,7 +271,7 @@ extension_12-unformatted-telephone-number:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "unformatted-telephone-number"
+      value: "xtn12-unformatted-telephone-number"
     valueString:
       value: $unformattedTelNum
 

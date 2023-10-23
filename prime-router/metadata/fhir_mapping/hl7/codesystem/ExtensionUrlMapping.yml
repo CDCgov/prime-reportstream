@@ -313,25 +313,25 @@
   url: "http://hl7.org/fhir/StructureDefinition/contactpoint-extension"
 # Telephone Number
 - id: "xtn1-telephone-number"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/telephone-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn1-telephone-number"
 # Telecom Use Code
 - id: "xtn2-telecom-use-code"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/telecom-use-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code"
 # Telecom Equipment Type
 - id: "xtn3-telecom-equipment-type"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/telecom-equipment-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type"
 # Communication Address
 - id: "xtn4-communication-address"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/communication-address"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn4-communication-address"
 # Local Number
 - id: "xtn7-local-number"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/local-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number"
 # Any Text
 - id: "xtn9-any-text"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/any-text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn9-any-text"
 # Unformatted Telephone Number
 - id: "xtn12-unformatted-telephone-number"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/unformatted-telephone-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number"
 # HL7 v2 Name
 - id: "hl7v2Name"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name"
