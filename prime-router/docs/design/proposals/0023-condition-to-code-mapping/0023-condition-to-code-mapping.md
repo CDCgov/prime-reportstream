@@ -18,12 +18,15 @@ Since ReportStream takes on the burden of identifying the appropriate destinatio
 4.) Must be able to add ad-hoc mappings as needed for local codes/LDTs or other non-standard codes
 
 ## Out of Scope
-The below items are not necessary to accomplish the main task of mapping code-to-condition but are instead enhancements to the core functionality that will have their own work effort.
+The below items are not covered in this proposal.
 
 1.) Mechanism to automate which conditions each state considers reportable.
 
 ## Design
 
+Overview Diagram
+
+![img.png](code-to-condition diagram.png)
 
 ### Condition Mapping Table
 
@@ -43,7 +46,7 @@ The condition mapping table will be made up of CSTE ValueSets and contain the fo
 | Condition Code System         | System used for condition code                | SNOMEDCT                                                                       |
 | Condition Code System Version | SNOMED version associated with condition code | 2023-03                                                                        |
 | Value Source                  | Source of value (e.g. RCTC vs manual mapping) | RCTC                                                                           |   
-| Created At                    | Date/Time that table entry was added/updated  | 20231020 00:00:00                                                              |
+| Created At                    | Date that table entry updated                 | 20231020                                                                       |
 
 The column names are taken directly from the [RCTC spreadsheet](https://docs.google.com/spreadsheets/d/1rO_p145xXO1AD76vx8vBqXgoQUnLqfc8/edit#gid=739612351) with the exception of "Value Source" and "Created At" which are additional columns added for administrative purposes that will be used when updating the table. Both LOINC and SNOMED codes are combined in this table and can be identified by column "Code System".
 The RCTC does a fairly good job of keeping up to date with LOINC and SNOMED codes and is regularly updated. It is anticipated that despite this there will be a requirement to map codes that are not present in the condition mapping table. These will have to be mapped manually after review by RS personnel in order to ensure that the proper condition code is mapped to the LOINC or SNOMED code. These codes can be submitted to CSTE valueset reviewers to be included in future releases. If a column is not applicable it can be left blank unless it is the "Code", "Condition Name", "Condition Code" or "Source" columns.
@@ -214,19 +217,20 @@ Example:
 For the below resource:
 
 ```json
-"resource": {
-                "resourceType": "Observation",
-                "id": "d683b42a-bf50-45e8-9fce-6c0531994f09",
-                "status": "final",
-                "code": {
-                    "coding": [
-                        {
-                            "system": "http://loinc.org",
-                            "code": "80382-5"
-                        }
-                    ],
-                    "text": "Flu A"
-            }
+  {
+    "resourceType": "Observation",
+    "id": "d683b42a-bf50-45e8-9fce-6c0531994f09",
+    "status": "final",
+    "code": {
+      "coding": [
+       {
+          "system": "http://loinc.org",
+          "code": "80382-5"
+        }
+      ],
+      "text": "Flu A"
+    }
+  }
 ```
 the below element in the default transformation utilizes LookupTableValueSet to use key "80382-5" to search Condition-Mapping table stored in the database to return a value from the condition_code column
 
