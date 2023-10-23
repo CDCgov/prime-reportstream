@@ -2845,19 +2845,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@microsoft/applicationinsights-react-js@npm:^17.0.1":
-  version: 17.0.1
-  resolution: "@microsoft/applicationinsights-react-js@npm:17.0.1"
+"@microsoft/applicationinsights-react-js@npm:^17.0.2":
+  version: 17.0.2
+  resolution: "@microsoft/applicationinsights-react-js@npm:17.0.2"
   dependencies:
     "@microsoft/applicationinsights-common": ^3.0.3
     "@microsoft/applicationinsights-core-js": ^3.0.3
     "@microsoft/applicationinsights-shims": ^3.0.1
     "@microsoft/dynamicproto-js": ^2.0.2
+    "@nevware21/ts-utils": ">= 0.10.1 < 2.x"
   peerDependencies:
     history: ">= 4.10.1"
     react: ">= 17.0.1"
     tslib: "*"
-  checksum: ea3c7e6221722fbee159b6d1643be894c2a346ff83cfbfd82db10e3634e2a04b845a5b2f9cc665e11f6cd16689b184925c0da0f722fb3f60ae1b2fa5f37f74e8
+  checksum: eae034f2dd4bcd8ec1df0fe6648ae85b68e5bee4037847fe29709f18854c5513d8d663c82b1f53fbe7967944731645f375f8c1548eb0a92f99f18a801e763b41
   languageName: node
   linkType: hard
 
@@ -15986,7 +15987,7 @@ __metadata:
     "@babel/runtime": ^7.23.2
     "@mdx-js/react": ^2.3.0
     "@mdx-js/rollup": ^2.3.0
-    "@microsoft/applicationinsights-react-js": ^17.0.1
+    "@microsoft/applicationinsights-react-js": ^17.0.2
     "@microsoft/applicationinsights-web": ^3.0.3
     "@okta/okta-auth-js": ^7.4.2
     "@okta/okta-react": ^6.7.0
