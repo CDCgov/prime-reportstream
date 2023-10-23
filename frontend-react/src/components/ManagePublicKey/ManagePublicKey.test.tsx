@@ -1,4 +1,4 @@
-import { act, screen, fireEvent } from "@testing-library/react";
+import { screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
@@ -100,28 +100,32 @@ describe("ManagePublicKey", () => {
     });
 
     describe("when the page is loading", () => {
-        beforeEach(() => {
+        function setup() {
             mockUseOrganizationSenders({ isLoading: true });
+            mockUseOrganizationPublicKeys();
 
             renderApp(<ManagePublicKey />);
-        });
+        }
 
         test("renders a spinner", () => {
+            setup();
             expect(screen.getByLabelText("loading-indicator")).toBeVisible();
         });
     });
 
     describe("when the Organization has more than one Sender", () => {
-        beforeEach(() => {
+        function renderSetup() {
             mockUseOrganizationSenders({
                 isLoading: false,
                 data: DEFAULT_SENDERS,
             });
+            mockUseOrganizationPublicKeys();
 
             renderApp(<ManagePublicKey />);
-        });
+        }
 
         test("renders the sender options", () => {
+            renderSetup();
             expect(screen.getByText(/Manage public key/)).toBeVisible();
             expect(
                 screen.getByTestId("ManagePublicKeyChooseSender"),
@@ -132,7 +136,7 @@ describe("ManagePublicKey", () => {
         });
 
         describe("when the Sender is selected", () => {
-            beforeEach(async () => {
+            async function setup() {
                 const submit = await screen.findByRole("button");
                 expect(submit).toHaveAttribute("type", "submit");
                 expect(submit).toBeDisabled();
@@ -141,32 +145,40 @@ describe("ManagePublicKey", () => {
                 expect(selectSender).toBeInTheDocument();
                 expect(selectSender).toHaveValue("");
 
-                await userEvent.selectOptions(selectSender, ["elr-1"]);
-
-                expect(submit).toBeEnabled();
-                fireEvent.submit(screen.getByTestId("form"));
-            });
+                await waitFor(async () => {
+                    await userEvent.selectOptions(selectSender, ["elr-1"]);
+                    expect(submit).toBeEnabled();
+                });
+                await waitFor(async () => {
+                    // eslint-disable-next-line testing-library/no-wait-for-side-effects
+                    fireEvent.submit(screen.getByTestId("form"));
+                    expect(
+                        screen.queryByTestId("ManagePublicKeyChooseSender"),
+                    ).not.toBeInTheDocument();
+                });
+            }
 
             test("renders ManagePublicKeyUpload", async () => {
-                expect(
-                    screen.queryByTestId("ManagePublicKeyChooseSender"),
-                ).not.toBeInTheDocument();
+                renderSetup();
+                await setup();
                 expect(screen.getByTestId("file-input-input")).toBeVisible();
             });
         });
     });
 
     describe("when the Organization has one sender", () => {
-        beforeEach(() => {
+        function setup() {
             mockUseOrganizationSenders({
                 isLoading: false,
                 data: DEFAULT_SENDERS.slice(0, 1),
             });
+            mockUseOrganizationPublicKeys();
 
             renderApp(<ManagePublicKey />);
-        });
+        }
 
         test("renders ManagePublicKeyUpload", () => {
+            setup();
             expect(screen.getByText(/Manage public key/)).toBeVisible();
             expect(
                 screen.queryByTestId("ManagePublicKeyChooseSender"),
@@ -176,7 +188,7 @@ describe("ManagePublicKey", () => {
     });
 
     describe("when the senders public key has already been configured", () => {
-        beforeEach(() => {
+        function setup() {
             mockUseOrganizationSenders({
                 isLoading: false,
                 data: DEFAULT_SENDERS.slice(0, 1),
@@ -187,20 +199,27 @@ describe("ManagePublicKey", () => {
             });
 
             renderApp(<ManagePublicKey />);
-        });
+        }
 
         test.skip("shows the configured screen and allows the user to upload a new public key", async () => {
+            setup();
             expect(
                 screen.getByText("Your public key is already configured."),
             ).toBeVisible();
 
-            await userEvent.click(screen.getByText("Upload new public key"));
+            await waitFor(async () => {
+                await userEvent.click(
+                    screen.getByText("Upload new public key"),
+                );
 
+                await new Promise((res) => setTimeout(res, 1000));
+            });
             expect(screen.getByTestId("file-input-input")).toBeVisible();
             expect(screen.getByText("Submit")).toBeDisabled();
         });
 
         test("shows the configured screen and displays a message to the user", async () => {
+            setup();
             expect(
                 screen.getByText(/Your public key is already configured./),
             ).toBeVisible();
@@ -212,7 +231,7 @@ describe("ManagePublicKey", () => {
     });
 
     describe("when a valid pem file is being submitted", () => {
-        beforeEach(() => {
+        function setup() {
             mockUseOrganizationPublicKeys();
             // Selected sender
             mockUseOrganizationSenders({
@@ -226,27 +245,30 @@ describe("ManagePublicKey", () => {
             });
 
             renderApp(<ManagePublicKey />);
-        });
+        }
 
-        test.skip("uploads the file and shows the success screen", async () => {
+        test("uploads the file and shows the success screen", async () => {
+            setup();
             expect(screen.getByTestId("file-input-input")).toBeVisible();
             expect(screen.getByText("Submit")).toBeDisabled();
-            await chooseFile(fakeFile);
-            expect(screen.getByText("Submit")).toBeVisible();
-            /* eslint-disable testing-library/no-unnecessary-act */
-            await act(async () => {
-                fireEvent.submit(screen.getByTestId("form"));
+            await waitFor(async () => {
+                await chooseFile(fakeFile);
+                expect(screen.getByText("Submit")).toBeVisible();
             });
-            /* eslint-enable testing-library/no-unnecessary-act */
-
-            expect(
-                screen.getByText("You can now submit data to ReportStream."),
-            ).toBeVisible();
+            await waitFor(async () => {
+                // eslint-disable-next-line testing-library/no-wait-for-side-effects
+                fireEvent.submit(screen.getByTestId("form"));
+                expect(
+                    screen.getByText(
+                        "You can now submit data to ReportStream.",
+                    ),
+                ).toBeVisible();
+            });
         });
     });
 
     describe("when an invalid pem file is being submitted", () => {
-        beforeEach(async () => {
+        async function setup() {
             mockUseOrganizationPublicKeys();
             // Selected sender
             mockUseOrganizationSenders({
@@ -263,28 +285,35 @@ describe("ManagePublicKey", () => {
 
             expect(screen.getByTestId("file-input-input")).toBeVisible();
             expect(screen.getByText("Submit")).toBeDisabled();
-            await chooseFile(fakeFile);
-            expect(screen.getByText("Submit")).toBeVisible();
-            /* eslint-disable testing-library/no-unnecessary-act */
-            await act(async () => {
-                fireEvent.submit(screen.getByTestId("form"));
+            await waitFor(async () => {
+                await chooseFile(fakeFile);
+                expect(screen.getByText("Submit")).toBeVisible();
             });
-            /* eslint-enable testing-library/no-unnecessary-act */
-        });
+            await waitFor(async () => {
+                // eslint-disable-next-line testing-library/no-wait-for-side-effects
+                fireEvent.submit(screen.getByTestId("form"));
+                await new Promise((res) => setTimeout(res, 100));
+            });
+        }
 
-        test.skip("shows the upload error screen", () => {
+        test("shows the upload error screen", async () => {
+            await setup();
             expect(
                 screen.getByText("Key could not be submitted"),
             ).toBeVisible();
         });
 
-        test.skip("allows the user to try again", async () => {
+        test("allows the user to try again", async () => {
+            await setup();
             expect(
                 screen.getByText("Key could not be submitted"),
             ).toBeVisible();
-            await userEvent.click(screen.getByText("Try again"));
 
-            expect(screen.getByText("Drag file here or")).toBeVisible();
+            await waitFor(async () => {
+                await userEvent.click(screen.getByText("Try again"));
+
+                expect(screen.getByText("Drag file here or")).toBeVisible();
+            });
         });
     });
 });
