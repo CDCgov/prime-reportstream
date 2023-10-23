@@ -75,6 +75,7 @@ jobs:
         # resulting in an orphaned (or "dangling") image. 
         # The previously pushed image's manifest--and its layer data--remains in the registry.
         # They still need to be removed
+        
       - name: List image manifests in Test env
         id: list-test-untaged-images
         run: |
