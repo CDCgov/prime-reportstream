@@ -6,6 +6,6 @@ import org.junit.jupiter.api.Test
 class DrToPeriodTests {
     @Test
     fun `test correctly handles HD type`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("hd/HD-to-extensionAssigningAuthority-iso").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("dr/dr-to-period").passed)
     }
 }
