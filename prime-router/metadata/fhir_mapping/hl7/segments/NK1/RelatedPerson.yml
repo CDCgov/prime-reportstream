@@ -1,0 +1,24 @@
+resourceType: RelatedPerson
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+address_1-contactPersonsAddress:
+  valueOf: datatypes/XAD/Address
+  expressionType: resource
+  generateList: true
+  specs: NK1.32
+
+extension_1-nk132ContactPersonsAddress:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: nk1-32-contact-persons-address
+    valueAddress:
+      expressionType: resource
+      valueOf: datatypes/XAD/Address
+      specs: NK1.32
