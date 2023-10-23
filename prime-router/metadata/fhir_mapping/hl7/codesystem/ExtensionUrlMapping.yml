@@ -298,7 +298,7 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id"
 # Data Type Absent Reason
 - id: "data-absent-reason"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/data-absent-reason"
+  url: "http://hl7.org/fhir/StructureDefinition/data-absent-reason"
 # Contact Point Country
 - id: "contactpoint-country"
   url: "http://hl7.org/fhir/StructureDefinition/contactpoint-country"
