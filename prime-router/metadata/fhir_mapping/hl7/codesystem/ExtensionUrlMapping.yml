@@ -311,30 +311,30 @@
 # Contact Point Extension
 - id: "contactpoint-extension"
   url: "http://hl7.org/fhir/StructureDefinition/contactpoint-extension"
-# Telecom Equipment Type
-- id: "telecom-equipment-type"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/telecom-equipment-type"
-# Telecom Use Code
-- id: "telecom-use-code"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/telecom-use-code"
-# HL7 Use
-- id: "hl7-use"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use"
 # Telephone Number
-- id: "telephone-number"
+- id: "xtn1-telephone-number"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/telephone-number"
+# Telecom Use Code
+- id: "xtn2-telecom-use-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/telecom-use-code"
+# Telecom Equipment Type
+- id: "xtn3-telecom-equipment-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/telecom-equipment-type"
 # Communication Address
-- id: "communication-address"
+- id: "xtn4-communication-address"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/communication-address"
-# Unformatted Telephone Number
-- id: "unformatted-telephone-number"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/unformatted-telephone-number"
 # Local Number
-- id: "local-number"
+- id: "xtn7-local-number"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/local-number"
 # Any Text
-- id: "any-text"
+- id: "xtn9-any-text"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/any-text"
+# Unformatted Telephone Number
+- id: "xtn12-unformatted-telephone-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/unformatted-telephone-number"
 # HL7 v2 Name
 - id: "hl7v2Name"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name"
+# HL7 Use
+- id: "hl7-use"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use"
