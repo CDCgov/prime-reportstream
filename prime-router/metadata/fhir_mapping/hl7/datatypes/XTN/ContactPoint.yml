@@ -30,6 +30,13 @@ value_4:
     telEquipType: String, XTN.3
     unformattedTelNum: String, XTN.12
 
+value_5:
+  condition: $telEquipType NULL && $unformattedTelNum NOT_NULL
+  valueOf: unformattedTelNum
+  vars:
+    telEquipType: String, XTN.3
+    unformattedTelNum: String, XTN.12
+
 use_1:
   condition: $useCode EQUALS PRN
   type: STRING
@@ -172,7 +179,21 @@ extension_4-contactpoint-local:
     valueString:
       value: $contactPointLocal
 
-extension_5-xtn7-local-number:
+extension_5-contactpoint-local:
+  condition: $telEquipType NULL && $contactPointLocal NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    telEquipType: String, XTN.3
+    contactPointLocal: String, XTN.7
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: "contactpoint-local"
+    valueString:
+      value: $contactPointLocal
+
+extension_6-xtn7-local-number:
   condition: $localNum NOT_NULL
   generateList: true
   expressionType: nested
@@ -185,7 +206,7 @@ extension_5-xtn7-local-number:
     valueString:
       value: $localNum
 
-extension_6-phone-extension:
+extension_7-phone-extension:
   condition: $numExt NOT_NULL
   generateList: true
   expressionType: nested
@@ -198,7 +219,7 @@ extension_6-phone-extension:
     valueString:
       value: $numExt
 
-extension_7-xtn9-any-text:
+extension_8-xtn9-any-text:
   condition: $anyText NOT_NULL
   generateList: true
   expressionType: nested
@@ -212,7 +233,7 @@ extension_7-xtn9-any-text:
       type: STRING
       valueOf: $anyText
 
-extension_8-xtn2-telecom-use-code:
+extension_9-xtn2-telecom-use-code:
   condition: $useCode NOT_NULL
   generateList: true
   expressionType: nested
@@ -225,7 +246,7 @@ extension_8-xtn2-telecom-use-code:
     valueString:
       value: $useCode
 
-extension_9-hl7-use:
+extension_10-hl7-use:
   condition: $hl7Use NOT_NULL
   generateList: true
   expressionType: nested
@@ -236,7 +257,7 @@ extension_9-hl7-use:
     valueString:
       value: $hl7Use
 
-extension_10-telephone-number:
+extension_11-telephone-number:
   condition: $telNum NOT_NULL
   generateList: true
   expressionType: nested
@@ -249,7 +270,7 @@ extension_10-telephone-number:
     valueString:
       value: $telNum
 
-extension_11-xtn4-communication-address:
+extension_12-xtn4-communication-address:
   condition: $commAddress NOT_NULL
   generateList: true
   expressionType: nested
@@ -262,7 +283,7 @@ extension_11-xtn4-communication-address:
     valueString:
       value: $commAddress
 
-extension_12-xtn12-unformatted-telephone-number:
+extension_13-xtn12-unformatted-telephone-number:
   condition: $unformattedTelNum NOT_NULL
   generateList: true
   expressionType: nested

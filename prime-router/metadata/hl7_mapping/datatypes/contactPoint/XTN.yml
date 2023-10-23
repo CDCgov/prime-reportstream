@@ -36,11 +36,11 @@ elements:
     hl7Spec: [ '%{hl7TelecomPath}-8' ]
 
   - name: xtn-any-text-from-extension-any-text
-    value: [ '%resource.extension(%`rsext-any-text`).value' ]
+    value: [ '%resource.extension(%`rsext-xtn9-any-text`).value' ]
     hl7Spec: [ '%{hl7TelecomPath}-9' ]
 
   - name: xtn-unformatted-telephone-number-from-extension-unformatted-telephone-number
-    value: [ '%deidentifiedValue','%resource.extension(%`rsext-unformatted-telephone-number`).value' ]
+    value: [ '%deidentifiedValue','%resource.extension(%`rsext-xtn12-unformatted-telephone-number`).value' ]
     hl7Spec: [ '%{hl7TelecomPath}-12' ]
 
   - name: xtn-effective-start-date

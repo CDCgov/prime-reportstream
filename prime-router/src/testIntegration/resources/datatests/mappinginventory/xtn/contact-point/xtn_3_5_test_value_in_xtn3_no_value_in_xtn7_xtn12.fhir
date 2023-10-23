@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1697724763982643000.3a10844b-6fcc-4057-8933-f11abf2a9075",
+  "id" : "1698076020120980000.5824939d-e5cc-431c-a8af-b0c5ce7586ab",
   "meta" : {
-    "lastUpdated" : "2023-10-19T10:12:44.008-04:00"
+    "lastUpdated" : "2023-10-23T11:47:00.150-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,15 +37,15 @@
         "display" : "ORU/ACK - Unsolicited transmission of an observation message"
       },
       "sender" : {
-        "reference" : "Organization/1697724765613272000.323066b0-0eba-4078-8e26-d06105b182d2"
+        "reference" : "Organization/1698076021614231000.dfd7294a-3774-4ba9-b525-6eeda1ff32c8"
       },
       "source" : { }
     }
   }, {
-    "fullUrl" : "Organization/1697724765613272000.323066b0-0eba-4078-8e26-d06105b182d2",
+    "fullUrl" : "Organization/1698076021614231000.dfd7294a-3774-4ba9-b525-6eeda1ff32c8",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1697724765613272000.323066b0-0eba-4078-8e26-d06105b182d2",
+      "id" : "1698076021614231000.dfd7294a-3774-4ba9-b525-6eeda1ff32c8",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -57,10 +57,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Provenance/1697724766116967000.b208657d-1a83-4595-be18-884d090340e1",
+    "fullUrl" : "Provenance/1698076022112536000.0c400971-ef87-49dd-b830-bb537f82e9dd",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1697724766116967000.b208657d-1a83-4595-be18-884d090340e1",
+      "id" : "1698076022112536000.0c400971-ef87-49dd-b830-bb537f82e9dd",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -94,15 +94,15 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1697724766120295000.d4f18a9d-8321-4534-b7fb-6c7b27b19219"
+          "reference" : "Device/1698076022116871000.a25f3eec-1e58-4e03-9a7f-544e5e190462"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1697724766120295000.d4f18a9d-8321-4534-b7fb-6c7b27b19219",
+    "fullUrl" : "Device/1698076022116871000.a25f3eec-1e58-4e03-9a7f-544e5e190462",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1697724766120295000.d4f18a9d-8321-4534-b7fb-6c7b27b19219",
+      "id" : "1698076022116871000.a25f3eec-1e58-4e03-9a7f-544e5e190462",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -111,10 +111,10 @@
       }
     }
   }, {
-    "fullUrl" : "Patient/1697724766152941000.e6a19cb2-492a-4498-badd-de1b754f1184",
+    "fullUrl" : "Patient/1698076022150194000.110d7608-fba2-448a-b40b-2239fc20d7e4",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1697724766152941000.e6a19cb2-492a-4498-badd-de1b754f1184",
+      "id" : "1698076022150194000.110d7608-fba2-448a-b40b-2239fc20d7e4",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -125,14 +125,14 @@
       "contact" : [ {
         "telecom" : [ {
           "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+            "valueString" : "test"
+          }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
             "valueString" : "next-of-kin-telecomm-info"
           }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/telephone-number",
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn1-telephone-number",
             "valueString" : "12813308004"
-          }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/telecom-equipment-type",
-            "valueString" : "test"
           } ],
           "value" : "12813308004",
           "use" : "home"

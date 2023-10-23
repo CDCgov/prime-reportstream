@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1698076089139372000.65e774e3-1237-41ed-a7ce-46b6cf8eda3b",
+  "id" : "1698074095235682000.bc1b9fba-351d-47f4-a2a4-a79a6ae09c4c",
   "meta" : {
-    "lastUpdated" : "2023-10-23T11:48:09.165-04:00"
+    "lastUpdated" : "2023-10-23T11:14:55.259-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,15 +37,15 @@
         "display" : "ORU/ACK - Unsolicited transmission of an observation message"
       },
       "sender" : {
-        "reference" : "Organization/1698076090659817000.a0abf957-d5ac-4e70-bc07-381316b38470"
+        "reference" : "Organization/1698074096810443000.5474176c-8ebc-47de-8434-ab3226c2b629"
       },
       "source" : { }
     }
   }, {
-    "fullUrl" : "Organization/1698076090659817000.a0abf957-d5ac-4e70-bc07-381316b38470",
+    "fullUrl" : "Organization/1698074096810443000.5474176c-8ebc-47de-8434-ab3226c2b629",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1698076090659817000.a0abf957-d5ac-4e70-bc07-381316b38470",
+      "id" : "1698074096810443000.5474176c-8ebc-47de-8434-ab3226c2b629",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -57,10 +57,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Provenance/1698076091137822000.dc2b6f16-e727-4c76-a061-f5b346124534",
+    "fullUrl" : "Provenance/1698074097277705000.12f73929-9e25-46e8-819f-cb0ec808ab0b",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1698076091137822000.dc2b6f16-e727-4c76-a061-f5b346124534",
+      "id" : "1698074097277705000.12f73929-9e25-46e8-819f-cb0ec808ab0b",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -94,15 +94,15 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1698076091141259000.7a353740-dbd3-4fc3-b51b-51bf1b383562"
+          "reference" : "Device/1698074097281270000.654795af-fb65-4158-92a7-87531b8f8db0"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1698076091141259000.7a353740-dbd3-4fc3-b51b-51bf1b383562",
+    "fullUrl" : "Device/1698074097281270000.654795af-fb65-4158-92a7-87531b8f8db0",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1698076091141259000.7a353740-dbd3-4fc3-b51b-51bf1b383562",
+      "id" : "1698074097281270000.654795af-fb65-4158-92a7-87531b8f8db0",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -111,10 +111,10 @@
       }
     }
   }, {
-    "fullUrl" : "Patient/1698076091177777000.6e3ffd39-8978-4ac8-9337-fc86e581314b",
+    "fullUrl" : "Patient/1698074097312865000.799407c4-6c76-4e2d-8ea6-2f26d20565b8",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1698076091177777000.6e3ffd39-8978-4ac8-9337-fc86e581314b",
+      "id" : "1698074097312865000.799407c4-6c76-4e2d-8ea6-2f26d20565b8",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -125,19 +125,18 @@
       "contact" : [ {
         "telecom" : [ {
           "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+            "valueString" : "X.400"
+          }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
             "valueString" : "next-of-kin-telecomm-info"
           }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
-            "valueString" : "WPN"
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn4-communication-address",
+            "valueString" : "test@aol.net"
           } ],
-          "_system" : {
-            "extension" : [ {
-              "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
-              "valueCode" : "unknown"
-            } ]
-          },
-          "use" : "work"
+          "system" : "email",
+          "value" : "test@aol.net",
+          "use" : "home"
         } ]
       } ]
     }

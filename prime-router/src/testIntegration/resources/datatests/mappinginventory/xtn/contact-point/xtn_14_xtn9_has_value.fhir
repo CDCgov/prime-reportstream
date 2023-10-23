@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1697725105447066000.65fc6f09-f508-4279-be5d-b0777ce8b896",
+  "id" : "1698076207711404000.f80bb541-5385-425f-b8ea-3b734ffce00c",
   "meta" : {
-    "lastUpdated" : "2023-10-19T10:18:25.474-04:00"
+    "lastUpdated" : "2023-10-23T11:50:07.738-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,15 +37,15 @@
         "display" : "ORU/ACK - Unsolicited transmission of an observation message"
       },
       "sender" : {
-        "reference" : "Organization/1697725107063803000.ad67f70a-85f7-4055-b10a-2bc76dfc1b6a"
+        "reference" : "Organization/1698076209208615000.460509c8-6c2b-447e-962f-5d2c75ba3f3f"
       },
       "source" : { }
     }
   }, {
-    "fullUrl" : "Organization/1697725107063803000.ad67f70a-85f7-4055-b10a-2bc76dfc1b6a",
+    "fullUrl" : "Organization/1698076209208615000.460509c8-6c2b-447e-962f-5d2c75ba3f3f",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1697725107063803000.ad67f70a-85f7-4055-b10a-2bc76dfc1b6a",
+      "id" : "1698076209208615000.460509c8-6c2b-447e-962f-5d2c75ba3f3f",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -57,10 +57,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Provenance/1697725107622541000.4fb60b60-9f89-41b7-936f-dc9d87dc7505",
+    "fullUrl" : "Provenance/1698076209690467000.07355322-3139-4aeb-aa3e-d085b1f92c03",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1697725107622541000.4fb60b60-9f89-41b7-936f-dc9d87dc7505",
+      "id" : "1698076209690467000.07355322-3139-4aeb-aa3e-d085b1f92c03",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -94,15 +94,15 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1697725107625625000.4fba8f85-8304-4a37-a631-7055b82679b2"
+          "reference" : "Device/1698076209694598000.5e2a9165-4d3d-48fd-94e8-10f325a3b4b9"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1697725107625625000.4fba8f85-8304-4a37-a631-7055b82679b2",
+    "fullUrl" : "Device/1698076209694598000.5e2a9165-4d3d-48fd-94e8-10f325a3b4b9",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1697725107625625000.4fba8f85-8304-4a37-a631-7055b82679b2",
+      "id" : "1698076209694598000.5e2a9165-4d3d-48fd-94e8-10f325a3b4b9",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -111,10 +111,10 @@
       }
     }
   }, {
-    "fullUrl" : "Patient/1697725107659252000.e0494522-499d-4500-9627-de04e190f893",
+    "fullUrl" : "Patient/1698076209726366000.600740ff-0c34-425a-890e-8b63415d5b5e",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1697725107659252000.e0494522-499d-4500-9627-de04e190f893",
+      "id" : "1698076209726366000.600740ff-0c34-425a-890e-8b63415d5b5e",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -125,15 +125,15 @@
       "contact" : [ {
         "telecom" : [ {
           "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/any-text",
-            "valueString" : "any-text-1234"
-          }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
             "valueString" : "next-of-kin-telecomm-info"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn9-any-text",
+            "valueString" : "any-text-1234"
           } ],
           "_system" : {
             "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/data-absent-reason",
+              "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
               "valueCode" : "unknown"
             } ]
           },

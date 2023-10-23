@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1697725215576007000.0fe379fb-ed59-4106-9b4b-10f1fc2a0444",
+  "id" : "1698076234492607000.db02f678-56b6-4875-a05f-32f5cd486357",
   "meta" : {
-    "lastUpdated" : "2023-10-19T10:20:15.602-04:00"
+    "lastUpdated" : "2023-10-23T11:50:34.517-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,15 +37,15 @@
         "display" : "ORU/ACK - Unsolicited transmission of an observation message"
       },
       "sender" : {
-        "reference" : "Organization/1697725217225221000.44a6c257-a56a-4d5d-8a46-81affc0024af"
+        "reference" : "Organization/1698076236078067000.f7ca4f62-9404-44d3-8a29-5a12a181478c"
       },
       "source" : { }
     }
   }, {
-    "fullUrl" : "Organization/1697725217225221000.44a6c257-a56a-4d5d-8a46-81affc0024af",
+    "fullUrl" : "Organization/1698076236078067000.f7ca4f62-9404-44d3-8a29-5a12a181478c",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1697725217225221000.44a6c257-a56a-4d5d-8a46-81affc0024af",
+      "id" : "1698076236078067000.f7ca4f62-9404-44d3-8a29-5a12a181478c",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -57,10 +57,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Provenance/1697725217734855000.0133ee54-553f-4a93-8c50-093d15f06651",
+    "fullUrl" : "Provenance/1698076236532688000.693b72a1-df93-4b8e-988f-4c53d2cab8b6",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1697725217734855000.0133ee54-553f-4a93-8c50-093d15f06651",
+      "id" : "1698076236532688000.693b72a1-df93-4b8e-988f-4c53d2cab8b6",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -94,15 +94,15 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1697725217738579000.74695b4b-cd36-42bb-8f0b-c018a1edea33"
+          "reference" : "Device/1698076236537328000.3e6edafd-4c9e-4fdd-9ad2-219b6a1ddef4"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1697725217738579000.74695b4b-cd36-42bb-8f0b-c018a1edea33",
+    "fullUrl" : "Device/1698076236537328000.3e6edafd-4c9e-4fdd-9ad2-219b6a1ddef4",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1697725217738579000.74695b4b-cd36-42bb-8f0b-c018a1edea33",
+      "id" : "1698076236537328000.3e6edafd-4c9e-4fdd-9ad2-219b6a1ddef4",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -111,10 +111,10 @@
       }
     }
   }, {
-    "fullUrl" : "Patient/1697725217771497000.f8b87ead-9e59-4fe9-a631-e0ac296c35c3",
+    "fullUrl" : "Patient/1698076236569120000.1df04d75-b52b-4371-9388-6b58ba6b3b58",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1697725217771497000.f8b87ead-9e59-4fe9-a631-e0ac296c35c3",
+      "id" : "1698076236569120000.1df04d75-b52b-4371-9388-6b58ba6b3b58",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -125,14 +125,14 @@
       "contact" : [ {
         "telecom" : [ {
           "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/unformatted-telephone-number",
-            "valueString" : "281-3308004"
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+            "valueString" : "PH"
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
             "valueString" : "next-of-kin-telecomm-info"
           }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/telecom-equipment-type",
-            "valueString" : "PH"
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
+            "valueString" : "281-3308004"
           } ],
           "system" : "phone",
           "value" : "unformattedTelNum",

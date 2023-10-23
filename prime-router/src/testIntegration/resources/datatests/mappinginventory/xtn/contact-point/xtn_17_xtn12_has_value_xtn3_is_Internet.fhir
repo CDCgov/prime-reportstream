@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1697725191776030000.56beb54b-bb9a-42a5-8e4c-ab6cb6acd154",
+  "id" : "1698076221407817000.80fb3feb-e708-4e40-b2f0-178a21b4be68",
   "meta" : {
-    "lastUpdated" : "2023-10-19T10:19:51.811-04:00"
+    "lastUpdated" : "2023-10-23T11:50:21.434-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,15 +37,15 @@
         "display" : "ORU/ACK - Unsolicited transmission of an observation message"
       },
       "sender" : {
-        "reference" : "Organization/1697725193476524000.8c42ab5f-5797-4870-a622-df97f50b4f5a"
+        "reference" : "Organization/1698076222977856000.c9b67e8e-cac4-4ed4-ad70-79aae8300233"
       },
       "source" : { }
     }
   }, {
-    "fullUrl" : "Organization/1697725193476524000.8c42ab5f-5797-4870-a622-df97f50b4f5a",
+    "fullUrl" : "Organization/1698076222977856000.c9b67e8e-cac4-4ed4-ad70-79aae8300233",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1697725193476524000.8c42ab5f-5797-4870-a622-df97f50b4f5a",
+      "id" : "1698076222977856000.c9b67e8e-cac4-4ed4-ad70-79aae8300233",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -57,10 +57,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Provenance/1697725193957544000.417d60ad-7671-43fa-a51e-04bcf9e9dad5",
+    "fullUrl" : "Provenance/1698076223426902000.76ade8b1-855e-4784-af94-a8f1fbb26b9f",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1697725193957544000.417d60ad-7671-43fa-a51e-04bcf9e9dad5",
+      "id" : "1698076223426902000.76ade8b1-855e-4784-af94-a8f1fbb26b9f",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -94,15 +94,15 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1697725193960482000.627c50d8-5ad4-4c92-87c4-f96d98059242"
+          "reference" : "Device/1698076223432716000.d3ade52a-1aea-4aee-a971-e280d97c59d1"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1697725193960482000.627c50d8-5ad4-4c92-87c4-f96d98059242",
+    "fullUrl" : "Device/1698076223432716000.d3ade52a-1aea-4aee-a971-e280d97c59d1",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1697725193960482000.627c50d8-5ad4-4c92-87c4-f96d98059242",
+      "id" : "1698076223432716000.d3ade52a-1aea-4aee-a971-e280d97c59d1",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -111,10 +111,10 @@
       }
     }
   }, {
-    "fullUrl" : "Patient/1697725193988804000.b5505354-a431-430e-9abe-aeb701c12aac",
+    "fullUrl" : "Patient/1698076223467421000.cb83f365-1699-41a2-8beb-5e8054b80671",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1697725193988804000.b5505354-a431-430e-9abe-aeb701c12aac",
+      "id" : "1698076223467421000.cb83f365-1699-41a2-8beb-5e8054b80671",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -125,14 +125,14 @@
       "contact" : [ {
         "telecom" : [ {
           "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/unformatted-telephone-number",
-            "valueString" : "281-3308004"
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+            "valueString" : "Internet"
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
             "valueString" : "next-of-kin-telecomm-info"
           }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/telecom-equipment-type",
-            "valueString" : "Internet"
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
+            "valueString" : "281-3308004"
           } ],
           "system" : "email",
           "use" : "home"

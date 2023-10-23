@@ -12,6 +12,24 @@ class XTNToContactPointTests {
     }
 
     @Test
+    fun `XTN test value in XTN-3, XTN-7 and no value in XTN-12`() {
+        assert(
+            verifyHL7ToFHIRToHL7Mapping(
+                "xtn/contact-point/xtn_3_test_value_in_xtn3_xtn7_no_value_in_xtn12"
+            ).passed
+        )
+    }
+
+    @Test
+    fun `XTN test value in XTN-3, XTN-12 and no value in XTN-7`() {
+        assert(
+            verifyHL7ToFHIRToHL7Mapping(
+                "xtn/contact-point/xtn_3_test_value_in_xtn3_xtn12_no_value_in_xtn7"
+            ).passed
+        )
+    }
+
+    @Test
     fun `XTN test value in XTN-3 and no value in XTN-7, XTN-12`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping(
@@ -56,9 +74,23 @@ class XTNToContactPointTests {
     }
 
     @Test
+    fun `XTN test XTN-3 not valued and XTN-4 has a value`() {
+        assert(
+            verifyHL7ToFHIRToHL7Mapping("xtn/contact-point/xtn_7_xtn3_no_value_xtn4__no_value").passed
+        )
+    }
+
+    @Test
     fun `XTN test XTN-3 is Internet and XTN-4 has a value`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping("xtn/contact-point/xtn_8_xtn3_internet_xtn4_test_email").passed
+        )
+    }
+
+    @Test
+    fun `XTN test XTN-3 is X400 and XTN-4 has a value`() {
+        assert(
+            verifyHL7ToFHIRToHL7Mapping("xtn/contact-point/xtn_8_xtn3_x400_xtn4_test_email").passed
         )
     }
 
@@ -80,6 +112,13 @@ class XTNToContactPointTests {
     fun `XTN test value in XTN-7 and XTN-3 is Internet`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping("xtn/contact-point/xtn_12_xtn7_has_value_xtn3_is_Internet").passed
+        )
+    }
+
+    @Test
+    fun `XTN test value in XTN-7 and XTN-3 not valued`() {
+        assert(
+            verifyHL7ToFHIRToHL7Mapping("xtn/contact-point/xtn_12_xtn7_has_value_xtn3_no_value").passed
         )
     }
 
@@ -115,6 +154,13 @@ class XTNToContactPointTests {
     fun `XTN test value in XTN-12 and XTN-3 is PH`() {
         assert(
             verifyHL7ToFHIRToHL7Mapping("xtn/contact-point/xtn_17_xtn12_has_value_xtn3_is_PH").passed
+        )
+    }
+
+    @Test
+    fun `XTN test value in XTN-12 and XTN-3 not valued`() {
+        assert(
+            verifyHL7ToFHIRToHL7Mapping("xtn/contact-point/xtn_17_xtn12_has_value_xtn3_no_value").passed
         )
     }
 
