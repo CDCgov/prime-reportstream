@@ -76,7 +76,7 @@ class XTNToContactPointTests {
     @Test
     fun `XTN test XTN-3 not valued and XTN-4 has a value`() {
         assert(
-            verifyHL7ToFHIRToHL7Mapping("xtn/contact-point/xtn_7_xtn3_no_value_xtn4__no_value").passed
+            verifyHL7ToFHIRToHL7Mapping("xtn/contact-point/xtn_7_xtn3_no_value_xtn4_no_value").passed
         )
     }
 

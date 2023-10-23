@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1698090325711004000.8a4b3c72-0ac0-4288-8de5-f22439ec31ae",
+  "id" : "1698089581121162000.321ea7d5-4042-4cf5-acef-d8562f65bbcf",
   "meta" : {
-    "lastUpdated" : "2023-10-23T15:45:25.744-04:00"
+    "lastUpdated" : "2023-10-23T15:33:01.141-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,15 +37,15 @@
         "display" : "ORU/ACK - Unsolicited transmission of an observation message"
       },
       "sender" : {
-        "reference" : "Organization/1698090327314633000.0d8ab7fb-df9d-45d8-81df-c0b67cf29714"
+        "reference" : "Organization/1698089582889912000.1b2aba83-2608-4c63-b970-a48d8197d352"
       },
       "source" : { }
     }
   }, {
-    "fullUrl" : "Organization/1698090327314633000.0d8ab7fb-df9d-45d8-81df-c0b67cf29714",
+    "fullUrl" : "Organization/1698089582889912000.1b2aba83-2608-4c63-b970-a48d8197d352",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1698090327314633000.0d8ab7fb-df9d-45d8-81df-c0b67cf29714",
+      "id" : "1698089582889912000.1b2aba83-2608-4c63-b970-a48d8197d352",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -57,10 +57,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Provenance/1698090327821324000.b412c64e-4a3b-45f6-a764-3f9f41f447f3",
+    "fullUrl" : "Provenance/1698089583414863000.393bf9d5-60b8-46e2-9a4f-81c4b436e003",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1698090327821324000.b412c64e-4a3b-45f6-a764-3f9f41f447f3",
+      "id" : "1698089583414863000.393bf9d5-60b8-46e2-9a4f-81c4b436e003",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -94,15 +94,15 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1698090327824596000.ca1dff0f-2a61-42c0-8e24-bc98acf04589"
+          "reference" : "Device/1698089583417439000.7c3f6e2f-a76d-421a-9995-e79ab8280600"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1698090327824596000.ca1dff0f-2a61-42c0-8e24-bc98acf04589",
+    "fullUrl" : "Device/1698089583417439000.7c3f6e2f-a76d-421a-9995-e79ab8280600",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1698090327824596000.ca1dff0f-2a61-42c0-8e24-bc98acf04589",
+      "id" : "1698089583417439000.7c3f6e2f-a76d-421a-9995-e79ab8280600",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -111,10 +111,10 @@
       }
     }
   }, {
-    "fullUrl" : "Patient/1698090327853911000.98fd33d3-e659-4be8-8fe8-c260916675a6",
+    "fullUrl" : "Patient/1698089583441307000.f03ed7c4-c3e7-4d38-b686-f79d0ee9cd3c",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1698090327853911000.98fd33d3-e659-4be8-8fe8-c260916675a6",
+      "id" : "1698089583441307000.f03ed7c4-c3e7-4d38-b686-f79d0ee9cd3c",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -125,17 +125,19 @@
       "contact" : [ {
         "telecom" : [ {
           "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
-            "valueString" : "PH"
-          }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
             "valueString" : "next-of-kin-telecomm-info"
           }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
-            "valueString" : "281-3308004"
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn1-telephone-number",
+            "valueString" : "12813308004"
           } ],
-          "system" : "phone",
-          "value" : "unformattedTelNum"
+          "_system" : {
+            "extension" : [ {
+              "url" : "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+              "valueCode" : "unknown"
+            } ]
+          },
+          "value" : "12813308004"
         } ]
       } ]
     }

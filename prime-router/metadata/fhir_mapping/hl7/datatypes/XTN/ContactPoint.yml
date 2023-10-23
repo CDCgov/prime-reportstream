@@ -40,33 +40,30 @@ value_5:
 #mapping from HL7 Concept Map: TelecomUseCode
 #https://docs.google.com/spreadsheets/d/1EE3a5UIGXLi8wMDr49fWTEVx8QS2GFqYgitE3vLOQTQ/edit#gid=0
 use_1:
-  condition: $useCode EQUALS PRN
+  condition: $useCode EQUALS PRN && $hl7Use NULL
   type: STRING
   value: "home"
   vars:
     useCode: String, XTN.2
 
 use_2:
-  condition: $useCode EQUALS WPN
+  condition: $useCode EQUALS WPN && $hl7Use NULL
   type: STRING
   value: "work"
   vars:
     useCode: String, XTN.2
 
 use_3:
-  condition: $useCode EQUALS BPN
+  condition: $useCode EQUALS BPN && $hl7Use NULL
   type: STRING
   value: "mobile"
   vars:
     useCode: String, XTN.2
 
-#Element is not in XTN[ContactPoint] but rather is specified in PID[Patient] mapping inventory
 use_4:
-  condition: $useCode NULL
+  condition: $hl7Use NOT_NULL
   type: STRING
-  value: "home"
-  vars:
-    useCode: String, XTN.2
+  value: $hl7Use
 
 #mapping from HL7 Concept Map: TelecomEquipmentType
 #https://docs.google.com/spreadsheets/d/1FhoR5oxEWdHmpR5S0_wYPstdy1lwv7rL-JWJu_DE_Vs/edit#gid=0
@@ -138,7 +135,7 @@ extension_1-xtn3-telecom-equipment-type:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "xtn3-telecom-equipment-type"
+      value: xtn3-telecom-equipment-type
     valueString:
       value: $equipType
 
@@ -152,7 +149,7 @@ extension_2-country-code:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "contactpoint-country"
+      value: contactpoint-country
     valueString:
       value: $countryCode
 
@@ -165,7 +162,7 @@ extension_3-area-code:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "contactpoint-area"
+      value: contactpoint-area
     valueString:
       value: $areaCode
 
@@ -179,7 +176,7 @@ extension_4-contactpoint-local:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "contactpoint-local"
+      value: contactpoint-local
     valueString:
       value: $contactPointLocal
 
@@ -193,7 +190,7 @@ extension_5-contactpoint-local:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "contactpoint-local"
+      value: contactpoint-local
     valueString:
       value: $contactPointLocal
 
@@ -206,7 +203,7 @@ extension_6-xtn7-local-number:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "xtn7-local-number"
+      value: xtn7-local-number
     valueString:
       value: $localNum
 
@@ -219,7 +216,7 @@ extension_7-phone-extension:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "contactpoint-extension"
+      value: contactpoint-extension
     valueString:
       value: $numExt
 
@@ -232,7 +229,7 @@ extension_8-xtn9-any-text:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "xtn9-any-text"
+      value: xtn9-any-text
     valueString:
       type: STRING
       valueOf: $anyText
@@ -246,7 +243,7 @@ extension_9-xtn2-telecom-use-code:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "xtn2-telecom-use-code"
+      value: xtn2-telecom-use-code
     valueString:
       value: $useCode
 
@@ -257,7 +254,7 @@ extension_10-hl7-use:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "hl7-use"
+      value: hl7-use
     valueString:
       value: $hl7Use
 
@@ -270,7 +267,7 @@ extension_11-telephone-number:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "xtn1-telephone-number"
+      value: xtn1-telephone-number
     valueString:
       value: $telNum
 
@@ -283,7 +280,7 @@ extension_12-xtn4-communication-address:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "xtn4-communication-address"
+      value: xtn4-communication-address
     valueString:
       value: $commAddress
 
@@ -296,7 +293,7 @@ extension_13-xtn12-unformatted-telephone-number:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "xtn12-unformatted-telephone-number"
+      value: xtn12-unformatted-telephone-number
     valueString:
       value: $unformattedTelNum
 
@@ -329,7 +326,7 @@ extension_13-hl7v2Name:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: "hl7v2Name"
+      value: hl7v2Name
     valueString:
       type: STRING
       valueOf: $hl7v2Name
