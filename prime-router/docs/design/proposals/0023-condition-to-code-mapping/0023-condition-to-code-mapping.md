@@ -28,9 +28,10 @@ Overview Diagram
 
 ![img.png](code-to-condition diagram.png)
 
-### Condition Mapping Table
 
-The condition mapping table will be made up of CSTE ValueSets and contain the following columns:
+### Observation Mapping Table
+
+The Observation Mapping table will be made up of CSTE ValueSets and contain the following columns:
 
 | Column Name                   | Description                                   | Example                                                                        |
 |-------------------------------|-----------------------------------------------|--------------------------------------------------------------------------------|
@@ -142,7 +143,7 @@ Due to the presence of the tag on the fhir bundle we can utilize any of the exis
 
 There are multiple ways to write the logic in the condition filter. The first way will remove any observations that do not pass the condition filter.<br>
 
-### Condition filter logic #1
+### Condition filter logic #1 (Recommended)
 
 Example input: [prime-reportstream/prime-router/docs/design/proposals/0023-condition-to-code-mapping/exampleinput.fhir]()
 
@@ -165,9 +166,9 @@ Example condition logic:
 ```
 Example output: [prime-reportstream/prime-router/docs/design/proposals/0023-condition-to-code-mapping/exampleoutput1.hl7]()
 
-This will result in a message with potentially missing results in the event that there is a missing mapping, and also presents difficulties in dealing with culture results as it would require all the LOINCS for all possible micro cultures to be mapped.
+This approach will prune any observations that do not match the listed conditions in the filter during the translation step (FHIRTranslator.kt).
 
-### Condition filter logic #2
+### Condition filter logic #2 
 
 The second way to write the condition logic will pass the entire bundle if a match is found for one observation.
 
@@ -208,9 +209,9 @@ enum class ActionLogLevel {
     mapping
 }
 ```
-### Logging Missing Mapping Strategy #1
+### Logging Missing Mapping Strategy 
 
-The first proposed way of monitoring mapping is to add functionality to LookupTableValueSet.kt to log a mapping error to the Action Log if the LOINC/SNOMED from the targeted observation resource used as the Key does not return a Value.
+The proposed way of monitoring mapping is to add functionality to LookupTableValueSet.kt to log a mapping error to the Action Log if the LOINC/SNOMED from the targeted observation resource used as the Key does not return a Value.
 
 Example:
 
@@ -232,7 +233,7 @@ For the below resource:
     }
   }
 ```
-the below element in the default transformation utilizes LookupTableValueSet to use key "80382-5" to search Condition-Mapping table stored in the database to return a value from the condition_code column
+the below element in the default transformation utilizes LookupTableValueSet to use key "80382-5" to search Observation-Mapping table stored in the database to return a value from the condition_code column
 
 ```yaml
 - name: test-condition
@@ -242,12 +243,14 @@ the below element in the default transformation utilizes LookupTableValueSet to 
   value: ['%resource.code.coding.code']
   valueSet:
     lookupTable:
-      tableName: Condition-Mapping
+      tableName: Observation-Mapping
       keyColumn: code
       valueColumn: condition_code
 ```
 
 In the example table below we can see that there is no match found for code "80382-5"
+
+Example Observation Mapping Table:
 
 | Member OID                     | Name                                                 | Code    | Descriptor                                                                          | Code System | Version | Status | Condition Name                                                 | Condition Code   | Condition Code System | Condition Code System Version | Value Source |
 |--------------------------------|------------------------------------------------------|---------|-------------------------------------------------------------------------------------|-------------|---------|--------|----------------------------------------------------------------|------------------|-----------------------|-------------------------------|--------------|
@@ -255,103 +258,120 @@ In the example table below we can see that there is no match found for code "803
 | 2.16.840.1.113762.1.4.1146.799 | Influenza (Tests for influenza A virus Antigen)      | 88904-8 | Influenza virus A Ag [Presence] in Lower respiratory specimen by Immunofluorescence | LOINC       | 2.74    | Active | Infection caused by novel Influenza A virus variant (disorder) | 541000000000000  | SNOMEDCT              | 2023-03                       | RCTC         |
 |                                | Influenza - (ABC TESTING LABS)                       | 123456  | Influenza virus A                                                                   | LOCAL       |         | Active | Infection caused by novel Influenza A virus variant (disorder) | 541000000000000  | SNOMEDCT              | 2023-03                       | LOCAL        |   
 
-In this instance we would add want to add an entry to the Action Log if a null value or empty string was returned. The content of the error message should include both the keyValue and the tableName as in the below example:
- 
-"Missing mapping for: " + keyValue + " for table:" + tableName". 
+Example Action Log Error Message: "Missing mapping for: 123456 for table: Observation-Mapping"
 
-By following this strategy we could also log and monitor missing mappings for any lookupTable which is used in a translation schema, not just condition mappings. The downside of this strategy is that if the value in the observation is not a test performed code (if for example it is an AOE), then we will always be logging a mapping error for that value when it is received. 
+In this instance we would add want to add an entry to the Action Log if a null value or empty string was returned. The content of the error message should include both the keyValue and the tableName in the format: "Missing mapping for: " + keyValue + " for table:" + tableName".
+By following this strategy we could also log and monitor missing mappings for any lookupTable which is used in a translation schema, not just condition mappings.
 
-### Logging Missing Mapping Strategy #2 (recommended)
-
-Strategy number two makes use of fhirpath and tags to stamp an "Unmapped" tag on an observation resource that does not find a match. We can then add logic that records an action log error when an unmapped value is received during the evaluation of the condition filters. 
-
-Example:
+Example Action Log Detail:
 
 ```json
-        {
-            "fullUrl": "Observation/d683b42a-bf50-45e8-9fce-6c0531994f09",
-            "resource": {
-                "resourceType": "Observation",
-                "id": "d683b42a-bf50-45e8-9fce-6c0531994f09",
-                "status": "final",
-                "code": {
-                    "coding": [
-                        {
-                            "system": "http://loinc.org",
-                            "code": "123456"
-                        }
-                    ],
-                    "text": "Some Unmapped Value"
-                },
-                "subject": {
-                    "reference": "Patient/9473889b-b2b9-45ac-a8d8-191f27132912"
-                },
-                "performer": [
-                    {
-                        "reference": "Organization/1a0139b9-fc23-450b-9b6c-cd081e5cea9d"
-                    }
-                ],
-                "valueCodeableConcept": {
-                    "coding": [
-                        {
-                            "system": "http://snomed.info/sct",
-                            "code": "260373001",
-                            "display": "Detected"
-                        }
-                    ]
-                },
-                "meta": {
-                    "tag": [
-                          {
-                              "code": "Unmapped",
-                              "display": "123456 is Unmapped"
-                         }
-                    ]
-                }
-            }
-        }
+ {
+    "class": "gov.cdc.prime.router.ReportStreamMapping",
+    "scope": "item",
+    "message": "Missing mapping for: 123456 for table: Observation-Mapping",
+    "filteredTrackingElement": "<tracking id>"
+}
 ```
-The following logic would need to be added to the default transform to tag the observations with "Unmapped" during the conversion step.
-
-```yaml
-- name: unmapped-test-code
-  resource: 'Bundle.entry.resource.ofType(Observation)'
-  condition: '%resource.meta.tag.code.exists().not()'
-  bundleProperty: '%resource.meta.tag.code'
-  value: ['Unmapped']
-
-- name: unmapped-test-description
-  resource: 'Bundle.entry.resource.ofType(Observation)'
-  condition: '%resource.meta.tag.code.exists().not()'
-  bundleProperty: '%resource.meta.tag.display'
-  value: ['%resource.code.coding.code + " is unmapped"']
-```
-In this instance we would add want to add an entry to the Action Log when the observation was filtered out by the condition filter that included the value of "Bundle.entry.resource.ofType(Observation).meta.tag.display".
 
 ## Monitoring Logged Errors
 
-Mapping errors logged by the action log can be monitored through metabase queries on a regular basis by the engagement/customer service team. The following is an example query that would be monitored on a regular cadence (dependent on error volume).
+Mapping errors logged by the action log can be monitored through metabase queries by the engagement/customer service team. The following is an example query that would be monitored on a regular cadence (dependent on error volume).
 
+Example query
 ```yaml
 select * from action_log
 where type = 'mapping'
 and created_at >= current date -1
 ```
-As we become more confident in our mapping coverage we can shift away from manual report monitoring to having an alert thrown similar to the "last mile failure" alerts which post a message to the engagement slack channel when there is a failure to send a report to an receiver due to a communication issue.
+## Unmapped receiver queue
+
+Creation of a receiver with the correct filters will allow us to catch all messages with unmapped observations in a queue for Engagement to work. Combined with Action Log monitoring engagement will be able to update all mappings and resend affected messages as needed to STLTs. In order to create this receiver the following settings would be needed:
+
+```yaml
+- name: "unmapped-message-queue"
+  description: "All messages that contain unmapped observations"
+  jurisdiction: "FEDERAL"
+  filters: "Bundle.entry.resource.ofType(Observation).resource.meta.tag.code.exists().not()"
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+      - name: "unmapped-message-queue"
+        organizationName: "
+      topic: "full-elr"
+        customerStatus: "active"
+        translation:
+            schemaName: "metadata/hl7_mapping/receivers/STLTs/NY/NY-receiver-transform"
+            useBatchHeaders: false
+            type: "FHIR"
+        jurisdictionalFilter: []
+        qualityFilter: []
+        routingFilter: []
+        reverseTheQualityFilter: false
+        conditionFilter: []
+        deidentify: false
+        deidentifiedValue: ""
+        timing:
+            operation: MERGE
+            numberPerDay: 1440 # Every minute
+            initialTime: 00:00
+        transport:
+            type: SFTP
+            host: BLANK
+            port: BLANK
+            filePath: BLANK
+            credentialName: BLANK
+        externalName: null
+        timeZone: null
+        dateTimeFormat: "OFFSET"
+```
+This will gather all unmapped messages into a single queue and also fire a "last mile failure" alert that will automatically ping the engagement slack channel when a message is added to the queue.
 
 ## Automated Mapping updates
 
-Since the bulk of the mapping table will be made up of values taken from CSTE codesets that are stored in the Value Set Authority Center (VSAC). We can make use of the VSAC's [FHIR Terminology Service](https://www.nlm.nih.gov/vsac/support/usingvsac/vsacfhirapi.html) to query and update the table. Using the "Member OID" and "Version" columns from the table we can create a utility to query each Member OID for which the "Value Source" column is "RCTC" to see if we have the latest version and if not to update to the latest version.
+Since the bulk of the mapping table will be made up of values taken from CSTE codesets that are stored in the Value Set Authority Center (VSAC). We can make use of the VSAC's [FHIR Terminology Service](https://www.nlm.nih.gov/vsac/support/usingvsac/vsacfhirapi.html) to query and update the table. Using the "Member OID" and "Version" columns from the table we can create a utility to query each Member OID for which the "Value Source" column is "RCTC" to see if we have the latest version and if not to update to the latest version. This should be a CLI utility similar to update-livd-table command that can be run on-demand to update the table.
+
+The FHIR Terminology Service for VSAC Resources is a RESTful API service for accessing the VSAC value sets and supported code systems.
+
+Example parameters: </br>
+environment - name of table to compare input to </br>
+silent - do not generate diff or ask for confirmation
+activate - activate the table upon creation
+key - apikey to access VSAC FHIR terminology service
+OID - OID of valueset to update (default to all OID in table if blank)
+
+Example CLI command for update tool:
+
+./prime condition-mapping-update --activate --silent --environment staging --key <apikey>
 
 ## Sender Compendium Comparison Utility
 
-In order to greatly reduce the number of unmapped errors that we will have to deal with. It is recommended that we build a utility where senders can submit their test compendiums during the onboarding process to allow engagement to pre-emptively map. This will be a utility that takes in a csv file prepared by the sender and compares the codes against the condition mapping table. The utility should then return which codes are not found in the table so that the engagment team can map them prior to the sender moving to production.
+In order to greatly reduce the number of unmapped errors that we will have to deal with. It is recommended that we build a utility where senders can submit their test compendiums during the onboarding process to allow engagement to pre-emptively map. This will be a utility that takes in a csv file prepared by the sender and compares the codes against the observation mapping table. The utility should then return which codes are not found in the table so that the engagment team can map them prior to the sender moving to production.
 
-Example compendium CSV:
+Example parameters: </br>
+env - environment to run command against </br>
+tablename - name of table to compare input to </br>
+input -file location of input CSV </br>
+output -location to output post comparison csv
 
+Example CLI command:
+
+./prime mapping-table-comparison -tablename observation-mapping -input <input-file-location> output <output-file-location> -env staging
+
+
+Example input compendium CSV:
 ```csv
 test code,test description,coding system
 97099-6,Influenza virus A and B and SARS-CoV-2 (COVID-19) Ag panel - Upper respiratory specimen by Rapid immunoassay, LOINC
 47457-7,Influenza virus A H8 Ab [Titer] in Serum, LOINC
 123456, LDT Flu Test, LOCAL
+```
+Example output CSV:
+
+```csv
+test code,test description,coding system, mapped?
+97099-6,Influenza virus A and B and SARS-CoV-2 (COVID-19) Ag panel - Upper respiratory specimen by Rapid immunoassay, LOINC., Y
+47457-7,Influenza virus A H8 Ab [Titer] in Serum, LOINC, Y
+123456, LDT Flu Test, LOCAL, N
 ```
