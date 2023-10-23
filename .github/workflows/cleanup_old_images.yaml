@@ -1,7 +1,10 @@
 name: Cleanup old images in Test & Staging ACRs
 on:
-  schedule:
-    - cron: "0 0 * * *" # Runs daily at midnight UTC
+  push:
+    branches:
+      - feature/delete-untaged-container-images-from-ACR
+  # schedule:
+  #   - cron: "0 0 * * *" # Runs daily at midnight UTC
 
 
 jobs:
@@ -20,51 +23,78 @@ jobs:
           user-key: ${{ secrets.USER_KEY }}
           sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
 
-      - name: List test repository images
-        id: list-test-images
-        run: |
-          az acr login --name pdhtestcontainerregistry
-          az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2 > test-images.txt
-          sed -i '1,2d' test-images.txt
+      # - name: List test repository images
+      #   id: list-test-images
+      #   run: |
+      #     az acr login --name pdhtestcontainerregistry
+      #     az acr repository show-tags --name pdhtestcontainerregistry --repository pdhtest --orderby time_asc --output table | head -n -2 > test-images.txt
+      #     sed -i '1,2d' test-images.txt
 
-      - name: Delete old images in TEST env
-        env:
-          IMAGE_FILE: test-images.txt  
-        run: |
-          if [ -e "$IMAGE_FILE" ]; then
-            while IFS= read -r image_id; do
-                az acr repository delete --name pdhtestcontainerregistry --image pdhtest:$image_id --yes
-                if [ $? -eq 0 ]; then
-                    echo "Deleted image: pdhtestcontainerregistry:$image_id"
-                else
-                    echo "Failed to delete image: pdhtestcontainerregistry:$image_id"
-                fi
-            done < "$IMAGE_FILE"
-              else
-                echo "File not found: $IMAGE_FILE"
-          fi
+      # - name: Delete old images in TEST env
+      #   env:
+      #     IMAGE_FILE: test-images.txt  
+      #   run: |
+      #     if [ -e "$IMAGE_FILE" ]; then
+      #       while IFS= read -r image_id; do
+      #           az acr repository delete --name pdhtestcontainerregistry --image pdhtest:$image_id --yes
+      #           if [ $? -eq 0 ]; then
+      #               echo "Deleted image: pdhtestcontainerregistry:$image_id"
+      #           else
+      #               echo "Failed to delete image: pdhtestcontainerregistry:$image_id"
+      #           fi
+      #       done < "$IMAGE_FILE"
+      #         else
+      #           echo "File not found: $IMAGE_FILE"
+      #     fi
 
-      - name: List staging repository images
-        id: list-stg-images
+      # - name: List staging repository images
+      #   id: list-stg-images
+      #   run: |
+      #     az acr login --name pdhstagingcontainerregistry
+      #     az acr repository show-tags --name pdhstagingcontainerregistry --repository pdhstaging --orderby time_asc --output table | head -n -2 > stg-images.txt
+      #     sed -i '1,2d' stg-images.txt
+
+      # - name: Delete old images in Staging env
+      #   env:
+      #     STG_FILE: stg-images.txt  
+      #   run: |
+      #     if [ -e "$STG_FILE" ]; then
+      #       while IFS= read -r image_id; do
+      #           az acr repository delete --name pdhstagingcontainerregistry --image pdhstaging:$image_id --yes
+      #           if [ $? -eq 0 ]; then
+      #               echo "Deleted image: pdhstagingcontainerregistry:$image_id"
+      #           else
+      #               echo "Failed to delete image: pdhstagingcontainerregistry:$image_id"
+      #           fi
+      #       done < "$STG_FILE"
+      #         else
+      #           echo "File not found: $STG_FILE"
+      #     fi
+
+        # Pushing a modified image using an existing tag untags the previously pushed image, 
+        # resulting in an orphaned (or "dangling") image. 
+        # The previously pushed image's manifest--and its layer data--remains in the registry.
+        # They still need to be removed
+
+      - name: List staging repository untaged images
+        id: list-stg-untaged-images
         run: |
           az acr login --name pdhstagingcontainerregistry
-          az acr repository show-tags --name pdhstagingcontainerregistry --repository pdhstaging --orderby time_asc --output table | head -n -2 > stg-images.txt
-          sed -i '1,2d' stg-images.txt
-          cat stg-images.txt
+          az acr repository show-manifests --name pdhstagingcontainerregistry --repository pdhstaging --orderby time_asc --output tsv --query "[*].{Digest:digest}" | head -n -10 > stg-untaged-images.txt
 
-      - name: Delete old images in Staging env
+      - name: Delete untagged images in Staging env
         env:
-          STG_FILE: stg-images.txt  
+          STG_UNTAGED_FILE: stg-untaged-images.txt  
         run: |
-          if [ -e "$STG_FILE" ]; then
-            while IFS= read -r image_id; do
-                az acr repository delete --name pdhstagingcontainerregistry --image pdhstaging:$image_id --yes
+          if [ -e "$STG_UNTAGED_FILE" ]; then
+            while IFS= read -r manifest_id; do
+                az acr repository delete --name pdhstagingcontainerregistry --image pdhstaging@$manifest_id --yes
                 if [ $? -eq 0 ]; then
-                    echo "Deleted image: pdhstagingcontainerregistry:$image_id"
+                    echo "Deleted image: pdhstagingcontainerregistry:$manifest_id"
                 else
-                    echo "Failed to delete image: pdhstagingcontainerregistry:$image_id"
+                    echo "Failed to delete image: pdhstagingcontainerregistry:$manifest_id"
                 fi
-            done < "$STG_FILE"
+            done < "$STG_UNTAGED_FILE"
               else
-                echo "File not found: $STG_FILE"
+                echo "File not found: $STG_UNTAGED_FILE"
           fi
