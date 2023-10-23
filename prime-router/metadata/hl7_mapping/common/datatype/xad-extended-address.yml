@@ -45,3 +45,10 @@ elements:
   - name: xad-county
     value: [ '%resource.district' ]
     hl7Spec: [ '%{hl7XADField}-9' ]
+
+  - name: xad-address-validity-range
+    resource: '%resource.period'
+    condition: '%resource.exists()'
+    schema: ../../resources/Patient/DR
+    constants:
+      hl7DRField: '%{hl7XADField}-12'
