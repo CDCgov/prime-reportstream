@@ -80,7 +80,7 @@ jobs:
         id: list-stg-untaged-images
         run: |
           az acr login --name pdhstagingcontainerregistry
-          az acr repository show-manifests --name pdhstagingcontainerregistry --repository pdhstaging --orderby time_asc --output tsv --query "[*].{Digest:digest}" | head -n -10 > stg-untaged-images.txt
+          az acr repository show-manifests --name pdhstagingcontainerregistry --repository pdhstaging --orderby time_asc --output tsv --query "[*].{Digest:digest}" | head -n -20 > stg-untaged-images.txt
 
       - name: Delete untagged images in Staging env
         env:
