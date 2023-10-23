@@ -1,10 +1,7 @@
 name: Cleanup old images in Test & Staging ACRs
 on:
-  push:
-    branches:
-      - feature/delete-untaged-container-images-from-ACR
-  # schedule:
-  #   - cron: "0 0 * * *" # Runs daily at midnight UTC
+  schedule:
+    - cron: "0 0 * * *" # Runs daily at midnight UTC
 
 
 jobs:
@@ -75,7 +72,7 @@ jobs:
         # resulting in an orphaned (or "dangling") image. 
         # The previously pushed image's manifest--and its layer data--remains in the registry.
         # They still need to be removed
-        
+
       - name: List image manifests in Test env
         id: list-test-untaged-images
         run: |
