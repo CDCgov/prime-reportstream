@@ -139,7 +139,7 @@ Login staging OKTA account
 Create a setting in staging environment by running the primeCLI command below:
 (e.g., Assumming you are creating the setting for OK-PHD.ELR with setting file name ok-phd-setting.yml)
 
-    ./prime multiple-settings set --env staging --input ./settins/staging/ok-phd-setting.yml
+    ./prime multiple-settings set --env staging --input ./settings/staging/ok-phd-setting.yml
 
 Head to https://staging.reportstream.cdc.gov/, login, and select the Organization setting from Admin dropdown menu as show below:
 
