@@ -1,7 +1,12 @@
 # REST Transport
 ## Introduction
-ReportStream supports four popular transport protocols:  Simple Object Access Protocol (SOAP), Resource State Transfer (REST), Secure File Transfer Protocol (SFTP), and Azure Blob. The goal of this document is to explain how to configure REST Transport for STLTs (a/k/a receivers). As well as provide guidance on how: 1) ReportStream REST Transport works, 2) to prepare a key for authentication, 3) to configure receiver's REST transport, and 4) test/check that a connection is successful. Please see ABC document on how to configure other transports.
-## Assumptions ([refer to SFTP transport documentation for this section](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/transport/sftp.md))
+ReportStream supports four popular transport protocols:  Resource State Transfer (REST), [Simple Object Access Protocol (SOAP)](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/transport/soap.md), [Secure File Transfer Protocol (SFTP)](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/transport/sftp.md), and [Azure Blob](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/transport/blob.md). The goal of this document is to explain how to configure REST Transport for STLTs (a/k/a receivers). As well as provide guidance on how: 1) ReportStream REST Transport works, 2) to prepare a key for authentication, 3) to configure receiver's REST transport, and 4) test/check that a connection is successful.
+#### Assumptions
+* First and foremost: This assumes you have credentials with the CDC and have been given access to the Azure portal. If you do not have credentials, and access to the Azure portal, stop here. You cannot go any further.
+* This also assumes you have access to KeyBase, and are part of the prime_dev_ops team there.
+* Also, we assume you have KeyBase installed, and have in mounted into /Volumes/. If you don't have it mounted as a drive, you can just drag and drop the files into KeyBase. If you feel you should have access to the prime_dev_ops team in KeyBase, contact your dev lead, or the dev ops team lead and request access.
+* Finally, this assumes you are working on a Unix-style system such as Linux or MacOS. You can probably do this on Windows as well provided you have a conformant shell with putty and openssl installed. The Git Bash shell would probably do, or the Linux Subsystem for Windows would as well, but no promises are made.
+* Have an active Okta admin account.
 ## 1.) How ReportStream REST stransport works
 When STLT message is ready to be sent, ReportStream uploads the message to STLT's ready queue folder found in Azure Blobstorage (e.g., la-phd.elr, ca-doh.elr, etc.) and then triggers the send queue to start the SendFunction.
 <ol type="a">
@@ -9,14 +14,14 @@ When STLT message is ready to be sent, ReportStream uploads the message to STLT'
     <li>Reading credential from Azure Vault, RESTTransport uses its Type to determine the authentication type (i.e., UserPass or UserApiKey).  Next, it uses the obtained key to authenticates with STLT and sends the message payload.</li>
 </ol>
 
-## 2.) How-to prepare a key for authentication
+## 2.) How to prepare a key for authentication
 For authentication, you need to do both step a and step b.
 <ol type="a">
 <li>Generate the "Credential in JSON format" for authentication</li>
 
 Currently, RESTTransport uses the one of the three options: i) UserPass, ii) UserApiKey with JKS, or iii) UserApiKey with two-legged credential type to authenticate and obtain Bearer token from STLT. User can use **primeCLI** command with credential-create option to generate the "Credential in JSON format" as given below.
 
-- With STLT's credential username and password given to us by STLT, user need to run the following command to generate the UserPass credential type object:
+- With STLT's credential username and password given to us by STLT, user needs to run the following command to generate the UserPass credential type object:
 
         Command:
             ./prime credential-create --type UserPass --user <username> --pass <password>
@@ -27,7 +32,7 @@ Currently, RESTTransport uses the one of the three options: i) UserPass, ii) Use
             {"@type":"UserPass","user":"<username>","pass":"<password>"}
             ===
 
-- With STLT's credential username and API Key given to us by STLT, user need to run the following command to generate the UserApiKey credential type object:
+- With STLT's credential username and API Key given to us by STLT, user needs to run the following command to generate the UserApiKey credential type object:
 	
           Command:
               ./prime credential-create --type UserApiKey --apikey-user <username> --apikey <API Key>
@@ -38,7 +43,7 @@ Currently, RESTTransport uses the one of the three options: i) UserPass, ii) Use
               {"@type":"UserApiKey","user":"<username>","key":"<API Key>"}
               ===
 
-- With STLT's credential jks-Username, jks-File-Password, and jks-key-file given to us by STLT, user need to run the following command to generate the UserJks credential type object:
+- With STLT's credential jks-Username, jks-File-Password, and jks-key-file given to us by STLT, user needs to run the following command to generate the UserJks credential type object:
 	
         Command:
             ./prime credential-create --type UserJks --jks-use <JKS Username> --jks-file-pass <JKS File Password> --jks-file <PATH to JKS File>
@@ -51,7 +56,7 @@ Currently, RESTTransport uses the one of the three options: i) UserPass, ii) Use
 
 <li>Create Azure Key Vault Secret for STLT</li>
 
-With CDC SU password, login into the **Microsoft Azure** and navigate to the **pdhprod-clientconfig** and select **Secrets** from the menu on the left.  You should see the following screenshot.  **Note: Make sure your prod VPN is on**.
+With CDC SU password, login into the **Microsoft Azure** and navigate to the **pdhprod-clientconfig** and select **Secrets** from the menu on the left.  You should see the following screenshot.
 
 ![](./images/rest-pdhprod-clientconfig-secrets.png)
 
@@ -61,7 +66,7 @@ Next refer to the above image, click on the  [+ Generate/Import] as the red arro
 
 </ol>
 
-## 3.) How-to configure the receiver's REST transport
+## 3.) How to configure the receiver's RESTTransport
 The receiver's RESTtransport includes the following fields:
 
     - reportUrl:      The URL to post to. e.g. https://api2.health.ny.gov/services/uphn/V1.0/ECLRSPRE.
@@ -123,7 +128,7 @@ The receiver's RESTtransport includes the following fields:
 
 ## 4. Final Step is to test/check the receiver's REST transport is connected successfully
 Now that you have completed/created REST Transport setting please do the following:
-- create PR - which includes the receiver's setting code
+- Create PR - which includes the receiver's setting code
 - PR gets approved
 - Create the setting for staging environment
 
@@ -134,7 +139,7 @@ Login staging OKTA account
 Create a setting in staging environment by running the primeCLI command below:
 (e.g., Assumming you are creating the setting for OK-PHD.ELR with setting file name ok-phd-setting.yml)
 
-    ./prime multiple-settings set --env staging --input ./settings/staging/ok-phd-setting.yml
+    ./prime multiple-settings set --env staging --input ./settins/staging/ok-phd-setting.yml
 
 Head to https://staging.reportstream.cdc.gov/, login, and select the Organization setting from Admin dropdown menu as show below:
 
