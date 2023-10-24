@@ -46,7 +46,7 @@ extension_4-universalIdNullType:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
-  condition: $universalIdType NULL
+  condition: $value NOT_NULL && $universalIdType NULL
   vars:
     value: String, HD.2
     universalIdType: String, HD.3
@@ -58,7 +58,7 @@ extension_5-universalIdUnknownType:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
-  condition: $universalIdType NOT_EQUALS ISO && $universalIdType NOT_EQUALS UUID
+  condition: $value NOT_NULL && $universalIdType NOT_EQUALS ISO && $universalIdType NOT_EQUALS UUID
   vars:
     value: String, HD.2
     universalIdType: String, HD.3

@@ -107,6 +107,7 @@ software:
 
 extension_1:
   generateList: true
+  condition: $value NOT_NULL
   valueOf: extension/Extension
   expressionType: resource
   vars:
@@ -117,6 +118,7 @@ extension_1:
 
 extension_2:
   generateList: true
+  condition: $value NOT_NULL
   valueOf: extension/Extension
   expressionType: resource
   vars:
@@ -127,6 +129,7 @@ extension_2:
 
 extension_3:
   generateList: true
+  condition: $value NOT_NULL
   valueOf: extension/Extension
   expressionType: resource
   vars:

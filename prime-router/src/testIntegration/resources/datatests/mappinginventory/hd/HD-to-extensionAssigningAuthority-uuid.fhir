@@ -39,7 +39,6 @@
           "code" : "R01",
           "display" : "ORU/ACK - Unsolicited transmission of an observation message"
         },
-        "source" : {},
         "responsible" : {
           "reference" : "Organization/1697636522510071000.579037f4-64ad-471e-834b-23a605d771ce"
         }

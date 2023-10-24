@@ -39,27 +39,8 @@
           "code" : "R01",
           "display" : "ORU/ACK - Unsolicited transmission of an observation message"
         },
-        "sender" : {
-          "reference" : "Organization/1697228882634435000.f70f5036-5032-402b-9401-06ebca45ff76"
-        },
-        "source" : {},
         "responsible" : {
           "reference" : "Organization/1697228882636127000.ce0bb2e6-b22b-4720-92b1-82e63ffd2deb"
-        }
-      }
-    },
-    {
-      "fullUrl" : "Organization/1697228882634435000.f70f5036-5032-402b-9401-06ebca45ff76",
-      "resource" : {
-        "resourceType" : "Organization",
-        "id" : "1697228882634435000.f70f5036-5032-402b-9401-06ebca45ff76",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
         }
       }
     },

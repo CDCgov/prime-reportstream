@@ -58,38 +58,41 @@ period:
     start: XPN.12 | XCN.19
     end: XPN.13 | XCN.20
 
-extension_1-suffix:
+extension:
   generateList: true
   expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: name-suffix
-    valueString:
-      type: STRING
-      valueOf: XCN.5
-      expressionType: HL7Spec
+  condition: $suffix NOT_NULL || $suffixDegree NOT_NULL || $professionalSuffix NOT_NULL
+  vars:
+    suffix: String, XCN.5
+    suffixDegree: String, XCN.7
+    professionalSuffix: String, XCN.21
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: name-suffix
+        valueString:
+          type: STRING
+          valueOf: $suffix
+          expressionType: HL7Spec
 
-extension_2-degree:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: name-suffix-degree
-    valueString:
-      type: STRING
-      valueOf: XCN.7
-      expressionType: HL7Spec
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: name-suffix-degree
+        valueString:
+          type: STRING
+          valueOf: $suffixDegree
+          expressionType: HL7Spec
 
-extension_3-suffix-professional:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: name-suffix-professional
-    valueString:
-      type: STRING
-      valueOf: XCN.21
-      expressionType: HL7Spec
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: name-suffix-professional
+        valueString:
+          type: STRING
+          valueOf: $professionalSuffix
+          expressionType: HL7Spec
