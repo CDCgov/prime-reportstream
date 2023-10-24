@@ -116,7 +116,7 @@ In order to account for both HL7 and FHIR input from senders, the lookup should 
         keyColumn: code
         valueColumn: condition_code
 ```
-The first element will check against the RCTC values loaded into the Condition-Mapping tables, while the second will check against the supplemental table if a match was not found in the Condition_Mapping table.
+This element will check against the RCTC values loaded into the Observation-Mapping tables.
 
 Not all reportable conditions can be identified from order and result LOINC codes. In the case of bacterial cultures the condition is identified by the found organism which is populated in the result field/resource (OBX-5 or Bundle.entry.resource.ofType(Observation).value.valueCodeableConcept). In order to correctly tag these messages, an additional element will need to be added to the transform like below to check the result code.
 
@@ -375,3 +375,9 @@ test code,test description,coding system, mapped?
 47457-7,Influenza virus A H8 Ab [Titer] in Serum, LOINC, Y
 123456, LDT Flu Test, LOCAL, N
 ```
+
+| Member OID                     | Name                                                 | Code    | Descriptor                                                                          | Code System | Version | Status | Condition Name                                                 | Condition Code  |
+|--------------------------------|------------------------------------------------------|---------|-------------------------------------------------------------------------------------|-------------|---------|--------|----------------------------------------------------------------|-----------------|
+| 2.16.840.1.113762.1.4.1146.798 | Influenza (Tests for influenza A virus Nucleic Acid) | 80382-5 | Influenza virus A Ag [Presence] in Upper respiratory specimen by Rapid immunoassay  | LOINC       | 2.74    | Active | Infection caused by novel Influenza A virus variant (disorder) | 541000000000000 | 
+| 2.16.840.1.113762.1.4.1146.799 | Influenza (Tests for influenza A virus Antigen)      | 80382-5 | Influenza virus A Ag [Presence] in Upper respiratory specimen by Rapid immunoassay  | LOINC       | 2.74    | Active | Influenza (disorder)                                           | 6142004         |
+|                                | Influenza - (ABC TESTING LABS)                       | 123456  | Influenza virus A                                                                   | LOCAL       |         | Active | Infection caused by novel Influenza A virus variant (disorder) | 541000000000000 | 
