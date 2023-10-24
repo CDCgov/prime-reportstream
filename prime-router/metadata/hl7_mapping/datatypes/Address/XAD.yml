@@ -1,23 +1,24 @@
 elements:
 
+  # TODO: %resource.line[0] can be removed if the sample_AOE files are no longer in use
   - name: street-address
-    value: [ '%resource.extension(%`rsext-xad1-sad1-street-or-mailing-address`).value' ]
+    value: [ '%deidentifiedValue', '%resource.extension(%`rsext-xad1-sad1-street-or-mailing-address`).value', '%resource.line[0]' ]
     hl7Spec: [ '%{hl7SpecXADField}-1-1' ]
 
   - name: street-number
-    value: [ '%resource.extension(%`rsext-xad1-sad2-street-name`).value' ]
+    value: [ '%deidentifiedValue', '%resource.extension(%`rsext-xad1-sad2-street-name`).value' ]
     hl7Spec: [ '%{hl7SpecXADField}-1-2' ] # NK1-32-1-2 Terser.set(hl7Message, value, "NK1-32-1-2")
 
   - name: dwelling-number
-    value: [ '%resource.extension(%`rsext-xad1-sad3-dwelling-number`).value' ]
+    value: [ '%deidentifiedValue', '%resource.extension(%`rsext-xad1-sad3-dwelling-number`).value' ]
     hl7Spec: [ '%{hl7SpecXADField}-1-3' ]
 
   - name: other-designation
-    value: [ '%resource.extension(%`rsext-xad2-other-designation`).value' ]
+    value: [ '%deidentifiedValue', '%resource.extension(%`rsext-xad2-other-designation`).value' ]
     hl7Spec: [ '%{hl7SpecXADField}-2' ]
 
   - name: city
-    value: [ '%resource.city' ]
+    value: [ '%deidentifiedValue', '%resource.city' ]
     hl7Spec: [ '%{hl7SpecXADField}-3' ]
 
   - name: state
@@ -25,7 +26,7 @@ elements:
     hl7Spec: [ '%{hl7SpecXADField}-4' ]
 
   - name: postal-code
-    value: [ '%resource.postalCode' ]
+    value: [ '%deidentifiedValue', '%resource.postalCode' ]
     hl7Spec: [ '%{hl7SpecXADField}-5' ]
 
   - name: country
@@ -35,6 +36,21 @@ elements:
   - name: address-type
     value: [ '%resource.extension(%`rsext-xad7-address-type`).value' ]
     hl7Spec: [ '%{hl7SpecXADField}-7' ]
+
+  # TODO: this can be removed if the sample_AOE files are no longer in use
+  - name: address-type-from-use
+    condition: '(%resource.use.exists() or %resource.type.exists()) and %resource.extension(%`rsext-xad7-address-type`).exists().not()'
+    value: [ '%resource.use.value', '%resource.type.value' ]
+    hl7Spec: [ '%{hl7SpecXADField}-7' ]
+    valueSet:
+      values:
+        home: H
+        work: B
+        temp: C
+        postal: M
+        old: BA
+        physical: SH
+        billing: BI
 
   - name: other-geographic-destination
     value: [ '%resource.extension(%`rsext-xad8-other-geographic-destination`).value' ]
