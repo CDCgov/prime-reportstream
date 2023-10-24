@@ -312,8 +312,8 @@
 - id: "cwe6-alt-coding-system"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe6-alt-coding-system"
 # CWE.7 Coding System Version ID
-- id: "cwe7-alt-version-id"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe7-alt-version-id"
+- id: "cwe7-version-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe7-version-id"
 # CWE.8 Alternate Coding System Version ID
 - id: "cwe8-alt-version-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe8-alt-version-id"

@@ -191,7 +191,7 @@ extension_cwe6-alt-coding-system:
     valueString:
       value: $altCodingSystem
 
-extension_cwe7-alt-version-id:
+extension_cwe7-version-id:
   condition: $altVersionId NOT_NULL
   generateList: true
   expressionType: nested
@@ -200,7 +200,7 @@ extension_cwe7-alt-version-id:
   expressionsMap:
     url:
       type: SYSTEM_URL
-      value: cwe7-alt-version-id
+      value: cwe7-version-id
     valueString:
       value: $altVersionId
 
