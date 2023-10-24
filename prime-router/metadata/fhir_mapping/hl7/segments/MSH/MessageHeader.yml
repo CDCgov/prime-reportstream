@@ -16,7 +16,7 @@ source:
   expressionType: resource
 
 sender:
-  valueOf: datatype/HDToOrganization
+  valueOf: datatypes/HD/Organization
   expressionType: reference
   generateList: true
   specs: MSH.4
@@ -46,7 +46,7 @@ responsible:
     msh22: MSH.22
   condition: $msh22 NOT_NULL
   expressionType: reference
-  valueOf: datatype/XONToOrganization
+  valueOf: datatypes/XON/Organization
   specs: MSH.22
 
 extension_2:
