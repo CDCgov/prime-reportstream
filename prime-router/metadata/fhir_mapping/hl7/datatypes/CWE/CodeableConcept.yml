@@ -1,0 +1,114 @@
+coding_1:
+  generateList: true
+  expressionType: nested
+  vars:
+  expressionsMap:
+    code:
+      condition: $code NOT_NULL
+      type: STRING
+      valueOf: $code
+      vars:
+        code: String, CWE.1
+    display:
+      condition: $display NOT_NULL
+      type: STRING
+      valueOf: $display
+      vars:
+        display: String, CWE.2
+    system:
+      condition: $system NOT_NULL
+      type: URI
+      valueOf: $system
+      vars:
+        system: String, CWE.3
+    version:
+      condition: $version NOT_NULL
+      type: STRING
+      valueOf: $version
+      vars:
+        version: String, CWE.7
+
+coding_2:
+  generateList: true
+  expressionType: nested
+  vars:
+  expressionsMap:
+    code:
+      condition: $altCode NOT_NULL
+      type: STRING
+      valueOf: $altCode
+      vars:
+        altCode: String, CWE.4
+    display:
+      condition: $altDisplay NOT_NULL
+      type: STRING
+      valueOf: $altDisplay
+      vars:
+        altDisplay: String, CWE.5
+    system:
+      condition: $altSystem NOT_NULL
+      type: URI
+      valueOf: $altSystem
+      vars:
+        altSystem: String, CWE.6
+    version:
+      condition: $altVersion NOT_NULL
+      type: STRING
+      valueOf: $altVersion
+      vars:
+        altVersion: String, CWE.8
+
+coding_3:
+  generateList: true
+  expressionType: nested
+  vars:
+  expressionsMap:
+    code:
+      condition: $secondAltCode NOT_NULL
+      type: STRING
+      valueOf: $secondAltCode
+      vars:
+        secondAltCode: String, CWE.10
+    display:
+      condition: $secondAltDisplay NOT_NULL
+      type: STRING
+      valueOf: $secondAltDisplay
+      vars:
+        secondAltDisplay: String, CWE.11
+    system:
+      condition: $secondAltSystem NOT_NULL
+      type: URI
+      valueOf: $secondAltSystem
+      vars:
+        secondAltSystem: String, CWE.12
+    version:
+      condition: $secondAltVersion NOT_NULL
+      type: STRING
+      valueOf: $secondAltVersion
+      vars:
+        secondAltVersion: String, CWE.13
+
+text:
+  condition: $text NOT_NULL
+  type: STRING
+  valueOf: $text
+  vars:
+    text: String, CWE.9
+
+extension_codingSystemOID:
+  generateList: true
+  expressionType: nested
+  condition: $codingSystemOID NOT_NULL
+  vars:
+    codingSystemOID: String, CWE.14
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: coding-system-oid
+    valueOid:
+      type: STRING
+      valueOf: $oidString
+      vars:
+        oidString: $oidUrlPrefix + $codingSystemOID
+      constants:
+        oidUrlPrefix: "urn:oid:"
