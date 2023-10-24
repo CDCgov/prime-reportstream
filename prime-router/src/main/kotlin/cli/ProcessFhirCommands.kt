@@ -69,9 +69,19 @@ class ProcessFhirCommands : CliktCommand(
     ).int()
 
     /**
-     * Schema location for the FHIR to HL7 conversion
+     * Receiver schema location for the FHIR to HL7 conversion
      */
-    private val transformSchema by option("-s", "--schema", help = "Schema location for the FHIR to HL7 conversion")
+    private val receiverSchema by option(
+        "-r",
+        "--receiver-schema",
+        help = "Receiver schema location. Required for HL7 output."
+    )
+        .file()
+
+    /**
+     * Sender schema location
+     */
+    private val senderSchema by option("-s", "--sender-schema", help = "Sender schema location")
         .file()
 
     override fun run() {
@@ -83,23 +93,26 @@ class ProcessFhirCommands : CliktCommand(
         val inputFileType = inputFile.extension.uppercase()
         when {
             // HL7 to FHIR conversion
-            inputFileType == "HL7" && outputFormat == Report.Format.FHIR.toString() ->
-                outputResult(convertToFhir(contents, actionLogger), actionLogger)
+            inputFileType == "HL7" && outputFormat == Report.Format.FHIR.toString() -> {
+                outputResult(
+                    handleSenderAndReceiverTransforms(convertHl7ToFhir(contents, actionLogger)), actionLogger
+                )
+            }
 
             // FHIR to HL7 conversion
             (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == Report.Format.HL7.toString() -> {
-                outputResult(convertToHl7(contents))
+                outputResult(convertFhirToHl7(contents))
             }
 
             // FHIR to FHIR conversion
             (inputFileType == "FHIR" || inputFileType == "JSON") && outputFormat == Report.Format.FHIR.toString() -> {
-                outputResult(convertToFhirToFhir(contents), actionLogger)
+                outputResult(convertFhirToFhir(contents), actionLogger)
             }
 
             // HL7 to FHIR to HL7 conversion
             inputFileType == "HL7" && outputFormat == Report.Format.HL7.toString() -> {
-                val bundle = convertToFhir(contents, actionLogger)
-                outputResult(convertToHl7(FhirTranscoder.encode(bundle)))
+                val bundle = convertHl7ToFhir(contents, actionLogger)
+                outputResult(convertFhirToHl7(FhirTranscoder.encode(bundle)))
             }
 
             else -> throw CliktError("File extension ${inputFile.extension} is not supported.")
@@ -110,18 +123,20 @@ class ProcessFhirCommands : CliktCommand(
      * Convert a FHIR bundle as a [jsonString] to an HL7 message.
      * @return an HL7 message
      */
-    private fun convertToHl7(jsonString: String): Message {
+    private fun convertFhirToHl7(jsonString: String): Message {
         return when {
-            transformSchema == null ->
-                throw CliktError("You must specify a schema.")
+            receiverSchema == null ->
+                // Receiver schema required because if it's coming out as HL7, it would be getting any transform info
+                // for that from a receiver schema.
+                throw CliktError("You must specify a receiver schema.")
 
-            !transformSchema!!.canRead() ->
-                throw CliktError("Unable to read schema file ${transformSchema!!.absolutePath}.")
+            !receiverSchema!!.canRead() ->
+                throw CliktError("Unable to read schema file ${receiverSchema!!.absolutePath}.")
 
             else -> {
-                val bundle = FhirTranscoder.decode(jsonString)
+                val bundle = applySenderTransforms(FhirTranscoder.decode(jsonString))
                 FhirToHl7Converter(
-                    transformSchema!!.name.split(".")[0], transformSchema!!.parent,
+                    receiverSchema!!.name.split(".")[0], receiverSchema!!.parent,
                     context = FhirToHl7Context(
                         CustomFhirPathFunctions(),
                         null,
@@ -135,18 +150,12 @@ class ProcessFhirCommands : CliktCommand(
     /**
      * convert an FHIR message to FHIR message
      */
-    private fun convertToFhirToFhir(jsonString: String): Bundle {
-        return when {
-            transformSchema == null ->
-                throw CliktError("You must specify a schema.")
-
-            !transformSchema!!.canRead() ->
-                throw CliktError("Unable to read schema file ${transformSchema!!.absolutePath}.")
-
-            else -> {
-                val bundle = FhirTranscoder.decode(jsonString)
-                FhirTransformer(transformSchema!!.name.split(".")[0], transformSchema!!.parent).transform(bundle)
-            }
+    private fun convertFhirToFhir(jsonString: String): Bundle {
+        if (receiverSchema == null && senderSchema == null) {
+            // Must have at least one schema or else why are you doing this
+            throw CliktError("You must specify a schema.")
+        } else {
+            return handleSenderAndReceiverTransforms(FhirTranscoder.decode(jsonString))
         }
     }
 
@@ -154,9 +163,11 @@ class ProcessFhirCommands : CliktCommand(
      * Convert an HL7 message or batch as a [hl7String] to a FHIR bundle. [actionLogger] will contain any
      * warnings or errors from the reading of the HL7 data to HL7 objects.  Note that the --hl7-msg-index
      * is required for HL7 batch messages as this function only returns one FHIR bundle.
+     * Note: This does not require a schema in case it is being used to see what our internal format message
+     * look like.
      * @return a FHIR bundle that represents the data in the one HL7 message
      */
-    private fun convertToFhir(hl7String: String, actionLogger: ActionLogger): Bundle {
+    private fun convertHl7ToFhir(hl7String: String, actionLogger: ActionLogger): Bundle {
         val hasFiveEncodingChars = hl7MessageHasFiveEncodingChars(hl7String)
         // Some HL7 2.5.1 implementations have adopted the truncation character # that was added in 2.7
         // However, the library used to encode the HL7 message throws an error it there are more than 4 encoding
@@ -179,6 +190,51 @@ class ProcessFhirCommands : CliktCommand(
             Terser.set(msh, 2, 0, 1, 1, "^~\\&#")
         }
         return HL7toFhirTranslator.getInstance().translate(message)
+    }
+
+    /**
+     * @throws CliktError if senderSchema is present, but unable to be read.
+     * @return If senderSchema is present, apply it, otherwise just return the input bundle.
+     */
+    private fun applySenderTransforms(bundle: Bundle): Bundle {
+        return when {
+            senderSchema != null -> {
+                if (!senderSchema!!.canRead()) {
+                    throw CliktError("Unable to read schema file ${senderSchema!!.absolutePath}.")
+                } else {
+                    FhirTransformer(senderSchema!!.name.split(".")[0], senderSchema!!.parent).transform(bundle)
+                }
+            }
+            else -> bundle
+        }
+    }
+
+    /**
+     * @throws CliktError if receiverSchema is present, but unable to be read.
+     * @return If receiverSchema is present, apply it, otherwise just return the input bundle.
+     */
+    private fun applyReceiverTransforms(bundle: Bundle): Bundle {
+        return when {
+            receiverSchema != null -> {
+                if (!receiverSchema!!.canRead()) {
+                    throw CliktError("Unable to read schema file ${receiverSchema!!.absolutePath}.")
+                } else {
+                    FhirTransformer(
+                        receiverSchema!!.name.split(".")[0],
+                        receiverSchema!!.parent
+                    ).transform(bundle)
+                }
+            }
+            else -> bundle
+        }
+    }
+
+    /**
+     * Apply both sender and receiver schemas if present.
+     * @return the FHIR bundle after having sender or receiver schemas applied to it.
+     */
+    private fun handleSenderAndReceiverTransforms(bundle: Bundle): Bundle {
+        return applyReceiverTransforms(applySenderTransforms(bundle))
     }
 
     /**
