@@ -56,12 +56,12 @@ const oktaSignInConfig: WidgetOptions = {
         rememberMe: false, // Setting to false will remove the checkbox to save username
         router: false, // router enabled allows the widget to change the URL (/signin/*), which we don't want
         webauthn: true, // enable webauthn (yubi, passkey, etc.)
-        selfServiceUnlock: true,
-        emailRecovery: true,
-        callRecovery: true,
-        smsRecovery: true,
+        //selfServiceUnlock: true,
+        //emailRecovery: true,
+        //callRecovery: true,
+        //smsRecovery: true,
         showPasswordToggleOnSignInPage: true,
-        autoPush: true,
+        //autoPush: true,
     } satisfies Partial<Record<Feature, boolean>>,
     useClassicEngine: true,
     helpLinks: {
