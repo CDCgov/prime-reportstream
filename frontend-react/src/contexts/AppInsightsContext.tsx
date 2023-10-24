@@ -61,14 +61,12 @@ export function AppInsightsContextProvider({
 }: AppInsightsContextProviderProps) {
     const reactPlugin = useMemo(() => {
         if (!appInsights) return undefined;
-        const reactPlugin = appInsights.getPlugin(
-            "ReactPlugin",
-        ) as unknown as ReactPlugin;
+        const reactPlugin = appInsights.getPlugin("ReactPlugin");
         /**
          * Proxy of AppInsight ReactPlugin that provides access to root sdk object
          * via `sdk` property.
          */
-        const reactPluginProxy = new Proxy(reactPlugin, {
+        const reactPluginProxy = new Proxy(reactPlugin.plugin, {
             get(target, p, receiver) {
                 if (p === "sdk") {
                     return appInsights;

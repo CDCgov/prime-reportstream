@@ -1,8 +1,11 @@
-import React, { AnchorHTMLAttributes } from "react";
+import React, { AnchorHTMLAttributes, useMemo } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import classnames from "classnames";
 import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Button";
 import DOMPurify from "dompurify";
+import { IEventTelemetry } from "@microsoft/applicationinsights-web";
+
+import { useAppInsightsContext } from "../contexts/AppInsightsContext";
 
 /** React.PropsWithChildren has known issues with generic extension in React 18,
  * so rather than using it here, we are using our own definition of child types.
@@ -234,17 +237,44 @@ export function isExternalUrl(href?: string) {
 }
 
 export interface USSmartLinkProps
-    extends React.AnchorHTMLAttributes<HTMLAnchorElement> {}
+    extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+    trackClick?: IEventTelemetry;
+}
 
-export function USSmartLink({ children, ...props }: USSmartLinkProps) {
+export function USSmartLink({
+    children,
+    onClick,
+    trackClick,
+    ...props
+}: USSmartLinkProps) {
+    const { appInsights } = useAppInsightsContext();
     let isExternal = props.href !== undefined;
+    const finalOnClick = useMemo(
+        () =>
+            appInsights && trackClick
+                ? (ev: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+                      debugger;
+                      appInsights.trackEvent(trackClick);
+                      onClick?.(ev);
+                  }
+                : undefined,
+        [appInsights, onClick, trackClick],
+    );
 
     if (props.href !== undefined) {
         isExternal = isExternalUrl(props.href);
     }
 
     if (isExternal) {
-        return <USExtLink {...props}>{children}</USExtLink>;
+        return (
+            <USExtLink onClick={finalOnClick} {...props}>
+                {children}
+            </USExtLink>
+        );
     }
-    return <USLink {...props}>{children}</USLink>;
+    return (
+        <USLink onClick={finalOnClick} {...props}>
+            {children}
+        </USLink>
+    );
 }
