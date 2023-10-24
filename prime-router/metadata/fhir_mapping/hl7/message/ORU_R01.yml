@@ -27,11 +27,6 @@ resources:
       - .NTE
       - .NK1
 
-  - resourceName: RelatedPerson
-    segment: .NK1
-    group: PATIENT_RESULT.PATIENT
-    resourcePath: segments/NK1/RelatedPerson
-
   - resourceName: Encounter
     segment: .PV1
     group: PATIENT_RESULT.PATIENT.VISIT

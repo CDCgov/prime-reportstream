@@ -66,13 +66,10 @@ telecom_business:
     use: work
 
 organization:
-  condition: $orgContactPointXTN NOT_NULL || $orgContactName NOT_NULL
-  valueOf: resource/Organization
+  condition: $XADAddress NOT_NULL || $XONOrganization NOT_NULL
   expressionType: reference
+  valueOf: datatypes/XON/Organization
+  specs: NK1.13
   vars:
-    orgContactPointXTN: NK1.31
-    orgContactName: NK1.30
-
-address_2:
-  generateList: true
-  expressionType
+    XADAddress: NK1.32
+    XONOrganization: NK1.13

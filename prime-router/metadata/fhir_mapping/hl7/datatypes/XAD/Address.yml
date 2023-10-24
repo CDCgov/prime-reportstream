@@ -18,6 +18,8 @@ line:
       expressionType: HL7Spec
       valueOf: XAD.19
 
+
+
 extension_1-xad1Sad1StreetOrMailingAddress:
   generateList: true
   expressionType: nested
@@ -51,7 +53,7 @@ extension_3-xad1Sad3DwellingNumber:
       value: xad1-sad3-dwelling-number
     valueCode:
       type: STRING
-      valueOf: XAD.1.2
+      valueOf: XAD.1.3
       expressionType: HL7Spec
 
 extension_4-xad2OtherDesignation:
@@ -85,7 +87,7 @@ postalCode:
 country:
   type: STRING
   expressionType: HL7Spec
-  valueOf: XAD.7
+  valueOf: XAD.6
 
 type:
   vars:
@@ -193,6 +195,32 @@ period:
       vars:
         periodEnd: XAD.14
 
+extension_9-effectiveDate:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: 'xad13-effective-date'
+    valueDateTime:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(periodStart,ZONEID)"
+      expressionType: JEXL
+      vars:
+        periodStart: XAD.13
+
+extension_10-expirationDate:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: 'xad14-expiration-date'
+    valueDateTime:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(periodEnd,ZONEID)"
+      expressionType: JEXL
+      vars:
+        periodEnd: XAD.14
+
 extension_8-xad19Addressee:
   generateList: true
   expressionType: nested
@@ -204,8 +232,6 @@ extension_8-xad19Addressee:
       type: STRING
       valueOf: XAD.19
       expressionType: HL7Spec
-
-
 
 
 

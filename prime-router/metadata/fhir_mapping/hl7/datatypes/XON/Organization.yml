@@ -23,6 +23,7 @@ extension_1-nameType:
       expressionType: resource
       specs: XON.2
 
+# TODO investigate every property needs a conditional
 identifier_1:
   expressionType: nested
   vars:
@@ -128,3 +129,12 @@ extension_3-xon10OrganizationIdentifier:
       expressionType: HL7Spec
       type: STRING
       valueOf: XON.10
+
+contact:
+  expressionType: nested
+  expressionsMap:
+    address:
+      valueOf: datatypes/XAD/Address
+      expressionType: resource
+      generateList: true
+      specs: $XADAddress

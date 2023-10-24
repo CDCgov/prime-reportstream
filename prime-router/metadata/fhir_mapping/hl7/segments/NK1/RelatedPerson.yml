@@ -10,15 +10,5 @@ address_1-contactPersonsAddress:
   expressionType: resource
   generateList: true
   specs: NK1.32
-
-extension_1-nk132ContactPersonsAddress:
-  generateList: true
-  expressionType: nested
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: nk1-32-contact-persons-address
-    valueAddress:
-      expressionType: resource
-      valueOf: datatypes/XAD/Address
-      specs: NK1.32
+  constants:
+    hl7Use: "contactPersonsAddress"
