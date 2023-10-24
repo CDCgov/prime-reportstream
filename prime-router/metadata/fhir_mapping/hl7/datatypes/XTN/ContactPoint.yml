@@ -126,7 +126,7 @@ system_7:
         valueCode:
           value: unknown
 
-extension_1-xtn3-telecom-equipment-type:
+extension_xtn3-telecom-equipment-type:
   condition: $equipType NOT_NULL
   generateList: true
   expressionType: nested
@@ -140,7 +140,7 @@ extension_1-xtn3-telecom-equipment-type:
       value: $equipType
 
 
-extension_2-country-code:
+extension_xtn5-country-code:
   condition: $countryCode NOT_NULL
   generateList: true
   expressionType: nested
@@ -153,7 +153,7 @@ extension_2-country-code:
     valueString:
       value: $countryCode
 
-extension_3-area-code:
+extension_xtn6-area-code:
   condition: $areaCode NOT_NULL
   generateList: true
   expressionType: nested
@@ -166,7 +166,7 @@ extension_3-area-code:
     valueString:
       value: $areaCode
 
-extension_4-contactpoint-local:
+extension_xtn7-contactpoint-local_1:
   condition: $telEquipType NOT_EQUALS Internet && $telEquipType NOT_EQUALS X.400 && $contactPointLocal NOT_NULL
   generateList: true
   expressionType: nested
@@ -180,7 +180,7 @@ extension_4-contactpoint-local:
     valueString:
       value: $contactPointLocal
 
-extension_5-contactpoint-local:
+extension_xtn7-contactpoint-local_2:
   condition: $telEquipType NULL && $contactPointLocal NOT_NULL
   generateList: true
   expressionType: nested
@@ -194,7 +194,7 @@ extension_5-contactpoint-local:
     valueString:
       value: $contactPointLocal
 
-extension_6-xtn7-local-number:
+extension_xtn7-local-number:
   condition: $localNum NOT_NULL
   generateList: true
   expressionType: nested
@@ -207,7 +207,7 @@ extension_6-xtn7-local-number:
     valueString:
       value: $localNum
 
-extension_7-phone-extension:
+extension_xtn8-phone-extension:
   condition: $numExt NOT_NULL
   generateList: true
   expressionType: nested
@@ -220,7 +220,7 @@ extension_7-phone-extension:
     valueString:
       value: $numExt
 
-extension_8-xtn9-any-text:
+extension_xtn9-any-text:
   condition: $anyText NOT_NULL
   generateList: true
   expressionType: nested
@@ -234,7 +234,7 @@ extension_8-xtn9-any-text:
       type: STRING
       valueOf: $anyText
 
-extension_9-xtn2-telecom-use-code:
+extension_xtn2-telecom-use-code:
   condition: $useCode NOT_NULL
   generateList: true
   expressionType: nested
@@ -247,7 +247,7 @@ extension_9-xtn2-telecom-use-code:
     valueString:
       value: $useCode
 
-extension_10-hl7-use:
+extension_hl7-use:
   condition: $hl7Use NOT_NULL
   generateList: true
   expressionType: nested
@@ -258,7 +258,7 @@ extension_10-hl7-use:
     valueString:
       value: $hl7Use
 
-extension_11-telephone-number:
+extension_telephone-number:
   condition: $telNum NOT_NULL
   generateList: true
   expressionType: nested
@@ -271,7 +271,7 @@ extension_11-telephone-number:
     valueString:
       value: $telNum
 
-extension_12-xtn4-communication-address:
+extension_xtn4-communication-address:
   condition: $commAddress NOT_NULL
   generateList: true
   expressionType: nested
@@ -284,7 +284,7 @@ extension_12-xtn4-communication-address:
     valueString:
       value: $commAddress
 
-extension_13-xtn12-unformatted-telephone-number:
+extension_xtn12-unformatted-telephone-number:
   condition: $unformattedTelNum NOT_NULL
   generateList: true
   expressionType: nested
@@ -320,7 +320,7 @@ rank:
   valueOf: XTN.18
   expressionType: HL7Spec
 
-extension_13-hl7v2Name:
+extension_hl7v2Name:
   generateList: true
   expressionType: nested
   expressionsMap:
