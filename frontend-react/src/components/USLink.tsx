@@ -253,7 +253,6 @@ export function USSmartLink({
         () =>
             appInsights && trackClick
                 ? (ev: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-                      debugger;
                       appInsights.trackEvent(trackClick);
                       onClick?.(ev);
                   }
