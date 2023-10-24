@@ -112,3 +112,159 @@ extension_codingSystemOID:
         oidString: $oidUrlPrefix + $codingSystemOID
       constants:
         oidUrlPrefix: "urn:oid:"
+
+extension_cwe1-identifier:
+  condition: $identifier NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    identifier: String, CWE.1
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe1-identifier
+    valueString:
+      value: $identifier
+
+extension_cwe2-text:
+  condition: $text NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    text: String, CWE.2
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe2-text
+    valueString:
+      value: $text
+
+extension_cwe3-coding-system:
+  condition: $codingSystem NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    codingSystem: String, CWE.3
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe3-coding-system
+    valueString:
+      value: $codingSystem
+
+extension_cwe4-alt-identifier:
+  condition: $altIdentifier NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    altIdentifier: String, CWE.4
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe4-alt-identifier
+    valueString:
+      value: $altIdentifier
+
+extension_cwe5-alt-text:
+  condition: $altText NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    altText: String, CWE.5
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe5-alt-text
+    valueString:
+      value: $altText
+
+extension_cwe6-alt-coding-system:
+  condition: $altCodingSystem NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    altCodingSystem: String, CWE.6
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe6-alt-coding-system
+    valueString:
+      value: $altCodingSystem
+
+extension_cwe7-alt-version-id:
+  condition: $altVersionId NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    altVersionId: String, CWE.7
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe7-alt-version-id
+    valueString:
+      value: $altVersionId
+
+extension_cwe8-alt-version-id:
+  condition: $altVersionId NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    altVersionId: String, CWE.8
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe8-alt-version-id
+    valueString:
+      value: $altVersionId
+
+extension_cwe10-second-alt-identifier:
+  condition: $secondAltIdentifier NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    secondAltIdentifier: String, CWE.10
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe10-second-alt-identifier
+    valueString:
+      value: $secondAltIdentifier
+
+extension_cwe11-second-alt-text:
+  condition: $secondAltText NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    secondAltText: String, CWE.11
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe11-second-alt-text
+    valueString:
+      value: $secondAltText
+
+extension_cwe12-second-alt-coding-system:
+  condition: $secondAltCodingSystem NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    secondAltCodingSystem: String, CWE.12
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe12-second-alt-coding-system
+    valueString:
+      value: $secondAltCodingSystem
+
+extension_cwe13-second-alt-version-id:
+  condition: $secondAltVersionId NOT_NULL
+  generateList: true
+  expressionType: nested
+  vars:
+    secondAltVersionId: String, CWE.13
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe13-second-alt-version-id
+    valueString:
+      value: $secondAltVersionId
