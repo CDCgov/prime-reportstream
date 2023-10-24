@@ -141,11 +141,21 @@ extension_6-xad8OtherGeographicDestination:
       valueOf: XAD.8
       expressionType: HL7Spec
 
-# TODO: #11788
-# district:
+district:
+  type: STRING
+  valueOf: XAD.9
+  expressionType: HL7Spec
 
-# TODO: #11788
-# census tract:
+extension_censusTract:
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: iso21090-ADXP-censusTract
+    valueCode:
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: XAD.10
 
 extension_7-xad11AddressRepresentationCode:
   generateList: true
