@@ -112,6 +112,9 @@ updates:
       timezone: "US/Eastern"
     rebase-strategy: "disabled"
     groups:
+      types-lodash:
+        patterns:
+          - "@types/lodash*"
       babel:
         patterns:
           - "@babel*"
