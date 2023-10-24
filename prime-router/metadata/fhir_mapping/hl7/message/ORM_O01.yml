@@ -2,7 +2,7 @@ resources:
 
   - resourceName: MessageHeader
     segment: MSH
-    resourcePath: resource/MessageHeader
+    resourcePath: segments/MSH/MessageHeader
     repeats: false
     isReferenced: false
 

@@ -35,7 +35,7 @@ jobs:
         
       - name: "Get changed files with yaml"
         id: changed-files-yaml
-        uses: tj-actions/changed-files@95690f9ece77c1740f4a55b7f1de9023ed6b1f87
+        uses: tj-actions/changed-files@fea790cb660e33aef4bdf07304e28fedd77dfa13
         with:
           files_yaml: |
             frontend:
@@ -67,7 +67,7 @@ jobs:
 
       - name: Use Node.js with yarn
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d
+        uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65
         with:
           node-version-file: "frontend-react/package.json"
 

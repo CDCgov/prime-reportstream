@@ -34,8 +34,6 @@ import { FacilitiesProvidersWithAuth } from "./components/DataDashboard/Faciliti
 import { FacilityProviderSubmitterDetailsWithAuth } from "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails";
 import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
-import { DataDownloadGuideIa } from "./pages/DataDownloadGuide";
-import { GettingStartedPhd } from "./pages/GettingStartedPhd";
 
 export const appRoutes: RouteObject[] = [
     /* Public Site */
@@ -137,13 +135,6 @@ export const appRoutes: RouteObject[] = [
                             "content/managing-your-connection/refer-healthcare-organizations",
                         ),
                     },
-                    {
-                        path: "data-download-guide",
-                        handle: {
-                            isContentPage: true,
-                        },
-                        element: <DataDownloadGuideIa />,
-                    },
                 ],
             },
             {
@@ -169,11 +160,13 @@ export const appRoutes: RouteObject[] = [
                         },
                     },
                     {
-                        path: "getting-started-public-health-departments",
+                        path: "receiving-data",
+                        lazy: lazyRouteMarkdown(
+                            "content/getting-started/receiving-data",
+                        ),
                         handle: {
                             isContentPage: true,
                         },
-                        element: <GettingStartedPhd />,
                     },
                 ],
             },

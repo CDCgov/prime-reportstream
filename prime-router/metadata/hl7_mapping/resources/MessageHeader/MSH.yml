@@ -33,7 +33,7 @@ elements:
     condition: '%resource.exists()'
     constants:
       hl7HDField: 'MSH-4'
-    schema: datatype/organization-hd
+    schema: ../Organization/HD
 
   - name: receiving-application-namespace-id
     resource: '%resource.destination[0].target.resolve().identifier.where(type.exists().not()).first()'
@@ -131,12 +131,12 @@ elements:
     condition: '%resource.exists()'
     constants:
       entityIdFieldPath: 'MSH-21(%{entityIdIndex})'
-    schema: datatype/ei-entity-identifier
+    schema: ../../common/datatype/ei-entity-identifier
     resourceIndex: entityIdIndex
 
   - name: responsible
     resource: '%resource.responsible.resolve()'
     condition: '%resource.exists()'
-    schema: datatype/organization-xon
+    schema: ../Organization/XON
     constants:
       hl7XONField: 'MSH-22'
