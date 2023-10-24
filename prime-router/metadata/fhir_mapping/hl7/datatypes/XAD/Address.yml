@@ -1,0 +1,200 @@
+line:
+  expressionType: nested
+  expressions:
+    - type: STRING
+      expressionType: HL7Spec
+      valueOf: XAD.1.1
+    - type: STRING
+      expressionType: HL7Spec
+      valueOf: XAD.1.2
+    - type: STRING
+      expressionType: HL7Spec
+      valueOf: XAD.1.3
+    - type: STRING
+      expressionType: HL7Spec
+      valueOf: XAD.2
+    - type: STRING
+      expressionType: HL7Spec
+      valueOf: XAD.19
+
+extension_1-xad1Sad1StreetOrMailingAddress:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xad1-sad1-street-or-mailing-address
+    valueCode:
+      type: STRING
+      valueOf: XAD.1.1
+      expressionType: HL7Spec
+
+extension_2-xad1Sad2StreetName:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xad1-sad2-street-name
+    valueCode:
+      type: STRING
+      valueOf: XAD.1.2
+      expressionType: HL7Spec
+
+extension_3-xad1Sad3DwellingNumber:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xad1-sad3-dwelling-number
+    valueCode:
+      type: STRING
+      valueOf: XAD.1.2
+      expressionType: HL7Spec
+
+extension_4-xad2OtherDesignation:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xad2-other-designation
+    valueCode:
+      type: STRING
+      valueOf: XAD.2
+      expressionType: HL7Spec
+
+
+city:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: XAD.3
+
+state:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: XAD.4
+
+postalCode:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: XAD.5
+
+country:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: XAD.7
+
+type:
+  vars:
+    xad7: String, XAD.7
+  condition: $xad7 EQUALS M || $xad7 EQUALS SH
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: XAD.7
+
+use:
+  vars:
+    xad7: String, XAD.7
+  condition: $xad7 EQUALS BA || $xad7 EQUALS BI || $xad7 EQUALS C || $xad7 EQUALS B || $xad7 EQUALS H || $xad7 EQUALS O
+  type: STRING
+  valueOf: 'GeneralUtils.getAddressUse( xad7Type, null, null)'
+  expressionType: JEXL
+
+extension_4-addressTypeHv:
+  generateList: true
+  vars:
+    xad7: String, XAD.7
+  condition: $xad7 EQUALS HV
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: iso21090-AD-use
+    valueCode:
+      type: STRING
+      valueOf: XAD.7
+      expressionType: HL7Spec
+
+extension_5-xad7AddressType:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xad7-address-type
+    valueCode:
+      type: STRING
+      valueOf: XAD.7
+      expressionType: HL7Spec
+
+extension_6-xad8OtherGeographicDestination:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xad8-other-geographic-destination
+    valueCode:
+      type: STRING
+      valueOf: XAD.8
+      expressionType: HL7Spec
+
+# TODO: #11788
+# district:
+
+# TODO: #11788
+# census tract:
+
+extension_7-xad11AddressRepresentationCode:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xad11-address-representation-code
+    valueCode:
+      type: STRING
+      valueOf: XAD.11
+      expressionType: HL7Spec
+
+# TODO: #11817
+# period
+
+# TODO: #11664
+# XAD.12 is deprecated so the schema favors using XAD.13/14 if either are populated
+period:
+  vars:
+    xad13: String, XAD.13
+    xad14: String, XAD.14
+  condition: $xad13 NOT_NULL || $xad14 NOT_NULL
+  expressionType: nested
+  expressionsMap:
+    start:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(periodStart,ZONEID)"
+      expressionType: JEXL
+      vars:
+        periodStart: XAD.13
+    end:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(periodEnd,ZONEID)"
+      expressionType: JEXL
+      vars:
+        periodEnd: XAD.14
+
+extension_8-xad19Addressee:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xad19-addressee
+    valueCode:
+      type: STRING
+      valueOf: XAD.19
+      expressionType: HL7Spec
+
+
+
+
+
