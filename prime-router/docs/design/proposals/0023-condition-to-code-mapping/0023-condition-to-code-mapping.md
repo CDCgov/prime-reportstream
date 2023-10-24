@@ -68,10 +68,10 @@ Example:
                     "coding": [
                         {
                             "system": "http://loinc.org",
-                            "code": "123456"
+                            "code": "80382-5"
                         }
                     ],
-                    "text": "Some Unmapped Value"
+                    "text": "Influenza virus A Ag [Presence] in Upper respiratory specimen by Rapid immunoassay"
                 },
                 "subject": {
                     "reference": "Patient/9473889b-b2b9-45ac-a8d8-191f27132912"
@@ -93,8 +93,8 @@ Example:
                 "meta": {
                     "tag": [
                           {
-                              "code": "Unmapped",
-                              "display": "This value is Unmapped"
+                              "code": "541000000000000",
+                              "display": "Infection caused by novel Influenza A virus variant (disorder)"
                          }
                     ]
                 }
