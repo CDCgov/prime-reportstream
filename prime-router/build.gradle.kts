@@ -804,7 +804,7 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.19.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.7.0") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.7.1") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -898,6 +898,9 @@ dependencies {
     implementation("javax.servlet:javax.servlet-api:4.0.1")
     // https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api
     implementation("javax.annotation:javax.annotation-api:1.3.2")
+
+    // TODO: move this to a test dependency when CompareFhirData lives under src/test
+    implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.14")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
