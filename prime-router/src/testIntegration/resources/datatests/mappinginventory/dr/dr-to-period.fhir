@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1698161747137266000.3fc435fb-a8d5-4baa-853f-4f644eff2cdc",
+  "id" : "1698176288506569000.fe01c0f9-8c9b-4219-86ab-67ceba313745",
   "meta" : {
-    "lastUpdated" : "2023-10-24T08:35:47.150-07:00"
+    "lastUpdated" : "2023-10-24T12:38:08.520-07:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,15 +37,15 @@
         "display" : "ORU/ACK - Unsolicited transmission of an observation message"
       },
       "sender" : {
-        "reference" : "Organization/1698161748020995000.f5644cb9-a462-4011-85e8-dcc76fc5ca1d"
+        "reference" : "Organization/1698176289359981000.5917b743-11ab-4174-8192-3850a6e7b4ae"
       },
       "source" : { }
     }
   }, {
-    "fullUrl" : "Organization/1698161748020995000.f5644cb9-a462-4011-85e8-dcc76fc5ca1d",
+    "fullUrl" : "Organization/1698176289359981000.5917b743-11ab-4174-8192-3850a6e7b4ae",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1698161748020995000.f5644cb9-a462-4011-85e8-dcc76fc5ca1d",
+      "id" : "1698176289359981000.5917b743-11ab-4174-8192-3850a6e7b4ae",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -57,10 +57,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Provenance/1698161748338130000.b47aea20-061b-4af9-9f49-037f3b8508ea",
+    "fullUrl" : "Provenance/1698176289659788000.c1a89df7-d900-4f2a-8dfc-5304e9765343",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1698161748338130000.b47aea20-061b-4af9-9f49-037f3b8508ea",
+      "id" : "1698176289659788000.c1a89df7-d900-4f2a-8dfc-5304e9765343",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -94,15 +94,15 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1698161748341165000.28fba8f3-0d21-419b-80c4-fa0ebc90e2af"
+          "reference" : "Device/1698176289661606000.5725c8d7-1ed6-4d7e-93e3-83ff50fb58b7"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1698161748341165000.28fba8f3-0d21-419b-80c4-fa0ebc90e2af",
+    "fullUrl" : "Device/1698176289661606000.5725c8d7-1ed6-4d7e-93e3-83ff50fb58b7",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1698161748341165000.28fba8f3-0d21-419b-80c4-fa0ebc90e2af",
+      "id" : "1698176289661606000.5725c8d7-1ed6-4d7e-93e3-83ff50fb58b7",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -111,10 +111,91 @@
       }
     }
   }, {
-    "fullUrl" : "Patient/1698161748376249000.8f0bacf0-cb51-43ed-b885-087041cee631",
+    "fullUrl" : "RelatedPerson/1698176289697744000.512624c8-a686-4a3c-8189-acb5745c566b",
+    "resource" : {
+      "resourceType" : "RelatedPerson",
+      "id" : "1698176289697744000.512624c8-a686-4a3c-8189-acb5745c566b",
+      "meta" : {
+        "extension" : [ {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : null,
+        "valueAddress" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad7-address-type",
+            "valueCode" : "H"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address",
+            "valueCode" : "4861"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad3-dwelling-number",
+            "valueCode" : "20TH AVE"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad2-other-designation",
+            "valueCode" : "Other Designation"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad8-other-geographic-destination",
+            "valueCode" : "Other Geographic Designation"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad11-address-representation-code",
+            "valueCode" : "A"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad2-street-name",
+            "valueCode" : "20TH AVE"
+          } ],
+          "line" : [ "20TH AVE" ],
+          "city" : "THUNDER MOUNTAIN",
+          "state" : "IG",
+          "postalCode" : "99999",
+          "country" : "H",
+          "period" : {
+            "start" : "2021-06-24T19:48:00Z",
+            "end" : "2026-06-24T19:48:00Z"
+          }
+        }
+      } ],
+      "address" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad7-address-type",
+          "valueCode" : "H"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address",
+          "valueCode" : "4861"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad3-dwelling-number",
+          "valueCode" : "20TH AVE"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad2-other-designation",
+          "valueCode" : "Other Designation"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad8-other-geographic-destination",
+          "valueCode" : "Other Geographic Designation"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad11-address-representation-code",
+          "valueCode" : "A"
+        }, {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad2-street-name",
+          "valueCode" : "20TH AVE"
+        } ],
+        "line" : [ "20TH AVE" ],
+        "city" : "THUNDER MOUNTAIN",
+        "state" : "IG",
+        "postalCode" : "99999",
+        "country" : "H",
+        "period" : {
+          "start" : "2021-06-24T19:48:00Z",
+          "end" : "2026-06-24T19:48:00Z"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Patient/1698176289693301000.d8ebb589-0f9b-4841-96e7-2c77cc5ac8ba",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1698161748376249000.8f0bacf0-cb51-43ed-b885-087041cee631",
+      "id" : "1698176289693301000.d8ebb589-0f9b-4841-96e7-2c77cc5ac8ba",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -122,40 +203,20 @@
         } ]
       },
       "identifier" : [ {
-        "extension" : [ {
-          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority-universal-id",
-          "valueOid" : "urn:oid:2.16.840.1.114222.4.3.3.2.1.2"
-        } ],
         "type" : {
           "coding" : [ {
             "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-            "code" : "PI",
-            "display" : "Patient internal identifier"
+            "code" : "MR",
+            "display" : "Medical record number"
           } ]
         },
-        "system" : "RS.CDC.Stag",
-        "value" : "PID03423907"
+        "value" : "11102779"
       } ],
       "name" : [ {
         "use" : "official",
-        "text" : "Cho Yeo-jeong",
-        "family" : "Yeo-jeong",
-        "given" : [ "Cho" ]
-      } ],
-      "gender" : "female",
-      "birthDate" : "2000-04-05",
-      "address" : [ {
-        "use" : "home",
-        "line" : [ "555 STATE HIGHWAY 13" ],
-        "city" : "DEER CREEK",
-        "district" : "OTTER TAIL",
-        "state" : "MN",
-        "postalCode" : "56527-9657",
-        "country" : "USA",
-        "period" : {
-          "start" : "2021-06-24T19:48:00Z",
-          "end" : "2026-06-24T19:48:00Z"
-        }
+        "text" : "BB SARAH SMITH",
+        "family" : "SMITH",
+        "given" : [ "BB SARAH" ]
       } ]
     }
   } ]

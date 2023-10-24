@@ -4,7 +4,7 @@ start:
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
   expressionType: JEXL
   vars:
-    dateTimeIn: DR.1
+    dateTimeIn: $start
 
 end:
   condition: $dateTimeIn NOT_NULL
@@ -12,4 +12,4 @@ end:
   valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
   expressionType: JEXL
   vars:
-    dateTimeIn: DR.2
+    dateTimeIn: $end

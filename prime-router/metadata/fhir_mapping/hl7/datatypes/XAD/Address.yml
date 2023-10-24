@@ -164,10 +164,11 @@ period_1:
   vars:
     xad13: String, XAD.13
     xad14: String, XAD.14
-  condition: $xad13 NULL && $xad14 NULL
+    start: XAD.12.1
+    end: XAD.12.2
+  condition: $xad13 NULL || $xad14 NULL
   expressionType: resource
   valueOf: datatypes/DR/Period
-  spec: XAD.12
 
 # TODO: #11664
 # XAD.12 is deprecated so the schema favors using XAD.13/14 if either are populated
