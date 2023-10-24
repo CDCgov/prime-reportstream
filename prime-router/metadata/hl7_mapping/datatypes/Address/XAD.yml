@@ -54,6 +54,13 @@ elements:
   # TODO: #11817
   # TODO: #11664
   # XAD.12, XAD.13, XAD.14
+  - name: period
+    value: [ '%resource.period.start' ]
+    hl7Spec: [ '%{hl7SpecXADField}-12-1' ]
+
+  - name: period
+    value: [ '%resource.period.end' ]
+    hl7Spec: [ '%{hl7SpecXADField}-12-2' ]
 
   - name: effective-date
     value: [ '%resource.extension(%`rsext-xad13-effective-date`).value' ]
