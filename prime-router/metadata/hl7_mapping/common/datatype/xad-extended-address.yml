@@ -51,4 +51,4 @@ elements:
     condition: '%resource.exists()'
     schema: ../../resources/Patient/DR
     constants:
-      hl7DRField: '%{hl7XADField}-12'
+      hl7DRField: '%{hl7XADField}-10'
