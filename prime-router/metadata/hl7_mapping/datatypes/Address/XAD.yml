@@ -6,14 +6,14 @@ elements:
 
   - name: street-number
     value: [ '%resource.extension(%`rsext-xad1-sad2-street-name`).value' ]
-    hl7Spec: [ '%{hl7SpecXADField}-1-2' ]
+    hl7Spec: [ '%{hl7SpecXADField}-1-2' ] # NK1-32-1-2 Terser.set(hl7Message, value, "NK1-32-1-2")
 
   - name: dwelling-number
     value: [ '%resource.extension(%`rsext-xad1-sad3-dwelling-number`).value' ]
     hl7Spec: [ '%{hl7SpecXADField}-1-3' ]
 
   - name: other-designation
-    value: [ '%resource.extension(%`rsext-xad1-sad3-dwelling-number`).value' ]
+    value: [ '%resource.extension(%`rsext-xad2-other-designation`).value' ]
     hl7Spec: [ '%{hl7SpecXADField}-2' ]
 
   - name: city
@@ -38,16 +38,30 @@ elements:
 
   - name: other-geographic-destination
     value: [ '%resource.extension(%`rsext-xad8-other-geographic-destination`).value' ]
-    hl7Spec: [ '%{hl7SpecXADField}-7' ]
+    hl7Spec: [ '%{hl7SpecXADField}-8' ]
 
   # TODO: #11788
-  # - name: district
   # - name: census-tract
+  - name: district
+    value: [ '%resource.district' ]
+    hl7Spec: [ '%{hl7SpecXADField}-9' ]
+
+  - name: census-tract
+    value: [ '%resource.extension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract").value' ]
+    hl7Spec: [ '%{hl7SpecXADField}-10' ]
 
 
   # TODO: #11817
   # TODO: #11664
   # XAD.12, XAD.13, XAD.14
+
+  - name: effective-date
+    value: [ '%resource.extension(%`rsext-xad13-effective-date`).value' ]
+    hl7Spec: [ '%{hl7SpecXADField}-13' ]
+
+  - name: expiration-date
+    value: [ '%resource.extension(%`rsext-xad14-expiration-date`).value' ]
+    hl7Spec: [ '%{hl7SpecXADField}-14' ]
 
   - name: other-geographic-destination
     value: [ '%resource.extension(%`rsext-xad11-address-representation-code`).value' ]
