@@ -1,8 +1,8 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 
-import { AppWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
 import { dummySenders, orgServer } from "../__mocks__/OrganizationMockServer";
-import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
 
 import { MemberType } from "./UseOktaMemberships";
 import useOrganizationSenders from "./UseOrganizationSenders";
@@ -15,13 +15,12 @@ describe("useOrganizationSenders", () => {
     afterAll(() => orgServer.close());
     describe("with no Organization name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: undefined,
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: false,
@@ -40,17 +39,16 @@ describe("useOrganizationSenders", () => {
 
     describe("returns organization senders", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.SENDER,
                     parsedName: "testOrg",
                     service: "testSender",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: true,

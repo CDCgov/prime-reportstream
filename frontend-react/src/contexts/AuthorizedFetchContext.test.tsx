@@ -10,24 +10,19 @@ jest.mock("@tanstack/react-query", () => ({
 
 describe("wrapUseQuery", () => {
     test("returns a fn that calls useQuery with `enabled` key correctly overloaded by passed initialized arg", () => {
-        const initializedUseQuery = wrapUseQuery(true);
-        const uninitializedUseQuery = wrapUseQuery(false);
+        const initializedUseQuery = wrapUseQuery();
 
-        uninitializedUseQuery([], () => {});
         initializedUseQuery([], () => {});
         initializedUseQuery([], () => {}, { enabled: false });
 
-        expect(mockUseQuery).toHaveBeenCalledTimes(3);
+        expect(mockUseQuery).toHaveBeenCalledTimes(2);
 
-        const [firstCall, secondCall, thirdCall] = mockUseQuery.mock.calls;
+        const [firstCall, secondCall] = mockUseQuery.mock.calls;
 
-        // wrap called with initialized === false
-        expect(firstCall[2]).toEqual({ enabled: false });
-
-        // wrap called with initialized === true
-        expect(secondCall[2]).toEqual({ enabled: true });
+        // wrap called with enabled true by default
+        expect(firstCall[2]).toEqual({ enabled: true });
 
         // wrap called with initialized === true, but overridden by options on useQuery call
-        expect(thirdCall[2]).toEqual({ enabled: false });
+        expect(secondCall[2]).toEqual({ enabled: false });
     });
 });

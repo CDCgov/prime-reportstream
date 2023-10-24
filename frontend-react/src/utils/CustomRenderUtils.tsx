@@ -1,5 +1,9 @@
 import { ReactElement } from "react";
-import { render, RenderOptions } from "@testing-library/react";
+import {
+    render,
+    RenderOptions,
+    renderHook as renderHookOrig,
+} from "@testing-library/react";
 import {
     createMemoryRouter,
     Outlet,
@@ -11,11 +15,12 @@ import { HelmetProvider } from "react-helmet-async";
 import { Fixture, MockResolver } from "@rest-hooks/test";
 import { CacheProvider } from "rest-hooks";
 
-import SessionProvider from "../contexts/SessionContext";
+import { SessionProviderBase } from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
 import { getTestQueryClient } from "../network/QueryClients";
 import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
 import { appRoutes } from "../AppRouter";
+import AppInsightsContextProvider from "../contexts/AppInsightsContext";
 
 interface AppWrapperProps {
     children: React.ReactNode;
@@ -43,7 +48,6 @@ function createTestRoutes(
             : undefined,
     })) as RouteObject[];
 }
-
 export const AppWrapper = ({
     initialRouteEntries,
     restHookFixtures,
@@ -68,23 +72,32 @@ export const AppWrapper = ({
         return (
             <CacheProvider>
                 <HelmetProvider>
-                    <SessionProvider>
-                        <QueryClientProvider client={getTestQueryClient()}>
-                            <AuthorizedFetchProvider initializedOverride={true}>
-                                <FeatureFlagProvider>
-                                    {restHookFixtures ? (
-                                        <MockResolver
-                                            fixtures={restHookFixtures}
-                                        >
+                    <AppInsightsContextProvider>
+                        <SessionProviderBase
+                            oktaAuth={{} as any}
+                            authState={{}}
+                        >
+                            <QueryClientProvider client={getTestQueryClient()}>
+                                <AuthorizedFetchProvider
+                                    initializedOverride={true}
+                                >
+                                    <FeatureFlagProvider>
+                                        {restHookFixtures ? (
+                                            <MockResolver
+                                                fixtures={restHookFixtures}
+                                            >
+                                                <RouterProvider
+                                                    router={router}
+                                                />
+                                            </MockResolver>
+                                        ) : (
                                             <RouterProvider router={router} />
-                                        </MockResolver>
-                                    ) : (
-                                        <RouterProvider router={router} />
-                                    )}
-                                </FeatureFlagProvider>
-                            </AuthorizedFetchProvider>
-                        </QueryClientProvider>
-                    </SessionProvider>
+                                        )}
+                                    </FeatureFlagProvider>
+                                </AuthorizedFetchProvider>
+                            </QueryClientProvider>
+                        </SessionProviderBase>
+                    </AppInsightsContextProvider>
                 </HelmetProvider>
             </CacheProvider>
         );
@@ -107,4 +120,15 @@ export const renderApp = (
     });
 };
 
-export * from "@testing-library/react";
+export const renderHook = (hook: (...args: any[]) => any, options?: any) => {
+    const wrapper = ({ children }: any) => (
+        <AppInsightsContextProvider>
+            <SessionProviderBase oktaAuth={{} as any} authState={{}}>
+                {children}
+            </SessionProviderBase>
+        </AppInsightsContextProvider>
+    );
+    return renderHookOrig(hook, { wrapper, ...options });
+};
+
+export { screen } from "@testing-library/react";

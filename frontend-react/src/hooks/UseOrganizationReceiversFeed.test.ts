@@ -1,12 +1,12 @@
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
 
-import { AppWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
 import {
     dummyActiveReceiver,
     dummyReceivers,
     orgServer,
 } from "../__mocks__/OrganizationMockServer";
-import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
 
 import { MemberType } from "./UseOktaMemberships";
 import {
@@ -23,13 +23,12 @@ describe("useOrganizationReceiversFeed", () => {
     afterAll(() => orgServer.close());
     describe("with no active membership parsed name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: undefined,
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: false,
@@ -54,16 +53,15 @@ describe("useOrganizationReceiversFeed", () => {
 
     describe("with an admin parsed name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.PRIME_ADMIN,
                     parsedName: Organizations.PRIMEADMINS,
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: true,
                 isUserReceiver: false,
                 isUserSender: false,
@@ -88,17 +86,16 @@ describe("useOrganizationReceiversFeed", () => {
 
     describe("with a non-admin parsed name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrg",
                     service: "testReceiver",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
@@ -127,17 +124,16 @@ describe("useOrganizationReceiversFeed", () => {
     });
 
     test("setActiveService sets an active receiver", async () => {
-        mockSessionContext.mockReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+        mockSessionContentReturnValue({
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
                 service: "testReceiver",
             },
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: false,
             isUserReceiver: true,
             isUserSender: false,

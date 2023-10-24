@@ -10,7 +10,6 @@ import {
 
 import { parseCsvForError } from "../../utils/FileUtils";
 import { useWatersUploader } from "../../hooks/network/WatersHooks";
-import { EventName, trackAppInsightEvent } from "../../utils/Analytics";
 import { showError } from "../AlertNotifications";
 import { RSSender } from "../../config/endpoints/settings";
 import { MembershipSettings } from "../../hooks/UseOktaMemberships";
@@ -20,6 +19,10 @@ import { useSessionContext } from "../../contexts/SessionContext";
 import { WatersResponse } from "../../config/endpoints/waters";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
+import {
+    EventName,
+    useAppInsightsContext,
+} from "../../contexts/AppInsightsContext";
 
 import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
 import { FileHandlerStepProps } from "./FileHandler";
@@ -84,6 +87,7 @@ export default function FileHandlerFileUploadStep({
     onPrevStepClick,
     selectedSchemaOption,
 }: FileHandlerFileUploadStepProps) {
+    const { appInsights } = useAppInsightsContext();
     const { data: organization } = useOrganizationSettings();
     const {
         data: senderDetail,
@@ -174,12 +178,15 @@ export default function FileHandlerFileUploadStep({
         }
 
         if (eventData) {
-            trackAppInsightEvent(EventName.FILE_VALIDATOR, {
-                fileValidator: {
-                    schema: selectedSchemaOption?.value,
-                    fileType: fileType,
-                    sender: organization?.name,
-                    ...eventData,
+            appInsights?.trackEvent({
+                name: EventName.FILE_VALIDATOR,
+                properties: {
+                    fileValidator: {
+                        schema: selectedSchemaOption?.value,
+                        fileType: fileType,
+                        sender: organization?.name,
+                        ...eventData,
+                    },
                 },
             });
         }

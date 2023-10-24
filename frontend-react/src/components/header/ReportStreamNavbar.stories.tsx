@@ -34,21 +34,23 @@ export const LoggedInNavbarDefault = (): React.ReactElement => (
 LoggedInNavbarDefault.decorators = [
     (Story: React.FC) => (
         <SessionContext.Provider
-            value={{
-                isUserAdmin: true,
-                activeMembership: {
-                    parsedName: "Test Co",
-                    memberType: MemberType.PRIME_ADMIN,
-                },
-                isAdminStrictCheck: true,
-                isUserReceiver: false,
-                isUserSender: false,
-                user: { email: "test@testing.com", sub: "" },
-                oktaToken: {},
-                dispatch: () => {},
-                initialized: false,
-                environment: "production",
-            }}
+            value={
+                {
+                    isUserAdmin: true,
+                    activeMembership: {
+                        parsedName: "Test Co",
+                        memberType: MemberType.PRIME_ADMIN,
+                    },
+                    isAdminStrictCheck: true,
+                    isUserReceiver: false,
+                    isUserSender: false,
+                    user: { email: "test@testing.com", sub: "" },
+                    oktaToken: {},
+                    environment: "production",
+                    logout: () => undefined,
+                    setActiveMembership: () => undefined,
+                } as any
+            }
         >
             <Story />
         </SessionContext.Provider>
@@ -62,21 +64,23 @@ export const LoggedInNavbarBlueVariant = (): React.ReactElement => (
 LoggedInNavbarBlueVariant.decorators = [
     (Story: React.FC) => (
         <SessionContext.Provider
-            value={{
-                isUserAdmin: true,
-                activeMembership: {
-                    parsedName: "Test Co",
-                    memberType: MemberType.PRIME_ADMIN,
-                },
-                isAdminStrictCheck: true,
-                isUserReceiver: false,
-                isUserSender: false,
-                user: { email: "test@testing.com", sub: "" },
-                oktaToken: {},
-                dispatch: () => {},
-                initialized: false,
-                environment: "production",
-            }}
+            value={
+                {
+                    isUserAdmin: true,
+                    activeMembership: {
+                        parsedName: "Test Co",
+                        memberType: MemberType.PRIME_ADMIN,
+                    },
+                    isAdminStrictCheck: true,
+                    isUserReceiver: false,
+                    isUserSender: false,
+                    user: { email: "test@testing.com", sub: "" },
+                    oktaToken: {},
+                    environment: "production",
+                    logout: () => undefined,
+                    setActiveMembership: () => undefined,
+                } as any
+            }
         >
             <Story />
         </SessionContext.Provider>

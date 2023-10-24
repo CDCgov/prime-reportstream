@@ -6,10 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Title from "../../components/Title";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { showAlertNotification, showError } from "../AlertNotifications";
-import {
-    getStoredOktaToken,
-    getStoredOrg,
-} from "../../utils/SessionStorageTools";
+import { getStoredOktaToken } from "../../utils/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     getErrorDetailFromResponse,
@@ -23,7 +20,8 @@ import { AuthElement } from "../AuthElement";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
 import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
-import { getAppInsightsHeaders } from "../../TelemetryService";
+import { useSessionContext } from "../../contexts/SessionContext";
+import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
 
 import {
     CheckboxComponent,
@@ -49,8 +47,10 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
     sendername,
     action,
 }) => {
+    const { fetchHeaders } = useAppInsightsContext();
     const navigate = useNavigate();
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
+    const { activeMembership } = useSessionContext();
 
     const orgSenderSettings: OrgSenderSettingsResource = useResource(
         OrgSenderSettingsResource.detail(),
@@ -101,13 +101,13 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
 
     async function getLatestSenderResponse() {
         const accessToken = getStoredOktaToken();
-        const organization = getStoredOrg();
+        const organization = activeMembership?.parsedName;
 
         const response = await fetch(
             `${RS_API_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
             {
                 headers: {
-                    ...getAppInsightsHeaders(),
+                    ...fetchHeaders,
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },

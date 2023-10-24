@@ -3,10 +3,10 @@ import {
     getOktaGroups,
     parseOrgName,
 } from "./OrganizationUtils";
-import { mockToken } from "./TestUtils";
+import { mockAccessToken } from "./TestUtils";
 
-const badAccessToken = mockToken();
-const goodAccessToken = mockToken({
+const badAccessToken = mockAccessToken();
+const goodAccessToken = mockAccessToken({
     claims: {
         organization: [
             "DHPrimeAdmins",

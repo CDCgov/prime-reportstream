@@ -1,5 +1,4 @@
-import React, { createContext, useContext } from "react";
-import { AccessToken } from "@okta/okta-auth-js";
+import React, { createContext, useContext, useMemo } from "react";
 import {
     MutationFunction,
     MutationKey,
@@ -18,9 +17,6 @@ import {
     AuthorizedFetchTypeWrapper,
     AuthorizedFetcher,
 } from "../hooks/UseCreateFetch";
-import { MembershipSettings } from "../hooks/UseOktaMemberships";
-
-import { useSessionContext } from "./SessionContext";
 
 // this is synthesized copy pasta from the react query codebase since they don't export function types
 // see https://github.com/TanStack/query/blob/f6eeab079d88df811fd827767db1457083e85b01/packages/react-query/src/useQuery.ts
@@ -58,12 +54,10 @@ type RSUseMutation<
 
 interface IAuthorizedFetchContext {
     authorizedFetchGenerator: AuthorizedFetchTypeWrapper;
-    initialized: boolean;
 }
 export const AuthorizedFetchContext = createContext<IAuthorizedFetchContext>({
     authorizedFetchGenerator: () => () =>
         Promise.reject("fetcher uninitialized"),
-    initialized: false,
 });
 
 export function wrapUseQuery<
@@ -71,7 +65,7 @@ export function wrapUseQuery<
     TError,
     TData,
     TQueryKey extends QueryKey,
->(initialized: boolean) {
+>() {
     return function (
         queryKey: QueryKey,
         queryFn: QueryFunction<TQueryFnData, TQueryKey>,
@@ -84,9 +78,7 @@ export function wrapUseQuery<
             queryKey as TQueryKey,
             queryFn,
             {
-                enabled: options?.enabled
-                    ? options.enabled && initialized
-                    : initialized,
+                enabled: options?.enabled != null ? options?.enabled : true,
                 ...options,
             },
         );
@@ -120,21 +112,17 @@ export function wrapUseMutation<
 
 export const AuthorizedFetchProvider = ({
     children,
-    initializedOverride = false,
 }: React.PropsWithChildren<{ initializedOverride?: boolean }>) => {
-    const { oktaToken, activeMembership, initialized } = useSessionContext();
-    const generator = useCreateFetch(
-        oktaToken as AccessToken,
-        activeMembership as MembershipSettings,
+    const generator = useCreateFetch();
+    const value = useMemo(
+        () => ({
+            authorizedFetchGenerator: generator,
+        }),
+        [generator],
     );
 
     return (
-        <AuthorizedFetchContext.Provider
-            value={{
-                authorizedFetchGenerator: generator,
-                initialized: initializedOverride || initialized,
-            }}
-        >
+        <AuthorizedFetchContext.Provider value={value}>
             {children}
         </AuthorizedFetchContext.Provider>
     );
@@ -150,14 +138,10 @@ export function useAuthorizedFetch<
     authorizedFetch: AuthorizedFetcher<TQueryFnData>;
     rsUseQuery: RSUseQuery<TQueryFnData, TError, TData, TQueryKey>;
 } {
-    const { authorizedFetchGenerator, initialized } = useContext(
-        AuthorizedFetchContext,
-    );
+    const { authorizedFetchGenerator } = useContext(AuthorizedFetchContext);
     return {
         authorizedFetch: authorizedFetchGenerator<TQueryFnData>(),
-        rsUseQuery: wrapUseQuery<TQueryFnData, TError, TData, TQueryKey>(
-            initialized,
-        ),
+        rsUseQuery: wrapUseQuery<TQueryFnData, TError, TData, TQueryKey>(),
     };
 }
 

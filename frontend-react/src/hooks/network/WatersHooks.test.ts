@@ -1,10 +1,10 @@
-import { act, renderHook } from "@testing-library/react";
+import { act } from "@testing-library/react";
 
 import {
     watersServer,
     WatersTestHeaderValue,
 } from "../../__mocks__/WatersMockServer";
-import { AppWrapper } from "../../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../../utils/CustomRenderUtils";
 import { STANDARD_SCHEMA_OPTIONS } from "../../senders/hooks/UseSenderSchemaOptions";
 import { ContentType, FileType } from "../../utils/TemporarySettingsAPITypes";
 

@@ -1,8 +1,8 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 
-import { AppWrapper } from "../../../../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../UseOktaMemberships";
-import { mockSessionContext } from "../../../../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../../../../contexts/__mocks__/SessionContext";
 import {
     dummyPublicKey,
     orgServer,
@@ -17,13 +17,12 @@ describe("useOrganizationPublicKeys", () => {
 
     describe("with no Organization name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: undefined,
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: false,
@@ -42,17 +41,16 @@ describe("useOrganizationPublicKeys", () => {
 
     describe("with Organization name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.SENDER,
                     parsedName: "testOrg",
                     service: "testOrgPublicKey",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: true,

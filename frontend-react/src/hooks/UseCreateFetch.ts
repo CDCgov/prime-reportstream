@@ -4,7 +4,8 @@ import axios, { AxiosError } from "axios";
 
 import { RSEndpoint, AxiosOptionsWithSegments } from "../config/endpoints";
 import { RSNetworkError } from "../utils/RSNetworkError";
-import { getAppInsightsHeaders } from "../TelemetryService";
+import { useSessionContext } from "../contexts/SessionContext";
+import { useAppInsightsContext } from "../contexts/AppInsightsContext";
 
 import { MembershipSettings } from "./UseOktaMemberships";
 
@@ -25,9 +26,10 @@ export type AuthorizedFetchTypeWrapper = <T>() => AuthorizedFetcher<T>;
 function createTypeWrapperForAuthorizedFetch(
     oktaToken: Partial<AccessToken>,
     activeMembership: MembershipSettings,
+    fetchHeaders: Record<string, string | number | undefined>,
 ) {
     const authHeaders = {
-        ...getAppInsightsHeaders(),
+        ...fetchHeaders,
         "authentication-type": "okta",
         authorization: `Bearer ${oktaToken?.accessToken || ""}`,
         organization: `${activeMembership?.parsedName || ""}`,
@@ -60,17 +62,18 @@ export const auxExports = {
     createTypeWrapperForAuthorizedFetch,
 };
 
-export const useCreateFetch = (
-    oktaToken: Partial<AccessToken>,
-    activeMembership: MembershipSettings,
-): AuthorizedFetchTypeWrapper => {
+export const useCreateFetch = (): AuthorizedFetchTypeWrapper => {
+    const { activeMembership, authState = {} } = useSessionContext();
+    const { fetchHeaders } = useAppInsightsContext();
+
     const generator = useCallback(
         () =>
             auxExports.createTypeWrapperForAuthorizedFetch(
-                oktaToken as Partial<AccessToken>,
+                authState?.accessToken as Partial<AccessToken>,
                 activeMembership as MembershipSettings,
+                fetchHeaders,
             ),
-        [oktaToken, activeMembership],
+        [authState?.accessToken, activeMembership, fetchHeaders],
     );
 
     return generator;

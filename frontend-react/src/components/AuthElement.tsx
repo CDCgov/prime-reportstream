@@ -6,8 +6,6 @@ import { MemberType } from "../hooks/UseOktaMemberships";
 import { FeatureFlagName } from "../pages/misc/FeatureFlags";
 import { useFeatureFlags } from "../contexts/FeatureFlagContext";
 
-import Spinner from "./Spinner";
-
 interface AuthElementProps {
     element: JSX.Element;
     requiredUserType?: MemberType | MemberType[];
@@ -21,7 +19,7 @@ export const AuthElement = ({
 }: AuthElementProps): React.ReactElement => {
     // Router's new navigation hook for redirecting
     const navigate = useNavigate();
-    const { oktaToken, activeMembership, initialized, isAdminStrictCheck } =
+    const { authState, activeMembership, isAdminStrictCheck } =
         useSessionContext();
 
     const { checkFlag } = useFeatureFlags();
@@ -43,14 +41,10 @@ export const AuthElement = ({
     // All the checks before returning the route
 
     const needsLogin = useMemo(
-        () => !oktaToken || !activeMembership,
-        [oktaToken, activeMembership],
+        () => !authState.accessToken || !activeMembership,
+        [authState.accessToken, activeMembership],
     );
     useEffect(() => {
-        // not ready to make a determination about auth status yet, show a spinner
-        if (!initialized) {
-            return;
-        }
         // Not logged in, needs to log in.
         if (needsLogin) {
             navigate("/login");
@@ -72,13 +66,8 @@ export const AuthElement = ({
         requiredFeatureFlag,
         requiredUserType,
         needsLogin,
-        initialized,
         checkFlag,
     ]);
 
-    const elementToRender = useMemo(
-        () => (initialized ? element : <Spinner />),
-        [initialized, element],
-    );
-    return elementToRender;
+    return element;
 };

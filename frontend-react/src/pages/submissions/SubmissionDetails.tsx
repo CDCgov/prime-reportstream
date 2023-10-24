@@ -3,7 +3,6 @@ import { useLocation, useParams } from "react-router-dom";
 import { NetworkErrorBoundary, useResource } from "rest-hooks";
 import { GridContainer } from "@trussworks/react-uswds";
 
-import { getStoredOrg } from "../../utils/SessionStorageTools";
 import Spinner from "../../components/Spinner";
 import Title from "../../components/Title";
 import ActionDetailsResource, {
@@ -16,6 +15,7 @@ import { MemberType } from "../../hooks/UseOktaMemberships";
 import { AuthElement } from "../../components/AuthElement";
 import { DetailItem } from "../../components/DetailItem/DetailItem";
 import { FeatureName } from "../../utils/FeatureName";
+import { useSessionContext } from "../../contexts/SessionContext";
 
 /* Custom types */
 type DestinationItemProps = {
@@ -73,7 +73,8 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
     the information to display. Used to call the API.
 */
 function SubmissionDetailsContent() {
-    const organization = getStoredOrg();
+    const { activeMembership } = useSessionContext();
+    const organization = activeMembership?.parsedName;
     const { actionId } = useParams<SubmissionDetailsProps>();
     const actionDetails: ActionDetailsResource = useResource(
         ActionDetailsResource.detail(),

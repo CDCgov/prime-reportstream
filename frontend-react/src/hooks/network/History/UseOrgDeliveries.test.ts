@@ -1,9 +1,8 @@
-import { renderHook } from "@testing-library/react";
-
-import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../UseOktaMemberships";
 import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
 import { Organizations } from "../../UseAdminSafeOrganizationName";
+import { renderHook } from "../../../utils/CustomRenderUtils";
 
 import { useOrgDeliveries } from "./DeliveryHooks";
 
@@ -13,16 +12,15 @@ describe("useReportsList", () => {
         afterEach(() => deliveryServer.resetHandlers());
         afterAll(() => deliveryServer.close());
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrg",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
@@ -45,16 +43,15 @@ describe("useReportsList", () => {
         afterEach(() => deliveryServer.resetHandlers());
         afterAll(() => deliveryServer.close());
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.PRIME_ADMIN,
                     parsedName: Organizations.PRIMEADMINS,
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: true,
                 isUserReceiver: false,
                 isUserSender: false,

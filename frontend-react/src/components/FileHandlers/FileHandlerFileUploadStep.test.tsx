@@ -1,4 +1,4 @@
-import { fireEvent, screen } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { INITIAL_STATE } from "../../hooks/UseFileHandler";
@@ -13,13 +13,17 @@ import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import * as useSenderResourceExports from "../../hooks/UseSenderResource";
 import * as useWatersUploaderExports from "../../hooks/network/WatersHooks";
-import * as analyticsExports from "../../utils/Analytics";
 import {
     fakeFile,
     mockSendFileWithErrors,
     mockSendValidFile,
 } from "../../__mocks__/validation";
 import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
+import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
+import {
+    mockAppInsightsContextReturnValue,
+    mockAppInsights,
+} from "../../contexts/__mocks__/AppInsightsContext";
 
 import FileHandlerFileUploadStep, {
     getClientHeader,
@@ -53,16 +57,19 @@ describe("FileHandlerFileUploadStep", () => {
     }
 
     describe("when the Sender details are still loading", () => {
-        beforeEach(() => {
+        function setup() {
             mockUseSenderResource({
                 isInitialLoading: true,
                 isLoading: true,
             });
+            mockSessionContentReturnValue();
+            mockAppInsightsContextReturnValue();
 
             renderApp(<FileHandlerFileUploadStep {...DEFAULT_PROPS} />);
-        });
+        }
 
         test("renders the spinner", () => {
+            setup();
             expect(screen.getByTestId("rs-spinner")).toBeVisible();
         });
     });
@@ -73,10 +80,12 @@ describe("FileHandlerFileUploadStep", () => {
                 isInitialLoading: false,
                 isLoading: false,
             });
+            mockSessionContentReturnValue();
+            mockAppInsightsContextReturnValue();
         });
 
         describe("when a CSV schema is chosen", () => {
-            beforeEach(() => {
+            function setup() {
                 renderApp(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
@@ -87,9 +96,10 @@ describe("FileHandlerFileUploadStep", () => {
                         }}
                     />,
                 );
-            });
+            }
 
             test("renders the CSV-specific text", () => {
+                setup();
                 expect(screen.getByText("Upload CSV file")).toBeVisible();
                 expect(
                     screen.getByText(
@@ -100,7 +110,7 @@ describe("FileHandlerFileUploadStep", () => {
         });
 
         describe("when an HL7 schema is chosen", () => {
-            beforeEach(() => {
+            function setup() {
                 renderApp(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
@@ -111,9 +121,10 @@ describe("FileHandlerFileUploadStep", () => {
                         }}
                     />,
                 );
-            });
+            }
 
             test("renders the HL7-specific text", () => {
+                setup();
                 expect(
                     screen.getByText("Upload HL7 v2.5.1 file"),
                 ).toBeVisible();
@@ -127,8 +138,7 @@ describe("FileHandlerFileUploadStep", () => {
 
         describe("when a file is selected", () => {
             const onFileChangeSpy = jest.fn();
-
-            beforeEach(async () => {
+            async function setup() {
                 renderApp(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
@@ -141,13 +151,17 @@ describe("FileHandlerFileUploadStep", () => {
                     />,
                 );
 
-                await userEvent.upload(
-                    screen.getByTestId("file-input-input"),
-                    fakeFile,
-                );
-            });
+                await waitFor(async () => {
+                    await userEvent.upload(
+                        screen.getByTestId("file-input-input"),
+                        fakeFile,
+                    );
+                    await new Promise((res) => setTimeout(res, 100));
+                });
+            }
 
             test("calls onFileChange with the file and content", async () => {
+                await setup();
                 expect(onFileChangeSpy).toHaveBeenCalledWith(
                     fakeFile,
                     "foo,bar\r\nbar,foo",
@@ -156,7 +170,7 @@ describe("FileHandlerFileUploadStep", () => {
         });
 
         describe("when a file is being submitted", () => {
-            beforeEach(async () => {
+            function setup() {
                 jest.spyOn(
                     useWatersUploaderExports,
                     "useWatersUploader",
@@ -176,9 +190,10 @@ describe("FileHandlerFileUploadStep", () => {
                         }}
                     />,
                 );
-            });
+            }
 
             test("renders the loading message", () => {
+                setup();
                 expect(
                     screen.getByText(
                         "Checking your file for any errors that will prevent your data from being reported successfully...",
@@ -190,8 +205,7 @@ describe("FileHandlerFileUploadStep", () => {
         describe("when a valid file is submitted", () => {
             const onFileSubmitSuccessSpy = jest.fn();
             const onNextStepClickSpy = jest.fn();
-
-            beforeEach(async () => {
+            async function setup() {
                 jest.spyOn(
                     useWatersUploaderExports,
                     "useWatersUploader",
@@ -200,8 +214,6 @@ describe("FileHandlerFileUploadStep", () => {
                     uploaderError: null,
                     sendFile: () => Promise.resolve(mockSendValidFile),
                 });
-
-                jest.spyOn(analyticsExports, "trackAppInsightEvent");
 
                 renderApp(
                     <FileHandlerFileUploadStep
@@ -218,48 +230,55 @@ describe("FileHandlerFileUploadStep", () => {
                     />,
                 );
 
-                await userEvent.upload(
-                    screen.getByTestId("file-input-input"),
-                    fakeFile,
-                );
-                await userEvent.click(screen.getByText("Submit"));
-                fireEvent.submit(screen.getByTestId("form"));
-            });
+                await waitFor(async () => {
+                    await userEvent.upload(
+                        screen.getByTestId("file-input-input"),
+                        fakeFile,
+                    );
+                    await userEvent.click(screen.getByText("Submit"));
+                    // eslint-disable-next-line testing-library/no-wait-for-side-effects
+                    fireEvent.submit(screen.getByTestId("form"));
+                    await new Promise((res) => setTimeout(res, 100));
+                });
+            }
 
             afterEach(() => {
                 jest.restoreAllMocks();
             });
 
-            test("it calls onFileSubmitSuccess with the response", () => {
+            test("it calls onFileSubmitSuccess with the response", async () => {
+                await setup();
                 expect(onFileSubmitSuccessSpy).toHaveBeenCalledWith(
                     mockSendValidFile,
                 );
             });
 
-            test("it calls onNextStepClick", () => {
+            test("it calls onNextStepClick", async () => {
+                await setup();
                 expect(onNextStepClickSpy).toHaveBeenCalled();
             });
 
-            test("it calls trackAppInsightEvent with event data", () => {
-                expect(
-                    analyticsExports.trackAppInsightEvent,
-                ).toHaveBeenCalledWith("File Validator", {
-                    fileValidator: {
-                        errorCount: 0,
-                        fileType: undefined,
-                        overallStatus: "Valid",
-                        schema: "whatever",
-                        sender: undefined,
-                        warningCount: 0,
+            test("it calls trackAppInsightEvent with event data", async () => {
+                await setup();
+                expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
+                    name: "File Validator",
+                    properties: {
+                        fileValidator: {
+                            errorCount: 0,
+                            fileType: undefined,
+                            overallStatus: "Valid",
+                            schema: "whatever",
+                            sender: undefined,
+                            warningCount: 0,
+                        },
                     },
                 });
             });
         });
 
-        describe("when a valid file is submitted", () => {
+        describe("when an invalid file is submitted", () => {
             const onFileSubmitErrorSpy = jest.fn();
-
-            beforeEach(async () => {
+            async function setup() {
                 jest.spyOn(
                     useWatersUploaderExports,
                     "useWatersUploader",
@@ -267,11 +286,10 @@ describe("FileHandlerFileUploadStep", () => {
                     isWorking: false,
                     uploaderError: null,
                     sendFile: () =>
-                        Promise.reject({ data: mockSendFileWithErrors }),
+                        Promise.reject({
+                            data: mockSendFileWithErrors,
+                        }),
                 });
-
-                jest.spyOn(analyticsExports, "trackAppInsightEvent");
-
                 renderApp(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}
@@ -286,32 +304,39 @@ describe("FileHandlerFileUploadStep", () => {
                     />,
                 );
 
-                await userEvent.upload(
-                    screen.getByTestId("file-input-input"),
-                    fakeFile,
-                );
-                await userEvent.click(screen.getByText("Submit"));
-                fireEvent.submit(screen.getByTestId("form"));
-            });
+                await waitFor(async () => {
+                    await userEvent.upload(
+                        screen.getByTestId("file-input-input"),
+                        fakeFile,
+                    );
+                    await userEvent.click(screen.getByText("Submit"));
+                    // eslint-disable-next-line testing-library/no-wait-for-side-effects
+                    fireEvent.submit(screen.getByTestId("form"));
+                    await new Promise((res) => setTimeout(res, 100));
+                });
+            }
 
             afterEach(() => {
                 jest.restoreAllMocks();
             });
 
-            test("it calls onFileSubmitErrorSpy with the response", () => {
+            test("it calls onFileSubmitErrorSpy with the response", async () => {
+                await setup();
                 expect(onFileSubmitErrorSpy).toHaveBeenCalled();
             });
 
-            test("it calls trackAppInsightEvent with event data", () => {
-                expect(
-                    analyticsExports.trackAppInsightEvent,
-                ).toHaveBeenCalledWith("File Validator", {
-                    fileValidator: {
-                        errorCount: 2,
-                        fileType: undefined,
-                        schema: "whatever",
-                        sender: undefined,
-                        warningCount: 0,
+            test("it calls trackAppInsightEvent with event data", async () => {
+                await setup();
+                expect(mockAppInsights.trackEvent).toHaveBeenCalledWith({
+                    name: "File Validator",
+                    properties: {
+                        fileValidator: {
+                            errorCount: 2,
+                            fileType: undefined,
+                            schema: "whatever",
+                            sender: undefined,
+                            warningCount: 0,
+                        },
                     },
                 });
             });
