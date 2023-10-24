@@ -294,5 +294,38 @@
 - id: "identifier-namespace-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id"
 # Universal Namespace ID
-- id: "identifier-universal-id"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id"
+- id: "cwe1-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe1-identifier"
+# CWE.2 Text
+- id: "cwe2-text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe2-text"
+# CWE.3 Name of Coding System
+- id: "cwe3-coding-system"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe3-coding-system"
+# CWE.4 Alternate Identifier
+- id: "cwe4-alt-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe4-alt-identifier"
+# CWE.5 Alternate Text
+- id: "cwe5-alt-text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe5-alt-text"
+# CWE.6 Name of Alternate Coding System
+- id: "cwe6-alt-coding-system"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe6-alt-coding-system"
+# CWE.7 Coding System Version ID
+- id: "cwe7-alt-version-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe7-alt-version-id"
+# CWE.8 Alternate Coding System Version ID
+- id: "cwe8-alt-version-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe8-alt-version-id"
+# CWE.10 Second Alternate Identifier
+- id: "cwe10-second-alt-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe10-second-alt-identifier"
+# CWE.11 Second Alternate Text
+- id: "cwe11-second-alt-text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe11-second-alt-text"
+# CWE.12 Name of Second Alternate Coding System
+- id: "cwe12-second-alt-coding-system"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe12-second-alt-coding-system"
+# CWE.13 Second Alternate Coding System Version ID
+- id: "cwe13-second-alt-version-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe13-second-alt-version-id"
