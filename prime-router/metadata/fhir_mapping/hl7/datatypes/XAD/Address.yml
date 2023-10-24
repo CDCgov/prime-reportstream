@@ -1,5 +1,6 @@
 line:
   expressionType: nested
+  generateList: true
   expressions:
     - type: STRING
       expressionType: HL7Spec
