@@ -60,7 +60,7 @@ period_1:
     valueOf: datatype/Period
     expressionType: resource
     vars:
-       start: XAD.12.1 
+       start: XAD.12.1
        end: XAD.12.2
 
 # explicit date effective (start) and expiration (end)
