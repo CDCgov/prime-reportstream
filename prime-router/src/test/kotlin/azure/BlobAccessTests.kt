@@ -75,18 +75,115 @@ class BlobAccessTests {
         }
 
         @Test
+        fun `can copy directory of blobs between storage accounts`() {
+            val sourceBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
+                "container1",
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
+                    azuriteContainer1.getMappedPort(
+                        10000
+                    )
+                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                    azuriteContainer1.getMappedPort(
+                        10001
+                    )
+                }/devstoreaccount1;"""
+            )
+
+            val destinationBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
+                "container1",
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount2;AccountKey=keydevstoreaccount2;BlobEndpoint=http://${azuriteContainer2.host}:${
+                    azuriteContainer2.getMappedPort(
+                        10000
+                    )
+                }/devstoreaccount2;QueueEndpoint=http://${azuriteContainer2.host}:${
+                    azuriteContainer2.getMappedPort(
+                        10001
+                    )
+                }/devstoreaccount2;"""
+            )
+
+            val contentToUpload =
+                listOf("foo/item1.txt", "foo/item2.txt", "foo/item13.txt", "bar/item2.txt", "foo/baz/item3.txt")
+            contentToUpload.forEach { content ->
+                BlobAccess.uploadBlob(
+                    content,
+                    content.toByteArray(),
+                    sourceBlobContainerMetadata
+                )
+            }
+
+            val currentBlobs = BlobAccess.listBlobs("foo", destinationBlobContainerMetadata)
+            assertThat(currentBlobs).hasSize(0)
+
+            BlobAccess.copyDir("foo", sourceBlobContainerMetadata, destinationBlobContainerMetadata)
+            val copiedBlobs = BlobAccess.listBlobs("foo", destinationBlobContainerMetadata)
+            assertThat(copiedBlobs).hasSize(4)
+        }
+
+        @Test
+        fun `copyDir should overwrite any existing files`() {
+            val sourceBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
+                "container1",
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
+                    azuriteContainer1.getMappedPort(
+                        10000
+                    )
+                }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
+                    azuriteContainer1.getMappedPort(
+                        10001
+                    )
+                }/devstoreaccount1;"""
+            )
+
+            val destinationBlobContainerMetadata = BlobAccess.BlobContainerMetadata(
+                "container1",
+                """DefaultEndpointsProtocol=http;AccountName=devstoreaccount2;AccountKey=keydevstoreaccount2;BlobEndpoint=http://${azuriteContainer2.host}:${
+                    azuriteContainer2.getMappedPort(
+                        10000
+                    )
+                }/devstoreaccount2;QueueEndpoint=http://${azuriteContainer2.host}:${
+                    azuriteContainer2.getMappedPort(
+                        10001
+                    )
+                }/devstoreaccount2;"""
+            )
+
+            BlobAccess.uploadBlob(
+                "foo/item1.txt",
+                "new content".toByteArray(),
+                sourceBlobContainerMetadata
+            )
+
+            val destinationBlobUrl = BlobAccess.uploadBlob(
+                "foo/item1.txt",
+                "content to be overridden".toByteArray(),
+                destinationBlobContainerMetadata
+            )
+
+            val originalData = BlobAccess.downloadBlobAsByteArray(destinationBlobUrl, destinationBlobContainerMetadata)
+                .toString(Charsets.UTF_8)
+            assertThat(originalData).isEqualTo("content to be overridden")
+
+            BlobAccess.copyDir("foo", sourceBlobContainerMetadata, destinationBlobContainerMetadata)
+
+            val updatedData = BlobAccess.downloadBlobAsByteArray(destinationBlobUrl, destinationBlobContainerMetadata)
+                .toString(Charsets.UTF_8)
+            assertThat(updatedData).isEqualTo("new content")
+        }
+
+        @Test
         fun `can upload a blob`() {
             val testContent = "test content"
             val blobContainerMetadata1 = BlobAccess.BlobContainerMetadata(
                 "container1",
                 """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                azuriteContainer1.getMappedPort(
-                    10000
-                )
+                    azuriteContainer1.getMappedPort(
+                        10000
+                    )
                 }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
-                azuriteContainer1.getMappedPort(
-                    10001
-                )
+                    azuriteContainer1.getMappedPort(
+                        10001
+                    )
                 }/devstoreaccount1;"""
             )
             val url = BlobAccess.uploadBlob(
@@ -106,13 +203,13 @@ class BlobAccessTests {
             val blobContainerMetadata1 = BlobAccess.BlobContainerMetadata(
                 "container1",
                 """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                azuriteContainer1.getMappedPort(
-                    10000
-                )
+                    azuriteContainer1.getMappedPort(
+                        10000
+                    )
                 }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
-                azuriteContainer1.getMappedPort(
-                    10001
-                )
+                    azuriteContainer1.getMappedPort(
+                        10001
+                    )
                 }/devstoreaccount1;"""
             )
             val contentToUpload = listOf("foo/item1.txt", "bar/item2.txt", "foo/baz/item3.txt")
@@ -156,13 +253,13 @@ class BlobAccessTests {
             val blobContainerMetadata1 = BlobAccess.BlobContainerMetadata(
                 "container1",
                 """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                azuriteContainer1.getMappedPort(
-                    10000
-                )
+                    azuriteContainer1.getMappedPort(
+                        10000
+                    )
                 }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
-                azuriteContainer1.getMappedPort(
-                    10001
-                )
+                    azuriteContainer1.getMappedPort(
+                        10001
+                    )
                 }/devstoreaccount1;"""
             )
 
@@ -229,13 +326,13 @@ class BlobAccessTests {
             val blobContainerMetadata1 = BlobAccess.BlobContainerMetadata(
                 "container1",
                 """DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=keydevstoreaccount1;BlobEndpoint=http://${azuriteContainer1.host}:${
-                azuriteContainer1.getMappedPort(
-                    10000
-                )
+                    azuriteContainer1.getMappedPort(
+                        10000
+                    )
                 }/devstoreaccount1;QueueEndpoint=http://${azuriteContainer1.host}:${
-                azuriteContainer1.getMappedPort(
-                    10001
-                )
+                    azuriteContainer1.getMappedPort(
+                        10001
+                    )
                 }/devstoreaccount1;"""
             )
 
