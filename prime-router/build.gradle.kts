@@ -829,7 +829,7 @@ dependencies {
     implementation("org.yaml:snakeyaml:2.2")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter") {
         version {
-            branch = "master"
+            branch = "kalish/introduce-updated-address-type-mapping"
         }
     }
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.8.4")
