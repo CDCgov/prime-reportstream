@@ -262,3 +262,5 @@ export function AdminOrgEditWithAuth() {
         />
     );
 }
+
+export default AdminOrgEditWithAuth;

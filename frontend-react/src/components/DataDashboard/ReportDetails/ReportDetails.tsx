@@ -50,3 +50,5 @@ export const ReportDetailsWithAuth = () => {
         />
     );
 };
+
+export default ReportDetailsWithAuth;

@@ -122,3 +122,5 @@ export function AdminOrgNewWithAuth() {
         />
     );
 }
+
+export default AdminOrgNewWithAuth;

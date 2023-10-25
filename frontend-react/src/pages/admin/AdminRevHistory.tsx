@@ -267,3 +267,5 @@ export const _exportForTesting = {
     AdminRevHistory,
     MainRevHistoryComponent,
 };
+
+export default AdminRevHistoryWithAuth;

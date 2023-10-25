@@ -1,20 +1,29 @@
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router";
+import React from "react";
+
+import { createRouter } from "./AppRouter";
+import { minimumBrowsersRegex } from "./utils/SupportedBrowsers";
+import config from "./config";
+import { aiConfig, createTelemetryService } from "./TelemetryService";
+import AppInsightsContextProvider from "./contexts/AppInsightsContext";
+import UserAgentNotSupported from "./pages/error/UserAgentNotSupported";
+import UserAgentGate from "./shared/UserAgentGate/UserAgentGate";
 
 import "./global.scss";
 
-import { createRouter } from "./AppRouter";
-import App from "./App";
-import MainLayout from "./layouts/Main/MainLayout";
-import UserAgentGate from "./shared/UserAgentGate/UserAgentGate";
-import { minimumBrowsersRegex } from "./utils/SupportedBrowsers";
-import { UserAgentNotSupported } from "./pages/error/UserAgentNotSupported";
-import config from "./config";
-import AppInsightsContextProvider from "./contexts/AppInsightsContext";
-import { aiConfig, createTelemetryService } from "./TelemetryService";
-
 const appInsights = createTelemetryService(aiConfig);
-const router = createRouter(<App Layout={MainLayout} config={config} />);
+const router = createRouter(
+    React.lazy(async () => {
+        const MainLayout = React.lazy(
+            () => import("./layouts/Main/MainLayout"),
+        );
+        const App = (await import("./App")).default;
+        return {
+            default: () => <App Layout={MainLayout} config={config} />,
+        };
+    }),
+);
 const root = createRoot(document.getElementById("root")!);
 
 /**

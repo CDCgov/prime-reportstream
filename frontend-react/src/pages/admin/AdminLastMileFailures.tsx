@@ -34,3 +34,5 @@ export function AdminLMFWithAuth() {
         />
     );
 }
+
+export default AdminLMFWithAuth;

@@ -198,3 +198,5 @@ export const MessageDetailsWithAuth = () => (
         requiredUserType={MemberType.PRIME_ADMIN}
     />
 );
+
+export default MessageDetailsWithAuth;

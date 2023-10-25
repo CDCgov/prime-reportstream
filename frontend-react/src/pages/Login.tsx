@@ -8,7 +8,7 @@ import { USLink } from "../components/USLink";
 import OktaSignInWidget from "../shared/OktaSignInWidget/OktaSignInWidget";
 import { useSessionContext } from "../contexts/SessionContext";
 
-export const Login = () => {
+export function Login() {
     const { oktaAuth, authState } = useSessionContext();
 
     const onSuccess = React.useCallback(
@@ -21,7 +21,7 @@ export const Login = () => {
 
     const onError = React.useCallback((_: any) => {}, []);
 
-    if (authState?.isAuthenticated) {
+    if (authState.isAuthenticated) {
         return <Navigate replace to={"/"} />;
     }
 
@@ -48,4 +48,6 @@ export const Login = () => {
             </OktaSignInWidget>
         </>
     );
-};
+}
+
+export default Login;

@@ -35,3 +35,5 @@ export const DeliveriesWithAuth = () => (
         requiredUserType={MemberType.RECEIVER}
     />
 );
+
+export default DeliveriesWithAuth;

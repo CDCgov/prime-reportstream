@@ -29,3 +29,5 @@ export function AdminReceiverDashWithAuth() {
         />
     );
 }
+
+export default AdminReceiverDashWithAuth;

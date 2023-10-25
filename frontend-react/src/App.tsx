@@ -1,15 +1,16 @@
 import { toRelativeUrl } from "@okta/okta-auth-js";
 import { useIdleTimer } from "react-idle-timer";
-import { useCallback, useEffect, useRef } from "react";
+import { Suspense, useCallback, useEffect, useRef } from "react";
 import { CacheProvider, NetworkErrorBoundary } from "rest-hooks";
 import { useLocation, useNavigate } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { HelmetProvider } from "react-helmet-async";
 
+import ScrollRestoration from "./components/ScrollRestoration";
+import { useScrollToTop } from "./hooks/UseScrollToTop";
 import { OKTA_AUTH } from "./oktaConfig";
 import { permissionCheck } from "./utils/PermissionsUtils";
-import "react-toastify/dist/ReactToastify.css";
 import { ErrorPage } from "./pages/error/ErrorPage";
 import { AuthorizedFetchProvider } from "./contexts/AuthorizedFetchContext";
 import { FeatureFlagProvider } from "./contexts/FeatureFlagContext";
@@ -23,6 +24,8 @@ import {
 import { preferredBrowsersRegex } from "./utils/SupportedBrowsers";
 import DAPScript from "./shared/DAPScript/DAPScript";
 import { AppConfig } from "./config";
+
+import "react-toastify/dist/ReactToastify.css";
 
 export interface AppProps {
     Layout: React.ComponentType;
@@ -166,21 +169,26 @@ const AppBase = ({ Layout, config }: AppProps) => {
         debounce: 500,
     });
 
+    useScrollToTop();
+
     return (
         <HelmetProvider>
             <QueryClientProvider client={appQueryClient}>
                 <AuthorizedFetchProvider>
                     <FeatureFlagProvider>
-                        <CacheProvider>
-                            <NetworkErrorBoundary fallbackComponent={Fallback}>
+                        <NetworkErrorBoundary fallbackComponent={Fallback}>
+                            <CacheProvider>
+                                <ScrollRestoration />
                                 <DAPScript
                                     env={config.APP_ENV}
                                     pathname={location.pathname}
                                 />
-                                <Layout />
+                                <Suspense>
+                                    <Layout />
+                                </Suspense>
                                 <ReactQueryDevtools initialIsOpen={false} />
-                            </NetworkErrorBoundary>
-                        </CacheProvider>
+                            </CacheProvider>
+                        </NetworkErrorBoundary>
                     </FeatureFlagProvider>
                 </AuthorizedFetchProvider>
             </QueryClientProvider>

@@ -79,3 +79,5 @@ export function FacilityProviderSubmitterDetailsWithAuth(
         />
     );
 }
+
+export default FacilityProviderSubmitterDetailsWithAuth;

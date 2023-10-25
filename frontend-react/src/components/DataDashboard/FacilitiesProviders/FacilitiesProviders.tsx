@@ -62,3 +62,5 @@ export function FacilitiesProvidersWithAuth() {
         />
     );
 }
+
+export default FacilitiesProvidersWithAuth;

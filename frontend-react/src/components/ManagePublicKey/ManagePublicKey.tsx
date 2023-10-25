@@ -221,3 +221,5 @@ export const ManagePublicKeyWithAuth = () => (
         requiredUserType={MemberType.SENDER}
     />
 );
+
+export default ManagePublicKeyWithAuth;

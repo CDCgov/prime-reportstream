@@ -30,3 +30,5 @@ export function AdminMessageTrackerWithAuth() {
         />
     );
 }
+
+export default AdminMessageTrackerWithAuth;

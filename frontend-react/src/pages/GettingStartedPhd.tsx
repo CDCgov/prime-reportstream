@@ -97,3 +97,5 @@ export const GettingStartedPhd = () => {
         </div>
     );
 };
+
+export default GettingStartedPhd;

@@ -141,3 +141,5 @@ export function FeatureFlagUIWithAuth() {
         />
     );
 }
+
+export default FeatureFlagUIWithAuth;

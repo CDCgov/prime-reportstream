@@ -1,4 +1,7 @@
-import { mockUseReportDetail } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import {
+    mockUseReportDetail,
+    mockUseReportFacilities,
+} from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 
@@ -17,6 +20,9 @@ describe("ReportDetails", () => {
     test("url param (reportId) feeds into network hook", () => {
         mockUseReportDetail.mockReturnValue({
             reportDetail: {} as RSDelivery,
+        });
+        mockUseReportFacilities.mockReturnValue({
+            reportFacilities: [],
         });
 
         renderApp(<ReportDetails />);

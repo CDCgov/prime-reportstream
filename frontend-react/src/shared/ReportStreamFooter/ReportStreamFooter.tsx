@@ -138,3 +138,5 @@ export const ReportStreamFooter = () => {
         </footer>
     );
 };
+
+export default ReportStreamFooter;

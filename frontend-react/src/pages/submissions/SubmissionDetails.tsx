@@ -149,11 +149,11 @@ function SubmissionDetails() {
     );
 }
 
-export default SubmissionDetails;
-
 export const SubmissionDetailsWithAuth = () => (
     <AuthElement
         element={<SubmissionDetails />}
         requiredUserType={MemberType.SENDER}
     />
 );
+
+export default SubmissionDetailsWithAuth;

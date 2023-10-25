@@ -46,3 +46,5 @@ export function UserAgentNotSupported() {
         </>
     );
 }
+
+export default UserAgentNotSupported;

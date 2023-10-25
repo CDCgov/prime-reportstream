@@ -68,3 +68,5 @@ export function DataDashboardWithAuth() {
         />
     );
 }
+
+export default DataDashboardWithAuth;

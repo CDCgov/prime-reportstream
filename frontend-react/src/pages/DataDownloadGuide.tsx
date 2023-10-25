@@ -122,3 +122,5 @@ export const DataDownloadGuideIa = () => {
         </div>
     );
 };
+
+export default DataDownloadGuideIa;

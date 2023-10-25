@@ -365,3 +365,5 @@ export function EditSenderSettingsWithAuth() {
         />
     );
 }
+
+export default EditSenderSettingsWithAuth;

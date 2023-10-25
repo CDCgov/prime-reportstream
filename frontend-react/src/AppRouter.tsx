@@ -1,41 +1,208 @@
-import { createBrowserRouter, redirect, RouteObject } from "react-router-dom";
 import React from "react";
+import { RouteObject, redirect } from "react-router";
+import { createBrowserRouter } from "react-router-dom";
 
-import { TermsOfService } from "./pages/TermsOfService";
-import { Login } from "./pages/Login";
-import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
-import { UploadWithAuth } from "./pages/Upload";
-import { FeatureFlagUIWithAuth } from "./pages/misc/FeatureFlags";
-import { SubmissionDetailsWithAuth } from "./pages/submissions/SubmissionDetails";
-import { SubmissionsWithAuth } from "./pages/submissions/Submissions";
-import { AdminMainWithAuth } from "./pages/admin/AdminMain";
-import { AdminOrgNewWithAuth } from "./pages/admin/AdminOrgNew";
-import { AdminOrgEditWithAuth } from "./pages/admin/AdminOrgEdit";
-import { EditSenderSettingsWithAuth } from "./components/Admin/EditSenderSettings";
-import { NewSettingWithAuth } from "./components/Admin/NewSetting";
-import { AdminLMFWithAuth } from "./pages/admin/AdminLastMileFailures";
-import { AdminMessageTrackerWithAuth } from "./pages/admin/AdminMessageTracker";
-import { AdminReceiverDashWithAuth } from "./pages/admin/AdminReceiverDashPage";
-import { DeliveryDetailWithAuth } from "./pages/deliveries/details/DeliveryDetail";
-import { ValueSetsDetailWithAuth } from "./pages/admin/value-set-editor/ValueSetsDetail";
-import { ValueSetsIndexWithAuth } from "./pages/admin/value-set-editor/ValueSetsIndex";
-import { DeliveriesWithAuth } from "./pages/deliveries/Deliveries";
-import { EditReceiverSettingsWithAuth } from "./components/Admin/EditReceiverSettings";
-import { AdminRevHistoryWithAuth } from "./pages/admin/AdminRevHistory";
-import { ErrorNoPage } from "./pages/error/legacy-content/ErrorNoPage";
-import { MessageDetailsWithAuth } from "./components/MessageTracker/MessageDetails";
-import { ManagePublicKeyWithAuth } from "./components/ManagePublicKey/ManagePublicKey";
-import FileHandler from "./components/FileHandlers/FileHandler";
-import { DataDashboardWithAuth } from "./pages/data-dashboard/DataDashboard";
-import { ReportDetailsWithAuth } from "./components/DataDashboard/ReportDetails/ReportDetails";
-import { FacilitiesProvidersWithAuth } from "./components/DataDashboard/FacilitiesProviders/FacilitiesProviders";
-import { FacilityProviderSubmitterDetailsWithAuth } from "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails";
 import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
-import LoginCallback from "./shared/LoginCallback/LoginCallback";
-import LogoutCallback from "./shared/LogoutCallback/LogoutCallback";
-import { DataDownloadGuideIa } from "./pages/DataDownloadGuide";
-import { GettingStartedPhd } from "./pages/GettingStartedPhd";
+
+/* Content Pages */
+const Home = React.lazy(
+    lazyRouteMarkdown(() => import("./content/home/index.mdx")),
+);
+const About = React.lazy(
+    lazyRouteMarkdown(() => import("./content/about/index.mdx")),
+);
+const OurNetwork = React.lazy(
+    lazyRouteMarkdown(() => import("./content/about/our-network.mdx")),
+);
+const News = React.lazy(
+    lazyRouteMarkdown(() => import("./content/about/news.mdx")),
+);
+const Security = React.lazy(
+    lazyRouteMarkdown(() => import("./content/about/security.mdx")),
+);
+const ReleaseNotes = React.lazy(
+    lazyRouteMarkdown(() => import("./content/about/release-notes.mdx")),
+);
+const CaseStudies = React.lazy(
+    lazyRouteMarkdown(() => import("./content/about/case-studies.mdx")),
+);
+const ReferHealthcareOrganizations = React.lazy(
+    lazyRouteMarkdown(
+        () =>
+            import(
+                "./content/managing-your-connection/refer-healthcare-organizations.mdx"
+            ),
+    ),
+);
+const GettingStartedIndex = React.lazy(
+    lazyRouteMarkdown(() => import("./content/getting-started/index.mdx")),
+);
+const GettingStartedSendingData = React.lazy(
+    lazyRouteMarkdown(
+        () => import("./content/getting-started/sending-data.mdx"),
+    ),
+);
+const ReportStreamApiIndex = React.lazy(
+    lazyRouteMarkdown(
+        () =>
+            import(
+                "./content/developer-resources/reportstream-api/ReportStreamApi.mdx"
+            ),
+    ),
+);
+const DeveloperResourcesIndex = React.lazy(
+    lazyRouteMarkdown(
+        () => import("./content/developer-resources/index-page.mdx"),
+    ),
+);
+const ReportStreamApiGettingStarted = React.lazy(
+    lazyRouteMarkdown(
+        () =>
+            import(
+                "./content/developer-resources/reportstream-api/getting-started/GettingStarted.mdx"
+            ),
+    ),
+);
+const ReportStreamApiDocumentation = React.lazy(
+    lazyRouteMarkdown(
+        () =>
+            import(
+                "./content/developer-resources/reportstream-api/documentation/Documentation.mdx"
+            ),
+    ),
+);
+const ReportStreamApiDocumentationDataModel = React.lazy(
+    lazyRouteMarkdown(
+        () =>
+            import(
+                "./content/developer-resources/reportstream-api/documentation/data-model/DataModel.mdx"
+            ),
+    ),
+);
+const ReportStreamApiDocumentationResponses = React.lazy(
+    lazyRouteMarkdown(
+        () =>
+            import(
+                "./content/developer-resources/reportstream-api/documentation/ResponsesFromReportStream.mdx"
+            ),
+    ),
+);
+const ManagingYourConnectionIndex = React.lazy(
+    lazyRouteMarkdown(
+        () => import("./content/managing-your-connection/index.mdx"),
+    ),
+);
+const SupportIndex = React.lazy(
+    lazyRouteMarkdown(() => import("./content/support/index.mdx")),
+);
+const ReportStreamApiDocumentationPayloads = React.lazy(
+    lazyRouteMarkdown(
+        () =>
+            import(
+                "./content/developer-resources/reportstream-api/documentation/SamplePayloadsAndOutput.mdx"
+            ),
+    ),
+);
+
+/* Public Pages */
+const TermsOfService = React.lazy(() => import("./pages/TermsOfService"));
+const TermsOfServiceForm = React.lazy(
+    () => import("./pages/tos-sign/TermsOfServiceForm"),
+);
+const LoginCallback = React.lazy(
+    () => import("./shared/LoginCallback/LoginCallback"),
+);
+const LogoutCallback = React.lazy(
+    () => import("./shared/LogoutCallback/LogoutCallback"),
+);
+const DataDownloadGuideIa = React.lazy(
+    () => import("./pages/DataDownloadGuide"),
+);
+const GettingStartedPhd = React.lazy(() => import("./pages/GettingStartedPhd"));
+const Login = React.lazy(() => import("./pages/Login"));
+const FileHandler = React.lazy(
+    () => import("./components/FileHandlers/FileHandler"),
+);
+const ErrorNoPage = React.lazy(
+    () => import("./pages/error/legacy-content/ErrorNoPage"),
+);
+
+/* Auth Pages */
+const UploadWithAuth = React.lazy(() => import("./pages/Upload"));
+const FeatureFlagUIWithAuth = React.lazy(
+    () => import("./pages/misc/FeatureFlags"),
+);
+const SubmissionDetailsWithAuth = React.lazy(
+    () => import("./pages/submissions/SubmissionDetails"),
+);
+const SubmissionsWithAuth = React.lazy(
+    () => import("./pages/submissions/Submissions"),
+);
+const AdminMainWithAuth = React.lazy(() => import("./pages/admin/AdminMain"));
+const AdminOrgNewWithAuth = React.lazy(
+    () => import("./pages/admin/AdminOrgNew"),
+);
+const AdminOrgEditWithAuth = React.lazy(
+    () => import("./pages/admin/AdminOrgEdit"),
+);
+const EditSenderSettingsWithAuth = React.lazy(
+    () => import("./components/Admin/EditSenderSettings"),
+);
+const AdminLMFWithAuth = React.lazy(
+    () => import("./pages/admin/AdminLastMileFailures"),
+);
+const AdminMessageTrackerWithAuth = React.lazy(
+    () => import("./pages/admin/AdminMessageTracker"),
+);
+const AdminReceiverDashWithAuth = React.lazy(
+    () => import("./pages/admin/AdminReceiverDashPage"),
+);
+const DeliveryDetailWithAuth = React.lazy(
+    () => import("./pages/deliveries/details/DeliveryDetail"),
+);
+const ValueSetsDetailWithAuth = React.lazy(
+    () => import("./pages/admin/value-set-editor/ValueSetsDetail"),
+);
+const ValueSetsIndexWithAuth = React.lazy(
+    () => import("./pages/admin/value-set-editor/ValueSetsIndex"),
+);
+const DeliveriesWithAuth = React.lazy(
+    () => import("./pages/deliveries/Deliveries"),
+);
+const EditReceiverSettingsWithAuth = React.lazy(
+    () => import("./components/Admin/EditReceiverSettings"),
+);
+const AdminRevHistoryWithAuth = React.lazy(
+    () => import("./pages/admin/AdminRevHistory"),
+);
+const MessageDetailsWithAuth = React.lazy(
+    () => import("./components/MessageTracker/MessageDetails"),
+);
+const ManagePublicKeyWithAuth = React.lazy(
+    () => import("./components/ManagePublicKey/ManagePublicKey"),
+);
+const DataDashboardWithAuth = React.lazy(
+    () => import("./pages/data-dashboard/DataDashboard"),
+);
+const ReportDetailsWithAuth = React.lazy(
+    () => import("./components/DataDashboard/ReportDetails/ReportDetails"),
+);
+const FacilitiesProvidersWithAuth = React.lazy(
+    () =>
+        import(
+            "./components/DataDashboard/FacilitiesProviders/FacilitiesProviders"
+        ),
+);
+const FacilityProviderSubmitterDetailsWithAuth = React.lazy(
+    () =>
+        import(
+            "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails"
+        ),
+);
+const NewSettingWithAuth = React.lazy(
+    () => import("./components/Admin/NewSetting"),
+);
 
 export const appRoutes: RouteObject[] = [
     /* Public Site */
@@ -45,7 +212,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "",
                 index: true,
-                lazy: lazyRouteMarkdown("content/home/index"),
+                element: <Home />,
                 handle: {
                     isContentPage: true,
                     isFullWidth: true,
@@ -64,7 +231,7 @@ export const appRoutes: RouteObject[] = [
                 children: [
                     {
                         index: true,
-                        lazy: lazyRouteMarkdown("content/about/index"),
+                        element: <About />,
                         handle: {
                             isContentPage: true,
                             isFullWidth: true,
@@ -72,35 +239,35 @@ export const appRoutes: RouteObject[] = [
                     },
                     {
                         path: "our-network",
-                        lazy: lazyRouteMarkdown("content/about/our-network"),
+                        element: <OurNetwork />,
                         handle: {
                             isContentPage: true,
                         },
                     },
                     {
                         path: "news",
-                        lazy: lazyRouteMarkdown("content/about/news"),
+                        element: <News />,
                         handle: {
                             isContentPage: true,
                         },
                     },
                     {
                         path: "security",
-                        lazy: lazyRouteMarkdown("content/about/security"),
+                        element: <Security />,
                         handle: {
                             isContentPage: true,
                         },
                     },
                     {
                         path: "release-notes",
-                        lazy: lazyRouteMarkdown("content/about/release-notes"),
+                        element: <ReleaseNotes />,
                         handle: {
                             isContentPage: true,
                         },
                     },
                     {
                         path: "case-studies",
-                        lazy: lazyRouteMarkdown("content/about/case-studies"),
+                        element: <CaseStudies />,
                         handle: {
                             isContentPage: true,
                         },
@@ -142,9 +309,7 @@ export const appRoutes: RouteObject[] = [
                         handle: {
                             isContentPage: true,
                         },
-                        lazy: lazyRouteMarkdown(
-                            "content/managing-your-connection/refer-healthcare-organizations",
-                        ),
+                        element: <ReferHealthcareOrganizations />,
                     },
                     {
                         path: "data-download-guide",
@@ -160,9 +325,7 @@ export const appRoutes: RouteObject[] = [
                 children: [
                     {
                         index: true,
-                        lazy: lazyRouteMarkdown(
-                            "content/getting-started/index",
-                        ),
+                        element: <GettingStartedIndex />,
                         handle: {
                             isContentPage: true,
                             isFullWidth: true,
@@ -170,9 +333,7 @@ export const appRoutes: RouteObject[] = [
                     },
                     {
                         path: "sending-data",
-                        lazy: lazyRouteMarkdown(
-                            "content/getting-started/sending-data",
-                        ),
+                        element: <GettingStartedSendingData />,
                         handle: {
                             isContentPage: true,
                         },
@@ -191,9 +352,7 @@ export const appRoutes: RouteObject[] = [
                 children: [
                     {
                         index: true,
-                        lazy: lazyRouteMarkdown(
-                            "content/developer-resources/index-page",
-                        ),
+                        element: <DeveloperResourcesIndex />,
                         handle: {
                             isContentPage: true,
                             isFullWidth: true,
@@ -205,18 +364,14 @@ export const appRoutes: RouteObject[] = [
                             {
                                 path: "",
                                 index: true,
-                                lazy: lazyRouteMarkdown(
-                                    "content/developer-resources/reportstream-api/ReportStreamApi",
-                                ),
+                                element: <ReportStreamApiIndex />,
                                 handle: {
                                     isContentPage: true,
                                 },
                             },
                             {
                                 path: "getting-started",
-                                lazy: lazyRouteMarkdown(
-                                    "content/developer-resources/reportstream-api/getting-started/GettingStarted",
-                                ),
+                                element: <ReportStreamApiGettingStarted />,
                                 handle: {
                                     isContentPage: true,
                                 },
@@ -226,8 +381,8 @@ export const appRoutes: RouteObject[] = [
                                 children: [
                                     {
                                         path: "",
-                                        lazy: lazyRouteMarkdown(
-                                            "content/developer-resources/reportstream-api/documentation/Documentation",
+                                        element: (
+                                            <ReportStreamApiDocumentation />
                                         ),
                                         index: true,
                                         handle: {
@@ -236,8 +391,8 @@ export const appRoutes: RouteObject[] = [
                                     },
                                     {
                                         path: "data-model",
-                                        lazy: lazyRouteMarkdown(
-                                            "content/developer-resources/reportstream-api/documentation/data-model/DataModel",
+                                        element: (
+                                            <ReportStreamApiDocumentationDataModel />
                                         ),
                                         handle: {
                                             isContentPage: true,
@@ -245,8 +400,8 @@ export const appRoutes: RouteObject[] = [
                                     },
                                     {
                                         path: "responses-from-reportstream",
-                                        lazy: lazyRouteMarkdown(
-                                            "content/developer-resources/reportstream-api/documentation/ResponsesFromReportStream",
+                                        element: (
+                                            <ReportStreamApiDocumentationResponses />
                                         ),
                                         handle: {
                                             isContentPage: true,
@@ -254,8 +409,8 @@ export const appRoutes: RouteObject[] = [
                                     },
                                     {
                                         path: "sample-payloads-and-output",
-                                        lazy: lazyRouteMarkdown(
-                                            "content/developer-resources/reportstream-api/documentation/SamplePayloadsAndOutput",
+                                        element: (
+                                            <ReportStreamApiDocumentationPayloads />
                                         ),
                                         handle: {
                                             isContentPage: true,
@@ -276,9 +431,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "/managing-your-connection",
                 index: true,
-                lazy: lazyRouteMarkdown(
-                    "content/managing-your-connection/index",
-                ),
+                element: <ManagingYourConnectionIndex />,
                 handle: {
                     isContentPage: true,
                     isFullWidth: true,
@@ -289,7 +442,7 @@ export const appRoutes: RouteObject[] = [
                 children: [
                     {
                         path: "",
-                        lazy: lazyRouteMarkdown("content/support/index"),
+                        element: <SupportIndex />,
                         index: true,
                         handle: {
                             isContentPage: true,
@@ -463,8 +616,10 @@ export const appRoutes: RouteObject[] = [
     },
 ] satisfies RsRouteObject[];
 
-export function createRouter(root: React.ReactElement) {
-    appRoutes[0].element = root;
+export function createRouter(
+    Component: React.LazyExoticComponent<React.ComponentType>,
+) {
+    appRoutes[0].element = <Component />;
     const router = createBrowserRouter(appRoutes);
     return router;
 }

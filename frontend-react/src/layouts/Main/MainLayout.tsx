@@ -5,8 +5,6 @@ import React, { Suspense, useMemo } from "react";
 
 import RSErrorBoundary from "../../components/RSErrorBoundary";
 import { ReportStreamFooter } from "../../shared/ReportStreamFooter/ReportStreamFooter";
-import ScrollRestoration from "../../components/ScrollRestoration";
-import { useScrollToTop } from "../../hooks/UseScrollToTop";
 import { ReportStreamHeader } from "../../components/header/ReportStreamHeader";
 import Spinner from "../../components/Spinner";
 
@@ -28,7 +26,6 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
         !isContentPage && "tablet:grid-col-12",
     );
     const suspenseFallback = useMemo(() => <Spinner size={"fullpage"} />, []);
-    useScrollToTop();
 
     return (
         <div
@@ -44,7 +41,6 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
             <main className="padding-top-5" id="main-content">
                 <InnerWrapper className={innerWrapperClassnames}>
                     <RSErrorBoundary>
-                        <ScrollRestoration />
                         {children}
                         <Suspense fallback={suspenseFallback}>
                             <Outlet />

@@ -256,3 +256,5 @@ export const ValueSetsDetailWithAuth = () => (
         requiredUserType={MemberType.PRIME_ADMIN}
     />
 );
+
+export default ValueSetsDetailWithAuth;

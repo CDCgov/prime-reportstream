@@ -141,9 +141,11 @@ export function NewSetting() {
     );
 }
 
-export const NewSettingWithAuth = () => (
+export const NewSettingWithAuth: React.ComponentType = () => (
     <AuthElement
         element={<NewSetting />}
         requiredUserType={MemberType.PRIME_ADMIN}
     />
 );
+
+export default NewSettingWithAuth;

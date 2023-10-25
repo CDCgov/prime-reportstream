@@ -43,3 +43,5 @@ export function AdminMainWithAuth() {
         />
     );
 }
+
+export default AdminMainWithAuth;

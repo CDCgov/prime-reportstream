@@ -458,3 +458,5 @@ export function EditReceiverSettingsWithAuth() {
         />
     );
 }
+
+export default EditReceiverSettingsWithAuth;

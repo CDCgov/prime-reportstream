@@ -26,7 +26,6 @@ const oktaAuthConfig: OktaAuthOptions = {
     },
     async transformAuthState(oktaAuth, authState) {
         let finalAuthState: AuthState = structuredClone(authState);
-
         // Prevent pulling incorrect token from a different okta environment
         if (
             authState.isAuthenticated &&

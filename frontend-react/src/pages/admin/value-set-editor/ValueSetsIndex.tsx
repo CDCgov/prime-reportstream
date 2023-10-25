@@ -92,11 +92,11 @@ const ValueSetsIndex = () => {
     );
 };
 
-export default ValueSetsIndex;
-
 export const ValueSetsIndexWithAuth = () => (
     <AuthElement
         element={<ValueSetsIndex />}
         requiredUserType={MemberType.PRIME_ADMIN}
     />
 );
+
+export default ValueSetsIndexWithAuth;

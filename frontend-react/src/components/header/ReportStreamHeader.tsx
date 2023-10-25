@@ -423,3 +423,5 @@ export const ReportStreamHeader = ({
         </>
     );
 };
+
+export default ReportStreamHeader;

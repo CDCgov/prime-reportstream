@@ -38,3 +38,5 @@ export const SubmissionsWithAuth = () => (
         requiredUserType={MemberType.SENDER}
     />
 );
+
+export default SubmissionsWithAuth;
