@@ -829,7 +829,7 @@ dependencies {
     implementation("org.yaml:snakeyaml:2.2")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter") {
         version {
-            branch = "kalish/use-sorted-map-for-processing-nestedexpression-expressions"
+            branch = "kalish/introduce-updated-address-type-mapping"
         }
     }
 //    implementation("com.github.focusconsulting:hl7v2-fhir-converter:v1.0.20-SNAPSHOT")

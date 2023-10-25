@@ -2,12 +2,12 @@ elements:
 
   # TODO: %resource.line[0] can be removed if the sample_AOE files are no longer in use
   - name: street-address
-    value: [ '%deidentifiedValue', '%resource.extension(%`rsext-xad1-sad1-street-or-mailing-address`).value', '%resource.line[0]' ]
+    value: [ '%deidentifiedValue', '%resource.extension(%`rsext-xad1-sad1-street-or-mailing-address`).value' ]
     hl7Spec: [ '%{hl7SpecXADField}-1-1' ]
 
   - name: street-number
     value: [ '%deidentifiedValue', '%resource.extension(%`rsext-xad1-sad2-street-name`).value' ]
-    hl7Spec: [ '%{hl7SpecXADField}-1-2' ] # NK1-32-1-2 Terser.set(hl7Message, value, "NK1-32-1-2")
+    hl7Spec: [ '%{hl7SpecXADField}-1-2' ]
 
   - name: dwelling-number
     value: [ '%deidentifiedValue', '%resource.extension(%`rsext-xad1-sad3-dwelling-number`).value' ]

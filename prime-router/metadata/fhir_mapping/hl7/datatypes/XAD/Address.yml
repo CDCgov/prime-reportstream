@@ -18,8 +18,6 @@ line:
       expressionType: HL7Spec
       valueOf: XAD.19
 
-
-
 extension_1-xad1Sad1StreetOrMailingAddress:
   generateList: true
   expressionType: nested
@@ -27,7 +25,7 @@ extension_1-xad1Sad1StreetOrMailingAddress:
     url:
       type: SYSTEM_URL
       value: xad1-sad1-street-or-mailing-address
-    valueCode:
+    valueString:
       type: STRING
       valueOf: XAD.1.1
       expressionType: HL7Spec
@@ -39,7 +37,7 @@ extension_2-xad1Sad2StreetName:
     url:
       type: SYSTEM_URL
       value: xad1-sad2-street-name
-    valueCode:
+    valueString:
       type: STRING
       valueOf: XAD.1.2
       expressionType: HL7Spec
@@ -51,7 +49,7 @@ extension_3-xad1Sad3DwellingNumber:
     url:
       type: SYSTEM_URL
       value: xad1-sad3-dwelling-number
-    valueCode:
+    valueString:
       type: STRING
       valueOf: XAD.1.3
       expressionType: HL7Spec
@@ -63,7 +61,7 @@ extension_4-xad2OtherDesignation:
     url:
       type: SYSTEM_URL
       value: xad2-other-designation
-    valueCode:
+    valueString:
       type: STRING
       valueOf: XAD.2
       expressionType: HL7Spec
@@ -94,15 +92,15 @@ type:
     xad7: String, XAD.7
   condition: $xad7 EQUALS M || $xad7 EQUALS SH
   type: STRING
-  expressionType: HL7Spec
-  valueOf: XAD.7
+  expressionType: JEXL
+  valueOf: 'GeneralUtils.getAddressTypeUpdated(xad7)'
 
 use:
   vars:
     xad7: String, XAD.7
   condition: $xad7 EQUALS BA || $xad7 EQUALS BI || $xad7 EQUALS C || $xad7 EQUALS B || $xad7 EQUALS H || $xad7 EQUALS O
   type: STRING
-  valueOf: 'GeneralUtils.getAddressUse( xad7Type, null, null)'
+  valueOf: 'GeneralUtils.getAddressUseUpdated(xad7)'
   expressionType: JEXL
 
 extension_4-addressTypeHv:
@@ -139,7 +137,7 @@ extension_6-xad8OtherGeographicDestination:
     url:
       type: SYSTEM_URL
       value: xad8-other-geographic-destination
-    valueCode:
+    valueString:
       type: STRING
       valueOf: XAD.8
       expressionType: HL7Spec
@@ -175,8 +173,6 @@ extension_7-xad11AddressRepresentationCode:
 # TODO: #11817
 # period
 
-# TODO: #11664
-# XAD.12 is deprecated so the schema favors using XAD.13/14 if either are populated
 period:
   vars:
     xad13: String, XAD.13
