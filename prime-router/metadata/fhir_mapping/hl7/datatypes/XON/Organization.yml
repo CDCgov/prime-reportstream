@@ -23,10 +23,17 @@ extension_1-nameType:
       expressionType: resource
       specs: XON.2
 
-# TODO investigate every property needs a conditional
+
 identifier_1:
+  condition: $xon3 NOT_NULL || $xon4 NOT_NULL || $xon5 NOT_NULL || $xon6 NOT_NULL || $xon7 NOT_NULL || $xon8 NOT_NULL || $xon10 NOT_NULL
   expressionType: nested
   vars:
+    xon3: XON.3
+    xon4: XON.4
+    xon5: XON.5
+    xon6: XON.6
+    xon7: XON.7
+    xon8: XON.8
     xon10: String, XON.10
   expressionsMap:
     value_1:
@@ -40,6 +47,7 @@ identifier_1:
       expressionType: HL7Spec
       valueOf: XON.10
     type:
+      condition: $xon7 NOT_NULL
       valueOf: datatype/CodeableConcept_var
       expressionType: resource
       vars:
@@ -47,6 +55,7 @@ identifier_1:
       constants:
         system: "http://terminology.hl7.org/CodeSystem/v2-0203"
     extension_1-checkDigitSchema:
+      condition: $xon5 NOT_NULL
       generateList: true
       expressionType: nested
       expressionsMap:
@@ -58,6 +67,7 @@ identifier_1:
           type: STRING
           expressionType: HL7Spec
     extension_2-checkDigit:
+      condition: $xon4 NOT_NULL
       generateList: true
       expressionType: nested
       expressionsMap:
@@ -70,8 +80,6 @@ identifier_1:
           valueOf: XON.4
     extension_3-assigningAuthority:
       condition: $xon6 NOT_NULL
-      vars:
-        xon6: String, XON.6
       generateList: true
       expressionType: resource
       valueOf: datatypes/HD/ExtensionAssigningAuthority

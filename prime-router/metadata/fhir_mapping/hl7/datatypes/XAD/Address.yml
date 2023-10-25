@@ -93,14 +93,14 @@ type:
   condition: $xad7 EQUALS M || $xad7 EQUALS SH
   type: STRING
   expressionType: JEXL
-  valueOf: 'GeneralUtils.getAddressTypeUpdated(xad7)'
+  valueOf: 'GeneralUtils.getFhirAddressType(xad7)'
 
 use:
   vars:
     xad7: String, XAD.7
   condition: $xad7 EQUALS BA || $xad7 EQUALS BI || $xad7 EQUALS C || $xad7 EQUALS B || $xad7 EQUALS H || $xad7 EQUALS O
   type: STRING
-  valueOf: 'GeneralUtils.getAddressUseUpdated(xad7)'
+  valueOf: 'GeneralUtils.getFhirAddressUse(xad7)'
   expressionType: JEXL
 
 extension_4-addressTypeHv:
