@@ -18,14 +18,6 @@ elements:
     value: [ '%resource.name.given.tail()' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-4' ]
 
-  - name: xcn-suffix-from-value
-    condition: >
-      %resource.name.extension(%`rsext-name-suffix`).exists().not() and 
-      %resource.name.extension(%`rsext-name-suffix-degree`).exists().not() and 
-      %resource.name.extension(%`rsext-name-suffix-professional`).exists().not()
-    value: [ '%resource.name.suffix.toString()' ]
-    hl7Spec: [ '%{hl7XCNFieldPath}-5' ]
-
   - name: xcn-suffix-from-extension
     condition: '%resource.name.extension(%`rsext-name-suffix`).exists()'
     value: [ '%resource.name.extension(%`rsext-name-suffix`).value' ]
