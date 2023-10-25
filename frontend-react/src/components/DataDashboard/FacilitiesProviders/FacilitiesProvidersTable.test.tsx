@@ -105,15 +105,9 @@ describe("FacilitiesProvidersTable", () => {
             renderApp(<FacilitiesProvidersTable />);
         });
 
-        test("if no activeService display NoServicesBanner", async () => {
-            const heading = await screen.findByText(
-                /Active Services unavailable/i,
-            );
+        test("if no active service display NoServicesBanner", async () => {
+            const heading = await screen.findByText(/No available data/i);
             expect(heading).toBeInTheDocument();
-            const message = await screen.findByText(
-                /No valid receiver found for your organization/i,
-            );
-            expect(message).toBeInTheDocument();
         });
     });
 });
@@ -127,6 +121,24 @@ describe("FacilitiesProvidersTable", () => {
                 services: mockReceivers,
                 setActiveService: () => {},
                 isDisabled: false,
+            });
+
+            // Mock our SessionProvider's data
+            mockSessionContext.mockReturnValue({
+                oktaToken: {
+                    accessToken: "TOKEN",
+                },
+                activeMembership: {
+                    memberType: MemberType.RECEIVER,
+                    parsedName: "testOrgNoReceivers",
+                    service: "testReceiver",
+                },
+                dispatch: () => {},
+                initialized: true,
+                isUserAdmin: false,
+                isUserReceiver: true,
+                isUserSender: false,
+                environment: "test",
             });
 
             const mockUseReceiverSubmitterCallback = {

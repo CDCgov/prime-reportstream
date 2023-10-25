@@ -59,48 +59,33 @@ elements:
         other: O
 
   #race
+  - name: patient-race-codeable-concept
+    condition: '%resource.exists()'
+    resource: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value'
+    constants:
+      cweFieldPath: '%{hl7PIDField}-10'
+    schema: datatype/ce-coded-with-exceptions
+
   - name: patient-race-identifier
+    condition: '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").exists()'
     value:
-      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[0].code'
       - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("ombCategory").value.code'
     hl7Spec: [ '%{hl7PIDField}-10-1' ]
 
-  - name: patient-race-text
+  - name: patient-race-display
+    condition: '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").exists()'
     value:
-      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[0].display'
-      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.text'
       - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("text").value'
       - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("ombCategory").value.display'
     hl7Spec: [ '%{hl7PIDField}-10-2' ]
 
   # this value just confirms that this segment part is HL7-Race
   - name: patient-race-coding-system
-    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").exists() or
-                %resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").exists()'
+    condition: '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").exists()'
     value:
       - '%resource.extension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-race").extension("ombCategory").value.system'
       - '"HL70005"'
     hl7Spec: [ '%{hl7PIDField}-10-3' ]
-
-  - name: patient-race-alternate-identifier
-    value:
-      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[1].code'
-    hl7Spec: [ '%{hl7PIDField}-10-4' ]
-
-  - name: patient-race-alternate-text
-    value:
-      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[1].display'
-    hl7Spec: [ '%{hl7PIDField}-10-5' ]
-
-  - name: patient-race-alternate-system
-    value:
-      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[1].system'
-    hl7Spec: [ '%{hl7PIDField}-10-6' ]
-
-  - name: patient-race-coding-system-version
-    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.exists()'
-    value: [ '"2.5.1"' ]
-    hl7Spec: [ '%{hl7PIDField}-10-7' ]
 
   - name: patient-address
     resource: '%resource.address'
@@ -110,9 +95,9 @@ elements:
     schema: datatype/xad-extended-address
     resourceIndex: orderIndex
 
-  # We have to check for system equals "email" because we're not receiving use for email
   - name: phone-number-home-mobile-email
-    resource: '%resource.telecom.where(use != "work" or system = "email")'
+    resource: '%resource.telecom.where(use.empty() or use != "work")'
+    condition: '%context.telecom.where(extension(%`rsext-hl7v2Name`)).exists().not()'
     constants:
       hl7TelecomField: '%{hl7PIDField}-13'
     schema: datatype/xtn-telecom
@@ -120,6 +105,7 @@ elements:
 
   - name: phone-number-business
     resource: '%resource.telecom.where(use = "work")'
+    condition: '%context.telecom.where(extension(%`rsext-hl7v2Name`)).exists().not()'
     constants:
       hl7TelecomField: '%{hl7PIDField}-14'
     schema: datatype/xtn-telecom
@@ -138,17 +124,12 @@ elements:
   - name: patient-ethnicity
     resource: '%resource.extension(%`rsext-ethnic-group`).value'
     constants:
-      ceFieldPath: '%{hl7PIDField}-22'
-    schema: datatype/ce-coded-element
-
-  - name: patient-ethnicity-coding-system-version
-    condition: '%resource.extension(%`rsext-ethnic-group`).value.exists()'
-    value: [ '"2.9"' ]
-    hl7Spec: [ '%{hl7PIDField}-22-7' ]
+      cweFieldPath: '%{hl7PIDField}-22'
+    schema: datatype/ce-coded-with-exceptions
 
   - name: patient-multiple-birth-indicator
-    condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is Boolean'
-    value: ['%resource.multipleBirth']
+    condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is boolean'
+    value: [ '%resource.multipleBirth' ]
     hl7Spec: [ '%{hl7PIDField}-24' ]
     valueSet:
       values:
@@ -156,22 +137,22 @@ elements:
         false: N
 
   - name: patient-multiple-birth-order
-    condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is Integer'
-    value: ['%resource.multipleBirth']
+    condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is integer'
+    value: [ '%resource.multipleBirth' ]
     hl7Spec: [ '%{hl7PIDField}-25' ]
 
   - name: patient-death-date-time
-    condition: '%resource.deceased.exists() and %resource.deceased is DateTime'
+    condition: '%resource.deceased.exists() and %resource.deceased is dateTime'
     value: [ '%resource.deceased' ]
     hl7Spec: [ '%{hl7PIDField}-29' ]
 
   - name: patient-death-indicator-1
-    condition: '%resource.deceased.exists() and %resource.deceased is DateTime'
+    condition: '%resource.deceased.exists() and %resource.deceased is dateTime'
     value: [ '"Y"' ]
     hl7Spec: [ '%{hl7PIDField}-30' ]
 
   - name: patient-death-indicator-2
-    condition: '%resource.deceased.exists() and %resource.deceased is Boolean'
+    condition: '%resource.deceased.exists() and %resource.deceased is boolean'
     value: [ '%resource.deceased' ]
     hl7Spec: [ '%{hl7PIDField}-30' ]
     valueSet:

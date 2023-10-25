@@ -32,7 +32,7 @@ class FileSettings : SettingsProvider {
      */
     constructor(
         settingsPath: String,
-        orgExt: String? = null
+        orgExt: String? = null,
     ) {
         val organizationsFilename = "${organizationsBaseName}${orgExt ?: ""}.yml"
         val settingsDirectory = File(settingsPath)
@@ -60,14 +60,18 @@ class FileSettings : SettingsProvider {
 
     fun loadOrganizationList(organizations: List<DeepOrganization>): FileSettings {
         organizations.forEach { org ->
-            if (org.receivers.find { it.organizationName != org.name } != null)
+            if (org.receivers.find { it.organizationName != org.name } != null) {
                 error("Metadata Error: receiver organizationName does not match in ${org.name}")
-            if (org.receivers.associateBy { it.fullName }.size != org.receivers.size)
+            }
+            if (org.receivers.associateBy { it.fullName }.size != org.receivers.size) {
                 error("Metadata Error: duplicate receiver name in ${org.name}")
-            if (org.senders.find { it.organizationName != org.name } != null)
+            }
+            if (org.senders.find { it.organizationName != org.name } != null) {
                 error("Metadata Error: sender organizationName does not match in ${org.name}")
-            if (org.senders.associateBy { it.fullName }.size != org.senders.size)
+            }
+            if (org.senders.associateBy { it.fullName }.size != org.senders.size) {
                 error("Metadata Error: duplicate sender name in ${org.name}")
+            }
         }
         organizationStore = organizations.associateBy { it.name }
         senderStore = organizations.flatMap { it.senders }.associateBy { it.fullName }
@@ -75,8 +79,9 @@ class FileSettings : SettingsProvider {
 
         receiverStore.forEach { (_, receiver) ->
             receiver.timing?.let {
-                if (!it.isValid())
+                if (!it.isValid()) {
                     error("Metadata Error: improper batch value for ${receiver.fullName}")
+                }
             }
         }
         return this

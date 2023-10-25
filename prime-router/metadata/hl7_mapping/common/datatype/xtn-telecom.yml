@@ -10,16 +10,16 @@ elements:
       values:
         home: PRN
         work: WPN
-        mobile: PRN
+        mobile: PRS
         temp: ORN
 
   - name: xtn-use-code-from-system
-    condition: '%resource.system = "pager"'
+    condition: '%resource.system = "pager" and %resource.use.exists().not()'
     value: [ '"BPN"' ]
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
   - name: xtn-use-code-from-system
-    condition: '%resource.system = "email"'
+    condition: '%resource.system = "email" and %resource.use.exists().not()'
     value: [ '"NET"' ]
     hl7Spec: [ '%{hl7TelecomPath}-2' ]
 
@@ -72,7 +72,7 @@ elements:
     hl7Spec: [ '%{hl7TelecomPath}-7' ]
 
   - name: xtn-extension
-    condition: '%resource.value.hasPhoneNumberExtension()'
+    condition: '%resource.value.exists() and %resource.value.hasPhoneNumberExtension()'
     value: [ '%resource.value.getPhoneNumberExtension()' ]
     hl7Spec: [ '%{hl7TelecomPath}-8' ]
 

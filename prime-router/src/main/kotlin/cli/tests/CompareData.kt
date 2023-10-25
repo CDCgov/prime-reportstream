@@ -67,7 +67,7 @@ class DataCompareTest : CoolTest() {
         val orgName: String,
         val receiverName: String,
         val expectedCount: Int,
-        var receiver: Receiver? = null
+        var receiver: Receiver? = null,
     )
 
     /**
@@ -102,7 +102,7 @@ class DataCompareTest : CoolTest() {
         /**
          * The number of expected reports in the output.  This is used to check the results in the lineage.
          */
-        EXPECTED_COUNT("Expected count")
+        EXPECTED_COUNT("Expected count"),
     }
 
     override suspend fun run(environment: Environment, options: CoolTestOptions): Boolean {
@@ -251,7 +251,7 @@ class DataCompareTest : CoolTest() {
     private fun compareSentReports(
         reportId: ReportId,
         output: TestOutput,
-        sftpDir: String
+        sftpDir: String,
     ): Boolean {
         var passed = true
         db = WorkflowEngine().db
@@ -303,7 +303,7 @@ class CompareData {
     data class Result(
         var passed: Boolean = true,
         val errors: ArrayList<String> = ArrayList(),
-        val warnings: ArrayList<String> = ArrayList()
+        val warnings: ArrayList<String> = ArrayList(),
     ) {
         /**
          * Merge results by adding [anotherResult] errors and warnings and setting the passed flag.
@@ -330,7 +330,7 @@ warnings: ${warnings.joinToString()}
         expected: File,
         actual: File,
         format: Report.Format?,
-        schema: Schema
+        schema: Schema,
     ): Result {
         val result = Result()
         fun checkFile(file: File) {
@@ -365,7 +365,7 @@ warnings: ${warnings.joinToString()}
         format: Report.Format?,
         schema: Schema?,
         result: Result = Result(),
-        fieldsToIgnore: List<String>? = null
+        fieldsToIgnore: List<String>? = null,
     ): Result {
         check((format == Report.Format.CSV && schema != null) || format != Report.Format.CSV) { "Schema is required" }
         val compareResult = when (format) {
@@ -386,7 +386,7 @@ warnings: ${warnings.joinToString()}
  */
 class CompareHl7Data(
     val result: CompareData.Result = CompareData.Result(),
-    private val ignoredFields: List<String> = covidDynamicHl7Fields
+    private val ignoredFields: List<String> = covidDynamicHl7Fields,
 ) {
     companion object {
         /**
@@ -412,7 +412,7 @@ class CompareHl7Data(
     fun compare(
         expected: InputStream,
         actual: InputStream,
-        result: CompareData.Result = CompareData.Result()
+        result: CompareData.Result = CompareData.Result(),
     ): CompareData.Result {
         var passed = true
         val mcf = CanonicalModelClassFactory("2.5.1")
@@ -512,11 +512,14 @@ class CompareHl7Data(
         fieldName: String,
         actualFieldContents: Array<Type>,
         expectedFieldContents: Array<Type>,
-        result: CompareData.Result
+        result: CompareData.Result,
     ): Boolean {
         var passed = true
-        val maxNumRepetitions = if (actualFieldContents.size > expectedFieldContents.size) actualFieldContents.size
-        else expectedFieldContents.size
+        val maxNumRepetitions = if (actualFieldContents.size > expectedFieldContents.size) {
+            actualFieldContents.size
+        } else {
+            expectedFieldContents.size
+        }
         if (maxNumRepetitions > 0) {
             // Loop through all the components in a field and compare their values.
             for (repetitionIndex in 0 until maxNumRepetitions) {
@@ -524,10 +527,14 @@ class CompareHl7Data(
                 if (!ignoredFields.contains(fieldSpec)) {
                     val expectedFieldValue = if (repetitionIndex < expectedFieldContents.size) {
                         expectedFieldContents[repetitionIndex].toString().trim()
-                    } else ""
+                    } else {
+                        ""
+                    }
                     val actualFieldValue = if (repetitionIndex < actualFieldContents.size) {
                         actualFieldContents[repetitionIndex].toString().trim()
-                    } else ""
+                    } else {
+                        ""
+                    }
                     passed = passed and compareComponent(
                         actualFieldValue,
                         expectedFieldValue,
@@ -561,7 +568,7 @@ class CompareHl7Data(
         recordNum: Int,
         fieldSpec: String,
         fieldName: String,
-        result: CompareData.Result
+        result: CompareData.Result,
     ): Boolean {
         var passed = true
         // Get the components.  HAPI can return a string with a type (e.g. HD[blah^blah]) or a string
@@ -581,14 +588,20 @@ class CompareHl7Data(
         // Loop through all the components
         val maxNumComponents = if (actualValueComponents.size > expectedValueComponents.size) {
             actualValueComponents.size
-        } else expectedValueComponents.size
+        } else {
+            expectedValueComponents.size
+        }
         for (componentIndex in 0 until maxNumComponents) {
             val expectedComponentValue = if (componentIndex < expectedValueComponents.size) {
                 expectedValueComponents[componentIndex].trim()
-            } else ""
+            } else {
+                ""
+            }
             val actualComponentValue = if (componentIndex < actualValueComponents.size) {
                 actualValueComponents[componentIndex].trim()
-            } else ""
+            } else {
+                ""
+            }
 
             // If we have more than one component then show the component number is the messages
             val componentSpec = if (maxNumComponents > 1) "$fieldSpec-${componentIndex + 1}" else fieldSpec
@@ -636,7 +649,7 @@ class CompareCsvData {
         actual: InputStream,
         schema: Schema,
         fieldsToIgnore: List<String>? = null,
-        result: CompareData.Result = CompareData.Result()
+        result: CompareData.Result = CompareData.Result(),
     ): CompareData.Result {
         val expectedRows = csvReader().readAll(expected)
         val actualRows = csvReader().readAll(actual)
@@ -662,20 +675,28 @@ class CompareCsvData {
                 val actualMsgId = if (schemaMsgIdIndex != null) actualRow[schemaMsgIdIndex].trim() else null
                 val actualLastName = if (schemaPatLastNameIndex != null) {
                     actualRow[schemaPatLastNameIndex].trim()
-                } else null
+                } else {
+                    null
+                }
                 val actualPatState = if (schemaPatStateIndex != null) {
                     actualRow[schemaPatStateIndex].trim()
-                } else null
+                } else {
+                    null
+                }
 
                 // Find the expected row that matches the actual record
                 val matchingExpectedRow = expectedRows.filter {
                     val expectedMsgId = if (expectedMsgIdIndex >= 0) it[expectedMsgIdIndex].trim() else null
                     val expectedLastName = if (expectedPatLastNameIndex >= 0) {
                         it[expectedPatLastNameIndex].trim()
-                    } else null
+                    } else {
+                        null
+                    }
                     val expectedPatState = if (expectedPatStateIndex >= 0) {
                         it[expectedPatStateIndex].trim()
-                    } else null
+                    } else {
+                        null
+                    }
 
                     schemaMsgIdIndex != null && expectedMsgId == actualMsgId ||
                         (
@@ -738,7 +759,7 @@ class CompareCsvData {
         schema: Schema,
         actualRowNum: Int,
         fieldsToIgnore: List<String>?,
-        result: CompareData.Result
+        result: CompareData.Result,
     ): Boolean {
         var passed = true
         if (actualRow.isEmpty()) {
@@ -775,7 +796,9 @@ class CompareCsvData {
                 val expectedColIndex = getCsvColumnIndex(schema.elements[j], expectedHeaders)
                 val expectedValue = if (expectedColIndex >= 0) {
                     expectedRow[expectedColIndex].trim()
-                } else ""
+                } else {
+                    ""
+                }
 
                 // If there is an expected value then compare it.
                 if (expectedValue.isNotBlank()) {
@@ -853,7 +876,9 @@ class CompareCsvData {
         }
         return if (expectedColIndexByCsvIndex != null && expectedColIndexByCsvIndex >= 0) {
             expectedColIndexByCsvIndex
-        } else expectedColIndexByElementIndex
+        } else {
+            expectedColIndexByElementIndex
+        }
     }
 }
 
@@ -862,7 +887,7 @@ class CompareCsvData {
  * @property result the result of the comparison
  */
 class CompareFile(
-    val result: CompareData.Result = CompareData.Result()
+    val result: CompareData.Result = CompareData.Result(),
 ) {
     /**
      * Compare the contents of a file [actual] vs [expected] and provide the [result].
@@ -870,7 +895,7 @@ class CompareFile(
     fun compare(
         expected: InputStream,
         actual: InputStream,
-        result: CompareData.Result = CompareData.Result()
+        result: CompareData.Result = CompareData.Result(),
     ): CompareData.Result {
         // Read the data
         val expectedData = expected.bufferedReader().readLines()

@@ -1,8 +1,12 @@
 package gov.cdc.prime.router.fhirengine.translation.hl7.utils
 
+import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
+import ca.uhn.hl7v2.model.AbstractMessage
 import ca.uhn.hl7v2.model.Message
+import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Terser
+import ca.uhn.hl7v2.validation.impl.ValidationContextFactory
 import org.apache.logging.log4j.kotlin.Logging
 
 /**
@@ -26,11 +30,19 @@ object HL7Utils : Logging {
      */
     internal fun getMessage(hl7Class: String): Message {
         return try {
-            val message = Class.forName(hl7Class).getDeclaredConstructor().newInstance()
-            if (message is Message) {
-                getMessageTypeString(message) // Just check we can get the type string
+            val messageClass = Class.forName(hl7Class)
+            if (AbstractMessage::class.java.isAssignableFrom(messageClass)) {
+                // We verify above that we have a valid subclass of Message as required for parsing
+                // but the compiler does not know that, so we have to cast
+                @Suppress("UNCHECKED_CAST")
+                val context =
+                    DefaultHapiContext(CanonicalModelClassFactory(messageClass as Class<out Message>))
+                context.validationContext = ValidationContextFactory.noValidation()
+                val message = context.newMessage(messageClass)
                 message
-            } else throw IllegalArgumentException("$hl7Class is not a subclass of ca.uhn.hl7v2.model.Message.")
+            } else {
+                throw IllegalArgumentException("$hl7Class is not a subclass of ca.uhn.hl7v2.model.Message.")
+            }
         } catch (e: Exception) {
             throw IllegalArgumentException("$hl7Class is not a class to use for the conversion.")
         }
@@ -42,9 +54,11 @@ object HL7Utils : Logging {
      */
     internal fun getMessageTypeString(message: Message): List<String> {
         val typeParts = message.javaClass.simpleName.split("_")
-        return if (typeParts.size != 2)
+        return if (typeParts.size != 2) {
             throw IllegalArgumentException("${message.javaClass.simpleName} is not a class to use for the conversion.")
-        else typeParts
+        } else {
+            typeParts
+        }
     }
 
     /**
@@ -89,6 +103,11 @@ object HL7Utils : Logging {
         return message
     }
 
+    /**
+     * Only call from COVID pipeline!
+     *
+     * This is not generic enough for the UP
+     */
     fun formPathSpec(spec: String, rep: Int? = null): String {
         val segment = spec.substring(0, 3)
         val components = spec.substring(3)
@@ -96,8 +115,11 @@ object HL7Utils : Logging {
         return "$segmentSpec$components"
     }
 
-    // TODO: UP supports different types of HL7 messages, and the paths to these segments are different per HL7 type
-    // TODO: write ticket to handle this
+    /**
+     * Only call from COVID pipeline!
+     *
+     * This is not generic enough for the UP
+     */
     fun formSegSpec(segment: String, rep: Int? = null): String {
         val repSpec = rep?.let { "($rep)" } ?: ""
         return when (segment) {
@@ -122,6 +144,8 @@ object HL7Utils : Logging {
 
         return if (start != -1 && end != -1) {
             field.replaceRange(start, end + 1, "")
-        } else field
+        } else {
+            field
+        }
     }
 }

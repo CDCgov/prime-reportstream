@@ -9,6 +9,10 @@ locals {
     resource_prefix     = "pdh${local.environment}"
     okta_redirect_url   = "https://prime.cdc.gov/download"
     okta_base_url       = "hhs-prime.okta.com"
+    OKTA_authKey        = "MG9hNmtqY21pNm11TnZVOHAxZDc6VXNjN2NOeWU4Q3JBQlgxUEJvQlUwbDhpQTNlck5idGNxTVFFd01sQQ=="
+    OKTA_clientId       = "0oa6kt4j3tOFz5SH84h6"
+    fn_OKTA_clientId    = "0oa6kt4j3tOFz5SH84h6"
+    OKTA_scope          = "simple_report_dev"
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig"
@@ -28,7 +32,7 @@ locals {
     delete_pii_storage_after_days = 60
   }
   database = {
-    db_sku_name         = "GP_Gen5_16"
+    db_sku_name         = "MO_Gen5_32"
     db_version          = "11"
     db_storage_mb       = 5120
     db_auto_grow        = true
@@ -52,7 +56,7 @@ locals {
     use_cdc_managed_vnet        = true
     dns_vnet                    = "East-vnet"
     dns_ip                      = "172.17.0.135"
-    terraform_caller_ip_address = ["162.224.209.174", "24.163.118.70", "75.191.122.59", "108.48.23.191"]
+    terraform_caller_ip_address = jsondecode(data.azurerm_key_vault_secret.caller_ip_addresses.value)
     config = {
       "East-vnet" = {
         "address_space"           = "172.17.${local.address_id}.0/25"

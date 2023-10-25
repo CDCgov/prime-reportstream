@@ -171,8 +171,8 @@ export function ManagePublicKey() {
                     </p>
                     <Alert type="tip" className="margin-bottom-6">
                         <span className="padding-left-1">
-                            Learn more about
-                            <USLink href="/resources/api/getting-started#set-up-authentication">
+                            Learn more about{" "}
+                            <USLink href="/developer-resources/api/getting-started#set-up-authentication">
                                 generating your public key
                             </USLink>{" "}
                             and setting up authentication.

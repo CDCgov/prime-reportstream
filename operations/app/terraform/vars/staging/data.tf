@@ -6,6 +6,11 @@ data "azurerm_key_vault" "app_config" {
   resource_group_name = local.init.resource_group_name
 }
 
+data "azurerm_key_vault_secret" "sendgrid_password" {
+  name         = "sendgrid-password"
+  key_vault_id = data.azurerm_key_vault.app_config.id
+}
+
 data "azurerm_key_vault_secret" "postgres_user" {
   name         = "functionapp-postgres-user"
   key_vault_id = data.azurerm_key_vault.app_config.id
@@ -58,5 +63,10 @@ data "azurerm_key_vault_secret" "chatops_slack_app_token" {
 
 data "azurerm_key_vault_secret" "chatops_github_token" {
   name         = "chatops-github-token"
+  key_vault_id = data.azurerm_key_vault.tf-secrets.id
+}
+
+data "azurerm_key_vault_secret" "caller_ip_addresses" {
+  name         = "tf-caller-ip-addresses"
   key_vault_id = data.azurerm_key_vault.tf-secrets.id
 }

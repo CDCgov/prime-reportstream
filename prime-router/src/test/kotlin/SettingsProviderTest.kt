@@ -53,7 +53,7 @@ class SettingsProviderTest {
     class EmptySettings(
         override val organizations: Collection<Organization>,
         override val senders: Collection<Sender>,
-        override val receivers: Collection<Receiver>
+        override val receivers: Collection<Receiver>,
     ) : SettingsProvider {
 
         override fun findOrganization(name: String): Organization? {

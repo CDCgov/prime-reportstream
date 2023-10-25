@@ -63,7 +63,7 @@ class ItemGraphRecord : CustomRecord<ItemGraphRecord>(ItemGraphTable.ITEM_GRAPH)
  * @param db database access to run the generated queries against
  */
 class ReportGraph(
-    val db: DatabaseAccess = BaseEngine.databaseAccessSingleton
+    val db: DatabaseAccess = BaseEngine.databaseAccessSingleton,
 ) : Logging {
 
     /**
@@ -75,7 +75,7 @@ class ReportGraph(
     fun fetchReportIdsForReceiverAndTask(
         receiver: Receiver,
         taskAction: TaskAction,
-        dslContext: DSLContext
+        dslContext: DSLContext,
     ): List<UUID> {
         return dslContext
             .select(ReportFile.REPORT_FILE.REPORT_ID)
@@ -116,7 +116,7 @@ class ReportGraph(
      * @param itemGraphRecords the item graph records that should be used to find the metadata
      */
     fun metadataCommonTableExpression(
-        itemGraphRecords: CommonTableExpression<ItemGraphRecord>
+        itemGraphRecords: CommonTableExpression<ItemGraphRecord>,
     ): CommonTableExpression<CovidResultMetadataRecord> {
         return DSL.name(METADATA_CTE).`as`(
             selectDistinct(COVID_RESULT_METADATA.asterisk())
@@ -266,6 +266,7 @@ class ReportGraph(
             )
 
     private val lineageCteName = "lineage"
+
     /**
      * Accepts a list of ids and walks up the report lineage graph
      *

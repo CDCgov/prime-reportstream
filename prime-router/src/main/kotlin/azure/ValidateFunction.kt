@@ -33,7 +33,7 @@ import java.time.OffsetDateTime
  */
 class ValidateFunction(
     private val workflowEngine: WorkflowEngine = WorkflowEngine(),
-    private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive)
+    private val actionHistory: ActionHistory = ActionHistory(TaskAction.receive),
 ) : Logging, RequestFunction(workflowEngine) {
 
     /**
@@ -47,7 +47,7 @@ class ValidateFunction(
             name = "validate",
             methods = [HttpMethod.POST],
             authLevel = AuthorizationLevel.ANONYMOUS
-        ) request: HttpRequestMessage<String?>
+        ) request: HttpRequestMessage<String?>,
     ): HttpResponseMessage {
         return try {
             val sender: Sender?
@@ -85,7 +85,7 @@ class ValidateFunction(
      */
     internal fun processRequest(
         request: HttpRequestMessage<String?>,
-        sender: Sender
+        sender: Sender,
     ): HttpResponseMessage {
         // allow duplicates 'override' param
         val allowDuplicatesParam = request.queryParameters.getOrDefault(ALLOW_DUPLICATES_PARAMETER, null)
@@ -95,8 +95,9 @@ class ValidateFunction(
                 val validatedRequest = validateRequest(request)
 
                 // if the override parameter is populated, use that, otherwise use the sender value. Default to false.
-                val allowDuplicates = if (!allowDuplicatesParam.isNullOrEmpty()) allowDuplicatesParam == "true"
-                else {
+                val allowDuplicates = if (!allowDuplicatesParam.isNullOrEmpty()) {
+                    allowDuplicatesParam == "true"
+                } else {
                     sender.allowDuplicates
                 }
 
@@ -161,10 +162,11 @@ class ValidateFunction(
         }
 
         // set status for validation response
-        submission.overallStatus = if (httpStatus == HttpStatus.BAD_REQUEST || submission.errorCount > 0)
+        submission.overallStatus = if (httpStatus == HttpStatus.BAD_REQUEST || submission.errorCount > 0) {
             DetailedSubmissionHistory.Status.ERROR
-        else
+        } else {
             DetailedSubmissionHistory.Status.VALID
+        }
 
         return request.createResponseBuilder(httpStatus)
             .header(HttpHeaders.CONTENT_TYPE, "application/json")

@@ -21,3 +21,23 @@ elements:
     condition: '%resource.exists() and %resource.given.count() >= 2'
     value: [ '%resource.given.tail().toString().replace('','', '' '').substring(0,30)' ]
     hl7Spec: [ '%{hl7PIDField}-5-3' ]
+
+  - name: ca-patient-race-coding-system-version
+    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.exists()'
+    value: [ '"2.5.1"' ]
+    hl7Spec: [ '%{hl7PIDField}-10-7' ]
+
+  - name: ca-patient-ethnicity-coding-system-version
+    condition: '%resource.extension(%`rsext-ethnic-group`).value.exists()'
+    value: [ '"2.9"' ]
+    hl7Spec: [ '%{hl7PIDField}-22-7' ]
+
+  # This is covered in 10-2 in CA
+  - name: ca-patient-race-text
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7PIDField}-10-9' ]
+
+  # This is covered in 22-2 in CA
+  - name: ca-patient-ethnicity-text
+    value: [ '""' ]
+    hl7Spec: [ '%{hl7PIDField}-22-9' ]

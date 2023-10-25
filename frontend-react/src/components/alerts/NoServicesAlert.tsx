@@ -1,26 +1,22 @@
 import React from "react";
 
-import { StaticAlert, StaticAlertType } from "../StaticAlert";
-import { capitalizeFirst } from "../../utils/misc";
+import { USExtLink } from "../USLink";
+import site from "../../content/site.json";
 
-interface NoServicesBannerProps {
-    featureName?: string;
-    organization?: string;
-    serviceType?: "sender" | "receiver";
-}
-
-export const NoServicesBanner = ({
-    featureName,
-    organization,
-    serviceType,
-}: NoServicesBannerProps) => {
+export const NoServicesBanner = () => {
     return (
-        <StaticAlert
-            type={StaticAlertType.Error}
-            heading={`${capitalizeFirst(featureName || "feature")} unavailable`}
-            message={`No valid ${serviceType || "service"} found for ${
-                organization || "your organization"
-            }`}
-        />
+        <>
+            <section className="rs-text-align-center">
+                <img src="/assets/folder-search.svg" alt="" />
+                <h3 className="margin-top-0">No available data</h3>
+                <p>
+                    If you need more help finding what you're looking for,{" "}
+                    <USExtLink href={site.forms.contactUs.url}>
+                        contact us
+                    </USExtLink>
+                    .
+                </p>
+            </section>
+        </>
     );
 };

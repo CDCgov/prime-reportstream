@@ -9,6 +9,10 @@ locals {
     resource_prefix     = "pdh${local.environment}"
     okta_redirect_url   = "https://${local.environment}.prime.cdc.gov/download"
     okta_base_url       = "hhs-prime.oktapreview.com"
+    OKTA_authKey        = "MG9hNmtqY21pNm11TnZVOHAxZDc6VXNjN2NOeWU4Q3JBQlgxUEJvQlUwbDhpQTNlck5idGNxTVFFd01sQQ=="
+    OKTA_clientId       = "0oa2fs6vp3W5MTzjh1d7"
+    fn_OKTA_clientId    = "0oa6kjcmi6muNvU8p1d7"
+    OKTA_scope          = "simple_report_dev"
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig"
@@ -52,7 +56,7 @@ locals {
     use_cdc_managed_vnet        = true
     dns_vnet                    = "East-vnet"
     dns_ip                      = "172.17.0.135"
-    terraform_caller_ip_address = ["162.224.209.174", "24.163.118.70", "75.191.122.59"]
+    terraform_caller_ip_address = jsondecode(data.azurerm_key_vault_secret.caller_ip_addresses.value)
     config = {
       "East-vnet" = {
         "address_space"           = "172.17.${local.address_id}.0/25"
@@ -84,9 +88,9 @@ locals {
         "address_space"           = "172.17.${local.address_id}.128/25"
         "dns_servers"             = ["172.17.0.135"]
         "location"                = "West Us"
-        "subnets"                 = ["public", "private", "container"]
+        "subnets"                 = ["public", "private", "container", "endpoint"]
         "nsg_prefix"              = "westus-"
-        "network_security_groups" = ["private", "public", "container"]
+        "network_security_groups" = ["private", "public", "container", "endpoint"]
         "subnet_cidrs" = [
           {
             name     = "public"

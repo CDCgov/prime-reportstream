@@ -18,7 +18,7 @@ data class LivdApiTestCase(
     val parameters: List<Pair<String, Any?>>? = null,
     val expectedHttpStatus: HttpStatus = HttpStatus.OK,
     val jsonResponseChecker: (String, CoolTest, LivdApiTestCase) -> Boolean =
-        fun(_: String, _: CoolTest, _: LivdApiTestCase) = true
+        fun(_: String, _: CoolTest, _: LivdApiTestCase) = true,
 )
 
 /**
@@ -46,7 +46,7 @@ class LivdApiTest : CoolTest() {
                     jsonResponseChecker = fun(
                         json: String,
                         testBeingRun: CoolTest,
-                        testCase: LivdApiTestCase
+                        testCase: LivdApiTestCase,
                     ): Boolean {
                         val livdValues = jsonMapper.readValue(json, Array<LivdData>::class.java)
                         if (livdValues.isEmpty()) {
@@ -70,7 +70,7 @@ class LivdApiTest : CoolTest() {
                     jsonResponseChecker = fun(
                         json: String,
                         testBeingRun: CoolTest,
-                        testCase: LivdApiTestCase
+                        testCase: LivdApiTestCase,
                     ): Boolean {
                         val livdValues = jsonMapper.readValue(json, Array<LivdData>::class.java)
                         if (
