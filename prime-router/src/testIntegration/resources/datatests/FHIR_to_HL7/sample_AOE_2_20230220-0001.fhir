@@ -12894,6 +12894,10 @@
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address",
                   "valueString" : "4861 20TH AVE"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad7-address-type",
+                  "valueCode" : "H"
                 }
               ],
               "use" : "home",
