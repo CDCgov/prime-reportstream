@@ -61,13 +61,13 @@ period:
 extension:
   generateList: true
   expressionType: nested
-  condition: $suffix NOT_NULL || $suffixDegree NOT_NULL || $professionalSuffix NOT_NULL
   vars:
     suffix: String, XCN.5
     suffixDegree: String, XCN.7
     professionalSuffix: String, XCN.21
   expressions:
     - expressionType: nested
+      condition: $suffix NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -77,6 +77,7 @@ extension:
           valueOf: $suffix
 
     - expressionType: nested
+      condition: $suffixDegree NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -86,6 +87,7 @@ extension:
           valueOf: $suffixDegree
 
     - expressionType: nested
+      condition: $professionalSuffix NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
