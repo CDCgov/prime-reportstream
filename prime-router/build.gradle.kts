@@ -63,7 +63,7 @@ val javaVersion = when (appJvmTarget) {
 }
 val ktorVersion = "2.3.2"
 val kotlinVersion by System.getProperties()
-val jacksonVersion = "2.15.2"
+val jacksonVersion = "2.15.3"
 jacoco.toolVersion = "0.8.10"
 
 // Local database information, first one wins:
@@ -834,7 +834,7 @@ dependencies {
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.19")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.23")
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
