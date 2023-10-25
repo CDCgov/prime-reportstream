@@ -7,10 +7,13 @@ id:
   expressionType: JEXL
 
 identifier_1:
+  condition: $patientIdentifier NOT_NULL
   valueOf: datatype/Identifier_SystemID
   generateList: true
   expressionType: resource
   specs: PID.3
+  vars:
+    patientIdentifier: String, PID.3
 
 # When the Coverage.subscriber from IN1.17 is NOT self use PID.19 for SSN identifier
 identifier_2a:

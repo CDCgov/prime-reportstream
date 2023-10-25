@@ -1,11 +1,11 @@
 # Special SPM-2 type to handle EIP since the subcomponent spec is not supported (e.g. SPM.2.1.2)
 type:
-   valueOf: datatype/CodeableConcept
-   condition: $valueIn NOT_NULL
-   expressionType: resource
-   specs: $type
-   vars:
-     valueIn: $code | $primaryCode | $type
+  valueOf: datatype/CodeableConcept
+  condition: $valueIn NOT_NULL
+  expressionType: resource
+  specs: $type
+  vars:
+    valueIn: $code | $primaryCode | $type
 
 system:
   type: STRING
@@ -13,10 +13,10 @@ system:
   expressionType: HL7Spec
 
 value:
-     type: STRING
-     valueOf: EIP.2.1 | $value
-     expressionType: HL7Spec
-     required: true
+  type: STRING
+  valueOf: EIP.2.1 | $value
+  expressionType: HL7Spec
+  required: true
 
 extension_1:
   generateList: true
