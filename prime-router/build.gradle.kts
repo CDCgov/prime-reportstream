@@ -827,7 +827,11 @@ dependencies {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
     implementation("org.yaml:snakeyaml:2.2")
-    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19")
+    implementation("io.github.linuxforhealth:hl7v2-fhir-converter") {
+        version {
+            branch = "master"
+        }
+    }
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.8.4")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
     implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:6.8.5")
