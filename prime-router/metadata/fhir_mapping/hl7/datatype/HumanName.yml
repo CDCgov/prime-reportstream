@@ -75,7 +75,6 @@ extension:
         valueString:
           type: STRING
           valueOf: $suffix
-          expressionType: HL7Spec
 
     - expressionType: nested
       expressionsMap:
@@ -85,7 +84,6 @@ extension:
         valueString:
           type: STRING
           valueOf: $suffixDegree
-          expressionType: HL7Spec
 
     - expressionType: nested
       expressionsMap:
@@ -95,4 +93,3 @@ extension:
         valueString:
           type: STRING
           valueOf: $professionalSuffix
-          expressionType: HL7Spec
