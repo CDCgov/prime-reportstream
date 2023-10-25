@@ -88,9 +88,9 @@ locals {
         "address_space"           = "172.17.${local.address_id}.128/25"
         "dns_servers"             = ["172.17.0.135"]
         "location"                = "West Us"
-        "subnets"                 = ["public", "private", "container"]
+        "subnets"                 = ["public", "private", "container", "endpoint"]
         "nsg_prefix"              = "westus-"
-        "network_security_groups" = ["private", "public", "container"]
+        "network_security_groups" = ["private", "public", "container", "endpoint"]
         "subnet_cidrs" = [
           {
             name     = "public"
