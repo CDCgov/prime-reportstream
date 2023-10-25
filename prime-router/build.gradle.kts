@@ -832,7 +832,6 @@ dependencies {
             branch = "master"
         }
     }
-//    implementation("com.github.focusconsulting:hl7v2-fhir-converter:v1.0.20-SNAPSHOT")
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.8.4")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
     implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:6.8.5")
