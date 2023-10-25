@@ -131,6 +131,7 @@ extension_3-xon10OrganizationIdentifier:
       valueOf: XON.10
 
 contact:
+  condition: $XADAddress NOT_NULL
   expressionType: nested
   expressionsMap:
     address:

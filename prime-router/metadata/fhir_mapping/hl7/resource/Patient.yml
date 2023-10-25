@@ -325,7 +325,8 @@ maritalStatus:
 
 contact:
   vars:
-
+    nk1: NK1
+  condition: $nk1 NOT_NULL
   valueOf: secondary/PatientContact
   expressionType: resource
   generateList: true
