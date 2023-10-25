@@ -63,7 +63,7 @@ val javaVersion = when (appJvmTarget) {
 }
 val ktorVersion = "2.3.2"
 val kotlinVersion by System.getProperties()
-val jacksonVersion = "2.15.2"
+val jacksonVersion = "2.15.3"
 jacoco.toolVersion = "0.8.10"
 
 // Local database information, first one wins:
@@ -827,14 +827,18 @@ dependencies {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
     implementation("org.yaml:snakeyaml:2.2")
-    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.8.2")
+    implementation("io.github.linuxforhealth:hl7v2-fhir-converter") {
+        version {
+            branch = "master"
+        }
+    }
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.8.4")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:6.8.2")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:6.8.5")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.19")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.23")
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")

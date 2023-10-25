@@ -4,7 +4,6 @@ import React from "react";
 
 import { TermsOfService } from "./pages/TermsOfService";
 import { Login } from "./pages/Login";
-import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import { UploadWithAuth } from "./pages/Upload";
 import { FeatureFlagUIWithAuth } from "./pages/misc/FeatureFlags";
 import { SubmissionDetailsWithAuth } from "./pages/submissions/SubmissionDetails";
@@ -115,13 +114,6 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "/login/callback",
                 element: <LoginCallback />,
-            },
-            {
-                path: "/sign-tos",
-                element: <TermsOfServiceForm />,
-                handle: {
-                    isContentPage: true,
-                },
             },
             {
                 path: "managing-your-connection",
