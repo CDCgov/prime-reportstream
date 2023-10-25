@@ -28,7 +28,7 @@ elements:
 
   - name: contact-phone-number
     resource: '%resource.telecom.where(use.exists().not() or use != "work")'
-    condition: '%resource.exists()'
+    condition: '%resource.exists() and %context.telecom.where(extension(%`rsext-hl7v2Name`)).exists().not()'
     constants:
       hl7TelecomField: '%{hl7NK1Field}-5'
     schema: datatype/xtn-telecom
@@ -36,7 +36,7 @@ elements:
 
   - name: contact-business-phone-number
     resource: '%resource.telecom.where(use = "work")'
-    condition: '%resource.exists()'
+    condition: '%resource.exists() and %context.telecom.where(extension(%`rsext-hl7v2Name`)).exists().not()'
     constants:
       hl7TelecomField: '%{hl7NK1Field}-6'
     schema: datatype/xtn-telecom
@@ -57,3 +57,11 @@ elements:
       hl7SpecXADField: '%{hl7NK1Field}-32'
     schema: ../datatypes/Address/XAD
     resourceIndex: orderIndex
+
+  - name: next-of-kin-telecomm-info
+    resource: '%resource.telecom.where(extension(%`rsext-hl7v2Name`).value = "next-of-kin-telecomm-info")'
+    condition: '%resource.exists()'
+    constants:
+      hl7TelecomField: '%{hl7NK1Field}-40'
+    schema: ../datatypes/contactPoint/XTN
+    resourceIndex: telecomIndex

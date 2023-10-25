@@ -15,7 +15,7 @@ elements:
 
 
   - name: tq1-service-priority
-    value: [ '%resource.priority.value','%resource.extension(%`rsext-service-priority`).value.coding.code']
+    value: [ '%resource.priority.value','%resource.extension(%`rsext-service-priority`).value.coding.code' ]
     hl7Spec: [ '%{hl7TQ1}-9-1' ]
     valueSet:
       values:
