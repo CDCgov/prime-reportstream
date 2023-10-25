@@ -418,3 +418,12 @@ supportingInfo:
   expressionType: reference
   constants:
     suppressNote: 'true'
+
+#HL7: Placer Supplemental Service Information
+orderDetail:
+  condition: $placerSuppServInfo NOT_NULL
+  valueOf: datatypes/CWE/CodeableConcept
+  expressionType: resource
+  specs: OBR.46
+  vars:
+    placerSuppServInfo: OBR.46
