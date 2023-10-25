@@ -65,6 +65,17 @@ telecom_business:
   constants:
     use: work
 
+telecom_3-next-of-kin-telecomm-info:
+  condition: $valueIn NOT_NULL
+  valueOf: datatypes/XTN/ContactPoint
+  generateList: true
+  expressionType: resource
+  specs: NK1.40
+  vars:
+    valueIn: NK1.40
+  constants:
+    hl7v2Name: "next-of-kin-telecomm-info"
+
 organization:
   condition: $XADAddress NOT_NULL || $XONOrganization NOT_NULL
   expressionType: reference
