@@ -4,11 +4,11 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { SessionContext } from "../../contexts/SessionContext";
 import { MemberType } from "../../hooks/UseOktaMemberships";
 
-import { ReportStreamNavbar } from "./ReportStreamNavbar";
+import { ReportStreamHeader } from "./ReportStreamHeader";
 
 export default {
     title: "Components/Navbar",
-    component: ReportStreamNavbar,
+    component: ReportStreamHeader,
     parameters: {
         backgrounds: { default: "dark" },
     },
@@ -21,14 +21,14 @@ export default {
     ],
 };
 
-export const NavbarDefault = (): React.ReactElement => <ReportStreamNavbar />;
+export const NavbarDefault = (): React.ReactElement => <ReportStreamHeader />;
 
 export const NavbarBlueVariant = (): React.ReactElement => (
-    <ReportStreamNavbar blueVariant={true} />
+    <ReportStreamHeader blueVariant={true} />
 );
 
 export const LoggedInNavbarDefault = (): React.ReactElement => (
-    <ReportStreamNavbar />
+    <ReportStreamHeader />
 );
 
 LoggedInNavbarDefault.decorators = [
@@ -58,7 +58,7 @@ LoggedInNavbarDefault.decorators = [
 ];
 
 export const LoggedInNavbarBlueVariant = (): React.ReactElement => (
-    <ReportStreamNavbar blueVariant={true} />
+    <ReportStreamHeader blueVariant={true} />
 );
 
 LoggedInNavbarBlueVariant.decorators = [

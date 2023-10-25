@@ -14,7 +14,7 @@ import SubmissionTable from "./SubmissionTable";
 
 function SubmissionHistoryContent() {
     const { data: orgDetails } = useOrganizationSettings();
-    const { description } = orgDetails || {};
+    const { description } = orgDetails ?? {};
 
     return (
         <GridContainer>

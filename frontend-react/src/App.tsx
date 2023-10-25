@@ -1,34 +1,32 @@
 import { toRelativeUrl } from "@okta/okta-auth-js";
 import { useIdleTimer } from "react-idle-timer";
-import { Suspense, useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { CacheProvider, NetworkErrorBoundary } from "rest-hooks";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { HelmetProvider } from "react-helmet-async";
 
 import { OKTA_AUTH } from "./oktaConfig";
 import { permissionCheck } from "./utils/PermissionsUtils";
-import Spinner from "./components/Spinner";
 import "react-toastify/dist/ReactToastify.css";
-import { ErrorUnsupportedBrowser } from "./pages/error/legacy-content/ErrorUnsupportedBrowser";
 import { ErrorPage } from "./pages/error/ErrorPage";
-import { IS_IE } from "./utils/GetIsIE";
-import { aiConfig, createTelemetryService } from "./TelemetryService";
 import { AuthorizedFetchProvider } from "./contexts/AuthorizedFetchContext";
 import { FeatureFlagProvider } from "./contexts/FeatureFlagContext";
 import SessionProvider, { useSessionContext } from "./contexts/SessionContext";
 import { appQueryClient } from "./network/QueryClients";
 import { PERMISSIONS } from "./utils/UsefulTypes";
-import AppInsightsContextProvider, {
+import {
     EventName,
     useAppInsightsContext,
 } from "./contexts/AppInsightsContext";
-
-const appInsights = createTelemetryService(aiConfig);
+import { preferredBrowsersRegex } from "./utils/SupportedBrowsers";
+import DAPScript from "./shared/DAPScript/DAPScript";
+import { AppConfig } from "./config";
 
 export interface AppProps {
     Layout: React.ComponentType;
+    config: AppConfig;
 }
 
 /**
@@ -72,21 +70,20 @@ function App(props: AppProps) {
         [navigate],
     );
     return (
-        <AppInsightsContextProvider value={appInsights}>
-            <SessionProvider
-                oktaAuth={OKTA_AUTH}
-                restoreOriginalUri={restoreOriginalUri}
-            >
-                <AppBase {...props} />
-            </SessionProvider>
-        </AppInsightsContextProvider>
+        <SessionProvider
+            oktaAuth={OKTA_AUTH}
+            restoreOriginalUri={restoreOriginalUri}
+        >
+            <AppBase {...props} />
+        </SessionProvider>
     );
 }
 
-const AppBase = ({ Layout }: AppProps) => {
+const AppBase = ({ Layout, config }: AppProps) => {
+    const location = useLocation();
     const { appInsights, setTelemetryCustomProperty } = useAppInsightsContext();
     const { oktaAuth, authState } = useSessionContext();
-    const { email } = authState!!.idToken?.claims ?? {};
+    const { email } = authState.idToken?.claims ?? {};
     const { logout, activeMembership } = useSessionContext();
     const sessionStartTime = useRef<number>(new Date().getTime());
     const sessionTimeAggregate = useRef<number>(0);
@@ -144,6 +141,13 @@ const AppBase = ({ Layout }: AppProps) => {
         }
     }, [email, appInsights]);
 
+    // Mark that user agent is outdated on telemetry for filtering
+    useEffect(() => {
+        if (!preferredBrowsersRegex.test(window.navigator.userAgent))
+            setTelemetryCustomProperty("isUserAgentOutdated", true);
+        else setTelemetryCustomProperty("isUserAgentOutdated", undefined);
+    }, [setTelemetryCustomProperty]);
+
     const handleIdle = useCallback(async (): Promise<void> => {
         if (await oktaAuth.isAuthenticated()) {
             appInsights?.trackEvent({
@@ -162,21 +166,20 @@ const AppBase = ({ Layout }: AppProps) => {
         debounce: 500,
     });
 
-    if (IS_IE) return <ErrorUnsupportedBrowser />;
     return (
         <HelmetProvider>
             <QueryClientProvider client={appQueryClient}>
                 <AuthorizedFetchProvider>
                     <FeatureFlagProvider>
                         <CacheProvider>
-                            <Suspense fallback={<Spinner size={"fullpage"} />}>
-                                <NetworkErrorBoundary
-                                    fallbackComponent={Fallback}
-                                >
-                                    <Layout />
-                                    <ReactQueryDevtools initialIsOpen={false} />
-                                </NetworkErrorBoundary>
-                            </Suspense>
+                            <NetworkErrorBoundary fallbackComponent={Fallback}>
+                                <DAPScript
+                                    env={config.APP_ENV}
+                                    pathname={location.pathname}
+                                />
+                                <Layout />
+                                <ReactQueryDevtools initialIsOpen={false} />
+                            </NetworkErrorBoundary>
                         </CacheProvider>
                     </FeatureFlagProvider>
                 </AuthorizedFetchProvider>

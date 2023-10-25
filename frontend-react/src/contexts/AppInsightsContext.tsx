@@ -27,6 +27,7 @@ export interface ReactPluginWithSDK extends ReactPlugin {
 
 export interface AppInsightsCustomProperties {
     activeMembership?: MembershipSettings;
+    isUserAgentOutdated?: boolean;
 }
 
 export type AppInsightsSetCustomPropertyFn = <

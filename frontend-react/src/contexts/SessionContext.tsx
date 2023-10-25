@@ -111,7 +111,7 @@ export function SessionProviderBase({
             authState?.idToken?.claims,
         );
 
-        if (actualMembership == null || !authState?.isAuthenticated)
+        if (actualMembership == null || !authState.isAuthenticated)
             return undefined;
 
         return { ...actualMembership, ...(_activeMembership ?? {}) };
@@ -153,28 +153,32 @@ export function SessionProviderBase({
             token: authState?.accessToken?.accessToken ?? "",
             organization: activeMembership?.parsedName,
         });
-    }, [activeMembership, authState?.accessToken?.accessToken]);
+    }, [activeMembership?.parsedName, authState?.accessToken?.accessToken]);
 
     useEffect(() => {
+        if (!authState.isAuthenticated && _activeMembership) {
+            setActiveMembership(undefined);
+        }
+
         if (!activeMembership) {
             sessionStorage.removeItem("__deprecatedActiveMembership");
+            sessionStorage.removeItem("__deprecatedFetchInit");
         } else {
             sessionStorage.setItem(
                 "__deprecatedActiveMembership",
                 JSON.stringify(activeMembership),
             );
+            sessionStorage.setItem(
+                "__deprecatedFetchInit",
+                JSON.stringify({
+                    token: authState?.accessToken?.accessToken,
+                    organization: activeMembership?.parsedName,
+                }),
+            );
         }
-    }, [activeMembership]);
+    }, [_activeMembership, activeMembership, authState]);
 
-    useEffect(() => {
-        sessionStorage.setItem(
-            "__deprecatedFetchInit",
-            JSON.stringify({
-                token: authState?.accessToken?.accessToken,
-                organization: activeMembership?.parsedName,
-            }),
-        );
-    }, [activeMembership?.parsedName, authState?.accessToken?.accessToken]);
+    useEffect(() => {}, [authState]);
 
     return (
         <SessionContext.Provider value={context}>

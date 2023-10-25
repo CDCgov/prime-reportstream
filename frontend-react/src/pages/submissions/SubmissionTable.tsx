@@ -115,21 +115,25 @@ function SubmissionTableWithNumberedPagination() {
 
     const { fetch: controllerFetch } = useController();
     const fetchResults = useCallback(
-        (currentCursor: string, numResults: number) => {
+        async (currentCursor: string, numResults: number) => {
             // HACK: return empty results if requesting as an admin
             if (isAdmin) {
-                return Promise.resolve<SubmissionsResource[]>([]);
+                return await Promise.resolve<SubmissionsResource[]>([]);
             }
 
-            return controllerFetch(SubmissionsResource.list(), {
-                organization: activeMembership?.parsedName,
-                cursor: currentCursor,
-                since: rangeFrom,
-                until: rangeTo,
-                pageSize: numResults,
-                sortdir: sortOrder,
-                showFailed: false,
-            }) as unknown as Promise<SubmissionsResource[]>;
+            try {
+                return (await controllerFetch(SubmissionsResource.list(), {
+                    organization: activeMembership?.parsedName,
+                    cursor: currentCursor,
+                    since: rangeFrom,
+                    until: rangeTo,
+                    pageSize: numResults,
+                    sortdir: sortOrder,
+                    showFailed: false,
+                })) as unknown as SubmissionsResource[];
+            } catch (e: any) {
+                return [] as SubmissionsResource[];
+            }
         },
         [
             activeMembership?.parsedName,

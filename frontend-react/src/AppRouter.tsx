@@ -49,6 +49,7 @@ export const appRoutes: RouteObject[] = [
                 handle: {
                     isContentPage: true,
                     isFullWidth: true,
+                    //isDAP: true,
                 },
             },
             {
