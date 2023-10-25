@@ -1,0 +1,6 @@
+resourceType: PractitionerRole
+
+name:
+  valueOf: datatypes/CNN/Practitioner
+  expressionType: reference
+  specs: NDL.1

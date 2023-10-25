@@ -338,3 +338,11 @@
 # HL7 Use
 - id: "hl7-use"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use"
+- id: "cnn3-given-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cnn3-given-name"
+- id: "cnn4-second-given-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cnn4-second-given-name"
+- id: "cnn5-suffix"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cnn5-suffix"
+- id: "cnn7-degree"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cnn7-degree"
