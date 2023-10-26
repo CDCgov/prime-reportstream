@@ -68,6 +68,7 @@ function App(props: AppProps) {
         },
         [navigate],
     );
+
     return (
         <SessionProvider
             oktaAuth={OKTA_AUTH}

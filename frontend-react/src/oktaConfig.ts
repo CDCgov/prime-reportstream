@@ -1,4 +1,11 @@
-import { OktaAuthOptions, OktaAuth, AuthState } from "@okta/okta-auth-js";
+import {
+    OktaAuthOptions,
+    OktaAuth,
+    AuthState,
+    AccessToken,
+    RefreshToken,
+    IDToken,
+} from "@okta/okta-auth-js";
 import { WidgetOptions } from "@okta/okta-signin-widget";
 import type { Feature } from "@okta/okta-signin-widget";
 
@@ -26,10 +33,18 @@ const oktaAuthConfig: OktaAuthOptions = {
     },
     async transformAuthState(oktaAuth, authState) {
         let finalAuthState: AuthState = structuredClone(authState);
+        const tokens = [
+            authState.accessToken,
+            authState.idToken,
+            authState.refreshToken,
+        ].filter(Boolean) as (AccessToken | IDToken | RefreshToken)[];
         // Prevent pulling incorrect token from a different okta environment
         if (
-            authState.isAuthenticated &&
-            authState.accessToken?.claims.iss !== OKTA_ISSUER
+            tokens.find(
+                (t) =>
+                    ("issuer" in t && t.issuer !== OKTA_ISSUER) ||
+                    ("claims" in t && t.claims.iss !== OKTA_ISSUER),
+            )
         ) {
             oktaAuth.clearStorage();
             finalAuthState = {

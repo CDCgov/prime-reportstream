@@ -108,7 +108,7 @@ export function SessionProviderBase({
     );
     const activeMembership = useMemo(() => {
         const actualMembership = membershipsFromToken(
-            authState?.idToken?.claims,
+            authState?.accessToken?.claims,
         );
 
         if (actualMembership == null || !authState.isAuthenticated)
@@ -120,7 +120,7 @@ export function SessionProviderBase({
     const logout = useCallback(async () => {
         try {
             await oktaAuth.signOut({
-                postLogoutRedirectUri: `${window.location.origin}/logout/callback`,
+                postLogoutRedirectUri: `${window.location.origin}/`,
             });
         } catch (e) {
             console.trace(e);
