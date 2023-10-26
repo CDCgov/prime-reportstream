@@ -43,7 +43,6 @@ elements:
     hl7Spec: [ '%{hl7SpecimenFieldPath}-4-2' ]
 
   - name: ca-specimen-type-text
-    condition: '%resource.type.exists() and %resource.type.coding[0].display.exists().not()'
     value: [ "" ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-4-9' ]
 

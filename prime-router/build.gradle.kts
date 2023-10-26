@@ -37,7 +37,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.13.0"
     id("org.jlleitschuh.gradle.ktlint") version "11.6.0"
-    id("com.adarshr.test-logger") version "3.2.0"
+    id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
     id("org.jetbrains.dokka") version "1.8.20"
     id("com.avast.gradle.docker-compose") version "0.17.5"
@@ -818,7 +818,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api:[2.17.1,)")
     implementation("org.apache.logging.log4j:log4j-core:[2.17.1,)")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:[2.17.1,)")
-    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.2.0")
+    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.3.0")
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.2")
     implementation("tech.tablesaw:tablesaw-core:0.43.1")
     implementation("com.github.ajalt.clikt:clikt-jvm:3.5.4")
@@ -858,7 +858,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.13.0")
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("commons-codec:commons-codec:1.16.0")
-    implementation("commons-io:commons-io:2.13.0")
+    implementation("commons-io:commons-io:2.15.0")
     implementation("org.postgresql:postgresql:42.6.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.flywaydb:flyway-core:9.22.3")
@@ -869,7 +869,7 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk18on:1.76")
     implementation("org.bouncycastle:bcmail-jdk15to18:1.76")
 
-    implementation("commons-net:commons-net:3.9.0")
+    implementation("commons-net:commons-net:3.10.0")
     implementation("com.cronutils:cron-utils:9.2.1")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     implementation("de.m3y.kformat:kformat:0.9")
@@ -887,7 +887,7 @@ dependencies {
     implementation("it.skrape:skrapeit-http-fetcher:1.3.0-alpha.1")
     implementation("org.apache.poi:poi:5.2.4")
     implementation("org.apache.poi:poi-ooxml:5.2.4")
-    implementation("commons-io:commons-io: 2.13.0")
+    implementation("commons-io:commons-io: 2.15.0")
     implementation("com.anyascii:anyascii:0.3.2")
 // force jsoup since skrapeit-html-parser@1.2.1+ has not updated
     implementation("org.jsoup:jsoup:1.16.1")
