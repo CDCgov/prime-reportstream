@@ -46,7 +46,9 @@ const GettingStartedSendingData = React.lazy(
     ),
 );
 const GettingStartedReceivingData = React.lazy(
-    lazyRouteMarkdown(() => "./content/getting-started/receiving-data"),
+    lazyRouteMarkdown(
+        () => import("./content/getting-started/receiving-data.mdx"),
+    ),
 );
 const ReportStreamApiIndex = React.lazy(
     lazyRouteMarkdown(
@@ -118,7 +120,6 @@ const LoginCallback = React.lazy(
 const LogoutCallback = React.lazy(
     () => import("./shared/LogoutCallback/LogoutCallback"),
 );
-const GettingStartedPhd = React.lazy(() => import("./pages/GettingStartedPhd"));
 const Login = React.lazy(() => import("./pages/Login"));
 const FileHandler = React.lazy(
     () => import("./components/FileHandlers/FileHandler"),
