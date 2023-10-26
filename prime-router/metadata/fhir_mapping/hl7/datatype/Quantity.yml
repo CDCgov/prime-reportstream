@@ -1,4 +1,4 @@
-value_1 :
+value_1:
   condition: $value CONTAINS_STRING '.'
   #  Not specifying a type results in the full "value" being reported correctly and no rounding/float conversion occurs.
   #  However, it also breaks the integration tests, so we are going to have to duplicate this value into an extension
@@ -8,12 +8,12 @@ value_1 :
   #  in order to add a new decimal type that will not round the value
   type: FLOAT
   valueOf: $value
-value_2 :
+value_2:
   # Try to keep implicit precision for integers
   condition: $value NOT_CONTAINS_STRING '.'
   type: INTEGER
   valueOf: $value
-comparator :
+comparator:
   type: String
   # Hl7 supports an equal sign as a comparator that FHIR does not, making sure its a supported comparator.
   # see extensions on this config for handling of unsupported comparators
@@ -21,10 +21,10 @@ comparator :
   valueOf: $sComparator
   vars:
     sComparator: String, $comparator
-unit :
+unit:
   type: String
   valueOf: $unit
-system_1 :
+system_1:
   type: URI
   valueOf: $system
 system_2:
