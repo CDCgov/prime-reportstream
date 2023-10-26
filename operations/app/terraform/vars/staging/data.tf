@@ -65,3 +65,15 @@ data "azurerm_key_vault_secret" "chatops_github_token" {
   name         = "chatops-github-token"
   key_vault_id = data.azurerm_key_vault.tf-secrets.id
 }
+data "azurerm_key_vault_secret" "OKTA_clientId" {
+  name         = "functionapp-OKTA-ClientId"
+  key_vault_id = data.azurerm_key_vault.app_config.id
+
+}
+
+data "azurerm_key_vault_secret" "OKTA_authKey" {
+  name         = "functionapp-OKTA-authkey"
+  key_vault_id = data.azurerm_key_vault.app_config.id
+
+ 
+}

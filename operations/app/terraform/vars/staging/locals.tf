@@ -9,8 +9,6 @@ locals {
     resource_prefix     = "pdh${local.environment}"
     okta_redirect_url   = "https://${local.environment}.prime.cdc.gov/download"
     okta_base_url       = "hhs-prime.oktapreview.com"
-    OKTA_authKey        = "MG9hNmtqY21pNm11TnZVOHAxZDc6VXNjN2NOeWU4Q3JBQlgxUEJvQlUwbDhpQTNlck5idGNxTVFFd01sQQ=="
-    OKTA_clientId       = "0oa2fs6vp3W5MTzjh1d7"
     fn_OKTA_clientId    = "0oa6kjcmi6muNvU8p1d7"
     OKTA_scope          = "simple_report_dev"
     storage_queue_name  =["process", "batch", "batch-poison", "elr-fhir-convert", "process-poison", "send", "send-poison", "elr-fhir-convert", "elr-fhir-convert-poison", "elr-fhir-route", "elr-fhir-translate", "elr-fhir-translate-poison", "process-elr"]
