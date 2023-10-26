@@ -26,8 +26,8 @@ locals {
     POSTGRES_USER                      = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-postgres-user)"
     POSTGRES_PASSWORD                  = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-postgres-pass)"
     SLACK_WEBHOOK_URL                  = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-slack-webhook-url)"
-    OKTA_clientId                      = "@Microsoft.KeyVault(SecretUri=https://${var.application_key_vault_id}.vault.azure.net/secrets/functionapp-okta-clientid)"
-    OKTA_authKey                      = "@Microsoft.KeyVault(SecretUri=https://${var.application_key_vault_id}.vault.azure.net/secrets/functionapp-okta-authkey)"
+    OKTA_clientId                      = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-okta-clientid)"
+    OKTA_authKey                      = "@Microsoft.KeyVault(SecretUri=https://${var.app_config_key_vault_name}.vault.azure.net/secrets/functionapp-okta-authkey)"
   }
   # Set app configuration
   config = {
