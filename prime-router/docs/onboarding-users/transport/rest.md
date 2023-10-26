@@ -1,17 +1,21 @@
 # REST Transport
 ## Introduction
-ReportStream supports four popular transport protocols:  Resource State Transfer (REST), [Simple Object Access Protocol (SOAP)](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/transport/soap.md), [Secure File Transfer Protocol (SFTP)](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/transport/sftp.md), and [Azure Blob](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/transport/blob.md). The goal of this document is to explain how to configure REST Transport for STLTs (a/k/a receivers). As well as provide guidance on how: 1) ReportStream REST Transport works, 2) to prepare a key for authentication, 3) to configure receiver's REST transport, and 4) test/check that a connection is successful.
+ReportStream supports four popular transport protocols:  Resource State Transfer (REST), [Simple Object Access Protocol (SOAP)](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/transport/soap.md), [Secure File Transfer Protocol (SFTP)](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/transport/sftp.md), and [Azure Blob](https://github.com/CDCgov/prime-reportstream/blob/master/prime-router/docs/onboarding-users/transport/blob.md). The goal of this document is to explain how to configure REST Transport for STLTs (a/k/a receivers). As well as provide guidance on how: 
+1) ReportStream REST Transport works 
+2) Prepare a key for authentication
+3) Configure receiver's REST transport
+4) Test/check that a connection is successful
 #### Assumptions
 * First and foremost: This assumes you have credentials with the CDC and have been given access to the Azure portal. If you do not have credentials, and access to the Azure portal, stop here. You cannot go any further.
 * This also assumes you have access to KeyBase, and are part of the prime_dev_ops team there.
 * Also, we assume you have KeyBase installed, and have in mounted into /Volumes/. If you don't have it mounted as a drive, you can just drag and drop the files into KeyBase. If you feel you should have access to the prime_dev_ops team in KeyBase, contact your dev lead, or the dev ops team lead and request access.
 * Finally, this assumes you are working on a Unix-style system such as Linux or MacOS. You can probably do this on Windows as well provided you have a conformant shell with putty and openssl installed. The Git Bash shell would probably do, or the Linux Subsystem for Windows would as well, but no promises are made.
 * Have an active Okta admin account.
-## 1.) How ReportStream REST stransport works
-When STLT message is ready to be sent, ReportStream uploads the message to STLT's ready queue folder found in Azure Blobstorage (e.g., la-phd.elr, ca-doh.elr, etc.) and then triggers the send queue to start the SendFunction.
+## 1.) How ReportStream REST transport works
+When a STLT message is ready to be sent, ReportStream uploads the message to the STLT's ready queue folder found in Azure Blobstorage (e.g., la-phd.elr, ca-doh.elr, etc.) and then triggers the send queue to start the SendFunction.
 <ol type="a">
     <li>Using receiver.TransportType, the SendFunction calls to specific transport service accordingly. In our case, the SendFunction calls to the RESTTransport service.</li>
-    <li>Reading credential from Azure Vault, RESTTransport uses its Type to determine the authentication type (i.e., UserPass or UserApiKey).  Next, it uses the obtained key to authenticates with STLT and sends the message payload.</li>
+    <li>Read credential from Azure Vault, RESTTransport uses its Type to determine the authentication type (i.e., UserPass or UserApiKey).  Next, it uses the obtained key to authenticate with the STLT and sends the message payload.</li>
 </ol>
 
 ## 2.) How to prepare a key for authentication
@@ -19,7 +23,12 @@ For authentication, you need to do both step a and step b.
 <ol type="a">
 <li>Generate the "Credential in JSON format" for authentication</li>
 
-Currently, RESTTransport uses the one of the three options: i) UserPass, ii) UserApiKey with JKS, or iii) UserApiKey with two-legged credential type to authenticate and obtain Bearer token from STLT. User can use **primeCLI** command with credential-create option to generate the "Credential in JSON format" as given below.
+Currently, RESTTransport uses the one of the three options:
+
+      i) UserPass, 
+     ii) UserApiKey with JKS, or 
+    iii) UserApiKey with two-legged credential type to authenticate and obtain Bearer token from STLT. 
+User can use **primeCLI** command with credential-create option to generate the "Credential in JSON format" as given below.
 
 - With STLT's credential username and password given to us by STLT, user needs to run the following command to generate the UserPass credential type object:
 
@@ -60,7 +69,7 @@ With CDC SU password, login into the **Microsoft Azure** and navigate to the **p
 
 ![](./images/rest-pdhprod-clientconfig-secrets.png)
 
-Next refer to the above image, click on the  [+ Generate/Import] as the red arrow is pointing to.  You should see the following screenshot. Please follow the instruction given in the image.
+Next refer to the above image, click on the  [+ Generate/Import] as the red arrow is pointing to.  You should see the following screenshot. Please follow the instruction given in the image. Note, the naming convention is OrganizationName--Receiver.name (e.g., NY-PHD--ELR).
 
 ![](./images/rest-create-a-secrete-key-screenshot.png)
 
