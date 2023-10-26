@@ -38,7 +38,7 @@ elements:
 
   - name: xcn-name-type-code
     condition: '%resource.name.use.exists() and %resource.name.use = "official"'
-    value: [ '"L"']
+    value: [ '"L"' ]
     hl7Spec: [ '%{hl7XCNFieldPath}(%{contactIndex})-10' ]
 
   - name: xcn-identifier-type
