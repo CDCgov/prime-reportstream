@@ -46,6 +46,7 @@ jobs:
           version: ${{ github.run_id }}
           upload-build: false
           run-integration-tests: true
+          run-qc: true
 
       - name: Generate New Schema Docs
         run: |
