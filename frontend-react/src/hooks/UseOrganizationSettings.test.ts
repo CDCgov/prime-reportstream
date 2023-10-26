@@ -1,10 +1,10 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 
-import { AppWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
 import { fakeOrg, orgServer } from "../__mocks__/OrganizationMockServer";
-import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
+import { MemberType } from "../utils/OrganizationUtils";
 
-import { MemberType } from "./UseOktaMemberships";
 import { useOrganizationSettings } from "./UseOrganizationSettings";
 import { Organizations } from "./UseAdminSafeOrganizationName";
 
@@ -16,13 +16,12 @@ describe("useOrganizationSettings", () => {
     afterAll(() => orgServer.close());
     describe("with no Organization name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: undefined,
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: false,
@@ -41,17 +40,16 @@ describe("useOrganizationSettings", () => {
 
     describe("with a non-admin Organization name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.SENDER,
                     parsedName: "testOrg",
                     service: "testSender",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: true,
@@ -70,16 +68,15 @@ describe("useOrganizationSettings", () => {
 
     describe("with an admin Organization name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.PRIME_ADMIN,
                     parsedName: Organizations.PRIMEADMINS,
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: true,
                 isUserReceiver: false,
                 isUserSender: false,

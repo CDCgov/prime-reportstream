@@ -9,7 +9,7 @@
 }
 
 // Shared styles between both variants of the Navbar
-.Navbar {
+header.Navbar {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -262,7 +262,7 @@
     }
 }
 
-.NavbarBlueVariant {
+header.NavbarBlueVariant {
     background-color: color("primary-darker");
     border-bottom: 1px solid color("white");
 

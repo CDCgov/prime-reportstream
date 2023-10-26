@@ -8,7 +8,7 @@ import {
     SlotItem,
     OVERFLOW_INDICATOR,
 } from "../components/Table/Pagination";
-import { trackAppInsightEvent } from "../utils/Analytics";
+import { useAppInsightsContext } from "../contexts/AppInsightsContext";
 
 // A function that will return a cursor value for a resource in the paginated
 // set.
@@ -358,6 +358,7 @@ function usePagination<T>({
     extractCursor,
     analyticsEventName,
 }: UsePaginationProps<T>): UsePaginationState<T> {
+    const { appInsights } = useAppInsightsContext();
     const [state, dispatch] = useReducer<
         PaginationReducer<PaginationState<T>, PaginationAction<T>>
     >(
@@ -419,15 +420,18 @@ function usePagination<T>({
             });
 
             if (analyticsEventName) {
-                trackAppInsightEvent(analyticsEventName, {
-                    tablePagination: {
-                        pageSize: pageSize,
-                        pageNumber: pageNum,
+                appInsights?.trackEvent({
+                    name: analyticsEventName,
+                    properties: {
+                        tablePagination: {
+                            pageSize: pageSize,
+                            pageNumber: pageNum,
+                        },
                     },
                 });
             }
         },
-        [dispatch, analyticsEventName, pageSize],
+        [analyticsEventName, appInsights, pageSize],
     );
 
     // Assemble props for the pagination UI component.

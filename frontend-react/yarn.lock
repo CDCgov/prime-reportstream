@@ -2998,30 +2998,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@okta/okta-auth-js@npm:^7.4.2":
-  version: 7.4.2
-  resolution: "@okta/okta-auth-js@npm:7.4.2"
-  dependencies:
-    "@babel/runtime": ^7.12.5
-    "@peculiar/webcrypto": ^1.4.0
-    Base64: 1.1.0
-    atob: ^2.1.2
-    broadcast-channel: ~4.17.0
-    btoa: ^1.2.1
-    core-js: ^3.6.5
-    cross-fetch: ^3.1.5
-    fast-text-encoding: ^1.0.6
-    js-cookie: ^3.0.1
-    jsonpath-plus: ^6.0.1
-    node-cache: ^5.1.2
-    p-cancelable: ^2.0.0
-    tiny-emitter: 1.1.0
-    webcrypto-shim: ^0.1.5
-    xhr2: 0.1.3
-  checksum: a7b7814902e21fba6836526fb6aaafba22207db998af1ee5ea329d1956b7ce3fadec6c6c31db4536085d01c0a3459f48fa18701e9538af86c057067fc5106514
-  languageName: node
-  linkType: hard
-
 "@okta/okta-auth-js@npm:~7.0.0":
   version: 7.0.2
   resolution: "@okta/okta-auth-js@npm:7.0.2"
@@ -6601,6 +6577,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"argue-cli@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "argue-cli@npm:2.1.0"
+  checksum: 1dad41394bcc68177a2faf69659c8641e1faf8e12f861d3fd742d2860b99f1177c4d33e225b2d6a0548bf12f552f83caddca537efa1d474ce07e5d0aeb1d333d
+  languageName: node
+  linkType: hard
+
 "aria-hidden@npm:^1.1.1":
   version: 1.2.3
   resolution: "aria-hidden@npm:1.2.3"
@@ -7277,6 +7260,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"browserslist-useragent-regexp@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "browserslist-useragent-regexp@npm:4.1.0"
+  dependencies:
+    argue-cli: ^2.1.0
+    easy-table: ^1.1.1
+    picocolors: ^1.0.0
+    regexp-tree: ^0.1.24
+    ua-regexes-lite: ^1.1.3
+  peerDependencies:
+    browserslist: ">=4.0.0"
+  bin:
+    bluare: dist/cli.js
+    browserslist-useragent-regexp: dist/cli.js
+  checksum: 10577e27ef60641578cacd87b99bcf214e094ac3c42be4ca2615f0920a0d99d336fd5617efa05e0b1af8234279d6aa69e3c8c8b18579975af82ef317333c011b
+  languageName: node
+  linkType: hard
+
 "browserslist@npm:^4.21.10, browserslist@npm:^4.21.9, browserslist@npm:^4.22.1":
   version: 4.22.1
   resolution: "browserslist@npm:4.22.1"
@@ -7444,9 +7445,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001538, caniuse-lite@npm:^1.0.30001541":
-  version: 1.0.30001547
-  resolution: "caniuse-lite@npm:1.0.30001547"
-  checksum: ec0fc2b46721887f6f4aca1f3902f03d9a1a07416d16a86b7cd4bfba60e7b6b03ab3969659d3ea0158cc2f298972c80215c06c9457eb15c649d7780e8f5e91a7
+  version: 1.0.30001554
+  resolution: "caniuse-lite@npm:1.0.30001554"
+  checksum: ccb557daa716b474a15f3a0a3a0e33f59393024a9fd1ccef6d8ee6f35c195fb5cca7f99f1ac88e3db5926b4f1bcd4ad6d7380a27e1d45d68468a837dd7e60106
   languageName: node
   linkType: hard
 
@@ -8768,6 +8769,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"easy-table@npm:^1.1.1":
+  version: 1.2.0
+  resolution: "easy-table@npm:1.2.0"
+  dependencies:
+    ansi-regex: ^5.0.1
+    wcwidth: ^1.0.1
+  dependenciesMeta:
+    wcwidth:
+      optional: true
+  checksum: 66961b19751a68d2d30ce9b74ef750c374cc3112bbcac3d1ed5a939e43c035ecf6b1954098df2d5b05f1e853ab2b67de893794390dcbf0abe1f157fddeb52174
+  languageName: node
+  linkType: hard
+
 "ecc-jsbn@npm:~0.1.1":
   version: 0.1.2
   resolution: "ecc-jsbn@npm:0.1.2"
@@ -9997,13 +10011,6 @@ __metadata:
   version: 2.0.6
   resolution: "fast-levenshtein@npm:2.0.6"
   checksum: 92cfec0a8dfafd9c7a15fba8f2cc29cd0b62b85f056d99ce448bbcd9f708e18ab2764bda4dd5158364f4145a7c72788538994f0d1787b956ef0d1062b0f7c24c
-  languageName: node
-  linkType: hard
-
-"fast-text-encoding@npm:^1.0.6":
-  version: 1.0.6
-  resolution: "fast-text-encoding@npm:1.0.6"
-  checksum: 9d58f694314b3283e785bf61954902536da228607ad246905e30256f9ab8331f780ac987e7222c9f5eafd04168d07e12b8054c85cedb76a2c05af0e82387a903
   languageName: node
   linkType: hard
 
@@ -15988,7 +15995,6 @@ __metadata:
     "@mdx-js/rollup": ^2.3.0
     "@microsoft/applicationinsights-react-js": ^17.0.1
     "@microsoft/applicationinsights-web": ^3.0.3
-    "@okta/okta-auth-js": ^7.4.2
     "@okta/okta-react": ^6.7.0
     "@okta/okta-signin-widget": ^7.11.1
     "@rest-hooks/rest": ^3.0.3
@@ -16042,6 +16048,7 @@ __metadata:
     babel-jest: ^29.7.0
     bfj: 8.0.0
     browserslist: ^4.22.1
+    browserslist-useragent-regexp: ^4.1.0
     camelcase: ^6.3.0
     chromatic: ^7.4.0
     classnames: ^2.3.2
@@ -16510,6 +16517,15 @@ __metadata:
   dependencies:
     "@babel/runtime": ^7.8.4
   checksum: 20b6f9377d65954980fe044cfdd160de98df415b4bff38fbade67b3337efaf078308c4fed943067cd759827cc8cfeca9cb28ccda1f08333b85d6a2acbd022c27
+  languageName: node
+  linkType: hard
+
+"regexp-tree@npm:^0.1.24":
+  version: 0.1.27
+  resolution: "regexp-tree@npm:0.1.27"
+  bin:
+    regexp-tree: bin/regexp-tree
+  checksum: 129aebb34dae22d6694ab2ac328be3f99105143737528ab072ef624d599afecbcfae1f5c96a166fa9e5f64fa1ecf30b411c4691e7924c3e11bbaf1712c260c54
   languageName: node
   linkType: hard
 
@@ -18432,6 +18448,13 @@ __metadata:
   version: 0.4.3
   resolution: "u2f-api-polyfill@npm:0.4.3"
   checksum: 9b7955f0353d9825dcd7d1929a242cb0661ab9161c117eb9d8b0ee199dd11bc8f74bf3dcae136370c1c9e1bcee8690f0d75279e698268f7d95992a73f7734822
+  languageName: node
+  linkType: hard
+
+"ua-regexes-lite@npm:^1.1.3":
+  version: 1.1.5
+  resolution: "ua-regexes-lite@npm:1.1.5"
+  checksum: 3b13e43a9f2f432870b3da584b5a455f6a67474a615a0fbb54685ff0dd1b4f963a2ec5da03e21661950078982dbeb9c0447f315ba4f56b62b5d96a9dcfbb0322
   languageName: node
   linkType: hard
 

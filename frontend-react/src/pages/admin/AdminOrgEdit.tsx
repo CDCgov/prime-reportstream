@@ -19,10 +19,7 @@ import {
     showAlertNotification,
     showError,
 } from "../../components/AlertNotifications";
-import {
-    getStoredOktaToken,
-    getStoredOrg,
-} from "../../utils/SessionStorageTools";
+import { getStoredOktaToken } from "../../utils/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     ConfirmSaveSettingModal,
@@ -36,11 +33,10 @@ import {
 } from "../../utils/misc";
 import { ObjectTooltip } from "../../components/tooltips/ObjectTooltip";
 import { SampleFilterObject } from "../../utils/TemporarySettingsAPITypes";
-import { AuthElement } from "../../components/AuthElement";
-import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
-import { getAppInsightsHeaders } from "../../TelemetryService";
 import { USLink } from "../../components/USLink";
+import { useSessionContext } from "../../contexts/SessionContext";
+import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
 
 const { RS_API_URL } = config;
 
@@ -48,8 +44,10 @@ type AdminOrgEditProps = {
     orgname: string;
 };
 
-export function AdminOrgEdit() {
+export function AdminOrgEditPage() {
+    const { fetchHeaders } = useAppInsightsContext();
     const { orgname } = useParams<AdminOrgEditProps>();
+    const { activeMembership } = useSessionContext();
 
     const orgSettings: OrgSettingsResource = useResource(
         OrgSettingsResource.detail(),
@@ -64,13 +62,13 @@ export function AdminOrgEdit() {
 
     async function getLatestOrgResponse() {
         const accessToken = getStoredOktaToken();
-        const organization = getStoredOrg();
+        const organization = activeMembership?.parsedName;
 
         const response = await fetch(
             `${RS_API_URL}/api/settings/organizations/${orgname}`,
             {
                 headers: {
-                    ...getAppInsightsHeaders(),
+                    ...fetchHeaders,
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },
@@ -254,11 +252,4 @@ export function AdminOrgEdit() {
     );
 }
 
-export function AdminOrgEditWithAuth() {
-    return (
-        <AuthElement
-            element={<AdminOrgEdit />}
-            requiredUserType={MemberType.PRIME_ADMIN}
-        />
-    );
-}
+export default AdminOrgEditPage;

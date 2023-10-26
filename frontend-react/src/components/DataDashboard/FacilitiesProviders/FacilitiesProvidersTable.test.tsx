@@ -2,8 +2,7 @@ import { screen } from "@testing-library/react";
 
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { FacilityResource } from "../../../config/endpoints/dataDashboard";
-import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
-import { MemberType } from "../../../hooks/UseOktaMemberships";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import {
     orgServer,
     receiversGenerator,
@@ -12,6 +11,7 @@ import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organiz
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import { makeRSReceiverSubmitterResponseFixture } from "../../../__mocks__/DataDashboardMockServer";
 import { mockUseReceiverSubmitter } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverSubmitter";
+import { MemberType } from "../../../utils/OrganizationUtils";
 
 import FacilitiesProvidersTable from "./FacilitiesProvidersTable";
 
@@ -74,17 +74,16 @@ describe("FacilitiesProvidersTable", () => {
             });
 
             // Mock our SessionProvider's data
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrgNoReceivers",
                     service: "testReceiver",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
@@ -124,17 +123,15 @@ describe("FacilitiesProvidersTable", () => {
             });
 
             // Mock our SessionProvider's data
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.RECEIVER,
                     parsedName: "testOrgNoReceivers",
                     service: "testReceiver",
                 },
-                dispatch: () => {},
-                initialized: true,
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,

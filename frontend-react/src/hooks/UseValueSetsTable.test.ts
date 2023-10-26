@@ -1,8 +1,8 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { LookupTables, ValueSet } from "../config/endpoints/lookupTables";
-import { AppWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
 
 import { useValueSetsTable } from "./UseValueSets";
 

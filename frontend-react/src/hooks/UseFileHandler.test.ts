@@ -1,10 +1,11 @@
-import { act, renderHook, RenderHookResult } from "@testing-library/react";
+import { act, RenderHookResult } from "@testing-library/react";
 
 import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { Destination } from "../resources/ActionDetailsResource";
 import { ErrorCode, ResponseError } from "../config/endpoints/waters";
 import { SchemaOption } from "../senders/hooks/UseSenderSchemaOptions";
 import { FileType } from "../utils/TemporarySettingsAPITypes";
+import { renderHook } from "../utils/CustomRenderUtils";
 
 import useFileHandler, {
     INITIAL_STATE,

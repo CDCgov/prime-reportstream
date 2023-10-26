@@ -1,6 +1,5 @@
 import React, { Dispatch, SetStateAction } from "react";
 
-import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import TableFilters from "../../Table/TableFilters";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
 import { RSReceiver } from "../../../config/endpoints/settings";
@@ -22,6 +21,10 @@ import {
     transformFacilityTypeClass,
     transformFacilityTypeLabel,
 } from "../../../utils/DataDashboardUtils";
+import {
+    EventName,
+    useAppInsightsContext,
+} from "../../../contexts/AppInsightsContext";
 
 function FacilitiesProvidersFilterAndTable({
     receiverServices,
@@ -32,6 +35,7 @@ function FacilitiesProvidersFilterAndTable({
     activeService: RSReceiver;
     setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
 }) {
+    const { appInsights } = useAppInsightsContext();
     const featureEvent = `${FeatureName.FACILITIES_PROVIDERS} | ${EventName.TABLE_FILTER}`;
 
     const handleSetActive = (name: string) => {
@@ -133,8 +137,14 @@ function FacilitiesProvidersFilterAndTable({
                                 type: PageSettingsActionType.RESET,
                             });
 
-                            trackAppInsightEvent(featureEvent, {
-                                tableFilter: { startRange: from, endRange: to },
+                            appInsights?.trackEvent({
+                                name: featureEvent,
+                                properties: {
+                                    tableFilter: {
+                                        startRange: from,
+                                        endRange: to,
+                                    },
+                                },
                             });
                         }}
                     />

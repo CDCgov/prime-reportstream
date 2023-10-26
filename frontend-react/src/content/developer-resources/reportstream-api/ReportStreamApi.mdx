@@ -1,12 +1,5 @@
-import DOMPurify from "dompurify";
-
 import Sidenav from "./Sidenav.mdx";
 import site from "../../site.json";
-import { trackAppInsightEvent } from "../../../utils/Analytics";
-
-export const handleClick = () => {
-    trackAppInsightEvent("ReportStream API", {});
-};
 
 <LayoutSidenav>
     <Sidenav />
@@ -29,7 +22,7 @@ export const handleClick = () => {
     </CardGroup>
 
 
-    <p>Our API guide and documentation is also available as a <a href={DOMPurify.sanitize(site.assets.programmersGuidePdf.path)} target="_blank" rel="noopener noreferrer" download><Button type="button" unstyled onClick={handleClick}>downloadable PDF</Button></a>.</p>
+    <p>Our API guide and documentation is also available as a <A href={site.assets.programmersGuidePdf.path} trackClick={{name: "ReportStream API"}} download>downloadable PDF</A>.</p>
 
     ***
     <br/>

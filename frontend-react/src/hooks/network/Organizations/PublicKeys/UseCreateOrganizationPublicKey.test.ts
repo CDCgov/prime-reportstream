@@ -1,12 +1,10 @@
-import { renderHook } from "@testing-library/react";
-
 import {
     dummyPublicKey,
     orgServer,
 } from "../../../../__mocks__/OrganizationMockServer";
-import { AppWrapper } from "../../../../utils/CustomRenderUtils";
-import { mockSessionContext } from "../../../../contexts/__mocks__/SessionContext";
-import { MemberType } from "../../../UseOktaMemberships";
+import { AppWrapper, renderHook } from "../../../../utils/CustomRenderUtils";
+import { mockSessionContentReturnValue } from "../../../../contexts/__mocks__/SessionContext";
+import { MemberType } from "../../../../utils/OrganizationUtils";
 
 import useCreateOrganizationPublicKey from "./UseCreateOrganizationPublicKey";
 
@@ -22,17 +20,16 @@ describe("useCreateOrganizationPublicKey", () => {
 
     describe("when authorized, 200", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.SENDER,
                     parsedName: "testOrg",
                     service: "testOrgPublicKey",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: true,
@@ -55,17 +52,16 @@ describe("useCreateOrganizationPublicKey", () => {
 
     describe("when unauthorized, 401", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
+            mockSessionContentReturnValue({
+                authState: {
                     accessToken: "",
-                },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.SENDER,
                     parsedName: "testOrg",
                     service: "testOrgPublicKey",
                 },
-                dispatch: () => {},
-                initialized: true,
+
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: true,

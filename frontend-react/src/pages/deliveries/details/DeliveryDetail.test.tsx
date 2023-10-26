@@ -2,7 +2,7 @@ import { mockUseReportDetail } from "../../../hooks/network/History/__mocks__/De
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 
-import { DeliveryDetail } from "./DeliveryDetail";
+import { DeliveryDetailPage } from "./DeliveryDetail";
 
 const TEST_ID = "test-id-123";
 jest.mock("react-router-dom", () => ({
@@ -20,7 +20,7 @@ describe("DeliveryDetails", () => {
         mockUseReportDetail.mockReturnValue({
             reportDetail: {} as RSDelivery,
         });
-        renderApp(<DeliveryDetail />);
+        renderApp(<DeliveryDetailPage />);
         expect(mockUseReportDetail).toHaveBeenCalledWith(TEST_ID);
     });
 });

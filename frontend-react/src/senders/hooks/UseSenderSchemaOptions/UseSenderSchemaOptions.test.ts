@@ -1,6 +1,6 @@
-import { renderHook, RenderHookResult } from "@testing-library/react";
+import { RenderHookResult } from "@testing-library/react";
 
-import { AppWrapper } from "../../../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../../../utils/CustomRenderUtils";
 import { FileType } from "../../../utils/TemporarySettingsAPITypes";
 import * as useSenderResourceExports from "../../../hooks/UseSenderResource";
 import { UseSenderResourceHookResult } from "../../../hooks/UseSenderResource";

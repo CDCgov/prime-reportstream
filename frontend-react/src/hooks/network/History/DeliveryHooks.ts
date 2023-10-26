@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from "react";
-import { AccessToken } from "@okta/okta-auth-js";
 
 import {
     Organizations,
@@ -16,7 +15,6 @@ import useFilterManager, {
 } from "../../filters/UseFilterManager";
 import { useSessionContext } from "../../../contexts/SessionContext";
 import { useCreateFetch } from "../../UseCreateFetch";
-import { MembershipSettings } from "../../UseOktaMemberships";
 
 const { getOrgDeliveries, getDeliveryDetails, getDeliveryFacilities } =
     deliveriesEndpoints;
@@ -44,14 +42,11 @@ const filterManagerDefaults: FilterManagerDefaults = {
  * @param service {string} the chosen receiver service (e.x. `elr-secondary`)
  * */
 const useOrgDeliveries = (service?: string) => {
-    const { oktaToken, activeMembership } = useSessionContext();
+    const { activeMembership } = useSessionContext();
     // Using this hook rather than the provided one through AuthFetchProvider because of a hard-to-isolate
     // infinite refresh bug. The authorizedFetch function would trigger endless updates and thus re-fetch
     // endlessly.
-    const generateFetcher = useCreateFetch(
-        oktaToken as AccessToken,
-        activeMembership as MembershipSettings,
-    );
+    const generateFetcher = useCreateFetch();
 
     const adminSafeOrgName = useAdminSafeOrganizationName(
         activeMembership?.parsedName,

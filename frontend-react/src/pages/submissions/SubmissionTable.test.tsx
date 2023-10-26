@@ -3,22 +3,21 @@ import { screen, within } from "@testing-library/react";
 
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { renderApp } from "../../utils/CustomRenderUtils";
-import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
-import { MemberType } from "../../hooks/UseOktaMemberships";
+import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
 import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
+import { MemberType } from "../../utils/OrganizationUtils";
 
 import SubmissionTable from "./SubmissionTable";
 
 describe("SubmissionTable", () => {
     test("renders a placeholder", async () => {
-        mockSessionContext.mockReturnValue({
+        mockSessionContentReturnValue({
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "testOrg",
                 service: "testSender",
             },
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,
@@ -64,14 +63,12 @@ describe("SubmissionTable", () => {
 
     describe("when rendering as an admin", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
+            mockSessionContentReturnValue({
                 activeMembership: {
                     memberType: MemberType.PRIME_ADMIN,
                     parsedName: Organizations.PRIMEADMINS,
                     service: "",
                 },
-                dispatch: () => {},
-                initialized: true,
                 isUserAdmin: true,
                 isUserReceiver: false,
                 isUserSender: false,

@@ -1,12 +1,12 @@
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
 
 import {
     messageTrackerServer,
     MOCK_MESSAGE_SENDER_DATA,
 } from "../../../__mocks__/MessageTrackerMockServer";
-import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
-import { MemberType } from "../../UseOktaMemberships";
-import { AppWrapper } from "../../../utils/CustomRenderUtils";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
+import { AppWrapper, renderHook } from "../../../utils/CustomRenderUtils";
+import { MemberType } from "../../../utils/OrganizationUtils";
 
 import { useMessageSearch, useMessageDetails } from "./MessageTrackerHooks";
 
@@ -16,16 +16,15 @@ afterAll(() => messageTrackerServer.close());
 
 describe("useMessageSearch", () => {
     test("returns expected data values when fetching messages", async () => {
-        mockSessionContext.mockReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+        mockSessionContentReturnValue({
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
             },
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: false,
             isUserReceiver: true,
             isUserSender: false,
@@ -54,16 +53,15 @@ describe("useMessageSearch", () => {
 
 describe("useMessageDetails", () => {
     test("returns expected data values when fetching message details", async () => {
-        mockSessionContext.mockReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+        mockSessionContentReturnValue({
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
             },
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: false,
             isUserReceiver: true,
             isUserSender: false,

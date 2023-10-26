@@ -3,8 +3,6 @@ import React from "react";
 import { useParams } from "react-router-dom";
 
 import { FeatureName } from "../../../utils/FeatureName";
-import { AuthElement } from "../../AuthElement";
-import { MemberType } from "../../../hooks/UseOktaMemberships";
 import Crumbs, { CrumbsProps } from "../../Crumbs";
 import { useReportsDetail } from "../../../hooks/network/History/DeliveryHooks";
 import { withCatchAndSuspense } from "../../RSErrorBoundary";
@@ -14,7 +12,7 @@ import styles from "./ReportDetails.module.scss";
 import { ReportDetailsSummary } from "./ReportDetailsSummary";
 import ReportDetailsTable from "./ReportDetailsTable";
 
-export function ReportDetails() {
+export function ReportDetailsPage() {
     const crumbProps: CrumbsProps = {
         crumbList: [
             { label: FeatureName.DATA_DASHBOARD, path: "/data-dashboard" },
@@ -42,11 +40,4 @@ export function ReportDetails() {
     );
 }
 
-export const ReportDetailsWithAuth = () => {
-    return (
-        <AuthElement
-            element={withCatchAndSuspense(<ReportDetails />)}
-            requiredUserType={MemberType.RECEIVER}
-        />
-    );
-};
+export default ReportDetailsPage;

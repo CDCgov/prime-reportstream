@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 
-import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
 import { RSSessionContext } from "../../contexts/SessionContext";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
@@ -10,7 +10,7 @@ const mockEmail = "mock@abc.com";
 
 describe("SignInOrUser", () => {
     test("renders with email", () => {
-        mockSessionContext.mockReturnValue({
+        mockSessionContentReturnValue({
             user: {
                 email: mockEmail,
             },
@@ -20,7 +20,7 @@ describe("SignInOrUser", () => {
     });
 
     test("renders without email", () => {
-        mockSessionContext.mockReturnValue({
+        mockSessionContentReturnValue({
             user: {},
         } as RSSessionContext);
         renderApp(<SignInOrUser />);
@@ -28,7 +28,7 @@ describe("SignInOrUser", () => {
     });
 
     test("renders without user", () => {
-        mockSessionContext.mockReturnValue({} as RSSessionContext);
+        mockSessionContentReturnValue({} as RSSessionContext);
         renderApp(<SignInOrUser />);
         expect(screen.getByText("Log in via OktaPreview")).toBeVisible();
     });

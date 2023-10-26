@@ -1,8 +1,11 @@
-import { mockUseReportDetail } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import {
+    mockUseReportDetail,
+    mockUseReportFacilities,
+} from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 
-import { ReportDetails } from "./ReportDetails";
+import { ReportDetailsPage } from "./ReportDetails";
 
 const TEST_ID = "123";
 
@@ -18,8 +21,11 @@ describe("ReportDetails", () => {
         mockUseReportDetail.mockReturnValue({
             reportDetail: {} as RSDelivery,
         });
+        mockUseReportFacilities.mockReturnValue({
+            reportFacilities: [],
+        });
 
-        renderApp(<ReportDetails />);
+        renderApp(<ReportDetailsPage />);
         expect(mockUseReportDetail).toHaveBeenCalledWith(TEST_ID);
     });
 });

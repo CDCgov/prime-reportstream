@@ -1,11 +1,11 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 
-import { AppWrapper } from "../utils/CustomRenderUtils";
+import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
 import { dummySender, orgServer } from "../__mocks__/OrganizationMockServer";
-import { mockSessionContext } from "../contexts/__mocks__/SessionContext";
+import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
+import { MemberType, MembershipSettings } from "../utils/OrganizationUtils";
 
 import useSenderResource from "./UseSenderResource";
-import { MembershipSettings, MemberType } from "./UseOktaMemberships";
 
 describe("useSenderResource", () => {
     beforeAll(() => {
@@ -14,16 +14,15 @@ describe("useSenderResource", () => {
     afterEach(() => orgServer.resetHandlers());
     afterAll(() => orgServer.close());
     test("returns undefined if no sender available on membership", () => {
-        mockSessionContext.mockReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+        mockSessionContentReturnValue({
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.NON_STAND,
                 service: undefined,
             } as MembershipSettings,
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,
@@ -36,17 +35,16 @@ describe("useSenderResource", () => {
         expect(result.current.isLoading).toEqual(true);
     });
     test("returns correct sender match", async () => {
-        mockSessionContext.mockReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+        mockSessionContentReturnValue({
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "testOrg",
                 service: "testSender",
             },
-            dispatch: () => {},
-            initialized: true,
+
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,

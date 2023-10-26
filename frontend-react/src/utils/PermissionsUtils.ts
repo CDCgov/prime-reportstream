@@ -1,14 +1,7 @@
 import { AccessToken } from "@okta/okta-auth-js";
 
 import { getOktaGroups, RSOrgType, RSUserClaims } from "./OrganizationUtils";
-
-enum PERMISSIONS {
-    /* Non-Okta pseudo groups */
-    SENDER = "DHSender",
-    RECEIVER = "DHReceiver",
-    /* Okta groups */
-    PRIME_ADMIN = "DHPrimeAdmins",
-}
+import { PERMISSIONS } from "./UsefulTypes";
 
 const isSender = (s: string) => s.toLowerCase().includes(RSOrgType.SENDER);
 const isAdmin = (s: string) => s.toLowerCase().includes(RSOrgType.ADMIN);
@@ -58,4 +51,4 @@ export function getUserPermissions(user?: RSUserClaims): RSUserPermissions {
     };
 }
 
-export { PERMISSIONS, isSender, isReceiver, isAdmin, permissionCheck };
+export { isSender, isReceiver, isAdmin, permissionCheck };

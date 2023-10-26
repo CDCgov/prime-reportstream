@@ -6,7 +6,7 @@ import { renderApp } from "../../utils/CustomRenderUtils";
 import { DetailItem } from "../../components/DetailItem/DetailItem";
 import { FeatureName } from "../../utils/FeatureName";
 
-import SubmissionDetails, { DestinationItem } from "./SubmissionDetails";
+import SubmissionDetailsPage, { DestinationItem } from "./SubmissionDetails";
 
 /*
     Using the included regex can end up pulling various elements where the
@@ -35,7 +35,7 @@ jest.mock("rest-hooks", () => ({
 
 describe("SubmissionDetails", () => {
     beforeEach(() => {
-        renderApp(<SubmissionDetails />);
+        renderApp(<SubmissionDetailsPage />);
     });
 
     test("renders crumb nav to Submissions list", () => {

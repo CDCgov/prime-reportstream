@@ -7,7 +7,6 @@
     "dependencies": {
         "@microsoft/applicationinsights-react-js": "^17.0.1",
         "@microsoft/applicationinsights-web": "^3.0.3",
-        "@okta/okta-auth-js": "^7.4.2",
         "@okta/okta-react": "^6.7.0",
         "@okta/okta-signin-widget": "^7.11.1",
         "@rest-hooks/rest": "^3.0.3",
@@ -62,7 +61,7 @@
         "build:production-sourcemaps": "cross-env NODE_ENV=production SOURCEMAPS=true yarn build-base",
         "build:localdev:csp": "cross-env NODE_ENV=dev.csp yarn build-base",
         "build-base": "yarn tsc --noEmit && yarn vite build",
-        "start-js": "vite dev --port 3000",
+        "start-js": "yarn run browserslist:generate && vite dev --port 3000",
         "cypress:local:run": "cross-env CYPRESS_ENV=development yarn cypress run",
         "cypress:local:open": "cross-env CYPRESS_ENV=development yarn cypress open",
         "cypress:staging:run": "echo 'not implemented yet'",
@@ -77,18 +76,21 @@
         "yarn:show-outdated-packages": "yarn outdated",
         "run-build-dir": "yarn build:localdev:csp && yarn global add serve && serve -s build",
         "storybook": "storybook dev -p 6006",
-        "build-storybook": "storybook build"
+        "build-storybook": "storybook build",
+        "browserslist:generate": "yarn dlx -p browserslist -p update-browserslist-db update-browserslist-db && ts-node-esm scripts/generateBrowserslistRegex.ts"
     },
     "browserslist": {
         "production": [
-            ">0.2%",
-            "not dead",
-            "not op_mini all"
+            "last 2 chrome version",
+            "last 2 firefox version",
+            "last 2 safari version",
+            "last 2 edge version"
         ],
-        "development": [
-            "last 1 chrome version",
-            "last 1 firefox version",
-            "last 1 safari version"
+        "vite": [
+            "chrome >= 87",
+            "firefox >= 78",
+            "safari >= 14",
+            "edge >= 88"
         ]
     },
     "devDependencies": {
@@ -150,6 +152,7 @@
         "babel-jest": "^29.7.0",
         "bfj": "8.0.0",
         "browserslist": "^4.22.1",
+        "browserslist-useragent-regexp": "^4.1.0",
         "camelcase": "^6.3.0",
         "chromatic": "^7.4.0",
         "confusing-browser-globals": "^1.0.11",
