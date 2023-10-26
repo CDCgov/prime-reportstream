@@ -63,7 +63,7 @@ val javaVersion = when (appJvmTarget) {
 }
 val ktorVersion = "2.3.2"
 val kotlinVersion by System.getProperties()
-val jacksonVersion = "2.15.2"
+val jacksonVersion = "2.15.3"
 jacoco.toolVersion = "0.8.10"
 
 // Local database information, first one wins:
@@ -804,7 +804,7 @@ dependencies {
     implementation("com.azure:azure-storage-queue:12.19.0") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-security-keyvault-secrets:4.7.0") {
+    implementation("com.azure:azure-security-keyvault-secrets:4.7.1") {
         exclude(group = "com.azure", module = "azure-core")
         exclude(group = "com.azure", module = "azure-core-http-netty")
     }
@@ -827,14 +827,18 @@ dependencies {
         exclude(group = "org.yaml", module = "snakeyaml")
     }
     implementation("org.yaml:snakeyaml:2.2")
-    implementation("io.github.linuxforhealth:hl7v2-fhir-converter:1.0.19")
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.8.2")
+    implementation("io.github.linuxforhealth:hl7v2-fhir-converter") {
+        version {
+            branch = "master"
+        }
+    }
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.8.4")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
-    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:6.8.2")
+    implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:6.8.5")
     implementation("ca.uhn.hapi:hapi-base:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
     implementation("ca.uhn.hapi:hapi-structures-v27:2.3")
-    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.19")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.23")
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.7")
@@ -893,6 +897,9 @@ dependencies {
     implementation("javax.servlet:javax.servlet-api:4.0.1")
     // https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api
     implementation("javax.annotation:javax.annotation-api:1.3.2")
+
+    // TODO: move this to a test dependency when CompareFhirData lives under src/test
+    implementation("com.flipkart.zjsonpatch:zjsonpatch:0.4.14")
 
     runtimeOnly("com.okta.jwt:okta-jwt-verifier-impl:0.5.7")
     runtimeOnly("com.github.kittinunf.fuel:fuel-jackson:2.3.1")

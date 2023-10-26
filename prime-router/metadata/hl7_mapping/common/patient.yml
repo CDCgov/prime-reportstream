@@ -97,6 +97,7 @@ elements:
 
   - name: phone-number-home-mobile-email
     resource: '%resource.telecom.where(use.empty() or use != "work")'
+    condition: '%context.telecom.where(extension(%`rsext-hl7v2Name`)).exists().not()'
     constants:
       hl7TelecomField: '%{hl7PIDField}-13'
     schema: datatype/xtn-telecom
@@ -104,6 +105,7 @@ elements:
 
   - name: phone-number-business
     resource: '%resource.telecom.where(use = "work")'
+    condition: '%context.telecom.where(extension(%`rsext-hl7v2Name`)).exists().not()'
     constants:
       hl7TelecomField: '%{hl7PIDField}-14'
     schema: datatype/xtn-telecom
@@ -127,7 +129,7 @@ elements:
 
   - name: patient-multiple-birth-indicator
     condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is boolean'
-    value: ['%resource.multipleBirth']
+    value: [ '%resource.multipleBirth' ]
     hl7Spec: [ '%{hl7PIDField}-24' ]
     valueSet:
       values:
@@ -136,7 +138,7 @@ elements:
 
   - name: patient-multiple-birth-order
     condition: '%resource.multipleBirth.exists() and %resource.multipleBirth is integer'
-    value: ['%resource.multipleBirth']
+    value: [ '%resource.multipleBirth' ]
     hl7Spec: [ '%{hl7PIDField}-25' ]
 
   - name: patient-death-date-time

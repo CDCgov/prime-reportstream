@@ -15,7 +15,7 @@ jobs:
         with:
           fetch-depth: 0 # need commit history for Chromatic
 
-      - uses: actions/setup-node@1a4442cacd436585916779262731d5b162bc6ec7
+      - uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65
         with:
           node-version-file: frontend-react/package.json
 
