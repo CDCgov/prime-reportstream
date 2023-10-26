@@ -550,10 +550,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Dr. Shalini Chahal",
             "family" : "Chahal",
@@ -867,10 +869,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Dr. Shalini Chahal",
             "family" : "Chahal",
@@ -1219,10 +1223,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Dr. Shalini Chahal",
             "family" : "Chahal",
@@ -1533,10 +1539,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -1860,10 +1868,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -2197,10 +2207,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -2524,10 +2536,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -2861,10 +2875,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -3188,10 +3204,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -3560,10 +3578,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -3899,10 +3919,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -4230,10 +4252,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -4561,10 +4585,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -4905,10 +4931,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -5236,10 +5264,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -5567,10 +5597,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -5898,10 +5930,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -6229,10 +6263,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -6560,10 +6596,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -6891,10 +6929,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "DR. GREGORY R KOTNIS",
             "family" : "KOTNIS",
@@ -7298,10 +7338,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Dr. Shalini Chahal",
             "family" : "Chahal",
@@ -7685,10 +7727,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Dr. Shalini Chahal",
             "family" : "Chahal",
@@ -8014,10 +8058,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Dr. Shalini Chahal",
             "family" : "Chahal",
@@ -8401,10 +8447,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Dr. Shalini Chahal",
             "family" : "Chahal",
@@ -8730,10 +8778,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Dr. Shalini Chahal",
             "family" : "Chahal",
@@ -9111,10 +9161,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Dr. Shalini Chahal",
             "family" : "Chahal",
@@ -9904,10 +9956,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Christopher Beau Willison",
             "family" : "Willison",
@@ -10593,10 +10647,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Christopher Beau Willison",
             "family" : "Willison",
@@ -11299,10 +11355,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Christopher Beau Willison",
             "family" : "Willison",
@@ -11953,10 +12011,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Christopher Beau Willison",
             "family" : "Willison",
@@ -12441,10 +12501,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "use" : "official",
             "text" : "Christopher Beau Willison",
             "family" : "Willison",
@@ -12886,6 +12948,24 @@
         ],
         "telecom" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
+                "valueString" : "+1 303 693 0111"
+              },
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+                "valueString" : "1"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+                "valueString" : "PH"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
+                "valueString" : "PRN"
+              }
+            ],
             "system" : "phone",
             "value" : "+1 303 693 0111",
             "use" : "home"
@@ -12893,8 +12973,20 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/text",
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn9-any-text",
                 "valueString" : "Business"
+              },
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+                "valueString" : "1"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+                "valueString" : "PH"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
+                "valueString" : "WPN"
               }
             ],
             "system" : "phone",
@@ -13302,10 +13394,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "text" : "James Madison Hunt",
             "family" : "Hunt",
             "given" : [
@@ -13378,10 +13472,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "text" : "James Madison Hunt",
             "family" : "Hunt",
             "given" : [
@@ -13454,10 +13550,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "text" : "James Madison Hunt",
             "family" : "Hunt",
             "given" : [
@@ -13526,10 +13624,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "text" : "James M Neid",
             "family" : "Neid",
             "given" : [
@@ -13598,10 +13698,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "NP"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "NP"
+              }
+            ],
             "text" : "Todd Hultman",
             "family" : "Hultman",
             "given" : [
@@ -13673,10 +13775,12 @@
         ],
         "name" : [
           {
-            "extension" : [ {
-              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
-              "valueString" : "MD"
-            } ],
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree",
+                "valueString" : "MD"
+              }
+            ],
             "text" : "James Madison Hunt",
             "family" : "Hunt",
             "given" : [
