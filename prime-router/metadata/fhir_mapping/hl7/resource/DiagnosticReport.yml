@@ -159,13 +159,10 @@ issued:
     dateTimeIn: OBR.22
 
 resultsInterpreter:
-  condition: $interpreter NOT_NULL
-  valueOf: resource/Practitioner
+  valueOf: datatypes/CNN/Practitioner
   generateList: true
   expressionType: reference
   specs: OBR.32.1
-  vars:
-    interpreter: OBR.32.1
 
 performer_1-technician:
   condition: $rolePractitioner NOT_NULL
