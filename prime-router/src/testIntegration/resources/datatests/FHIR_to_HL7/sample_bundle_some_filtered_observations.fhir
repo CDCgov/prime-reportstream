@@ -2052,33 +2052,43 @@
             ]
           }
         ],
-        "telecom" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
-            "valueString" : "+1 123 456 7890"
-          }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number",
-            "valueString" : "4567890"
-          }, {
-            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
-            "valueString" : "123"
-          }, {
-            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
-            "valueString" : "1"
-          }, {
-            "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
-            "valueString" : "4567890"
-          }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
-            "valueString" : "PH"
-          }, {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
-            "valueString" : "PRN"
-          } ],
-          "system" : "phone",
-          "value" : "+1 123 456 7890",
-          "use" : "home"
-        } ],
+        "telecom" : [
+          {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
+                "valueString" : "+1 123 456 7890"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number",
+                "valueString" : "4567890"
+              },
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+                "valueString" : "123"
+              },
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+                "valueString" : "1"
+              },
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+                "valueString" : "4567890"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+                "valueString" : "PH"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
+                "valueString" : "PRN"
+              }
+            ],
+            "system" : "phone",
+            "value" : "+1 123 456 7890",
+            "use" : "home"
+          }
+        ],
         "gender" : "male",
         "birthDate" : "1900-01-01",
         "deceasedBoolean" : false,
