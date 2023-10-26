@@ -9,15 +9,16 @@ elements:
     hl7Spec: [ '%{hl7CNNField}-2' ]
 
   - name: cnn-given-name
-    value: [ '%resource.extension(`%rsext-cnn3-given-name`).value' ]
+    condition: '%resource.extension(%`rsext-cnn3-given-name`).exists()'
+    value: [ '%resource.extension(%`rsext-cnn3-given-name`).value' ]
     hl7Spec: [ '%{hl7CNNField}-3' ]
 
   - name: cnn-second-given-name
-    value: [ '%resource.extension(`%rsext-cnn4-second-given-name`).value' ]
+    value: [ '%resource.extension(%`rsext-cnn4-second-given-name`).value' ]
     hl7Spec: [ '%{hl7CNNField}-4' ]
 
   - name: cnn-suffix
-    value: [ '%resource.extension(`%rsext-cnn5-suffix`).value' ]
+    value: [ '%resource.extension(%`rsext-cnn5-suffix`).value' ]
     hl7Spec: [ '%{hl7CNNField}-5' ]
 
   - name: cnn-prefix
@@ -25,17 +26,17 @@ elements:
     hl7Spec: [ '%{hl7CNNField}-6' ]
 
   - name: cnn-degree
-    value: [ '%resource.extension(`%rsext-cnn7-degree`).value' ]
+    value: [ '%resource.extension(%`rsext-cnn7-degree`).value' ]
     hl7Spec: [ '%{hl7CNNField}-7' ]
 
   - name: cnn-assigning-authority-namespace-id
-    value: [ '%resource.identifier.extension(`%rsext-assigning-authority`).extension(`%rsext-assigning-authority-namespace-id`)' ]
+    value: [ '%resource.identifier.extension(%`rsext-assigning-authority`).extension(%`rsext-assigning-authority-namespace-id`).value' ]
     hl7Spec: [ '%{hl7CNNField}-9' ]
 
   - name: cnn-assigning-authority-namespace-id
-    value: [ '%resource.identifier.extension(`%rsext-assigning-authority`).extension(`%rsext-assigning-authority-universal-id`)' ]
+    value: [ '%resource.identifier.extension(%`rsext-assigning-authority`).extension(%`rsext-assigning-authority-universal-id`).value' ]
     hl7Spec: [ '%{hl7CNNField}-10' ]
 
   - name: cnn-assigning-authority-namespace-id
-    value: [ '%resource.identifier.extension(`%rsext-assigning-authority`).extension(`%rsext-universal-id-type`)' ]
+    value: [ '%resource.identifier.extension(%`rsext-assigning-authority`).extension(%`rsext-universal-id-type`).value' ]
     hl7Spec: [ '%{hl7CNNField}-11' ]
