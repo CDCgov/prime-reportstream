@@ -6,7 +6,7 @@ id:
 
 practitioner:
   condition: $rolePractitioner NOT_NULL
-  valueOf: datatype/Practitioner
+  valueOf: resource/Practitioner
   expressionType: reference
   specs: $rolePractitioner
   vars:
