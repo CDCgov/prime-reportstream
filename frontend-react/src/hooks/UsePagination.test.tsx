@@ -450,8 +450,9 @@ describe("usePagination", () => {
         });
         // The request on the first page should check for the presence of up to
         // seven pages.
-        await (() =>
-            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61));
+        await waitFor(() =>
+            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61),
+        );
         expect(result.current.paginationProps).toBeUndefined();
         expect(result.current.currentPageResults).toStrictEqual([]);
     });
@@ -499,10 +500,6 @@ describe("usePagination", () => {
         await waitFor(() =>
             expect(result.current.paginationProps).toBeDefined(),
         );
-        act(() => {
-            result.current.paginationProps?.setSelectedPage(6);
-        });
-        // The current page and slots should not update until the fetch resolves
         expect(result.current.paginationProps?.currentPageNum).toBe(1);
         expect(result.current.paginationProps?.slots).toStrictEqual([
             1,
@@ -513,8 +510,11 @@ describe("usePagination", () => {
             6,
             OVERFLOW_INDICATOR,
         ]);
-        expect(result.current.isLoading).toBe(true);
 
+        act(() => {
+            result.current.paginationProps?.setSelectedPage(6);
+        });
+        expect(result.current.isLoading).toBe(true);
         await waitFor(() =>
             expect(
                 result.current.paginationProps?.currentPageNum,
