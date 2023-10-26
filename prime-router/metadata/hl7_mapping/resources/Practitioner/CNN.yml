@@ -21,7 +21,7 @@ elements:
     hl7Spec: [ '%{hl7CNNField}-5' ]
 
   - name: cnn-prefix
-    value: [ '%resourceprefix' ]
+    value: [ '%resource.name.prefix' ]
     hl7Spec: [ '%{hl7CNNField}-6' ]
 
   - name: cnn-degree
@@ -31,3 +31,11 @@ elements:
   - name: cnn-assigning-authority-namespace-id
     value: [ '%resource.identifier.extension(`%rsext-assigning-authority`).extension(`%rsext-assigning-authority-namespace-id`)' ]
     hl7Spec: [ '%{hl7CNNField}-9' ]
+
+  - name: cnn-assigning-authority-namespace-id
+    value: [ '%resource.identifier.extension(`%rsext-assigning-authority`).extension(`%rsext-assigning-authority-universal-id`)' ]
+    hl7Spec: [ '%{hl7CNNField}-10' ]
+
+  - name: cnn-assigning-authority-namespace-id
+    value: [ '%resource.identifier.extension(`%rsext-assigning-authority`).extension(`%rsext-universal-id-type`)' ]
+    hl7Spec: [ '%{hl7CNNField}-11' ]
