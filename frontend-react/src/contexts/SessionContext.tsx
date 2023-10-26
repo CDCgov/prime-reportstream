@@ -17,15 +17,15 @@ import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 import { Security, useOktaAuth } from "@okta/okta-react";
 
 import {
-    MembershipSettings,
-    MemberType,
-    membershipsFromToken,
-} from "../hooks/UseOktaMemberships";
-import {
     getUserPermissions,
     RSUserPermissions,
 } from "../utils/PermissionsUtils";
-import { RSUserClaims } from "../utils/OrganizationUtils";
+import {
+    MembershipSettings,
+    membershipsFromToken,
+    MemberType,
+    RSUserClaims,
+} from "../utils/OrganizationUtils";
 import config from "../config";
 import { updateApiSessions } from "../network/Apis";
 import { OKTA_AUTH } from "../oktaConfig";

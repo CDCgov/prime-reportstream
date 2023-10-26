@@ -10,8 +10,6 @@ import {
 import { Helmet } from "react-helmet-async";
 
 import { showAlertNotification } from "../../components/AlertNotifications";
-import { MemberType } from "../../hooks/UseOktaMemberships";
-import { AuthElement } from "../../components/AuthElement";
 import {
     FeatureFlagActionType,
     useFeatureFlags,
@@ -24,14 +22,14 @@ export enum FeatureFlagName {
     FOR_TEST = "for-tests-only",
 }
 
-export function FeatureFlagUIComponent() {
+export function FeatureFlagsPage() {
     const newFlagInputText = useRef<HTMLInputElement>(null);
 
-    const { featureFlags, checkFlag, dispatch } = useFeatureFlags();
+    const { featureFlags, checkFlags, dispatch } = useFeatureFlags();
 
     const addFlagClick = useCallback(() => {
         const newFlag = newFlagInputText.current?.value || "";
-        if (checkFlag(newFlag)) {
+        if (checkFlags(newFlag)) {
             // already added.
             showAlertNotification(
                 "info",
@@ -51,7 +49,7 @@ export function FeatureFlagUIComponent() {
             "success",
             `Feature flag '${newFlag}' added. You will now see UI related to this feature.`,
         );
-    }, [newFlagInputText, checkFlag, dispatch]);
+    }, [newFlagInputText, checkFlags, dispatch]);
     const deleteFlagClick = useCallback(
         (flagname: string) => {
             dispatch({
@@ -94,12 +92,12 @@ export function FeatureFlagUIComponent() {
                         </Button>
                     </Grid>
 
-                    {featureFlags.map((flagname, i) => {
+                    {featureFlags.map((flagname) => {
                         return (
                             <Grid
                                 gap="lg"
                                 className="margin-top-3"
-                                key={`feature-flag-${i}`}
+                                key={`feature-flag-${flagname}`}
                             >
                                 <Alert
                                     headingLevel="h4"
@@ -133,13 +131,4 @@ export function FeatureFlagUIComponent() {
     );
 }
 
-export function FeatureFlagUIWithAuth() {
-    return (
-        <AuthElement
-            element={<FeatureFlagUIComponent />}
-            requiredUserType={MemberType.PRIME_ADMIN}
-        />
-    );
-}
-
-export default FeatureFlagUIWithAuth;
+export default FeatureFlagsPage;

@@ -7,7 +7,7 @@ import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import config from "../../config";
 
-import { EditSenderSettings } from "./EditSenderSettings";
+import { EditSenderSettingsPage } from "./EditSenderSettings";
 
 const mockData: OrgSenderSettingsResource = new TestResponse(
     ResponseType.SENDER_SETTINGS,
@@ -79,7 +79,7 @@ describe("EditSenderSettings", () => {
     });
     afterAll(() => settingsServer.close());
     beforeEach(() => {
-        renderApp(<EditSenderSettings />);
+        renderApp(<EditSenderSettingsPage />);
         nameField = screen.getByTestId("name");
         editJsonAndSaveButton = screen.getByTestId("submit");
     });

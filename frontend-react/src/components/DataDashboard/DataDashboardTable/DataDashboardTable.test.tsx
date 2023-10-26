@@ -2,7 +2,6 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
-import { MemberType } from "../../../hooks/UseOktaMemberships";
 import {
     dataDashboardServer,
     makeRSReceiverDeliveryResponseFixture,
@@ -16,6 +15,7 @@ import {
     mockAppInsights,
     mockAppInsightsContextReturnValue,
 } from "../../../contexts/__mocks__/AppInsightsContext";
+import { MemberType } from "../../../utils/OrganizationUtils";
 
 import DataDashboardTable from "./DataDashboardTable";
 

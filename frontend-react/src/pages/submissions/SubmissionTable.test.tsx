@@ -4,8 +4,8 @@ import { screen, within } from "@testing-library/react";
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
-import { MemberType } from "../../hooks/UseOktaMemberships";
 import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
+import { MemberType } from "../../utils/OrganizationUtils";
 
 import SubmissionTable from "./SubmissionTable";
 

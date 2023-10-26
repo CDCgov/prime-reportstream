@@ -1,9 +1,11 @@
 import React from "react";
-import { RouteObject, redirect } from "react-router";
+import { Outlet, RouteObject, redirect } from "react-router";
 import { createBrowserRouter } from "react-router-dom";
 
 import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
+import { RequireGate } from "./shared/RequireGate/RequireGate";
+import { PERMISSIONS } from "./utils/UsefulTypes";
 
 /* Content Pages */
 const Home = React.lazy(
@@ -129,78 +131,71 @@ const ErrorNoPage = React.lazy(
 );
 
 /* Auth Pages */
-const UploadWithAuth = React.lazy(() => import("./pages/Upload"));
-const FeatureFlagUIWithAuth = React.lazy(
-    () => import("./pages/misc/FeatureFlags"),
-);
-const SubmissionDetailsWithAuth = React.lazy(
+const FeatureFlagsPage = React.lazy(() => import("./pages/misc/FeatureFlags"));
+const SubmissionDetailsPage = React.lazy(
     () => import("./pages/submissions/SubmissionDetails"),
 );
-const SubmissionsWithAuth = React.lazy(
+const SubmissionsPage = React.lazy(
     () => import("./pages/submissions/Submissions"),
 );
-const AdminMainWithAuth = React.lazy(() => import("./pages/admin/AdminMain"));
-const AdminOrgNewWithAuth = React.lazy(
-    () => import("./pages/admin/AdminOrgNew"),
-);
-const AdminOrgEditWithAuth = React.lazy(
-    () => import("./pages/admin/AdminOrgEdit"),
-);
-const EditSenderSettingsWithAuth = React.lazy(
+const AdminMainPage = React.lazy(() => import("./pages/admin/AdminMain"));
+const AdminOrgNewPage = React.lazy(() => import("./pages/admin/AdminOrgNew"));
+const AdminOrgEditPage = React.lazy(() => import("./pages/admin/AdminOrgEdit"));
+const EditSenderSettingsPage = React.lazy(
     () => import("./components/Admin/EditSenderSettings"),
 );
-const AdminLMFWithAuth = React.lazy(
+const AdminLMFPage = React.lazy(
     () => import("./pages/admin/AdminLastMileFailures"),
 );
-const AdminMessageTrackerWithAuth = React.lazy(
+const AdminMessageTrackerPage = React.lazy(
     () => import("./pages/admin/AdminMessageTracker"),
 );
-const AdminReceiverDashWithAuth = React.lazy(
+const AdminReceiverDashPage = React.lazy(
     () => import("./pages/admin/AdminReceiverDashPage"),
 );
-const DeliveryDetailWithAuth = React.lazy(
+const DeliveryDetailPage = React.lazy(
     () => import("./pages/deliveries/details/DeliveryDetail"),
 );
-const ValueSetsDetailWithAuth = React.lazy(
+const ValueSetsDetailPage = React.lazy(
     () => import("./pages/admin/value-set-editor/ValueSetsDetail"),
 );
-const ValueSetsIndexWithAuth = React.lazy(
+const ValueSetsIndexPage = React.lazy(
     () => import("./pages/admin/value-set-editor/ValueSetsIndex"),
 );
-const DeliveriesWithAuth = React.lazy(
+const DeliveriesPage = React.lazy(
     () => import("./pages/deliveries/Deliveries"),
 );
-const EditReceiverSettingsWithAuth = React.lazy(
+const EditReceiverSettingsPage = React.lazy(
     () => import("./components/Admin/EditReceiverSettings"),
 );
-const AdminRevHistoryWithAuth = React.lazy(
+const AdminRevHistoryPage = React.lazy(
     () => import("./pages/admin/AdminRevHistory"),
 );
-const MessageDetailsWithAuth = React.lazy(
+const MessageDetailsPage = React.lazy(
     () => import("./components/MessageTracker/MessageDetails"),
 );
-const ManagePublicKeyWithAuth = React.lazy(
+const ManagePublicKeyPage = React.lazy(
     () => import("./components/ManagePublicKey/ManagePublicKey"),
 );
-const DataDashboardWithAuth = React.lazy(
+const DataDashboardPage = React.lazy(
     () => import("./pages/data-dashboard/DataDashboard"),
 );
-const ReportDetailsWithAuth = React.lazy(
+const ReportDetailsPage = React.lazy(
     () => import("./components/DataDashboard/ReportDetails/ReportDetails"),
 );
-const FacilitiesProvidersWithAuth = React.lazy(
+const FacilitiesProvidersPage = React.lazy(
     () =>
         import(
             "./components/DataDashboard/FacilitiesProviders/FacilitiesProviders"
         ),
 );
-const FacilityProviderSubmitterDetailsWithAuth = React.lazy(
+const FacilityProviderSubmitterDetailsPage = React.lazy(
     () =>
         import(
             "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails"
         ),
 );
-const NewSettingWithAuth = React.lazy(
+const NewSettingPage = React.lazy(
     () => import("./components/Admin/NewSetting"),
 );
 
@@ -216,18 +211,17 @@ export const appRoutes: RouteObject[] = [
                 handle: {
                     isContentPage: true,
                     isFullWidth: true,
-                    //isDAP: true,
                 },
             },
             {
-                path: "/terms-of-service",
+                path: "terms-of-service",
                 element: <TermsOfService />,
                 handle: {
                     isContentPage: true,
                 },
             },
             {
-                path: "/about",
+                path: "about",
                 children: [
                     {
                         index: true,
@@ -275,7 +269,7 @@ export const appRoutes: RouteObject[] = [
                 ],
             },
             {
-                path: "/login",
+                path: "login",
                 children: [
                     {
                         element: <Login />,
@@ -291,11 +285,11 @@ export const appRoutes: RouteObject[] = [
                 ],
             },
             {
-                path: "/logout/callback",
+                path: "logout/callback",
                 element: <LogoutCallback />,
             },
             {
-                path: "/sign-tos",
+                path: "sign-tos",
                 element: <TermsOfServiceForm />,
                 handle: {
                     isContentPage: true,
@@ -321,7 +315,7 @@ export const appRoutes: RouteObject[] = [
                 ],
             },
             {
-                path: "/getting-started",
+                path: "getting-started",
                 children: [
                     {
                         index: true,
@@ -429,7 +423,7 @@ export const appRoutes: RouteObject[] = [
                 ],
             },
             {
-                path: "/managing-your-connection",
+                path: "managing-your-connection",
                 index: true,
                 element: <ManagingYourConnectionIndex />,
                 handle: {
@@ -438,7 +432,7 @@ export const appRoutes: RouteObject[] = [
                 },
             },
             {
-                path: "/support",
+                path: "support",
                 children: [
                     {
                         path: "",
@@ -456,42 +450,66 @@ export const appRoutes: RouteObject[] = [
                 element: <FileHandler />,
             },
             {
-                path: "/daily-data",
-                element: <DeliveriesWithAuth />,
+                path: "daily-data",
+                element: (
+                    <RequireGate>
+                        <DeliveriesPage />
+                    </RequireGate>
+                ),
             },
             {
                 path: "manage-public-key",
-                element: <ManagePublicKeyWithAuth />,
+                element: (
+                    <RequireGate>
+                        <ManagePublicKeyPage />
+                    </RequireGate>
+                ),
             },
             {
-                path: "/report-details/:reportId",
-                element: <DeliveryDetailWithAuth />,
+                path: "report-details",
+                element: (
+                    <RequireGate>
+                        <Outlet />
+                    </RequireGate>
+                ),
+                children: [
+                    {
+                        path: ":reportId",
+                        element: <DeliveryDetailPage />,
+                    },
+                ],
             },
             {
-                path: "/upload",
-                element: <UploadWithAuth />,
-            },
-            {
-                path: "/submissions",
+                path: "submissions",
+                element: (
+                    <RequireGate>
+                        <Outlet />
+                    </RequireGate>
+                ),
                 children: [
                     {
                         path: "",
                         index: true,
-                        element: <SubmissionsWithAuth />,
+                        element: <SubmissionsPage />,
                     },
                     {
-                        path: "/submissions/:actionId",
-                        element: <SubmissionDetailsWithAuth />,
+                        path: "submissions/:actionId",
+                        element: <SubmissionDetailsPage />,
                     },
                 ],
             },
             /* Data Dashboard pages */
             {
-                path: "/data-dashboard",
+                path: "data-dashboard",
+                element: (
+                    <RequireGate>
+                        <Outlet />
+                    </RequireGate>
+                ),
                 children: [
                     {
                         path: "",
-                        element: <DataDashboardWithAuth />,
+                        element: <DataDashboardPage />,
                         index: true,
                         handle: {
                             isContentPage: true,
@@ -500,11 +518,11 @@ export const appRoutes: RouteObject[] = [
                     },
                     {
                         path: "report-details/:reportId",
-                        element: <ReportDetailsWithAuth />,
+                        element: <ReportDetailsPage />,
                     },
                     {
                         path: "facilities-providers",
-                        element: <FacilitiesProvidersWithAuth />,
+                        element: <FacilitiesProvidersPage />,
                         handle: {
                             isContentPage: true,
                             isFullWidth: true,
@@ -513,7 +531,7 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "facility/:senderId",
                         element: (
-                            <FacilityProviderSubmitterDetailsWithAuth
+                            <FacilityProviderSubmitterDetailsPage
                                 senderType={SenderType.FACILITY}
                             />
                         ),
@@ -521,7 +539,7 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "provider/:senderId",
                         element: (
-                            <FacilityProviderSubmitterDetailsWithAuth
+                            <FacilityProviderSubmitterDetailsPage
                                 senderType={SenderType.PROVIDER}
                             />
                         ),
@@ -529,7 +547,7 @@ export const appRoutes: RouteObject[] = [
                     {
                         path: "submitter/:senderId",
                         element: (
-                            <FacilityProviderSubmitterDetailsWithAuth
+                            <FacilityProviderSubmitterDetailsPage
                                 senderType={SenderType.SUBMITTER}
                             />
                         ),
@@ -539,46 +557,51 @@ export const appRoutes: RouteObject[] = [
             /* Admin pages */
             {
                 path: "admin",
+                element: (
+                    <RequireGate auth={PERMISSIONS.PRIME_ADMIN}>
+                        <Outlet />
+                    </RequireGate>
+                ),
                 children: [
                     {
                         path: "settings",
-                        element: <AdminMainWithAuth />,
+                        element: <AdminMainPage />,
                     },
                     {
                         path: "new/org",
-                        element: <AdminOrgNewWithAuth />,
+                        element: <AdminOrgNewPage />,
                     },
                     {
                         path: "orgsettings/org/:orgname",
-                        element: <AdminOrgEditWithAuth />,
+                        element: <AdminOrgEditPage />,
                     },
                     {
                         path: "orgreceiversettings/org/:orgname/receiver/:receivername/action/:action",
-                        element: <EditReceiverSettingsWithAuth />,
+                        element: <EditReceiverSettingsPage />,
                     },
                     {
                         path: "orgsendersettings/org/:orgname/sender/:sendername/action/:action",
-                        element: <EditSenderSettingsWithAuth />,
+                        element: <EditSenderSettingsPage />,
                     },
                     {
                         path: "orgnewsetting/org/:orgname/settingtype/:settingtype",
-                        element: <NewSettingWithAuth />,
+                        element: <NewSettingPage />,
                     },
                     {
                         path: "lastmile",
-                        element: <AdminLMFWithAuth />,
+                        element: <AdminLMFPage />,
                     },
                     {
                         path: "send-dash",
-                        element: <AdminReceiverDashWithAuth />,
+                        element: <AdminReceiverDashPage />,
                     },
                     {
                         path: "features",
-                        element: <FeatureFlagUIWithAuth />,
+                        element: <FeatureFlagsPage />,
                     },
                     {
                         path: "message-tracker",
-                        element: <AdminMessageTrackerWithAuth />,
+                        element: <AdminMessageTrackerPage />,
                     },
                     {
                         path: "value-sets",
@@ -586,23 +609,23 @@ export const appRoutes: RouteObject[] = [
                             {
                                 path: "",
                                 index: true,
-                                element: <ValueSetsIndexWithAuth />,
+                                element: <ValueSetsIndexPage />,
                             },
                             {
                                 path: ":valueSetName",
-                                element: <ValueSetsDetailWithAuth />,
+                                element: <ValueSetsDetailPage />,
                             },
                         ],
                     },
                     {
                         path: "revisionhistory/org/:org/settingtype/:settingType",
-                        element: <AdminRevHistoryWithAuth />,
+                        element: <AdminRevHistoryPage />,
                     },
                 ],
             },
             {
                 path: "/message-details/:id",
-                element: <MessageDetailsWithAuth />,
+                element: <MessageDetailsPage />,
             },
             /* Handles any undefined route */
             {

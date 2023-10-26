@@ -3,8 +3,8 @@ import { waitFor } from "@testing-library/react";
 import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
 import { dummySenders, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
+import { MemberType } from "../utils/OrganizationUtils";
 
-import { MemberType } from "./UseOktaMemberships";
 import useOrganizationSenders from "./UseOrganizationSenders";
 
 describe("useOrganizationSenders", () => {

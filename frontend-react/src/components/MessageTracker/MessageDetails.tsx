@@ -3,10 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button, Accordion, GridContainer } from "@trussworks/react-uswds";
 import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accordion/Accordion";
 
-import { AuthElement } from "../AuthElement";
 import { DetailItem } from "../DetailItem/DetailItem";
 import { withCatchAndSuspense } from "../RSErrorBoundary";
-import { MemberType } from "../../hooks/UseOktaMemberships";
 import { useMessageDetails } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
 import { WarningError } from "../../config/endpoints/messageTracker";
 import { parseFileLocation } from "../../utils/misc";
@@ -192,11 +190,7 @@ export function MessageDetails() {
     );
 }
 
-export const MessageDetailsWithAuth = () => (
-    <AuthElement
-        element={withCatchAndSuspense(<MessageDetails />)}
-        requiredUserType={MemberType.PRIME_ADMIN}
-    />
-);
+export const MessageDetailsPage = () =>
+    withCatchAndSuspense(<MessageDetails />);
 
-export default MessageDetailsWithAuth;
+export default MessageDetailsPage;

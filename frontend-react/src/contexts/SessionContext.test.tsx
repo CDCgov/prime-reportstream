@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 
-import { MemberType } from "../hooks/UseOktaMemberships";
 import { renderApp } from "../utils/CustomRenderUtils";
+import { MemberType } from "../utils/OrganizationUtils";
 
 import { useSessionContext } from "./SessionContext";
 import { mockSessionContentReturnValue } from "./__mocks__/SessionContext";

@@ -3,7 +3,7 @@ import { screen } from "@testing-library/react";
 import { orgServer } from "../__mocks__/OrganizationMockServer";
 import { renderApp } from "../utils/CustomRenderUtils";
 import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
-import { MemberType } from "../hooks/UseOktaMemberships";
+import { MemberType } from "../utils/OrganizationUtils";
 
 import SenderModeBanner from "./SenderModeBanner";
 

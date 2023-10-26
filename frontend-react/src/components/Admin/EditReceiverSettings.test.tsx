@@ -5,7 +5,7 @@ import config from "../../config";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 
-import { EditReceiverSettings } from "./EditReceiverSettings";
+import { EditReceiverSettingsPage } from "./EditReceiverSettings";
 
 const mockData = {
     name: "CSV",
@@ -105,7 +105,7 @@ describe("EditReceiverSettings", () => {
         settingsServer.close();
     });
     beforeEach(() => {
-        renderApp(<EditReceiverSettings />);
+        renderApp(<EditReceiverSettingsPage />);
     });
 
     test("should be able to edit keys field", () => {

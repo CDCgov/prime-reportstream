@@ -2,13 +2,10 @@ import React, { useEffect, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
 
 import Spinner from "../Spinner";
-import { AuthElement } from "../AuthElement";
-import { withCatchAndSuspense } from "../RSErrorBoundary";
 import { USLink } from "../USLink";
 import { showError } from "../AlertNotifications";
 import { ApiKey } from "../../config/endpoints/settings";
 import { useSessionContext } from "../../contexts/SessionContext";
-import { MemberType } from "../../hooks/UseOktaMemberships";
 import { validateFileType, validateFileSize } from "../../utils/FileUtils";
 import useCreateOrganizationPublicKey from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
 import useOrganizationPublicKeys from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
@@ -26,7 +23,7 @@ import ManagePublicKeyConfigured from "./ManagePublicKeyConfigured";
 export const CONTENT_TYPE = "application/x-x509-ca-cert";
 export const FORMAT = "PEM";
 
-export function ManagePublicKey() {
+export function ManagePublicKeyPage() {
     const { appInsights } = useAppInsightsContext();
     const [hasPublicKey, setHasPublicKey] = useState(false);
     const [uploadNewPublicKey, setUploadNewPublicKey] = useState(false);
@@ -215,11 +212,4 @@ export function ManagePublicKey() {
     );
 }
 
-export const ManagePublicKeyWithAuth = () => (
-    <AuthElement
-        element={withCatchAndSuspense(<ManagePublicKey />)}
-        requiredUserType={MemberType.SENDER}
-    />
-);
-
-export default ManagePublicKeyWithAuth;
+export default ManagePublicKeyPage;

@@ -10,10 +10,10 @@ import * as useOrganizationPublicKeysExports from "../../hooks/network/Organizat
 import { UseOrganizationPublicKeysResult } from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
 import * as useOrganizationSendersExports from "../../hooks/UseOrganizationSenders";
 import { UseOrganizationSendersResult } from "../../hooks/UseOrganizationSenders";
-import { MemberType } from "../../hooks/UseOktaMemberships";
 import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
+import { MemberType } from "../../utils/OrganizationUtils";
 
-import { ManagePublicKey } from "./ManagePublicKey";
+import { ManagePublicKeyPage } from "./ManagePublicKey";
 
 const DEFAULT_SENDERS: RSSender[] = sendersGenerator(2);
 
@@ -104,7 +104,7 @@ describe("ManagePublicKey", () => {
             mockUseOrganizationSenders({ isLoading: true });
             mockUseOrganizationPublicKeys();
 
-            renderApp(<ManagePublicKey />);
+            renderApp(<ManagePublicKeyPage />);
         }
 
         test("renders a spinner", () => {
@@ -121,7 +121,7 @@ describe("ManagePublicKey", () => {
             });
             mockUseOrganizationPublicKeys();
 
-            renderApp(<ManagePublicKey />);
+            renderApp(<ManagePublicKeyPage />);
         }
 
         test("renders the sender options", () => {
@@ -174,7 +174,7 @@ describe("ManagePublicKey", () => {
             });
             mockUseOrganizationPublicKeys();
 
-            renderApp(<ManagePublicKey />);
+            renderApp(<ManagePublicKeyPage />);
         }
 
         test("renders ManagePublicKeyUpload", () => {
@@ -198,7 +198,7 @@ describe("ManagePublicKey", () => {
                 data: mockRSApiKeysResponse,
             });
 
-            renderApp(<ManagePublicKey />);
+            renderApp(<ManagePublicKeyPage />);
         }
 
         test.skip("shows the configured screen and allows the user to upload a new public key", async () => {
@@ -244,7 +244,7 @@ describe("ManagePublicKey", () => {
                 isSuccess: true,
             });
 
-            renderApp(<ManagePublicKey />);
+            renderApp(<ManagePublicKeyPage />);
         }
 
         test("uploads the file and shows the success screen", async () => {
@@ -281,7 +281,7 @@ describe("ManagePublicKey", () => {
                 isSuccess: false,
             });
 
-            renderApp(<ManagePublicKey />);
+            renderApp(<ManagePublicKeyPage />);
 
             expect(screen.getByTestId("file-input-input")).toBeVisible();
             expect(screen.getByText("Submit")).toBeDisabled();

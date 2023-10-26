@@ -1,12 +1,12 @@
 import { waitFor } from "@testing-library/react";
 
 import { AppWrapper, renderHook } from "../../../../utils/CustomRenderUtils";
-import { MemberType } from "../../../UseOktaMemberships";
 import { mockSessionContentReturnValue } from "../../../../contexts/__mocks__/SessionContext";
 import {
     dummyPublicKey,
     orgServer,
 } from "../../../../__mocks__/OrganizationMockServer";
+import { MemberType } from "../../../../utils/OrganizationUtils";
 
 import useOrganizationPublicKeys from "./UseOrganizationPublicKeys";
 

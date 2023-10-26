@@ -1,9 +1,9 @@
 import { waitFor } from "@testing-library/react";
 
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
-import { MemberType } from "../../UseOktaMemberships";
 import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
 import { AppWrapper, renderHook } from "../../../utils/CustomRenderUtils";
+import { MemberType } from "../../../utils/OrganizationUtils";
 
 import { useReportsDetail } from "./DeliveryHooks";
 

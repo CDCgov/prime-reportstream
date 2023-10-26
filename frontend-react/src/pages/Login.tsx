@@ -1,5 +1,6 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
+import type { Location } from "react-router-dom";
 import type { Tokens } from "@okta/okta-auth-js";
 
 import Alert from "../shared/Alert/Alert";
@@ -10,13 +11,18 @@ import { useSessionContext } from "../contexts/SessionContext";
 
 export function Login() {
     const { oktaAuth, authState } = useSessionContext();
+    const location: Location<{ originalUrl?: string } | undefined> =
+        useLocation();
 
     const onSuccess = React.useCallback(
         (tokens: Tokens) => {
-            oktaAuth.handleLoginRedirect(tokens);
+            oktaAuth.handleLoginRedirect(
+                tokens,
+                location.state?.originalUrl ?? "/",
+            );
             return tokens;
         },
-        [oktaAuth],
+        [location.state?.originalUrl, oktaAuth],
     );
 
     const onError = React.useCallback((_: any) => {}, []);

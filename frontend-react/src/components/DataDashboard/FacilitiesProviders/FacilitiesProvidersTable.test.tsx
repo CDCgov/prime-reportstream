@@ -3,7 +3,6 @@ import { screen } from "@testing-library/react";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { FacilityResource } from "../../../config/endpoints/dataDashboard";
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
-import { MemberType } from "../../../hooks/UseOktaMemberships";
 import {
     orgServer,
     receiversGenerator,
@@ -12,6 +11,7 @@ import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organiz
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import { makeRSReceiverSubmitterResponseFixture } from "../../../__mocks__/DataDashboardMockServer";
 import { mockUseReceiverSubmitter } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverSubmitter";
+import { MemberType } from "../../../utils/OrganizationUtils";
 
 import FacilitiesProvidersTable from "./FacilitiesProvidersTable";
 

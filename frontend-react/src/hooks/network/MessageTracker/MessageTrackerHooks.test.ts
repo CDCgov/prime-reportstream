@@ -5,8 +5,8 @@ import {
     MOCK_MESSAGE_SENDER_DATA,
 } from "../../../__mocks__/MessageTrackerMockServer";
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
-import { MemberType } from "../../UseOktaMemberships";
 import { AppWrapper, renderHook } from "../../../utils/CustomRenderUtils";
+import { MemberType } from "../../../utils/OrganizationUtils";
 
 import { useMessageSearch, useMessageDetails } from "./MessageTrackerHooks";
 

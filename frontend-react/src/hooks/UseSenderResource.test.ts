@@ -3,9 +3,9 @@ import { waitFor } from "@testing-library/react";
 import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
 import { dummySender, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
+import { MemberType, MembershipSettings } from "../utils/OrganizationUtils";
 
 import useSenderResource from "./UseSenderResource";
-import { MembershipSettings, MemberType } from "./UseOktaMemberships";
 
 describe("useSenderResource", () => {
     beforeAll(() => {

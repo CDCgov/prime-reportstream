@@ -1,7 +1,7 @@
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
-import { MemberType } from "../../UseOktaMemberships";
 import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
 import { renderHook } from "../../../utils/CustomRenderUtils";
+import { MemberType } from "../../../utils/OrganizationUtils";
 
 import { useOrgDeliveries } from "./DeliveryHooks";
 

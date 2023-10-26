@@ -6,9 +6,9 @@ import { Helmet } from "react-helmet-async";
 
 import OrgSettingsResource from "../../resources/OrgSettingsResource";
 import { useSessionContext } from "../../contexts/SessionContext";
-import { MemberType, MembershipSettings } from "../../hooks/UseOktaMemberships";
 import { USNavLink } from "../USLink";
 import { Table } from "../../shared/Table/Table";
+import { MemberType, MembershipSettings } from "../../utils/OrganizationUtils";
 
 export function OrgsTable() {
     const orgs: OrgSettingsResource[] = useResource(

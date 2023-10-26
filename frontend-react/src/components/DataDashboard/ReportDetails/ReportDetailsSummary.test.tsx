@@ -3,8 +3,10 @@ import { screen } from "@testing-library/react";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { FileType } from "../../../utils/TemporarySettingsAPITypes";
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
-import { MemberType } from "../../../hooks/UseOktaMemberships";
-import { AccessTokenWithRSClaims } from "../../../utils/OrganizationUtils";
+import {
+    AccessTokenWithRSClaims,
+    MemberType,
+} from "../../../utils/OrganizationUtils";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 
 import { ReportDetailsSummary } from "./ReportDetailsSummary";

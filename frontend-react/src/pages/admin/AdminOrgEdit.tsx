@@ -33,8 +33,6 @@ import {
 } from "../../utils/misc";
 import { ObjectTooltip } from "../../components/tooltips/ObjectTooltip";
 import { SampleFilterObject } from "../../utils/TemporarySettingsAPITypes";
-import { AuthElement } from "../../components/AuthElement";
-import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
 import { USLink } from "../../components/USLink";
 import { useSessionContext } from "../../contexts/SessionContext";
@@ -46,7 +44,7 @@ type AdminOrgEditProps = {
     orgname: string;
 };
 
-export function AdminOrgEdit() {
+export function AdminOrgEditPage() {
     const { fetchHeaders } = useAppInsightsContext();
     const { orgname } = useParams<AdminOrgEditProps>();
     const { activeMembership } = useSessionContext();
@@ -254,13 +252,4 @@ export function AdminOrgEdit() {
     );
 }
 
-export function AdminOrgEditWithAuth() {
-    return (
-        <AuthElement
-            element={<AdminOrgEdit />}
-            requiredUserType={MemberType.PRIME_ADMIN}
-        />
-    );
-}
-
-export default AdminOrgEditWithAuth;
+export default AdminOrgEditPage;

@@ -2,8 +2,6 @@ import { Helmet } from "react-helmet-async";
 import React from "react";
 
 import { FeatureName } from "../../../utils/FeatureName";
-import { AuthElement } from "../../AuthElement";
-import { MemberType } from "../../../hooks/UseOktaMemberships";
 import HipaaNotice from "../../HipaaNotice";
 import Crumbs, { CrumbsProps } from "../../Crumbs";
 import { withCatchAndSuspense } from "../../RSErrorBoundary";
@@ -12,7 +10,7 @@ import { HeroWrapper } from "../../../shared";
 import styles from "./FacilitiesProviders.module.scss";
 import FacilitiesProvidersTable from "./FacilitiesProvidersTable";
 
-export function FacilitiesProviders() {
+export function FacilitiesProvidersPage() {
     const crumbProps: CrumbsProps = {
         crumbList: [
             { label: FeatureName.DATA_DASHBOARD, path: "/data-dashboard" },
@@ -54,13 +52,4 @@ export function FacilitiesProviders() {
     );
 }
 
-export function FacilitiesProvidersWithAuth() {
-    return (
-        <AuthElement
-            element={withCatchAndSuspense(<FacilitiesProviders />)}
-            requiredUserType={MemberType.RECEIVER}
-        />
-    );
-}
-
-export default FacilitiesProvidersWithAuth;
+export default FacilitiesProvidersPage;

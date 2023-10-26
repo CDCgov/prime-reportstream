@@ -20,8 +20,6 @@ import {
     SampleTranslationObj,
     SampleTransportObject,
 } from "../../utils/TemporarySettingsAPITypes";
-import { AuthElement } from "../AuthElement";
-import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
 import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
 import { useSessionContext } from "../../contexts/SessionContext";
@@ -428,7 +426,7 @@ type EditReceiverSettingsProps = {
     action: "edit" | "clone";
 };
 
-export function EditReceiverSettings() {
+export function EditReceiverSettingsPage() {
     const { orgname, receivername, action } =
         useParams<EditReceiverSettingsProps>();
 
@@ -450,13 +448,4 @@ export function EditReceiverSettings() {
     );
 }
 
-export function EditReceiverSettingsWithAuth() {
-    return (
-        <AuthElement
-            element={<EditReceiverSettings />}
-            requiredUserType={MemberType.PRIME_ADMIN}
-        />
-    );
-}
-
-export default EditReceiverSettingsWithAuth;
+export default EditReceiverSettingsPage;

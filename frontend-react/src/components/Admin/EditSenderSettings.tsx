@@ -16,8 +16,6 @@ import {
 } from "../../utils/misc";
 import { ObjectTooltip } from "../tooltips/ObjectTooltip";
 import { SampleKeysObj } from "../../utils/TemporarySettingsAPITypes";
-import { AuthElement } from "../AuthElement";
-import { MemberType } from "../../hooks/UseOktaMemberships";
 import config from "../../config";
 import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
 import { useSessionContext } from "../../contexts/SessionContext";
@@ -335,7 +333,7 @@ export type EditSenderSettingsProps = {
     action: "edit" | "clone";
 };
 
-export function EditSenderSettings() {
+export function EditSenderSettingsPage() {
     const { orgname, sendername, action } =
         useParams<EditSenderSettingsProps>();
 
@@ -357,13 +355,4 @@ export function EditSenderSettings() {
     );
 }
 
-export function EditSenderSettingsWithAuth() {
-    return (
-        <AuthElement
-            element={<EditSenderSettings />}
-            requiredUserType={MemberType.PRIME_ADMIN}
-        />
-    );
-}
-
-export default EditSenderSettingsWithAuth;
+export default EditSenderSettingsPage;

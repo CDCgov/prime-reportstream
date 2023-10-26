@@ -29,8 +29,6 @@ import {
     handleErrorWithAlert,
     ReportStreamAlert,
 } from "../../../utils/ErrorUtils";
-import { MemberType } from "../../../hooks/UseOktaMemberships";
-import { AuthElement } from "../../../components/AuthElement";
 import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
 import Spinner from "../../../components/Spinner";
 import { TableRowData } from "../../../components/Table/TableRows";
@@ -248,13 +246,7 @@ const ValueSetsDetailContent = () => {
         </>
     );
 };
-export const ValueSetsDetail = () =>
+export const ValueSetsDetailPage = () =>
     withCatchAndSuspense(<ValueSetsDetailContent />);
-export const ValueSetsDetailWithAuth = () => (
-    <AuthElement
-        element={<ValueSetsDetail />}
-        requiredUserType={MemberType.PRIME_ADMIN}
-    />
-);
 
-export default ValueSetsDetailWithAuth;
+export default ValueSetsDetailPage;

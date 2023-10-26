@@ -4,7 +4,7 @@ import {
 } from "../../../../__mocks__/OrganizationMockServer";
 import { AppWrapper, renderHook } from "../../../../utils/CustomRenderUtils";
 import { mockSessionContentReturnValue } from "../../../../contexts/__mocks__/SessionContext";
-import { MemberType } from "../../../UseOktaMemberships";
+import { MemberType } from "../../../../utils/OrganizationUtils";
 
 import useCreateOrganizationPublicKey from "./UseCreateOrganizationPublicKey";
 

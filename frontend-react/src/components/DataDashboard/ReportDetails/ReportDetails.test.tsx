@@ -5,7 +5,7 @@ import {
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 
-import { ReportDetails } from "./ReportDetails";
+import { ReportDetailsPage } from "./ReportDetails";
 
 const TEST_ID = "123";
 
@@ -25,7 +25,7 @@ describe("ReportDetails", () => {
             reportFacilities: [],
         });
 
-        renderApp(<ReportDetails />);
+        renderApp(<ReportDetailsPage />);
         expect(mockUseReportDetail).toHaveBeenCalledWith(TEST_ID);
     });
 });

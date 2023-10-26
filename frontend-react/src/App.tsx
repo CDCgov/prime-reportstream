@@ -1,4 +1,3 @@
-import { toRelativeUrl } from "@okta/okta-auth-js";
 import { useIdleTimer } from "react-idle-timer";
 import { Suspense, useCallback, useEffect, useRef } from "react";
 import { CacheProvider, NetworkErrorBoundary } from "rest-hooks";
@@ -6,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { HelmetProvider } from "react-helmet-async";
+import type { OktaAuth } from "@okta/okta-auth-js";
 
 import ScrollRestoration from "./components/ScrollRestoration";
 import { useScrollToTop } from "./hooks/UseScrollToTop";
@@ -39,36 +39,32 @@ export interface AppProps {
 function App(props: AppProps) {
     const navigate = useNavigate();
     const restoreOriginalUri = useCallback(
-        async (_oktaAuth: any, originalUri: string) => {
-            // check if the user would have any data to receive via their organizations from the okta claim
-            // direct them to the /upload page if they do not have an organization that receives data
-            const authState = OKTA_AUTH.authStateManager.getAuthState();
-            /* PERMISSIONS REFACTOR: Redirect URL should be determined by active membership type */
-            if (
-                authState?.accessToken &&
-                permissionCheck(PERMISSIONS.PRIME_ADMIN, authState.accessToken)
-            ) {
-                navigate(
-                    toRelativeUrl(
-                        `${window.location.origin}/admin/settings`,
-                        window.location.origin,
-                    ),
-                );
-                return;
+        /**
+         * If their destination is the home page, send them to their most relevant
+         * group-type page. Otherwise, send them to their original destination.
+         */
+        async (oktaAuth: OktaAuth, originalUri: string) => {
+            const authState = oktaAuth.authStateManager.getAuthState();
+            let url = originalUri;
+            if (originalUri === "/") {
+                /* PERMISSIONS REFACTOR: Redirect URL should be determined by active membership type */
+                if (
+                    authState?.accessToken &&
+                    permissionCheck(
+                        PERMISSIONS.PRIME_ADMIN,
+                        authState.accessToken,
+                    )
+                ) {
+                    url = "/admin/settings";
+                }
+                if (
+                    authState?.accessToken &&
+                    permissionCheck(PERMISSIONS.SENDER, authState.accessToken)
+                ) {
+                    url = "/submissions";
+                }
             }
-            if (
-                authState?.accessToken &&
-                permissionCheck(PERMISSIONS.SENDER, authState.accessToken)
-            ) {
-                navigate(
-                    toRelativeUrl(
-                        `${window.location.origin}/upload`,
-                        window.location.origin,
-                    ),
-                );
-                return;
-            }
-            navigate(toRelativeUrl(originalUri, window.location.origin));
+            navigate(url);
         },
         [navigate],
     );

@@ -11,8 +11,6 @@ import ActionDetailsResource, {
 import { generateDateTitles } from "../../utils/DateTimeUtils";
 import { ErrorPage } from "../error/ErrorPage";
 import Crumbs, { CrumbConfig } from "../../components/Crumbs";
-import { MemberType } from "../../hooks/UseOktaMemberships";
-import { AuthElement } from "../../components/AuthElement";
 import { DetailItem } from "../../components/DetailItem/DetailItem";
 import { FeatureName } from "../../utils/FeatureName";
 import { useSessionContext } from "../../contexts/SessionContext";
@@ -44,9 +42,7 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
                 item={"Transmission Date"}
                 content={
                     destinationObj.itemCount > 0
-                        ? submissionDate
-                            ? submissionDate.dateString
-                            : "Parsing error"
+                        ? submissionDate?.dateString ?? "Parsing error"
                         : "Not transmitting - all data filtered"
                 }
             />
@@ -54,9 +50,7 @@ export function DestinationItem({ destinationObj }: DestinationItemProps) {
                 item={"Transmission Time"}
                 content={
                     destinationObj.itemCount > 0
-                        ? submissionDate
-                            ? submissionDate.timeString
-                            : "Parsing error"
+                        ? submissionDate?.timeString ?? "Parsing error"
                         : "Not transmitting - all data filtered"
                 }
             />
@@ -104,9 +98,7 @@ function SubmissionDetailsContent() {
                 <div className="grid-col-12">
                     <Title
                         preTitle={preTitle}
-                        title={
-                            titleWithFilename ? titleWithFilename : titleString
-                        }
+                        title={titleWithFilename ?? titleString}
                     />
                     <DetailItem item={"Report ID"} content={actionDetails.id} />
                     {actionDetails.destinations.map((dst) => (
@@ -121,11 +113,13 @@ function SubmissionDetailsContent() {
     }
 }
 
+const fallbackPage = () => <ErrorPage type="page" />;
+
 /*
     For a component to use the Suspense and NEB fallbacks, it must be nested within
     the according tags, hence this wrapper.
 */
-function SubmissionDetails() {
+function SubmissionDetailsPage() {
     const { actionId } = useParams<SubmissionDetailsProps>();
     const crumbs: CrumbConfig[] = [
         { label: "Submissions", path: "/submissions" },
@@ -136,11 +130,9 @@ function SubmissionDetails() {
         <GridContainer>
             <Crumbs
                 crumbList={crumbs}
-                previousPage={(location.state as any)?.previousPage}
+                previousPage={location.state?.previousPage}
             />
-            <NetworkErrorBoundary
-                fallbackComponent={() => <ErrorPage type="page" />}
-            >
+            <NetworkErrorBoundary fallbackComponent={fallbackPage}>
                 <Suspense fallback={<Spinner size="fullpage" />}>
                     <SubmissionDetailsContent />
                 </Suspense>
@@ -149,11 +141,4 @@ function SubmissionDetails() {
     );
 }
 
-export const SubmissionDetailsWithAuth = () => (
-    <AuthElement
-        element={<SubmissionDetails />}
-        requiredUserType={MemberType.SENDER}
-    />
-);
-
-export default SubmissionDetailsWithAuth;
+export default SubmissionDetailsPage;

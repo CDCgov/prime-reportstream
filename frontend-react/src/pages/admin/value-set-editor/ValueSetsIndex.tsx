@@ -15,8 +15,6 @@ import {
     LookupTables,
     ValueSet,
 } from "../../../config/endpoints/lookupTables";
-import { MemberType } from "../../../hooks/UseOktaMemberships";
-import { AuthElement } from "../../../components/AuthElement";
 import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
 
 export const Legend = ({ items }: { items: LegendItem[] }) => {
@@ -79,7 +77,7 @@ const ValueSetsTable = () => {
         </>
     );
 };
-const ValueSetsIndex = () => {
+const ValueSetsIndexPage = () => {
     return (
         <>
             <Helmet>
@@ -92,11 +90,4 @@ const ValueSetsIndex = () => {
     );
 };
 
-export const ValueSetsIndexWithAuth = () => (
-    <AuthElement
-        element={<ValueSetsIndex />}
-        requiredUserType={MemberType.PRIME_ADMIN}
-    />
-);
-
-export default ValueSetsIndexWithAuth;
+export default ValueSetsIndexPage;

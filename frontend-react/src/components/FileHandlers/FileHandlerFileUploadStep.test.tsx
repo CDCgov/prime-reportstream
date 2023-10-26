@@ -8,7 +8,6 @@ import {
     Format,
 } from "../../utils/TemporarySettingsAPITypes";
 import { RSSender } from "../../config/endpoints/settings";
-import { MembershipSettings, MemberType } from "../../hooks/UseOktaMemberships";
 import { UseSenderResourceHookResult } from "../../hooks/UseSenderResource";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import * as useSenderResourceExports from "../../hooks/UseSenderResource";
@@ -24,6 +23,7 @@ import {
     mockAppInsightsContextReturnValue,
     mockAppInsights,
 } from "../../contexts/__mocks__/AppInsightsContext";
+import { MemberType, MembershipSettings } from "../../utils/OrganizationUtils";
 
 import FileHandlerFileUploadStep, {
     getClientHeader,

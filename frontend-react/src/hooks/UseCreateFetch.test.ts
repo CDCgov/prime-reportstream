@@ -6,9 +6,9 @@ import { mockAccessToken } from "../utils/TestUtils";
 import * as AppInsightsContext from "../contexts/AppInsightsContext";
 import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
 import { renderHook } from "../utils/CustomRenderUtils";
+import { MemberType } from "../utils/OrganizationUtils";
 
 import * as UseCreateFetch from "./UseCreateFetch";
-import { MemberType } from "./UseOktaMemberships";
 
 let generatorSpy: jest.SpyInstance;
 

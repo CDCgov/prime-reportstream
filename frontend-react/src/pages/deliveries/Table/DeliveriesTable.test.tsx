@@ -4,7 +4,6 @@ import userEvent from "@testing-library/user-event";
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { mockUseOrgDeliveries } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { renderApp } from "../../../utils/CustomRenderUtils";
-import { MemberType } from "../../../hooks/UseOktaMemberships";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import {
     orgServer,
@@ -16,6 +15,7 @@ import {
     mockAppInsights,
     mockAppInsightsContextReturnValue,
 } from "../../../contexts/__mocks__/AppInsightsContext";
+import { MemberType } from "../../../utils/OrganizationUtils";
 
 import DeliveriesTable from "./DeliveriesTable";
 

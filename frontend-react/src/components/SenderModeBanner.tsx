@@ -2,8 +2,8 @@ import { ReactElement } from "react";
 import { Icon } from "@trussworks/react-uswds";
 
 import { useSessionContext } from "../contexts/SessionContext";
-import { MemberType } from "../hooks/UseOktaMemberships";
 import useSenderResource from "../hooks/UseSenderResource";
+import { MemberType } from "../utils/OrganizationUtils";
 
 import { USLink } from "./USLink";
 import { withCatchAndSuspense } from "./RSErrorBoundary";

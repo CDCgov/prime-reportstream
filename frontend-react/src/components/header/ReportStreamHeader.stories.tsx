@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 
 import { SessionContext } from "../../contexts/SessionContext";
-import { MemberType } from "../../hooks/UseOktaMemberships";
+import { MemberType } from "../../utils/OrganizationUtils";
 
 import { ReportStreamHeader } from "./ReportStreamHeader";
 

@@ -23,12 +23,10 @@ export interface FeatureFlagAction {
     payload: string;
 }
 
-type StringCheck = {
-    (flag: string): boolean;
-};
+type StringCheck = (flags: string | string[]) => boolean;
 
 interface FeatureFlagContextValues {
-    checkFlag: StringCheck;
+    checkFlags: StringCheck;
     dispatch: React.Dispatch<FeatureFlagAction>;
     featureFlags: string[];
 }
@@ -40,8 +38,10 @@ type FeatureFlagState = {
 const { DEFAULT_FEATURE_FLAGS } = config;
 
 const FeatureFlagContext = createContext<FeatureFlagContextValues>({
-    checkFlag: (flag: string) =>
-        !!DEFAULT_FEATURE_FLAGS.find((el) => el === flag),
+    checkFlags: (flags: string | string[]) => {
+        const arr = Array.isArray(flags) ? flags : [flags];
+        return !!DEFAULT_FEATURE_FLAGS.find((el) => arr.includes(el));
+    },
     dispatch: () => {},
     featureFlags: DEFAULT_FEATURE_FLAGS,
 });
@@ -87,19 +87,25 @@ export const FeatureFlagProvider = ({
         [featureFlags],
     );
 
-    const checkFlag = useCallback(
-        (flag: string): boolean => !!allFeatureFlags.find((el) => el === flag),
+    const checkFlags = useCallback(
+        (flags: string | string[]): boolean => {
+            const arr = Array.isArray(flags) ? flags : [flags];
+            return !!allFeatureFlags.find((el) => arr.includes(el));
+        },
         [allFeatureFlags],
     );
 
+    const ctx = useMemo(
+        () => ({
+            dispatch,
+            checkFlags,
+            featureFlags: allFeatureFlags,
+        }),
+        [allFeatureFlags, checkFlags],
+    );
+
     return (
-        <FeatureFlagContext.Provider
-            value={{
-                dispatch,
-                checkFlag,
-                featureFlags: allFeatureFlags,
-            }}
-        >
+        <FeatureFlagContext.Provider value={ctx}>
             {children}
         </FeatureFlagContext.Provider>
     );

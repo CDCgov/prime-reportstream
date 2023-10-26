@@ -93,9 +93,9 @@ describe("FeatureFlagProvider", () => {
         expect(featureFlags).toEqual(["flag-1", "flag-2", "flag-3"]);
     });
     test("provides flagCheck that correctly checks against all flags", () => {
-        const { checkFlag } = providerValueMonitor.mock.lastCall[0];
-        expect(checkFlag("flag-1")).toEqual(true);
-        expect(checkFlag("flag-3")).toEqual(true);
-        expect(checkFlag("flag-4")).toEqual(false);
+        const { checkFlags } = providerValueMonitor.mock.lastCall[0];
+        expect(checkFlags("flag-1")).toEqual(true);
+        expect(checkFlags("flag-3")).toEqual(true);
+        expect(checkFlags("flag-4")).toEqual(false);
     });
 });

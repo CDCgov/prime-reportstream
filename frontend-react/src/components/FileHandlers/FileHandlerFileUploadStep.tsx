@@ -12,7 +12,6 @@ import { parseCsvForError } from "../../utils/FileUtils";
 import { useWatersUploader } from "../../hooks/network/WatersHooks";
 import { showError } from "../AlertNotifications";
 import { RSSender } from "../../config/endpoints/settings";
-import { MembershipSettings } from "../../hooks/UseOktaMemberships";
 import useSenderResource from "../../hooks/UseSenderResource";
 import Spinner from "../Spinner";
 import { useSessionContext } from "../../contexts/SessionContext";
@@ -23,6 +22,7 @@ import {
     EventName,
     useAppInsightsContext,
 } from "../../contexts/AppInsightsContext";
+import { MembershipSettings } from "../../utils/OrganizationUtils";
 
 import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
 import { FileHandlerStepProps } from "./FileHandler";

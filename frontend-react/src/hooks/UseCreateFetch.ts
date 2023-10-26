@@ -6,8 +6,7 @@ import { RSEndpoint, AxiosOptionsWithSegments } from "../config/endpoints";
 import { RSNetworkError } from "../utils/RSNetworkError";
 import { useSessionContext } from "../contexts/SessionContext";
 import { useAppInsightsContext } from "../contexts/AppInsightsContext";
-
-import { MembershipSettings } from "./UseOktaMemberships";
+import { MembershipSettings } from "../utils/OrganizationUtils";
 
 export type AuthorizedFetcher<T> = (
     EndpointConfig: RSEndpoint,

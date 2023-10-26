@@ -10,7 +10,7 @@ import {
 } from "../../../hooks/UseValueSets";
 import { conditionallySuppressConsole } from "../../../utils/TestUtils";
 
-import { ValueSetsDetail, ValueSetsDetailTable } from "./ValueSetsDetail";
+import { ValueSetsDetailPage, ValueSetsDetailTable } from "./ValueSetsDetail";
 
 const fakeRows = [
     {
@@ -77,7 +77,7 @@ describe("ValueSetsDetail", () => {
                 }) as ValueSetsMetaResponse,
         );
         // only render with query provider
-        renderApp(<ValueSetsDetail />);
+        renderApp(<ValueSetsDetailPage />);
         const headers = screen.getAllByRole("columnheader");
         const title = screen.getByText("ReportStream Core Values");
         const datasetActionButton = screen.getByText("Add item");
@@ -102,7 +102,7 @@ describe("ValueSetsDetail", () => {
                     valueSetMeta: fakeMeta,
                 }) as ValueSetsMetaResponse,
         );
-        renderApp(<ValueSetsDetail />);
+        renderApp(<ValueSetsDetailPage />);
         const editButtons = screen.getAllByText("Edit");
         const rows = screen.getAllByRole("row");
 
@@ -134,7 +134,7 @@ describe("ValueSetsDetail", () => {
         );
         /* Outputs a large error stack...should we consider hiding error stacks in page tests since we
          * test them via the ErrorBoundary test? */
-        renderApp(<ValueSetsDetail />);
+        renderApp(<ValueSetsDetailPage />);
         expect(
             screen.getByText(
                 "Our apologies, there was an error loading this content.",
