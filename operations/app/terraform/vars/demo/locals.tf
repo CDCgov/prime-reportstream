@@ -11,8 +11,6 @@ locals {
     resource_prefix     = "pdh${var.environment}"
     okta_redirect_url   = "https://${var.environment}.prime.cdc.gov/download"
     okta_base_url       = "hhs-prime.oktapreview.com"
-    OKTA_authKey        = "xxx"
-    OKTA_clientId       = "xxx"
     fn_OKTA_clientId    = "xxx"
     OKTA_scope          = "simple_report_dev"
   }
