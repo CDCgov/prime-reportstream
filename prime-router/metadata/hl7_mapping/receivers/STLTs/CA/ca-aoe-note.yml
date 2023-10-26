@@ -13,7 +13,7 @@ elements:
 
   - name: aoe-note-comment-datetime
     condition: '%resource.value.exists() and %resource.value is dateTime and %commentCondition'
-    value: [ '%resource.code.coding.code + " " + %resource.code.text + ": " + %resource.value.toString()']
+    value: [ '%resource.code.coding.code + " " + %resource.code.text + ": " + %resource.value.toString()' ]
     hl7Spec: [ '%{caAoeNteFieldPath}-3' ]
 
   - name: aoe-note-comment-string

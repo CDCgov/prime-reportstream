@@ -19,7 +19,7 @@ jobs:
       enable_builds: 'true'
     steps:
       - name: Check out changes
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
           fetch-depth: 0
       - name: Build vars
@@ -36,7 +36,7 @@ jobs:
         working-directory: prime-router
     steps:
       - name: Check out changes
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - name: Build backend
         if: ${{ needs.wf_vars.outputs.enable_builds == 'true' }}
         uses: ./.github/actions/build-backend
@@ -53,7 +53,7 @@ jobs:
         working-directory: frontend-react
     steps:
       - name: Check out changes
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - name: Build frontend
         if: ${{ needs.wf_vars.outputs.enable_builds == 'true' }}
         uses: ./.github/actions/build-frontend
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out changes
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
           fetch-depth: 0
       - name: Download router artifact
@@ -108,7 +108,7 @@ jobs:
           prerelease: ${{ needs.wf_vars.outputs.prerelease }}
       - name: Build changelog
         id: build_changelog
-        uses: mikepenz/release-changelog-builder-action@713885393e391b4ce984457280aba0d24fbf0c87
+        uses: mikepenz/release-changelog-builder-action@6fd5cc6eaf7567dbd0f9666061215bb476f012fc
         with:
           configuration: '.github/changelog_config.json'
           # Allow changelog tests in forks

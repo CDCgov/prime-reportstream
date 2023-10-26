@@ -4,6 +4,8 @@ import ca.uhn.hl7v2.util.Terser
 import gov.cdc.prime.router.common.DateUtilities
 import gov.cdc.prime.router.fhirengine.config.HL7TranslationConfig
 import gov.cdc.prime.router.fhirengine.translation.hl7.UniversalPipelineHL7Truncator
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
+import gov.cdc.prime.router.fhirengine.translation.hl7.utils.ConstantSubstitutor
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.CustomContext
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Constants
 import gov.cdc.prime.router.fhirengine.translation.hl7.utils.HL7Utils
@@ -12,7 +14,7 @@ import org.hl7.fhir.r4.model.BaseDateTimeType
 import java.time.ZoneId
 
 class CustomTranslationFunctions(
-    private val hl7Truncator: UniversalPipelineHL7Truncator = UniversalPipelineHL7Truncator()
+    private val hl7Truncator: UniversalPipelineHL7Truncator = UniversalPipelineHL7Truncator(),
 ) : Hl7TranslationFunctions() {
     /**
      * Converts a FHIR [dateTime] to the format specified in [appContext] - specific application
@@ -22,27 +24,72 @@ class CustomTranslationFunctions(
      */
     override fun convertDateTimeToHL7(
         dateTime: BaseDateTimeType,
-        appContext: CustomContext?
+        appContext: CustomContext?,
+        element: ConverterSchemaElement?,
+        constantSubstitutor: ConstantSubstitutor?,
     ): String {
         if (appContext?.config is HL7TranslationConfig) {
             val receiver = appContext.config.receiver
             val config = appContext.config.hl7Configuration
+            var dateTimeFormat = receiver?.dateTimeFormat
+
+            if (config.convertTimestampToDateTime?.isNotEmpty() == true) {
+                dateTimeFormat = getDateTimeFormat(
+                    config.convertTimestampToDateTime,
+                    element,
+                    constantSubstitutor,
+                    appContext,
+                    dateTimeFormat
+                )
+            }
 
             val tz =
-                if (dateTime.timeZone?.id != null) {
-                    ZoneId.of(dateTime.timeZone?.id)
-                } else DateUtilities.utcZone
+                if (config.convertDateTimesToReceiverLocalTime == true && !receiver?.timeZone?.zoneId.isNullOrBlank()) {
+                    ZoneId.of(receiver?.timeZone?.zoneId)
+                } else {
+                    DateUtilities.utcZone
+                }
 
             return DateUtilities.formatDateForReceiver(
                 DateUtilities.parseDate(dateTime.asStringValue()),
                 tz,
-                receiver?.dateTimeFormat ?: DateUtilities.DateTimeFormat.OFFSET,
+                dateTimeFormat ?: DateUtilities.DateTimeFormat.OFFSET,
                 config.convertPositiveDateTimeOffsetToNegative ?: false,
                 config.useHighPrecisionHeaderDateTimeFormat ?: false
             )
         } else {
-            return super.convertDateTimeToHL7(dateTime, appContext)
+            return super.convertDateTimeToHL7(dateTime, appContext, element, constantSubstitutor)
         }
+    }
+
+    /**
+     * Checks if [element] needs to be converted to Datetime if the [element] is listed in the
+     * [convertTimestampToDateTime] list and returns [DateUtilities.DateTimeFormat.LOCAL] format
+     *
+     */
+    internal fun getDateTimeFormat(
+        convertTimestampToDateTime: String,
+        element: ConverterSchemaElement?,
+        constantSubstitutor: ConstantSubstitutor?,
+        appContext: CustomContext?,
+        dateTimeFormat: DateUtilities.DateTimeFormat?,
+    ): DateUtilities.DateTimeFormat? {
+        var dateTimeFormat1 = dateTimeFormat
+        val convertTimestampToDateTimeFields = convertTimestampToDateTime
+            .split(",")
+            .map { it.trim() }
+
+        element?.hl7Spec?.forEach { rawHl7Spec ->
+            if (constantSubstitutor != null) {
+                val resolvedHl7Spec = constantSubstitutor.replace(rawHl7Spec, appContext)
+                val hl7Field = resolvedHl7Spec.substringAfterLast("/")
+                val cleanedHL7Field = HL7Utils.removeIndexFromHL7Field(hl7Field).trim()
+                if (convertTimestampToDateTimeFields.contains(cleanedHL7Field)) {
+                    dateTimeFormat1 = DateUtilities.DateTimeFormat.LOCAL
+                }
+            }
+        }
+        return dateTimeFormat1
     }
 
     /**
@@ -53,7 +100,7 @@ class CustomTranslationFunctions(
         value: String,
         hl7FieldPath: String,
         terser: Terser,
-        appContext: CustomContext?
+        appContext: CustomContext?,
     ): String {
         return if (appContext?.config is HL7TranslationConfig) {
             val config = appContext.config
@@ -75,7 +122,9 @@ class CustomTranslationFunctions(
                     terser,
                     truncationConfig
                 )
-            } else value
+            } else {
+                value
+            }
         } else {
             super.maybeTruncateHL7Field(value, hl7FieldPath, terser, appContext)
         }

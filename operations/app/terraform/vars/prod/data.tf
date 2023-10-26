@@ -65,20 +65,20 @@ data "azurerm_key_vault_secret" "chatops_github_token" {
   name         = "chatops-github-token"
   key_vault_id = data.azurerm_key_vault.tf-secrets.id
 }
+
 data "azurerm_key_vault_secret" "OKTA_clientId" {
   name         = "functionapp-OKTA-ClientId"
   key_vault_id = data.azurerm_key_vault.app_config.id
 
-  depends_on = [
-    module.init
-  ]
 }
 
 data "azurerm_key_vault_secret" "OKTA_authKey" {
   name         = "functionapp-OKTA-authkey"
   key_vault_id = data.azurerm_key_vault.app_config.id
+ }
 
-  depends_on = [
-    module.init
-  ]
+data "azurerm_key_vault_secret" "caller_ip_addresses" {
+  name         = "tf-caller-ip-addresses"
+  key_vault_id = data.azurerm_key_vault.tf-secrets.id
+
 }

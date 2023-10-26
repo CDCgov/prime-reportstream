@@ -54,7 +54,7 @@ class DeliveryHistory(
     @JsonIgnore
     val schemaName: String,
     @JsonProperty("fileType")
-    val bodyFormat: String
+    val bodyFormat: String,
 ) : ReportHistory(
     actionId,
     createdAt,
@@ -118,7 +118,7 @@ data class DeliveryFacility(
     val testingLabState: String?,
     val testingLabClia: String?,
     val positive: Long?,
-    val countRecords: Long?
+    val countRecords: Long?,
 ) {
     /**
      * This is a combination of the city and state values

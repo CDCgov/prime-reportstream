@@ -180,15 +180,20 @@ class ProcessFhirCommands : CliktCommand(
         val messages = HL7Reader(actionLogger).getMessages(stringToEncode)
         if (messages.isEmpty()) throw CliktError("No HL7 messages were read.")
         val message = if (messages.size > 1) {
-            if (hl7ItemIndex == null)
+            if (hl7ItemIndex == null) {
                 throw CliktError("Only one HL7 message can be converted. Use the --hl7-msg-index.")
-            else if (hl7ItemIndex!! < 0 || hl7ItemIndex!! >= messages.size)
+            } else if (hl7ItemIndex!! < 0 || hl7ItemIndex!! >= messages.size) {
                 throw CliktError("Invalid HL7 message index. Must be a number 0 to ${messages.size - 1}.")
-            else messages[hl7ItemIndex!!]
-        } else messages[0]
+            } else {
+                messages[hl7ItemIndex!!]
+            }
+        } else {
+            messages[0]
+        }
         // if a hl7 parsing failure happens, throw error and show the message
-        if (message.toString().lowercase().contains("failed"))
+        if (message.toString().lowercase().contains("failed")) {
             throw CliktError("HL7 parser failure. $message")
+        }
         if (hasFiveEncodingChars) {
             val msh = message.get("MSH") as Segment
             Terser.set(msh, 2, 0, 1, 1, "^~\\&#")
@@ -340,10 +345,14 @@ class FhirPathCommand : CliktCommand(
                     input == "reset" -> setFocusResource("Bundle", bundle)
 
                     else -> {
-                        val path = if (input.startsWith("!!")) input.replace("!!", lastPath)
-                        else input
-                        if (path.isBlank()) printHelp()
-                        else {
+                        val path = if (input.startsWith("!!")) {
+                            input.replace("!!", lastPath)
+                        } else {
+                            input
+                        }
+                        if (path.isBlank()) {
+                            printHelp()
+                        } else {
                             evaluatePath(path, bundle)
                             lastPath = path
                         }
@@ -361,15 +370,17 @@ class FhirPathCommand : CliktCommand(
      */
     private fun setFocusResource(input: String, bundle: Bundle) {
         fun setFocusPath(newPath: String) {
-            focusPath = if (newPath.startsWith("%resource"))
+            focusPath = if (newPath.startsWith("%resource")) {
                 newPath.replace("%resource", focusPath)
-            else newPath
+            } else {
+                newPath
+            }
         }
 
         val inputParts = input.split("=", ":", limit = 2)
-        if (inputParts.size != 2 || inputParts[1].isBlank())
+        if (inputParts.size != 2 || inputParts[1].isBlank()) {
             echo("Setting %resource must be in the form of 'resource[= | :]<FHIR path>'")
-        else {
+        } else {
             try {
                 val path = inputParts[1].trim().trimStart('\'').trimEnd('\'')
                 val pathExpression =
@@ -381,11 +392,12 @@ class FhirPathCommand : CliktCommand(
                     setFocusPath(path)
                     focusResource = resourceList[0] as Base
                     fhirPathContext?.let { it.focusResource = focusResource as Base }
-                } else
+                } else {
                     echo(
                         "Resource path must evaluate to 1 resource, but got a collection of " +
                             "${resourceList.size} resources"
                     )
+                }
             } catch (e: Exception) {
                 echo("Error evaluating resource path: ${e.message}")
             }
@@ -460,8 +472,11 @@ class FhirPathCommand : CliktCommand(
                     stringValue.append("\n\t\"${property.name}\": [ \n")
                     property.values.forEach { value ->
                         stringValue.append("\t\t")
-                        if (value is Extension) stringValue.append("extension('${value.url}'),")
-                        else stringValue.append("$value,")
+                        if (value is Extension) {
+                            stringValue.append("extension('${value.url}'),")
+                        } else {
+                            stringValue.append("$value,")
+                        }
                         stringValue.append("\n")
                     }
                     stringValue.append("  ]")

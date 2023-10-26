@@ -5,6 +5,7 @@ import ca.uhn.fhir.model.api.TemporalPrecisionEnum
 import ca.uhn.hl7v2.model.v251.datatype.DT
 import gov.cdc.prime.router.fhirengine.translation.hl7.HL7ConversionException
 import gov.cdc.prime.router.fhirengine.translation.hl7.SchemaException
+import gov.cdc.prime.router.fhirengine.translation.hl7.schema.converter.ConverterSchemaElement
 import org.apache.logging.log4j.kotlin.Logging
 import org.hl7.fhir.r4.hapi.ctx.HapiWorkerContext
 import org.hl7.fhir.r4.model.Base
@@ -29,6 +30,7 @@ import java.time.format.DateTimeParseException
 object FhirPathUtils : Logging {
 
     private val fhirContext = FhirContext.forR4()
+
     /**
      * The FHIR path engine.
      */
@@ -50,8 +52,11 @@ object FhirPathUtils : Logging {
      * @throws Exception if the path is invalid
      */
     fun parsePath(fhirPath: String?): ExpressionNode? {
-        return if (fhirPath.isNullOrBlank()) null
-        else pathEngine.parse(fhirPath)
+        return if (fhirPath.isNullOrBlank()) {
+            null
+        } else {
+            pathEngine.parse(fhirPath)
+        }
     }
 
     /**
@@ -63,13 +68,16 @@ object FhirPathUtils : Logging {
         appContext: CustomContext?,
         focusResource: Base,
         bundle: Bundle,
-        expression: String
+        expression: String,
     ): List<Base> {
         val retVal = try {
             pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
             val expressionNode = parsePath(expression)
-            if (expressionNode == null) emptyList()
-            else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+            if (expressionNode == null) {
+                emptyList()
+            } else {
+                pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+            }
         } catch (e: Exception) {
             // This is due to a bug in at least the extension() function
             logger.error(
@@ -97,13 +105,16 @@ object FhirPathUtils : Logging {
         focusResource: Base,
         contextResource: Base,
         rootResource: Bundle,
-        expression: String
+        expression: String,
     ): Boolean {
         val retVal = try {
             pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
             val expressionNode = parsePath(expression)
-            val value = if (expressionNode == null) emptyList()
-            else pathEngine.evaluate(appContext, focusResource, rootResource, contextResource, expressionNode)
+            val value = if (expressionNode == null) {
+                emptyList()
+            } else {
+                pathEngine.evaluate(appContext, focusResource, rootResource, contextResource, expressionNode)
+            }
             if (value.size == 1 && value[0].isBooleanPrimitive) {
                 (value[0] as BooleanType).value
             } else if (value.isEmpty()) {
@@ -142,12 +153,17 @@ object FhirPathUtils : Logging {
         appContext: CustomContext?,
         focusResource: Base,
         bundle: Bundle,
-        expression: String
+        expression: String,
+        element: ConverterSchemaElement? = null,
+        constantSubstitutor: ConstantSubstitutor? = null,
     ): String {
         pathEngine.hostServices = FhirPathCustomResolver(appContext?.customFhirFunctions)
         val expressionNode = parsePath(expression)
-        val evaluated = if (expressionNode == null) emptyList()
-        else pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+        val evaluated = if (expressionNode == null) {
+            emptyList()
+        } else {
+            pathEngine.evaluate(appContext, focusResource, bundle, bundle, expressionNode)
+        }
         return when {
             // If we couldn't evaluate the path we should return an empty string
             evaluated.isEmpty() -> ""
@@ -170,8 +186,13 @@ object FhirPathUtils : Logging {
                 // If there is a custom translation function, we will call to the function.
                 // Otherwise, we use our old HL7TranslationFunctions to handle the dataTime formatting.
                 appContext?.translationFunctions?.convertDateTimeToHL7(
-                    evaluated[0] as BaseDateTimeType, appContext
-                ) ?: Hl7TranslationFunctions().convertDateTimeToHL7(evaluated[0] as BaseDateTimeType, appContext)
+                    evaluated[0] as BaseDateTimeType, appContext, element, constantSubstitutor
+                ) ?: Hl7TranslationFunctions().convertDateTimeToHL7(
+                    evaluated[0] as BaseDateTimeType,
+                    appContext,
+                    element,
+                    constantSubstitutor
+                )
             }
             evaluated[0] is DateType -> convertDateToHL7(evaluated[0] as DateType)
 

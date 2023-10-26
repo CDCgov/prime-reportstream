@@ -52,16 +52,19 @@ elements:
     condition: true
     resource: 'Bundle'
     value: [ '%simpleReportName' ]
+    hl7Spec: [ MSH-4-1 ]
 
   - name: sending-facility-universal-id
     condition: true
     resource: 'Bundle'
     value: [ '%simpleReportClia' ]
+    hl7Spec: [ MSH-4-2 ]
 
   - name: sending-facility-universal-id-type
     condition: true
     resource: 'Bundle'
     value: [ '"CLIA"' ]
+    hl7Spec: [ MSH-4-3 ]
 
   - name: message_profile_id
     value: [ '"PHLabReport-NoAck"' ]

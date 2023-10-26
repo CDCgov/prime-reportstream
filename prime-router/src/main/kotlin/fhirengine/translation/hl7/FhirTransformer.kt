@@ -62,7 +62,7 @@ class FhirTransformer(
         bundle: Bundle,
         focusResource: Base,
         context: CustomContext = CustomContext(bundle, focusResource),
-        debug: Boolean = false
+        debug: Boolean = false,
     ) {
         val logLevel = if (debug) Level.INFO else Level.DEBUG
         logger.log(logLevel, "Processing schema: ${schema.name} with ${schema.elements.size} elements")
@@ -84,7 +84,7 @@ class FhirTransformer(
         bundle: Bundle,
         focusResource: Base,
         context: CustomContext,
-        debug: Boolean = false
+        debug: Boolean = false,
     ) {
         val logLevel = if (element.debug || debug) Level.INFO else Level.DEBUG
         logger.trace("Started processing of element ${element.name}...")
@@ -107,12 +107,15 @@ class FhirTransformer(
                     // If this is a schema then process it.
                     element.schemaRef != null -> {
                         // Schema references can have new index references
-                        val indexContext = if (element.resourceIndex.isNullOrBlank()) elementContext
-                        else CustomContext.addConstant(
-                            element.resourceIndex!!,
-                            index.toString(),
+                        val indexContext = if (element.resourceIndex.isNullOrBlank()) {
                             elementContext
-                        )
+                        } else {
+                            CustomContext.addConstant(
+                                element.resourceIndex!!,
+                                index.toString(),
+                                elementContext
+                            )
+                        }
                         logger.log(logLevel, "Processing element ${element.name} with schema ${element.schema} ...")
                         transformWithSchema(
                             element.schemaRef!! as FhirTransformSchema,
@@ -162,11 +165,12 @@ class FhirTransformer(
         value: Base,
         context: CustomContext,
         bundle: Bundle,
-        focusResource: Base
+        focusResource: Base,
     ) {
         val pathParts = validateAndSplitBundleProperty(bundleProperty)
-        if (pathParts.isNullOrEmpty() || bundleProperty == null)
+        if (pathParts.isNullOrEmpty() || bundleProperty == null) {
             return
+        }
         // We start one level down as we use the addChild function to set the value at the end
         var pathToEvaluate = bundleProperty.dropLast(pathParts.last().length + 1)
         val childrenNames = pathParts.dropLast(1).reversed()
@@ -182,7 +186,9 @@ class FhirTransformer(
                 }
                 pathToEvaluate = pathToEvaluate.dropLast(childName.length + 1)
                 missingChildren.add(childName)
-            } else return@forEach
+            } else {
+                return@forEach
+            }
         }
         if (missingChildren.isNotEmpty()) {
             logger.trace("Missing $missingChildren children. Stopped at: $pathToEvaluate")
@@ -201,7 +207,7 @@ class FhirTransformer(
                         (childResource as Extension).url = matchResult.groupValues[1]
                     }
                 }
-                else -> childResource = childResource.addChild(childName)
+                else -> childResource = childResource.addChild(childName.replace("""[\[0-9\]]""".toRegex(), ""))
             }
         }
         // Finally set the value
@@ -265,8 +271,9 @@ class FhirTransformer(
                 }
             }
         }
-        if (part != "")
+        if (part != "") {
             parts += part
+        }
 
         // This is an invalid path if a closing parenthesis is not found
         return if (foundParenthesis) {

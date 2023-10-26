@@ -11,11 +11,11 @@ jobs:
     name: Chromatic
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
           fetch-depth: 0 # need commit history for Chromatic
 
-      - uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d
+      - uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65
         with:
           node-version-file: frontend-react/package.json
 
@@ -26,7 +26,7 @@ jobs:
 
       - name: Publish to Chromatic and accept baseline
         id: chromatic_publish
-        uses: chromaui/action@a45a922b9a7522a4cbb59a7bb7b288a768968924
+        uses: chromaui/action@v1
         with:
           workingDir: frontend-react
           token: ${{ secrets.GITHUB_TOKEN }}

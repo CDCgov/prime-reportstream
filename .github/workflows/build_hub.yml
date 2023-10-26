@@ -22,7 +22,7 @@ jobs:
       has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - name: Build vars
         id: build_vars
         uses: ./.github/actions/build-vars
@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: "Check out changes"
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Build backend
         uses: ./.github/actions/build-backend
@@ -76,7 +76,7 @@ jobs:
 
       - name: Add Schema doc diff as PR comment if there are changes
         if: ${{ steps.check_changes.outcome == 'failure' }}
-        uses: peter-evans/create-or-update-comment@c6c9a1a66007646a28c153e2a8580a5bad27bcfa
+        uses: peter-evans/create-or-update-comment@23ff15729ef2fc348714a3bb66d2f655ca9066f2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.number }}
@@ -95,25 +95,3 @@ jobs:
         if: ${{ steps.check_changes.outcome == 'failure' }}
         run: |
           false
-
-  docker_build_test:
-    name: Docker Build, CodeQl analysis and SonarCloud
-    runs-on: ubuntu-latest
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.has_router_change == 'true' }}
-    defaults:
-      run:
-        working-directory: prime-router
-
-    steps:
-      - name: "Check out changes"
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608
-
-      - name: Build backend
-        uses: ./.github/actions/build-backend
-        with:
-          version: ${{ github.run_id }}
-          upload-build: false
-          run-qc: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          sonar-token: ${{ secrets.SONAR_TOKEN }}

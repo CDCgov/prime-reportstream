@@ -1,5 +1,3 @@
-import { Link } from "@trussworks/react-uswds";
-
 import usamapsvg from "../../content/usa_w_territories.svg";
 import { USLink } from "../../components/USLink";
 
@@ -14,14 +12,12 @@ export const LiveMap = ({
     title,
     summary,
     subTitle,
+    description,
     ...props
 }: LiveMapProps) => {
     return (
         <section {...props}>
-            <h2
-                data-testid="heading"
-                className="font-sans-xl margin-top-0 tablet:margin-bottom-0"
-            >
+            <h2 data-testid="heading" className="font-sans-xl margin-0">
                 {title}
             </h2>
             <p data-testid="summary" className="font-sans-lg margin-top-4">
@@ -30,11 +26,14 @@ export const LiveMap = ({
             <h3 data-testid="subTitle" className="font-sans-lg margin-top-4">
                 {subTitle}
             </h3>
+            <p data-testid="body" className="font-sans-md">
+                {description}
+            </p>
             <div
                 data-testid="map"
                 className="desktop:grid-col-8 desktop:grid-offset-2 margin-y-8"
             >
-                <USLink href="/product/where-were-live">
+                <USLink href="/about/our-network">
                     <img
                         src={usamapsvg}
                         title="USA with Territories (Heitordp, CC0, via Wikimedia Commons)"
@@ -53,14 +52,6 @@ export const LiveMap = ({
                         </li>
                     </ul>
                 </div>
-            </div>
-            <div className="grid-row flex-justify-center">
-                <Link
-                    href="/product/where-were-live"
-                    className="usa-button usa-button--outline"
-                >
-                    See all partners
-                </Link>
             </div>
         </section>
     );

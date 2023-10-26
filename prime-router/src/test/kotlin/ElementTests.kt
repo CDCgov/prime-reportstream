@@ -1138,19 +1138,22 @@ internal class ElementTests {
                 element: Element,
                 args: List<String>,
                 values: List<ElementAndValue>,
-                sender: Sender?
+                sender: Sender?,
             ): ElementResult {
-                return if (args.isEmpty()) ElementResult(null)
-                else when (args[0]) {
-                    "1warning" -> ElementResult(null).warning(InvalidEquipmentMessage(element.fieldMapping))
-                    "2warnings" -> ElementResult(null).warning(InvalidEquipmentMessage(element.fieldMapping))
-                        .warning(InvalidEquipmentMessage(element.fieldMapping))
-                    "1error" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
-                    "2errors" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
-                        .error(InvalidEquipmentMessage(element.fieldMapping))
-                    "mixed" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
-                        .warning(InvalidEquipmentMessage(element.fieldMapping))
-                    else -> throw UnsupportedOperationException()
+                return if (args.isEmpty()) {
+                    ElementResult(null)
+                } else {
+                    when (args[0]) {
+                        "1warning" -> ElementResult(null).warning(InvalidEquipmentMessage(element.fieldMapping))
+                        "2warnings" -> ElementResult(null).warning(InvalidEquipmentMessage(element.fieldMapping))
+                            .warning(InvalidEquipmentMessage(element.fieldMapping))
+                        "1error" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
+                        "2errors" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
+                            .error(InvalidEquipmentMessage(element.fieldMapping))
+                        "mixed" -> ElementResult(null).error(InvalidEquipmentMessage(element.fieldMapping))
+                            .warning(InvalidEquipmentMessage(element.fieldMapping))
+                        else -> throw UnsupportedOperationException()
+                    }
                 }
             }
         }

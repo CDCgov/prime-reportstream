@@ -201,7 +201,6 @@ class FakeReportTests {
 
     @Test
     fun `testBuildOrderFacilityNameAndSiteOfCareColumnIncludeNCESFacilityFlag`() {
-
         // Setup to return expected mock data
         val mockMetadata = mockkClass(Metadata::class)
         every { mockMetadata.findLookupTable(fipsCounty) } returns null
@@ -235,7 +234,6 @@ class FakeReportTests {
 
     @Test
     fun `testFaileBuildOrderFacilityNameAndSiteOfCareColumnIncludeNCESFacilityFlag`() {
-
         // Setup to return expected mock data
         val mockMetadata = mockkClass(Metadata::class)
         every { mockMetadata.findLookupTable(fipsCounty) } returns null

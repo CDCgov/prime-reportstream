@@ -41,7 +41,7 @@ import java.util.UUID
 class ActionHistory(
     taskAction: TaskAction,
     // This will be true if this actionHistory is being used to track generation of an empty batch file
-    var generatingEmptyReport: Boolean = false
+    var generatingEmptyReport: Boolean = false,
 ) : Logging {
     /**
      * Throughout, using generated mutable jooq POJOs to store history information
@@ -210,7 +210,7 @@ class ActionHistory(
         if (generatingEmptyReport) {
             // if we are generating an empty report for the 'send' step there will be one report in and one out.
             //  make sure to track the lineage. for the 'batch 'step there will not be any lineage
-            if (reportsIn.size == 1 && reportsOut.size == 1)
+            if (reportsIn.size == 1 && reportsOut.size == 1) {
                 reportLineages.add(
                     ReportLineage(
                         null,
@@ -220,6 +220,7 @@ class ActionHistory(
                         null
                     )
                 )
+            }
         } else {
             generateReportLineagesUsingItemLineage(action.actionId)
         }
@@ -398,8 +399,9 @@ class ActionHistory(
             }
         }
 
-        if (report.itemLineages != null)
+        if (report.itemLineages != null) {
             error("For report ${report.id}:  Externally submitted reports should never have item lineage.")
+        }
     }
 
     /**
@@ -428,8 +430,9 @@ class ActionHistory(
         if (event.eventAction != Event.EventAction.BATCH &&
             event.eventAction != Event.EventAction.ROUTE &&
             event.eventAction != Event.EventAction.TRANSLATE
-        )
+        ) {
             trackEvent(event)
+        }
     }
 
     /**
@@ -508,8 +511,9 @@ class ActionHistory(
         if (event.eventAction != Event.EventAction.BATCH &&
             event.eventAction != Event.EventAction.ROUTE &&
             event.eventAction != Event.EventAction.TRANSLATE
-        )
+        ) {
             trackEvent(event) // to be sent to queue later.
+        }
     }
 
     fun trackSentReport(
@@ -518,7 +522,7 @@ class ActionHistory(
         filename: String?,
         params: String,
         result: String,
-        header: WorkflowEngine.Header
+        header: WorkflowEngine.Header,
     ) {
         if (isReportAlreadyTracked(sentReportId)) {
             error(
@@ -660,10 +664,12 @@ class ActionHistory(
         if (reportsOut.isEmpty() && parentChildReports.isEmpty()) return // no lineage assoc with this action.
 
         // sanity should prevail, at least in ReportStream, if not in general
-        if (reportsOut.isNotEmpty() && parentChildReports.isEmpty())
+        if (reportsOut.isNotEmpty() && parentChildReports.isEmpty()) {
             error("There are child reports (${reportsOut.keys.joinToString(",")}) but no item lineages")
-        if (reportsOut.isEmpty() && parentChildReports.isNotEmpty())
+        }
+        if (reportsOut.isEmpty() && parentChildReports.isNotEmpty()) {
             error("There are item lineages (${parentChildReports.joinToString(",")}) but no child reports")
+        }
         // compare the set of reportIds from the item lineage vs the set from report lineage.  Should be identical.
         val parentReports = parentChildReports.map { it.first }.toSet()
         val childReports = parentChildReports.map { it.second }.toSet()
@@ -694,7 +700,7 @@ class ActionHistory(
         fun sanityCheckReports(
             tasks: List<Task>?,
             reportFiles: Map<ReportId, ReportFile>?,
-            failOnError: Boolean = false
+            failOnError: Boolean = false,
         ) {
             var msg = ""
             if (tasks == null) {
@@ -716,10 +722,11 @@ class ActionHistory(
                 }
             }
             if (msg.isNotEmpty()) {
-                if (failOnError)
+                if (failOnError) {
                     error("*** Sanity check comparing old Headers list to new ReportFile list FAILED:  $msg")
-                else
+                } else {
                     logger.warn("***** FAILURE: sanity check comparing old headers list to new ReportFiles list:\n$msg")
+                }
             }
         }
 
@@ -756,10 +763,11 @@ class ActionHistory(
                 }
             }
             if (msg.isNotEmpty()) {
-                if (failOnError)
+                if (failOnError) {
                     error("*** Sanity check comparing old Header info and new ReportFile info FAILED:  $msg")
-                else
+                } else {
                     logger.warn("***** FAILURE: sanity check comparing old headers list to new ReportFiles list:\n$msg")
+                }
             }
         }
     }

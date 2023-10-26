@@ -49,8 +49,9 @@ class SftpTransport : ITransport, Logging {
         val sftpTransportType = transportType as SFTPTransportType
 
         return try {
-            if (header.content == null)
+            if (header.content == null) {
                 error("No content to sftp for report ${header.reportFile.reportId}")
+            }
             val receiver = header.receiver ?: error("No receiver defined for report ${header.reportFile.reportId}")
             val sshClient = connect(receiver)
 
@@ -97,12 +98,18 @@ class SftpTransport : ITransport, Logging {
             // Override the SFTP host and port only if provided and in the local environment.
             val host: String = if (Environment.isLocal() &&
                 !System.getenv("SFTP_HOST_OVERRIDE").isNullOrBlank()
-            )
-                System.getenv("SFTP_HOST_OVERRIDE") else sftpTransportInfo.host
+            ) {
+                System.getenv("SFTP_HOST_OVERRIDE")
+            } else {
+                sftpTransportInfo.host
+            }
             val port: String = if (Environment.isLocal() &&
                 !System.getenv("SFTP_PORT_OVERRIDE").isNullOrBlank()
-            )
-                System.getenv("SFTP_PORT_OVERRIDE") else sftpTransportInfo.port
+            ) {
+                System.getenv("SFTP_PORT_OVERRIDE")
+            } else {
+                sftpTransportInfo.port
+            }
             return connect(host, port, credential ?: lookupCredentials(receiver))
         }
 
@@ -181,7 +188,7 @@ class SftpTransport : ITransport, Logging {
             sshClient: SSHClient,
             path: String,
             fileName: String,
-            contents: ByteArray
+            contents: ByteArray,
         ) {
             try {
                 try {

@@ -269,3 +269,72 @@
 # Code Index Name
 - id: "code-index-name"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name"
+# Check Digit
+- id: "check-digit"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit"
+# Check Digit Scheme
+- id: "check-digit-scheme"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/check-digit-scheme"
+# Unknown Universal ID Type
+- id: "universal-id-unknown-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-unknown-type"
+# Identifier Location
+- id: "identifier-location"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-location"
+# Universal ID Type
+- id: "universal-id-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type"
+# XON.3 ID Number
+- id: "xon3-id-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xon3-id-number"
+# XON.10 Organization Identifier
+- id: "xon10-organization-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xon10-organization-identifier"
+# Identifier Namespace ID
+- id: "identifier-namespace-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id"
+# Universal Namespace ID
+- id: "identifier-universal-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id"
+# Data Type Absent Reason
+- id: "data-absent-reason"
+  url: "http://hl7.org/fhir/StructureDefinition/data-absent-reason"
+# Contact Point Country
+- id: "contactpoint-country"
+  url: "http://hl7.org/fhir/StructureDefinition/contactpoint-country"
+# Contact Point Area
+- id: "contactpoint-area"
+  url: "http://hl7.org/fhir/StructureDefinition/contactpoint-area"
+# Contact Point Local
+- id: "contactpoint-local"
+  url: "http://hl7.org/fhir/StructureDefinition/contactpoint-local"
+# Contact Point Extension
+- id: "contactpoint-extension"
+  url: "http://hl7.org/fhir/StructureDefinition/contactpoint-extension"
+# Telephone Number
+- id: "xtn1-telephone-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn1-telephone-number"
+# Telecom Use Code
+- id: "xtn2-telecom-use-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code"
+# Telecom Equipment Type
+- id: "xtn3-telecom-equipment-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type"
+# Communication Address
+- id: "xtn4-communication-address"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn4-communication-address"
+# Local Number
+- id: "xtn7-local-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number"
+# Any Text
+- id: "xtn9-any-text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn9-any-text"
+# Unformatted Telephone Number
+- id: "xtn12-unformatted-telephone-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number"
+# HL7 v2 Name
+- id: "hl7v2Name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name"
+# HL7 Use
+- id: "hl7-use"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use"
