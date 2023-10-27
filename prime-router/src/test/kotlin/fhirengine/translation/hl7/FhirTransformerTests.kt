@@ -118,6 +118,66 @@ class FhirTransformerTests {
     }
 
     @Test
+    fun `test transform with nested schemas`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val resource = Patient()
+        resource.id = "def456"
+        bundle.addEntry().resource = resource
+
+        val elemB =
+            FhirTransformSchemaElement("elementB", value = listOf("'654321'"), bundleProperty = "%resource.id")
+        val elemC =
+            FhirTransformSchemaElement(
+                "elementC",
+                value = listOf("'fedcba'"),
+                bundleProperty = "Bundle.entry.resource.ofType(Patient).id"
+            )
+
+        val childSchema = FhirTransformSchema(elements = mutableListOf(elemB, elemC))
+        val elemA = FhirTransformSchemaElement("elementA", schema = "schema", schemaRef = childSchema)
+
+        val rootSchema = FhirTransformSchema(elements = mutableListOf(elemA))
+
+        val newBundle = FhirTransformer(rootSchema).transform(bundle)
+        assertThat(newBundle.id).isEqualTo("654321")
+        assertThat(newBundle.entry[0].resource.id).isEqualTo("fedcba")
+    }
+
+    @Test
+    fun `test transform with nested schemas and override duplicate elements`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+        val resource = Patient()
+        resource.id = "def456"
+        bundle.addEntry().resource = resource
+
+        // root: A -> child: B
+        //       B           B
+        val elemB1 =
+            FhirTransformSchemaElement("elementB", value = listOf("'654321'"), bundleProperty = "%resource.id")
+        val elemB2 =
+            FhirTransformSchemaElement(
+                "elementB",
+                value = listOf("'fedcba'"),
+                bundleProperty = "Bundle.entry.resource.ofType(Patient).id"
+            )
+
+        val childSchema = FhirTransformSchema(elements = mutableListOf(elemB1, elemB2))
+        val elemA = FhirTransformSchemaElement("elementA", schema = "schemaB2", schemaRef = childSchema)
+
+        val rootSchema = FhirTransformSchema(elements = mutableListOf(elemA))
+
+        val elemBOverride = FhirTransformSchemaElement("elementB", value = listOf("'overrideVal'"))
+        val overrideSchema = FhirTransformSchema(elements = mutableListOf(elemBOverride))
+        rootSchema.override(overrideSchema)
+
+        val newBundle = FhirTransformer(rootSchema).transform(bundle)
+        assertThat(newBundle.id).isEqualTo("overrideVal")
+        assertThat(newBundle.entry[0].resource.id).isEqualTo("overrideVal")
+    }
+
+    @Test
     fun `test transform deeper property`() {
         val bundle = Bundle()
         bundle.id = "abc123"

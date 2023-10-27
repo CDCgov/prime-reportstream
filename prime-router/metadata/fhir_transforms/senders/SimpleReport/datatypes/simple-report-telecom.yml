@@ -1,5 +1,17 @@
 elements:
+  - name: xtn-use-code-bpn-from-system
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code").value.exists().not() and %resource.system = "pager" and %resource.use.exists().not()'
+    value: [ '"BPN"' ]
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code").value[x]'
+
+  - name: xtn-use-code-net-from-system
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code").value.exists().not() and %resource.system = "email"'
+    value: [ '"NET"' ]
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code").value[x]'
+
+  # This needs to come after the other xtn2 elements so that those conditions take precedence
   - name: xtn-use-code
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code").value.exists().not()'
     value: [ '%resource.use' ]
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code").value[x]'
     valueSet:
@@ -9,18 +21,8 @@ elements:
         mobile: PRS
         temp: ORN
 
-  - name: xtn-use-code-bpn-from-system
-    condition: '%resource.system = "pager" and %resource.use.exists().not()'
-    value: [ '"BPN"' ]
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code").value[x]'
-
-  - name: xtn-use-code-net-from-system
-    condition: '%resource.system = "email"'
-    value: [ '"NET"' ]
-    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code").value[x]'
-
   - name: xtn-system
-    condition: '%resource.use.exists().not() or  %resource.use != "mobile"'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type").value.exists().not() and (%resource.use.exists().not() or %resource.use != "mobile")'
     value: [ '%resource.system' ]
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type").value[x]'
     valueSet:
@@ -31,53 +33,53 @@ elements:
         fax: FX
 
   - name: xtn-system-from-use
-    condition: '%resource.use.exists() and %resource.use = "mobile"'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type").value.exists().not() and %resource.use.exists() and %resource.use = "mobile"'
     value: [ '"CP"' ]
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type").value[x]'
 
   - name: xtn-email
-    condition: '%resource.system = "email"'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn4-communication-address").value.exists().not() and %resource.system = "email"'
     value: [ '%resource.value' ]
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn4-communication-address").value[x]'
 
   - name: xtn-country-code
-    condition: '%resource.value.exists()'
+    condition: '%resource.extension("http://hl7.org/fhir/StructureDefinition/contactpoint-country").value.exists().not() and %resource.value.exists()'
     value: [ '%resource.value.getPhoneNumberCountryCode()' ]
     bundleProperty: '%resource.extension("http://hl7.org/fhir/StructureDefinition/contactpoint-country").value[x]'
 
   - name: xtn-area-code
-    condition: '%resource.value.exists()'
+    condition: '%resource.extension("http://hl7.org/fhir/StructureDefinition/contactpoint-area").value.exists().not() and %resource.value.exists()'
     value: [ '%resource.value.getPhoneNumberAreaCode()' ]
     bundleProperty: '%resource.extension("http://hl7.org/fhir/StructureDefinition/contactpoint-area").value[x]'
 
   # RADx MARS format wants this value to be <deidentified>, but Hapi library does not allow that, so setting it to empty
   - name: xtn-area-code-deidentified
-    condition: '%resource.value.exists() and %deidentifiedValue.empty().not()'
+    condition: '%resource.extension("http://hl7.org/fhir/StructureDefinition/contactpoint-area").value.exists().not() and %resource.value.exists() and %deidentifiedValue.empty().not()'
     value: [ '""' ]
     bundleProperty: '%resource.extension("http://hl7.org/fhir/StructureDefinition/contactpoint-area").value[x]'
 
   - name: xtn-local-number
-    condition: '%resource.value.exists()'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number").value.exists().not() and %resource.value.exists()'
     value: [ '%resource.value.getPhoneNumberLocalNumber()' ]
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number").value[x]'
 
   # RADx MARS format wants this value to be <deidentified>, but Hapi library does not allow that, so setting it to empty
   - name: xtn-local-number-deidentified
-    condition: '%resource.value.exists() and %deidentifiedValue.empty().not()'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number").value.exists().not() and %resource.value.exists() and %deidentifiedValue.empty().not()'
     value: [ '""' ]
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number").value[x]'
 
   - name: xtn-extension
-    condition: '%resource.value.exists() and %resource.value.hasPhoneNumberExtension()'
+    condition: '%resource.extension("http://hl7.org/fhir/StructureDefinition/contactpoint-extension").value.exists().not() and %resource.value.exists() and %resource.value.hasPhoneNumberExtension()'
     value: [ '%resource.value.getPhoneNumberExtension()' ]
     bundleProperty: '%resource.extension("http://hl7.org/fhir/StructureDefinition/contactpoint-extension").value[x]'
 
   - name: xtn-text
-    condition: '%resource.extension(%`rsext-text`).exists()'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn9-any-text").value.exists().not() and %resource.extension(%`rsext-text`).exists()'
     value: [ '%resource.extension(%`rsext-text`).value' ]
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn9-any-text").value[x]'
 
   - name: xtn-unformatted-text
-    condition: '%resource.value.exists() and %resource.system != "email"'
+    condition: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number").value.exists().not() and %resource.value.exists() and %resource.system != "email"'
     value: [ '%deidentifiedValue','%resource.value' ]
     bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number").value[x]'

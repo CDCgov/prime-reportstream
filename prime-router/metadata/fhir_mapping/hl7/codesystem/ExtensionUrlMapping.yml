@@ -335,15 +335,12 @@
 # HL7 v2 Name
 - id: "hl7v2Name"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name"
-# HL7 Use
-- id: "hl7-use"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use"
 # Name suffix
 - id: "name-suffix"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix"
 # Name suffix degree
 - id: "name-suffix-degree"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree"
-# Name suffix
+# Name suffix professional
 - id: "name-suffix-professional"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-professional"

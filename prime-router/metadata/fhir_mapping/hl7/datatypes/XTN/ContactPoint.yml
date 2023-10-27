@@ -40,25 +40,25 @@ value_5:
 #mapping from HL7 Concept Map: TelecomUseCode
 #https://docs.google.com/spreadsheets/d/1EE3a5UIGXLi8wMDr49fWTEVx8QS2GFqYgitE3vLOQTQ/edit#gid=0
 use_1:
-  condition: $hl7Use EQUALS PRN && $useCode NULL
+  condition: $xtnUse EQUALS PRN && $useCode NULL
   type: STRING
   value: "home"
   vars:
-    hl7Use: String, XTN.2
+    xtnUse: String, XTN.2
 
 use_2:
-  condition: $hl7Use EQUALS WPN && $useCode NULL
+  condition: $xtnUse EQUALS WPN && $useCode NULL
   type: STRING
   value: "work"
   vars:
-    hl7Use: String, XTN.2
+    xtnUse: String, XTN.2
 
 use_3:
-  condition: $hl7Use EQUALS BPN && $useCode NULL
+  condition: $xtnUse EQUALS BPN && $useCode NULL
   type: STRING
   value: "mobile"
   vars:
-    hl7Use: String, XTN.2
+    xtnUse: String, XTN.2
 
 use_4:
   condition: $useCode NOT_NULL
@@ -128,17 +128,17 @@ system_7:
           value: unknown
 
 extension_xtn2-telecom-use-code:
-  condition: $hl7Use NOT_NULL
+  condition: $xtnUse NOT_NULL
   generateList: true
   expressionType: nested
   vars:
-    hl7Use: String, XTN.2
+    xtnUse: String, XTN.2
   expressionsMap:
     url:
       type: SYSTEM_URL
       value: xtn2-telecom-use-code
     valueString:
-      value: $hl7Use
+      value: $xtnUse
 
 extension_xtn3-telecom-equipment-type:
   condition: $equipType NOT_NULL

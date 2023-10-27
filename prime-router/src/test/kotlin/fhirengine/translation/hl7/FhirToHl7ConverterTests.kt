@@ -488,6 +488,54 @@ class FhirToHl7ConverterTests {
     }
 
     @Test
+    fun `test convert with nested schemas`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+
+        val elemB = ConverterSchemaElement("elementB", value = listOf("'654321'"), hl7Spec = listOf("MSH-11"))
+        val elemC = ConverterSchemaElement("elementC", value = listOf("'fedcba'"), hl7Spec = listOf("MSH-12"))
+
+        val childSchema = ConverterSchema(elements = mutableListOf(elemB, elemC))
+        val elemA = ConverterSchemaElement("elementA", schema = "schema", schemaRef = childSchema)
+
+        val rootSchema = ConverterSchema(
+            hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
+            elements = mutableListOf(elemA)
+        )
+
+        val message = FhirToHl7Converter(rootSchema).convert(bundle)
+        assertThat(Terser(message).get("MSH-11")).isEqualTo("654321")
+        assertThat(Terser(message).get("MSH-12")).isEqualTo("fedcba")
+    }
+
+    @Test
+    fun `test convert with nested schemas and override duplicate elements`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
+
+        // root: A -> child: B
+        //       B           B
+        val elemB1 = ConverterSchemaElement("elementB", value = listOf("'654321'"), hl7Spec = listOf("MSH-11"))
+        val elemB2 = ConverterSchemaElement("elementB", value = listOf("'fedcba'"), hl7Spec = listOf("MSH-12"))
+
+        val childSchema = ConverterSchema(elements = mutableListOf(elemB1, elemB2))
+        val elemA = ConverterSchemaElement("elementA", schema = "schema", schemaRef = childSchema)
+
+        val rootSchema = ConverterSchema(
+            hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
+            elements = mutableListOf(elemA)
+        )
+
+        val elemBOverride = ConverterSchemaElement("elementB", value = listOf("'overrideVal'"))
+        val overrideSchema = ConverterSchema(elements = mutableListOf(elemBOverride))
+        rootSchema.override(overrideSchema)
+
+        val message = FhirToHl7Converter(rootSchema).convert(bundle)
+        assertThat(Terser(message).get("MSH-11")).isEqualTo("overrideVal")
+        assertThat(Terser(message).get("MSH-12")).isEqualTo("overrideVal")
+    }
+
+    @Test
     fun `test truncation logic for ORU_R01`() {
         val mockBundle = mockk<Bundle>()
         val mockSchema = mockk<ConverterSchema>()
