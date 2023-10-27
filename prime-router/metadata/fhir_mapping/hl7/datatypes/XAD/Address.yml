@@ -181,7 +181,6 @@ period_1:
   expressionType: resource
   valueOf: datatypes/DR/Period
 
-# TODO: #11664
 # XAD.12 is deprecated so the schema favors using XAD.13/14 if either are populated
 period_2:
   vars:
