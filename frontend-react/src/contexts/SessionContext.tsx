@@ -25,6 +25,7 @@ export interface RSSessionContext extends RSUserPermissions {
     isUserAdmin: boolean;
     isUserSender: boolean;
     isUserReceiver: boolean;
+    isUserTransceiver: boolean;
     user?: UserClaims<CustomUserClaims>;
     environment: string;
 }
@@ -42,6 +43,7 @@ export const SessionContext = createContext<RSSessionContext>({
     isUserAdmin: false,
     isUserSender: false,
     isUserReceiver: false,
+    isUserTransceiver: false,
     environment: APP_ENV,
 });
 

@@ -52,6 +52,7 @@ export const ReportStreamNavbar = ({
         isUserAdmin,
         isUserReceiver,
         isUserSender,
+        isUserTransceiver,
         user,
     } = useSessionContext();
     const [openMenuItem, setOpenMenuItem] = useState<null | string>(null);
@@ -237,15 +238,21 @@ export const ReportStreamNavbar = ({
     const navbarItemBuilder = () => {
         let menuItems = [...menuItemsAbout, ...defaultMenuItems];
 
-        if ((isUserReceiver || isUserAdmin) && !orgMissingTransport) {
+        if (
+            (isUserReceiver || isUserTransceiver || isUserAdmin) &&
+            !orgMissingTransport
+        ) {
             menuItems = [...menuItems, ...menuItemsReceiver];
         }
 
-        if ((isUserReceiver || isUserAdmin) && orgMissingTransport) {
+        if (
+            (isUserReceiver || isUserTransceiver || isUserAdmin) &&
+            orgMissingTransport
+        ) {
             menuItems = [...menuItems, ...menuItemsReceiverMissingTransport];
         }
 
-        if (isUserSender || isUserAdmin) {
+        if (isUserSender || isUserTransceiver || isUserAdmin) {
             menuItems = [...menuItems, ...menuItemsSender];
         }
 
