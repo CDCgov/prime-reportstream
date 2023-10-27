@@ -19,7 +19,6 @@ import {
     showAlertNotification,
     showError,
 } from "../../components/AlertNotifications";
-import { getStoredOktaToken } from "../../utils/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     ConfirmSaveSettingModal,
@@ -47,7 +46,7 @@ type AdminOrgEditProps = {
 export function AdminOrgEditPage() {
     const { fetchHeaders } = useAppInsightsContext();
     const { orgname } = useParams<AdminOrgEditProps>();
-    const { activeMembership } = useSessionContext();
+    const { activeMembership, authState } = useSessionContext();
 
     const orgSettings: OrgSettingsResource = useResource(
         OrgSettingsResource.detail(),
@@ -61,14 +60,14 @@ export function AdminOrgEditPage() {
     const [loading, setLoading] = useState(false);
 
     async function getLatestOrgResponse() {
-        const accessToken = getStoredOktaToken();
+        const accessToken = authState.accessToken?.accessToken;
         const organization = activeMembership?.parsedName;
 
         const response = await fetch(
             `${RS_API_URL}/api/settings/organizations/${orgname}`,
             {
                 headers: {
-                    ...fetchHeaders,
+                    ...fetchHeaders(),
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },

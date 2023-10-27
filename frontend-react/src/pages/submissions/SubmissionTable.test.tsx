@@ -18,10 +18,11 @@ describe("SubmissionTable", () => {
                 service: "testSender",
             },
 
-            isUserAdmin: false,
-            isUserReceiver: false,
-            isUserSender: true,
-            environment: "test",
+            user: {
+                isUserAdmin: false,
+                isUserReceiver: false,
+                isUserSender: true,
+            } as any,
         });
         const fixtures: Fixture[] = [
             {
@@ -69,10 +70,11 @@ describe("SubmissionTable", () => {
                     parsedName: Organizations.PRIMEADMINS,
                     service: "",
                 },
-                isUserAdmin: true,
-                isUserReceiver: false,
-                isUserSender: false,
-                environment: "test",
+                user: {
+                    isUserAdmin: true,
+                    isUserReceiver: false,
+                    isUserSender: false,
+                } as any,
             });
 
             renderApp(<SubmissionTable />, { restHookFixtures: [] });

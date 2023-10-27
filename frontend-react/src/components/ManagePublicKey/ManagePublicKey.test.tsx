@@ -88,10 +88,11 @@ describe("ManagePublicKey", () => {
                 parsedName: "testOrg",
                 service: "serviceName",
             },
-            isUserAdmin: false,
-            isUserReceiver: false,
-            isUserSender: true,
-            environment: "test",
+            user: {
+                isUserAdmin: false,
+                isUserReceiver: false,
+                isUserSender: true,
+            } as any,
         });
     });
 
@@ -240,7 +241,7 @@ describe("ManagePublicKey", () => {
             });
 
             mockUseCreateOrganizationPublicKey({
-                isLoading: false,
+                isPending: false,
                 isSuccess: true,
             });
 
@@ -277,7 +278,7 @@ describe("ManagePublicKey", () => {
             });
 
             mockUseCreateOrganizationPublicKey({
-                isLoading: false,
+                isPending: false,
                 isSuccess: false,
             });
 

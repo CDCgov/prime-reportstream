@@ -18,8 +18,8 @@ describe("DeliveryDetails", () => {
      * fetch data. */
     test("url param (reportId) feeds into network hook", () => {
         mockUseReportDetail.mockReturnValue({
-            reportDetail: {} as RSDelivery,
-        });
+            data: {} as RSDelivery,
+        } as any);
         renderApp(<DeliveryDetailPage />);
         expect(mockUseReportDetail).toHaveBeenCalledWith(TEST_ID);
     });

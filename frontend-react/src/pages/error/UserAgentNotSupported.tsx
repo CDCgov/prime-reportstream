@@ -5,7 +5,7 @@ import site from "../../content/site.json";
 export function UserAgentNotSupported() {
     return (
         <>
-            <ReportStreamHeader isSimple blueVariant />
+            <ReportStreamHeader isNavHidden blueVariant />
             <main>
                 <article>
                     <h1>Sorry! ReportStream does not support your browser</h1>

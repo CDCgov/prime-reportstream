@@ -436,7 +436,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "daily-data",
                 element: (
-                    <RequireGate>
+                    <RequireGate auth>
                         <DeliveriesPage />
                     </RequireGate>
                 ),
@@ -444,7 +444,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "manage-public-key",
                 element: (
-                    <RequireGate>
+                    <RequireGate auth>
                         <ManagePublicKeyPage />
                     </RequireGate>
                 ),
@@ -452,7 +452,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "report-details",
                 element: (
-                    <RequireGate>
+                    <RequireGate auth>
                         <Outlet />
                     </RequireGate>
                 ),
@@ -466,7 +466,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "submissions",
                 element: (
-                    <RequireGate>
+                    <RequireGate auth>
                         <Outlet />
                     </RequireGate>
                 ),
@@ -486,7 +486,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "data-dashboard",
                 element: (
-                    <RequireGate>
+                    <RequireGate auth>
                         <Outlet />
                     </RequireGate>
                 ),

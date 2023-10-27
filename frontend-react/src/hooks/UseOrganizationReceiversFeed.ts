@@ -1,17 +1,11 @@
-import { Dispatch, SetStateAction, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
-import { RSReceiver } from "../config/endpoints/settings";
+import type { RSReceiver } from "../config/endpoints/settings";
 import { CustomerStatusType } from "../utils/DataDashboardUtils";
 
 import { useOrganizationReceivers } from "./UseOrganizationReceivers";
 
-interface ReceiverFeeds {
-    loadingServices: boolean;
-    services: RSReceiver[];
-    activeService: RSReceiver | undefined;
-    setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
-    isDisabled: boolean;
-}
+export type ReceiverFeeds = ReturnType<typeof useOrganizationReceiversFeed>;
 
 export function sortAndFilterInactiveServices(
     services: RSReceiver[],
@@ -23,39 +17,31 @@ export function sortAndFilterInactiveServices(
 }
 /** Fetches a list of receiver services for your active organization, and provides a controller to switch
  * between them */
-export const useOrganizationReceiversFeed = (): ReceiverFeeds => {
+export const useOrganizationReceiversFeed = () => {
     const {
         data: receivers,
-        isLoading,
-        fetchStatus,
+        isDisabled,
+        ...query
     } = useOrganizationReceivers();
     const [active, setActive] = useState<RSReceiver | undefined>();
-    const [sortedAndFilteredServices, setSortedAndFilteredServices] = useState<
-        RSReceiver[] | []
-    >();
-    const [receiversFound, setReceiversFound] = useState<boolean | undefined>();
+    const [data, setData] = useState<RSReceiver[]>();
 
     useEffect(() => {
         if (receivers?.length) {
             const sortedAndFilteredReceivers =
                 sortAndFilterInactiveServices(receivers);
+            setData(sortedAndFilteredReceivers);
             setActive(
-                sortedAndFilteredReceivers[0], // Defaults to first in array
+                (v) => v ?? sortedAndFilteredReceivers[0], // Defaults to first in array
             );
-            setSortedAndFilteredServices(sortedAndFilteredReceivers);
-            setReceiversFound(true);
-        } else {
-            setReceiversFound(false);
         }
     }, [receivers]);
 
     return {
-        loadingServices:
-            (isLoading && fetchStatus !== "idle") ||
-            receiversFound === undefined,
-        services: sortedAndFilteredServices || [],
+        ...query,
+        data,
         activeService: active,
         setActiveService: setActive,
-        isDisabled: isLoading && fetchStatus === "idle",
+        isDisabled,
     };
 };

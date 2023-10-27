@@ -8,12 +8,10 @@ import React, {
     useState,
 } from "react";
 import OktaAuth, {
-    AccessToken,
     CustomUserClaims,
     UserClaims,
     AuthState,
 } from "@okta/okta-auth-js";
-import { IOktaContext } from "@okta/okta-react/bundles/types/OktaContext";
 import { Security, useOktaAuth } from "@okta/okta-react";
 
 import {
@@ -26,61 +24,56 @@ import {
     MemberType,
     RSUserClaims,
 } from "../utils/OrganizationUtils";
-import config from "../config";
+import type { AppConfig } from "../config";
 import { updateApiSessions } from "../network/Apis";
-import { OKTA_AUTH } from "../oktaConfig";
+import site from "../content/site.json";
 
-export interface RSSessionContext extends RSUserPermissions {
+export interface RSSessionContext {
     oktaAuth: OktaAuth;
     authState: AuthState;
     activeMembership?: MembershipSettings;
     _activeMembership?: MembershipSettings;
-    oktaToken?: Partial<AccessToken>;
-    isAdminStrictCheck?: boolean;
-    isUserAdmin: boolean;
-    isUserSender: boolean;
-    isUserReceiver: boolean;
-    user?: UserClaims<CustomUserClaims>;
-    environment: string;
+    user: {
+        claims?: UserClaims<CustomUserClaims>;
+        isAdminStrictCheck: boolean;
+    } & RSUserPermissions;
     logout: () => void;
     setActiveMembership: (value: Partial<MembershipSettings> | null) => void;
+    config: AppConfig;
+    site: typeof site;
 }
 
-export type OktaHook = (_init?: Partial<IOktaContext>) => IOktaContext;
-
-const { APP_ENV = "production" } = config;
-
 export const SessionContext = createContext<RSSessionContext>({
-    oktaAuth: OKTA_AUTH,
-    oktaToken: {} as Partial<AccessToken>,
     activeMembership: {} as MembershipSettings,
-    isAdminStrictCheck: false,
-    isUserAdmin: false,
-    isUserSender: false,
-    isUserReceiver: false,
-    environment: APP_ENV,
     logout: () => void 0,
     setActiveMembership: () => void 0,
 } as any);
 
 export interface SessionProviderProps
-    extends React.ComponentProps<typeof Security> {}
+    extends React.ComponentProps<typeof Security> {
+    config: AppConfig;
+}
 
-function SessionProvider({ children, ...props }: SessionProviderProps) {
+function SessionProvider({ children, config, ...props }: SessionProviderProps) {
     return (
         <Security {...props}>
-            <SessionAuthStateGate>{children}</SessionAuthStateGate>
+            <SessionAuthStateGate config={config}>
+                {children}
+            </SessionAuthStateGate>
         </Security>
     );
 }
 
-function SessionAuthStateGate({ children }: React.PropsWithChildren) {
+export interface SessionAuthStateGateProps
+    extends React.PropsWithChildren<Pick<SessionProviderProps, "config">> {}
+
+function SessionAuthStateGate({ children, config }: SessionAuthStateGateProps) {
     const { authState, ...props } = useOktaAuth();
 
     if (!authState) return null;
 
     return (
-        <SessionProviderBase authState={authState} {...props}>
+        <SessionProviderBase authState={authState} config={config} {...props}>
             {children}
         </SessionProviderBase>
     );
@@ -91,12 +84,14 @@ export interface SessionProviderBaseProps
         Omit<ReturnType<typeof useOktaAuth>, "authState">
     > {
     authState: AuthState;
+    config: AppConfig;
 }
 
 export function SessionProviderBase({
     children,
     oktaAuth,
     authState,
+    config,
 }: SessionProviderBaseProps) {
     const initActiveMembership = useRef(
         JSON.parse(
@@ -106,7 +101,7 @@ export function SessionProviderBase({
     const [_activeMembership, setActiveMembership] = useState(
         initActiveMembership.current,
     );
-    const activeMembership = useMemo(() => {
+    const activeMembership = useMemo<MembershipSettings | undefined>(() => {
         const actualMembership = membershipsFromToken(
             authState?.accessToken?.claims,
         );
@@ -131,29 +126,38 @@ export function SessionProviderBase({
         return {
             oktaAuth,
             authState,
-            oktaToken: authState?.accessToken,
             activeMembership,
-            /* This logic is a for when admins have other orgs present on their Okta claims
-             * that interfere with the activeMembership.memberType "soft" check */
-            isAdminStrictCheck:
-                activeMembership?.memberType === MemberType.PRIME_ADMIN,
-            user: authState?.idToken?.claims,
-            ...getUserPermissions(
-                authState?.accessToken?.claims as RSUserClaims,
-            ),
-            environment: APP_ENV,
+            user: {
+                claims: authState.idToken?.claims,
+                ...getUserPermissions(
+                    authState?.accessToken?.claims as RSUserClaims,
+                ),
+                /* This logic is a for when admins have other orgs present on their Okta claims
+                 * that interfere with the activeMembership.memberType "soft" check */
+                isAdminStrictCheck:
+                    activeMembership?.memberType === MemberType.PRIME_ADMIN,
+            },
             logout,
             _activeMembership,
             setActiveMembership,
+            config,
+            site,
         };
-    }, [oktaAuth, authState, activeMembership, logout, _activeMembership]);
+    }, [
+        oktaAuth,
+        authState,
+        activeMembership,
+        logout,
+        _activeMembership,
+        config,
+    ]);
 
     useEffect(() => {
         updateApiSessions({
-            token: authState?.accessToken?.accessToken ?? "",
-            organization: activeMembership?.parsedName,
+            token: authState.accessToken?.accessToken ?? "",
+            organization: activeMembership?.parsedName ?? "",
         });
-    }, [activeMembership?.parsedName, authState?.accessToken?.accessToken]);
+    }, [activeMembership?.parsedName, authState.accessToken?.accessToken]);
 
     useEffect(() => {
         if (!authState.isAuthenticated && _activeMembership) {

@@ -10,24 +10,6 @@ export enum GLOBAL_STORAGE_KEYS {
 /* feature flags are just and array of strings saved into a single localStorage variable */
 const FEATURE_FLAG_LOCALSTORAGE_KEY = "featureFlags";
 
-// temporary solution.
-// TODO: replace all occurrences of this with reads from SessionContext
-export function getStoredOktaToken(): string | undefined {
-    const tokenJsonString = localStorage.getItem(
-        GLOBAL_STORAGE_KEYS.OKTA_ACCESS_TOKEN,
-    );
-    if (!tokenJsonString) {
-        return "";
-    }
-    try {
-        const tokenJson = JSON.parse(tokenJsonString);
-        return tokenJson?.accessToken?.accessToken;
-    } catch (e) {
-        console.warn("Error retrieving access token", e);
-        return "";
-    }
-}
-
 export function getSavedFeatureFlags(): string[] {
     const saved =
         window.localStorage.getItem(FEATURE_FLAG_LOCALSTORAGE_KEY) || "";

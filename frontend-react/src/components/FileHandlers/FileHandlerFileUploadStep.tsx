@@ -89,11 +89,8 @@ export default function FileHandlerFileUploadStep({
 }: FileHandlerFileUploadStepProps) {
     const { appInsights } = useAppInsightsContext();
     const { data: organization } = useOrganizationSettings();
-    const {
-        data: senderDetail,
-        isLoading: senderIsLoading,
-        isInitialLoading: senderIsInitialLoading,
-    } = useSenderResource();
+    const { data: senderDetail, isLoading: senderIsLoading } =
+        useSenderResource();
     const { activeMembership } = useSessionContext();
     const fileInputRef = useRef<FileInputRef>(null);
     const { format } = selectedSchemaOption;
@@ -101,7 +98,8 @@ export default function FileHandlerFileUploadStep({
         ? `.${format.toLowerCase()}`
         : BASE_ACCEPT_VALUE;
 
-    const { sendFile, isWorking: isUploading } = useWatersUploader();
+    const { mutateAsync: sendFile, isPending: isUploading } =
+        useWatersUploader();
 
     async function handleFileChange(
         event: React.ChangeEvent<HTMLInputElement>,
@@ -197,7 +195,7 @@ export default function FileHandlerFileUploadStep({
             <FileHandlerPiiWarning />
 
             {(() => {
-                if (senderIsLoading && senderIsInitialLoading) {
+                if (senderIsLoading) {
                     return <Spinner />;
                 }
 

@@ -2,7 +2,7 @@ import { waitFor } from "@testing-library/react";
 
 import { dataDashboardServer } from "../../../__mocks__/DataDashboardMockServer";
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
-import { AppWrapper, renderHook } from "../../../utils/CustomRenderUtils";
+import { renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
 
 import useReceiverDeliveries from "./UseReceiverDeliveries";
@@ -20,19 +20,17 @@ describe("useReceiverDeliveries", () => {
                 } as any,
                 activeMembership: undefined,
 
-                isUserAdmin: false,
-                isUserReceiver: false,
-                isUserSender: false,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: false,
+                    isUserSender: false,
+                } as any,
             });
         });
 
         test("returns undefined", async () => {
-            const { result } = renderHook(() => useReceiverDeliveries(), {
-                wrapper: AppWrapper(),
-            });
+            const { result } = renderHook(() => useReceiverDeliveries());
             await waitFor(() => expect(result.current.data).toEqual(undefined));
-            expect(result.current.isLoading).toEqual(true);
         });
     });
 
@@ -48,19 +46,17 @@ describe("useReceiverDeliveries", () => {
                     service: "testService",
                 },
 
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: true,
+                    isUserSender: false,
+                } as any,
             });
         });
 
         test("returns receiver meta and deliveries", async () => {
-            const { result } = renderHook(
-                () => useReceiverDeliveries("testService"),
-                {
-                    wrapper: AppWrapper(),
-                },
+            const { result } = renderHook(() =>
+                useReceiverDeliveries("testService"),
             );
 
             await waitFor(() => expect(result.current.data).toHaveLength(1));

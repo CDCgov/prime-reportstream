@@ -1,6 +1,6 @@
 import { waitFor } from "@testing-library/react";
 
-import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
+import { renderHook } from "../utils/CustomRenderUtils";
 import { fakeOrg, orgServer } from "../__mocks__/OrganizationMockServer";
 import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
 import { MemberType } from "../utils/OrganizationUtils";
@@ -22,19 +22,18 @@ describe("useOrganizationSettings", () => {
                 } as any,
                 activeMembership: undefined,
 
-                isUserAdmin: false,
-                isUserReceiver: false,
-                isUserSender: false,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: false,
+                    isUserSender: false,
+                } as any,
             });
         });
 
-        test("returns undefined", () => {
-            const { result } = renderHook(() => useOrganizationSettings(), {
-                wrapper: AppWrapper(),
-            });
+        test("returns undefined", async () => {
+            const { result } = renderHook(() => useOrganizationSettings());
+            await waitFor(() => expect(result.current.isLoading).toBeFalsy());
             expect(result.current.data).toEqual(undefined);
-            expect(result.current.isLoading).toEqual(true);
         });
     });
 
@@ -50,17 +49,17 @@ describe("useOrganizationSettings", () => {
                     service: "testSender",
                 },
 
-                isUserAdmin: false,
-                isUserReceiver: false,
-                isUserSender: true,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: false,
+                    isUserSender: true,
+                } as any,
             });
         });
 
         test("returns correct organization settings", async () => {
-            const { result } = renderHook(() => useOrganizationSettings(), {
-                wrapper: AppWrapper(),
-            });
+            const { result } = renderHook(() => useOrganizationSettings());
+            await waitFor(() => expect(result.current.isLoading).toBeFalsy());
             await waitFor(() => expect(result.current.data).toEqual(fakeOrg));
             expect(result.current.isLoading).toEqual(false);
         });
@@ -77,20 +76,19 @@ describe("useOrganizationSettings", () => {
                     parsedName: Organizations.PRIMEADMINS,
                 },
 
-                isUserAdmin: true,
-                isUserReceiver: false,
-                isUserSender: false,
-                environment: "test",
+                user: {
+                    isUserAdmin: true,
+                    isUserReceiver: false,
+                    isUserSender: false,
+                } as any,
             });
         });
 
         test("is disabled", async () => {
-            const { result } = renderHook(() => useOrganizationSettings(), {
-                wrapper: AppWrapper(),
-            });
+            const { result } = renderHook(() => useOrganizationSettings());
             expect(result.current.fetchStatus).toEqual("idle");
-            expect(result.current.status).toEqual("loading");
-            expect(result.current.isInitialLoading).toEqual(false);
+            expect(result.current.status).toEqual("pending");
+            expect(result.current.isLoading).toEqual(false);
         });
     });
 });

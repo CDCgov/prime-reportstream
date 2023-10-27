@@ -19,11 +19,11 @@ jest.mock("react-router-dom", () => ({
 describe("ReportDetails", () => {
     test("url param (reportId) feeds into network hook", () => {
         mockUseReportDetail.mockReturnValue({
-            reportDetail: {} as RSDelivery,
-        });
+            data: {} as RSDelivery,
+        } as any);
         mockUseReportFacilities.mockReturnValue({
-            reportFacilities: [],
-        });
+            data: [],
+        } as any);
 
         renderApp(<ReportDetailsPage />);
         expect(mockUseReportDetail).toHaveBeenCalledWith(TEST_ID);

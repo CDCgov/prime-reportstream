@@ -17,8 +17,8 @@ describe("ReportDetailsTable", () => {
     test("url param (reportId) feeds into network hook", () => {
         mockAppInsightsContextReturnValue();
         mockUseReportFacilities.mockReturnValue({
-            reportFacilities: [],
-        });
+            data: [],
+        } as any);
         renderApp(<ReportDetailsTable reportId={TEST_ID} />);
         expect(mockUseReportFacilities).toHaveBeenCalledWith(TEST_ID);
     });
@@ -27,11 +27,11 @@ describe("ReportDetailsTable", () => {
         function setup() {
             mockAppInsightsContextReturnValue();
             const mockUseReportFacilitiesCallback = {
-                reportFacilities: makeFacilityFixtureArray(10),
+                data: makeFacilityFixtureArray(10),
             };
 
             mockUseReportFacilities.mockReturnValue(
-                mockUseReportFacilitiesCallback,
+                mockUseReportFacilitiesCallback as any,
             );
 
             // Render the component
@@ -79,11 +79,11 @@ describe("ReportDetailsTable", () => {
         function setup() {
             mockAppInsightsContextReturnValue();
             const mockUseReportFacilitiesCallback = {
-                reportFacilities: [],
+                data: [],
             };
 
             mockUseReportFacilities.mockReturnValue(
-                mockUseReportFacilitiesCallback,
+                mockUseReportFacilitiesCallback as any,
             );
 
             // Render the component

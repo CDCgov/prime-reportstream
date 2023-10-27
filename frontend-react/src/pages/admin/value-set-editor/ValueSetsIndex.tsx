@@ -56,19 +56,19 @@ const valueSetColumnConfig: ColumnConfig[] = [
 ];
 
 const toValueSetWithMeta = (
-    valueSetArray: ValueSet[] = [],
     valueSetMeta: LookupTable,
+    valueSetArray: ValueSet[] = [],
 ) => valueSetArray.map((valueSet) => ({ ...valueSet, ...valueSetMeta }));
 
 const ValueSetsTable = () => {
-    const { valueSetMeta } = useValueSetsMeta();
-    const { valueSetArray } = useValueSetsTable<ValueSet[]>(
+    const { data: valueSetMeta } = useValueSetsMeta();
+    const { data: valueSetArray } = useValueSetsTable<ValueSet[]>(
         LookupTables.VALUE_SET,
     );
 
     const tableConfig: TableConfig = {
         columns: valueSetColumnConfig,
-        rows: toValueSetWithMeta(valueSetArray, valueSetMeta),
+        rows: toValueSetWithMeta(valueSetMeta, valueSetArray),
     };
 
     return (

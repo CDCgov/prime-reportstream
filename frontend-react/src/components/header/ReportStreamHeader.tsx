@@ -9,31 +9,30 @@ import {
     Title,
 } from "@trussworks/react-uswds";
 import classnames from "classnames";
-import {
+import React, {
     Suspense,
     useCallback,
     useEffect,
-    useMemo,
     useRef,
     useState,
 } from "react";
 import { useMatch } from "react-router-dom";
 
 import { USLink, USLinkButton, USSmartLink } from "../USLink";
-import config from "../../config";
 import SenderModeBanner from "../SenderModeBanner";
-import { useSessionContext } from "../../contexts/SessionContext";
+import {
+    useSessionContext,
+    RSSessionContext,
+} from "../../contexts/SessionContext";
 import { Icon } from "../../shared";
 import site from "../../content/site.json";
-import {
-    ReceiverOrganizationsMissingTransport,
-    useOrganizationSettings,
-} from "../../hooks/UseOrganizationSettings";
 import Spinner from "../Spinner";
+import {
+    isOrganizationsMissingTransport,
+    useOrganizationSettings__,
+} from "../../hooks/UseOrganizationSettings";
 
 import styles from "./ReportStreamHeader.module.scss";
-
-const { IS_PREVIEW, CLIENT_ENV } = config;
 
 const primaryLinkClasses = (isActive: boolean) => {
     if (isActive) {
@@ -41,10 +40,6 @@ const primaryLinkClasses = (isActive: boolean) => {
     }
 
     return "primary-nav-link";
-};
-
-const isOrganizationsMissingTransport = (orgName: string): boolean => {
-    return ReceiverOrganizationsMissingTransport.indexOf(orgName) > -1;
 };
 
 export interface DropdownProps extends React.PropsWithChildren {
@@ -81,33 +76,29 @@ function Dropdown({
 
 export interface ReportStreamHeaderProps extends React.PropsWithChildren {
     blueVariant?: boolean;
-    isSimple?: boolean;
+    isNavHidden?: boolean;
 }
 
 interface ReportStreamNavbarProps extends React.PropsWithChildren {
-    onMobileMenuOpen: () => void;
+    onToggleMobileNav: () => void;
+    isMobileNavOpen: boolean;
+    user: RSSessionContext["user"];
+    containerRef: React.MutableRefObject<HTMLElement | null>;
 }
 
-function ReportStreamNavbar({ onMobileMenuOpen }: ReportStreamNavbarProps) {
-    const {
-        activeMembership,
-        isAdminStrictCheck,
-        isUserAdmin,
-        isUserReceiver,
-        isUserSender,
-        user,
-        logout,
-    } = useSessionContext();
-    const navContainerRef = useRef<HTMLDivElement | null>(null);
+function ReportStreamNavbar({
+    children,
+    onToggleMobileNav,
+    isMobileNavOpen,
+    user,
+    containerRef,
+}: ReportStreamNavbarProps) {
     const [openMenuItem, setOpenMenuItem] = useState<undefined | string>();
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const toggleMobileMenu = () => {
-        if (mobileMenuOpen) {
-            setMobileMenuOpen(false);
-        } else {
-            setMobileMenuOpen(true);
-        }
-    };
+    const { data: organization } = useOrganizationSettings__();
+    const isOrgMissingTransport = organization
+        ? isOrganizationsMissingTransport(organization.name)
+        : false;
+
     const setMenu = useCallback((menuName?: string) => {
         setOpenMenuItem((curr) => {
             if (curr === menuName) {
@@ -117,12 +108,8 @@ function ReportStreamNavbar({ onMobileMenuOpen }: ReportStreamNavbarProps) {
             }
         });
     }, []);
-    const { data: organization } = useOrganizationSettings();
-    const orgMissingTransport = organization?.name
-        ? isOrganizationsMissingTransport(organization?.name)
-        : false;
 
-    // handle if we need to close dropdown due to outside clicks
+    // handle if we need to close menus due to outside clicks
     useEffect(() => {
         function globalClickHandler(ev: MouseEvent) {
             let buttonEle,
@@ -131,14 +118,17 @@ function ReportStreamNavbar({ onMobileMenuOpen }: ReportStreamNavbarProps) {
 
             // if target is valid, loop through parents to store info for later
             while (
-                maybeNavContainerEle !== navContainerRef.current &&
+                maybeNavContainerEle !== containerRef.current &&
                 maybeNavContainerEle != null
             ) {
                 if (
-                    maybeNavContainerEle.classList.contains(
+                    maybeNavContainerEle.classList.contains("usa-menu-btn") ||
+                    (maybeNavContainerEle.classList.contains(
                         "usa-accordion__button",
                     ) &&
-                    maybeNavContainerEle.classList.contains("usa-nav__link")
+                        maybeNavContainerEle.classList.contains(
+                            "usa-nav__link",
+                        ))
                 )
                     buttonEle = maybeNavContainerEle;
                 maybeNavContainerEle =
@@ -148,17 +138,20 @@ function ReportStreamNavbar({ onMobileMenuOpen }: ReportStreamNavbarProps) {
             // if the click was outside the nav container or not on a button within,
             // clear current dropdown.
             if (maybeNavContainerEle == null || buttonEle == null) {
-                setMenu();
+                if (isMobileNavOpen) onToggleMobileNav();
+                if (openMenuItem) setMenu();
             }
         }
         window.addEventListener("click", globalClickHandler);
 
         return () => window.removeEventListener("click", globalClickHandler);
-    }, [setMenu]);
-
-    useEffect(() => {
-        if (mobileMenuOpen) onMobileMenuOpen?.();
-    }, [mobileMenuOpen, onMobileMenuOpen]);
+    }, [
+        containerRef,
+        isMobileNavOpen,
+        onToggleMobileNav,
+        openMenuItem,
+        setMenu,
+    ]);
 
     const defaultMenuItems = [
         <div className="primary-nav-link-container" key="getting-started">
@@ -301,19 +294,25 @@ function ReportStreamNavbar({ onMobileMenuOpen }: ReportStreamNavbarProps) {
     const navbarItemBuilder = () => {
         let menuItems = [...menuItemsAbout, ...defaultMenuItems];
 
-        if ((isUserReceiver || isUserAdmin) && !orgMissingTransport) {
+        if (
+            (user.isUserReceiver || user.isUserAdmin) &&
+            !isOrgMissingTransport
+        ) {
             menuItems = [...menuItems, ...menuItemsReceiver];
         }
 
-        if ((isUserReceiver || isUserAdmin) && orgMissingTransport) {
+        if (
+            (user.isUserReceiver || user.isUserAdmin) &&
+            isOrgMissingTransport
+        ) {
             menuItems = [...menuItems, ...menuItemsReceiverMissingTransport];
         }
 
-        if (isUserSender || isUserAdmin) {
+        if (user.isUserSender || user.isUserAdmin) {
             menuItems = [...menuItems, ...menuItemsSender];
         }
 
-        if (isAdminStrictCheck) {
+        if (user.isAdminStrictCheck) {
             menuItems = [...menuItems, ...menuItemsAdmin];
         }
 
@@ -321,76 +320,40 @@ function ReportStreamNavbar({ onMobileMenuOpen }: ReportStreamNavbarProps) {
     };
 
     return (
-        <div className="usa-nav-container" ref={navContainerRef}>
-            <div className="usa-navbar">
-                <Title>
-                    <USLink href="/" title="Home" aria-label="Home">
-                        ReportStream
-                        {IS_PREVIEW && (
-                            <span className={styles.ClientEnv}>
-                                {CLIENT_ENV}
-                            </span>
-                        )}
-                    </USLink>
-                </Title>
-                <NavMenuButton onClick={toggleMobileMenu} label="Menu" />
-            </div>
+        <>
+            <div
+                className={`usa-overlay ${isMobileNavOpen ? "is-visible" : ""}`}
+            ></div>
             <PrimaryNav
                 items={navbarItemBuilder()}
-                mobileExpanded={mobileMenuOpen}
-                onToggleMobileNav={toggleMobileMenu}
+                mobileExpanded={isMobileNavOpen}
+                onToggleMobileNav={onToggleMobileNav}
             >
-                <div className="nav-cta-container">
-                    {user ? (
-                        <>
-                            <span className={styles.UserEmail}>
-                                {user?.email ?? "Unknown"}
-                            </span>
-                            {isUserAdmin && (
-                                <USLinkButton outline href="/admin/settings">
-                                    {activeMembership?.parsedName ?? ""}{" "}
-                                    <Icon
-                                        name="Loop"
-                                        className="text-tbottom"
-                                    />
-                                </USLinkButton>
-                            )}
-
-                            <Button id="logout" type="button" onClick={logout}>
-                                Logout
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            <USLinkButton href="/login">Login</USLinkButton>
-                            <USLinkButton
-                                href={site.forms.connectWithRS.url}
-                                outline
-                            >
-                                Connect now
-                            </USLinkButton>
-                        </>
-                    )}
-                </div>
+                {children}
             </PrimaryNav>
-        </div>
+        </>
     );
 }
+
+const suspenseFallback = <Spinner size={"fullpage"} />;
 
 export const ReportStreamHeader = ({
     blueVariant,
     children,
-    isSimple = false,
+    isNavHidden,
 }: ReportStreamHeaderProps) => {
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const suspenseFallback = useMemo(() => <Spinner size={"fullpage"} />, []);
+    const { config, user, activeMembership, logout } = useSessionContext();
+    const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+    const toggleMobileNav = useCallback(
+        () => setIsMobileNavOpen((v) => !v),
+        [],
+    );
+    const navContainerRef = useRef<HTMLDivElement | null>(null);
+
     return (
         <>
             <GovBanner aria-label="Official government website" />
-            {!isSimple && <SenderModeBanner />}
-            <div
-                className={`usa-overlay ${mobileMenuOpen ? "is-visible" : ""}`}
-            ></div>
+            {!isNavHidden && <SenderModeBanner />}
             <Header
                 basic={true}
                 className={classnames(styles.Navbar, {
@@ -398,26 +361,77 @@ export const ReportStreamHeader = ({
                     [styles.NavbarDefault]: !blueVariant,
                 })}
             >
-                {!isSimple ? (
-                    <Suspense fallback={suspenseFallback}>
-                        <ReportStreamNavbar
-                            onMobileMenuOpen={() => setMobileMenuOpen(true)}
-                        />
-                    </Suspense>
-                ) : (
-                    <div className="usa-nav-container">
-                        <div className="usa-navbar">
-                            <Title>
+                <div className="usa-nav-container" ref={navContainerRef}>
+                    <div className="usa-navbar">
+                        <Title>
+                            <USLink href="/" title="Home" aria-label="Home">
                                 ReportStream
-                                {IS_PREVIEW && (
+                                {config.IS_PREVIEW && (
                                     <span className={styles.ClientEnv}>
-                                        {CLIENT_ENV}
+                                        {config.CLIENT_ENV}
                                     </span>
                                 )}
-                            </Title>
-                        </div>
+                            </USLink>
+                        </Title>
+                        <NavMenuButton onClick={toggleMobileNav} label="Menu" />
                     </div>
-                )}
+
+                    {!isNavHidden && (
+                        <Suspense fallback={suspenseFallback}>
+                            <ReportStreamNavbar
+                                isMobileNavOpen={isMobileNavOpen}
+                                onToggleMobileNav={toggleMobileNav}
+                                user={user}
+                                containerRef={navContainerRef}
+                            >
+                                <div className="nav-cta-container">
+                                    {user.claims ? (
+                                        <>
+                                            <span className={styles.UserEmail}>
+                                                {user.claims.email ?? "Unknown"}
+                                            </span>
+                                            {user.isUserAdmin && (
+                                                <USLinkButton
+                                                    outline
+                                                    href="/admin/settings"
+                                                >
+                                                    {activeMembership?.parsedName ??
+                                                        " "}
+                                                    <Icon
+                                                        name="Loop"
+                                                        className="text-tbottom"
+                                                    />
+                                                </USLinkButton>
+                                            )}
+
+                                            <Button
+                                                id="logout"
+                                                type="button"
+                                                onClick={logout}
+                                            >
+                                                Logout
+                                            </Button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <USLinkButton href="/login">
+                                                Login
+                                            </USLinkButton>
+                                            <USLinkButton
+                                                href={
+                                                    site.forms.connectWithRS.url
+                                                }
+                                                outline
+                                            >
+                                                Connect now
+                                            </USLinkButton>
+                                        </>
+                                    )}
+                                </div>
+                            </ReportStreamNavbar>
+                        </Suspense>
+                    )}
+                </div>
                 {children}
             </Header>
         </>

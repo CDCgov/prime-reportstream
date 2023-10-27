@@ -1,6 +1,6 @@
 import { waitFor } from "@testing-library/react";
 
-import { AppWrapper, renderHook } from "../../../../utils/CustomRenderUtils";
+import { renderHook } from "../../../../utils/CustomRenderUtils";
 import { mockSessionContentReturnValue } from "../../../../contexts/__mocks__/SessionContext";
 import {
     dummyPublicKey,
@@ -23,19 +23,17 @@ describe("useOrganizationPublicKeys", () => {
                 } as any,
                 activeMembership: undefined,
 
-                isUserAdmin: false,
-                isUserReceiver: false,
-                isUserSender: false,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: false,
+                    isUserSender: false,
+                } as any,
             });
         });
 
         test("returns undefined", () => {
-            const { result } = renderHook(() => useOrganizationPublicKeys(), {
-                wrapper: AppWrapper(),
-            });
+            const { result } = renderHook(() => useOrganizationPublicKeys());
             expect(result.current.data).toEqual(undefined);
-            expect(result.current.isLoading).toEqual(true);
         });
     });
 
@@ -51,17 +49,16 @@ describe("useOrganizationPublicKeys", () => {
                     service: "testOrgPublicKey",
                 },
 
-                isUserAdmin: false,
-                isUserReceiver: false,
-                isUserSender: true,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: false,
+                    isUserSender: true,
+                } as any,
             });
         });
 
         test("returns organization public keys", async () => {
-            const { result } = renderHook(() => useOrganizationPublicKeys(), {
-                wrapper: AppWrapper(),
-            });
+            const { result } = renderHook(() => useOrganizationPublicKeys());
             await waitFor(() =>
                 expect(result.current.data).toEqual(dummyPublicKey),
             );

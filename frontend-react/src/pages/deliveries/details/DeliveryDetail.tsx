@@ -11,7 +11,7 @@ import DeliveryFacilitiesTable from "./DeliveryFacilitiesTable";
 
 const DetailsContent = () => {
     const { reportId } = useParams();
-    const { reportDetail } = useReportsDetail(reportId!!);
+    const { data: reportDetail } = useReportsDetail(reportId!!);
 
     return (
         <GridContainer>

@@ -4,7 +4,7 @@ import {
     watersServer,
     WatersTestHeaderValue,
 } from "../../__mocks__/WatersMockServer";
-import { AppWrapper, renderHook } from "../../utils/CustomRenderUtils";
+import { renderHook } from "../../utils/CustomRenderUtils";
 import { STANDARD_SCHEMA_OPTIONS } from "../../senders/hooks/UseSenderSchemaOptions";
 import { ContentType, FileType } from "../../utils/TemporarySettingsAPITypes";
 
@@ -17,22 +17,18 @@ describe("useWatersUploader", () => {
     afterEach(() => watersServer.resetHandlers());
     afterAll(() => watersServer.close());
     const renderHookWithAppWrapper = () =>
-        renderHook(() => useWatersUploader(mockCallbackFn), {
-            wrapper: AppWrapper(),
-        });
+        renderHook(() => useWatersUploader(mockCallbackFn));
     test("has default state", () => {
         const { result } = renderHookWithAppWrapper();
-        expect(result.current.isWorking).toEqual(false);
-        expect(result.current.sendFile).toBeInstanceOf(Function);
-        expect(result.current.uploaderError).toBeNull();
+        expect(result.current.isPending).toEqual(false);
+        expect(result.current.mutateAsync).toBeInstanceOf(Function);
+        expect(result.current.error).toBeNull();
     });
     test("posts to /api/validate when validateOnly param is true", async () => {
-        const { result } = renderHook(() => useWatersUploader(mockCallbackFn), {
-            wrapper: AppWrapper(),
-        });
+        const { result } = renderHook(() => useWatersUploader(mockCallbackFn));
         let response;
         await act(async () => {
-            const post = result.current.sendFile({
+            const post = result.current.mutateAsync({
                 contentType: ContentType.CSV,
                 fileContent: "",
                 fileName: "",

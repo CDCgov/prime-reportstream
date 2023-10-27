@@ -40,7 +40,7 @@ export function ManagePublicKeyPage() {
     const {
         mutateAsync,
         isSuccess,
-        isLoading: isUploading,
+        isPending: isUploading,
     } = useCreateOrganizationPublicKey();
 
     const featureEvent = `${FeatureName.PUBLIC_KEY}`;

@@ -4,11 +4,11 @@ import { AxiosError, AxiosResponse } from "axios";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { ValueSet } from "../../../config/endpoints/lookupTables";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
-import {
-    ValueSetsMetaResponse,
-    ValueSetsTableResponse,
-} from "../../../hooks/UseValueSets";
 import { conditionallySuppressConsole } from "../../../utils/TestUtils";
+import {
+    UseValueSetsMetaResult,
+    UseValueSetsTableResult,
+} from "../../../hooks/UseValueSets";
 
 import ValueSetsIndexPage from "./ValueSetsIndex";
 
@@ -43,15 +43,15 @@ describe("ValueSetsIndex tests", () => {
         mockUseValueSetsTable = jest.fn(
             () =>
                 ({
-                    valueSetArray: [] as ValueSet[],
-                }) as ValueSetsTableResponse<any>,
+                    data: [] as ValueSet[],
+                }) as UseValueSetsTableResult,
         );
 
         mockUseValueSetsMeta = jest.fn(
             () =>
                 ({
-                    valueSetMeta: {},
-                }) as ValueSetsMetaResponse,
+                    data: {},
+                }) as UseValueSetsMetaResult,
         );
         renderApp(<ValueSetsIndexPage />);
         const headers = screen.getAllByRole("columnheader");
@@ -67,15 +67,15 @@ describe("ValueSetsIndex tests", () => {
         mockUseValueSetsTable = jest.fn(
             () =>
                 ({
-                    valueSetArray: fakeRows,
-                }) as ValueSetsTableResponse<any>,
+                    data: fakeRows,
+                }) as UseValueSetsTableResult,
         );
 
         mockUseValueSetsMeta = jest.fn(
             () =>
                 ({
-                    valueSetMeta: fakeMeta,
-                }) as ValueSetsMetaResponse,
+                    data: fakeMeta,
+                }) as UseValueSetsMetaResult,
         );
 
         renderApp(<ValueSetsIndexPage />);
@@ -99,8 +99,8 @@ describe("ValueSetsIndex tests", () => {
         mockUseValueSetsMeta = jest.fn(
             () =>
                 ({
-                    valueSetMeta: fakeMeta,
-                }) as ValueSetsMetaResponse,
+                    data: fakeMeta,
+                }) as UseValueSetsMetaResult,
         );
         mockUseValueSetsTable = jest.fn(() => {
             throw new RSNetworkError(

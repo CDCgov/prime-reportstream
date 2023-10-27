@@ -6,7 +6,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import Title from "../../components/Title";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { showAlertNotification, showError } from "../AlertNotifications";
-import { getStoredOktaToken } from "../../utils/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     getErrorDetailFromResponse,
@@ -48,7 +47,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
     const { fetchHeaders } = useAppInsightsContext();
     const navigate = useNavigate();
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
-    const { activeMembership } = useSessionContext();
+    const { activeMembership, authState } = useSessionContext();
 
     const orgSenderSettings: OrgSenderSettingsResource = useResource(
         OrgSenderSettingsResource.detail(),
@@ -98,14 +97,14 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
     };
 
     async function getLatestSenderResponse() {
-        const accessToken = getStoredOktaToken();
+        const accessToken = authState.accessToken?.accessToken;
         const organization = activeMembership?.parsedName;
 
         const response = await fetch(
             `${RS_API_URL}/api/settings/organizations/${orgname}/senders/${sendername}`,
             {
                 headers: {
-                    ...fetchHeaders,
+                    ...fetchHeaders(),
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },

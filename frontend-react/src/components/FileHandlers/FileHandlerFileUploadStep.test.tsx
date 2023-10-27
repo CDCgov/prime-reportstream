@@ -175,10 +175,10 @@ describe("FileHandlerFileUploadStep", () => {
                     useWatersUploaderExports,
                     "useWatersUploader",
                 ).mockReturnValue({
-                    isWorking: true,
-                    uploaderError: null,
-                    sendFile: () => Promise.resolve({}),
-                });
+                    isPending: true,
+                    error: null,
+                    mutateAsync: () => Promise.resolve({}),
+                } as any);
 
                 renderApp(
                     <FileHandlerFileUploadStep
@@ -210,10 +210,10 @@ describe("FileHandlerFileUploadStep", () => {
                     useWatersUploaderExports,
                     "useWatersUploader",
                 ).mockReturnValue({
-                    isWorking: false,
-                    uploaderError: null,
-                    sendFile: () => Promise.resolve(mockSendValidFile),
-                });
+                    isPending: false,
+                    error: null,
+                    mutateAsync: () => Promise.resolve(mockSendValidFile),
+                } as any);
 
                 renderApp(
                     <FileHandlerFileUploadStep
@@ -283,13 +283,13 @@ describe("FileHandlerFileUploadStep", () => {
                     useWatersUploaderExports,
                     "useWatersUploader",
                 ).mockReturnValue({
-                    isWorking: false,
-                    uploaderError: null,
-                    sendFile: () =>
+                    isPending: false,
+                    error: null,
+                    mutateAsync: () =>
                         Promise.reject({
                             data: mockSendFileWithErrors,
                         }),
-                });
+                } as any);
                 renderApp(
                     <FileHandlerFileUploadStep
                         {...DEFAULT_PROPS}

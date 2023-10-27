@@ -4,7 +4,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { SessionContext } from "../../contexts/SessionContext";
 import { MemberType } from "../../utils/OrganizationUtils";
 
-import { ReportStreamHeader } from "./ReportStreamHeader";
+import ReportStreamHeader from "./ReportStreamHeader";
 
 export default {
     title: "Components/Navbar",
@@ -45,8 +45,6 @@ LoggedInNavbarDefault.decorators = [
                     isUserReceiver: false,
                     isUserSender: false,
                     user: { email: "test@testing.com", sub: "" },
-                    oktaToken: {},
-                    environment: "production",
                     logout: () => undefined,
                     setActiveMembership: () => undefined,
                 } as any
@@ -71,12 +69,12 @@ LoggedInNavbarBlueVariant.decorators = [
                         parsedName: "Test Co",
                         memberType: MemberType.PRIME_ADMIN,
                     },
-                    isAdminStrictCheck: true,
-                    isUserReceiver: false,
-                    isUserSender: false,
-                    user: { email: "test@testing.com", sub: "" },
-                    oktaToken: {},
-                    environment: "production",
+                    user: {
+                        isAdminStrictCheck: true,
+                        isUserReceiver: false,
+                        isUserSender: false,
+                        claims: { email: "test@testing.com", sub: "" },
+                    },
                     logout: () => undefined,
                     setActiveMembership: () => undefined,
                 } as any

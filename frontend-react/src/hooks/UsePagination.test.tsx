@@ -41,7 +41,10 @@ function createSampleRecords(
     startCursor = 1,
 ): SampleRecord[] {
     return range(startCursor, startCursor + numRecords).map(
-        (c) => ({ cursor: c.toString() }) as SampleRecord,
+        (c) =>
+            ({
+                cursor: c.toString(),
+            }) as SampleRecord,
     );
 }
 

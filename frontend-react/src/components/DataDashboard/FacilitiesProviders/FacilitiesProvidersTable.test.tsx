@@ -67,11 +67,11 @@ describe("FacilitiesProvidersTable", () => {
             // Mock our receiverServices feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
-                loadingServices: false,
-                services: [],
+                isLoading: false,
+                data: [],
                 setActiveService: () => {},
                 isDisabled: false,
-            });
+            } as any);
 
             // Mock our SessionProvider's data
             mockSessionContentReturnValue({
@@ -84,10 +84,11 @@ describe("FacilitiesProvidersTable", () => {
                     service: "testReceiver",
                 },
 
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: true,
+                    isUserSender: false,
+                } as any,
             });
 
             // Mock the response from the Submitters hook
@@ -97,7 +98,7 @@ describe("FacilitiesProvidersTable", () => {
                 isLoading: false,
             };
             mockUseReceiverSubmitter.mockReturnValue(
-                mockUseReceiverSubmitterCallback,
+                mockUseReceiverSubmitterCallback as any,
             );
 
             // Render the component
@@ -116,11 +117,11 @@ describe("FacilitiesProvidersTable", () => {
         beforeEach(() => {
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: mockActiveReceiver,
-                loadingServices: false,
-                services: mockReceivers,
+                isLoading: false,
+                data: mockReceivers,
                 setActiveService: () => {},
                 isDisabled: false,
-            });
+            } as any);
 
             // Mock our SessionProvider's data
             mockSessionContentReturnValue({
@@ -132,10 +133,11 @@ describe("FacilitiesProvidersTable", () => {
                     parsedName: "testOrgNoReceivers",
                     service: "testReceiver",
                 },
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: true,
+                    isUserSender: false,
+                } as any,
             });
 
             const mockUseReceiverSubmitterCallback = {
@@ -144,7 +146,7 @@ describe("FacilitiesProvidersTable", () => {
                 isLoading: false,
             };
             mockUseReceiverSubmitter.mockReturnValue(
-                mockUseReceiverSubmitterCallback,
+                mockUseReceiverSubmitterCallback as any,
             );
 
             // Render the component

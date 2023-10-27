@@ -21,19 +21,17 @@ describe("useOrganizationSenders", () => {
                 } as any,
                 activeMembership: undefined,
 
-                isUserAdmin: false,
-                isUserReceiver: false,
-                isUserSender: false,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: false,
+                    isUserSender: false,
+                } as any,
             });
         });
 
         test("returns undefined", () => {
-            const { result } = renderHook(() => useOrganizationSenders(), {
-                wrapper: AppWrapper(),
-            });
+            const { result } = renderHook(() => useOrganizationSenders());
             expect(result.current.data).toEqual(undefined);
-            expect(result.current.isLoading).toEqual(true);
         });
     });
 
@@ -49,10 +47,11 @@ describe("useOrganizationSenders", () => {
                     service: "testSender",
                 },
 
-                isUserAdmin: false,
-                isUserReceiver: false,
-                isUserSender: true,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: false,
+                    isUserSender: true,
+                } as any,
             });
         });
 

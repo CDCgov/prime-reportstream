@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import {
     Organizations,
@@ -14,7 +15,6 @@ import useFilterManager, {
     FilterManagerDefaults,
 } from "../../filters/UseFilterManager";
 import { useSessionContext } from "../../../contexts/SessionContext";
-import { useCreateFetch } from "../../UseCreateFetch";
 
 const { getOrgDeliveries, getDeliveryDetails, getDeliveryFacilities } =
     deliveriesEndpoints;
@@ -43,10 +43,7 @@ const filterManagerDefaults: FilterManagerDefaults = {
  * */
 const useOrgDeliveries = (service?: string) => {
     const { activeMembership } = useSessionContext();
-    // Using this hook rather than the provided one through AuthFetchProvider because of a hard-to-isolate
-    // infinite refresh bug. The authorizedFetch function would trigger endless updates and thus re-fetch
-    // endlessly.
-    const generateFetcher = useCreateFetch();
+    const authorizedFetch = useAuthorizedFetch();
 
     const adminSafeOrgName = useAdminSafeOrganizationName(
         activeMembership?.parsedName,
@@ -68,8 +65,7 @@ const useOrgDeliveries = (service?: string) => {
                 return Promise.resolve<RSDelivery[]>([]);
             }
 
-            const fetcher = generateFetcher();
-            return fetcher(getOrgDeliveries, {
+            return authorizedFetch(getOrgDeliveries, {
                 segments: {
                     orgAndService,
                 },
@@ -83,12 +79,12 @@ const useOrgDeliveries = (service?: string) => {
             }) as unknown as Promise<RSDelivery[]>;
         },
         [
+            activeMembership?.parsedName,
+            authorizedFetch,
             orgAndService,
             sortOrder,
-            generateFetcher,
             rangeFrom,
             rangeTo,
-            activeMembership?.parsedName,
         ],
     );
 
@@ -100,7 +96,7 @@ const useOrgDeliveries = (service?: string) => {
  * @param id {string} Pass in the reportId to query a single delivery
  * */
 const useReportsDetail = (id: string) => {
-    const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSDelivery>();
+    const authorizedFetch = useAuthorizedFetch<RSDelivery>();
     const memoizedDataFetch = useCallback(
         () =>
             authorizedFetch(getDeliveryDetails, {
@@ -110,14 +106,13 @@ const useReportsDetail = (id: string) => {
             }),
         [authorizedFetch, id],
     );
-    const { data } = rsUseQuery(
+    return useQuery({
         // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
         // during use
-        [getDeliveryDetails.queryKey, id],
-        memoizedDataFetch,
-        { enabled: !!id },
-    );
-    return { reportDetail: data };
+        queryKey: [getDeliveryDetails.queryKey, id],
+        queryFn: memoizedDataFetch,
+        enabled: !!id,
+    });
 };
 
 /** Hook consumes the ReportsApi "detail" endpoint and delivers the response
@@ -125,7 +120,7 @@ const useReportsDetail = (id: string) => {
  * @param id {string} Pass in the reportId to query for facilities on a report
  * */
 const useReportsFacilities = (id: string) => {
-    const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSFacility[]>();
+    const authorizedFetch = useAuthorizedFetch<RSFacility[]>();
     const memoizedDataFetch = useCallback(
         () =>
             authorizedFetch(getDeliveryFacilities, {
@@ -135,14 +130,13 @@ const useReportsFacilities = (id: string) => {
             }),
         [authorizedFetch, id],
     );
-    const { data } = rsUseQuery(
+    return useQuery({
         // sets key with orgAndService so multiple queries can be cached when viewing multiple detail pages
         // during use
-        [getDeliveryFacilities.queryKey, id],
-        memoizedDataFetch,
-        { enabled: !!id },
-    );
-    return { reportFacilities: data };
+        queryKey: [getDeliveryFacilities.queryKey, id],
+        queryFn: memoizedDataFetch,
+        enabled: !!id,
+    });
 };
 
 export { useOrgDeliveries, useReportsDetail, useReportsFacilities };

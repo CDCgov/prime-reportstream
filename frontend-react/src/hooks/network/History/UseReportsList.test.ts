@@ -19,10 +19,11 @@ describe("useReportsList", () => {
                 parsedName: "testOrg",
             },
 
-            isUserAdmin: false,
-            isUserReceiver: true,
-            isUserSender: false,
-            environment: "test",
+            user: {
+                isUserAdmin: false,
+                isUserReceiver: true,
+                isUserSender: false,
+            } as any,
         });
 
         const { result } = renderHook(() => useOrgDeliveries("testService"));

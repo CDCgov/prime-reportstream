@@ -21,16 +21,15 @@ describe("useReportsList", () => {
                 parsedName: "testOrg",
             },
 
-            isUserAdmin: false,
-            isUserReceiver: true,
-            isUserSender: false,
-            environment: "test",
+            user: {
+                isUserAdmin: false,
+                isUserReceiver: true,
+                isUserSender: false,
+            } as any,
         });
         const { result } = renderHook(() => useReportsFacilities("123"), {
             wrapper: AppWrapper(),
         });
-        await waitFor(() =>
-            expect(result.current.reportFacilities?.length).toEqual(2),
-        );
+        await waitFor(() => expect(result.current.data?.length).toEqual(2));
     });
 });

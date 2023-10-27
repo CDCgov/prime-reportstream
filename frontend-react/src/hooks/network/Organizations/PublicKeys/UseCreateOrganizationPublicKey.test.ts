@@ -2,7 +2,7 @@ import {
     dummyPublicKey,
     orgServer,
 } from "../../../../__mocks__/OrganizationMockServer";
-import { AppWrapper, renderHook } from "../../../../utils/CustomRenderUtils";
+import { renderHook } from "../../../../utils/CustomRenderUtils";
 import { mockSessionContentReturnValue } from "../../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../../../utils/OrganizationUtils";
 
@@ -14,9 +14,7 @@ describe("useCreateOrganizationPublicKey", () => {
     afterAll(() => orgServer.close());
 
     const renderWithAppWrapper = () =>
-        renderHook(() => useCreateOrganizationPublicKey(), {
-            wrapper: AppWrapper(),
-        });
+        renderHook(() => useCreateOrganizationPublicKey());
 
     describe("when authorized, 200", () => {
         beforeEach(() => {
@@ -30,16 +28,17 @@ describe("useCreateOrganizationPublicKey", () => {
                     service: "testOrgPublicKey",
                 },
 
-                isUserAdmin: false,
-                isUserReceiver: false,
-                isUserSender: true,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: false,
+                    isUserSender: true,
+                } as any,
             });
         });
 
         test("posts to /public-keys API and returns response", async () => {
             const { result } = renderWithAppWrapper();
-            expect(result.current.isLoading).toEqual(false);
+            expect(result.current.isPending).toEqual(false);
             expect(result.current.isError).toEqual(false);
 
             const mutateAsyncResult = await result.current.mutateAsync({
@@ -62,16 +61,17 @@ describe("useCreateOrganizationPublicKey", () => {
                     service: "testOrgPublicKey",
                 },
 
-                isUserAdmin: false,
-                isUserReceiver: false,
-                isUserSender: true,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: false,
+                    isUserSender: true,
+                } as any,
             });
         });
 
         test("does not post to /public-keys API and throws 401", async () => {
             const { result } = renderWithAppWrapper();
-            expect(result.current.isLoading).toEqual(false);
+            expect(result.current.isPending).toEqual(false);
             expect(result.current.isError).toEqual(false);
 
             await expect(

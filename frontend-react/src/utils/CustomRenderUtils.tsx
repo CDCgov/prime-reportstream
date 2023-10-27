@@ -3,6 +3,9 @@ import {
     render,
     RenderOptions,
     renderHook as renderHookOrig,
+    RenderHookOptions,
+    Queries,
+    queries,
 } from "@testing-library/react";
 import {
     createMemoryRouter,
@@ -21,6 +24,7 @@ import { getTestQueryClient } from "../network/QueryClients";
 import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
 import { appRoutes } from "../AppRouter";
 import AppInsightsContextProvider from "../contexts/AppInsightsContext";
+import config from "../config";
 
 interface AppWrapperProps {
     children: React.ReactNode;
@@ -76,6 +80,7 @@ export const AppWrapper = ({
                         <SessionProviderBase
                             oktaAuth={{} as any}
                             authState={{}}
+                            config={config}
                         >
                             <QueryClientProvider client={getTestQueryClient()}>
                                 <AuthorizedFetchProvider
@@ -120,15 +125,31 @@ export const renderApp = (
     });
 };
 
-export const renderHook = (hook: (...args: any[]) => any, options?: any) => {
-    const wrapper = ({ children }: any) => (
+export function renderHook<
+    Result,
+    Props,
+    Q extends Queries = typeof queries,
+    Container extends Element | DocumentFragment = HTMLElement,
+    BaseElement extends Element | DocumentFragment = Container,
+>(
+    render: (initialProps: Props) => Result,
+    options?: RenderHookOptions<Props, Q, Container, BaseElement>,
+) {
+    /*const wrapper = ({ children }: any) => (
         <AppInsightsContextProvider>
-            <SessionProviderBase oktaAuth={{} as any} authState={{}}>
+            <SessionProviderBase
+                oktaAuth={{} as any}
+                authState={{}}
+                config={config}
+            >
                 {children}
             </SessionProviderBase>
         </AppInsightsContextProvider>
-    );
-    return renderHookOrig(hook, { wrapper, ...options });
-};
+    );*/
+    return renderHookOrig<Result, Props, Q, Container, BaseElement>(render, {
+        wrapper: AppWrapper(),
+        ...options,
+    });
+}
 
 export { screen } from "@testing-library/react";

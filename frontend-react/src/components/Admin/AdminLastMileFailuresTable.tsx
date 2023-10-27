@@ -17,7 +17,6 @@ import {
 import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
 import { formatDate } from "../../utils/misc";
 import { showAlertNotification, showError } from "../AlertNotifications";
-import { getStoredOktaToken } from "../../utils/SessionStorageTools";
 import AdmAction from "../../resources/AdmActionResource";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import Spinner from "../Spinner";
@@ -25,6 +24,7 @@ import config from "../../config";
 import { USLink } from "../USLink";
 import { Table } from "../../shared/Table/Table";
 import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
+import { useSessionContext } from "../../contexts/SessionContext";
 
 const { RS_API_URL } = config;
 
@@ -257,6 +257,7 @@ const DataLoadRenderTable = (props: {
 // Main component. Tracks state but does not load/contain data.
 export function AdminLastMileFailuresTable() {
     const { fetchHeaders } = useAppInsightsContext();
+    const { authState } = useSessionContext();
     const modalShowInfoId = "sendFailuresModalDetails";
     const modalResendId = "sendFailuresModalDetails";
     const defaultDaysToShow = "15"; // numeric input but treat as string for easier passing around
@@ -349,8 +350,8 @@ ${data.receiver}`;
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
-                    ...fetchHeaders,
-                    Authorization: `Bearer ${getStoredOktaToken()}`,
+                    ...fetchHeaders(),
+                    Authorization: `Bearer ${authState.accessToken?.accessToken}`,
                 },
                 mode: "cors",
             });

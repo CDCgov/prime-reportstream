@@ -39,10 +39,11 @@ beforeEach(() => {
             service: "testReceiverService",
         },
 
-        isUserAdmin: false,
-        isUserReceiver: true,
-        isUserSender: false,
-        environment: "test",
+        user: {
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
+        } as any,
     });
 });
 
@@ -57,11 +58,10 @@ describe("DataDashboardTable", () => {
             // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
-                loadingServices: false,
-                services: [],
+                isLoading: false,
+                data: [],
                 setActiveService: () => {},
-                isDisabled: false,
-            });
+            } as any);
 
             // Mock our SessionProvider's data
             mockSessionContentReturnValue({
@@ -74,10 +74,11 @@ describe("DataDashboardTable", () => {
                     service: "testReceiver",
                 },
 
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: true,
+                    isUserSender: false,
+                } as any,
             });
 
             // Mock the response from the Deliveries hook
@@ -108,11 +109,10 @@ describe("DataDashboardTableWithPagination", () => {
                 mockAppInsightsContextReturnValue();
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: mockActiveReceiver,
-                    loadingServices: false,
-                    services: mockReceiverServices,
+                    isLoading: false,
+                    data: mockReceiverServices,
                     setActiveService: () => {},
-                    isDisabled: false,
-                });
+                } as any);
 
                 const mockUseReceiverDeliveriesCallback = {
                     data: makeRSReceiverDeliveryResponseFixture(10),
@@ -181,11 +181,9 @@ describe("DataDashboardTableWithPagination", () => {
                 mockAppInsightsContextReturnValue();
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: mockActiveReceiver,
-                    loadingServices: false,
-                    services: receiverServicesGenerator(1),
+                    data: receiverServicesGenerator(1),
                     setActiveService: () => {},
-                    isDisabled: false,
-                });
+                } as any);
 
                 const mockUseReceiverDeliveriesCallback = {
                     data: makeRSReceiverDeliveryResponseFixture(0),
@@ -222,11 +220,10 @@ describe("DataDashboardTableWithPagination", () => {
                 // Mock our receiver services feed data
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: undefined,
-                    loadingServices: false,
-                    services: [],
+                    isLoading: false,
+                    data: [],
                     setActiveService: () => {},
-                    isDisabled: false,
-                });
+                } as any);
 
                 // Mock our SessionProvider's data
                 mockSessionContentReturnValue({
@@ -239,10 +236,11 @@ describe("DataDashboardTableWithPagination", () => {
                         service: "testReceiver",
                     },
 
-                    isUserAdmin: false,
-                    isUserReceiver: true,
-                    isUserSender: false,
-                    environment: "test",
+                    user: {
+                        isUserAdmin: false,
+                        isUserReceiver: true,
+                        isUserSender: false,
+                    } as any,
                 });
 
                 // Mock the response from the Deliveries hook
@@ -272,11 +270,11 @@ describe("DataDashboardTableWithPagination", () => {
             // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
-                loadingServices: false,
-                services: [],
-                setActiveService: () => {},
+                isLoading: false,
                 isDisabled: true,
-            });
+                data: [],
+                setActiveService: () => {},
+            } as any);
 
             // Mock our SessionProvider's data
             mockSessionContentReturnValue({
@@ -289,10 +287,11 @@ describe("DataDashboardTableWithPagination", () => {
                     service: "testReceiver",
                 },
 
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: true,
+                    isUserSender: false,
+                } as any,
             });
 
             // Mock the response from the Deliveries hook

@@ -56,7 +56,6 @@ beforeEach(() => {
         isUserAdmin: false,
         isUserReceiver: true,
         isUserSender: false,
-        environment: "test",
     });
 });
 

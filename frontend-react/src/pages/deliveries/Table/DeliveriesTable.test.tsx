@@ -50,10 +50,11 @@ beforeEach(() => {
             service: "testReceiver",
         },
 
-        isUserAdmin: false,
-        isUserReceiver: true,
-        isUserSender: false,
-        environment: "test",
+        user: {
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
+        } as any,
     });
 });
 describe("DeliveriesTable", () => {
@@ -64,16 +65,16 @@ describe("DeliveriesTable", () => {
     describe("useReceiverFeed without data", () => {
         beforeEach(() => {
             mockAppInsightsContextReturnValue({
-                fetchHeaders: {},
+                fetchHeaders: () => ({}),
             });
             // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
-                loadingServices: false,
-                services: [],
+                isLoading: false,
+                data: [],
                 setActiveService: () => {},
                 isDisabled: false,
-            });
+            } as any);
 
             // Mock our SessionProvider's data
             mockSessionContentReturnValue({
@@ -86,10 +87,11 @@ describe("DeliveriesTable", () => {
                     service: "testReceiver",
                 },
 
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: true,
+                    isUserSender: false,
+                } as any,
             });
 
             // Mock the response from the Deliveries hook
@@ -115,15 +117,15 @@ describe("DeliveriesTableWithNumbered", () => {
         describe("with active services and data", () => {
             beforeEach(() => {
                 mockAppInsightsContextReturnValue({
-                    fetchHeaders: {},
+                    fetchHeaders: () => ({}),
                 });
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: mockActiveReceiver,
-                    loadingServices: false,
-                    services: mockReceivers,
+                    isLoading: false,
+                    data: mockReceivers,
                     setActiveService: () => {},
                     isDisabled: false,
-                });
+                } as any);
 
                 const mockUseOrgDeliveriesCallback = {
                     fetchResults: () =>
@@ -178,16 +180,16 @@ describe("DeliveriesTableWithNumbered", () => {
         describe("with no services", () => {
             beforeEach(() => {
                 mockAppInsightsContextReturnValue({
-                    fetchHeaders: {},
+                    fetchHeaders: () => ({}),
                 });
                 // Mock our receiver services feed data
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: undefined,
-                    loadingServices: false,
-                    services: [],
+                    isLoading: false,
+                    data: [],
                     setActiveService: () => {},
                     isDisabled: false,
-                });
+                } as any);
 
                 // Mock our SessionProvider's data
                 mockSessionContentReturnValue({
@@ -200,10 +202,11 @@ describe("DeliveriesTableWithNumbered", () => {
                         service: "testReceiver",
                     },
 
-                    isUserAdmin: false,
-                    isUserReceiver: true,
-                    isUserSender: false,
-                    environment: "test",
+                    user: {
+                        isUserAdmin: false,
+                        isUserReceiver: true,
+                        isUserSender: false,
+                    } as any,
                 });
 
                 // Mock the response from the Deliveries hook
@@ -230,16 +233,16 @@ describe("DeliveriesTableWithNumbered", () => {
     describe("when disabled", () => {
         beforeEach(() => {
             mockAppInsightsContextReturnValue({
-                fetchHeaders: {},
+                fetchHeaders: () => ({}),
             });
             // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
-                loadingServices: false,
-                services: [],
+                isLoading: false,
+                data: [],
                 setActiveService: () => {},
                 isDisabled: true,
-            });
+            } as any);
 
             // Mock our SessionProvider's data
             mockSessionContentReturnValue({
@@ -252,10 +255,11 @@ describe("DeliveriesTableWithNumbered", () => {
                     service: "testReceiver",
                 },
 
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: true,
+                    isUserSender: false,
+                } as any,
             });
 
             // Mock the response from the Deliveries hook

@@ -12,7 +12,7 @@ export function mockAppInsightsContextReturnValue(
         "useAppInsightsContext",
     );
     return mockAppInsightsContext.mockReturnValue({
-        fetchHeaders: {},
+        fetchHeaders: () => ({}),
         appInsights: mockAppInsights,
         ...impl,
     } as any);

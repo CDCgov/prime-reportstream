@@ -25,6 +25,7 @@ import {
     EventName,
     useAppInsightsContext,
 } from "../../../contexts/AppInsightsContext";
+import AdminFetchAlert from "../../alerts/AdminFetchAlert";
 
 function FacilitiesProvidersFilterAndTable({
     receiverServices,
@@ -171,13 +172,20 @@ function FacilitiesProvidersFilterAndTable({
 }
 
 export default function FacilitiesProvidersTable() {
-    const { loadingServices, services, activeService, setActiveService } =
-        useOrganizationReceiversFeed();
+    const {
+        isLoading,
+        data: services,
+        activeService,
+        setActiveService,
+        isDisabled,
+    } = useOrganizationReceiversFeed();
 
-    if (loadingServices) return <Spinner />;
+    if (isLoading) return <Spinner />;
+
+    if (isDisabled) return <AdminFetchAlert />;
 
     if (
-        !loadingServices &&
+        !isLoading &&
         (!activeService ||
             activeService?.customerStatus === CustomerStatusType.INACTIVE)
     )
@@ -191,7 +199,7 @@ export default function FacilitiesProvidersTable() {
         <>
             {activeService && (
                 <FacilitiesProvidersFilterAndTable
-                    receiverServices={services}
+                    receiverServices={services!!}
                     activeService={activeService}
                     setActiveService={setActiveService}
                 />

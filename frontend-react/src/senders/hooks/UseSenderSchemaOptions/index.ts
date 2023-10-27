@@ -13,11 +13,6 @@ export type SchemaOption = {
     title: string;
 };
 
-export type UseSenderSchemaOptionsHookResult = {
-    isLoading: boolean;
-    schemaOptions: SchemaOption[];
-};
-
 export const STANDARD_SCHEMA_OPTIONS: SchemaOption[] = [
     {
         value: StandardSchema.CSV,
@@ -36,18 +31,19 @@ export const STANDARD_SCHEMA_OPTIONS: SchemaOption[] = [
     },
 ];
 
-export default function useSenderSchemaOptions(): UseSenderSchemaOptionsHookResult {
+export type UseSenderSchemaOptionsHookResult = ReturnType<
+    typeof useSenderSchemaOptions
+>;
+
+export default function useSenderSchemaOptions() {
     const {
         data: senderDetail,
-        isLoading: senderIsLoading,
-        isInitialLoading: isSenderInitialLoading,
-    } = useSenderResource({});
+        isLoading,
+        ...query
+    } = useSenderResource({} as any);
 
-    const isLoading = senderIsLoading && isSenderInitialLoading;
     const schemaOptions =
-        !isLoading &&
         senderDetail &&
-        senderDetail.schemaName &&
         !(Object.values(StandardSchema) as string[]).includes(
             senderDetail.schemaName,
         )
@@ -62,7 +58,8 @@ export default function useSenderSchemaOptions(): UseSenderSchemaOptionsHookResu
             : STANDARD_SCHEMA_OPTIONS;
 
     return {
+        ...query,
         isLoading,
-        schemaOptions,
+        data: schemaOptions,
     };
 }

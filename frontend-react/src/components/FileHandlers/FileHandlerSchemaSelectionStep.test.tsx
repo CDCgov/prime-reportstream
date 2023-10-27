@@ -22,9 +22,9 @@ describe("FileHandlerSchemaSelectionStep", () => {
                 UseSenderSchemaOptionsExports,
                 "default",
             ).mockReturnValue({
-                schemaOptions: [],
+                data: [],
                 isLoading: true,
-            });
+            } as any);
 
             renderApp(<FileHandlerSchemaSelectionStep {...DEFAULT_PROPS} />);
         });
@@ -46,7 +46,7 @@ describe("FileHandlerSchemaSelectionStep", () => {
                 UseSenderSchemaOptionsExports,
                 "default",
             ).mockReturnValue({
-                schemaOptions: [
+                data: [
                     {
                         value: "csv",
                         format: FileType.CSV,
@@ -59,7 +59,7 @@ describe("FileHandlerSchemaSelectionStep", () => {
                     },
                 ],
                 isLoading: false,
-            });
+            } as any);
 
             renderApp(
                 <FileHandlerSchemaSelectionStep

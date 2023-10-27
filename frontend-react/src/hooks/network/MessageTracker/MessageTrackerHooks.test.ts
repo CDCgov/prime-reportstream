@@ -5,7 +5,7 @@ import {
     MOCK_MESSAGE_SENDER_DATA,
 } from "../../../__mocks__/MessageTrackerMockServer";
 import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
-import { AppWrapper, renderHook } from "../../../utils/CustomRenderUtils";
+import { renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
 
 import { useMessageSearch, useMessageDetails } from "./MessageTrackerHooks";
@@ -25,18 +25,17 @@ describe("useMessageSearch", () => {
                 parsedName: "testOrg",
             },
 
-            isUserAdmin: false,
-            isUserReceiver: true,
-            isUserSender: false,
-            environment: "test",
+            user: {
+                isUserAdmin: false,
+                isUserReceiver: true,
+                isUserSender: false,
+            } as any,
         });
 
-        const { result } = renderHook(() => useMessageSearch(), {
-            wrapper: AppWrapper(),
-        });
+        const { result } = renderHook(() => useMessageSearch());
         let messages;
         await act(async () => {
-            messages = await result.current.search("alaska1");
+            messages = await result.current.mutateAsync("alaska1");
             expect(messages.length).toEqual(3);
             expect(messages[0].reportId).toEqual(
                 MOCK_MESSAGE_SENDER_DATA[0].reportId,
@@ -62,15 +61,14 @@ describe("useMessageDetails", () => {
                 parsedName: "testOrg",
             },
 
-            isUserAdmin: false,
-            isUserReceiver: true,
-            isUserSender: false,
-            environment: "test",
+            user: {
+                isUserAdmin: false,
+                isUserReceiver: true,
+                isUserSender: false,
+            } as any,
         });
 
-        const { result } = renderHook(() => useMessageDetails("11"), {
-            wrapper: AppWrapper(),
-        });
+        const { result } = renderHook(() => useMessageDetails("11"));
         await waitFor(() =>
             expect(result.current.messageDetails?.id).toEqual(11),
         );

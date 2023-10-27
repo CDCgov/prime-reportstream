@@ -13,11 +13,14 @@ export function mockSessionContentReturnValue(
         oktaAuth: OKTA_AUTH,
         authState: {},
         logout: () => void 0,
-        isUserAdmin: false,
-        isUserSender: false,
-        isUserReceiver: false,
-        environment: "test",
+        user: {
+            isUserAdmin: false,
+            isUserSender: false,
+            isUserReceiver: false,
+        } as any,
         setActiveMembership: () => void 0,
+        config: {} as any,
+        site: {} as any,
         ...impl,
     });
 }

@@ -4,6 +4,7 @@ import { withRouter } from "storybook-addon-react-router-v6";
 
 import SessionProvider from "../../contexts/SessionContext";
 import { OKTA_AUTH } from "../../oktaConfig";
+import config from "../../config";
 
 import { MainLayoutBase } from "./MainLayout";
 
@@ -29,7 +30,11 @@ const Filler = () => (
     </>
 );
 const RouteComponent = () => (
-    <SessionProvider oktaAuth={OKTA_AUTH} restoreOriginalUri={() => void 0}>
+    <SessionProvider
+        oktaAuth={OKTA_AUTH}
+        restoreOriginalUri={() => void 0}
+        config={config}
+    >
         <MainLayoutBase />
     </SessionProvider>
 );
