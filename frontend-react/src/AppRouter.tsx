@@ -477,7 +477,7 @@ export const appRoutes: RouteObject[] = [
                         element: <SubmissionsPage />,
                     },
                     {
-                        path: "submissions/:actionId",
+                        path: ":actionId",
                         element: <SubmissionDetailsPage />,
                     },
                 ],
