@@ -58,6 +58,7 @@ resources:
     isReferenced: true
     additionalSegments:
       - .OBSERVATION.OBX
+      - .OBR
       - .OBSERVATION.NTE
       - MSH
 

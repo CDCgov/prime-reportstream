@@ -1,0 +1,118 @@
+text:
+  type: STRING
+  valueOf: $join
+  generateList: true
+  expressionType: HL7Spec
+  constants:
+    joinChar: ", "
+  vars:
+    join: CWE.1 + $joinChar + CWE.2 + $joinChar + CWE.3 + $joinChar + CWE.4 + $joinChar + CWE.5 + $joinChar + CWE.6 + $joinChar+ CWE.7 + $joinChar + CWE.8 + $joinChar + CWE.9
+
+extension_cwe1:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe1-annotation-identifier
+    valueString:
+      type: STRING
+      valueOf: CWE.1
+      expressionType: HL7Spec
+
+extension_cwe2:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe2-annotation-text
+    valueString:
+      type: STRING
+      valueOf: CWE.2
+      expressionType: HL7Spec
+
+extension_cwe3:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe3-annotation-name-of-coding
+    valueString:
+      type: STRING
+      valueOf: CWE.3
+      expressionType: HL7Spec
+
+extension_cwe4:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe4-annotation-alternate-identifier
+    valueString:
+      type: STRING
+      valueOf: CWE.4
+      expressionType: HL7Spec
+
+extension_cwe5:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe5-annotation-alternate-text
+    valueString:
+      type: STRING
+      valueOf: CWE.1
+      expressionType: HL7Spec
+
+extension_cwe6:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe6-annotation-alternate-coding-system
+    valueString:
+      type: STRING
+      valueOf: CWE.6
+      expressionType: HL7Spec
+
+extension_cwe7:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe7-annotation-coding-system-version-id
+    valueString:
+      type: STRING
+      valueOf: CWE.7
+      expressionType: HL7Spec
+
+extension_cwe8:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe8-annotation-alternate-coding-system-version-id
+    valueString:
+      type: STRING
+      valueOf: CWE.8
+      expressionType: HL7Spec
+
+extension_cwe9:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cwe9-annotation-original-text
+    valueString:
+      type: STRING
+      valueOf: CWE.9
+      expressionType: HL7Spec
+
