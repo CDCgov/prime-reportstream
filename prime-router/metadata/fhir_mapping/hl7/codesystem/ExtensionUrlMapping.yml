@@ -344,3 +344,9 @@
 # CWE Coding System
 - id: "cwe-coding-system"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system"
+# patient-citizenship
+- id: "patient-citizenship"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-citizenship"
+# code
+- id: "code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/code"

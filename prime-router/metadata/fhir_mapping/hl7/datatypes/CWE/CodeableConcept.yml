@@ -137,20 +137,35 @@ text:
   vars:
     text: String, CWE.9
 
-extension_codingSystemOID:
+extension:
   generateList: true
   expressionType: nested
-  condition: $codingSystemOID NOT_NULL
-  vars:
-    codingSystemOID: String, CWE.14
-  expressionsMap:
-    url:
-      type: SYSTEM_URL
-      value: coding-system-oid
-    valueOid:
-      type: STRING
-      valueOf: $oidString
+  expressions:
+    # codingSystemOID
+    - generateList: true
+      expressionType: nested
+      condition: $codingSystemOID NOT_NULL
       vars:
-        oidString: $oidUrlPrefix + $codingSystemOID
-      constants:
-        oidUrlPrefix: "urn:oid:"
+        codingSystemOID: String, CWE.14
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: coding-system-oid
+        valueOid:
+          type: STRING
+          valueOf: $oidString
+          vars:
+            oidString: $oidUrlPrefix + $codingSystemOID
+          constants:
+            oidUrlPrefix: "urn:oid:"
+
+    # hl7v2Name
+    - generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2Name
+        valueString:
+          type: STRING
+          valueOf: $hl7v2Name
