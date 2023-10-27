@@ -13,7 +13,7 @@ import {
 import { useOrganizationReceivers } from "./UseOrganizationReceivers";
 
 jest.mock<typeof import("./UseOrganizationReceivers")>(
-    "./useOrganizationReceivers",
+    "./UseOrganizationReceivers",
     () => ({
         ...jest.requireActual("./UseOrganizationReceivers"),
         useOrganizationReceivers: jest.fn(),
