@@ -23,9 +23,7 @@ extension_1-nameType:
       expressionType: resource
       specs: XON.2
 
-
 identifier_1:
-  condition: $xon3 NOT_NULL || $xon4 NOT_NULL || $xon5 NOT_NULL || $xon6 NOT_NULL || $xon7 NOT_NULL || $xon8 NOT_NULL || $xon10 NOT_NULL
   expressionType: nested
   vars:
     xon3: XON.3
@@ -139,10 +137,10 @@ extension_3-xon10OrganizationIdentifier:
       valueOf: XON.10
 
 contact:
-  condition: $XADAddress NOT_NULL
   expressionType: nested
   expressionsMap:
     address:
+      condition: $XADAddress NOT_NULL
       valueOf: datatypes/XAD/Address
       expressionType: resource
       generateList: true

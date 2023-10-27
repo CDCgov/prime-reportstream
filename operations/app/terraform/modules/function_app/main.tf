@@ -7,7 +7,8 @@ locals {
 
     "OKTA_baseUrl"  = var.okta_base_url
     "OKTA_redirect" = var.okta_redirect_url
-
+    "OKTA_authkey"  = var.OKTA_authKey
+    "OKTA_ClientId" = var.OKTA_clientId
     # Manage client secrets via a Key Vault
     "CREDENTIAL_STORAGE_METHOD" = "AZURE"
     "CREDENTIAL_KEY_VAULT_NAME" = "${var.resource_prefix}-clientconfig"

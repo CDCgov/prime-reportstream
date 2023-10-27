@@ -66,7 +66,6 @@ extension_4-xad2OtherDesignation:
       valueOf: XAD.2
       expressionType: HL7Spec
 
-
 city:
   type: STRING
   expressionType: HL7Spec
@@ -228,6 +227,3 @@ extension_8-xad19Addressee:
       type: STRING
       valueOf: XAD.19
       expressionType: HL7Spec
-
-
-
