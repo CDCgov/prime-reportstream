@@ -1,0 +1,45 @@
+# action.yml
+name: 'Reliable OVPN Action'
+description: 'Connect OpenVPN'
+branding:
+  icon: 'shield'  
+  color: 'orange'
+inputs:
+  ovpn-file:
+    description: 'OVPN config rile'
+    required: true
+  tls-key:
+    description: 'BASE64 TLS key'
+    required: true
+  ca-cert:
+    description: 'BASE64 CA cert'
+    required: true
+  user-cert:
+    description: 'BASE64 user cert'
+    required: true
+  user-key:
+    description: 'BASE64 user key'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Install OpenVPN
+      run: |
+        sudo apt-get update
+        sudo apt-get install openvpn
+        sudo apt-get install openvpn-systemd-resolved
+      shell: bash
+
+    - name: Connect VPN
+      env:
+        TLS_KEY: ${{ inputs.tls-key }}
+        CA_CRT: ${{ inputs.ca-cert}}
+        USER_CRT: ${{ inputs.user-cert }}
+        USER_KEY: ${{ inputs.user-key }}
+      shell: bash
+      run: |
+        echo "$TLS_KEY" | base64 -di > tls.key
+        echo "$CA_CRT" | base64 -di > ca.crt
+        echo "$USER_CRT" | base64 -di > user.crt
+        echo "$USER_KEY" | base64 -di > user.key
+        sudo openvpn --config ${{ inputs.ovpn-file }} --daemon
