@@ -14,7 +14,6 @@ import com.github.ajalt.clikt.parameters.types.int
 import com.github.difflib.text.DiffRow
 import com.github.difflib.text.DiffRowGenerator
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
-import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Headers
@@ -30,6 +29,7 @@ import de.m3y.kformat.table
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.LookupTableFunctions
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
+import gov.cdc.prime.router.cli.FileUtilities.saveTableAsCSV
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import org.apache.commons.io.FileUtils
@@ -497,7 +497,7 @@ class LookupTableGetCommand : GenericLookupTableCommand(
                 echo(LookupTableCommands.rowsToPrintableTable(tableList, colNames))
                 echo("")
             } else {
-                saveTable(outputFile!!, tableList)
+                saveTableAsCSV(outputFile!!, tableList)
                 echo(
                     "Saved ${tableList.size} rows of table $tableName version $version " +
                         "to ${outputFile!!.absolutePath} "
@@ -507,21 +507,97 @@ class LookupTableGetCommand : GenericLookupTableCommand(
             echo("Table $tableName version $version has no rows.")
         }
     }
+}
+
+/**
+ * Print out a lookup table.
+ */
+class LookupTableCompareMappingCommand : GenericLookupTableCommand(
+    name = "compare-mapping",
+    help = "Compares a sender compendium against an observation mapping lookup table, outputting an annotated CSV"
+) {
+    /**
+     * The input file to get the table data from.
+     */
+    private val inputFile by option("-i", "--input-file", help = "Input CSV file with the sender compendium table data")
+        .file(true, canBeDir = false, mustBeReadable = true).required()
 
     /**
-     * Save table data in [tableRows] to an [outputFile] in CSV format.
+     * Optional output file to save the annotated table to.
      */
-    private fun saveTable(outputFile: File, tableRows: List<Map<String, String>>) {
-        val colNames = tableRows[0].keys.toList()
-        val rows = mutableListOf(colNames)
-        tableRows.forEach { row ->
-            rows.add(
-                colNames.map { colName ->
-                    row[colName] ?: ""
-                }
-            )
+    private val outputFile by option("-o", "--output-file", help = "Specify file to save annotated table data as CSV")
+        .file(false, canBeDir = false)
+
+    /**
+     * Table name option.
+     */
+    private val tableName by option("-n", "--name", help = "The name of the table to perform the comparison on")
+        .required()
+
+    // TODO: optional
+    /**
+     * Table version option.
+
+    private val version by option("-v", "--version", help = "The version of the table to get").int()
+        .required()
+    */
+
+    override fun run() {
+        // Read the input file.
+        val inputData = csvReader().readAllWithHeader(inputFile)
+        // Note: csvReader returns size of data-row(s) and NOT include the header-row.
+        // (i.e. If the file contains of header row, it returns size = 0)
+        if (inputData.isEmpty()) {
+            echo("ERROR: Input file ${inputFile.absolutePath} has no data.")
+            return
         }
-        csvWriter().writeAll(rows, outputFile.outputStream())
+
+        // Find the active version of the specified table
+        // TODO: handle specified version
+        val tableList = try {
+            tableUtil.fetchList()
+        } catch (e: IOException) {
+            throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
+        }
+        val activeVersion = (tableList.firstOrNull { it.tableName == tableName })?.tableVersion ?: 0
+
+        // Load the active or specified version of the table
+        if (activeVersion > 0) {
+            val activeTable = try {
+                tableUtil.fetchTableContent(tableName, activeVersion) // TODO: handle optional version
+            } catch (e: Exception) {
+                throw PrintMessage("Error fetching active table content for table $tableName: ${e.message}", true)
+            }
+        } else {
+            throw PrintMessage("Unable to find specified lookup table: $tableName", true)
+        }
+
+        // val tableList = try {
+        //     tableUtil.fetchTableContent(tableName, version)
+        // } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
+        //     throw PrintMessage("The table $tableName version $version was not found.", true)
+        // } catch (e: IOException) {
+        //     throw PrintMessage("Error fetching the contents of table $tableName version $version: ${e.message}", true)
+        // }
+        // if (tableList.isNotEmpty()) {
+        //     // Output to a file if requested, otherwise output to the screen.
+        //     if (outputFile == null) {
+        //         echo("")
+        //         echo("Table name: $tableName")
+        //         echo("Version: $version")
+        //         val colNames = tableList[0].keys.toList()
+        //         echo(LookupTableCommands.rowsToPrintableTable(tableList, colNames))
+        //         echo("")
+        //     } else {
+        //         saveTableAsCSV(outputFile!!, tableList)
+        //         echo(
+        //             "Saved ${tableList.size} rows of table $tableName version $version " +
+        //                 "to ${outputFile!!.absolutePath} "
+        //         )
+        //     }
+        // } else {
+        //     echo("Table $tableName version $version has no rows.")
+        // }
     }
 }
 
