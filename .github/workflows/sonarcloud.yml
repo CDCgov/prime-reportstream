@@ -33,11 +33,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
-        with:
-          languages: ${{ matrix.language }}
-
       - name: Get branch name
         id: branch-name
         uses: tj-actions/branch-names@033f2358d95522973eee35810e35a86fae4a71d8
@@ -73,6 +68,11 @@ jobs:
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         working-directory: prime-router
         run: ./gradlew jacocoTestReport
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
+        with:
+          languages: ${{ matrix.language }}
 
       - name: Perform Java CodeQL Analysis
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
