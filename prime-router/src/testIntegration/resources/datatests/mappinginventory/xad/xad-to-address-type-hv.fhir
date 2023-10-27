@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1698179370166125000.45d7229e-cdeb-424b-b40a-2cbb51545db6",
+  "id" : "1698247011790214000.275ad7fd-0f9d-445b-a06a-711a9b4c0bb3",
   "meta" : {
-    "lastUpdated" : "2023-10-24T16:29:30.182-04:00"
+    "lastUpdated" : "2023-10-25T11:16:51.803-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -44,16 +44,16 @@
           "display" : "ORU/ACK - Unsolicited transmission of an observation message"
         },
         "sender" : {
-          "reference" : "Organization/1698179371219304000.2c2ef01a-226e-4afb-afa3-88745705665d"
+          "reference" : "Organization/1698247012689302000.9adc84b0-1ad8-43dc-8161-3aeff5cd6a9d"
         },
         "source" : {}
       }
     },
     {
-      "fullUrl" : "Organization/1698179371219304000.2c2ef01a-226e-4afb-afa3-88745705665d",
+      "fullUrl" : "Organization/1698247012689302000.9adc84b0-1ad8-43dc-8161-3aeff5cd6a9d",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1698179371219304000.2c2ef01a-226e-4afb-afa3-88745705665d",
+        "id" : "1698247012689302000.9adc84b0-1ad8-43dc-8161-3aeff5cd6a9d",
         "meta" : {
           "extension" : [
             {
@@ -70,10 +70,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1698179371559672000.c14ec717-08b3-4059-ad90-95ccfe527a7d",
+      "fullUrl" : "Provenance/1698247012959999000.a651ae71-67ce-4b75-83e5-8bf7af47e7d2",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1698179371559672000.c14ec717-08b3-4059-ad90-95ccfe527a7d",
+        "id" : "1698247012959999000.a651ae71-67ce-4b75-83e5-8bf7af47e7d2",
         "meta" : {
           "extension" : [
             {
@@ -120,17 +120,17 @@
           {
             "role" : "source",
             "what" : {
-              "reference" : "Device/1698179371562031000.83aaa537-df2f-43f9-b761-004a672c2ea6"
+              "reference" : "Device/1698247012961943000.3f8adacf-b506-45cb-bb4d-49a160aa0225"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Device/1698179371562031000.83aaa537-df2f-43f9-b761-004a672c2ea6",
+      "fullUrl" : "Device/1698247012961943000.3f8adacf-b506-45cb-bb4d-49a160aa0225",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1698179371562031000.83aaa537-df2f-43f9-b761-004a672c2ea6",
+        "id" : "1698247012961943000.3f8adacf-b506-45cb-bb4d-49a160aa0225",
         "meta" : {
           "extension" : [
             {
@@ -142,10 +142,10 @@
       }
     },
     {
-      "fullUrl" : "Patient/1698179371608980000.48621ee1-52e3-464c-9ca6-6db2018943f1",
+      "fullUrl" : "Patient/1698247013004458000.dffc2fd1-4ed0-4d30-b82b-f568c12d1670",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1698179371608980000.48621ee1-52e3-464c-9ca6-6db2018943f1",
+        "id" : "1698247013004458000.dffc2fd1-4ed0-4d30-b82b-f568c12d1670",
         "meta" : {
           "extension" : [
             {
@@ -181,17 +181,17 @@
         "contact" : [
           {
             "organization" : {
-              "reference" : "Organization/1698179371607002000.6eccae73-6655-4a3f-9bfe-7278e6b188b6"
+              "reference" : "Organization/1698247013002717000.09f51a88-e6a6-4fa2-9639-d44697b15b4d"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Organization/1698179371607002000.6eccae73-6655-4a3f-9bfe-7278e6b188b6",
+      "fullUrl" : "Organization/1698247013002717000.09f51a88-e6a6-4fa2-9639-d44697b15b4d",
       "resource" : {
         "resourceType" : "Organization",
-        "id" : "1698179371607002000.6eccae73-6655-4a3f-9bfe-7278e6b188b6",
+        "id" : "1698247013002717000.09f51a88-e6a6-4fa2-9639-d44697b15b4d",
         "meta" : {
           "extension" : [
             {
@@ -200,28 +200,25 @@
             }
           ]
         },
-        "identifier" : [
-          {}
-        ],
         "contact" : [
           {
             "address" : {
               "extension" : [
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad7-address-type",
-                  "valueCode" : "H"
+                  "valueCode" : "HV"
                 },
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad1-street-or-mailing-address",
-                  "valueCode" : "4861"
+                  "valueString" : "4861"
                 },
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad3-dwelling-number",
-                  "valueCode" : "1"
+                  "valueString" : "1"
                 },
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad2-other-designation",
-                  "valueCode" : "Other Designation"
+                  "valueString" : "Other Designation"
                 },
                 {
                   "url" : "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract",
@@ -229,7 +226,7 @@
                 },
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad8-other-geographic-destination",
-                  "valueCode" : "Other Geographic Designation"
+                  "valueString" : "Other Geographic Designation"
                 },
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad11-address-representation-code",
@@ -237,7 +234,7 @@
                 },
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad1-sad2-street-name",
-                  "valueCode" : "20TH AVE"
+                  "valueString" : "20TH AVE"
                 },
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad13-effective-date",
@@ -250,6 +247,10 @@
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad14-expiration-date",
                   "valueDateTime" : "2023-05-01T10:25:31-04:00"
+                },
+                {
+                  "url" : "http://hl7.org/fhir/StructureDefinition/iso21090-AD-use",
+                  "valueCode" : "HV"
                 }
               ],
               "line" : [

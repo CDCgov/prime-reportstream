@@ -62,7 +62,7 @@ describe("LiveMapFeature rendering", () => {
     const liveMapFeature = {
         img: "test.png",
         imgAlt: "test alt",
-        linkInternal: "/how-it-works/where-were-live",
+        linkInternal: "/about/our-network",
         summary: "This is a summary",
     };
 
