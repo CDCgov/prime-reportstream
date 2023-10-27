@@ -38,8 +38,7 @@
       },
       "sender" : {
         "reference" : "Organization/1698090128286659000.86f22a6c-235c-403d-aec4-08589717caf3"
-      },
-      "source" : { }
+      }
     }
   }, {
     "fullUrl" : "Organization/1698090128286659000.86f22a6c-235c-403d-aec4-08589717caf3",

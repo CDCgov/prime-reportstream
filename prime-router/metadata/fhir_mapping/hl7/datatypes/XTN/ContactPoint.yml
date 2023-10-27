@@ -25,14 +25,14 @@ value_3:
 
 value_4:
   condition: $telEquipType NOT_EQUALS Internet && $telEquipType NOT_EQUALS X.400 && $unformattedTelNum NOT_NULL
-  valueOf: unformattedTelNum
+  valueOf: $unformattedTelNum
   vars:
     telEquipType: String, XTN.3
     unformattedTelNum: String, XTN.12
 
 value_5:
   condition: $telEquipType NULL && $unformattedTelNum NOT_NULL
-  valueOf: unformattedTelNum
+  valueOf: $unformattedTelNum
   vars:
     telEquipType: String, XTN.3
     unformattedTelNum: String, XTN.12
@@ -68,7 +68,8 @@ use_4:
 #mapping from HL7 Concept Map: TelecomEquipmentType
 #https://docs.google.com/spreadsheets/d/1FhoR5oxEWdHmpR5S0_wYPstdy1lwv7rL-JWJu_DE_Vs/edit#gid=0
 system_1:
-  condition: $equipType EQUALS PH
+  # CP maps to "mobile" but that is not a valid option for system
+  condition: $equipType EQUALS PH || $equipType EQUALS CP
   type: STRING
   valueOf: "phone"
   vars:
