@@ -169,10 +169,20 @@ extension_7-xad11AddressRepresentationCode:
       valueOf: XAD.11
       expressionType: HL7Spec
 
-# TODO: #11817
-# period
+# This needs to use variables because the message parses this field using NULLDT since it is deprecated which means that
+# the values do not get correctly loaded and will not be mapped over correctly using a spec.
+period_1:
+  vars:
+    xad13: String, XAD.13
+    xad14: String, XAD.14
+    start: String, XAD.12.1
+    end: String, XAD.12.2
+  condition: $xad13 NULL || $xad14 NULL
+  expressionType: resource
+  valueOf: datatypes/DR/Period
 
-period:
+# XAD.12 is deprecated so the schema favors using XAD.13/14 if either are populated
+period_2:
   vars:
     xad13: String, XAD.13
     xad14: String, XAD.14

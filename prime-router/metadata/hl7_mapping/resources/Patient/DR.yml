@@ -1,0 +1,8 @@
+elements:
+  - name: dr-start-date-time
+    value: [ '%resource.start' ]
+    hl7Spec: [ '%{hl7DRField}-1' ]
+
+  - name: dr-end-date-time
+    value: [ '%resource.end' ]
+    hl7Spec: [ '%{hl7DRField}-2' ]
