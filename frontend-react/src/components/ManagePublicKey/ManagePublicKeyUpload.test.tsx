@@ -28,24 +28,22 @@ describe("ManagePublicKeyUpload", () => {
     }
 
     describe("default state", () => {
-        beforeEach(() => {
-            renderApp(<ManagePublicKeyUpload {...DEFAULT_PROPS} />);
-        });
-
         test("renders the input", () => {
+            doRender();
             expect(screen.getByTestId("file-input-input")).toBeVisible();
             expect(screen.getByText("Submit")).toBeDisabled();
         });
     });
 
     describe("when public key already configured", () => {
-        beforeEach(() => {
+        function setup() {
             doRender({
                 publicKey: true,
             });
-        });
+        }
 
         test("displays message", () => {
+            setup();
             expect(
                 screen.getByText(/Your public key is already configured./),
             ).toBeVisible();
@@ -53,30 +51,33 @@ describe("ManagePublicKeyUpload", () => {
     });
 
     describe("when hasBack", () => {
-        beforeEach(() => {
+        function setup() {
             doRender({
                 hasBack: true,
             });
-        });
+        }
 
         test("displays Back button", () => {
+            setup();
             expect(screen.queryByText("Back")).toBeVisible();
         });
     });
 
     describe("when file selected", () => {
-        beforeEach(() => {
+        function setup() {
             doRender({
                 file: fakeFile,
             });
-        });
+        }
 
         test("enables the submit", () => {
+            setup();
             expect(screen.queryByText("Submit")).toBeEnabled();
         });
 
         describe("with accept values", () => {
             test("only allows .pem files", () => {
+                setup();
                 expect(screen.getByTestId("file-input-input")).toHaveAttribute(
                     "accept",
                     ".pem",

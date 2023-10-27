@@ -1,5 +1,3 @@
-import { RenderHookResult } from "@testing-library/react";
-
 import { renderHook } from "../../../utils/CustomRenderUtils";
 import { FileType } from "../../../utils/TemporarySettingsAPITypes";
 import * as useSenderResourceExports from "../../../hooks/UseSenderResource";
@@ -13,10 +11,6 @@ import useSenderSchemaOptions, {
 } from "./";
 
 describe("useSenderSchemaOptions", () => {
-    let renderer: RenderHookResult<
-        ReturnType<typeof useSenderSchemaOptions>,
-        unknown
-    >;
     const DEFAULT_SENDER: RSSender = {
         name: "testSender",
         organizationName: "testOrg",
@@ -38,63 +32,61 @@ describe("useSenderSchemaOptions", () => {
     }
 
     describe("when not logged in", () => {
-        beforeEach(() => {
-            renderer = doRenderHook({
+        function setup() {
+            return doRenderHook({
                 isLoading: false,
             });
-        });
+        }
 
         test("returns the standard schema options", () => {
-            expect(renderer.result.current.isLoading).toEqual(false);
-            expect(renderer.result.current.data).toEqual(
-                STANDARD_SCHEMA_OPTIONS,
-            );
+            const { result } = setup();
+            expect(result.current.isLoading).toEqual(false);
+            expect(result.current.data).toEqual(STANDARD_SCHEMA_OPTIONS);
         });
     });
 
     describe("when logged in", () => {
         describe("when sender detail query is loading", () => {
-            beforeEach(() => {
-                renderer = doRenderHook({
+            function setup() {
+                return doRenderHook({
                     isLoading: true,
                 });
-            });
+            }
 
             test("returns the loading state and the standard schema options", () => {
-                expect(renderer.result.current.isLoading).toEqual(true);
-                expect(renderer.result.current.data).toEqual(
-                    STANDARD_SCHEMA_OPTIONS,
-                );
+                const { result } = setup();
+                expect(result.current.isLoading).toEqual(true);
+                expect(result.current.data).toEqual(STANDARD_SCHEMA_OPTIONS);
             });
         });
 
         describe("when sender detail query is disabled", () => {
-            beforeEach(() => {
-                renderer = doRenderHook({
+            function setup() {
+                return doRenderHook({
                     isLoading: false,
                 });
-            });
+            }
 
             test("returns the loading state and the standard schema options", () => {
-                expect(renderer.result.current.isLoading).toEqual(false);
-                expect(renderer.result.current.data).toEqual(
-                    STANDARD_SCHEMA_OPTIONS,
-                );
+                const { result } = setup();
+                expect(result.current.isLoading).toEqual(false);
+                expect(result.current.data).toEqual(STANDARD_SCHEMA_OPTIONS);
             });
         });
 
         describe("as a Sender", () => {
             describe("when the Sender has a different schema than the standard schema options", () => {
-                beforeEach(() => {
-                    renderer = doRenderHook({
+                function setup() {
+                    return doRenderHook({
                         data: dummySender,
                         isLoading: false,
                     });
-                });
+                }
 
                 test("returns the standard schema options in addition to the Sender schema", () => {
-                    expect(renderer.result.current.isLoading).toEqual(false);
-                    expect(renderer.result.current.data).toEqual([
+                    const { result } = setup();
+                    expect(result.current.isLoading).toEqual(false);
+                    expect(result.current.data).toEqual([
                         {
                             format: FileType.CSV,
                             title: "test/covid-19-test (CSV)",
@@ -106,15 +98,16 @@ describe("useSenderSchemaOptions", () => {
             });
 
             describe("when the Sender has the same schema as one of the standard schema options", () => {
-                beforeEach(() => {
-                    renderer = doRenderHook({
+                function setup() {
+                    return doRenderHook({
                         isLoading: false,
                     });
-                });
+                }
 
                 test("returns the de-duplicated standard schema options", () => {
-                    expect(renderer.result.current.isLoading).toEqual(false);
-                    expect(renderer.result.current.data).toEqual(
+                    const { result } = setup();
+                    expect(result.current.isLoading).toEqual(false);
+                    expect(result.current.data).toEqual(
                         STANDARD_SCHEMA_OPTIONS,
                     );
                 });

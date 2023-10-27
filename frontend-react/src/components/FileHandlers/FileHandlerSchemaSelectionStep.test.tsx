@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
@@ -17,7 +17,7 @@ describe("FileHandlerSchemaSelectionStep", () => {
     };
 
     describe("when the schemas are still loading", () => {
-        beforeEach(() => {
+        function setup() {
             jest.spyOn(
                 UseSenderSchemaOptionsExports,
                 "default",
@@ -27,13 +27,14 @@ describe("FileHandlerSchemaSelectionStep", () => {
             } as any);
 
             renderApp(<FileHandlerSchemaSelectionStep {...DEFAULT_PROPS} />);
-        });
+        }
 
         afterEach(() => {
             jest.resetAllMocks();
         });
 
         test("renders the loading text", () => {
+            setup();
             expect(screen.getByText("Loading...")).toBeVisible();
         });
     });
@@ -41,7 +42,7 @@ describe("FileHandlerSchemaSelectionStep", () => {
     describe("when the schemas have been loaded", () => {
         const onSchemaChangeSpy = jest.fn();
 
-        beforeEach(() => {
+        function setup() {
             jest.spyOn(
                 UseSenderSchemaOptionsExports,
                 "default",
@@ -67,30 +68,31 @@ describe("FileHandlerSchemaSelectionStep", () => {
                     onSchemaChange={onSchemaChangeSpy}
                 />,
             );
-        });
+        }
 
         afterEach(() => {
             jest.resetAllMocks();
         });
 
         test("renders the options", () => {
+            setup();
             expect(screen.getByRole("option", { name: "csv" })).toBeVisible();
             expect(screen.getByRole("option", { name: "hl7" })).toBeVisible();
         });
 
         describe("when selecting a schema", () => {
-            beforeEach(async () => {
+            test("triggers the onSchemaChange callback with the schema", async () => {
+                setup();
                 await userEvent.selectOptions(screen.getByRole("combobox"), [
                     "csv",
                 ]);
-            });
-
-            test("triggers the onSchemaChange callback with the schema", () => {
-                expect(onSchemaChangeSpy).toHaveBeenCalledWith({
-                    format: "CSV",
-                    title: "csv",
-                    value: "csv",
-                });
+                await waitFor(() =>
+                    expect(onSchemaChangeSpy).toHaveBeenCalledWith({
+                        format: "CSV",
+                        title: "csv",
+                        value: "csv",
+                    }),
+                );
             });
         });
     });

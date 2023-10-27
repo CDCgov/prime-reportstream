@@ -63,7 +63,7 @@ describe("FacilitiesProvidersTable", () => {
     afterAll(() => orgServer.close());
 
     describe("useOrganizationReceiversFeed without data", () => {
-        beforeEach(() => {
+        function setup() {
             // Mock our receiverServices feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
@@ -103,9 +103,10 @@ describe("FacilitiesProvidersTable", () => {
 
             // Render the component
             renderApp(<FacilitiesProvidersTable />);
-        });
+        }
 
         test("if no active service display NoServicesBanner", async () => {
+            setup();
             const heading = await screen.findByText(/No available data/i);
             expect(heading).toBeInTheDocument();
         });
@@ -114,7 +115,7 @@ describe("FacilitiesProvidersTable", () => {
 
 describe("FacilitiesProvidersTable", () => {
     describe("with receiver services and data", () => {
-        beforeEach(() => {
+        function setup() {
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: mockActiveReceiver,
                 isLoading: false,
@@ -151,9 +152,10 @@ describe("FacilitiesProvidersTable", () => {
 
             // Render the component
             renderApp(<FacilitiesProvidersTable />);
-        });
+        }
 
         test("renders with no error", async () => {
+            setup();
             // Column headers render
             expect(screen.getByText("Name")).toBeInTheDocument();
             expect(screen.getByText("Location")).toBeInTheDocument();
@@ -164,6 +166,7 @@ describe("FacilitiesProvidersTable", () => {
         });
 
         test("renders Facility type column with transformed name", async () => {
+            setup();
             expect(screen.getAllByText("SUBMITTER")[0]).toBeInTheDocument();
         });
     });

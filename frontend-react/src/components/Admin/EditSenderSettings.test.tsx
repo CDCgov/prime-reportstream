@@ -68,6 +68,11 @@ const testKeys = JSON.stringify([
 const testProcessingType = "sync";
 
 describe("EditSenderSettings", () => {
+    function setup() {
+        renderApp(<EditSenderSettingsPage />);
+        nameField = screen.getByTestId("name");
+        editJsonAndSaveButton = screen.getByTestId("submit");
+    }
     beforeAll(() => {
         settingsServer.listen();
         settingsServer.use(
@@ -78,12 +83,8 @@ describe("EditSenderSettings", () => {
         );
     });
     afterAll(() => settingsServer.close());
-    beforeEach(() => {
-        renderApp(<EditSenderSettingsPage />);
-        nameField = screen.getByTestId("name");
-        editJsonAndSaveButton = screen.getByTestId("submit");
-    });
     test("toggle allowDuplicates", () => {
+        setup();
         const checkbox = screen.getByTestId("allowDuplicates");
         expect(checkbox).toBeInTheDocument();
         expect(checkbox).not.toBeChecked();
@@ -91,6 +92,7 @@ describe("EditSenderSettings", () => {
         expect(checkbox).toBeChecked();
     });
     test("should be able to edit keys field", () => {
+        setup();
         const keysField = screen.getByTestId("keys");
 
         expect(keysField).toBeInTheDocument();
@@ -101,6 +103,7 @@ describe("EditSenderSettings", () => {
     });
 
     test("should be able to edit processing type field", () => {
+        setup();
         const processingTypeField = screen.getByTestId("processingType");
 
         expect(processingTypeField).toBeInTheDocument();
@@ -129,6 +132,7 @@ describe("EditSenderSettings", () => {
         });
 
         test("should display an error if name value contains a disallowed char", () => {
+            setup();
             fireEvent.change(nameField, {
                 target: { value: "a\\nlinefeed" },
             });
@@ -139,6 +143,7 @@ describe("EditSenderSettings", () => {
         });
 
         test("should not display error if name value is valid", () => {
+            setup();
             fireEvent.change(nameField, {
                 target: { value: "test" },
             });

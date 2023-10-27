@@ -63,7 +63,7 @@ describe("SubmissionTable", () => {
     });
 
     describe("when rendering as an admin", () => {
-        beforeEach(() => {
+        function setup() {
             mockSessionContentReturnValue({
                 activeMembership: {
                     memberType: MemberType.PRIME_ADMIN,
@@ -78,9 +78,10 @@ describe("SubmissionTable", () => {
             });
 
             renderApp(<SubmissionTable />, { restHookFixtures: [] });
-        });
+        }
 
         test("renders a warning about not being able to request submission history", async () => {
+            setup();
             expect(
                 await screen.findByText(
                     "Cannot fetch Organization data as admin",
