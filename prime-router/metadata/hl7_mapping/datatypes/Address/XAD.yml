@@ -48,6 +48,9 @@ elements:
     value: [ '%resource.extension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract").value' ]
     hl7Spec: [ '%{hl7SpecXADField}-10' ]
 
+  - name: other-geographic-destination
+    value: [ '%resource.extension(%`rsext-xad11-address-representation-code`).value' ]
+    hl7Spec: [ '%{hl7SpecXADField}-11' ]
 
   # TODO: #11817
 
@@ -58,10 +61,6 @@ elements:
   - name: expiration-date
     value: [ '%resource.extension(%`rsext-xad14-expiration-date`).value' ]
     hl7Spec: [ '%{hl7SpecXADField}-14' ]
-
-  - name: other-geographic-destination
-    value: [ '%resource.extension(%`rsext-xad11-address-representation-code`).value' ]
-    hl7Spec: [ '%{hl7SpecXADField}-11' ]
 
   - name: addressee
     value: [ '%resource.extension(%`rsext-xad19-addressee`).value' ]
