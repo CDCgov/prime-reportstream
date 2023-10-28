@@ -4,7 +4,6 @@ import React from "react";
 
 import { TermsOfService } from "./pages/TermsOfService";
 import { Login } from "./pages/Login";
-import TermsOfServiceForm from "./pages/tos-sign/TermsOfServiceForm";
 import { UploadWithAuth } from "./pages/Upload";
 import { FeatureFlagUIWithAuth } from "./pages/misc/FeatureFlags";
 import { SubmissionDetailsWithAuth } from "./pages/submissions/SubmissionDetails";
@@ -34,8 +33,6 @@ import { FacilitiesProvidersWithAuth } from "./components/DataDashboard/Faciliti
 import { FacilityProviderSubmitterDetailsWithAuth } from "./components/DataDashboard/FacilityProviderSubmitterDetails/FacilityProviderSubmitterDetails";
 import { SenderType } from "./utils/DataDashboardUtils";
 import { lazyRouteMarkdown } from "./utils/LazyRouteMarkdown";
-import { DataDownloadGuideIa } from "./pages/DataDownloadGuide";
-import { GettingStartedPhd } from "./pages/GettingStartedPhd";
 
 export const appRoutes: RouteObject[] = [
     /* Public Site */
@@ -119,13 +116,6 @@ export const appRoutes: RouteObject[] = [
                 element: <LoginCallback />,
             },
             {
-                path: "/sign-tos",
-                element: <TermsOfServiceForm />,
-                handle: {
-                    isContentPage: true,
-                },
-            },
-            {
                 path: "managing-your-connection",
                 children: [
                     {
@@ -136,13 +126,6 @@ export const appRoutes: RouteObject[] = [
                         lazy: lazyRouteMarkdown(
                             "content/managing-your-connection/refer-healthcare-organizations",
                         ),
-                    },
-                    {
-                        path: "data-download-guide",
-                        handle: {
-                            isContentPage: true,
-                        },
-                        element: <DataDownloadGuideIa />,
                     },
                 ],
             },
@@ -169,11 +152,13 @@ export const appRoutes: RouteObject[] = [
                         },
                     },
                     {
-                        path: "getting-started-public-health-departments",
+                        path: "receiving-data",
+                        lazy: lazyRouteMarkdown(
+                            "content/getting-started/receiving-data",
+                        ),
                         handle: {
                             isContentPage: true,
                         },
-                        element: <GettingStartedPhd />,
                     },
                 ],
             },

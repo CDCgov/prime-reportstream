@@ -211,6 +211,12 @@ elements:
     schema: ./datatype/xcn-contact
     resourceIndex: contactIndex
 
+  - name: observation-aoe-identifier
+    condition: '%resource.meta.tag.code="AOE"'
+    value: [ '"QST"' ]
+    hl7Spec: [ '%{hl7OBXField}-29' ]
+
+
   - name: observation-note
     condition: '%context.note.exists()'
     resource: '%resource.note.text.split(''\n'')'

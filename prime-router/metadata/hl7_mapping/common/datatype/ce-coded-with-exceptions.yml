@@ -45,7 +45,7 @@ elements:
   - name: coding-system-oid
     resource: '%resource.coding.where(extension(%`rsext-code-index-name`).value = "identifier").extension(%`rsext-coding-system-oid`)'
     condition: '%resource.value.exists()'
-    value: ['%resource.value.getId()']
+    value: [ '%resource.value.getId()' ]
     hl7Spec: [ '%{cweFieldPath}-14' ]
   - name: coding-system-oid
     resource: '%resource.coding[0].extension(%`rsext-coding-system-oid`)'

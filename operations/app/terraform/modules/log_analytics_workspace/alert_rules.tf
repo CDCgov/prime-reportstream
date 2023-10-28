@@ -83,3 +83,27 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "functionapp_401errors" {
     threshold = 10
   }
 }
+
+resource "azurerm_monitor_scheduled_query_rules_alert" "functionapp_504errors" {
+  name                = format("%s-alertrule-fa-504errors", var.resource_prefix)
+  location            = var.location
+  resource_group_name = var.resource_group
+
+  action {
+    action_group = [var.action_group_slack_id]
+  }
+  data_source_id = azurerm_log_analytics_workspace.law.id
+  description    = "Found 1 or more 504s errors in FunctionApp logs"
+  enabled        = true
+  query          = <<-EOT
+      AzureDiagnostics
+      | where httpStatusCode_d == 504
+  EOT
+  frequency      = 5
+  time_window    = 5
+
+  trigger {
+    operator  = "GreaterThanOrEqual"
+    threshold = 1
+  }
+}
