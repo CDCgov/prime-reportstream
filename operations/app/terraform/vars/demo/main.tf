@@ -177,6 +177,8 @@ module "function_app" {
   is_temp_env                       = local.is_temp_env
   function_runtime_version          = local.app.function_runtime_version
   storage_account                   = module.storage.storage_account_id
+  OKTA_clientId                     = data.azurerm_key_vault_secret.OKTA_clientId.value
+  OKTA_authKey                      = data.azurerm_key_vault_secret.OKTA_authKey.value
 }
 
 module "front_door" {

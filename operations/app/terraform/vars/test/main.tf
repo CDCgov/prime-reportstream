@@ -133,8 +133,6 @@ module "function_app" {
   ai_connection_string              = module.application_insights.connection_string
   okta_base_url                     = local.init.okta_base_url
   okta_redirect_url                 = local.init.okta_redirect_url
-  OKTA_authKey                      = local.init.OKTA_authKey
-  OKTA_clientId                     = local.init.OKTA_clientId
   fn_OKTA_clientId                  = local.init.fn_OKTA_clientId
   OKTA_scope                        = local.init.OKTA_scope
   terraform_caller_ip_address       = local.network.terraform_caller_ip_address
@@ -158,6 +156,8 @@ module "function_app" {
   dns_ip                            = local.network.dns_ip
   function_runtime_version          = local.app.function_runtime_version
   storage_account                   = module.storage.storage_account_id
+  OKTA_clientId                     = data.azurerm_key_vault_secret.OKTA_clientId.value
+  OKTA_authKey                      = data.azurerm_key_vault_secret.OKTA_authKey.value
 }
 
 module "front_door" {

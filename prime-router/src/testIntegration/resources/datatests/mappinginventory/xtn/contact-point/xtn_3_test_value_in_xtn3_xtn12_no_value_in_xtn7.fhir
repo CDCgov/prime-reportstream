@@ -38,8 +38,7 @@
       },
       "sender" : {
         "reference" : "Organization/1698089667855846000.2f24eb55-f204-4eb1-9e7a-52bf4522914e"
-      },
-      "source" : { }
+      }
     }
   }, {
     "fullUrl" : "Organization/1698089667855846000.2f24eb55-f204-4eb1-9e7a-52bf4522914e",
@@ -125,19 +124,19 @@
       "contact" : [ {
         "telecom" : [ {
           "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
-            "valueString" : "test"
-          }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
             "valueString" : "next-of-kin-telecomm-info"
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn1-telephone-number",
             "valueString" : "12813308004"
           }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+            "valueString" : "test"
+          }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
             "valueString" : "test"
           } ],
-          "value" : "unformattedTelNum"
+          "value" : "test"
         } ]
       } ]
     }
