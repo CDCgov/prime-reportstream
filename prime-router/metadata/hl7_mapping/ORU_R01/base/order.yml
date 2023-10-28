@@ -111,7 +111,7 @@ elements:
 
   - name: ordering-facility-phone
     resource: '%service.requester.resolve().organization.resolve().contact[0].telecom'
-    schema: ../../common/datatype/xtn-telecom
+    schema: ../../datatypes/contactPoint/XTN
     constants:
       hl7TelecomField: '%{hl7Order}-23'
     resourceIndex: telecomIndex
@@ -120,7 +120,7 @@ elements:
   - name: ordering-facility-phone-telecom
     condition: '%service.requester.resolve().organization.resolve().contact.empty()'
     resource: '%service.requester.resolve().organization.resolve().telecom.where(system = "phone")'
-    schema: ../../common/datatype/xtn-telecom
+    schema: ../../datatypes/contactPoint/XTN
     constants:
       hl7TelecomField: '%{hl7Order}-23'
     resourceIndex: telecomIndex

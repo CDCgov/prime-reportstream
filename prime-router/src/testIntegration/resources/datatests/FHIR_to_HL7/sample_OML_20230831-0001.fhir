@@ -2235,12 +2235,21 @@
           {
             "extension" : [
               {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/text",
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn9-any-text",
                 "valueString" : "(763)555-5555"
+              },{
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
+                "valueString" : "(763)555-5555"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+                "valueString" : "PH"
+              }, {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
+                "valueString" : "PRN"
               }
             ],
             "system" : "phone",
-            "value" : "(763) 555 555",
+            "value" : "(763)555-5555",
             "use" : "home"
           }
         ],
