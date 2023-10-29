@@ -7,9 +7,9 @@
     "dependencies": {
         "@microsoft/applicationinsights-react-js": "^17.0.1",
         "@microsoft/applicationinsights-web": "^3.0.3",
-        "@okta/okta-auth-js": "^7.4.2",
+        "@okta/okta-auth-js": "^7.4.3",
         "@okta/okta-react": "^6.7.0",
-        "@okta/okta-signin-widget": "^7.11.1",
+        "@okta/okta-signin-widget": "^7.11.3",
         "@rest-hooks/rest": "^3.0.3",
         "@tanstack/react-query": "^4.36.1",
         "@tanstack/react-query-devtools": "^4.36.1",
