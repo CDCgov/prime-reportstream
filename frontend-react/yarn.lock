@@ -9634,6 +9634,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"estree-util-is-identifier-name@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "estree-util-is-identifier-name@npm:3.0.0"
+  checksum: ea3909f0188ea164af0aadeca87c087e3e5da78d76da5ae9c7954ff1340ea3e4679c4653bbf4299ffb70caa9b322218cc1128db2541f3d2976eb9704f9857787
+  languageName: node
+  linkType: hard
+
 "estree-util-to-js@npm:^1.1.0":
   version: 1.2.0
   resolution: "estree-util-to-js@npm:1.2.0"
@@ -16104,7 +16111,7 @@ __metadata:
     rehype-raw: ^7.0.0
     rehype-slug: ^5.1.0
     remark-frontmatter: ^5.0.0
-    remark-mdx-frontmatter: ^3.0.0
+    remark-mdx-frontmatter: ^4.0.0
     remark-mdx-toc: ^0.3.1
     rest-hooks: ^6.1.7
     rimraf: ^5.0.5
@@ -16600,17 +16607,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remark-mdx-frontmatter@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "remark-mdx-frontmatter@npm:3.0.0"
+"remark-mdx-frontmatter@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "remark-mdx-frontmatter@npm:4.0.0"
   dependencies:
-    "@types/mdast": ^3.0.0
-    estree-util-is-identifier-name: ^2.0.0
+    "@types/mdast": ^4.0.0
+    estree-util-is-identifier-name: ^3.0.0
     estree-util-value-to-estree: ^3.0.0
     toml: ^3.0.0
-    unified: ^10.0.0
+    unified: ^11.0.0
     yaml: ^2.0.0
-  checksum: 675dad1b196685f952954ee25e20ccaa74db9c549170cbd55c738aadf0cabf026896d05e51f240d87ba153e8b467fe442e02e0004450deb98fe382142a1b4ebb
+  checksum: 01f3874bf5728c7ec314a0802d53de46ed0730a7f53fd9d8305ab95593b4b411336789fd84581157c7bd3398e4848082d84d17d656475846b9bd08be6ef6d71d
   languageName: node
   linkType: hard
 

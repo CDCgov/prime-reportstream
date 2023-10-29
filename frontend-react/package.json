@@ -188,7 +188,7 @@
         "postcss": "^8.4.31",
         "prettier": "^3.0.3",
         "remark-frontmatter": "^5.0.0",
-        "remark-mdx-frontmatter": "^3.0.0",
+        "remark-mdx-frontmatter": "^4.0.0",
         "remark-mdx-toc": "^0.3.1",
         "rimraf": "^5.0.5",
         "sass": "^1.69.3",
