@@ -104,7 +104,7 @@
         "@babel/preset-typescript": "^7.23.2",
         "@babel/runtime": "^7.23.2",
         "@mdx-js/react": "^2.3.0",
-        "@mdx-js/rollup": "^2.3.0",
+        "@mdx-js/rollup": "^3.0.0",
         "@rest-hooks/test": "^7.3.1",
         "@storybook/addon-a11y": "^7.4.6",
         "@storybook/addon-actions": "^7.4.6",
