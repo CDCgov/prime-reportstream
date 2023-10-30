@@ -5,8 +5,8 @@ import { renderApp } from "../../../utils/CustomRenderUtils";
 import { DeliveryDetailPage } from "./DeliveryDetail";
 
 const TEST_ID = "test-id-123";
-jest.mock("react-router-dom", () => ({
-    ...jest.requireActual("react-router-dom"), // use actual for all non-hook parts
+vi.mock("react-router-dom", async () => ({
+    ...(await vi.importActual("react-router-dom")), // use actual for all non-hook parts
     useParams: () => ({
         reportId: TEST_ID,
     }),

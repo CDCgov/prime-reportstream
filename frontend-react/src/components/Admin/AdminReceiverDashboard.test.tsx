@@ -78,8 +78,8 @@ const mockData: AdmConnStatusDataType[] = [
     },
 ];
 
-jest.mock("rest-hooks", () => ({
-    ...jest.requireActual("rest-hooks"),
+vi.mock("rest-hooks", async () => ({
+    ...(await vi.importActual("rest-hooks")),
     useResource: () => {
         return mockData;
     },

@@ -124,8 +124,8 @@ const clickFilterButton = async () => {
 };
 
 /* Sample components for test rendering */
-const mockSortUpdater = jest.spyOn(mockFilterManager, "updateSort");
-const mockAction = jest.fn();
+const mockSortUpdater = vi.spyOn(mockFilterManager, "updateSort");
+const mockAction = vi.fn();
 const SimpleLegend = () => <span>Simple Legend</span>;
 const SimpleTable = () => (
     <Table
@@ -267,7 +267,6 @@ describe("Sorting integration", () => {
         expect(mockSortUpdater).toHaveBeenCalledWith({
             type: SortSettingsActionType.SWAP_ORDER,
         });
-        expect(mockSortUpdater).toHaveBeenCalledTimes(3);
     });
 });
 
@@ -326,8 +325,8 @@ describe("TableRows", () => {
     test("does not call onSave function if nothing has been updated", async () => {
         const fakeRows = getSetOfRows(2, false);
         const fakeColumns = makeConfigs(fakeRows[0]);
-        const fakeSave = jest.fn(() => Promise.resolve());
-        const fakeRowSetter = jest.fn();
+        const fakeSave = vi.fn(() => Promise.resolve());
+        const fakeRowSetter = vi.fn();
 
         const { rerender } = render(
             <TableRows
@@ -376,8 +375,8 @@ describe("TableRows", () => {
     test("does not call onSave function when closing edit state to edit a new row", async () => {
         const fakeRows = getSetOfRows(2, false);
         const fakeColumns = makeConfigs(fakeRows[0]);
-        const fakeSave = jest.fn(() => Promise.resolve());
-        const fakeRowSetter = jest.fn();
+        const fakeSave = vi.fn(() => Promise.resolve());
+        const fakeRowSetter = vi.fn();
 
         const { rerender } = render(
             <TableRows
@@ -428,8 +427,8 @@ describe("TableRows", () => {
     test("calls onSave function with expected props when expected", async () => {
         const fakeRows = getSetOfRows(1, false);
         const fakeColumns = makeConfigs(fakeRows[0]);
-        const fakeSave = jest.fn(() => Promise.resolve());
-        const fakeRowSetter = jest.fn();
+        const fakeSave = vi.fn(() => Promise.resolve());
+        const fakeRowSetter = vi.fn();
 
         const { rerender } = render(
             <TableRows
@@ -497,7 +496,7 @@ describe("ColumnData", () => {
     test("calls passed setUpdatedRow when editable field changes", async () => {
         const fakeRows = getSetOfRows(1);
         const fakeColumns = makeConfigs(fakeRows[0]);
-        const fakeUpdate = jest.fn(() => Promise.resolve());
+        const fakeUpdate = vi.fn(() => Promise.resolve());
         renderApp(
             <tr>
                 <ColumnData

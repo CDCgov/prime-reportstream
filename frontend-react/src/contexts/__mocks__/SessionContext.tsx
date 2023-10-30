@@ -1,7 +1,7 @@
 import { OKTA_AUTH } from "../../oktaConfig";
 import * as SessionContextModule from "../SessionContext";
 
-export const mockSessionContext = jest.spyOn(
+export const mockSessionContext = vi.spyOn(
     SessionContextModule,
     "useSessionContext",
 );

@@ -24,7 +24,7 @@ describe("ConfirmSaveSettingModal", () => {
         return (
             <ConfirmSaveSettingModal
                 uniquid={new Date().getTime().toString()}
-                onConfirm={jest.fn()}
+                onConfirm={vi.fn()}
                 ref={confirmModalRef}
                 oldjson={VALID_JSON}
                 newjson={VALID_JSON}
@@ -42,7 +42,7 @@ describe("ConfirmSaveSettingModal", () => {
     }
 
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     describe("on initial mount", () => {
@@ -162,11 +162,11 @@ describe("ConfirmSaveSettingModal", () => {
         });
 
         describe("when the updated JSON is invalid", () => {
-            const consoleTraceSpy = jest.fn();
+            const consoleTraceSpy = vi.fn();
             function setup() {
                 renderComponent();
 
-                jest.spyOn(console, "trace").mockImplementationOnce(
+                vi.spyOn(console, "trace").mockImplementationOnce(
                     consoleTraceSpy,
                 );
 
@@ -181,7 +181,7 @@ describe("ConfirmSaveSettingModal", () => {
             }
 
             afterEach(() => {
-                jest.resetAllMocks();
+                vi.resetAllMocks();
             });
 
             test("renders an error diff highlighting the error", () => {

@@ -8,7 +8,7 @@ describe("DirectoryAsPage", () => {
     const testDir = new MarkdownDirectory()
         .setTitle("Test Dir")
         .setSlug("test-dir")
-        .addFile(testMd);
+        .addFile(new URL(testMd, import.meta.url).toString());
     test("Renders without error", () => {
         renderApp(<MarkdownPage directory={testDir} />);
     });

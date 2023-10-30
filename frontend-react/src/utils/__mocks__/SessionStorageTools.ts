@@ -1,11 +1,11 @@
 import * as StorageTools from "../SessionStorageTools";
 
-export const mockStoreFeatureFlags = jest.spyOn(
+export const mockStoreFeatureFlags = vi.spyOn(
     StorageTools,
     "storeFeatureFlags",
 );
 
-export const mockGetSavedFeatureFlags = jest.spyOn(
+export const mockGetSavedFeatureFlags = vi.spyOn(
     StorageTools,
     "getSavedFeatureFlags",
 );

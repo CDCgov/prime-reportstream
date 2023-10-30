@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { RouterProvider, createMemoryRouter } from "react-router";
 import React from "react";
 
@@ -7,7 +7,7 @@ import { lazyRouteMarkdown } from "./LazyRouteMarkdown";
 describe("lazyRouteMarkdown", () => {
     test("works with react-router", async () => {
         const Component = React.lazy(
-            lazyRouteMarkdown(() => import("content/markdown-example.mdx")),
+            lazyRouteMarkdown(() => import("../content/home/index.mdx")),
         );
         const router = createMemoryRouter([
             {
@@ -16,7 +16,10 @@ describe("lazyRouteMarkdown", () => {
             },
         ]);
         render(<RouterProvider router={router} />);
-        await screen.findByRole("article");
-        expect(screen.getByRole("article")).toHaveTextContent("Test");
+        await waitFor(() =>
+            expect(screen.getByRole("heading")).toHaveTextContent(
+                "Your single connection to simplify data transfer and improve public health",
+            ),
+        );
     });
 });

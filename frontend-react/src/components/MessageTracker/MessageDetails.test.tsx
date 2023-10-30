@@ -156,10 +156,10 @@ const DEFAULT_MESSAGE_DETAIL: RSMessageDetail = {
     receiverData: MOCK_RECEIVER_DATA,
 };
 
-jest.mock("react-router-dom", () => ({
-    ...jest.requireActual("react-router-dom"), // use actual for all non-hook parts
+vi.mock("react-router-dom", async () => ({
+    ...(await vi.importActual("react-router-dom")), // use actual for all non-hook parts
     useNavigate: () => {
-        return jest.fn();
+        return vi.fn();
     },
     useParams: () => ({
         id: TEST_ID,

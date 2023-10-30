@@ -11,7 +11,7 @@ import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 
 import { ReportDetailsSummary } from "./ReportDetailsSummary";
 
-const mockGetUser = jest.fn();
+const mockGetUser = vi.fn();
 
 const currentDate = new Date();
 const futureDate = new Date(currentDate.setDate(currentDate.getDate() + 1));

@@ -12,15 +12,15 @@ import {
 } from "./UseOrganizationReceiversFeed";
 import { useOrganizationReceivers } from "./UseOrganizationReceivers";
 
-jest.mock<typeof import("./UseOrganizationReceivers")>(
+vi.mock<typeof import("./UseOrganizationReceivers")>(
     "./UseOrganizationReceivers",
-    () => ({
-        ...jest.requireActual("./UseOrganizationReceivers"),
-        useOrganizationReceivers: jest.fn(),
+    async () => ({
+        ...(await vi.importActual("./UseOrganizationReceivers")),
+        useOrganizationReceivers: vi.fn(),
     }),
 );
 
-const mockUseOrganizationReceivers = jest.mocked(useOrganizationReceivers);
+const mockUseOrganizationReceivers = vi.mocked(useOrganizationReceivers);
 
 describe("useOrganizationReceiversFeed", () => {
     function setMockUseOrganizationReceiversResult(

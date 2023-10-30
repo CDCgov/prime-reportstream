@@ -11,8 +11,8 @@ import {
     FeatureFlagProvider,
 } from "./FeatureFlagContext";
 
-jest.mock("../config", () => {
-    const originalModule = jest.requireActual("../config");
+vi.mock("../config", async () => {
+    const originalModule = vi.importActual("../config");
     return {
         ...originalModule,
         default: {
@@ -23,7 +23,7 @@ jest.mock("../config", () => {
     };
 });
 
-const providerValueMonitor = jest.fn();
+const providerValueMonitor = vi.fn();
 
 const DummyFeatureFlagConsumer = () => {
     const values = useFeatureFlags();

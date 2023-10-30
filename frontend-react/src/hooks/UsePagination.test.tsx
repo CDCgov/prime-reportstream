@@ -15,9 +15,9 @@ import usePagination, {
     processResultsReducer,
 } from "./UsePagination";
 
-const mockTrackEvent = jest.fn();
+const mockTrackEvent = vi.fn();
 
-const mockUseAppInsightsContext = jest.spyOn(
+const mockUseAppInsightsContext = vi.spyOn(
     AppInsightsContext,
     "useAppInsightsContext",
 );
@@ -442,7 +442,7 @@ describe("usePagination", () => {
     }
 
     test("Returns empty pagination props when there are no results", async () => {
-        const mockFetchResults = jest.fn().mockResolvedValueOnce([]);
+        const mockFetchResults = vi.fn().mockResolvedValueOnce([]);
         mockUseAppInsightsContextImplementation();
         const { result } = doRenderHook({
             startCursor: "0",
@@ -462,7 +462,7 @@ describe("usePagination", () => {
 
     test("Fetches results and updates the available slots and page of results", async () => {
         const results = createSampleRecords(40);
-        const mockFetchResults = jest.fn().mockResolvedValueOnce(results);
+        const mockFetchResults = vi.fn().mockResolvedValueOnce(results);
         mockUseAppInsightsContextImplementation();
         const { result } = doRenderHook({
             startCursor: "0",
@@ -488,7 +488,7 @@ describe("usePagination", () => {
     test("Setting a page fetches a new batch of results and updates the state", async () => {
         const results1 = createSampleRecords(61);
         const results2 = createSampleRecords(21, 61);
-        const mockFetchResults = jest
+        const mockFetchResults = vi
             .fn()
             .mockResolvedValueOnce(results1)
             .mockResolvedValueOnce(results2);
@@ -545,7 +545,7 @@ describe("usePagination", () => {
     });
 
     test("Changing the initial start cursor resets the state", async () => {
-        const mockFetchResults = jest
+        const mockFetchResults = vi
             .fn()
             .mockResolvedValueOnce(createSampleRecords(11))
             .mockResolvedValueOnce(createSampleRecords(11));
@@ -590,11 +590,11 @@ describe("usePagination", () => {
     });
 
     test("Changing the fetchResults function resets the state", async () => {
-        const mockFetchResults1 = jest
+        const mockFetchResults1 = vi
             .fn()
             .mockResolvedValueOnce(createSampleRecords(11))
             .mockResolvedValueOnce(createSampleRecords(1, 11));
-        const mockFetchResults2 = jest
+        const mockFetchResults2 = vi
             .fn()
             .mockResolvedValueOnce(createSampleRecords(1));
         const initialProps = {
@@ -634,7 +634,7 @@ describe("usePagination", () => {
     });
 
     test("Calls appInsights?.trackEvent with page size and page number.", async () => {
-        const mockFetchResults = jest
+        const mockFetchResults = vi
             .fn()
             .mockResolvedValueOnce(createSampleRecords(11))
             .mockResolvedValueOnce(createSampleRecords(11));

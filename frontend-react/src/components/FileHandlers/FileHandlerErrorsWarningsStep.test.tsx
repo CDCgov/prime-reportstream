@@ -15,17 +15,17 @@ function mockRequestedChangesDisplay({ title }: { title: RequestLevel }) {
     return <div data-testid={`RequestedChangesDisplay--${title}`} />;
 }
 
-jest.mock("./FileHandlerMessaging", () => ({
-    ...jest.requireActual("./FileHandlerMessaging"),
+vi.mock("./FileHandlerMessaging", async () => ({
+    ...(await vi.importActual("./FileHandlerMessaging")),
     RequestedChangesDisplay: mockRequestedChangesDisplay,
 }));
 
 describe("FileHandlerErrorsWarningsStep", () => {
     const DEFAULT_PROPS: FileHandlerErrorsWarningsStepProps = {
         ...INITIAL_STATE,
-        onPrevStepClick: jest.fn(),
-        onNextStepClick: jest.fn(),
-        onTestAnotherFileClick: jest.fn(),
+        onPrevStepClick: vi.fn(),
+        onNextStepClick: vi.fn(),
+        onTestAnotherFileClick: vi.fn(),
         selectedSchemaOption: {
             value: "CSV",
             format: FileType.CSV,
@@ -98,7 +98,7 @@ describe("FileHandlerErrorsWarningsStep", () => {
     });
 
     describe("when clicking on 'Test another file'", () => {
-        const onTestAnotherFileClickSpy = jest.fn();
+        const onTestAnotherFileClickSpy = vi.fn();
 
         async function setup() {
             renderApp(

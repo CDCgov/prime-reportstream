@@ -86,7 +86,7 @@ export const WARNING_CSV_FILE_SELECTED = {
     selectedSchemaOption: STANDARD_SCHEMA_OPTIONS[0],
 };
 
-jest.mock("../../hooks/UseOrganizationSettings", () => ({
+vi.mock("../../hooks/UseOrganizationSettings", async () => ({
     useOrganizationSettings: () => {
         return {
             data: {
@@ -119,7 +119,7 @@ describe("FileHandler", () => {
     function mockUseFileHandler(
         fileHandlerState: Partial<FileHandlerState> = {},
     ) {
-        jest.spyOn(useFileHandlerExports, "default").mockReturnValue({
+        vi.spyOn(useFileHandlerExports, "default").mockReturnValue({
             state: {
                 // TODO: any sensible defaults?
                 ...fileHandlerState,
@@ -131,7 +131,7 @@ describe("FileHandler", () => {
     function mockUseSenderSchemaOptions(
         result: Partial<UseSenderSchemaOptionsHookResult> = {},
     ) {
-        jest.spyOn(useSenderSchemaOptionsExports, "default").mockReturnValue({
+        vi.spyOn(useSenderSchemaOptionsExports, "default").mockReturnValue({
             isLoading: false,
             data: STANDARD_SCHEMA_OPTIONS,
             ...result,
@@ -141,16 +141,15 @@ describe("FileHandler", () => {
     function mockUseWatersUploader(
         result: Partial<UseWatersUploaderResult> = {},
     ) {
-        jest.spyOn(
-            useWatersUploaderExports,
-            "useWatersUploader",
-        ).mockReturnValue({
-            isPending: false,
-            error: null,
-            mutateAsync: (() =>
-                Promise.resolve({})) as UseWatersUploaderSendFileMutation,
-            ...result,
-        } as any);
+        vi.spyOn(useWatersUploaderExports, "useWatersUploader").mockReturnValue(
+            {
+                isPending: false,
+                error: null,
+                mutateAsync: (() =>
+                    Promise.resolve({})) as UseWatersUploaderSendFileMutation,
+                ...result,
+            } as any,
+        );
     }
 
     async function schemaContinue() {
@@ -179,7 +178,7 @@ describe("FileHandler", () => {
             mockUseWatersUploader({
                 isWorking: false,
                 uploaderError: null,
-                sendFile: jest.fn(),
+                sendFile: vi.fn(),
             });
 
             renderApp(<FileHandler />);

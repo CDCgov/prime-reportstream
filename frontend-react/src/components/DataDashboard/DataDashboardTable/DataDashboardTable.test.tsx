@@ -22,8 +22,8 @@ import DataDashboardTable from "./DataDashboardTable";
 const mockReceiverServices = receiverServicesGenerator(5);
 const mockActiveReceiver = mockReceiverServices[0];
 
-jest.mock("../../../TelemetryService", () => ({
-    ...jest.requireActual("../../../TelemetryService"),
+vi.mock("../../../TelemetryService", async () => ({
+    ...(await vi.importActual("../../../TelemetryService")),
     getAppInsights: () => mockAppInsights,
 }));
 

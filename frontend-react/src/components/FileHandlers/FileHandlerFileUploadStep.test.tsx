@@ -29,26 +29,26 @@ import FileHandlerFileUploadStep, {
     getClientHeader,
 } from "./FileHandlerFileUploadStep";
 
-jest.mock("../AlertNotifications", () => ({
-    ...jest.requireActual("../AlertNotifications"),
-    showError: jest.fn(),
+vi.mock("../AlertNotifications", async () => ({
+    ...(await vi.importActual("../AlertNotifications")),
+    showError: vi.fn(),
 }));
 
 describe("FileHandlerFileUploadStep", () => {
     const DEFAULT_PROPS = {
         ...INITIAL_STATE,
-        onFileChange: jest.fn(),
-        onFileSubmitError: jest.fn(),
-        onFileSubmitSuccess: jest.fn(),
-        onPrevStepClick: jest.fn(),
-        onNextStepClick: jest.fn(),
+        onFileChange: vi.fn(),
+        onFileSubmitError: vi.fn(),
+        onFileSubmitSuccess: vi.fn(),
+        onPrevStepClick: vi.fn(),
+        onNextStepClick: vi.fn(),
     };
     const DEFAULT_SENDERS: RSSender[] = sendersGenerator(2);
 
     function mockUseSenderResource(
         result: Partial<UseSenderResourceHookResult> = {},
     ) {
-        jest.spyOn(useSenderResourceExports, "default").mockReturnValue({
+        vi.spyOn(useSenderResourceExports, "default").mockReturnValue({
             isInitialLoading: false,
             isLoading: false,
             data: DEFAULT_SENDERS,
@@ -137,7 +137,7 @@ describe("FileHandlerFileUploadStep", () => {
         });
 
         describe("when a file is selected", () => {
-            const onFileChangeSpy = jest.fn();
+            const onFileChangeSpy = vi.fn();
             async function setup() {
                 renderApp(
                     <FileHandlerFileUploadStep
@@ -171,7 +171,7 @@ describe("FileHandlerFileUploadStep", () => {
 
         describe("when a file is being submitted", () => {
             function setup() {
-                jest.spyOn(
+                vi.spyOn(
                     useWatersUploaderExports,
                     "useWatersUploader",
                 ).mockReturnValue({
@@ -203,10 +203,10 @@ describe("FileHandlerFileUploadStep", () => {
         });
 
         describe("when a valid file is submitted", () => {
-            const onFileSubmitSuccessSpy = jest.fn();
-            const onNextStepClickSpy = jest.fn();
+            const onFileSubmitSuccessSpy = vi.fn();
+            const onNextStepClickSpy = vi.fn();
             async function setup() {
-                jest.spyOn(
+                vi.spyOn(
                     useWatersUploaderExports,
                     "useWatersUploader",
                 ).mockReturnValue({
@@ -243,7 +243,7 @@ describe("FileHandlerFileUploadStep", () => {
             }
 
             afterEach(() => {
-                jest.restoreAllMocks();
+                vi.restoreAllMocks();
             });
 
             test("it calls onFileSubmitSuccess with the response", async () => {
@@ -277,9 +277,9 @@ describe("FileHandlerFileUploadStep", () => {
         });
 
         describe("when an invalid file is submitted", () => {
-            const onFileSubmitErrorSpy = jest.fn();
+            const onFileSubmitErrorSpy = vi.fn();
             async function setup() {
-                jest.spyOn(
+                vi.spyOn(
                     useWatersUploaderExports,
                     "useWatersUploader",
                 ).mockReturnValue({
@@ -317,7 +317,7 @@ describe("FileHandlerFileUploadStep", () => {
             }
 
             afterEach(() => {
-                jest.restoreAllMocks();
+                vi.restoreAllMocks();
             });
 
             test("it calls onFileSubmitErrorSpy with the response", async () => {
@@ -388,13 +388,15 @@ describe("getClientHeader", () => {
     });
 
     describe("when sender is falsy", () => {
-        expect(
-            getClientHeader(
-                DEFAULT_SCHEMA_NAME,
-                DEFAULT_ACTIVE_MEMBERSHIP,
-                undefined,
-            ),
-        ).toEqual("");
+        test("returns an empty string", () => {
+            expect(
+                getClientHeader(
+                    DEFAULT_SCHEMA_NAME,
+                    DEFAULT_ACTIVE_MEMBERSHIP,
+                    undefined,
+                ),
+            ).toEqual("");
+        });
     });
 
     describe("when activeMembership.parsedName is falsy", () => {

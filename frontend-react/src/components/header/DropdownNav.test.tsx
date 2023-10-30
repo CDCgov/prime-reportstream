@@ -33,8 +33,8 @@ class TestLocalStorage {
 }
 
 const mockLocalStorage = new TestLocalStorage();
-jest.mock("../../pages/misc/FeatureFlags", () => {
-    const originalModule = jest.requireActual("../../pages/misc/FeatureFlags");
+vi.mock("../../pages/misc/FeatureFlags", async () => {
+    const originalModule = vi.importActual("../../pages/misc/FeatureFlags");
     return {
         ...originalModule,
         CheckFeatureFlag: (feature: string) => {
@@ -51,7 +51,7 @@ describe("AdminDropdownNav - value-sets", () => {
         mockFeatureFlagContext.mockReturnValue({
             dispatch: () => {},
             featureFlags: [],
-            checkFlags: jest.fn((flag) => flag === "value-sets"),
+            checkFlags: vi.fn((flag) => flag === "value-sets"),
         });
     });
     test("Admin menu expands and contracts on click and selection", () => {

@@ -10,7 +10,7 @@ import { ContentType, FileType } from "../../utils/TemporarySettingsAPITypes";
 
 import { useWatersUploader } from "./WatersHooks";
 
-const mockCallbackFn = jest.fn();
+const mockCallbackFn = vi.fn();
 
 describe("useWatersUploader", () => {
     beforeAll(() => watersServer.listen());

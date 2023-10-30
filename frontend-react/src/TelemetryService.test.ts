@@ -9,15 +9,15 @@ import {
     resetConsole,
 } from "./TelemetryService";
 
-jest.mock("@microsoft/applicationinsights-web", () => {
+vi.mock("@microsoft/applicationinsights-web", async () => {
     return {
-        ...jest.requireActual("@microsoft/applicationinsights-web"),
+        ...(await vi.importActual("@microsoft/applicationinsights-web")),
         ApplicationInsights: function () {
             return {
                 loadAppInsights() {},
-                trackEvent: jest.fn(),
-                trackException: jest.fn(),
-                addTelemetryInitializer: jest.fn(),
+                trackEvent: vi.fn(),
+                trackException: vi.fn(),
+                addTelemetryInitializer: vi.fn(),
                 context: {
                     getSessionId() {
                         return "test-session-id";
@@ -30,9 +30,9 @@ jest.mock("@microsoft/applicationinsights-web", () => {
 
 describe("TelemetryService", () => {
     describe("#initialize", () => {
-        const consoleWarn = jest.spyOn(console, "warn");
+        const consoleWarn = vi.spyOn(console, "warn");
         beforeEach(() => {
-            consoleWarn.mockImplementation(jest.fn);
+            consoleWarn.mockImplementation(vi.fn);
         });
         afterEach(() => {
             resetConsole();
@@ -63,16 +63,16 @@ describe("TelemetryService", () => {
         let appInsights: ApplicationInsights;
 
         beforeAll(() => {
-            jest.spyOn(console, "log").mockImplementation(jest.fn);
-            jest.spyOn(console, "info").mockImplementation(jest.fn);
-            jest.spyOn(console, "warn").mockImplementation(jest.fn);
-            jest.spyOn(console, "error").mockImplementation(jest.fn);
+            vi.spyOn(console, "log").mockImplementation(vi.fn);
+            vi.spyOn(console, "info").mockImplementation(vi.fn);
+            vi.spyOn(console, "warn").mockImplementation(vi.fn);
+            vi.spyOn(console, "error").mockImplementation(vi.fn);
 
             appInsights = createTelemetryService(aiConfig)!!;
         });
 
         afterAll(() => {
-            jest.resetAllMocks();
+            vi.resetAllMocks();
             resetConsole();
         });
 

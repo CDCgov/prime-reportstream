@@ -42,24 +42,24 @@ const fakeMeta = {
 };
 const mockError = new RSNetworkError(new AxiosError("test-error"));
 
-jest.mock<typeof import("../../../hooks/UseValueSets")>(
+vi.mock<typeof import("../../../hooks/UseValueSets")>(
     "../../../hooks/UseValueSets",
-    () => ({
-        ...jest.requireActual("../../../hooks/UseValueSets"),
-        useValueSetsTable: jest.fn(),
-        useValueSetUpdate: jest.fn(),
-        useValueSetActivation: jest.fn(),
-        useValueSetsMeta: jest.fn(),
+    async () => ({
+        ...(await vi.importActual("../../../hooks/UseValueSets")),
+        useValueSetsTable: vi.fn(),
+        useValueSetUpdate: vi.fn(),
+        useValueSetActivation: vi.fn(),
+        useValueSetsMeta: vi.fn(),
     }),
 );
 
-const mockSaveData = jest.mocked(useValueSetUpdate);
-const mockActivateTable = jest.mocked(useValueSetActivation);
-const mockUseValueSetsTable = jest.mocked(useValueSetsTable);
-const mockUseValueSetsMeta = jest.mocked(useValueSetsMeta);
+const mockSaveData = vi.mocked(useValueSetUpdate);
+const mockActivateTable = vi.mocked(useValueSetActivation);
+const mockUseValueSetsTable = vi.mocked(useValueSetsTable);
+const mockUseValueSetsMeta = vi.mocked(useValueSetsMeta);
 
-jest.mock<typeof import("react-router-dom")>("react-router-dom", () => ({
-    ...jest.requireActual("react-router-dom"),
+vi.mock<typeof import("react-router-dom")>("react-router-dom", async () => ({
+    ...(await vi.importActual("react-router-dom")),
     useParams: () => ({ valueSetName: "a-path" }) as any,
 }));
 
@@ -155,7 +155,7 @@ describe("ValueSetsDetail", () => {
 describe("ValueSetsDetailTable", () => {
     test("Handles fetch related errors", () => {
         const restore = conditionallySuppressConsole("not-found: Test");
-        const mockSetAlert = jest.fn();
+        const mockSetAlert = vi.fn();
         mockSaveData.mockImplementation(() => ({}) as any);
         mockActivateTable.mockImplementation(() => ({}) as any);
         renderApp(
@@ -174,8 +174,8 @@ describe("ValueSetsDetailTable", () => {
         restore();
     });
     test("on row save, calls saveData and activateTable triggers with correct args", async () => {
-        const mockSaveDataMutate = jest.fn();
-        const mockActivateTableMutate = jest.fn();
+        const mockSaveDataMutate = vi.fn();
+        const mockActivateTableMutate = vi.fn();
         mockSaveData.mockImplementation(
             () =>
                 ({
@@ -193,7 +193,7 @@ describe("ValueSetsDetailTable", () => {
                     ),
                 }) as any,
         );
-        const mockSetAlert = jest.fn();
+        const mockSetAlert = vi.fn();
         const fakeRowsCopy = [...fakeRows];
 
         renderApp(

@@ -58,7 +58,7 @@ const realData = {
 // </editor-fold>
 
 describe("JsonSourceMap suite", () => {
-    jest.spyOn(global.console, "error");
+    vi.spyOn(global.console, "error");
 
     test("Basic no quotes", () => {
         const data = { a: 1, b: 2 };

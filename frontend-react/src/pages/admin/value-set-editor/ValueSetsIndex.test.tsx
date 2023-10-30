@@ -28,10 +28,10 @@ const fakeMeta = {
     createdBy: "you",
 };
 
-let mockUseValueSetsTable = jest.fn();
-let mockUseValueSetsMeta = jest.fn();
+let mockUseValueSetsTable = vi.fn();
+let mockUseValueSetsMeta = vi.fn();
 
-jest.mock("../../../hooks/UseValueSets", () => {
+vi.mock("../../../hooks/UseValueSets", async () => {
     return {
         useValueSetsTable: () => mockUseValueSetsTable(),
         useValueSetsMeta: () => mockUseValueSetsMeta(),
@@ -40,14 +40,14 @@ jest.mock("../../../hooks/UseValueSets", () => {
 
 describe("ValueSetsIndex tests", () => {
     test("Renders with no errors", () => {
-        mockUseValueSetsTable = jest.fn(
+        mockUseValueSetsTable = vi.fn(
             () =>
                 ({
                     data: [] as ValueSet[],
                 }) as UseValueSetsTableResult,
         );
 
-        mockUseValueSetsMeta = jest.fn(
+        mockUseValueSetsMeta = vi.fn(
             () =>
                 ({
                     data: {},
@@ -64,14 +64,14 @@ describe("ValueSetsIndex tests", () => {
     });
 
     test("Renders rows with data returned from hook", () => {
-        mockUseValueSetsTable = jest.fn(
+        mockUseValueSetsTable = vi.fn(
             () =>
                 ({
                     data: fakeRows,
                 }) as UseValueSetsTableResult,
         );
 
-        mockUseValueSetsMeta = jest.fn(
+        mockUseValueSetsMeta = vi.fn(
             () =>
                 ({
                     data: fakeMeta,
@@ -96,13 +96,13 @@ describe("ValueSetsIndex tests", () => {
     });
     test("Error in query will render error UI instead of table", () => {
         const restore = conditionallySuppressConsole("not-found: Test");
-        mockUseValueSetsMeta = jest.fn(
+        mockUseValueSetsMeta = vi.fn(
             () =>
                 ({
                     data: fakeMeta,
                 }) as UseValueSetsMetaResult,
         );
-        mockUseValueSetsTable = jest.fn(() => {
+        mockUseValueSetsTable = vi.fn(() => {
             throw new RSNetworkError(
                 new AxiosError("Test", "404", undefined, {}, {
                     status: 404,

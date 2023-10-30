@@ -9,10 +9,10 @@ import { RangeField, RangeSettings } from "./UseDateRange";
 import { PageSettings } from "./UsePages";
 import { SortSettings } from "./UseSortOrder";
 
-const mockUpdateSort = jest.fn();
-const mockUpdatePage = jest.fn();
-const mockUpdateRange = jest.fn();
-const mockResetAll = jest.fn();
+const mockUpdateSort = vi.fn();
+const mockUpdatePage = vi.fn();
+const mockUpdateRange = vi.fn();
+const mockResetAll = vi.fn();
 const mockSortSettings: SortSettings = {
     column: "",
     order: "DESC",

@@ -15,8 +15,8 @@ const mockData: OrgSenderSettingsResource = new TestResponse(
 let editJsonAndSaveButton: HTMLElement;
 let nameField: HTMLElement;
 
-jest.mock("rest-hooks", () => ({
-    ...jest.requireActual("rest-hooks"),
+vi.mock("rest-hooks", async () => ({
+    ...(await vi.importActual("rest-hooks")),
     useResource: () => {
         return mockData;
     },
@@ -30,10 +30,10 @@ jest.mock("rest-hooks", () => ({
     },
 }));
 
-jest.mock("react-router-dom", () => ({
-    ...jest.requireActual("react-router-dom"),
+vi.mock("react-router-dom", async () => ({
+    ...(await vi.importActual("react-router-dom")),
     useNavigate: () => {
-        return jest.fn();
+        return vi.fn();
     },
     useParams: () => {
         return {
@@ -119,16 +119,14 @@ describe("EditSenderSettings", () => {
     });
 
     describe("should validate name", () => {
-        const consoleTraceSpy = jest.fn();
+        const consoleTraceSpy = vi.fn();
 
         beforeEach(() => {
-            jest.spyOn(console, "trace").mockImplementationOnce(
-                consoleTraceSpy,
-            );
+            vi.spyOn(console, "trace").mockImplementationOnce(consoleTraceSpy);
         });
 
         afterEach(() => {
-            jest.resetAllMocks();
+            vi.resetAllMocks();
         });
 
         test("should display an error if name value contains a disallowed char", () => {

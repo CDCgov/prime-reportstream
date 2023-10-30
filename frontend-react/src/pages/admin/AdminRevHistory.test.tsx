@@ -47,17 +47,17 @@ const fakeRows: SettingRevision[] = [
 ];
 
 // router path
-jest.mock("react-router-dom", () => ({
-    ...jest.requireActual("react-router-dom"),
+vi.mock("react-router-dom", async () => ({
+    ...(await vi.importActual("react-router-dom")),
     useParams: () => ({ org: "ignore", settingType: "organization" }),
 }));
 
 // replace this call to return our mock data
-jest.mock("../../network/api/Organizations/SettingRevisions", () => {
+vi.mock("../../network/api/Organizations/SettingRevisions", async () => {
     return {
-        ...jest.requireActual(
+        ...(await vi.importActual(
             "../../network/api/Organizations/SettingRevisions",
-        ),
+        )),
         useSettingRevisionEndpointsQuery: (_params: SettingRevisionParams) => {
             // The results set (data, isLoading, error) needs to match what the component
             // expects to get back from the call to useSettingRevisionEndpointsQuery()

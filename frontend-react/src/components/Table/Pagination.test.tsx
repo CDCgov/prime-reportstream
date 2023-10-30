@@ -56,7 +56,7 @@ describe("Pagination", () => {
             const props: PaginationProps = {
                 slots: slots as SlotItem[],
                 currentPageNum,
-                setSelectedPage: jest.fn(),
+                setSelectedPage: vi.fn(),
             };
             renderApp(<Pagination {...props} />);
 
@@ -70,7 +70,7 @@ describe("Pagination", () => {
     );
 
     test("Clicking on pagination items invokes the setSelectedPage callback", () => {
-        const mockSetSelectedPage = jest.fn();
+        const mockSetSelectedPage = vi.fn();
         const props: PaginationProps = {
             slots: [1, 2, 3],
             currentPageNum: 2,
@@ -98,7 +98,7 @@ describe("Pagination", () => {
         const props: PaginationProps = {
             slots: [1, OVERFLOW_INDICATOR, 6, 7, 8, 9, OVERFLOW_INDICATOR],
             currentPageNum: 7,
-            setSelectedPage: jest.fn(),
+            setSelectedPage: vi.fn(),
         };
         const { asFragment } = renderApp(<Pagination {...props} />);
         expect(asFragment()).toMatchSnapshot();
@@ -108,7 +108,7 @@ describe("Pagination", () => {
         const props: PaginationProps = {
             slots: [1, 2],
             currentPageNum: 2,
-            setSelectedPage: jest.fn(),
+            setSelectedPage: vi.fn(),
         };
         const { asFragment } = renderApp(<Pagination {...props} />);
         expect(asFragment()).toMatchSnapshot();

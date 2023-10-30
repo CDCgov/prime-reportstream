@@ -87,7 +87,7 @@ test("formatDate test", () => {
         ":23", // check the minutes are at least correct
     );
 
-    console.warn = jest.fn(); // we KNOW the next call complains with a console.warn(). don't let it stop the test
+    console.warn = vi.fn(); // we KNOW the next call complains with a console.warn(). don't let it stop the test
     expect(formatDate("bad date")).toBe("bad date");
 });
 

@@ -54,8 +54,8 @@ const mockData = {
     dateTimeFormat: "OFFSET",
 };
 
-jest.mock("rest-hooks", () => ({
-    ...jest.requireActual("rest-hooks"),
+vi.mock("rest-hooks", async () => ({
+    ...(await vi.importActual("rest-hooks")),
     useResource: () => {
         return mockData;
     },
@@ -69,10 +69,10 @@ jest.mock("rest-hooks", () => ({
     },
 }));
 
-jest.mock("react-router-dom", () => ({
-    ...jest.requireActual("react-router-dom"),
+vi.mock("react-router-dom", async () => ({
+    ...(await vi.importActual("react-router-dom")),
     useNavigate: () => {
-        return jest.fn();
+        return vi.fn();
     },
     useParams: () => {
         return {

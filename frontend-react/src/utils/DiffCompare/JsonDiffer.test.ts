@@ -218,7 +218,7 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
         );
     });
 
-    const warnSpy = jest.spyOn(global.console, "warn");
+    const warnSpy = vi.spyOn(global.console, "warn");
     test("quoted strings fail gracefully but warn", () => {
         jsonDifferMarkup("this is a text", "this is different text");
         expect(warnSpy).toBeCalledTimes(2);

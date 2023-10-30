@@ -12,16 +12,16 @@ const mockUseMessageSearchInitial = {
     error: null,
 };
 
-jest.mock<
+vi.mock<
     typeof import("../../hooks/network/MessageTracker/MessageTrackerHooks")
 >("../../hooks/network/MessageTracker/MessageTrackerHooks", () => ({
-    ...jest.requireActual(
+    ...vi.importActual(
         "../../hooks/network/MessageTracker/MessageTrackerHooks",
     ),
-    useMessageSearch: jest.fn(),
+    useMessageSearch: vi.fn(),
 }));
 
-const mockUseMessageSearch = jest.mocked(useMessageSearch);
+const mockUseMessageSearch = vi.mocked(useMessageSearch);
 
 describe("MessageTracker component", () => {
     function setup() {

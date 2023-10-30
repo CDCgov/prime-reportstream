@@ -42,8 +42,8 @@ const mockData: FacilityResource[] = [
 const mockReceivers = receiversGenerator(5);
 const mockActiveReceiver = mockReceivers[0];
 
-jest.mock("rest-hooks", () => ({
-    ...jest.requireActual("rest-hooks"),
+vi.mock("rest-hooks", async () => ({
+    ...(await vi.importActual("rest-hooks")),
     useResource: () => {
         return mockData;
     },

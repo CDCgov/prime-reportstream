@@ -37,7 +37,7 @@ describe("ManagePublicKeyChooseSender", () => {
     };
 
     afterEach(() => {
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
     });
 
     describe("when the sender options have been loaded", () => {

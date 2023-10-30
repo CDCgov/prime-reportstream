@@ -1,4 +1,5 @@
 import { AccessToken } from "@okta/okta-auth-js";
+import { vi } from "vitest";
 
 export const mockAccessToken = (mock?: Partial<AccessToken>): AccessToken => {
     return {
@@ -19,29 +20,24 @@ export const mockEvent = (mock?: Partial<any>) => {
 };
 
 export function conditionallySuppressConsole(...matchers: string[]) {
-    const origConsole = jest.requireActual("console");
-    const jestError = jest
-        .spyOn(origConsole, "error")
-        .mockImplementation((message: any) => {
-            if (
-                !matchers.find((matcher) =>
-                    message.toString().includes(matcher),
-                )
-            ) {
-                origConsole.error(message);
-            }
-        });
-    const jestWarn = jest
-        .spyOn(origConsole, "warn")
-        .mockImplementation((message: any) => {
-            if (
-                !matchers.find((matcher) =>
-                    message.toString().includes(matcher),
-                )
-            ) {
-                origConsole.warn(message);
-            }
-        });
+    const { error, warn } = global.console;
+    const mockError = vi.fn(),
+        mockWarn = vi.fn();
+    global.console = {
+        ...global.console,
+        error: mockError,
+        warn: mockWarn,
+    };
+    const jestError = mockError.mockImplementation((message: any) => {
+        if (!matchers.find((matcher) => message.toString().includes(matcher))) {
+            error(message);
+        }
+    });
+    const jestWarn = mockWarn.mockImplementation((message: any) => {
+        if (!matchers.find((matcher) => message.toString().includes(matcher))) {
+            warn(message);
+        }
+    });
 
     return () => {
         jestError.mockRestore();

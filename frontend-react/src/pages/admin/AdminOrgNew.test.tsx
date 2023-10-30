@@ -11,8 +11,8 @@ const mockData: OrganizationResource = new TestResponse(
     ResponseType.NEW_ORGANIZATION,
 ).data;
 
-jest.mock("rest-hooks", () => ({
-    ...jest.requireActual("rest-hooks"),
+vi.mock("rest-hooks", async () => ({
+    ...(await vi.importActual("rest-hooks")),
     useResource: () => {
         return mockData;
     },
@@ -26,10 +26,10 @@ jest.mock("rest-hooks", () => ({
     },
 }));
 
-jest.mock("react-router-dom", () => ({
-    ...jest.requireActual("react-router-dom"),
+vi.mock("react-router-dom", async () => ({
+    ...(await vi.importActual("react-router-dom")),
     __esModule: true,
-    useNavigate: () => jest.fn(),
+    useNavigate: () => vi.fn(),
 }));
 
 const testNewOrgJson = JSON.stringify({

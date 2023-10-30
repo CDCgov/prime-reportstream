@@ -23,7 +23,7 @@ describe("useSenderSchemaOptions", () => {
     };
 
     function doRenderHook({ data = DEFAULT_SENDER, isLoading = false }) {
-        jest.spyOn(useSenderResourceExports, "default").mockReturnValue({
+        vi.spyOn(useSenderResourceExports, "default").mockReturnValue({
             data,
             isLoading,
         } as UseSenderResourceHookResult);
