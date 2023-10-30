@@ -1,6 +1,6 @@
 extends: ../default-sender-transform
 constants:
-  serviceRequest:  'Bundle.entry.resource.ofType(ServiceRequest)'
+  serviceRequest: 'Bundle.entry.resource.ofType(ServiceRequest)'
   diagnosticReport: 'Bundle.entry.resource.ofType(DiagnosticReport)'
   patient: 'Bundle.entry.resource.ofType(Patient)'
 elements:
@@ -95,12 +95,12 @@ elements:
   - name: sr-supporting-info-aoe-tag
     resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
     bundleProperty: '%resource.meta.tag.code'
-    value: ['"AOE"']
+    value: [ '"AOE"' ]
 
   # This is populated as a sender transform in the Covid pipeline
   - name: sr-ordering-facility-name-type-code
     bundleProperty: '%serviceRequest.requester.resolve().organization.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type").valueCoding.code'
-    value: ['"L"']
+    value: [ '"L"' ]
 
   #  Simple report is not sending a unique Specimen identifier, grabbing it from Diagnostic Report
   #  STLTs use SPM identifier as their Accession number to uniquely identify reports sent to them
@@ -130,6 +130,11 @@ elements:
   - name: sr-patient-assigning-facility-id
     bundleProperty: '%patient.identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id").value[x]'
     value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value' ]
+
+  - name: sr-patient-telecom
+    resource: '%patient.telecom'
+    resourceIndex: telecomIndex
+    schema: datatypes/simple-report-telecom
 
   # Covid pipeline populates this by looking at the hl70005 value-set version
   - name: sr-patient-race-version
@@ -167,7 +172,7 @@ elements:
     resource: 'Bundle.entry.resource.ofType(Observation)'
     condition: '%resource.code.coding.exists()'
     bundleProperty: '%resource.code.coding.version'
-    value: ['%resource.code.coding.code']
+    value: [ '%resource.code.coding.code' ]
     valueSet:
       lookupTable:
         tableName: sender_automation_value_set_row
@@ -185,7 +190,7 @@ elements:
     condition: '%resource.performer.resolve().ofType(Organization).exists()'
     resource: 'Bundle.entry.resource.ofType(Observation)'
     bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
-    value: ['%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x].getIdType()']
+    value: [ '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x].getIdType()' ]
 
   # Covid pipeline populates this using a sender transform
   - name: sr-performing-organization-name-non-pracrole-assigning-authority
@@ -218,4 +223,13 @@ elements:
     bundleProperty: '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system").valueCodeableConcept.coding.code'
     value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value.getIdType()' ]
 
+  - name: sr-ordering-facility-phone
+    resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().contact[0].telecom'
+    resourceIndex: telecomIndex
+    schema: datatypes/simple-report-telecom
 
+  - name: sr-ordering-facility-telecom
+    condition: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().contact.empty()'
+    resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().telecom.where(system = "phone")'
+    resourceIndex: telecomIndex
+    schema: datatypes/simple-report-telecom
