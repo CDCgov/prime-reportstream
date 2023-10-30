@@ -344,3 +344,15 @@
 # Name suffix professional
 - id: "name-suffix-professional"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-professional"
+# FN.2 Own Surname Prefix
+- id: "humanname-own-surname-prefix"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-own-name-prefix"
+# FN.3 Own Surname
+- id: "humanname-own-surname"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-own-name"
+# FN.4 Partner Surname Prefix
+- id: "humanname-surname-from-partner-or-spouse-prefix"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix"
+# FN.5 Partner Surname
+- id: "humanname-surname-from-partner-or-spouse"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-partner-name"

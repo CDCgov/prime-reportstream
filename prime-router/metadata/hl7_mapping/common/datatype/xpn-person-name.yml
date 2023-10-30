@@ -3,6 +3,26 @@ elements:
     value: [ '%deidentifiedValue', '%resource.family' ]
     hl7Spec: [ '%{hl7NameField}-1' ]
 
+  - name: family-own-surname
+    condition: '%resource.name.extension("http://hl7.org/fhir/StructureDefinition/humanname-own-name").exists()'
+    value: [ '%deidentifiedValue', '%resource.name.extension("http://hl7.org/fhir/StructureDefinition/humanname-own-name").valueString' ]
+    hl7Spec: [ '%{hl7NameField}-1-3' ]
+
+  - name: family-own-surname-prefix
+    condition: '%resource.name.extension("http://hl7.org/fhir/StructureDefinition/humanname-own-name-prefix").exists()'
+    value: [ '%deidentifiedValue', '%resource.name.extension("http://hl7.org/fhir/StructureDefinition/humanname-own-name-prefix").valueString' ]
+    hl7Spec: [ '%{hl7NameField}-1-2' ]
+
+  - name: family-surname-from-partner-or-spouse
+    condition: '%resource.name.extension("http://hl7.org/fhir/StructureDefinition/humanname-surname-from-partner-or-spouse").exists()'
+    value: [ '%deidentifiedValue', '%resource.name.extension("http://hl7.org/fhir/StructureDefinition/humanname-surname-from-partner-or-spouse").valueString' ]
+    hl7Spec: [ '%{hl7NameField}-1-5' ]
+
+  - name: family-surname-from-partner-or-spouse-prefix
+    condition: '%resource.name.extension("http://hl7.org/fhir/StructureDefinition/humanname-surname-from-partner-or-spouse-prefix").exists()'
+    value: [ '%deidentifiedValue', '%resource.name.extension("http://hl7.org/fhir/StructureDefinition/humanname-surname-from-partner-or-spouse-prefix").valueString' ]
+    hl7Spec: [ '%{hl7NameField}-1-4' ]
+
   - name: given-name
     condition: '%resource.given.exists()'
     value: [ '%deidentifiedValue','%resource.given[0]' ]

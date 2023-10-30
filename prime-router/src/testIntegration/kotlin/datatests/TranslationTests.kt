@@ -42,6 +42,9 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.InputStream
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
@@ -386,6 +389,11 @@ class TranslationTests {
             }
             check(fhirBundles.size == 1)
             val fhirJson = FhirTranscoder.encode(fhirBundles[0])
+            val t = DateTimeFormatter
+                .ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
+                .withZone(ZoneOffset.UTC)
+                .format(Instant.now())
+            // File("xpn_fn_mapping_fhir_${t.toString()}.json").writeText(fhirJson)
             return fhirJson.byteInputStream()
         }
 
