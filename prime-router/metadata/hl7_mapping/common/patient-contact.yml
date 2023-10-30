@@ -54,8 +54,8 @@ elements:
     resource: '%resource.organization.resolve().contact.address'
     condition: '%resource.exists()'
     constants:
-      hl7AddressField: '%{hl7NK1Field}-32'
-    schema: datatype/xad-extended-address
+      hl7SpecXADField: '%{hl7NK1Field}-32'
+    schema: ../datatypes/Address/XAD
     resourceIndex: orderIndex
 
   - name: next-of-kin-telecomm-info
