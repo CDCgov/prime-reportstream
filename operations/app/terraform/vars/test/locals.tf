@@ -11,7 +11,7 @@ locals {
     okta_base_url       = "hhs-prime.oktapreview.com"
     fn_OKTA_clientId    = "xxx"
     OKTA_scope          = "simple_report_dev"
-    storage_queue_name  =["process"]
+    storage_queue_name  = ["process"]
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-app-config"

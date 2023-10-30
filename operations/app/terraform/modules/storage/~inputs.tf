@@ -57,5 +57,5 @@ variable "is_temp_env" {
 variable "storage_queue_name" {
   description = "Default storage queue names that will be created in the storage account."
   type        = list(string)
-  default = [ "proces" ]
+  default     = ["proces"]
 }
