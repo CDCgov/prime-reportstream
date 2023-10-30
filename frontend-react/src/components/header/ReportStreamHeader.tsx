@@ -407,14 +407,16 @@ export const ReportStreamHeader = ({
                 ) : (
                     <div className="usa-nav-container">
                         <div className="usa-navbar">
-                            <Title>
-                                ReportStream
-                                {IS_PREVIEW && (
-                                    <span className={styles.ClientEnv}>
-                                        {CLIENT_ENV}
-                                    </span>
-                                )}
-                            </Title>
+                            <USLink href="/">
+                                <Title>
+                                    ReportStream
+                                    {IS_PREVIEW && (
+                                        <span className={styles.ClientEnv}>
+                                            {CLIENT_ENV}
+                                        </span>
+                                    )}
+                                </Title>
+                            </USLink>
                         </div>
                     </div>
                 )}

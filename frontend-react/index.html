@@ -7,6 +7,7 @@
         <meta name="theme-color" content="#000000" />
         <meta name="description" content="%VITE_DESCRIPTION%" />
         <meta name="buidinfo" content="%VITE_CLIENT_ENV%" />
+        <script src="/src/unsupportedBrowser.ts" type="module"></script>
         <!--
         <meta
             http-equiv="Content-Security-Policy"
@@ -39,7 +40,17 @@
         <title>%VITE_TITLE%</title>
     </head>
     <body>
-        <noscript>You need to enable JavaScript to run this app.</noscript>
+        <noscript>
+            <style>
+                html {
+                    display: none;
+                }
+            </style>
+            <meta
+                http-equiv="refresh"
+                content="0.0;url=/unsupported-browser.html"
+            />
+        </noscript>
         <div id="root"></div>
         <script type="module" src="/src/index.tsx"></script>
     </body>

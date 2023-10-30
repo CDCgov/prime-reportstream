@@ -40,7 +40,14 @@
         <title>%VITE_TITLE%</title>
     </head>
     <body>
-        <noscript>You need to enable JavaScript to run this app.</noscript>
+        <noscript>
+            <style>
+                html {
+                    display: none;
+                }
+            </style>
+            <meta http-equiv="refresh" content="0.0;url=/unsupported-browser" />
+        </noscript>
         <div id="root"></div>
         <script type="module" src="/src/index.tsx"></script>
     </body>

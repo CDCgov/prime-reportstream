@@ -10,7 +10,9 @@ export function UserAgentNotSupported() {
                 <article>
                     <h1>Sorry! ReportStream does not support your browser</h1>
                     <p>
-                        Please update your browser or use one of the following:
+                        JavaScript is required to use this site. In addition,
+                        please ensure your browser is up-to-date from one of the
+                        following:
                     </p>
                     <ul>
                         <li>

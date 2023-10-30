@@ -3,12 +3,9 @@ import { RouterProvider } from "react-router";
 import React from "react";
 
 import { createRouter } from "./AppRouter";
-import { minimumBrowsersRegex } from "./utils/SupportedBrowsers";
 import config from "./config";
 import { aiConfig, createTelemetryService } from "./TelemetryService";
 import AppInsightsContextProvider from "./contexts/AppInsightsContext";
-import UserAgentNotSupported from "./pages/error/UserAgentNotSupported";
-import UserAgentGate from "./shared/UserAgentGate/UserAgentGate";
 
 import "./global.scss";
 
@@ -34,12 +31,6 @@ const root = createRoot(document.getElementById("root")!);
  */
 root.render(
     <AppInsightsContextProvider value={appInsights}>
-        <UserAgentGate
-            regex={minimumBrowsersRegex}
-            userAgent={window.navigator.userAgent}
-            failElement={<UserAgentNotSupported />}
-        >
-            <RouterProvider router={router} />
-        </UserAgentGate>
+        <RouterProvider router={router} />
     </AppInsightsContextProvider>,
 );
