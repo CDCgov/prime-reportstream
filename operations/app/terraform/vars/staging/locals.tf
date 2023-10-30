@@ -11,7 +11,7 @@ locals {
     okta_base_url       = "hhs-prime.oktapreview.com"
     fn_OKTA_clientId    = "0oa6kjcmi6muNvU8p1d7"
     OKTA_scope          = "simple_report_dev"
-    storage_queue_name  =["process", "batch", "batch-poison", "elr-fhir-convert", "process-poison", "send", "send-poison", "elr-fhir-convert", "elr-fhir-convert-poison", "elr-fhir-route", "elr-fhir-translate", "elr-fhir-translate-poison", "process-elr"]
+    storage_queue_name  = ["process", "batch", "batch-poison", "elr-fhir-convert", "process-poison", "send", "send-poison", "elr-fhir-convert", "elr-fhir-convert-poison", "elr-fhir-route", "elr-fhir-translate", "elr-fhir-translate-poison", "process-elr"]
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig"
