@@ -1,19 +1,9 @@
 #!/usr/bin/env bash
 
-isModified=0
-set -o pipefail
-
-function modified_check() {
-    MODIFIED_COUNT=$(git status --porcelain | grep "frontend-react/" | wc -l | xargs)
-    if [[ ${MODIFIED_COUNT} != 0 ]]; then
-        isModified=1
-    else
-        isModified=0
-    fi
-}
-
-modified_check
-if [[ ${isModified} == 1 ]]; then
+if [[ -z $(git status --porcelain frontend-react/) ]] ; then
+    echo "frontend-react> info: git status is reporting there are no uncommitted changes within 'frontend-react'; hence, skipping frontend checks."
+else
+    echo "frontend-react> running frontend checks..."
     ./frontend-react/.husky/pre-commit;
 fi
 RC=$?
