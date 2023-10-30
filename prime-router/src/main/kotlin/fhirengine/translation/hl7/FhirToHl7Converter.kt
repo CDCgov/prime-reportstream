@@ -87,10 +87,6 @@ class FhirToHl7Converter(
         val message = HL7Utils.getMessageInstance(schemaRef.hl7Class!!)
 
         terser = Terser(message)
-        val dupes = schemaRef.duplicateElements
-        if (dupes.isNotEmpty()) { // value is the number of matches
-            throw SchemaException("Schema ${schemaRef.name} has multiple elements with the same name: ${dupes.keys}")
-        }
         processSchema(schemaRef, bundle, bundle)
         return message
     }
