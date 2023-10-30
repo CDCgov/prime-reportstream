@@ -71,14 +71,13 @@ jobs:
 
       - name: Initialize CodeQL
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: github/codeql-action/init@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
+        uses: github/codeql-action/init@bad341350a2f5616f9e048e51360cedc49181ce8
         with:
           languages: ${{ matrix.language }}
 
       - name: Perform Java CodeQL Analysis
-        working-directory: prime-router
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: github/codeql-action/analyze@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
+        uses: github/codeql-action/analyze@bad341350a2f5616f9e048e51360cedc49181ce8
 
       - name: Use Node.js with yarn
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
