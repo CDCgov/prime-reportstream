@@ -188,3 +188,13 @@ elements:
       ceFieldPath: '%{hl7PIDField}-35'
     schema: ../common/datatype/ce-coded-element
 
+  - name: patient-tribal-citizenship
+    condition: >
+      %context.extension(%`ext-patient-citizenship`).exists() and
+      %context.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).exists() and
+      %context.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value.where(extension(%`rsext-hl7v2Name`).value = "tribal-citizenship").exists()
+    resource: '%resource.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value'
+    constants:
+      cweFieldPath: '%{hl7PIDField}-39'
+    schema: ../datatypes/codeableConcept/CWE
+

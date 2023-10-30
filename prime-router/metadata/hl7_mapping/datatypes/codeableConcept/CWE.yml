@@ -1,77 +1,78 @@
-- name: identifier
-  condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "coding").exists()'
-  value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "coding").code' ]
-  hl7Spec: [ '%{cweFieldPath}-1' ]
+elements:
+  - name: identifier
+    condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "coding").exists()'
+    value: [ '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "coding").code' ]
+    hl7Spec: [ '%{cweFieldPath}-1' ]
 
-- name: text
-  condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "coding").exists()'
-  value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "coding").display' ]
-  hl7Spec: [ '%{cweFieldPath}-2' ]
+  - name: text
+    condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "coding").exists()'
+    value: [ '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "coding").display' ]
+    hl7Spec: [ '%{cweFieldPath}-2' ]
 
-- name: name-of-coding-system
-  condition: >
-    %context.coding.where(extension(%`rsext-cwe-coding`).value = "coding").exists() and
-    %context.coding.where(extension(%`rsext-cwe-coding`).value = "coding").extension(%`rsext-cwe-coding-system`).value.exists()
-  resource: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "coding").extension(%`rsext-cwe-coding-system`)'
-  value: [ '%resource.value' ]
-  hl7Spec: [ '%{cweFieldPath}-3' ]
+  - name: name-of-coding-system
+    condition: >
+      %context.coding.where(extension(%`rsext-cwe-coding`).value = "coding").exists() and
+      %context.coding.where(extension(%`rsext-cwe-coding`).value = "coding").extension(%`rsext-cwe-coding-system`).value.exists()
+    resource: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "coding").extension(%`rsext-cwe-coding-system`)'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{cweFieldPath}-3' ]
 
-- name: alternative-identifier
-  condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "alt-coding").exists()'
-  value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "alt-coding").code' ]
-  hl7Spec: [ '%{cweFieldPath}-4' ]
+  - name: alternative-identifier
+    condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "alt-coding").exists()'
+    value: [ '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "alt-coding").code' ]
+    hl7Spec: [ '%{cweFieldPath}-4' ]
 
-- name: alternative-text
-  condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "alt-coding").exists()'
-  value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "alt-coding").display' ]
-  hl7Spec: [ '%{cweFieldPath}-5' ]
+  - name: alternative-text
+    condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "alt-coding").exists()'
+    value: [ '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "alt-coding").display' ]
+    hl7Spec: [ '%{cweFieldPath}-5' ]
 
-- name: alternative-name-of-coding-system
-  condition: >
-    %context.coding.where(extension(%`rsext-cwe-coding`).value = "alt-coding").exists() and
-    %context.coding.where(extension(%`rsext-cwe-coding`).value = "alt-coding").extension(%`rsext-cwe-coding-system`).value.exists()
-  resource: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "alt-coding").extension(%`rsext-cwe-coding-system`)'
-  value: [ '%resource.value' ]
-  hl7Spec: [ '%{cweFieldPath}-6' ]
+  - name: alternative-name-of-coding-system
+    condition: >
+      %context.coding.where(extension(%`rsext-cwe-coding`).value = "alt-coding").exists() and
+      %context.coding.where(extension(%`rsext-cwe-coding`).value = "alt-coding").extension(%`rsext-cwe-coding-system`).value.exists()
+    resource: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "alt-coding").extension(%`rsext-cwe-coding-system`)'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{cweFieldPath}-6' ]
 
-- name: coding-system-version-id
-  condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "coding").exists()'
-  value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "coding").version' ]
-  hl7Spec: [ '%{cweFieldPath}-7' ]
+  - name: coding-system-version-id
+    condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "coding").exists()'
+    value: [ '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "coding").version' ]
+    hl7Spec: [ '%{cweFieldPath}-7' ]
 
-- name: alternative-coding-system-version-id
-  condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "alt-coding").exists()'
-  value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "alt-coding").version' ]
-  hl7Spec: [ '%{cweFieldPath}-8' ]
+  - name: alternative-coding-system-version-id
+    condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "alt-coding").exists()'
+    value: [ '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "alt-coding").version' ]
+    hl7Spec: [ '%{cweFieldPath}-8' ]
 
-- name: original-text
-  value: [ '%resource.text' ]
-  hl7Spec: [ '%{cweFieldPath}-9' ]
+  - name: original-text
+    value: [ '%resource.text' ]
+    hl7Spec: [ '%{cweFieldPath}-9' ]
 
-- name: second-alternative-identifier
-  condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "secondary-alt-coding").exists()'
-  value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "secondary-alt-coding").code' ]
-  hl7Spec: [ '%{cweFieldPath}-10' ]
+  - name: second-alternative-identifier
+    condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "secondary-alt-coding").exists()'
+    value: [ '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "secondary-alt-coding").code' ]
+    hl7Spec: [ '%{cweFieldPath}-10' ]
 
-- name: second-alternative-text
-  condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "secondary-alt-coding").exists()'
-  value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "secondary-alt-coding").display' ]
-  hl7Spec: [ '%{cweFieldPath}-11' ]
+  - name: second-alternative-text
+    condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "secondary-alt-coding").exists()'
+    value: [ '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "secondary-alt-coding").display' ]
+    hl7Spec: [ '%{cweFieldPath}-11' ]
 
-- name: second-alternative-name-of-coding-system
-  condition: >
-    %context.coding.where(extension(%`rsext-cwe-coding`).value = "secondary-alt-coding").exists() and
-    %context.coding.where(extension(%`rsext-cwe-coding`).value = "secondary-alt-coding").extension(%`rsext-cwe-coding-system`).value.exists()
-  resource: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "secondary-alt-coding").extension(%`rsext-cwe-coding-system`)'
-  value: [ '%resource.value' ]
-  hl7Spec: [ '%{cweFieldPath}-12' ]
+  - name: second-alternative-name-of-coding-system
+    condition: >
+      %context.coding.where(extension(%`rsext-cwe-coding`).value = "secondary-alt-coding").exists() and
+      %context.coding.where(extension(%`rsext-cwe-coding`).value = "secondary-alt-coding").extension(%`rsext-cwe-coding-system`).value.exists()
+    resource: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "secondary-alt-coding").extension(%`rsext-cwe-coding-system`)'
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{cweFieldPath}-12' ]
 
-- name: second-alternative-coding-system-version-id
-  condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "secondary-alt-coding").exists()'
-  value: [ '%resource.coding.where(extension(%`rsext-code-index-name`).value = "secondary-alt-coding").version' ]
-  hl7Spec: [ '%{cweFieldPath}-13' ]
+  - name: second-alternative-coding-system-version-id
+    condition: '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "secondary-alt-coding").exists()'
+    value: [ '%resource.coding.where(extension(%`rsext-cwe-coding`).value = "secondary-alt-coding").version' ]
+    hl7Spec: [ '%{cweFieldPath}-13' ]
 
-- name: second-alternative-coding-system-version-id
-  condition: '%resource.coding.extension(%`rsext-coding-system-oid`).value.exists()'
-  value: [ '%resource.coding.extension(%`rsext-coding-system-oid`).value' ]
-  hl7Spec: [ '%{cweFieldPath}-13' ]
+  - name: coding-system-oid
+    condition: '%resource.extension(%`rsext-coding-system-oid`).exists()'
+    value: [ '%resource.extension(%`rsext-coding-system-oid`).value.getId()' ]
+    hl7Spec: [ '%{cweFieldPath}-14' ]
