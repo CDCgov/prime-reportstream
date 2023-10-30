@@ -47,12 +47,6 @@ jobs:
             backend:
               - 'prime-router/**'
 
-      - name: Initialize CodeQL
-        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: github/codeql-action/init@bad341350a2f5616f9e048e51360cedc49181ce8
-        with:
-          languages: ${{ matrix.language }}
-
       - name: Set up JDK 17
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         uses: actions/setup-java@0ab4596768b603586c0de567f2430c30f5b0d2b0
@@ -75,6 +69,12 @@ jobs:
         working-directory: prime-router
         #run: ./gradlew jacocoTestReport
         run: ./gradlew package -x fatjar
+
+      - name: Initialize CodeQL
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        uses: github/codeql-action/init@bad341350a2f5616f9e048e51360cedc49181ce8
+        with:
+          languages: ${{ matrix.language }}
 
       - name: Perform Java CodeQL Analysis
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
