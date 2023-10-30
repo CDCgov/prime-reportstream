@@ -350,3 +350,12 @@
 # Degree (e.g., MD)
 - id: "cnn7-degree"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cnn7-degree"
+# Name suffix
+- id: "name-suffix"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix"
+# Name suffix degree
+- id: "name-suffix-degree"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-degree"
+# Name suffix professional
+- id: "name-suffix-professional"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-professional"

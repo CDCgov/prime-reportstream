@@ -47,28 +47,6 @@ abstract class ConfigSchema<T : ConfigSchemaElement>(
     private var validationErrors: MutableSet<String> = mutableSetOf()
 
     /**
-     * Returns count of duplicate elements in the schema
-     *
-     * Root -> A -> C
-     *         B -> C
-     *
-     *      vs
-     *
-     * Root -> A -> B -> D
-     *           -> C -> D
-     *
-     * The first graph will contain duplicate elements, but the second will not
-     *
-     * @returns the duplicate elements contained in the first or second nested schemas
-     *
-     */
-    val duplicateElements: Map<String?, Int>
-        get() = (
-            elements.filter { it.name != null } +
-                elements.flatMap { it.schemaRef?.elements ?: emptyList() }
-            ).groupingBy { it.name }.eachCount().filter { it.value > 1 }
-
-    /**
      * Add an error [msg] to the list of errors.
      */
     protected fun addError(msg: String) {
