@@ -64,17 +64,17 @@ jobs:
         working-directory: prime-router
         run: docker-compose -f docker-compose.postgres.yml up -d
 
-      - name: Build Prime Router Package
-        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        working-directory: prime-router
-        #run: ./gradlew jacocoTestReport
-        run: ./gradlew package -x fatjar
-
       - name: Initialize CodeQL
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         uses: github/codeql-action/init@bad341350a2f5616f9e048e51360cedc49181ce8
         with:
           languages: ${{ matrix.language }}
+
+      - name: Build Prime Router Package
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        working-directory: prime-router
+        #run: ./gradlew jacocoTestReport
+        run: ./gradlew package -x fatjar
 
       - name: Perform Java CodeQL Analysis
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
