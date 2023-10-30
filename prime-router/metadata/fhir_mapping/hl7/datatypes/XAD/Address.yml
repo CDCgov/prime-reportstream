@@ -177,9 +177,22 @@ period_1:
     xad14: String, XAD.14
     start: String, XAD.12.1
     end: String, XAD.12.2
-  condition: $xad13 NULL || $xad14 NULL
+  condition: $xad13 NULL && $xad14 NULL
   expressionType: resource
   valueOf: datatypes/DR/Period
+
+extension_xad12AddressValidityRange:
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xad12-address-validity-range
+    valuePeriod:
+      expressionType: resource
+      valueOf: datatypes/DR/Period
+      vars:
+        start: String, XAD.12.1
+        end: String, XAD.12.2
 
 # XAD.12 is deprecated so the schema favors using XAD.13/14 if either are populated
 period_2:

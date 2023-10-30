@@ -354,6 +354,8 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad8-other-geographic-destination"
 - id: "xad11-address-representation-code"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad11-address-representation-code"
+- id: "xad12-address-validity-range"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad12-address-validity-range"
 - id: "xad15-expiration-reason"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad15-expiration-reason"
 - id: "xad19-addressee"

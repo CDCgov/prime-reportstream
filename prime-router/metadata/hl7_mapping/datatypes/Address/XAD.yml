@@ -53,11 +53,11 @@ elements:
     hl7Spec: [ '%{hl7SpecXADField}-11' ]
 
   - name: period
-    value: [ '%resource.period.start' ]
+    value: [ '%resource.extension(%`rsext-xad12-address-validity-range`).value.start' ]
     hl7Spec: [ '%{hl7SpecXADField}-12-1' ]
 
   - name: period
-    value: [ '%resource.period.end' ]
+    value: [ '%resource.extension(%`rsext-xad12-address-validity-range`).value.end' ]
     hl7Spec: [ '%{hl7SpecXADField}-12-2' ]
 
   - name: effective-date
