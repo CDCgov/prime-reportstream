@@ -49,4 +49,15 @@ class XADToAddress {
     fun `test translate HL7 to FHIR to HL7 hv-address-type`() {
         assert(verifyHL7ToFHIRToHL7Mapping("xad/xad-to-address-type-hv").passed)
     }
+
+    @Test
+    fun `test uses XAD12 only when XAD13 and XAD14 are not present`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("xad/xad-to-address-uses-xad12").passed)
+    }
+
+    @Test
+    fun `ignores XAD12 if either XAD13 or XAD14 are present`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("xad/xad-to-address-ignores-xad12-for-xad13").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("xad/xad-to-address-ignores-xad12-for-xad14").passed)
+    }
 }
