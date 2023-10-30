@@ -68,13 +68,13 @@ const handlers = [
     /* Successfully returns a Report */
     rest.get(
         `${config.API_ROOT}/waters/report/123/delivery`,
-        (req, res, ctx) => {
+        (_req, res, ctx) => {
             return res(ctx.status(200), ctx.json(makeDeliveryFixture(123)));
         },
     ),
     rest.get(
         `${config.API_ROOT}/waters/report/123/facilities`,
-        (req, res, ctx) => {
+        (_req, res, ctx) => {
             const testRes = [makeFacilityFixture(1), makeFacilityFixture(2)];
             return res(ctx.status(200), ctx.json(testRes));
         },

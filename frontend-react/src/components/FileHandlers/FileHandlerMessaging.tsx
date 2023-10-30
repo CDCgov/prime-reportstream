@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import { Button, Icon } from "@trussworks/react-uswds";
 import { renderToString } from "react-dom/server";
 

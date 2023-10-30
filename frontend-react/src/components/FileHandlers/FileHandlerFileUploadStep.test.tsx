@@ -30,7 +30,9 @@ import FileHandlerFileUploadStep, {
 } from "./FileHandlerFileUploadStep";
 
 vi.mock("../AlertNotifications", async () => ({
-    ...(await vi.importActual("../AlertNotifications")),
+    ...(await vi.importActual<typeof import("../AlertNotifications")>(
+        "../AlertNotifications",
+    )),
     showError: vi.fn(),
 }));
 

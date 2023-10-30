@@ -1,5 +1,3 @@
-import React from "react";
-
 import { USExtLink } from "../USLink";
 import site from "../../content/site.json";
 

@@ -1,5 +1,5 @@
 /* Makes row objects string-indexed */
-import React, { ReactNode, useMemo, useCallback, useState } from "react";
+import { ReactNode, useMemo, useCallback, useState } from "react";
 
 import Pagination, { PaginationProps } from "../../components/Table/Pagination";
 import { FilterManager } from "../../hooks/filters/UseFilterManager";

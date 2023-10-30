@@ -12,12 +12,10 @@ const mockUseMessageSearchInitial = {
     error: null,
 };
 
-vi.mock<
-    typeof import("../../hooks/network/MessageTracker/MessageTrackerHooks")
->("../../hooks/network/MessageTracker/MessageTrackerHooks", () => ({
-    ...vi.importActual(
-        "../../hooks/network/MessageTracker/MessageTrackerHooks",
-    ),
+vi.mock("../../hooks/network/MessageTracker/MessageTrackerHooks", async () => ({
+    ...(await vi.importActual<
+        typeof import("../../hooks/network/MessageTracker/MessageTrackerHooks")
+    >("../../hooks/network/MessageTracker/MessageTrackerHooks")),
     useMessageSearch: vi.fn(),
 }));
 

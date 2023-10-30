@@ -55,7 +55,7 @@ const mockData = {
 };
 
 vi.mock("rest-hooks", async () => ({
-    ...(await vi.importActual("rest-hooks")),
+    ...(await vi.importActual<typeof import("rest-hooks")>("rest-hooks")),
     useResource: () => {
         return mockData;
     },
@@ -70,7 +70,9 @@ vi.mock("rest-hooks", async () => ({
 }));
 
 vi.mock("react-router-dom", async () => ({
-    ...(await vi.importActual("react-router-dom")),
+    ...(await vi.importActual<typeof import("react-router-dom")>(
+        "react-router-dom",
+    )),
     useNavigate: () => {
         return vi.fn();
     },
@@ -89,19 +91,11 @@ describe("EditReceiverSettings", () => {
     }
 
     beforeAll(() => {
-        global.window = Object.create(window);
-        const url = "http://test.com";
-        Object.defineProperty(window, "location", {
-            value: {
-                href: url,
-            },
-            writable: true,
-        });
         settingsServer.listen();
         settingsServer.use(
             rest.get(
                 `${config.API_ROOT}/settings/organizations/abbott/receivers/user1234`,
-                (req, res, ctx) => res(ctx.json(mockData)),
+                (_req, res, ctx) => res(ctx.json(mockData)),
             ),
         );
     });

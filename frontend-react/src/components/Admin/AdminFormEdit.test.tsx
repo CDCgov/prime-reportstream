@@ -1,5 +1,5 @@
 import { fireEvent, screen } from "@testing-library/react";
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { ProcessingType } from "../../utils/TemporarySettingsAPITypes";

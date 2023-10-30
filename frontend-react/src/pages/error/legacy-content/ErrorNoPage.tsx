@@ -1,5 +1,4 @@
 import { Helmet } from "react-helmet-async";
-import React from "react";
 import { Button } from "@trussworks/react-uswds";
 import { useNavigate } from "react-router-dom";
 

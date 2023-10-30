@@ -1,5 +1,3 @@
-import React from "react";
-
 import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHooks";
 import Table, { TableConfig } from "../../../components/Table/Table";
 import TableFilters from "../../Table/TableFilters";

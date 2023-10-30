@@ -1,5 +1,4 @@
 // AutoUpdateFileChromatic
-import React from "react";
 import { StoryFn, Meta } from "@storybook/react";
 
 import { Table } from "./Table";

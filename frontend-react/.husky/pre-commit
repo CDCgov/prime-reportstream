@@ -14,4 +14,3 @@ cd frontend-react
 
 ./scripts/yarn-check.sh
 yarn lint-staged
-yarn test -o --silent

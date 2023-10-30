@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import React, { useRef } from "react";
+import { useRef } from "react";
 import { act } from "react-dom/test-utils";
 import userEvent from "@testing-library/user-event";
 

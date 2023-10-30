@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
 
 import { showError } from "../AlertNotifications";

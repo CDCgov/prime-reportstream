@@ -12,7 +12,8 @@ import {
 } from "./FeatureFlagContext";
 
 vi.mock("../config", async () => {
-    const originalModule = vi.importActual("../config");
+    const originalModule =
+        await vi.importActual<typeof import("../config")>("../config");
     return {
         ...originalModule,
         default: {

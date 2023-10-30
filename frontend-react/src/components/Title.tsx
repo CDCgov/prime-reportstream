@@ -1,5 +1,3 @@
-import React from "react";
-
 interface TitleProps {
     /* The string above the bold title */
     preTitle?: string;

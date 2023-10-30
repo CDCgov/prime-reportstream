@@ -157,7 +157,9 @@ const DEFAULT_MESSAGE_DETAIL: RSMessageDetail = {
 };
 
 vi.mock("react-router-dom", async () => ({
-    ...(await vi.importActual("react-router-dom")), // use actual for all non-hook parts
+    ...(await vi.importActual<typeof import("react-router-dom")>(
+        "react-router-dom",
+    )), // use actual for all non-hook parts
     useNavigate: () => {
         return vi.fn();
     },

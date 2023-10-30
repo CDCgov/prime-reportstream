@@ -23,7 +23,9 @@ const mockReceiverServices = receiverServicesGenerator(5);
 const mockActiveReceiver = mockReceiverServices[0];
 
 vi.mock("../../../TelemetryService", async () => ({
-    ...(await vi.importActual("../../../TelemetryService")),
+    ...(await vi.importActual<typeof import("../../../TelemetryService")>(
+        "../../../TelemetryService",
+    )),
     getAppInsights: () => mockAppInsights,
 }));
 

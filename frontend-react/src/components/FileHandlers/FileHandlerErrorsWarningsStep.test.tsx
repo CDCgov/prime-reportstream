@@ -16,7 +16,9 @@ function mockRequestedChangesDisplay({ title }: { title: RequestLevel }) {
 }
 
 vi.mock("./FileHandlerMessaging", async () => ({
-    ...(await vi.importActual("./FileHandlerMessaging")),
+    ...(await vi.importActual<typeof import("./FileHandlerMessaging")>(
+        "./FileHandlerMessaging",
+    )),
     RequestedChangesDisplay: mockRequestedChangesDisplay,
 }));
 

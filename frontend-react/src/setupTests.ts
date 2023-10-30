@@ -4,4 +4,4 @@ import { TextEncoder } from "util";
 import "whatwg-fetch";
 
 global.TextEncoder = TextEncoder;
-global.scrollTo = vi.fn();
+vi.stubGlobal("scrollTo", vi.fn());

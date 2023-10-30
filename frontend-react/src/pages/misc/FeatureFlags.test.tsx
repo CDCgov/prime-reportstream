@@ -7,14 +7,14 @@ import { renderApp } from "../../utils/CustomRenderUtils";
 import { FeatureFlagsPage } from "./FeatureFlags";
 
 vi.mock("../../config", async () => {
-    const originalModule = vi.importActual("../../config");
+    const originalModule =
+        await vi.importActual<typeof import("../../config")>("../../config");
     return {
         ...originalModule,
         default: {
             ...originalModule.default,
             DEFAULT_FEATURE_FLAGS: "flag-3",
         },
-        __esModule: true,
     };
 });
 

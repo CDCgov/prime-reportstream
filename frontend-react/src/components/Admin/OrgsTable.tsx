@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useResource } from "rest-hooks";
 import { Button, ButtonGroup, Label, TextInput } from "@trussworks/react-uswds";
 import { useNavigate } from "react-router-dom";

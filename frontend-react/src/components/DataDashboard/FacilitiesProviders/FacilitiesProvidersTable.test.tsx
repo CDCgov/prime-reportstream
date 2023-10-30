@@ -43,7 +43,7 @@ const mockReceivers = receiversGenerator(5);
 const mockActiveReceiver = mockReceivers[0];
 
 vi.mock("rest-hooks", async () => ({
-    ...(await vi.importActual("rest-hooks")),
+    ...(await vi.importActual<typeof import("rest-hooks")>("rest-hooks")),
     useResource: () => {
         return mockData;
     },

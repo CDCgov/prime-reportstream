@@ -68,6 +68,7 @@ export default function ManagePublicKeyUpload({
                             required
                             ref={fileInputRef}
                             accept=".pem"
+                            crossOrigin={undefined}
                         />
                     </FormGroup>
                     <Grid row>

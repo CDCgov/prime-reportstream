@@ -11,7 +11,9 @@ import {
 
 vi.mock("@microsoft/applicationinsights-web", async () => {
     return {
-        ...(await vi.importActual("@microsoft/applicationinsights-web")),
+        ...(await vi.importActual<
+            typeof import("@microsoft/applicationinsights-web")
+        >("@microsoft/applicationinsights-web")),
         ApplicationInsights: function () {
             return {
                 loadAppInsights() {},
@@ -31,9 +33,6 @@ vi.mock("@microsoft/applicationinsights-web", async () => {
 describe("TelemetryService", () => {
     describe("#initialize", () => {
         const consoleWarn = vi.spyOn(console, "warn");
-        beforeEach(() => {
-            consoleWarn.mockImplementation(vi.fn);
-        });
         afterEach(() => {
             resetConsole();
         });
@@ -63,16 +62,10 @@ describe("TelemetryService", () => {
         let appInsights: ApplicationInsights;
 
         beforeAll(() => {
-            vi.spyOn(console, "log").mockImplementation(vi.fn);
-            vi.spyOn(console, "info").mockImplementation(vi.fn);
-            vi.spyOn(console, "warn").mockImplementation(vi.fn);
-            vi.spyOn(console, "error").mockImplementation(vi.fn);
-
             appInsights = createTelemetryService(aiConfig)!!;
         });
 
         afterAll(() => {
-            vi.resetAllMocks();
             resetConsole();
         });
 
@@ -203,7 +196,7 @@ describe("TelemetryService", () => {
                         properties: {
                             additionalInformation: {
                                 error: error,
-                                location: "http://localhost/",
+                                location: "http://localhost:3000/",
                                 other: [],
                             },
                         },
@@ -224,7 +217,7 @@ describe("TelemetryService", () => {
                         properties: {
                             additionalInformation: {
                                 error: error,
-                                location: "http://localhost/",
+                                location: "http://localhost:3000/",
                                 other: [],
                             },
                         },
@@ -246,7 +239,7 @@ describe("TelemetryService", () => {
                         properties: {
                             additionalInformation: {
                                 error: error,
-                                location: "http://localhost/",
+                                location: "http://localhost:3000/",
                                 other: [data],
                             },
                         },

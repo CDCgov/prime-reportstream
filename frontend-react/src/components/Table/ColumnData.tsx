@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import { Button } from "@trussworks/react-uswds";
 
 import { USLink } from "../USLink";

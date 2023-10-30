@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import DOMPurify from "dompurify";
 import classNames from "classnames";
 

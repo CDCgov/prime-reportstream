@@ -8,7 +8,7 @@ import {
     ModalRef,
     Table,
 } from "@trussworks/react-uswds";
-import React, { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import DOMPurify from "dompurify";
 
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";

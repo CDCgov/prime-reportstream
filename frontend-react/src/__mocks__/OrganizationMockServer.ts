@@ -130,25 +130,25 @@ const handlers = [
             ctx.status(200),
         );
     }),
-    rest.get(testSender, (req, res, ctx) => {
+    rest.get(testSender, (_req, res, ctx) => {
         return res(ctx.json(dummySender), ctx.status(200));
     }),
-    rest.get(`${base}/testOrg/senders`, (req, res, ctx) => {
+    rest.get(`${base}/testOrg/senders`, (_req, res, ctx) => {
         return res(ctx.json(dummySenders), ctx.status(200));
     }),
-    rest.get(firstSender, (req, res, ctx) => {
+    rest.get(firstSender, (_req, res, ctx) => {
         return res(ctx.status(200));
     }),
-    rest.get(`${base}/testOrg`, (req, res, ctx) => {
+    rest.get(`${base}/testOrg`, (_req, res, ctx) => {
         return res(ctx.json(fakeOrg), ctx.status(200));
     }),
-    rest.get(`${base}/testOrg/receivers`, (req, res, ctx) => {
+    rest.get(`${base}/testOrg/receivers`, (_req, res, ctx) => {
         return res(ctx.json(dummyReceivers), ctx.status(200));
     }),
-    rest.get(`${base}/testOrgNoReceivers/receivers`, (req, res, ctx) => {
+    rest.get(`${base}/testOrgNoReceivers/receivers`, (_req, res, ctx) => {
         return res(ctx.json([]), ctx.status(200));
     }),
-    rest.get(`${base}/testOrg/public-keys`, (req, res, ctx) => {
+    rest.get(`${base}/testOrg/public-keys`, (_req, res, ctx) => {
         return res(ctx.json(dummyPublicKey), ctx.status(200));
     }),
     rest.post(`${base}/testOrg/public-keys`, (req, res, ctx) => {

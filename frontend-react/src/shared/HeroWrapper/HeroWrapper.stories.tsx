@@ -1,6 +1,4 @@
 // AutoUpdateFileChromatic
-import React from "react";
-
 import HeroWrapper from "./HeroWrapper";
 
 export default {

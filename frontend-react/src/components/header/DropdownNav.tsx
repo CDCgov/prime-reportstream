@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, NavDropDownButton } from "@trussworks/react-uswds";
 
 import { MarkdownDirectory } from "../Content/MarkdownDirectory";

@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useState } from "react";
+import { Suspense, useCallback, useState } from "react";
 import { Grid, GridContainer, Accordion } from "@trussworks/react-uswds";
 import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accordion/Accordion";
 import { useParams } from "react-router-dom";

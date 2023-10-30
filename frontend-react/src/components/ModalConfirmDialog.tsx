@@ -7,13 +7,7 @@ import {
     ModalRef,
     ModalToggleButton,
 } from "@trussworks/react-uswds";
-import React, {
-    forwardRef,
-    Ref,
-    useImperativeHandle,
-    useRef,
-    useState,
-} from "react";
+import { forwardRef, Ref, useImperativeHandle, useRef, useState } from "react";
 
 /**
  * Wrapper on top of ModalRef to do simple confirmation modal.

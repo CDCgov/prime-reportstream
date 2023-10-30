@@ -60,7 +60,7 @@ const handlers = [
     rest.get(messageSearch, (_req, res, ctx) => {
         return res(ctx.json(messagesSearchResultList), ctx.status(200));
     }),
-    rest.get(`${RS_API_URL}/api/message/11`, (req, res, ctx) => {
+    rest.get(`${RS_API_URL}/api/message/11`, (_req, res, ctx) => {
         return res(ctx.status(200), ctx.json(makeMessageDetailsFixture(11)));
     }),
 ];

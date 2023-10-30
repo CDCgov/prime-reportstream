@@ -1,6 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react";
 import { NetworkErrorBoundary } from "rest-hooks";
-import React, { Suspense } from "react";
+import { Suspense } from "react";
 
 import { AdmConnStatusDataType } from "../../resources/AdmConnStatusResource";
 import { ErrorPage } from "../../pages/error/ErrorPage";
@@ -79,7 +79,7 @@ const mockData: AdmConnStatusDataType[] = [
 ];
 
 vi.mock("rest-hooks", async () => ({
-    ...(await vi.importActual("rest-hooks")),
+    ...(await vi.importActual<typeof import("rest-hooks")>("rest-hooks")),
     useResource: () => {
         return mockData;
     },

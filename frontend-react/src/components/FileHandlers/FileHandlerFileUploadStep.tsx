@@ -249,6 +249,7 @@ export default function FileHandlerFileUploadStep({
                                 required
                                 ref={fileInputRef}
                                 accept={accept}
+                                crossOrigin={undefined}
                             />
                         </FormGroup>
 

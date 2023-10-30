@@ -1,6 +1,5 @@
 import { useResource } from "rest-hooks";
 import { ButtonGroup, Table } from "@trussworks/react-uswds";
-import React from "react";
 
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import Spinner from "../Spinner";

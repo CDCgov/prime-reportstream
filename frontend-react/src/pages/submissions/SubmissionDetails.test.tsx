@@ -23,7 +23,7 @@ const mockData: ActionDetailsResource = new TestResponse(
     ResponseType.ACTION_DETAIL,
 ).data;
 vi.mock("rest-hooks", async () => ({
-    ...(await vi.importActual("rest-hooks")),
+    ...(await vi.importActual<typeof import("rest-hooks")>("rest-hooks")),
     useResource: () => {
         return mockData;
     },

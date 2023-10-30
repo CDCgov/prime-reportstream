@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Table } from "../../../shared/Table/Table";
 import TableFilters from "../../Table/TableFilters";
 import useFilterManager, {

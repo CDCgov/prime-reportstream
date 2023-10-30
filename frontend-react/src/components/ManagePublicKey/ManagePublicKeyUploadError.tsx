@@ -1,4 +1,3 @@
-import React from "react";
 import { Button, Grid } from "@trussworks/react-uswds";
 
 import site from "../../content/site.json";

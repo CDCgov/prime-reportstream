@@ -29,7 +29,9 @@ const mockReceivers = receiversGenerator(5);
 const mockActiveReceiver = mockReceivers[0];
 
 vi.mock("../../../hooks/UsePagination", async () => ({
-    ...(await vi.importActual("../../../hooks/UsePagination")),
+    ...(await vi.importActual<typeof import("../../../hooks/UsePagination")>(
+        "../../../hooks/UsePagination",
+    )),
     default: () => {
         return {
             ...mockUsePagination,

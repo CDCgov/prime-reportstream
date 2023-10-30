@@ -1,6 +1,5 @@
 import download from "downloadjs";
 import { Button, Icon } from "@trussworks/react-uswds";
-import React from "react";
 
 import ReportResource from "../../../resources/ReportResource";
 import config from "../../../config";

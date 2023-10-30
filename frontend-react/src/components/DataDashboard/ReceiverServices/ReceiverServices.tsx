@@ -1,5 +1,3 @@
-import React from "react";
-
 import { RSReceiver } from "../../../config/endpoints/settings";
 
 interface Props {

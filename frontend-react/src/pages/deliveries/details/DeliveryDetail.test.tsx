@@ -6,7 +6,9 @@ import { DeliveryDetailPage } from "./DeliveryDetail";
 
 const TEST_ID = "test-id-123";
 vi.mock("react-router-dom", async () => ({
-    ...(await vi.importActual("react-router-dom")), // use actual for all non-hook parts
+    ...(await vi.importActual<typeof import("react-router-dom")>(
+        "react-router-dom",
+    )), // use actual for all non-hook parts
     useParams: () => ({
         reportId: TEST_ID,
     }),

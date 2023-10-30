@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { resolve } from "path";
 
 import { defineConfig } from "vite";
@@ -78,6 +79,13 @@ export default defineConfig(async () => {
             devSourcemap:
                 process.env.NODE_ENV === "development" ||
                 process.env.SOURCEMAPS === "true",
+        },
+        test: {
+            globals: true,
+            environment: "jsdom",
+            setupFiles: ["src/setupTests.ts"],
+            mockReset: true,
+            experimentalVmThreads: true,
         },
     };
 });

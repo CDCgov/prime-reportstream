@@ -11,7 +11,7 @@ import { RequireGateBase } from "./RequireGate";
 const mockUseNavigate = vi.fn();
 
 vi.mock("react-router", async () => ({
-    ...(await vi.importActual("react-router")),
+    ...(await vi.importActual<typeof import("react-router")>("react-router")),
     useNavigate: () => mockUseNavigate,
 }));
 

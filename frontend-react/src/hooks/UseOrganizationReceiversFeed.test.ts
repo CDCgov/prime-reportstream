@@ -12,13 +12,12 @@ import {
 } from "./UseOrganizationReceiversFeed";
 import { useOrganizationReceivers } from "./UseOrganizationReceivers";
 
-vi.mock<typeof import("./UseOrganizationReceivers")>(
-    "./UseOrganizationReceivers",
-    async () => ({
-        ...(await vi.importActual("./UseOrganizationReceivers")),
-        useOrganizationReceivers: vi.fn(),
-    }),
-);
+vi.mock("./UseOrganizationReceivers", async () => ({
+    ...(await vi.importActual<typeof import("./UseOrganizationReceivers")>(
+        "./UseOrganizationReceivers",
+    )),
+    useOrganizationReceivers: vi.fn(),
+}));
 
 const mockUseOrganizationReceivers = vi.mocked(useOrganizationReceivers);
 

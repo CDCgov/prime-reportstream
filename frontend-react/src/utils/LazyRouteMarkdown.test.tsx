@@ -17,7 +17,11 @@ describe("lazyRouteMarkdown", () => {
         ]);
         render(<RouterProvider router={router} />);
         await waitFor(() =>
-            expect(screen.getByRole("heading")).toHaveTextContent(
+            expect(
+                screen.getByRole("heading", {
+                    name: "Your single connection to simplify data transfer and improve public health",
+                }),
+            ).toHaveTextContent(
                 "Your single connection to simplify data transfer and improve public health",
             ),
         );

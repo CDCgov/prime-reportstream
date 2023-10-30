@@ -1,4 +1,3 @@
-import React from "react";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
@@ -48,16 +47,18 @@ const fakeRows: SettingRevision[] = [
 
 // router path
 vi.mock("react-router-dom", async () => ({
-    ...(await vi.importActual("react-router-dom")),
+    ...(await vi.importActual<typeof import("react-router-dom")>(
+        "react-router-dom",
+    )),
     useParams: () => ({ org: "ignore", settingType: "organization" }),
 }));
 
 // replace this call to return our mock data
 vi.mock("../../network/api/Organizations/SettingRevisions", async () => {
     return {
-        ...(await vi.importActual(
-            "../../network/api/Organizations/SettingRevisions",
-        )),
+        ...(await vi.importActual<
+            typeof import("../../network/api/Organizations/SettingRevisions")
+        >("../../network/api/Organizations/SettingRevisions")),
         useSettingRevisionEndpointsQuery: (_params: SettingRevisionParams) => {
             // The results set (data, isLoading, error) needs to match what the component
             // expects to get back from the call to useSettingRevisionEndpointsQuery()

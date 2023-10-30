@@ -1,14 +1,7 @@
-// The ESLint browser environment defines all browser globals as valid,
-// even though most people don't know some of them exist (e.g. `name` or `status`).
-// This is dangerous as it hides accidentally undefined variables.
-// We blacklist the globals that we deem potentially confusing.
-// To use them, explicitly reference them, e.g. `window.name` or `window.status`.
-const restrictedGlobals = require("confusing-browser-globals");
-
 // Here are options we can add to enable jest/testing-library linting:
 /*
 {
-  plugins: ['jest', 'testing-library'],
+  plugins: ['testing-library'],
   overrides: [
     {
       files: ['**\/__tests__/**\/*', '**\/*.{spec,test}.*'],
@@ -17,18 +10,6 @@ const restrictedGlobals = require("confusing-browser-globals");
       },
       // A subset of the recommended rules:
       rules: {
-        // https://github.com/jest-community/eslint-plugin-jest
-        'jest/no-conditional-expect': 'error',
-        'jest/no-identical-title': 'error',
-        'jest/no-interpolation-in-snapshots': 'error',
-        'jest/no-jasmine-globals': 'error',
-        'jest/no-jest-import': 'error',
-        'jest/no-mocks-import': 'error',
-        'jest/valid-describe-callback': 'error',
-        'jest/valid-expect': 'error',
-        'jest/valid-expect-in-promise': 'error',
-        'jest/valid-title': 'warn',
-
         // https://github.com/testing-library/eslint-plugin-testing-library
         'testing-library/await-async-query': 'error',
         'testing-library/await-async-utils': 'error',
@@ -171,7 +152,7 @@ module.exports = {
         "no-this-before-super": "warn",
         "no-throw-literal": "warn",
         "no-undef": "error",
-        "no-restricted-globals": ["error"].concat(restrictedGlobals),
+        "no-restricted-globals": ["error"],
         "no-unreachable": "warn",
         "no-unused-expressions": [
             "error",
@@ -407,16 +388,6 @@ module.exports = {
                 "testing-library/prefer-screen-queries": "warn",
                 "testing-library/no-unnecessary-act": "warn",
                 "testing-library/no-await-sync-queries": "warn",
-            },
-        },
-        {
-            plugins: ["chai-friendly"],
-            files: ["**/cypress/**/*.[jt]s?(x)"],
-            extends: ["plugin:cypress/recommended"],
-            rules: {
-                "no-unused-expressions": "off",
-                "@typescript-eslint/no-unused-expressions": "off",
-                "chai-friendly/no-unused-expressions": "error",
             },
         },
     ],

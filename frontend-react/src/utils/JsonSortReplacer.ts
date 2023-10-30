@@ -1,4 +1,4 @@
-export const jsonSortReplacer = (key: string, value: any) => {
+export const jsonSortReplacer = (_key: string, value: any) => {
     if (!(value instanceof Object)) {
         return value;
     }

@@ -52,7 +52,7 @@ export const Diff = (a_: string, b_: string) => {
         return { x, y, k };
     };
 
-    const addSesElem = (char: string, index: number, sestype: SES_TYPE) => {
+    const addSesElem = (_char: string, index: number, sestype: SES_TYPE) => {
         const addnew =
             ses.length === 0 || // first elem special case
             sesstate !== sestype; // we switched, probably back to common.

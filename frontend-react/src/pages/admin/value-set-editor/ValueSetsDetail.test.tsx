@@ -42,24 +42,25 @@ const fakeMeta = {
 };
 const mockError = new RSNetworkError(new AxiosError("test-error"));
 
-vi.mock<typeof import("../../../hooks/UseValueSets")>(
-    "../../../hooks/UseValueSets",
-    async () => ({
-        ...(await vi.importActual("../../../hooks/UseValueSets")),
-        useValueSetsTable: vi.fn(),
-        useValueSetUpdate: vi.fn(),
-        useValueSetActivation: vi.fn(),
-        useValueSetsMeta: vi.fn(),
-    }),
-);
+vi.mock("../../../hooks/UseValueSets", async () => ({
+    ...(await vi.importActual<typeof import("../../../hooks/UseValueSets")>(
+        "../../../hooks/UseValueSets",
+    )),
+    useValueSetsTable: vi.fn(),
+    useValueSetUpdate: vi.fn(),
+    useValueSetActivation: vi.fn(),
+    useValueSetsMeta: vi.fn(),
+}));
 
 const mockSaveData = vi.mocked(useValueSetUpdate);
 const mockActivateTable = vi.mocked(useValueSetActivation);
 const mockUseValueSetsTable = vi.mocked(useValueSetsTable);
 const mockUseValueSetsMeta = vi.mocked(useValueSetsMeta);
 
-vi.mock<typeof import("react-router-dom")>("react-router-dom", async () => ({
-    ...(await vi.importActual("react-router-dom")),
+vi.mock("react-router-dom", async () => ({
+    ...(await vi.importActual<typeof import("react-router-dom")>(
+        "react-router-dom",
+    )),
     useParams: () => ({ valueSetName: "a-path" }) as any,
 }));
 
