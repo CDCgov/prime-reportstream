@@ -7,7 +7,9 @@ set -e
 # Parse the input
 eval "$(jq -r '@sh "environment=\(.environment)"')"
 
-upper_env=${environment^^}
+# The ^^ case transformation does not work in Bash prior to v4, which is what comes with MacOS by default.
+# upper_env=${environment^^}
+upper_env=$(echo ${environment} | tr '[a-z]' '[A-Z]')
 
 # Query user SFTP SSH keys
 SSH=$(az sshkey list --query "[?resourceGroup=='PRIME-DATA-HUB-$upper_env']" | jq -c '[.[] | select( .name | test("sftp.*-") ).name | (. / "-" | {instance: .[-2], user: .[-1]})]')

@@ -100,7 +100,7 @@ elements:
     condition: '%context.telecom.where(extension(%`rsext-hl7v2Name`)).exists().not()'
     constants:
       hl7TelecomField: '%{hl7PIDField}-13'
-    schema: datatype/xtn-telecom
+    schema: ../datatypes/contactPoint/XTN
     resourceIndex: telecomIndex
 
   - name: phone-number-business
@@ -108,7 +108,7 @@ elements:
     condition: '%context.telecom.where(extension(%`rsext-hl7v2Name`)).exists().not()'
     constants:
       hl7TelecomField: '%{hl7PIDField}-14'
-    schema: datatype/xtn-telecom
+    schema: ../datatypes/contactPoint/XTN
     resourceIndex: telecomIndex
 
   - name: patient-marital-status
