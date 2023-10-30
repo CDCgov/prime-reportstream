@@ -33,12 +33,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Initialize CodeQL
-        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: github/codeql-action/init@bad341350a2f5616f9e048e51360cedc49181ce8
-        with:
-          languages: ${{ matrix.language }}
-
       - name: Get branch name
         id: branch-name
         uses: tj-actions/branch-names@033f2358d95522973eee35810e35a86fae4a71d8
@@ -52,6 +46,12 @@ jobs:
               - 'frontend-react/**'
             backend:
               - 'prime-router/**'
+
+      - name: Initialize CodeQL
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        uses: github/codeql-action/init@bad341350a2f5616f9e048e51360cedc49181ce8
+        with:
+          languages: ${{ matrix.language }}
 
       - name: Set up JDK 17
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
