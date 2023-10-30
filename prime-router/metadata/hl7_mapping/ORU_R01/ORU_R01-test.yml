@@ -13,3 +13,6 @@ elements:
 
   - name: patient-information
     required: false
+
+  - name: patient-contact
+    required: false

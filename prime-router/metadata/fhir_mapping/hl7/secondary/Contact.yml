@@ -13,7 +13,7 @@ name:
 
 telecom:
   condition: $contactPointXTN NOT_NULL
-  valueOf: datatype/ContactPoint
+  valueOf: datatypes/XTN/ContactPoint
   generateList: true
   expressionType: resource
   specs: $contactPointXTN

@@ -16,12 +16,14 @@ source:
   expressionType: resource
 
 sender:
+  condition: $msh4 NOT_NULL || $organizationCountry NOT_NULL
   valueOf: datatypes/HD/Organization
   expressionType: reference
   generateList: true
   specs: MSH.4
   vars:
     organizationCountry: MSH.17
+    msh4: MSH.4
 
 destination:
   valueOf: secondary/Destination
