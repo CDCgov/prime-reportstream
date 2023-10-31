@@ -39,7 +39,8 @@ relationship_3:
     primarySystem: PatientContactRelationship
     primaryDisplay: Unknown
 
-address:
+address_1:
+  generateList: true
   valueOf: datatype/Address
   expressionType: resource
   specs: NK1.4
@@ -76,10 +77,10 @@ telecom_3-next-of-kin-telecomm-info:
     hl7v2Name: "next-of-kin-telecomm-info"
 
 organization:
-  condition: $orgContactPointAddressXAD NOT_NULL || $orgContactPointXTN NOT_NULL || $orgContactName NOT_NULL
-  valueOf: resource/Organization
+  condition: $XADAddress NOT_NULL || $XONOrganization NOT_NULL
   expressionType: reference
+  valueOf: datatypes/XON/Organization
+  specs: NK1.13
   vars:
-    orgContactPointAddressXAD: NK1.32
-    orgContactPointXTN: NK1.31
-    orgContactName: NK1.30
+    XADAddress: NK1.32
+    XONOrganization: NK1.13

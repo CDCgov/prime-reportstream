@@ -95,7 +95,7 @@ module "database" {
   application_key_vault_id = module.key_vault.application_key_vault_id
   dns_vnet                 = local.network.dns_vnet
   dns_zones                = module.network.dns_zones
-  
+
 }
 
 module "storage" {
@@ -153,8 +153,8 @@ module "function_app" {
   dns_ip                            = local.network.dns_ip
   function_runtime_version          = local.app.function_runtime_version
   storage_account                   = module.storage.storage_account_id
-  OKTA_clientId            = data.azurerm_key_vault_secret.OKTA_clientId.value
-  OKTA_authKey             = data.azurerm_key_vault_secret.OKTA_authKey.value
+  OKTA_clientId                     = data.azurerm_key_vault_secret.OKTA_clientId.value
+  OKTA_authKey                      = data.azurerm_key_vault_secret.OKTA_authKey.value
 }
 
 module "front_door" {
