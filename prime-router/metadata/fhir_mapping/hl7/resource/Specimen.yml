@@ -132,3 +132,5 @@ note_2:
   expressionType: resource
   generateList: true
   specs: OBR.39
+  constants:
+    hl7v2Name: collectors-comment

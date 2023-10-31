@@ -1,12 +1,8 @@
 text:
-  type: STRING
-  valueOf: $join
+  type: STRING_ALL
+  valueOf: CWE
   generateList: true
   expressionType: HL7Spec
-  constants:
-    joinChar: ", "
-  vars:
-    join: CWE.1 + $joinChar + CWE.2 + $joinChar + CWE.3 + $joinChar + CWE.4 + $joinChar + CWE.5 + $joinChar + CWE.6 + $joinChar+ CWE.7 + $joinChar + CWE.8 + $joinChar + CWE.9
 
 extension_cwe1:
   generateList: true
@@ -65,7 +61,7 @@ extension_cwe5:
       value: cwe5-annotation-alternate-text
     valueString:
       type: STRING
-      valueOf: CWE.1
+      valueOf: CWE.5
       expressionType: HL7Spec
 
 extension_cwe6:
@@ -116,3 +112,14 @@ extension_cwe9:
       valueOf: CWE.9
       expressionType: HL7Spec
 
+extension_hl7v2name:
+  # hl7v2Name
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: hl7v2Name
+    valueString:
+      type: STRING
+      valueOf: $hl7v2Name

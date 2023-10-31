@@ -1,0 +1,45 @@
+elements:
+  - name: identifier
+    condition: '%resource.extension(%`rsext-cwe1-annotation-identifier`).exists()'
+    value: [ '%resource.extension(%`rsext-cwe1-annotation-identifier`).value' ]
+    hl7Spec: [ '%{cweFieldPath}-1' ]
+
+  - name: text
+    condition: '%resource.extension(%`rsext-cwe2-annotation-text`).exists()'
+    value: [ '%resource.extension(%`rsext-cwe2-annotation-text`).value' ]
+    hl7Spec: [ '%{cweFieldPath}-2' ]
+
+  - name: name-of-coding-system
+    condition: '%resource.extension(%`rsext-cwe3-annotation-name-of-coding`).exists()'
+    value: [ '%resource.extension(%`rsext-cwe3-annotation-name-of-coding`).value' ]
+    hl7Spec: [ '%{cweFieldPath}-3' ]
+
+  - name: alternative-identifier
+    condition: '%resource.extension(%`rsext-cwe4-annotation-alternate-identifier`).exists()'
+    value: [ '%resource.extension(%`rsext-cwe4-annotation-alternate-identifier`).value' ]
+    hl7Spec: [ '%{cweFieldPath}-4' ]
+
+  - name: alternative-text
+    condition: '%resource.extension(%`rsext-cwe5-annotation-alternate-text`).exists()'
+    value: [ '%resource.extension(%`rsext-cwe5-annotation-alternate-text`).value' ]
+    hl7Spec: [ '%{cweFieldPath}-5' ]
+
+  - name: alternative-name-of-coding-system
+    condition: '%resource.extension(%`rsext-cwe6-annotation-alternate-coding-system`).exists()'
+    value: [ '%resource.extension(%`rsext-cwe6-annotation-alternate-coding-system`).value' ]
+    hl7Spec: [ '%{cweFieldPath}-6' ]
+
+  - name: coding-system-version-id
+    condition: '%resource.extension(%`rsext-cwe7-annotation-coding-system-version-id`).exists()'
+    value: [ '%resource.extension(%`rsext-cwe7-annotation-coding-system-version-id`).value' ]
+    hl7Spec: [ '%{cweFieldPath}-7' ]
+
+  - name: alternative-coding-system-version-id
+    condition: '%resource.extension(%`rsext-cwe8-annotation-alternate-coding-system-version-id`).exists()'
+    value: [ '%resource.extension(%`rsext-cwe8-annotation-alternate-coding-system-version-id`).value' ]
+    hl7Spec: [ '%{cweFieldPath}-8' ]
+
+  - name: original-text
+    condition: '%resource.extension(%`rsext-cwe9-annotation-original-text`).exists()'
+    value: [ '%resource.extension(%`rsext-cwe9-annotation-original-text`).value' ]
+    hl7Spec: [ '%{cweFieldPath}-9' ]

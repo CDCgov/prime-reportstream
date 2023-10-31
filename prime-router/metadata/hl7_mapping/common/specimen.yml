@@ -83,7 +83,8 @@ elements:
     hl7Spec: [ '%{hl7SpecimenFieldPath}-11' ]
 
   - name: specimen-description
-    value: [ '%resource.note.text' ]
+    resource: '%resource.note.where(extension(%`rsext-hl7v2Name`).exists().not())'
+    value: [ '%resource.text' ]
     hl7Spec: [ '%{hl7SpecimenFieldPath}-14' ]
 
   - name: specimen-collection-time
