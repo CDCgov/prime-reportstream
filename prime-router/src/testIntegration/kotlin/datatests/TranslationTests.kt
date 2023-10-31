@@ -42,9 +42,6 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.InputStream
-import java.time.Instant
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
@@ -389,11 +386,13 @@ class TranslationTests {
             }
             check(fhirBundles.size == 1)
             val fhirJson = FhirTranscoder.encode(fhirBundles[0])
-            val t = DateTimeFormatter
-                .ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
-                .withZone(ZoneOffset.UTC)
-                .format(Instant.now())
-            // File("xpn_fn_mapping_fhir_${t.toString()}.json").writeText(fhirJson)
+//            if (config.inputFile.endsWith("humanname_mapping.hl7")) {
+//                val t = DateTimeFormatter
+//                    .ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
+//                    .withZone(ZoneOffset.UTC)
+//                    .format(Instant.now())
+//                File("xpn_xcn_fn_mapping_hl7_to_fhir_${t.toString()}.json").writeText(fhirJson)
+//            }
             return fhirJson.byteInputStream()
         }
 
@@ -440,6 +439,16 @@ class TranslationTests {
                     translationFunctions = CustomTranslationFunctions()
                 )
             ).convert(fhirBundle)
+
+//            if (config.inputFile.endsWith("humanname_mapping.hl7")) {
+//                val hl7str = hl7.encodePreserveEncodingChars().toString()
+//                val t = DateTimeFormatter
+//                    .ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
+//                    .withZone(ZoneOffset.UTC)
+//                    .format(Instant.now())
+//                File("xpn_xcn_fn_mapping_fhir_to_hl7_${t.toString()}.hl7").writeText(hl7str)
+//            }
+
             return hl7.encodePreserveEncodingChars().byteInputStream()
         }
 
