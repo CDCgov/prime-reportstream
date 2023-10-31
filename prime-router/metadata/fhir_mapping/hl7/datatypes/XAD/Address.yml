@@ -1,0 +1,252 @@
+line:
+  expressionType: nested
+  generateList: true
+  expressions:
+    - type: STRING
+      expressionType: HL7Spec
+      valueOf: XAD.1.1
+    - type: STRING
+      expressionType: HL7Spec
+      valueOf: XAD.1.2
+    - type: STRING
+      expressionType: HL7Spec
+      valueOf: XAD.1.3
+    - type: STRING
+      expressionType: HL7Spec
+      valueOf: XAD.2
+    - type: STRING
+      expressionType: HL7Spec
+      valueOf: XAD.19
+
+extension_1-xad1Sad1StreetOrMailingAddress:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xad1-sad1-street-or-mailing-address
+    valueString:
+      type: STRING
+      valueOf: XAD.1.1
+      expressionType: HL7Spec
+
+extension_2-xad1Sad2StreetName:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xad1-sad2-street-name
+    valueString:
+      type: STRING
+      valueOf: XAD.1.2
+      expressionType: HL7Spec
+
+extension_3-xad1Sad3DwellingNumber:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xad1-sad3-dwelling-number
+    valueString:
+      type: STRING
+      valueOf: XAD.1.3
+      expressionType: HL7Spec
+
+extension_4-xad2OtherDesignation:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xad2-other-designation
+    valueString:
+      type: STRING
+      valueOf: XAD.2
+      expressionType: HL7Spec
+
+city:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: XAD.3
+
+state:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: XAD.4
+
+postalCode:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: XAD.5
+
+country:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: XAD.6
+
+type:
+  vars:
+    xad7: String, XAD.7
+  condition: $xad7 EQUALS M || $xad7 EQUALS SH
+  type: STRING
+  expressionType: JEXL
+  valueOf: 'GeneralUtils.getFhirAddressType(xad7)'
+
+use:
+  vars:
+    xad7: String, XAD.7
+  condition: $xad7 EQUALS BA || $xad7 EQUALS BI || $xad7 EQUALS C || $xad7 EQUALS B || $xad7 EQUALS H || $xad7 EQUALS O
+  type: STRING
+  valueOf: 'GeneralUtils.getFhirAddressUse(xad7)'
+  expressionType: JEXL
+
+extension_4-addressTypeHv:
+  generateList: true
+  vars:
+    xad7: String, XAD.7
+  condition: $xad7 EQUALS HV
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: iso21090-AD-use
+    valueCode:
+      type: STRING
+      valueOf: XAD.7
+      expressionType: HL7Spec
+
+extension_5-xad7AddressType:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xad7-address-type
+    valueCode:
+      type: STRING
+      valueOf: XAD.7
+      expressionType: HL7Spec
+
+extension_6-xad8OtherGeographicDestination:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xad8-other-geographic-destination
+    valueString:
+      type: STRING
+      valueOf: XAD.8
+      expressionType: HL7Spec
+
+district:
+  type: STRING
+  valueOf: XAD.9
+  expressionType: HL7Spec
+
+extension_censusTract:
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: iso21090-ADXP-censusTract
+    valueCode:
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: XAD.10
+
+extension_7-xad11AddressRepresentationCode:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xad11-address-representation-code
+    valueCode:
+      type: STRING
+      valueOf: XAD.11
+      expressionType: HL7Spec
+
+# This needs to use variables because the message parses this field using NULLDT since it is deprecated which means that
+# the values do not get correctly loaded and will not be mapped over correctly using a spec.
+period_1:
+  vars:
+    xad13: String, XAD.13
+    xad14: String, XAD.14
+    start: String, XAD.12.1
+    end: String, XAD.12.2
+  condition: $xad13 NULL && $xad14 NULL
+  expressionType: resource
+  valueOf: datatypes/DR/Period
+
+extension_xad12AddressValidityRange:
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xad12-address-validity-range
+    valuePeriod:
+      expressionType: resource
+      valueOf: datatypes/DR/Period
+      vars:
+        start: String, XAD.12.1
+        end: String, XAD.12.2
+
+# XAD.12 is deprecated so the schema favors using XAD.13/14 if either are populated
+period_2:
+  vars:
+    xad13: String, XAD.13
+    xad14: String, XAD.14
+  condition: $xad13 NOT_NULL || $xad14 NOT_NULL
+  expressionType: nested
+  expressionsMap:
+    start:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(periodStart,ZONEID)"
+      expressionType: JEXL
+      vars:
+        periodStart: XAD.13
+    end:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(periodEnd,ZONEID)"
+      expressionType: JEXL
+      vars:
+        periodEnd: XAD.14
+
+extension_9-effectiveDate:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: 'xad13-effective-date'
+    valueDateTime:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(periodStart,ZONEID)"
+      expressionType: JEXL
+      vars:
+        periodStart: XAD.13
+
+extension_10-expirationDate:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: 'xad14-expiration-date'
+    valueDateTime:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(periodEnd,ZONEID)"
+      expressionType: JEXL
+      vars:
+        periodEnd: XAD.14
+
+extension_8-xad19Addressee:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: xad19-addressee
+    valueCode:
+      type: STRING
+      valueOf: XAD.19
+      expressionType: HL7Spec
