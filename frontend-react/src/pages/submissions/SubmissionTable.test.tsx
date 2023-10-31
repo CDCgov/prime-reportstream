@@ -22,6 +22,7 @@ describe("SubmissionTable", () => {
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,
+            isUserTransceiver: false,
             environment: "test",
         });
         const fixtures: Fixture[] = [
@@ -75,6 +76,7 @@ describe("SubmissionTable", () => {
                 isUserAdmin: true,
                 isUserReceiver: false,
                 isUserSender: false,
+                isUserTransceiver: false,
                 environment: "test",
             });
 

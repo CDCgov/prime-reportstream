@@ -26,6 +26,7 @@ describe("useReportsList", () => {
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
+                isUserTransceiver: false,
                 environment: "test",
             });
         });
@@ -58,6 +59,7 @@ describe("useReportsList", () => {
                 isUserAdmin: true,
                 isUserReceiver: false,
                 isUserSender: false,
+                isUserTransceiver: false,
                 environment: "test",
             });
         });

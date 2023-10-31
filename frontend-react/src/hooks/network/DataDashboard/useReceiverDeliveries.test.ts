@@ -24,6 +24,7 @@ describe("useReceiverDeliveries", () => {
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: false,
+                isUserTransceiver: false,
                 environment: "test",
             });
         });
@@ -53,6 +54,7 @@ describe("useReceiverDeliveries", () => {
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
+                isUserTransceiver: false,
                 environment: "test",
             });
         });

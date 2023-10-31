@@ -39,22 +39,26 @@ export interface RSUserPermissions {
     isUserAdmin: boolean;
     isUserSender: boolean;
     isUserReceiver: boolean;
+    isUserTransceiver: boolean;
 }
 
 export function getUserPermissions(user?: RSUserClaims): RSUserPermissions {
     let isUserAdmin = false,
         isUserReceiver = false,
-        isUserSender = false;
+        isUserSender = false,
+        isUserTransceiver = false;
     for (const org of user?.organization ?? []) {
         if (isAdmin(org)) isUserAdmin = true;
         if (isReceiver(org)) isUserReceiver = true;
         if (isSender(org)) isUserSender = true;
+        if (isReceiver(org) && isSender(org)) isUserTransceiver = true;
     }
 
     return {
         isUserAdmin,
         isUserReceiver,
         isUserSender,
+        isUserTransceiver,
     };
 }
 
