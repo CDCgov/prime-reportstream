@@ -21,8 +21,8 @@ class NTEToAnnotationTests {
     fun `can acccurately map an authorString fhir attribute to an NTE segment`() {
         assert(
             translateAndCompareFHIRToHL7(
-                "mappinginventory/NTE/annotation_author_string_resource_test_file.fhir",
-                "mappinginventory/NTE/nte_segment_author_string_test_file.hl7"
+                "mappinginventory/nte/annotation_author_string_resource_test_file.fhir",
+                "mappinginventory/nte/nte_segment_author_string_test_file.hl7"
             ).passed
         )
     }
