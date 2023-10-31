@@ -41,7 +41,7 @@ runs:
           set -e pipefail
           cd frontend-react
           yarn lint
-          yarn test
+          yarn test:ci
           echo "" >> .env.production
           echo "VITE_APPINSIGHTS_KEY=${{ inputs.appinsights-prod-key }}" >> .env.production
           yarn build:production
@@ -58,7 +58,7 @@ runs:
           set -e pipefail
           cd frontend-react
           yarn lint
-          yarn test
+          yarn test:ci
           ENV=${{ inputs.env-name }}
           if [[ $ENV != demo* && $ENV != "test" && $ENV != trialfrontend* ]]; then ENV="staging"; fi
           echo "" >> .env.$ENV

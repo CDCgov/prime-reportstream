@@ -33,7 +33,7 @@ class TestLocalStorage {
 
 const mockLocalStorage = new TestLocalStorage();
 vi.mock("../../pages/misc/FeatureFlags", async () => {
-    const originalModule = vi.importActual<
+    const originalModule = await vi.importActual<
         typeof import("../../pages/misc/FeatureFlags")
     >("../../pages/misc/FeatureFlags");
     return {

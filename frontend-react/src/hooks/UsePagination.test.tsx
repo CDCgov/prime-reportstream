@@ -473,10 +473,10 @@ describe("usePagination", () => {
         });
         // The request on the first page should check for the presence of up to
         // seven pages.
+        expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
         await waitFor(() =>
-            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61),
+            expect(result.current.paginationProps?.currentPageNum).toBe(1),
         );
-        expect(result.current.paginationProps?.currentPageNum).toBe(1);
         expect(result.current.paginationProps?.slots).toStrictEqual([
             1, 2, 3, 4,
         ]);

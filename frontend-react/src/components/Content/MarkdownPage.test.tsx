@@ -10,14 +10,14 @@ import MarkdownPage from "./MarkdownPage";
 const __dirname = new URL(".", import.meta.url).toString();
 
 describe("DirectoryAsPage", () => {
-    vi.spyOn(global, "fetch").mockImplementation(() =>
-        Promise.resolve(new Response(testMd, { status: 200 })),
-    );
     const testDir = new MarkdownDirectory()
         .setTitle("Test Dir")
         .setSlug("test-dir")
         .addFile(path.join(__dirname, testMdUrl));
     test("Renders without error", () => {
+        vi.spyOn(global, "fetch").mockImplementation(async () =>
+            Promise.resolve(new Response(testMd, { status: 200 })),
+        );
         renderApp(<MarkdownPage directory={testDir} />);
     });
 });

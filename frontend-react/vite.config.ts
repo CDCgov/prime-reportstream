@@ -84,8 +84,12 @@ export default defineConfig(async () => {
             globals: true,
             environment: "jsdom",
             setupFiles: ["src/setupTests.ts"],
-            mockReset: true,
-            experimentalVmThreads: true,
+            mockReset: true, // copied from jest config
+            coverage: {
+                // lcov added for sonar
+                reporter: ["text", "html", "clover", "json", "lcov"],
+            },
+            experimentalVmThreads: true, // makes tests faster
         },
     };
 });

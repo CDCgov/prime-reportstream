@@ -121,7 +121,6 @@ export const renderApp = (
 ) => {
     return render(ui, {
         wrapper: AppWrapper({ initialRouteEntries, restHookFixtures }),
-        legacyRoot: true,
         ...options,
     });
 };
