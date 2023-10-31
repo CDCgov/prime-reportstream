@@ -386,13 +386,6 @@ class TranslationTests {
             }
             check(fhirBundles.size == 1)
             val fhirJson = FhirTranscoder.encode(fhirBundles[0])
-//            if (config.inputFile.endsWith("humanname_mapping.hl7")) {
-//                val t = DateTimeFormatter
-//                    .ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
-//                    .withZone(ZoneOffset.UTC)
-//                    .format(Instant.now())
-//                File("xpn_xcn_fn_mapping_hl7_to_fhir_${t.toString()}.json").writeText(fhirJson)
-//            }
             return fhirJson.byteInputStream()
         }
 
@@ -439,15 +432,6 @@ class TranslationTests {
                     translationFunctions = CustomTranslationFunctions()
                 )
             ).convert(fhirBundle)
-
-//            if (config.inputFile.endsWith("humanname_mapping.hl7")) {
-//                val hl7str = hl7.encodePreserveEncodingChars().toString()
-//                val t = DateTimeFormatter
-//                    .ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
-//                    .withZone(ZoneOffset.UTC)
-//                    .format(Instant.now())
-//                File("xpn_xcn_fn_mapping_fhir_to_hl7_${t.toString()}.hl7").writeText(hl7str)
-//            }
 
             return hl7.encodePreserveEncodingChars().byteInputStream()
         }
