@@ -33,12 +33,6 @@ runs:
         distribution: "temurin"
         cache: "gradle"
 
-#    - name: Initialize CodeQL
-#      if: github.actor != 'dependabot[bot]' && inputs.run-qc == 'true'
-#      uses: github/codeql-action/init@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
-#      with:
-#        languages: java
-
     - name: Lint
       if: inputs.run-integration-tests == 'true'
       working-directory: prime-router
@@ -174,10 +168,6 @@ runs:
         name: prime-router-build-${{ inputs.version }}
         path: prime-router/prime-router-build.tar.gz
         retention-days: 3
-
-#    - name: Perform Java CodeQL Analysis
-#      if: github.actor != 'dependabot[bot]' && inputs.run-qc == 'true'
-#      uses: github/codeql-action/analyze@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
 
     - name: Build Docker Image
       if: inputs.run-qc == 'true'
