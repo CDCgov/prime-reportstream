@@ -45,10 +45,6 @@ class FhirTransformer(
      * @return the transformed bundle
      */
     fun transform(bundle: Bundle): Bundle {
-        val dupes = schemaRef.duplicateElements
-        if (dupes.isNotEmpty()) { // value is the number of matches
-            throw SchemaException("Schema ${schemaRef.name} has multiple elements with the same name: ${dupes.keys}")
-        }
         transformWithSchema(schemaRef, bundle = bundle, focusResource = bundle)
         return bundle
     }

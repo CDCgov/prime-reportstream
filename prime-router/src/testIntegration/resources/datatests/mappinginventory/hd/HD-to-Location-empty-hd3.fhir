@@ -32,10 +32,6 @@
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
             "valueIdentifier" : {}
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
-            "valueString" : "UNICODE UTF-8"
           }
         ],
         "eventCoding" : {
@@ -43,33 +39,9 @@
           "code" : "R01",
           "display" : "ORU/ACK - Unsolicited transmission of an observation message"
         },
-        "sender" : {
-          "reference" : "Organization/1697228858207658000.2f066ecb-36bc-4c0b-b8a4-3b032e775c39"
-        },
-        "source" : {},
         "responsible" : {
           "reference" : "Organization/1697228858209404000.ab8a13d2-f06b-49ea-b92e-704db1540f92"
         }
-      }
-    },
-    {
-      "fullUrl" : "Organization/1697228858207658000.2f066ecb-36bc-4c0b-b8a4-3b032e775c39",
-      "resource" : {
-        "resourceType" : "Organization",
-        "id" : "1697228858207658000.2f066ecb-36bc-4c0b-b8a4-3b032e775c39",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
-        "address" : [
-          {
-            "country" : "USA"
-          }
-        ]
       }
     },
     {
