@@ -4,7 +4,7 @@ import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
 import { RSSessionContext } from "../../contexts/SessionContext";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
-import { ReportStreamNavbar } from "./ReportStreamNavbar";
+import ReportStreamHeader from "./ReportStreamHeader";
 
 describe("SignInOrUser", () => {
     // Every set of users should have access to the following Navbar items
@@ -18,9 +18,12 @@ describe("SignInOrUser", () => {
 
     test("renders Sender permissioned ReportStreamNavbar", () => {
         mockSessionContext.mockReturnValue({
-            isUserSender: true,
+            config: {
+                IS_PREVIEW: false,
+            },
+            user: { isUserSender: true },
         } as RSSessionContext);
-        renderApp(<ReportStreamNavbar />);
+        renderApp(<ReportStreamHeader />);
         expect(screen.getByText("Submissions")).toBeVisible();
         expect(screen.queryByText("Dashboard")).not.toBeInTheDocument();
         expect(screen.queryByText("Admin")).not.toBeInTheDocument();
@@ -28,9 +31,12 @@ describe("SignInOrUser", () => {
 
     test("renders Receiver permissioned ReportStreamNavbar", () => {
         mockSessionContext.mockReturnValue({
-            isUserReceiver: true,
+            config: {
+                IS_PREVIEW: false,
+            },
+            user: { isUserReceiver: true },
         } as RSSessionContext);
-        renderApp(<ReportStreamNavbar />);
+        renderApp(<ReportStreamHeader />);
         expect(screen.queryByText("Submissions")).not.toBeInTheDocument();
         expect(screen.getByText("Dashboard")).toBeVisible();
         expect(screen.queryByText("Admin")).not.toBeInTheDocument();
@@ -38,9 +44,12 @@ describe("SignInOrUser", () => {
 
     test("renders Receiver AND Sender (Transceiver) permissioned ReportStreamNavbar", () => {
         mockSessionContext.mockReturnValue({
-            isUserTransceiver: true,
+            config: {
+                IS_PREVIEW: false,
+            },
+            user: { isUserTransceiver: true },
         } as RSSessionContext);
-        renderApp(<ReportStreamNavbar />);
+        renderApp(<ReportStreamHeader />);
         expect(screen.getByText("Submissions")).toBeVisible();
         expect(screen.getByText("Dashboard")).toBeVisible();
         expect(screen.queryByText("Admin")).not.toBeInTheDocument();
@@ -48,10 +57,12 @@ describe("SignInOrUser", () => {
 
     test("renders Admin permissioned ReportStreamNavbar", () => {
         mockSessionContext.mockReturnValue({
-            isUserAdmin: true,
-            isAdminStrictCheck: true,
+            config: {
+                IS_PREVIEW: false,
+            },
+            user: { isUserAdmin: true, isAdminStrictCheck: true },
         } as RSSessionContext);
-        renderApp(<ReportStreamNavbar />);
+        renderApp(<ReportStreamHeader />);
         expect(screen.getByText("Submissions")).toBeVisible();
         expect(screen.getByText("Dashboard")).toBeVisible();
         expect(screen.getByText("Admin")).toBeVisible();

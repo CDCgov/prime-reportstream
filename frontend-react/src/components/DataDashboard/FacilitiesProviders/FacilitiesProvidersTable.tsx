@@ -1,6 +1,5 @@
 import React, { Dispatch, SetStateAction } from "react";
 
-import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import TableFilters from "../../Table/TableFilters";
 import ReceiverServices from "../ReceiverServices/ReceiverServices";
 import { RSReceiver } from "../../../config/endpoints/settings";
@@ -22,6 +21,11 @@ import {
     transformFacilityTypeClass,
     transformFacilityTypeLabel,
 } from "../../../utils/DataDashboardUtils";
+import {
+    EventName,
+    useAppInsightsContext,
+} from "../../../contexts/AppInsightsContext";
+import AdminFetchAlert from "../../alerts/AdminFetchAlert";
 
 function FacilitiesProvidersFilterAndTable({
     receiverServices,
@@ -32,6 +36,7 @@ function FacilitiesProvidersFilterAndTable({
     activeService: RSReceiver;
     setActiveService: Dispatch<SetStateAction<RSReceiver | undefined>>;
 }) {
+    const { appInsights } = useAppInsightsContext();
     const featureEvent = `${FeatureName.FACILITIES_PROVIDERS} | ${EventName.TABLE_FILTER}`;
 
     const handleSetActive = (name: string) => {
@@ -133,8 +138,14 @@ function FacilitiesProvidersFilterAndTable({
                                 type: PageSettingsActionType.RESET,
                             });
 
-                            trackAppInsightEvent(featureEvent, {
-                                tableFilter: { startRange: from, endRange: to },
+                            appInsights?.trackEvent({
+                                name: featureEvent,
+                                properties: {
+                                    tableFilter: {
+                                        startRange: from,
+                                        endRange: to,
+                                    },
+                                },
                             });
                         }}
                     />
@@ -161,13 +172,20 @@ function FacilitiesProvidersFilterAndTable({
 }
 
 export default function FacilitiesProvidersTable() {
-    const { loadingServices, services, activeService, setActiveService } =
-        useOrganizationReceiversFeed();
+    const {
+        isLoading,
+        data: services,
+        activeService,
+        setActiveService,
+        isDisabled,
+    } = useOrganizationReceiversFeed();
 
-    if (loadingServices) return <Spinner />;
+    if (isLoading) return <Spinner />;
+
+    if (isDisabled) return <AdminFetchAlert />;
 
     if (
-        !loadingServices &&
+        !isLoading &&
         (!activeService ||
             activeService?.customerStatus === CustomerStatusType.INACTIVE)
     )
@@ -181,7 +199,7 @@ export default function FacilitiesProvidersTable() {
         <>
             {activeService && (
                 <FacilitiesProvidersFilterAndTable
-                    receiverServices={services}
+                    receiverServices={services!!}
                     activeService={activeService}
                     setActiveService={setActiveService}
                 />

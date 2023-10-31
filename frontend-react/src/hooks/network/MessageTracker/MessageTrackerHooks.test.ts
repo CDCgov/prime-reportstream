@@ -1,12 +1,12 @@
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
 
 import {
     messageTrackerServer,
     MOCK_MESSAGE_SENDER_DATA,
 } from "../../../__mocks__/MessageTrackerMockServer";
-import { mockSessionContext } from "../../../contexts/__mocks__/SessionContext";
-import { MemberType } from "../../UseOktaMemberships";
-import { AppWrapper } from "../../../utils/CustomRenderUtils";
+import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
+import { renderHook } from "../../../utils/CustomRenderUtils";
+import { MemberType } from "../../../utils/OrganizationUtils";
 
 import { useMessageSearch, useMessageDetails } from "./MessageTrackerHooks";
 
@@ -16,29 +16,27 @@ afterAll(() => messageTrackerServer.close());
 
 describe("useMessageSearch", () => {
     test("returns expected data values when fetching messages", async () => {
-        mockSessionContext.mockReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+        mockSessionContentReturnValue({
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
             },
-            dispatch: () => {},
-            initialized: true,
-            isUserAdmin: false,
-            isUserReceiver: true,
-            isUserSender: false,
-            isUserTransceiver: false,
-            environment: "test",
+
+            user: {
+                isUserAdmin: false,
+                isUserReceiver: true,
+                isUserSender: false,
+                isUserTransceiver: false,
+            } as any,
         });
 
-        const { result } = renderHook(() => useMessageSearch(), {
-            wrapper: AppWrapper(),
-        });
+        const { result } = renderHook(() => useMessageSearch());
         let messages;
         await act(async () => {
-            messages = await result.current.search("alaska1");
+            messages = await result.current.mutateAsync("alaska1");
             expect(messages.length).toEqual(3);
             expect(messages[0].reportId).toEqual(
                 MOCK_MESSAGE_SENDER_DATA[0].reportId,
@@ -55,26 +53,24 @@ describe("useMessageSearch", () => {
 
 describe("useMessageDetails", () => {
     test("returns expected data values when fetching message details", async () => {
-        mockSessionContext.mockReturnValue({
-            oktaToken: {
-                accessToken: "TOKEN",
-            },
+        mockSessionContentReturnValue({
+            authState: {
+                accessToken: { accessToken: "TOKEN" },
+            } as any,
             activeMembership: {
                 memberType: MemberType.RECEIVER,
                 parsedName: "testOrg",
             },
-            dispatch: () => {},
-            initialized: true,
-            isUserAdmin: false,
-            isUserReceiver: true,
-            isUserSender: false,
-            isUserTransceiver: false,
-            environment: "test",
+
+            user: {
+                isUserAdmin: false,
+                isUserReceiver: true,
+                isUserSender: false,
+                isUserTransceiver: false,
+            } as any,
         });
 
-        const { result } = renderHook(() => useMessageDetails("11"), {
-            wrapper: AppWrapper(),
-        });
+        const { result } = renderHook(() => useMessageDetails("11"));
         await waitFor(() =>
             expect(result.current.messageDetails?.id).toEqual(11),
         );

@@ -2,21 +2,21 @@
 
 .FacilitiesProviders {
     hr {
-        border: 1px solid color('blue-30');
+        border: 1px solid color("blue-30");
     }
 
     :global {
         .usa-breadcrumb {
-            background-color: color('blue-10');
+            background-color: color("blue-10");
             margin-top: 0;
         }
 
         .usa-breadcrumb__link {
-            color: color('blue-60v');
+            color: color("blue-60v");
         }
 
         .usa-header {
-            background-color: color('blue-10');
+            background-color: color("blue-10");
         }
 
         .usa-select {
@@ -61,7 +61,7 @@
         }
 
         .usa-table--striped tbody tr:nth-child(odd) td {
-            background-color: color('gray-cool-4');
+            background-color: color("gray-cool-4");
         }
     }
 }

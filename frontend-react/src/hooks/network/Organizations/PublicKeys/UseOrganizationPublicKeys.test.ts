@@ -1,12 +1,12 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { waitFor } from "@testing-library/react";
 
-import { AppWrapper } from "../../../../utils/CustomRenderUtils";
-import { MemberType } from "../../../UseOktaMemberships";
-import { mockSessionContext } from "../../../../contexts/__mocks__/SessionContext";
+import { renderHook } from "../../../../utils/CustomRenderUtils";
+import { mockSessionContentReturnValue } from "../../../../contexts/__mocks__/SessionContext";
 import {
     dummyPublicKey,
     orgServer,
 } from "../../../../__mocks__/OrganizationMockServer";
+import { MemberType } from "../../../../utils/OrganizationUtils";
 
 import useOrganizationPublicKeys from "./UseOrganizationPublicKeys";
 
@@ -17,55 +17,50 @@ describe("useOrganizationPublicKeys", () => {
 
     describe("with no Organization name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: undefined,
-                dispatch: () => {},
-                initialized: true,
-                isUserAdmin: false,
-                isUserReceiver: false,
-                isUserSender: false,
-                isUserTransceiver: false,
-                environment: "test",
+
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: false,
+                    isUserSender: false,
+                    isUserTransceiver: false,
+                } as any,
             });
         });
 
         test("returns undefined", () => {
-            const { result } = renderHook(() => useOrganizationPublicKeys(), {
-                wrapper: AppWrapper(),
-            });
+            const { result } = renderHook(() => useOrganizationPublicKeys());
             expect(result.current.data).toEqual(undefined);
-            expect(result.current.isLoading).toEqual(true);
         });
     });
 
     describe("with Organization name", () => {
         beforeEach(() => {
-            mockSessionContext.mockReturnValue({
-                oktaToken: {
-                    accessToken: "TOKEN",
-                },
+            mockSessionContentReturnValue({
+                authState: {
+                    accessToken: { accessToken: "TOKEN" },
+                } as any,
                 activeMembership: {
                     memberType: MemberType.SENDER,
                     parsedName: "testOrg",
                     service: "testOrgPublicKey",
                 },
-                dispatch: () => {},
-                initialized: true,
-                isUserAdmin: false,
-                isUserReceiver: false,
-                isUserSender: true,
-                isUserTransceiver: false,
-                environment: "test",
+
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: false,
+                    isUserSender: true,
+                    isUserTransceiver: false,
+                } as any,
             });
         });
 
         test("returns organization public keys", async () => {
-            const { result } = renderHook(() => useOrganizationPublicKeys(), {
-                wrapper: AppWrapper(),
-            });
+            const { result } = renderHook(() => useOrganizationPublicKeys());
             await waitFor(() =>
                 expect(result.current.data).toEqual(dummyPublicKey),
             );

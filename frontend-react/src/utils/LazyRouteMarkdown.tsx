@@ -1,28 +1,23 @@
-import MarkdownLayout from "../layouts/Markdown/MarkdownLayout";
+import type { MDXModule } from "mdx/types";
+import React from "react";
 
-import MDXImports from "./MDXImports";
+const MarkdownLayout = React.lazy(
+    () => import("../layouts/Markdown/MarkdownLayout"),
+);
 
 /**
- * Creates react-router-compatible lazy function for provided file path.
+ * Creates React.lazy-compatible function that renders a content page
  */
-export function lazyRouteMarkdown(path: string) {
+export function lazyRouteMarkdown(fn: () => Promise<MDXModule>) {
     return async () => {
-        const importer = MDXImports[`../${path}.mdx`];
-
-        if (!importer) {
-            throw new Error(`MDX importer not found for: ${path}`);
-        }
-
-        const module = await importer();
+        const module = await fn();
         const Content = module.default;
         return {
-            Component() {
-                return (
-                    <MarkdownLayout {...module}>
-                        <Content />
-                    </MarkdownLayout>
-                );
-            },
+            default: () => (
+                <MarkdownLayout {...module}>
+                    <Content />
+                </MarkdownLayout>
+            ),
         };
     };
 }

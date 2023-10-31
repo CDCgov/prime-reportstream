@@ -1,8 +1,9 @@
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
 import range from "lodash.range";
 
-import { mockAppInsights } from "../utils/__mocks__/ApplicationInsights";
+import * as AppInsightsContext from "../contexts/AppInsightsContext";
 import { OVERFLOW_INDICATOR } from "../components/Table/Pagination";
+import { renderHook } from "../utils/CustomRenderUtils";
 
 import usePagination, {
     CursorExtractor,
@@ -14,22 +15,36 @@ import usePagination, {
     processResultsReducer,
 } from "./UsePagination";
 
+const mockTrackEvent = jest.fn();
+
+const mockUseAppInsightsContext = jest.spyOn(
+    AppInsightsContext,
+    "useAppInsightsContext",
+);
+
+function mockUseAppInsightsContextImplementation(obj?: any) {
+    return mockUseAppInsightsContext.mockImplementation(() => ({
+        appInsights: {
+            trackEvent: mockTrackEvent,
+        },
+        ...obj,
+    }));
+}
+
 interface SampleRecord {
     cursor: string;
 }
 const extractCursor: CursorExtractor<SampleRecord> = (r) => r.cursor;
-
-jest.mock("../TelemetryService", () => ({
-    ...jest.requireActual("../TelemetryService"),
-    getAppInsights: () => mockAppInsights,
-}));
 
 function createSampleRecords(
     numRecords: number,
     startCursor = 1,
 ): SampleRecord[] {
     return range(startCursor, startCursor + numRecords).map(
-        (c) => ({ cursor: c.toString() }) as SampleRecord,
+        (c) =>
+            ({
+                cursor: c.toString(),
+            }) as SampleRecord,
     );
 }
 
@@ -428,6 +443,7 @@ describe("usePagination", () => {
 
     test("Returns empty pagination props when there are no results", async () => {
         const mockFetchResults = jest.fn().mockResolvedValueOnce([]);
+        mockUseAppInsightsContextImplementation();
         const { result } = doRenderHook({
             startCursor: "0",
             isCursorInclusive: false,
@@ -437,8 +453,9 @@ describe("usePagination", () => {
         });
         // The request on the first page should check for the presence of up to
         // seven pages.
-        await (() =>
-            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61));
+        await waitFor(() =>
+            expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61),
+        );
         expect(result.current.paginationProps).toBeUndefined();
         expect(result.current.currentPageResults).toStrictEqual([]);
     });
@@ -446,6 +463,7 @@ describe("usePagination", () => {
     test("Fetches results and updates the available slots and page of results", async () => {
         const results = createSampleRecords(40);
         const mockFetchResults = jest.fn().mockResolvedValueOnce(results);
+        mockUseAppInsightsContextImplementation();
         const { result } = doRenderHook({
             startCursor: "0",
             isCursorInclusive: false,
@@ -474,6 +492,7 @@ describe("usePagination", () => {
             .fn()
             .mockResolvedValueOnce(results1)
             .mockResolvedValueOnce(results2);
+        mockUseAppInsightsContextImplementation();
         const { result } = doRenderHook({
             startCursor: "0",
             isCursorInclusive: false,
@@ -484,10 +503,6 @@ describe("usePagination", () => {
         await waitFor(() =>
             expect(result.current.paginationProps).toBeDefined(),
         );
-        act(() => {
-            result.current.paginationProps?.setSelectedPage(6);
-        });
-        // The current page and slots should not update until the fetch resolves
         expect(result.current.paginationProps?.currentPageNum).toBe(1);
         expect(result.current.paginationProps?.slots).toStrictEqual([
             1,
@@ -498,8 +513,11 @@ describe("usePagination", () => {
             6,
             OVERFLOW_INDICATOR,
         ]);
-        expect(result.current.isLoading).toBe(true);
 
+        act(() => {
+            result.current.paginationProps?.setSelectedPage(6);
+        });
+        expect(result.current.isLoading).toBe(true);
         await waitFor(() =>
             expect(
                 result.current.paginationProps?.currentPageNum,
@@ -531,6 +549,7 @@ describe("usePagination", () => {
             .fn()
             .mockResolvedValueOnce(createSampleRecords(11))
             .mockResolvedValueOnce(createSampleRecords(11));
+        mockUseAppInsightsContextImplementation();
         const { result, rerender } = doRenderHook({
             startCursor: "0",
             isCursorInclusive: false,
@@ -585,6 +604,7 @@ describe("usePagination", () => {
             fetchResults: mockFetchResults1,
             extractCursor,
         };
+        mockUseAppInsightsContextImplementation();
         const { result, rerender } = doRenderHook(initialProps);
 
         // Set the results and move to the second page.
@@ -613,11 +633,12 @@ describe("usePagination", () => {
         expect(result.current.paginationProps?.currentPageNum).toBe(1);
     });
 
-    test("Calls appInsights.trackEvent with page size and page number.", async () => {
+    test("Calls appInsights?.trackEvent with page size and page number.", async () => {
         const mockFetchResults = jest
             .fn()
             .mockResolvedValueOnce(createSampleRecords(11))
             .mockResolvedValueOnce(createSampleRecords(11));
+        mockUseAppInsightsContextImplementation();
         const { result } = doRenderHook({
             startCursor: "0",
             isCursorInclusive: false,
@@ -634,13 +655,13 @@ describe("usePagination", () => {
         );
         expect(mockFetchResults).toHaveBeenLastCalledWith("0", 61);
         expect(result.current.paginationProps?.slots).toStrictEqual([1, 2]);
-        expect(mockAppInsights.trackEvent).not.toBeCalled();
+        expect(mockTrackEvent).not.toBeCalled();
 
         act(() => {
             result.current.paginationProps?.setSelectedPage(2);
         });
 
-        expect(mockAppInsights.trackEvent).toBeCalledWith({
+        expect(mockTrackEvent).toBeCalledWith({
             name: "Test Analytics Event",
             properties: {
                 tablePagination: {
