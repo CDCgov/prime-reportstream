@@ -24,6 +24,7 @@ describe("useReportsList", () => {
             isUserAdmin: false,
             isUserReceiver: true,
             isUserSender: false,
+            isUserTransceiver: false,
             environment: "test",
         });
 

@@ -56,6 +56,7 @@ beforeEach(() => {
         isUserAdmin: false,
         isUserReceiver: true,
         isUserSender: false,
+        isUserTransceiver: false,
         environment: "test",
     });
 });
@@ -90,6 +91,7 @@ describe("DeliveriesTable", () => {
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
+                isUserTransceiver: false,
                 environment: "test",
             });
 
@@ -199,6 +201,7 @@ describe("DeliveriesTableWithNumbered", () => {
                     isUserAdmin: false,
                     isUserReceiver: true,
                     isUserSender: false,
+                    isUserTransceiver: false,
                     environment: "test",
                 });
 
@@ -249,6 +252,7 @@ describe("DeliveriesTableWithNumbered", () => {
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
+                isUserTransceiver: false,
                 environment: "test",
             });
 

@@ -44,6 +44,7 @@ describe("AuthElement unit tests", () => {
             isUserAdmin: true,
             isUserReceiver: false,
             isUserSender: false,
+            isUserTransceiver: false,
             environment: "test",
         });
         mockFeatureFlagContext.mockReturnValue({
@@ -70,6 +71,7 @@ describe("AuthElement unit tests", () => {
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: false,
+            isUserTransceiver: false,
             environment: "test",
         });
         renderApp(
@@ -92,6 +94,7 @@ describe("AuthElement unit tests", () => {
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,
+            isUserTransceiver: false,
             environment: "test",
         });
         renderApp(
@@ -117,6 +120,7 @@ describe("AuthElement unit tests", () => {
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,
+            isUserTransceiver: false,
             environment: "test",
         });
         renderApp(
@@ -143,6 +147,7 @@ describe("AuthElement unit tests", () => {
             isUserAdmin: false,
             isUserReceiver: false,
             isUserSender: true,
+            isUserTransceiver: false,
             environment: "test",
         });
         mockFeatureFlagContext.mockReturnValue({
@@ -172,6 +177,7 @@ describe("AuthElement unit tests", () => {
             isUserAdmin: true,
             isUserReceiver: false,
             isUserSender: false,
+            isUserTransceiver: false,
             environment: "test",
         });
         renderApp(
@@ -197,6 +203,7 @@ describe("AuthElement unit tests", () => {
             isUserAdmin: true,
             isUserReceiver: false,
             isUserSender: false,
+            isUserTransceiver: false,
             environment: "test",
         });
         renderApp(
@@ -221,6 +228,7 @@ describe("AuthElement unit tests", () => {
             isUserAdmin: true,
             isUserReceiver: false,
             isUserSender: false,
+            isUserTransceiver: false,
             environment: "test",
         });
         renderApp(
@@ -259,6 +267,7 @@ describe("AuthElement unit tests", () => {
             isUserAdmin: true,
             isUserReceiver: true,
             isUserSender: false,
+            isUserTransceiver: false,
             environment: "test",
         } as RSSessionContext);
         renderApp(

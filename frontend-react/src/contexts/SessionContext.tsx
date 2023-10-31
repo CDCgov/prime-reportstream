@@ -16,6 +16,7 @@ import {
 import { RSUserClaims } from "../utils/OrganizationUtils";
 import config from "../config";
 
+// isUserTransceiver concept only exists on the FE. Some users have both the abilities of a Receiver AND a Sender but are NOT an Admin.
 export interface RSSessionContext extends RSUserPermissions {
     activeMembership?: MembershipSettings | null;
     oktaToken?: Partial<AccessToken>;

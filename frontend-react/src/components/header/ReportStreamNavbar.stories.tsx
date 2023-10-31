@@ -43,6 +43,7 @@ LoggedInNavbarDefault.decorators = [
                 isAdminStrictCheck: true,
                 isUserReceiver: false,
                 isUserSender: false,
+                isUserTransceiver: false,
                 user: { email: "test@testing.com", sub: "" },
                 oktaToken: {},
                 dispatch: () => {},
