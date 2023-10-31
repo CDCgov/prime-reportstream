@@ -237,26 +237,26 @@ address:
     distPatient: PID
 
 telecom_1:
-  condition: $pid14 NOT_NULL
-  valueOf: datatype/ContactPoint
+  condition: $valueIn NOT_NULL
+  valueOf: datatypes/XTN/ContactPoint
   generateList: true
   expressionType: resource
   specs: PID.14
   vars:
-    pid14: PID.14
+    valueIn: PID.14
   constants:
-    use: work
+    useCode: work
 
 telecom_2:
-  condition: $pid13 NOT_NULL
-  valueOf: datatype/ContactPoint
+  condition: $valueIn NOT_NULL
+  valueOf: datatypes/XTN/ContactPoint
   generateList: true
   expressionType: resource
   specs: PID.13
   vars:
-    pid13: PID.13
+    valueIn: PID.13
   constants:
-    use: home
+    useCode: home
 
 # The yaml is processed in reverse order, therefore
 # Put the PID.13 last in yaml so it is first to be processed
@@ -327,6 +327,9 @@ maritalStatus:
     text: String, PID.16.2
 
 contact:
+  vars:
+    nk1: NK1
+  condition: $nk1 NOT_NULL
   valueOf: secondary/PatientContact
   expressionType: resource
   generateList: true
