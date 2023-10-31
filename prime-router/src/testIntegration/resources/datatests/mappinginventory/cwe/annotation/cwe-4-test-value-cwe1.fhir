@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1698779711675917000.d919a76d-ab93-46ec-8a31-61ead44fca95",
+  "id" : "1698782253112277000.2023ba5b-9218-421e-a47a-7eb55bd34256",
   "meta" : {
-    "lastUpdated" : "2023-10-31T15:15:11.703-04:00"
+    "lastUpdated" : "2023-10-31T15:57:33.149-04:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -37,15 +37,14 @@
         "display" : "ORU/ACK - Unsolicited transmission of an observation message"
       },
       "sender" : {
-        "reference" : "Organization/1698779713248482000.ba13d71a-06c5-4049-82ae-c560bf81aca6"
-      },
-      "source" : { }
+        "reference" : "Organization/1698782255069204000.a7a88fe7-2a24-4b59-8ed9-1b77acaf1a9c"
+      }
     }
   }, {
-    "fullUrl" : "Organization/1698779713248482000.ba13d71a-06c5-4049-82ae-c560bf81aca6",
+    "fullUrl" : "Organization/1698782255069204000.a7a88fe7-2a24-4b59-8ed9-1b77acaf1a9c",
     "resource" : {
       "resourceType" : "Organization",
-      "id" : "1698779713248482000.ba13d71a-06c5-4049-82ae-c560bf81aca6",
+      "id" : "1698782255069204000.a7a88fe7-2a24-4b59-8ed9-1b77acaf1a9c",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -57,10 +56,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "Provenance/1698779713738991000.2a213a2f-b353-4fd3-87c3-44df7d486781",
+    "fullUrl" : "Provenance/1698782255648961000.e408b448-ad6b-4bb1-94dc-3cd41a8338ec",
     "resource" : {
       "resourceType" : "Provenance",
-      "id" : "1698779713738991000.2a213a2f-b353-4fd3-87c3-44df7d486781",
+      "id" : "1698782255648961000.e408b448-ad6b-4bb1-94dc-3cd41a8338ec",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -68,7 +67,7 @@
         } ]
       },
       "target" : [ {
-        "reference" : "DiagnosticReport/1698779713988908000.ac4f0c22-fa3f-4760-ab5c-631b801c8e9a"
+        "reference" : "DiagnosticReport/1698782255943984000.7092e1d5-627a-417b-8504-df49101674e4"
       } ],
       "recorded" : "2023-05-01T10:25:31-04:00",
       "activity" : {
@@ -97,15 +96,15 @@
       "entity" : [ {
         "role" : "source",
         "what" : {
-          "reference" : "Device/1698779713742346000.55ca3bf6-2a44-40e9-967e-f16639f9f238"
+          "reference" : "Device/1698782255653102000.137fa19c-2c6b-4048-8496-d40ae030df37"
         }
       } ]
     }
   }, {
-    "fullUrl" : "Device/1698779713742346000.55ca3bf6-2a44-40e9-967e-f16639f9f238",
+    "fullUrl" : "Device/1698782255653102000.137fa19c-2c6b-4048-8496-d40ae030df37",
     "resource" : {
       "resourceType" : "Device",
-      "id" : "1698779713742346000.55ca3bf6-2a44-40e9-967e-f16639f9f238",
+      "id" : "1698782255653102000.137fa19c-2c6b-4048-8496-d40ae030df37",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -114,10 +113,10 @@
       }
     }
   }, {
-    "fullUrl" : "Specimen/1698779713779298000.cbeab66c-946d-4656-ae3d-4164387579dc",
+    "fullUrl" : "Specimen/1698782255696412000.cdfd3b5f-2923-46b8-8d09-9967b5a679b6",
     "resource" : {
       "resourceType" : "Specimen",
-      "id" : "1698779713779298000.cbeab66c-946d-4656-ae3d-4164387579dc",
+      "id" : "1698782255696412000.cdfd3b5f-2923-46b8-8d09-9967b5a679b6",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -125,7 +124,7 @@
         } ]
       },
       "subject" : {
-        "reference" : "Patient/1698779713767571000.54d1c0ad-e5b4-4e04-ab48-8e4a9bbb017b"
+        "reference" : "Patient/1698782255681509000.45527a34-4d85-4a59-a7fc-99578a801ce7"
       },
       "note" : [ {
         "extension" : [ {
@@ -141,10 +140,10 @@
       } ]
     }
   }, {
-    "fullUrl" : "ServiceRequest/1698779713977680000.8e3ffee1-7524-4b67-aff5-2d910d6d90ee",
+    "fullUrl" : "ServiceRequest/1698782255932376000.5ffb116b-0e75-4d48-a330-70f906d14120",
     "resource" : {
       "resourceType" : "ServiceRequest",
-      "id" : "1698779713977680000.8e3ffee1-7524-4b67-aff5-2d910d6d90ee",
+      "id" : "1698782255932376000.5ffb116b-0e75-4d48-a330-70f906d14120",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -154,12 +153,12 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/entered-by",
         "valueReference" : {
-          "reference" : "Practitioner/1698779713970636000.a8045203-c9cb-40de-bf70-9dfc65ea5dc1"
+          "reference" : "Practitioner/1698782255924892000.c1feb0f2-57e7-40c3-aecb-65aaca2cc736"
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/collector-identifier",
         "valueReference" : {
-          "reference" : "Practitioner/1698779713975069000.ab68f2bd-2969-4e89-8bd6-f140906fe37d"
+          "reference" : "Practitioner/1698782255929600000.ccec1b56-a9af-4ceb-8b92-5e612f633038"
         }
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/result-status",
@@ -176,7 +175,7 @@
       }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/enterers-location",
         "valueReference" : {
-          "reference" : "Location/1698779713980761000.89fb2319-ac99-4260-8571-da4b9325ca61"
+          "reference" : "Location/1698782255935549000.efe2ab40-7380-41b2-ace9-77ccc1a03379"
         }
       } ],
       "identifier" : [ {
@@ -205,17 +204,17 @@
         } ]
       },
       "subject" : {
-        "reference" : "Patient/1698779713767571000.54d1c0ad-e5b4-4e04-ab48-8e4a9bbb017b"
+        "reference" : "Patient/1698782255681509000.45527a34-4d85-4a59-a7fc-99578a801ce7"
       },
       "requester" : {
-        "reference" : "PractitionerRole/1698779713978602000.48438b44-d8bd-4612-85f1-f38e23e625e9"
+        "reference" : "PractitionerRole/1698782255933457000.2c07d151-b704-41ae-9249-846aece7651c"
       }
     }
   }, {
-    "fullUrl" : "Practitioner/1698779713970636000.a8045203-c9cb-40de-bf70-9dfc65ea5dc1",
+    "fullUrl" : "Practitioner/1698782255924892000.c1feb0f2-57e7-40c3-aecb-65aaca2cc736",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1698779713970636000.a8045203-c9cb-40de-bf70-9dfc65ea5dc1",
+      "id" : "1698782255924892000.c1feb0f2-57e7-40c3-aecb-65aaca2cc736",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -225,10 +224,10 @@
       "identifier" : [ { } ]
     }
   }, {
-    "fullUrl" : "Practitioner/1698779713975069000.ab68f2bd-2969-4e89-8bd6-f140906fe37d",
+    "fullUrl" : "Practitioner/1698782255929600000.ccec1b56-a9af-4ceb-8b92-5e612f633038",
     "resource" : {
       "resourceType" : "Practitioner",
-      "id" : "1698779713975069000.ab68f2bd-2969-4e89-8bd6-f140906fe37d",
+      "id" : "1698782255929600000.ccec1b56-a9af-4ceb-8b92-5e612f633038",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -238,10 +237,10 @@
       "identifier" : [ { } ]
     }
   }, {
-    "fullUrl" : "PractitionerRole/1698779713978602000.48438b44-d8bd-4612-85f1-f38e23e625e9",
+    "fullUrl" : "PractitionerRole/1698782255933457000.2c07d151-b704-41ae-9249-846aece7651c",
     "resource" : {
       "resourceType" : "PractitionerRole",
-      "id" : "1698779713978602000.48438b44-d8bd-4612-85f1-f38e23e625e9",
+      "id" : "1698782255933457000.2c07d151-b704-41ae-9249-846aece7651c",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -250,10 +249,10 @@
       }
     }
   }, {
-    "fullUrl" : "Location/1698779713980761000.89fb2319-ac99-4260-8571-da4b9325ca61",
+    "fullUrl" : "Location/1698782255935549000.efe2ab40-7380-41b2-ace9-77ccc1a03379",
     "resource" : {
       "resourceType" : "Location",
-      "id" : "1698779713980761000.89fb2319-ac99-4260-8571-da4b9325ca61",
+      "id" : "1698782255935549000.efe2ab40-7380-41b2-ace9-77ccc1a03379",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -262,10 +261,10 @@
       }
     }
   }, {
-    "fullUrl" : "DiagnosticReport/1698779713988908000.ac4f0c22-fa3f-4760-ab5c-631b801c8e9a",
+    "fullUrl" : "DiagnosticReport/1698782255943984000.7092e1d5-627a-417b-8504-df49101674e4",
     "resource" : {
       "resourceType" : "DiagnosticReport",
-      "id" : "1698779713988908000.ac4f0c22-fa3f-4760-ab5c-631b801c8e9a",
+      "id" : "1698782255943984000.7092e1d5-627a-417b-8504-df49101674e4",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
@@ -290,7 +289,7 @@
         "value" : "20230501102531-0400"
       } ],
       "basedOn" : [ {
-        "reference" : "ServiceRequest/1698779713977680000.8e3ffee1-7524-4b67-aff5-2d910d6d90ee"
+        "reference" : "ServiceRequest/1698782255932376000.5ffb116b-0e75-4d48-a330-70f906d14120"
       } ],
       "status" : "final",
       "code" : {
@@ -303,17 +302,17 @@
         } ]
       },
       "subject" : {
-        "reference" : "Patient/1698779713767571000.54d1c0ad-e5b4-4e04-ab48-8e4a9bbb017b"
+        "reference" : "Patient/1698782255681509000.45527a34-4d85-4a59-a7fc-99578a801ce7"
       },
       "specimen" : [ {
-        "reference" : "Specimen/1698779713779298000.cbeab66c-946d-4656-ae3d-4164387579dc"
+        "reference" : "Specimen/1698782255696412000.cdfd3b5f-2923-46b8-8d09-9967b5a679b6"
       } ]
     }
   }, {
-    "fullUrl" : "Patient/1698779713767571000.54d1c0ad-e5b4-4e04-ab48-8e4a9bbb017b",
+    "fullUrl" : "Patient/1698782255681509000.45527a34-4d85-4a59-a7fc-99578a801ce7",
     "resource" : {
       "resourceType" : "Patient",
-      "id" : "1698779713767571000.54d1c0ad-e5b4-4e04-ab48-8e4a9bbb017b",
+      "id" : "1698782255681509000.45527a34-4d85-4a59-a7fc-99578a801ce7",
       "meta" : {
         "extension" : [ {
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
