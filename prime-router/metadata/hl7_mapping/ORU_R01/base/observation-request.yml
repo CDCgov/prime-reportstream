@@ -142,20 +142,3 @@ elements:
     schema: ../../common/datatype/ce-coded-element
     resourceIndex: reasonIndex
 
-  - name: result-interpreter
-    resource: '%resource.resultsInterpreter.resolve()'
-    constants:
-      hl7CNNField: '%{fieldPath}-32-1'
-    schema: ../../Resources/Practitioner/CNN
-
-  - name: technician
-    resource: '%resource.performer.resolve().where(extension("http://hl7.org/fhir/StructureDefinition/event-performerFunction").value.coding.code = "SPRF").practitioner.resolve()'
-    constants:
-      hl7CNNField: '%{fieldPath}-34-1'
-    schema: ../../Resources/Practitioner/CNN
-
-  - name: transcriptionist
-    resource: '%resource.performer.resolve().where(extension("http://hl7.org/fhir/StructureDefinition/event-performerFunction").value.coding.code = "TRANS").practitioner.resolve()'
-    constants:
-      hl7CNNField: '%{fieldPath}-35-1'
-    schema: ../../Resources/Practitioner/CNN

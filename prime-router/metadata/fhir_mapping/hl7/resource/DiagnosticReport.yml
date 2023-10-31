@@ -159,10 +159,10 @@ issued:
     dateTimeIn: OBR.22
 
 resultsInterpreter:
-  valueOf: datatypes/CNN/Practitioner
+  valueOf: datatypes/NDL/PractitionerRole
   generateList: true
   expressionType: reference
-  specs: OBR.32.1
+  specs: OBR.32
 
 performer_1-technician:
   valueOf: datatypes/NDL/PractitionerRole

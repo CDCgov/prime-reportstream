@@ -9,7 +9,6 @@ elements:
     hl7Spec: [ '%{hl7CNNField}-2' ]
 
   - name: cnn-given-name
-    condition: '%resource.extension(%`rsext-cnn3-given-name`).exists()'
     value: [ '%resource.extension(%`rsext-cnn3-given-name`).value' ]
     hl7Spec: [ '%{hl7CNNField}-3' ]
 

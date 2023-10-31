@@ -28,17 +28,17 @@ elements:
   - name: result-interpreter
     resource: '%resource.resultsInterpreter.resolve()'
     constants:
-      hl7CNNField: '%{fieldPath}-32-1'
-    schema: ../Resources/Practitioner/CNN
+      hl7NDLField: '%{fieldPath}-32'
+    schema: ../resources/PractitionerRole/NDL
 
   - name: technician
-    resource: '%resource.performer.resolve().where(extension("http://hl7.org/fhir/StructureDefinition/event-performerFunction").value.coding.code = "SPRF").practitioner.resolve()'
+    resource: '%resource.performer.resolve().where(extension("http://hl7.org/fhir/StructureDefinition/event-performerFunction").value.coding.code = "SPRF")'
     constants:
-      hl7CNNField: '%{fieldPath}-34-1'
-    schema: ../Resources/Practitioner/CNN
+      hl7NDLField: '%{fieldPath}-34'
+    schema: ../resources/PractitionerRole/NDL
 
   - name: transcriptionist
     resource: '%resource.performer.resolve().where(extension("http://hl7.org/fhir/StructureDefinition/event-performerFunction").value.coding.code = "TRANS")'
     constants:
       hl7NDLField: '%{fieldPath}-35'
-    schema: ../Resources/PractitionerRole/NDL
+    schema: ../resources/PractitionerRole/NDL

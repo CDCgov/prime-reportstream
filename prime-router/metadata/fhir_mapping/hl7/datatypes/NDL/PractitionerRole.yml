@@ -105,6 +105,7 @@ location:
 extension:
   generateList: true
   expressionType: nested
+  condition: $performerParticipationType NOT_NULL
   expressions:
     - expressionType: nested
       expressionsMap:
