@@ -49,12 +49,9 @@ export function getUserPermissions(user?: RSUserClaims): RSUserPermissions {
         isUserTransceiver = false;
     for (const org of user?.organization ?? []) {
         if (isAdmin(org)) isUserAdmin = true;
-        if (isReceiver(org) && isSender(org)) {
-            isUserTransceiver = true;
-        } else {
-            if (isReceiver(org)) isUserReceiver = true;
-            if (isSender(org)) isUserSender = true;
-        }
+        if (isReceiver(org)) isUserReceiver = true;
+        if (isSender(org)) isUserSender = true;
+        if (isReceiver(org) && isSender(org)) isUserTransceiver = true;
     }
 
     return {
