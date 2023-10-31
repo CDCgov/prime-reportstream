@@ -48,7 +48,7 @@ jobs:
         
       - name: "Get changed files with yaml"
         id: changed-files-yaml
-        uses: tj-actions/changed-files@af292f1e845a0377b596972698a8598734eb2796
+        uses: tj-actions/changed-files@bfc49f4cff6934aa236c171f9bcbf1dd6b1ef438
         with:
           files_yaml: |
             frontend:
