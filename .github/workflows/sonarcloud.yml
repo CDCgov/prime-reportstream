@@ -74,7 +74,7 @@ jobs:
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         working-directory: prime-router
         #run: ./gradlew jacocoTestReport
-        run: ./gradlew package -x fatjar
+        run: ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" package -x test
 
       - name: Perform Java CodeQL Analysis
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
