@@ -17,8 +17,8 @@ import gov.cdc.prime.router.credentials.SoapCredential
 import gov.cdc.prime.router.credentials.UserPassCredential
 import gov.cdc.prime.router.serializers.soapimpl.Credentials
 import gov.cdc.prime.router.serializers.soapimpl.LabFile
+import gov.cdc.prime.router.serializers.soapimpl.Soap12Message
 import gov.cdc.prime.router.serializers.soapimpl.UploadFiles
-import gov.cdc.prime.router.serializers.soapimpl.SubmitMessage
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Base64
@@ -68,7 +68,7 @@ class SoapEnvelope(
  */
 class SoapSerializer(
     private val envelope: Class<SoapEnvelope>?,
-    ) : StdSerializer<SoapEnvelope>(envelope) {
+) : StdSerializer<SoapEnvelope>(envelope) {
     // Jackson Mapper requires this even if we don't use it in our code
     constructor() : this(null)
 
@@ -84,14 +84,14 @@ class SoapSerializer(
         // the way that Jackson Mapper works, so I have just cheated here and pulled the
         // root element by force, so I can use it down below
         val payloadName = value.payload::class.findAnnotation() as? JacksonXmlRootElement
-        if (xmlGen != null){
-            when(value.soapVersion){
+        if (xmlGen != null) {
+            when (value.soapVersion) {
                 // SOAP version 1.2 has a very different structure than SOAP 1.1 and uses WS security elements in the header.
                 "SOAP12" -> {
                     // this timestamp id just needs to be a random unique identifier
                     val timestampId = "TS-" + (java.util.UUID.randomUUID())
-                    val timeCreated = java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now())
-                    val timeExpires = java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now().plusSeconds(180))
+                    val timeCreated = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now())
+                    val timeExpires = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now().plusSeconds(180))
 
                     xmlGen.writeStartObject()
                     xmlGen.setNextIsAttribute(true)
@@ -133,7 +133,7 @@ class SoapSerializer(
                     xmlGen.writeStringField("wsu:Expires", timeExpires)
                     // close the objects for the wsu:timestamp, wsse:Security and soapenv:Header elements
                     repeat(3) { xmlGen.writeEndObject() }
-                    //create the body XML element
+                    // create the body XML element
                     xmlGen.writeObjectFieldStart("$soapNamespaceAlias:Body")
                     // insert the XML object(s) created in the soapimpl files
                     xmlGen.writePOJOField(payloadName?.localName ?: defaultPayloadName, value.payload)
@@ -219,7 +219,7 @@ object SoapObjectService {
             else -> {
                 val encodedfileContents = Base64.getEncoder().encodeToString(header.content!!)
                 val textFileContents = String(Base64.getDecoder().decode(encodedfileContents))
-                SubmitMessage(textFileContents)
+                Soap12Message(textFileContents)
             }
         }
     }

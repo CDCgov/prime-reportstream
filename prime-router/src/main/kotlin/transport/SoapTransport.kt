@@ -19,7 +19,6 @@ import gov.cdc.prime.router.serializers.SoapObjectService
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.apache.Apache
-import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.plugins.expectSuccess
@@ -27,14 +26,12 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.request.header
-import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.request
 import io.ktor.http.ContentType
 import io.ktor.http.content.TextContent
-import io.ktor.http.HttpHeaders
 import io.ktor.http.withCharset
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -42,14 +39,13 @@ import java.io.InputStream
 import java.io.StringReader
 import java.io.StringWriter
 import java.security.KeyStore
+import java.util.Base64
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
-import java.util.Base64
 import javax.xml.transform.OutputKeys
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.stream.StreamResult
 import javax.xml.transform.stream.StreamSource
-
 
 /**
  * A SOAP transport that will connect to the endpoint and send a message in a serialized SOAP envelope
@@ -94,7 +90,7 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
         httpClient.use { client ->
             context.logger.info("Connecting to $soapEndpoint")
             // once we've created the client, we will use it to call post on the endpoint
-            when(soapVersion) {
+            when (soapVersion) {
                 // SOAP verserion 1.2 has a different structure and requirements than SOAP 1.1. The receiver tranport setting soapVersion will detemine which version is used.
                 "SOAP12" -> {
                     val response: HttpResponse = client.post(soapEndpoint) {
@@ -106,14 +102,13 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
                             "application/soap+xml;action=\"urn:SubmitMessage\""
                         )
                         setBody(
-                                message,
+                            message,
                         )
                         // get the response object
                     }
-                        val body: String = response.body()
-                        // return just the body of the message
-                        return prettyPrintXmlResponse(body)
-
+                    val body: String = response.body()
+                    // return just the body of the message
+                    return prettyPrintXmlResponse(body)
                 }
                 else -> {
                     // default to this if we don't get SOAP12 in the receiver settings.
@@ -182,7 +177,11 @@ class SoapTransport(private val httpClient: HttpClient? = null) : ITransport {
         val xmlObject = SoapObjectService.getXmlObjectForAction(soapTransportType, header, context, credential)
             ?: error("Unable to find a SOAP object for the namespaces provided")
         // wrap the object in the generic envelope. At least this gets to be generic
-        val soapEnvelope = SoapEnvelope(xmlObject, soapTransportType.namespaces ?: emptyMap(), soapTransportType.soapVersion ?: String())
+        val soapEnvelope = SoapEnvelope(
+            xmlObject,
+            soapTransportType.namespaces ?: emptyMap(),
+            soapTransportType.soapVersion ?: String()
+        )
 
         return try {
             // run our call to the endpoint in a blocking fashion
