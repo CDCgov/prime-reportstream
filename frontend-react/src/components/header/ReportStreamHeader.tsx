@@ -295,20 +295,24 @@ function ReportStreamNavbar({
         let menuItems = [...menuItemsAbout, ...defaultMenuItems];
 
         if (
-            (user.isUserReceiver || user.isUserAdmin) &&
+            (user.isUserReceiver ||
+                user.isUserTransceiver ||
+                user.isUserAdmin) &&
             !isOrgMissingTransport
         ) {
             menuItems = [...menuItems, ...menuItemsReceiver];
         }
 
         if (
-            (user.isUserReceiver || user.isUserAdmin) &&
+            (user.isUserReceiver ||
+                user.isUserTransceiver ||
+                user.isUserAdmin) &&
             isOrgMissingTransport
         ) {
             menuItems = [...menuItems, ...menuItemsReceiverMissingTransport];
         }
 
-        if (user.isUserSender || user.isUserAdmin) {
+        if (user.isUserSender || user.isUserTransceiver || user.isUserAdmin) {
             menuItems = [...menuItems, ...menuItemsSender];
         }
 

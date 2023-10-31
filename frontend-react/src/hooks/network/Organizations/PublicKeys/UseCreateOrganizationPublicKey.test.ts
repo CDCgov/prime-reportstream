@@ -32,6 +32,7 @@ describe("useCreateOrganizationPublicKey", () => {
                     isUserAdmin: false,
                     isUserReceiver: false,
                     isUserSender: true,
+                    isUserTransceiver: false,
                 } as any,
             });
         });
@@ -65,6 +66,7 @@ describe("useCreateOrganizationPublicKey", () => {
                     isUserAdmin: false,
                     isUserReceiver: false,
                     isUserSender: true,
+                    isUserTransceiver: false,
                 } as any,
             });
         });

@@ -36,6 +36,7 @@ export interface RSSessionContext {
     user: {
         claims?: UserClaims<CustomUserClaims>;
         isAdminStrictCheck: boolean;
+        isUserTransceiver: boolean;
     } & RSUserPermissions;
     logout: () => void;
     setActiveMembership: (value: Partial<MembershipSettings> | null) => void;

@@ -92,6 +92,7 @@ describe("ManagePublicKey", () => {
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: true,
+                isUserTransceiver: false,
             } as any,
         });
     });

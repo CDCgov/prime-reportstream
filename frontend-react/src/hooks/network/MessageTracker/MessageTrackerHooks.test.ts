@@ -29,6 +29,7 @@ describe("useMessageSearch", () => {
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
+                isUserTransceiver: false,
             } as any,
         });
 
@@ -65,6 +66,7 @@ describe("useMessageDetails", () => {
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
+                isUserTransceiver: false,
             } as any,
         });
 

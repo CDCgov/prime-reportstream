@@ -27,6 +27,7 @@ describe("useSenderResource", () => {
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: true,
+                isUserTransceiver: false,
             } as any,
         });
         const { result } = renderHook(() => useSenderResource());
@@ -47,6 +48,7 @@ describe("useSenderResource", () => {
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: true,
+                isUserTransceiver: false,
             } as any,
         });
         const { result } = renderHook(() => useSenderResource(), {
