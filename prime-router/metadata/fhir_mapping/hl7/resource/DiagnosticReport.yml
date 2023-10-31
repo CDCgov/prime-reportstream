@@ -165,20 +165,24 @@ resultsInterpreter:
   specs: OBR.32.1
 
 performer_1-technician:
-  condition: $rolePractitioner NOT_NULL
-  valueOf: resource/PractitionerRole
+  valueOf: datatypes/NDL/PractitionerRole
+  condition: $obr34 NOT_NULL
   generateList: true
   expressionType: reference
+  specs: OBR.34
   vars:
-    rolePractitioner: OBR.34.1
+    obr34: OBR.34
   constants:
     performerParticipationType: "SPRF"
 
 performer_2-transcriptionist:
   valueOf: datatypes/NDL/PractitionerRole
+  condition: $obr35 NOT_NULL
   generateList: true
   expressionType: reference
   specs: OBR.35
+  vars:
+    obr35: OBR.35
   constants:
     performerParticipationType: "TRANS"
 

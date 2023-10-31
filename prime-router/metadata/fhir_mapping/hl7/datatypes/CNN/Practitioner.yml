@@ -15,6 +15,11 @@ identifier:
     extension_assigningAuthority:
       generateList: true
       expressionType: nested
+      vars:
+        cnn9: CNN.9
+        cnn10: CNN.10
+        cnn11: CNN.11
+      condition: $cnn9 NOT_NULL || $cnn10 NOT_NULL || $cnn11 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL

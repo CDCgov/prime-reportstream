@@ -38,7 +38,7 @@ elements:
     schema: ../Resources/Practitioner/CNN
 
   - name: transcriptionist
-    resource: '%resource.performer.resolve().where(extension("http://hl7.org/fhir/StructureDefinition/event-performerFunction").value.coding.code = "TRANS").practitioner.resolve()'
+    resource: '%resource.performer.resolve().where(extension("http://hl7.org/fhir/StructureDefinition/event-performerFunction").value.coding.code = "TRANS")'
     constants:
-      hl7CNNField: '%{fieldPath}-35-1'
-    schema: ../Resources/Practitioner/CNN
+      hl7NDLField: '%{fieldPath}-35'
+    schema: ../Resources/PractitionerRole/NDL

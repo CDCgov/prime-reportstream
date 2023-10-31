@@ -5,7 +5,7 @@ id:
   valueOf: "GeneralUtils.generateResourceId()"
   expressionType: JEXL
 
-name:
+practitioner:
   valueOf: datatypes/CNN/Practitioner
   expressionType: reference
   specs: NDL.1
@@ -31,60 +31,72 @@ location:
   expressionType: nested
   expressions:
     - valueOf: datatypes/NDL/Location
+      condition: $ndl7 NOT_NULL
       expressionType: reference
       specs: NDL.7
       vars:
-        status: NDL.8
+        ndlLocationStatus: NDL.8
+        ndl7: NDL.7
       constants:
         mode: "instance"
         physicalTypeCode: "si"
     - valueOf: datatypes/NDL/Location
+      condition: $ndl10 NOT_NULL
       expressionType: reference
       specs: NDL.10
       vars:
         refLocation: $BASE_VALUE, GeneralUtils.extractAttribute(refLocation,"$.identifier[0].value","String")
         partOfId: NLD.7.1
         ndlLocationStatus: NDL.8
+        ndl10: NDL.10
       constants:
         mode: "instance"
         physicalTypeCode: "bu"
     - valueOf: datatypes/NDL/Location
+      condition: $ndl4 NOT_NULL
       expressionType: reference
       specs: NDL.4
       vars:
         refLocation: $BASE_VALUE, GeneralUtils.extractAttribute(refLocation,"$.identifier[0].value","String")
         partOfId: NLD.10
         ndlLocationStatus: NDL.8
+        ndl4: NDL.4
       constants:
         mode: "instance"
-        physicalTypeCode: "poc" # TODO this should be an extension
+        physicalTypeCode: "poc"
     - valueOf: datatypes/NDL/Location
+      condition: $ndl11 NOT_NULL
       expressionType: reference
       specs: NDL.11
       vars:
         refLocation: $BASE_VALUE, GeneralUtils.extractAttribute(refLocation,"$.identifier[0].value","String")
         partOfId: NLD.4
         ndlLocationStatus: NDL.8
+        ndl11: NDL.11
       constants:
         mode: "instance"
         physicalTypeCode: "lvl"
     - valueOf: datatypes/NDL/Location
+      condition: $ndl5 NOT_NULL
       expressionType: reference
       specs: NDL.5
       vars:
         refLocation: $BASE_VALUE, GeneralUtils.extractAttribute(refLocation,"$.identifier[0].value","String")
         partOfId: NLD.4
-        $ndlLocationStatus: NDL.8
+        ndlLocationStatus: NDL.8
+        ndl5: NDL.5
       constants:
         mode: "instance"
         physicalTypeCode: "ro"
     - valueOf: datatypes/NDL/Location
+      condition: $ndl6 NOT_NULL
       expressionType: reference
       specs: NDL.6
       vars:
         refLocation: $BASE_VALUE, GeneralUtils.extractAttribute(refLocation,"$.identifier[0].value","String")
         partOfId: NLD.5
         ndlLocationStatus: NDL.8
+        ndl6: NDL.6
       constants:
         mode: "instance"
         physicalTypeCode: "bd"
