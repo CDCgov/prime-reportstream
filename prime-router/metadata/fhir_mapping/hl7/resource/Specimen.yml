@@ -128,9 +128,12 @@ note_1:
     noteText: SPM.14
 
 note_2:
+  condition: collectorsComment NOT_NULL
   valueOf: datatypes/CWE/Annotation
   expressionType: resource
   generateList: true
   specs: OBR.39
+  vars:
+    collectorsComment: String, OBR.39
   constants:
     hl7v2Name: collectors-comment
