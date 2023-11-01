@@ -98,8 +98,51 @@ extension:
           type: STRING
           valueOf: $professionalSuffix
 
-_family:
-  valueOf: datatypes/FN/HumanName-family
+extension_family:
   generateList: true
-  expressionType: resource
-  specs: XPN.1
+  expressionType: nested
+  vars:
+    ownSurname: String, XPN.1.3 | XCN.2.3
+    ownSurnamePrefix: String, XPN.1.2 | XCN.2.2
+    surnameFromPartnerOrSpouse: String, XPN.1.5 | XCN.2.5
+    surnamePrefixFromPartnerOrSpouse: String, XPN.1.4 | XCN.2.4
+  expressions:
+    - expressionType: nested
+      condition: $ownSurname NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: humanname-own-surname
+        valueString:
+          type: STRING
+          valueOf: $ownSurname
+
+    - expressionType: nested
+      condition: $ownSurnamePrefix NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: humanname-own-surname-prefix
+        valueString:
+          type: STRING
+          valueOf: $ownSurnamePrefix
+
+    - expressionType: nested
+      condition: $surnameFromPartnerOrSpouse NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: humanname-surname-from-partner-or-spouse
+        valueString:
+          type: STRING
+          valueOf: $surnameFromPartnerOrSpouse
+
+    - expressionType: nested
+      condition: $surnamePrefixFromPartnerOrSpouse NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: humanname-surname-from-partner-or-spouse-prefix
+        valueString:
+          type: STRING
+          valueOf: $surnamePrefixFromPartnerOrSpouse

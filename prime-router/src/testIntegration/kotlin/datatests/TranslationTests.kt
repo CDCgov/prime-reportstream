@@ -432,7 +432,6 @@ class TranslationTests {
                     translationFunctions = CustomTranslationFunctions()
                 )
             ).convert(fhirBundle)
-
             return hl7.encodePreserveEncodingChars().byteInputStream()
         }
 

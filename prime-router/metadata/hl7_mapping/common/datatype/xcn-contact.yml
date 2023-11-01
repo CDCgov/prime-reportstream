@@ -11,23 +11,23 @@ elements:
     hl7Spec: [ '%{hl7XCNFieldPath}-2' ]
 
   - name: xcn-family-own-surname
-    condition: '%resource.name.extension(%`ext-humanname-own-name`).exists()'
-    value: [ '%deidentifiedValue', '%resource.name.extension(%`ext-humanname-own-name`).value' ]
+    condition: '%resource.name.family.extension(%`ext-humanname-own-name`).exists()'
+    value: [ '%deidentifiedValue', '%resource.name.family.extension(%`ext-humanname-own-name`).value' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-2-3' ]
 
   - name: xcn-family-own-surname-prefix
-    condition: '%resource.name.extension(%`ext-humanname-own-name-prefix`).exists()'
-    value: [ '%deidentifiedValue', '%resource.name.extension(%`ext-humanname-own-name-prefix`).value' ]
+    condition: '%resource.name.family.extension(%`ext-humanname-own-name-prefix`).exists()'
+    value: [ '%deidentifiedValue', '%resource.name.family.extension(%`ext-humanname-own-name-prefix`).value' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-2-2' ]
 
   - name: xcn-family-surname-from-partner-or-spouse
-    condition: '%resource.name.extension(%`ext-humanname-partner-name`).exists()'
-    value: [ '%deidentifiedValue', '%resource.name.extension(%`ext-humanname-partner-name`).value' ]
+    condition: '%resource.name.family.extension(%`ext-humanname-partner-name`).exists()'
+    value: [ '%deidentifiedValue', '%resource.name.family.extension(%`ext-humanname-partner-name`).value' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-2-5' ]
 
   - name: xcn-family-surname-from-partner-or-spouse-prefix
-    condition: '%resource.name.extension(%`ext-humanname-partner-prefix`).exists()'
-    value: [ '%deidentifiedValue', '%resource.name.extension(%`ext-humanname-partner-prefix`).value' ]
+    condition: '%resource.name.family.extension(%`ext-humanname-partner-prefix`).exists()'
+    value: [ '%deidentifiedValue', '%resource.name.family.extension(%`ext-humanname-partner-prefix`).value' ]
     hl7Spec: [ '%{hl7XCNFieldPath}-2-4' ]
 
   - name: xcn-given-name
