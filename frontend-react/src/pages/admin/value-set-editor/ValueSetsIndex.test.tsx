@@ -4,13 +4,13 @@ import { AxiosError, AxiosResponse } from "axios";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { ValueSet } from "../../../config/endpoints/lookupTables";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
-import {
-    ValueSetsMetaResponse,
-    ValueSetsTableResponse,
-} from "../../../hooks/UseValueSets";
 import { conditionallySuppressConsole } from "../../../utils/TestUtils";
+import {
+    UseValueSetsMetaResult,
+    UseValueSetsTableResult,
+} from "../../../hooks/UseValueSets";
 
-import ValueSetsIndex from "./ValueSetsIndex";
+import ValueSetsIndexPage from "./ValueSetsIndex";
 
 const fakeRows = [
     {
@@ -43,17 +43,17 @@ describe("ValueSetsIndex tests", () => {
         mockUseValueSetsTable = jest.fn(
             () =>
                 ({
-                    valueSetArray: [] as ValueSet[],
-                }) as ValueSetsTableResponse<any>,
+                    data: [] as ValueSet[],
+                }) as UseValueSetsTableResult,
         );
 
         mockUseValueSetsMeta = jest.fn(
             () =>
                 ({
-                    valueSetMeta: {},
-                }) as ValueSetsMetaResponse,
+                    data: {},
+                }) as UseValueSetsMetaResult,
         );
-        renderApp(<ValueSetsIndex />);
+        renderApp(<ValueSetsIndexPage />);
         const headers = screen.getAllByRole("columnheader");
         const title = screen.getByText("ReportStream Value Sets");
         const rows = screen.getAllByRole("row");
@@ -67,18 +67,18 @@ describe("ValueSetsIndex tests", () => {
         mockUseValueSetsTable = jest.fn(
             () =>
                 ({
-                    valueSetArray: fakeRows,
-                }) as ValueSetsTableResponse<any>,
+                    data: fakeRows,
+                }) as UseValueSetsTableResult,
         );
 
         mockUseValueSetsMeta = jest.fn(
             () =>
                 ({
-                    valueSetMeta: fakeMeta,
-                }) as ValueSetsMetaResponse,
+                    data: fakeMeta,
+                }) as UseValueSetsMetaResult,
         );
 
-        renderApp(<ValueSetsIndex />);
+        renderApp(<ValueSetsIndexPage />);
         const rows = screen.getAllByRole("row");
         expect(rows.length).toBe(3); // +1 for header
 
@@ -99,8 +99,8 @@ describe("ValueSetsIndex tests", () => {
         mockUseValueSetsMeta = jest.fn(
             () =>
                 ({
-                    valueSetMeta: fakeMeta,
-                }) as ValueSetsMetaResponse,
+                    data: fakeMeta,
+                }) as UseValueSetsMetaResult,
         );
         mockUseValueSetsTable = jest.fn(() => {
             throw new RSNetworkError(
@@ -111,7 +111,7 @@ describe("ValueSetsIndex tests", () => {
         });
         /* Outputs a large error stack...should we consider hiding error stacks in page tests since we
          * test them via the ErrorBoundary test? */
-        renderApp(<ValueSetsIndex />);
+        renderApp(<ValueSetsIndexPage />);
         expect(
             screen.getByText(
                 "Our apologies, there was an error loading this content.",

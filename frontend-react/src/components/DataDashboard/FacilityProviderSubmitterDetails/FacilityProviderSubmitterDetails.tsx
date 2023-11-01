@@ -1,13 +1,10 @@
 import { GridContainer } from "@trussworks/react-uswds";
 import React from "react";
 
-import { AuthElement } from "../../AuthElement";
-import { MemberType } from "../../../hooks/UseOktaMemberships";
 import Crumbs, { CrumbsProps } from "../../Crumbs";
 import { FeatureName } from "../../../utils/FeatureName";
 import HipaaNotice from "../../HipaaNotice";
 import { SenderType } from "../../../utils/DataDashboardUtils";
-import { withCatchAndSuspense } from "../../RSErrorBoundary";
 
 import styles from "./FacilityProviderSubmitterDetails.module.scss";
 import { FacilityProviderSubmitterSummary } from "./FacilityProviderSubmitterSummary";
@@ -17,7 +14,7 @@ export type FacilityProviderSubmitterDetailsProps = React.PropsWithChildren<{
     senderType: SenderType;
 }>;
 
-function FacilityProviderSubmitterDetails(
+function FacilityProviderSubmitterDetailsPage(
     props: FacilityProviderSubmitterDetailsProps,
 ) {
     // TODO: get from params once API is complete.
@@ -57,7 +54,7 @@ function FacilityProviderSubmitterDetails(
                         summaryDetailType={props.senderType}
                     />
                     <FacilityProviderSubmitterTable
-                        senderTypeId={senderTypeId!!}
+                        senderTypeId={senderTypeId}
                         senderTypeName={summaryDetails.senderTypeName}
                     />
                     <HipaaNotice />
@@ -67,15 +64,4 @@ function FacilityProviderSubmitterDetails(
     );
 }
 
-export function FacilityProviderSubmitterDetailsWithAuth(
-    props: FacilityProviderSubmitterDetailsProps,
-) {
-    return (
-        <AuthElement
-            element={withCatchAndSuspense(
-                <FacilityProviderSubmitterDetails {...props} />,
-            )}
-            requiredUserType={MemberType.RECEIVER}
-        />
-    );
-}
+export default FacilityProviderSubmitterDetailsPage;

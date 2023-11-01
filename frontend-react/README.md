@@ -142,13 +142,14 @@ export const ExampleTable = () => {
 }
 ```
 
-The idea here is that the top-level class of `.ExampleTable` will allow us to write simple, easy-to-read SASS in the component and stylesheet. No need for anymore CSS Module syntax as the `:global {}` allows us to write regular SASS within, which is protected by the name-spaced `.ExampleTable` CSS Module class. (If for some reason you need to revert to locally scoped variable within the `:global {}` block you can use `:local {}`) 
+The idea here is that the top-level class of `.ExampleTable` will allow us to write simple, easy-to-read SASS in the component and stylesheet. No need for anymore CSS Module syntax as the `:global {}` allows us to write regular SASS within, which is protected by the name-spaced `.ExampleTable` CSS Module class. (If for some reason you need to revert to locally scoped variable within the `:global {}` block you can use `:local {}`)
 
 Now, there are two scenarios in which we're writing CSS for our components: 1, writing brand-new styles. 2, overwriting USWDS styles.
 
 For your own custom styles, you should follow a BEM methodology while keeping your naming as semantic as possible, so if our code looks like this:
 
 <!-- ExampleTable.tsx -->
+
 ```
 import styles from "./ExampleTable.module.scss";
 
@@ -168,9 +169,10 @@ export const ExampleTable = () => {
 }
 ```
 
-Then our CSS would look like: 
+Then our CSS would look like:
 
 <!-- ExampleTable.module.scss -->
+
 ```
 .ExampleTable {
   :global {
@@ -206,6 +208,7 @@ Then our CSS would look like:
 For overwriting USWDS styles, you'd just see look at the rendered DOM elements with Dev Tools, and find what selectors USWDS is using and then apply them like so:
 
 <!-- ExampleTable.module.scss -->
+
 ```
 .ExampleTable {
   :global {
@@ -215,5 +218,26 @@ For overwriting USWDS styles, you'd just see look at the rendered DOM elements w
   }
 }
 ```
- 
- These overwrites will ONLY be scoped to your particular component.
+
+These overwrites will ONLY be scoped to your particular component.
+
+## Documentation Table of Contents
+
+### General
+
+-   [Best Practices](docs/best-practices.md)
+-   [Content](docs/content.md)
+-   [Data fetching patterns](docs/data-fetching-patterns.md)
+-   [Feature flags](docs/feature-flags.md)
+-   [RS Auth Element](docs/rs-auth-element.md)
+-   [RS Error Boundary and Suspense](docs/rs-error-boundary-and-suspense.md)
+-   [RS IA Content System](docs/rs-ia-content-system.md)
+-   [RS IA Template System](docs/rs-ia-template-system.md)
+-   [RS React Testing Network Calls](docs/rs-react-testing-network-calls.md)
+-   [Test Conventions](docs/test-conventions.md)
+
+### Proposals
+
+-   [Permissions Layer](docs/proposals/0001-permissions-layer-proposal.md)
+-   [Domain Driven Directory Structure](docs/proposals/0002-domain-driven-directory-structure.md)
+-   [USWDS React Components](docs/proposals/0003-uswds-react-components.md)

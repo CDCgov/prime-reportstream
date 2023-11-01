@@ -2,8 +2,6 @@ import { Helmet } from "react-helmet-async";
 import React from "react";
 
 import { FeatureName } from "../../utils/FeatureName";
-import { AuthElement } from "../../components/AuthElement";
-import { MemberType } from "../../hooks/UseOktaMemberships";
 import { USNavLink } from "../../components/USLink";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
@@ -13,7 +11,7 @@ import { HeroWrapper } from "../../shared";
 
 import styles from "./DataDashboard.module.scss";
 
-function DataDashboard() {
+function DataDashboardPage() {
     const { data: orgDetails } = useOrganizationSettings();
     const { description } = orgDetails || {};
     return (
@@ -60,11 +58,4 @@ function DataDashboard() {
     );
 }
 
-export function DataDashboardWithAuth() {
-    return (
-        <AuthElement
-            element={<DataDashboard />}
-            requiredUserType={MemberType.RECEIVER}
-        />
-    );
-}
+export default DataDashboardPage;

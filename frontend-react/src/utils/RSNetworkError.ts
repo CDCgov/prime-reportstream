@@ -20,15 +20,13 @@ export class RSNetworkError<T = unknown> extends Error {
     name: ErrorName;
     /* API response data, because we use this to get back error messaging on mutations */
     data?: T;
-    /* Original Axios Error, which includes request and response objects */
-    originalError: AxiosError<T>;
 
     /* Build a new RSNetworkError */
     constructor(e: AxiosError<T>) {
         super(e.message); // Sets message
         this.name = this.parseStatus(e.response?.status); // Sets code using child's parseStatus
         this.data = e.response?.data;
-        this.originalError = e;
+        this.cause = e;
         Object.setPrototypeOf(this, RSNetworkError.prototype);
     }
     /** Map response status code to error name */

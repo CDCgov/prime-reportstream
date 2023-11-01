@@ -2,12 +2,15 @@ import React from "react";
 
 import { useReportsFacilities } from "../../../hooks/network/History/DeliveryHooks";
 import Table, { TableConfig } from "../../../components/Table/Table";
-import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import TableFilters from "../../Table/TableFilters";
 import useFilterManager, {
     FilterManagerDefaults,
 } from "../../../hooks/filters/UseFilterManager";
 import { FeatureName } from "../../../utils/FeatureName";
+import {
+    EventName,
+    useAppInsightsContext,
+} from "../../../contexts/AppInsightsContext";
 
 import styles from "./ReportDetailsTable.module.scss";
 
@@ -23,8 +26,9 @@ interface ReportDetailsTableProps {
 }
 
 function ReportDetailsTable(props: ReportDetailsTableProps) {
+    const { appInsights } = useAppInsightsContext();
     const { reportId }: ReportDetailsTableProps = props;
-    const { reportFacilities } = useReportsFacilities(reportId);
+    const { data: reportFacilities } = useReportsFacilities(reportId);
     const featureEvent = `${FeatureName.REPORT_DETAILS} | ${EventName.TABLE_FILTER}`;
 
     const filterManager = useFilterManager(filterManagerDefaults);
@@ -55,8 +59,11 @@ function ReportDetailsTable(props: ReportDetailsTableProps) {
                         from: string;
                         to: string;
                     }) =>
-                        trackAppInsightEvent(featureEvent, {
-                            tableFilter: { startRange: from, endRange: to },
+                        appInsights?.trackEvent({
+                            name: featureEvent,
+                            properties: {
+                                tableFilter: { startRange: from, endRange: to },
+                            },
                         })
                     }
                 />

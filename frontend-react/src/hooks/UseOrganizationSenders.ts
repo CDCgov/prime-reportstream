@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { UseQueryResult } from "@tanstack/react-query";
+import { UseQueryResult, useQuery } from "@tanstack/react-query";
 
 import { RSSender, servicesEndpoints } from "../config/endpoints/settings";
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
@@ -12,7 +12,7 @@ export type UseOrganizationSendersResult = UseQueryResult<RSSender[]>;
 export default function useOrganizationSenders() {
     const { activeMembership } = useSessionContext();
 
-    const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSSender[]>();
+    const authorizedFetch = useAuthorizedFetch<RSSender[]>();
     const memoizedDataFetch = useCallback(
         () =>
             authorizedFetch(senders, {
@@ -22,7 +22,9 @@ export default function useOrganizationSenders() {
             }),
         [activeMembership?.parsedName, authorizedFetch],
     );
-    return rsUseQuery([senders.queryKey, activeMembership], memoizedDataFetch, {
+    return useQuery({
+        queryKey: [senders.queryKey, activeMembership],
+        queryFn: memoizedDataFetch,
         enabled: !!activeMembership?.parsedName && !!activeMembership.service,
     });
 }

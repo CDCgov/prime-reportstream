@@ -4,10 +4,9 @@ import {
 } from "@microsoft/applicationinsights-web";
 
 import {
+    aiConfig,
     createTelemetryService,
-    getAppInsights,
-    getAppInsightsHeaders,
-    withInsights,
+    resetConsole,
 } from "./TelemetryService";
 
 jest.mock("@microsoft/applicationinsights-web", () => {
@@ -30,23 +29,22 @@ jest.mock("@microsoft/applicationinsights-web", () => {
 });
 
 describe("TelemetryService", () => {
-    let ai = { initialize: () => {} };
-
-    beforeEach(() => {
-        ai = createTelemetryService("test");
-    });
-
     describe("#initialize", () => {
+        const consoleWarn = jest.spyOn(console, "warn");
         beforeEach(() => {
-            jest.spyOn(console, "warn").mockImplementation(jest.fn);
+            consoleWarn.mockImplementation(jest.fn);
+        });
+        afterEach(() => {
+            resetConsole();
         });
 
         describe("when the connection string is falsy", () => {
             test("warns that the string is not provided and returns undefined", () => {
-                ai = createTelemetryService(undefined as any);
-                ai.initialize();
+                createTelemetryService({
+                    connectionString: undefined,
+                });
 
-                expect(console.warn).toHaveBeenCalledWith(
+                expect(consoleWarn).toHaveBeenCalledWith(
                     "App Insights connection string not provided",
                 );
             });
@@ -54,65 +52,15 @@ describe("TelemetryService", () => {
 
         describe("when the connection string is provided", () => {
             test("does not warn", () => {
-                ai.initialize();
+                createTelemetryService({ connectionString: "ABC" });
 
-                expect(console.warn).not.toHaveBeenCalled();
+                expect(consoleWarn).not.toHaveBeenCalled();
             });
         });
     });
 
-    describe("#getAppInsights", () => {
-        describe("when AppInsights has not been initialized", () => {
-            beforeEach(() => {
-                ai = createTelemetryService(undefined as any);
-                ai.initialize();
-            });
-
-            test("returns null", () => {
-                expect(getAppInsights()).toBeNull();
-            });
-        });
-
-        describe("when AppInsights has been initialized", () => {
-            beforeEach(() => {
-                ai.initialize();
-            });
-
-            test("returns the AppInsights instance", () => {
-                expect(getAppInsights()).not.toBeNull();
-            });
-        });
-    });
-
-    describe("#getAppInsightsHeaders", () => {
-        describe("when AppInsights has not been initialized", () => {
-            beforeEach(() => {
-                ai = createTelemetryService(undefined as any);
-                ai.initialize();
-            });
-
-            test("returns an object with an empty string for the session header", () => {
-                expect(getAppInsightsHeaders()).toEqual({
-                    "x-ms-session-id": "",
-                });
-            });
-        });
-
-        describe("when AppInsights has been initialized", () => {
-            beforeEach(() => {
-                ai.initialize();
-            });
-
-            test("returns an object with the correct value for the session header", () => {
-                expect(getAppInsightsHeaders()).toEqual({
-                    "x-ms-session-id": "test-session-id",
-                });
-            });
-        });
-    });
-
-    describe("#withInsights", () => {
-        let appInsights: ApplicationInsights | null;
+    describe("#attachAppInsightsToConsole", () => {
+        let appInsights: ApplicationInsights;
 
         beforeAll(() => {
             jest.spyOn(console, "log").mockImplementation(jest.fn);
@@ -120,13 +68,12 @@ describe("TelemetryService", () => {
             jest.spyOn(console, "warn").mockImplementation(jest.fn);
             jest.spyOn(console, "error").mockImplementation(jest.fn);
 
-            ai.initialize();
-            appInsights = getAppInsights();
-            withInsights(console);
+            appInsights = createTelemetryService(aiConfig)!!;
         });
 
         afterAll(() => {
             jest.resetAllMocks();
+            resetConsole();
         });
 
         describe("when calling console.info", () => {
