@@ -539,6 +539,16 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
     */
     private val tableVersion by option("-v", "--version", help = "The version of the table to get").int()
 
+    companion object {
+        private const val SENDER_COMPENDIUM_CODE_KEY = "test code"
+        private const val SENDER_COMPENDIUM_CODESYSTEM_KEY = "coding system"
+        private const val SENDER_COMPENDIUM_MAPPED_KEY = "mapped?"
+        private const val SENDER_COMPENDIUM_MAPPED_TRUE = "Y"
+        private const val SENDER_COMPENDIUM_MAPPED_FALSE = "N"
+        private const val OBX_MAPPING_CODE_KEY = "Code"
+        private const val OBX_MAPPING_CODESYSTEM_KEY = "Code System"
+    }
+
     private fun findActiveVersion(tableName: String): Int {
         val tableList = try {
             tableUtil.fetchList()
@@ -553,16 +563,18 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
     override fun run() {
         // Read the input file.
         val inputData = csvReader().readAllWithHeader(inputFile)
-        // Note: csvReader returns size of data-row(s) and NOT include the header-row.
-        // (i.e. If the file contains of header row, it returns size = 0)
+
+        // Check the supplied compendium
         if (inputData.isEmpty()) {
-            echo("ERROR: Input file ${inputFile.absolutePath} has no data.")
-            return
+            throw PrintMessage("Input file ${inputFile.absolutePath} has no data.", true)
+        }
+        arrayOf(SENDER_COMPENDIUM_CODE_KEY, SENDER_COMPENDIUM_CODESYSTEM_KEY, SENDER_COMPENDIUM_MAPPED_KEY).forEach {
+            if (it !in inputData[0].keys) throw PrintMessage("Supplied compendium is missing column: $it")
         }
 
         val loadTableVersion: Int = tableVersion ?: findActiveVersion(tableName)
 
-        // verify the table/version exists
+        // Verify the table/version exists
         try {
             tableUtil.fetchTableInfo(tableName, loadTableVersion)
         } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
@@ -581,15 +593,26 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
             throw PrintMessage("Error fetching table content for table $tableName: ${e.message}", true)
         }
 
+        // Check loaded table for needed columns
+        if (OBX_MAPPING_CODE_KEY !in tableData[0].keys) {
+            throw PrintMessage("Loaded table $tableName missing code column: $OBX_MAPPING_CODE_KEY", true)
+        }
+        if (OBX_MAPPING_CODESYSTEM_KEY !in tableData[0].keys) {
+            echo("Warning: Loaded table missing codesystem column: $OBX_MAPPING_CODESYSTEM_KEY")
+        }
+
         // Create lookup table of codes
-        val tableMap = tableData.associateBy { it["Code"] }
+        val tableMap = tableData.associateBy { it[OBX_MAPPING_CODE_KEY] }
 
         // Add a mapped? value to each row of table data
         val outputData = inputData.map {
-            if (tableMap[it.getValue("test code")]?.get("Code System") == it.getValue("coding system")) {
-                it + ("mapped?" to "Y")
+            if (tableMap[it.getValue(SENDER_COMPENDIUM_CODE_KEY)]?.get(OBX_MAPPING_CODESYSTEM_KEY) == it.getValue(
+                    SENDER_COMPENDIUM_CODESYSTEM_KEY
+            )
+            ) {
+                it + (SENDER_COMPENDIUM_MAPPED_KEY to SENDER_COMPENDIUM_MAPPED_TRUE)
             } else {
-                it + ("mapped?" to "N")
+                it + (SENDER_COMPENDIUM_MAPPED_KEY to SENDER_COMPENDIUM_MAPPED_FALSE)
             }
         }
 
