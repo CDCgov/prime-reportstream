@@ -1,0 +1,118 @@
+code:
+  condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: CWE.1
+  vars:
+    identifier: CWE.1
+    nameOfCodingSystem: CWE.3
+
+unit:
+  generateList: true
+  expressionType: nested
+  condition:
+  vars:
+    identifier: CWE.1
+    text: CWE.2
+  expressions:
+    - condition: $text NULL && $identifier NOT_NULL
+      type: STRING
+      valueOf: CWE.1
+    - condition: $text NOT_NULL
+      type: STRING
+      valueOf: CWE.2
+
+system:
+  condition: $identifier NOT_NULL && $nameOfCodingSystem NOT_NULL
+  type: SYSTEM_URL
+  expressionType: HL7Spec
+  valueOf: CWE.1
+  vars:
+    identifier: CWE.1
+    nameOfCodingSystem: CWE.3
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: cwe1-identifier
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CWE.1
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: cwe2-text
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CWE.2
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: cwe3-name-of-coding-system
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CWE.3
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: cwe4-alternate-identifier
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CWE.4
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: cwe5-alternate-text
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CWE.5
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: cwe6-name-of-altername-coding-system
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CWE.6
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: cwe7-coding-system-version-id
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CWE.7
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: cwe8-alternate-coding-system-version-id
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CWE.8
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: cwe9-original-text
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: CWE.9
