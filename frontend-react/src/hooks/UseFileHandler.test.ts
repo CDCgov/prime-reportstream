@@ -1,10 +1,11 @@
-import { act, renderHook, RenderHookResult } from "@testing-library/react";
+import { act, RenderHookResult } from "@testing-library/react";
 
 import { PAYLOAD_MAX_BYTES, PAYLOAD_MAX_KBYTES } from "../utils/FileUtils";
 import { Destination } from "../resources/ActionDetailsResource";
 import { ErrorCode, ResponseError } from "../config/endpoints/waters";
 import { SchemaOption } from "../senders/hooks/UseSenderSchemaOptions";
 import { FileType } from "../utils/TemporarySettingsAPITypes";
+import { renderHook } from "../utils/CustomRenderUtils";
 
 import useFileHandler, {
     INITIAL_STATE,
@@ -342,11 +343,12 @@ describe("useFileHandler", () => {
         }
 
         describe("when a schema option is unselected", () => {
-            beforeEach(() => {
+            function setup() {
                 doDispatch(null);
-            });
+            }
 
             test("clears out the selected schema from state", () => {
+                setup();
                 expect(
                     renderer.result.current.state.selectedSchemaOption,
                 ).toBeNull();
@@ -360,11 +362,12 @@ describe("useFileHandler", () => {
                 format: FileType.CSV,
             };
 
-            beforeEach(() => {
+            function setup() {
                 doDispatch(schemaOption);
-            });
+            }
 
             test("sets the selected schema in state", () => {
+                setup();
                 expect(
                     renderer.result.current.state.selectedSchemaOption,
                 ).toEqual(schemaOption);
@@ -377,7 +380,7 @@ describe("useFileHandler", () => {
                 UseFileHandlerHookResult
             >;
 
-            beforeEach(() => {
+            function setup() {
                 renderer = renderHook(() => useFileHandler());
 
                 act(() => {
@@ -394,10 +397,11 @@ describe("useFileHandler", () => {
                         },
                     });
                 });
-            });
+            }
 
             describe("when selecting a schema with the same format as the file", () => {
                 test("does not reset the other useFileHandler state values", () => {
+                    setup();
                     expect(renderer.result.current.state).toEqual(
                         expect.objectContaining({
                             fileName: "blep.csv",
@@ -429,6 +433,7 @@ describe("useFileHandler", () => {
 
             describe("when selecting a schema with a different format from the file", () => {
                 test("resets the other useFileHandler state values", () => {
+                    setup();
                     expect(renderer.result.current.state).toEqual(
                         expect.objectContaining({
                             fileName: "blep.csv",

@@ -1,25 +1,38 @@
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryClientConfig } from "@tanstack/react-query";
+import { Middleware, QueryHook } from "react-query-kit";
 
-import { showError } from "../components/AlertNotifications";
+//import { showError } from "../components/AlertNotifications";
 
-export const appQueryClient = new QueryClient({
+/**
+ * QueryClient config that allows middleware via `use`. BEWARE: Default
+ * middleware specified here will run BEFORE middleware in created hooks!
+ */
+export const config = {
     defaultOptions: {
         queries: {
             suspense: true,
-            useErrorBoundary: true,
+            throwOnError: true,
             retry: false,
             staleTime: Infinity,
-            cacheTime: Infinity,
+            gcTime: Infinity,
             refetchOnWindowFocus: false,
-            onError: (error: any) => {
+            // TODO: Implement this at a higher level. Likely an error boundary
+            // that stops the propagation and triggers our preferred notification
+            // method.
+            /*onError: (error: any) => {
                 const errorString = `Something went wrong: ${error.message}`;
                 const e = new Error(errorString, { cause: error });
                 showError(errorString);
                 console.error(e);
-            },
+            },*/
         },
     },
-});
+} as const satisfies QueryClientConfig & {
+    defaultOptions: { queries: { use?: readonly Middleware<QueryHook>[] } };
+};
+
+export const appQueryClient = new QueryClient(config);
+
 export const getTestQueryClient = () =>
     new QueryClient({
         // to allow for faster testable failures

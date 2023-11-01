@@ -6,7 +6,7 @@ import { renderApp } from "../../utils/CustomRenderUtils";
 import { DetailItem } from "../../components/DetailItem/DetailItem";
 import { FeatureName } from "../../utils/FeatureName";
 
-import SubmissionDetails, { DestinationItem } from "./SubmissionDetails";
+import SubmissionDetailsPage, { DestinationItem } from "./SubmissionDetails";
 
 /*
     Using the included regex can end up pulling various elements where the
@@ -34,22 +34,25 @@ jest.mock("rest-hooks", () => ({
 }));
 
 describe("SubmissionDetails", () => {
-    beforeEach(() => {
-        renderApp(<SubmissionDetails />);
-    });
+    function setup() {
+        renderApp(<SubmissionDetailsPage />);
+    }
 
     test("renders crumb nav to Submissions list", () => {
+        setup();
         const submissionCrumb = screen.getByRole("link");
         expect(submissionCrumb).toBeInTheDocument();
         expect(submissionCrumb).toHaveTextContent(FeatureName.SUBMISSIONS);
     });
 
     test("renders without error", async () => {
+        setup();
         const container = await screen.findByTestId("container");
         expect(container).toBeInTheDocument();
     });
 
     test("renders data to sub-components", async () => {
+        setup();
         /* Custom matcher for transitionTime */
         const findTimeWithoutDate: MatcherFunction = (content): boolean => {
             return !content.includes("7 Apr 1970") && timeRegex.test(content);
@@ -90,6 +93,7 @@ describe("SubmissionDetails", () => {
     });
 
     test("Filename conditionally shows in title", () => {
+        setup();
         /*
             TODO: How can we use the object and not static strings to
             check for substrings like this??
@@ -100,24 +104,26 @@ describe("SubmissionDetails", () => {
 });
 
 describe("DetailItem", () => {
-    beforeEach(() => {
+    function setup() {
         renderApp(<DetailItem item="Test Item" content="Test Content" />);
-    });
+    }
 
     test("renders content", () => {
+        setup();
         expect(screen.getByText(/test item/i)).toBeInTheDocument();
         expect(screen.getByText(/test content/i)).toBeInTheDocument();
     });
 });
 
 describe("DestinationItem", () => {
-    beforeEach(() => {
+    function setup() {
         renderApp(
             <DestinationItem destinationObj={mockData.destinations[0]} />,
         );
-    });
+    }
 
     test("renders content", () => {
+        setup();
         expect(screen.getByText(/transmission date/i)).toBeInTheDocument();
         expect(screen.getByText(/transmission time/i)).toBeInTheDocument();
         expect(screen.getByText(/records/i)).toBeInTheDocument();

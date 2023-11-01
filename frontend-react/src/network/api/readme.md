@@ -34,7 +34,7 @@ const SenderAPI: API = {
 
 const useSenderResource = () => {
     /* Access the session if you need a token and active memebrship. */
-    const { memberships, oktaToken } = useSessionContext();
+    const { memberships, authState } = useSessionContext();
     /* Create a stable config reference with useMemo(). */
     const config = useMemo(
         () =>
@@ -42,16 +42,16 @@ const useSenderResource = () => {
                 SenderAPI,
                 "detail",
                 "GET",
-                oktaToken?.accessToken,
+                authState.accessToken?.accessToken,
                 activeMembership?.parsedName,
                 {
                     org: activeMembership?.parsedName || "",
                     sender: activeMembership?.senderName || "default",
-                }
+                },
             ),
         /* Note: we DO want to update config ONLY when these values update. If the linter
          * yells about a value you don't want to add, add an eslint-ignore comment. */
-        [oktaToken?.accessToken, activeMembership]
+        [authState.accessToken?.accessToken, activeMembership],
     );
     /* Pass the stable config into the consumer and cast the response with types. */
     const {

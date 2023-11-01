@@ -1,7 +1,6 @@
 import React from "react";
 
 import { Table } from "../../../shared/Table/Table";
-import { EventName, trackAppInsightEvent } from "../../../utils/Analytics";
 import TableFilters from "../../Table/TableFilters";
 import useFilterManager, {
     FilterManagerDefaults,
@@ -10,6 +9,10 @@ import { FeatureName } from "../../../utils/FeatureName";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
 import { USLink } from "../../USLink";
 import { SenderTypeDetailResource } from "../../../config/endpoints/dataDashboard";
+import {
+    EventName,
+    useAppInsightsContext,
+} from "../../../contexts/AppInsightsContext";
 
 import styles from "./FacilityProviderSubmitterTable.module.scss";
 
@@ -28,6 +31,7 @@ interface FacilityProviderSubmitterTableProps {
 function FacilityProviderSubmitterTable(
     props: FacilityProviderSubmitterTableProps,
 ) {
+    const { appInsights } = useAppInsightsContext();
     const featureEvent = `${FeatureName.REPORT_DETAILS} | ${EventName.TABLE_FILTER}`;
     // const { senderTypeId }: FacilityProviderSubmitterTableProps = props;
     const data: SenderTypeDetailResource[] = [
@@ -106,8 +110,11 @@ function FacilityProviderSubmitterTable(
                         from: string;
                         to: string;
                     }) =>
-                        trackAppInsightEvent(featureEvent, {
-                            tableFilter: { startRange: from, endRange: to },
+                        appInsights?.trackEvent({
+                            name: featureEvent,
+                            properties: {
+                                tableFilter: { startRange: from, endRange: to },
+                            },
                         })
                     }
                 />

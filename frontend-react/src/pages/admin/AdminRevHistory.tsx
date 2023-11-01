@@ -11,8 +11,6 @@ import {
     useSettingRevisionEndpointsQuery,
 } from "../../network/api/Organizations/SettingRevisions";
 import Spinner from "../../components/Spinner";
-import { AuthElement } from "../../components/AuthElement";
-import { MemberType } from "../../hooks/UseOktaMemberships";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import { formatDate, groupBy } from "../../utils/misc";
 import { StaticCompare } from "../../components/StaticCompare";
@@ -144,7 +142,7 @@ const MainRevHistoryComponent = (props: MainComponentProps) => {
 };
 
 /** main page, not exported here because it should only be loaded via AdminRevHistoryWithAuth() **/
-const AdminRevHistory = () => {
+const AdminRevHistoryPage = () => {
     const { org, settingType } = useParams<SettingRevisionParams>(); // props past to page via the route/url path args
     const [leftJson, setLeftJson] = useState("");
     const [rightJson, setRightJson] = useState("");
@@ -252,18 +250,10 @@ const AdminRevHistory = () => {
     );
 };
 
-/** required for React Url Path **/
-export function AdminRevHistoryWithAuth() {
-    return (
-        <AuthElement
-            element={<AdminRevHistory />}
-            requiredUserType={MemberType.PRIME_ADMIN}
-        />
-    );
-}
-
 export const _exportForTesting = {
     dataToAccordionItems,
-    AdminRevHistory,
+    AdminRevHistory: AdminRevHistoryPage,
     MainRevHistoryComponent,
 };
+
+export default AdminRevHistoryPage;

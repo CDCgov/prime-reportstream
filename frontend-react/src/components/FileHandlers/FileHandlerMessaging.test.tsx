@@ -241,11 +241,8 @@ describe("ValidationErrorMessage", () => {
     }
 
     describe("when the error code is INVALID_MSG_PARSE_BLANK", () => {
-        beforeEach(() => {
-            renderComponent({ errorCode: ErrorCode.INVALID_MSG_PARSE_BLANK });
-        });
-
         test("renders an error about a blank message", () => {
+            renderComponent({ errorCode: ErrorCode.INVALID_MSG_PARSE_BLANK });
             expect(errorMessageNode).toHaveTextContent(
                 "Blank message(s) found within file. Blank messages cannot be processed.",
             );
@@ -253,13 +250,10 @@ describe("ValidationErrorMessage", () => {
     });
 
     describe("when the error code is INVALID_HL7_MSG_TYPE_MISSING", () => {
-        beforeEach(() => {
+        test("renders an error about a missing message type field", () => {
             renderComponent({
                 errorCode: ErrorCode.INVALID_HL7_MSG_TYPE_MISSING,
             });
-        });
-
-        test("renders an error about a missing message type field", () => {
             expect(errorMessageNode).toHaveTextContent(
                 "Missing required HL7 message type field MSH-9. Fill in the blank field before resubmitting.",
             );
@@ -267,19 +261,19 @@ describe("ValidationErrorMessage", () => {
     });
 
     describe("when the error code is INVALID_HL7_MSG_TYPE_UNSUPPORTED", () => {
-        beforeEach(() => {
+        test("renders an error about an unsupported type", () => {
             renderComponent({
                 errorCode: ErrorCode.INVALID_HL7_MSG_TYPE_UNSUPPORTED,
             });
-        });
-
-        test("renders an error about an unsupported type", () => {
             expect(errorMessageNode).toHaveTextContent(
                 "We found an unsupported HL7 message type. Please reformat to ORU-RO1. Refer to HL7 specification for more details.",
             );
         });
 
         test("renders a link to the HL7 product matrix", () => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_HL7_MSG_TYPE_UNSUPPORTED,
+            });
             expect(screen.getByRole("link")).toHaveAttribute(
                 "href",
                 "https://www.hl7.org/implement/standards/product_brief.cfm",
@@ -288,19 +282,19 @@ describe("ValidationErrorMessage", () => {
     });
 
     describe("when the error is INVALID_HL7_MSG_FORMAT_INVALID", () => {
-        beforeEach(() => {
+        test("renders an error about an invalid format", () => {
             renderComponent({
                 errorCode: ErrorCode.INVALID_HL7_MSG_FORMAT_INVALID,
             });
-        });
-
-        test("renders an error about an invalid format", () => {
             expect(errorMessageNode).toHaveTextContent(
                 "Invalid HL7 message format. Check your formatting by referring to HL7 specification.",
             );
         });
 
         test("renders a link to the HL7 product matrix", () => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_HL7_MSG_FORMAT_INVALID,
+            });
             expect(screen.getByRole("link")).toHaveAttribute(
                 "href",
                 "https://www.hl7.org/implement/standards/product_brief.cfm",
@@ -309,13 +303,10 @@ describe("ValidationErrorMessage", () => {
     });
 
     describe("when the error is INVALID_MSG_PARSE_DATETIME", () => {
-        beforeEach(() => {
+        test("renders an error about an invalid datetime", () => {
             renderComponent({
                 errorCode: ErrorCode.INVALID_MSG_PARSE_DATETIME,
             });
-        });
-
-        test("renders an error about an invalid datetime", () => {
             expect(errorMessageNode).toHaveTextContent(
                 "Reformat validation_field as YYYYMMDDHHMM[SS[.S[S[S[S]+/-ZZZZ.",
             );
@@ -323,13 +314,10 @@ describe("ValidationErrorMessage", () => {
     });
 
     describe("when the error is INVALID_MSG_PARSE_TELEPHONE", () => {
-        beforeEach(() => {
+        test("renders an error about an invalid phone number", () => {
             renderComponent({
                 errorCode: ErrorCode.INVALID_MSG_PARSE_TELEPHONE,
             });
-        });
-
-        test("renders an error about an invalid phone number", () => {
             expect(errorMessageNode).toHaveTextContent(
                 "Reformat phone number to a 10-digit phone number (e.g. (555) 555-5555).",
             );
@@ -337,19 +325,19 @@ describe("ValidationErrorMessage", () => {
     });
 
     describe("when the error is INVALID_HL7_MSG_VALIDATION", () => {
-        beforeEach(() => {
+        test("renders an error about an invalid field ", () => {
             renderComponent({
                 errorCode: ErrorCode.INVALID_HL7_MSG_VALIDATION,
             });
-        });
-
-        test("renders an error about an invalid field ", () => {
             expect(errorMessageNode).toHaveTextContent(
                 "Reformat validation_field to HL7 specification.",
             );
         });
 
         test("renders a link to the HL7 product matrix", () => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_HL7_MSG_VALIDATION,
+            });
             expect(screen.getByRole("link")).toHaveAttribute(
                 "href",
                 "https://www.hl7.org/implement/standards/product_brief.cfm",
@@ -358,11 +346,8 @@ describe("ValidationErrorMessage", () => {
     });
 
     describe("when the error is INVALID_MSG_MISSING_FIELD", () => {
-        beforeEach(() => {
-            renderComponent({ errorCode: ErrorCode.INVALID_MSG_MISSING_FIELD });
-        });
-
         test("renders an error about a missing field", () => {
+            renderComponent({ errorCode: ErrorCode.INVALID_MSG_MISSING_FIELD });
             expect(errorMessageNode).toHaveTextContent(
                 "Fill in the required field validation_field.",
             );
@@ -370,19 +355,19 @@ describe("ValidationErrorMessage", () => {
     });
 
     describe("when the error is INVALID_MSG_EQUIPMENT_MAPPING", () => {
-        beforeEach(() => {
+        test("renders an error about LIVD table LOINC mapping", () => {
             renderComponent({
                 errorCode: ErrorCode.INVALID_MSG_EQUIPMENT_MAPPING,
             });
-        });
-
-        test("renders an error about LIVD table LOINC mapping", () => {
             expect(errorMessageNode).toHaveTextContent(
                 "Reformat field validation_field. Refer to CDC LIVD table LOINC mapping spreadsheet for acceptable values.",
             );
         });
 
         test("renders a link to the CDC LIVD table LOINC mapping spreadsheet", () => {
+            renderComponent({
+                errorCode: ErrorCode.INVALID_MSG_EQUIPMENT_MAPPING,
+            });
             expect(screen.getByRole("link")).toHaveAttribute(
                 "href",
                 "https://www.cdc.gov/csels/dls/livd-codes.html",
@@ -392,14 +377,11 @@ describe("ValidationErrorMessage", () => {
 
     describe("when the error is UNKNOWN", () => {
         describe("when the message is provided", () => {
-            beforeEach(() => {
+            test("renders the message", () => {
                 renderComponent({
                     errorCode: ErrorCode.UNKNOWN,
                     message: "this is wrong please fix it kthxbai",
                 });
-            });
-
-            test("renders the message", () => {
                 expect(errorMessageNode).toHaveTextContent(
                     "this is wrong please fix it kthxbai",
                 );
@@ -407,15 +389,12 @@ describe("ValidationErrorMessage", () => {
         });
 
         describe("when the message is not provided", () => {
-            beforeEach(() => {
+            // TODO: check with Audrey if there should be a fallback message
+            test("renders an empty string", () => {
                 renderComponent({
                     errorCode: ErrorCode.UNKNOWN,
                     message: undefined,
                 });
-            });
-
-            // TODO: check with Audrey if there should be a fallback message
-            test("renders an empty string", () => {
                 expect(errorMessageNode).toHaveTextContent("");
             });
         });
