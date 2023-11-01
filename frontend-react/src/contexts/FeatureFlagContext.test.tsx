@@ -82,20 +82,22 @@ describe("featureFlagReducer", () => {
 
 describe("FeatureFlagProvider", () => {
     const mockSavedFlags = ["flag-1", "flag-2"];
-    beforeEach(() => {
+    function setup() {
         mockGetSavedFeatureFlags.mockReturnValue(mockSavedFlags);
         renderApp(<FeatureFlagProviderTestRenderer />);
-    });
+    }
     test("provides initial state with saved flags and env level flags", async () => {
+        setup();
         expect(providerValueMonitor).toHaveBeenCalledTimes(1);
 
         const { featureFlags } = providerValueMonitor.mock.lastCall[0];
         expect(featureFlags).toEqual(["flag-1", "flag-2", "flag-3"]);
     });
     test("provides flagCheck that correctly checks against all flags", () => {
-        const { checkFlag } = providerValueMonitor.mock.lastCall[0];
-        expect(checkFlag("flag-1")).toEqual(true);
-        expect(checkFlag("flag-3")).toEqual(true);
-        expect(checkFlag("flag-4")).toEqual(false);
+        setup();
+        const { checkFlags } = providerValueMonitor.mock.lastCall[0];
+        expect(checkFlags("flag-1")).toEqual(true);
+        expect(checkFlags("flag-3")).toEqual(true);
+        expect(checkFlags("flag-4")).toEqual(false);
     });
 });

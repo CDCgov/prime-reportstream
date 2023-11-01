@@ -7,20 +7,23 @@ elements:
     condition: true
     resource: 'Bundle'
     value: [ '"CDC PRIME REPORTSTREAM"' ]
-    hl7Spec: [MSH-4-1]
+    hl7Spec: [ MSH-4-1 ]
 
   # MSH 4-2
   - name: sending-facility-universal-id
     resource: 'Bundle'
     condition: true
     value: [ '"10DRPTSTRM"' ]
-    hl7Spec: [MSH-4-2]
+    hl7Spec: [ MSH-4-2 ]
 
   - name: sending-facility-universal-id-type
     resource: 'Bundle'
     condition: true
     value: [ '"CLIA"' ]
     hl7Spec: [ MSH-4-3 ]
+
+  - name: message-character-set
+    value: [ '%resource.extension(%`rsext-character-set`).value', '"UNICODE UTF-8"' ]
 
   # MSH-5
   - name: receiving-application-namespace-id
@@ -66,6 +69,8 @@ elements:
     # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
     resource: '%resource.result.resolve() | %service.supportingInfo.resolve().where(specimen.exists().not()) | %service.supportingInfo.resolve().where(meta.tag.code = "AOE")'
 
-
-
-
+  # XTN
+  - name: xtn-use-code-from-system
+    condition: '%resource.system = "email"'
+    value: [ '"NET"' ]
+    hl7Spec: [ '%{hl7TelecomPath}-2' ]

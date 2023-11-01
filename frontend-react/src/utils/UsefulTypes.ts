@@ -22,3 +22,11 @@ export class SimpleError {
         this.message = message;
     }
 }
+
+export enum PERMISSIONS {
+    /* Non-Okta pseudo groups */
+    SENDER = "DHSender",
+    RECEIVER = "DHReceiver",
+    /* Okta groups */
+    PRIME_ADMIN = "DHPrimeAdmins",
+}

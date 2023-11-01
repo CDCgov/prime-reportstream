@@ -402,12 +402,7 @@ module.exports = {
                     "error",
                     { eventModules: ["fire-event"] },
                 ],
-                "testing-library/no-render-in-lifecycle": [
-                    "error",
-                    {
-                        allowTestingFrameworkSetupHook: "beforeEach",
-                    },
-                ],
+                "testing-library/no-render-in-lifecycle": "error",
                 "testing-library/no-node-access": "off",
                 "testing-library/prefer-screen-queries": "warn",
                 "testing-library/no-unnecessary-act": "warn",

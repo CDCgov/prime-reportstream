@@ -38,8 +38,7 @@
       },
       "sender" : {
         "reference" : "Organization/1698089651725688000.7a7e9d08-171f-4bc0-84f8-38c98a42e4b0"
-      },
-      "source" : { }
+      }
     }
   }, {
     "fullUrl" : "Organization/1698089651725688000.7a7e9d08-171f-4bc0-84f8-38c98a42e4b0",
@@ -137,7 +136,7 @@
               "valueCode" : "unknown"
             } ]
           },
-          "value" : "unformattedTelNum"
+          "value" : "281-3308004"
         } ]
       } ]
     }

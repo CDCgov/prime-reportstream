@@ -10,11 +10,12 @@ describe("Feature rendering", () => {
         summary: "base summary",
     };
 
-    beforeEach(() => {
+    function setup() {
         renderApp(<Tile {...baseFeature} />);
-    });
+    }
 
     test("renders without error", () => {
+        setup();
         const heading = screen.getByTestId("heading");
         const summary = screen.getByTestId("summary");
         expect(heading).toBeInTheDocument();
@@ -22,6 +23,7 @@ describe("Feature rendering", () => {
     });
 
     test("title and summary are correct", () => {
+        setup();
         const heading = screen.getByTestId("heading");
         const summary = screen.getByTestId("summary");
         expect(heading.innerHTML).toEqual(baseFeature.title);
@@ -46,11 +48,12 @@ describe("DeliveryMethodFeature rendering", () => {
         ],
     };
 
-    beforeEach(() => {
+    function setup() {
         renderApp(<Tile {...deliveryFeature} />);
-    });
+    }
 
     test("renders without error", () => {
+        setup();
         const image = screen.getByTestId("img");
         const heading = screen.getByTestId("heading");
         expect(image).toBeInTheDocument();
@@ -66,11 +69,12 @@ describe("LiveMapFeature rendering", () => {
         summary: "This is a summary",
     };
 
-    beforeEach(() => {
+    function setup() {
         renderApp(<Tile {...liveMapFeature} />);
-    });
+    }
 
     test("renders without error", () => {
+        setup();
         const image = screen.getByTestId("img");
         const summary = screen.getByTestId("summary");
         expect(image).toBeInTheDocument();

@@ -1,5 +1,12 @@
 import { ReactElement } from "react";
-import { render, RenderOptions } from "@testing-library/react";
+import {
+    render,
+    RenderOptions,
+    renderHook as renderHookOrig,
+    RenderHookOptions,
+    Queries,
+    queries,
+} from "@testing-library/react";
 import {
     createMemoryRouter,
     Outlet,
@@ -11,11 +18,13 @@ import { HelmetProvider } from "react-helmet-async";
 import { Fixture, MockResolver } from "@rest-hooks/test";
 import { CacheProvider } from "rest-hooks";
 
-import SessionProvider from "../contexts/SessionContext";
+import { SessionProviderBase } from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
 import { getTestQueryClient } from "../network/QueryClients";
 import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
 import { appRoutes } from "../AppRouter";
+import AppInsightsContextProvider from "../contexts/AppInsightsContext";
+import config from "../config";
 
 interface AppWrapperProps {
     children: React.ReactNode;
@@ -43,7 +52,6 @@ function createTestRoutes(
             : undefined,
     })) as RouteObject[];
 }
-
 export const AppWrapper = ({
     initialRouteEntries,
     restHookFixtures,
@@ -68,23 +76,33 @@ export const AppWrapper = ({
         return (
             <CacheProvider>
                 <HelmetProvider>
-                    <SessionProvider>
-                        <QueryClientProvider client={getTestQueryClient()}>
-                            <AuthorizedFetchProvider initializedOverride={true}>
-                                <FeatureFlagProvider>
-                                    {restHookFixtures ? (
-                                        <MockResolver
-                                            fixtures={restHookFixtures}
-                                        >
+                    <AppInsightsContextProvider>
+                        <SessionProviderBase
+                            oktaAuth={{} as any}
+                            authState={{}}
+                            config={config}
+                        >
+                            <QueryClientProvider client={getTestQueryClient()}>
+                                <AuthorizedFetchProvider
+                                    initializedOverride={true}
+                                >
+                                    <FeatureFlagProvider>
+                                        {restHookFixtures ? (
+                                            <MockResolver
+                                                fixtures={restHookFixtures}
+                                            >
+                                                <RouterProvider
+                                                    router={router}
+                                                />
+                                            </MockResolver>
+                                        ) : (
                                             <RouterProvider router={router} />
-                                        </MockResolver>
-                                    ) : (
-                                        <RouterProvider router={router} />
-                                    )}
-                                </FeatureFlagProvider>
-                            </AuthorizedFetchProvider>
-                        </QueryClientProvider>
-                    </SessionProvider>
+                                        )}
+                                    </FeatureFlagProvider>
+                                </AuthorizedFetchProvider>
+                            </QueryClientProvider>
+                        </SessionProviderBase>
+                    </AppInsightsContextProvider>
                 </HelmetProvider>
             </CacheProvider>
         );
@@ -107,4 +125,31 @@ export const renderApp = (
     });
 };
 
-export * from "@testing-library/react";
+export function renderHook<
+    Result,
+    Props,
+    Q extends Queries = typeof queries,
+    Container extends Element | DocumentFragment = HTMLElement,
+    BaseElement extends Element | DocumentFragment = Container,
+>(
+    render: (initialProps: Props) => Result,
+    options?: RenderHookOptions<Props, Q, Container, BaseElement>,
+) {
+    /*const wrapper = ({ children }: any) => (
+        <AppInsightsContextProvider>
+            <SessionProviderBase
+                oktaAuth={{} as any}
+                authState={{}}
+                config={config}
+            >
+                {children}
+            </SessionProviderBase>
+        </AppInsightsContextProvider>
+    );*/
+    return renderHookOrig<Result, Props, Q, Container, BaseElement>(render, {
+        wrapper: AppWrapper(),
+        ...options,
+    });
+}
+
+export { screen } from "@testing-library/react";

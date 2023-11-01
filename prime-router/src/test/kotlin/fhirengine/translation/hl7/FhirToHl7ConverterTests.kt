@@ -423,26 +423,6 @@ class FhirToHl7ConverterTests {
                 "src/test/resources/fhirengine/translation/hl7/schema/schema-read-test-01"
             ).convert(bundle)
         }.isFailure()
-
-        // check that duplicate names trigger an exception when attempting to convert
-        element = ConverterSchemaElement(
-            "iMustBeUnique",
-            value = listOf(pathWithValue),
-            hl7Spec = listOf("MSH-11")
-        )
-
-        val dupe = ConverterSchemaElement(
-            "iMustBeUnique",
-            value = listOf(pathWithValue),
-            hl7Spec = listOf("MSH-12")
-        )
-        schema = ConverterSchema(
-            hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
-            elements = mutableListOf(element, dupe)
-        )
-
-        assertThat { FhirToHl7Converter(schema).convert(bundle) }.isFailure()
-            .hasClass(SchemaException::class.java)
     }
 
     @Test
@@ -512,39 +492,47 @@ class FhirToHl7ConverterTests {
         val bundle = Bundle()
         bundle.id = "abc123"
 
-        // check for dupes in various scenarios:
-        // root -> A -> C
-        //      -> B
-        val elemB = ConverterSchemaElement("elementB", value = listOf("Bundle.id"), hl7Spec = listOf("MSH-11"))
-        val elemC = ConverterSchemaElement("elementC", value = listOf("Bundle.id"), hl7Spec = listOf("MSH-11"))
+        val elemB = ConverterSchemaElement("elementB", value = listOf("'654321'"), hl7Spec = listOf("MSH-11"))
+        val elemC = ConverterSchemaElement("elementC", value = listOf("'fedcba'"), hl7Spec = listOf("MSH-12"))
 
-        val childSchema = ConverterSchema(elements = mutableListOf(elemC))
-        val elemA = ConverterSchemaElement("elementA", schema = "elementC", schemaRef = childSchema)
+        val childSchema = ConverterSchema(elements = mutableListOf(elemB, elemC))
+        val elemA = ConverterSchemaElement("elementA", schema = "schema", schemaRef = childSchema)
 
-        val rootSchema =
-            ConverterSchema(
-                hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
-                elements = mutableListOf(elemA, elemB)
-            )
+        val rootSchema = ConverterSchema(
+            hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
+            elements = mutableListOf(elemA)
+        )
 
-        // nobody sharing the same name
-        assertThat(FhirToHl7Converter(rootSchema).convert(bundle).isEmpty).isFalse()
+        val message = FhirToHl7Converter(rootSchema).convert(bundle)
+        assertThat(Terser(message).get("MSH-11")).isEqualTo("654321")
+        assertThat(Terser(message).get("MSH-12")).isEqualTo("fedcba")
+    }
 
-        // B/C sharing the same name
-        elemC.name = "elementB"
-        assertThat { FhirToHl7Converter(rootSchema).convert(bundle) }.isFailure()
-            .hasClass(SchemaException::class.java)
+    @Test
+    fun `test convert with nested schemas and override duplicate elements`() {
+        val bundle = Bundle()
+        bundle.id = "abc123"
 
-        // A/B sharing the same name
-        elemC.name = "elementC"
-        elemA.name = "elementB"
-        assertThat { FhirToHl7Converter(rootSchema).convert(bundle) }.isFailure()
-            .hasClass(SchemaException::class.java)
+        // root: A -> child: B
+        //       B           B
+        val elemB1 = ConverterSchemaElement("elementB", value = listOf("'654321'"), hl7Spec = listOf("MSH-11"))
+        val elemB2 = ConverterSchemaElement("elementB", value = listOf("'fedcba'"), hl7Spec = listOf("MSH-12"))
 
-        // A/C sharing the same name
-        elemA.name = "elementC"
-        assertThat { FhirToHl7Converter(rootSchema).convert(bundle) }.isFailure()
-            .hasClass(SchemaException::class.java)
+        val childSchema = ConverterSchema(elements = mutableListOf(elemB1, elemB2))
+        val elemA = ConverterSchemaElement("elementA", schema = "schema", schemaRef = childSchema)
+
+        val rootSchema = ConverterSchema(
+            hl7Class = "ca.uhn.hl7v2.model.v251.message.ORU_R01",
+            elements = mutableListOf(elemA)
+        )
+
+        val elemBOverride = ConverterSchemaElement("elementB", value = listOf("'overrideVal'"))
+        val overrideSchema = ConverterSchema(elements = mutableListOf(elemBOverride))
+        rootSchema.override(overrideSchema)
+
+        val message = FhirToHl7Converter(rootSchema).convert(bundle)
+        assertThat(Terser(message).get("MSH-11")).isEqualTo("overrideVal")
+        assertThat(Terser(message).get("MSH-12")).isEqualTo("overrideVal")
     }
 
     @Test

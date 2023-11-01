@@ -20,10 +20,23 @@ env:
 jobs:
   sonarcloud:
     if: github.actor != 'dependabot[bot]'
-    name: "SonarCloud scan"
+    name: "SonarCloud/CodeQL scan"
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["java-kotlin"]
 
     steps:
+      - name: Increase swapfile
+        run: |
+          sudo swapoff -a
+          sudo fallocate -l 15G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          sudo swapon --show
+
       - name: "Check out everything"
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
@@ -35,7 +48,7 @@ jobs:
         
       - name: "Get changed files with yaml"
         id: changed-files-yaml
-        uses: tj-actions/changed-files@fea790cb660e33aef4bdf07304e28fedd77dfa13
+        uses: tj-actions/changed-files@40526807ee1e208a1a8c1bbe6bd2d1b044ef6368
         with:
           files_yaml: |
             frontend:
@@ -60,10 +73,20 @@ jobs:
         working-directory: prime-router
         run: docker-compose -f docker-compose.postgres.yml up -d
 
+      - name: Initialize CodeQL
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        uses: github/codeql-action/init@bad341350a2f5616f9e048e51360cedc49181ce8
+        with:
+          languages: ${{ matrix.language }}
+
       - name: Build Prime Router Package
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         working-directory: prime-router
-        run: ./gradlew jacocoTestReport
+        run: ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" package -x test -x fatjar
+
+      - name: Perform Java CodeQL Analysis
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        uses: github/codeql-action/analyze@bad341350a2f5616f9e048e51360cedc49181ce8
 
       - name: Use Node.js with yarn
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'

@@ -66,6 +66,9 @@ elements:
     value: [ '"CLIA"' ]
     hl7Spec: [ MSH-4-3 ]
 
+  - name: message-character-set
+    value: [ '%resource.extension(%`rsext-character-set`).value', '"UNICODE UTF-8"' ]
+
   - name: message_profile_id
     value: [ '"PHLabReport-NoAck"' ]
     hl7Spec: [ MSH-21-1 ]

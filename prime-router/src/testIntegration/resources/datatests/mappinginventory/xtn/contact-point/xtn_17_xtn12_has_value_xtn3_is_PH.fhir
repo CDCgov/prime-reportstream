@@ -38,8 +38,7 @@
       },
       "sender" : {
         "reference" : "Organization/1698090327314633000.0d8ab7fb-df9d-45d8-81df-c0b67cf29714"
-      },
-      "source" : { }
+      }
     }
   }, {
     "fullUrl" : "Organization/1698090327314633000.0d8ab7fb-df9d-45d8-81df-c0b67cf29714",
@@ -124,18 +123,18 @@
       "birthDate" : "1990-02-21",
       "contact" : [ {
         "telecom" : [ {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
-            "valueString" : "PH"
-          }, {
+          "extension" : [  {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2Name",
             "valueString" : "next-of-kin-telecomm-info"
+          }, {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+            "valueString" : "PH"
           }, {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
             "valueString" : "281-3308004"
           } ],
           "system" : "phone",
-          "value" : "unformattedTelNum"
+          "value" : "281-3308004"
         } ]
       } ]
     }
