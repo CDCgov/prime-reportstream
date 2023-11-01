@@ -1,0 +1,53 @@
+elements:
+
+  - name: xpn-family-name
+    value: [ '%resource.family' ]
+    hl7Spec: [ '%{hl7xpnField}-1' ]
+
+  - name: xpn-given-name
+    value: [ '%resource.extension(%`rsext-xpn2-given-name`).value' ]
+    hl7Spec: [ '%{hl7xpnField}-2' ]
+
+  - name: xpn-second-given-name
+    value: [ '%resource.extension(%`rsext-xpn3-second-given-name`).value' ]
+    hl7Spec: [ '%{hl7xpnField}-3' ]
+
+  - name: xpn-suffix
+    value: [ '%resource.extension(%`rsext-xpn4-suffix`).value' ]
+    hl7Spec: [ '%{hl7xpnField}-4' ]
+
+  - name: xpn-prefix
+    value: [ '%resource.prefix' ]
+    hl7Spec: [ '%{hl7xpnField}-5' ]
+
+  - name: xpn-degree
+    value: [ '%resource.extension(%`rsext-xpn6-degree`).value' ]
+    hl7Spec: [ '%{hl7xpnField}-6' ]
+
+  - name: xpn-name-type-code
+    value: [ '%resource.use' ]
+    hl7Spec: [ '%{hl7xpnField}-7' ]
+
+  - name: xpn-name-validity-range-start
+    value: [ '%resource.extension(%`rsext-xpn10-name-validity-range`).value.start' ]
+    hl7Spec: [ '%{hl7xpnField}-10-1' ]
+
+  - name: xpn-name-validity-range-end
+    value: [ '%resource.extension(%`rsext-xpn10-name-validity-range`).value.end' ]
+    hl7Spec: [ '%{hl7xpnField}-10-2' ]
+
+  - name: xpn-name-assembly-order
+    value: [ '%resource.extension(%`ext-humanname-assembly-order`).value' ]
+    hl7Spec: [ '%{hl7xpnField}-11' ]
+
+  - name: effective-date
+    value: [ '%resource.extension(%`rsext-xpn12-effective-date`).value' ]
+    hl7Spec: [ '%{hl7xpnField}-12' ]
+
+  - name: expiration-date
+    value: [ '%resource.extension(%`rsext-xpn13-expiration-date`).value' ]
+    hl7Spec: [ '%{hl7xpnField}-13' ]
+
+  - name: xpn-suffix
+    value: [ '%resource.extension(%`rsext-xpn14-professional-suffix`).value' ]
+    hl7Spec: [ '%{hl7xpnField}-14' ]
