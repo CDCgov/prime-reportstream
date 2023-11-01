@@ -75,7 +75,7 @@ data "azurerm_key_vault_secret" "OKTA_clientId" {
 data "azurerm_key_vault_secret" "OKTA_authKey" {
   name         = "functionapp-OKTA-authkey"
   key_vault_id = data.azurerm_key_vault.app_config.id
- }
+}
 
 data "azurerm_key_vault_secret" "caller_ip_addresses" {
   name         = "tf-caller-ip-addresses"

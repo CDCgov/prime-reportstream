@@ -2,11 +2,11 @@ import { screen } from "@testing-library/react";
 
 import { renderApp } from "../../../utils/CustomRenderUtils";
 
-import { FacilitiesProviders } from "./FacilitiesProviders";
+import { FacilitiesProvidersPage } from "./FacilitiesProviders";
 
 describe("FacilitiesProviders", () => {
     test("Breadcrumb displays with link", async () => {
-        renderApp(<FacilitiesProviders />);
+        renderApp(<FacilitiesProvidersPage />);
 
         const allLinks = screen.getAllByRole("link");
         expect(allLinks[0]).toHaveAttribute("href", "/data-dashboard");

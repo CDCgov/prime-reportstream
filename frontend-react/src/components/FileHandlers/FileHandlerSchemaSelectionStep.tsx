@@ -21,7 +21,7 @@ export default function FileHandlerSchemaSelectionStep({
     onSchemaChange,
     onNextStepClick,
 }: FileHandlerSchemaSelectionStepProps) {
-    const { schemaOptions, isLoading } = useSenderSchemaOptions();
+    const { data: schemaOptions, isLoading } = useSenderSchemaOptions();
     const fileInputRef = useRef<FileInputRef>(null);
 
     if (isLoading) {

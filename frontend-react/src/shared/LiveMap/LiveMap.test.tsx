@@ -12,11 +12,12 @@ describe("LiveMap", () => {
         subTitle: "Sub title",
     };
 
-    beforeEach(() => {
+    function setup() {
         renderApp(<LiveMap {...fakeSection} />);
-    });
+    }
 
     test("renders props", () => {
+        setup();
         const header = screen.getByTestId("heading");
         const summary = screen.getByTestId("summary");
         const subTitle = screen.getByTestId("subTitle");
