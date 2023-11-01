@@ -45,6 +45,7 @@ beforeEach(() => {
             isUserAdmin: false,
             isUserReceiver: true,
             isUserSender: false,
+            isUserTransceiver: false,
         } as any,
     });
 });
@@ -80,6 +81,7 @@ describe("DataDashboardTable", () => {
                     isUserAdmin: false,
                     isUserReceiver: true,
                     isUserSender: false,
+                    isUserTransceiver: false,
                 } as any,
             });
 
@@ -249,6 +251,7 @@ describe("DataDashboardTableWithPagination", () => {
                         isUserAdmin: false,
                         isUserReceiver: true,
                         isUserSender: false,
+                        isUserTransceiver: false,
                     } as any,
                 });
 
@@ -301,6 +304,7 @@ describe("DataDashboardTableWithPagination", () => {
                     isUserAdmin: false,
                     isUserReceiver: true,
                     isUserSender: false,
+                    isUserTransceiver: false,
                 } as any,
             });
 

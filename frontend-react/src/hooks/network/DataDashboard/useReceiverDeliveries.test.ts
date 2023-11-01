@@ -24,6 +24,7 @@ describe("useReceiverDeliveries", () => {
                     isUserAdmin: false,
                     isUserReceiver: false,
                     isUserSender: false,
+                    isUserTransceiver: false,
                 } as any,
             });
         });
@@ -50,6 +51,7 @@ describe("useReceiverDeliveries", () => {
                     isUserAdmin: false,
                     isUserReceiver: true,
                     isUserSender: false,
+                    isUserTransceiver: false,
                 } as any,
             });
         });

@@ -36,15 +36,18 @@ LoggedInNavbarDefault.decorators = [
         <SessionContext.Provider
             value={
                 {
-                    isUserAdmin: true,
                     activeMembership: {
                         parsedName: "Test Co",
                         memberType: MemberType.PRIME_ADMIN,
                     },
-                    isAdminStrictCheck: true,
-                    isUserReceiver: false,
-                    isUserSender: false,
-                    user: { email: "test@testing.com", sub: "" },
+                    user: {
+                        claims: { email: "test@testing.com", sub: "" },
+                        isUserAdmin: true,
+                        isAdminStrictCheck: true,
+                        isUserReceiver: false,
+                        isUserSender: false,
+                        isUserTransceiver: false,
+                    },
                     logout: () => undefined,
                     setActiveMembership: () => undefined,
                 } as any
@@ -64,15 +67,16 @@ LoggedInNavbarBlueVariant.decorators = [
         <SessionContext.Provider
             value={
                 {
-                    isUserAdmin: true,
                     activeMembership: {
                         parsedName: "Test Co",
                         memberType: MemberType.PRIME_ADMIN,
                     },
                     user: {
+                        isUserAdmin: true,
                         isAdminStrictCheck: true,
                         isUserReceiver: false,
                         isUserSender: false,
+                        isUserTransceiver: false,
                         claims: { email: "test@testing.com", sub: "" },
                     },
                     logout: () => undefined,

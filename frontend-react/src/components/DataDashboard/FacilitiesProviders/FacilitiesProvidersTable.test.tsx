@@ -88,6 +88,7 @@ describe("FacilitiesProvidersTable", () => {
                     isUserAdmin: false,
                     isUserReceiver: true,
                     isUserSender: false,
+                    isUserTransceiver: false,
                 } as any,
             });
 
@@ -138,6 +139,7 @@ describe("FacilitiesProvidersTable", () => {
                     isUserAdmin: false,
                     isUserReceiver: true,
                     isUserSender: false,
+                    isUserTransceiver: false,
                 } as any,
             });
 

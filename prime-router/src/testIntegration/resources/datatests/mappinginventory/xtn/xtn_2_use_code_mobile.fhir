@@ -32,41 +32,13 @@
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
             "valueIdentifier" : {}
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
-            "valueString" : "UNICODE UTF-8"
           }
         ],
         "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "R01",
           "display" : "ORU/ACK - Unsolicited transmission of an observation message"
-        },
-        "sender" : {
-          "reference" : "Organization/1697639630897303000.5cf4195f-8880-4dd8-910d-aa1d4dec56fb"
-        },
-        "source" : {}
-      }
-    },
-    {
-      "fullUrl" : "Organization/1697639630897303000.5cf4195f-8880-4dd8-910d-aa1d4dec56fb",
-      "resource" : {
-        "resourceType" : "Organization",
-        "id" : "1697639630897303000.5cf4195f-8880-4dd8-910d-aa1d4dec56fb",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
-        "address" : [
-          {
-            "country" : "USA"
-          }
-        ]
+        }
       }
     },
     {
@@ -227,9 +199,39 @@
         ],
         "telecom" : [
           {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
+                "valueString" : "PRS"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn7-local-number",
+                "valueString" : "7595016"
+              },
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-area",
+                "valueString" : "260"
+              },
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-local",
+                "valueString" : "7595016"
+              },
+              {
+                "url" : "http://hl7.org/fhir/StructureDefinition/contactpoint-country",
+                "valueString" : "1"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
+                "valueString" : "CP"
+              },
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
+                "valueString" : "+1 260 759 5016"
+              }
+            ],
             "system" : "phone",
             "value" : "+1 260 759 5016",
-            "use" : "mobile"
+            "use" : "home"
           }
         ],
         "gender" : "unknown",

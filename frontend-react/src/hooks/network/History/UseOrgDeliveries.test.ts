@@ -25,6 +25,7 @@ describe("useReportsList", () => {
                     isUserAdmin: false,
                     isUserReceiver: true,
                     isUserSender: false,
+                    isUserTransceiver: false,
                 } as any,
             });
         });
@@ -57,6 +58,7 @@ describe("useReportsList", () => {
                     isUserAdmin: true,
                     isUserReceiver: false,
                     isUserSender: false,
+                    isUserTransceiver: false,
                 } as any,
             });
         });

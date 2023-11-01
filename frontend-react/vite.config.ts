@@ -67,6 +67,10 @@ export default defineConfig(async () => {
                     // than index
                     index: resolve(__dirname, "index.html"),
                     notfound: resolve(__dirname, "404.html"),
+                    unsupportedBrowser: resolve(
+                        __dirname,
+                        "unsupported-browser.html",
+                    ),
                 },
             },
         },

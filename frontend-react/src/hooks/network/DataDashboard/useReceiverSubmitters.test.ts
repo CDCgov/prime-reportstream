@@ -24,6 +24,7 @@ describe("useReceiverSubmitters", () => {
                     isUserAdmin: false,
                     isUserReceiver: false,
                     isUserSender: false,
+                    isUserTransceiver: false,
                 } as any,
             });
         });
@@ -51,6 +52,7 @@ describe("useReceiverSubmitters", () => {
                     isUserAdmin: false,
                     isUserReceiver: true,
                     isUserSender: false,
+                    isUserTransceiver: false,
                 } as any,
             });
         });

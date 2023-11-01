@@ -25,6 +25,7 @@ describe("useOrganizationReceivers", () => {
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: false,
+                isUserTransceiver: false,
             } as any,
         });
         const { result } = renderHook(() => useOrganizationReceivers());
@@ -45,6 +46,7 @@ describe("useOrganizationReceivers", () => {
                 isUserAdmin: false,
                 isUserReceiver: true,
                 isUserSender: false,
+                isUserTransceiver: false,
             } as any,
         });
         const { result } = renderHook(() => useOrganizationReceivers());

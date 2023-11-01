@@ -29,6 +29,7 @@ describe("SenderModeBanner", () => {
                 isUserAdmin: false,
                 isUserReceiver: false,
                 isUserSender: true,
+                isUserTransceiver: false,
             } as any,
         });
         renderApp(<SenderModeBanner />);

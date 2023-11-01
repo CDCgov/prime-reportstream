@@ -53,9 +53,12 @@ beforeEach(() => {
             service: "testReceiverService",
         },
 
-        isUserAdmin: false,
-        isUserReceiver: true,
-        isUserSender: false,
+        user: {
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
+            isUserTransceiver: false,
+        } as any,
     });
 });
 
