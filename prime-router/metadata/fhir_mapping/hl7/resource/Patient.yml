@@ -214,7 +214,7 @@ identifier_8:
     display: "Patient's Medicare number"
 
 name:
-  valueOf: datatype/HumanName
+  valueOf: datatypes/FN/HumanName
   generateList: true
   expressionType: resource
   specs: PID.5
@@ -353,7 +353,7 @@ extension:
           type: SYSTEM_URL
           value: mothersMaidenName
         valueHumanName:
-          valueOf: datatype/HumanName
+          valueOf: datatypes/FN/HumanName
           expressionType: resource
           condition: $pid6 NOT_NULL
           specs: PID.6
@@ -447,7 +447,7 @@ extension_mother_identifier:
           type: SYSTEM_URL
           value: mothersMaidenName
         valueHumanName:
-          valueOf: datatype/HumanName
+          valueOf: datatypes/FN/HumanName
           expressionType: resource
           condition: $pid21 NOT_NULL
           specs: PID.21

@@ -7,7 +7,7 @@ purpose:
     system: SYSTEM_URL, $system_code
 
 name:
-  valueOf: datatype/HumanName
+  valueOf: datatypes/FN/HumanName
   expressionType: resource
   specs: XCN | $contactName
 
