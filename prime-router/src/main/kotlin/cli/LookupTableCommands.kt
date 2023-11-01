@@ -534,13 +534,21 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
     private val tableName by option("-n", "--name", help = "The name of the table to perform the comparison on")
         .required()
 
-    // TODO: optional
     /**
      * Table version option.
-
-    private val version by option("-v", "--version", help = "The version of the table to get").int()
-        .required()
     */
+    private val tableVersion by option("-v", "--version", help = "The version of the table to get").int()
+
+    private fun findActiveVersion(tableName: String): Int {
+        val tableList = try {
+            tableUtil.fetchList()
+        } catch (e: IOException) {
+            throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
+        }
+        val activeVersion = (tableList.firstOrNull { it.tableName == tableName })?.tableVersion ?: 0
+        if (activeVersion == 0) throw PrintMessage("Could not find lookup table: $tableName", true)
+        return activeVersion
+    }
 
     override fun run() {
         // Read the input file.
@@ -552,52 +560,47 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
             return
         }
 
-        // Find the active version of the specified table
-        // TODO: handle specified version
-        val tableList = try {
-            tableUtil.fetchList()
+        val loadTableVersion: Int = tableVersion ?: findActiveVersion(tableName)
+
+        // verify the table/version exists
+        try {
+            tableUtil.fetchTableInfo(tableName, loadTableVersion)
+        } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
+            throw PrintMessage("The table $tableName version $loadTableVersion was not found.", true)
         } catch (e: IOException) {
-            throw PrintMessage("Error fetching the list of tables: ${e.message}", true)
+            throw PrintMessage(
+                "Error fetching table version for $tableName version $loadTableVersion: ${e.message}",
+                true
+            )
         }
-        val activeVersion = (tableList.firstOrNull { it.tableName == tableName })?.tableVersion ?: 0
 
         // Load the active or specified version of the table
-        if (activeVersion > 0) {
-            val activeTable = try {
-                tableUtil.fetchTableContent(tableName, activeVersion) // TODO: handle optional version
-            } catch (e: Exception) {
-                throw PrintMessage("Error fetching active table content for table $tableName: ${e.message}", true)
-            }
-        } else {
-            throw PrintMessage("Unable to find specified lookup table: $tableName", true)
+        val tableData = try {
+            tableUtil.fetchTableContent(tableName, loadTableVersion)
+        } catch (e: Exception) {
+            throw PrintMessage("Error fetching table content for table $tableName: ${e.message}", true)
         }
 
-        // val tableList = try {
-        //     tableUtil.fetchTableContent(tableName, version)
-        // } catch (e: LookupTableEndpointUtilities.Companion.TableNotFoundException) {
-        //     throw PrintMessage("The table $tableName version $version was not found.", true)
-        // } catch (e: IOException) {
-        //     throw PrintMessage("Error fetching the contents of table $tableName version $version: ${e.message}", true)
-        // }
-        // if (tableList.isNotEmpty()) {
-        //     // Output to a file if requested, otherwise output to the screen.
-        //     if (outputFile == null) {
-        //         echo("")
-        //         echo("Table name: $tableName")
-        //         echo("Version: $version")
-        //         val colNames = tableList[0].keys.toList()
-        //         echo(LookupTableCommands.rowsToPrintableTable(tableList, colNames))
-        //         echo("")
-        //     } else {
-        //         saveTableAsCSV(outputFile!!, tableList)
-        //         echo(
-        //             "Saved ${tableList.size} rows of table $tableName version $version " +
-        //                 "to ${outputFile!!.absolutePath} "
-        //         )
-        //     }
-        // } else {
-        //     echo("Table $tableName version $version has no rows.")
-        // }
+        // Create lookup table of codes
+        val tableMap = tableData.associateBy { it["Code"] }
+
+        // Add a mapped? value to each row of table data
+        val outputData = inputData.map {
+            if (tableMap[it.getValue("test code")]?.get("Code System") == it.getValue("coding system")) {
+                it + ("mapped?" to "Y")
+            } else {
+                it + ("mapped?" to "N")
+            }
+        }
+
+        // Save an output file and print the resulting table data
+        if (outputFile != null) {
+            saveTableAsCSV(outputFile!!, outputData)
+            echo(
+                "Saved ${outputData.size} rows to ${outputFile!!.absolutePath} "
+            )
+        }
+        echo(LookupTableCommands.rowsToPrintableTable(outputData, outputData[0].keys.toList()))
     }
 }
 
