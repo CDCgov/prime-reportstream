@@ -5,7 +5,7 @@ import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import OrganizationResource from "../../resources/OrganizationResource";
 
-import { AdminOrgNew } from "./AdminOrgNew";
+import { AdminOrgNewPage } from "./AdminOrgNew";
 
 const mockData: OrganizationResource = new TestResponse(
     ResponseType.NEW_ORGANIZATION,
@@ -47,11 +47,12 @@ describe("AdminOrgNew", () => {
     beforeAll(() => settingsServer.listen());
     afterEach(() => settingsServer.resetHandlers());
     afterAll(() => settingsServer.close());
-    beforeEach(() => {
-        renderApp(<AdminOrgNew />);
-    });
+    function setup() {
+        renderApp(<AdminOrgNewPage />);
+    }
 
     test("should go to the new created organization's page", () => {
+        setup();
         // orgName field
         const orgNameField = screen.getByTestId("orgName");
         expect(orgNameField).toBeInTheDocument();

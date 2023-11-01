@@ -1,51 +1,235 @@
 extends: ../default-sender-transform
+constants:
+  serviceRequest: 'Bundle.entry.resource.ofType(ServiceRequest)'
+  diagnosticReport: 'Bundle.entry.resource.ofType(DiagnosticReport)'
+  patient: 'Bundle.entry.resource.ofType(Patient)'
 elements:
-  # TODO: Remove this once Covid results for CA are routed through the UP
-  #       Simple Report subtracts 15 minutes from dates being sent to us through the Covid pipeline
-  #       CA wants Simple Report to stop doing that for them, but Simple Report can't just turn it off for every
-  #       message we receive. They will stop doing this for reports sent through the UP, but we will have to continue
-  #       doing this in the UP until we start routing the Covid results through the UP to keep dates consistent across.
-  - name: results-reported-at
-    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
-    condition: '%resource.issued is instant'
-    bundleProperty: '%resource.issued'
-    value: [ '%resource.issued - 15 minutes' ]
 
+  # Order Filler identifier - this was being populated in CA receiver transforms
+  #                           should've been a sender transform in the first place since
+  #                           this is needed for NY too
+  - name: sr-order-identifier-filler
+    bundleProperty: '%serviceRequest.identifier[0].type.coding.code'
+    value: [ '"FILL"' ]
 
-  - name: observation-date-time
-    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
-    condition: '%resource.effective is dateTime'
+  - name: sr-order-identifier-filler-system
+    bundleProperty: '%serviceRequest.identifier[0].system'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
+
+  - name: sr-order-identifier-filler-system-url
+    bundleProperty: '%serviceRequest.identifier[0].type.coding.system'
+    value: [ '"http://terminology.hl7.org/CodeSystem/v2-0203"' ]
+
+  - name: sr-order-identifier-filler-value
+    bundleProperty: '%serviceRequest.identifier[0].value'
+    value: [ '%diagnosticReport.identifier[0].value' ]
+
+  - name: sr-order-identifier-filler-id
+    bundleProperty: '%serviceRequest.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value' ]
+
+  # Order Placer identifier - this was being populated in CA receiver transforms
+  #                           should've been a sender transform in the first place since
+  #                           this is needed for NY too
+  - name: sr-order-identifier-placer
+    bundleProperty: '%serviceRequest.identifier[1].type.coding.code'
+    value: [ '"PLAC"' ]
+
+  - name: sr-order-identifier-placer-system
+    bundleProperty: '%serviceRequest.identifier[1].system'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
+
+  - name: sr-order-identifier-placer-system-url
+    bundleProperty: '%serviceRequest.identifier[1].type.coding.system'
+    value: [ '"http://terminology.hl7.org/CodeSystem/v2-0203"' ]
+
+  - name: sr-order-identifier-placer-value
+    bundleProperty: '%serviceRequest.identifier[1].value'
+    value: [ '%diagnosticReport.identifier[0].value' ]
+
+  - name: sr-order-identifier-placer-id
+    bundleProperty: '%serviceRequest.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value' ]
+
+  # Order Observation Request filler identifier - this was being populated in CA receiver transforms
+  #                                               should've been a sender transform in the first place since
+  #                                               this is needed for NY too
+  - name: sr-observation-request-identifier-filler
+    bundleProperty: '%diagnosticReport.identifier[0].type.coding.code'
+    value: [ '"FILL"' ]
+
+  - name: sr-observation-request-identifier-filler-system
+    bundleProperty: '%diagnosticReport.identifier[0].system'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
+
+  - name: sr-observation-request-identifier-filler-value
+    bundleProperty: '%diagnosticReport.identifier[0].value'
+    value: [ '%diagnosticReport.identifier[0].value' ]
+
+  - name: sr-observation-request-identifier-filler-id
+    bundleProperty: '%diagnosticReport.identifier[0].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value' ]
+
+  # Order Observation Request placer identifier - this was being populated in CA receiver transforms
+  #                                               should've been a sender transform in the first place since
+  #                                               this is needed for NY too
+  - name: sr-observation-request-identifier-placer
+    bundleProperty: '%diagnosticReport.identifier[1].type.coding.code'
+    value: [ '"PLAC"' ]
+
+  - name: sr-observation-request-identifier-placer-value
+    bundleProperty: '%diagnosticReport.identifier[1].value'
+    value: [ '%diagnosticReport.identifier[0].value' ]
+
+  - name: sr-observation-request-identifier-placer-system
+    bundleProperty: '%diagnosticReport.identifier[1].system'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
+
+  - name: sr-observation-request-identifier-placer-id
+    bundleProperty: '%diagnosticReport.identifier[1].extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value' ]
+
+  # SR sends AOEs under ServiceRequest.supportingInfo, but our FHIR to HL7 mappings map Observations
+  # under supportingInfo to SPM OBX segments. To be able to exclude this Observations from being map under SPM we need
+  # to identify with the AOE tag
+  - name: sr-supporting-info-aoe-tag
+    resource: 'Bundle.entry.resource.ofType(ServiceRequest).supportingInfo.resolve()'
+    bundleProperty: '%resource.meta.tag.code'
+    value: [ '"AOE"' ]
+
+  # This is populated as a sender transform in the Covid pipeline
+  - name: sr-ordering-facility-name-type-code
+    bundleProperty: '%serviceRequest.requester.resolve().organization.resolve().extension("https://reportstream.cdc.gov/fhir/StructureDefinition/organization-name-type").valueCoding.code'
+    value: [ '"L"' ]
+
+  #  Simple report is not sending a unique Specimen identifier, grabbing it from Diagnostic Report
+  #  STLTs use SPM identifier as their Accession number to uniquely identify reports sent to them
+  - name: sr-specimen-identifier
+    bundleProperty: '%diagnosticReport.specimen.resolve().identifier.value'
+    value: [ '%diagnosticReport.identifier.value' ]
+
+  # The Covid pipeline checks if this is a valid NPI and adds the NPI identifier type if it is
+  - name: sr-ordering-provider-id-authority-type
+    condition: '%resource.identifier.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-type").valueCodeableConcept.coding.code'
+    value: [ '"NPI"' ]
+
+  # This is populated as a sender transform in the Covid pipeline
+  - name: sr-ordering-provider-name-type-code
+    condition: '%resource.value.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Practitioner)'
+    bundleProperty: '%resource.name.use'
+    value: [ '"official"' ]
+
+  # This were being populated as CA Receiver transforms, but should be Sender Transforms
+  - name: sr-patient-assigning-facility-name
+    bundleProperty: '%patient.identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-namespace-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().name' ]
+
+  - name: sr-patient-assigning-facility-id
+    bundleProperty: '%patient.identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-facility-universal-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value' ]
+
+  - name: sr-patient-telecom
+    resource: '%patient.telecom'
+    resourceIndex: telecomIndex
+    schema: datatypes/simple-report-telecom
+
+  # Covid pipeline populates this by looking at the hl70005 value-set version
+  - name: sr-patient-race-version
+    bundleProperty: '%patient.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding.version'
+    value: [ '"2.5.1"' ]
+
+  # This is populated as a sender transform in the Covid pipeline
+  - name: sr-patient-name-type
+    bundleProperty: '%patient.name.use'
+    value: [ '"official"' ]
+
+  # Covid pipeline populates this by looking at the hl70189 value-set version
+  - name: sr-patient-ethnic-group-version
+    bundleProperty: '%patient.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/ethnic-group").value.coding.version'
+    value: [ '"2.9"' ]
+
+  # Covid pipeline populates this by looking at the hl70078 value-set version
+  - name: sr-observation-abnormal-flag-version
+    condition: '%resource.interpretation.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.interpretation.coding.version'
+    value: [ '"2.7"' ]
+
+  # Covid pipeline populates this by looking at the hl70078 value-set version
+  - name: sr-specimen-type-version
+    condition: '%resource.type.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Specimen)'
+    bundleProperty: '%resource.type.coding.version'
+    value: [ '"2.67"' ]
+
+  # Covid pipeline populates this by looking at the sender-automation/aoe value-set version
+  # But some AOEs have different versions, we need the ability to lookup that version
+  # So the current solution is to move the sender-automation/aoe to the sender_automation_value_set_row lookup table
+  - name: sr-observation-code-version
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.code.coding.exists()'
+    bundleProperty: '%resource.code.coding.version'
+    value: [ '%resource.code.coding.code' ]
+    valueSet:
+      lookupTable:
+        tableName: sender_automation_value_set_row
+        keyColumn: code
+        valueColumn: version
+
+  # Covid pipeline populates this date using a sender transform
+  - name: sr-observation-date
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    condition: '%resource.effective.exists().not()'
     bundleProperty: '%resource.effective[x]'
-    value: [ '%resource.effective - 15 minutes' ]
+    value: [ '%resource.specimen.resolve().collection.collected' ]
 
-  #  The received date time for the specimen. This field is very important to many states for their HL7,
-  #  but for most of our senders, the received date time is the same as the collected date time. Unfortunately,
-  #  setting them to the same time breaks many validation rules. Most ELR systems apparently look for them to
-  #  be offset, so this field takes the `specimen_collection_date_time` field and offsets it by a small amount.
-  # TODO: Move this to default sender transform once simple report starts sending us covid through the UP
-  #       THE Covid pipeline adds 6 seconds to received date time to avoid having the same date for
-  #       both collected and received.
-  #       Right now we can't subtract the 15 minutes SR subtracts from dates in the covid pipeline and add the 6 seconds
-  #       the Covid Pipeline adds. So we have to do it all at once by subtracting 894 seconds. Adding the 6
-  #       should be part of the default sender transforms.
-  - name: specimen-received-date-time-collected
+  - name: sr-performing-organization-name-non-pracrole-assigning-authority
+    condition: '%resource.performer.resolve().ofType(Organization).exists()'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x]'
+    value: [ '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/namespace-id").value[x].getIdType()' ]
+
+  # Covid pipeline populates this using a sender transform
+  - name: sr-performing-organization-name-non-pracrole-assigning-authority
+    condition: '%resource.performer.resolve().ofType(Organization).exists()'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
+    value: [ '"urn:oid:2.16.840.1.113883.4.7"' ]
+
+  # Populating display based on text
+  - name: sr-patient-race-display
+    resource: '%patient'
+    condition: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").exists()'
+    bundleProperty: '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.coding[0].display'
+    value:
+      - '%resource.extension("http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd").value.text'
+
+  # Populating display based on text
+  - name: sr-specimen-type-display
     resource: 'Bundle.entry.resource.ofType(Specimen)'
-    condition: '%resource.receivedTime.exists().not() and %resource.collection.collected is dateTime'
-    bundleProperty: '%resource.receivedTime'
-    value: [ '%resource.collection.collected - 894 seconds' ]
+    condition: '%resource.type.exists() and %resource.type.coding[0].display.exists().not()'
+    bundleProperty: '%resource.type.coding[0].display'
+    value: [ '%resource.type.text' ]
 
-  - name: specimen-received-date-time-effective
-    resource: 'Bundle.entry.resource.ofType(DiagnosticReport)'
-    condition: >
-      %resource.specimen.resolve().receivedTime.exists().not() 
-      and %resource.specimen.resolve().collection.collected.exists().not()
-      and %resource.effective is dateTime
-    bundleProperty: '%resource.specimen.resolve().receivedTime'
-    value: [ '%resource.effective + 6 seconds' ]
+  - name: sr-observation-producer-id-identifier
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/producer-id").value[x]'
+    value: [ '%diagnosticReport.basedOn.resolve().performer' ]
 
-  - name: specimen-collection-time
-    resource: 'Bundle.entry.resource.ofType(Specimen)'
-    condition: '%resource.collection.collected is dateTime'
-    bundleProperty: '%resource.collection.collected[x]'
-    value: [ '%resource.collection.collected - 15 minutes' ]
+  - name: sr-observation-producer-id-system
+    bundleProperty: '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/coding-system").valueCodeableConcept.coding.code'
+    value: [ '%diagnosticReport.basedOn.resolve().performer.resolve().identifier.value.getIdType()' ]
 
+  - name: sr-ordering-facility-phone
+    resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().contact[0].telecom'
+    resourceIndex: telecomIndex
+    schema: datatypes/simple-report-telecom
+
+  - name: sr-ordering-facility-telecom
+    condition: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().contact.empty()'
+    resource: '%diagnosticReport.basedOn.resolve().requester.resolve().organization.resolve().telecom.where(system = "phone")'
+    resourceIndex: telecomIndex
+    schema: datatypes/simple-report-telecom

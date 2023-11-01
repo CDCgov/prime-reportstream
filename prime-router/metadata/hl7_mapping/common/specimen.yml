@@ -136,7 +136,7 @@ elements:
     schema: datatype/ce-coded-with-exceptions
 
   - name: specimen-observation-result-with-aoe
-    resource: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id)'
+    resource: '%service.supportingInfo.resolve().where(specimen.id = %specimen.id and meta.tag.code != "AOE")'
     schema: observation-result
     resourceIndex: specimenObservationIndex
     constants:

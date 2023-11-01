@@ -38,7 +38,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
         props,
     );
 
-    const { doCheck, isLoading } = useCheckSettingsCmd();
+    const { mutateAsync: doCheck, isPending } = useCheckSettingsCmd();
     const [checkResultData, setCheckResultData] =
         useState<CheckSettingResult>(DEFAULT_DATA);
     const modalRef = useRef<ModalRef>(null);
@@ -220,7 +220,7 @@ export function OrgReceiverTable(props: OrgSettingsTableProps) {
                         </Button>
                         <Button
                             type="button"
-                            disabled={isLoading}
+                            disabled={isPending}
                             onClick={() => clickDoCheckCmd()}
                         >
                             Start check
