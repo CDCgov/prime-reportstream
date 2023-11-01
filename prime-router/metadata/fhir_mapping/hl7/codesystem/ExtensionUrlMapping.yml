@@ -13,6 +13,18 @@
 # event performer function
 - id: "event-performerFunction"
   url: "http://hl7.org/fhir/StructureDefinition/event-performerFunction"
+# humanname own prefix
+- id: "humanname-own-prefix"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"
+# humanname own surname
+- id: "humanname-own-name"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-own-name"
+# humanname partner prefix
+- id: "humanname-partner-prefix"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix"
+# humanname partner surname
+- id: "humanname-partner-name"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-partner-name"
 # humanname assembly order
 - id: "humanname-assembly-order"
   url: "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order"

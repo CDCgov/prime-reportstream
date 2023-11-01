@@ -1,10 +1,15 @@
 resourceType: HumanName
 
 family:
-  # TODO: add FN[HumanName] mapping here (#11812)
   type: STRING
-  valueOf: XPN.1
+  valueOf: XPN.1.1
   expressionType: HL7Spec
+_family:
+  expressionType: resource
+  generateList: true
+  valueOf: datatypes/FN/ExtensionHumanName-family
+  specs: XPN.1
+
 given:
   generateList: true
   expressionType: nested
