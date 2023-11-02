@@ -169,22 +169,6 @@ describe("FileHandler", () => {
         });
     }
 
-    async function schemaContinue() {
-        await waitFor(async () => {
-            await userEvent.click(screen.getByText("Continue"));
-            expect(screen.getByTestId("form")).toBeInTheDocument();
-        });
-    }
-
-    async function fileContinue() {
-        await waitFor(async () => {
-            const form = screen.getByTestId("form");
-            // eslint-disable-next-line testing-library/no-wait-for-side-effects
-            fireEvent.submit(form);
-            await waitFor(() => expect(form).not.toBeInTheDocument());
-        });
-    }
-
     describe("by default", () => {
         function setup() {
             mockUseFileHandler(INITIAL_STATE);
