@@ -351,6 +351,24 @@ deceasedDateTime:
   vars:
     dateTimeIn: PID.29
 
+_deceasedDateTime:
+  expressionType: nested
+  condition: pid29 NOT_NULL
+  vars:
+    pid29: PID.29
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: pid29
+          expressionType: HL7Spec
+
 maritalStatus:
   valueOf: datatype/CodeableConcept
   expressionType: resource

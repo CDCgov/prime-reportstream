@@ -142,9 +142,11 @@ elements:
     hl7Spec: [ '%{hl7PIDField}-25' ]
 
   - name: patient-death-date-time
-    condition: '%resource.deceased.exists() and %resource.deceased is dateTime'
-    value: [ '%resource.deceased' ]
-    hl7Spec: [ '%{hl7PIDField}-29' ]
+    condition: '%context.deceased.exists() and %context.deceased is dateTime'
+    resource: '%resource.deceased'
+    constants:
+      dtmFieldPath: '%{hl7PIDField}-29'
+    schema: ../datatypes/dateTime/DTM
 
   - name: patient-death-indicator-1
     condition: '%resource.deceased.exists() and %resource.deceased is dateTime'
