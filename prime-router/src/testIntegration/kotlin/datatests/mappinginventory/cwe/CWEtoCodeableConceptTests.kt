@@ -3,7 +3,7 @@ package gov.cdc.prime.router.datatests.mappinginventory.cwe
 import gov.cdc.prime.router.datatests.mappinginventory.verifyHL7ToFHIRToHL7Mapping
 import org.junit.jupiter.api.Test
 
-class CWEtoCodeableConcept {
+class CWEtoCodeableConceptTests {
 
     @Test
     fun `test value in CWE-1`() {
