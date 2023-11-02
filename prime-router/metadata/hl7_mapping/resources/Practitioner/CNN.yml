@@ -29,11 +29,11 @@ elements:
     hl7Spec: [ '%{hl7CNNField}-7' ]
 
   - name: cnn-assigning-authority-namespace-id
-    value: [ '%resource.identifier.extension(%`rsext-assigning-authority`).extension(%`rsext-assigning-authority-namespace-id`).value' ]
+    value: [ '%resource.identifier.extension(%`rsext-assigning-authority`).extension(%`rsext-namespace-id`).value' ]
     hl7Spec: [ '%{hl7CNNField}-9' ]
 
   - name: cnn-assigning-authority-namespace-id
-    value: [ '%resource.identifier.extension(%`rsext-assigning-authority`).extension(%`rsext-assigning-authority-universal-id`).value' ]
+    value: [ '%resource.identifier.extension(%`rsext-assigning-authority`).extension(%`rsext-universal-id`).value' ]
     hl7Spec: [ '%{hl7CNNField}-10' ]
 
   - name: cnn-assigning-authority-namespace-id

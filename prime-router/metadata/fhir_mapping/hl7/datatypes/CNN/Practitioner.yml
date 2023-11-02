@@ -32,7 +32,7 @@ identifier:
               expressionsMap:
                 url:
                   type: SYSTEM_URL
-                  valueOf: assigning-authority-namespace-id
+                  valueOf: namespace-id
                 valueString:
                   type: STRING
                   expressionType: HL7Spec
@@ -41,7 +41,7 @@ identifier:
               expressionsMap:
                 url:
                   type: SYSTEM_URL
-                  valueOf: assigning-authority-universal-id
+                  valueOf: universal-id
                 valueString:
                   type: STRING
                   expressionType: HL7Spec

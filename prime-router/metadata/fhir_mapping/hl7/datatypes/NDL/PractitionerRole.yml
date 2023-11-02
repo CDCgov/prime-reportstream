@@ -30,7 +30,7 @@ location:
   generateList: true
   expressionType: nested
   expressions:
-    - valueOf: datatypes/NDL/Location
+    - valueOf: datatypes/NDL/HD/Location
       condition: $ndl7 NOT_NULL
       expressionType: reference
       specs: NDL.7
@@ -38,9 +38,8 @@ location:
         ndlLocationStatus: NDL.8
         ndl7: NDL.7
       constants:
-        mode: "instance"
         physicalTypeCode: "si"
-    - valueOf: datatypes/NDL/Location
+    - valueOf: datatypes/NDL/IS/Location
       condition: $ndl10 NOT_NULL
       expressionType: reference
       specs: NDL.10
@@ -50,9 +49,8 @@ location:
         ndlLocationStatus: NDL.8
         ndl10: NDL.10
       constants:
-        mode: "instance"
         physicalTypeCode: "bu"
-    - valueOf: datatypes/NDL/Location
+    - valueOf: datatypes/NDL/IS/Location
       condition: $ndl4 NOT_NULL
       expressionType: reference
       specs: NDL.4
@@ -62,9 +60,8 @@ location:
         ndlLocationStatus: NDL.8
         ndl4: NDL.4
       constants:
-        mode: "instance"
         physicalTypeCode: "poc"
-    - valueOf: datatypes/NDL/Location
+    - valueOf: datatypes/NDL/IS/Location
       condition: $ndl11 NOT_NULL
       expressionType: reference
       specs: NDL.11
@@ -74,9 +71,8 @@ location:
         ndlLocationStatus: NDL.8
         ndl11: NDL.11
       constants:
-        mode: "instance"
         physicalTypeCode: "lvl"
-    - valueOf: datatypes/NDL/Location
+    - valueOf: datatypes/NDL/IS/Location
       condition: $ndl5 NOT_NULL
       expressionType: reference
       specs: NDL.5
@@ -86,9 +82,8 @@ location:
         ndlLocationStatus: NDL.8
         ndl5: NDL.5
       constants:
-        mode: "instance"
         physicalTypeCode: "ro"
-    - valueOf: datatypes/NDL/Location
+    - valueOf: datatypes/NDL/IS/Location
       condition: $ndl6 NOT_NULL
       expressionType: reference
       specs: NDL.6
@@ -98,7 +93,6 @@ location:
         ndlLocationStatus: NDL.8
         ndl6: NDL.6
       constants:
-        mode: "instance"
         physicalTypeCode: "bd"
 
 

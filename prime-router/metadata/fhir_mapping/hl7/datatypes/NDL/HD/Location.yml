@@ -55,25 +55,13 @@ identifier_2:
         valueBoolean:
           valueOf: "true"
 
-identifier_3:
-  generateList: true
-  expressionType: nested
-  vars:
-    hd1: HD.1
-  condition: $hd1 NULL
-  expressionsMap:
-    value:
-      type: STRING
-      valueOf: $BASE_VALUE
-      expressionType: HL7Spec
-
 status:
   valueOf: $ndlLocationStatus
   type: STRING
   expressionType: HL7Spec
 
 mode:
-  valueOf: $mode
+  value: 'instance'
   type: STRING
 
 physicalType:
