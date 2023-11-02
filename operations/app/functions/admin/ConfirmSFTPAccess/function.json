@@ -2,7 +2,7 @@
   "scriptFile": "confirm_sftp_access.py",
   "bindings": [
     {
-      "authLevel": "function",
+      "authLevel": "anonymous",
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
