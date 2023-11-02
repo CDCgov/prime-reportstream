@@ -117,6 +117,7 @@ Review what you need to gather to start onboarding.
                 <li><b>Test data:</b> Do you need synthetic and/or real patient data before going live?</li>
                 <li><b>Local public health agency reporting:</b> Explain any local public health department reporting requirements that are different from the state.</li>
                 <li><b>Your implementation guide:</b> You can provide a link if your guide is publicly available or upload the document directly through the form.</li>
+                <li><b>Positive and negative results:</b> Do you require both positive and negative test results?</li>
             </ul>
         </>)
     },
@@ -163,17 +164,15 @@ Review what you need to gather to start onboarding.
                 </li>
             </ul>
         </>)
-    }
-]} />
-
-### Your system needs
-
-<hr className="rs-hr--alternate" />
-<p>You’ll need to let our team know if you use an intermediary or third party system to receive data.</p>
-
-<Accordion multiselectable={true} items={[
+    },
     {
-        id: "1",
+        id: "6",
+        headingLevel:"h3",
+        title: "Your system needs",
+        content: (<p>You’ll need to let our team know if you use an intermediary or third party system to receive data.</p>)
+    },
+    {
+        id: "7",
         headingLevel:"h3",
         title: "Document uploads",
         content: (<>
