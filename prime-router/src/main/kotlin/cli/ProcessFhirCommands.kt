@@ -118,7 +118,7 @@ class ProcessFhirCommands : CliktCommand(
             inputFileType == "HL7" && outputFormat == Report.Format.HL7.toString() -> {
                 val (bundle, inputMessage) = convertHl7ToFhir(contents, actionLogger)
                 val output = convertFhirToHl7(FhirTranscoder.encode(bundle))
-                outputResult(convertFhirToHl7(FhirTranscoder.encode(bundle)))
+                outputResult(output)
                 if (diffHl7Output != null) {
                     val differences = hl7DiffHelper.diffHl7(output, inputMessage)
                     echo("-------diff output")
