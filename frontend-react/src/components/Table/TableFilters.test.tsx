@@ -11,7 +11,7 @@ import TableFilters, {
 } from "./TableFilters";
 
 describe("Rendering", () => {
-    beforeEach(() => {
+    function setup() {
         renderApp(
             <TableFilters
                 startDateLabel={TableFilterDateLabel.START_DATE}
@@ -20,14 +20,16 @@ describe("Rendering", () => {
                 cursorManager={mockCursorManager}
             />,
         );
-    });
+    }
 
     test("renders without error", async () => {
+        setup();
         const container = await screen.findByTestId("filter-container");
         expect(container).toBeInTheDocument();
     });
 
     test("pickers render", async () => {
+        setup();
         /* Trussworks USWDS library uses the placeholder text in two different
          *  HTML elements, so we have to use getAllBy...() rather than getBy...()
          *  and assert that they are non-null.
@@ -48,7 +50,7 @@ describe("when validating values", () => {
     let endDateNode: HTMLElement;
     let filterButtonNode: HTMLElement;
 
-    beforeEach(() => {
+    function setup() {
         renderApp(
             <TableFilters
                 startDateLabel={TableFilterDateLabel.START_DATE}
@@ -62,65 +64,60 @@ describe("when validating values", () => {
             "date-picker-external-input",
         );
         filterButtonNode = screen.getByText("Filter");
-    });
+    }
 
     describe("by default", () => {
         test("enables the Filter button with the fallback values", () => {
+            setup();
             expect(filterButtonNode).toHaveProperty("disabled", false);
         });
     });
 
     describe("when both values are valid", () => {
-        beforeEach(async () => {
+        test("enables the Filter button", async () => {
+            setup();
+
             await userEvent.type(startDateNode, VALID_FROM);
             await userEvent.type(endDateNode, VALID_TO);
-        });
-
-        test("enables the Filter button", () => {
             expect(filterButtonNode).toHaveProperty("disabled", true);
         });
     });
 
     describe("when both values are invalid", () => {
-        beforeEach(async () => {
+        test("disables the Filter button", async () => {
+            setup();
+
             await userEvent.type(startDateNode, INVALID_DATE);
             await userEvent.type(endDateNode, INVALID_DATE);
-        });
-
-        test("disables the Filter button", () => {
             expect(filterButtonNode).toHaveProperty("disabled", true);
         });
     });
 
     describe("when the from range is invalid", () => {
-        beforeEach(async () => {
+        test("disables the Filter button", async () => {
+            setup();
+
             await userEvent.type(startDateNode, INVALID_DATE);
             await userEvent.type(endDateNode, VALID_TO);
-        });
-
-        test("disables the Filter button", () => {
             expect(filterButtonNode).toHaveProperty("disabled", true);
         });
     });
 
     describe("when the to range is invalid", () => {
-        beforeEach(async () => {
+        test("disables the Filter button", async () => {
+            setup();
+
             await userEvent.type(startDateNode, VALID_FROM);
             await userEvent.type(endDateNode, INVALID_DATE);
-        });
-
-        test("disables the Filter button", () => {
             expect(filterButtonNode).toHaveProperty("disabled", true);
         });
     });
 
     describe("when the from value is greater than the to value", () => {
-        beforeEach(async () => {
+        test("disables the Filter button", async () => {
+            setup();
             await userEvent.type(startDateNode, VALID_TO);
             await userEvent.type(endDateNode, VALID_FROM);
-        });
-
-        test("disables the Filter button", () => {
             expect(filterButtonNode).toHaveProperty("disabled", true);
         });
     });

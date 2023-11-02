@@ -1,8 +1,5 @@
 import { Resource } from "@rest-hooks/rest";
 
-import { getStoredOktaToken, getStoredOrg } from "../utils/SessionStorageTools";
-import { getAppInsightsHeaders } from "../TelemetryService";
-
 export default class AuthResource extends Resource {
     // Turn schema-mismatch errors (that break the app) into just console warnings.
     // These happen when extra fields are returned that are not defined in the schema
@@ -13,16 +10,17 @@ export default class AuthResource extends Resource {
     }
 
     static useFetchInit = (init: RequestInit): RequestInit => {
-        const accessToken = getStoredOktaToken();
-        const organization = getStoredOrg();
+        const { organization, token, fetchHeaders } = JSON.parse(
+            sessionStorage.getItem("__deprecatedFetchInit") ?? "{}",
+        );
 
         return {
             ...init,
             headers: {
                 ...init.headers,
-                ...getAppInsightsHeaders(),
-                Authorization: `Bearer ${accessToken}`,
-                Organization: organization || "",
+                ...fetchHeaders,
+                Authorization: `Bearer ${token ?? ""}`,
+                Organization: organization ?? "",
                 "authentication-type": "okta",
             },
         };
