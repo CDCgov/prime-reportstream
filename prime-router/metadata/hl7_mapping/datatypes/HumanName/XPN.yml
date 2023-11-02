@@ -5,19 +5,19 @@ elements:
     hl7Spec: [ '%{hl7xpnField}-1-1' ]
 
   - name: xpn-humanname-own-prefix
-    value: [ '%resource.extension(%`ext-humanname-own-prefix`).value' ]
+    value: [ '%resource.family.extension(%`ext-humanname-own-prefix`).value' ]
     hl7Spec: [ '%{hl7xpnField}-1-2' ]
 
   - name: xpn-humanname-own-name
-    value: [ '%resource.extension(%`ext-humanname-own-name`).value' ]
+    value: [ '%resource.family.extension(%`ext-humanname-own-name`).value' ]
     hl7Spec: [ '%{hl7xpnField}-1-3' ]
 
   - name: xpn-humanname-partner-prefix
-    value: [ '%resource.extension(%`ext-humanname-partner-prefix`).value' ]
+    value: [ '%resource.family.extension(%`ext-humanname-partner-prefix`).value' ]
     hl7Spec: [ '%{hl7xpnField}-1-4' ]
 
   - name: xpn-humanname-partner-name
-    value: [ '%resource.extension(%`ext-humanname-partner-name`).value' ]
+    value: [ '%resource.family.extension(%`ext-humanname-partner-name`).value' ]
     hl7Spec: [ '%{hl7xpnField}-1-5' ]
 
   - name: xpn-given-name
