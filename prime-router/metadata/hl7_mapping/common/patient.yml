@@ -121,6 +121,12 @@ elements:
       ceFieldPath: '%{hl7PIDField}-17'
     schema: datatype/ce-coded-element
 
+  - name: driver-license-number
+    resource: '%resource.identifier.where(extension(%`rsext-hl7-use).value = "driver-license-number")'
+    constants:
+      dlnFieldPath: '%{hl7PIDField}-20'
+    schema: ../datatypes/identifier/DLN
+
   - name: patient-ethnicity
     resource: '%resource.extension(%`rsext-ethnic-group`).value'
     constants:

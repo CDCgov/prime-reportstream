@@ -1,0 +1,15 @@
+elements:
+
+  - name: dln-license-number
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{dlnFieldPath}-1' ]
+
+  - name: dln-issuing-state
+    resource: '%resource.extension(%`rsext-dln2-issuer`).value'
+    schema: ../codeableConcept/CWE
+    constants:
+      cweFieldPath: '%{dlnFieldPath}-2'
+
+  - name: dln-expiration-date
+    value: [ '%resource.period.end' ]
+    hl7Spec: [ '%{dlnFieldPath}-3' ]

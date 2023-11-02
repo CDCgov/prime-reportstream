@@ -94,20 +94,26 @@ identifier_2e:
     display: Social Security number
 # There is no text for PID.19
 
-identifier_3:
-  condition: $valueIn NOT_NULL
-  valueOf: datatype/Identifier_var
-  generateList: true
-  # There is no authority for PID.19
+#identifier_3:
+#  condition: $valueIn NOT_NULL
+#  valueOf: datatype/Identifier_var
+#  generateList: true
+#  # There is no authority for PID.19
+#  expressionType: resource
+#  # Gets the Driver's license from PID.20, formats and adds it as an ID
+#  vars:
+#    valueIn: String, PID.20.1
+#  constants:
+#    system: http://terminology.hl7.org/CodeSystem/v2-0203
+#    code: DL
+#    display: Driver's license number
+## There is no text for PID.20
+
+identifier_driverLicense:
+  valueOf: datatypes/DLN/Identifier
   expressionType: resource
-  # Gets the Driver's license from PID.20, formats and adds it as an ID
-  vars:
-    valueIn: String, PID.20.1
-  constants:
-    system: http://terminology.hl7.org/CodeSystem/v2-0203
-    code: DL
-    display: Driver's license number
-# There is no text for PID.20
+  generateList: true
+  specs: PID.20
 
 identifier_4:
   condition: $mrgIdentifier NOT_NULL
