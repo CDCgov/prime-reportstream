@@ -415,3 +415,6 @@
 # Name suffix professional
 - id: "name-suffix-professional"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-professional"
+# CWE Annotation
+- id: "cwe-annotation"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-annotation"

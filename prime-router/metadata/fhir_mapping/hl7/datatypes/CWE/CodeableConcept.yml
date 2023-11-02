@@ -8,17 +8,21 @@ coding:
     version: String, CWE.7
   expressionsMap:
     code:
-      condition: $code NOT_NULL
-      valueOf: $code
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.1
     display:
-      condition: $display NOT_NULL
-      valueOf: $display
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.2
     system:
-      condition: $system NOT_NULL
-      valueOf: $system
+      type: SYSTEM_URL
+      expressionType: HL7Spec
+      valueOf: CWE.3
     version:
-      condition: $version NOT_NULL
-      valueOf: $version
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.7
     extension_cwe-coding:
       condition: $code NOT_NULL || $display NOT_NULL || $system NOT_NULL || $version NOT_NULL
       generateList: true
@@ -52,17 +56,21 @@ coding_alt:
     altVersion: String, CWE.8
   expressionsMap:
     code:
-      condition: $altCode NOT_NULL
-      valueOf: $altCode
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.4
     display:
-      condition: $altDisplay NOT_NULL
-      valueOf: $altDisplay
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.5
     system:
-      condition: $altSystem NOT_NULL
-      valueOf: $altSystem
+      type: SYSTEM_URL
+      expressionType: HL7Spec
+      valueOf: CWE.6
     version:
-      condition: $altVersion NOT_NULL
-      valueOf: $altVersion
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.8
     extension_cwe-coding:
       condition: $altCode NOT_NULL || $altDisplay NOT_NULL || $altSystem NOT_NULL || $altVersion NOT_NULL
       generateList: true
@@ -96,17 +104,21 @@ coding_secondary-alt:
     secondaryAltVersion: String, CWE.13
   expressionsMap:
     code:
-      condition: $secondaryAltCode NOT_NULL
-      valueOf: $secondaryAltCode
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.10
     display:
-      condition: $secondaryAltDisplay NOT_NULL
-      valueOf: $secondaryAltDisplay
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.11
     system:
-      condition: $secondaryAltSystem NOT_NULL
-      valueOf: $secondaryAltSystem
+      type: SYSTEM_URL
+      expressionType: HL7Spec
+      valueOf: CWE.12
     version:
-      condition: $secondaryAltVersion NOT_NULL
-      valueOf: $secondaryAltVersion
+      type: String
+      expressionType: HL7Spec
+      valueOf: CWE.13
     extension_cwe-coding:
       condition: $secondaryAltCode NOT_NULL || $secondaryAltDisplay NOT_NULL || $secondaryAltSystem NOT_NULL || $secondaryAltVersion NOT_NULL
       generateList: true
@@ -131,11 +143,9 @@ coding_secondary-alt:
           value: $coding-system
 
 text:
-  condition: $text NOT_NULL
   type: STRING
-  valueOf: $text
-  vars:
-    text: String, CWE.9
+  expressionType: HL7Spec
+  valueOf: CWE.9
 
 extension:
   generateList: true
