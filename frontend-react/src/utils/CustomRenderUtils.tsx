@@ -13,11 +13,7 @@ import {
     RouterProvider,
     RouteObject,
 } from "react-router-dom";
-import {
-    QueryClient,
-    QueryClientProvider,
-    QueryClientProviderProps,
-} from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
 import { Fixture, MockResolver } from "@rest-hooks/test";
 import { CacheProvider } from "rest-hooks";
@@ -25,7 +21,6 @@ import { CacheProvider } from "rest-hooks";
 import {
     SessionProviderBase,
     SessionProviderBaseProps,
-    SessionProviderProps,
 } from "../contexts/SessionContext";
 import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
 import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
@@ -33,11 +28,10 @@ import { appRoutes } from "../AppRouter";
 import AppInsightsContextProvider, {
     AppInsightsContextProviderProps,
 } from "../contexts/AppInsightsContext";
-import config from "../config";
 
 //vi.mock("../../../contexts/AppInsightsContext");
 //vi.mock("../../../contexts/SessionContext");
-vi.mock("@tanstack/react-query");
+//vi.mock("@tanstack/react-query");
 
 interface AppWrapperProps {
     children: React.ReactNode;
@@ -53,20 +47,22 @@ interface AppWrapperOptions {
         session?: boolean | SessionProviderBaseProps;
         queryClient?: boolean;
         authorizedFetch?: boolean;
+        featureFlag?: boolean;
+        router?: boolean;
     };
 }
 
-export type TestProviderProps<T> = {
-    ComponentType: T extends React.ComponentType<infer P> ? React.ComponentType<P> : never, 
-}["ComponentType"] extends React.ComponentType<infer P> ? React.PropsWithChildren<{
-    Provider: React.ComponentType<P>
-    boolOrProps?: boolean | P | undefined
-}> : never;
-function TestProvider<T>({Provider, boolOrProps, children}:T extends {Provider: React.ComponentType<infer P>, [k: any]: any} ? TestProviderProps<React.ComponentType<P>> : never) {
-    if(!boolOrProps) return <>{children}</>;
+export interface TestProviderProps extends React.PropsWithChildren {
+    Provider: React.ComponentType<any>;
+    boolOrProps?: boolean | object;
+}
+function TestProvider({ Provider, boolOrProps, children }: TestProviderProps) {
+    if (!boolOrProps) return <>{children}</>;
 
     return (
-        <Provider {...(typeof boolOrProps !== "boolean" ? boolOrProps : {})} />
+        <Provider {...(typeof boolOrProps !== "boolean" ? boolOrProps : {})}>
+            {children}
+        </Provider>
     ) as JSX.Element;
 }
 
@@ -97,9 +93,10 @@ export const AppWrapper = ({
         helmet,
         queryClient,
         session,
+        featureFlag,
+        router,
     } = {},
 }: AppWrapperOptions = {}) => {
-    const TestQueryClientProvider = queryClient ? 
     // FUTURE_TODO: Replace children with <AppRouter /> if initialRouteEntries after mocking okta users
     // in tests is made easier for better coverage as we'd be able to test through
     // any custom route wrappers.
@@ -111,60 +108,87 @@ export const AppWrapper = ({
          * FUTURE_TODO: Remove this once okta user/session mocking is easier
          * and use <AppRouter /> instead.
          */
-        const router = createMemoryRouter(
-            createTestRoutes(appRoutes, children),
-            {
-                initialEntries: initialRouteEntries,
-            },
-        );
+        const queryClientProps = queryClient ?? {
+            client: new QueryClient({
+                defaultOptions: {
+                    queries: { retry: false },
+                },
+            }),
+        };
+        const routerProps =
+            router || initialRouteEntries
+                ? {
+                      router: createMemoryRouter(
+                          createTestRoutes(appRoutes, children),
+                          {
+                              initialEntries: initialRouteEntries,
+                          },
+                      ),
+                  }
+                : false;
         return (
-            <CacheProvider>
-                <HelmetProvider>
-                    <AppInsightsContextProvider>
-                        <SessionProviderBase
-                            oktaAuth={{} as any}
-                            authState={{}}
-                            config={config}
+            <TestProvider Provider={CacheProvider} boolOrProps={cache}>
+                <TestProvider Provider={HelmetProvider} boolOrProps={helmet}>
+                    <TestProvider
+                        Provider={AppInsightsContextProvider}
+                        boolOrProps={appInsights}
+                    >
+                        <TestProvider
+                            Provider={SessionProviderBase}
+                            boolOrProps={session}
                         >
-                            <TestProvider Provider={QueryClientProvider} boolOrProps={queryClient ?? new QueryClient({defaultOptions: {queries: {retry: false}}})}>
-                                <AuthorizedFetchProvider
-                                    initializedOverride={true}
+                            <TestProvider
+                                Provider={QueryClientProvider}
+                                boolOrProps={queryClientProps}
+                            >
+                                <TestProvider
+                                    Provider={AuthorizedFetchProvider}
+                                    boolOrProps={authorizedFetch}
                                 >
-                                    <FeatureFlagProvider>
-                                        {restHookFixtures ? (
-                                            <MockResolver
-                                                fixtures={restHookFixtures}
-                                            >
-                                                <RouterProvider
-                                                    router={router}
+                                    <TestProvider
+                                        Provider={FeatureFlagProvider}
+                                        boolOrProps={featureFlag}
+                                    >
+                                        <TestProvider
+                                            Provider={MockResolver}
+                                            boolOrProps={
+                                                restHookFixtures && {
+                                                    fixtures: {
+                                                        restHookFixtures,
+                                                    },
+                                                }
+                                            }
+                                        >
+                                            {routerProps ? (
+                                                <TestProvider
+                                                    Provider={RouterProvider}
+                                                    boolOrProps={routerProps}
                                                 />
-                                            </MockResolver>
-                                        ) : (
-                                            <RouterProvider router={router} />
-                                        )}
-                                    </FeatureFlagProvider>
-                                </AuthorizedFetchProvider>
+                                            ) : (
+                                                children
+                                            )}
+                                        </TestProvider>
+                                    </TestProvider>
+                                </TestProvider>
                             </TestProvider>
-                        </SessionProviderBase>
-                    </AppInsightsContextProvider>
-                </HelmetProvider>
-            </CacheProvider>
+                        </TestProvider>
+                    </TestProvider>
+                </TestProvider>
+            </TestProvider>
         );
     };
 };
 
-interface RenderAppOptions extends RenderOptions, AppWrapperOptions {}
+interface RenderAppOptions extends Omit<RenderOptions, "wrapper"> {
+    appWrapper?: AppWrapperOptions;
+}
 
 export const renderApp = (
     ui: ReactElement,
-    {
-        initialRouteEntries,
-        restHookFixtures,
-        ...options
-    }: Omit<RenderAppOptions, "wrapper"> = {},
+    { appWrapper, ...options }: RenderAppOptions = {},
 ) => {
     return render(ui, {
-        wrapper: AppWrapper({ initialRouteEntries, restHookFixtures }),
+        wrapper: AppWrapper(appWrapper),
         ...options,
     });
 };
@@ -177,21 +201,15 @@ export function renderHook<
     BaseElement extends Element | DocumentFragment = Container,
 >(
     render: (initialProps: Props) => Result,
-    options?: RenderHookOptions<Props, Q, Container, BaseElement>,
+    {
+        appWrapper,
+        ...options
+    }: RenderHookOptions<Props, Q, Container, BaseElement> & {
+        appWrapper?: AppWrapperOptions;
+    } = {},
 ) {
-    /*const wrapper = ({ children }: any) => (
-        <AppInsightsContextProvider>
-            <SessionProviderBase
-                oktaAuth={{} as any}
-                authState={{}}
-                config={config}
-            >
-                {children}
-            </SessionProviderBase>
-        </AppInsightsContextProvider>
-    );*/
     return renderHookOrig<Result, Props, Q, Container, BaseElement>(render, {
-        wrapper: AppWrapper(),
+        wrapper: AppWrapper(appWrapper),
         ...options,
     });
 }

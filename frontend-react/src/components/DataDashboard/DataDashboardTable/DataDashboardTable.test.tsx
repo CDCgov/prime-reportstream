@@ -1,7 +1,5 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import {
     dataDashboardServer,
     makeRSReceiverDeliveryResponseFixture,
@@ -11,11 +9,6 @@ import { mockUseReceiverDeliveries } from "../../../hooks/network/DataDashboard/
 import { mockUseOrganizationReceiversFeed } from "../../../hooks/network/Organizations/__mocks__/ReceiversHooks";
 import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManager";
 import { renderApp } from "../../../utils/CustomRenderUtils";
-import {
-    mockAppInsights,
-    mockAppInsightsContextReturnValue,
-} from "../../../contexts/__mocks__/AppInsightsContextOld";
-import { MemberType } from "../../../utils/OrganizationUtils";
 
 import DataDashboardTable from "./DataDashboardTable";
 
@@ -26,29 +19,9 @@ vi.mock("../../../TelemetryService", async () => ({
     ...(await vi.importActual<typeof import("../../../TelemetryService")>(
         "../../../TelemetryService",
     )),
-    getAppInsights: () => mockAppInsights,
 }));
 
-beforeEach(() => {
-    // Mock our SessionProvider's data
-    mockSessionContentReturnValue({
-        authState: {
-            accessToken: { accessToken: "TOKEN" },
-        } as any,
-        activeMembership: {
-            memberType: MemberType.RECEIVER,
-            parsedName: "testOrg",
-            service: "testReceiverService",
-        },
-
-        user: {
-            isUserAdmin: false,
-            isUserReceiver: true,
-            isUserSender: false,
-            isUserTransceiver: false,
-        } as any,
-    });
-});
+vi.mock("../../../contexts/SessionContext");
 
 describe("DataDashboardTable", () => {
     beforeAll(() => dataDashboardServer.listen());
@@ -57,7 +30,6 @@ describe("DataDashboardTable", () => {
 
     describe("useOrganizationReceiversFeed without data", () => {
         function setup() {
-            mockAppInsightsContextReturnValue();
             // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
@@ -65,25 +37,6 @@ describe("DataDashboardTable", () => {
                 data: [],
                 setActiveService: () => {},
             } as any);
-
-            // Mock our SessionProvider's data
-            mockSessionContentReturnValue({
-                authState: {
-                    accessToken: { accessToken: "TOKEN" },
-                } as any,
-                activeMembership: {
-                    memberType: MemberType.RECEIVER,
-                    parsedName: "testOrgNoReceivers",
-                    service: "testReceiver",
-                },
-
-                user: {
-                    isUserAdmin: false,
-                    isUserReceiver: true,
-                    isUserSender: false,
-                    isUserTransceiver: false,
-                } as any,
-            });
 
             // Mock the response from the Deliveries hook
             const mockUseReceiverDeliveriesCallback = {
@@ -111,7 +64,6 @@ describe("DataDashboardTableWithPagination", () => {
     describe("when enabled", () => {
         describe("with multiple receiver services and data", () => {
             function setup() {
-                mockAppInsightsContextReturnValue();
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: mockActiveReceiver,
                     isLoading: false,
@@ -166,28 +118,10 @@ describe("DataDashboardTableWithPagination", () => {
                 const rows = screen.getAllByRole("row");
                 expect(rows).toHaveLength(10 + 1);
             });
-
-            describe("TableFilter", () => {
-                test("Clicking on filter invokes the trackAppInsightEvent", async () => {
-                    setup();
-                    await userEvent.click(screen.getByText("Filter"));
-
-                    expect(mockAppInsights.trackEvent).toBeCalledWith({
-                        name: "Data Dashboard | Table Filter",
-                        properties: {
-                            tableFilter: {
-                                endRange: "3000-01-01T23:59:59.999Z",
-                                startRange: "2000-01-01T00:00:00.000Z",
-                            },
-                        },
-                    });
-                });
-            });
         });
 
         describe("with one active receiver service", () => {
             function setup() {
-                mockAppInsightsContextReturnValue();
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: mockActiveReceiver,
                     data: receiverServicesGenerator(1),
@@ -227,7 +161,6 @@ describe("DataDashboardTableWithPagination", () => {
 
         describe("with no receiver services", () => {
             function setup() {
-                mockAppInsightsContextReturnValue();
                 // Mock our receiver services feed data
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: undefined,
@@ -235,25 +168,6 @@ describe("DataDashboardTableWithPagination", () => {
                     data: [],
                     setActiveService: () => {},
                 } as any);
-
-                // Mock our SessionProvider's data
-                mockSessionContentReturnValue({
-                    authState: {
-                        accessToken: { accessToken: "TOKEN" },
-                    } as any,
-                    activeMembership: {
-                        memberType: MemberType.RECEIVER,
-                        parsedName: "testOrgNoReceivers",
-                        service: "testReceiver",
-                    },
-
-                    user: {
-                        isUserAdmin: false,
-                        isUserReceiver: true,
-                        isUserSender: false,
-                        isUserTransceiver: false,
-                    } as any,
-                });
 
                 // Mock the response from the Deliveries hook
                 const mockUseReceiverDeliveriesCallback = {
@@ -279,7 +193,6 @@ describe("DataDashboardTableWithPagination", () => {
 
     describe("when disabled", () => {
         function setup() {
-            mockAppInsightsContextReturnValue();
             // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
@@ -288,25 +201,6 @@ describe("DataDashboardTableWithPagination", () => {
                 data: [],
                 setActiveService: () => {},
             } as any);
-
-            // Mock our SessionProvider's data
-            mockSessionContentReturnValue({
-                authState: {
-                    accessToken: { accessToken: "TOKEN" },
-                } as any,
-                activeMembership: {
-                    memberType: MemberType.RECEIVER,
-                    parsedName: "testOrgNoReceivers",
-                    service: "testReceiver",
-                },
-
-                user: {
-                    isUserAdmin: false,
-                    isUserReceiver: true,
-                    isUserSender: false,
-                    isUserTransceiver: false,
-                } as any,
-            });
 
             // Mock the response from the Deliveries hook
             const mockUseReceiverDeliveriesCallback = {

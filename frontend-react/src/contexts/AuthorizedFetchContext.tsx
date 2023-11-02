@@ -19,7 +19,7 @@ export const AuthorizedFetchContext = createContext<IAuthorizedFetchContext>(
 
 export const AuthorizedFetchProvider = ({
     children,
-}: React.PropsWithChildren<{ initializedOverride?: boolean }>) => {
+}: React.PropsWithChildren) => {
     const { activeMembership, authState = {} } = useSessionContext();
     const { fetchHeaders } = useAppInsightsContext();
     const authorizedFetch = useCallback(
