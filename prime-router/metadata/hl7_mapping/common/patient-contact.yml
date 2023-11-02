@@ -42,6 +42,14 @@ elements:
     schema: datatype/xtn-telecom
     resourceIndex: telecomIndex
 
+  - name: contact-start-date
+    value: [ '%resource.period.start' ]
+    hl7Spec: [ '%{hl7NK1Field}-8' ]
+
+  - name: contact-end-date
+    value: [ '%resource.period.end' ]
+    hl7Spec: [ '%{hl7NK1Field}-9' ]
+
   - name: contact-persons-phone-number
     resource: '%resource.organization.resolve().contact.telecom'
     condition: '%resource.exists()'

@@ -4,7 +4,6 @@ import gov.cdc.prime.router.datatests.mappinginventory.verifyHL7ToFHIRToHL7Mappi
 import org.junit.jupiter.api.Test
 
 class DTMTests {
-
     @Test
     fun `test dtm to instant`() {
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/instant/dtm-year-precision-to-instant").passed)
@@ -20,9 +19,13 @@ class DTMTests {
     }
 
     @Test
+    fun `test zero dtm to instant`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("dtm/instant/dtm-zero-year-to-instant").passed)
+    }
+
+    @Test
     fun `test dtm to dateTime`() {
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/dateTime/dtm-year-precision-to-dateTime").passed)
-        assert(verifyHL7ToFHIRToHL7Mapping("dtm/dateTime/dtm-zero-year-to-dateTime").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/dateTime/dtm-month-precision-to-dateTime").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/dateTime/dtm-day-precision-to-dateTime").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/dateTime/dtm-minute-precision-to-dateTime").passed)
@@ -34,9 +37,13 @@ class DTMTests {
     }
 
     @Test
+    fun `test zero dtm to dateTime`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("dtm/dateTime/dtm-zero-year-to-dateTime").passed)
+    }
+
+    @Test
     fun `test dtm to date`() {
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/date/dtm-year-precision-to-date").passed)
-        assert(verifyHL7ToFHIRToHL7Mapping("dtm/date/dtm-zero-year-to-date").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/date/dtm-month-precision-to-date").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/date/dtm-day-precision-to-date").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/date/dtm-minute-precision-to-date").passed)
@@ -46,4 +53,21 @@ class DTMTests {
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/date/dtm-msec-precision-to-date").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/date/dtm-mmsec-precision-to-date").passed)
     }
+
+    @Test
+    fun `test zero dtm to date`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("dtm/date/dtm-zero-year-to-date").passed)
+    }
+
+    @Test
+    fun `test dt to dateTime`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("dt/dt-year-precision-to-dateTime").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("dt/dt-month-precision-to-dateTime").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("dt/dt-day-precision-to-dateTime").passed)
+    }
+
+//    @Test
+//    fun `test zero dt to dateTime`() {
+//        assert(verifyHL7ToFHIRToHL7Mapping("dt/dt-zero-year-to-dateTime").passed)
+//    }
 }

@@ -65,6 +65,13 @@ telecom_business:
   constants:
     use: work
 
+period:
+  valueOf: datatype/Period
+  expressionType: resource
+  vars:
+    start: NK1.8
+    end: NK1.9
+
 telecom_3-next-of-kin-telecomm-info:
   condition: $valueIn NOT_NULL
   valueOf: datatypes/XTN/ContactPoint
