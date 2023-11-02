@@ -16,7 +16,7 @@ elements:
 
 
   - name: point-of-care
-    value: [ '%resource.location.resolve().where(physicalType.coding.code = "poc").identifier.value' ]
+    value: [ '%resource.location.resolve().where(physicalType.coding.code.extension(%`rsext-location-physical-type-poc`).value = "poc").identifier.value' ]
     hl7Spec: [ '%{hl7NDLField}-4' ]
 
   - name: room
@@ -28,7 +28,7 @@ elements:
     hl7Spec: [ '%{hl7NDLField}-6' ]
 
   - name: facility
-    schema: HD
+    schema: Location/HD
     resource: '%resource.location.resolve().where(physicalType.coding.code = "si")'
     constants:
       hl7NDLHDField: '%{hl7NDLField}-7'

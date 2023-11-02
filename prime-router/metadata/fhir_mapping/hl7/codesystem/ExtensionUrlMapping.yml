@@ -387,3 +387,5 @@
 # Name suffix professional
 - id: "name-suffix-professional"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-professional"
+- id: "location-physical-type-poc"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/location-physical-type-poc"
