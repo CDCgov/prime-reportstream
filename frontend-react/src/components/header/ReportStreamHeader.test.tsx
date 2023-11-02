@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 
 import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
-import { RSSessionContext } from "../../contexts/SessionContext";
+import { SessionCtx } from "../../contexts/SessionContext";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 import ReportStreamHeader from "./ReportStreamHeader";
@@ -22,7 +22,7 @@ describe("SignInOrUser", () => {
                 IS_PREVIEW: false,
             },
             user: { isUserSender: true },
-        } as RSSessionContext);
+        } as SessionCtx);
         renderApp(<ReportStreamHeader />);
         expect(screen.getByText("Submissions")).toBeVisible();
         expect(screen.queryByText("Dashboard")).not.toBeInTheDocument();
@@ -35,7 +35,7 @@ describe("SignInOrUser", () => {
                 IS_PREVIEW: false,
             },
             user: { isUserReceiver: true },
-        } as RSSessionContext);
+        } as SessionCtx);
         renderApp(<ReportStreamHeader />);
         expect(screen.queryByText("Submissions")).not.toBeInTheDocument();
         expect(screen.getByText("Dashboard")).toBeVisible();
@@ -48,7 +48,7 @@ describe("SignInOrUser", () => {
                 IS_PREVIEW: false,
             },
             user: { isUserTransceiver: true },
-        } as RSSessionContext);
+        } as SessionCtx);
         renderApp(<ReportStreamHeader />);
         expect(screen.getByText("Submissions")).toBeVisible();
         expect(screen.getByText("Dashboard")).toBeVisible();
@@ -61,7 +61,7 @@ describe("SignInOrUser", () => {
                 IS_PREVIEW: false,
             },
             user: { isUserAdmin: true, isAdminStrictCheck: true },
-        } as RSSessionContext);
+        } as SessionCtx);
         renderApp(<ReportStreamHeader />);
         expect(screen.getByText("Submissions")).toBeVisible();
         expect(screen.getByText("Dashboard")).toBeVisible();

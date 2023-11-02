@@ -28,7 +28,7 @@ import type { AppConfig } from "../config";
 import { updateApiSessions } from "../network/Apis";
 import site from "../content/site.json";
 
-export interface RSSessionContext {
+export interface SessionCtx {
     oktaAuth: OktaAuth;
     authState: AuthState;
     activeMembership?: MembershipSettings;
@@ -44,7 +44,7 @@ export interface RSSessionContext {
     site: typeof site;
 }
 
-export const SessionContext = createContext<RSSessionContext>({
+export const SessionContext = createContext<SessionCtx>({
     activeMembership: {} as MembershipSettings,
     logout: () => void 0,
     setActiveMembership: () => void 0,

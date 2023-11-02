@@ -25,7 +25,7 @@ export interface FeatureFlagAction {
 
 type StringCheck = (flags: string | string[]) => boolean;
 
-interface FeatureFlagContextValues {
+export interface FeatureFlagCtx {
     checkFlags: StringCheck;
     dispatch: React.Dispatch<FeatureFlagAction>;
     featureFlags: string[];
@@ -37,7 +37,7 @@ type FeatureFlagState = {
 
 const { DEFAULT_FEATURE_FLAGS } = config;
 
-const FeatureFlagContext = createContext<FeatureFlagContextValues>({
+const FeatureFlagContext = createContext<FeatureFlagCtx>({
     checkFlags: (flags: string | string[]) => {
         const arr = Array.isArray(flags) ? flags : [flags];
         return !!DEFAULT_FEATURE_FLAGS.find((el) => arr.includes(el));
@@ -112,5 +112,5 @@ export const FeatureFlagProvider = ({
 };
 
 // an extra level of indirection here to allow for generic typing of the returned fetch function
-export const useFeatureFlags = (): FeatureFlagContextValues =>
+export const useFeatureFlags = (): FeatureFlagCtx =>
     useContext(FeatureFlagContext);

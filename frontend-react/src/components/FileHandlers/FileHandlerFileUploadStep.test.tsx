@@ -22,7 +22,7 @@ import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionC
 import {
     mockAppInsightsContextReturnValue,
     mockAppInsights,
-} from "../../contexts/__mocks__/AppInsightsContext";
+} from "../../contexts/__mocks__/AppInsightsContextOld";
 import { MemberType, MembershipSettings } from "../../utils/OrganizationUtils";
 
 import FileHandlerFileUploadStep, {

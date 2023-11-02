@@ -1,6 +1,15 @@
-import * as FeatureFlagModule from "../FeatureFlagContext";
+import type { FeatureFlagCtx } from "../FeatureFlagContext";
 
-export const mockFeatureFlagContext = vi.spyOn(
-    FeatureFlagModule,
-    "useFeatureFlags",
+export const defaultCtx: FeatureFlagCtx = {
+    checkFlags: vi.fn(() => false),
+    dispatch: vi.fn(),
+    featureFlags: [],
+};
+export const useFeatureFlags = vi.fn<any, FeatureFlagCtx>(() => defaultCtx);
+export const {
+    FeatureFlagActionType,
+    FeatureFlagProvider,
+    featureFlagReducer,
+} = await vi.importActual<typeof import("../FeatureFlagContext")>(
+    "../FeatureFlagContext",
 );

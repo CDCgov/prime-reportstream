@@ -11,6 +11,7 @@ import TableFilters, {
 } from "./TableFilters";
 
 describe("Rendering", () => {
+    const mockFilterClickHandler = vi.fn();
     function setup() {
         renderApp(
             <TableFilters
@@ -18,6 +19,7 @@ describe("Rendering", () => {
                 endDateLabel={TableFilterDateLabel.END_DATE}
                 filterManager={mockFilterManager}
                 cursorManager={mockCursorManager}
+                onFilterClick={mockFilterClickHandler}
             />,
         );
     }
@@ -38,6 +40,16 @@ describe("Rendering", () => {
             "date-picker-internal-input",
         );
         expect(datePickers).toHaveLength(2);
+    });
+
+    test.only("Clicking on filter invokes the onFilterClick handler", async () => {
+        setup();
+        await userEvent.click(screen.getByText("Filter"));
+
+        expect(mockFilterClickHandler).toBeCalledWith({
+            to: "3000-01-01T23:59:59.999Z",
+            from: "2000-01-01T00:00:00.000Z",
+        });
     });
 });
 

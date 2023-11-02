@@ -1,26 +1,28 @@
-import { OKTA_AUTH } from "../../oktaConfig";
-import * as SessionContextModule from "../SessionContext";
+import type { SessionCtx } from "../SessionContext";
 
-export const mockSessionContext = vi.spyOn(
-    SessionContextModule,
-    "useSessionContext",
+export const defaultCtx: SessionCtx = {
+    authState: {
+        isAuthenticated: false,
+    },
+    config: {} as any,
+    logout: vi.fn(),
+    oktaAuth: {} as any,
+    setActiveMembership: vi.fn(),
+    site: {} as any,
+    user: {
+        isAdminStrictCheck: false,
+        isUserAdmin: false,
+        isUserReceiver: false,
+        isUserSender: false,
+        isUserTransceiver: false,
+    },
+};
+export const useSessionContext = vi.fn(() => defaultCtx);
+export const {
+    SessionContext,
+    SessionProviderBase,
+    default: dft,
+} = await vi.importActual<typeof import("../SessionContext")>(
+    "../SessionContext",
 );
-
-export function mockSessionContentReturnValue(
-    impl?: Partial<SessionContextModule.RSSessionContext>,
-) {
-    return mockSessionContext.mockReturnValue({
-        oktaAuth: OKTA_AUTH,
-        authState: {},
-        logout: () => void 0,
-        user: {
-            isUserAdmin: false,
-            isUserSender: false,
-            isUserReceiver: false,
-        } as any,
-        setActiveMembership: () => void 0,
-        config: {} as any,
-        site: {} as any,
-        ...impl,
-    });
-}
+export default dft;

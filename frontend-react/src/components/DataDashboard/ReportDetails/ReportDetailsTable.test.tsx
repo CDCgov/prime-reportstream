@@ -7,7 +7,7 @@ import { makeFacilityFixtureArray } from "../../../__mocks__/DeliveriesMockServe
 import {
     mockAppInsights,
     mockAppInsightsContextReturnValue,
-} from "../../../contexts/__mocks__/AppInsightsContext";
+} from "../../../contexts/__mocks__/AppInsightsContextOld";
 
 import ReportDetailsTable from "./ReportDetailsTable";
 

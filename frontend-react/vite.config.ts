@@ -1,5 +1,6 @@
 /// <reference types="vitest" />
 import { resolve } from "path";
+import process from "process";
 
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
@@ -16,7 +17,7 @@ import dotenv from "dotenv";
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
 // https://vitejs.dev/config/
-export default defineConfig(async () => {
+export default defineConfig(async ({ mode }) => {
     return {
         optimizeDeps: {
             include: ["react/jsx-runtime"],
@@ -34,14 +35,15 @@ export default defineConfig(async () => {
                 rehypePlugins: [rehypeSlug],
             }),
             svgr(),
-            checker({
-                // e.g. use TypeScript check
-                typescript: true,
-                eslint: {
-                    // for example, lint .ts and .tsx
-                    lintCommand: 'eslint "./src/**/*.{ts,tsx}"',
-                },
-            }),
+            mode !== "test" &&
+                checker({
+                    // e.g. use TypeScript check
+                    typescript: true,
+                    eslint: {
+                        // for example, lint .ts and .tsx
+                        lintCommand: 'eslint "./src/**/*.{ts,tsx}"',
+                    },
+                }),
         ],
         server: {
             open: true,
@@ -88,11 +90,12 @@ export default defineConfig(async () => {
             globals: true,
             environment: "jsdom",
             setupFiles: ["src/setupTests.ts"],
-            mockReset: true, // copied from jest config
+            clearMocks: true,
             coverage: {
                 // lcov added for sonar
                 reporter: ["text", "html", "clover", "json", "lcov"],
             },
+            //reporters: ["default"],
             experimentalVmThreads: true, // makes tests faster
         },
     };

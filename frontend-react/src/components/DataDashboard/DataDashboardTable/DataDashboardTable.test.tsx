@@ -14,7 +14,7 @@ import { renderApp } from "../../../utils/CustomRenderUtils";
 import {
     mockAppInsights,
     mockAppInsightsContextReturnValue,
-} from "../../../contexts/__mocks__/AppInsightsContext";
+} from "../../../contexts/__mocks__/AppInsightsContextOld";
 import { MemberType } from "../../../utils/OrganizationUtils";
 
 import DataDashboardTable from "./DataDashboardTable";

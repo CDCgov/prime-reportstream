@@ -20,10 +20,7 @@ import { useMatch } from "react-router-dom";
 
 import { USLink, USLinkButton, USSmartLink } from "../USLink";
 import SenderModeBanner from "../SenderModeBanner";
-import {
-    useSessionContext,
-    RSSessionContext,
-} from "../../contexts/SessionContext";
+import { useSessionContext, SessionCtx } from "../../contexts/SessionContext";
 import { Icon } from "../../shared";
 import site from "../../content/site.json";
 import Spinner from "../Spinner";
@@ -82,7 +79,7 @@ export interface ReportStreamHeaderProps extends React.PropsWithChildren {
 interface ReportStreamNavbarProps extends React.PropsWithChildren {
     onToggleMobileNav: () => void;
     isMobileNavOpen: boolean;
-    user: RSSessionContext["user"];
+    user: SessionCtx["user"];
     containerRef: React.MutableRefObject<HTMLElement | null>;
 }
 

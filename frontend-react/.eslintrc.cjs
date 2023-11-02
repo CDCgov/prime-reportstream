@@ -371,8 +371,8 @@ module.exports = {
         },
         {
             files: [
-                "./src/**/__tests__/**/*.[jt]s?(x)",
-                "./src/**/?(*.)+(spec|test).[jt]s?(x)",
+                "./src/**/__tests__/**/*.[jt]sx?",
+                "./src/**/?(*.)+(spec|test).[jt]sx?",
             ],
             extends: [
                 "plugin:testing-library/react",

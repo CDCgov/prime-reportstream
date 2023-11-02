@@ -43,7 +43,6 @@
         "rest-hooks": "^6.1.7",
         "sanitize-html": "^2.11.0",
         "use-deep-compare-effect": "^1.8.1",
-        "vitest": "^0.34.6",
         "web-vitals": "^3.4.0"
     },
     "scripts": {
@@ -190,6 +189,7 @@
         "vite": "^4.5.0",
         "vite-plugin-checker": "^0.6.2",
         "vite-plugin-svgr": "^4.1.0",
+        "vitest": "^0.34.6",
         "whatwg-fetch": "^3.6.19"
     },
     "resolutions": {
