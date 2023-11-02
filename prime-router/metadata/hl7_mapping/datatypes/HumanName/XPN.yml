@@ -41,8 +41,16 @@ elements:
     hl7Spec: [ '%{hl7xpnField}-6' ]
 
   - name: xpn-name-type-code
-    value: [ '%resource.use' ]
+    value: [ '%resource.extension(%`rsext-xpn7-name-type-code`).value' ]
     hl7Spec: [ '%{hl7xpnField}-7' ]
+
+  - name: xpn-name-representation-code
+    value: [ '%resource.extension(%`rsext-xpn8-name-representation-code`).value' ]
+    hl7Spec: [ '%{hl7xpnField}-8' ]
+
+  - name: xpn-name-context
+    value: [ '%resource.extension(%`rsext-xpn9-name-context`).value' ]
+    hl7Spec: [ '%{hl7xpnField}-9' ]
 
   - name: xpn-name-validity-range-start
     value: [ '%resource.extension(%`rsext-xpn10-name-validity-range`).value.start' ]

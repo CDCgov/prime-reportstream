@@ -443,6 +443,15 @@
 # Degree (e.g., MD)
 - id: "xpn6-degree"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn6-degree"
+# Name Type Code
+- id: "xpn7-name-type-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code"
+# Name Representation Code
+- id: "xpn8-name-representation-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn8-name-representation-code"
+# Name Context
+- id: "xpn9-name-context"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn9-name-context"
 # Name Validity Range
 - id: "xpn10-name-validity-range"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-range"

@@ -6,7 +6,6 @@ family:
   expressionType: HL7Spec
 _family:
   expressionType: resource
-  generateList: true
   valueOf: datatypes/FN/ExtensionHumanName-family
   specs: XPN.1
 
@@ -38,7 +37,7 @@ prefix:
   valueOf: XPN.5
   expressionType: HL7Spec
 use:
-  type: STRING
+  type: NAME_USE
   valueOf: XPN.7
   expressionType: HL7Spec
 
@@ -124,6 +123,34 @@ extension:
           type: STRING
           expressionType: HL7Spec
           valueOf: XPN.6
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: xpn7-name-type-code
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XPN.7
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: xpn8-name-representation-code
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XPN.8
+    - expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: xpn9-name-context
+        valueString:
+          # TODO: attach CWE type
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XPN.9
     - expressionType: nested
       expressionsMap:
         url:
