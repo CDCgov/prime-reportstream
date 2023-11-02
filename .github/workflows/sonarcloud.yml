@@ -44,7 +44,7 @@ jobs:
 
       - name: Get branch name
         id: branch-name
-        uses: tj-actions/branch-names@033f2358d95522973eee35810e35a86fae4a71d8
+        uses: tj-actions/branch-names@ab304d8562e2f137165e1d930e6d22d431189074
         
       - name: "Get changed files with yaml"
         id: changed-files-yaml
@@ -75,7 +75,7 @@ jobs:
 
       - name: Initialize CodeQL
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: github/codeql-action/init@bad341350a2f5616f9e048e51360cedc49181ce8
+        uses: github/codeql-action/init@df32e399139a3050671466d7d9b3cbacc1cfd034
         with:
           languages: ${{ matrix.language }}
 
@@ -86,7 +86,7 @@ jobs:
 
       - name: Perform Java CodeQL Analysis
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: github/codeql-action/analyze@bad341350a2f5616f9e048e51360cedc49181ce8
+        uses: github/codeql-action/analyze@df32e399139a3050671466d7d9b3cbacc1cfd034
 
       - name: Use Node.js with yarn
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
