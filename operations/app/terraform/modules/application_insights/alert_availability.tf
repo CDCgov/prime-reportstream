@@ -104,7 +104,6 @@ resource "azurerm_application_insights_web_test" "metabase_test" {
       </Items>
     </WebTest>
     XML
-
   tags = {
     environment = var.environment
     # This prevents terraform from seeing a tag change for each plan/apply
