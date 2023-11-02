@@ -70,7 +70,11 @@ locals {
     "AzureWebJobsStorage",
     "OKTA_authKey",
     "fn_OKTA_clientId",
-    "OKTA_scope"
+    "OKTA_scope",
+    "PartnerStorage",
+    "POSTGRES_URL",
+    "POSTGRES_REPLICA_URL",
+    "OKTA_clientid"
   ])
 
   # Any settings that we want to exclude from sticky settings
@@ -162,8 +166,6 @@ resource "azurerm_function_app" "function_app" {
     "POSTGRES_REPLICA_URL" = "jdbc:postgresql://${var.resource_prefix}-pgsql-replica.postgres.database.azure.com:5432/prime_data_hub?sslmode=require"
     # HHS Protect Storage Account
     "PartnerStorage" = var.sa_partner_connection_string
-    "OKTA_authKey"   = var.OKTA_authKey
-    "OKTA_clientId"  = var.fn_OKTA_clientId
     "OKTA_scope"     = var.OKTA_scope
   })
 
