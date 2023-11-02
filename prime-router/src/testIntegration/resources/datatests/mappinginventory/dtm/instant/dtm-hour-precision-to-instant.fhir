@@ -24,9 +24,6 @@
       "extension" : [ {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
         "valueString" : "^~\\&#"
-      }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
-        "valueIdentifier" : { }
       } ],
       "eventCoding" : {
         "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
@@ -210,8 +207,7 @@
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
         } ]
-      },
-      "identifier" : [ { } ]
+      }
     }
   }, {
     "fullUrl" : "Practitioner/1698788109925782000.7f44dac6-99fa-4ccf-ac00-0866a400f0c4",
@@ -223,8 +219,7 @@
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
         } ]
-      },
-      "identifier" : [ { } ]
+      }
     }
   }, {
     "fullUrl" : "PractitionerRole/1698788109927750000.dfb8b44f-b26f-459b-a31f-6f4992f5e99d",
