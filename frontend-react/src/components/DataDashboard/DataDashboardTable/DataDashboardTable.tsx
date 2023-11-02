@@ -164,21 +164,21 @@ function DashboardFilterAndTable({
 
 export default function DataDashboardTable() {
     const {
-        loadingServices,
-        services,
+        isLoading,
+        isDisabled,
+        data: services,
         activeService,
         setActiveService,
-        isDisabled,
     } = useOrganizationReceiversFeed();
 
-    if (loadingServices) return <Spinner />;
+    if (isLoading) return <Spinner />;
 
     if (isDisabled) {
         return <AdminFetchAlert />;
     }
 
     if (
-        !loadingServices &&
+        !isLoading &&
         (!activeService ||
             activeService?.customerStatus === CustomerStatusType.INACTIVE)
     )
@@ -192,7 +192,7 @@ export default function DataDashboardTable() {
         <>
             {activeService && (
                 <DashboardFilterAndTable
-                    receiverServices={services}
+                    receiverServices={services!!}
                     activeService={activeService}
                     setActiveService={setActiveService}
                 />

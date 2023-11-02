@@ -2,15 +2,13 @@ import { waitFor } from "@testing-library/react";
 
 import { lookupTableServer } from "../__mocks__/LookupTableMockServer";
 import { LookupTables } from "../config/endpoints/lookupTables";
-import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
+import { renderHook } from "../utils/CustomRenderUtils";
 
 import { useValueSetsMeta } from "./UseValueSets";
 
 describe("useValueSetsMeta", () => {
     const renderWithAppWrapper = (tableName?: LookupTables) =>
-        renderHook(() => useValueSetsMeta(tableName), {
-            wrapper: AppWrapper(),
-        });
+        renderHook(() => useValueSetsMeta(tableName));
 
     beforeAll(() =>
         lookupTableServer.listen({
@@ -26,9 +24,9 @@ describe("useValueSetsMeta", () => {
     test("returns expected meta values", async () => {
         const { result } = renderWithAppWrapper();
         await waitFor(() =>
-            expect(result.current.valueSetMeta.createdAt).toBeDefined(),
+            expect(result.current.data.createdAt).toBeDefined(),
         );
-        const { createdAt, createdBy } = result.current.valueSetMeta;
+        const { createdAt, createdBy } = result.current.data;
         expect(createdAt).toEqual("now");
         expect(createdBy).toEqual("test@example.com");
     });
@@ -37,16 +35,16 @@ describe("useValueSetsMeta", () => {
         const { result } = renderWithAppWrapper(LookupTables.VALUE_SET_ROW);
 
         await waitFor(() =>
-            expect(result.current.valueSetMeta.createdAt).toBeDefined(),
+            expect(result.current.data.createdAt).toBeDefined(),
         );
-        const { createdAt, createdBy } = result.current.valueSetMeta;
+        const { createdAt, createdBy } = result.current.data;
         expect(createdAt).toEqual("later");
         expect(createdBy).toEqual("again@example.com");
     });
 
     test("returns empty metadata when the passed table name doesn't exist in returned list of tables", async () => {
         const { result } = renderWithAppWrapper();
-        await waitFor(() => expect(result.current.valueSetMeta).toBeDefined());
-        expect(result.current.valueSetMeta).toEqual({});
+        await waitFor(() => expect(result.current.data).toBeDefined());
+        expect(result.current.data).toEqual({});
     });
 });

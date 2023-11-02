@@ -28,7 +28,7 @@ interface ReportDetailsTableProps {
 function ReportDetailsTable(props: ReportDetailsTableProps) {
     const { appInsights } = useAppInsightsContext();
     const { reportId }: ReportDetailsTableProps = props;
-    const { reportFacilities } = useReportsFacilities(reportId);
+    const { data: reportFacilities } = useReportsFacilities(reportId);
     const featureEvent = `${FeatureName.REPORT_DETAILS} | ${EventName.TABLE_FILTER}`;
 
     const filterManager = useFilterManager(filterManagerDefaults);

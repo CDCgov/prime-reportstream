@@ -9,7 +9,6 @@ import type { OktaAuth } from "@okta/okta-auth-js";
 
 import ScrollRestoration from "./components/ScrollRestoration";
 import { useScrollToTop } from "./hooks/UseScrollToTop";
-import { OKTA_AUTH } from "./oktaConfig";
 import { permissionCheck } from "./utils/PermissionsUtils";
 import { ErrorPage } from "./pages/error/ErrorPage";
 import { AuthorizedFetchProvider } from "./contexts/AuthorizedFetchContext";
@@ -30,13 +29,14 @@ import "react-toastify/dist/ReactToastify.css";
 export interface AppProps {
     Layout: React.ComponentType;
     config: AppConfig;
+    oktaAuth: OktaAuth;
 }
 
 /**
  * App entrypoint that bootstraps all needed systems. Expects a `Layout` component
  * prop that handles rendering content.
  */
-function App(props: AppProps) {
+function App({ oktaAuth, config, ...props }: AppProps) {
     const navigate = useNavigate();
     const restoreOriginalUri = useCallback(
         /**
@@ -68,20 +68,26 @@ function App(props: AppProps) {
         },
         [navigate],
     );
+
     return (
-        <SessionProvider
-            oktaAuth={OKTA_AUTH}
-            restoreOriginalUri={restoreOriginalUri}
-        >
-            <AppBase {...props} />
-        </SessionProvider>
+        <QueryClientProvider client={appQueryClient}>
+            <SessionProvider
+                oktaAuth={oktaAuth}
+                restoreOriginalUri={restoreOriginalUri}
+                config={config}
+            >
+                <AppBase {...props} />
+            </SessionProvider>
+        </QueryClientProvider>
     );
 }
 
-const AppBase = ({ Layout, config }: AppProps) => {
+export interface AppBaseProps extends Omit<AppProps, "oktaAuth" | "config"> {}
+
+const AppBase = ({ Layout }: AppBaseProps) => {
     const location = useLocation();
     const { appInsights, setTelemetryCustomProperty } = useAppInsightsContext();
-    const { oktaAuth, authState } = useSessionContext();
+    const { oktaAuth, authState, config } = useSessionContext();
     const { email } = authState.idToken?.claims ?? {};
     const { logout, activeMembership } = useSessionContext();
     const sessionStartTime = useRef<number>(new Date().getTime());
@@ -169,25 +175,23 @@ const AppBase = ({ Layout, config }: AppProps) => {
 
     return (
         <HelmetProvider>
-            <QueryClientProvider client={appQueryClient}>
-                <AuthorizedFetchProvider>
-                    <FeatureFlagProvider>
-                        <NetworkErrorBoundary fallbackComponent={Fallback}>
-                            <CacheProvider>
-                                <ScrollRestoration />
-                                <DAPScript
-                                    env={config.APP_ENV}
-                                    pathname={location.pathname}
-                                />
-                                <Suspense>
-                                    <Layout />
-                                </Suspense>
-                                <ReactQueryDevtools initialIsOpen={false} />
-                            </CacheProvider>
-                        </NetworkErrorBoundary>
-                    </FeatureFlagProvider>
-                </AuthorizedFetchProvider>
-            </QueryClientProvider>
+            <AuthorizedFetchProvider>
+                <FeatureFlagProvider>
+                    <NetworkErrorBoundary fallbackComponent={Fallback}>
+                        <CacheProvider>
+                            <ScrollRestoration />
+                            <DAPScript
+                                env={config.APP_ENV}
+                                pathname={location.pathname}
+                            />
+                            <Suspense>
+                                <Layout />
+                            </Suspense>
+                            <ReactQueryDevtools initialIsOpen={false} />
+                        </CacheProvider>
+                    </NetworkErrorBoundary>
+                </FeatureFlagProvider>
+            </AuthorizedFetchProvider>
         </HelmetProvider>
     );
 };

@@ -133,9 +133,9 @@ describe("FileHandler", () => {
     ) {
         jest.spyOn(useSenderSchemaOptionsExports, "default").mockReturnValue({
             isLoading: false,
-            schemaOptions: STANDARD_SCHEMA_OPTIONS,
+            data: STANDARD_SCHEMA_OPTIONS,
             ...result,
-        });
+        } as any);
     }
 
     function mockUseWatersUploader(
@@ -145,11 +145,27 @@ describe("FileHandler", () => {
             useWatersUploaderExports,
             "useWatersUploader",
         ).mockReturnValue({
-            isWorking: false,
-            uploaderError: null,
-            sendFile: (() =>
+            isPending: false,
+            error: null,
+            mutateAsync: (() =>
                 Promise.resolve({})) as UseWatersUploaderSendFileMutation,
             ...result,
+        } as any);
+    }
+
+    async function schemaContinue() {
+        await waitFor(async () => {
+            await userEvent.click(screen.getByText("Continue"));
+            expect(screen.getByTestId("form")).toBeInTheDocument();
+        });
+    }
+
+    async function fileContinue() {
+        await waitFor(async () => {
+            const form = screen.getByTestId("form");
+            // eslint-disable-next-line testing-library/no-wait-for-side-effects
+            fireEvent.submit(form);
+            await waitFor(() => expect(form).not.toBeInTheDocument());
         });
     }
 
@@ -174,7 +190,7 @@ describe("FileHandler", () => {
             mockUseFileHandler(INITIAL_STATE);
             mockUseSenderSchemaOptions({
                 isLoading: false,
-                schemaOptions: STANDARD_SCHEMA_OPTIONS,
+                data: STANDARD_SCHEMA_OPTIONS,
             });
             mockUseWatersUploader({
                 isWorking: false,
@@ -202,7 +218,7 @@ describe("FileHandler", () => {
             mockUseFileHandler(VALID_CSV_FILE_SELECTED);
             mockUseSenderSchemaOptions({
                 isLoading: false,
-                schemaOptions: STANDARD_SCHEMA_OPTIONS,
+                data: STANDARD_SCHEMA_OPTIONS,
             });
             mockUseWatersUploader({
                 isWorking: false,
@@ -233,7 +249,7 @@ describe("FileHandler", () => {
             mockUseFileHandler(WARNING_CSV_FILE_SELECTED);
             mockUseSenderSchemaOptions({
                 isLoading: false,
-                schemaOptions: STANDARD_SCHEMA_OPTIONS,
+                data: STANDARD_SCHEMA_OPTIONS,
             });
             mockUseWatersUploader({
                 isWorking: false,
@@ -271,7 +287,7 @@ describe("FileHandler", () => {
             mockUseFileHandler(INVALID_CSV_FILE_SELECTED);
             mockUseSenderSchemaOptions({
                 isLoading: false,
-                schemaOptions: STANDARD_SCHEMA_OPTIONS,
+                data: STANDARD_SCHEMA_OPTIONS,
             });
             mockUseWatersUploader({
                 isWorking: false,

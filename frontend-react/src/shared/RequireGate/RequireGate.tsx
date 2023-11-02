@@ -60,7 +60,7 @@ export function RequireGateBase({
             return anonymousElement;
         }
         const match = (
-            authState.idToken?.claims.organization as string[] | undefined
+            authState.accessToken?.claims.organization as string[] | undefined
         )?.find((g: string) =>
             perms.find((t) => {
                 if (t === PERMISSIONS.PRIME_ADMIN) {

@@ -50,10 +50,12 @@ beforeEach(() => {
             service: "testReceiver",
         },
 
-        isUserAdmin: false,
-        isUserReceiver: true,
-        isUserSender: false,
-        environment: "test",
+        user: {
+            isUserAdmin: false,
+            isUserReceiver: true,
+            isUserSender: false,
+            isUserTransceiver: false,
+        } as any,
     });
 });
 describe("DeliveriesTable", () => {
@@ -62,18 +64,18 @@ describe("DeliveriesTable", () => {
     afterAll(() => orgServer.close());
 
     describe("useReceiverFeed without data", () => {
-        beforeEach(() => {
+        function setup() {
             mockAppInsightsContextReturnValue({
-                fetchHeaders: {},
+                fetchHeaders: () => ({}),
             });
             // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
-                loadingServices: false,
-                services: [],
+                isLoading: false,
+                data: [],
                 setActiveService: () => {},
                 isDisabled: false,
-            });
+            } as any);
 
             // Mock our SessionProvider's data
             mockSessionContentReturnValue({
@@ -86,10 +88,12 @@ describe("DeliveriesTable", () => {
                     service: "testReceiver",
                 },
 
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: true,
+                    isUserSender: false,
+                    isUserTransceiver: false,
+                } as any,
             });
 
             // Mock the response from the Deliveries hook
@@ -101,9 +105,10 @@ describe("DeliveriesTable", () => {
 
             // Render the component
             renderApp(<DeliveriesTable />);
-        });
+        }
 
         test("if no activeService display NoServicesBanner", async () => {
+            setup();
             const heading = await screen.findByText(/No available data/i);
             expect(heading).toBeInTheDocument();
         });
@@ -113,17 +118,17 @@ describe("DeliveriesTable", () => {
 describe("DeliveriesTableWithNumbered", () => {
     describe("when enabled", () => {
         describe("with active services and data", () => {
-            beforeEach(() => {
+            function setup() {
                 mockAppInsightsContextReturnValue({
-                    fetchHeaders: {},
+                    fetchHeaders: () => ({}),
                 });
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: mockActiveReceiver,
-                    loadingServices: false,
-                    services: mockReceivers,
+                    isLoading: false,
+                    data: mockReceivers,
                     setActiveService: () => {},
                     isDisabled: false,
-                });
+                } as any);
 
                 const mockUseOrgDeliveriesCallback = {
                     fetchResults: () =>
@@ -136,9 +141,10 @@ describe("DeliveriesTableWithNumbered", () => {
 
                 // Render the component
                 renderApp(<DeliveriesTable />);
-            });
+            }
 
             test("renders with no error", async () => {
+                setup();
                 const pagination = await screen.findByLabelText(
                     /Deliveries pagination/i,
                 );
@@ -152,6 +158,7 @@ describe("DeliveriesTableWithNumbered", () => {
             });
 
             test("renders 10 results per page + 1 header row", () => {
+                setup();
                 // renders 10 results per page + 1 header row regardless of the total number of records
                 // since our pagination limit is set to 10
                 const rows = screen.getAllByRole("row");
@@ -160,6 +167,7 @@ describe("DeliveriesTableWithNumbered", () => {
 
             describe("TableFilter", () => {
                 test("Clicking on filter invokes the trackAppInsightEvent", async () => {
+                    setup();
                     await userEvent.click(screen.getByText("Filter"));
 
                     expect(mockAppInsights.trackEvent).toBeCalledWith({
@@ -176,18 +184,18 @@ describe("DeliveriesTableWithNumbered", () => {
         });
 
         describe("with no services", () => {
-            beforeEach(() => {
+            function setup() {
                 mockAppInsightsContextReturnValue({
-                    fetchHeaders: {},
+                    fetchHeaders: () => ({}),
                 });
                 // Mock our receiver services feed data
                 mockUseOrganizationReceiversFeed.mockReturnValue({
                     activeService: undefined,
-                    loadingServices: false,
-                    services: [],
+                    isLoading: false,
+                    data: [],
                     setActiveService: () => {},
                     isDisabled: false,
-                });
+                } as any);
 
                 // Mock our SessionProvider's data
                 mockSessionContentReturnValue({
@@ -200,10 +208,12 @@ describe("DeliveriesTableWithNumbered", () => {
                         service: "testReceiver",
                     },
 
-                    isUserAdmin: false,
-                    isUserReceiver: true,
-                    isUserSender: false,
-                    environment: "test",
+                    user: {
+                        isUserAdmin: false,
+                        isUserReceiver: true,
+                        isUserSender: false,
+                        isUserTransceiver: false,
+                    } as any,
                 });
 
                 // Mock the response from the Deliveries hook
@@ -218,9 +228,10 @@ describe("DeliveriesTableWithNumbered", () => {
 
                 // Render the component
                 renderApp(<DeliveriesTable />);
-            });
+            }
 
             test("renders the NoServicesBanner message", async () => {
+                setup();
                 const heading = await screen.findByText("No available data");
                 expect(heading).toBeInTheDocument();
             });
@@ -228,18 +239,18 @@ describe("DeliveriesTableWithNumbered", () => {
     });
 
     describe("when disabled", () => {
-        beforeEach(() => {
+        function setup() {
             mockAppInsightsContextReturnValue({
-                fetchHeaders: {},
+                fetchHeaders: () => ({}),
             });
             // Mock our receiver services feed data
             mockUseOrganizationReceiversFeed.mockReturnValue({
                 activeService: undefined,
-                loadingServices: false,
-                services: [],
+                isLoading: false,
+                data: [],
                 setActiveService: () => {},
                 isDisabled: true,
-            });
+            } as any);
 
             // Mock our SessionProvider's data
             mockSessionContentReturnValue({
@@ -252,10 +263,12 @@ describe("DeliveriesTableWithNumbered", () => {
                     service: "testReceiver",
                 },
 
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: true,
+                    isUserSender: false,
+                    isUserTransceiver: false,
+                } as any,
             });
 
             // Mock the response from the Deliveries hook
@@ -268,9 +281,10 @@ describe("DeliveriesTableWithNumbered", () => {
 
             // Render the component
             renderApp(<DeliveriesTable />);
-        });
+        }
 
         test("renders an error saying admins shouldn't fetch organization data", async () => {
+            setup();
             expect(
                 await screen.findByText(
                     "Cannot fetch Organization data as admin",

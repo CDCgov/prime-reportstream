@@ -1,28 +1,38 @@
-import { fireEvent, screen, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { MOCK_MESSAGE_SENDER_DATA } from "../../__mocks__/MessageTrackerMockServer";
+import { useMessageSearch } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
 
 import { MessageTracker } from "./MessageTracker";
 
-const mockUseMessageSearch = {
-    search: () => Promise.resolve(MOCK_MESSAGE_SENDER_DATA),
+const mockUseMessageSearchInitial = {
+    mutateAsync: () => Promise.resolve(MOCK_MESSAGE_SENDER_DATA),
     isLoading: false,
     error: null,
 };
 
-jest.mock("../../hooks/network/MessageTracker/MessageTrackerHooks", () => {
-    return {
-        useMessageSearch: () => mockUseMessageSearch,
-    };
-});
+jest.mock<
+    typeof import("../../hooks/network/MessageTracker/MessageTrackerHooks")
+>("../../hooks/network/MessageTracker/MessageTrackerHooks", () => ({
+    ...jest.requireActual(
+        "../../hooks/network/MessageTracker/MessageTrackerHooks",
+    ),
+    useMessageSearch: jest.fn(),
+}));
+
+const mockUseMessageSearch = jest.mocked(useMessageSearch);
 
 describe("MessageTracker component", () => {
-    beforeEach(() => {
+    function setup() {
+        mockUseMessageSearch.mockImplementation(
+            () => mockUseMessageSearchInitial as any,
+        );
         renderApp(<MessageTracker />);
-    });
+    }
 
     test("should be able to edit search field", () => {
+        setup();
         const searchField = screen.getByTestId("textInput");
 
         expect(searchField).toBeInTheDocument();
@@ -33,6 +43,7 @@ describe("MessageTracker component", () => {
     });
 
     test("should be able to clear search field", async () => {
+        setup();
         const searchField = screen.getByTestId("textInput");
         expect(searchField).toBeInTheDocument();
 
@@ -45,6 +56,7 @@ describe("MessageTracker component", () => {
     });
 
     test("renders proper search results", async () => {
+        setup();
         const searchField = screen.getByTestId("textInput");
         expect(searchField).toBeInTheDocument();
 
@@ -78,6 +90,7 @@ describe("MessageTracker component", () => {
     });
 
     test("trims search value leading/trailing whitespace", async () => {
+        setup();
         const searchField = screen.getByTestId("textInput");
         expect(searchField).toBeInTheDocument();
 
@@ -89,6 +102,6 @@ describe("MessageTracker component", () => {
 
         fireEvent.change(textInput, { target: { value: "    abc 123    " } });
         fireEvent.click(submitButton);
-        expect(textInput).toHaveValue("abc 123");
+        await waitFor(() => expect(textInput).toHaveValue("abc 123"));
     });
 });

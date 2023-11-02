@@ -21,10 +21,12 @@ describe("useReportsList", () => {
                     parsedName: "testOrg",
                 },
 
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                environment: "test",
+                user: {
+                    isUserAdmin: false,
+                    isUserReceiver: true,
+                    isUserSender: false,
+                    isUserTransceiver: false,
+                } as any,
             });
         });
 
@@ -52,10 +54,12 @@ describe("useReportsList", () => {
                     parsedName: Organizations.PRIMEADMINS,
                 },
 
-                isUserAdmin: true,
-                isUserReceiver: false,
-                isUserSender: false,
-                environment: "test",
+                user: {
+                    isUserAdmin: true,
+                    isUserReceiver: false,
+                    isUserSender: false,
+                    isUserTransceiver: false,
+                } as any,
             });
         });
 

@@ -19,8 +19,10 @@ describe("useValueSetsTable", () => {
     test("returns expected data values when fetching table version", async () => {
         const { result } = renderWithAppWrapper(LookupTables.VALUE_SET);
 
-        await waitFor(() => !!result.current.valueSetArray.length);
-        const { name, system } = result.current.valueSetArray[0];
+        await waitFor(() =>
+            expect(result.current.data?.length).toBeGreaterThan(0),
+        );
+        const { name, system } = result.current.data!![0];
         expect(name).toEqual("sender_automation_value_set");
         expect(system).toEqual("LOCAL");
     });

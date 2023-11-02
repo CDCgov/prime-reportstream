@@ -36,7 +36,7 @@ describe("RequireGate", () => {
         mockSessionContentReturnValue({
             authState: {
                 isAuthenticated: true,
-                idToken: {
+                accessToken: {
                     claims: {
                         organization: ["DHPrimeAdmins"],
                     },
@@ -80,7 +80,7 @@ describe("RequireGate", () => {
         mockSessionContentReturnValue({
             authState: {
                 isAuthenticated: true,
-                idToken: {
+                accessToken: {
                     claims: {
                         organization: ["DHSender_tx_phd"],
                     },
@@ -119,7 +119,7 @@ describe("RequireGate", () => {
         mockSessionContentReturnValue({
             authState: {
                 isAuthenticated: true,
-                idToken: {
+                accessToken: {
                     claims: {
                         organization: ["DHSender_tx_phd"],
                     },
@@ -141,7 +141,7 @@ describe("RequireGate", () => {
         mockSessionContentReturnValue({
             authState: {
                 isAuthenticated: true,
-                idToken: {
+                accessToken: {
                     claims: {
                         organization: ["DHOther"],
                     },
@@ -168,7 +168,7 @@ describe("RequireGate", () => {
         mockSessionContentReturnValue({
             authState: {
                 isAuthenticated: true,
-                idToken: {
+                accessToken: {
                     claims: {
                         organization: ["DHSender_tx_phd", "DHPrimeAdmins"],
                     },

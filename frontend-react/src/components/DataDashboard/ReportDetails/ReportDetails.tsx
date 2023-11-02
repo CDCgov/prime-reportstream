@@ -20,7 +20,7 @@ export function ReportDetailsPage() {
         ],
     };
     const { reportId } = useParams();
-    const { reportDetail } = useReportsDetail(reportId!!);
+    const { data: reportDetail } = useReportsDetail(reportId!!);
 
     return (
         <div className={styles.ReportDetails}>

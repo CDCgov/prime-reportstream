@@ -9,8 +9,16 @@ import { USLink } from "../components/USLink";
 import OktaSignInWidget from "../shared/OktaSignInWidget/OktaSignInWidget";
 import { useSessionContext } from "../contexts/SessionContext";
 
+const MigrationAlert = () => (
+    <Alert type="info" heading="Changes to ReportStream login">
+        Your login information may have expired due to recent updates to
+        ReportStream's system. <br />
+        Check your email for an activation link and more information.
+    </Alert>
+);
+
 export function Login() {
-    const { oktaAuth, authState } = useSessionContext();
+    const { oktaAuth, authState, config } = useSessionContext();
     const location: Location<{ originalUrl?: string } | undefined> =
         useLocation();
 
@@ -27,17 +35,16 @@ export function Login() {
 
     const onError = React.useCallback((_: any) => {}, []);
 
+    // Remove this and MigrationAlert sometime after migration
+    const isMigrated = config.OKTA_URL.startsWith("https://reportstream.okta");
+
     if (authState.isAuthenticated) {
         return <Navigate replace to={"/"} />;
     }
 
     return (
         <>
-            <Alert type="info" heading="Changes to ReportStream login">
-                Your login information may have expired due to recent updates to
-                ReportStream's system. <br />
-                Check your email for an activation link and more information.
-            </Alert>
+            {isMigrated && <MigrationAlert />}
             <OktaSignInWidget
                 className="margin-top-6 margin-x-auto width-mobile-lg padding-x-8"
                 config={oktaSignInConfig}

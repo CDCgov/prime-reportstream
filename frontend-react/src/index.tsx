@@ -6,6 +6,7 @@ import { createRouter } from "./AppRouter";
 import config from "./config";
 import { aiConfig, createTelemetryService } from "./TelemetryService";
 import AppInsightsContextProvider from "./contexts/AppInsightsContext";
+import { OKTA_AUTH } from "./oktaConfig";
 
 import "./global.scss";
 
@@ -17,7 +18,9 @@ const router = createRouter(
         );
         const App = (await import("./App")).default;
         return {
-            default: () => <App Layout={MainLayout} config={config} />,
+            default: () => (
+                <App Layout={MainLayout} config={config} oktaAuth={OKTA_AUTH} />
+            ),
         };
     }),
 );

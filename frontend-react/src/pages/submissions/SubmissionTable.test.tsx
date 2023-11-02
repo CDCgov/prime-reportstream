@@ -18,10 +18,12 @@ describe("SubmissionTable", () => {
                 service: "testSender",
             },
 
-            isUserAdmin: false,
-            isUserReceiver: false,
-            isUserSender: true,
-            environment: "test",
+            user: {
+                isUserAdmin: false,
+                isUserReceiver: false,
+                isUserSender: true,
+                isUserTransceiver: false,
+            } as any,
         });
         const fixtures: Fixture[] = [
             {
@@ -62,23 +64,26 @@ describe("SubmissionTable", () => {
     });
 
     describe("when rendering as an admin", () => {
-        beforeEach(() => {
+        function setup() {
             mockSessionContentReturnValue({
                 activeMembership: {
                     memberType: MemberType.PRIME_ADMIN,
                     parsedName: Organizations.PRIMEADMINS,
                     service: "",
                 },
-                isUserAdmin: true,
-                isUserReceiver: false,
-                isUserSender: false,
-                environment: "test",
+                user: {
+                    isUserAdmin: true,
+                    isUserReceiver: false,
+                    isUserSender: false,
+                    isUserTransceiver: false,
+                } as any,
             });
 
             renderApp(<SubmissionTable />, { restHookFixtures: [] });
-        });
+        }
 
         test("renders a warning about not being able to request submission history", async () => {
+            setup();
             expect(
                 await screen.findByText(
                     "Cannot fetch Organization data as admin",

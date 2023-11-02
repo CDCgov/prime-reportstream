@@ -9,10 +9,10 @@ locals {
     resource_prefix     = "pdh${local.environment}"
     okta_redirect_url   = "https://prime.cdc.gov/download"
     okta_base_url       = "reportstream.okta.com"
-    OKTA_authKey        = "MG9hNmtqY21pNm11TnZVOHAxZDc6VXNjN2NOeWU4Q3JBQlgxUEJvQlUwbDhpQTNlck5idGNxTVFFd01sQQ=="
-    OKTA_clientId       = "0oa376pah9o4G2HVJ4h7"
     fn_OKTA_clientId    = "0oa5vkprvf7YhuLYN4h7"
     OKTA_scope          = "reportstream_prod"
+    storage_queue_name  = ["process"]
+
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig"

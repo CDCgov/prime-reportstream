@@ -1,153 +1,63 @@
 import { act, waitFor } from "@testing-library/react";
 
-import { AppWrapper, renderHook } from "../utils/CustomRenderUtils";
+import { renderHook } from "../utils/CustomRenderUtils";
 import {
     dummyActiveReceiver,
     dummyReceivers,
-    orgServer,
 } from "../__mocks__/OrganizationMockServer";
-import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
-import { MemberType } from "../utils/OrganizationUtils";
 
 import {
     sortAndFilterInactiveServices,
     useOrganizationReceiversFeed,
 } from "./UseOrganizationReceiversFeed";
-import { Organizations } from "./UseAdminSafeOrganizationName";
+import { useOrganizationReceivers } from "./UseOrganizationReceivers";
+
+jest.mock<typeof import("./UseOrganizationReceivers")>(
+    "./UseOrganizationReceivers",
+    () => ({
+        ...jest.requireActual("./UseOrganizationReceivers"),
+        useOrganizationReceivers: jest.fn(),
+    }),
+);
+
+const mockUseOrganizationReceivers = jest.mocked(useOrganizationReceivers);
 
 describe("useOrganizationReceiversFeed", () => {
-    beforeAll(() => {
-        orgServer.listen();
-    });
-    afterEach(() => orgServer.resetHandlers());
-    afterAll(() => orgServer.close());
-    describe("with no active membership parsed name", () => {
-        beforeEach(() => {
-            mockSessionContentReturnValue({
-                authState: {
-                    accessToken: { accessToken: "TOKEN" },
-                } as any,
-                activeMembership: undefined,
+    function setMockUseOrganizationReceiversResult(
+        mock: Partial<ReturnType<typeof useOrganizationReceivers>>,
+    ) {
+        return mockUseOrganizationReceivers.mockImplementation(
+            () => mock as any,
+        );
+    }
 
-                isUserAdmin: false,
-                isUserReceiver: false,
-                isUserSender: false,
-                environment: "test",
-            });
+    test("returns correct result", async () => {
+        setMockUseOrganizationReceiversResult({
+            data: dummyReceivers,
+            isLoading: false,
         });
-
-        test("is disabled and returns an empty array", () => {
-            const { result } = renderHook(
-                () => useOrganizationReceiversFeed(),
-                {
-                    wrapper: AppWrapper(),
-                },
-            );
-            expect(result.current.services).toEqual([]);
-            expect(result.current.setActiveService).toBeDefined();
-            expect(result.current.activeService).toEqual(undefined);
-            expect(result.current.loadingServices).toEqual(false);
-            expect(result.current.isDisabled).toEqual(true);
-        });
-    });
-
-    describe("with an admin parsed name", () => {
-        beforeEach(() => {
-            mockSessionContentReturnValue({
-                authState: {
-                    accessToken: { accessToken: "TOKEN" },
-                } as any,
-                activeMembership: {
-                    memberType: MemberType.PRIME_ADMIN,
-                    parsedName: Organizations.PRIMEADMINS,
-                },
-
-                isUserAdmin: true,
-                isUserReceiver: false,
-                isUserSender: false,
-                environment: "test",
-            });
-        });
-
-        test("is disabled and returns an empty array", () => {
-            const { result } = renderHook(
-                () => useOrganizationReceiversFeed(),
-                {
-                    wrapper: AppWrapper(),
-                },
-            );
-            expect(result.current.services).toEqual([]);
-            expect(result.current.setActiveService).toBeDefined();
-            expect(result.current.activeService).toEqual(undefined);
-            expect(result.current.loadingServices).toEqual(false);
-            expect(result.current.isDisabled).toEqual(true);
-        });
-    });
-
-    describe("with a non-admin parsed name", () => {
-        beforeEach(() => {
-            mockSessionContentReturnValue({
-                authState: {
-                    accessToken: { accessToken: "TOKEN" },
-                } as any,
-                activeMembership: {
-                    memberType: MemberType.RECEIVER,
-                    parsedName: "testOrg",
-                    service: "testReceiver",
-                },
-
-                isUserAdmin: false,
-                isUserReceiver: true,
-                isUserSender: false,
-                environment: "test",
-            });
-        });
-
-        test("returns correct organization receiver services feed", async () => {
-            const { result } = renderHook(
-                () => useOrganizationReceiversFeed(),
-                { wrapper: AppWrapper() },
-            );
-            await waitFor(() =>
-                expect(result.current.services).toEqual(
-                    sortAndFilterInactiveServices(dummyReceivers),
-                ),
-            );
-            expect(result.current.setActiveService).toBeDefined();
-            await waitFor(() =>
-                expect(result.current.activeService).toEqual(
-                    dummyActiveReceiver,
-                ),
-            );
-            expect(result.current.loadingServices).toEqual(false);
-        });
+        const { result } = renderHook(() => useOrganizationReceiversFeed());
+        await waitFor(() =>
+            expect(result.current.data).toEqual(
+                sortAndFilterInactiveServices(dummyReceivers),
+            ),
+        );
+        expect(result.current.setActiveService).toBeDefined();
+        await waitFor(() =>
+            expect(result.current.activeService).toEqual(dummyActiveReceiver),
+        );
     });
 
     test("setActiveService sets an active receiver", async () => {
-        mockSessionContentReturnValue({
-            authState: {
-                accessToken: { accessToken: "TOKEN" },
-            } as any,
-            activeMembership: {
-                memberType: MemberType.RECEIVER,
-                parsedName: "testOrg",
-                service: "testReceiver",
-            },
-
-            isUserAdmin: false,
-            isUserReceiver: true,
-            isUserSender: false,
-            environment: "test",
-        });
-        const { result } = renderHook(() => useOrganizationReceiversFeed(), {
-            wrapper: AppWrapper(),
-        });
+        setMockUseOrganizationReceiversResult({ data: dummyReceivers });
+        const { result } = renderHook(() => useOrganizationReceiversFeed());
         await waitFor(() => expect(result.current.activeService).toBeDefined());
         expect(result.current.activeService).toEqual({
             name: "abc-1",
             organizationName: "testOrg",
         });
-        act(() => result.current.setActiveService(result.current.services[1]));
+        expect(result.current.data).toBeDefined();
+        act(() => result.current.setActiveService(result.current.data!![1]));
         expect(result.current.activeService).toEqual({
             name: "elr-0",
             organizationName: "testOrg",

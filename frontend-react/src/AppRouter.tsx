@@ -45,6 +45,11 @@ const GettingStartedSendingData = React.lazy(
         () => import("./content/getting-started/sending-data.mdx"),
     ),
 );
+const GettingStartedReceivingData = React.lazy(
+    lazyRouteMarkdown(
+        () => import("./content/getting-started/receiving-data.mdx"),
+    ),
+);
 const ReportStreamApiIndex = React.lazy(
     lazyRouteMarkdown(
         () =>
@@ -109,19 +114,12 @@ const ReportStreamApiDocumentationPayloads = React.lazy(
 
 /* Public Pages */
 const TermsOfService = React.lazy(() => import("./pages/TermsOfService"));
-const TermsOfServiceForm = React.lazy(
-    () => import("./pages/tos-sign/TermsOfServiceForm"),
-);
 const LoginCallback = React.lazy(
     () => import("./shared/LoginCallback/LoginCallback"),
 );
 const LogoutCallback = React.lazy(
     () => import("./shared/LogoutCallback/LogoutCallback"),
 );
-const DataDownloadGuideIa = React.lazy(
-    () => import("./pages/DataDownloadGuide"),
-);
-const GettingStartedPhd = React.lazy(() => import("./pages/GettingStartedPhd"));
 const Login = React.lazy(() => import("./pages/Login"));
 const FileHandler = React.lazy(
     () => import("./components/FileHandlers/FileHandler"),
@@ -289,13 +287,6 @@ export const appRoutes: RouteObject[] = [
                 element: <LogoutCallback />,
             },
             {
-                path: "sign-tos",
-                element: <TermsOfServiceForm />,
-                handle: {
-                    isContentPage: true,
-                },
-            },
-            {
                 path: "managing-your-connection",
                 children: [
                     {
@@ -304,13 +295,6 @@ export const appRoutes: RouteObject[] = [
                             isContentPage: true,
                         },
                         element: <ReferHealthcareOrganizations />,
-                    },
-                    {
-                        path: "data-download-guide",
-                        handle: {
-                            isContentPage: true,
-                        },
-                        element: <DataDownloadGuideIa />,
                     },
                 ],
             },
@@ -333,11 +317,11 @@ export const appRoutes: RouteObject[] = [
                         },
                     },
                     {
-                        path: "getting-started-public-health-departments",
+                        path: "receiving-data",
                         handle: {
                             isContentPage: true,
                         },
-                        element: <GettingStartedPhd />,
+                        element: <GettingStartedReceivingData />,
                     },
                 ],
             },
@@ -452,7 +436,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "daily-data",
                 element: (
-                    <RequireGate>
+                    <RequireGate auth>
                         <DeliveriesPage />
                     </RequireGate>
                 ),
@@ -460,7 +444,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "manage-public-key",
                 element: (
-                    <RequireGate>
+                    <RequireGate auth>
                         <ManagePublicKeyPage />
                     </RequireGate>
                 ),
@@ -468,7 +452,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "report-details",
                 element: (
-                    <RequireGate>
+                    <RequireGate auth>
                         <Outlet />
                     </RequireGate>
                 ),
@@ -482,7 +466,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "submissions",
                 element: (
-                    <RequireGate>
+                    <RequireGate auth>
                         <Outlet />
                     </RequireGate>
                 ),
@@ -493,7 +477,7 @@ export const appRoutes: RouteObject[] = [
                         element: <SubmissionsPage />,
                     },
                     {
-                        path: "submissions/:actionId",
+                        path: ":actionId",
                         element: <SubmissionDetailsPage />,
                     },
                 ],
@@ -502,7 +486,7 @@ export const appRoutes: RouteObject[] = [
             {
                 path: "data-dashboard",
                 element: (
-                    <RequireGate>
+                    <RequireGate auth>
                         <Outlet />
                     </RequireGate>
                 ),

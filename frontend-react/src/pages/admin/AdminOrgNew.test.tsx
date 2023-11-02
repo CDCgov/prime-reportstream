@@ -47,11 +47,12 @@ describe("AdminOrgNew", () => {
     beforeAll(() => settingsServer.listen());
     afterEach(() => settingsServer.resetHandlers());
     afterAll(() => settingsServer.close());
-    beforeEach(() => {
+    function setup() {
         renderApp(<AdminOrgNewPage />);
-    });
+    }
 
     test("should go to the new created organization's page", () => {
+        setup();
         // orgName field
         const orgNameField = screen.getByTestId("orgName");
         expect(orgNameField).toBeInTheDocument();

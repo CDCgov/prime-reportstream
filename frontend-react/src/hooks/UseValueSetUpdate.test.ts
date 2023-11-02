@@ -24,20 +24,20 @@ describe("useValueSetUpdate", () => {
 
     test("returns trigger and loading indicator", async () => {
         const { result } = renderWithAppWrapper();
-        const { saveData, isSaving, saveError } = result.current;
-        expect(isSaving).toEqual(false);
-        expect(saveData).toBeInstanceOf(Function);
-        expect(saveError).toBeNull();
+        const { mutateAsync, isPending, error } = result.current;
+        expect(isPending).toEqual(false);
+        expect(mutateAsync).toBeInstanceOf(Function);
+        expect(error).toBeNull();
     });
 
     test("mutation trigger returns expected values and tracks loading state", async () => {
         const { result } = renderWithAppWrapper();
-        const { saveData, isSaving } = result.current;
-        expect(isSaving).toEqual(false);
+        const { mutateAsync, isPending } = result.current;
+        expect(isPending).toEqual(false);
 
         let saveResult;
         await act(async () => {
-            const savePromise = saveData({
+            const savePromise = mutateAsync({
                 data: [
                     {
                         name: "a-path",

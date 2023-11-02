@@ -78,13 +78,13 @@ const DeliveriesTableContent: React.FC<DeliveriesTableContentProps> = ({
     serviceReportsList,
 }) => {
     const { appInsights } = useAppInsightsContext();
-    const { oktaToken, activeMembership } = useSessionContext();
+    const { authState, activeMembership } = useSessionContext();
     const featureEvent = `${FeatureName.DAILY_DATA} | ${EventName.TABLE_FILTER}`;
     const handleFetchAndDownload = (id: string) => {
         getReportAndDownload(
             id,
-            oktaToken?.accessToken || "",
-            activeMembership?.parsedName || "",
+            authState.accessToken?.accessToken ?? "",
+            activeMembership?.parsedName ?? "",
         );
     };
     const transformDate = (s: string) => {
@@ -225,21 +225,21 @@ const DeliveriesTableWithNumberedPagination = ({
 
 export const DeliveriesTable = () => {
     const {
-        loadingServices,
-        services,
+        isLoading,
+        data: services,
         activeService,
         setActiveService,
         isDisabled,
     } = useOrganizationReceiversFeed();
 
-    if (loadingServices) return <Spinner />;
+    if (isLoading) return <Spinner />;
 
     if (isDisabled) {
         return <AdminFetchAlert />;
     }
 
     if (
-        !loadingServices &&
+        !isLoading &&
         (!activeService ||
             activeService?.customerStatus === CustomerStatusType.INACTIVE)
     )
@@ -252,7 +252,7 @@ export const DeliveriesTable = () => {
         <>
             {activeService && (
                 <DeliveriesTableWithNumberedPagination
-                    services={services}
+                    services={services!!}
                     activeService={activeService}
                     setActiveService={setActiveService}
                 />

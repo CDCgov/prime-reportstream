@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 
 // This test asserts against a sample HL7v2 message that has an NTE segment associated with a PID, OBR and OBX and verifies
 // that no data is lost between each step. The NTE segments associated with PID and OBX both have NTE.5 populated
-class HL7ToFhirToHL7 {
+class NTEToAnnotationTests {
     @Test
     fun `can accurately map NTE segment to annotation resource`() {
         assert(
@@ -26,14 +26,12 @@ class HL7ToFhirToHL7 {
             ).passed
         )
     }
-}
 
-// FHIR supports an authorString in addition to the authorReference that is generated in the HL7->FHIR conversion
-// which does not have a direct mapping to HL7.  If provided, the mapping will append "Authored by: {authorString}"
-// to the note comment
-
-class FhirToHL7 {
-
+    /**
+     * FHIR supports an authorString in addition to the authorReference that is generated in the HL7->FHIR conversion
+     * which does not have a direct mapping to HL7.  If provided, the mapping will append "Authored by: {authorString}"
+     * to the note comment
+     */
     @Test
     fun `can acccurately map an authorString fhir attribute to an NTE segment`() {
         assert(

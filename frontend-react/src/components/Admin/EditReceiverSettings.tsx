@@ -6,7 +6,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import Title from "../../components/Title";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
 import { showAlertNotification, showError } from "../AlertNotifications";
-import { getStoredOktaToken } from "../../utils/SessionStorageTools";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     getErrorDetailFromResponse,
@@ -53,7 +52,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
     const { fetchHeaders } = useAppInsightsContext();
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const { activeMembership } = useSessionContext();
+    const { activeMembership, authState } = useSessionContext();
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
 
     const orgReceiverSettings: OrgReceiverSettingsResource = useResource(
@@ -103,14 +102,14 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
     };
 
     async function getLatestReceiverResponse() {
-        const accessToken = getStoredOktaToken();
+        const accessToken = authState.accessToken?.accessToken;
         const organization = activeMembership?.parsedName;
 
         const response = await fetch(
             `${RS_API_URL}/api/settings/organizations/${orgname}/receivers/${receivername}`,
             {
                 headers: {
-                    ...fetchHeaders,
+                    ...fetchHeaders(),
                     Authorization: `Bearer ${accessToken}`,
                     Organization: organization!,
                 },

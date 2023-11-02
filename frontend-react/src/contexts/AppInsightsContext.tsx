@@ -41,7 +41,7 @@ export interface AppInsightsCtx {
     appInsights?: ReactPluginWithSDK;
     telemetryCustomProperties: AppInsightsCustomProperties;
     setTelemetryCustomProperty: AppInsightsSetCustomPropertyFn;
-    fetchHeaders: Record<string, string | undefined | number>;
+    fetchHeaders: () => Record<string, string | undefined | number>;
 }
 
 export const AppInsightsContext = createContext<AppInsightsCtx>({} as any);
@@ -96,12 +96,13 @@ export function AppInsightsContextProvider({
             appInsights: reactPlugin,
             telemetryCustomProperties,
             setTelemetryCustomProperty,
-            fetchHeaders: reactPlugin
-                ? {
-                      "x-ms-session-id":
-                          reactPlugin.sdk.context.getSessionId() ?? "",
-                  }
-                : {},
+            fetchHeaders: () =>
+                reactPlugin
+                    ? {
+                          "x-ms-session-id":
+                              reactPlugin.sdk.context.getSessionId() ?? "",
+                      }
+                    : {},
         }),
         [reactPlugin, telemetryCustomProperties, setTelemetryCustomProperty],
     );

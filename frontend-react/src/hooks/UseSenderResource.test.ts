@@ -23,16 +23,15 @@ describe("useSenderResource", () => {
                 service: undefined,
             } as MembershipSettings,
 
-            isUserAdmin: false,
-            isUserReceiver: false,
-            isUserSender: true,
-            environment: "test",
+            user: {
+                isUserAdmin: false,
+                isUserReceiver: false,
+                isUserSender: true,
+                isUserTransceiver: false,
+            } as any,
         });
-        const { result } = renderHook(() => useSenderResource(), {
-            wrapper: AppWrapper(),
-        });
+        const { result } = renderHook(() => useSenderResource());
         expect(result.current.data).toEqual(undefined);
-        expect(result.current.isLoading).toEqual(true);
     });
     test("returns correct sender match", async () => {
         mockSessionContentReturnValue({
@@ -45,10 +44,12 @@ describe("useSenderResource", () => {
                 service: "testSender",
             },
 
-            isUserAdmin: false,
-            isUserReceiver: false,
-            isUserSender: true,
-            environment: "test",
+            user: {
+                isUserAdmin: false,
+                isUserReceiver: false,
+                isUserSender: true,
+                isUserTransceiver: false,
+            } as any,
         });
         const { result } = renderHook(() => useSenderResource(), {
             wrapper: AppWrapper(),
