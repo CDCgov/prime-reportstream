@@ -227,7 +227,6 @@ object FhirPathUtils : Logging {
      * @return the converted HL7 DTM
      */
     fun convertDateToHL7(date: DateType): String {
-        if (date.value == null) return ""
         val hl7Date = DT(null)
         when (date.precision) {
             TemporalPrecisionEnum.YEAR -> hl7Date.setYearPrecision(date.year)
