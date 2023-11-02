@@ -375,3 +375,6 @@
 # Name suffix professional
 - id: "name-suffix-professional"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-professional"
+# Date time as hl7v2 string
+- id: "hl7v2-date-time"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time"

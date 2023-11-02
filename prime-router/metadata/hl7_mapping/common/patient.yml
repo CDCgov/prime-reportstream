@@ -43,10 +43,10 @@ elements:
     schema: datatype/xpn-person-name
 
   - name: patient-dob
-    value:
-      - '%resource.birthDate.extension("http://hl7.org/fhir/StructureDefinition/patient-birthTime").value'
-      - '%resource.birthDate'
-    hl7Spec: [ '%{hl7PIDField}-7' ]
+    resource: '%resource.birthDate'
+    constants:
+      dtmFieldPath: '%{hl7PIDField}-7'
+    schema: ../datatypes/dateTime/DTM
 
   - name: patient-sex
     value: [ '%resource.gender' ]

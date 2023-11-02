@@ -1,0 +1,7 @@
+elements:
+  - name: dateTime
+    value:
+      - '%resource.extension(%`rsext-hl7v2-date-time`).value'
+      - '%resource.extension("http://hl7.org/fhir/StructureDefinition/patient-birthTime").value'
+      - '%resource'
+    hl7Spec: [ '%{dtmFieldPath}' ]

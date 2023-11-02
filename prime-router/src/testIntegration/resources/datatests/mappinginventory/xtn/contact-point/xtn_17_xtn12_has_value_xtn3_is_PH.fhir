@@ -120,7 +120,6 @@
           "valueString" : "2.5.1"
         } ]
       },
-      "birthDate" : "1990-02-21",
       "contact" : [ {
         "telecom" : [ {
           "extension" : [  {

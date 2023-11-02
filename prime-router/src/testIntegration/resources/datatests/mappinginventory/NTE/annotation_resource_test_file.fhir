@@ -1053,7 +1053,6 @@
           "reference" : "Patient/1697638838591589000.9233762b-77f0-4188-b24d-51b0364842a4"
         },
         "effectiveDateTime" : "2023-02-27",
-        "issued" : "2023-04-05T13:36:00-04:00",
         "specimen" : [
           {
             "reference" : "Specimen/1697638838750833000.80f90dd8-a75b-4076-9ba5-d5796ea71a1e"
@@ -1164,7 +1163,6 @@
           }
         ],
         "gender" : "female",
-        "birthDate" : "2000-04-05",
         "address" : [
           {
             "use" : "home",
