@@ -2,8 +2,17 @@ package gov.cdc.prime.router.cli
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.github.doyaaaaaken.kotlincsv.client.CsvWriter
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.DiffRow
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.diffJson
+import gov.cdc.prime.router.cli.FileUtilities.saveTableAsCSV
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockkConstructor
+import io.mockk.verify
+import java.io.File
+import java.io.OutputStream
 import kotlin.test.Test
 
 class CommonUtilitiesTests {
@@ -96,5 +105,23 @@ class CommonUtilitiesTests {
                 DiffRow("a[2]", "", "\"3\""),
             )
         )
+    }
+
+    @Test
+    fun `test saving table as csv`() {
+        val table = listOf(
+            mapOf("col1" to "x", "col2" to "y", "col3" to "z"),
+            mapOf("col1" to "xx", "col2" to "yy", "col3" to "zz")
+        )
+        val expectedCSVRows = listOf(
+            listOf("col1", "col2", "col3"),
+            listOf("x", "y", "z"),
+            listOf("xx", "yy", "zz")
+        )
+        val someFile = File("/dev/null")
+        mockkConstructor(CsvWriter::class)
+        every { anyConstructed<CsvWriter>().writeAll(any(), any<OutputStream>()) } just Runs
+        saveTableAsCSV(someFile, table)
+        verify(exactly = 1) { anyConstructed<CsvWriter>().writeAll(expectedCSVRows, any<OutputStream>()) }
     }
 }

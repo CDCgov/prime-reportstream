@@ -197,4 +197,28 @@ class LookupTableCommandsTest {
         val info = LookupTableEndpointUtilities.getTableInfoFromResponse(mockResult, mockResponse)
         assertThat(info.tableName).isEqualTo("name")
     }
+
+    @Test
+    fun `compare and annotate sender compendium with lookup table`() {
+        val tableMap: Map<String?, Map<String, String>> = mapOf(
+            "12345" to mapOf("Code" to "12345", "Code System" to "SYSTEM1"),
+            "54321" to mapOf("Code" to "54321", "Code System" to "SYSTEM2")
+        )
+        val compendium = listOf(
+            mapOf("test code" to "12345", "coding system" to "SYSTEM1"),
+            mapOf("test code" to "54321", "coding system" to "SYSTEM2"),
+            mapOf("test code" to "12345", "coding system" to "SYSTEM2"),
+            mapOf("test code" to "54321", "coding system" to "SYSTEM1"),
+            mapOf("test code" to "56789", "coding system" to "SYSTEM1")
+        )
+        val expectedOutput = listOf(
+            mapOf("test code" to "12345", "coding system" to "SYSTEM1", "mapped?" to "Y"),
+            mapOf("test code" to "54321", "coding system" to "SYSTEM2", "mapped?" to "Y"),
+            mapOf("test code" to "12345", "coding system" to "SYSTEM2", "mapped?" to "N"),
+            mapOf("test code" to "54321", "coding system" to "SYSTEM1", "mapped?" to "N"),
+            mapOf("test code" to "56789", "coding system" to "SYSTEM1", "mapped?" to "N")
+        )
+        val output = LookupTableCompareMappingCommand.compareMappings(compendium, tableMap)
+        assertThat(output).isEqualTo(expectedOutput)
+    }
 }

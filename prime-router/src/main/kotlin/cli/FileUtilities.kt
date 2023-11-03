@@ -148,6 +148,9 @@ object FileUtilities {
             file.nameWithoutExtension.endsWith("INTERNAL", ignoreCase = true)
     }
 
+    /**
+     * Save the passed in table as a CSV to the provided output file
+     */
     fun saveTableAsCSV(outputFile: File, tableRows: List<Map<String, String>>) {
         val colNames = tableRows[0].keys.toList()
         val rows = mutableListOf(colNames)

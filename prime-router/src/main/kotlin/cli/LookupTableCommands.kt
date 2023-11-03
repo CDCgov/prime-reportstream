@@ -547,6 +547,24 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
         private const val SENDER_COMPENDIUM_MAPPED_FALSE = "N"
         private const val OBX_MAPPING_CODE_KEY = "Code"
         private const val OBX_MAPPING_CODESYSTEM_KEY = "Code System"
+
+        fun compareMappings(
+            inputData: List<Map<String, String>>,
+            tableMap: Map<String?, Map<String, String>>,
+        ): List<Map<String, String>> {
+            val outputData = inputData.map {
+                if (tableMap[it.getValue(SENDER_COMPENDIUM_CODE_KEY)]?.get(OBX_MAPPING_CODESYSTEM_KEY) == it.getValue(
+                        SENDER_COMPENDIUM_CODESYSTEM_KEY
+                    )
+                ) {
+                    it + (SENDER_COMPENDIUM_MAPPED_KEY to SENDER_COMPENDIUM_MAPPED_TRUE)
+                } else {
+                    it + (SENDER_COMPENDIUM_MAPPED_KEY to SENDER_COMPENDIUM_MAPPED_FALSE)
+                }
+            }
+
+            return outputData
+        }
     }
 
     private fun findActiveVersion(tableName: String): Int {
@@ -568,7 +586,7 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
         if (inputData.isEmpty()) {
             throw PrintMessage("Input file ${inputFile.absolutePath} has no data.", true)
         }
-        arrayOf(SENDER_COMPENDIUM_CODE_KEY, SENDER_COMPENDIUM_CODESYSTEM_KEY, SENDER_COMPENDIUM_MAPPED_KEY).forEach {
+        arrayOf(SENDER_COMPENDIUM_CODE_KEY, SENDER_COMPENDIUM_CODESYSTEM_KEY).forEach {
             if (it !in inputData[0].keys) throw PrintMessage("Supplied compendium is missing column: $it")
         }
 
@@ -605,16 +623,7 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
         val tableMap = tableData.associateBy { it[OBX_MAPPING_CODE_KEY] }
 
         // Add a mapped? value to each row of table data
-        val outputData = inputData.map {
-            if (tableMap[it.getValue(SENDER_COMPENDIUM_CODE_KEY)]?.get(OBX_MAPPING_CODESYSTEM_KEY) == it.getValue(
-                    SENDER_COMPENDIUM_CODESYSTEM_KEY
-            )
-            ) {
-                it + (SENDER_COMPENDIUM_MAPPED_KEY to SENDER_COMPENDIUM_MAPPED_TRUE)
-            } else {
-                it + (SENDER_COMPENDIUM_MAPPED_KEY to SENDER_COMPENDIUM_MAPPED_FALSE)
-            }
-        }
+        val outputData = compareMappings(inputData, tableMap)
 
         // Save an output file and print the resulting table data
         if (outputFile != null) {
