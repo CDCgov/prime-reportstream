@@ -1,5 +1,6 @@
 import OrgSettingsBaseResource from "../resources/OrgSettingsBaseResource";
 
+import { mockRsconsole } from "./console/__mocks__/console";
 import {
     formatDate,
     getErrorDetailFromResponse,
@@ -15,6 +16,12 @@ import {
 } from "./misc";
 import { mockEvent } from "./TestUtils";
 
+beforeAll(() => {
+    window.rsconsole = mockRsconsole as any;
+});
+afterAll(() => {
+    window.rsconsole = undefined as any;
+});
 test("splitOn test", () => {
     const r1 = splitOn("foo", 1);
     expect(JSON.stringify(r1)).toBe(`["f","oo"]`);
@@ -87,7 +94,6 @@ test("formatDate test", () => {
         ":23", // check the minutes are at least correct
     );
 
-    console.warn = jest.fn(); // we KNOW the next call complains with a console.warn(). don't let it stop the test
     expect(formatDate("bad date")).toBe("bad date");
 });
 

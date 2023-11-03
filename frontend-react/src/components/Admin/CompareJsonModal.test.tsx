@@ -1,7 +1,9 @@
 import React, { useRef } from "react";
-import { fireEvent, screen } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 
+import { mockRsconsole } from "../../utils/console/__mocks__/console";
 import { renderApp } from "../../utils/CustomRenderUtils";
+import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
 
 import {
     ConfirmSaveSettingModal,
@@ -41,6 +43,9 @@ describe("ConfirmSaveSettingModal", () => {
         checkSyntaxButtonNode = screen.getByText("Check syntax");
     }
 
+    beforeAll(() => {
+        mockSessionContentReturnValue();
+    });
     afterEach(() => {
         jest.clearAllMocks();
     });
@@ -162,13 +167,8 @@ describe("ConfirmSaveSettingModal", () => {
         });
 
         describe("when the updated JSON is invalid", () => {
-            const consoleTraceSpy = jest.fn();
             function setup() {
                 renderComponent();
-
-                jest.spyOn(console, "trace").mockImplementationOnce(
-                    consoleTraceSpy,
-                );
 
                 fireEvent.change(textareaNode, {
                     target: { value: INVALID_JSON },
@@ -180,19 +180,17 @@ describe("ConfirmSaveSettingModal", () => {
                 );
             }
 
-            afterEach(() => {
-                jest.resetAllMocks();
-            });
-
             test("renders an error diff highlighting the error", () => {
                 setup();
                 expect(errorDiffNode).toBeVisible();
                 expect(errorDiffNode?.innerHTML).toContain("{ nope");
             });
 
-            test("renders an error toast", () => {
+            test("renders an error toast", async () => {
                 setup();
-                expect(consoleTraceSpy).toHaveBeenCalled();
+                await waitFor(() =>
+                    expect(mockRsconsole.trace).toHaveBeenCalled(),
+                );
                 expect(
                     screen.queryByText(/JSON data generated/),
                 ).not.toBeInTheDocument();

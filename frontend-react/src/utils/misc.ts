@@ -102,7 +102,7 @@ export function formatDate(date: string): string {
             minute: "numeric",
         }).format(new Date(date));
     } catch (err: any) {
-        console.warn(err);
+        rsconsole.warn(err);
         return date;
     }
 }

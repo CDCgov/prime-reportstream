@@ -65,7 +65,7 @@ const config: Config.InitialOptions = {
         "jest-watch-typeahead/filename",
         "jest-watch-typeahead/testname",
     ],
-    resetMocks: true,
+    clearMocks: true,
 };
 
 export default config;

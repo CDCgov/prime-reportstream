@@ -3,7 +3,7 @@ import { RSDelivery } from "../config/endpoints/deliveries";
 function extractService(receiver: string) {
     const service = receiver.split(".")?.[1];
     if (service === undefined)
-        console.warn(`Receiver name ${receiver} lacks a service definition. Services are deliminated
+        rsconsole.warn(`Receiver name ${receiver} lacks a service definition. Services are deliminated
     with periods. ex: xx_phd.service`);
     return service ? service : "";
 }

@@ -10,14 +10,7 @@ describe("useValueSetsMeta", () => {
     const renderWithAppWrapper = (tableName?: LookupTables) =>
         renderHook(() => useValueSetsMeta(tableName));
 
-    beforeAll(() =>
-        lookupTableServer.listen({
-            onUnhandledRequest: (req) => {
-                console.error("unhandled");
-                throw new Error("unhandled " + req.url);
-            },
-        }),
-    );
+    beforeAll(() => lookupTableServer.listen());
     afterEach(() => lookupTableServer.resetHandlers());
     afterAll(() => lookupTableServer.close());
 

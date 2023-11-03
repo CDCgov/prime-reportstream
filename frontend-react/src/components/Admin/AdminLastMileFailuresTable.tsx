@@ -369,7 +369,7 @@ ${data.receiver}`;
                 setHtmlContentResultText(msg);
             }
         } catch (e: any) {
-            console.trace(e);
+            rsconsole.trace(e);
             const msg = `Triggering resend command failed. ${e.toString()}`;
             showError(msg);
             setHtmlContentResultText(msg);

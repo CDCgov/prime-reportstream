@@ -121,7 +121,7 @@ export const TableRows = ({
         // largely here for typecheck reasons, this represents a case
         // where we're somehow trying to update a row without editing enabled
         if (rowToEdit === undefined) {
-            console.error("Editing not enabled or no row to edit");
+            rsconsole.error("Editing not enabled or no row to edit");
             return;
         }
 

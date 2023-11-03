@@ -27,6 +27,9 @@ import {
 import type { AppConfig } from "../config";
 import { updateApiSessions } from "../network/Apis";
 import site from "../content/site.json";
+import { RSConsole } from "../utils/console";
+
+import { useAppInsightsContext } from "./AppInsightsContext";
 
 export interface RSSessionContext {
     oktaAuth: OktaAuth;
@@ -42,6 +45,7 @@ export interface RSSessionContext {
     setActiveMembership: (value: Partial<MembershipSettings> | null) => void;
     config: AppConfig;
     site: typeof site;
+    rsconsole: RSConsole;
 }
 
 export const SessionContext = createContext<RSSessionContext>({
@@ -94,6 +98,7 @@ export function SessionProviderBase({
     authState,
     config,
 }: SessionProviderBaseProps) {
+    const { appInsights } = useAppInsightsContext();
     const initActiveMembership = useRef(
         JSON.parse(
             sessionStorage.getItem("__deprecatedActiveMembership") ?? "null",
@@ -119,9 +124,23 @@ export function SessionProviderBase({
                 postLogoutRedirectUri: `${window.location.origin}/`,
             });
         } catch (e) {
-            console.trace(e);
+            rsconsole.warn("Failed to logout", e);
         }
     }, [oktaAuth]);
+
+    const rsconsole = useMemo(
+        () =>
+            new RSConsole({
+                ai: appInsights?.sdk,
+                consoleSeverityLevels: config.AI_CONSOLE_SEVERITY_LEVELS,
+                reportableConsoleLevels: config.AI_REPORTABLE_CONSOLE_LEVELS,
+            }),
+        [
+            appInsights,
+            config.AI_CONSOLE_SEVERITY_LEVELS,
+            config.AI_REPORTABLE_CONSOLE_LEVELS,
+        ],
+    );
 
     const context = useMemo(() => {
         return {
@@ -143,6 +162,7 @@ export function SessionProviderBase({
             setActiveMembership,
             config,
             site,
+            rsconsole,
         };
     }, [
         oktaAuth,
@@ -151,6 +171,7 @@ export function SessionProviderBase({
         logout,
         _activeMembership,
         config,
+        rsconsole,
     ]);
 
     useEffect(() => {

@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Title from "../../components/Title";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
-import { showAlertNotification, showError } from "../AlertNotifications";
+import { useAlertNotification } from "../AlertNotifications";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     getErrorDetailFromResponse,
@@ -44,10 +44,11 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
     sendername,
     action,
 }) => {
+    const { showAlertNotification } = useAlertNotification();
     const { fetchHeaders } = useAppInsightsContext();
     const navigate = useNavigate();
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);
-    const { activeMembership, authState } = useSessionContext();
+    const { activeMembership, authState, rsconsole } = useSessionContext();
 
     const orgSenderSettings: OrgSenderSettingsResource = useResource(
         OrgSenderSettingsResource.detail(),
@@ -80,17 +81,21 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
             });
 
             showAlertNotification(
-                "success",
                 `Item '${deleteItemId}' has been deleted`,
+                "success",
             );
 
             // navigate back to list since this item was just deleted
             navigate(-1);
             return true;
         } catch (e: any) {
-            console.trace(e);
-            showError(
-                `Deleting item '${deleteItemId}' failed. ${e.toString()}`,
+            rsconsole.trace(e);
+            showAlertNotification(
+                new Error(
+                    `Deleting item '${deleteItemId}' failed. ${e.toString()}`,
+                    { cause: e },
+                ),
+                "error",
             );
             return false;
         }
@@ -119,7 +124,10 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
             const { name } = orgSenderSettings;
 
             if (!isValidServiceName(name)) {
-                showError(`${name} cannot contain special characters.`);
+                showAlertNotification(
+                    `${name} cannot contain special characters.`,
+                    "error",
+                );
                 return false;
             }
 
@@ -137,7 +145,10 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                 action === "edit" &&
                 latestResponse?.version !== orgSenderSettings?.version
             ) {
-                showError(getVersionWarning(VersionWarningType.POPUP));
+                showAlertNotification(
+                    getVersionWarning(VersionWarningType.POPUP),
+                    "error",
+                );
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
@@ -149,9 +160,13 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
-            showError(
-                `Reloading sender '${sendername}' failed with: ${errorDetail}`,
+            rsconsole.trace(e, errorDetail);
+            showAlertNotification(
+                new Error(
+                    `Reloading sender '${sendername}' failed with: ${errorDetail}`,
+                    { cause: e },
+                ),
+                "error",
             );
             return false;
         }
@@ -175,7 +190,10 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
                 setOrgSenderSettingsOldJson(
                     JSON.stringify(latestResponse, jsonSortReplacer, 2),
                 );
-                showError(getVersionWarning(VersionWarningType.POPUP));
+                showAlertNotification(
+                    getVersionWarning(VersionWarningType.POPUP),
+                    "error",
+                );
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
@@ -197,8 +215,8 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
             );
 
             showAlertNotification(
-                "success",
                 `Item '${sendernamelocal}' has been saved`,
+                "success",
             );
             confirmModalRef?.current?.toggleModal(undefined, false);
             setLoading(false);
@@ -206,9 +224,13 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
-            showError(
-                `Updating sender '${sendername}' failed with: ${errorDetail}`,
+            rsconsole.trace(e, errorDetail);
+            showAlertNotification(
+                new Error(
+                    `Updating sender '${sendername}' failed with: ${errorDetail}`,
+                    { cause: e },
+                ),
+                "error",
             );
             return false;
         }

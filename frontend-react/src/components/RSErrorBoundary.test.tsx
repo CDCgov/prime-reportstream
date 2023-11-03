@@ -3,64 +3,51 @@ import { AxiosError } from "axios";
 
 import { renderApp } from "../utils/CustomRenderUtils";
 import { RSNetworkError } from "../utils/RSNetworkError";
-import { conditionallySuppressConsole } from "../utils/TestUtils";
+import { mockConsole } from "../__mocks__/console";
+import { mockRsconsole } from "../utils/console/__mocks__/console";
+import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
 
-import { withCatch } from "./RSErrorBoundary";
+import { RSErrorBoundary } from "./RSErrorBoundary";
+
+const rsError = new RSNetworkError(new AxiosError("rsnetwork error test"));
 
 // Dummy components for testing
-const ThrowsRSError = ({ error = true }: { error: boolean }): JSX.Element => {
-    if (error) throw new RSNetworkError(new AxiosError("mock"));
-    return <></>;
+const ThrowsRSError = (): JSX.Element => {
+    throw rsError;
 };
-const ThrowsGenericError = ({
-    error = true,
-}: {
-    error: boolean;
-}): JSX.Element => {
-    if (error) throw Error("mock");
-    return <></>;
-};
-const ThrowsNoError = (): JSX.Element => <div>Success!</div>;
-
-// Wrap them with error boundary
-const ThrowsRSErrorWrapped = () => withCatch(<ThrowsRSError error={true} />);
-const ThrowsGenericErrorWrapped = () =>
-    withCatch(<ThrowsGenericError error={true} />);
-const ThrowsNoErrorWrapped = () => withCatch(<ThrowsNoError />);
 
 describe("RSErrorBoundary", () => {
-    test("Catches RSError", () => {
-        const restore = conditionallySuppressConsole(
-            "unknown-error",
-            "The above error occurred in the <ThrowsRSError> component:",
-        );
-        renderApp(<ThrowsRSErrorWrapped />);
-        expect(
-            screen.getByText(
-                "Our apologies, there was an error loading this content.",
-            ),
-        ).toBeInTheDocument();
-        restore();
+    beforeAll(() => {
+        // shut up react's auto console.error
+        mockConsole.error.mockImplementation(() => void 0);
+        mockSessionContentReturnValue({
+            config: {
+                AI_CONSOLE_SEVERITY_LEVELS: { error: 0 },
+            } as any,
+        });
     });
-
-    test("Catches legacy errors", () => {
-        const restore = conditionallySuppressConsole(
-            "Please work to migrate all non RSError throws to use an RSError object.",
-            "Error: mock",
-            "The above error occurred in the <ThrowsGenericError> component:",
-            "unknown-error",
+    afterAll(() => {
+        mockConsole.error.mockRestore();
+    });
+    test("Catches error", () => {
+        renderApp(
+            <RSErrorBoundary>
+                <ThrowsRSError />
+            </RSErrorBoundary>,
         );
-        renderApp(<ThrowsGenericErrorWrapped />);
         expect(
             screen.getByText(
                 "Our apologies, there was an error loading this content.",
             ),
         ).toBeInTheDocument();
-        restore();
+        expect(mockRsconsole._error).toBeCalledTimes(1);
+        expect(mockRsconsole._error.mock.lastCall[0].args[0]).toStrictEqual(
+            rsError,
+        );
     });
 
     test("Renders component when no error", () => {
-        renderApp(<ThrowsNoErrorWrapped />);
+        renderApp(<RSErrorBoundary>Success!</RSErrorBoundary>);
         expect(screen.getByText("Success!")).toBeInTheDocument();
     });
 });

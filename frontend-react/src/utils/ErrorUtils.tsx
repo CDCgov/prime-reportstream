@@ -20,7 +20,7 @@ export const handleErrorWithAlert = ({
     setAlert?: Dispatch<SetStateAction<ReportStreamAlert | undefined>>;
 }) => {
     if (logMessage) {
-        console.error(logMessage);
+        rsconsole.error(logMessage);
     }
     // attempt to extract more helpful error from response
     const { response: { data: { error: errorString = null } = {} } = {} } =

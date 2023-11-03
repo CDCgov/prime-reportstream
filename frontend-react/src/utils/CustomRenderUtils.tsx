@@ -135,17 +135,6 @@ export function renderHook<
     render: (initialProps: Props) => Result,
     options?: RenderHookOptions<Props, Q, Container, BaseElement>,
 ) {
-    /*const wrapper = ({ children }: any) => (
-        <AppInsightsContextProvider>
-            <SessionProviderBase
-                oktaAuth={{} as any}
-                authState={{}}
-                config={config}
-            >
-                {children}
-            </SessionProviderBase>
-        </AppInsightsContextProvider>
-    );*/
     return renderHookOrig<Result, Props, Q, Container, BaseElement>(render, {
         wrapper: AppWrapper(),
         ...options,

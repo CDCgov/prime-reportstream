@@ -39,7 +39,7 @@ const OktaSignInWidget = ({
             .then(onSuccess)
             .catch((e: any) => {
                 onError?.(e);
-                console.error("error logging in", e);
+                rsconsole.error("error logging in", e);
             });
 
         return () => widget.remove();

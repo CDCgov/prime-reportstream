@@ -71,7 +71,7 @@ export function NewSettingPage() {
             navigate(-1);
         } catch (e: any) {
             let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
+            rsconsole.trace(e, errorDetail);
             showError(
                 `Updating setting '${orgSettingName}' failed with: ${errorDetail}`,
             );

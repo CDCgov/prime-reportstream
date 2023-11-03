@@ -15,10 +15,7 @@ import {
     TextAreaComponent,
     TextInputComponent,
 } from "../../components/Admin/AdminFormEdit";
-import {
-    showAlertNotification,
-    showError,
-} from "../../components/AlertNotifications";
+import { useAlertNotification } from "../../components/AlertNotifications";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     ConfirmSaveSettingModal,
@@ -44,6 +41,7 @@ type AdminOrgEditProps = {
 };
 
 export function AdminOrgEditPage() {
+    const { showAlertNotification } = useAlertNotification();
     const { fetchHeaders } = useAppInsightsContext();
     const { orgname } = useParams<AdminOrgEditProps>();
     const { activeMembership, authState } = useSessionContext();
@@ -90,7 +88,10 @@ export function AdminOrgEditPage() {
             );
 
             if (latestResponse?.version !== orgSettings?.version) {
-                showError(getVersionWarning(VersionWarningType.POPUP));
+                showAlertNotification(
+                    getVersionWarning(VersionWarningType.POPUP),
+                    "error",
+                );
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
@@ -102,8 +103,13 @@ export function AdminOrgEditPage() {
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
-            showError(`Reloading org '${orgname}' failed with: ${errorDetail}`);
+            showAlertNotification(
+                new Error(
+                    `Reloading org '${orgname}' failed with: ${errorDetail}`,
+                    { cause: e },
+                ),
+                "error",
+            );
             return false;
         }
     };
@@ -116,7 +122,10 @@ export function AdminOrgEditPage() {
                 setOrgSettingsOldJson(
                     JSON.stringify(latestResponse, jsonSortReplacer, 2),
                 );
-                showError(getVersionWarning(VersionWarningType.POPUP));
+                showAlertNotification(
+                    getVersionWarning(VersionWarningType.POPUP),
+                    "error",
+                );
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
@@ -125,23 +134,28 @@ export function AdminOrgEditPage() {
             }
 
             const data = confirmModalRef?.current?.getEditedText();
-            showAlertNotification("success", `Saving...`);
+            showAlertNotification(`Saving...`, "success");
             await fetchController(
                 OrgSettingsResource.update(),
                 { orgname },
                 data,
             );
             showAlertNotification(
-                "success",
                 `Item '${orgname}' has been updated`,
+                "success",
             );
             confirmModalRef?.current?.hideModal();
-            showAlertNotification("success", `Saved '${orgname}' setting.`);
+            showAlertNotification(`Saved '${orgname}' setting.`, "success");
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
-            showError(`Updating org '${orgname}' failed with: ${errorDetail}`);
+            showAlertNotification(
+                new Error(
+                    `Updating org '${orgname}' failed with: ${errorDetail}`,
+                    { cause: e },
+                ),
+                "error",
+            );
             return false;
         }
 

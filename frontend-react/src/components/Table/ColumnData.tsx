@@ -95,7 +95,7 @@ export const ColumnData = ({
             columnConfig.feature as ActionableColumn;
 
         if (!rowData[param!!]) {
-            console.warn(`The row attribute '${param}' could not be found`);
+            rsconsole.warn(`The row attribute '${param}' could not be found`);
         }
 
         const doAction = () => {

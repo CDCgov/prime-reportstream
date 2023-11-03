@@ -93,7 +93,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             navigate(-1);
             return true;
         } catch (e: any) {
-            console.trace(e);
+            rsconsole.trace(e);
             showError(
                 `Deleting item '${deleteItemId}' failed. ${e.toString()}`,
             );
@@ -146,7 +146,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
+            rsconsole.trace(e, errorDetail);
             showError(
                 `Reloading receiver '${receivername}' failed with: ${errorDetail}`,
             );
@@ -203,7 +203,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
+            rsconsole.trace(e, errorDetail);
             showError(
                 `Updating receiver '${receivername}' failed with: ${errorDetail}`,
             );

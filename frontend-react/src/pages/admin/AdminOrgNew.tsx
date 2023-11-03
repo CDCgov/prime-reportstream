@@ -43,7 +43,7 @@ export function AdminOrgNewPage() {
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
+            rsconsole.trace(e, errorDetail);
             showError(`Creating item '${orgName}' failed. ${errorDetail}`);
             return false;
         }
