@@ -10,6 +10,7 @@ class DTMTests {
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/instant/dtm-zero-year-to-instant").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/instant/dtm-month-precision-to-instant").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/instant/dtm-day-precision-to-instant").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("dtm/instant/dtm-hour-precision-to-instant").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/instant/dtm-minute-precision-to-instant").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/instant/dtm-second-precision-to-instant").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/instant/dtm-dsec-precision-to-instant").passed)
@@ -28,6 +29,7 @@ class DTMTests {
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/dateTime/dtm-year-precision-to-dateTime").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/dateTime/dtm-month-precision-to-dateTime").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/dateTime/dtm-day-precision-to-dateTime").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("dtm/dateTime/dtm-hour-precision-to-dateTime").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/dateTime/dtm-minute-precision-to-dateTime").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/dateTime/dtm-second-precision-to-dateTime").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/dateTime/dtm-dsec-precision-to-dateTime").passed)
@@ -46,6 +48,7 @@ class DTMTests {
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/date/dtm-year-precision-to-date").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/date/dtm-month-precision-to-date").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/date/dtm-day-precision-to-date").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("dtm/date/dtm-hour-precision-to-date").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/date/dtm-minute-precision-to-date").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/date/dtm-second-precision-to-date").passed)
         assert(verifyHL7ToFHIRToHL7Mapping("dtm/date/dtm-dsec-precision-to-date").passed)
@@ -68,12 +71,6 @@ class DTMTests {
 
     @Test
     fun `test zero dt to dateTime`() {
-        assert(
-            verifyHL7ToFHIRToHL7Mapping(
-                "dt/dt-zero-year-to-dateTime",
-                skipHl7ToFhir = true,
-                skipFhirToHl7 = true
-            ).passed
-        )
+        assert(verifyHL7ToFHIRToHL7Mapping("dt/dt-zero-year-to-dateTime").passed)
     }
 }
