@@ -7,5 +7,6 @@ class XPNtoHumanNameTests {
     @Test
     fun `test translate to HL7 to FHIR to HL7`() {
         assert(verifyHL7ToFHIRToHL7Mapping("xpn/xpn-to-humanname-xpn12-13-populated-xpn10-empty").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("xpn/xpn-to-humanname-xpn10-populated-xpn12-13-empty").passed)
     }
 }

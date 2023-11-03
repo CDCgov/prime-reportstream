@@ -1,8 +1,15 @@
 extension:
   generateList: true
   expressionType: nested
+  vars:
+    fn2: String, FN.2
+    fn3: String, FN.3
+    fn4: String, FN.4
+    fn5: String, FN.5
+  condition: $fn2 NOT_NULL || $fn3 NOT_NULL || $fn4 NOT_NULL || $fn5 NOT_NULL
   expressions:
     - expressionType: nested
+      condition: $fn2 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -12,6 +19,7 @@ extension:
           valueOf: FN.2
           expressionType: HL7Spec
     - expressionType: nested
+      condition: $fn3 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -21,6 +29,7 @@ extension:
           valueOf: FN.3
           expressionType: HL7Spec
     - expressionType: nested
+      condition: $fn4 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -30,6 +39,7 @@ extension:
           valueOf: FN.4
           expressionType: HL7Spec
     - expressionType: nested
+      condition: $fn5 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL

@@ -54,6 +54,9 @@ period_1:
   valueOf: datatypes/DR/Period
 
 extension_AssemblyOrder:
+  vars:
+    xpn11: String, XPN.11
+  condition: $xpn11 NOT_NULL
   expressionType: nested
   expressionsMap:
     url:
@@ -84,6 +87,19 @@ period_2:
         periodEnd: XPN.13
 
 extension:
+  vars:
+    xpn2: String, XPN.2
+    xpn3: String, XPN.3
+    xpn4: String, XPN.4
+    xpn6: String, XPN.6
+    xpn7: String, XPN.7
+    xpn8: String, XPN.8
+    xpn9: String, XPN.9
+    xpn10: String, XPN.10
+    xpn12: String, XPN.12
+    xpn13: String, XPN.13
+    xpn14: String, XPN.14
+  condition: $xpn2 NOT_NULL || $xpn3 NOT_NULL || $xpn4 NOT_NULL || $xpn6 NOT_NULL || $xpn7 NOT_NULL || $xpn8 NOT_NULL || $xpn9 NOT_NULL || $xpn10 NOT_NULL || $xpn12 NOT_NULL || $xpn13 NOT_NULL || $xpn14 NOT_NULL
   generateList: true
   expressionType: nested
   expressions:
@@ -145,12 +161,11 @@ extension:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          valueOf: xpn9-name-context
-        valueString:
-          # TODO: attach CWE type
+          valueOf: xpn9-name-concept
+        value:
           type: STRING
           expressionType: HL7Spec
-          valueOf: XPN.9
+          valueOf: $xpn9
     - expressionType: nested
       expressionsMap:
         url:
