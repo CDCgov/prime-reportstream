@@ -6,6 +6,6 @@ import org.junit.jupiter.api.Test
 class CWEtoQuantityTests {
     @Test
     fun `test values in OBX-6`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("cwe/annotation/cwe-4-test-value-cwe1").passed)
+        assert(verifyHL7ToFHIRToHL7Mapping("cwe/quantity/cwe-quantity").passed)
     }
 }

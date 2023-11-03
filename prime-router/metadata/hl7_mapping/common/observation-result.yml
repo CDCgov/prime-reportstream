@@ -34,8 +34,19 @@ elements:
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: result-value-type-nm
-    condition: '%resource.value.exists() and %resource.value.is(Quantity)'
+    condition: >
+      %resource.value.exists() and 
+      %resource.value.is(Quantity) and
+      %resource.value.where(extension(%`rsext-cwe-quantity`)).exists().not()
     value: [ '"NM"' ]
+    hl7Spec: [ '%{hl7OBXField}-2' ]
+
+  - name: result-value-type-na
+    condition: >
+      %resource.value.exists() and 
+      %resource.value.is(Quantity) and
+      %resource.value.where(extension(%`rsext-cwe-quantity`)).exists()
+    value: [ '"NA"' ]
     hl7Spec: [ '%{hl7OBXField}-2' ]
 
   - name: observation-identifier-code
@@ -76,7 +87,7 @@ elements:
     schema: ./datatype/sn-structured-numeric
 
   - name: observation-units-identifier
-    condition: <
+    condition: >
       %context.where(extension(%`rsext-units`)).exists() and
       %context.value.where(extension(%`rsext-cwe-quantity`)).exists().not()
     resource: '%resource.extension(%`rsext-units`).value'
@@ -92,7 +103,7 @@ elements:
     resource: '%resource.value.extension(%`rsext-cwe-quantity`).value'
     constants:
       cweFieldPath: '%{hl7OBXField}-6'
-    schema: ./datatypes/codeableConcept/CWE
+    schema: ../datatypes/codeableConcept/CWE
 
   - name: observation-reference-range
     value: [ '%resource.referenceRange.text' ]
