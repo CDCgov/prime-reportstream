@@ -76,10 +76,23 @@ elements:
     schema: ./datatype/sn-structured-numeric
 
   - name: observation-units-identifier
+    condition: <
+      %context.where(extension(%`rsext-units`)).exists() and
+      %context.value.where(extension(%`rsext-cwe-quantity`)).exists().not()
     resource: '%resource.extension(%`rsext-units`).value'
     constants:
       cweFieldPath: '%{hl7OBXField}-6'
     schema: ./datatype/ce-coded-with-exceptions
+
+  - name: observation-units-identifier
+    condition: >
+      %context.value.exists() and
+      %context.value.where(extension(%`rsext-cwe-quantity`)).exists() and
+      %context.value.extension(%`rsext-cwe-quantity`).value.where(extension(%`rsext-hl7v2Name`).value = "units").exists()
+    resource: '%resource.value.extension(%`rsext-cwe-quantity`).value'
+    constants:
+      cweFieldPath: '%{hl7OBXField}-6'
+    schema: ./datatypes/codeableConcept/CWE
 
   - name: observation-reference-range
     value: [ '%resource.referenceRange.text' ]

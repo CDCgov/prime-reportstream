@@ -418,3 +418,6 @@
 # CWE Annotation
 - id: "cwe-annotation"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-annotation"
+# CWE Quantity
+- id: "cwe-quantity"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-quantity"
