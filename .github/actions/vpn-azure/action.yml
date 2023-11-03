@@ -21,7 +21,7 @@ inputs:
     default: false
   dns-ip:
     description: 'VPN DNS IP'
-    default: false
+    default: '127.0.0.1'
 
 runs:
   using: "composite"
@@ -71,17 +71,18 @@ runs:
       shell: bash
 
     - name: Update VPN DNS IP
-      if: inputs.dns-ip != 'false' && inputs.ca-cert != 'false'
+      if: inputs.dns-ip != '127.0.0.1' && inputs.ca-cert != 'false'
       run: |
         sed -i "s/\(dhcp-option DNS \).*/\1${{ inputs.dns-ip }}/" .github/vpn/${{ env.VPN_ENV }}.ovpn
       shell: bash
 
-    - uses: josiahsiegel/action-connect-ovpn@fff85025057fd5edff97508bc13d3a284ba6d427
+    - uses: josiahsiegel/action-connect-ovpn@e9fb6a005b57431ef6e564c3c67434378a49951f
       if: env.VPN_ENV && inputs.ca-cert != 'false'
       id: connect_vpn
       with:
         FILE_OVPN: .github/vpn/${{ env.VPN_ENV }}.ovpn
         TLS_KEY: ${{ inputs.tls-key }}
+        PING_URL: ${{ inputs.dns-ip }}
       env:
         CA_CRT: ${{ inputs.ca-cert}}
         USER_CRT: ${{ inputs.user-crt }}
