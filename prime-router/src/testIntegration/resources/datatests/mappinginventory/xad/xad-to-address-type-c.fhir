@@ -233,7 +233,7 @@
                 },
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad13-effective-date",
-                  "valueDateTime" : "2022-05-01T10:25:31-04:00"
+                  "valueString" : "20220501102531-0400"
                 },
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad19-addressee",
@@ -241,7 +241,7 @@
                 },
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad14-expiration-date",
-                  "valueDateTime" : "2023-05-01T10:25:31-04:00"
+                  "valueString" : "20230501102531-0400"
                 }
               ],
               "use" : "temp",

@@ -77,6 +77,7 @@ period:
       expressionType: JEXL
     _start:
       expressionType: nested
+      condition: $startDate NOT_NULL
       expressionsMap:
         extension_1:
           generateList: true
@@ -94,6 +95,7 @@ period:
       expressionType: JEXL
     _end:
       expressionType: nested
+      condition: $endDate NOT_NULL
       expressionsMap:
         extension_1:
           generateList: true
