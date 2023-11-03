@@ -159,6 +159,9 @@ issued:
     dateTimeIn: OBR.22
 
 resultsInterpreter:
+  vars:
+    obr32: STRING_ALL, OBR.32
+  condition: $obr32 NOT_NULL
   valueOf: datatypes/NDL/PractitionerRole
   generateList: true
   expressionType: reference
