@@ -7,6 +7,7 @@ import gov.cdc.prime.router.cli.CommandUtilities.Companion.DiffRow
 import gov.cdc.prime.router.cli.CommandUtilities.Companion.diffJson
 import gov.cdc.prime.router.cli.FileUtilities.saveTableAsCSV
 import io.mockk.Runs
+import io.mockk.clearConstructorMockk
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockkConstructor
@@ -123,5 +124,6 @@ class CommonUtilitiesTests {
         every { anyConstructed<CsvWriter>().writeAll(any(), any<OutputStream>()) } just Runs
         saveTableAsCSV(someFile, table)
         verify(exactly = 1) { anyConstructed<CsvWriter>().writeAll(expectedCSVRows, any<OutputStream>()) }
+        clearConstructorMockk(CsvWriter::class)
     }
 }
