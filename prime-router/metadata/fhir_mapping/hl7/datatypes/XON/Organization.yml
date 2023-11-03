@@ -11,8 +11,11 @@ name:
   expressionType: HL7Spec
 
 extension_1-nameType:
+  condition: xon2 NOT_NULL
   generateList: true
   expressionType: nested
+  vars:
+    xon2: XON.2
   expressionsMap:
     url:
       type: SYSTEM_URL
