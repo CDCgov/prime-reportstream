@@ -1,4 +1,6 @@
-import { act, renderHook } from "@testing-library/react";
+import { act } from "@testing-library/react";
+
+import { renderHook } from "../../utils/CustomRenderUtils";
 
 import useSortOrder, { SortSettingsActionType } from "./UseSortOrder";
 

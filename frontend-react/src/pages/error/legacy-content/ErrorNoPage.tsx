@@ -71,3 +71,5 @@ export const ErrorNoPage = () => {
         </>
     );
 };
+
+export default ErrorNoPage;

@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useLayoutEffect } from "react";
 
 import { USSmartLink } from "../../components/USLink";
 
@@ -7,7 +7,7 @@ import MarkdownLayoutContext from "./Context";
 export const LayoutSidenav = ({ children }: { children: React.ReactNode }) => {
     const { setSidenavContent } = useContext(MarkdownLayoutContext);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         setSidenavContent(children);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -18,7 +18,7 @@ export const LayoutSidenav = ({ children }: { children: React.ReactNode }) => {
 export const LayoutMain = ({ children }: { children: React.ReactNode }) => {
     const { setMainContent } = useContext(MarkdownLayoutContext);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         setMainContent(children);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);

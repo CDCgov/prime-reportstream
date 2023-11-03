@@ -1,4 +1,4 @@
-# Coding System for  values from https://www.hl7.org/fhir/v2/0396/index.html
+# Coding System for values from https://www.hl7.org/fhir/v2/0396/index.html
 ---
 
 - id: "ACR"
@@ -205,6 +205,9 @@
   description: "Logical Observation Identifier Names and Codes (LOINC)"
   url: "http://loinc.org"
   oid: "urn:oid:2.16.840.1.113883.6.1"
+- id: "L"
+  description: "Local general code"
+  url: "https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL"
 - id: "MDC"
   description: "Medical Device Communication"
   url: "urn:iso:std:iso:11073:10101"
