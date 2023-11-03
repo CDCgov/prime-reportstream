@@ -66,8 +66,14 @@ class DTMTests {
         assert(verifyHL7ToFHIRToHL7Mapping("dt/dt-day-precision-to-dateTime").passed)
     }
 
-//    @Test
-//    fun `test zero dt to dateTime`() {
-//        assert(verifyHL7ToFHIRToHL7Mapping("dt/dt-zero-year-to-dateTime").passed)
-//    }
+    @Test
+    fun `test zero dt to dateTime`() {
+        assert(
+            verifyHL7ToFHIRToHL7Mapping(
+                "dt/dt-zero-year-to-dateTime",
+                skipHl7ToFhir = true,
+                skipFhirToHl7 = true
+            ).passed
+        )
+    }
 }

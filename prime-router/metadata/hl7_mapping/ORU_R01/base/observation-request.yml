@@ -83,7 +83,7 @@ elements:
     resource: '%resource.issued'
     constants:
       dtmFieldPath: '%{fieldPath}-22'
-    schema: ../../datatypes/dateTime/DTM
+    schema: ../../datatypes/dateTime/DTMorDT
 
   - name: diagnostic-serv-sect-id
     value: [ '%resource.category.coding.code' ]

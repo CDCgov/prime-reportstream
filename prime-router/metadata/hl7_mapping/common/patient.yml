@@ -46,7 +46,7 @@ elements:
     resource: '%resource.birthDate'
     constants:
       dtmFieldPath: '%{hl7PIDField}-7'
-    schema: ../datatypes/dateTime/DTM
+    schema: ../datatypes/dateTime/DTMorDT
 
   - name: patient-sex
     value: [ '%resource.gender' ]
@@ -146,7 +146,7 @@ elements:
     resource: '%resource.deceased'
     constants:
       dtmFieldPath: '%{hl7PIDField}-29'
-    schema: ../datatypes/dateTime/DTM
+    schema: ../datatypes/dateTime/DTMorDT
 
   - name: patient-death-indicator-1
     condition: '%resource.deceased.exists() and %resource.deceased is dateTime'
