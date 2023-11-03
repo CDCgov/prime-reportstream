@@ -23,13 +23,12 @@ function setOrganization(parsedName: string) {
         GLOBAL_STORAGE_KEYS.MEMBERSHIP_STATE,
         JSON.stringify({
             activeMembership,
-            initialized: true,
-        })
+        }),
     );
 
     window.localStorage.setItem(
         GLOBAL_STORAGE_KEYS.ORGANIZATION_OVERRIDE,
-        JSON.stringify(activeMembership)
+        JSON.stringify(activeMembership),
     );
 }
 

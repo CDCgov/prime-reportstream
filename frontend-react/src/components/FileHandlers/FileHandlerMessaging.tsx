@@ -333,11 +333,13 @@ export const FileQualityFilterDisplay = ({
             </div>
 
             {destinations?.map((d, idx) => (
-                <div className="padding-4 radius-md bg-base-lightest margin-bottom-4">
+                <div
+                    className="padding-4 radius-md bg-base-lightest margin-bottom-4"
+                    key={idx}
+                >
                     <table
                         className="usa-table usa-table--borderless"
                         data-testid="error-table"
-                        key={idx}
                     >
                         <thead>
                             <tr>
@@ -349,7 +351,7 @@ export const FileQualityFilterDisplay = ({
                         <tbody>
                             {d.filteredReportItems.map((e, i) => {
                                 return (
-                                    <tr key={"error_" + i}>
+                                    <tr key={i}>
                                         <td>
                                             <p
                                                 className="margin-0"

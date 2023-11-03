@@ -42,11 +42,12 @@ describe("ManagePublicKeyChooseSender", () => {
 
     describe("when the sender options have been loaded", () => {
         describe("and Organizations have more than one sender", () => {
-            beforeEach(() => {
+            function setup() {
                 renderApp(<ManagePublicKeyChooseSender {...DEFAULT_PROPS} />);
-            });
+            }
 
             test("renders the sender options", () => {
+                setup();
                 expect(
                     screen.getByRole("option", { name: "default" }),
                 ).toBeVisible();
@@ -56,6 +57,7 @@ describe("ManagePublicKeyChooseSender", () => {
             });
 
             test("renders the submit button", () => {
+                setup();
                 expect(screen.getByText("Submit")).toBeVisible();
             });
         });

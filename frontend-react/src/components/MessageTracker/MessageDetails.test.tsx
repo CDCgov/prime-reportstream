@@ -4,7 +4,7 @@ import { mockUseMessageDetails } from "../../hooks/network/MessageTracker/__mock
 import { RSMessageDetail } from "../../config/endpoints/messageTracker";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
-import { MessageDetails } from "./MessageDetails";
+import { MessageDetailsPage } from "./MessageDetails";
 
 const TEST_ID = 1;
 const MOCK_MESSAGE_WARNINGS = [
@@ -171,7 +171,7 @@ describe("RSMessageDetail component", () => {
         mockUseMessageDetails.mockReturnValue({
             messageDetails: MOCK_EMPTY_MESSAGE_DETAIL,
         });
-        renderApp(<MessageDetails />);
+        renderApp(<MessageDetailsPage />);
         expect(mockUseMessageDetails).toHaveBeenCalledWith(TEST_ID);
     });
 
@@ -179,7 +179,7 @@ describe("RSMessageDetail component", () => {
         mockUseMessageDetails.mockReturnValue({
             messageDetails: DEFAULT_MESSAGE_DETAIL,
         });
-        renderApp(<MessageDetails />);
+        renderApp(<MessageDetailsPage />);
 
         expect(screen.getByText("Message ID")).toBeInTheDocument();
         expect(screen.getByText(/12-234567/)).toBeInTheDocument();
@@ -213,7 +213,7 @@ describe("RSMessageDetail component", () => {
             mockUseMessageDetails.mockReturnValue({
                 messageDetails: mockMessageDetails,
             });
-            renderApp(<MessageDetails />);
+            renderApp(<MessageDetailsPage />);
             expect(screen.getByText("RECEIVE")).toBeVisible();
             expect(screen.getByText("simple_report.csvuploader")).toBeVisible();
             expect(
@@ -232,7 +232,7 @@ describe("RSMessageDetail component", () => {
             mockUseMessageDetails.mockReturnValue({
                 messageDetails: mockMessageDetails,
             });
-            renderApp(<MessageDetails />);
+            renderApp(<MessageDetailsPage />);
             expect(screen.queryByText("RECEIVE")).not.toBeInTheDocument();
             expect(
                 screen.queryByText("/ simple_report.csvuploader"),

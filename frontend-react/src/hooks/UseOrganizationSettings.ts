@@ -1,4 +1,6 @@
 import { useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { createQuery } from "react-query-kit";
 
 import {
     RSOrganizationSettings,
@@ -6,6 +8,7 @@ import {
 } from "../config/endpoints/settings";
 import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
 import { useSessionContext } from "../contexts/SessionContext";
+import { getAuthFetchProps } from "../network/Middleware";
 
 import { Organizations } from "./UseAdminSafeOrganizationName";
 
@@ -28,12 +31,15 @@ export const ReceiverOrganizationsMissingTransport: string[] = [
     "pima-az-phd",
 ];
 
+export function isOrganizationsMissingTransport(orgName: string): boolean {
+    return ReceiverOrganizationsMissingTransport.indexOf(orgName) > -1;
+}
+
 export const useOrganizationSettings = () => {
     const { activeMembership } = useSessionContext();
     const parsedName = activeMembership?.parsedName;
 
-    const { authorizedFetch, rsUseQuery } =
-        useAuthorizedFetch<RSOrganizationSettings>();
+    const authorizedFetch = useAuthorizedFetch<RSOrganizationSettings>();
     const memoizedDataFetch = useCallback(
         () =>
             authorizedFetch(settings, {
@@ -43,12 +49,47 @@ export const useOrganizationSettings = () => {
             }),
         [parsedName, authorizedFetch],
     );
-    return rsUseQuery(
-        [settings.queryKey, activeMembership],
-        memoizedDataFetch,
-        {
-            enabled:
-                Boolean(parsedName) && parsedName !== Organizations.PRIMEADMINS,
-        },
-    );
+    return useQuery({
+        queryKey: [settings.queryKey, activeMembership],
+        queryFn: memoizedDataFetch,
+        enabled:
+            Boolean(parsedName) && parsedName !== Organizations.PRIMEADMINS,
+    });
 };
+
+const { authFetch, authMiddleware } =
+    getAuthFetchProps<RSOrganizationSettings>();
+
+/**
+ * Experimental replacement hook using middleware for controlling enablement
+ * of the hook and variables. Will be iterated on to determine best ABI.
+ */
+export const useOrganizationSettings__ = createQuery({
+    primaryKey: settings.queryKey,
+    queryFn: authFetch,
+    use: [
+        (useQueryNext) => (options) => {
+            const { activeMembership } = useSessionContext();
+            const newOptions = {
+                ...options,
+                variables: {
+                    ...options.variables,
+                    endpoint: settings,
+                    fetchConfig: {
+                        ...options.variables?.fetchConfig,
+                        segments: {
+                            orgName: activeMembership?.parsedName,
+                        },
+                    },
+                },
+                enabled:
+                    (options.enabled == null || options.enabled) &&
+                    Boolean(activeMembership?.parsedName) &&
+                    activeMembership?.parsedName !== Organizations.PRIMEADMINS,
+            };
+
+            return useQueryNext(newOptions);
+        },
+        authMiddleware,
+    ],
+});

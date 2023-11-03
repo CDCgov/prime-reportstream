@@ -34,16 +34,17 @@ describe("FileHandlerErrorsWarningsStep", () => {
     };
 
     describe("when there are only errors", () => {
-        beforeEach(() => {
+        function setup() {
             renderApp(
                 <FileHandlerErrorsWarningsStep
                     {...DEFAULT_PROPS}
                     errors={[fakeError]}
                 />,
             );
-        });
+        }
 
         test("only renders the errors table", () => {
+            setup();
             expect(
                 screen.getByTestId("RequestedChangesDisplay--Errors"),
             ).toBeVisible();
@@ -54,16 +55,17 @@ describe("FileHandlerErrorsWarningsStep", () => {
     });
 
     describe("when there are only warnings", () => {
-        beforeEach(() => {
+        function setup() {
             renderApp(
                 <FileHandlerErrorsWarningsStep
                     {...DEFAULT_PROPS}
                     warnings={[fakeWarning]}
                 />,
             );
-        });
+        }
 
         test("only renders the errors table", () => {
+            setup();
             expect(
                 screen.queryByTestId("RequestedChangesDisplay--Errors"),
             ).not.toBeInTheDocument();
@@ -74,7 +76,7 @@ describe("FileHandlerErrorsWarningsStep", () => {
     });
 
     describe("when there are both errors and warnings", () => {
-        beforeEach(() => {
+        function setup() {
             renderApp(
                 <FileHandlerErrorsWarningsStep
                     {...DEFAULT_PROPS}
@@ -82,9 +84,10 @@ describe("FileHandlerErrorsWarningsStep", () => {
                     warnings={[fakeWarning]}
                 />,
             );
-        });
+        }
 
         test("renders both the errors table and the warnings table", () => {
+            setup();
             expect(
                 screen.getByTestId("RequestedChangesDisplay--Errors"),
             ).toBeVisible();
@@ -97,7 +100,7 @@ describe("FileHandlerErrorsWarningsStep", () => {
     describe("when clicking on 'Test another file'", () => {
         const onTestAnotherFileClickSpy = jest.fn();
 
-        beforeEach(async () => {
+        async function setup() {
             renderApp(
                 <FileHandlerErrorsWarningsStep
                     {...DEFAULT_PROPS}
@@ -108,9 +111,10 @@ describe("FileHandlerErrorsWarningsStep", () => {
             );
 
             await userEvent.click(screen.getByText("Test another file"));
-        });
+        }
 
-        test("calls onTestAnotherFileClick", () => {
+        test("calls onTestAnotherFileClick", async () => {
+            await setup();
             expect(onTestAnotherFileClickSpy).toHaveBeenCalled();
         });
     });

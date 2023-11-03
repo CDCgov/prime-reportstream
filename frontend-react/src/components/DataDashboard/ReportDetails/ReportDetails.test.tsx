@@ -1,8 +1,11 @@
-import { mockUseReportDetail } from "../../../hooks/network/History/__mocks__/DeliveryHooks";
+import {
+    mockUseReportDetail,
+    mockUseReportFacilities,
+} from "../../../hooks/network/History/__mocks__/DeliveryHooks";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 
-import { ReportDetails } from "./ReportDetails";
+import { ReportDetailsPage } from "./ReportDetails";
 
 const TEST_ID = "123";
 
@@ -16,10 +19,13 @@ jest.mock("react-router-dom", () => ({
 describe("ReportDetails", () => {
     test("url param (reportId) feeds into network hook", () => {
         mockUseReportDetail.mockReturnValue({
-            reportDetail: {} as RSDelivery,
-        });
+            data: {} as RSDelivery,
+        } as any);
+        mockUseReportFacilities.mockReturnValue({
+            data: [],
+        } as any);
 
-        renderApp(<ReportDetails />);
+        renderApp(<ReportDetailsPage />);
         expect(mockUseReportDetail).toHaveBeenCalledWith(TEST_ID);
     });
 });

@@ -135,7 +135,7 @@ export default function FileHandler() {
 
     return (
         <GridContainer>
-            <article className="usa-section">
+            <article>
                 <h1 className="margin-y-4">ReportStream File Validator</h1>
 
                 {organization?.description && (

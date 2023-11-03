@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { UseQueryResult } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { useSessionContext } from "../contexts/SessionContext";
 import { RSSender, servicesEndpoints } from "../config/endpoints/settings";
@@ -7,10 +7,10 @@ import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
 
 const { senderDetail } = servicesEndpoints;
 
-export type UseSenderResourceHookResult = UseQueryResult<RSSender>;
+export type UseSenderResourceHookResult = ReturnType<typeof useSenderResource>;
 
-export default function useSenderResource(initialData?: any) {
-    const { authorizedFetch, rsUseQuery } = useAuthorizedFetch<RSSender>();
+export default function useSenderResource(initialData?: RSSender) {
+    const authorizedFetch = useAuthorizedFetch<RSSender>();
     /* Access the session. */
     const { activeMembership } = useSessionContext();
     const memoizedDataFetch = useCallback(
@@ -27,13 +27,10 @@ export default function useSenderResource(initialData?: any) {
             authorizedFetch,
         ],
     );
-    return rsUseQuery(
-        [senderDetail.queryKey, activeMembership],
-        memoizedDataFetch,
-        {
-            enabled:
-                !!activeMembership?.parsedName && !!activeMembership.service,
-            ...(initialData && { initialData: initialData }),
-        },
-    );
+    return useQuery({
+        queryKey: [senderDetail.queryKey, activeMembership],
+        queryFn: memoizedDataFetch,
+        enabled: !!activeMembership?.parsedName && !!activeMembership.service,
+        initialData: initialData,
+    });
 }

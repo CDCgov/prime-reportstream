@@ -162,14 +162,15 @@ jest.mock("rest-hooks", () => ({
 }));
 
 describe("OrgReceiverTable", () => {
+    function setup() {
+        renderApp(<OrgSenderTable orgname={"test"} key={"test"} />);
+    }
     beforeAll(() => settingsServer.listen());
     afterEach(() => settingsServer.resetHandlers());
     afterAll(() => settingsServer.close());
-    beforeEach(() => {
-        renderApp(<OrgSenderTable orgname={"test"} key={"test"} />);
-    });
 
     test("renders correctly", () => {
+        setup();
         expect(screen.getByText("HL7_BATCH")).toBeInTheDocument();
     });
 });
