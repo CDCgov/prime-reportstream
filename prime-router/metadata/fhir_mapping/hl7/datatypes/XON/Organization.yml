@@ -18,10 +18,13 @@ extension_1-nameType:
       type: SYSTEM_URL
       value: organization-name-type
     valueCodeableConcept:
-      valueOf: datatype/CodeableConcept
+      valueOf: datatypes/CWE/Coding
       generateList: true
       expressionType: resource
       specs: XON.2
+      constants:
+        hl7v2Name: organization-name-type-code
+
 
 identifier_1:
   expressionType: nested
