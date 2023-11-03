@@ -437,6 +437,32 @@ extension:
           vars:
             annotationText: NTE.3 *&, GeneralUtils.concatenateWithChar(annotationText, '\n')
 
+    - expressionType: nested
+      condition: tribalCitizenship NOT_NULL
+      generateList: true
+      vars:
+        tribalCitizenship: STRING_ALL, PID.39
+      constants:
+        hl7v2Name: "tribal-citizenship"
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: patient-citizenship
+        extension:
+          generateList: true
+          expressionType: nested
+          expressions:
+            - expressionType: nested
+              expressionsMap:
+                url:
+                  type: SYSTEM_URL
+                  value: code
+                valueCodeableConcept:
+                  valueOf: datatypes/CWE/CodeableConcept
+                  expressionType: resource
+                  specs: PID.39
+
+
 extension_mother_identifier:
   generateList: true
   expressionType: nested

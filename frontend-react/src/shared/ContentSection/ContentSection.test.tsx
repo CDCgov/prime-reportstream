@@ -18,11 +18,12 @@ describe("Section rendering", () => {
         summary: "Mock summary",
     };
 
-    beforeEach(() => {
+    function setup() {
         renderApp(<ContentSection {...fakeSection} />);
-    });
+    }
 
     test("Section renders props", () => {
+        setup();
         const header = screen.getByTestId("heading");
         const summary = screen.getByTestId("paragraph");
 

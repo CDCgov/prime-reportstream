@@ -825,11 +825,6 @@ main {
     @include grid-container;
 }
 
-// Okta widget rudely renders as main element
-#okta-wrapper main {
-    display: block;
-}
-
 .rs-style {
     /*
     * CMS-type pages use a smaller default width

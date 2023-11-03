@@ -3,8 +3,6 @@ import { GridContainer } from "@trussworks/react-uswds";
 
 import HipaaNotice from "../../../components/HipaaNotice";
 import { useReportsDetail } from "../../../hooks/network/History/DeliveryHooks";
-import { MemberType } from "../../../hooks/UseOktaMemberships";
-import { AuthElement } from "../../../components/AuthElement";
 import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
 
 import Summary from "./Summary";
@@ -13,7 +11,7 @@ import DeliveryFacilitiesTable from "./DeliveryFacilitiesTable";
 
 const DetailsContent = () => {
     const { reportId } = useParams();
-    const { reportDetail } = useReportsDetail(reportId!!);
+    const { data: reportDetail } = useReportsDetail(reportId!!);
 
     return (
         <GridContainer>
@@ -29,10 +27,7 @@ const DetailsContent = () => {
     );
 };
 
-export const DeliveryDetail = () => withCatchAndSuspense(<DetailsContent />);
-export const DeliveryDetailWithAuth = () => (
-    <AuthElement
-        element={<DeliveryDetail />}
-        requiredUserType={MemberType.RECEIVER}
-    />
-);
+export const DeliveryDetailPage = () =>
+    withCatchAndSuspense(<DetailsContent />);
+
+export default DeliveryDetailPage;

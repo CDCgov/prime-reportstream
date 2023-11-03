@@ -1,12 +1,12 @@
 import classNames from "classnames";
 import { Outlet, useMatches } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import React from "react";
+import React, { Suspense, useMemo } from "react";
 
-import App from "../../App";
 import RSErrorBoundary from "../../components/RSErrorBoundary";
 import { ReportStreamFooter } from "../../shared/ReportStreamFooter/ReportStreamFooter";
-import { ReportStreamNavbar } from "../../components/header/ReportStreamNavbar";
+import { ReportStreamHeader } from "../../components/header/ReportStreamHeader";
+import Spinner from "../../components/Spinner";
 
 const ArticleWrapper = (props: React.PropsWithChildren) => {
     return <article className="tablet:grid-col-12" {...props} />;
@@ -21,10 +21,11 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
     // article element is currently handled within markdownlayout for markdown pages
     const InnerWrapper = isContentPage || isLoginPage ? "div" : ArticleWrapper;
     const innerWrapperClassnames = classNames(
-        isContentPage && !isFullWidth && "grid-row grid-gap-6",
+        isContentPage && !isFullWidth && "width-full grid-row grid-gap-6",
         isFullWidth && "width-full",
-        !isContentPage && !isLoginPage && "tablet:grid-col-12",
+        !isContentPage && "tablet:grid-col-12",
     );
+    const suspenseFallback = useMemo(() => <Spinner size={"fullpage"} />, []);
 
     return (
         <div
@@ -36,12 +37,14 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
                 isFullWidth && "rs-style--alternate",
             )}
         >
-            <ReportStreamNavbar blueVariant={isFullWidth} />
+            <ReportStreamHeader blueVariant={isFullWidth} />
             <main className="padding-top-5" id="main-content">
                 <InnerWrapper className={innerWrapperClassnames}>
                     <RSErrorBoundary>
                         {children}
-                        <Outlet />
+                        <Suspense fallback={suspenseFallback}>
+                            <Outlet />
+                        </Suspense>
                     </RSErrorBoundary>
                 </InnerWrapper>
             </main>
@@ -52,11 +55,7 @@ export const MainLayoutBase = ({ children }: MainLayoutBaseProps) => {
 };
 
 const MainLayout = (props: MainLayoutBaseProps) => {
-    return (
-        <App>
-            <MainLayoutBase {...props} />
-        </App>
-    );
+    return <MainLayoutBase {...props} />;
 };
 
 export default MainLayout;
