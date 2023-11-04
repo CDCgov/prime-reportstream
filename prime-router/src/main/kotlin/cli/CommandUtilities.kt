@@ -7,8 +7,20 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.common.Environment
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.apache.Apache
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.auth.providers.bearer
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.logging.SIMPLE
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
 import java.io.IOException
 import java.net.URL
 
@@ -21,6 +33,11 @@ class CommandUtilities {
          * The API endpoint to check for.  This needs to be a simple operation.
          */
         private const val waitForApiEndpointPath = "api/lookuptables/list"
+
+        /**
+         * timeout for http calls
+         */
+        private const val TIMEOUT = 50_000
 
         /**
          * Waits for the endpoint at [environment] to become available. This function will retry [retries] number of
@@ -131,6 +148,44 @@ class CommandUtilities {
             val compareToMap = createMaps(compareTo)
             val mergedRows = mergeMaps(baseMap, compareToMap)
             return mergedRows.filter { it.baseValue != it.toValue }.sortedBy { it.name }
+        }
+
+        fun createDefaultHttpClient(bearerTokens: BearerTokens?): HttpClient {
+            return HttpClient(Apache) {
+                // installs logging into the call to post to the server
+                install(Logging) {
+                    logger = Logger.SIMPLE
+                    level = LogLevel.INFO
+                }
+                bearerTokens?.let {
+                    install(Auth) {
+                        bearer {
+                            loadTokens {
+                                bearerTokens
+                            }
+                        }
+                    }
+                }
+                // install contentNegotiation to handle json response
+                install(ContentNegotiation) {
+                    json(
+                        Json {
+                            prettyPrint = true
+                            isLenient = true
+                            ignoreUnknownKeys = true
+                        }
+                    )
+                }
+                // configures the Apache client with our specified timeouts
+                engine {
+                    followRedirects = true
+                    socketTimeout = TIMEOUT
+                    connectTimeout = TIMEOUT
+                    connectionRequestTimeout = TIMEOUT
+                    customizeClient {
+                    }
+                }
+            }
         }
 
         /**
