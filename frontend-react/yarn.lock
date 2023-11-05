@@ -5587,48 +5587,48 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash.chunk@npm:^4.2.7":
-  version: 4.2.7
-  resolution: "@types/lodash.chunk@npm:4.2.7"
+"@types/lodash.chunk@npm:^4.2.8":
+  version: 4.2.8
+  resolution: "@types/lodash.chunk@npm:4.2.8"
   dependencies:
     "@types/lodash": "*"
-  checksum: 09df5ca00d8866776038bf94658d30b4ea84bffe5f81c14c01568bcb6be692bf59f6ea093de2bb0afbb3f8e54ae96ebd97595f2838ab59b77865427ca77d391e
+  checksum: a9d3bce2656ce6782dc1c1ee4072014183d42aabb056b4cacffb94077b10c2c32468545301526055fbd7e0da266143cff742714dbf6476ad13bd7f2840bb9d00
   languageName: node
   linkType: hard
 
-"@types/lodash.omit@npm:^4.5.7":
-  version: 4.5.7
-  resolution: "@types/lodash.omit@npm:4.5.7"
+"@types/lodash.omit@npm:^4.5.8":
+  version: 4.5.8
+  resolution: "@types/lodash.omit@npm:4.5.8"
   dependencies:
     "@types/lodash": "*"
-  checksum: e30600de518e648f4e9590d9238506ceab561726ec2fe56b4ff29b17aa1e47cbf9188be259b7d606dfb2040998c778533ccc0c58f065cca44ab5a6dbc8b6e518
+  checksum: 9daf5ad23487290d43bfecd3e3ec20b489d6c52b065476851ea9e302ba1e01793a3938324e68eec70f8fdc1f4fac3de4207376dc7013cd1e049e32951234ce19
   languageName: node
   linkType: hard
 
-"@types/lodash.pick@npm:^4.4.7":
-  version: 4.4.7
-  resolution: "@types/lodash.pick@npm:4.4.7"
+"@types/lodash.pick@npm:^4.4.8":
+  version: 4.4.8
+  resolution: "@types/lodash.pick@npm:4.4.8"
   dependencies:
     "@types/lodash": "*"
-  checksum: 78428a83b5d85e75bd13fb632030f9adb08dfc5bde3a9b6a302434fe7ac98e62919f87a7337e0ba674017d63bc57a8855ef863f5fcecd25e63b1d39eba2e4697
+  checksum: e433e4cb31e7e45d8b08d8cf1354956196671bfde496faeaaf56cfd2261133540dd116a05f42f6a315edf2da35eba9f9ea9c69ec37c81f37c7fc78d8fc345834
   languageName: node
   linkType: hard
 
-"@types/lodash.range@npm:^3.2.7":
-  version: 3.2.7
-  resolution: "@types/lodash.range@npm:3.2.7"
+"@types/lodash.range@npm:^3.2.8":
+  version: 3.2.8
+  resolution: "@types/lodash.range@npm:3.2.8"
   dependencies:
     "@types/lodash": "*"
-  checksum: 036218164b3836b553ddb7c0890c50f63ad43d67d2ed318e0146b86f38f6c6d4d994c81d42bafd61b4395ce5b280c49e4d33997dba9325d46b82d7ff9f5b75ec
+  checksum: 2f78313a651f5977b639cc0adb23f92e0573807bc7277bdf1232e819b1513e821ef5767bf7c7acf420a712c47c3dba1d1b8b9a33eac11d23626c62b7804313ee
   languageName: node
   linkType: hard
 
-"@types/lodash.uniq@npm:^4.5.7":
-  version: 4.5.7
-  resolution: "@types/lodash.uniq@npm:4.5.7"
+"@types/lodash.uniq@npm:^4.5.8":
+  version: 4.5.8
+  resolution: "@types/lodash.uniq@npm:4.5.8"
   dependencies:
     "@types/lodash": "*"
-  checksum: b7e94c32efb52c354ac3aacbebd29b27a304b7fb05258d0d511627ac64d9147d04ad5d0a3bdbc6d1dcc32699296f8af668ba73f1909904482c2e3554df6b4d27
+  checksum: f9b5e4116501648caafbeaa6b016b79d450fc2d8597e5a2a9db1e5bb65c22745b6f9ce683419c5f83534dab9caf2e9542bb37e2e680e818198f478d8fe9b6b85
   languageName: node
   linkType: hard
 
@@ -16008,11 +16008,11 @@ __metadata:
     "@types/github-slugger": ^1.3.0
     "@types/html-to-text": ^9.0.2
     "@types/jest": ^29.5.5
-    "@types/lodash.chunk": ^4.2.7
-    "@types/lodash.omit": ^4.5.7
-    "@types/lodash.pick": ^4.4.7
-    "@types/lodash.range": ^3.2.7
-    "@types/lodash.uniq": ^4.5.7
+    "@types/lodash.chunk": ^4.2.8
+    "@types/lodash.omit": ^4.5.8
+    "@types/lodash.pick": ^4.4.8
+    "@types/lodash.range": ^3.2.8
+    "@types/lodash.uniq": ^4.5.8
     "@types/mdx": ^2.0.8
     "@types/node": ^18.18.7
     "@types/react": 18.0.28
