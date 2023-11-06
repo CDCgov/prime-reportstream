@@ -30,10 +30,6 @@
             "valueString" : "^~\\&#"
           },
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
-            "valueIdentifier" : {}
-          },
-          {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
             "valueString" : "UNICODE UTF-8"
           }
@@ -253,10 +249,7 @@
               "valueString" : "2.5.1"
             }
           ]
-        },
-        "identifier" : [
-          {}
-        ]
+        }
       }
     },
     {
@@ -271,10 +264,7 @@
               "valueString" : "2.5.1"
             }
           ]
-        },
-        "identifier" : [
-          {}
-        ]
+        }
       }
     },
     {
@@ -700,7 +690,23 @@
         ],
         "period" : {
           "start" : "2023-04-01T10:25:31-04:00",
-          "end" : "2023-05-01T10:25:31-04:00"
+          "_start" : {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString" : "20230401102531-0400"
+              }
+            ]
+          },
+          "end" : "2023-05-01T10:25:31-04:00",
+          "_end" : {
+            "extension" : [
+              {
+                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+                "valueString" : "20230501102531-0400"
+              }
+            ]
+          }
         },
         "practitioner" : {
           "reference" : "Practitioner/1699039995233119000.d5acb42f-4a30-45f4-8d67-0ead6e8a8cca"

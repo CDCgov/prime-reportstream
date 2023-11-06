@@ -183,16 +183,36 @@ period_1:
 
 extension_xad12AddressValidityRange:
   expressionType: nested
+  vars:
+    start: XAD.12.1
+    end: XAD.12.2
+  condition: $start NOT_NULL || $end NOT_NULL
   expressionsMap:
     url:
       type: SYSTEM_URL
       value: xad12-address-validity-range
-    valuePeriod:
-      expressionType: resource
-      valueOf: datatypes/DR/Period
-      vars:
-        start: String, XAD.12.1
-        end: String, XAD.12.2
+    extension_1-start:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: xad12-address-validity-start
+        valueString:
+          type: STRING
+          valueOf: $start
+          expressionType: HL7Spec
+    extension_2-end:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: xad12-address-validity-end
+        valueString:
+          type: STRING
+          valueOf: $end
+          expressionType: HL7Spec
 
 # XAD.12 is deprecated so the schema favors using XAD.13/14 if either are populated
 period_2:
@@ -216,28 +236,32 @@ period_2:
 extension_9-effectiveDate:
   generateList: true
   expressionType: nested
+  vars:
+    periodStart: XAD.13
+  condition: $periodStart NOT_NULL
   expressionsMap:
     url:
       type: SYSTEM_URL
       value: 'xad13-effective-date'
-    valueDateTime:
-      valueOf: "GeneralUtils.dateTimeWithZoneId(periodStart,ZONEID)"
-      expressionType: JEXL
-      vars:
-        periodStart: XAD.13
+    valueString:
+      type: STRING
+      valueOf: $periodStart
+      expressionType: HL7Spec
 
 extension_10-expirationDate:
   generateList: true
   expressionType: nested
+  vars:
+    periodEnd: XAD.14
+  condition: $periodEnd NOT_NULL
   expressionsMap:
     url:
       type: SYSTEM_URL
       value: 'xad14-expiration-date'
-    valueDateTime:
-      valueOf: "GeneralUtils.dateTimeWithZoneId(periodEnd,ZONEID)"
-      expressionType: JEXL
-      vars:
-        periodEnd: XAD.14
+    valueString:
+      type: STRING
+      valueOf: $periodEnd
+      expressionType: HL7Spec
 
 extension_8-xad19Addressee:
   generateList: true
