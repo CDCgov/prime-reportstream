@@ -98,6 +98,7 @@ elements:
   - name: observation-units-identifier
     condition: >
       %context.value.exists() and
+      %context.value.is(Quantity) and
       %context.value.where(extension(%`rsext-cwe-quantity`)).exists() and
       %context.value.extension(%`rsext-cwe-quantity`).value.where(extension(%`rsext-hl7v2Name`).value = "units").exists()
     resource: '%resource.value.extension(%`rsext-cwe-quantity`).value'
