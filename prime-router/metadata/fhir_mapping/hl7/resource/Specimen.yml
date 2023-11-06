@@ -55,13 +55,6 @@ condition:
   vars:
     spm24: SPM.24
 
-note_1:
-  valueOf: datatype/Annotation_var
-  expressionType: resource
-  generateList: true
-  vars:
-    noteText: SPM.14
-
 container:
   condition: $containerTypeCWE NOT_NULL || $specimenAdditive NOT_NULL
   valueOf: secondary/Container
@@ -126,3 +119,21 @@ extension_4-specimenTypeModifier:
       valueOf: datatype/CodeableConcept
       expressionType: resource
       specs: SPM.5
+
+note_1:
+  valueOf: datatype/Annotation_var
+  expressionType: resource
+  generateList: true
+  vars:
+    noteText: SPM.14
+
+note_2:
+  condition: collectorsComment NOT_NULL
+  valueOf: datatypes/CWE/Annotation
+  expressionType: resource
+  generateList: true
+  specs: OBR.39
+  vars:
+    collectorsComment: String, OBR.39
+  constants:
+    hl7v2Name: collectors-comment
