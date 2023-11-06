@@ -44,12 +44,16 @@ elements:
     hl7Spec: [ '%{hl7TelecomPath}-12' ]
 
   - name: xtn-effective-start-date
-    value: [ '%resource.period.start' ]
-    hl7Spec: [ '%{hl7TelecomPath}-13' ]
+    resource: '%resource.period.start'
+    constants:
+      dtmFieldPath: '%{hl7TelecomPath}-13'
+    schema: ../dateTime/DTMorDT
 
   - name: xtn-expiration-date
-    value: [ '%resource.period.end' ]
-    hl7Spec: [ '%{hl7TelecomPath}-14' ]
+    resource: '%resource.period.end'
+    constants:
+      dtmFieldPath: '%{hl7TelecomPath}-14'
+    schema: ../dateTime/DTMorDT
 
   - name: xtn-preference-order
     value: [ '%resource.rank' ]
