@@ -1,5 +1,6 @@
 package gov.cdc.prime.router.cli
 
+import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import gov.cdc.prime.router.FakeReport
 import gov.cdc.prime.router.FileSource
 import gov.cdc.prime.router.Metadata
@@ -145,5 +146,21 @@ object FileUtilities {
     fun isInternalFile(file: File): Boolean {
         return file.extension.equals("INTERNAL", ignoreCase = true) ||
             file.nameWithoutExtension.endsWith("INTERNAL", ignoreCase = true)
+    }
+
+    /**
+     * Save the passed in table as a CSV to the provided output file
+     */
+    fun saveTableAsCSV(outputFile: File, tableRows: List<Map<String, String>>) {
+        val colNames = tableRows[0].keys.toList()
+        val rows = mutableListOf(colNames)
+        tableRows.forEach { row ->
+            rows.add(
+                colNames.map { colName ->
+                    row[colName] ?: ""
+                }
+            )
+        }
+        csvWriter().writeAll(rows, outputFile.outputStream())
     }
 }
