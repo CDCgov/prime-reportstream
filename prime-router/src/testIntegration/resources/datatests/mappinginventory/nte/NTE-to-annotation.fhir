@@ -28,10 +28,6 @@
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
             "valueString" : "^~\\&#"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
-            "valueIdentifier" : {}
           }
         ],
         "eventCoding" : {
@@ -806,10 +802,7 @@
               "valueString" : "2.5.1"
             }
           ]
-        },
-        "identifier" : [
-          {}
-        ]
+        }
       }
     },
     {
@@ -824,10 +817,7 @@
               "valueString" : "2.5.1"
             }
           ]
-        },
-        "identifier" : [
-          {}
-        ]
+        }
       }
     },
     {
@@ -1053,7 +1043,6 @@
           "reference" : "Patient/1699037233299491000.f6ba8ea1-7975-45fd-90ba-4886ae8d8819"
         },
         "effectiveDateTime" : "2023-02-27",
-        "issued" : "2023-04-05T13:36:00-04:00",
         "specimen" : [
           {
             "reference" : "Specimen/1699037233467654000.40dce412-5d88-45e3-ad91-bec938b7ede7"
@@ -1164,7 +1153,6 @@
           }
         ],
         "gender" : "female",
-        "birthDate" : "2000-04-05",
         "address" : [
           {
             "use" : "home",
