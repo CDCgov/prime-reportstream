@@ -20,7 +20,7 @@ extension_1-nameType:
     url:
       type: SYSTEM_URL
       value: organization-name-type
-    valueCodeableConcept:
+    valueCoding:
       valueOf: datatypes/CWE/Coding
       generateList: true
       expressionType: resource
