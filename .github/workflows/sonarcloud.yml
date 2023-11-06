@@ -87,6 +87,7 @@ jobs:
       - name: Perform Java CodeQL Analysis
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         uses: github/codeql-action/analyze@df32e399139a3050671466d7d9b3cbacc1cfd034
+
       - name: Build Test Report
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         working-directory: prime-router
