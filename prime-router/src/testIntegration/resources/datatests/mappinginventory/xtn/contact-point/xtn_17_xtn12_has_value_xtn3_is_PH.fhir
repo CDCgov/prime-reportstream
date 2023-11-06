@@ -25,9 +25,6 @@
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
         "valueString" : "^~\\&#"
       }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
-        "valueIdentifier" : { }
-      }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
         "valueString" : "UNICODE UTF-8"
       } ],
@@ -120,7 +117,6 @@
           "valueString" : "2.5.1"
         } ]
       },
-      "birthDate" : "1990-02-21",
       "contact" : [ {
         "telecom" : [ {
           "extension" : [  {

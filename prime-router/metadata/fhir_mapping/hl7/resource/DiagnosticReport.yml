@@ -158,6 +158,24 @@ issued:
   vars:
     dateTimeIn: OBR.22
 
+_issued:
+  expressionType: nested
+  condition: $obr22 NOT_NULL
+  vars:
+    obr22: OBR.22
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $obr22
+          expressionType: HL7Spec
+
 resultsInterpreter:
   vars:
     obr32: STRING_ALL, OBR.32
