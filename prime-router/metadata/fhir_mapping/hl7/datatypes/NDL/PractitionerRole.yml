@@ -11,20 +11,48 @@ practitioner:
   specs: NDL.1
 
 period:
+  vars:
+    startDate: NDL.2
+    endDate: NDL.3
+  condition: $startDate NOT_NULL || $endDate NOT_NULL
   expressionType: nested
   expressionsMap:
     start:
-      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+      valueOf: "GeneralUtils.dateTimeWithZoneId(startDate,ZONEID)"
       expressionType: JEXL
-      vars:
-        dateTimeIn: NDL.2
-      type: STRING
+    _start:
+      expressionType: nested
+      condition: $startDate NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $startDate
+              expressionType: HL7Spec
     end:
-      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+      valueOf: "GeneralUtils.dateTimeWithZoneId(endDate,ZONEID)"
       expressionType: JEXL
-      vars:
-        dateTimeIn: NDL.3
-      type: STRING
+    _end:
+      expressionType: nested
+      condition: $endDate NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $endDate
+              expressionType: HL7Spec
 
 location:
   generateList: true

@@ -42,6 +42,18 @@ elements:
     schema: datatype/xtn-telecom
     resourceIndex: telecomIndex
 
+  - name: contact-start-date
+    resource: '%resource.period.start'
+    constants:
+      dtmFieldPath: '%{hl7NK1Field}-8'
+    schema: ../datatypes/dateTime/DTMorDT
+
+  - name: contact-end-date
+    resource: '%resource.period.end'
+    constants:
+      dtmFieldPath: '%{hl7NK1Field}-9'
+    schema: ../datatypes/dateTime/DTMorDT
+
   - name: contact-persons-phone-number
     resource: '%resource.organization.resolve().contact.telecom'
     condition: '%resource.exists()'
