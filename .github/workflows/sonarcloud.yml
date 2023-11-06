@@ -82,11 +82,15 @@ jobs:
       - name: Build Prime Router Package
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         working-directory: prime-router
-        run: ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" jacocoTestReport package -x test -x fatjar
+        run: ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" package -x test -x fatjar
 
       - name: Perform Java CodeQL Analysis
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         uses: github/codeql-action/analyze@df32e399139a3050671466d7d9b3cbacc1cfd034
+      - name: Build Test Report
+        if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
+        working-directory: prime-router
+        run: ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" jacocoTestReport -x test -x fatjar
 
       - name: Use Node.js with yarn
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
