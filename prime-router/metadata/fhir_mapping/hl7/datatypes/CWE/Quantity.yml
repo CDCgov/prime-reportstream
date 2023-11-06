@@ -8,7 +8,6 @@ code:
     nameOfCodingSystem: CWE.3
 
 unit:
-  generateList: true
   expressionType: nested
   condition:
   vars:
