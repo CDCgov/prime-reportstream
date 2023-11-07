@@ -3,9 +3,6 @@ package gov.cdc.prime.router.cli
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.PrintMessage
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.result.Result
 import gov.cdc.prime.router.common.Environment
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
@@ -17,12 +14,18 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
+import io.ktor.client.plugins.timeout
+import io.ktor.client.request.head
+import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import java.io.IOException
 import java.net.URL
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 
 /**
  * Utilities for commands.
@@ -75,13 +78,19 @@ class CommandUtilities {
          * @return true is the API is available, false otherwise
          */
         private fun isEndpointAvailable(url: URL, accessToken: String): Boolean {
-            val (_, _, result) = Fuel.head(url.toString())
-                .authentication()
-                .bearer(accessToken)
-                .response()
-            return when (result) {
-                is Result.Success -> true
-                else -> false
+            val client = CommandUtilities.createDefaultHttpClient(
+                BearerTokens(accessToken, refreshToken = "")
+            )
+            return runBlocking {
+                val response =
+                    client.head(url.toString()) {
+                        timeout {
+                            requestTimeoutMillis = requestTimeoutMillis
+                        }
+                    }
+
+                LookupTableEndpointUtilities.checkResponse(response)
+                response.status == HttpStatusCode.OK
             }
         }
 

@@ -1,6 +1,5 @@
 package gov.cdc.prime.router.cli
 
-// import io.ktor.client.plugins.*
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.options.default
@@ -15,9 +14,10 @@ import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.request.accept
 import io.ktor.client.request.forms.submitForm
-import io.ktor.client.request.get
+import io.ktor.client.request.request
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
+import io.ktor.http.HttpMethod
 import io.ktor.http.Parameters
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.runBlocking
@@ -274,7 +274,8 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
                 BearerTokens(accessTokenFile.token, refreshToken = "")
             )
             return runBlocking {
-                val response: HttpResponse = client.get("$oktaBaseUrl$oktaUserInfoPath") {
+                val response: HttpResponse = client.request("$oktaBaseUrl$oktaUserInfoPath") {
+                    method = HttpMethod.Get
                     expectSuccess = true
                 }
                 response.status.isSuccess()

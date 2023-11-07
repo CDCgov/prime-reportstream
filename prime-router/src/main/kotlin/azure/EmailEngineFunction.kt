@@ -8,8 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.json.responseJson
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -30,11 +28,18 @@ import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
 import gov.cdc.prime.router.azure.db.enums.SettingType
+import gov.cdc.prime.router.cli.CommandUtilities
 import gov.cdc.prime.router.common.BaseEngine
 import gov.cdc.prime.router.secrets.SecretHelper
 import gov.cdc.prime.router.tokens.oktaMembershipClaim
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
 import gov.cdc.prime.router.tokens.subjectClaim
+import io.ktor.client.call.body
+import io.ktor.client.request.accept
+import io.ktor.client.request.get
+import io.ktor.client.request.headers
+import io.ktor.http.ContentType
+import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import java.io.IOException
 import java.time.OffsetDateTime
@@ -304,22 +309,51 @@ class EmailScheduleEngine {
         var emails: MutableList<String> = mutableListOf()
 
         try {
-            var ssws: String? = SecretHelper.getSecretService().fetchSecret("SSWS_OKTA")
+            val ssws: String? = SecretHelper.getSecretService().fetchSecret("SSWS_OKTA")
 
             if (ssws !== null) {
-                var grp = encodeOrg(org)
+                val grp = encodeOrg(org)
 
                 // get the OKTA Group Id
-                var (_, _, response1) = Fuel.get("$OKTA_GROUPS_API?q=$grp")
-                    .header(mapOf("Authorization" to "SSWS $ssws")).responseJson()
-                var grpId = ((response1.get().array()).get(0) as JSONObject).getString("id")
+                val client = CommandUtilities.createDefaultHttpClient(bearerTokens = null)
+
+                val response1 = runBlocking {
+                    client.get("$OKTA_GROUPS_API?q=$grp") {
+                        headers {
+                            append("Authorization", "SSWS $ssws")
+                        }
+                        accept(ContentType.Application.Json)
+                    }
+                }
+
+//                var (_, _, response1) = Fuel.get("$OKTA_GROUPS_API?q=$grp")
+//                    .header(mapOf("Authorization" to "SSWS $ssws")).responseJson()
+
+                val respStrJson1 = runBlocking {
+                    response1.body<String>()
+                }
+
+                val grpId = JSONObject(respStrJson1).getString("id")
+                // val grpId = ((response1.get().array()).get(0) as JSONObject).getString("id")
 
                 // get the users within that OKTA group
-                var (_, _, response) = Fuel.get("$OKTA_GROUPS_API/$grpId/users")
-                    .header(mapOf("Authorization" to "SSWS $ssws")).responseJson()
+                val response = runBlocking {
+                    client.get("$OKTA_GROUPS_API/$grpId/users") {
+                        headers {
+                            append("Authorization", "SSWS $ssws")
+                        }
+                    }
+                }
 
-                for (user in response.get().array()) emails.add(
-                    (user as JSONObject).getJSONObject("profile").getString("email")
+//                var (_, _, response) = Fuel.get("$OKTA_GROUPS_API/$grpId/users")
+//                    .header(mapOf("Authorization" to "SSWS $ssws")).responseJson()
+
+                val respStrJson = runBlocking {
+                    response.body<String>()
+                }
+                val users = JSONObject(respStrJson)
+                for (user in users.toMap()) emails.add(
+                    (user.value as JSONObject).getJSONObject("profile").getString("email")
                 )
             }
         } catch (ex: Throwable) {

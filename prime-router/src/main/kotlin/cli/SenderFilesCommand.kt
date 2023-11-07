@@ -7,16 +7,18 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.Headers
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.result.map
-import com.github.kittinunf.result.onError
-import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.SenderFilesFunction
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.messages.ReportFileMessage
+import io.ktor.client.call.body
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.timeout
+import io.ktor.client.request.accept
+import io.ktor.client.request.get
+import io.ktor.http.ContentType
+import io.ktor.http.parameters
+import kotlinx.coroutines.runBlocking
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalDateTime
@@ -115,26 +117,47 @@ class SenderFilesCommand : CliktCommand(
         val path = environment.value.formUrl("api/sender-files")
         val params = buildParameters()
         verbose("GET $path with $params")
-        val (_, response, result) = Fuel
-            .get(path.toString(), params)
-            .authentication()
-            .bearer(accessToken.value)
-            .header(Headers.CONTENT_TYPE to HttpUtilities.jsonMediaType)
-            .timeoutRead(SettingsUtilities.requestTimeoutMillis)
-            .responseString()
-        return result.map {
-            jsonMapper.readValue(response.data, Array<ReportFileMessage>::class.java)?.toList()
+
+        val client = CommandUtilities.createDefaultHttpClient(
+            BearerTokens(accessToken.value, refreshToken = "")
+        )
+        return runBlocking {
+            val response =
+                client.get(path.toString()) {
+                    timeout {
+                        requestTimeoutMillis = requestTimeoutMillis
+                    }
+                    parameters {
+                        params.forEach { pair ->
+                            append(pair.first, pair.second)
+                        }
+                    }
+                    accept(ContentType.Application.Json)
+                }
+            jsonMapper.readValue(response.body<String>(), Array<ReportFileMessage>::class.java)?.toList()
                 ?: abort("Could not deserialize")
-        }.onError {
-            abort(
-                """
-                Error using the report-files API 
-                Status Code: ${response.statusCode}
-                Message: ${response.responseMessage}
-                Details: ${String(response.data)}
-                """.trimIndent()
-            )
-        }.get()
+        }
+
+//        val (_, response, result) = Fuel
+//            .get(path.toString(), params)
+//            .authentication()
+//            .bearer(accessToken.value)
+//            .header(Headers.CONTENT_TYPE to HttpUtilities.jsonMediaType)
+//            .timeoutRead(SettingsUtilities.requestTimeoutMillis)
+//            .responseString()
+//        return result.map {
+//            jsonMapper.readValue(response.data, Array<ReportFileMessage>::class.java)?.toList()
+//                ?: abort("Could not deserialize")
+//        }.onError {
+//            abort(
+//                """
+//                Error using the report-files API
+//                Status Code: ${response.statusCode}
+//                Message: ${response.responseMessage}
+//                Details: ${String(response.data)}
+//                """.trimIndent()
+//            )
+//        }.get()
     }
 
     /**

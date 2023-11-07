@@ -15,23 +15,26 @@ import com.github.difflib.text.DiffRow
 import com.github.difflib.text.DiffRowGenerator
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.FuelError
-import com.github.kittinunf.fuel.core.Headers
-import com.github.kittinunf.fuel.core.Response
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.core.extensions.jsonBody
-import com.github.kittinunf.fuel.json.FuelJson
-import com.github.kittinunf.fuel.json.responseJson
-import com.github.kittinunf.result.Result
 import com.google.common.base.Preconditions
 import de.m3y.kformat.Table
 import de.m3y.kformat.table
-import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.azure.LookupTableFunctions
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import io.ktor.client.call.body
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.timeout
+import io.ktor.client.request.accept
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.put
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.parameters
+import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.FileUtils
 import org.apache.http.HttpStatus
 import org.jooq.JSONB
@@ -64,17 +67,23 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
      */
     fun fetchList(listInactive: Boolean = false): List<LookupTableVersion> {
         val apiUrl = environment.formUrl("$endpointRoot/list")
-        val (_, response, result) = Fuel
-            .get(apiUrl.toString(), listOf(LookupTableFunctions.showInactiveParamName to listInactive.toString()))
-            .authentication()
-            .bearer(accessToken)
-            .timeoutRead(requestTimeoutMillis)
-            .responseJson()
-        checkCommonErrorsFromResponse(result, response)
-        try {
-            return mapper.readValue(result.get().content)
-        } catch (e: MismatchedInputException) {
-            throw IOException("Invalid response body found.")
+        val client = CommandUtilities.createDefaultHttpClient(
+            BearerTokens(accessToken, refreshToken = "")
+        )
+        return runBlocking {
+            val response =
+                client.get(apiUrl.toString()) {
+                    timeout {
+                        requestTimeoutMillis = requestTimeoutMillis
+                    }
+                    parameters {
+                        append(LookupTableFunctions.showInactiveParamName, listInactive.toString())
+                    }
+                }
+
+            checkResponse(response)
+
+            response.body()
         }
     }
 
@@ -86,13 +95,18 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
      */
     fun activateTable(tableName: String, version: Int): LookupTableVersion {
         val apiUrl = environment.formUrl("$endpointRoot/$tableName/$version/activate")
-        val (_, response, result) = Fuel
-            .put(apiUrl.toString())
-            .authentication()
-            .bearer(accessToken)
-            .timeoutRead(requestTimeoutMillis)
-            .responseJson()
-        return getTableInfoFromResponse(result, response)
+        val client = CommandUtilities.createDefaultHttpClient(
+            BearerTokens(accessToken, refreshToken = "")
+        )
+        return runBlocking {
+            val response =
+                client.put(apiUrl.toString()) {
+                    timeout {
+                        requestTimeoutMillis = requestTimeoutMillis
+                    }
+                }
+            getTableInfoResponse(response)
+        }
     }
 
     /**
@@ -103,17 +117,27 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
      */
     fun fetchTableContent(tableName: String, version: Int): List<Map<String, String>> {
         val apiUrl = environment.formUrl("$endpointRoot/$tableName/$version/content")
-        val (_, response, result) = Fuel
-            .get(apiUrl.toString())
-            .authentication()
-            .bearer(accessToken)
-            .timeoutRead(requestTimeoutMillis)
-            .responseJson()
-        checkCommonErrorsFromResponse(result, response)
-        try {
-            return mapper.readValue(result.get().content)
-        } catch (e: MismatchedInputException) {
-            throw IOException("Invalid response body found.")
+        val client = CommandUtilities.createDefaultHttpClient(
+            BearerTokens(accessToken, refreshToken = "")
+        )
+        return runBlocking {
+            val response =
+                client.get(apiUrl.toString()) {
+                    timeout {
+                        requestTimeoutMillis = requestTimeoutMillis
+                    }
+                }
+
+            checkResponse(response)
+
+            try {
+                val respBodyText = runBlocking {
+                    response.bodyAsText()
+                }
+                mapper.readValue(respBodyText.toString())
+            } catch (e: MismatchedInputException) {
+                throw IOException("Invalid response body found.")
+            }
         }
     }
 
@@ -125,13 +149,18 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
      */
     fun fetchTableInfo(tableName: String, version: Int): LookupTableVersion {
         val apiUrl = environment.formUrl("$endpointRoot/$tableName/$version/info")
-        val (_, response, result) = Fuel
-            .get(apiUrl.toString())
-            .authentication()
-            .bearer(accessToken)
-            .timeoutRead(requestTimeoutMillis)
-            .responseJson()
-        return getTableInfoFromResponse(result, response)
+        val client = CommandUtilities.createDefaultHttpClient(
+            BearerTokens(accessToken, refreshToken = "")
+        )
+        return runBlocking {
+            val response =
+                client.get(apiUrl.toString()) {
+                    timeout {
+                        requestTimeoutMillis = requestTimeoutMillis
+                    }
+                }
+            getTableInfoResponse(response)
+        }
     }
 
     /**
@@ -145,15 +174,20 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
         val apiUrl = environment.formUrl("$endpointRoot/$tableName?table&forceTableToCreate=$forceTableToCreate")
         val jsonPayload = mapper.writeValueAsString(tableData)
 
-        val (_, response, result) = Fuel
-            .post(apiUrl.toString())
-            .header(Headers.CONTENT_TYPE to HttpUtilities.jsonMediaType)
-            .jsonBody(jsonPayload.toString())
-            .authentication()
-            .bearer(accessToken)
-            .timeoutRead(requestTimeoutMillis)
-            .responseJson()
-        return getTableInfoFromResponse(result, response)
+        val client = CommandUtilities.createDefaultHttpClient(
+            BearerTokens(accessToken, refreshToken = "")
+        )
+        return runBlocking {
+            val response =
+                client.post(apiUrl.toString()) {
+                    timeout {
+                        requestTimeoutMillis = requestTimeoutMillis
+                    }
+                    accept(ContentType.Application.Json)
+                    setBody(jsonPayload)
+                }
+            getTableInfoResponse(response)
+        }
     }
 
     companion object {
@@ -178,18 +212,18 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
         class TableConflictException(message: String) : Exception(message)
 
         /**
-         * Gets a table version information object from a [result] and [response] returned by the API.
+         * Gets a table version information object from a [response] returned by the API.
          * @return a table version information object
          * @throws TableNotFoundException if the table and/or version is not found
          * @throws IOException if there is a server or API error
          */
-        internal fun getTableInfoFromResponse(
-            result: Result<FuelJson, FuelError>,
-            response: Response,
-        ): LookupTableVersion {
-            checkCommonErrorsFromResponse(result, response)
+        internal fun getTableInfoResponse(response: HttpResponse): LookupTableVersion {
+            checkResponse(response)
             try {
-                val info = mapper.readValue<LookupTableVersion>(result.get().content)
+                val respStr = runBlocking {
+                    response.bodyAsText()
+                }
+                val info = mapper.readValue<LookupTableVersion>(respStr)
                 if (info.tableName.isNullOrBlank() || info.tableVersion < 1 || info.createdBy.isNullOrBlank() ||
                     info.createdBy.isNullOrBlank()
                 ) {
@@ -203,23 +237,22 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
         }
 
         /**
-         * Check for an error response from a [result] and [response] from the API.
+         * Check for an error response from a [response] from the API.
          * @throws TableNotFoundException if the table and/or version is not found
          * @throws IOException if there is a server or API error
          */
-        internal fun checkCommonErrorsFromResponse(result: Result<FuelJson, FuelError>, response: Response) {
+        internal fun checkResponse(response: HttpResponse) {
             when {
-                result is Result.Failure && response.statusCode == HttpStatus.SC_NOT_FOUND -> {
-                    val error = getErrorFromResponse(result)
+                response.status.value == HttpStatus.SC_NOT_FOUND -> {
+                    val error = getResponseError(response)
                     try {
                         when {
                             // If we get a 404 with no response body then it is an endpoint not found error
-                            result.error.response.body().isEmpty() -> throw IOException(error)
+                            error.isEmpty() -> throw IOException("Endpoint not found.")
 
                             // If we do get a 404 with a JSON error message then it is because the table was not found
                             mapper.readValue<Map<String, String>>(
-                                result.error.response.body()
-                                    .asString(HttpUtilities.jsonMediaType)
+                                error
                             ).containsKey("error") ->
                                 throw TableNotFoundException(error)
 
@@ -231,37 +264,24 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
                     }
                 }
 
-                result is Result.Failure && response.statusCode == HttpStatus.SC_CONFLICT ->
-                    throw TableConflictException(getErrorFromResponse(result))
+                response.status.value == HttpStatus.SC_CONFLICT ->
+                    throw TableConflictException(getResponseError(response))
 
-                result is Result.Failure ->
-                    throw IOException(getErrorFromResponse(result))
+                getResponseError(response).isNotBlank() ->
+                    throw IOException(getResponseError(response))
 
-                result.get().content.isBlank() ->
+                getResponseError(response).isBlank() ->
                     throw IOException("Empty response body")
             }
         }
 
         /**
-         * Get the error message from a [result] as returned by the API.
+         * Get the error message from a [response] as returned by the API.
          * @return The error as a string or null if no error is found.
          */
-        internal fun getErrorFromResponse(result: Result<FuelJson, FuelError>): String {
-            return try {
-                when {
-                    result !is Result.Failure -> ""
-
-                    result.error.response.body().isEmpty() -> result.error.toString()
-
-                    else ->
-                        mapper.readValue<Map<String, String>>(
-                            result.error.response.body()
-                                .asString(HttpUtilities.jsonMediaType)
-                        )["error"]
-                            ?: result.error.toString()
-                }
-            } catch (e: Exception) {
-                (result as Result.Failure).error.toString()
+        internal fun getResponseError(response: HttpResponse): String {
+            return runBlocking {
+                response.body<String>().toString()
             }
         }
 

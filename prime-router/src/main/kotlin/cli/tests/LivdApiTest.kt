@@ -3,11 +3,16 @@ package gov.cdc.prime.router.cli.tests
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.result.Result
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.azure.LivdData
+import gov.cdc.prime.router.cli.CommandUtilities
 import gov.cdc.prime.router.common.Environment
+import io.ktor.client.call.body
+import io.ktor.client.plugins.timeout
+import io.ktor.client.request.get
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.parameters
+import kotlinx.coroutines.runBlocking
 
 /**
  * Wraps the test case for the LIVD API
@@ -113,30 +118,71 @@ class LivdApiTest : CoolTest() {
      * Runs the query against the LIVD API for the given path and parameters
      */
     private fun livdApiQuery(testCase: LivdApiTestCase): Pair<Boolean, String?> {
-        val (_, response, result) = Fuel.get(testCase.path, testCase.parameters)
-            .timeoutRead(75000)
-            .responseString()
+        val client = CommandUtilities.createDefaultHttpClient(bearerTokens = null)
 
-        return if (response.statusCode != testCase.expectedHttpStatus.value()) {
-            bad(
-                "***$name Test '${testCase.name}' FAILED:" +
-                    " Expected HttpStatus ${testCase.expectedHttpStatus}. Got ${response.statusCode}"
-            )
-            Pair(false, null)
-        } else if (testCase.expectedHttpStatus != HttpStatus.OK) {
-            Pair(true, null)
-        } else if (result !is Result.Success) {
-            bad("***$name Test '${testCase.name}' FAILED: Result is $result")
-            Pair(true, null)
-        } else {
-            val json: String = result.value
-            if (json.isEmpty()) {
-                bad("***$name Test '${testCase.name}' FAILED: empty body")
+        return runBlocking {
+            val response =
+                client.get(testCase.path) {
+                    timeout {
+                        requestTimeoutMillis = 75000
+                    }
+                    parameters {
+                        testCase.parameters?.forEach {
+                            append(it.first, it.second.toString())
+                        }
+                    }
+                }
+
+            val respStr = runBlocking {
+                response.body<String>()
+            }
+
+            if (response.status.value != testCase.expectedHttpStatus.value()) {
+                bad(
+                    "***$name Test '${testCase.name}' FAILED:" +
+                            " Expected HttpStatus ${testCase.expectedHttpStatus}. Got ${response.status.value}"
+                )
                 Pair(false, null)
+            } else if (testCase.expectedHttpStatus.value() != HttpStatusCode.OK.value) {
+                Pair(true, null)
+            } else if (response.status.value != HttpStatusCode.OK.value) {
+                bad("***$name Test '${testCase.name}' FAILED: Result is $respStr")
+                Pair(true, null)
             } else {
-                Pair(true, json)
+                val json: String = respStr
+                if (json.isEmpty()) {
+                    bad("***$name Test '${testCase.name}' FAILED: empty body")
+                    Pair(false, null)
+                } else {
+                    Pair(true, json)
+                }
             }
         }
+
+//        val (_, response, result) = Fuel.get(testCase.path, testCase.parameters)
+//            .timeoutRead(75000)
+//            .responseString()
+
+//        return if (response.statusCode != testCase.expectedHttpStatus.value()) {
+//            bad(
+//                "***$name Test '${testCase.name}' FAILED:" +
+//                    " Expected HttpStatus ${testCase.expectedHttpStatus}. Got ${response.statusCode}"
+//            )
+//            Pair(false, null)
+//        } else if (testCase.expectedHttpStatus != HttpStatus.OK) {
+//            Pair(true, null)
+//        } else if (result !is Result.Success) {
+//            bad("***$name Test '${testCase.name}' FAILED: Result is $result")
+//            Pair(true, null)
+//        } else {
+//            val json: String = result.value
+//            if (json.isEmpty()) {
+//                bad("***$name Test '${testCase.name}' FAILED: empty body")
+//                Pair(false, null)
+//            } else {
+//                Pair(true, json)
+//            }
+//        }
     }
 
     companion object {

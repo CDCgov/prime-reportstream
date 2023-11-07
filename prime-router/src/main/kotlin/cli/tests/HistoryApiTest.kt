@@ -3,15 +3,22 @@ package gov.cdc.prime.router.cli.tests
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.result.Result
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.HttpUtilities
+import gov.cdc.prime.router.cli.CommandUtilities
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
+import io.ktor.client.call.body
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.timeout
+import io.ktor.client.request.accept
+import io.ktor.client.request.get
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.parameters
+import kotlinx.coroutines.runBlocking
 import java.net.HttpURLConnection
 import java.time.OffsetDateTime
 
@@ -121,32 +128,80 @@ class HistoryApiTest : CoolTest() {
      * The json body may be null even if the test passed, in cases of an expected error code.
      */
     private fun historyApiQuery(testCase: HistoryApiTestCase): Pair<Boolean, String?> {
-        val (_, response, result) = Fuel.get(testCase.path, testCase.parameters)
-            .authentication()
-            .bearer(testCase.bearer)
-            .header(testCase.headers)
-            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
-            .responseString()
-        if (response.statusCode != testCase.expectedHttpStatus.value()) {
-            bad(
-                "***$name Test '${testCase.name}' FAILED:" +
-                    " Expected HttpStatus ${testCase.expectedHttpStatus}. Got ${response.statusCode}"
-            )
-            return Pair(false, null)
+        val client = CommandUtilities.createDefaultHttpClient(
+            BearerTokens(testCase.bearer, refreshToken = "")
+        )
+        return runBlocking {
+            val response =
+                client.get(testCase.path) {
+                    timeout {
+                        requestTimeoutMillis = 45000
+                        // default timeout is 15s; raising higher due to slow Function startup issues
+                    }
+                    parameters {
+                        testCase.parameters?.forEach {
+                            append(it.first, it.second.toString())
+                        }
+                    }
+                    accept(ContentType.Application.Json)
+                }
+
+            val respStr = runBlocking {
+                response.body<String>()
+            }
+
+            if (response.status.value != testCase.expectedHttpStatus.value()) {
+                bad(
+                    "***$name Test '${testCase.name}' FAILED:" +
+                        " Expected HttpStatus ${testCase.expectedHttpStatus}. Got ${response.status.value}"
+                )
+                Pair(false, null)
+            }
+
+            if (testCase.expectedHttpStatus.value() != HttpStatusCode.OK.value) {
+                Pair(true, null)
+            }
+
+            if (response.status != HttpStatusCode.OK) {
+                bad("***$name Test '${testCase.name}' FAILED:  Result is $respStr")
+                Pair(false, null)
+            }
+
+            val json: String = respStr
+            if (json.isEmpty()) {
+                bad("***$name Test '${testCase.name}' FAILED: empty body")
+                Pair(false, null)
+            }
+            Pair(true, json)
         }
-        if (testCase.expectedHttpStatus != HttpStatus.OK) {
-            return Pair(true, null)
-        }
-        if (result !is Result.Success) {
-            bad("***$name Test '${testCase.name}' FAILED:  Result is $result")
-            return Pair(false, null)
-        }
-        val json: String = result.value
-        if (json.isEmpty()) {
-            bad("***$name Test '${testCase.name}' FAILED: empty body")
-            return Pair(false, null)
-        }
-        return Pair(true, json)
+
+//        val (_, response, result) = Fuel.get(testCase.path, testCase.parameters)
+//            .authentication()
+//            .bearer(testCase.bearer)
+//            .header(testCase.headers)
+//            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+//            .responseString()
+
+//        if (response.statusCode != testCase.expectedHttpStatus.value()) {
+//            bad(
+//                "***$name Test '${testCase.name}' FAILED:" +
+//                    " Expected HttpStatus ${testCase.expectedHttpStatus}. Got ${response.statusCode}"
+//            )
+//            return Pair(false, null)
+//        }
+//        if (testCase.expectedHttpStatus != HttpStatus.OK) {
+//            return Pair(true, null)
+//        }
+//        if (result !is Result.Success) {
+//            bad("***$name Test '${testCase.name}' FAILED:  Result is $result")
+//            return Pair(false, null)
+//        }
+//        val json: String = result.value
+//        if (json.isEmpty()) {
+//            bad("***$name Test '${testCase.name}' FAILED: empty body")
+//            return Pair(false, null)
+//        }
+//        return Pair(true, json)
     }
 
     /**

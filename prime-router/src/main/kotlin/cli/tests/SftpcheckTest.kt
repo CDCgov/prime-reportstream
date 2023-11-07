@@ -1,15 +1,16 @@
 package gov.cdc.prime.router.cli.tests
 
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.FuelError
-import com.github.kittinunf.fuel.core.Headers
-import com.github.kittinunf.fuel.core.Request
-import com.github.kittinunf.fuel.core.Response
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.json.responseJson
-import com.github.kittinunf.result.Result
+import gov.cdc.prime.router.cli.CommandUtilities
 import gov.cdc.prime.router.common.Environment
-import org.apache.http.HttpStatus
+import io.ktor.client.call.body
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.request.accept
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.runBlocking
+import org.json.JSONObject
 
 private const val jsonMimeType = "application/json"
 
@@ -59,16 +60,21 @@ class SftpcheckTest : CoolTest() {
             // Check the organization ignore receiver connections
             echo("SFTPCHECK Organizatin: $receiver...")
 
-            val (_, response, _) = sftpReceiverIgnoreOrganizationCheck(path, accessToken)
-            if (response.statusCode == HttpStatus.SC_OK) {
+            val response = sftpReceiverIgnoreOrganizationCheck(path, accessToken)
+
+            val respStr = runBlocking {
+                response.body<String>()
+            }
+
+            if (response.status == HttpStatusCode.OK) {
                 good(
                     sftpcheckMessage + "PASSED with response code: " +
-                        " ${response.statusCode} "
+                            " ${response.status.value} "
                 )
             } else {
                 sftpcheckTestResult = bad(
                     sftpcheckMessage + "FAILED with error code: : " +
-                        "${response.statusCode} - ${response.responseMessage}..."
+                            "${response.status.value} - $respStr..."
                 )
             }
         }
@@ -91,28 +97,59 @@ class SftpcheckTest : CoolTest() {
         path: String,
         accessToken: String,
     ): List<String> {
-        val (_, _, result) = Fuel
-            .get(path)
-            .authentication()
-            .bearer(accessToken)
-            .header(Headers.CONTENT_TYPE to jsonMimeType)
-            .responseJson()
-        return when (result) {
-            is Result.Failure -> emptyList()
-            is Result.Success -> {
-                val receiverJsonArray = result.value.array()
-                (0 until receiverJsonArray.length())
-                    .map { receiverJsonArray.getJSONObject(it) }
-                    .filter {
-                        (
-                            !it.isNull("transport") &&
-                                !it.getJSONObject("transport").isNull("host") &&
-                                it.getJSONObject("transport").getString("host") == "sftp"
-                            )
-                    }
-                    .map { "${it.getString("organizationName")}.${it.getString("name")}" }
+        val client = CommandUtilities.createDefaultHttpClient(
+            BearerTokens(accessToken, refreshToken = "")
+        )
+        return runBlocking {
+            val response =
+                client.get(path) {
+                    accept(ContentType.Application.Json)
+                }
+
+            val respStr = runBlocking {
+                response.body<String>()
+            }
+
+            when {
+                response.status != HttpStatusCode.OK -> emptyList()
+                else -> {
+                    val receiverJsonArray = JSONObject(respStr)
+                    (0 until receiverJsonArray.length())
+                        .map { receiverJsonArray.getJSONObject(it.toString()) }
+                        .filter {
+                            (
+                                    !it.isNull("transport") &&
+                                            !it.getJSONObject("transport").isNull("host") &&
+                                            it.getJSONObject("transport").getString("host") == "sftp"
+                                    )
+                        }
+                        .map { "${it.getString("organizationName")}.${it.getString("name")}" }
+                }
             }
         }
+
+//        val (_, _, result) = Fuel
+//            .get(path)
+//            .authentication()
+//            .bearer(accessToken)
+//            .header(Headers.CONTENT_TYPE to jsonMimeType)
+//            .responseJson()
+//        return when (result) {
+//            is Result.Failure -> emptyList()
+//            is Result.Success -> {
+//                val receiverJsonArray = result.value.array()
+//                (0 until receiverJsonArray.length())
+//                    .map { receiverJsonArray.getJSONObject(it) }
+//                    .filter {
+//                        (
+//                            !it.isNull("transport") &&
+//                                !it.getJSONObject("transport").isNull("host") &&
+//                                it.getJSONObject("transport").getString("host") == "sftp"
+//                            )
+//                    }
+//                    .map { "${it.getString("organizationName")}.${it.getString("name")}" }
+//            }
+//        }
     }
 
     /**
@@ -124,12 +161,20 @@ class SftpcheckTest : CoolTest() {
     private fun sftpReceiverIgnoreOrganizationCheck(
         path: String,
         accessToken: String,
-    ): Triple<Request, Response, Result<String, FuelError>> {
-        return Fuel
-            .get(path)
-            .authentication()
-            .bearer(accessToken)
-            .header(Headers.CONTENT_TYPE to jsonMimeType)
-            .responseString()
+    ): HttpResponse {
+        val client = CommandUtilities.createDefaultHttpClient(
+            BearerTokens(accessToken, refreshToken = "")
+        )
+        return runBlocking {
+            client.get(path) {
+                accept(ContentType.Application.Json)
+            }
+//        return Fuel
+//            .get(path)
+//            .authentication()
+//            .bearer(accessToken)
+//            .header(Headers.CONTENT_TYPE to jsonMimeType)
+//            .responseString()
+        }
     }
 }

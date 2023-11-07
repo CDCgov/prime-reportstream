@@ -1,16 +1,16 @@
 package gov.cdc.prime.router.cli
 
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.FuelError
-import com.github.kittinunf.fuel.core.Headers.Companion.CONTENT_TYPE
-import com.github.kittinunf.fuel.core.Request
-import com.github.kittinunf.fuel.core.Response
-import com.github.kittinunf.fuel.core.ResponseResultOf
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.core.extensions.jsonBody
-import com.github.kittinunf.fuel.json.FuelJson
-import com.github.kittinunf.fuel.json.responseJson
-import com.github.kittinunf.result.Result
+import io.ktor.client.call.body
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.timeout
+import io.ktor.client.request.accept
+import io.ktor.client.request.delete
+import io.ktor.client.request.get
+import io.ktor.client.request.put
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
+import kotlinx.coroutines.runBlocking
 
 private const val jsonMimeType = "application/json"
 private const val apiPath = "/api/settings"
@@ -39,15 +39,21 @@ class SettingsUtilities {
             path: String,
             accessToken: String,
             payload: String,
-        ): ResponseResultOf<FuelJson> {
-            return Fuel
-                .put(path)
-                .authentication()
-                .bearer(accessToken)
-                .header(CONTENT_TYPE to jsonMimeType)
-                .jsonBody(payload)
-                .timeoutRead(requestTimeoutMillis)
-                .responseJson()
+        ): HttpResponse {
+            val client = CommandUtilities.createDefaultHttpClient(
+                BearerTokens(accessToken, refreshToken = "")
+            )
+            return runBlocking {
+                val response =
+                    client.put(path) {
+                        timeout {
+                            requestTimeoutMillis = requestTimeoutMillis
+                        }
+                        accept(ContentType.Application.Json)
+                        setBody(payload)
+                    }
+                response.body()
+            }
         }
 
         /**
@@ -60,14 +66,20 @@ class SettingsUtilities {
         fun get(
             path: String,
             accessToken: String,
-        ): Triple<Request, Response, Result<String, FuelError>> {
-            return Fuel
-                .get(path)
-                .authentication()
-                .bearer(accessToken)
-                .header(CONTENT_TYPE to jsonMimeType)
-                .timeoutRead(requestTimeoutMillis)
-                .responseString()
+        ): HttpResponse {
+            val client = CommandUtilities.createDefaultHttpClient(
+                BearerTokens(accessToken, refreshToken = "")
+            )
+            return runBlocking {
+                val response =
+                    client.get(path) {
+                        timeout {
+                            requestTimeoutMillis = requestTimeoutMillis
+                        }
+                        accept(ContentType.Application.Json)
+                    }
+                response.body()
+            }
         }
 
         /**
@@ -80,14 +92,20 @@ class SettingsUtilities {
         fun delete(
             path: String,
             accessToken: String,
-        ): Triple<Request, Response, Result<String, FuelError>> {
-            return Fuel
-                .delete(path)
-                .authentication()
-                .bearer(accessToken)
-                .header(CONTENT_TYPE to jsonMimeType)
-                .timeoutRead(requestTimeoutMillis)
-                .responseString()
+        ): HttpResponse {
+            val client = CommandUtilities.createDefaultHttpClient(
+                BearerTokens(accessToken, refreshToken = "")
+            )
+            return runBlocking {
+                val response =
+                    client.delete(path) {
+                        timeout {
+                            requestTimeoutMillis = requestTimeoutMillis
+                        }
+                        accept(ContentType.Application.Json)
+                    }
+                response.body()
+            }
         }
     }
 }

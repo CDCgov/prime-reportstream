@@ -2,8 +2,6 @@ package gov.cdc.prime.router.cli.tests
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.PrintMessage
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.extensions.authentication
 import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.CovidSender
 import gov.cdc.prime.router.CustomerStatus
@@ -27,11 +25,18 @@ import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.tokens.AuthUtils
 import gov.cdc.prime.router.tokens.DatabaseJtiCache
 import gov.cdc.prime.router.tokens.Scope
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.timeout
+import io.ktor.client.request.accept
+import io.ktor.client.request.get
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.io.IOException
 import java.net.URLEncoder
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 /**
  *  Test a variety of waters endpoints across all our various authorization techniques
@@ -1165,74 +1170,175 @@ class Server2ServerAuthTests : CoolTest() {
         )
         val orgEndpoint = "${environment.url}/api/settings/organizations"
 
+        val client = CommandUtilities.createDefaultHttpClient(
+            BearerTokens(userToken, refreshToken = "")
+        )
+
+        val clientAdmin = CommandUtilities.createDefaultHttpClient(
+            BearerTokens(adminToken, refreshToken = "")
+        )
+
         // Case: GET All Org Settings (Admin-only endpoint)
         // Unhappy Path: user on admin-only endpoint
-        val (_, responseUserGetAllOrgs) = Fuel.get(orgEndpoint)
-            .authentication()
-            .bearer(userToken)
-            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
-            .responseString()
-        if (responseUserGetAllOrgs.statusCode != HttpStatus.UNAUTHORIZED.value()) {
+        val response = runBlocking {
+            client.get(orgEndpoint) {
+                timeout {
+                    requestTimeoutMillis = 45000
+                    // default timeout is 15s; raising higher due to slow Function startup issues
+                }
+                accept(ContentType.Application.Json)
+            }
+        }
+
+        if (response.status != HttpStatusCode.Unauthorized) {
             bad(
                 "***$name Test settings/organizations Unhappy Path (user-GET All Orgs) FAILED:" +
-                    " Expected HttpStatus ${HttpStatus.UNAUTHORIZED}. Got ${responseUserGetAllOrgs.statusCode}"
-            )
-            return false
-        }
-        // Happy Path: admin on admin-only endpoint
-        val (_, responseAdminGetAllOrgs) = Fuel.get(orgEndpoint)
-            .authentication()
-            .bearer(adminToken)
-            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
-            .responseString()
-        if (responseAdminGetAllOrgs.statusCode != HttpStatus.OK.value()) {
-            bad(
-                "***$name Test settings/organizations Happy Path (admin-GET All Orgs) FAILED:" +
-                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseAdminGetAllOrgs.statusCode}"
+                        " Expected HttpStatus ${HttpStatus.UNAUTHORIZED}. Got ${response.status.value}"
             )
             return false
         }
 
+//        val (_, responseUserGetAllOrgs) = Fuel.get(orgEndpoint)
+//            .authentication()
+//            .bearer(userToken)
+//            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+//            .responseString()
+//        if (responseUserGetAllOrgs.statusCode != HttpStatus.UNAUTHORIZED.value()) {
+//            bad(
+//                "***$name Test settings/organizations Unhappy Path (user-GET All Orgs) FAILED:" +
+//                    " Expected HttpStatus ${HttpStatus.UNAUTHORIZED}. Got ${responseUserGetAllOrgs.statusCode}"
+//            )
+//            return false
+//        }
+
+        // Happy Path: admin on admin-only endpoint
+        val response2 = runBlocking {
+            clientAdmin.get(orgEndpoint) {
+                timeout {
+                    requestTimeoutMillis = 45000
+                    // default timeout is 15s; raising higher due to slow Function startup issues
+                }
+                accept(ContentType.Application.Json)
+            }
+        }
+
+        if (response2.status != HttpStatusCode.OK) {
+            bad(
+                "***$name Test settings/organizations Happy Path (admin-GET All Orgs) FAILED:" +
+                    " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response2.status.value}"
+            )
+            return false
+        }
+
+//        val (_, responseAdminGetAllOrgs) = Fuel.get(orgEndpoint)
+//            .authentication()
+//            .bearer(adminToken)
+//            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+//            .responseString()
+//        if (responseAdminGetAllOrgs.statusCode != HttpStatus.OK.value()) {
+//            bad(
+//                "***$name Test settings/organizations Happy Path (admin-GET All Orgs) FAILED:" +
+//                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseAdminGetAllOrgs.statusCode}"
+//            )
+//            return false
+//        }
+
         // Case: GET Receivers for an Org (Endpoint allowed for admins and members of the org)
         // Happy Path: user on user-allowed endpoint
-        val (_, responseUserGet) = Fuel.get("$orgEndpoint/${authorizedOrg.name}/receivers")
-            .authentication()
-            .bearer(userToken)
-            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
-            .responseString()
-        if (responseUserGet.statusCode != HttpStatus.OK.value()) {
+        val response3 = runBlocking {
+            client.get("$orgEndpoint/${authorizedOrg.name}/receivers") {
+                timeout {
+                    requestTimeoutMillis = 45000
+                    // default timeout is 15s; raising higher due to slow Function startup issues
+                }
+                accept(ContentType.Application.Json)
+            }
+        }
+
+        if (response3.status != HttpStatusCode.OK) {
             bad(
                 "***$name Test settings/organizations Happy Path (user-GET Org Receivers) FAILED:" +
-                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseUserGet.statusCode}"
+                    " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response3.status.value}"
             )
             return false
         }
-        // Happy Path: admin on user-allowed endpoint
-        val (_, responseAdminGet) = Fuel.get("$orgEndpoint/${authorizedOrg.name}/receivers")
-            .authentication()
-            .bearer(adminToken)
-            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
-            .responseString()
-        if (responseAdminGet.statusCode != HttpStatus.OK.value()) {
+
+//        val (_, responseUserGet) = Fuel.get("$orgEndpoint/${authorizedOrg.name}/receivers")
+//            .authentication()
+//            .bearer(userToken)
+//            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+//            .responseString()
+//        if (responseUserGet.statusCode != HttpStatus.OK.value()) {
+//            bad(
+//                "***$name Test settings/organizations Happy Path (user-GET Org Receivers) FAILED:" +
+//                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseUserGet.statusCode}"
+//            )
+//            return false
+//        }
+
+//        // Happy Path: admin on user-allowed endpoint
+        val response4 = runBlocking {
+            clientAdmin.get("$orgEndpoint/${authorizedOrg.name}/receivers") {
+                timeout {
+                    requestTimeoutMillis = 45000
+                    // default timeout is 15s; raising higher due to slow Function startup issues
+                }
+                accept(ContentType.Application.Json)
+            }
+        }
+
+        if (response4.status != HttpStatusCode.OK) {
             bad(
                 "***$name Test settings/organizations Happy Path (admin-GET Org Receivers) FAILED:" +
-                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseAdminGet.statusCode}"
+                    " Expected HttpStatus ${HttpStatusCode.OK}. Got ${response4.status.value}"
             )
             return false
         }
-        // UnhappyPath: user on an unauthorized org name
-        val (_, responseUnauthorizedOrg) = Fuel.get("$orgEndpoint/${unauthorizedOrg.name}/receivers")
-            .authentication()
-            .bearer(userToken)
-            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
-            .responseString()
-        if (responseUnauthorizedOrg.statusCode != HttpStatus.UNAUTHORIZED.value()) {
+
+//        val (_, responseAdminGet) = Fuel.get("$orgEndpoint/${authorizedOrg.name}/receivers")
+//            .authentication()
+//            .bearer(adminToken)
+//            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+//            .responseString()
+//        if (responseAdminGet.statusCode != HttpStatus.OK.value()) {
+//            bad(
+//                "***$name Test settings/organizations Happy Path (admin-GET Org Receivers) FAILED:" +
+//                    " Expected HttpStatus ${HttpStatus.OK}. Got ${responseAdminGet.statusCode}"
+//            )
+//            return false
+//        }
+
+//        // UnhappyPath: user on an unauthorized org name
+        val response5 = runBlocking {
+            client.get("$orgEndpoint/${unauthorizedOrg.name}/receivers") {
+                timeout {
+                    requestTimeoutMillis = 45000
+                    // default timeout is 15s; raising higher due to slow Function startup issues
+                }
+                accept(ContentType.Application.Json)
+            }
+        }
+
+        if (response5.status != HttpStatusCode.Unauthorized) {
             bad(
                 "***$name Test settings/organizations Unhappy Path (user-GET Unauthorized Org Receivers) FAILED:" +
-                    " Expected HttpStatus ${HttpStatus.UNAUTHORIZED}. Got ${responseUnauthorizedOrg.statusCode}"
+                    " Expected HttpStatus ${HttpStatusCode.Unauthorized}. Got ${response5.status.value}"
             )
             return false
         }
+
+//        val (_, responseUnauthorizedOrg) = Fuel.get("$orgEndpoint/${unauthorizedOrg.name}/receivers")
+//            .authentication()
+//            .bearer(userToken)
+//            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
+//            .responseString()
+//        if (responseUnauthorizedOrg.statusCode != HttpStatus.UNAUTHORIZED.value()) {
+//            bad(
+//                "***$name Test settings/organizations Unhappy Path (user-GET Unauthorized Org Receivers) FAILED:" +
+//                    " Expected HttpStatus ${HttpStatus.UNAUTHORIZED}. Got ${responseUnauthorizedOrg.statusCode}"
+//            )
+//            return false
+//        }
         return true
     }
 }
