@@ -99,11 +99,11 @@ extension:
     xpn12: String, XPN.12
     xpn13: String, XPN.13
     xpn14: String, XPN.14
-  condition: $xpn2 NOT_NULL || $xpn3 NOT_NULL || $xpn4 NOT_NULL || $xpn6 NOT_NULL || $xpn7 NOT_NULL || $xpn8 NOT_NULL || $xpn9 NOT_NULL || $xpn10 NOT_NULL || $xpn12 NOT_NULL || $xpn13 NOT_NULL || $xpn14 NOT_NULL
   generateList: true
   expressionType: nested
   expressions:
     - expressionType: nested
+      condition: $xpn2 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -113,6 +113,7 @@ extension:
           expressionType: HL7Spec
           valueOf: XPN.2
     - expressionType: nested
+      condition: $xpn3 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -122,6 +123,7 @@ extension:
           expressionType: HL7Spec
           valueOf: XPN.3
     - expressionType: nested
+      condition: $xpn4 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -131,6 +133,7 @@ extension:
           expressionType: HL7Spec
           valueOf: XPN.4
     - expressionType: nested
+      condition: $xpn6 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -140,6 +143,7 @@ extension:
           expressionType: HL7Spec
           valueOf: XPN.6
     - expressionType: nested
+      condition: $xpn7 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -149,6 +153,7 @@ extension:
           expressionType: HL7Spec
           valueOf: XPN.7
     - expressionType: nested
+      condition: $xpn8 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -158,15 +163,17 @@ extension:
           expressionType: HL7Spec
           valueOf: XPN.8
     - expressionType: nested
+      condition: $xpn9 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
-          valueOf: xpn9-name-concept
-        value:
-          type: STRING
-          expressionType: HL7Spec
-          valueOf: $xpn9
+          value: 'cwe-coding'
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: XPN.9
     - expressionType: nested
+      condition: $xpn10 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -178,6 +185,7 @@ extension:
             start: String, XPN.10.1
             end: String, XPN.10.2
     - expressionType: nested
+      condition: $xpn12 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -188,6 +196,7 @@ extension:
           vars:
             periodStart: XPN.12
     - expressionType: nested
+      condition: $xpn13 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
@@ -198,6 +207,7 @@ extension:
           vars:
             periodEnd: XPN.13
     - expressionType: nested
+      condition: $xpn14 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL

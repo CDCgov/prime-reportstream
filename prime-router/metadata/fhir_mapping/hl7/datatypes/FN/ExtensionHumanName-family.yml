@@ -6,7 +6,6 @@ extension:
     fn3: String, FN.3
     fn4: String, FN.4
     fn5: String, FN.5
-  condition: $fn2 NOT_NULL || $fn3 NOT_NULL || $fn4 NOT_NULL || $fn5 NOT_NULL
   expressions:
     - expressionType: nested
       condition: $fn2 NOT_NULL

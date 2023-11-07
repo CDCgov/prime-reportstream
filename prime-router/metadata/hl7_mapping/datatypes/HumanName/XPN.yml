@@ -1,24 +1,10 @@
 elements:
 
   - name: xpn-family-name
-    value: [ '%resource.family' ]
-    hl7Spec: [ '%{hl7xpnField}-1-1' ]
-
-  - name: xpn-humanname-own-prefix
-    value: [ '%resource.family.extension(%`ext-humanname-own-prefix`).value' ]
-    hl7Spec: [ '%{hl7xpnField}-1-2' ]
-
-  - name: xpn-humanname-own-name
-    value: [ '%resource.family.extension(%`ext-humanname-own-name`).value' ]
-    hl7Spec: [ '%{hl7xpnField}-1-3' ]
-
-  - name: xpn-humanname-partner-prefix
-    value: [ '%resource.family.extension(%`ext-humanname-partner-prefix`).value' ]
-    hl7Spec: [ '%{hl7xpnField}-1-4' ]
-
-  - name: xpn-humanname-partner-name
-    value: [ '%resource.family.extension(%`ext-humanname-partner-name`).value' ]
-    hl7Spec: [ '%{hl7xpnField}-1-5' ]
+    resource: '%resource.family'
+    constants:
+      hl7fnField: '%{hl7xpnField}-1'
+    schema: ./FN
 
   - name: xpn-given-name
     value: [ '%resource.extension(%`rsext-xpn2-given-name`).value' ]
@@ -49,8 +35,10 @@ elements:
     hl7Spec: [ '%{hl7xpnField}-8' ]
 
   - name: xpn-name-context
-    value: [ '%resource.extension(%`rsext-xpn9-name-context`).value' ]
-    hl7Spec: [ '%{hl7xpnField}-9' ]
+    resource: '%resource.extension(%`rsext-cwe-coding`).value'
+    constants:
+      cweFieldPath: '%{hl7xpnField}-9'
+    schema: ../codeableConcept/CWE
 
   - name: xpn-name-validity-range-start
     value: [ '%resource.extension(%`rsext-xpn10-name-validity-range`).value.start' ]

@@ -455,6 +455,10 @@
 # Name Validity Range
 - id: "xpn10-name-validity-range"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-range"
+- id: "xpn10-name-validity-start"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-start"
+- id: "xpn10-name-validity-end"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-end"
 # Effective Date
 - id: "xpn12-effective-date"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn12-effective-date"

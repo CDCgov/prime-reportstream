@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1698973033340229000.08867399-731e-4abd-89f2-4d4e3b92f8e6",
+  "id" : "1699321887791677000.b24b358f-0389-42f4-acb2-a06e18062cfa",
   "meta" : {
-    "lastUpdated" : "2023-11-02T20:57:13.353-04:00"
+    "lastUpdated" : "2023-11-06T20:51:27.805-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -28,51 +28,20 @@
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
             "valueString" : "^~\\&#"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
-            "valueIdentifier" : {}
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
-            "valueString" : "UNICODE UTF-8"
           }
         ],
         "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "R01",
           "display" : "ORU/ACK - Unsolicited transmission of an observation message"
-        },
-        "sender" : {
-          "reference" : "Organization/1698973034237139000.b846d391-c1b8-4f2b-a2b4-98f2a83ab606"
         }
       }
     },
     {
-      "fullUrl" : "Organization/1698973034237139000.b846d391-c1b8-4f2b-a2b4-98f2a83ab606",
-      "resource" : {
-        "resourceType" : "Organization",
-        "id" : "1698973034237139000.b846d391-c1b8-4f2b-a2b4-98f2a83ab606",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
-        "address" : [
-          {
-            "country" : "USA"
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl" : "Provenance/1698973034527947000.5d255cc0-3fed-4fc7-8f26-9b5eb6595c62",
+      "fullUrl" : "Provenance/1699321888958705000.96d9f84a-c75b-463f-ac17-16f8d24c3d08",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1698973034527947000.5d255cc0-3fed-4fc7-8f26-9b5eb6595c62",
+        "id" : "1699321888958705000.96d9f84a-c75b-463f-ac17-16f8d24c3d08",
         "meta" : {
           "extension" : [
             {
@@ -119,17 +88,17 @@
           {
             "role" : "source",
             "what" : {
-              "reference" : "Device/1698973034529933000.3a8dbe29-f722-4782-8ef9-41b744e1b678"
+              "reference" : "Device/1699321888960512000.b7cef49e-59a5-4385-b545-bbd1123ad1a3"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Device/1698973034529933000.3a8dbe29-f722-4782-8ef9-41b744e1b678",
+      "fullUrl" : "Device/1699321888960512000.b7cef49e-59a5-4385-b545-bbd1123ad1a3",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1698973034529933000.3a8dbe29-f722-4782-8ef9-41b744e1b678",
+        "id" : "1699321888960512000.b7cef49e-59a5-4385-b545-bbd1123ad1a3",
         "meta" : {
           "extension" : [
             {
@@ -141,10 +110,10 @@
       }
     },
     {
-      "fullUrl" : "Patient/1698973034576730000.65a5a247-fc4b-45d2-a925-453fa3329b25",
+      "fullUrl" : "Patient/1699321888979623000.4561df4c-2196-435f-a6cd-068d68050e8a",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1698973034576730000.65a5a247-fc4b-45d2-a925-453fa3329b25",
+        "id" : "1699321888979623000.4561df4c-2196-435f-a6cd-068d68050e8a",
         "meta" : {
           "extension" : [
             {
@@ -153,20 +122,6 @@
             }
           ]
         },
-        "identifier" : [
-          {
-            "type" : {
-              "coding" : [
-                {
-                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-                  "code" : "MR",
-                  "display" : "Medical record number"
-                }
-              ]
-            },
-            "value" : "11102779"
-          }
-        ],
         "name" : [
           {
             "use" : "official",
@@ -208,6 +163,22 @@
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn8-name-representation-code",
                   "valueString" : "A"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "valueCodeableConcept" : {
+                    "coding" : [
+                      {
+                        "extension" : [
+                          {
+                            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                            "valueString" : "coding"
+                          }
+                        ],
+                        "code" : "Coding"
+                      }
+                    ]
+                  }
                 },
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-range",

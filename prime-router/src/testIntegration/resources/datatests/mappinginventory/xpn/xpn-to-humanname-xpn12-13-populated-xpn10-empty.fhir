@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1698894318115971000.0d884dd1-6d8d-4255-a690-7f010cbaaca8",
+  "id" : "1699322035950279000.a1458d1a-0f57-466b-972e-a88f74c42320",
   "meta" : {
-    "lastUpdated" : "2023-11-01T23:05:18.128-04:00"
+    "lastUpdated" : "2023-11-06T20:53:55.962-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -28,51 +28,20 @@
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
             "valueString" : "^~\\&#"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
-            "valueIdentifier" : {}
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
-            "valueString" : "UNICODE UTF-8"
           }
         ],
         "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "R01",
           "display" : "ORU/ACK - Unsolicited transmission of an observation message"
-        },
-        "sender" : {
-          "reference" : "Organization/1698894319053424000.496fe546-ea2d-46c3-9af5-9c55d68a65b6"
         }
       }
     },
     {
-      "fullUrl" : "Organization/1698894319053424000.496fe546-ea2d-46c3-9af5-9c55d68a65b6",
-      "resource" : {
-        "resourceType" : "Organization",
-        "id" : "1698894319053424000.496fe546-ea2d-46c3-9af5-9c55d68a65b6",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
-        "address" : [
-          {
-            "country" : "USA"
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl" : "Provenance/1698894319317582000.d5e8a31c-6954-406d-a4ce-0cbc0ddb4253",
+      "fullUrl" : "Provenance/1699322037111441000.ac7aad74-5404-498a-bf48-d73a2c53cb62",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1698894319317582000.d5e8a31c-6954-406d-a4ce-0cbc0ddb4253",
+        "id" : "1699322037111441000.ac7aad74-5404-498a-bf48-d73a2c53cb62",
         "meta" : {
           "extension" : [
             {
@@ -119,17 +88,17 @@
           {
             "role" : "source",
             "what" : {
-              "reference" : "Device/1698894319319553000.409a8e6a-3a1e-4aaa-bd28-5079680c773e"
+              "reference" : "Device/1699322037113325000.7698cf3a-aaf8-4aa5-9181-d87480cf3bd0"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Device/1698894319319553000.409a8e6a-3a1e-4aaa-bd28-5079680c773e",
+      "fullUrl" : "Device/1699322037113325000.7698cf3a-aaf8-4aa5-9181-d87480cf3bd0",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1698894319319553000.409a8e6a-3a1e-4aaa-bd28-5079680c773e",
+        "id" : "1699322037113325000.7698cf3a-aaf8-4aa5-9181-d87480cf3bd0",
         "meta" : {
           "extension" : [
             {
@@ -141,10 +110,10 @@
       }
     },
     {
-      "fullUrl" : "Patient/1698894319359696000.ecb5d95a-91d9-4dbb-9268-903556b8156e",
+      "fullUrl" : "Patient/1699322037132182000.a4afd9f2-227b-47d1-a8e1-386d6145a1e8",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1698894319359696000.ecb5d95a-91d9-4dbb-9268-903556b8156e",
+        "id" : "1699322037132182000.a4afd9f2-227b-47d1-a8e1-386d6145a1e8",
         "meta" : {
           "extension" : [
             {
@@ -153,20 +122,6 @@
             }
           ]
         },
-        "identifier" : [
-          {
-            "type" : {
-              "coding" : [
-                {
-                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
-                  "code" : "MR",
-                  "display" : "Medical record number"
-                }
-              ]
-            },
-            "value" : "11102779"
-          }
-        ],
         "name" : [
           {
             "use" : "official",
