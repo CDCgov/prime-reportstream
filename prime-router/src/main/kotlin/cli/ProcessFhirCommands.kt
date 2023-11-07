@@ -149,7 +149,8 @@ class ProcessFhirCommands : CliktCommand(
                                 receivingApplicationName = null,
                                 receivingFacilityName = null,
                                 receivingOrganization = null,
-                            ), null
+                            ),
+                            null
                         ),
                         translationFunctions = CustomTranslationFunctions()
                     )

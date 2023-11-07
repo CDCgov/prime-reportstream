@@ -411,7 +411,8 @@ class TranslationTests {
                             receivingApplicationName = null,
                             receivingFacilityName = null,
                             receivingOrganization = null,
-                        ), null
+                        ),
+                        null
                     )
                 }
             }
