@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1699321887791677000.b24b358f-0389-42f4-acb2-a06e18062cfa",
+  "id" : "1699372038311077000.8c434ba5-a24c-45a8-ac3d-7b6d61272cc0",
   "meta" : {
-    "lastUpdated" : "2023-11-06T20:51:27.805-05:00"
+    "lastUpdated" : "2023-11-07T10:47:18.322-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -38,10 +38,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1699321888958705000.96d9f84a-c75b-463f-ac17-16f8d24c3d08",
+      "fullUrl" : "Provenance/1699372039355574000.3c071ed2-e767-4e16-b585-5d2c481065d8",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1699321888958705000.96d9f84a-c75b-463f-ac17-16f8d24c3d08",
+        "id" : "1699372039355574000.3c071ed2-e767-4e16-b585-5d2c481065d8",
         "meta" : {
           "extension" : [
             {
@@ -88,17 +88,17 @@
           {
             "role" : "source",
             "what" : {
-              "reference" : "Device/1699321888960512000.b7cef49e-59a5-4385-b545-bbd1123ad1a3"
+              "reference" : "Device/1699372039357533000.7bcf8f9f-f37c-45af-a88f-7df6b8951b73"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Device/1699321888960512000.b7cef49e-59a5-4385-b545-bbd1123ad1a3",
+      "fullUrl" : "Device/1699372039357533000.7bcf8f9f-f37c-45af-a88f-7df6b8951b73",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1699321888960512000.b7cef49e-59a5-4385-b545-bbd1123ad1a3",
+        "id" : "1699372039357533000.7bcf8f9f-f37c-45af-a88f-7df6b8951b73",
         "meta" : {
           "extension" : [
             {
@@ -110,10 +110,10 @@
       }
     },
     {
-      "fullUrl" : "Patient/1699321888979623000.4561df4c-2196-435f-a6cd-068d68050e8a",
+      "fullUrl" : "Patient/1699372039375785000.655cb7da-7bad-4f78-a340-47fe2483426e",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1699321888979623000.4561df4c-2196-435f-a6cd-068d68050e8a",
+        "id" : "1699372039375785000.655cb7da-7bad-4f78-a340-47fe2483426e",
         "meta" : {
           "extension" : [
             {
@@ -182,10 +182,16 @@
                 },
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-range",
-                  "valuePeriod" : {
-                    "start" : "2022-05-01T10:25:31-04:00",
-                    "end" : "2023-05-01T10:25:31-04:00"
-                  }
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-end",
+                      "valueString" : "20230501102531-0400"
+                    },
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-start",
+                      "valueString" : "20220501102531-0400"
+                    }
+                  ]
                 },
                 {
                   "url" : "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order",

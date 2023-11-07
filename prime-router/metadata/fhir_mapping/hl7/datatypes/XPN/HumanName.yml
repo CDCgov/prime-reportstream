@@ -94,7 +94,7 @@ extension:
     xpn6: String, XPN.6
     xpn7: String, XPN.7
     xpn8: String, XPN.8
-    xpn9: String, XPN.9
+    xpn9: STRING_ALL, XPN.9
     xpn10: String, XPN.10
     xpn12: String, XPN.12
     xpn13: String, XPN.13
@@ -173,39 +173,56 @@ extension:
           expressionType: resource
           specs: XPN.9
     - expressionType: nested
-      condition: $xpn10 NOT_NULL
+      vars:
+        start: XPN.10.1
+        end: XPN.10.2
+      condition: $start NOT_NULL || $end NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
           value: xpn10-name-validity-range
-        valuePeriod:
-          expressionType: resource
-          valueOf: datatypes/DR/Period
-          vars:
-            start: String, XPN.10.1
-            end: String, XPN.10.2
+        extension_1-start:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: xpn10-name-validity-start
+            valueString:
+              type: STRING
+              valueOf: $start
+              expressionType: HL7Spec
+        extension_2-end:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: xpn10-name-validity-end
+            valueString:
+              type: STRING
+              valueOf: $end
+              expressionType: HL7Spec
     - expressionType: nested
       condition: $xpn12 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
           value: xpn12-effective-date
-        valueDateTime:
-          valueOf: "GeneralUtils.dateTimeWithZoneId(periodStart,ZONEID)"
-          expressionType: JEXL
-          vars:
-            periodStart: XPN.12
+        valueString:
+          type: STRING
+          valueOf: $xpn12
+          expressionType: HL7Spec
     - expressionType: nested
       condition: $xpn13 NOT_NULL
       expressionsMap:
         url:
           type: SYSTEM_URL
           value: xpn13-expiration-date
-        valueDateTime:
-          valueOf: "GeneralUtils.dateTimeWithZoneId(periodEnd,ZONEID)"
-          expressionType: JEXL
-          vars:
-            periodEnd: XPN.13
+        valueString:
+          type: STRING
+          valueOf: $xpn13
+          expressionType: HL7Spec
     - expressionType: nested
       condition: $xpn14 NOT_NULL
       expressionsMap:
