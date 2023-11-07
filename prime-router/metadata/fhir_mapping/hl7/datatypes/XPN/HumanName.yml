@@ -1,0 +1,235 @@
+resourceType: HumanName
+
+family:
+  type: STRING
+  valueOf: XPN.1.1
+  expressionType: HL7Spec
+_family:
+  expressionType: resource
+  valueOf: datatypes/FN/ExtensionHumanName-family
+  specs: XPN.1
+
+given:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: HL7Spec
+      valueOf: XPN.2
+      type: STRING
+    - expressionType: HL7Spec
+      valueOf: XPN.3
+      type: STRING
+suffix:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: HL7Spec
+      valueOf: XPN.4
+      type: STRING
+    - expressionType: HL7Spec
+      valueOf: XPN.6
+      type: STRING
+    - expressionType: HL7Spec
+      valueOf: XPN.14
+      type: STRING
+prefix:
+  type: STRING
+  valueOf: XPN.5
+  expressionType: HL7Spec
+use:
+  type: NAME_USE
+  valueOf: XPN.7
+  expressionType: HL7Spec
+
+# This needs to use variables because the message parses this field using NULLDT since it is deprecated which means that
+# the values do not get correctly loaded and will not be mapped over correctly using a spec.
+period_1:
+  vars:
+    xpn12: String, XPN.12
+    xpn13: String, XPN.13
+    start: String, XPN.10.1
+    end: String, XPN.10.2
+  condition: $xpn12 NULL && $xpn13 NULL
+  expressionType: resource
+  valueOf: datatypes/DR/Period
+
+extension_AssemblyOrder:
+  vars:
+    xpn11: String, XPN.11
+  condition: $xpn11 NOT_NULL
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: humanname-assembly-order
+    valueCode:
+      type: STRING
+      valueOf: XPN.11
+      expressionType: HL7Spec
+
+# XPN.10 is deprecated so the schema favors using XPN.12/13 if either are populated
+period_2:
+  vars:
+    xpn12: String, XPN.12
+    xpn13: String, XPN.13
+  condition: $xpn12 NOT_NULL || $xpn13 NOT_NULL
+  expressionType: nested
+  expressionsMap:
+    start:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(periodStart,ZONEID)"
+      expressionType: JEXL
+      vars:
+        periodStart: XPN.12
+    end:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(periodEnd,ZONEID)"
+      expressionType: JEXL
+      vars:
+        periodEnd: XPN.13
+
+extension:
+  vars:
+    xpn2: String, XPN.2
+    xpn3: String, XPN.3
+    xpn4: String, XPN.4
+    xpn6: String, XPN.6
+    xpn7: String, XPN.7
+    xpn8: String, XPN.8
+    xpn9: STRING_ALL, XPN.9
+    xpn10: String, XPN.10
+    xpn12: String, XPN.12
+    xpn13: String, XPN.13
+    xpn14: String, XPN.14
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      condition: $xpn2 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: xpn2-given-name
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XPN.2
+    - expressionType: nested
+      condition: $xpn3 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: xpn3-second-given-name
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XPN.3
+    - expressionType: nested
+      condition: $xpn4 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: xpn4-suffix
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XPN.4
+    - expressionType: nested
+      condition: $xpn6 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: xpn6-degree
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XPN.6
+    - expressionType: nested
+      condition: $xpn7 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: xpn7-name-type-code
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XPN.7
+    - expressionType: nested
+      condition: $xpn8 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: xpn8-name-representation-code
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XPN.8
+    - expressionType: nested
+      condition: $xpn9 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: xpn9-name-context
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: XPN.9
+    - expressionType: nested
+      vars:
+        start: XPN.10.1
+        end: XPN.10.2
+      condition: $start NOT_NULL || $end NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: xpn10-name-validity-range
+        extension_1-start:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: xpn10-name-validity-start
+            valueString:
+              type: STRING
+              valueOf: $start
+              expressionType: HL7Spec
+        extension_2-end:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: xpn10-name-validity-end
+            valueString:
+              type: STRING
+              valueOf: $end
+              expressionType: HL7Spec
+    - expressionType: nested
+      condition: $xpn12 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: xpn12-effective-date
+        valueString:
+          type: STRING
+          valueOf: $xpn12
+          expressionType: HL7Spec
+    - expressionType: nested
+      condition: $xpn13 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: xpn13-expiration-date
+        valueString:
+          type: STRING
+          valueOf: $xpn13
+          expressionType: HL7Spec
+    - expressionType: nested
+      condition: $xpn14 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: xpn14-professional-suffix
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XPN.14

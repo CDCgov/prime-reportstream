@@ -13,6 +13,21 @@
 # event performer function
 - id: "event-performerFunction"
   url: "http://hl7.org/fhir/StructureDefinition/event-performerFunction"
+# humanname own prefix
+- id: "humanname-own-prefix"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix"
+# humanname own surname
+- id: "humanname-own-name"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-own-name"
+# humanname partner prefix
+- id: "humanname-partner-prefix"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-partner-prefix"
+# humanname partner surname
+- id: "humanname-partner-name"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-partner-name"
+# humanname assembly order
+- id: "humanname-assembly-order"
+  url: "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order"
 # race
 - id: "race"
   url: "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd"
@@ -416,6 +431,43 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad15-expiration-reason"
 - id: "xad19-addressee"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad19-addressee"
+# Given Name
+- id: "xpn2-given-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name"
+# Second and Further Given Names or Initials Thereof
+- id: "xpn3-second-given-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn3-second-given-name"
+# Suffix (e.g., JR or III)
+- id: "xpn4-suffix"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn4-suffix"
+# Degree (e.g., MD)
+- id: "xpn6-degree"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn6-degree"
+# Name Type Code
+- id: "xpn7-name-type-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code"
+# Name Representation Code
+- id: "xpn8-name-representation-code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn8-name-representation-code"
+# Name Context
+- id: "xpn9-name-context"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn9-name-context"
+# Name Validity Range
+- id: "xpn10-name-validity-range"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-range"
+- id: "xpn10-name-validity-start"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-start"
+- id: "xpn10-name-validity-end"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn10-name-validity-end"
+# Effective Date
+- id: "xpn12-effective-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn12-effective-date"
+# Expiration Date
+- id: "xpn13-expiration-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn13-expiration-date"
+# Professional Suffix
+- id: "xpn14-professional-suffix"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn14-professional-suffix"
 - id: "iso21090-ADXP-censusTract"
   url: "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-censusTract"
 - id: "xad13-effective-date"
@@ -439,3 +491,6 @@
 # CWE Annotation
 - id: "cwe-annotation"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-annotation"
+# CWE Quantity
+- id: "cwe-quantity"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-quantity"
