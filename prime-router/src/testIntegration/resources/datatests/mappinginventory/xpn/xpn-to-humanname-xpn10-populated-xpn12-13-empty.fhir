@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1699372038311077000.8c434ba5-a24c-45a8-ac3d-7b6d61272cc0",
+  "id" : "1699373023863870000.acfa15d6-9e77-4b6d-b489-53af2f4b16c4",
   "meta" : {
-    "lastUpdated" : "2023-11-07T10:47:18.322-05:00"
+    "lastUpdated" : "2023-11-07T11:03:43.875-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -38,10 +38,10 @@
       }
     },
     {
-      "fullUrl" : "Provenance/1699372039355574000.3c071ed2-e767-4e16-b585-5d2c481065d8",
+      "fullUrl" : "Provenance/1699373024883760000.b2200bfb-4aab-4f29-8a11-c6df6988d5e8",
       "resource" : {
         "resourceType" : "Provenance",
-        "id" : "1699372039355574000.3c071ed2-e767-4e16-b585-5d2c481065d8",
+        "id" : "1699373024883760000.b2200bfb-4aab-4f29-8a11-c6df6988d5e8",
         "meta" : {
           "extension" : [
             {
@@ -88,17 +88,17 @@
           {
             "role" : "source",
             "what" : {
-              "reference" : "Device/1699372039357533000.7bcf8f9f-f37c-45af-a88f-7df6b8951b73"
+              "reference" : "Device/1699373024885598000.a057a38e-f7a9-409b-a866-1f4253cd2652"
             }
           }
         ]
       }
     },
     {
-      "fullUrl" : "Device/1699372039357533000.7bcf8f9f-f37c-45af-a88f-7df6b8951b73",
+      "fullUrl" : "Device/1699373024885598000.a057a38e-f7a9-409b-a866-1f4253cd2652",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1699372039357533000.7bcf8f9f-f37c-45af-a88f-7df6b8951b73",
+        "id" : "1699373024885598000.a057a38e-f7a9-409b-a866-1f4253cd2652",
         "meta" : {
           "extension" : [
             {
@@ -110,10 +110,10 @@
       }
     },
     {
-      "fullUrl" : "Patient/1699372039375785000.655cb7da-7bad-4f78-a340-47fe2483426e",
+      "fullUrl" : "Patient/1699373024902450000.e11fe176-e456-4513-8965-5e25b0970e01",
       "resource" : {
         "resourceType" : "Patient",
-        "id" : "1699372039375785000.655cb7da-7bad-4f78-a340-47fe2483426e",
+        "id" : "1699373024902450000.e11fe176-e456-4513-8965-5e25b0970e01",
         "meta" : {
           "extension" : [
             {
@@ -165,7 +165,7 @@
                   "valueString" : "A"
                 },
                 {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding",
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn9-name-context",
                   "valueCodeableConcept" : {
                     "coding" : [
                       {

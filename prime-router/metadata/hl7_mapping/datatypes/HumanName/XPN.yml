@@ -35,7 +35,7 @@ elements:
     hl7Spec: [ '%{hl7xpnField}-8' ]
 
   - name: xpn-name-context
-    resource: '%resource.extension(%`rsext-cwe-coding`).value'
+    resource: '%resource.extension(%`rsext-xpn9-name-context`).value'
     constants:
       cweFieldPath: '%{hl7xpnField}-9'
     schema: ../codeableConcept/CWE

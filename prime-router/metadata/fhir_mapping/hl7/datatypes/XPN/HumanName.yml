@@ -167,7 +167,7 @@ extension:
       expressionsMap:
         url:
           type: SYSTEM_URL
-          value: 'cwe-coding'
+          value: xpn9-name-context
         valueCodeableConcept:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
