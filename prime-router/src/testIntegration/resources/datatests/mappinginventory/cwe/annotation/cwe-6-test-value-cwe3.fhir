@@ -25,9 +25,6 @@
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
         "valueString" : "^~\\&#"
       }, {
-        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
-        "valueIdentifier" : { }
-      }, {
         "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
         "valueString" : "UNICODE UTF-8"
       } ],
@@ -229,8 +226,7 @@
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
         } ]
-      },
-      "identifier" : [ { } ]
+      }
     }
   }, {
     "fullUrl" : "Practitioner/1698939957241258000.b8411b27-49b8-466d-8a4f-5659c0e60b24",
@@ -242,8 +238,7 @@
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
         } ]
-      },
-      "identifier" : [ { } ]
+      }
     }
   }, {
     "fullUrl" : "PractitionerRole/1698939957245282000.08d574e0-ebcb-4e78-9164-ea6295d408be",
@@ -327,8 +322,7 @@
           "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
           "valueString" : "2.5.1"
         } ]
-      },
-      "birthDate" : "1990-02-21"
+      }
     }
   } ]
 }

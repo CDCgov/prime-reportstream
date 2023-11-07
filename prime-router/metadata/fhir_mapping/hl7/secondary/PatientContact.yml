@@ -1,5 +1,5 @@
 name:
-  valueOf: datatype/HumanName
+  valueOf: datatypes/XPN/HumanName
   generateList: true
   expressionType: resource
   specs: NK1.2
@@ -64,6 +64,50 @@ telecom_business:
     valueIn: NK1.6
   constants:
     use: work
+
+period:
+  vars:
+    startDate: NK1.8
+    endDate: NK1.9
+  condition: $startDate NOT_NULL || $endDate NOT_NULL
+  expressionType: nested
+  expressionsMap:
+    start:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(startDate,ZONEID)"
+      expressionType: JEXL
+    _start:
+      expressionType: nested
+      condition: $startDate NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $startDate
+              expressionType: HL7Spec
+    end:
+      valueOf: "GeneralUtils.dateTimeWithZoneId(endDate,ZONEID)"
+      expressionType: JEXL
+    _end:
+      expressionType: nested
+      condition: $endDate NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $endDate
+              expressionType: HL7Spec
 
 telecom_3-next-of-kin-telecomm-info:
   condition: $valueIn NOT_NULL
