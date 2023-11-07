@@ -325,11 +325,8 @@ location:
   expressions:
     - expressionType: nested
       vars:
-        poc: String, PV1.3.1
-        bed: String, PV1.3.3
-        room: String, PV1.3.2
-        facility: String, PL.4
-      condition: $poc NOT_NULL || $bed NOT_NULL || $room NOT_NULL || $facility NOT_NULL
+        pv13: String_ALL, PV1.3
+      condition: $pv13 NOT_NULL
       expressionsMap:
         location:
           valueOf: resource/Location
@@ -338,6 +335,9 @@ location:
           constants:
             locationJoinChar: ","
     - expressionType: nested
+      vars:
+        pv16: STRING_ALL, PV1.6
+      condition: $pv16 NOT_NULL
       expressionsMap:
         location:
           expressionType: reference
