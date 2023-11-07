@@ -1,0 +1,21 @@
+value:
+  type: STRING
+  expressionType: HL7Spec
+  valueOf: HD.2
+type:
+  valueOf: datatype/CodeableConcept_var
+  generateList: true
+  expressionType: resource
+  vars:
+    code: HD.3
+  constants:
+    system: "http://terminology.hl7.org/CodeSystem/v2-0301"
+extension:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: identifier-universal-id
+    valueBoolean:
+      valueOf: "true"

@@ -301,7 +301,55 @@ serviceProvider:
   constants:
     orgIdSystem: 'extID'  # 'urn:id:' added by SystemCX processing
 
+status_1:
+  type: STRING
+  condition: $patientClass EQUALS $patientClassPlanned
+  value: planned
+  vars:
+    patientClass: String, PV1.2.1
+  constants:
+    patientClassPlanned: P
+
+status_2:
+  type: STRING
+  condition: $patientClass NOT_EQUALS $patientClassPlanned
+  value: active
+  vars:
+    patientClass: String, PV1.2.1
+  constants:
+    patientClassPlanned: P
+
 location:
-  valueOf: secondary/EncounterLocation
-  expressionType: resource
   generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      vars:
+        poc: String, PV1.3.1
+        bed: String, PV1.3.3
+        room: String, PV1.3.2
+        facility: String, PL.4
+      condition: $poc NOT_NULL || $bed NOT_NULL || $room NOT_NULL || $facility NOT_NULL
+      expressionsMap:
+        location:
+          valueOf: resource/Location
+          expressionType: reference
+          specs: PV1.3
+          constants:
+            locationJoinChar: ","
+    - expressionType: nested
+      expressionsMap:
+        location:
+          expressionType: reference
+          valueOf: datatypes/PL/Location
+          specs: PV1.6
+        extension:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7-use
+            valueString:
+              type: STRING
+              value: 'prior-patient-location'

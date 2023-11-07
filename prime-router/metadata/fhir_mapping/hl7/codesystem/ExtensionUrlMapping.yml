@@ -432,3 +432,7 @@
 # CWE Annotation
 - id: "cwe-annotation"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-annotation"
+- id: "ei-assigner-organization-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ei-assigner-organization-type"
+- id: "pl6-person-location-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pl6-person-location-type"

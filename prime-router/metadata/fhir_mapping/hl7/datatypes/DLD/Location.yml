@@ -1,0 +1,24 @@
+resourceType: Location
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+type:
+  expressionType: resource
+  valueOf: datatypes/CWE/CodeableConcept
+  specs: DLD.1
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: dld2-effective-date
+    valueDateTime:
+      vars:
+        dateTimeIn: DLD.2
+      expressionType: JEXL
+      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
