@@ -70,7 +70,7 @@ locals {
   sticky_slot_implicit_settings_names = tolist([
     "AzureWebJobsStorage",
     "OKTA_authKey",
-    "fn_OKTA_clientId",
+    "OKTA_clientId",
     "OKTA_scope",
     "PartnerStorage",
     "POSTGRES_URL",
