@@ -59,3 +59,8 @@ dischargeDisposition:
   specs: PV1.36
   vars:
     valueIn: PV1.36
+
+destination:
+  valueOf: datatypes/DLD/Location
+  expressionType: reference
+  specs: PV1.37

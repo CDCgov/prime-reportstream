@@ -17,8 +17,7 @@ extension:
     url:
       type: SYSTEM_URL
       value: dld2-effective-date
-    valueDateTime:
-      vars:
-        dateTimeIn: DLD.2
-      expressionType: JEXL
-      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
+    valueString:
+      valueOf: DLD.2
+      type: STRING
+      expressionType: HL7Spec

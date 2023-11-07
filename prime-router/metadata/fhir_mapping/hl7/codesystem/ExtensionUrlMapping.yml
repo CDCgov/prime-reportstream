@@ -436,3 +436,5 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ei-assigner-organization-type"
 - id: "pl6-person-location-type"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pl6-person-location-type"
+- id: "dld2-effective-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/dld2-effective-date"

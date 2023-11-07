@@ -81,6 +81,12 @@ elements:
     value: [ '%resource.hospitalization.dischargeDisposition.coding.code' ]
     hl7Spec: [ '%{hl7PV1Field}-36' ]
 
+  - name: patient-discharge-location
+    resource: '%resource.hospitalization.destination.resolve()'
+    schema: ../resources/Location/DLD
+    constants:
+      hl7DLDField: '%{hl7PV1Field}-37'
+
   - name: patient-servicing-facility
     value: [ '%resource.extension(%`rsext-servicing-facility`).value' ]
     hl7Spec: [ '%{hl7PV1Field}-39' ]
