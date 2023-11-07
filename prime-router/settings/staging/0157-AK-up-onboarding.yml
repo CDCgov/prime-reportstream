@@ -1,0 +1,89 @@
+- name: "ak-phd"
+  description: "Alaska Public Health Department"
+  jurisdiction: "STATE"
+  stateCode: "AK"
+  countyName: null
+  filters: null
+  featureFlags: null
+  keys: null
+  senders: []
+  receivers:
+    - name: "full-elr-test"
+      organizationName: "ak-phd"
+      topic: "full-elr"
+      customerStatus: "testing"
+      translation: !<HL7>
+        schemaName: "metadata/hl7_mapping/receivers/STLTs/AK/AK-receiver-transform"
+        useTestProcessingMode: false
+        useBatchHeaders: true
+        receivingApplicationName: null
+        receivingApplicationOID: null
+        receivingFacilityName: null
+        receivingFacilityOID: null
+        messageProfileId: null
+        replaceValue:
+          PID-22-3: "CDCREC"
+        replaceValueAwithB: {}
+        reportingFacilityName: null
+        reportingFacilityId: null
+        reportingFacilityIdType: null
+        suppressQstForAoe: false
+        suppressHl7Fields: "PID-5-7, ORC-12-1, OBR-16-1"
+        suppressAoe: false
+        defaultAoeToUnknown: false
+        replaceUnicodeWithAscii: false
+        useBlankInsteadOfUnknown: null
+        truncateHDNamespaceIds: false
+        truncateHl7Fields: null
+        usePid14ForPatientEmail: false
+        convertTimestampToDateTime: null
+        cliaForOutOfStateTesting: null
+        cliaForSender: {}
+        phoneNumberFormatting: "STANDARD"
+        suppressNonNPI: false
+        processingModeCode: null
+        replaceDiiWithOid: null
+        applyOTCDefault: false
+        useOrderingFacilityName: "STANDARD"
+        valueSetOverrides: {}
+        nameFormat: "STANDARD"
+        receivingOrganization: null
+        convertPositiveDateTimeOffsetToNegative: false
+        stripInvalidCharsRegex: null
+        convertDateTimesToReceiverLocalTime: false
+        useHighPrecisionHeaderDateTimeFormat: false
+        type: "HL7"
+        truncationConfig:
+          truncateHDNamespaceIds: false
+          truncateHl7Fields: []
+          customLengthHl7Fields: {}
+      jurisdictionalFilter:
+        - "(%performerState.exists() and %performerState = 'AK') or (%patientState.exists()\
+      \ and %patientState = 'AK')"
+      qualityFilter: []
+      routingFilter: []
+      processingModeFilter:
+        - "%processingId = 'T'"
+      reverseTheQualityFilter: false
+      conditionFilter: []
+      deidentify: false
+      deidentifiedValue: ""
+      timing:
+        operation: "MERGE"
+        numberPerDay: 12
+        initialTime: "00:00"
+        timeZone: "EASTERN"
+        maxReportCount: 100
+        whenEmpty:
+          action: "NONE"
+          onlyOncePerDay: false
+      description: ""
+      transport: !<SFTP>
+        host: "sftp-west.inductivehealth.com"
+        port: "22"
+        filePath: "/incoming/flu_rsv/staging"
+        credentialName: null
+        type: "SFTP"
+      externalName: null
+      timeZone: null
+      dateTimeFormat: "OFFSET"
