@@ -473,10 +473,7 @@
               "code" : "P"
             }
           ]
-        },
-        "identifier" : [
-          {}
-        ]
+        }
       }
     },
     {
@@ -503,10 +500,7 @@
               "code" : "P"
             }
           ]
-        },
-        "identifier" : [
-          {}
-        ]
+        }
       }
     },
     {
@@ -1868,12 +1862,6 @@
         },
         "extension" : [
           {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/mothers-identifier",
-            "valueIdentifier" : {
-              "value" : "SMITH"
-            }
-          },
-          {
             "url" : "http://hl7.org/fhir/StructureDefinition/patient-mothersMaidenName",
             "valueHumanName" : {
               "text" : "BB SARAH SMITH",
@@ -1881,6 +1869,12 @@
               "given" : [
                 "BB SARAH"
               ]
+            }
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/mothers-identifier",
+            "valueIdentifier" : {
+              "value" : "SMITH"
             }
           }
         ],
@@ -1941,6 +1935,10 @@
         "birthDate" : "2023-05-04",
         "_birthDate" : {
           "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230504131023-0500"
+            },
             {
               "url" : "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
               "valueDateTime" : "2023-05-04T13:10:23-05:00"

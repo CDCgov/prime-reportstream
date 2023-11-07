@@ -10,6 +10,7 @@ locals {
     okta_redirect_url   = "https://${local.environment}.prime.cdc.gov/download"
     okta_base_url       = "hhs-prime.oktapreview.com"
     OKTA_scope          = "simple_report_dev"
+    fn_OKTA_clientId    = "0oa6kjcmi6muNvU8p1d7"
     storage_queue_name  = ["process", "batch", "batch-poison", "elr-fhir-convert", "process-poison", "send", "send-poison", "elr-fhir-convert", "elr-fhir-convert-poison", "elr-fhir-route", "elr-fhir-translate", "elr-fhir-translate-poison", "process-elr"]
   }
   key_vault = {

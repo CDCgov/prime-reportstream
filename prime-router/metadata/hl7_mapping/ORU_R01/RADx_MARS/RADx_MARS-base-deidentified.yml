@@ -33,7 +33,7 @@ elements:
 
   # PID 7.1
   - name: patient-dob
-    value: [ '""' ]
+    resource: '""'
 
   # ORC 3.1
   - name: order-filler-order-number

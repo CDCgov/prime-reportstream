@@ -7,13 +7,16 @@ elements:
       hl7CNNField: '%{hl7NDLField}-1'
 
   - name: start-datetime
-    value: [ '%resource.period.start' ]
-    hl7Spec: [ '%{hl7NDLField}-2' ]
+    resource: '%resource.period.start'
+    constants:
+      dtmFieldPath: '%{hl7NDLField}-2'
+    schema: ../../datatypes/dateTime/DTMorDT
 
   - name: end-datetime
-    value: [ '%resource.period.end' ]
-    hl7Spec: [ '%{hl7NDLField}-3' ]
-
+    resource: '%resource.period.end'
+    constants:
+      dtmFieldPath: '%{hl7NDLField}-3'
+    schema: ../../datatypes/dateTime/DTMorDT
 
   - name: point-of-care
     value: [ '%resource.location.resolve().where(physicalType.coding.code.extension(%`rsext-location-physical-type-poc`).value = "poc").identifier.value' ]
