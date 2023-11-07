@@ -301,24 +301,6 @@ serviceProvider:
   constants:
     orgIdSystem: 'extID'  # 'urn:id:' added by SystemCX processing
 
-status_1:
-  type: STRING
-  condition: $patientClass EQUALS $patientClassPlanned
-  value: planned
-  vars:
-    patientClass: String, PV1.2.1
-  constants:
-    patientClassPlanned: P
-
-status_2:
-  type: STRING
-  condition: $patientClass NOT_EQUALS $patientClassPlanned
-  value: active
-  vars:
-    patientClass: String, PV1.2.1
-  constants:
-    patientClassPlanned: P
-
 location:
   generateList: true
   expressionType: nested
