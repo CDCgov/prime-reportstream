@@ -4,11 +4,14 @@ elements:
     hl7Spec: [ '%{hl7XONField}-1' ]
 
   - name: organization-xon-name-type
-    resource: '%resource.extension(%`rsext-organization-name-type`).value'
-    condition: '%resource.exists()'
+    condition: >
+      %context.extension(%`rsext-organization-name-type`).exists() and
+      %context.extension(%`rsext-organization-name-type`).value.extension(%`rsext-cwe-coding`).exists() and
+      %context.extension(%`rsext-organization-name-type`).value.extension(%`rsext-cwe-coding`).value.where(extension(%`rsext-hl7v2Name`).value = "organization-name-type-code").exists()
+    resource: '%resource.extension(%`rsext-organization-name-type`).value.extension(%`rsext-cwe-coding`).value'
     constants:
       cweFieldPath: '%{hl7XONField}-2'
-    schema: ../../common/datatype/ce-coded-with-exceptions
+    schema: ../../datatypes/codeableConcept/CWE
 
   - name: id-number
     value: [ '%resource.extension(%`rsext-xon3-id-number`).value' ]

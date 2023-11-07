@@ -10,6 +10,7 @@ locals {
     okta_redirect_url     = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
     okta_base_url         = "hhs-prime.oktapreview.com"
     OKTA_scope            = "simple_report_dev"
+    fn_OKTA_clientId      = "xxx"
     storage_queue_name    = ["process"]
     sftp_container_module = true
   }
