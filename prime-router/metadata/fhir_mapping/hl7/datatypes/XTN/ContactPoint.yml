@@ -289,22 +289,48 @@ extension_xtn12-unformatted-telephone-number:
       value: $unformattedTelNum
 
 period:
-  generateList: true
-  expressionType: nested
   vars:
-    start: XTN.13
-    end: XTN.14
+    startDate: XTN.13
+    endDate: XTN.14
+  condition: $startDate NOT_NULL || $endDate NOT_NULL
+  expressionType: nested
   expressionsMap:
     start:
-      condition: $start NOT_NULL
-      type: STRING
-      valueOf: "GeneralUtils.dateTimeWithZoneId(start,ZONEID)"
+      valueOf: "GeneralUtils.dateTimeWithZoneId(startDate,ZONEID)"
       expressionType: JEXL
+    _start:
+      expressionType: nested
+      condition: $startDate NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $startDate
+              expressionType: HL7Spec
     end:
-      condition: $end NOT_NULL
-      type: STRING
-      valueOf: "GeneralUtils.dateTimeWithZoneId(end,ZONEID)"
+      valueOf: "GeneralUtils.dateTimeWithZoneId(endDate,ZONEID)"
       expressionType: JEXL
+    _end:
+      expressionType: nested
+      condition: $endDate NOT_NULL
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $endDate
+              expressionType: HL7Spec
 
 rank:
   type: POSITIVEINT

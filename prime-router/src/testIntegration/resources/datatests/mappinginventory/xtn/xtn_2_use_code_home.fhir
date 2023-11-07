@@ -28,10 +28,6 @@
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
             "valueString" : "^~\\&#"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
-            "valueIdentifier" : {}
           }
         ],
         "eventCoding" : {
@@ -254,7 +250,6 @@
           }
         ],
         "gender" : "unknown",
-        "birthDate" : "1993-02-27",
         "deceasedBoolean" : false,
         "address" : [
           {

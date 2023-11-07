@@ -338,6 +338,58 @@
 # HL7 Use
 - id: "hl7-use"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7-use"
+# CWE coding
+- id: "cwe-coding"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding"
+# CWE Coding System
+- id: "cwe-coding-system"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-coding-system"
+# patient-citizenship
+- id: "patient-citizenship"
+  url: "http://hl7.org/fhir/StructureDefinition/patient-citizenship"
+# code
+- id: "code"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/code"
+# Annotation Identifier
+- id: "cwe1-annotation-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe1-annotation-identifier"
+# Annotation text
+- id: "cwe2-annotation-text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe2-annotation-text"
+# Annotation Name of Coding
+- id: "cwe3-annotation-name-of-coding"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe3-annotation-name-of-coding"
+# Annotation Alternate Identifier
+- id: "cwe4-annotation-alternate-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe4-annotation-alternate-identifier"
+# Annotation Alternate Text
+- id: "cwe5-annotation-alternate-text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe5-annotation-alternate-text"
+# Annotation Alternate Coding System
+- id: "cwe6-annotation-alternate-coding-system"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe6-annotation-alternate-coding-system"
+# Annotation Coding System Version ID
+- id: "cwe7-annotation-coding-system-version-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe7-annotation-coding-system-version-id"
+# Annotation Alternate Coding System Version ID
+- id: "cwe8-annotation-alternate-coding-system-version-id"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe8-annotation-alternate-coding-system-version-id"
+# Annotation Original Text
+- id: "cwe9-annotation-original-text"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe9-annotation-original-text"
+
+# Given Name
+- id: "cnn3-given-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cnn3-given-name"
+# Second and Further Given Names or Initials Thereof
+- id: "cnn4-second-given-name"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cnn4-second-given-name"
+# Suffix (e.g., JR or III)
+- id: "cnn5-suffix"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cnn5-suffix"
+# Degree (e.g., MD)
+- id: "cnn7-degree"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cnn7-degree"
 - id: "iso21090-AD-use"
   url: "http://hl7.org/fhir/StructureDefinition/iso21090-AD-use"
 - id: "xad1-sad1-street-or-mailing-address"
@@ -356,6 +408,10 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad11-address-representation-code"
 - id: "xad12-address-validity-range"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad12-address-validity-range"
+- id: "xad12-address-validity-start"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad12-address-validity-start"
+- id: "xad12-address-validity-end"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad12-address-validity-end"
 - id: "xad15-expiration-reason"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/xad15-expiration-reason"
 - id: "xad19-addressee"
@@ -375,3 +431,14 @@
 # Name suffix professional
 - id: "name-suffix-professional"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/name-suffix-professional"
+# Date time as hl7v2 string
+- id: "hl7v2-date-time"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time"
+- id: "location-physical-type-poc"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/location-physical-type-poc"
+# CWE Annotation
+- id: "cwe-annotation"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-annotation"
+# CWE Quantity
+- id: "cwe-quantity"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-quantity"
