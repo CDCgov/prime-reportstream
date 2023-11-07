@@ -35,6 +35,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
         WIPE_ERROR, // Deprecated
         RESEND,
         REBATCH,
+        OTHER, // a default/unknown
         ;
 
         fun toTaskAction(): TaskAction {
@@ -55,6 +56,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 WIPE_ERROR -> TaskAction.wipe_error
                 RESEND -> TaskAction.resend
                 REBATCH -> TaskAction.rebatch
+                OTHER -> TaskAction.other
             }
         }
 

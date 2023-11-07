@@ -498,7 +498,7 @@ class BlobAccessTests {
             assertThat(
                 result.blobUrl.contains(
                     when (it?.name) {
-                        null -> "none"
+                        null -> "other"
                         "SEND" -> "ready"
                         "CONVERT" -> "other"
                         else -> it.name.lowercase()
