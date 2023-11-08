@@ -10,14 +10,26 @@
             }
         }
 
-        .usa-accordion__content {
-            position: relative;
-            overflow: visible;
-        }
+        //TODO: remove
+        //.usa-accordion__content {
+        //    position: relative;
+        //    overflow: visible;
+        //}
 
         .text-highlight {
             @include u-text("primary-vivid");
             background-color: transparent;
+        }
+
+        .usa-tooltip__body {
+            position: absolute;
+            @include u-font("sans", "md");
+        }
+
+        .fixed-tooltip {
+            color: #0a0a0a;
+            margin-right: unset;
+            margin-left: 8px;
         }
     }
 }
