@@ -415,7 +415,17 @@ class TranslationTests {
                         null
                     )
                 }
-            }
+            } ?: HL7TranslationConfig(
+                Hl7Configuration(
+                    receivingApplicationOID = null,
+                    receivingFacilityOID = null,
+                    messageProfileId = null,
+                    receivingApplicationName = null,
+                    receivingFacilityName = null,
+                    receivingOrganization = null,
+                ),
+                null
+            )
 
             if (!config.conditionFiler.isNullOrBlank()) {
                 if (config.conditionFiler == "pruneUnwanted") {
