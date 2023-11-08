@@ -62,20 +62,17 @@ identifier_3a:
     code: "PLAC"
 
 identifier_3b:
-  condition: $valueInORC NULL && $valueIn NOT_NULL
-  valueOf: datatype/Identifier_var
-  generateList: true
-  useGroup: true
+  condition: $valueIn NOT_NULL
+  valueOf: datatypes/EI/Identifier
   expressionType: resource
+  generateList: true
+  specs: OBR.2
   vars:
-    valueIn: OBR.2.1
-    systemCX: OBR.2.2
-    universalId: OBR.2.3
-    universalIdType: OBR.2.4
-    valueInORC: ORC.2.1
+    valueIn: OBR.2
   constants:
-    system: "http://terminology.hl7.org/CodeSystem/v2-0203"
     code: "PLAC"
+    system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+    hl7Use: "placer-order-number"
 
 identifier_4:
   condition: $valueIn NOT_NULL

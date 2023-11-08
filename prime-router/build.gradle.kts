@@ -829,7 +829,7 @@ dependencies {
     implementation("org.yaml:snakeyaml:2.2")
     implementation("io.github.linuxforhealth:hl7v2-fhir-converter") {
         version {
-            branch = "master"
+            branch = "jalbinson/add-prt-as-supported-segment" // TODO: switch me back to master when PR is merged
         }
     }
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.8.4")
