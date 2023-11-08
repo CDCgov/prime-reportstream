@@ -10,6 +10,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.Logging
 import org.json.JSONObject
@@ -32,13 +33,15 @@ internal object HashicorpVaultCredentialService : CredentialService(), Logging {
 
     override fun fetchCredential(connectionId: String): Credential? {
         return runBlocking {
+            val path: String = "$VAULT_API_ADDR/v1/secret/$connectionId"
+            val token = VAULT_TOKEN
             val clientObj = CommandUtilities.createDefaultHttpClient(bearerTokens = null)
             clientObj.use { client ->
                 val response: HttpResponse = client.get(
-                    "$VAULT_API_ADDR/v1/secret/$connectionId",
+                    path,
                 ) {
                     headers {
-                        append("X-Vault-Token", VAULT_TOKEN)
+                        append("X-Vault-Token", token)
                     }
                     expectSuccess = true // throw an exception if not successful
                     accept(ContentType.Application.Json)
@@ -61,12 +64,18 @@ internal object HashicorpVaultCredentialService : CredentialService(), Logging {
 
     override fun saveCredential(connectionId: String, credential: Credential) {
         return runBlocking {
+            val path: String = "$VAULT_API_ADDR/v1/secret/$connectionId"
+            val token = VAULT_TOKEN
             val clientObj = CommandUtilities.createDefaultHttpClient(bearerTokens = null)
             clientObj.use { client ->
                 val response: HttpResponse = client.post(
-                    "$VAULT_API_ADDR/v1/secret/$connectionId",
+                    path,
                 ) {
                     expectSuccess = true // throw an exception if not successful
+                    headers {
+                        append("X-Vault-Token", token)
+                    }
+                    contentType(ContentType.Application.Json)
                     accept(ContentType.Application.Json)
                     setBody(credential.toJSON())
                 }
