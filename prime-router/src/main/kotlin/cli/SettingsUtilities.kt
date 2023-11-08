@@ -10,6 +10,7 @@ import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import kotlinx.coroutines.runBlocking
 
 private const val jsonMimeType = "application/json"
@@ -49,7 +50,7 @@ class SettingsUtilities {
                         timeout {
                             requestTimeoutMillis = requestTimeoutMillis
                         }
-                        accept(ContentType.Application.Json)
+                        contentType(ContentType.Application.Json)
                         setBody(payload)
                     }
                 response.body()

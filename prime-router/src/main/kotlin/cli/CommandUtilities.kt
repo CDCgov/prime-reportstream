@@ -6,6 +6,7 @@ import com.github.ajalt.clikt.core.PrintMessage
 import gov.cdc.prime.router.common.Environment
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
@@ -88,8 +89,6 @@ class CommandUtilities {
                             requestTimeoutMillis = requestTimeoutMillis
                         }
                     }
-
-                LookupTableEndpointUtilities.checkResponse(response)
                 response.status == HttpStatusCode.OK
             }
         }
@@ -185,6 +184,8 @@ class CommandUtilities {
                         }
                     )
                 }
+
+                install(HttpTimeout)
                 // configures the Apache client with our specified timeouts
                 engine {
                     followRedirects = true

@@ -15,6 +15,9 @@ import com.github.difflib.text.DiffRow
 import com.github.difflib.text.DiffRowGenerator
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.extensions.authentication
+import com.github.kittinunf.fuel.json.responseJson
 import com.google.common.base.Preconditions
 import de.m3y.kformat.Table
 import de.m3y.kformat.table
@@ -24,6 +27,7 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.ktor.client.call.body
 import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
@@ -70,20 +74,41 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
         val client = CommandUtilities.createDefaultHttpClient(
             BearerTokens(accessToken, refreshToken = "")
         )
-        return runBlocking {
-            val response =
-                client.get(apiUrl.toString()) {
-                    timeout {
-                        requestTimeoutMillis = requestTimeoutMillis
-                    }
-                    parameters {
-                        append(LookupTableFunctions.showInactiveParamName, listInactive.toString())
-                    }
+        val response1 = runBlocking {
+            val resp = client.get(apiUrl.toString()) {
+                timeout {
+                    requestTimeoutMillis = requestTimeoutMillis
                 }
+                expectSuccess = true
+                parameters {
+                    append(LookupTableFunctions.showInactiveParamName, listInactive.toString())
+                }
+                accept(ContentType.Application.Json)
+            }
+            println("================== in runBlocking print response =====================")
+            println(resp)
+            resp
+        }
+        println("============== after runBlocking print response ================")
+        println(response1)
+//        val listOfTableVersions = Json.decodeFromString<List<LookupTableVersion>>(response)
 
-            checkResponse(response)
-
-            response.body()
+        println("============== Fuel get ================")
+        val (_, response, result) = Fuel
+            .get(apiUrl.toString(), listOf(LookupTableFunctions.showInactiveParamName to listInactive.toString()))
+            .authentication()
+            .bearer(accessToken)
+            .timeoutRead(requestTimeoutMillis)
+            .responseJson()
+        println("============= Fuel get response ==============")
+        println(response)
+        // checkCommonErrorsFromResponse(result, response)
+        try {
+            println("============= Fuel get response mapped to list of tables ==============")
+            println("========== result content ============>>>>${result.get().content}<<<<<<<<")
+            return mapper.readValue(result.get().content)
+        } catch (e: MismatchedInputException) {
+            throw IOException("Invalid response body found.")
         }
     }
 
@@ -128,7 +153,7 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
                     }
                 }
 
-            checkResponse(response)
+//            checkResponse(response)
 
             try {
                 val respBodyText = runBlocking {
@@ -218,9 +243,10 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
          * @throws IOException if there is a server or API error
          */
         internal fun getTableInfoResponse(response: HttpResponse): LookupTableVersion {
-            checkResponse(response)
+            // checkResponse(response)
+            var respStr = ""
             try {
-                val respStr = runBlocking {
+                respStr = runBlocking {
                     response.bodyAsText()
                 }
                 val info = mapper.readValue<LookupTableVersion>(respStr)
@@ -232,7 +258,7 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
                     return info
                 }
             } catch (e: MismatchedInputException) {
-                throw IOException("Invalid JSON response.")
+                throw IOException("Invalid JSON response, response: $respStr.")
             }
         }
 
@@ -279,7 +305,7 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
          * Get the error message from a [response] as returned by the API.
          * @return The error as a string or null if no error is found.
          */
-        internal fun getResponseError(response: HttpResponse): String {
+        private fun getResponseError(response: HttpResponse): String {
             return runBlocking {
                 response.body<String>().toString()
             }

@@ -17,6 +17,7 @@ import io.ktor.client.request.accept
 import io.ktor.client.request.get
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import io.ktor.http.parameters
 import kotlinx.coroutines.runBlocking
 import java.net.HttpURLConnection
@@ -143,6 +144,7 @@ class HistoryApiTest : CoolTest() {
                             append(it.first, it.second.toString())
                         }
                     }
+                    contentType(ContentType.Application.Json)
                     accept(ContentType.Application.Json)
                 }
 

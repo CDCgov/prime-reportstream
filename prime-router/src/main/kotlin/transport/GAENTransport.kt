@@ -27,6 +27,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.codec.digest.HmacAlgorithms
 import org.apache.commons.codec.digest.HmacUtils
@@ -243,6 +244,7 @@ class GAENTransport : ITransport, Logging {
                     timeout {
                         requestTimeoutMillis = GAEN_TIMEOUT.toLong()
                     }
+                    contentType(ContentType.Application.Json)
                     accept(ContentType.Application.Json)
                     setBody(payload)
                 }
