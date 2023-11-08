@@ -6,15 +6,9 @@
             word-wrap: break-word;
 
             p {
-                margin: 0;
+                @include u-margin(0px);
             }
         }
-
-        //TODO: remove
-        //.usa-accordion__content {
-        //    position: relative;
-        //    overflow: visible;
-        //}
 
         .text-highlight {
             @include u-text("primary-vivid");
@@ -22,14 +16,17 @@
         }
 
         .usa-tooltip__body {
-            position: absolute;
             @include u-font("sans", "md");
         }
 
+        .usa-tooltip__body--left {
+            top: 7px !important;
+        }
+
         .fixed-tooltip {
-            color: #0a0a0a;
+            color: black;
             margin-right: unset;
-            margin-left: 8px;
+            @include u-margin-left(8px);
         }
     }
 }

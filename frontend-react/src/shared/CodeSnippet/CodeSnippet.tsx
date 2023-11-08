@@ -130,7 +130,6 @@ export const CodeSnippet = ({ children, highlightText }: CodeSnippetProps) => {
     const copyToClipboard = (snippet: ReactNode) => {
         navigator.clipboard.writeText(getNodeText(snippet));
         setIsCopied(true);
-        // alert(`You have copied "${getNodeText(snippet)}"`);
     };
 
     React.useEffect(() => {
@@ -151,7 +150,7 @@ export const CodeSnippet = ({ children, highlightText }: CodeSnippetProps) => {
             </code>
             <Tooltip
                 className="fixed-tooltip"
-                position="top"
+                position="left"
                 label={tooltipText}
                 onClick={() => copyToClipboard(children)}
             >
