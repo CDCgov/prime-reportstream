@@ -569,7 +569,6 @@
           }
         ],
         "gender" : "unknown",
-        "birthDate" : "1993-02-27",
         "deceasedBoolean" : false,
         "address" : [
           {

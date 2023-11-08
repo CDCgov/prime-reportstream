@@ -270,6 +270,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
     enum class CodingSystemMapper(val fhirURL: String, val hl7ID: String) {
         ICD10("http://hl7.org/fhir/sid/icd-10-cm", "I10"),
         LOINC("http://loinc.org", "LN"),
+        LOCAL("https://terminology.hl7.org/CodeSystem-v2-0396.html#v2-0396-99zzzorL", "L"),
         SNOMED_CLINICAL("http://snomed.info/sct", "SCT"),
         HL70189("http://terminology.hl7.org/CodeSystem/v2-0189", "HL70189"),
         HL70005("http://terminology.hl7.org/CodeSystem/v3-Race", "HL70005"),
@@ -426,6 +427,7 @@ object CustomFHIRFunctions : FhirPathFunctions {
             TemporalPrecisionEnum.YEAR, TemporalPrecisionEnum.MONTH, TemporalPrecisionEnum.DAY, null -> mutableListOf(
                 inputDate
             )
+
             TemporalPrecisionEnum.MINUTE, TemporalPrecisionEnum.SECOND, TemporalPrecisionEnum.MILLI -> mutableListOf(
                 DateTimeType(inputDate.value, inputDate.precision, timezonePassed)
             )
