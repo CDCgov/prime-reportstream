@@ -33,7 +33,7 @@
         "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "R01",
-          "display" : "ORU/ACK - Unsolicited transmission of an observation message"
+          "display" : "ORU^R01^ORU_R01"
         },
         "responsible" : {
           "reference" : "Organization/1697228858209404000.ab8a13d2-f06b-49ea-b92e-704db1540f92"

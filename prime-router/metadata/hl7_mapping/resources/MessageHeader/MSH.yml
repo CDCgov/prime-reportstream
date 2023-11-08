@@ -82,6 +82,13 @@ elements:
     value: [ '%resource.meta.security.code' ]
     hl7Spec: [ MSH-8-1 ]
 
+  - name: message-event-coding
+    schema: ../../datatypes/coding/MSG
+    condition: '%resource.is(Coding)'
+    resource: '%resource.event'
+    constants:
+      hl7MSGField: MSH-9
+
   - name: message-control-id
     value: [ 'Bundle.identifier.value' ]
     required: true

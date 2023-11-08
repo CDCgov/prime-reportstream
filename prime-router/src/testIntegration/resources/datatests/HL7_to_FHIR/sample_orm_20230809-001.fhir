@@ -115,7 +115,7 @@
         "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "O01",
-          "display" : "ORM - Order message (also RDE, RDS, RGV, RAS)"
+          "display" : "ORM^O01^ORM_O01"
         },
         "destination" : [
           {
