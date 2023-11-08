@@ -432,3 +432,22 @@
 # CWE Annotation
 - id: "cwe-annotation"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-annotation"
+# Assigning jurisdiction
+- id: "assigning-jurisdiction"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-jurisdiction"
+# Assigning Agency or Department
+- id: "assigning-agency-or-department"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-agency-or-department"
+# Security Check
+- id: "security-check"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/security-check"
+# Security Check Scheme
+- id: "security-check-scheme"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/security-check-scheme"
+# Identifier Check Digit
+- id: "identifier-check-digit"
+  url: "http://hl7.org/fhir/StructureDefinition/identifier-checkDigit"
+# Naming System Check Digit
+- id: "naming-system-check-digit"
+  url: "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit"
+

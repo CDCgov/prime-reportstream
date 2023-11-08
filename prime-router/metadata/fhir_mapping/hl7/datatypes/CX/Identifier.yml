@@ -1,0 +1,123 @@
+resourceType: Identifier
+
+value:
+  type: STRING
+  valueOf: CX.1
+  expressionType: HL7Spec
+
+extension_1:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: identifier-check-digit
+    valueString:
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: CX.2
+
+extension_2:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: naming-system-check-digit
+    valueString:
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: CX.3
+
+assigner:
+  valueOf: datatypes/HD/Organization
+  expressionType: reference
+  specs: CX.4
+
+extension_system:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: coding-system
+    valueCodeableConcept:
+      valueOf: datatype/CodeableConcept_var
+      expressionType: resource
+      vars:
+        code: String, CX.4
+
+type:
+  valueOf: datatype/CodeableConcept_var
+  expressionType: resource
+  vars:
+    code: $code
+    system: $system
+    text: $text
+
+extension_assigningFacility:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: assigning-facility
+    valueReference:
+      valueOf: datatypes/HD/Organization
+      expressionType: reference
+      specs: CX.6
+
+period:
+  valueOf: datatype/Period
+  expressionType: resource
+  vars:
+    start: CX.7
+    end: CX.8
+
+extension_4:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: assigning-jurisdiction
+    valueString:
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: CX.9
+
+extension_5:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: assigning-agency-or-department
+    valueString:
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: CX.10
+
+extension_6:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: security-check
+    valueString:
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: CX.11
+
+extension_7:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: security-check-scheme
+    valueString:
+      type: STRING
+      expressionType: HL7Spec
+      valueOf: CX.12

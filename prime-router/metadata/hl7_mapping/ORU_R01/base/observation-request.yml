@@ -151,3 +151,9 @@ elements:
     constants:
       cweFieldPath: '%{fieldPath}-39'
     schema: ../../datatypes/codeableConcept/CWE
+
+  - name: alternate-placer-order-number
+    resource: '%resource.result.resolve().identifier'
+    constants:
+      cxFieldPath: '%{fieldPath}-53'
+    schema: ../../datatypes/identifier/CX

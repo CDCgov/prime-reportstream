@@ -1,0 +1,57 @@
+elements:
+  - name: id-number
+    value: [ '%resource.value' ]
+    hl7Spec: [ '%{cxFieldPath}-1' ]
+
+  - name: identifier-check-digit
+    value: [ '%resource.extension(%`ext-identifier-checkDigit`).value' ]
+    hl7Spec: [ '%{cxFieldPath}-2' ]
+
+  - name: check-digit-scheme
+    value: [ '%resource.extension(%`ext-namingsystem-checkDigit`).value' ]
+    hl7Spec: [ '%{cxFieldPath}-3' ]
+
+#todo: fix the conditional on this once Kalish gets the library forked.
+  - name: assigning-authority
+    resource: '%resource.assigner.resolve()'
+    condition: '%resource.exists()'
+    schema: ../../resources/Organization/HD
+    constants:
+      hl7HDField: '%{cxFieldPath}-4'
+
+# todo: add system
+
+  - name: identifier-type-coding
+    value: [ '%resource.type.coding.code' ]
+    hl7Spec: [ '%{cxFieldPath}-5' ]
+
+  - name: assigning-facility
+    resource: '%resource.extension(%`rsext-assigning-facility`).value.resolve()'
+    condition: '%resource.exists()'
+    schema: ../../resources/Organization/HD
+    constants:
+      hl7HDField: '%{cxFieldPath}-6'
+
+  - name: effective-date
+    value: [ '%resource.period.start' ]
+    hl7Spec: [ '%{cxFieldPath}-7' ]
+
+  - name: expiration-date
+    value: [ '%resource.period.end' ]
+    hl7Spec: [ '%{cxFieldPath}-8' ]
+
+  - name: assigning-jurisdiction
+    value: [ '%resource.extension(%`rsext-assigning-jurisdiction`).value' ]
+    hl7Spec: [ '%{cxFieldPath}-9' ]
+
+  - name: assigning-agency-or-department
+    value: [ '%resource.extension(%`rsext-assigning-agency-or-department`).value' ]
+    hl7Spec: [ '%{cxFieldPath}-10' ]
+
+  - name: security-check
+    value: [ '%resource.extension(%`rsext-security-check`).value' ]
+    hl7Spec: [ '%{cxFieldPath}-11' ]
+
+  - name: security-check-scheme
+    value: [ '%resource.extension(%`rsext-security-check-scheme`).value' ]
+    hl7Spec: [ '%{cxFieldPath}-12' ]
