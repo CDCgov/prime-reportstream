@@ -81,7 +81,7 @@
       transport: !<SFTP>
         host: "sftp-west.inductivehealth.com"
         port: "22"
-        filePath: "/incoming/flu_rsv/staging"
+        filePath: "/incoming/full_elr/staging"
         credentialName: null
         type: "SFTP"
       externalName: null
