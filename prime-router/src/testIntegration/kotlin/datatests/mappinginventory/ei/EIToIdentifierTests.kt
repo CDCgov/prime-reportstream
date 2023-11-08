@@ -1,12 +1,17 @@
 package gov.cdc.prime.router.datatests.mappinginventory.ei
 
 import gov.cdc.prime.router.datatests.mappinginventory.verifyHL7ToFHIRToHL7Mapping
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 
 class EIToIdentifierTests {
 
     @Test
-    fun `EI to Identifier`() {
-        assert(verifyHL7ToFHIRToHL7Mapping("ei/EI-to-Identifier").passed)
+    fun `verify HL7 to FHIR to HL7 default assigner`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("ei/EI-to-Identifier-default-assigner").passed)
+    }
+
+    @Test
+    fun `verify HL7 to FHIR to HL7 organization assigner`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("ei/EI-to-Identifier-organization-assigner").passed)
     }
 }

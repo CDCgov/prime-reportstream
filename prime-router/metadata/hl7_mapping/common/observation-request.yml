@@ -7,7 +7,7 @@ elements:
     resource: '%resource.identifier.where(extension(%`rsext-hl7-use`).value = "placer-order-number")'
     constants:
       eiFieldPath: '%{fieldPath}(%{entityIdIndex})-2'
-    schema: ../datatypes/identifier/EI
+    schema: ../datatypes/identifier-extension/EI
     resourceIndex: entityIdIndex
 
   - name: filler-order

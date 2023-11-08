@@ -491,6 +491,12 @@
 # CWE Annotation
 - id: "cwe-annotation"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-annotation"
+- id: "ei-assigner-organization-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/ei-assigner-organization-type"
+- id: "pl6-person-location-type"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/pl6-person-location-type"
+- id: "dld2-effective-date"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/dld2-effective-date"
 # CWE Quantity
 - id: "cwe-quantity"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-quantity"
