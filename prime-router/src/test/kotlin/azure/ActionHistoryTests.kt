@@ -489,7 +489,7 @@ class ActionHistoryTests {
             )
         mockkObject(BlobAccess.Companion)
         val blobUrls = mutableListOf<String>()
-        every { BlobAccess.uploadBlob(capture(blobUrls), any(), any()) } returns "http://blobUrl"
+        every { BlobAccess.uploadBlob(capture(blobUrls), any()) } returns "http://blobUrl"
         every { BlobAccess.sha256Digest(any()) } returns byteArrayOf()
         every { BlobAccess.uploadBody(any(), any(), any(), any(), any()) } answers { callOriginal() }
         val header = mockk<WorkflowEngine.Header>()
@@ -501,12 +501,10 @@ class ActionHistoryTests {
         actionHistory1.action
         actionHistory1.trackSentReport(org.receivers[0], uuid, "filename1", "params1", "result1", header)
         assertThat(actionHistory1.reportsOut[uuid]).isNotNull()
-//        val reportFile = actionHistory1.reportsOut[uuid]!!
         val actionHistory2 = ActionHistory(TaskAction.receive)
         actionHistory2.action
         actionHistory2.trackSentReport(org.receivers[1], uuid2, "filename1", "params1", "result1", header)
         assertThat(actionHistory2.reportsOut[uuid2]).isNotNull()
-//        val reportFile2 = actionHistory2.reportsOut[uuid2]!!
         assertNotEquals(blobUrls[0], blobUrls[1])
     }
 }
