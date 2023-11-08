@@ -48,7 +48,7 @@ jobs:
         
       - name: "Get changed files with yaml"
         id: changed-files-yaml
-        uses: tj-actions/changed-files@18c8a4ecebe93d32ed8a88e1d0c098f5f68c221b
+        uses: tj-actions/changed-files@25ef3926d147cd02fc7e931c1ef50772bbb0d25d
         with:
           files_yaml: |
             frontend:
@@ -82,7 +82,7 @@ jobs:
       - name: Build Prime Router Package
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         working-directory: prime-router
-        run: ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" package -x test -x fatjar
+        run: ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" package -x fatjar
 
       - name: Perform Java CodeQL Analysis
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
