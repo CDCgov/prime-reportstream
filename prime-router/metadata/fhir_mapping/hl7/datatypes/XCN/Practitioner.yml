@@ -1,0 +1,336 @@
+resourceType: Practitioner
+
+id:
+  type: STRING
+  valueOf: "GeneralUtils.generateResourceId()"
+  expressionType: JEXL
+
+identifier:
+  expressionType: nested
+  expressionsMap:
+    value:
+      type: STRING
+      valueOf: XCN.1
+      expressionType: HL7Spec
+    assigner:
+      condition: $xcn9 NOT_NULL
+      valueOf: datatypes/HD/Organization
+      expressionType: reference
+      generateList: true
+      specs: XCN.9
+      vars:
+        xcn9: XCN.9
+    extension_1-checkDigit:
+      condition: $xcn11 NOT_NULL
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: check-digit
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XCN.11
+    extension_2-checkDigitScheme:
+      condition: $xcn12 NOT_NULL
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: check-digit-scheme
+        valueCode:
+          valueOf: XCN.12
+          type: STRING
+          expressionType: HL7Spec
+
+name:
+  expressionType: nested
+  expressionsMap:
+    family:
+      type: STRING
+      valueOf: XCN.2.1
+      expressionType: HL7Spec
+    _family:
+      generateList: true
+      expressionType: nested
+      expressions:
+        - expressionType: resource
+          valueOf: datatypes/FN/ExtensionHumanName-family
+          specs: XCN.2
+        - expressionType: nested
+          vars:
+            xcn18: STRING_ALL, XCN.18
+          condition: $xcn18 NOT_NULL
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: humanname-assembly-order
+            valueCode:
+              type: STRING
+              valueOf: XCN.18
+              expressionType: HL7Spec
+    given:
+      generateList: true
+      expressionType: nested
+      expressions:
+        - expressionType: HL7Spec
+          valueOf: XCN.3
+          type: STRING
+        - expressionType: HL7Spec
+          valueOf: XCN.4
+          type: STRING
+    suffix:
+      generateList: true
+      expressionType: nested
+      expressions:
+        - expressionType: HL7Spec
+          valueOf: XCN.5
+          type: STRING
+        - expressionType: HL7Spec
+          valueOf: XCN.7
+          type: STRING
+        - expressionType: HL7Spec
+          valueOf: XCN.21
+          type: STRING
+    prefix:
+      type: STRING
+      valueOf: XCN.6
+      expressionType: HL7Spec
+    use:
+      type: NAME_USE
+      valueOf: XCN.10
+      expressionType: HL7Spec
+  # This needs to use variables because the message parses this field using NULLDT since it is deprecated which means that
+  # the values do not get correctly loaded and will not be mapped over correctly using a spec.
+  period_1:
+    vars:
+      xcn12: STRING_ALL, XCN.19
+      xcn13: STRING_ALL, XCN.20
+      start: STRING_ALL, XCN.17.1
+      end: STRING_ALL, XCN.17.2
+    condition: $xcn19 NULL && $xcn20 NULL
+    expressionType: resource
+    valueOf: datatypes/DR/Period
+  # XCN.17 is deprecated so the schema favors using XCN.19/20 if either are populated
+  period_2:
+    vars:
+      xcn19: STRING_ALL, XCN.19
+      xcn20: STRING_ALL, XCN.20
+    condition: $xcn19 NOT_NULL || $xcn20 NOT_NULL
+    expressionType: nested
+    expressionsMap:
+      start:
+        valueOf: "GeneralUtils.dateTimeWithZoneId(periodStart,ZONEID)"
+        expressionType: JEXL
+        vars:
+          periodStart: XCN.19
+      end:
+        valueOf: "GeneralUtils.dateTimeWithZoneId(periodEnd,ZONEID)"
+        expressionType: JEXL
+        vars:
+          periodEnd: XCN.20
+
+extension:
+  vars:
+    xcn3: STRING_ALL, XCN.3
+    xcn4: STRING_ALL, XCN.4
+    xcn5: STRING_ALL, XCN.5
+    xcn7: STRING_ALL, XCN.7
+    xcn8: STRING_ALL, XCN.8
+    xcn10: STRING_ALL, XCN.10
+    xcn15: STRING_ALL, XCN.12
+    xcn16: STRING_ALL, XCN.16
+    xcn17: STRING_ALL, XCN.17
+    xcn19: STRING_ALL, XCN.19
+    xcn20: STRING_ALL, XCN.20
+    xcn21: STRING_ALL, XCN.21
+    xcn22: STRING_ALL, XCN.22
+    xcn23: STRING_ALL, XCN.23
+    xcn24: STRING_ALL, XCN.24
+    xcn25: STRING_ALL, XCN.25
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      condition: $xcn3 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: xcn3-given-name
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XCN.3
+    - expressionType: nested
+      condition: $xcn4 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: xcn4-second-given-name
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XCN.4
+    - expressionType: nested
+      condition: $xcn5 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: xcn5-suffix
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XCN.5
+    - expressionType: nested
+      condition: $xcn7 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: xcn7-degree
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XCN.7
+    - expressionType: nested
+      condition: $xcn8 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: xcn8-source-table
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: XCN.8
+    - expressionType: nested
+      condition: $xcn10 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: xcn10-name-type-code
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XCN.10
+    - expressionType: nested
+      condition: $xcn15 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: xcn15-name-representation-code
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XCN.15
+    - expressionType: nested
+      condition: $xcn16 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: xcn16-name-context
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: XCN.16
+    - expressionType: nested
+      vars:
+        start: XCN.17.1
+        end: XCN.17.2
+      condition: $start NOT_NULL || $end NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: xcn17-name-validity-range
+        extension_1-start:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: xcn17-name-validity-start
+            valueString:
+              type: STRING
+              valueOf: $start
+              expressionType: HL7Spec
+        extension_2-end:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: xcn17-name-validity-end
+            valueString:
+              type: STRING
+              valueOf: $end
+              expressionType: HL7Spec
+    - expressionType: nested
+      condition: $xcn19 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: xcn19-effective-date
+        valueString:
+          type: STRING
+          valueOf: $xcn19
+          expressionType: HL7Spec
+    - expressionType: nested
+      condition: $xcn20 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: xcn20-expiration-date
+        valueString:
+          type: STRING
+          valueOf: $xcn20
+          expressionType: HL7Spec
+    - expressionType: nested
+      condition: $xcn21 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          valueOf: xcn21-professional-suffix
+        valueString:
+          type: STRING
+          expressionType: HL7Spec
+          valueOf: XCN.21
+    - expressionType: nested
+      condition: $xcn22 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: xcn22-assigning-jurisdiction
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: XCN.22
+    - expressionType: nested
+      condition: $xcn23 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: xcn23-assigning-agency-or-department
+        valueCodeableConcept:
+          valueOf: datatypes/CWE/CodeableConcept
+          expressionType: resource
+          specs: XCN.23
+    - expressionType: nested
+      condition: $xcn24 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: xcn24-security-check
+        valueString:
+          type: STRING
+          valueOf: XCN.24
+          expressionType: HL7Spec
+    - expressionType: nested
+      condition: $xcn25 NOT_NULL
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: xcn25-security-check-scheme
+        valueString:
+          type: STRING
+          valueOf: XCN.25
+          expressionType: HL7Spec
