@@ -31,5 +31,5 @@ elements:
 
   - name: ei-universal-id-type-default
     condition: '%resource.extension(%`rsext-ei-assigner-organization-type`).value = "default"'
-    value: [ '%resource.assigner.resolve().identifier.where(extension(%`rsext-identifier-universal-id`).exists()).type.coding.code' ]
+    value: [ '%resource.assigner.resolve().identifier.where(extension(%`rsext-identifier-universal-id`).exists()).type.coding.where(extension(%`rsext-hl7-use`).value = "id-code").code' ]
     hl7Spec: [ '%{hl7EIField}-4' ]

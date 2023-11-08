@@ -3,7 +3,7 @@ package gov.cdc.prime.router.datatests.mappinginventory.ei
 import gov.cdc.prime.router.datatests.mappinginventory.verifyHL7ToFHIRToHL7Mapping
 import org.junit.jupiter.api.Test
 
-class EIToIdentifier {
+class EIToIdentifierTests {
 
     @Test
     fun `verify HL7 to FHIR to HL7 default assigner`() {

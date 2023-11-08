@@ -32,9 +32,8 @@ identifier:
           valueOf: EI.3
         type:
           expressionType: resource
-          vars:
-            code: EI.4
-          valueOf: datatype/CodeableConcept_var
+          specs: EI.4
+          valueOf: datatypes/ID/CodeableConcept
         extension:
           generateList: true
           expressionType: nested
