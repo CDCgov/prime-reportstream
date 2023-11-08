@@ -1,5 +1,5 @@
 name:
-  valueOf: datatype/HumanName
+  valueOf: datatypes/XPN/HumanName
   generateList: true
   expressionType: resource
   specs: NK1.2

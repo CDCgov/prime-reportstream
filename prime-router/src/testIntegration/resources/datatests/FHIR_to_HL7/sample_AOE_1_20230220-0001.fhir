@@ -13164,6 +13164,16 @@
               }
             ],
             "name" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
+                  "valueString" : "GENARO"
+                },
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn7-name-type-code",
+                  "valueString" : "L"
+                }
+              ],
               "use" : "official",
               "text" : "GENARO SURYAN",
               "family" : "SURYAN",

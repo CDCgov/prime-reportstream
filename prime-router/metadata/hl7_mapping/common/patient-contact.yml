@@ -9,8 +9,8 @@ elements:
     resource: '%resource.name'
     condition: '%resource.exists()'
     constants:
-      hl7NameField: '%{hl7NK1Field}-2'
-    schema: datatype/xpn-person-name
+      hl7xpnField: '%{hl7NK1Field}-2'
+    schema: ../datatypes/HumanName/XPN
 
   - name: contact-relationship-id
     resource: '%resource.relationship.where(coding.system != "http://hl7.org/fhir/ValueSet/patient-contactrelationship")'
