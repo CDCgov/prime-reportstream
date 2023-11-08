@@ -281,7 +281,7 @@ class ActionHistoryTests {
                 )
             )
         mockkObject(BlobAccess.Companion)
-        every { BlobAccess.uploadBody(any(), any(), any(), any()) } returns BlobAccess.BlobInfo(
+        every { BlobAccess.uploadBody(any(), any(), any(), any(), any()) } returns BlobAccess.BlobInfo(
             Report.Format.HL7,
             "http://blobUrl",
             "".toByteArray()
