@@ -282,7 +282,7 @@ class ActionHistoryTests {
                 )
             )
         mockkObject(BlobAccess.Companion)
-        every { BlobAccess.uploadBody(any(), any(), any(), any(), any()) } returns BlobAccess.BlobInfo(
+        every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } returns BlobAccess.BlobInfo(
             Report.Format.HL7,
             "http://blobUrl",
             "".toByteArray()
@@ -468,7 +468,7 @@ class ActionHistoryTests {
     }
 
     @Test
-    fun `test sameFilenameDifferentReceiver`() {
+    fun `test trackSentReportSameFilenameDifferentReceiver`() {
         val uuid = UUID.randomUUID()
         val uuid2 = UUID.randomUUID()
         val org =
@@ -491,7 +491,7 @@ class ActionHistoryTests {
         val blobUrls = mutableListOf<String>()
         every { BlobAccess.uploadBlob(capture(blobUrls), any()) } returns "http://blobUrl"
         every { BlobAccess.sha256Digest(any()) } returns byteArrayOf()
-        every { BlobAccess.uploadBody(any(), any(), any(), any(), any()) } answers { callOriginal() }
+        every { BlobAccess.uploadBody(any(), any(), any(), any(), Event.EventAction.NONE) } answers { callOriginal() }
         val header = mockk<WorkflowEngine.Header>()
         val inReportFile = mockk<ReportFile>()
         every { header.reportFile } returns inReportFile
