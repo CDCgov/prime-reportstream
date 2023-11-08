@@ -1,0 +1,19 @@
+code:
+  expressionType: nested
+  vars:
+    id1: STRING, ID.1
+  expressions:
+    - condition: $id1 EQUALS Y
+      value: true
+    - condition: $id1 EQUALS N
+      value: false
+
+extension:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: id1-identifier
+    valueString:
+      valueOf: ID.1

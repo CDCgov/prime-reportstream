@@ -39,13 +39,9 @@ identifier_2:
       expressionType: HL7Spec
       valueOf: HD.2
     type:
-      valueOf: datatype/CodeableConcept_var
-      generateList: true
+      valueOf: datatypes/ID/CodeableConcept
       expressionType: resource
-      vars:
-        code: HD.3
-      constants:
-        system: "http://terminology.hl7.org/CodeSystem/v2-0301"
+      specs: HD.3
     system:
       condition: $hd3 EQUALS ISO || $hd3 EQUALS UUID
       type: STRING
