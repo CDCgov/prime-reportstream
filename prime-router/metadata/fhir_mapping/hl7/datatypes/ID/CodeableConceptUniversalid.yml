@@ -1,0 +1,10 @@
+code:
+  expressionType: nested
+  expressionsMap:
+    code:
+      valueOf: ID.1
+      expressionType: HL7Spec
+      type: STRING
+    system:
+      type: STRING
+      value: "http://terminology.hl7.org/CodeSystem/v2-0301"
