@@ -12,18 +12,18 @@ function modified_check() {
     fi
 }
 
-function yarn_lock_check() {
-    echo "Checking Yarn lock integrity"
-    yarn --immutable --immutable-cache
+function yarn_dedupe_check() {
+    echo "Checking Yarn duplicate dependencies"
+    yarn dedupe --check
 }
 
 modified_check
 if [[ ${isModified} == 1 ]]; then
-    yarn_lock_check
+    yarn_dedupe_check
 fi
 RC=$?
 
 if [[ ${RC?} != 0 ]]; then
-    echo "ERROR: Your yarn lock file is out of sync. Please \"yarn install\" and stage the yarn.lock file (if changed) and try again."
+    echo "ERROR: Your yarn lock file contains duplicate dependencies. Please \"yarn dedupe\" and try again."
     exit ${RC?}
 fi
