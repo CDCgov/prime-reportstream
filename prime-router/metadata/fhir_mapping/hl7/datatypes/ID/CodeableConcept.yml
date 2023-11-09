@@ -1,11 +1,19 @@
-code:
+coding:
+  generateList: true
   expressionType: nested
-  vars:
-    id1: STRING, ID.1
-  expressionsMap:
-    code:
-      valueOf: ID.1
-      expressionType: HL7Spec
-    system:
-      type: STRING
-      value: "http://terminology.hl7.org/CodeSystem/v2-0301"
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        code:
+          expressionType: HL7Spec
+          type: STRING
+          valueOf: $BASE_VALUE
+        extension:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7-use
+            valueString:
+              valueOf: "id-code"
