@@ -290,15 +290,6 @@ extension_5:
     KEY_NAME_SUFFIX: String
     urlValue: patient-type
 
-meta:
-  generateList: true
-  expressionType: nested
-  expressions:
-    security:
-      expressionType: resource
-      valueOf: datatypes/ID/Coding
-      specs: PV2.22
-
 serviceProvider:
   condition: $orgIdValue NOT_NULL
   valueOf: resource/Organization

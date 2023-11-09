@@ -499,7 +499,4 @@
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/dld2-effective-date"
 # CWE Quantity
 - id: "cwe-quantity"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-quantity" id1-identifier
-# ID Identifier
-- id: "id1-identifier"
-  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/id1-identifier"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-quantity"
