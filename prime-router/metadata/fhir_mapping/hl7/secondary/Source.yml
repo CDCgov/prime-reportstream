@@ -127,18 +127,36 @@ extension_2:
     KEY_NAME_SUFFIX: String
     urlValue: source-software-description
 
-extension_3:
+extension_3-sft-install-date:
   generateList: true
-  condition: $value NOT_NULL
-  valueOf: extension/Extension
-  expressionType: resource
+  expressionType: nested
+  condition: $dateTimeIn NOT_NULL
   vars:
-    value: SFT.6, GeneralUtils.dateTimeWithZoneId(value,ZONEID)
-  constants:
-    KEY_NAME_SUFFIX: DateTime
-    urlValue: software-install-date
+    dateTimeIn: SFT.6, GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)
+    hl7Date: SFT.6
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: software-install-date
+    valueDateTime:
+      valueOf: $dateTimeIn
+      expressionType: HL7Spec
+    _valueDateTime:
+      expressionType: nested
+      expressionsMap:
+        extension_1:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7v2-date-time
+            valueString:
+              type: STRING
+              valueOf: $hl7Date
+              expressionType: HL7Spec
 
-extension_4:
+extension_5:
   condition: $sft1 NOT_NULL
   generateList: true
   expressionType: nested

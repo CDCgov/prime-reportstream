@@ -143,16 +143,6 @@ authoredOn:
     dateTimeIn: ORC.9
     orderControl: String, ORC.1
 
-occurrenceDateTime:
-  condition: $startTiming NULL && $endTiming NULL
-  type: STRING
-  valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
-  expressionType: JEXL
-  vars:
-    dateTimeIn: ORC.15
-    startTiming: TQ1.7
-    endTiming: TQ1.8
-
 occurrenceTiming:
   valueOf: datatype/Timing
   expressionType: resource
@@ -284,16 +274,17 @@ extension_3-enterersLocation:
 extension_4-orderEffectiveDate:
   generateList: true
   expressionType: nested
+  condition: $orc15 NOT_NULL
+  vars:
+    orc15: ORC.15
   expressionsMap:
     url:
       type: SYSTEM_URL
       value: order-effective-date
-    valueDateTime:
+    valueString:
       type: STRING
-      valueOf: "GeneralUtils.dateTimeWithZoneId(dateTimeIn,ZONEID)"
-      expressionType: JEXL
-      vars:
-        dateTimeIn: ORC.15
+      valueOf: $orc15
+      expressionType: HL7Spec
 
 extension_5:
   generateList: true
