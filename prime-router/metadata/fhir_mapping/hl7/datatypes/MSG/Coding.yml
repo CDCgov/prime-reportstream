@@ -15,5 +15,8 @@ code:
   valueOf: MSG.2
 
 system:
+  vars:
+    msg2: MSG.2
+  condition: $msg2 NOT_NULL
   type: STRING
   value: "http://terminology.hl7.org/CodeSystem/v2-0003"
