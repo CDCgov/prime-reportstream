@@ -202,7 +202,7 @@ module "front_door" {
 } */
 
 module "sftp_container" {
-  count = local.init.environment != "prod" ? 1 : 0
+  count = local.init.sftp_container_module == true ? 1 : 0
 
   source                = "../../modules/sftp_container"
   environment           = local.init.environment

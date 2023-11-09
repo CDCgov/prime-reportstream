@@ -3,15 +3,16 @@ locals {
   is_temp_env = true
   address_id  = var.address_id
   init = {
-    environment         = var.environment
-    location            = "eastus"
-    is_metabase_env     = false
-    random_id           = local.random_id
-    resource_group_name = "prime-data-hub-${var.environment}"
-    resource_prefix     = "pdh${var.environment}"
-    okta_redirect_url   = "https://${var.environment}.prime.cdc.gov/download"
-    okta_base_url       = "hhs-prime.oktapreview.com"
-    OKTA_scope          = "simple_report_dev"
+    environment           = var.environment
+    location              = "eastus"
+    is_metabase_env       = false
+    random_id             = local.random_id
+    resource_group_name   = "prime-data-hub-${var.environment}"
+    resource_prefix       = "pdh${var.environment}"
+    okta_redirect_url     = "https://${var.environment}.prime.cdc.gov/download"
+    okta_base_url         = "hhs-prime.oktapreview.com"
+    OKTA_scope            = "simple_report_dev"
+    sftp_container_module = false
   }
   key_vault = {
     app_config_kv_name    = "pdh${local.init.environment}-appconfig${local.init.random_id}"
