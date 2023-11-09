@@ -8,9 +8,8 @@ locals {
     resource_group_name = "prime-data-hub-${local.environment}"
     resource_prefix     = "pdh${local.environment}"
     okta_redirect_url   = "https://prime.cdc.gov/download"
-    okta_base_url       = "reportstream.okta.com"
-    fn_OKTA_clientId    = "0oa5vkprvf7YhuLYN4h7"
-    OKTA_scope          = "reportstream_prod"
+    okta_base_url       = "hhs-prime.okta.com"
+    OKTA_scope          = "simple_report_dev"
     storage_queue_name  = ["process"]
 
   }

@@ -8,9 +8,8 @@ locals {
     resource_group_name = "prime-data-hub-${local.environment}"
     resource_prefix     = "pdh${local.environment}"
     okta_redirect_url   = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
-    okta_base_url       = "reportstream.oktapreview.com"
-    fn_OKTA_clientId    = "xxx"
-    OKTA_scope          = "reportstream_dev"
+    okta_base_url       = "hhs-prime.oktapreview.com"
+    OKTA_scope          = "simple_report_dev"
     storage_queue_name  = ["process"]
   }
   key_vault = {

@@ -8,9 +8,8 @@ locals {
     resource_group_name = "prime-data-hub-${local.environment}"
     resource_prefix     = "pdh${local.environment}"
     okta_redirect_url   = "https://${local.environment}.prime.cdc.gov/download"
-    okta_base_url       = "reportstream.oktapreview.com"
-    fn_OKTA_clientId    = "0oaaoe4q658RnqMoy1d7"
-    OKTA_scope          = "reportstream_dev"
+    okta_base_url       = "hhs-prime.oktapreview.com"
+    OKTA_scope          = "simple_report_dev"
     storage_queue_name  = ["process", "batch", "batch-poison", "elr-fhir-convert", "process-poison", "send", "send-poison", "elr-fhir-convert", "elr-fhir-convert-poison", "elr-fhir-route", "elr-fhir-translate", "elr-fhir-translate-poison", "process-elr"]
   }
   key_vault = {
