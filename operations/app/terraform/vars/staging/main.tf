@@ -129,7 +129,6 @@ module "function_app" {
   ai_connection_string              = module.application_insights.connection_string
   okta_base_url                     = local.init.okta_base_url
   okta_redirect_url                 = local.init.okta_redirect_url
-  fn_OKTA_clientId                  = local.init.fn_OKTA_clientId
   OKTA_scope                        = local.init.OKTA_scope
   terraform_caller_ip_address       = local.network.terraform_caller_ip_address
   use_cdc_managed_vnet              = local.network.use_cdc_managed_vnet
