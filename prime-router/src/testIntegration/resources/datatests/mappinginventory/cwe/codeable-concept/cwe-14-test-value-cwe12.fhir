@@ -16,14 +16,6 @@
       "resource" : {
         "resourceType" : "MessageHeader",
         "id" : "827ccb0e-ea8a-306c-8c34-a16891f84e7b",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
@@ -49,14 +41,6 @@
       "resource" : {
         "resourceType" : "Organization",
         "id" : "1698785794129351000.e6bb05a6-0387-4353-8f34-79f38b99c21d",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "address" : [
           {
             "country" : "USA"
@@ -69,14 +53,6 @@
       "resource" : {
         "resourceType" : "Provenance",
         "id" : "1698785794643239000.0f4c6090-427e-4c0a-8a49-87f50234f9e8",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "recorded" : "2023-05-01T10:25:31-04:00",
         "activity" : {
           "coding" : [
@@ -125,15 +101,7 @@
       "fullUrl" : "Device/1698785794647613000.e9440bfa-2f49-403c-895a-f648dda5ce22",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1698785794647613000.e9440bfa-2f49-403c-895a-f648dda5ce22",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        }
+        "id" : "1698785794647613000.e9440bfa-2f49-403c-895a-f648dda5ce22"
       }
     },
     {
@@ -141,14 +109,6 @@
       "resource" : {
         "resourceType" : "Patient",
         "id" : "1698785794679098000.1e07d0fb-d90f-4662-a00e-9b3a79ba4b68",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "extension" : [
           {
             "url" : "http://hl7.org/fhir/StructureDefinition/patient-citizenship",

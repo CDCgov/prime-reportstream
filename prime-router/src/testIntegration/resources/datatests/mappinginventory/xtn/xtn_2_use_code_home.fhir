@@ -16,14 +16,6 @@
       "resource" : {
         "resourceType" : "MessageHeader",
         "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
@@ -42,14 +34,6 @@
       "resource" : {
         "resourceType" : "Provenance",
         "id" : "1697639499941339000.26bb322c-5c33-400c-b983-149caaab84b6",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "recorded" : "2023-05-01T10:25:31-04:00",
         "activity" : {
           "coding" : [
@@ -98,15 +82,7 @@
       "fullUrl" : "Device/1697639499943651000.935de4ab-8b69-47d6-ba27-374b26b94b45",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1697639499943651000.935de4ab-8b69-47d6-ba27-374b26b94b45",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        }
+        "id" : "1697639499943651000.935de4ab-8b69-47d6-ba27-374b26b94b45"
       }
     },
     {
@@ -114,14 +90,6 @@
       "resource" : {
         "resourceType" : "Patient",
         "id" : "1697639499990419000.a258f86a-a2c4-4fcc-ad0e-c3b2a71d666e",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "extension" : [
           {
             "url" : "http://ibm.com/fhir/cdm/StructureDefinition/local-race-cd",

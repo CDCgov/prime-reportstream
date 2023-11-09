@@ -16,14 +16,6 @@
       "resource" : {
         "resourceType" : "MessageHeader",
         "id" : "827ccb0e-ea8a-306c-8c34-a16891f84e7b",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
@@ -49,14 +41,6 @@
       "resource" : {
         "resourceType" : "Organization",
         "id" : "1698074080063992000.6070702f-38b9-4e53-859f-b0266aa8d38c",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "address" : [
           {
             "country" : "USA"
@@ -69,14 +53,6 @@
       "resource" : {
         "resourceType" : "Provenance",
         "id" : "1698074080612823000.c5eec123-4b37-487f-8db7-0a04daa6470d",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "recorded" : "2023-05-01T10:25:31-04:00",
         "activity" : {
           "coding" : [
@@ -125,15 +101,7 @@
       "fullUrl" : "Device/1698074080616584000.ee7cc7cb-d5d2-4c95-9a72-9ea543afd047",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1698074080616584000.ee7cc7cb-d5d2-4c95-9a72-9ea543afd047",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        }
+        "id" : "1698074080616584000.ee7cc7cb-d5d2-4c95-9a72-9ea543afd047"
       }
     },
     {
@@ -141,14 +109,6 @@
       "resource" : {
         "resourceType" : "Patient",
         "id" : "1698074080650565000.977428cd-e03c-4ca0-9e1d-fde430dcdb06",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "contact" : [
           {
             "telecom" : [

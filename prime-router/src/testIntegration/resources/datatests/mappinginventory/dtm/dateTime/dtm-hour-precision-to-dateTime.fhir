@@ -16,14 +16,6 @@
       "resource" : {
         "resourceType" : "MessageHeader",
         "id" : "bb504ecd-c2ab-3be3-91d8-6065e2bce435",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
@@ -42,14 +34,6 @@
       "resource" : {
         "resourceType" : "Provenance",
         "id" : "1699045850483008000.4cbf3924-27ee-470c-b6ee-fd18a4b8688c",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "recorded" : "2023-08-16T12:33:58-05:00",
         "activity" : {
           "coding" : [
@@ -98,15 +82,7 @@
       "fullUrl" : "Device/1699045850486128000.a9b7d509-2d6f-45df-b7c1-3fa2cc6a8829",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1699045850486128000.a9b7d509-2d6f-45df-b7c1-3fa2cc6a8829",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        }
+        "id" : "1699045850486128000.a9b7d509-2d6f-45df-b7c1-3fa2cc6a8829"
       }
     },
     {
@@ -114,14 +90,6 @@
       "resource" : {
         "resourceType" : "Patient",
         "id" : "1699045850504858000.aa5c9382-ffeb-42ae-bf51-80bb49cd58a1",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "deceasedDateTime" : "2023-11-02T11:00:00Z",
         "_deceasedDateTime" : {
           "extension" : [

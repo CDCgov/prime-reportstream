@@ -16,14 +16,6 @@
       "resource" : {
         "resourceType" : "MessageHeader",
         "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
@@ -42,14 +34,6 @@
       "resource" : {
         "resourceType" : "Provenance",
         "id" : "1699452555985763000.0ba60ea4-bcda-4fa1-9d93-2fc65184de98",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "recorded" : "2023-05-01T10:25:31-04:00",
         "activity" : {
           "coding" : [
@@ -98,15 +82,7 @@
       "fullUrl" : "Device/1699452555989804000.4682bd70-cadc-4c25-bc2e-cf817616a756",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1699452555989804000.4682bd70-cadc-4c25-bc2e-cf817616a756",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        }
+        "id" : "1699452555989804000.4682bd70-cadc-4c25-bc2e-cf817616a756"
       }
     }
   ]

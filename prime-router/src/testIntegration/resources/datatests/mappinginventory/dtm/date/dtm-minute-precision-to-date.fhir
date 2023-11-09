@@ -16,14 +16,6 @@
       "resource" : {
         "resourceType" : "MessageHeader",
         "id" : "bb504ecd-c2ab-3be3-91d8-6065e2bce435",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
@@ -42,14 +34,6 @@
       "resource" : {
         "resourceType" : "Provenance",
         "id" : "1698961273789724000.4f775503-df15-4ac3-a73b-77b74efef868",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "recorded" : "2023-08-16T12:33:58-05:00",
         "activity" : {
           "coding" : [
@@ -98,15 +82,7 @@
       "fullUrl" : "Device/1698961273791920000.ce8a8b18-a952-48a5-b7ab-f202a633f693",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1698961273791920000.ce8a8b18-a952-48a5-b7ab-f202a633f693",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        }
+        "id" : "1698961273791920000.ce8a8b18-a952-48a5-b7ab-f202a633f693"
       }
     },
     {
@@ -114,14 +90,6 @@
       "resource" : {
         "resourceType" : "Patient",
         "id" : "1698961273806990000.fe434e0a-bcff-4241-a6fb-aaf19358948a",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "birthDate" : "1970-10-31",
         "_birthDate" : {
           "extension" : [

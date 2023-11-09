@@ -16,14 +16,6 @@
       "resource" : {
         "resourceType" : "MessageHeader",
         "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
@@ -45,14 +37,6 @@
       "resource" : {
         "resourceType" : "Location",
         "id" : "1699301857121541000.bdacbf01-d91e-4211-9491-e326a337bea6",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id-type",
@@ -86,14 +70,6 @@
       "resource" : {
         "resourceType" : "Organization",
         "id" : "1699301857114671000.fe362773-6716-4108-a733-c77350fb8d27",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xon10-organization-identifier",
@@ -194,14 +170,6 @@
       "resource" : {
         "resourceType" : "Provenance",
         "id" : "1699301857536751000.4ab262e7-e9af-4518-9a90-ff177860c512",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "recorded" : "2023-05-01T10:25:31-04:00",
         "activity" : {
           "coding" : [
@@ -250,15 +218,7 @@
       "fullUrl" : "Device/1699301857540678000.856ea846-482a-402e-a936-7d6bd28ca1b5",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1699301857540678000.856ea846-482a-402e-a936-7d6bd28ca1b5",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        }
+        "id" : "1699301857540678000.856ea846-482a-402e-a936-7d6bd28ca1b5"
       }
     }
   ]

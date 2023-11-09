@@ -11,6 +11,11 @@ eventCoding:
   specs: MSH.9
   required: true
 
+meta:
+  expressionType: resource
+  valueOf: datatypes/PT/Meta
+  specs: MSH.11
+
 source:
   valueOf: secondary/Source
   expressionType: resource
