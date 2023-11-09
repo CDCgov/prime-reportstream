@@ -1,0 +1,19 @@
+coding:
+  generateList: true
+  expressionType: nested
+  expressions:
+    - expressionType: nested
+      expressionsMap:
+        code:
+          expressionType: HL7Spec
+          type: STRING
+          valueOf: $BASE_VALUE
+        extension:
+          generateList: true
+          expressionType: nested
+          expressionsMap:
+            url:
+              type: SYSTEM_URL
+              value: hl7-use
+            valueString:
+              valueOf: "id-code"

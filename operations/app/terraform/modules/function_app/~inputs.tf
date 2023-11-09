@@ -78,7 +78,6 @@ variable "dns_ip" {}
 variable "okta_base_url" {}
 variable "OKTA_authKey" {}
 variable "OKTA_clientId" {}
-variable "fn_OKTA_clientId" {}
 variable "OKTA_scope" {}
 
 variable "subnets" {
