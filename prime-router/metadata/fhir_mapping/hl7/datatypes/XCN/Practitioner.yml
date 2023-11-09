@@ -106,10 +106,10 @@ name:
   # the values do not get correctly loaded and will not be mapped over correctly using a spec.
   period_1:
     vars:
-      xcn12: STRING_ALL, XCN.19
-      xcn13: STRING_ALL, XCN.20
-      start: STRING_ALL, XCN.17.1
-      end: STRING_ALL, XCN.17.2
+      xcn19: STRING_ALL, XCN.19
+      xcn20: STRING_ALL, XCN.20
+      start: STRING, XCN.17.1
+      end: STRING, XCN.17.2
     condition: $xcn19 NULL && $xcn20 NULL
     expressionType: resource
     valueOf: datatypes/DR/Period
@@ -314,23 +314,3 @@ extension:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
           specs: XCN.23
-    - expressionType: nested
-      condition: $xcn24 NOT_NULL
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: xcn24-security-check
-        valueString:
-          type: STRING
-          valueOf: XCN.24
-          expressionType: HL7Spec
-    - expressionType: nested
-      condition: $xcn25 NOT_NULL
-      expressionsMap:
-        url:
-          type: SYSTEM_URL
-          value: xcn25-security-check-scheme
-        valueString:
-          type: STRING
-          valueOf: XCN.25
-          expressionType: HL7Spec
