@@ -46,6 +46,12 @@
         "reference" : "DiagnosticReport/1698961217534619000.b4bb5d58-a11c-4028-aba6-3716532e8b24"
       } ],
       "recorded" : "2023-08-16T12:33:58-05:00",
+      "_recorded" : {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+          "valueString" : "20230816123358-0500"
+        } ]
+      },
       "activity" : {
         "coding" : [ {
           "extension" : [ {

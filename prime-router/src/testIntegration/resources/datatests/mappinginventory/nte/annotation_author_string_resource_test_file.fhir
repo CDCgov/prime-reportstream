@@ -405,6 +405,12 @@
           }
         ],
         "recorded" : "2023-04-05T13:36:10-04:00",
+        "_recorded" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+            "valueString" : "20230405133610-0400"
+          } ]
+        },
         "activity" : {
           "coding" : [
             {

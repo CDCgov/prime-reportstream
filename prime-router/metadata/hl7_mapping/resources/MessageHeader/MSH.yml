@@ -71,12 +71,21 @@ elements:
     value: [ '%resource.where(system.exists()).value.getIdType()' ]
     hl7Spec: [ MSH-6-3 ]
 
+  # This element is needed to enforce that one of the two message times is present in the FHIR bundle
   - name: message-date-time
     value:
       - Bundle.entry.resource.ofType(Provenance).recorded
       - Bundle.timestamp
     required: true
     hl7Spec: [ MSH-7 ]
+
+  # This element follows the usual date mapping for dates/dateTimes, overwriting the result from the previous element
+  - name: message-date-time
+    resource: 'Bundle.entry.resource.ofType(Provenance).recorded'
+    condition: '%resource.exists()'
+    constants:
+      dtmFieldPath: 'MSH-7'
+    schema: ../../datatypes/dateTime/DTMorDT
 
   - name: security
     value: [ '%resource.meta.security.code' ]
