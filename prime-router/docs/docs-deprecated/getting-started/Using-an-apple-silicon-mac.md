@@ -127,8 +127,8 @@ You should be able to run tests now to confirm that everything is working.
 Our new React front-end is easy to get up and running on your machine. First, ensure the following dependencies
 installed:
 
--   `node` (see .nvmrc for version specification) via `nvm`
--   `yarn` package manager
+- `node` (see .nvmrc for version specification) via `nvm`
+- `yarn` package manager
 
 Use the directions here to install nvm: https://github.com/nvm-sh/nvm#install--update-script
 Then:
@@ -246,9 +246,9 @@ POSTGRES_USER=prime
 POSTGRES_PASSWORD=changeIT!
 POSTGRES_URL=jdbc:postgresql://localhost:5432/prime_data_hub
 PRIME_ENVIRONMENT=local
-OKTA_baseUrl=reportstream.oktapreview.com
-OKTA_clientId=0oa8uvan2i07YXJLk1d7
-OKTA_redirect=http://localhost:7071/api/download
+RS_OKTA_baseUrl=reportstream.oktapreview.com
+RS_OKTA_clientId=0oa8uvan2i07YXJLk1d7
+RS_OKTA_redirect=http://localhost:7071/api/download
 JAVA_HOME=$(/usr/libexec/java_home)
 ```
 
