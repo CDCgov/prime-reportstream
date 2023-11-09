@@ -59,3 +59,11 @@ dischargeDisposition:
   specs: PV1.36
   vars:
     valueIn: PV1.36
+
+destination:
+  vars:
+    pv137: STRING_ALL, PV1.37
+  condition: $pv137 NOT_NULL
+  valueOf: datatypes/DLD/Location
+  expressionType: reference
+  specs: PV1.37
