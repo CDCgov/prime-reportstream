@@ -15,6 +15,7 @@ import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
@@ -139,9 +140,9 @@ class HistoryApiTest : CoolTest() {
                         requestTimeoutMillis = 45000
                         // default timeout is 15s; raising higher due to slow Function startup issues
                     }
-                    parameters {
+                    url {
                         testCase.parameters?.forEach {
-                            append(it.first, it.second.toString())
+                            parameter(it.first, it.second.toString())
                         }
                     }
                     contentType(ContentType.Application.Json)

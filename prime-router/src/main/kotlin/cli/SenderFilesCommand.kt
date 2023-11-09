@@ -16,8 +16,8 @@ import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.http.ContentType
-import io.ktor.http.parameters
 import kotlinx.coroutines.runBlocking
 import java.nio.file.Files
 import java.nio.file.Path
@@ -127,9 +127,9 @@ class SenderFilesCommand : CliktCommand(
                     timeout {
                         requestTimeoutMillis = requestTimeoutMillis
                     }
-                    parameters {
+                    url {
                         params.forEach { pair ->
-                            append(pair.first, pair.second)
+                            parameter(pair.first, pair.second)
                         }
                     }
                     accept(ContentType.Application.Json)

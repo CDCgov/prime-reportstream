@@ -3,13 +3,13 @@ package gov.cdc.prime.router.cli.tests
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.azure.LivdData
 import gov.cdc.prime.router.cli.CommandUtilities
 import gov.cdc.prime.router.common.Environment
 import io.ktor.client.call.body
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.parameters
 import kotlinx.coroutines.runBlocking
@@ -21,7 +21,7 @@ data class LivdApiTestCase(
     val name: String,
     val path: String,
     val parameters: List<Pair<String, Any?>>? = null,
-    val expectedHttpStatus: HttpStatus = HttpStatus.OK,
+    val expectedHttpStatus: HttpStatusCode = HttpStatusCode.OK,
     val jsonResponseChecker: (String, CoolTest, LivdApiTestCase) -> Boolean =
         fun(_: String, _: CoolTest, _: LivdApiTestCase) = true,
 )
@@ -126,9 +126,9 @@ class LivdApiTest : CoolTest() {
                     timeout {
                         requestTimeoutMillis = 75000
                     }
-                    parameters {
+                    url {
                         testCase.parameters?.forEach {
-                            append(it.first, it.second.toString())
+                            parameter(it.first, it.second.toString())
                         }
                     }
                 }
@@ -137,15 +137,15 @@ class LivdApiTest : CoolTest() {
                 response.body<String>()
             }
 
-            if (response.status.value != testCase.expectedHttpStatus.value()) {
+            if (response.status != testCase.expectedHttpStatus) {
                 bad(
                     "***$name Test '${testCase.name}' FAILED:" +
-                            " Expected HttpStatus ${testCase.expectedHttpStatus}. Got ${response.status.value}"
+                            " Expected HttpStatus ${testCase.expectedHttpStatus.value}. Got ${response.status.value}"
                 )
                 Pair(false, null)
-            } else if (testCase.expectedHttpStatus.value() != HttpStatusCode.OK.value) {
+            } else if (testCase.expectedHttpStatus != HttpStatusCode.OK) {
                 Pair(true, null)
-            } else if (response.status.value != HttpStatusCode.OK.value) {
+            } else if (response.status != HttpStatusCode.OK) {
                 bad("***$name Test '${testCase.name}' FAILED: Result is $respStr")
                 Pair(true, null)
             } else {
