@@ -98,14 +98,12 @@ class SettingsUtilities {
                 BearerTokens(accessToken, refreshToken = "")
             )
             return runBlocking {
-                val response =
-                    client.delete(path) {
-                        timeout {
-                            requestTimeoutMillis = requestTimeoutMillis
-                        }
-                        accept(ContentType.Application.Json)
+                client.delete(path) {
+                    timeout {
+                        requestTimeoutMillis = requestTimeoutMillis
                     }
-                response.body()
+                    accept(ContentType.Application.Json)
+                }
             }
         }
     }

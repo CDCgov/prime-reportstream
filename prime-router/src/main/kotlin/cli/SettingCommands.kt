@@ -176,8 +176,26 @@ abstract class SettingCommand(
 //                    else -> error("Unexpected successful status code")
 //                }
 //        }
-        println(response)
-        return ""
+
+        val respStr = runBlocking {
+            response.body<String>()
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> {
+                // need to account for an older version of the API PUT method which only returned the "meta"
+                // object- whereas now we're returning the full JSON response
+
+                val versionInfo = if (respStr.contains("version")) {
+                    "find version in: $respStr"
+                } else {
+                    "[unknown - legacy data]"
+                }
+                "Success. Setting $settingName at version $versionInfo"
+            }
+            HttpStatusCode.Created -> "Success. Created $settingName\n"
+            else -> handleHttpFailure(settingName, response.status.value, respStr)
+        }
     }
 
     /**
@@ -186,7 +204,7 @@ abstract class SettingCommand(
     fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.DELETE, settingType, settingName)
         verbose("DELETE $path")
-        val response = SettingsUtilities.delete(path, accessToken)
+        val response: HttpResponse = SettingsUtilities.delete(path, accessToken)
 //        val (_, response, result) = SettingsUtilities.delete(path, accessToken)
 //        return when (result) {
 //            is Result.Failure ->
@@ -194,8 +212,17 @@ abstract class SettingCommand(
 //            is Result.Success ->
 //                "Success $settingName: ${result.value}"
 //        }
-        println(response)
-        return ""
+
+        val respStr = runBlocking {
+            response.body<String>()
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> "Success $settingName: $respStr"
+            else -> {
+                abort("Error on delete of $settingName: response.status: ${response.status.value} body: $respStr")
+            }
+        }
     }
 
     /**
@@ -225,9 +252,22 @@ abstract class SettingCommand(
 //            }
 //            is Result.Success -> result.value
 //        }
-        println(response)
-        println(abortOnError)
-        return ""
+        val respStr = runBlocking {
+            response.body<String>()
+        }
+
+        return if (response.status == HttpStatusCode.OK) {
+            respStr
+        } else {
+            if (abortOnError) {
+                abort(
+                    "Error getting $settingName in the $env environment:" +
+                            " HTTP status code: ${response.status.value} response body: $respStr"
+                )
+            } else {
+                respStr
+            }
+        }
     }
 
     /**
@@ -242,19 +282,23 @@ abstract class SettingCommand(
         )
 
         return runBlocking {
-            val response =
+            val response = runBlocking {
                 client.get(path) {
                     timeout {
                         requestTimeoutMillis = SettingsUtilities.requestTimeoutMillis.toLong()
                     }
                     accept(ContentType.Application.Json)
                 }
+            }
+
+            val respStr = runBlocking {
+                response.body<String>()
+            }
 
             if (response.status == HttpStatusCode.OK) {
-                // "[${result.value.array().join(",\n")}]"
-                response.body()
+                respStr
             } else {
-                handleHttpFailure(settingName, response)
+                handleHttpFailure(settingName, response.status.value, respStr)
             }
         }
 
@@ -288,29 +332,35 @@ abstract class SettingCommand(
         )
 
         return runBlocking {
-            val response =
+            val response = runBlocking {
                 client.get(path) {
                     timeout {
                         requestTimeoutMillis = SettingsUtilities.requestTimeoutMillis.toLong()
                     }
                     accept(ContentType.Application.Json)
                 }
+            }
+
+            val respStr = runBlocking {
+                response.body<String>()
+            }
 
             if (response.status == HttpStatusCode.OK) {
-//                val resultObjs = result.value.array()
-//                val names = if (settingType == SettingType.ORGANIZATION) {
-//                    (0 until resultObjs.length())
-//                        .map { resultObjs.getJSONObject(it) }
-//                        .map { it.getString("name") }
+//                if (settingType == SettingType.ORGANIZATION) {
+//                    val v1 = jsonMapper.readValue<List<OrganizationSettings>>(respStr)
+// //                    (0 until resultObjs.length())
+// //                        .map { resultObjs.getJSONObject(it) }
+// //                        .map { it.getString("name") }
 //                } else {
-//                    (0 until resultObjs.length())
-//                        .map { resultObjs.getJSONObject(it) }
-//                        .map { "${it.getString("organizationName")}.${it.getString("name")}" }
+// //                    (0 until resultObjs.length())
+// //                        .map { resultObjs.getJSONObject(it) }
+// //                        .map { "${it.getString("organizationName")}.${it.getString("name")}" }
+//                    val v1 = jsonMapper.readValue<List<OrganizationSettings>>(respStr)
 //                }
                 val names = listOf<String>()
                 names.sorted()
             } else {
-                handleHttpFailure(settingName, response)
+                handleHttpFailure(settingName, response.status.value, respStr)
             }
         }
 
@@ -482,17 +532,14 @@ abstract class SettingCommand(
 
     private fun handleHttpFailure(
         settingName: String,
-        response: HttpResponse,
+        httpStatusCode: Int,
+        respStr: String,
     ): Nothing {
-        val respData = runBlocking {
-            response.body<String>()
-        }
         abort(
             "Error: \n" +
                     "  Setting Name: $settingName\n" +
-//                    "  HTTP Result: ${result.component2()?.message}\n" +
-//                    "  HTTP Response Message: ${response.responseMessage}\n" +
-                    "  HTTP Response Data: $respData"
+                    "  HTTP Status Code: ${httpStatusCode}\n" +
+                    "  HTTP Response Data: $respStr"
         )
     }
 

@@ -3,7 +3,6 @@ package gov.cdc.prime.router.cli.tests
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.microsoft.azure.functions.HttpStatus
 import gov.cdc.prime.router.ReportId
 import gov.cdc.prime.router.azure.HttpUtilities
 import gov.cdc.prime.router.cli.CommandUtilities
@@ -19,7 +18,6 @@ import io.ktor.client.request.parameter
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.http.parameters
 import kotlinx.coroutines.runBlocking
 import java.net.HttpURLConnection
 import java.time.OffsetDateTime
@@ -66,7 +64,7 @@ data class HistoryApiTestCase(
     val headers: Map<String, String>,
     val parameters: List<Pair<String, Any?>>?,
     val bearer: String,
-    val expectedHttpStatus: HttpStatus,
+    val expectedHttpStatus: HttpStatusCode,
     val expectedReports: Set<ReportId>,
     val jsonResponseChecker: HistoryJsonResponseChecker,
     val doMinimalChecking: Boolean,
@@ -153,29 +151,25 @@ class HistoryApiTest : CoolTest() {
                 response.body<String>()
             }
 
-            if (response.status.value != testCase.expectedHttpStatus.value()) {
+            if (response.status != testCase.expectedHttpStatus) {
                 bad(
                     "***$name Test '${testCase.name}' FAILED:" +
                         " Expected HttpStatus ${testCase.expectedHttpStatus}. Got ${response.status.value}"
                 )
                 Pair(false, null)
-            }
-
-            if (testCase.expectedHttpStatus.value() != HttpStatusCode.OK.value) {
+            } else if (testCase.expectedHttpStatus != HttpStatusCode.OK) {
                 Pair(true, null)
-            }
-
-            if (response.status != HttpStatusCode.OK) {
+            } else if (response.status != HttpStatusCode.OK) {
                 bad("***$name Test '${testCase.name}' FAILED:  Result is $respStr")
                 Pair(false, null)
+            } else {
+                val json: String = respStr
+                if (json.isEmpty()) {
+                    bad("***$name Test '${testCase.name}' FAILED: empty body")
+                    Pair(false, null)
+                }
+                Pair(true, json)
             }
-
-            val json: String = respStr
-            if (json.isEmpty()) {
-                bad("***$name Test '${testCase.name}' FAILED: empty body")
-                Pair(false, null)
-            }
-            Pair(true, json)
         }
 
 //        val (_, response, result) = Fuel.get(testCase.path, testCase.parameters)
@@ -224,7 +218,7 @@ class HistoryApiTest : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to options.submits),
                 bearer,
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = reportIds,
                 SubmissionListChecker(this),
                 doMinimalChecking = true,
@@ -235,7 +229,7 @@ class HistoryApiTest : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to options.submits),
                 bearer,
-                HttpStatus.NOT_FOUND,
+                HttpStatusCode.NotFound,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true,
@@ -246,7 +240,7 @@ class HistoryApiTest : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to options.submits),
                 bearer,
-                HttpStatus.NOT_FOUND,
+                HttpStatusCode.NotFound,
                 expectedReports = emptySet(),
                 SubmissionListChecker(this),
                 doMinimalChecking = true,
@@ -257,7 +251,7 @@ class HistoryApiTest : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to options.submits),
                 bearer,
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = reportIds,
                 SubmissionListChecker(this),
                 doMinimalChecking = true,
@@ -277,7 +271,7 @@ class HistoryApiTest : CoolTest() {
                 emptyMap(),
                 listOf("pagesize" to options.submits),
                 bearer,
-                HttpStatus.OK,
+                HttpStatusCode.OK,
                 expectedReports = reportIds,
                 SubmissionListChecker(this),
                 doMinimalChecking = true,
@@ -298,7 +292,7 @@ class HistoryApiTest : CoolTest() {
                     emptyMap(),
                     listOf("pagesize" to options.submits),
                     bearer + "x",
-                    HttpStatus.UNAUTHORIZED,
+                    HttpStatusCode.Unauthorized,
                     expectedReports = emptySet(),
                     SubmissionListChecker(this),
                     doMinimalChecking = true,

@@ -11,7 +11,6 @@ import io.ktor.client.plugins.timeout
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.parameters
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -21,7 +20,7 @@ data class LivdApiTestCase(
     val name: String,
     val path: String,
     val parameters: List<Pair<String, Any?>>? = null,
-    val expectedHttpStatus: HttpStatusCode = HttpStatusCode.OK,
+    val expectedHttpStatus: HttpStatusCode? = HttpStatusCode.OK,
     val jsonResponseChecker: (String, CoolTest, LivdApiTestCase) -> Boolean =
         fun(_: String, _: CoolTest, _: LivdApiTestCase) = true,
 )
@@ -140,22 +139,21 @@ class LivdApiTest : CoolTest() {
             if (response.status != testCase.expectedHttpStatus) {
                 bad(
                     "***$name Test '${testCase.name}' FAILED:" +
-                            " Expected HttpStatus ${testCase.expectedHttpStatus.value}. Got ${response.status.value}"
+                            " Expected HttpStatus ${testCase.expectedHttpStatus?.value}. Got ${response.status.value}"
                 )
                 Pair(false, null)
             } else if (testCase.expectedHttpStatus != HttpStatusCode.OK) {
                 Pair(true, null)
             } else if (response.status != HttpStatusCode.OK) {
                 bad("***$name Test '${testCase.name}' FAILED: Result is $respStr")
-                Pair(true, null)
+                Pair(false, null)
             } else {
                 val json: String = respStr
                 if (json.isEmpty()) {
                     bad("***$name Test '${testCase.name}' FAILED: empty body")
                     Pair(false, null)
-                } else {
-                    Pair(true, json)
                 }
+                Pair(true, json)
             }
         }
 

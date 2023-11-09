@@ -85,27 +85,16 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
                 }
                 accept(ContentType.Application.Json)
             }
-            println("================== in runBlocking print response =====================")
-            println(resp)
             resp
         }
-        println("============== after runBlocking print response ================")
-        println(response1)
-//        val listOfTableVersions = Json.decodeFromString<List<LookupTableVersion>>(response)
-
-        println("============== Fuel get ================")
         val (_, response, result) = Fuel
             .get(apiUrl.toString(), listOf(LookupTableFunctions.showInactiveParamName to listInactive.toString()))
             .authentication()
             .bearer(accessToken)
             .timeoutRead(requestTimeoutMillis)
             .responseJson()
-        println("============= Fuel get response ==============")
-        println(response)
         // checkCommonErrorsFromResponse(result, response)
         try {
-            println("============= Fuel get response mapped to list of tables ==============")
-            println("========== result content ============>>>>${result.get().content}<<<<<<<<")
             return mapper.readValue(result.get().content)
         } catch (e: MismatchedInputException) {
             throw IOException("Invalid response body found.")
