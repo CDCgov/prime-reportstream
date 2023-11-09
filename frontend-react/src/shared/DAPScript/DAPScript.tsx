@@ -1,9 +1,25 @@
 import { Helmet } from "react-helmet-async";
 
+import { appRoutes } from "../../AppRouter";
+
 export interface DAPScriptProps {
     env?: string;
     pathname?: string;
 }
+
+// We only want the DAP Script to appear on non-authenticated pages
+// so running through the appRoutes array, we can see any routes that
+// require an auth prop, which could be a boolean or a string, and
+// if so, that means it's an authenticated route.
+const isAuthenticatedPath = (pathname: string) => {
+    const basePath = pathname.split("/")[1];
+
+    const matchedRoute = appRoutes[0].children?.find((route) => {
+        return route.path?.includes(basePath);
+    });
+
+    return !!(matchedRoute?.element as React.ReactElement).props?.auth;
+};
 
 export const DAPScript = ({
     env = "development",
@@ -17,7 +33,7 @@ export const DAPScript = ({
         For now, we'll only track visits to the main homepage, and allow App Insights to track
         more detailed analytics.
      */
-    if (env !== "production" || pathname !== "/") {
+    if (env !== "production" || (pathname && isAuthenticatedPath(pathname))) {
         return null;
     }
 

@@ -2,15 +2,16 @@ locals {
   environment = "prod"
   address_id  = 7
   init = {
-    environment         = local.environment
-    location            = "eastus"
-    is_metabase_env     = true
-    resource_group_name = "prime-data-hub-${local.environment}"
-    resource_prefix     = "pdh${local.environment}"
-    okta_redirect_url   = "https://prime.cdc.gov/download"
-    okta_base_url       = "hhs-prime.okta.com"
-    OKTA_scope          = "simple_report_dev"
-    storage_queue_name  = ["process"]
+    environment           = local.environment
+    location              = "eastus"
+    is_metabase_env       = true
+    resource_group_name   = "prime-data-hub-${local.environment}"
+    resource_prefix       = "pdh${local.environment}"
+    okta_redirect_url     = "https://prime.cdc.gov/download"
+    okta_base_url         = "hhs-prime.okta.com"
+    OKTA_scope            = "simple_report_dev"
+    storage_queue_name    = ["process"]
+    sftp_container_module = false
 
   }
   key_vault = {
