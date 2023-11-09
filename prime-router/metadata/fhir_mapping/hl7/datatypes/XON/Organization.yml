@@ -11,17 +11,23 @@ name:
   expressionType: HL7Spec
 
 extension_1-nameType:
+  condition: xon2 NOT_NULL
   generateList: true
   expressionType: nested
+  vars:
+    xon2: XON.2
   expressionsMap:
     url:
       type: SYSTEM_URL
       value: organization-name-type
-    valueCodeableConcept:
-      valueOf: datatype/CodeableConcept
+    valueCoding:
+      valueOf: datatypes/CWE/Coding
       generateList: true
       expressionType: resource
       specs: XON.2
+      constants:
+        hl7v2Name: organization-name-type-code
+
 
 identifier_1:
   expressionType: nested

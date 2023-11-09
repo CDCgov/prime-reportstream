@@ -796,12 +796,12 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
-    implementation("com.azure:azure-core:1.44.1")
-    implementation("com.azure:azure-core-http-netty:1.13.9")
-    implementation("com.azure:azure-storage-blob:12.22.3") {
+    implementation("com.azure:azure-core:1.45.0")
+    implementation("com.azure:azure-core-http-netty:1.13.10")
+    implementation("com.azure:azure-storage-blob:12.24.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.19.0") {
+    implementation("com.azure:azure-storage-queue:12.19.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.7.1") {
@@ -857,7 +857,7 @@ dependencies {
     implementation("commons-codec:commons-codec:1.16.0")
     implementation("commons-io:commons-io:2.15.0")
     implementation("org.postgresql:postgresql:42.6.0")
-    implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("org.flywaydb:flyway-core:9.22.3")
     implementation("org.commonmark:commonmark:0.21.0")
     implementation("com.google.guava:guava:32.1.2-jre")
