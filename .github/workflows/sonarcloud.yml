@@ -44,11 +44,11 @@ jobs:
 
       - name: Get branch name
         id: branch-name
-        uses: tj-actions/branch-names@033f2358d95522973eee35810e35a86fae4a71d8
+        uses: tj-actions/branch-names@ab304d8562e2f137165e1d930e6d22d431189074
         
       - name: "Get changed files with yaml"
         id: changed-files-yaml
-        uses: tj-actions/changed-files@bfc49f4cff6934aa236c171f9bcbf1dd6b1ef438
+        uses: tj-actions/changed-files@25ef3926d147cd02fc7e931c1ef50772bbb0d25d
         with:
           files_yaml: |
             frontend:
@@ -75,18 +75,18 @@ jobs:
 
       - name: Initialize CodeQL
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: github/codeql-action/init@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
+        uses: github/codeql-action/init@df32e399139a3050671466d7d9b3cbacc1cfd034
         with:
           languages: ${{ matrix.language }}
 
       - name: Build Prime Router Package
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
         working-directory: prime-router
-        run: ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" package -x test -x fatjar
+        run: ./gradlew -Dorg.gradle.jvmargs="-Xmx6g" package -x fatjar
 
       - name: Perform Java CodeQL Analysis
         if: steps.changed-files-yaml.outputs.backend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'
-        uses: github/codeql-action/analyze@4fddc51e4f3b5e5e9022f35c3464736cc10e1e98
+        uses: github/codeql-action/analyze@df32e399139a3050671466d7d9b3cbacc1cfd034
 
       - name: Use Node.js with yarn
         if: steps.changed-files-yaml.outputs.frontend_any_changed == 'true' || steps.branch-name.outputs.is_default == 'true'

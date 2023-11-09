@@ -24,6 +24,6 @@ fi
 RC=$?
 
 if [[ ${RC?} != 0 ]]; then
-    echo "ERROR: Your yarn lock file is out of sync. Please yarn install and stage the yarn.lock file (if changed) and try again."
+    echo "ERROR: Your yarn lock file is out of sync. Please \"yarn install\" and stage the yarn.lock file (if changed) and try again."
     exit ${RC?}
 fi

@@ -110,6 +110,7 @@ extension_5:
   generateList: true
   valueOf: extension/Extension
   expressionType: resource
+  condition: $value NOT_NULL
   vars:
     value: String, XCN.9.1
   constants:
