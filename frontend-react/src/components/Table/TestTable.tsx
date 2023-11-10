@@ -25,10 +25,7 @@ const dummyRowTwo = {
 };
 
 // Exported for test purposes
-export const sampleCallback = () => {
-    // eslint-disable-next-line no-console
-    rsconsole.log("Callback works!");
-};
+export const sampleCallback = () => void 0;
 
 /* This component is specifically configured to help test the
  * Table component. Any  */

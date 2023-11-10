@@ -57,8 +57,7 @@ function ReportLink(props: Props) {
                     )
                         filename = filename.substring(filenameStartIndex + 1);
                     download(report.content, filename, report.mimetype);
-                })
-                .catch((error) => rsconsole.error(error));
+                });
         }
     };
 

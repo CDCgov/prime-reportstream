@@ -4,10 +4,7 @@ import { NetworkErrorBoundary, useController } from "rest-hooks";
 import { useNavigate } from "react-router-dom";
 
 import { ErrorPage } from "../error/ErrorPage";
-import {
-    showAlertNotification,
-    showError,
-} from "../../components/AlertNotifications";
+import { showAlertNotification } from "../../components/AlertNotifications";
 import Spinner from "../../components/Spinner";
 import {
     TextAreaComponent,
@@ -15,12 +12,14 @@ import {
 } from "../../components/Admin/AdminFormEdit";
 import OrganizationResource from "../../resources/OrganizationResource";
 import { getErrorDetailFromResponse } from "../../utils/misc";
+import { useSessionContext } from "../../contexts/SessionContext";
 
 const fallbackPage = () => <ErrorPage type="page" />;
 
 export function AdminOrgNewPage() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const { rsconsole } = useSessionContext();
     let orgSetting: object = [];
     let orgName: string = "";
 
@@ -35,8 +34,8 @@ export function AdminOrgNewPage() {
                 orgSetting,
             );
             showAlertNotification(
-                "success",
                 `Item '${orgName}' has been created`,
+                "success",
             );
 
             navigate(`/admin/orgsettings/org/${orgName}`);
@@ -44,7 +43,10 @@ export function AdminOrgNewPage() {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
             rsconsole.trace(e, errorDetail);
-            showError(`Creating item '${orgName}' failed. ${errorDetail}`);
+            showAlertNotification(
+                `Creating item '${orgName}' failed. ${errorDetail}`,
+                "error",
+            );
             return false;
         }
 

@@ -15,7 +15,7 @@ import { textDifferMarkup } from "../utils/DiffCompare/TextDiffer";
 import { jsonDifferMarkup } from "../utils/DiffCompare/JsonDiffer";
 import { checkJson, splitOn } from "../utils/misc";
 
-import { showError } from "./AlertNotifications";
+import { showAlertNotification } from "./AlertNotifications";
 
 // interface on Component that is callable
 export type EditableCompareRef = {
@@ -130,7 +130,10 @@ export const EditableCompare = forwardRef(
                     );
                     setTextAreaContent(formattedText);
                 } else {
-                    showError(`JSON data generated an error "${errorMsg}"`);
+                    showAlertNotification(
+                        `JSON data generated an error "${errorMsg}"`,
+                        "error",
+                    );
                 }
 
                 setIsValidSyntax(valid);

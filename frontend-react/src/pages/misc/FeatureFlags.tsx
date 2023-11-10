@@ -32,8 +32,8 @@ export function FeatureFlagsPage() {
         if (checkFlags(newFlag)) {
             // already added.
             showAlertNotification(
-                "info",
                 `Item '${newFlag}' is already a feature flag.`,
+                "info",
             );
             return;
         }
@@ -46,8 +46,8 @@ export function FeatureFlagsPage() {
             newFlagInputText.current.value = "";
         }
         showAlertNotification(
-            "success",
             `Feature flag '${newFlag}' added. You will now see UI related to this feature.`,
+            "success",
         );
     }, [newFlagInputText, checkFlags, dispatch]);
     const deleteFlagClick = useCallback(

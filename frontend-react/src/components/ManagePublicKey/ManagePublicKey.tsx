@@ -3,7 +3,7 @@ import { GridContainer } from "@trussworks/react-uswds";
 
 import Spinner from "../Spinner";
 import { USLink } from "../USLink";
-import { showError } from "../AlertNotifications";
+import { showAlertNotification } from "../AlertNotifications";
 import { ApiKey } from "../../config/endpoints/settings";
 import { useSessionContext } from "../../contexts/SessionContext";
 import { validateFileType, validateFileSize } from "../../utils/FileUtils";
@@ -61,7 +61,7 @@ export function ManagePublicKeyPage() {
         event.preventDefault();
 
         if (fileContent.length === 0) {
-            showError("No file contents to validate.");
+            showAlertNotification("No file contents to validate.", "error");
             return;
         }
 
@@ -86,7 +86,10 @@ export function ManagePublicKeyPage() {
                     },
                 },
             });
-            showError(`Uploading public key failed. ${e.toString()}`);
+            showAlertNotification(
+                `Uploading public key failed. ${e.toString()}`,
+                "error",
+            );
         }
     };
 
@@ -106,11 +109,11 @@ export function ManagePublicKeyPage() {
 
         const fileTypeError = validateFileType(file, FORMAT, CONTENT_TYPE);
         if (fileTypeError) {
-            showError(fileTypeError);
+            showAlertNotification(fileTypeError, "error");
         }
         const fileSizeError = validateFileSize(file);
         if (fileSizeError) {
-            showError(fileSizeError);
+            showAlertNotification(fileSizeError, "error");
         }
 
         if (!fileTypeError && !fileSizeError) {

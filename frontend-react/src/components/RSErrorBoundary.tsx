@@ -75,3 +75,5 @@ export const withSuspense = (component: JSX.Element) => (
 export const withCatchAndSuspense = (component: JSX.Element) => {
     return withCatch(withSuspense(component));
 };
+
+export default RSErrorBoundary;

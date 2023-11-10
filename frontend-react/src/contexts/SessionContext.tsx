@@ -118,16 +118,6 @@ export function SessionProviderBase({
         return { ...actualMembership, ...(_activeMembership ?? {}) };
     }, [authState, _activeMembership]);
 
-    const logout = useCallback(async () => {
-        try {
-            await oktaAuth.signOut({
-                postLogoutRedirectUri: `${window.location.origin}/`,
-            });
-        } catch (e) {
-            rsconsole.warn("Failed to logout", e);
-        }
-    }, [oktaAuth]);
-
     const rsconsole = useMemo(
         () =>
             new RSConsole({
@@ -141,6 +131,16 @@ export function SessionProviderBase({
             config.AI_REPORTABLE_CONSOLE_LEVELS,
         ],
     );
+
+    const logout = useCallback(async () => {
+        try {
+            await oktaAuth.signOut({
+                postLogoutRedirectUri: `${window.location.origin}/`,
+            });
+        } catch (e) {
+            rsconsole.warn("Failed to logout", e);
+        }
+    }, [oktaAuth, rsconsole]);
 
     const context = useMemo(() => {
         return {

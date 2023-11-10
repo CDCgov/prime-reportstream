@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Title from "../../components/Title";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
-import { showAlertNotification, showError } from "../AlertNotifications";
+import { showAlertNotification } from "../AlertNotifications";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     getErrorDetailFromResponse,
@@ -85,17 +85,17 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             });
 
             showAlertNotification(
-                "success",
                 `Item '${deleteItemId}' has been deleted`,
+                "success",
             );
 
             // navigate back to list since this item was just deleted
             navigate(-1);
             return true;
         } catch (e: any) {
-            rsconsole.trace(e);
-            showError(
+            showAlertNotification(
                 `Deleting item '${deleteItemId}' failed. ${e.toString()}`,
+                "error",
             );
             return false;
         }
@@ -134,7 +134,10 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 action === "edit" &&
                 latestResponse?.version !== orgReceiverSettings?.version
             ) {
-                showError(getVersionWarning(VersionWarningType.POPUP));
+                showAlertNotification(
+                    getVersionWarning(VersionWarningType.POPUP),
+                    "error",
+                );
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
@@ -146,9 +149,9 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
-            rsconsole.trace(e, errorDetail);
-            showError(
+            showAlertNotification(
                 `Reloading receiver '${receivername}' failed with: ${errorDetail}`,
+                "error",
             );
             return false;
         }
@@ -173,7 +176,10 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 setOrgReceiverSettingsOldJson(
                     JSON.stringify(latestResponse, jsonSortReplacer, 2),
                 );
-                showError(getVersionWarning(VersionWarningType.POPUP));
+                showAlertNotification(
+                    getVersionWarning(VersionWarningType.POPUP),
+                    "error",
+                );
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
@@ -194,8 +200,8 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
 
             await resetReceiverList();
             showAlertNotification(
-                "success",
                 `Item '${receivername}' has been updated`,
+                "success",
             );
             setLoading(false);
             confirmModalRef?.current?.hideModal();
@@ -203,9 +209,9 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
-            rsconsole.trace(e, errorDetail);
-            showError(
+            showAlertNotification(
                 `Updating receiver '${receivername}' failed with: ${errorDetail}`,
+                "error",
             );
             return false;
         }
@@ -439,9 +445,9 @@ export function EditReceiverSettingsPage() {
             }
         >
             <EditReceiverSettingsForm
-                orgname={orgname || ""}
-                receivername={receivername || ""}
-                action={action || "edit"}
+                orgname={orgname ?? ""}
+                receivername={receivername ?? ""}
+                action={action ?? "edit"}
             />
         </AdminFormWrapper>
     );

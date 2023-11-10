@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
 
-import { showError } from "../AlertNotifications";
+import { showAlertNotification } from "../AlertNotifications";
 import useFileHandler, {
     FileHandlerActionType,
     FileHandlerState,
@@ -67,7 +67,7 @@ export default function FileHandler() {
 
     useEffect(() => {
         if (localError) {
-            showError(localError);
+            showAlertNotification(localError, "error");
         }
     }, [localError]);
 

@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
-import { showAlertNotification, showError } from "../AlertNotifications";
+import { showAlertNotification } from "../AlertNotifications";
 import Spinner from "../Spinner";
 import {
     getErrorDetailFromResponse,
@@ -37,8 +37,9 @@ export function NewSettingPage() {
     const saveData = async () => {
         try {
             if (!isValidServiceName(orgSettingName)) {
-                showError(
+                showAlertNotification(
                     `${orgSettingName} cannot contain special characters.`,
+                    "error",
                 );
                 return false;
             }
@@ -65,15 +66,15 @@ export function NewSettingPage() {
             );
 
             showAlertNotification(
-                "success",
                 `Item '${orgSettingName}' has been created`,
+                "success",
             );
             navigate(-1);
         } catch (e: any) {
             let errorDetail = await getErrorDetailFromResponse(e);
-            rsconsole.trace(e, errorDetail);
-            showError(
+            showAlertNotification(
                 `Updating setting '${orgSettingName}' failed with: ${errorDetail}`,
+                "error",
             );
             return false;
         }

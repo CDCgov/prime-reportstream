@@ -7,17 +7,10 @@ import config from "./config";
 import { aiConfig, createTelemetryService } from "./TelemetryService";
 import AppInsightsContextProvider from "./contexts/AppInsightsContext";
 import { OKTA_AUTH } from "./oktaConfig";
-import { createGlobalConsole } from "./utils/console";
 
 import "./global.scss";
 
 const appInsights = createTelemetryService(aiConfig);
-appInsights &&
-    createGlobalConsole(
-        appInsights,
-        config.AI_CONSOLE_SEVERITY_LEVELS,
-        config.AI_REPORTABLE_CONSOLE_LEVELS,
-    );
 const router = createRouter(
     React.lazy(async () => {
         const MainLayout = React.lazy(

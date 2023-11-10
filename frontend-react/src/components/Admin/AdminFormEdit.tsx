@@ -13,7 +13,7 @@ import {
     getListOfEnumValues,
     ReportStreamSettingsEnum,
 } from "../../utils/TemporarySettingsAPITypes";
-import { showError } from "../AlertNotifications";
+import { showAlertNotification } from "../AlertNotifications";
 
 export const TextInputComponent = (params: {
     fieldname: string;
@@ -92,8 +92,9 @@ export const TextAreaComponent = (params: {
                             // checkJson made sure the following JSON.parse won't throw.
                             params.savefunc(JSON.parse(text));
                         } else {
-                            showError(
+                            showAlertNotification(
                                 `JSON data generated an error "${errorMsg}"`,
+                                "error",
                             );
                         }
                     }}

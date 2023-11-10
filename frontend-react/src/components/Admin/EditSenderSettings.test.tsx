@@ -7,9 +7,9 @@ import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { mockRsconsole } from "../../utils/console/__mocks__/console";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import config from "../../config";
+import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
 
 import { EditSenderSettingsPage } from "./EditSenderSettings";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
 
 const mockData: OrgSenderSettingsResource = new TestResponse(
     ResponseType.SENDER_SETTINGS,

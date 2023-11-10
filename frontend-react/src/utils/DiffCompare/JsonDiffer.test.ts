@@ -1,14 +1,5 @@
-import { mockRsconsole } from "../console/__mocks__/console";
-
 import { jsonSourceMap } from "./JsonSourceMap";
 import { _exportForTestingJsonDiffer, jsonDifferMarkup } from "./JsonDiffer";
-
-beforeAll(() => {
-    window.rsconsole = mockRsconsole as any;
-});
-afterAll(() => {
-    window.rsconsole = undefined as any;
-});
 
 describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
     test("isInPath utility function", () => {
@@ -229,6 +220,5 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
 
     test("quoted strings fail gracefully but warn", () => {
         jsonDifferMarkup("this is a text", "this is different text");
-        expect(mockRsconsole.warn).toBeCalledTimes(2);
     });
 });

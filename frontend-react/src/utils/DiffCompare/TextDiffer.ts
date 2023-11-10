@@ -33,8 +33,7 @@ export const insertHighlight = (
     // we want to insert a <mark></mark> around text.
     const threeParts = splitOn(text, offset, offset + length);
     if (threeParts.length !== 3) {
-        rsconsole.warn("split failed");
-        return text;
+        throw new Error("split failed");
     }
 
     return `${threeParts[0]}<mark>${threeParts[1]}</mark>${threeParts[2]}`;

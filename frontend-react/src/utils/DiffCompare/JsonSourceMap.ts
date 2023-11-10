@@ -65,17 +65,11 @@ export const jsonSourceMap = (
     jsonD: unknown,
     spaces: number = 2,
 ): SourceMapResult => {
-    // left and right should be json objects, but there's really no way to typescript enforce it.
-    if (typeof jsonD === "string") {
-        rsconsole.warn(
-            "Did you mean to pass simple strings versus json objects",
-        );
-    }
-
     let json = "";
     let pointers: JsonMapPointers = {};
     const cur: JsonMapLocation = { line: 0, column: 0, pos: 0 };
 
+    // left and right should be json objects, but there's really no way to typescript enforce it.
     if (!isValidType(jsonD)) {
         // throw error?
         return {
@@ -218,7 +212,6 @@ export const jsonSourceMap = (
          */
         const err =
             "Map and Set elements not supported. Normalize json first using `JSON.parse(JSON.stringify([...data]))`";
-        rsconsole.warn(err);
         throw new SyntaxError(`${err} Line: ${cur.line}  Pos: ${cur.pos}`);
     }
 
@@ -250,7 +243,7 @@ export const jsonSourceMap = (
                 }
                 break;
             default:
-                rsconsole.error("unknown type");
+                throw new Error("unknown type");
         }
         map(ptr, "valueEnd");
     };

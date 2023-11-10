@@ -10,7 +10,7 @@ import {
 
 import { parseCsvForError } from "../../utils/FileUtils";
 import { useWatersUploader } from "../../hooks/network/WatersHooks";
-import { showError } from "../AlertNotifications";
+import { showAlertNotification } from "../AlertNotifications";
 import { RSSender } from "../../config/endpoints/settings";
 import useSenderResource from "../../hooks/UseSenderResource";
 import Spinner from "../Spinner";
@@ -119,7 +119,7 @@ export default function FileHandlerFileUploadStep({
                 selectedFileContent,
             );
             if (localCsvError) {
-                showError(localCsvError);
+                showAlertNotification(localCsvError, "error");
                 return;
             }
         }
@@ -131,7 +131,7 @@ export default function FileHandlerFileUploadStep({
         event.preventDefault();
 
         if (fileContent.length === 0) {
-            showError("No file contents to validate");
+            showAlertNotification("No file contents to validate", "error");
             return;
         }
 
@@ -170,7 +170,10 @@ export default function FileHandlerFileUploadStep({
                 };
             }
 
-            showError("File validation error. Please try again.");
+            showAlertNotification(
+                "File validation error. Please try again.",
+                "error",
+            );
 
             onFileSubmitError();
         }

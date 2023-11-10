@@ -16,7 +16,7 @@ import {
 
 import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
 import { formatDate } from "../../utils/misc";
-import { showAlertNotification, showError } from "../AlertNotifications";
+import { showAlertNotification } from "../AlertNotifications";
 import AdmAction from "../../resources/AdmActionResource";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import Spinner from "../Spinner";
@@ -360,18 +360,17 @@ ${data.receiver}`;
 
             if (!response.ok) {
                 const msg = `Triggering resend command failed.\n${body}`;
-                showError(msg);
+                showAlertNotification(msg, "error");
                 setHtmlContentResultText(msg);
             } else {
                 // oddly, this api just returns a bunch of messages on success.
                 const msg = `Success. \n ${body}`;
-                showAlertNotification("success", msg);
+                showAlertNotification(msg, "success");
                 setHtmlContentResultText(msg);
             }
         } catch (e: any) {
-            rsconsole.trace(e);
             const msg = `Triggering resend command failed. ${e.toString()}`;
-            showError(msg);
+            showAlertNotification(msg, "error");
             setHtmlContentResultText(msg);
         }
         setLoading(false);

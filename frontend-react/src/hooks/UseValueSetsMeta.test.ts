@@ -17,9 +17,9 @@ describe("useValueSetsMeta", () => {
     test("returns expected meta values", async () => {
         const { result } = renderWithAppWrapper();
         await waitFor(() =>
-            expect(result.current.data.createdAt).toBeDefined(),
+            expect(result.current.data?.createdAt).toBeDefined(),
         );
-        const { createdAt, createdBy } = result.current.data;
+        const { createdAt, createdBy } = result.current.data!!;
         expect(createdAt).toEqual("now");
         expect(createdBy).toEqual("test@example.com");
     });
@@ -28,9 +28,9 @@ describe("useValueSetsMeta", () => {
         const { result } = renderWithAppWrapper(LookupTables.VALUE_SET_ROW);
 
         await waitFor(() =>
-            expect(result.current.data.createdAt).toBeDefined(),
+            expect(result.current.data?.createdAt).toBeDefined(),
         );
-        const { createdAt, createdBy } = result.current.data;
+        const { createdAt, createdBy } = result.current.data!!;
         expect(createdAt).toEqual("later");
         expect(createdBy).toEqual("again@example.com");
     });

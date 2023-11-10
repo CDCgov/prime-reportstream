@@ -90,21 +90,16 @@ export function getVersionWarning(
 }
 
 export function formatDate(date: string): string {
-    try {
-        // 'Thu, 3/31/2022, 4:50 AM'
-        // Note that this returns Epoch when receiving a null date string
-        return new Intl.DateTimeFormat("en-US", {
-            weekday: "short",
-            year: "numeric",
-            month: "numeric",
-            day: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-        }).format(new Date(date));
-    } catch (err: any) {
-        rsconsole.warn(err);
-        return date;
-    }
+    // 'Thu, 3/31/2022, 4:50 AM'
+    // Note that this returns Epoch when receiving a null date string
+    return new Intl.DateTimeFormat("en-US", {
+        weekday: "short",
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+    }).format(new Date(date));
 }
 
 /*

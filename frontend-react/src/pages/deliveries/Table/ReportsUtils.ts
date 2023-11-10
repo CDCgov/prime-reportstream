@@ -26,9 +26,6 @@ export const getReportAndDownload = (
             // The filename to use for the download should not contain blob folders if present
             report = apiReport;
             downloadReport(apiReport);
-        })
-        .catch((error) => {
-            rsconsole.error(error);
         });
     return report;
 };
