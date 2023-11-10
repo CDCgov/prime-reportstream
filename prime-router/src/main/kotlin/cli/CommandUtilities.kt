@@ -11,13 +11,27 @@ import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.plugins.timeout
+import io.ktor.client.request.accept
+import io.ktor.client.request.delete
+import io.ktor.client.request.forms.submitForm
+import io.ktor.client.request.get
 import io.ktor.client.request.head
+import io.ktor.client.request.headers
+import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.put
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.Parameters
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -42,6 +56,7 @@ class CommandUtilities {
          * timeout for http calls
          */
         private const val TIMEOUT = 50_000
+        private const val REQUEST_TIMEOUT_MILLIS: Long = 130000
 
         /**
          * Waits for the endpoint at [environment] to become available. This function will retry [retries] number of
@@ -156,6 +171,203 @@ class CommandUtilities {
             val compareToMap = createMaps(compareTo)
             val mergedRows = mergeMaps(baseMap, compareToMap)
             return mergedRows.filter { it.baseValue != it.toValue }.sortedBy { it.name }
+        }
+
+        fun get(
+            url: String,
+            tkn: BearerTokens? = null,
+            hdr: Map<String, String>? = null,
+            acceptedCt: ContentType = ContentType.Application.Json,
+            expSuccess: Boolean = true,
+            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            queryParameters: Map<String, String>? = null,
+        ): HttpResponse {
+            return runBlocking {
+                createDefaultHttpClient(tkn).get(url) {
+                    timeout {
+                        requestTimeoutMillis = tmo
+                    }
+                    expectSuccess = expSuccess
+                    url {
+                        queryParameters?.forEach {
+                            parameter(it.key, it.value.toString())
+                        }
+                    }
+                    hdr?.let {
+                        headers {
+                            hdr.forEach {
+                                append(it.key, it.value)
+                            }
+                        }
+                    }
+                    accept(acceptedCt)
+                }
+            }
+        }
+
+        fun put(
+            url: String,
+            tkn: BearerTokens? = null,
+            hdr: Map<String, String>? = null,
+            acceptedCt: ContentType = ContentType.Application.Json,
+            expSuccess: Boolean,
+            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            queryParameters: Map<String, String>? = null,
+        ): HttpResponse {
+            return runBlocking {
+                createDefaultHttpClient(tkn).put(url) {
+                    timeout {
+                        requestTimeoutMillis = tmo
+                    }
+                    expectSuccess = expSuccess
+                    url {
+                        queryParameters?.forEach {
+                            parameter(it.key, it.value.toString())
+                        }
+                    }
+                    hdr?.let {
+                        headers {
+                            hdr.forEach {
+                                append(it.key, it.value)
+                            }
+                        }
+                    }
+                    accept(acceptedCt)
+                }
+            }
+        }
+
+        fun post(
+            url: String,
+            tkn: BearerTokens? = null,
+            hdr: Map<String, String>? = null,
+            acceptedCt: ContentType = ContentType.Application.Json,
+            expSuccess: Boolean,
+            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            queryParameters: Map<String, String>? = null,
+            jsonPayload: String,
+        ): HttpResponse {
+            return runBlocking {
+                createDefaultHttpClient(tkn).post(url) {
+                    timeout {
+                        requestTimeoutMillis = tmo
+                    }
+                    expectSuccess = expSuccess
+                    url {
+                        queryParameters?.forEach {
+                            parameter(it.key, it.value.toString())
+                        }
+                    }
+                    hdr?.let {
+                        headers {
+                            hdr.forEach {
+                                append(it.key, it.value)
+                            }
+                        }
+                    }
+                    contentType(ContentType.Application.Json)
+                    accept(acceptedCt)
+                    setBody(jsonPayload)
+                }
+            }
+        }
+
+        fun submitForm(
+            url: String,
+            tkn: BearerTokens? = null,
+            hdr: Map<String, String>? = null,
+            acceptedCt: ContentType = ContentType.Application.Json,
+            expSuccess: Boolean,
+            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            formParams: Map<String, String>? = null,
+        ): HttpResponse {
+            return runBlocking {
+                createDefaultHttpClient(tkn).submitForm(
+                    url,
+                    formParameters = Parameters.build {
+                        formParams?.forEach { param ->
+                            append(param.key, param.value)
+                        }
+                    }
+                ) {
+                    timeout {
+                        requestTimeoutMillis = tmo
+                    }
+                    expectSuccess = expSuccess
+                    hdr?.let {
+                        headers {
+                            hdr.forEach {
+                                append(it.key, it.value)
+                            }
+                        }
+                    }
+                    accept(acceptedCt)
+                }
+            }
+        }
+
+        fun head(
+            url: String,
+            tkn: BearerTokens? = null,
+            hdr: Map<String, String>? = null,
+            acceptedCt: ContentType = ContentType.Application.Json,
+            expSuccess: Boolean,
+            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            queryParameters: Map<String, String>? = null,
+        ): HttpResponse {
+            return runBlocking {
+                createDefaultHttpClient(tkn).head(url) {
+                    timeout {
+                        requestTimeoutMillis = tmo
+                    }
+                    expectSuccess = expSuccess
+                    url {
+                        queryParameters?.forEach {
+                            parameter(it.key, it.value.toString())
+                        }
+                    }
+                    hdr?.let {
+                        headers {
+                            hdr.forEach {
+                                append(it.key, it.value)
+                            }
+                        }
+                    }
+                    accept(acceptedCt)
+                }
+            }
+        }
+
+        fun delete(
+            url: String,
+            tkn: BearerTokens? = null,
+            hdr: Map<String, String>? = null,
+            acceptedCt: ContentType = ContentType.Application.Json,
+            expSuccess: Boolean,
+            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            queryParameters: Map<String, String>? = null,
+        ): HttpResponse {
+            return runBlocking {
+                createDefaultHttpClient(tkn).delete(url) {
+                    timeout {
+                        requestTimeoutMillis = tmo
+                    }
+                    expectSuccess = expSuccess
+                    url {
+                        queryParameters?.forEach {
+                            parameter(it.key, it.value.toString())
+                        }
+                    }
+                    hdr?.let {
+                        headers {
+                            hdr.forEach {
+                                append(it.key, it.value)
+                            }
+                        }
+                    }
+                    accept(acceptedCt)
+                }
+            }
         }
 
         fun createDefaultHttpClient(bearerTokens: BearerTokens?): HttpClient {

@@ -35,10 +35,6 @@ import gov.cdc.prime.router.tokens.oktaMembershipClaim
 import gov.cdc.prime.router.tokens.oktaSystemAdminGroup
 import gov.cdc.prime.router.tokens.subjectClaim
 import io.ktor.client.call.body
-import io.ktor.client.request.accept
-import io.ktor.client.request.get
-import io.ktor.client.request.headers
-import io.ktor.http.ContentType
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import java.io.IOException
@@ -315,16 +311,20 @@ class EmailScheduleEngine {
                 val grp = encodeOrg(org)
 
                 // get the OKTA Group Id
-                val client = CommandUtilities.createDefaultHttpClient(bearerTokens = null)
+                val response1 = CommandUtilities.get(
+                    url = "$OKTA_GROUPS_API?q=$grp",
+                    tkn = null,
+                    hdr = mapOf("Authorization" to "SSWS $ssws")
+                )
 
-                val response1 = runBlocking {
-                    client.get("$OKTA_GROUPS_API?q=$grp") {
-                        headers {
-                            append("Authorization", "SSWS $ssws")
-                        }
-                        accept(ContentType.Application.Json)
-                    }
-                }
+//                val response1 = runBlocking {
+//                    client.get("$OKTA_GROUPS_API?q=$grp") {
+//                        headers {
+//                            append("Authorization", "SSWS $ssws")
+//                        }
+//                        accept(ContentType.Application.Json)
+//                    }
+//                }
 
 //                var (_, _, response1) = Fuel.get("$OKTA_GROUPS_API?q=$grp")
 //                    .header(mapOf("Authorization" to "SSWS $ssws")).responseJson()
@@ -337,24 +337,24 @@ class EmailScheduleEngine {
                 // val grpId = ((response1.get().array()).get(0) as JSONObject).getString("id")
 
                 // get the users within that OKTA group
-                val response = runBlocking {
-                    client.get("$OKTA_GROUPS_API/$grpId/users") {
-                        headers {
-                            append("Authorization", "SSWS $ssws")
-                        }
-                    }
-                }
+//                val response = runBlocking {
+//                    client.get("$OKTA_GROUPS_API/$grpId/users") {
+//                        headers {
+//                            append("Authorization", "SSWS $ssws")
+//                        }
+//                    }
+//                }
 
 //                var (_, _, response) = Fuel.get("$OKTA_GROUPS_API/$grpId/users")
 //                    .header(mapOf("Authorization" to "SSWS $ssws")).responseJson()
 
-                val respStrJson = runBlocking {
-                    response.body<String>()
-                }
-                val users = JSONObject(respStrJson)
-                for (user in users.toMap()) emails.add(
-                    (user.value as JSONObject).getJSONObject("profile").getString("email")
+                val response2 = CommandUtilities.get(
+                    url = "$OKTA_GROUPS_API/$grpId/users",
+                    tkn = null,
+                    hdr = mapOf("Authorization" to "SSWS $ssws")
                 )
+
+                println(response2)
             }
         } catch (ex: Throwable) {
             logger.warning("Error in fetching emails")

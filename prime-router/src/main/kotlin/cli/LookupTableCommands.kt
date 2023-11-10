@@ -37,7 +37,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.FileUtils
-import org.apache.http.HttpStatus
 import org.jooq.JSONB
 import java.io.File
 import java.io.IOException
@@ -142,7 +141,7 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
                     }
                 }
 
-//            checkResponse(response)
+            checkResponse(response)
 
             try {
                 val respBodyText = runBlocking {
@@ -232,7 +231,7 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
          * @throws IOException if there is a server or API error
          */
         internal fun getTableInfoResponse(response: HttpResponse): LookupTableVersion {
-            // checkResponse(response)
+            checkResponse(response)
             var respStr = ""
             try {
                 respStr = runBlocking {
@@ -258,7 +257,7 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
          */
         internal fun checkResponse(response: HttpResponse) {
             when {
-                response.status.value == HttpStatus.SC_NOT_FOUND -> {
+                response.status == HttpStatusCode.NotFound -> {
                     val error = getResponseError(response)
                     try {
                         when {
@@ -279,7 +278,7 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
                     }
                 }
 
-                response.status.value == HttpStatus.SC_CONFLICT ->
+                response.status == HttpStatusCode.Conflict ->
                     throw TableConflictException(getResponseError(response))
 
                 getResponseError(response).isNotBlank() ->
