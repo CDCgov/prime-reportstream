@@ -14,9 +14,6 @@ import com.github.ajalt.clikt.parameters.types.int
 import com.github.difflib.text.DiffRow
 import com.github.difflib.text.DiffRowGenerator
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.json.responseJson
 import com.google.common.base.Preconditions
 import de.m3y.kformat.Table
 import de.m3y.kformat.table
@@ -37,7 +34,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
-import io.ktor.http.parameters
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.FileUtils
 import org.apache.http.HttpStatus
@@ -74,30 +71,33 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
         val client = CommandUtilities.createDefaultHttpClient(
             BearerTokens(accessToken, refreshToken = "")
         )
-        val response1 = runBlocking {
-            val resp = client.get(apiUrl.toString()) {
+        val response = runBlocking {
+            client.get(apiUrl.toString()) {
                 timeout {
                     requestTimeoutMillis = requestTimeoutMillis
                 }
                 expectSuccess = true
-                parameters {
-                    append(LookupTableFunctions.showInactiveParamName, listInactive.toString())
+                url {
+                    parameters.append(LookupTableFunctions.showInactiveParamName, listInactive.toString())
                 }
                 accept(ContentType.Application.Json)
             }
-            resp
         }
-        val (_, response, result) = Fuel
-            .get(apiUrl.toString(), listOf(LookupTableFunctions.showInactiveParamName to listInactive.toString()))
-            .authentication()
-            .bearer(accessToken)
-            .timeoutRead(requestTimeoutMillis)
-            .responseJson()
+
+        val respStr = runBlocking {
+            response.body<String>()
+        }
+
         // checkCommonErrorsFromResponse(result, response)
-        try {
-            return mapper.readValue(result.get().content)
-        } catch (e: MismatchedInputException) {
-            throw IOException("Invalid response body found.")
+
+        if (response.status == HttpStatusCode.OK) {
+            try {
+                return mapper.readValue(respStr)
+            } catch (e: MismatchedInputException) {
+                throw IOException("Invalid response body found.")
+            }
+        } else {
+            throw IOException("Error response: status code: ${response.status.value}, body: $respStr")
         }
     }
 
