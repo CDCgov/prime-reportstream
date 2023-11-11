@@ -3,16 +3,16 @@ import { GridContainer } from "@trussworks/react-uswds";
 
 import Spinner from "../Spinner";
 import { USLink } from "../USLink";
-import { showAlertNotification } from "../AlertNotifications";
+import { showToast } from "../../contexts/Toast";
 import { ApiKey } from "../../config/endpoints/settings";
-import { useSessionContext } from "../../contexts/SessionContext";
+import { useSessionContext } from "../../contexts/Session";
 import { validateFileType, validateFileSize } from "../../utils/FileUtils";
 import useCreateOrganizationPublicKey from "../../hooks/network/Organizations/PublicKeys/UseCreateOrganizationPublicKey";
 import useOrganizationPublicKeys from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
 import useOrganizationSenders from "../../hooks/UseOrganizationSenders";
 import Alert from "../../shared/Alert/Alert";
 import { FeatureName } from "../../utils/FeatureName";
-import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
+import { useAppInsightsContext } from "../../contexts/AppInsights";
 
 import ManagePublicKeyChooseSender from "./ManagePublicKeyChooseSender";
 import ManagePublicKeyUpload from "./ManagePublicKeyUpload";
@@ -61,7 +61,7 @@ export function ManagePublicKeyPage() {
         event.preventDefault();
 
         if (fileContent.length === 0) {
-            showAlertNotification("No file contents to validate.", "error");
+            showToast("No file contents to validate.", "error");
             return;
         }
 
@@ -86,10 +86,7 @@ export function ManagePublicKeyPage() {
                     },
                 },
             });
-            showAlertNotification(
-                `Uploading public key failed. ${e.toString()}`,
-                "error",
-            );
+            showToast(`Uploading public key failed. ${e.toString()}`, "error");
         }
     };
 
@@ -109,11 +106,11 @@ export function ManagePublicKeyPage() {
 
         const fileTypeError = validateFileType(file, FORMAT, CONTENT_TYPE);
         if (fileTypeError) {
-            showAlertNotification(fileTypeError, "error");
+            showToast(fileTypeError, "error");
         }
         const fileSizeError = validateFileSize(file);
         if (fileSizeError) {
-            showAlertNotification(fileSizeError, "error");
+            showToast(fileSizeError, "error");
         }
 
         if (!fileTypeError && !fileSizeError) {

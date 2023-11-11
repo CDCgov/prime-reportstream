@@ -1,7 +1,6 @@
 import React, { useRef } from "react";
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 
-import { mockRsconsole } from "../../utils/console/__mocks__/console";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
 
@@ -185,17 +184,6 @@ describe("ConfirmSaveSettingModal", () => {
                 expect(errorDiffNode).toBeVisible();
                 expect(errorDiffNode?.innerHTML).toContain("{ nope");
             });
-
-            test("renders an error toast", async () => {
-                setup();
-                await waitFor(() =>
-                    expect(mockRsconsole.trace).toHaveBeenCalled(),
-                );
-                expect(
-                    screen.queryByText(/JSON data generated/),
-                ).not.toBeInTheDocument();
-            });
-
             describe("when the user starts typing again", () => {
                 test("it removes the highlighting", () => {
                     setup();

@@ -17,19 +17,18 @@ import { Security, useOktaAuth } from "@okta/okta-react";
 import {
     getUserPermissions,
     RSUserPermissions,
-} from "../utils/PermissionsUtils";
+} from "../../utils/PermissionsUtils";
 import {
     MembershipSettings,
     membershipsFromToken,
     MemberType,
     RSUserClaims,
-} from "../utils/OrganizationUtils";
-import type { AppConfig } from "../config";
-import { updateApiSessions } from "../network/Apis";
-import site from "../content/site.json";
-import { RSConsole } from "../utils/console";
-
-import { useAppInsightsContext } from "./AppInsightsContext";
+} from "../../utils/OrganizationUtils";
+import type { AppConfig } from "../../config";
+import { updateApiSessions } from "../../network/Apis";
+import site from "../../content/site.json";
+import { RSConsole } from "../../utils/console";
+import { useAppInsightsContext } from "../AppInsights";
 
 export interface RSSessionContext {
     oktaAuth: OktaAuth;

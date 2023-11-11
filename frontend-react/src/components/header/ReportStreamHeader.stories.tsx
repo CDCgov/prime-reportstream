@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 
-import { SessionContext } from "../../contexts/SessionContext";
+import { SessionContext } from "../../contexts/Session";
 import { MemberType } from "../../utils/OrganizationUtils";
 
 import ReportStreamHeader from "./ReportStreamHeader";

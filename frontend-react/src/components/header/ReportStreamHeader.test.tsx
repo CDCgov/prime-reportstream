@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 
 import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
-import { RSSessionContext } from "../../contexts/SessionContext";
+import { RSSessionContext } from "../../contexts/Session";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 import ReportStreamHeader from "./ReportStreamHeader";

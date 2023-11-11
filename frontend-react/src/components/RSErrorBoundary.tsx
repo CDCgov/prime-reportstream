@@ -3,7 +3,7 @@ import { ErrorBoundary } from "react-error-boundary";
 
 import { isRSNetworkError } from "../utils/RSNetworkError";
 import { ErrorPage } from "../pages/error/ErrorPage";
-import { useSessionContext } from "../contexts/SessionContext";
+import { useSessionContext } from "../contexts/Session";
 
 import Spinner from "./Spinner";
 

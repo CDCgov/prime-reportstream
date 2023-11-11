@@ -5,7 +5,7 @@ import { ButtonProps } from "@trussworks/react-uswds/lib/components/Button/Butto
 import DOMPurify from "dompurify";
 import { IEventTelemetry } from "@microsoft/applicationinsights-web";
 
-import { useAppInsightsContext } from "../contexts/AppInsightsContext";
+import { useAppInsightsContext } from "../contexts/AppInsights";
 
 /** React.PropsWithChildren has known issues with generic extension in React 18,
  * so rather than using it here, we are using our own definition of child types.

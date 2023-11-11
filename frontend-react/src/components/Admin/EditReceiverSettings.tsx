@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Title from "../../components/Title";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
-import { showAlertNotification } from "../AlertNotifications";
+import { showToast } from "../../contexts/Toast";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     getErrorDetailFromResponse,
@@ -21,8 +21,8 @@ import {
 } from "../../utils/TemporarySettingsAPITypes";
 import config from "../../config";
 import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
-import { useSessionContext } from "../../contexts/SessionContext";
-import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
+import { useSessionContext } from "../../contexts/Session";
+import { useAppInsightsContext } from "../../contexts/AppInsights";
 
 import {
     ConfirmSaveSettingModal,
@@ -84,16 +84,13 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 receivername: deleteItemId,
             });
 
-            showAlertNotification(
-                `Item '${deleteItemId}' has been deleted`,
-                "success",
-            );
+            showToast(`Item '${deleteItemId}' has been deleted`, "success");
 
             // navigate back to list since this item was just deleted
             navigate(-1);
             return true;
         } catch (e: any) {
-            showAlertNotification(
+            showToast(
                 `Deleting item '${deleteItemId}' failed. ${e.toString()}`,
                 "error",
             );
@@ -134,10 +131,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 action === "edit" &&
                 latestResponse?.version !== orgReceiverSettings?.version
             ) {
-                showAlertNotification(
-                    getVersionWarning(VersionWarningType.POPUP),
-                    "error",
-                );
+                showToast(getVersionWarning(VersionWarningType.POPUP), "error");
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
@@ -149,7 +143,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
-            showAlertNotification(
+            showToast(
                 `Reloading receiver '${receivername}' failed with: ${errorDetail}`,
                 "error",
             );
@@ -176,10 +170,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 setOrgReceiverSettingsOldJson(
                     JSON.stringify(latestResponse, jsonSortReplacer, 2),
                 );
-                showAlertNotification(
-                    getVersionWarning(VersionWarningType.POPUP),
-                    "error",
-                );
+                showToast(getVersionWarning(VersionWarningType.POPUP), "error");
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
@@ -199,17 +190,14 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             );
 
             await resetReceiverList();
-            showAlertNotification(
-                `Item '${receivername}' has been updated`,
-                "success",
-            );
+            showToast(`Item '${receivername}' has been updated`, "success");
             setLoading(false);
             confirmModalRef?.current?.hideModal();
             navigate(-1);
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
-            showAlertNotification(
+            showToast(
                 `Updating receiver '${receivername}' failed with: ${errorDetail}`,
                 "error",
             );

@@ -18,12 +18,12 @@ import { HelmetProvider } from "react-helmet-async";
 import { Fixture, MockResolver } from "@rest-hooks/test";
 import { CacheProvider } from "rest-hooks";
 
-import { SessionProviderBase } from "../contexts/SessionContext";
-import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetchContext";
+import { SessionProviderBase } from "../contexts/Session";
+import { AuthorizedFetchProvider } from "../contexts/AuthorizedFetch";
 import { getTestQueryClient } from "../network/QueryClients";
-import { FeatureFlagProvider } from "../contexts/FeatureFlagContext";
+import { FeatureFlagProvider } from "../contexts/FeatureFlag";
 import { appRoutes } from "../AppRouter";
-import AppInsightsContextProvider from "../contexts/AppInsightsContext";
+import AppInsightsContextProvider from "../contexts/AppInsights";
 import config from "../config";
 
 interface AppWrapperProps {

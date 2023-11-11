@@ -7,11 +7,11 @@ import React, {
 } from "react";
 import uniq from "lodash.uniq";
 
-import config from "../config";
+import config from "../../config";
 import {
     getSavedFeatureFlags,
     storeFeatureFlags,
-} from "../utils/SessionStorageTools";
+} from "../../utils/SessionStorageTools";
 
 export enum FeatureFlagActionType {
     ADD = "ADD",

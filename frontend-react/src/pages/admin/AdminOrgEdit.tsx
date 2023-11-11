@@ -15,7 +15,7 @@ import {
     TextAreaComponent,
     TextInputComponent,
 } from "../../components/Admin/AdminFormEdit";
-import { useAlertNotification } from "../../components/AlertNotifications";
+import { useToast } from "../../contexts/Toast";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     ConfirmSaveSettingModal,
@@ -31,8 +31,8 @@ import { ObjectTooltip } from "../../components/tooltips/ObjectTooltip";
 import { SampleFilterObject } from "../../utils/TemporarySettingsAPITypes";
 import config from "../../config";
 import { USLink } from "../../components/USLink";
-import { useSessionContext } from "../../contexts/SessionContext";
-import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
+import { useSessionContext } from "../../contexts/Session";
+import { useAppInsightsContext } from "../../contexts/AppInsights";
 
 const { RS_API_URL } = config;
 
@@ -41,7 +41,7 @@ type AdminOrgEditProps = {
 };
 
 export function AdminOrgEditPage() {
-    const { showAlertNotification } = useAlertNotification();
+    const { toast: showAlertNotification } = useToast();
     const { fetchHeaders } = useAppInsightsContext();
     const { orgname } = useParams<AdminOrgEditProps>();
     const { activeMembership, authState } = useSessionContext();

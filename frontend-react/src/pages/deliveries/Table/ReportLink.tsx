@@ -6,7 +6,7 @@ import ReportResource from "../../../resources/ReportResource";
 import config from "../../../config";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
-import { useSessionContext } from "../../../contexts/SessionContext";
+import { useSessionContext } from "../../../contexts/Session";
 
 const { RS_API_URL } = config;
 

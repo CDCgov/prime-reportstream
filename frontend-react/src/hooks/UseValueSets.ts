@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
-import { useAuthorizedFetch } from "../contexts/AuthorizedFetchContext";
+import { useAuthorizedFetch } from "../contexts/AuthorizedFetch";
 import {
     lookupTablesEndpoints,
     LookupTable,
@@ -10,7 +10,7 @@ import {
     LookupTables,
 } from "../config/endpoints/lookupTables";
 import { RSNetworkError } from "../utils/RSNetworkError";
-import { useSessionContext } from "../contexts/SessionContext";
+import { useSessionContext } from "../contexts/Session";
 
 const { getTableData, getTableList, updateTable, activateTable } =
     lookupTablesEndpoints;
@@ -103,7 +103,7 @@ export const useValueSetsMeta = (
     );
 
     useEffect(() => {
-        if (!tableMeta && tableData?.length) {
+        if (!tableMeta || tableData?.length) {
             rsconsole.info(
                 "Unable to find metadata for lookup table: ",
                 dataTableName,

@@ -10,18 +10,15 @@ import {
 
 import { parseCsvForError } from "../../utils/FileUtils";
 import { useWatersUploader } from "../../hooks/network/WatersHooks";
-import { showAlertNotification } from "../AlertNotifications";
+import { showToast } from "../../contexts/Toast";
 import { RSSender } from "../../config/endpoints/settings";
 import useSenderResource from "../../hooks/UseSenderResource";
 import Spinner from "../Spinner";
-import { useSessionContext } from "../../contexts/SessionContext";
+import { useSessionContext } from "../../contexts/Session";
 import { WatersResponse } from "../../config/endpoints/waters";
 import { useOrganizationSettings } from "../../hooks/UseOrganizationSettings";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
-import {
-    EventName,
-    useAppInsightsContext,
-} from "../../contexts/AppInsightsContext";
+import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
 import { MembershipSettings } from "../../utils/OrganizationUtils";
 
 import FileHandlerPiiWarning from "./FileHandlerPiiWarning";
@@ -119,7 +116,7 @@ export default function FileHandlerFileUploadStep({
                 selectedFileContent,
             );
             if (localCsvError) {
-                showAlertNotification(localCsvError, "error");
+                showToast(localCsvError, "error");
                 return;
             }
         }
@@ -131,7 +128,7 @@ export default function FileHandlerFileUploadStep({
         event.preventDefault();
 
         if (fileContent.length === 0) {
-            showAlertNotification("No file contents to validate", "error");
+            showToast("No file contents to validate", "error");
             return;
         }
 
@@ -170,10 +167,7 @@ export default function FileHandlerFileUploadStep({
                 };
             }
 
-            showAlertNotification(
-                "File validation error. Please try again.",
-                "error",
-            );
+            showToast("File validation error. Please try again.", "error");
 
             onFileSubmitError();
         }

@@ -1,9 +1,18 @@
 import { toast } from "react-toastify";
-import React, { useCallback } from "react";
+import React, { createContext, useCallback, useContext, useMemo } from "react";
 
-import { useSessionContext } from "../contexts/SessionContext";
+import { useSessionContext } from "../Session";
 
-export const showAlertNotification = (
+export interface ToastCtx {
+    toast: (
+        msgOrErr: Error | React.ReactNode,
+        type: "success" | "warning" | "error" | "info",
+    ) => void;
+}
+
+export const ToastContext = createContext<ToastCtx>({ toast: () => void 0 });
+
+export const showToast = (
     message: React.ReactNode,
     type: "success" | "warning" | "error" | "info",
 ) => {
@@ -32,7 +41,9 @@ export const showAlertNotification = (
     toast.clearWaitingQueue(); // don't pile up messages
 };
 
-export function useAlertNotification() {
+export const useToast = () => useContext(ToastContext);
+
+export function ToastProvider({ children }: React.PropsWithChildren) {
     const { rsconsole } = useSessionContext();
     const fn = useCallback(
         (
@@ -54,12 +65,23 @@ export function useAlertNotification() {
                 }
             }
             try {
-                showAlertNotification(message, type);
+                showToast(message, type);
             } catch (e: any) {
                 rsconsole.error(e);
             }
         },
         [rsconsole],
     );
-    return { showAlertNotification: fn };
+    const ctx = useMemo(
+        () => ({
+            toast: fn,
+        }),
+        [fn],
+    );
+
+    return (
+        <ToastContext.Provider value={ctx}>{children}</ToastContext.Provider>
+    );
 }
+
+export default ToastProvider;

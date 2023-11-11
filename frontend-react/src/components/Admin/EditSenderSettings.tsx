@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Title from "../../components/Title";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
-import { useAlertNotification } from "../AlertNotifications";
+import { useToast } from "../../contexts/Toast";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     getErrorDetailFromResponse,
@@ -17,8 +17,8 @@ import { ObjectTooltip } from "../tooltips/ObjectTooltip";
 import { SampleKeysObj } from "../../utils/TemporarySettingsAPITypes";
 import config from "../../config";
 import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
-import { useSessionContext } from "../../contexts/SessionContext";
-import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
+import { useSessionContext } from "../../contexts/Session";
+import { useAppInsightsContext } from "../../contexts/AppInsights";
 
 import {
     CheckboxComponent,
@@ -44,7 +44,7 @@ const EditSenderSettingsForm: React.FC<EditSenderSettingsFormProps> = ({
     sendername,
     action,
 }) => {
-    const { showAlertNotification } = useAlertNotification();
+    const { toast: showAlertNotification } = useToast();
     const { fetchHeaders } = useAppInsightsContext();
     const navigate = useNavigate();
     const confirmModalRef = useRef<ConfirmSaveSettingModalRef>(null);

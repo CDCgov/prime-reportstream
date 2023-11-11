@@ -16,15 +16,15 @@ import {
 
 import { AdmSendFailuresResource } from "../../resources/AdmSendFailuresResource";
 import { formatDate } from "../../utils/misc";
-import { showAlertNotification } from "../AlertNotifications";
+import { showToast } from "../../contexts/Toast";
 import AdmAction from "../../resources/AdmActionResource";
 import { ErrorPage } from "../../pages/error/ErrorPage";
 import Spinner from "../Spinner";
 import config from "../../config";
 import { USLink } from "../USLink";
 import { Table } from "../../shared/Table/Table";
-import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
-import { useSessionContext } from "../../contexts/SessionContext";
+import { useAppInsightsContext } from "../../contexts/AppInsights";
+import { useSessionContext } from "../../contexts/Session";
 
 const { RS_API_URL } = config;
 
@@ -360,17 +360,17 @@ ${data.receiver}`;
 
             if (!response.ok) {
                 const msg = `Triggering resend command failed.\n${body}`;
-                showAlertNotification(msg, "error");
+                showToast(msg, "error");
                 setHtmlContentResultText(msg);
             } else {
                 // oddly, this api just returns a bunch of messages on success.
                 const msg = `Success. \n ${body}`;
-                showAlertNotification(msg, "success");
+                showToast(msg, "success");
                 setHtmlContentResultText(msg);
             }
         } catch (e: any) {
             const msg = `Triggering resend command failed. ${e.toString()}`;
-            showAlertNotification(msg, "error");
+            showToast(msg, "error");
             setHtmlContentResultText(msg);
         }
         setLoading(false);

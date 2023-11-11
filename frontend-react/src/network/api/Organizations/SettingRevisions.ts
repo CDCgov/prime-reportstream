@@ -5,7 +5,7 @@ import {
     RSApiEndpoints,
     RSEndpoint,
 } from "../../../config/endpoints";
-import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetchContext";
+import { useAuthorizedFetch } from "../../../contexts/AuthorizedFetch";
 
 /** shape of data returned **/
 export interface SettingRevision {

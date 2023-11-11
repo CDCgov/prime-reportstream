@@ -4,10 +4,10 @@ import { rest } from "msw";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource";
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
-import { mockRsconsole } from "../../utils/console/__mocks__/console";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import config from "../../config";
 import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
+import { mockCtx } from "../../contexts/__mocks__/ToastContext";
 
 import { EditSenderSettingsPage } from "./EditSenderSettings";
 
@@ -130,7 +130,7 @@ describe("EditSenderSettings", () => {
             expect(nameField).toHaveValue("a\\nlinefeed");
 
             fireEvent.click(editJsonAndSaveButton);
-            await waitFor(() => expect(mockRsconsole.trace).toHaveBeenCalled());
+            await waitFor(() => expect(mockCtx.toast).toHaveBeenCalled());
         });
 
         test("should not display error if name value is valid", async () => {
@@ -141,7 +141,7 @@ describe("EditSenderSettings", () => {
             expect(nameField).toHaveValue("test");
 
             fireEvent.click(editJsonAndSaveButton);
-            await waitFor(() => expect(mockRsconsole.trace).toHaveBeenCalled());
+            await waitFor(() => expect(mockCtx.toast).not.toHaveBeenCalled());
         });
     });
 });

@@ -4,7 +4,7 @@ import { NetworkErrorBoundary, useController } from "rest-hooks";
 import { useNavigate } from "react-router-dom";
 
 import { ErrorPage } from "../error/ErrorPage";
-import { showAlertNotification } from "../../components/AlertNotifications";
+import { showToast } from "../../contexts/Toast";
 import Spinner from "../../components/Spinner";
 import {
     TextAreaComponent,
@@ -12,7 +12,7 @@ import {
 } from "../../components/Admin/AdminFormEdit";
 import OrganizationResource from "../../resources/OrganizationResource";
 import { getErrorDetailFromResponse } from "../../utils/misc";
-import { useSessionContext } from "../../contexts/SessionContext";
+import { useSessionContext } from "../../contexts/Session";
 
 const fallbackPage = () => <ErrorPage type="page" />;
 
@@ -33,17 +33,14 @@ export function AdminOrgNewPage() {
                 { orgname: orgName },
                 orgSetting,
             );
-            showAlertNotification(
-                `Item '${orgName}' has been created`,
-                "success",
-            );
+            showToast(`Item '${orgName}' has been created`, "success");
 
             navigate(`/admin/orgsettings/org/${orgName}`);
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
             rsconsole.trace(e, errorDetail);
-            showAlertNotification(
+            showToast(
                 `Creating item '${orgName}' failed. ${errorDetail}`,
                 "error",
             );

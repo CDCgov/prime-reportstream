@@ -8,7 +8,7 @@ import {
     SlotItem,
     OVERFLOW_INDICATOR,
 } from "../components/Table/Pagination";
-import { useAppInsightsContext } from "../contexts/AppInsightsContext";
+import { useAppInsightsContext } from "../contexts/AppInsights";
 
 // A function that will return a cursor value for a resource in the paginated
 // set.

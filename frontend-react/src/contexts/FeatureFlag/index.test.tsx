@@ -1,18 +1,18 @@
-import { renderApp } from "../utils/CustomRenderUtils";
+import { renderApp } from "../../utils/CustomRenderUtils";
 import {
     mockGetSavedFeatureFlags,
     mockStoreFeatureFlags,
-} from "../utils/__mocks__/SessionStorageTools";
+} from "../../utils/__mocks__/SessionStorageTools";
 
 import {
     featureFlagReducer,
     useFeatureFlags,
     FeatureFlagActionType,
     FeatureFlagProvider,
-} from "./FeatureFlagContext";
+} from "./";
 
-jest.mock("../config", () => {
-    const originalModule = jest.requireActual("../config");
+jest.mock("../../config", () => {
+    const originalModule = jest.requireActual("../../config");
     return {
         ...originalModule,
         default: {

@@ -87,7 +87,7 @@ test("formatDate test", () => {
         ":23", // check the minutes are at least correct
     );
 
-    expect(formatDate("bad date")).toThrow();
+    expect(() => formatDate("bad date")).toThrowError("Invalid time value");
 });
 
 describe("toHumanReadable", () => {

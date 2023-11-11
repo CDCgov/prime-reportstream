@@ -12,7 +12,7 @@ import {
 } from "@microsoft/applicationinsights-react-js";
 import { ApplicationInsights } from "@microsoft/applicationinsights-web";
 
-import { MembershipSettings } from "../utils/OrganizationUtils";
+import { MembershipSettings } from "../../utils/OrganizationUtils";
 
 export enum EventName {
     TABLE_FILTER = "Table Filter",

@@ -1,6 +1,6 @@
 import { OKTA_AUTH } from "../../oktaConfig";
 import { mockRsconsole } from "../../utils/console/__mocks__/console";
-import * as SessionContextModule from "../SessionContext";
+import * as SessionContextModule from "../Session";
 
 export const mockSessionContext = jest.spyOn(
     SessionContextModule,

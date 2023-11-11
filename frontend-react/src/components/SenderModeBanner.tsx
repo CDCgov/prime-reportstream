@@ -1,7 +1,7 @@
 import { ReactElement } from "react";
 import { Icon } from "@trussworks/react-uswds";
 
-import { useSessionContext } from "../contexts/SessionContext";
+import { useSessionContext } from "../contexts/Session";
 import useSenderResource from "../hooks/UseSenderResource";
 import { MemberType } from "../utils/OrganizationUtils";
 

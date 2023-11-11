@@ -34,7 +34,7 @@ import { withCatchAndSuspense } from "../../../components/RSErrorBoundary";
 import Spinner from "../../../components/Spinner";
 import { TableRowData } from "../../../components/Table/TableRows";
 import { DatasetAction } from "../../../components/Table/TableInfo";
-import { useSessionContext } from "../../../contexts/SessionContext";
+import { useSessionContext } from "../../../contexts/Session";
 
 const valueSetDetailColumnConfig: ColumnConfig[] = [
     {

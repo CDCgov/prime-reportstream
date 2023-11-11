@@ -2,9 +2,9 @@ import { Navigate, useLocation } from "react-router";
 import React from "react";
 
 import { PERMISSIONS } from "../../utils/UsefulTypes";
-import { useSessionContext } from "../../contexts/SessionContext";
+import { useSessionContext } from "../../contexts/Session";
 import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
-import { useFeatureFlags } from "../../contexts/FeatureFlagContext";
+import { useFeatureFlags } from "../../contexts/FeatureFlag";
 
 const ErrorNoPage = React.lazy(
     () => import("../../pages/error/legacy-content/ErrorNoPage"),

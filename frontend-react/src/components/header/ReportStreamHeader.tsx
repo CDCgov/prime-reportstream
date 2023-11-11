@@ -20,10 +20,7 @@ import { useMatch } from "react-router-dom";
 
 import { USLink, USLinkButton, USSmartLink } from "../USLink";
 import SenderModeBanner from "../SenderModeBanner";
-import {
-    useSessionContext,
-    RSSessionContext,
-} from "../../contexts/SessionContext";
+import { useSessionContext, RSSessionContext } from "../../contexts/Session";
 import { Icon } from "../../shared";
 import site from "../../content/site.json";
 import Spinner from "../Spinner";

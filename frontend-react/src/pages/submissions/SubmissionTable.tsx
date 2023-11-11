@@ -13,15 +13,12 @@ import TableFilters, {
 } from "../../components/Table/TableFilters";
 import { PaginationProps } from "../../components/Table/Pagination";
 import SubmissionsResource from "../../resources/SubmissionsResource";
-import { useSessionContext } from "../../contexts/SessionContext";
+import { useSessionContext } from "../../contexts/Session";
 import { withCatchAndSuspense } from "../../components/RSErrorBoundary";
 import { FeatureName } from "../../utils/FeatureName";
 import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
 import AdminFetchAlert from "../../components/alerts/AdminFetchAlert";
-import {
-    EventName,
-    useAppInsightsContext,
-} from "../../contexts/AppInsightsContext";
+import { EventName, useAppInsightsContext } from "../../contexts/AppInsights";
 
 const extractCursor = (s: SubmissionsResource) => s.timestamp;
 
