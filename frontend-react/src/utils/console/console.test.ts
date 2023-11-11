@@ -32,6 +32,12 @@ const consoleSeverityLevels: Record<ConsoleLevel, SeverityLevel> = {
 };
 
 describe("RSConsole", () => {
+    beforeAll(() => {
+        mockConsole.mockImplementationAll();
+    });
+    afterAll(() => {
+        mockConsole.mockRestoreAll();
+    });
     describe("when calling info", () => {
         test("calls console.info and trackTrace with the correct message and severity level", () => {
             const rsconsole = new RSConsole({
@@ -187,6 +193,28 @@ describe("RSConsole", () => {
                     args: [obj],
                 },
             });
+        });
+    });
+
+    describe("when calling dev", () => {
+        test("does not call console if non-dev env", () => {
+            const rsconsole = new RSConsole({
+                ai: mockAppInsights as any,
+                consoleSeverityLevels,
+                reportableConsoleLevels,
+            });
+            rsconsole.dev("test");
+            expect(mockConsole.log).not.toBeCalledWith("test");
+        });
+        test("does call console if dev env", () => {
+            const rsconsole = new RSConsole({
+                ai: mockAppInsights as any,
+                consoleSeverityLevels,
+                reportableConsoleLevels,
+                env: "development",
+            });
+            rsconsole.dev("test");
+            expect(mockConsole.log).toBeCalledWith("test");
         });
     });
 });

@@ -3,8 +3,6 @@ import type { Config } from "@jest/types";
 // Do this as the first thing so that any code reading it knows the right env.
 process.env.BABEL_ENV = "test";
 process.env.NODE_ENV = "test";
-process.env.PUBLIC_URL = "";
-process.env.TZ = "UTC";
 
 // Ensure environment variables are read.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-imports, import/first
@@ -47,7 +45,6 @@ const config: Config.InitialOptions = {
         "^.*\\.mdx": "<rootDir>/src/__mocks__/mdxFrontmatterMock.tsx",
         "^react-helmet-async$":
             "<rootDir>/src/__mocks__/reactHelmetAsyncMock.tsx",
-        "MDXImports(\\.ts)?$": "<rootDir>/src/__mocks__/mdxModulesMock.ts",
     },
     moduleFileExtensions: [
         "web.js",
@@ -65,7 +62,7 @@ const config: Config.InitialOptions = {
         "jest-watch-typeahead/filename",
         "jest-watch-typeahead/testname",
     ],
-    clearMocks: true,
+    clearMocks: true, // reset stats, but keep implementation unless explicitly restored
 };
 
 export default config;

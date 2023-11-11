@@ -28,15 +28,18 @@ export class RSConsole {
         ai,
         consoleSeverityLevels,
         reportableConsoleLevels = [],
+        env = "production",
     }: {
         ai?: ApplicationInsights;
         consoleSeverityLevels: Record<ConsoleLevel, SeverityLevel>;
         reportableConsoleLevels: ConsoleLevel[];
+        env?: string;
     }) {
         this.log = console.log;
         this.ai = ai;
         this.reportableConsoleLevels = reportableConsoleLevels;
         this.consoleSeverityLevels = consoleSeverityLevels;
+        this.env = env;
     }
 
     /**
@@ -46,6 +49,7 @@ export class RSConsole {
         (...data: any[]): void;
         (message?: any, ...optionalParams: any[]): void;
     };
+    env: string;
     ai?: ApplicationInsights;
     reportableConsoleLevels: ConsoleLevel[];
     consoleSeverityLevels: Record<ConsoleLevel, SeverityLevel>;
@@ -149,5 +153,10 @@ export class RSConsole {
     }
     trace(...args: [message: string, ...optionalParams: any[]]) {
         return this.trackConsoleEvent("trace", ...args);
+    }
+    dev(...data: any[]): void;
+    dev(message?: any, ...optionalParams: any[]): void;
+    dev(...args: any[]) {
+        if (this.env === "development") console.log(...args);
     }
 }
