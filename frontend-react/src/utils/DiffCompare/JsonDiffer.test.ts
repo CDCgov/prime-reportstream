@@ -218,7 +218,18 @@ describe("JsonDiffer suite (depends on jsonSourceMap working)", () => {
         );
     });
 
-    test("quoted strings fail gracefully but warn", () => {
-        jsonDifferMarkup("this is a text", "this is different text");
+    test("quoted strings fail gracefully", () => {
+        expect(
+            jsonDifferMarkup("this is a text", "this is different text"),
+        ).toEqual({
+            left: {
+                normalized: '"this is a text"',
+                markupText: '"this is a text"',
+            },
+            right: {
+                normalized: '"this is different text"',
+                markupText: '"this is different text"',
+            },
+        });
     });
 });
