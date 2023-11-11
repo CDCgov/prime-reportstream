@@ -123,11 +123,13 @@ export function SessionProviderBase({
                 ai: appInsights?.sdk,
                 consoleSeverityLevels: config.AI_CONSOLE_SEVERITY_LEVELS,
                 reportableConsoleLevels: config.AI_REPORTABLE_CONSOLE_LEVELS,
+                env: config.CLIENT_ENV,
             }),
         [
             appInsights,
             config.AI_CONSOLE_SEVERITY_LEVELS,
             config.AI_REPORTABLE_CONSOLE_LEVELS,
+            config.CLIENT_ENV,
         ],
     );
 
