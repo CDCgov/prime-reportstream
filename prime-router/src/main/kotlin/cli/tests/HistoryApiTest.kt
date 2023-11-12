@@ -9,16 +9,8 @@ import gov.cdc.prime.router.cli.CommandUtilities
 import gov.cdc.prime.router.cli.FileUtilities
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.history.DetailedSubmissionHistory
-import io.ktor.client.call.body
 import io.ktor.client.plugins.auth.providers.BearerTokens
-import io.ktor.client.plugins.timeout
-import io.ktor.client.request.accept
-import io.ktor.client.request.get
-import io.ktor.client.request.parameter
-import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
-import kotlinx.coroutines.runBlocking
 import java.net.HttpURLConnection
 import java.time.OffsetDateTime
 
@@ -128,77 +120,34 @@ class HistoryApiTest : CoolTest() {
      * The json body may be null even if the test passed, in cases of an expected error code.
      */
     private fun historyApiQuery(testCase: HistoryApiTestCase): Pair<Boolean, String?> {
-        val client = CommandUtilities.createDefaultHttpClient(
-            BearerTokens(testCase.bearer, refreshToken = "")
-        )
-        return runBlocking {
-            val response =
-                client.get(testCase.path) {
-                    timeout {
-                        requestTimeoutMillis = 45000
-                        // default timeout is 15s; raising higher due to slow Function startup issues
-                    }
-                    url {
-                        testCase.parameters?.forEach {
-                            parameter(it.first, it.second.toString())
-                        }
-                    }
-                    contentType(ContentType.Application.Json)
-                    accept(ContentType.Application.Json)
+        val (response, respStr) = CommandUtilities.getAsString(
+                url = testCase.path,
+                tkn = BearerTokens(testCase.bearer, refreshToken = ""),
+                tmo = 45000,
+                expSuccess = false,
+                queryParameters = testCase.parameters?.associate {
+                    Pair(it.first, it.second.toString())
                 }
-
-            val respStr = runBlocking {
-                response.body<String>()
-            }
-
-            if (response.status != testCase.expectedHttpStatus) {
-                bad(
-                    "***$name Test '${testCase.name}' FAILED:" +
-                        " Expected HttpStatus ${testCase.expectedHttpStatus}. Got ${response.status.value}"
-                )
+            )
+        return if (response.status != testCase.expectedHttpStatus) {
+            bad(
+                "***$name Test '${testCase.name}' FAILED:" +
+                    " Expected HttpStatus ${testCase.expectedHttpStatus}. Got ${response.status.value}"
+            )
+            Pair(false, null)
+        } else if (testCase.expectedHttpStatus != HttpStatusCode.OK) {
+            Pair(true, null)
+        } else if (response.status != HttpStatusCode.OK) {
+            bad("***$name Test '${testCase.name}' FAILED:  Result is $respStr")
+            Pair(false, null)
+        } else {
+            val json: String = respStr
+            if (json.isEmpty()) {
+                bad("***$name Test '${testCase.name}' FAILED: empty body")
                 Pair(false, null)
-            } else if (testCase.expectedHttpStatus != HttpStatusCode.OK) {
-                Pair(true, null)
-            } else if (response.status != HttpStatusCode.OK) {
-                bad("***$name Test '${testCase.name}' FAILED:  Result is $respStr")
-                Pair(false, null)
-            } else {
-                val json: String = respStr
-                if (json.isEmpty()) {
-                    bad("***$name Test '${testCase.name}' FAILED: empty body")
-                    Pair(false, null)
-                }
-                Pair(true, json)
             }
+            Pair(true, json)
         }
-
-//        val (_, response, result) = Fuel.get(testCase.path, testCase.parameters)
-//            .authentication()
-//            .bearer(testCase.bearer)
-//            .header(testCase.headers)
-//            .timeoutRead(45000) // default timeout is 15s; raising higher due to slow Function startup issues
-//            .responseString()
-
-//        if (response.statusCode != testCase.expectedHttpStatus.value()) {
-//            bad(
-//                "***$name Test '${testCase.name}' FAILED:" +
-//                    " Expected HttpStatus ${testCase.expectedHttpStatus}. Got ${response.statusCode}"
-//            )
-//            return Pair(false, null)
-//        }
-//        if (testCase.expectedHttpStatus != HttpStatus.OK) {
-//            return Pair(true, null)
-//        }
-//        if (result !is Result.Success) {
-//            bad("***$name Test '${testCase.name}' FAILED:  Result is $result")
-//            return Pair(false, null)
-//        }
-//        val json: String = result.value
-//        if (json.isEmpty()) {
-//            bad("***$name Test '${testCase.name}' FAILED: empty body")
-//            return Pair(false, null)
-//        }
-//        return Pair(true, json)
     }
 
     /**

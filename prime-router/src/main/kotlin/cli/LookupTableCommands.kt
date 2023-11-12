@@ -113,7 +113,6 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
      * @throws IOException if there is a server or API error
      */
     fun fetchTableContent(tableName: String, version: Int): List<Map<String, String>> {
-        println("=========== fetchTableContent CALLED ============")
         val response = CommandUtilities.get(
             url = environment.formUrl("$endpointRoot/$tableName/$version/content").toString(),
             tkn = BearerTokens(accessToken, refreshToken = ""),
@@ -257,7 +256,7 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
          */
         private fun getResponseStr(response: HttpResponse): String {
             return runBlocking {
-                response.body<String>().toString()
+                response.body<String>()
             }
         }
 

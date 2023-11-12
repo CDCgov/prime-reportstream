@@ -174,6 +174,32 @@ class CommandUtilities {
             return mergedRows.filter { it.baseValue != it.toValue }.sortedBy { it.name }
         }
 
+        fun getAsString(
+            url: String,
+            tkn: BearerTokens? = null,
+            hdr: Map<String, String>? = null,
+            acceptedCt: ContentType = ContentType.Application.Json,
+            expSuccess: Boolean = true,
+            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            queryParameters: Map<String, String>? = null,
+        ): Pair<HttpResponse, String> {
+            val response = get(
+                url = url,
+                tkn = tkn,
+                hdr = hdr,
+                acceptedCt = acceptedCt,
+                expSuccess = expSuccess,
+                tmo = tmo,
+                queryParameters = queryParameters
+            )
+
+            val bodyStr = runBlocking {
+                response.body<String>()
+            }
+
+            return Pair(response, bodyStr)
+        }
+
         fun get(
             url: String,
             tkn: BearerTokens? = null,
@@ -239,6 +265,32 @@ class CommandUtilities {
                     setBody(jsonPayload)
                 }
             }
+        }
+
+        fun postWithStringResponse(
+            url: String,
+            tkn: BearerTokens? = null,
+            hdr: Map<String, String>? = null,
+            acceptedCt: ContentType = ContentType.Application.Json,
+            expSuccess: Boolean = true,
+            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            queryParameters: Map<String, String>? = null,
+            jsonPayload: String,
+        ): Pair<HttpResponse, String> {
+            val response = post(
+                url = url,
+                tkn = tkn,
+                hdr = hdr,
+                acceptedCt = acceptedCt,
+                expSuccess = expSuccess,
+                tmo = tmo,
+                queryParameters = queryParameters,
+                jsonPayload = jsonPayload
+            )
+            val respStr = runBlocking {
+                response.body<String>()
+            }
+            return Pair(response, respStr)
         }
 
         fun post(
