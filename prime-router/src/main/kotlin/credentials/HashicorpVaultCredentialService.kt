@@ -10,7 +10,7 @@ internal object HashicorpVaultCredentialService : CredentialService(), Logging {
     private val VAULT_TOKEN: String by lazy { System.getenv("VAULT_TOKEN") ?: "" }
 
     override fun fetchCredential(connectionId: String): Credential? {
-        val (_, respStr) = CommandUtilities.getAsString(
+        val (_, respStr) = CommandUtilities.getWithStringResponse(
             url = "$VAULT_API_ADDR/v1/secret/$connectionId",
             hdr = mapOf("X-Vault-Token" to VAULT_TOKEN)
         )

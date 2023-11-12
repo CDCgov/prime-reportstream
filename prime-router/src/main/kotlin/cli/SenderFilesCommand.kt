@@ -11,14 +11,7 @@ import gov.cdc.prime.router.azure.SenderFilesFunction
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.messages.ReportFileMessage
-import io.ktor.client.call.body
 import io.ktor.client.plugins.auth.providers.BearerTokens
-import io.ktor.client.plugins.timeout
-import io.ktor.client.request.accept
-import io.ktor.client.request.get
-import io.ktor.client.request.parameter
-import io.ktor.http.ContentType
-import kotlinx.coroutines.runBlocking
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalDateTime
@@ -117,47 +110,26 @@ class SenderFilesCommand : CliktCommand(
         val path = environment.value.formUrl("api/sender-files")
         val params = buildParameters()
         verbose("GET $path with $params")
-
-        val client = CommandUtilities.createDefaultHttpClient(
-            BearerTokens(accessToken.value, refreshToken = "")
+        val (response, respStr) = CommandUtilities.getWithStringResponse(
+            url = path.toString(),
+            tkn = BearerTokens(accessToken.value, refreshToken = ""),
+            queryParameters = params.associate {
+                Pair(it.first, it.second.toString())
+            },
+            tmo = SettingsUtilities.requestTimeoutMillis.toLong()
         )
-        return runBlocking {
-            val response =
-                client.get(path.toString()) {
-                    timeout {
-                        requestTimeoutMillis = requestTimeoutMillis
-                    }
-                    url {
-                        params.forEach { pair ->
-                            parameter(pair.first, pair.second)
-                        }
-                    }
-                    accept(ContentType.Application.Json)
-                }
-            jsonMapper.readValue(response.body<String>(), Array<ReportFileMessage>::class.java)?.toList()
-                ?: abort("Could not deserialize")
+        try {
+            return jsonMapper.readValue(respStr, Array<ReportFileMessage>::class.java)?.toList()
+                ?: abort("Could not deserialize, Status Code: ${response.status.value},. Response Body: $respStr")
+        } catch (e: Exception) {
+            abort(
+                """
+                Error using the report-files API 
+                Status Code: ${response.status.value}
+                Response Body: $respStr
+                """.trimIndent()
+            )
         }
-
-//        val (_, response, result) = Fuel
-//            .get(path.toString(), params)
-//            .authentication()
-//            .bearer(accessToken.value)
-//            .header(Headers.CONTENT_TYPE to HttpUtilities.jsonMediaType)
-//            .timeoutRead(SettingsUtilities.requestTimeoutMillis)
-//            .responseString()
-//        return result.map {
-//            jsonMapper.readValue(response.data, Array<ReportFileMessage>::class.java)?.toList()
-//                ?: abort("Could not deserialize")
-//        }.onError {
-//            abort(
-//                """
-//                Error using the report-files API
-//                Status Code: ${response.statusCode}
-//                Message: ${response.responseMessage}
-//                Details: ${String(response.data)}
-//                """.trimIndent()
-//            )
-//        }.get()
     }
 
     /**

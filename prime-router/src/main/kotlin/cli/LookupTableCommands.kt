@@ -22,14 +22,9 @@ import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.cli.FileUtilities.saveTableAsCSV
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import io.ktor.client.call.body
 import io.ktor.client.plugins.auth.providers.BearerTokens
-import io.ktor.client.plugins.timeout
-import io.ktor.client.request.put
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.FileUtils
 import org.jooq.JSONB
 import java.io.File
@@ -60,8 +55,7 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
      * @throws IOException if there is a server or API error
      */
     fun fetchList(listInactive: Boolean = false): List<LookupTableVersion> {
-//        val apiUrl = environment.formUrl("$endpointRoot/list")
-        val response = CommandUtilities.get(
+        val (response, respStr) = CommandUtilities.getWithStringResponse(
             url = environment.formUrl("$endpointRoot/list").toString(),
             tkn = BearerTokens(accessToken, refreshToken = ""),
             tmo = requestTimeoutMillis.toLong(),
@@ -70,12 +64,9 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
             )
         )
 
-        val respStr = runBlocking {
-            response.body<String>()
-        }
-        if (response.status == HttpStatusCode.OK) {
+        return if (response.status == HttpStatusCode.OK) {
             try {
-                return mapper.readValue(respStr)
+                mapper.readValue(respStr)
             } catch (e: MismatchedInputException) {
                 throw IOException("Invalid response body found.")
             }
@@ -91,19 +82,13 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
      * @throws IOException if there is a server or API error
      */
     fun activateTable(tableName: String, version: Int): LookupTableVersion {
-        val apiUrl = environment.formUrl("$endpointRoot/$tableName/$version/activate")
-        val client = CommandUtilities.createDefaultHttpClient(
-            BearerTokens(accessToken, refreshToken = "")
+        return getTableInfoResponse(
+            CommandUtilities.putWithStringResponse(
+            url = environment.formUrl("$endpointRoot/$tableName/$version/activate").toString(),
+            tkn = BearerTokens(accessToken, refreshToken = ""),
+            tmo = requestTimeoutMillis.toLong()
         )
-        return runBlocking {
-            val response =
-                client.put(apiUrl.toString()) {
-                    timeout {
-                        requestTimeoutMillis = requestTimeoutMillis
-                    }
-                }
-            getTableInfoResponse(response)
-        }
+        )
     }
 
     /**
@@ -113,19 +98,16 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
      * @throws IOException if there is a server or API error
      */
     fun fetchTableContent(tableName: String, version: Int): List<Map<String, String>> {
-        val response = CommandUtilities.get(
+        val (response, respStr) = CommandUtilities.getWithStringResponse(
             url = environment.formUrl("$endpointRoot/$tableName/$version/content").toString(),
             tkn = BearerTokens(accessToken, refreshToken = ""),
             tmo = requestTimeoutMillis.toLong()
         )
 
-        checkResponse(response)
+        checkResponse(Pair(response, respStr))
 
         try {
-            val respBodyText = runBlocking {
-                response.bodyAsText()
-            }
-            return mapper.readValue(respBodyText.toString())
+            return mapper.readValue(respStr)
         } catch (e: MismatchedInputException) {
             throw IOException("Invalid response body found.")
         }
@@ -138,12 +120,13 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
      * @throws IOException if there is a server or API error
      */
     fun fetchTableInfo(tableName: String, version: Int): LookupTableVersion {
-        val response = CommandUtilities.get(
+        return getTableInfoResponse(
+            CommandUtilities.getWithStringResponse(
             url = environment.formUrl("$endpointRoot/$tableName/$version/info").toString(),
             tkn = BearerTokens(accessToken, refreshToken = ""),
             tmo = requestTimeoutMillis.toLong()
         )
-        return getTableInfoResponse(response)
+        )
     }
 
     /**
@@ -154,7 +137,8 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
      */
     fun createTable(tableName: String, tableData: List<Map<String, String>>, forceTableToCreate: Boolean):
         LookupTableVersion {
-        val response = CommandUtilities.post(
+        return getTableInfoResponse(
+            CommandUtilities.postWithStringResponse(
             url = environment
                 .formUrl(
                     "$endpointRoot/$tableName?table&forceTableToCreate=$forceTableToCreate"
@@ -164,7 +148,7 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
             expSuccess = false, // need to let 409 conflict come back to caller
             jsonPayload = mapper.writeValueAsString(tableData)
         )
-        return getTableInfoResponse(response)
+        )
     }
 
     companion object {
@@ -194,14 +178,10 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
          * @throws TableNotFoundException if the table and/or version is not found
          * @throws IOException if there is a server or API error
          */
-        internal fun getTableInfoResponse(response: HttpResponse): LookupTableVersion {
-            checkResponse(response)
-            var respStr = ""
+        internal fun getTableInfoResponse(pair: Pair<HttpResponse, String>): LookupTableVersion {
+            checkResponse(pair)
             try {
-                respStr = runBlocking {
-                    response.bodyAsText()
-                }
-                val info = mapper.readValue<LookupTableVersion>(respStr)
+                val info = mapper.readValue<LookupTableVersion>(pair.second)
                 if (info.tableName.isNullOrBlank() || info.tableVersion < 1 || info.createdBy.isNullOrBlank() ||
                     info.createdBy.isNullOrBlank()
                 ) {
@@ -210,7 +190,7 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
                     return info
                 }
             } catch (e: MismatchedInputException) {
-                throw IOException("Invalid JSON response, response: $respStr.")
+                throw IOException("Invalid JSON response, response: ${pair.second}.")
             }
         }
 
@@ -219,44 +199,33 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
          * @throws TableNotFoundException if the table and/or version is not found
          * @throws IOException if there is a server or API error
          */
-        internal fun checkResponse(response: HttpResponse) {
-            val respStr = getResponseStr(response)
+        internal fun checkResponse(pair: Pair<HttpResponse, String>) {
             when {
                 // resource not found
-                response.status == HttpStatusCode.NotFound -> {
-                    val notFoundMsg = "Response status: ${response.status.value}, NOT FOUND"
+                pair.first.status == HttpStatusCode.NotFound -> {
+                    val notFoundMsg = "Response status: ${ pair.first.status.value}, NOT FOUND"
                     try {
                         when {
                             // If we get a 404 with no response body then it is an endpoint not found error
-                            respStr.isEmpty() -> throw IOException("$notFoundMsg, endpoint not found.")
+                            pair.second.isEmpty() -> throw IOException("$notFoundMsg, endpoint not found.")
                             // If we do get a 404 with a JSON error message then it is because the table was not found
                             mapper.readValue<Map<String, String>>(
-                                respStr
+                                pair.second
                             ).containsKey("error") ->
-                                throw TableNotFoundException("$notFoundMsg, Error message: $respStr")
-                            else -> throw IOException("$notFoundMsg, Error message: $respStr")
+                                throw TableNotFoundException("$notFoundMsg, Error message: ${pair.second}")
+                            else -> throw IOException("$notFoundMsg, Error message: ${pair.second}")
                         }
                     } catch (e: MismatchedInputException) {
                         // The error message is not valid JSON.
-                        throw IOException("$notFoundMsg, Error message: $respStr")
+                        throw IOException("$notFoundMsg, Error message: ${pair.second}")
                     }
                 }
                 // resource conflict, create a resource that already there
-                response.status == HttpStatusCode.Conflict ->
-                    throw TableConflictException(respStr)
+                pair.first.status == HttpStatusCode.Conflict ->
+                    throw TableConflictException(pair.second)
 
-                response.status.value >= 300 ->
-                    throw IOException("Response status: ${response.status.value}, response body: $respStr")
-            }
-        }
-
-        /**
-         * Get the error message from a [response] as returned by the API.
-         * @return The error as a string or null if no error is found.
-         */
-        private fun getResponseStr(response: HttpResponse): String {
-            return runBlocking {
-                response.body<String>()
+                pair.first.status.value >= 300 ->
+                    throw IOException("Response status: ${pair.first.status.value}, response body: ${pair.second}")
             }
         }
 

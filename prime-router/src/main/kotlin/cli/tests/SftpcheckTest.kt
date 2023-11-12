@@ -2,17 +2,10 @@ package gov.cdc.prime.router.cli.tests
 
 import gov.cdc.prime.router.cli.CommandUtilities
 import gov.cdc.prime.router.common.Environment
-import io.ktor.client.call.body
 import io.ktor.client.plugins.auth.providers.BearerTokens
-import io.ktor.client.request.accept
-import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
-import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
-
-private const val jsonMimeType = "application/json"
 
 /**
  * Test SFTP receiver connections.  It checks the ignore.XYZ organization for the connection:
@@ -53,18 +46,13 @@ class SftpcheckTest : CoolTest() {
 
         // Start check the connection for each organization
         ignoreReceiversNameList.forEach { receiver ->
-
             // Obtain the URL/path endpoint per environment (localhost or staging)
-            val path = environment.formUrl(sftpcheckUri + receiver).toString()
-
             // Check the organization ignore receiver connections
             echo("SFTPCHECK Organizatin: $receiver...")
 
-            val response = sftpReceiverIgnoreOrganizationCheck(path, accessToken)
-
-            val respStr = runBlocking {
-                response.body<String>()
-            }
+            val (response, respStr) = sftpReceiverIgnoreOrganizationCheck(
+                environment.formUrl(sftpcheckUri + receiver).toString(), accessToken
+            )
 
             if (response.status == HttpStatusCode.OK) {
                 good(
@@ -97,84 +85,39 @@ class SftpcheckTest : CoolTest() {
         path: String,
         accessToken: String,
     ): List<String> {
-        val client = CommandUtilities.createDefaultHttpClient(
-            BearerTokens(accessToken, refreshToken = "")
+        val (response, respStr) = CommandUtilities.getWithStringResponse(
+            url = path,
+            tkn = BearerTokens(accessToken, refreshToken = "")
         )
-        return runBlocking {
-            val response =
-                client.get(path) {
-                    accept(ContentType.Application.Json)
-                }
-
-            val respStr = runBlocking {
-                response.body<String>()
-            }
-
-            when {
-                response.status != HttpStatusCode.OK -> emptyList()
-                else -> {
-                    val receiverJsonArray = JSONObject(respStr)
-                    (0 until receiverJsonArray.length())
-                        .map { receiverJsonArray.getJSONObject(it.toString()) }
-                        .filter {
-                            (
-                                    !it.isNull("transport") &&
-                                            !it.getJSONObject("transport").isNull("host") &&
-                                            it.getJSONObject("transport").getString("host") == "sftp"
-                                    )
-                        }
-                        .map { "${it.getString("organizationName")}.${it.getString("name")}" }
-                }
+        return when {
+            response.status != HttpStatusCode.OK -> emptyList()
+            else -> {
+                val receiverJsonArray = JSONObject(respStr)
+                (0 until receiverJsonArray.length())
+                    .map { receiverJsonArray.getJSONObject(it.toString()) }
+                    .filter {
+                        (
+                                !it.isNull("transport") &&
+                                        !it.getJSONObject("transport").isNull("host") &&
+                                        it.getJSONObject("transport").getString("host") == "sftp"
+                                )
+                    }
+                    .map { "${it.getString("organizationName")}.${it.getString("name")}" }
             }
         }
-
-//        val (_, _, result) = Fuel
-//            .get(path)
-//            .authentication()
-//            .bearer(accessToken)
-//            .header(Headers.CONTENT_TYPE to jsonMimeType)
-//            .responseJson()
-//        return when (result) {
-//            is Result.Failure -> emptyList()
-//            is Result.Success -> {
-//                val receiverJsonArray = result.value.array()
-//                (0 until receiverJsonArray.length())
-//                    .map { receiverJsonArray.getJSONObject(it) }
-//                    .filter {
-//                        (
-//                            !it.isNull("transport") &&
-//                                !it.getJSONObject("transport").isNull("host") &&
-//                                it.getJSONObject("transport").getString("host") == "sftp"
-//                            )
-//                    }
-//                    .map { "${it.getString("organizationName")}.${it.getString("name")}" }
-//            }
-//        }
     }
 
     /**
-     * SftpReceiverIgnoreOrganizationCheck - Makes the GET Fuel call the given endpoint.
-     * @return: Triple
-     *		ERROR: 		Error getting organization's name.
-     *		SUCCESS: 	JSON payload body.
+     * Makes the GET call the given endpoint.
+     * @return: HttpResponse
      */
     private fun sftpReceiverIgnoreOrganizationCheck(
         path: String,
         accessToken: String,
-    ): HttpResponse {
-        val client = CommandUtilities.createDefaultHttpClient(
-            BearerTokens(accessToken, refreshToken = "")
+    ): Pair<HttpResponse, String> {
+        return CommandUtilities.getWithStringResponse(
+            url = path,
+            tkn = BearerTokens(accessToken, refreshToken = "")
         )
-        return runBlocking {
-            client.get(path) {
-                accept(ContentType.Application.Json)
-            }
-//        return Fuel
-//            .get(path)
-//            .authentication()
-//            .bearer(accessToken)
-//            .header(Headers.CONTENT_TYPE to jsonMimeType)
-//            .responseString()
-        }
     }
 }

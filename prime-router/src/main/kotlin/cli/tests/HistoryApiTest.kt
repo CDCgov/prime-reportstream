@@ -120,7 +120,7 @@ class HistoryApiTest : CoolTest() {
      * The json body may be null even if the test passed, in cases of an expected error code.
      */
     private fun historyApiQuery(testCase: HistoryApiTestCase): Pair<Boolean, String?> {
-        val (response, respStr) = CommandUtilities.getAsString(
+        val (response, respStr) = CommandUtilities.getWithStringResponse(
                 url = testCase.path,
                 tkn = BearerTokens(testCase.bearer, refreshToken = ""),
                 tmo = 45000,

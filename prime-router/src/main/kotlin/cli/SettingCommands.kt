@@ -31,11 +31,9 @@ import gov.cdc.prime.router.azure.OrganizationAPI
 import gov.cdc.prime.router.azure.ReceiverAPI
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
-import io.ktor.client.call.body
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.lastModified
-import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -151,16 +149,12 @@ abstract class SettingCommand(
     ): String {
         val path = formPath(environment, Operation.PUT, settingType, settingName)
         verbose("PUT $path :: $payload")
-        val response = CommandUtilities.put(
+        val (response, respStr) = CommandUtilities.putWithStringResponse(
             url = path.toString(),
             tkn = BearerTokens(accessToken, refreshToken = ""),
             expSuccess = false,
             jsonPayload = payload
         )
-
-        val respStr = runBlocking {
-            response.body<String>()
-        }
 
         return when (response.status) {
             HttpStatusCode.OK -> {
@@ -185,15 +179,11 @@ abstract class SettingCommand(
     fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.DELETE, settingType, settingName)
         verbose("DELETE $path")
-        val response = CommandUtilities.delete(
+        val (response, respStr) = CommandUtilities.deleteWithStringResponse(
             url = path.toString(),
             tkn = BearerTokens(accessToken, refreshToken = ""),
             expSuccess = false
         )
-
-        val respStr = runBlocking {
-            response.body<String>()
-        }
 
         return when (response.status) {
             HttpStatusCode.OK -> "Success $settingName: $respStr"
@@ -215,14 +205,10 @@ abstract class SettingCommand(
     ): String {
         val path = formPath(environment, Operation.GET, settingType, settingName)
         verbose("GET $path")
-        val response = CommandUtilities.get(
+        val (response, respStr) = CommandUtilities.getWithStringResponse(
             url = path.toString(),
             tkn = BearerTokens(accessToken, refreshToken = "")
         )
-
-        val respStr = runBlocking {
-            response.body<String>()
-        }
 
         return if (response.status == HttpStatusCode.OK) {
             respStr
@@ -244,15 +230,10 @@ abstract class SettingCommand(
     fun getMany(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.LIST, settingType, settingName)
         verbose("GET $path")
-
-        val response = CommandUtilities.get(
+        val (response, respStr) = CommandUtilities.getWithStringResponse(
             url = path.toString(),
             tkn = BearerTokens(accessToken, refreshToken = "")
         )
-
-        val respStr = runBlocking {
-            response.body<String>()
-        }
 
         if (response.status == HttpStatusCode.OK) {
             return respStr
@@ -272,17 +253,11 @@ abstract class SettingCommand(
     ): List<String> {
         val path = formPath(environment, Operation.LIST, settingType, settingName)
         verbose("GET $path")
-
-        val response = CommandUtilities.get(
+        val (response, respStr) = CommandUtilities.getWithStringResponse(
             url = path.toString(),
             tkn = BearerTokens(accessToken, refreshToken = ""),
             tmo = SettingsUtilities.requestTimeoutMillis.toLong()
         )
-
-        val respStr = runBlocking {
-            response.body<String>()
-        }
-
         if (response.status == HttpStatusCode.OK) {
             val result = mutableListOf<String>()
             val jsonList = JSONArray(respStr)
@@ -944,31 +919,25 @@ class PutMultipleSettings : SettingCommand(
      * @return true if the file settings are newer or there is nothing in the database, false otherwise
      */
     private fun isFileUpdated(): Boolean {
-        val url = formPath(environment, Operation.LIST, SettingType.ORGANIZATION, "")
-
-        val response = CommandUtilities.head(
-            url = url.toString(),
+        val (response, respStr) = CommandUtilities.headWithStringResponse(
+            url = formPath(environment, Operation.LIST, SettingType.ORGANIZATION, "").toString(),
             tkn = BearerTokens(oktaAccessToken, refreshToken = ""),
             tmo = SettingsUtilities.requestTimeoutMillis.toLong()
         )
 
-        val respStr = runBlocking {
-            response.body<String>()
-        }
-
         if (response.status == HttpStatusCode.OK) {
-            if (response.lastModified() != null) {
+            return if (response.lastModified() != null) {
                 try {
                     val apiModifiedTime = OffsetDateTime.parse(
                         response.lastModified().toString(),
                         HttpUtilities.lastModifiedFormatter
                     )
-                    return apiModifiedTime.toInstant().toEpochMilli() < inputFile.lastModified()
+                    apiModifiedTime.toInstant().toEpochMilli() < inputFile.lastModified()
                 } catch (e: DateTimeParseException) {
                     error("Unable to decode last modified data from API call. $e")
                 }
             } else {
-                return true // We have no last modified time, which means the DB is empty
+                true // We have no last modified time, which means the DB is empty
             }
         } else {
             error("Unable to fetch settings last update time from API.  $respStr")

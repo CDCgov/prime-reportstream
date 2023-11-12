@@ -174,7 +174,7 @@ class CommandUtilities {
             return mergedRows.filter { it.baseValue != it.toValue }.sortedBy { it.name }
         }
 
-        fun getAsString(
+        fun getWithStringResponse(
             url: String,
             tkn: BearerTokens? = null,
             hdr: Map<String, String>? = null,
@@ -232,15 +232,43 @@ class CommandUtilities {
             }
         }
 
+        fun putWithStringResponse(
+            url: String,
+            tkn: BearerTokens? = null,
+            hdr: Map<String, String>? = null,
+            acceptedCt: ContentType = ContentType.Application.Json,
+            expSuccess: Boolean = false,
+            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            queryParameters: Map<String, String>? = null,
+            jsonPayload: String? = null,
+        ): Pair<HttpResponse, String> {
+            val response = put(
+                url = url,
+                tkn = tkn,
+                hdr = hdr,
+                acceptedCt = acceptedCt,
+                expSuccess = expSuccess,
+                tmo = tmo,
+                queryParameters = queryParameters,
+                jsonPayload = jsonPayload
+            )
+
+            val respStr = runBlocking {
+                response.body<String>()
+            }
+
+            return Pair(response, respStr)
+        }
+
         fun put(
             url: String,
             tkn: BearerTokens? = null,
             hdr: Map<String, String>? = null,
             acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean,
+            expSuccess: Boolean = false,
             tmo: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
-            jsonPayload: String?,
+            jsonPayload: String? = null,
         ): HttpResponse {
             return runBlocking {
                 createDefaultHttpClient(tkn).put(url) {
@@ -262,7 +290,9 @@ class CommandUtilities {
                     }
                     contentType(ContentType.Application.Json)
                     accept(acceptedCt)
-                    setBody(jsonPayload)
+                    jsonPayload?.let {
+                        setBody(jsonPayload)
+                    }
                 }
             }
         }
@@ -384,6 +414,30 @@ class CommandUtilities {
             }
         }
 
+        fun headWithStringResponse(
+            url: String,
+            tkn: BearerTokens? = null,
+            hdr: Map<String, String>? = null,
+            acceptedCt: ContentType = ContentType.Application.Json,
+            expSuccess: Boolean = true,
+            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            queryParameters: Map<String, String>? = null,
+        ): Pair<HttpResponse, String> {
+            val response = head(
+                url = url,
+                tkn = tkn,
+                hdr = hdr,
+                acceptedCt = acceptedCt,
+                expSuccess = expSuccess,
+                tmo = tmo,
+                queryParameters = queryParameters
+            )
+            val respStr = runBlocking {
+                response.body<String>()
+            }
+            return Pair(response, respStr)
+        }
+
         fun head(
             url: String,
             tkn: BearerTokens? = null,
@@ -414,6 +468,30 @@ class CommandUtilities {
                     accept(acceptedCt)
                 }
             }
+        }
+
+        fun deleteWithStringResponse(
+            url: String,
+            tkn: BearerTokens? = null,
+            hdr: Map<String, String>? = null,
+            acceptedCt: ContentType = ContentType.Application.Json,
+            expSuccess: Boolean,
+            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            queryParameters: Map<String, String>? = null,
+        ): Pair<HttpResponse, String> {
+            val response = delete(
+                url = url,
+                tkn = tkn,
+                hdr = hdr,
+                acceptedCt = acceptedCt,
+                expSuccess = expSuccess,
+                tmo = tmo,
+                queryParameters = queryParameters
+            )
+            val respStr = runBlocking {
+                response.body<String>()
+            }
+            return Pair(response, respStr)
         }
 
         fun delete(

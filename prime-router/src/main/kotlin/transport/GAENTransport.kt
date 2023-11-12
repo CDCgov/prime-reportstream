@@ -19,10 +19,8 @@ import gov.cdc.prime.router.cli.CommandUtilities
 import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
-import io.ktor.client.call.body
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.runBlocking
 import org.apache.commons.codec.digest.HmacAlgorithms
 import org.apache.commons.codec.digest.HmacUtils
 import org.apache.commons.lang3.RandomStringUtils
@@ -229,16 +227,12 @@ class GAENTransport : ITransport, Logging {
 
         val payload = mapper.writeValueAsString(notification)
 
-        val response = CommandUtilities.post(
+        val (response, respStr) = CommandUtilities.postWithStringResponse(
             url = params.gaenTransportInfo.apiUrl.toString(),
             hdr = mapOf(Pair(API_KEY, params.credential.apiKey.toString())),
             jsonPayload = payload,
             acceptedCt = ContentType.Application.Json
         )
-
-        val respStr = runBlocking {
-            response.body<String>()
-        }
 
         if (response.status == HttpStatusCode.OK) {
             return PostResult.SUCCESS

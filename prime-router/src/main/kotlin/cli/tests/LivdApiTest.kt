@@ -112,7 +112,7 @@ class LivdApiTest : CoolTest() {
      * Runs the query against the LIVD API for the given path and parameters
      */
     private fun livdApiQuery(testCase: LivdApiTestCase): Pair<Boolean, String?> {
-        val (response, respStr) = CommandUtilities.getAsString(
+        val (response, respStr) = CommandUtilities.getWithStringResponse(
             url = testCase.path,
             tmo = 75000,
             queryParameters = testCase.parameters?.associate {
