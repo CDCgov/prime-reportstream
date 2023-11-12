@@ -161,7 +161,7 @@
         "browserslist": "^4.22.1",
         "browserslist-useragent-regexp": "^4.1.0",
         "camelcase": "^6.3.0",
-        "chromatic": "^7.4.0",
+        "chromatic": "^9.0.0",
         "confusing-browser-globals": "^1.0.11",
         "cross-env": "^7.0.3",
         "cypress": "^13.3.1",
