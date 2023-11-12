@@ -33,15 +33,11 @@ import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.ktor.client.call.body
 import io.ktor.client.plugins.auth.providers.BearerTokens
-import io.ktor.client.plugins.timeout
-import io.ktor.client.request.accept
-import io.ktor.client.request.get
-import io.ktor.client.request.head
-import io.ktor.client.statement.HttpResponse
-import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.lastModified
 import kotlinx.coroutines.runBlocking
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
 import java.time.OffsetDateTime
 import java.time.format.DateTimeParseException
@@ -155,27 +151,12 @@ abstract class SettingCommand(
     ): String {
         val path = formPath(environment, Operation.PUT, settingType, settingName)
         verbose("PUT $path :: $payload")
-        val response = SettingsUtilities.put(path, accessToken, payload)
-//        val output = SettingsUtilities.put(path, accessToken, payload)
-//        val (_, response, result) = output
-//        return when (result) {
-//            is Result.Failure -> handleHttpFailure(settingName, response, result)
-//            is Result.Success ->
-//                when (response.statusCode) {
-//                    HttpStatus.SC_OK -> {
-//                        // need to account for an older version of the API PUT method which only returned the "meta"
-//                        // object- whereas now we're returning the full JSON response
-//                        val version = if (result.value.obj().has("version")) {
-//                            result.value.obj().getInt("version")
-//                        } else {
-//                            "[unknown - legacy data]"
-//                        }
-//                        "Success. Setting $settingName at version $version"
-//                    }
-//                    HttpStatus.SC_CREATED -> "Success. Created $settingName\n"
-//                    else -> error("Unexpected successful status code")
-//                }
-//        }
+        val response = CommandUtilities.put(
+            url = path.toString(),
+            tkn = BearerTokens(accessToken, refreshToken = ""),
+            expSuccess = false,
+            jsonPayload = payload
+        )
 
         val respStr = runBlocking {
             response.body<String>()
@@ -204,14 +185,11 @@ abstract class SettingCommand(
     fun delete(environment: Environment, accessToken: String, settingType: SettingType, settingName: String): String {
         val path = formPath(environment, Operation.DELETE, settingType, settingName)
         verbose("DELETE $path")
-        val response: HttpResponse = SettingsUtilities.delete(path, accessToken)
-//        val (_, response, result) = SettingsUtilities.delete(path, accessToken)
-//        return when (result) {
-//            is Result.Failure ->
-//                abort("Error on delete of $settingName: ${response.responseMessage} ${String(response.data)}")
-//            is Result.Success ->
-//                "Success $settingName: ${result.value}"
-//        }
+        val response = CommandUtilities.delete(
+            url = path.toString(),
+            tkn = BearerTokens(accessToken, refreshToken = ""),
+            expSuccess = false
+        )
 
         val respStr = runBlocking {
             response.body<String>()
@@ -237,21 +215,11 @@ abstract class SettingCommand(
     ): String {
         val path = formPath(environment, Operation.GET, settingType, settingName)
         verbose("GET $path")
-        val response = SettingsUtilities.get(path, accessToken)
-//        val (_, response, result) = SettingsUtilities.get(path, accessToken)
-//        return when (result) {
-//            is Result.Failure -> {
-//                if (abortOnError) {
-//                    abort(
-//                        "Error getting $settingName in the $env environment:" +
-//                            " ${response.responseMessage} ${String(response.data)}"
-//                    )
-//                } else {
-//                    ""
-//                }
-//            }
-//            is Result.Success -> result.value
-//        }
+        val response = CommandUtilities.get(
+            url = path.toString(),
+            tkn = BearerTokens(accessToken, refreshToken = "")
+        )
+
         val respStr = runBlocking {
             response.body<String>()
         }
@@ -277,42 +245,20 @@ abstract class SettingCommand(
         val path = formPath(environment, Operation.LIST, settingType, settingName)
         verbose("GET $path")
 
-        val client = CommandUtilities.createDefaultHttpClient(
-            BearerTokens(accessToken, refreshToken = "")
+        val response = CommandUtilities.get(
+            url = path.toString(),
+            tkn = BearerTokens(accessToken, refreshToken = "")
         )
 
-        return runBlocking {
-            val response = runBlocking {
-                client.get(path) {
-                    timeout {
-                        requestTimeoutMillis = SettingsUtilities.requestTimeoutMillis.toLong()
-                    }
-                    accept(ContentType.Application.Json)
-                }
-            }
-
-            val respStr = runBlocking {
-                response.body<String>()
-            }
-
-            if (response.status == HttpStatusCode.OK) {
-                respStr
-            } else {
-                handleHttpFailure(settingName, response.status.value, respStr)
-            }
+        val respStr = runBlocking {
+            response.body<String>()
         }
 
-//        val (_, response, result) = Fuel
-//            .get(path)
-//            .authentication()
-//            .bearer(accessToken)
-//            .header(CONTENT_TYPE to jsonMimeType)
-//            .timeoutRead(SettingsUtilities.requestTimeoutMillis)
-//            .responseJson()
-//        return when (result) {
-//            is Result.Failure -> handleHttpFailure(settingName, response, result)
-//            is Result.Success -> "[${result.value.array().join(",\n")}]"
-//        }
+        if (response.status == HttpStatusCode.OK) {
+            return respStr
+        } else {
+            handleHttpFailure(settingName, response.status.value, respStr)
+        }
     }
 
     /**
@@ -327,66 +273,34 @@ abstract class SettingCommand(
         val path = formPath(environment, Operation.LIST, settingType, settingName)
         verbose("GET $path")
 
-        val client = CommandUtilities.createDefaultHttpClient(
-            BearerTokens(accessToken, refreshToken = "")
+        val response = CommandUtilities.get(
+            url = path.toString(),
+            tkn = BearerTokens(accessToken, refreshToken = ""),
+            tmo = SettingsUtilities.requestTimeoutMillis.toLong()
         )
 
-        return runBlocking {
-            val response = runBlocking {
-                client.get(path) {
-                    timeout {
-                        requestTimeoutMillis = SettingsUtilities.requestTimeoutMillis.toLong()
-                    }
-                    accept(ContentType.Application.Json)
-                }
-            }
-
-            val respStr = runBlocking {
-                response.body<String>()
-            }
-
-            if (response.status == HttpStatusCode.OK) {
-//                if (settingType == SettingType.ORGANIZATION) {
-//                    val v1 = jsonMapper.readValue<List<OrganizationSettings>>(respStr)
-// //                    (0 until resultObjs.length())
-// //                        .map { resultObjs.getJSONObject(it) }
-// //                        .map { it.getString("name") }
-//                } else {
-// //                    (0 until resultObjs.length())
-// //                        .map { resultObjs.getJSONObject(it) }
-// //                        .map { "${it.getString("organizationName")}.${it.getString("name")}" }
-//                    val v1 = jsonMapper.readValue<List<OrganizationSettings>>(respStr)
-//                }
-                val names = listOf<String>()
-                names.sorted()
-            } else {
-                handleHttpFailure(settingName, response.status.value, respStr)
-            }
+        val respStr = runBlocking {
+            response.body<String>()
         }
 
-//        val (_, response, result) = Fuel
-//            .get(path)
-//            .authentication()
-//            .bearer(accessToken)
-//            .header(CONTENT_TYPE to jsonMimeType)
-//            .timeoutRead(SettingsUtilities.requestTimeoutMillis)
-//            .responseJson()
-//        return when (result) {
-//            is Result.Failure -> handleHttpFailure(settingName, response, result)
-//            is Result.Success -> {
-//                val resultObjs = result.value.array()
-//                val names = if (settingType == SettingType.ORGANIZATION) {
-//                    (0 until resultObjs.length())
-//                        .map { resultObjs.getJSONObject(it) }
-//                        .map { it.getString("name") }
-//                } else {
-//                    (0 until resultObjs.length())
-//                        .map { resultObjs.getJSONObject(it) }
-//                        .map { "${it.getString("organizationName")}.${it.getString("name")}" }
-//                }
-//                names.sorted()
-//            }
-//        }
+        if (response.status == HttpStatusCode.OK) {
+            val result = mutableListOf<String>()
+            val jsonList = JSONArray(respStr)
+            if (settingType == SettingType.ORGANIZATION) {
+                jsonList.map {
+                    val e = (it as JSONObject)
+                    result.add(e.get("name").toString())
+                }
+            } else {
+                jsonList.map {
+                    val e = (it as JSONObject)
+                    result.add(e.get("organizationName").toString() + "." + e.get("name").toString())
+                }
+            }
+            return result
+        } else {
+            handleHttpFailure(settingName, response.status.value, respStr)
+        }
     }
 
     // Class to capture the differences for particular setting object
@@ -542,20 +456,6 @@ abstract class SettingCommand(
                     "  HTTP Response Data: $respStr"
         )
     }
-
-//    private fun handleHttpFailure(
-//        settingName: String,
-//        response: Response,
-//        result: Result<FuelJson, FuelError>,
-//    ): Nothing {
-//        abort(
-//            "Error: \n" +
-//                "  Setting Name: $settingName\n" +
-//                "  HTTP Result: ${result.component2()?.message}\n" +
-//                "  HTTP Response Message: ${response.responseMessage}\n" +
-//                "  HTTP Response Data: ${String(response.data)}"
-//        )
-//    }
 
     fun fromJson(input: String, settingType: SettingType): Pair<String, String> {
         return readStructure(input, settingType, jsonMapper)
@@ -1046,63 +946,33 @@ class PutMultipleSettings : SettingCommand(
     private fun isFileUpdated(): Boolean {
         val url = formPath(environment, Operation.LIST, SettingType.ORGANIZATION, "")
 
-        val client = CommandUtilities.createDefaultHttpClient(
-            BearerTokens(oktaAccessToken, refreshToken = "")
+        val response = CommandUtilities.head(
+            url = url.toString(),
+            tkn = BearerTokens(oktaAccessToken, refreshToken = ""),
+            tmo = SettingsUtilities.requestTimeoutMillis.toLong()
         )
 
-        return runBlocking {
-            val response =
-                client.head(url) {
-                    timeout {
-                        requestTimeoutMillis = SettingsUtilities.requestTimeoutMillis.toLong()
-                    }
-                    accept(ContentType.Application.Json)
-                }
-
-            val respStr = runBlocking {
-                response.body<String>()
-            }
-            if (response.status == HttpStatusCode.OK) {
-                if (response.lastModified() != null) {
-                    try {
-                        val apiModifiedTime = OffsetDateTime.parse(
-                            response.lastModified().toString(),
-                            HttpUtilities.lastModifiedFormatter
-                        )
-                        apiModifiedTime.toInstant().toEpochMilli() < inputFile.lastModified()
-                    } catch (e: DateTimeParseException) {
-                        error("Unable to decode last modified data from API call. $e")
-                    }
-                } else {
-                    true // We have no last modified time, which means the DB is empty
-                }
-            } else {
-                error("Unable to fetch settings last update time from API.  $respStr")
-            }
+        val respStr = runBlocking {
+            response.body<String>()
         }
 
-//        val (_, response, result) = Fuel.head(url).authentication()
-//            .bearer(oktaAccessToken)
-//            .timeoutRead(SettingsUtilities.requestTimeoutMillis)
-//            .response()
-//        return when (result) {
-//            is Result.Success -> {
-//                if (response[HttpHeaders.LAST_MODIFIED].isNotEmpty()) {
-//                    try {
-//                        val apiModifiedTime = OffsetDateTime.parse(
-//                            response[HttpHeaders.LAST_MODIFIED].first(),
-//                            HttpUtilities.lastModifiedFormatter
-//                        )
-//                        apiModifiedTime.toInstant().toEpochMilli() < inputFile.lastModified()
-//                    } catch (e: DateTimeParseException) {
-//                        error("Unable to decode last modified data from API call. $e")
-//                    }
-//                } else {
-//                    true // We have no last modified time, which means the DB is empty
-//                }
-//            }
-//            else -> error("Unable to fetch settings last update time from API.  $result")
-//        }
+        if (response.status == HttpStatusCode.OK) {
+            if (response.lastModified() != null) {
+                try {
+                    val apiModifiedTime = OffsetDateTime.parse(
+                        response.lastModified().toString(),
+                        HttpUtilities.lastModifiedFormatter
+                    )
+                    return apiModifiedTime.toInstant().toEpochMilli() < inputFile.lastModified()
+                } catch (e: DateTimeParseException) {
+                    error("Unable to decode last modified data from API call. $e")
+                }
+            } else {
+                return true // We have no last modified time, which means the DB is empty
+            }
+        } else {
+            error("Unable to fetch settings last update time from API.  $respStr")
+        }
     }
 }
 

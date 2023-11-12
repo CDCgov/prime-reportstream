@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ajalt.clikt.core.PrintMessage
 import gov.cdc.prime.router.common.Environment
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.auth.Auth
@@ -56,7 +57,7 @@ class CommandUtilities {
          * timeout for http calls
          */
         private const val TIMEOUT = 50_000
-        private const val REQUEST_TIMEOUT_MILLIS: Long = 130000
+        const val REQUEST_TIMEOUT_MILLIS: Long = 130000 // need to be public to be used by inline
 
         /**
          * Waits for the endpoint at [environment] to become available. This function will retry [retries] number of
@@ -213,6 +214,7 @@ class CommandUtilities {
             expSuccess: Boolean,
             tmo: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
+            jsonPayload: String?,
         ): HttpResponse {
             return runBlocking {
                 createDefaultHttpClient(tkn).put(url) {
@@ -232,7 +234,9 @@ class CommandUtilities {
                             }
                         }
                     }
+                    contentType(ContentType.Application.Json)
                     accept(acceptedCt)
+                    setBody(jsonPayload)
                 }
             }
         }
@@ -242,7 +246,7 @@ class CommandUtilities {
             tkn: BearerTokens? = null,
             hdr: Map<String, String>? = null,
             acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean,
+            expSuccess: Boolean = true,
             tmo: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
             jsonPayload: String,
@@ -272,12 +276,34 @@ class CommandUtilities {
             }
         }
 
+        inline fun <reified T> submitFormT(
+            url: String,
+            tkn: BearerTokens? = null,
+            hdr: Map<String, String>? = null,
+            acceptedCt: ContentType = ContentType.Application.Json,
+            expSuccess: Boolean = true,
+            tmo: Long = REQUEST_TIMEOUT_MILLIS,
+            formParams: Map<String, String>? = null,
+        ): T {
+            return runBlocking {
+                submitForm(
+                    url = url,
+                    tkn = tkn,
+                    hdr = hdr,
+                    acceptedCt = acceptedCt,
+                    expSuccess = expSuccess,
+                    tmo = tmo,
+                    formParams = formParams,
+                ).body()
+            }
+        }
+
         fun submitForm(
             url: String,
             tkn: BearerTokens? = null,
             hdr: Map<String, String>? = null,
             acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean,
+            expSuccess: Boolean = true,
             tmo: Long = REQUEST_TIMEOUT_MILLIS,
             formParams: Map<String, String>? = null,
         ): HttpResponse {
@@ -311,7 +337,7 @@ class CommandUtilities {
             tkn: BearerTokens? = null,
             hdr: Map<String, String>? = null,
             acceptedCt: ContentType = ContentType.Application.Json,
-            expSuccess: Boolean,
+            expSuccess: Boolean = true,
             tmo: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
         ): HttpResponse {

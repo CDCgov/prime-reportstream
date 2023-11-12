@@ -20,14 +20,8 @@ import gov.cdc.prime.router.credentials.CredentialHelper
 import gov.cdc.prime.router.credentials.CredentialRequestReason
 import gov.cdc.prime.router.credentials.UserApiKeyCredential
 import io.ktor.client.call.body
-import io.ktor.client.plugins.timeout
-import io.ktor.client.request.accept
-import io.ktor.client.request.headers
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.codec.digest.HmacAlgorithms
 import org.apache.commons.codec.digest.HmacUtils
@@ -220,7 +214,7 @@ class GAENTransport : ITransport, Logging {
      * Do the work of sending a notification for each item in the report.
      * Return a list of retry items and the number of items sent.
      */
-    internal fun processReport(params: SendParams): PostResult {
+    private fun processReport(params: SendParams): PostResult {
         // For unit tests, we do nothing when the apiURL is blank
         if (params.gaenTransportInfo.apiUrl.isBlank()) return PostResult.SUCCESS
 
@@ -232,85 +226,46 @@ class GAENTransport : ITransport, Logging {
         val notification = Notification(
             table, params.reportId, params.gaenTransportInfo.uuidFormat, params.gaenTransportInfo.uuidIV
         )
+
         val payload = mapper.writeValueAsString(notification)
 
-        val client = CommandUtilities.createDefaultHttpClient(bearerTokens = null)
-        return runBlocking {
-            val response =
-                client.post(params.gaenTransportInfo.apiUrl) {
-                    headers {
-                        append(API_KEY, params.credential.apiKey)
-                    }
-                    timeout {
-                        requestTimeoutMillis = GAEN_TIMEOUT.toLong()
-                    }
-                    contentType(ContentType.Application.Json)
-                    accept(ContentType.Application.Json)
-                    setBody(payload)
-                }
+        val response = CommandUtilities.post(
+            url = params.gaenTransportInfo.apiUrl.toString(),
+            hdr = mapOf(Pair(API_KEY, params.credential.apiKey.toString())),
+            jsonPayload = payload,
+            acceptedCt = ContentType.Application.Json
+        )
 
-            if (response.status == HttpStatusCode.OK) {
-                PostResult.SUCCESS
-            } else {
-                // The follow error table is based on ENCV server docs.
-                val postResult = when (response.status.value) {
-                    // Note: GAEN errors (Bad parameters, Unsupported test type, and UUID already present)
-                    // can not be rectified by resubmission via the Last Mile Failures page. We have decided
-                    // to ignore the 400 error code for GAEN messages as we are not taking action on
-                    // these errors. This does not affect ELR messages sent to STLTs.
-                    // STLTs will handle the content error and request for resubmission.
-                    // Then, the new GAEN message from regenerate and resend accordingly.
-                    400, 409, 412 -> PostResult.SUCCESS
-                    // Bad parameters, Unsupported test type, and UUID already present
-                    // can not be rectified by re (consider this a success)
-                    429 -> PostResult.RETRY // Maintenance mode or quota limit
-                    in 500..599 -> PostResult.RETRY // Server error
-                    else -> PostResult.FAIL // Unexpected error code
-                }
-                if (postResult != PostResult.SUCCESS) {
-                    val warning = "${params.receiver.fullName}: Error from GAEN server for ${notification.uuid}:" +
-                            " ${response.status.value} ${response.body<String>()}, \n${response.body<String>()}"
-                    params.context.logger.warning(warning)
-                    params.actionHistory.trackActionResult(warning)
-                }
-                postResult
-            }
+        val respStr = runBlocking {
+            response.body<String>()
         }
 
-//        val (_, response, result) = Fuel
-//            .post(params.gaenTransportInfo.apiUrl)
-//            .header(API_KEY, params.credential.apiKey)
-//            .header(Headers.ACCEPT, "application/json")
-//            .timeout(GAEN_TIMEOUT)
-//            .jsonBody(payload)
-//            .responseString()
-
-        // Handle the result
-//        return if (result is Result.Success) {
-//            PostResult.SUCCESS
-//        } else {
-//            // The follow error table is based on ENCV server docs.
-//            val postResult = when (response.statusCode) {
-//                // Note: GAEN errors (Bad parameters, Unsupported test type, and UUID already present)
-//                // can not be rectified by resubmission via the Last Mile Failures page. We have decided
-//                // to ignore the 400 error code for GAEN messages as we are not taking action on
-//                // these errors. This does not affect ELR messages sent to STLTs.
-//                // STLTs will handle the content error and request for resubmission.
-//                // Then, the new GAEN message from regenerate and resend accordingly.
-//                400, 409, 412 -> PostResult.SUCCESS // Bad parameters, Unsupported test type, and UUID already present
-//                // can not be rectified by re (consider this a success)
-//                429 -> PostResult.RETRY // Maintenance mode or quota limit
-//                in 500..599 -> PostResult.RETRY // Server error
-//                else -> PostResult.FAIL // Unexpected error code
-//            }
-//            if (postResult != PostResult.SUCCESS) {
-//                val warning = "${params.receiver.fullName}: Error from GAEN server for ${notification.uuid}:" +
-//                    " ${response.statusCode} ${response.responseMessage}, \n${String(response.data)}"
-//                params.context.logger.warning(warning)
-//                params.actionHistory.trackActionResult(warning)
-//            }
-//            postResult
-//        }
+        if (response.status == HttpStatusCode.OK) {
+            return PostResult.SUCCESS
+        } else {
+            // The follow error table is based on ENCV server docs.
+            val postResult = when (response.status.value) {
+                // Note: GAEN errors (Bad parameters, Unsupported test type, and UUID already present)
+                // can not be rectified by resubmission via the Last Mile Failures page. We have decided
+                // to ignore the 400 error code for GAEN messages as we are not taking action on
+                // these errors. This does not affect ELR messages sent to STLTs.
+                // STLTs will handle the content error and request for resubmission.
+                // Then, the new GAEN message from regenerate and resend accordingly.
+                400, 409, 412 -> PostResult.SUCCESS
+                // Bad parameters, Unsupported test type, and UUID already present
+                // can not be rectified by re (consider this a success)
+                429 -> PostResult.RETRY // Maintenance mode or quota limit
+                in 500..599 -> PostResult.RETRY // Server error
+                else -> PostResult.FAIL // Unexpected error code
+            }
+            if (postResult != PostResult.SUCCESS) {
+                val warning = "${params.receiver.fullName}: Error from GAEN server for ${notification.uuid}:" +
+                        ", response status: ${response.status.value} body: $respStr"
+                params.context.logger.warning(warning)
+                params.actionHistory.trackActionResult(warning)
+            }
+            return postResult
+        }
     }
 
     /**

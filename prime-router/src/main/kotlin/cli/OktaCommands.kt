@@ -9,18 +9,8 @@ import com.sun.net.httpserver.HttpServer
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import gov.cdc.prime.router.transport.TokenInfo
-import io.ktor.client.call.body
 import io.ktor.client.plugins.auth.providers.BearerTokens
-import io.ktor.client.plugins.expectSuccess
-import io.ktor.client.request.accept
-import io.ktor.client.request.forms.submitForm
-import io.ktor.client.request.request
-import io.ktor.client.statement.HttpResponse
-import io.ktor.http.ContentType
-import io.ktor.http.HttpMethod
-import io.ktor.http.Parameters
 import io.ktor.http.isSuccess
-import kotlinx.coroutines.runBlocking
 import org.apache.commons.codec.binary.Base64
 import java.awt.Desktop
 import java.net.InetSocketAddress
@@ -149,25 +139,16 @@ class LoginCommand : OktaCommand(
         clientId: String,
         oktaBaseUrl: String,
     ): TokenInfo {
-        return runBlocking {
-            val clientObj = CommandUtilities.createDefaultHttpClient(bearerTokens = null)
-            clientObj.use { client ->
-                val response: HttpResponse = client.submitForm(
-                    "$oktaBaseUrl$oktaTokenPath",
-                    formParameters = Parameters.build {
-                        append("grant_type", "authorization_code")
-                        append("redirect_uri", "$redirectHost:$redirectPort$redirectPath")
-                        append("client_id", clientId)
-                        append("code", code)
-                        append("code_verifier", codeVerifier)
-                    }
-                ) {
-                    expectSuccess = true // throw an exception if not successful
-                    accept(ContentType.Application.Json)
-                }
-                response.body()
-            }
-        }
+        return CommandUtilities.submitFormT(
+            url = "$oktaBaseUrl$oktaTokenPath",
+            formParams = mapOf(
+                Pair("grant_type", "authorization_code"),
+                Pair("redirect_uri", "$redirectHost:$redirectPort$redirectPath"),
+                Pair("client_id", clientId),
+                Pair("code", code),
+                Pair("code_verifier", codeVerifier)
+            )
+        )
     }
 
     private fun generateCodeVerifier(): String {
@@ -270,16 +251,11 @@ abstract class OktaCommand(name: String, help: String) : CliktCommand(name = nam
             if (accessTokenFile.expiresAt <= LocalDateTime.now().plusMinutes(5)) return false
             val oktaBaseUrl = getOktaUrlBase(oktaApp)
             // Try out the token with Otka for the final confirmation
-            val client = CommandUtilities.createDefaultHttpClient(
-                BearerTokens(accessTokenFile.token, refreshToken = "")
+            val response = CommandUtilities.get(
+                url = "$oktaBaseUrl$oktaUserInfoPath",
+                tkn = BearerTokens(accessTokenFile.token, refreshToken = "")
             )
-            return runBlocking {
-                val response: HttpResponse = client.request("$oktaBaseUrl$oktaUserInfoPath") {
-                    method = HttpMethod.Get
-                    expectSuccess = true
-                }
-                response.status.isSuccess()
-            }
+            return response.status.isSuccess()
         }
 
         fun writeAccessTokenFile(oktaApp: OktaApp, accessToken: TokenInfo): AccessTokenFile? {

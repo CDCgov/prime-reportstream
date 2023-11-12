@@ -317,36 +317,11 @@ class EmailScheduleEngine {
                     hdr = mapOf("Authorization" to "SSWS $ssws")
                 )
 
-//                val response1 = runBlocking {
-//                    client.get("$OKTA_GROUPS_API?q=$grp") {
-//                        headers {
-//                            append("Authorization", "SSWS $ssws")
-//                        }
-//                        accept(ContentType.Application.Json)
-//                    }
-//                }
-
-//                var (_, _, response1) = Fuel.get("$OKTA_GROUPS_API?q=$grp")
-//                    .header(mapOf("Authorization" to "SSWS $ssws")).responseJson()
-
                 val respStrJson1 = runBlocking {
                     response1.body<String>()
                 }
 
                 val grpId = JSONObject(respStrJson1).getString("id")
-                // val grpId = ((response1.get().array()).get(0) as JSONObject).getString("id")
-
-                // get the users within that OKTA group
-//                val response = runBlocking {
-//                    client.get("$OKTA_GROUPS_API/$grpId/users") {
-//                        headers {
-//                            append("Authorization", "SSWS $ssws")
-//                        }
-//                    }
-//                }
-
-//                var (_, _, response) = Fuel.get("$OKTA_GROUPS_API/$grpId/users")
-//                    .header(mapOf("Authorization" to "SSWS $ssws")).responseJson()
 
                 val response2 = CommandUtilities.get(
                     url = "$OKTA_GROUPS_API/$grpId/users",
