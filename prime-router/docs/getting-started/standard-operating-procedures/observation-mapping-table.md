@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The observation mapping table maps a plethora of conditions, observations, and aoe questions to codes in various code
+The `observation-mapping` table maps a plethora of conditions, observations, and aoe questions to codes in various code
 systems. The data for this table comes from multiple public sources. Once loaded in the database, the prime CLI can be
 used to poll public RESTful sources for updated data.
 
@@ -20,6 +20,9 @@ prime lookuptables get -n observation-mapping -v 1 -o observation-mappings.csv -
 ```
 
 ## Create or update prod/staging tables using a local CSV
+**NOTE** Once the table has been created (i.e. seeded), normal updates occur via the auto-update utility.
+Except in rare circumstances, you should be using the [first section above](#update-prodstaging-tables-using-restful-sources).
+
 Use the prime CLI `lookuptables create` command:
 ```zsh
 ./prime lookuptables create prod -i ./observation-mapping.csv -a -n observation-mapping
