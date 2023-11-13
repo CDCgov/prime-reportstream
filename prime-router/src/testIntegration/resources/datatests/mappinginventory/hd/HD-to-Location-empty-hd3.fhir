@@ -86,10 +86,12 @@
         "id" : "1697228858518367000.799cc985-9210-4b5e-83ef-476f56e3a16b",
         "recorded" : "2023-05-01T10:25:31-04:00",
         "_recorded" : {
-          "extension" : [ {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
-            "valueString" : "20230501102531-0400"
-          } ]
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230501102531-0400"
+            }
+          ]
         },
         "activity" : {
           "coding" : [
