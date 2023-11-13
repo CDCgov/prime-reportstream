@@ -3,7 +3,7 @@
 # ./prime multiple-settings set --env staging --input ./junk/flexion/AL/Settings/al-phl-staging.yml
 #
 # Description:
-#   These following setting are for Louisiana Public Health Lab (al-phl) sender and receivers
+#   These following setting are for Alabama Public Health Lab (al-phl) sender and receivers
 #   AL-PHL Sender (etor-nbs-orders) sends to ETOR-TI Receiver (etor-service-receiver)
 #   ETOR-TI Sender (etor-service-sender) sends to AL-PHL Receiver (etor-nbs-results)
 ---
@@ -112,7 +112,7 @@
 #   BAPTIST Sender (etor-nbs-orders) sends to ETOR-TI Receiver (etor-service-receiver)
 #   ETOR-TI Sender (etor-service-sender) sends to AL-PHL Receiver (etor-nbs-results)
 - name: "baptist"
-  description: "Baptist Alabama Public Health Lab"
+  description: "Baptist Health"
   jurisdiction: "STATE"
   stateCode: "AL"
   countyName: null
@@ -121,7 +121,7 @@
   keys: null
   senders:
     - !<full-elr>
-      name: "etor-nbs-results"
+      name: "etor-nbs-orders"
       organizationName: "baptist"
       format: "HL7"
       customerStatus: "active"
@@ -135,7 +135,7 @@
       createdBy: null
       createdAt: null
   receivers:
-    - name: "etor-nbs-orders"
+    - name: "etor-nbs-results"
       organizationName: "baptist"
       topic: "etor-ti"
       customerStatus: "active"
@@ -210,6 +210,6 @@
         filePath: "./upload"
         credentialName: null
         type: "SFTP"
-      externalName: "Baptist Alabama State Public Health Lab ETOR Receiver"
+      externalName: "Baptist Health ETOR Receiver"
       timeZone: null
       dateTimeFormat: "OFFSET"
