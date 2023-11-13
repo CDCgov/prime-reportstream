@@ -16,14 +16,6 @@
       "resource" : {
         "resourceType" : "MessageHeader",
         "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
@@ -33,7 +25,7 @@
         "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "R01",
-          "display" : "ORU/ACK - Unsolicited transmission of an observation message"
+          "display" : "ORU^R01^ORU_R01"
         }
       }
     },
@@ -42,14 +34,6 @@
       "resource" : {
         "resourceType" : "Provenance",
         "id" : "1699373024883760000.b2200bfb-4aab-4f29-8a11-c6df6988d5e8",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "recorded" : "2023-05-01T10:25:31-04:00",
         "_recorded" : {
           "extension" : [ {
@@ -104,15 +88,7 @@
       "fullUrl" : "Device/1699373024885598000.a057a38e-f7a9-409b-a866-1f4253cd2652",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1699373024885598000.a057a38e-f7a9-409b-a866-1f4253cd2652",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        }
+        "id" : "1699373024885598000.a057a38e-f7a9-409b-a866-1f4253cd2652"
       }
     },
     {
@@ -120,14 +96,6 @@
       "resource" : {
         "resourceType" : "Patient",
         "id" : "1699373024902450000.e11fe176-e456-4513-8965-5e25b0970e01",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "name" : [
           {
             "use" : "official",
