@@ -80,8 +80,10 @@ elements:
     hl7Spec: [ '%{fieldPath}-21' ]
 
   - name: results-reported-at
-    value: [ '%resource.issued' ]
-    hl7Spec: [ '%{fieldPath}-22' ]
+    resource: '%resource.issued'
+    constants:
+      dtmFieldPath: '%{fieldPath}-22'
+    schema: ../../datatypes/dateTime/DTMorDT
 
   - name: diagnostic-serv-sect-id
     value: [ '%resource.category.coding.code' ]

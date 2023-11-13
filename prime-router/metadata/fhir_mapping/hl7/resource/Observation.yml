@@ -145,6 +145,16 @@ valueQuantity_1:
     obx2: STRING, OBX.2
     resolvedSystem: SYSTEM_URL, OBX.6.3
 
+valueQuantity_type-NA:
+  valueOf: datatypes/CWE/Quantity
+  expressionType: resource
+  condition: $obx2 EQUALS NA
+  specs: OBX.6
+  vars:
+    obx2: STRING, OBX.2
+  constants:
+    hl7v2Name: units
+
 # TODO THIS ONE FIELD CRASHES THE LIBRARY. Fix when we get to this data
 #valueQuantity_2:
 #  valueOf: datatype/Quantity

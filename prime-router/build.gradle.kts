@@ -35,11 +35,11 @@ plugins {
     id("org.flywaydb.flyway") version "9.22.3"
     id("nu.studer.jooq") version "8.2.1"
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("com.microsoft.azure.azurefunctions") version "1.13.0"
-    id("org.jlleitschuh.gradle.ktlint") version "11.6.0"
+    id("com.microsoft.azure.azurefunctions") version "1.14.0"
+    id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "1.8.20"
+    id("org.jetbrains.dokka") version "1.9.10"
     id("com.avast.gradle.docker-compose") version "0.17.5"
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
@@ -754,6 +754,9 @@ repositories {
     mavenCentral()
     maven {
         url = uri("https://jitpack.io")
+        content {
+            includeModule("com.github.KennethWussmann", "mock-fuel")
+        }
     }
 }
 
@@ -796,12 +799,12 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.0.0")
-    implementation("com.azure:azure-core:1.44.1")
-    implementation("com.azure:azure-core-http-netty:1.13.9")
-    implementation("com.azure:azure-storage-blob:12.22.3") {
+    implementation("com.azure:azure-core:1.45.0")
+    implementation("com.azure:azure-core-http-netty:1.13.10")
+    implementation("com.azure:azure-storage-blob:12.24.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
-    implementation("com.azure:azure-storage-queue:12.19.0") {
+    implementation("com.azure:azure-storage-queue:12.19.1") {
         exclude(group = "com.azure", module = "azure-core")
     }
     implementation("com.azure:azure-security-keyvault-secrets:4.7.1") {
@@ -835,9 +838,9 @@ dependencies {
     implementation("ca.uhn.hapi.fhir:hapi-fhir-structures-r4:6.8.4")
     // https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-caching-caffeine
     implementation("ca.uhn.hapi.fhir:hapi-fhir-caching-caffeine:6.8.5")
-    implementation("ca.uhn.hapi:hapi-base:2.3")
-    implementation("ca.uhn.hapi:hapi-structures-v251:2.3")
-    implementation("ca.uhn.hapi:hapi-structures-v27:2.3")
+    implementation("ca.uhn.hapi:hapi-base:2.5.1")
+    implementation("ca.uhn.hapi:hapi-structures-v251:2.5.1")
+    implementation("ca.uhn.hapi:hapi-structures-v27:2.5.1")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.24")
     implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
     implementation("com.sendgrid:sendgrid-java:4.9.3")
@@ -853,14 +856,14 @@ dependencies {
     implementation("org.apache.poi:poi:5.2.4")
     implementation("org.apache.commons:commons-csv:1.10.0")
     implementation("org.apache.commons:commons-lang3:3.13.0")
-    implementation("org.apache.commons:commons-text:1.10.0")
+    implementation("org.apache.commons:commons-text:1.11.0")
     implementation("commons-codec:commons-codec:1.16.0")
     implementation("commons-io:commons-io:2.15.0")
     implementation("org.postgresql:postgresql:42.6.0")
-    implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("org.flywaydb:flyway-core:9.22.3")
     implementation("org.commonmark:commonmark:0.21.0")
-    implementation("com.google.guava:guava:32.1.2-jre")
+    implementation("com.google.guava:guava:32.1.3-jre")
     implementation("com.helger.as2:as2-lib:5.1.1")
     implementation("org.bouncycastle:bcprov-jdk15to18:1.76")
     implementation("org.bouncycastle:bcprov-jdk18on:1.76")
