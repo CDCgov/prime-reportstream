@@ -55,7 +55,7 @@ export const CodeSnippet = ({ children }: CodeSnippetProps) => {
             <code className="tablet:grid-col code_snippet">{children}</code>
             <Tooltip
                 className="fixed-tooltip"
-                position="left"
+                position="top"
                 label={tooltipText}
                 onClick={() => copyToClipboard(children)}
             >
