@@ -36,10 +36,10 @@ plugins {
     id("nu.studer.jooq") version "8.2.1"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.microsoft.azure.azurefunctions") version "1.14.0"
-    id("org.jlleitschuh.gradle.ktlint") version "11.6.0"
+    id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "1.8.20"
+    id("org.jetbrains.dokka") version "1.9.10"
     id("com.avast.gradle.docker-compose") version "0.17.5"
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
