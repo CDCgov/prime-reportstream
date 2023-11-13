@@ -113,7 +113,7 @@ elements:
     condition: '%context.collection.collected.exists() and %context.collection.collected is Period'
     resource: '%resource.collection.collected.end'
     constants:
-      dtmFieldPath: '%{hl7SpecimenFieldPath}-17-1'
+      dtmFieldPath: '%{hl7SpecimenFieldPath}-17-2'
     schema: ../datatypes/dateTime/DTMorDT
 
   - name: specimen-received-time

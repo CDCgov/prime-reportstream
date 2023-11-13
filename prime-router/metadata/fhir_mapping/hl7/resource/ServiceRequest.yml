@@ -142,6 +142,24 @@ authoredOn:
   vars:
     dateTimeIn: ORC.9
     orderControl: String, ORC.1
+_authoredOn:
+  expressionType: nested
+  condition: $orderControl EQUALS NW && $dateTimeIn NOT_NULL
+  vars:
+    dateTimeIn: ORC.9
+    orderControl: String, ORC.1
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
 
 occurrenceTiming:
   valueOf: datatype/Timing
