@@ -56,6 +56,7 @@ abstract class Event(val eventAction: EventAction, val at: OffsetDateTime?) {
                 WIPE_ERROR -> TaskAction.wipe_error
                 RESEND -> TaskAction.resend
                 REBATCH -> TaskAction.rebatch
+                // OTHER is not an expected value, more of a logical fallback/default used in BlobAccess.uploadBody
                 OTHER -> TaskAction.other
             }
         }

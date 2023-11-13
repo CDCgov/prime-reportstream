@@ -29,6 +29,7 @@ import io.mockk.verify
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 
@@ -506,5 +507,7 @@ class ActionHistoryTests {
         actionHistory2.trackSentReport(org.receivers[1], uuid2, "filename1", "params1", "result1", header)
         assertThat(actionHistory2.reportsOut[uuid2]).isNotNull()
         assertNotEquals(blobUrls[0], blobUrls[1])
+        assertContains(blobUrls[0], org.receivers[0].fullName)
+        assertContains(blobUrls[1], org.receivers[1].fullName)
     }
 }
