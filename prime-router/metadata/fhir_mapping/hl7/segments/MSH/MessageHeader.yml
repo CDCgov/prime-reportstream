@@ -6,10 +6,15 @@ id:
   expressionType: HL7Spec
 
 eventCoding:
-  type: CODING_SYSTEM_V2
+  expressionType: resource
+  valueOf: datatypes/MSG/Coding
+  specs: MSH.9
   required: true
-  valueOf: MSH.9.2
-  expressionType: HL7Spec
+
+meta:
+  expressionType: resource
+  valueOf: datatypes/PT/Meta
+  specs: MSH.11
 
 source:
   valueOf: secondary/Source
