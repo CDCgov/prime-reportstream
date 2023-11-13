@@ -289,6 +289,15 @@ extension_5:
   constants:
     KEY_NAME_SUFFIX: String
     urlValue: patient-type
+    
+meta:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    security:
+      expressionType: resource
+      valueOf: datatypes/ID/Coding
+      specs: PV2.22
 
 serviceProvider:
   condition: $orgIdValue NOT_NULL

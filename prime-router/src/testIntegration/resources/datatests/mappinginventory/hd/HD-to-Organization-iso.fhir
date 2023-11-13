@@ -1,8 +1,8 @@
 {
   "resourceType" : "Bundle",
-  "id" : "1697636871214703000.3ec3729b-16a0-4baa-8be3-a4b833f2286c",
+  "id" : "1699560252991206000.d437eb72-22f1-464f-b948-dee964d8ac02",
   "meta" : {
-    "lastUpdated" : "2023-10-18T09:47:51.228-04:00"
+    "lastUpdated" : "2023-11-09T15:04:13.018-05:00"
   },
   "identifier" : {
     "system" : "https://reportstream.cdc.gov/prime-router",
@@ -10,201 +10,148 @@
   },
   "type" : "message",
   "timestamp" : "2023-05-01T10:25:31.000-04:00",
-  "entry" : [
-    {
-      "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
-      "resource" : {
-        "resourceType" : "MessageHeader",
-        "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
-        "extension" : [
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
-            "valueString" : "^~\\&#"
-          }
-        ],
-        "eventCoding" : {
-          "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
-          "code" : "R01",
-          "display" : "ORU/ACK - Unsolicited transmission of an observation message"
-        },
-        "sender" : {
-          "reference" : "Organization/1697636872089332000.b351d3d5-1dd3-4ee4-83f3-3e693feb2d0c"
-        }
-      }
-    },
-    {
-      "fullUrl" : "Organization/1697636872089332000.b351d3d5-1dd3-4ee4-83f3-3e693feb2d0c",
-      "resource" : {
-        "resourceType" : "Organization",
-        "id" : "1697636872089332000.b351d3d5-1dd3-4ee4-83f3-3e693feb2d0c",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
-        "identifier" : [
-          {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id",
-                "valueBoolean" : true
-              }
-            ],
-            "value" : "CDC Atlanta"
-          },
-          {
-            "extension" : [
-              {
-                "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id",
-                "valueBoolean" : true
-              }
-            ],
-            "type" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
-                  "system" : "http://terminology.hl7.org/CodeSystem/v2-0301",
-                  "code" : "ISO"
-                }
-              ]
-            },
-            "system" : "urn:ietf:rfc:3986",
-            "value" : "2.16.840.1.114222.4.3.3.2.1.2"
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl" : "Provenance/1697636872389472000.8c06a370-fd3d-42b7-86de-7c291343c1b4",
-      "resource" : {
-        "resourceType" : "Provenance",
-        "id" : "1697636872389472000.8c06a370-fd3d-42b7-86de-7c291343c1b4",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
-        "recorded" : "2023-05-01T10:25:31-04:00",
-        "activity" : {
-          "coding" : [
-            {
-              "extension" : [
-                {
-                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                  "valueString" : "identifier"
-                }
-              ],
-              "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
-              "code" : "R01",
-              "display" : "ORU_R01"
-            }
-          ]
-        },
-        "agent" : [
-          {
-            "type" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
-                  "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
-                  "code" : "author"
-                }
-              ]
-            },
-            "who" : {
-              "reference" : "Organization/1697636872388672000.2c5c4597-6882-4a52-8c5f-c3c7dba23773"
-            }
-          }
-        ],
-        "entity" : [
-          {
-            "role" : "source",
-            "what" : {
-              "reference" : "Device/1697636872391426000.ba540a4b-3282-4336-9fc0-eabf2ac1c53e"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl" : "Organization/1697636872388672000.2c5c4597-6882-4a52-8c5f-c3c7dba23773",
-      "resource" : {
-        "resourceType" : "Organization",
-        "id" : "1697636872388672000.2c5c4597-6882-4a52-8c5f-c3c7dba23773",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
-        "identifier" : [
-          {
-            "value" : "CDC Atlanta"
-          }
-        ],
-        "name" : "CDC Atlanta",
-        "contact" : [
-          {
-            "purpose" : {
-              "coding" : [
-                {
-                  "extension" : [
-                    {
-                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
-                      "valueString" : "identifier"
-                    }
-                  ],
-                  "system" : "http://terminology.hl7.org/CodeSystem/contactentity-type",
-                  "code" : "ADMIN",
-                  "display" : "Administrative"
-                }
-              ],
-              "text" : "Organization Medical Director"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "fullUrl" : "Device/1697636872391426000.ba540a4b-3282-4336-9fc0-eabf2ac1c53e",
-      "resource" : {
-        "resourceType" : "Device",
-        "id" : "1697636872391426000.ba540a4b-3282-4336-9fc0-eabf2ac1c53e",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        }
+  "entry" : [ {
+    "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
+    "resource" : {
+      "resourceType" : "MessageHeader",
+      "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
+      "meta" : {
+        "extension" : [ {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "extension" : [ {
+        "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+        "valueString" : "^~\\&#"
+      } ],
+      "eventCoding" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+        "code" : "R01",
+        "display" : "ORU/ACK - Unsolicited transmission of an observation message"
+      },
+      "sender" : {
+        "reference" : "Organization/1699560254537652000.8ea83e41-c9d9-43ca-97ba-49f11db75659"
       }
     }
-  ]
+  }, {
+    "fullUrl" : "Organization/1699560254537652000.8ea83e41-c9d9-43ca-97ba-49f11db75659",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1699560254537652000.8ea83e41-c9d9-43ca-97ba-49f11db75659",
+      "meta" : {
+        "extension" : [ {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-namespace-id",
+          "valueBoolean" : true
+        } ],
+        "value" : "CDC Atlanta"
+      }, {
+        "extension" : [ {
+          "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/identifier-universal-id",
+          "valueBoolean" : true
+        } ],
+        "type" : {
+          "coding" : [ {
+            "system" : "http://terminology.hl7.org/CodeSystem/v2-0301",
+            "code" : "ISO"
+          } ]
+        },
+        "system" : "urn:ietf:rfc:3986",
+        "value" : "2.16.840.1.114222.4.3.3.2.1.2"
+      } ]
+    }
+  }, {
+    "fullUrl" : "Provenance/1699560255039139000.5779f876-0836-45a5-b23b-8e62231cae68",
+    "resource" : {
+      "resourceType" : "Provenance",
+      "id" : "1699560255039139000.5779f876-0836-45a5-b23b-8e62231cae68",
+      "meta" : {
+        "extension" : [ {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "recorded" : "2023-05-01T10:25:31-04:00",
+      "activity" : {
+        "coding" : [ {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+            "valueString" : "identifier"
+          } ],
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+          "code" : "R01",
+          "display" : "ORU_R01"
+        } ]
+      },
+      "agent" : [ {
+        "type" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
+            "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+            "code" : "author"
+          } ]
+        },
+        "who" : {
+          "reference" : "Organization/1699560255037321000.3dc30379-adb1-478e-859b-da1913c70773"
+        }
+      } ],
+      "entity" : [ {
+        "role" : "source",
+        "what" : {
+          "reference" : "Device/1699560255042820000.9cff8270-1ac0-47e6-9cc7-31bc34ba515f"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Organization/1699560255037321000.3dc30379-adb1-478e-859b-da1913c70773",
+    "resource" : {
+      "resourceType" : "Organization",
+      "id" : "1699560255037321000.3dc30379-adb1-478e-859b-da1913c70773",
+      "meta" : {
+        "extension" : [ {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      },
+      "identifier" : [ {
+        "value" : "CDC Atlanta"
+      } ],
+      "name" : "CDC Atlanta",
+      "contact" : [ {
+        "purpose" : {
+          "coding" : [ {
+            "extension" : [ {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+              "valueString" : "identifier"
+            } ],
+            "system" : "http://terminology.hl7.org/CodeSystem/contactentity-type",
+            "code" : "ADMIN",
+            "display" : "Administrative"
+          } ],
+          "text" : "Organization Medical Director"
+        }
+      } ]
+    }
+  }, {
+    "fullUrl" : "Device/1699560255042820000.9cff8270-1ac0-47e6-9cc7-31bc34ba515f",
+    "resource" : {
+      "resourceType" : "Device",
+      "id" : "1699560255042820000.9cff8270-1ac0-47e6-9cc7-31bc34ba515f",
+      "meta" : {
+        "extension" : [ {
+          "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
+          "valueString" : "2.5.1"
+        } ]
+      }
+    }
+  } ]
 }
