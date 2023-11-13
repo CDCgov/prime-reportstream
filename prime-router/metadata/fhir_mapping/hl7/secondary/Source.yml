@@ -156,7 +156,7 @@ extension_3-sft-install-date:
               valueOf: $hl7Date
               expressionType: HL7Spec
 
-extension_5:
+extension_4:
   condition: $sft1 NOT_NULL
   generateList: true
   expressionType: nested
