@@ -10,9 +10,6 @@ on:
       - demo1
       - demo2
       - demo3
-  pull_request:
-    branches:
-      - master
 
 defaults:
   run:
@@ -25,8 +22,8 @@ jobs:
     outputs:
       env_name: ${{ steps.build_vars.outputs.env_name }}
       version: ${{ steps.build_vars.outputs.version }}
-      has_router_change: true
-      has_react_change: true
+      has_router_change: ${{ steps.build_vars.outputs.has_router_change }}
+      has_react_change: ${{ steps.build_vars.outputs.has_react_change }}
       dns_ip: ${{ steps.build_vars.outputs.dns_ip }}
     steps:
       - name: Check out changes
