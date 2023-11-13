@@ -754,6 +754,9 @@ repositories {
     mavenCentral()
     maven {
         url = uri("https://jitpack.io")
+        content {
+            includeModule("com.github.KennethWussmann", "mock-fuel")
+        }
     }
 }
 
