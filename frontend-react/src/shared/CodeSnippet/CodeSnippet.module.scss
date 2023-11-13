@@ -15,12 +15,12 @@
             background-color: transparent;
         }
 
-        .usa-tooltip__body {
-            @include u-font("sans", "md");
+        .usa-tooltip {
+            height: fit-content;
         }
 
-        .usa-tooltip__body--left {
-            top: 7px !important;
+        .usa-tooltip__body {
+            @include u-font("sans", "md");
         }
 
         .fixed-tooltip {

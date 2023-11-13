@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { Icon, Tooltip } from "@trussworks/react-uswds";
 import classnames from "classnames";
 
@@ -132,7 +132,7 @@ export const CodeSnippet = ({ children, highlightText }: CodeSnippetProps) => {
         setIsCopied(true);
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (isCopied) {
             setIsCopied(false);
         }
