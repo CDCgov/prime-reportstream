@@ -131,7 +131,7 @@ jobs:
   
       - name: Delete image manifest in Prod env
         env:
-          STG_UNTAGED_FILE: prod-untaged-images.txt  
+          PROD_UNTAGED_FILE: prod-untaged-images.txt  
         run: |
           if [ -e "$PROD_UNTAGED_FILE" ]; then
             while IFS= read -r manifest_id; do
