@@ -1,0 +1,11 @@
+package gov.cdc.prime.router.datatests.mappinginventory.id
+
+import gov.cdc.prime.router.datatests.mappinginventory.verifyHL7ToFHIRToHL7Mapping
+import org.junit.jupiter.api.Test
+
+class IDToEncounterTests {
+    @Test
+    fun `test`() {
+        assert(verifyHL7ToFHIRToHL7Mapping("id/ID-to-Encounter").passed)
+    }
+}

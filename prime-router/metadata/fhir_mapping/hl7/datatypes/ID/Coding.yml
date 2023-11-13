@@ -16,4 +16,6 @@ extension:
       type: SYSTEM_URL
       value: id1-identifier
     valueString:
+      type: STRING
       valueOf: ID.1
+      expressionType: HL7Spec

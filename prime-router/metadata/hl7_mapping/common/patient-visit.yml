@@ -105,5 +105,6 @@ elements:
     hl7Spec: [ '%{hl7PV1Field}-45' ]
 
   - name: visit-protection-indicator
-    value: [ '%resource.meta.security' ]
+    condition: '%resource.meta.security.where(extension(%`rsext-id1-identifier`)).exists()'
+    value: [ '%resource.meta.security.extension(%`rsext-id1-identifier`).value' ]
     hl7Spec: [ '%{hl7PV2Field}-22' ]
