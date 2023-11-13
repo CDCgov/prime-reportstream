@@ -6,18 +6,16 @@ The ReportStream team will provide you with the x-functions- key value for submi
 
 CSV example
 
-<CodeSnippet highlightText="healthy-labs">
-    {
-        'curl -X POST -H “client:healthy-labs” -H “content-type:text/csv” –data-binary “@./healthy-labs-nonPII- data.csv” -H “x-functions-key:<' +
-        'place-token-here>” https://staging.prime.cdc.gov/api/reports'
-    }
+<CodeSnippet>
+    <p>
+        curl -X POST -H “client:<span className="text-highlight">healthy-labs</span>” -H “content-type:text/csv” –data-binary “@./<span className="text-highlight">healthy-labs</span>-nonPII- data.csv” -H “x-functions-key:&lt;place-token-here&gt;" https://staging.prime.cdc.gov/api/reports"
+    </p>
 </CodeSnippet>
 
 HL7 example
 
-<CodeSnippet highlightText="super-labs">
-    {
-        'curl -X POST -H “client:super-labs” -H “content-type:application/hl7-v2” –data-binary “@./super-labs-nonPII- data.hl7” -H “x-functions-key:<' +
-        'place-token-here>” https://staging.prime.cdc.gov/api/report'
-    }
+<CodeSnippet>
+    <p>
+        curl -X POST -H “client:<span className="text-highlight">super-labs</span>” -H “content-type:application/hl7-v2” –data-binary “@./<span className="text-highlight">super-labs</span>-nonPII- data.hl7” -H “x-functions-key:&lt;place-token-here&gt;" https://staging.prime.cdc.gov/api/reports"
+    </p>
 </CodeSnippet>
