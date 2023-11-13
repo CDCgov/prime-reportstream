@@ -1,5 +1,6 @@
 constants:
   hl7PV1Field: '%{hl7SegmentGroup}/PV1'
+  hl7PV2Field: '%{hl7SegmentGroup}/PV2'
 elements:
   - name: patient-visit-set-id
     value: [ '"1"' ]
@@ -102,3 +103,7 @@ elements:
   - name: patient-admit-datetime-end
     value: [ '%resource.period.end' ]
     hl7Spec: [ '%{hl7PV1Field}-45' ]
+
+  - name: visit-protection-indicator
+    value: [ '%resource.meta.security' ]
+    hl7Spec: [ '%{hl7PV2Field}-22' ]
