@@ -256,7 +256,7 @@ abstract class SettingCommand(
         val (response, respStr) = CommandUtilities.getWithStringResponse(
             url = path.toString(),
             tkn = BearerTokens(accessToken, refreshToken = ""),
-            tmo = SettingsUtilities.requestTimeoutMillis.toLong()
+            tmo = CommandUtilities.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
         )
         if (response.status == HttpStatusCode.OK) {
             val result = mutableListOf<String>()
@@ -922,7 +922,7 @@ class PutMultipleSettings : SettingCommand(
         val (response, respStr) = CommandUtilities.headWithStringResponse(
             url = formPath(environment, Operation.LIST, SettingType.ORGANIZATION, "").toString(),
             tkn = BearerTokens(oktaAccessToken, refreshToken = ""),
-            tmo = SettingsUtilities.requestTimeoutMillis.toLong()
+            tmo = CommandUtilities.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
         )
 
         if (response.status == HttpStatusCode.OK) {

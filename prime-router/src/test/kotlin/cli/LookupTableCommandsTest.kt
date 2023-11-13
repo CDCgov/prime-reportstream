@@ -32,18 +32,8 @@ class ApiMockEngine {
         engine {
             addHandler { request ->
                 when {
-                    (request.url.encodedPath == "/comments") ->
-                        respond(CommentsMockResponse(), HttpStatusCode.OK, responseHeaders)
-                    (request.url.encodedPath == "/albums") ->
-                    respond(AlbumsMockResponse(), HttpStatusCode.OK, responseHeaders)
-                    (request.url.encodedPath == "/photos") ->
-                    respond(PhotosMockResponse(), HttpStatusCode.OK, responseHeaders)
-                    (request.url.encodedPath == "/todos") ->
-                    respond(TodosMockResponse(), HttpStatusCode.OK, responseHeaders)
-                    (request.url.encodedPath == "/users") ->
-                    respond(UsersMockResponse(), HttpStatusCode.OK, responseHeaders)
                     (request.url.encodedPath == "/fakeUrl") ->
-                        respond(UsersMockResponse(), HttpStatusCode.OK, responseHeaders)
+                        respond(SyntheticResponse(), HttpStatusCode.OK, responseHeaders)
                     else -> {
                         error("Unhandled ${request.url.encodedPath}")
                     }
@@ -53,23 +43,7 @@ class ApiMockEngine {
     }
 }
 
-object CommentsMockResponse {
-    operator fun invoke(): String =
-        "..." // This contains the mock JSON response for the specific resource.
-}
-object AlbumsMockResponse {
-    operator fun invoke(): String =
-        "..." // This contains the mock JSON response for the specific resource.
-}
-object PhotosMockResponse {
-    operator fun invoke(): String =
-        "..." // This contains the mock JSON response for the specific resource.
-}
-object TodosMockResponse {
-    operator fun invoke(): String =
-        "..." // This contains the mock JSON response for the specific resource.
-}
-object UsersMockResponse {
+object SyntheticResponse {
     operator fun invoke(): String =
         "..." // This contains the mock JSON response for the specific resource.
 }

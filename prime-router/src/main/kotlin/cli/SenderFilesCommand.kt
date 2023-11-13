@@ -116,7 +116,7 @@ class SenderFilesCommand : CliktCommand(
             queryParameters = params.associate {
                 Pair(it.first, it.second.toString())
             },
-            tmo = SettingsUtilities.requestTimeoutMillis.toLong()
+            tmo = CommandUtilities.SETTINGS_REQUEST_TIMEOUT_MILLIS.toLong()
         )
         try {
             return jsonMapper.readValue(respStr, Array<ReportFileMessage>::class.java)?.toList()
