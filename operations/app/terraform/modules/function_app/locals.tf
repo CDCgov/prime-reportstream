@@ -12,6 +12,9 @@ locals {
     "OKTA_redirect" = var.okta_redirect_url
     "OKTA_authkey"  = var.OKTA_authKey
     "OKTA_ClientId" = var.OKTA_clientId
+    "RS_OKTA_redirect" = var.RS_okta_redirect_url
+    "RS_OKTA_authkey"  = var.RS_OKTA_authKey
+    "RS_OKTA_ClientId" = var.RS_OKTA_clientId
     # Manage client secrets via a Key Vault
     "CREDENTIAL_STORAGE_METHOD" = "AZURE"
     "CREDENTIAL_KEY_VAULT_NAME" = "${var.resource_prefix}-clientconfig"
@@ -72,6 +75,9 @@ locals {
     "OKTA_authKey",
     "OKTA_ClientId",
     "OKTA_scope",
+    "RS_OKTA_authKey",
+    "RS_OKTA_ClientId", 
+    "RS_OKTA_scope",
     "PartnerStorage",
     "POSTGRES_URL",
     "POSTGRES_REPLICA_URL"
