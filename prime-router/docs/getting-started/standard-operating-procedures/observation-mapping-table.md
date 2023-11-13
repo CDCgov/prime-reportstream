@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The observation mapping table maps a plethora of conditions, observations, and aoe question to codes in various code
+The observation mapping table maps a plethora of conditions, observations, and aoe questions to codes in various code
 systems. The data for this table comes from multiple public sources. Once loaded in the database, the prime CLI can be
 used to poll public RESTful sources for updated data.
 
@@ -10,7 +10,7 @@ A local csv file is kept both as a reference and to seed the local development e
 periodically by dumping the table from staging/prod or using the CLI to update the local table.
 
 ## Update prod/staging tables using RESTful sources
-TBD
+Pending completion of #11510
 
 ## Update the local CSV by getting tables from prod/staging
 Use the prime CLI `lookuptables get` command:  
