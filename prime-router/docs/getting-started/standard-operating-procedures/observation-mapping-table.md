@@ -34,8 +34,8 @@ Run the gradle task `reloadTables`:
 ## Creating a CSV from data sources
 
 ### Columns
-Refer to the latest [observation-mapping.csv](/prime-router/metadata/tables/local/observation-mappings.csv)
-use the following columns at your peril:
+Refer to the latest [observation-mapping.csv](/prime-router/metadata/tables/local/observation-mappings.csv) or
+use the following columns at your peril (the columns below may be out of date vs the CSV):
 
 - Member OID
 - Name
