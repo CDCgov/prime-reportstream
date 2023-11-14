@@ -131,6 +131,7 @@ module "function_app" {
   okta_base_url                     = local.init.okta_base_url
   okta_redirect_url                 = local.init.okta_redirect_url
   OKTA_scope                        = local.init.OKTA_scope
+  RS_okta_base_url                  = local.init.RS_okta_base_url
   RS_okta_redirect_url              = local.init.RS_okta_redirect_url
   RS_OKTA_scope                     = local.init.RS_OKTA_scope
   terraform_caller_ip_address       = local.network.terraform_caller_ip_address

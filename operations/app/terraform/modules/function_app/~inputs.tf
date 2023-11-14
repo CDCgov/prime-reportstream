@@ -84,6 +84,7 @@ variable "okta_base_url" {}
 variable "OKTA_authKey" {}
 variable "OKTA_clientId" {}
 variable "OKTA_scope" {}
+variable "RS_okta_base_url" {}
 variable "RS_OKTA_authKey" {}
 variable "RS_OKTA_clientId" {}
 variable "RS_OKTA_scope" {}

@@ -10,7 +10,7 @@ locals {
     okta_redirect_url    = "https://prime.cdc.gov/download"
     okta_base_url        = "hhs-prime.okta.com"
     OKTA_scope           = "simple_report_dev"
-    RS_okta_base_url     = "https://reportstream.oktapreview.com"
+    RS_okta_base_url     = "reportstream.oktapreview.com"
     RS_okta_redirect_url = "https://prime-data-hub-XXXXXXX.azurefd.net/download"
     RS_OKTA_scope        = "simple_report_dev"
     storage_queue_name   = ["process"]

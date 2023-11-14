@@ -12,6 +12,7 @@ locals {
     "OKTA_redirect" = var.okta_redirect_url
     "OKTA_authkey"  = var.OKTA_authKey
     "OKTA_ClientId" = var.OKTA_clientId
+    "RS_OKTA_baseUrl"  = var.RS_okta_base_url
     "RS_OKTA_redirect" = var.RS_okta_redirect_url
     "RS_OKTA_authkey"  = var.RS_OKTA_authKey
     "RS_OKTA_ClientId" = var.RS_OKTA_clientId
