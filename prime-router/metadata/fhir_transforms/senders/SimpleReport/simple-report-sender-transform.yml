@@ -199,6 +199,12 @@ elements:
     bundleProperty: '%resource.performer.resolve().ofType(Organization).identifier.extension("https://reportstream.cdc.gov/fhir/StructureDefinition/assigning-authority").extension("https://reportstream.cdc.gov/fhir/StructureDefinition/universal-id").value[x]'
     value: [ '"urn:oid:2.16.840.1.113883.4.7"' ]
 
+  - name: sr-observation-code-display
+    condition: '%resource.code.coding[0].display.empty() and %resource.code.text.empty().not()'
+    resource: 'Bundle.entry.resource.ofType(Observation)'
+    bundleProperty: '%resource.code.coding[0].display'
+    value: [ '%resource.code.text' ]
+
   # Populating display based on text
   - name: sr-patient-race-display
     resource: '%patient'
