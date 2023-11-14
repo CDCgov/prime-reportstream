@@ -96,7 +96,7 @@
         "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "R01",
-          "display" : "ORU/ACK - Unsolicited transmission of an observation message"
+          "display" : "ORU^R01^ORU_R01"
         },
         "destination" : [
           {
@@ -314,6 +314,12 @@
           ]
         },
         "recorded" : "2023-05-01T10:25:31-04:00",
+        "_recorded" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+            "valueString" : "20230501102531-0400"
+          } ]
+        },
         "activity" : {
           "coding" : [
             {

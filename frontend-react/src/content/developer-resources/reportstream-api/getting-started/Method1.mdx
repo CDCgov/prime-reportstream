@@ -35,22 +35,21 @@ If you receive errors, reference [this list](https://github.com/CDCgov/prime-rep
 
 Here is an example, using the fake `client-id healthy labs`, of header and payload data that should appear in a ReportStream JWT, prior to signature:
 
-<CodeSnippet highlightText="healthy-labs">
-{
-    '{\n' +
-    '   "header": {\n' +
-    '       "kid": "healthy-labs.default",\n' +
-    '       "typ": "JWT",\n' +
-    '       "alg": "RS256"\n' +
-    '   },\n' +
-    '   "payload": {\n' +
-    '       "iss": "healthy-labs.default",\n' +
-    '       "sub": "healthy-labs.default",\n' +
-    '       "aud": "staging.prime.cdc.gov",\n' +
-    '       "exp": 1660737164,\n' +
-    '       "jti": "4b713fcd-2514-4207-b310-620b95b749c5"\n' +
-    '   }\n' +
-    '}\n'}
+<CodeSnippet>
+    <p>&#123;
+        &nbsp;&nbsp;"header": &#123;
+        &nbsp;&nbsp;&nbsp;&nbsp;"kid": "<span className="text-highlight">healthy-labs</span>.default",
+        &nbsp;&nbsp;&nbsp;&nbsp;"typ": "JWT",
+        &nbsp;&nbsp;&nbsp;&nbsp;"alg": "RS256"
+        &#125;,
+        &nbsp;&nbsp;"payload": &#123;
+        &nbsp;&nbsp;&nbsp;&nbsp;"iss": "<span className="text-highlight">healthy-labs</span>.default",
+        &nbsp;&nbsp;&nbsp;&nbsp;"sub": "<span className="text-highlight">healthy-labs</span>.default",
+        &nbsp;&nbsp;&nbsp;&nbsp;"aud": "staging.prime.cdc.gov",
+        &nbsp;&nbsp;&nbsp;&nbsp;"exp": 1660737164,
+        &nbsp;&nbsp;&nbsp;&nbsp;"jti": "4b713fcd-2514-4207-b310-620b95b749c5"
+        &nbsp;&nbsp;&#125;
+    &#125;</p>
 </CodeSnippet>
 
 <Alert type="tip">
@@ -73,25 +72,20 @@ POST to the token URL, as in the example below, noting the following:
 5. All the parameters are sent in the body/payload of the post (when using curl, via the `-d` option), not in the URL.
 Here is an example ‘curl’ POST:
 
-<CodeSnippet highlightText="healthy-labs">
-    {
-        'curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "scope=healthy-labs.default.report&grant_type=client_credentials&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion=<' +
-        'token-signing-secret>\n' +
-        '"https://staging.prime.cdc.gov/api/token"'
-    }
+<CodeSnippet>
+    <p>curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "scope=<span className="text-highlight">healthy-labs</span>.default.report&grant_type=client_credentials&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion=&lt;token-signing-secret&gt;"<br />"https://staging.prime.cdc.gov/api/token"</p>
 </CodeSnippet>
 
 You should get something like this back, which will be valid for five minutes:
 
-<CodeSnippet highlightText="healthy-labs">
-{
-    '"access_token": "<' +
-    'long-access-token>",\n' +
-    '"token_type": "bearer",}\n' +
-    '"expires_in": 300,\n' +
-    '"expires_at_seconds": 1625260982,\n' +
-    '"scope": "healthy-labs.default.report"'
-}
+<CodeSnippet>
+    <p>&#123;
+        &nbsp;&nbsp;"access_token": &lt;long-access-token&gt;
+        &nbsp;&nbsp;"token_type": "bearer",
+        &nbsp;&nbsp;"expires_in": 300,
+        &nbsp;&nbsp;"expires_at_seconds": 1625260982,
+        &nbsp;&nbsp;"scope": "<span className="text-highlight">healthy-labs</span>.default.report"
+        &#125;</p>
 </CodeSnippet>
 
 **Step 4: Submit data to ReportStream using the bearer token**
@@ -100,21 +94,18 @@ Use the access token returned above as the bearer token for the submission:
 
 CSV example
 
-<CodeSnippet highlightText="healthy-labs">
-{
-    'curl -H "authorization:bearer <' +
-    'long-bearer-token>" -H "client:healthy-labs"  -H "content-type:text/csv" --data-binary "@./healthy-labs-nonPII-data.csv" "https://staging.prime.cdc.gov/api/waters"'
-}
+<CodeSnippet>
+    <p>&#123;
+        curl -H "authorization:bearer&lt;long-bearer-token&gt;" -H "client:<span className="text-highlight">healthy-labs</span>"  -H "content-type:text/csv" --data-binary "@./<span className="text-highlight">healthy-labs</span>-nonPII-data.csv" "https://staging.prime.cdc.gov/api/waters"
+        &#125;</p>
 </CodeSnippet>
 
 HL7 example
 
-<CodeSnippet highlightText="healthy-labs">
-    {
-        'curl -H "authorization:bearer <' +
-        'long-bearer-token>" -H "client:healthy-labs"  -H "content-type:application/hl7-v2"\n' +
-        '--data-binary "@./healthy-labs-nonPII-data.hl7" "https://staging.prime.cdc.gov/api/waters"'
-    }
+<CodeSnippet>
+    <p>&#123;
+        curl -H "authorization:bearer&lt;long-bearer-token&gt;" -H "client:<span className="text-highlight">healthy-labs</span>"  -H "content-type:application/hl7-v2" --data-binary "@./<span className="text-highlight">healthy-labs</span>-nonPII-data.hl7" "https://staging.prime.cdc.gov/api/waters"
+        &#125;</p>
 </CodeSnippet>
 
 Again, always remember to replace the healthy-labs client-id with the client-id supplied to you by ReportStream staff.

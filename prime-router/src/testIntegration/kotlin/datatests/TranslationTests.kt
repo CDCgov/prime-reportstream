@@ -398,13 +398,21 @@ class TranslationTests {
             val receiver = settings.receivers.firstOrNull {
                 it.organizationName.plus(".").plus(it.name).lowercase() == receiverName?.lowercase()
             }
-            val maybeConfig = receiver?.let {
-                val maybeHl7Config = it.translation as? Hl7Configuration
-                if (maybeHl7Config != null) {
-                    HL7TranslationConfig(maybeHl7Config, receiver)
-                } else {
+            val translationConfig = if (receiver?.translation is Hl7Configuration) {
+                val hl7Config = receiver.translation as Hl7Configuration
+                HL7TranslationConfig(hl7Config, receiver)
+            } else {
+                HL7TranslationConfig(
+                    Hl7Configuration(
+                        receivingApplicationOID = null,
+                        receivingFacilityOID = null,
+                        messageProfileId = null,
+                        receivingApplicationName = null,
+                        receivingFacilityName = null,
+                        receivingOrganization = null,
+                    ),
                     null
-                }
+                )
             }
 
             if (!config.conditionFiler.isNullOrBlank()) {
@@ -428,7 +436,7 @@ class TranslationTests {
                 FilenameUtils.getPath(schema),
                 context = FhirToHl7Context(
                     CustomFhirPathFunctions(),
-                    config = maybeConfig,
+                    config = translationConfig,
                     translationFunctions = CustomTranslationFunctions()
                 )
             ).convert(fhirBundle)
