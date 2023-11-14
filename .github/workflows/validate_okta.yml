@@ -1,0 +1,51 @@
+
+name: Validate Okta
+
+on:
+  pull_request:
+    branches:
+      - master
+
+defaults:
+  run:
+    working-directory: prime-router
+
+jobs:
+  pre_job:
+    name: "Set Build Environment"
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ steps.build_vars.outputs.env_name }}
+      version: ${{ steps.build_vars.outputs.version }}
+      has_router_change: true
+      has_react_change: ${{ steps.build_vars.outputs.has_react_change }}
+      dns_ip: ${{ steps.build_vars.outputs.dns_ip }}
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Build vars
+        id: build_vars
+        uses: ./.github/actions/build-vars
+        with:
+          sp-creds: ${{ secrets.SERVICE_PRINCIPAL_CREDS }}
+
+  validate_okta:
+    name: "Validate Okta"
+    needs:
+      - pre_job
+    if: needs.pre_job.outputs.has_router_change == 'true'
+    runs-on: ubuntu-latest
+    environment: ${{ needs.pre_job.outputs.env_name }}
+    steps:
+      - name: Check out changes
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Run tests
+        working-directory: prime-router
+        run: |
+          export POSTGRES_USER=prime@pdhstaging-pgsql
+          export POSTGRES_URL=jdbc:postgresql://pdhstaging-pgsql.postgres.database.azure.com:5432/prime_data_hub
+          export POSTGRES_PASSWORD=${{ secrets.POSTGRESQL_STAGING_PWD }}
+          ./prime test --env staging --key ${{ secrets.OKTA_API_TOKEN }}
+        shell: bash
