@@ -3,7 +3,7 @@ elements:
     value: [ '%resource.value' ]
     hl7Spec: [ '%{cxFieldPath}-1' ]
 
-  - name: identifier-check-digit
+  - name: identifier-check-digitF
     value: [ '%resource.extension(%`ext-identifier-checkDigit`).value' ]
     hl7Spec: [ '%{cxFieldPath}-2' ]
 
