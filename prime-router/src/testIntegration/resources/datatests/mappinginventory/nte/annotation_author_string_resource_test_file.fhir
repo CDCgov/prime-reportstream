@@ -405,6 +405,14 @@
           }
         ],
         "recorded" : "2023-04-05T13:36:10-04:00",
+        "_recorded" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230405133610-0400"
+            }
+          ]
+        },
         "activity" : {
           "coding" : [
             {
@@ -647,14 +655,20 @@
         "subject" : {
           "reference" : "Patient/1696262527966565000.f250c367-51b4-4d3a-b50f-5393d6c39211"
         },
-        "effectiveDateTime" : "2023-02-27",
-        "issued" : "2023-02-27",
         "performer" : [
           {
             "reference" : "Organization/1696262527971743000.6b8542b9-4688-4388-b1b3-d3bb00fad366"
           }
         ],
         "valueDateTime" : "2023-02-01",
+        "_valueDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230201"
+            }
+          ]
+        },
         "note" : [
           {
             "extension" : [
@@ -998,10 +1012,6 @@
         },
         "subject" : {
           "reference" : "Patient/1696262527966565000.f250c367-51b4-4d3a-b50f-5393d6c39211"
-        },
-        "receivedTime" : "2023-04-05",
-        "collection" : {
-          "collectedDateTime" : "2023-02-27"
         }
       }
     },
@@ -1493,8 +1503,6 @@
         "subject" : {
           "reference" : "Patient/1696262527966565000.f250c367-51b4-4d3a-b50f-5393d6c39211"
         },
-        "effectiveDateTime" : "2023-02-27",
-        "issued" : "2023-04-05T13:36:00-04:00",
         "specimen" : [
           {
             "reference" : "Specimen/1696262528129472000.3cced294-e0d0-43d8-9c10-a796a573c5dc"

@@ -22,5 +22,7 @@ elements:
     hl7Spec: [ SFT-5 ]
 
   - name: software-install-date
-    value: [ '%resource.source.extension(%`rsext-software-install-date`).value' ]
-    hl7Spec: [ SFT-6 ]
+    resource: '%resource.source.extension(%`rsext-software-install-date`).value'
+    constants:
+      dtmFieldPath: 'SFT-6'
+    schema: ../datatypes/dateTime/DTMorDT
