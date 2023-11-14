@@ -43,7 +43,7 @@ export const CodeSnippet = ({ children }: CodeSnippetProps) => {
      * causes it to remount (thus forcing tooltip position recalculation).
      */
     const CopyTooltip = useCallback(
-        ({ children }: any) => (
+        ({ children }: React.PropsWithChildren) => (
             <Tooltip
                 className="fixed-tooltip"
                 position="top"
