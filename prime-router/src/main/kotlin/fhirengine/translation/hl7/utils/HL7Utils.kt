@@ -83,15 +83,11 @@ object HL7Utils : Logging {
 
         // Add some default fields.  Note these could still be overridden in the schema
         try {
-            val typeParts = getMessageTypeString(message)
             val terser = Terser(message)
             terser.getSegment("MSH").let {
                 val msh2Length = it.getLength(2)
                 terser.set("MSH-1", defaultHl7Delimiter)
                 terser.set("MSH-2", defaultHl7EncodingFourChars.take(msh2Length))
-                terser.set("MSH-9-1", typeParts[0])
-                terser.set("MSH-9-2", typeParts[1])
-                terser.set("MSH-9-3", "${typeParts[0]}_${typeParts[1]}")
                 terser.set("MSH-12", message.version)
             }
         } catch (e: HL7Exception) {

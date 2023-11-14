@@ -37,6 +37,18 @@ elements:
     resource: 'Bundle'
     value: [ '"NYSDOH"' ]
 
+  - name: message-event-code-code
+    value: [ '"ORU"' ]
+    hl7Spec: [ MSH-9-1 ]
+
+  - name: message-event-code-trigger-event
+    value: [ '"R01"' ]
+    hl7Spec: [ MSH-9-2 ]
+
+  - name: message-event-code-message-structure
+    value: [ '"ORU_R01"' ]
+    hl7Spec: [ MSH-9-3 ]
+
   - name: message_profile_id
     value: [ '"PHLabReport-NoAck"' ]
     hl7Spec: [ MSH-21-1 ]
