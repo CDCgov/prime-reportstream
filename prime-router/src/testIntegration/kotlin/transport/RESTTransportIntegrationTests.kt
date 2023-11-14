@@ -33,8 +33,7 @@ import io.ktor.util.Attributes
 import io.ktor.util.InternalAPI
 import io.ktor.util.date.GMTDate
 import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.bits.Memory
-import io.ktor.utils.io.core.Input
+import io.ktor.utils.io.core.ByteReadPacket
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -240,13 +239,7 @@ hnm8COa8Kr+bnTqzScpQuOfujHcFEtfcYUGfSS6HusxidwXx+lYi1A==
         val call = mockk<HttpClientCall> {
             every { client } returns mockk {}
             coEvery { body(io.ktor.util.reflect.typeInfo<String>()) } returns "Rest Transport Test Call Body"
-            coEvery { bodyNullable(io.ktor.util.reflect.typeInfo<Input>()) } returns object : Input() {
-                override fun closeSource() {}
-
-                override fun fill(destination: Memory, offset: Int, length: Int): Int {
-                    return 0
-                }
-            }
+            coEvery { bodyNullable(io.ktor.util.reflect.typeInfo<ByteReadPacket>()) } returns ByteReadPacket.Empty
             every { coroutineContext } returns EmptyCoroutineContext
             every { attributes } returns Attributes()
             every { request } returns object : HttpRequest {
