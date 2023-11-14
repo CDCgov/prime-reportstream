@@ -22,6 +22,7 @@ import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.cli.FileUtilities.saveTableAsCSV
 import gov.cdc.prime.router.common.Environment
 import gov.cdc.prime.router.common.JacksonMapperUtilities
+import io.ktor.client.HttpClient
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
@@ -37,11 +38,20 @@ import java.time.Instant
  * If a [useThisToken] is not specified, then attempt to get a token from Otka.
  * Otherwise, [useThisToken] is sent as the bearer token to the ReportStream server.
  */
-class LookupTableEndpointUtilities(val environment: Environment, val useThisToken: String? = null) {
+class LookupTableEndpointUtilities(
+    val environment: Environment,
+    val useThisToken: String? = null,
+    val httpClient: HttpClient? = null,
+) {
     /**
      * Increase from the default read timeout in case of a super-duper long table.
      */
     private val requestTimeoutMillis = 130000
+
+    /**
+     * injected http client (ktor)
+     */
+    private val apiClient = httpClient
 
     /**
      * The Access Token.
@@ -61,7 +71,8 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
             tmo = requestTimeoutMillis.toLong(),
             queryParameters = mapOf(
                 Pair(LookupTableFunctions.showInactiveParamName, listInactive.toString())
-            )
+            ),
+            httpClient = apiClient
         )
 
         return if (response.status == HttpStatusCode.OK) {
@@ -87,7 +98,7 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
             url = environment.formUrl("$endpointRoot/$tableName/$version/activate").toString(),
             tkn = BearerTokens(accessToken, refreshToken = ""),
             tmo = requestTimeoutMillis.toLong()
-        )
+            )
         )
     }
 
@@ -101,7 +112,8 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
         val (response, respStr) = CommandUtilities.getWithStringResponse(
             url = environment.formUrl("$endpointRoot/$tableName/$version/content").toString(),
             tkn = BearerTokens(accessToken, refreshToken = ""),
-            tmo = requestTimeoutMillis.toLong()
+            tmo = requestTimeoutMillis.toLong(),
+            httpClient = apiClient
         )
 
         checkResponse(Pair(response, respStr))
@@ -122,10 +134,11 @@ class LookupTableEndpointUtilities(val environment: Environment, val useThisToke
     fun fetchTableInfo(tableName: String, version: Int): LookupTableVersion {
         return getTableInfoResponse(
             CommandUtilities.getWithStringResponse(
-            url = environment.formUrl("$endpointRoot/$tableName/$version/info").toString(),
-            tkn = BearerTokens(accessToken, refreshToken = ""),
-            tmo = requestTimeoutMillis.toLong()
-        )
+                url = environment.formUrl("$endpointRoot/$tableName/$version/info").toString(),
+                tkn = BearerTokens(accessToken, refreshToken = ""),
+                tmo = requestTimeoutMillis.toLong(),
+                httpClient = apiClient
+            )
         )
     }
 
@@ -390,8 +403,13 @@ class LookupTableCommands : CliktCommand(
 
 /**
  * Generic lookup table command.
+ * parameter [httpClient] - inject a custom http client
  */
-abstract class GenericLookupTableCommand(name: String, help: String) : CliktCommand(name = name, help = help) {
+abstract class GenericLookupTableCommand(
+    name: String,
+    help: String,
+    val httpClient: HttpClient? = null,
+) : CliktCommand(name = name, help = help) {
     /**
      * The environment to connect to.
      */
@@ -415,15 +433,16 @@ abstract class GenericLookupTableCommand(name: String, help: String) : CliktComm
     /**
      * The lookup table utility.
      */
-    internal val tableUtil get() = LookupTableEndpointUtilities(environment)
+    internal val tableUtil get() = LookupTableEndpointUtilities(environment, httpClient = httpClient)
 }
 
 /**
  * Print out a lookup table.
  */
-class LookupTableGetCommand : GenericLookupTableCommand(
+class LookupTableGetCommand(httpClient: HttpClient? = null) : GenericLookupTableCommand(
     name = "get",
-    help = "Fetch the contents of a lookup table"
+    help = "Fetch the contents of a lookup table",
+    httpClient = httpClient
 ) {
     /**
      * Optional output file to save the table to.
@@ -476,10 +495,11 @@ class LookupTableGetCommand : GenericLookupTableCommand(
 /**
  * Print out a lookup table.
  */
-class LookupTableCompareMappingCommand : GenericLookupTableCommand(
+class LookupTableCompareMappingCommand(httpClient: HttpClient? = null) : GenericLookupTableCommand(
     name = "compare-mapping",
-    help = "Compares a sender compendium against an observation mapping lookup table, outputting an annotated CSV"
-) {
+    help = "Compares a sender compendium against an observation mapping lookup table, outputting an annotated CSV",
+    httpClient = httpClient
+    ) {
     /**
      * The input file to get the table data from.
      */
@@ -603,9 +623,10 @@ class LookupTableCompareMappingCommand : GenericLookupTableCommand(
 /**
  * Create a new lookup table.
  */
-class LookupTableCreateCommand : GenericLookupTableCommand(
+class LookupTableCreateCommand(httpClient: HttpClient? = null) : GenericLookupTableCommand(
     name = "create",
-    help = "Create a new version of a lookup table"
+    help = "Create a new version of a lookup table",
+    httpClient = httpClient
 ) {
     /**
      * The input file to get the table data from.
@@ -755,10 +776,11 @@ class LookupTableCreateCommand : GenericLookupTableCommand(
 /**
  * List the available lookup tables.
  */
-class LookupTableListCommand : GenericLookupTableCommand(
+class LookupTableListCommand(httpClient: HttpClient? = null) : GenericLookupTableCommand(
     name = "list",
-    help = "List the lookup tables"
-) {
+    help = "List the lookup tables",
+    httpClient = httpClient
+    ) {
     /**
      * List all the tables including inactive ones if set.
      */
@@ -784,7 +806,7 @@ class LookupTableListCommand : GenericLookupTableCommand(
             )
             echo("")
         } else {
-            if (data.isEmpty() && !showInactive) {
+            if (!showInactive) {
                 echo("No lookup tables were found.")
             } else {
                 echo("No active lookup tables were found.")
@@ -796,9 +818,10 @@ class LookupTableListCommand : GenericLookupTableCommand(
 /**
  * Show a diff between two lookup tables.
  */
-class LookupTableDiffCommand : GenericLookupTableCommand(
+class LookupTableDiffCommand(httpClient: HttpClient? = null) : GenericLookupTableCommand(
     name = "diff",
-    help = "Generate a difference between two versions of a lookup table"
+    help = "Generate a difference between two versions of a lookup table",
+    httpClient = httpClient
 ) {
     /**
      * The table name.
@@ -871,10 +894,11 @@ class LookupTableDiffCommand : GenericLookupTableCommand(
 /**
  * Activate a lookup table.
  */
-class LookupTableActivateCommand : GenericLookupTableCommand(
-    name = "activate",
-    help = "Activate a specific version of a lookup table"
-) {
+    class LookupTableActivateCommand(httpClient: HttpClient? = null) : GenericLookupTableCommand(
+        name = "activate",
+        help = "Activate a specific version of a lookup table",
+        httpClient = httpClient
+    ) {
     /**
      * The table name.
      */
@@ -936,9 +960,10 @@ class LookupTableActivateCommand : GenericLookupTableCommand(
 /**
  * Load lookup tables from a directory.
  */
-class LookupTableLoadAllCommand : GenericLookupTableCommand(
+class LookupTableLoadAllCommand(httpClient: HttpClient? = null) : GenericLookupTableCommand(
     name = "loadall",
-    help = "Load all the tables stored as CSV in the specified directory"
+    help = "Load all the tables stored as CSV in the specified directory",
+    httpClient = httpClient
 ) {
     /**
      * Default directory for tables.
@@ -981,7 +1006,7 @@ class LookupTableLoadAllCommand : GenericLookupTableCommand(
     /**
      * The reference to the table creator command.
      */
-    private val tableCreator = LookupTableCreateCommand()
+    private val tableCreator = LookupTableCreateCommand(httpClient)
 
     override fun run() {
         if (environment != Environment.LOCAL) error("This command is only allowed in the local environment.")

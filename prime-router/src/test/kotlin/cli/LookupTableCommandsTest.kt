@@ -7,17 +7,13 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import gov.cdc.prime.router.azure.db.tables.pojos.LookupTableVersion
 import gov.cdc.prime.router.common.JacksonMapperUtilities
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.post
-import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.jooq.JSONB
 import java.time.OffsetDateTime
@@ -26,30 +22,10 @@ import kotlin.test.assertFailsWith
 
 class ApiMockEngine {
     fun get() = client.engine
+    fun client() = client
 
     private val responseHeaders = headersOf("Content-Type" to listOf(ContentType.Application.Json.toString()))
     private val client = HttpClient(MockEngine) {
-        engine {
-            addHandler { request ->
-                when {
-                    (request.url.encodedPath == "/fakeUrl") ->
-                        respond(SyntheticResponse(), HttpStatusCode.OK, responseHeaders)
-                    else -> {
-                        error("Unhandled ${request.url.encodedPath}")
-                    }
-                }
-                }
-        }
-    }
-}
-
-object SyntheticResponse {
-    operator fun invoke(): String =
-        "..." // This contains the mock JSON response for the specific resource.
-}
-
-class Api(httpClientEngine: HttpClientEngine) {
-    private val client = HttpClient(httpClientEngine) {
         install(ContentNegotiation) {
             json(
                 Json {
@@ -59,12 +35,23 @@ class Api(httpClientEngine: HttpClientEngine) {
                 }
             )
         }
-    }
-    fun posts(url: String): HttpResponse {
-        return runBlocking {
-            client.post(url)
+        engine {
+            addHandler { request ->
+                when {
+                    (request.url.encodedPath == "/fakeUrl") ->
+                        respond(SyntheticResponse(), HttpStatusCode.OK, responseHeaders)
+                    else -> {
+                        error("Unhandled ${request.url.encodedPath}")
+                    }
+                }
+            }
         }
     }
+}
+
+object SyntheticResponse {
+    operator fun invoke(): String =
+        "..." // This contains the mock JSON response for the specific resource.
 }
 
 class LookupTableCommandsTest {
@@ -73,12 +60,16 @@ class LookupTableCommandsTest {
      */
     private val mapper = JacksonMapperUtilities.defaultMapper
     private val apiMockEngine = ApiMockEngine()
-    private val apiMock = Api(apiMockEngine.get())
+    private val getTableCmdMock = LookupTableGetCommand(apiMockEngine.client())
 
     @Test
     fun `test posts`() {
-        val response = apiMock.posts("fakeUrl")
-        println(response)
+        try {
+            getTableCmdMock.run()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+//        println(result)
 //        assertThat(LookupTableEndpointUtilities.getResponseError(response)).isEqualTo("")
     }
 
@@ -143,8 +134,8 @@ class LookupTableCommandsTest {
 
     @Test
     fun `get error from response test`() {
-        val response = apiMock.posts("fakeUrl")
-        println(response)
+//        val response = apiMock.posts("fakeUrl")
+//        println(response)
 //        assertThat(LookupTableEndpointUtilities.getResponseError(response)).isEqualTo("")
 
 //        val mockResult = mockk<Result.Success<FuelJson>>()

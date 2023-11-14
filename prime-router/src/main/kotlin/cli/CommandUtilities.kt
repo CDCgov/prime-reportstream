@@ -183,6 +183,7 @@ class CommandUtilities {
             expSuccess: Boolean = true,
             tmo: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
+            httpClient: HttpClient? = null,
         ): Pair<HttpResponse, String> {
             val response = get(
                 url = url,
@@ -191,7 +192,8 @@ class CommandUtilities {
                 acceptedCt = acceptedCt,
                 expSuccess = expSuccess,
                 tmo = tmo,
-                queryParameters = queryParameters
+                queryParameters = queryParameters,
+                httpClient = httpClient
             )
 
             val bodyStr = runBlocking {
@@ -209,9 +211,10 @@ class CommandUtilities {
             expSuccess: Boolean = true,
             tmo: Long = REQUEST_TIMEOUT_MILLIS,
             queryParameters: Map<String, String>? = null,
+            httpClient: HttpClient? = null,
         ): HttpResponse {
             return runBlocking {
-                createDefaultHttpClient(tkn).get(url) {
+                (httpClient ?: createDefaultHttpClient(tkn)).get(url) {
                     timeout {
                         requestTimeoutMillis = tmo
                     }
