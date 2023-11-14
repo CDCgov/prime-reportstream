@@ -55,6 +55,8 @@
 # message character set
 - id: "character-set"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set"
+- id: "character-set-list"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set-list"
 # source message profile ID
 - id: "source-message-profile-id"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id"
@@ -500,3 +502,15 @@
 # CWE Quantity
 - id: "cwe-quantity"
   url: "https://reportstream.cdc.gov/fhir/StructureDefinition/cwe-quantity"
+- id: "msh-7-datetime-of-message"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-7-datetime-of-message"
+- id: "msh-13-sequence-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-13-sequence-number"
+- id: "msh-14-sequence-number"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-14-sequence-number"
+- id: "msh-19-principal-language-of-message"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-19-principal-language-of-message"
+- id: "msh-20-alternate-character-set-handling-scheme"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-20-alternate-character-set-handling-scheme"
+- id: "msh-24-hd-extension"
+  url: "https://reportstream.cdc.gov/fhir/StructureDefinition/msh-24-hd-extension"
