@@ -39,7 +39,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
     id("com.adarshr.test-logger") version "4.0.0"
     id("jacoco")
-    id("org.jetbrains.dokka") version "1.8.20"
+    id("org.jetbrains.dokka") version "1.9.10"
     id("com.avast.gradle.docker-compose") version "0.17.5"
     id("org.jetbrains.kotlin.plugin.serialization") version "$kotlinVersion"
     id("com.nocwriter.runsql") version ("1.0.3")
@@ -872,7 +872,7 @@ dependencies {
     implementation("commons-net:commons-net:3.10.0")
     implementation("com.cronutils:cron-utils:9.2.1")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
-    implementation("de.m3y.kformat:kformat:0.9")
+    implementation("de.m3y.kformat:kformat:0.10")
     implementation("io.github.java-diff-utils:java-diff-utils:4.11")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
