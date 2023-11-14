@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 
 class IDToEncounterTests {
     @Test
-    fun `test`() {
+    fun `test hl7 ID type to FHIR Encounter`() {
         assert(verifyHL7ToFHIRToHL7Mapping("id/ID-to-Encounter").passed)
     }
 }
