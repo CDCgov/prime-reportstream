@@ -3,7 +3,6 @@ import { Button, Accordion, GridContainer } from "@trussworks/react-uswds";
 import { AccordionItemProps } from "@trussworks/react-uswds/lib/components/Accordion/Accordion";
 
 import { DetailItem } from "../DetailItem/DetailItem";
-import { withCatchAndSuspense } from "../RSErrorBoundary";
 import { useMessageDetails } from "../../hooks/network/MessageTracker/MessageTrackerHooks";
 import { WarningError } from "../../config/endpoints/messageTracker";
 import { parseFileLocation } from "../../utils/misc";
@@ -50,7 +49,7 @@ const dataToAccordionItems = (props: {
     return results;
 };
 
-export function MessageDetails() {
+export function MessageDetailsPage() {
     const navigate = useNavigate();
     const { id } = useParams<MessageDetailsProps>();
     const { messageDetails } = useMessageDetails(id!!);
@@ -188,8 +187,5 @@ export function MessageDetails() {
         </GridContainer>
     );
 }
-
-export const MessageDetailsPage = () =>
-    withCatchAndSuspense(<MessageDetails />);
 
 export default MessageDetailsPage;

@@ -23,7 +23,7 @@ export const config = {
                 const errorString = `Something went wrong: ${error.message}`;
                 const e = new Error(errorString, { cause: error });
                 showError(errorString);
-                console.error(e);
+                rsconsole.error(e);
             },*/
         },
     },
@@ -32,3 +32,13 @@ export const config = {
 };
 
 export const appQueryClient = new QueryClient(config);
+
+export const getTestQueryClient = () =>
+    new QueryClient({
+        // to allow for faster testable failures
+        defaultOptions: {
+            queries: {
+                retry: false,
+            },
+        },
+    });

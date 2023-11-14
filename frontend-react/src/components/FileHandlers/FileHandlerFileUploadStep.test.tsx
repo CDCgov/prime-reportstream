@@ -18,23 +18,12 @@ import {
     mockSendValidFile,
 } from "../../__mocks__/validation";
 import { sendersGenerator } from "../../__mocks__/OrganizationMockServer";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
-import {
-    mockAppInsightsContextReturnValue,
-    mockAppInsights,
-} from "../../contexts/__mocks__/AppInsightsContextOld";
 import { MemberType, MembershipSettings } from "../../utils/OrganizationUtils";
+import { mockAppInsights } from "../../__mocks__/ApplicationInsights";
 
 import FileHandlerFileUploadStep, {
     getClientHeader,
 } from "./FileHandlerFileUploadStep";
-
-vi.mock("../AlertNotifications", async () => ({
-    ...(await vi.importActual<typeof import("../AlertNotifications")>(
-        "../AlertNotifications",
-    )),
-    showError: vi.fn(),
-}));
 
 describe("FileHandlerFileUploadStep", () => {
     const DEFAULT_PROPS = {
@@ -64,8 +53,6 @@ describe("FileHandlerFileUploadStep", () => {
                 isInitialLoading: true,
                 isLoading: true,
             });
-            mockSessionContentReturnValue();
-            mockAppInsightsContextReturnValue();
 
             renderApp(<FileHandlerFileUploadStep {...DEFAULT_PROPS} />);
         }
@@ -82,8 +69,6 @@ describe("FileHandlerFileUploadStep", () => {
                 isInitialLoading: false,
                 isLoading: false,
             });
-            mockSessionContentReturnValue();
-            mockAppInsightsContextReturnValue();
         });
 
         describe("when a CSV schema is chosen", () => {

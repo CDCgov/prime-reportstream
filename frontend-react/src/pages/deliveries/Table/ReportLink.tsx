@@ -5,7 +5,7 @@ import ReportResource from "../../../resources/ReportResource";
 import config from "../../../config";
 import { RSDelivery } from "../../../config/endpoints/deliveries";
 import { isDateExpired } from "../../../utils/DateTimeUtils";
-import { useSessionContext } from "../../../contexts/SessionContext";
+import { useSessionContext } from "../../../contexts/Session";
 
 const { RS_API_URL } = config;
 
@@ -56,8 +56,7 @@ function ReportLink(props: Props) {
                     )
                         filename = filename.substring(filenameStartIndex + 1);
                     download(report.content, filename, report.mimetype);
-                })
-                .catch((error) => console.error(error));
+                });
         }
     };
 

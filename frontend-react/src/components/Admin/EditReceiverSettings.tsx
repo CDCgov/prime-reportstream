@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import Title from "../../components/Title";
 import OrgReceiverSettingsResource from "../../resources/OrgReceiverSettingsResource";
-import { showAlertNotification, showError } from "../AlertNotifications";
+import { showToast } from "../../contexts/Toast";
 import { jsonSortReplacer } from "../../utils/JsonSortReplacer";
 import {
     getErrorDetailFromResponse,
@@ -21,8 +21,8 @@ import {
 } from "../../utils/TemporarySettingsAPITypes";
 import config from "../../config";
 import { ModalConfirmDialog, ModalConfirmRef } from "../ModalConfirmDialog";
-import { useSessionContext } from "../../contexts/SessionContext";
-import { useAppInsightsContext } from "../../contexts/AppInsightsContext";
+import { useSessionContext } from "../../contexts/Session";
+import { useAppInsightsContext } from "../../contexts/AppInsights";
 
 import {
     ConfirmSaveSettingModal,
@@ -84,18 +84,15 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 receivername: deleteItemId,
             });
 
-            showAlertNotification(
-                "success",
-                `Item '${deleteItemId}' has been deleted`,
-            );
+            showToast(`Item '${deleteItemId}' has been deleted`, "success");
 
             // navigate back to list since this item was just deleted
             navigate(-1);
             return true;
         } catch (e: any) {
-            console.trace(e);
-            showError(
+            showToast(
                 `Deleting item '${deleteItemId}' failed. ${e.toString()}`,
+                "error",
             );
             return false;
         }
@@ -134,7 +131,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 action === "edit" &&
                 latestResponse?.version !== orgReceiverSettings?.version
             ) {
-                showError(getVersionWarning(VersionWarningType.POPUP));
+                showToast(getVersionWarning(VersionWarningType.POPUP), "error");
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
@@ -146,9 +143,9 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
-            showError(
+            showToast(
                 `Reloading receiver '${receivername}' failed with: ${errorDetail}`,
+                "error",
             );
             return false;
         }
@@ -173,7 +170,7 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
                 setOrgReceiverSettingsOldJson(
                     JSON.stringify(latestResponse, jsonSortReplacer, 2),
                 );
-                showError(getVersionWarning(VersionWarningType.POPUP));
+                showToast(getVersionWarning(VersionWarningType.POPUP), "error");
                 confirmModalRef?.current?.setWarning(
                     getVersionWarning(VersionWarningType.FULL, latestResponse),
                 );
@@ -193,19 +190,16 @@ const EditReceiverSettingsForm: React.FC<EditReceiverSettingsFormProps> = ({
             );
 
             await resetReceiverList();
-            showAlertNotification(
-                "success",
-                `Item '${receivername}' has been updated`,
-            );
+            showToast(`Item '${receivername}' has been updated`, "success");
             setLoading(false);
             confirmModalRef?.current?.hideModal();
             navigate(-1);
         } catch (e: any) {
             setLoading(false);
             let errorDetail = await getErrorDetailFromResponse(e);
-            console.trace(e, errorDetail);
-            showError(
+            showToast(
                 `Updating receiver '${receivername}' failed with: ${errorDetail}`,
+                "error",
             );
             return false;
         }
@@ -439,9 +433,9 @@ export function EditReceiverSettingsPage() {
             }
         >
             <EditReceiverSettingsForm
-                orgname={orgname || ""}
-                receivername={receivername || ""}
-                action={action || "edit"}
+                orgname={orgname ?? ""}
+                receivername={receivername ?? ""}
+                action={action ?? "edit"}
             />
         </AdminFormWrapper>
     );

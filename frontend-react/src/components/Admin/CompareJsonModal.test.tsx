@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { fireEvent, screen } from "@testing-library/react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
+import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import {
     ConfirmSaveSettingModal,
@@ -41,6 +42,9 @@ describe("ConfirmSaveSettingModal", () => {
         checkSyntaxButtonNode = screen.getByText("Check syntax");
     }
 
+    beforeAll(() => {
+        mockUseSessionContext();
+    });
     afterEach(() => {
         vi.clearAllMocks();
     });
@@ -162,13 +166,8 @@ describe("ConfirmSaveSettingModal", () => {
         });
 
         describe("when the updated JSON is invalid", () => {
-            const consoleTraceSpy = vi.fn();
             function setup() {
                 renderComponent();
-
-                vi.spyOn(console, "trace").mockImplementationOnce(
-                    consoleTraceSpy,
-                );
 
                 fireEvent.change(textareaNode, {
                     target: { value: INVALID_JSON },
@@ -180,24 +179,11 @@ describe("ConfirmSaveSettingModal", () => {
                 );
             }
 
-            afterEach(() => {
-                vi.resetAllMocks();
-            });
-
             test("renders an error diff highlighting the error", () => {
                 setup();
                 expect(errorDiffNode).toBeVisible();
                 expect(errorDiffNode?.innerHTML).toContain("{ nope");
             });
-
-            test("renders an error toast", () => {
-                setup();
-                expect(consoleTraceSpy).toHaveBeenCalled();
-                expect(
-                    screen.queryByText(/JSON data generated/),
-                ).not.toBeInTheDocument();
-            });
-
             describe("when the user starts typing again", () => {
                 test("it removes the highlighting", () => {
                     setup();

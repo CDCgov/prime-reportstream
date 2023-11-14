@@ -22,7 +22,7 @@ import { CustomerStatusType } from "../../../utils/DataDashboardUtils";
 import {
     EventName,
     useAppInsightsContext,
-} from "../../../contexts/AppInsightsContext";
+} from "../../../contexts/AppInsights";
 
 function DashboardFilterAndTable({
     receiverServices,

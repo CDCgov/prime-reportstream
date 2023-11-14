@@ -10,8 +10,8 @@ import * as useOrganizationPublicKeysExports from "../../hooks/network/Organizat
 import { UseOrganizationPublicKeysResult } from "../../hooks/network/Organizations/PublicKeys/UseOrganizationPublicKeys";
 import * as useOrganizationSendersExports from "../../hooks/UseOrganizationSenders";
 import { UseOrganizationSendersResult } from "../../hooks/UseOrganizationSenders";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../utils/OrganizationUtils";
+import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import { ManagePublicKeyPage } from "./ManagePublicKey";
 
@@ -80,7 +80,7 @@ describe("ManagePublicKey", () => {
     }
 
     beforeEach(() => {
-        mockSessionContentReturnValue({
+        mockUseSessionContext.mockReturnValue({
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "testOrg",

@@ -1,9 +1,9 @@
 import { waitFor } from "@testing-library/react";
 
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
 import { AppWrapper, renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
+import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import { useReportsDetail } from "./DeliveryHooks";
 
@@ -12,7 +12,7 @@ describe("useReportsList", () => {
     afterEach(() => deliveryServer.resetHandlers());
     afterAll(() => deliveryServer.close());
     test("useReportDetail", async () => {
-        mockSessionContentReturnValue({
+        mockUseSessionContext.mockReturnValue({
             authState: {
                 accessToken: { accessToken: "TOKEN" },
             } as any,

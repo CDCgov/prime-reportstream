@@ -1,10 +1,16 @@
 import * as DeliveryHooks from "../DeliveryHooks";
 
-export const mockUseOrgDeliveries = vi.spyOn(DeliveryHooks, "useOrgDeliveries");
+vi.mock("../DeliveryHooks", async (imp) => ({
+    ...(await imp()),
+    useOrgDeliveries: vi.fn(),
+    useReportsDetail: vi.fn(),
+    useReportsFacilities: vi.fn(),
+}));
 
-export const mockUseReportDetail = vi.spyOn(DeliveryHooks, "useReportsDetail");
+export const mockUseOrgDeliveries = vi.mocked(DeliveryHooks.useOrgDeliveries);
 
-export const mockUseReportFacilities = vi.spyOn(
-    DeliveryHooks,
-    "useReportsFacilities",
+export const mockUseReportDetail = vi.mocked(DeliveryHooks.useReportsDetail);
+
+export const mockUseReportFacilities = vi.mocked(
+    DeliveryHooks.useReportsFacilities,
 );

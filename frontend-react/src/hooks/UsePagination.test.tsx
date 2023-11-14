@@ -1,7 +1,7 @@
 import { act, waitFor } from "@testing-library/react";
 import range from "lodash.range";
 
-import * as AppInsightsContext from "../contexts/AppInsightsContext";
+import * as AppInsightsContext from "../contexts/AppInsights";
 import { OVERFLOW_INDICATOR } from "../components/Table/Pagination";
 import { renderHook } from "../utils/CustomRenderUtils";
 

@@ -1,38 +1,31 @@
 import { screen } from "@testing-library/react";
 
-import { orgServer } from "../__mocks__/OrganizationMockServer";
 import { renderApp } from "../utils/CustomRenderUtils";
-import { mockSessionContentReturnValue } from "../contexts/__mocks__/SessionContext";
 import { MemberType } from "../utils/OrganizationUtils";
 
 import SenderModeBanner from "./SenderModeBanner";
 
+vi.mock("../hooks/UseSenderResource", async (imp) => ({
+    ...(await imp()),
+    useSenderResource: vi.fn(() => ({
+        isLoading: false,
+        data: {
+            customerStatus: "testing",
+        },
+    })),
+}));
+
 describe("SenderModeBanner", () => {
-    beforeAll(() => {
-        orgServer.listen();
-    });
-    afterEach(() => orgServer.resetHandlers());
-    afterAll(() => orgServer.close());
-
     test("renders when sender is testing", async () => {
-        mockSessionContentReturnValue({
-            authState: {
-                accessToken: { accessToken: "TOKEN" },
-            } as any,
-            activeMembership: {
-                memberType: MemberType.SENDER,
-                parsedName: "testOrg",
-                service: "testSender",
+        renderApp(<SenderModeBanner />, {
+            providers: {
+                Session: {
+                    activeMembership: {
+                        memberType: MemberType.SENDER,
+                    },
+                },
             },
-
-            user: {
-                isUserAdmin: false,
-                isUserReceiver: false,
-                isUserSender: true,
-                isUserTransceiver: false,
-            } as any,
         });
-        renderApp(<SenderModeBanner />);
         const text = await screen.findByText("Learn more about onboarding.");
         expect(text).toBeInTheDocument();
     });

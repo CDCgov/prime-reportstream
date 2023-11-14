@@ -1,9 +1,9 @@
 import { waitFor } from "@testing-library/react";
 
 import { dataDashboardServer } from "../../../__mocks__/DataDashboardMockServer";
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
+import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import useReceiverSubmitters from "./UseReceiverSubmitters";
 
@@ -14,7 +14,7 @@ describe("useReceiverSubmitters", () => {
 
     describe("with no Organization name", () => {
         beforeEach(() => {
-            mockSessionContentReturnValue({
+            mockUseSessionContext.mockReturnValue({
                 authState: {
                     accessToken: { accessToken: "TOKEN" },
                 } as any,
@@ -38,7 +38,7 @@ describe("useReceiverSubmitters", () => {
 
     describe("with Organization and service name", () => {
         beforeEach(() => {
-            mockSessionContentReturnValue({
+            mockUseSessionContext.mockReturnValue({
                 authState: {
                     accessToken: { accessToken: "TOKEN" },
                 } as any,

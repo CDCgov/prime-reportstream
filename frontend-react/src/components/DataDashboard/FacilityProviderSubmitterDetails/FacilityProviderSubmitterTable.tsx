@@ -10,7 +10,7 @@ import { SenderTypeDetailResource } from "../../../config/endpoints/dataDashboar
 import {
     EventName,
     useAppInsightsContext,
-} from "../../../contexts/AppInsightsContext";
+} from "../../../contexts/AppInsights";
 
 import styles from "./FacilityProviderSubmitterTable.module.scss";
 

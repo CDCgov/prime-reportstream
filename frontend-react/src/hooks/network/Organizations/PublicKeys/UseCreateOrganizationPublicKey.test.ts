@@ -3,8 +3,8 @@ import {
     orgServer,
 } from "../../../../__mocks__/OrganizationMockServer";
 import { renderHook } from "../../../../utils/CustomRenderUtils";
-import { mockSessionContentReturnValue } from "../../../../contexts/__mocks__/SessionContext";
 import { MemberType } from "../../../../utils/OrganizationUtils";
+import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import useCreateOrganizationPublicKey from "./UseCreateOrganizationPublicKey";
 
@@ -18,7 +18,7 @@ describe("useCreateOrganizationPublicKey", () => {
 
     describe("when authorized, 200", () => {
         beforeEach(() => {
-            mockSessionContentReturnValue({
+            mockUseSessionContext.mockReturnValue({
                 authState: {
                     accessToken: { accessToken: "TOKEN" },
                 } as any,
@@ -52,7 +52,7 @@ describe("useCreateOrganizationPublicKey", () => {
 
     describe("when unauthorized, 401", () => {
         beforeEach(() => {
-            mockSessionContentReturnValue({
+            mockUseSessionContext.mockReturnValue({
                 authState: {
                     accessToken: "",
                 } as any,

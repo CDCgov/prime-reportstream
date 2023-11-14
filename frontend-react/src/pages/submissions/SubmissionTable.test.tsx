@@ -3,15 +3,15 @@ import { screen, within } from "@testing-library/react";
 
 import SubmissionsResource from "../../resources/SubmissionsResource";
 import { renderApp } from "../../utils/CustomRenderUtils";
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
 import { Organizations } from "../../hooks/UseAdminSafeOrganizationName";
 import { MemberType } from "../../utils/OrganizationUtils";
+import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import SubmissionTable from "./SubmissionTable";
 
 describe("SubmissionTable", () => {
     test("renders a placeholder", async () => {
-        mockSessionContentReturnValue({
+        mockUseSessionContext.mockReturnValue({
             activeMembership: {
                 memberType: MemberType.SENDER,
                 parsedName: "testOrg",
@@ -65,7 +65,7 @@ describe("SubmissionTable", () => {
 
     describe("when rendering as an admin", () => {
         function setup() {
-            mockSessionContentReturnValue({
+            mockUseSessionContext.mockReturnValue({
                 activeMembership: {
                     memberType: MemberType.PRIME_ADMIN,
                     parsedName: Organizations.PRIMEADMINS,

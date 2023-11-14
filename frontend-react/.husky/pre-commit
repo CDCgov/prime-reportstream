@@ -13,4 +13,5 @@ fi
 cd frontend-react
 
 ./scripts/yarn-check.sh
+./scripts/yarn-dedupe.sh
 yarn lint-staged

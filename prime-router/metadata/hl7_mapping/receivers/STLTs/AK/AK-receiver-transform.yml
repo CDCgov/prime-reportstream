@@ -1,0 +1,67 @@
+hl7Class: ca.uhn.hl7v2.model.v251.message.ORU_R01
+
+extends: ../../../ORU_R01/ORU_R01-base
+
+elements:
+  - name: message-character-set
+    value: [ '%resource.extension(%`rsext-character-set`).value', '"UNICODE UTF-8"' ]
+
+  - name: message_profile_id
+    value: [ '"PHLabReport-NoAck"' ]
+    hl7Spec: [ MSH-21-1 ]
+
+  - name: message_profile_id_namespace_id
+    value: [ '"ELR_Receiver"' ]
+    hl7Spec: [ MSH-21-2 ]
+
+  - name: message_profile_id_universal_id
+    value: [ '"2.16.840.1.113883.9.11"' ]
+    hl7Spec: [ MSH-21-3 ]
+
+  - name: message_profile_id_universal_id_type
+    value: [ '"ISO"' ]
+    hl7Spec: [ MSH-21-4 ]
+
+  - name: software-version
+    value: [ '"0.2-SNAPSHOT"' ]
+    hl7Spec: [ SFT-2 ]
+
+  - name: software-name
+    value: [ '"PRIME ReportStream"' ]
+    hl7Spec: [ SFT-3 ]
+
+  - name: software-id
+    value: [ '"0.2-SNAPSHOT"' ]
+    hl7Spec: [ SFT-4 ]
+
+  - name: observation-result-with-aoe
+    # Grab only the AOE observations from ServiceRequest.supportingInfo NOT associated with a specimen
+    resource: '%resource.result.resolve() | %service.supportingInfo.resolve().where(specimen.exists().not()) | %service.supportingInfo.resolve().where(meta.tag.code = "AOE")'
+
+  # XTN
+  - name: xtn-use-code-from-system
+    condition: '%resource.system = "email"'
+    value: [ '"NET"' ]
+    hl7Spec: [ '%{hl7TelecomPath}-2' ]
+
+  - name: ak-patient-ethnicity-group-name-of-code-system
+    condition: true
+    value: ['"CDCREC"']
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-22-3 ]
+
+  - name: ak-patient-name-type-code
+    condition: true
+    value: [ '""' ]
+    hl7Spec: [ /PATIENT_RESULT/PATIENT/PID-5-7 ]
+
+  - name: ak-ordering-provider-person-identifier
+    condition: true
+    value: [ '""' ]
+    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/ORC-12-1' ]
+
+  - name: ak-ordering-provider-id-number
+    condition: true
+    value: [ '""' ]
+    hl7Spec: [ '/PATIENT_RESULT/ORDER_OBSERVATION/OBR-16-1' ]
+
+

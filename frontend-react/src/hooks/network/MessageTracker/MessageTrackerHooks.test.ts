@@ -4,9 +4,9 @@ import {
     messageTrackerServer,
     MOCK_MESSAGE_SENDER_DATA,
 } from "../../../__mocks__/MessageTrackerMockServer";
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
+import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import { useMessageSearch, useMessageDetails } from "./MessageTrackerHooks";
 
@@ -16,7 +16,7 @@ afterAll(() => messageTrackerServer.close());
 
 describe("useMessageSearch", () => {
     test("returns expected data values when fetching messages", async () => {
-        mockSessionContentReturnValue({
+        mockUseSessionContext.mockReturnValue({
             authState: {
                 accessToken: { accessToken: "TOKEN" },
             } as any,
@@ -53,7 +53,7 @@ describe("useMessageSearch", () => {
 
 describe("useMessageDetails", () => {
     test("returns expected data values when fetching message details", async () => {
-        mockSessionContentReturnValue({
+        mockUseSessionContext.mockReturnValue({
             authState: {
                 accessToken: { accessToken: "TOKEN" },
             } as any,

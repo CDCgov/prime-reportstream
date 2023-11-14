@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { GridContainer } from "@trussworks/react-uswds";
 
-import { showError } from "../AlertNotifications";
+import { showToast } from "../../contexts/Toast";
 import useFileHandler, {
     FileHandlerActionType,
     FileHandlerState,
@@ -67,7 +67,7 @@ export default function FileHandler() {
 
     useEffect(() => {
         if (localError) {
-            showError(localError);
+            showToast(localError, "error");
         }
     }, [localError]);
 
@@ -135,7 +135,7 @@ export default function FileHandler() {
 
     return (
         <GridContainer>
-            <article className="usa-section">
+            <article>
                 <h1 className="margin-y-4">ReportStream File Validator</h1>
 
                 {organization?.description && (

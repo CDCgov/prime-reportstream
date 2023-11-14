@@ -1,7 +1,7 @@
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
 import { renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
+import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import { useOrgDeliveries } from "./DeliveryHooks";
 
@@ -10,7 +10,7 @@ describe("useReportsList", () => {
     afterEach(() => deliveryServer.resetHandlers());
     afterAll(() => deliveryServer.close());
     test("returns expected data", async () => {
-        mockSessionContentReturnValue({
+        mockUseSessionContext.mockReturnValue({
             authState: {
                 accessToken: { accessToken: "TOKEN" },
             } as any,

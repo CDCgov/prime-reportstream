@@ -1,4 +1,4 @@
-import { fireEvent, screen } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { rest } from "msw";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
@@ -6,6 +6,8 @@ import OrgSenderSettingsResource from "../../resources/OrgSenderSettingsResource
 import { settingsServer } from "../../__mocks__/SettingsMockServer";
 import { ResponseType, TestResponse } from "../../resources/TestResponse";
 import config from "../../config";
+import { mockCtx } from "../../contexts/Toast/__mocks__";
+import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import { EditSenderSettingsPage } from "./EditSenderSettings";
 
@@ -76,6 +78,7 @@ describe("EditSenderSettings", () => {
         editJsonAndSaveButton = screen.getByTestId("submit");
     }
     beforeAll(() => {
+        mockUseSessionContext();
         settingsServer.listen();
         settingsServer.use(
             rest.get(
@@ -121,17 +124,7 @@ describe("EditSenderSettings", () => {
     });
 
     describe("should validate name", () => {
-        const consoleTraceSpy = vi.fn();
-
-        beforeEach(() => {
-            vi.spyOn(console, "trace").mockImplementationOnce(consoleTraceSpy);
-        });
-
-        afterEach(() => {
-            vi.resetAllMocks();
-        });
-
-        test("should display an error if name value contains a disallowed char", () => {
+        test("should display an error if name value contains a disallowed char", async () => {
             setup();
             fireEvent.change(nameField, {
                 target: { value: "a\\nlinefeed" },
@@ -139,10 +132,10 @@ describe("EditSenderSettings", () => {
             expect(nameField).toHaveValue("a\\nlinefeed");
 
             fireEvent.click(editJsonAndSaveButton);
-            expect(consoleTraceSpy).toHaveBeenCalled();
+            await waitFor(() => expect(mockCtx.toast).toHaveBeenCalled());
         });
 
-        test("should not display error if name value is valid", () => {
+        test("should not display error if name value is valid", async () => {
             setup();
             fireEvent.change(nameField, {
                 target: { value: "test" },
@@ -150,7 +143,7 @@ describe("EditSenderSettings", () => {
             expect(nameField).toHaveValue("test");
 
             fireEvent.click(editJsonAndSaveButton);
-            expect(consoleTraceSpy).not.toHaveBeenCalled();
+            await waitFor(() => expect(mockCtx.toast).not.toHaveBeenCalled());
         });
     });
 });

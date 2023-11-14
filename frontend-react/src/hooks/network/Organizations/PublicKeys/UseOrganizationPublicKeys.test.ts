@@ -6,14 +6,8 @@ import {
     orgServer,
 } from "../../../../__mocks__/OrganizationMockServer";
 import { MemberType } from "../../../../utils/OrganizationUtils";
-import { useSessionContext } from "../../../../contexts/SessionContext";
-import { defaultCtx } from "../../../../contexts/__mocks__/SessionContext";
 
 import useOrganizationPublicKeys from "./UseOrganizationPublicKeys";
-
-vi.mock("../../../../contexts/SessionContext");
-
-const mockUseSessionContext = vi.mocked(useSessionContext);
 
 describe("useOrganizationPublicKeys", () => {
     beforeAll(() => orgServer.listen());
@@ -28,25 +22,24 @@ describe("useOrganizationPublicKeys", () => {
     });
 
     describe("with Organization name", () => {
-        beforeEach(() => {
-            mockUseSessionContext.mockResolvedValue({
-                ...defaultCtx,
-                activeMembership: {
-                    memberType: MemberType.SENDER,
-                    parsedName: "testOrg",
-                    service: "testOrgPublicKey",
-                },
-                user: {
-                    isUserAdmin: false,
-                    isUserReceiver: false,
-                    isUserSender: true,
-                    isUserTransceiver: false,
-                } as any,
-            });
-        });
-
         test("returns organization public keys", async () => {
-            const { result } = renderHook(() => useOrganizationPublicKeys());
+            const { result } = renderHook(() => useOrganizationPublicKeys(), {
+                providers: {
+                    Session: {
+                        activeMembership: {
+                            memberType: MemberType.SENDER,
+                            parsedName: "testOrg",
+                            service: "testOrgPublicKey",
+                        },
+                        user: {
+                            isUserAdmin: false,
+                            isUserReceiver: false,
+                            isUserSender: true,
+                            isUserTransceiver: false,
+                        },
+                    },
+                },
+            });
             await waitFor(() =>
                 expect(result.current.data).toEqual(dummyPublicKey),
             );

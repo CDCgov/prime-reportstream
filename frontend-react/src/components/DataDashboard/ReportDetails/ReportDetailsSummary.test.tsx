@@ -2,12 +2,12 @@ import { screen } from "@testing-library/react";
 
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { FileType } from "../../../utils/TemporarySettingsAPITypes";
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import {
     AccessTokenWithRSClaims,
     MemberType,
 } from "../../../utils/OrganizationUtils";
 import { formatDateWithoutSeconds } from "../../../utils/DateTimeUtils";
+import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import { ReportDetailsSummary } from "./ReportDetailsSummary";
 
@@ -31,7 +31,7 @@ const DEFAULT_RSDELIVERY = {
 
 beforeEach(() => {
     // Mock our SessionProvider's data
-    mockSessionContentReturnValue({
+    mockUseSessionContext.mockReturnValue({
         //@ts-ignore
         oktaAuth: {
             getUser: mockGetUser.mockResolvedValue({

@@ -1,13 +1,14 @@
 import { screen } from "@testing-library/react";
 
-import { mockSessionContentReturnValue } from "../../contexts/__mocks__/SessionContext";
-import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { FeatureFlagName } from "../../pages/misc/FeatureFlags";
 import { PERMISSIONS } from "../../utils/UsefulTypes";
+import { useFeatureFlags } from "../../contexts/FeatureFlags";
+import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import { RequireGateBase } from "./RequireGate";
 
+const mockUseFeatureFlags = vi.mocked(useFeatureFlags);
 const mockUseNavigate = vi.fn();
 
 vi.mock("react-router", async () => ({
@@ -25,7 +26,7 @@ const Fail = () => <>Failure</>;
 
 describe("RequireGate", () => {
     beforeEach(() => {
-        mockFeatureFlagContext.mockReturnValue({
+        mockUseFeatureFlags.mockReturnValue({
             dispatch: () => {},
             checkFlags: () => true,
             featureFlags: [],
@@ -33,7 +34,7 @@ describe("RequireGate", () => {
     });
     test("Renders component when all checks pass", () => {
         mockCheckFlags = vi.fn((flag) => flag === FeatureFlagName.FOR_TEST);
-        mockSessionContentReturnValue({
+        mockUseSessionContext.mockReturnValue({
             authState: {
                 isAuthenticated: true,
                 accessToken: {
@@ -43,7 +44,7 @@ describe("RequireGate", () => {
                 },
             } as any,
         });
-        mockFeatureFlagContext.mockReturnValue({
+        mockUseFeatureFlags.mockReturnValue({
             checkFlags: mockCheckFlags,
         } as any);
         renderApp(
@@ -60,7 +61,7 @@ describe("RequireGate", () => {
         expect(mockUseNavigate).not.toHaveBeenCalled();
     });
     test("Redirects when user not logged in (no token, no membership)", () => {
-        mockSessionContentReturnValue({
+        mockUseSessionContext.mockReturnValue({
             authState: {
                 isAuthenticated: false,
             } as any,
@@ -77,7 +78,7 @@ describe("RequireGate", () => {
         expect(screen.getByText("Anonymous")).toBeInTheDocument();
     });
     test("Fails when user is unauthorized user type", () => {
-        mockSessionContentReturnValue({
+        mockUseSessionContext.mockReturnValue({
             authState: {
                 isAuthenticated: true,
                 accessToken: {
@@ -100,8 +101,8 @@ describe("RequireGate", () => {
     });
     test("Fails when user lacks feature flag", () => {
         mockCheckFlags = vi.fn(() => false);
-        mockSessionContentReturnValue({});
-        mockFeatureFlagContext.mockReturnValue({
+        mockUseSessionContext.mockReturnValue({});
+        mockUseFeatureFlags.mockReturnValue({
             checkFlags: mockCheckFlags,
         } as any);
         renderApp(
@@ -116,7 +117,7 @@ describe("RequireGate", () => {
         expect(screen.getByText("Failure")).toBeInTheDocument();
     });
     test("Considers all given authorized user types (affirmative)", () => {
-        mockSessionContentReturnValue({
+        mockUseSessionContext.mockReturnValue({
             authState: {
                 isAuthenticated: true,
                 accessToken: {
@@ -138,7 +139,7 @@ describe("RequireGate", () => {
         expect(screen.getByText("Test Passed")).toBeInTheDocument();
     });
     test("Considers all given authorized user types (negative)", () => {
-        mockSessionContentReturnValue({
+        mockUseSessionContext.mockReturnValue({
             authState: {
                 isAuthenticated: true,
                 accessToken: {
@@ -165,7 +166,7 @@ describe("RequireGate", () => {
      *
      * In this example, you can see what that session state would look like. */
     test("Permits admins whose active membership is not DHPrimeAdmins", () => {
-        mockSessionContentReturnValue({
+        mockUseSessionContext.mockReturnValue({
             authState: {
                 isAuthenticated: true,
                 accessToken: {

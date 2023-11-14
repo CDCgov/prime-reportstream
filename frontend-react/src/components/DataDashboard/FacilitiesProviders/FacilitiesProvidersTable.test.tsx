@@ -2,7 +2,6 @@ import { screen } from "@testing-library/react";
 
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { FacilityResource } from "../../../config/endpoints/dataDashboard";
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import {
     orgServer,
     receiversGenerator,
@@ -12,6 +11,7 @@ import { mockFilterManager } from "../../../hooks/filters/mocks/MockFilterManage
 import { makeRSReceiverSubmitterResponseFixture } from "../../../__mocks__/DataDashboardMockServer";
 import { mockUseReceiverSubmitter } from "../../../hooks/network/DataDashboard/__mocks__/UseReceiverSubmitter";
 import { MemberType } from "../../../utils/OrganizationUtils";
+import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import FacilitiesProvidersTable from "./FacilitiesProvidersTable";
 
@@ -74,7 +74,7 @@ describe("FacilitiesProvidersTable", () => {
             } as any);
 
             // Mock our SessionProvider's data
-            mockSessionContentReturnValue({
+            mockUseSessionContext.mockReturnValue({
                 authState: {
                     accessToken: { accessToken: "TOKEN" },
                 } as any,
@@ -126,7 +126,7 @@ describe("FacilitiesProvidersTable", () => {
             } as any);
 
             // Mock our SessionProvider's data
-            mockSessionContentReturnValue({
+            mockUseSessionContext.mockReturnValue({
                 authState: {
                     accessToken: { accessToken: "TOKEN" },
                 } as any,

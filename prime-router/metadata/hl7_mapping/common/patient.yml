@@ -43,10 +43,10 @@ elements:
     schema: datatype/xpn-person-name
 
   - name: patient-dob
-    value:
-      - '%resource.birthDate.extension("http://hl7.org/fhir/StructureDefinition/patient-birthTime").value'
-      - '%resource.birthDate'
-    hl7Spec: [ '%{hl7PIDField}-7' ]
+    resource: '%resource.birthDate'
+    constants:
+      dtmFieldPath: '%{hl7PIDField}-7'
+    schema: ../datatypes/dateTime/DTMorDT
 
   - name: patient-sex
     value: [ '%resource.gender' ]
@@ -142,9 +142,11 @@ elements:
     hl7Spec: [ '%{hl7PIDField}-25' ]
 
   - name: patient-death-date-time
-    condition: '%resource.deceased.exists() and %resource.deceased is dateTime'
-    value: [ '%resource.deceased' ]
-    hl7Spec: [ '%{hl7PIDField}-29' ]
+    condition: '%context.deceased.exists() and %context.deceased is dateTime'
+    resource: '%resource.deceased'
+    constants:
+      dtmFieldPath: '%{hl7PIDField}-29'
+    schema: ../datatypes/dateTime/DTMorDT
 
   - name: patient-death-indicator-1
     condition: '%resource.deceased.exists() and %resource.deceased is dateTime'
@@ -187,4 +189,14 @@ elements:
     constants:
       ceFieldPath: '%{hl7PIDField}-35'
     schema: ../common/datatype/ce-coded-element
+
+  - name: patient-tribal-citizenship
+    condition: >
+      %context.extension(%`ext-patient-citizenship`).exists() and
+      %context.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).exists() and
+      %context.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value.where(extension(%`rsext-hl7v2Name`).value = "tribal-citizenship").exists()
+    resource: '%resource.extension(%`ext-patient-citizenship`).extension(%`rsext-code`).value'
+    constants:
+      cweFieldPath: '%{hl7PIDField}-39'
+    schema: ../datatypes/codeableConcept/CWE
 

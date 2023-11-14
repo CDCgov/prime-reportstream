@@ -119,68 +119,63 @@ export const ConfirmSaveSettingModal = forwardRef(
         );
 
         return (
-            <>
-                <Modal
-                    ref={modalRef}
-                    id={uniquid}
-                    aria-labelledby={`${uniquid}-heading`}
-                    aria-describedby={`${uniquid}-description`}
-                    isLarge={true}
-                    className="rs-compare-modal"
-                >
-                    <ModalHeading id={`${uniquid}-heading`}>
-                        Compare your changes with previous version
-                    </ModalHeading>
-                    <div className="usa-prose">
-                        <p id={`${uniquid}-description`}>
-                            You are about to change this setting: {uniquid}
-                        </p>
-                        <p
-                            id={`${uniquid}-error`}
-                            className="usa-error-message"
+            <Modal
+                ref={modalRef}
+                id={uniquid}
+                aria-labelledby={`${uniquid}-heading`}
+                aria-describedby={`${uniquid}-description`}
+                isLarge={true}
+                className="rs-compare-modal"
+            >
+                <ModalHeading id={`${uniquid}-heading`}>
+                    Compare your changes with previous version
+                </ModalHeading>
+                <div className="usa-prose">
+                    <p id={`${uniquid}-description`}>
+                        You are about to change this setting: {uniquid}
+                    </p>
+                    <p id={`${uniquid}-error`} className="usa-error-message">
+                        {errorText}
+                    </p>
+                    <EditableCompare
+                        ref={diffEditorRef}
+                        original={oldjson}
+                        modified={newjson}
+                        jsonDiffMode={true}
+                        onChange={onChange}
+                    />
+                </div>
+                <ModalFooter>
+                    <ButtonGroup>
+                        <ModalToggleButton
+                            modalRef={modalRef}
+                            closer
+                            unstyled
+                            className="padding-105 text-center"
+                            data-testid={"editCompareCancelButton"}
                         >
-                            {errorText}
-                        </p>
-                        <EditableCompare
-                            ref={diffEditorRef}
-                            original={oldjson}
-                            modified={newjson}
-                            jsonDiffMode={true}
-                            onChange={onChange}
-                        />
-                    </div>
-                    <ModalFooter>
-                        <ButtonGroup>
-                            <ModalToggleButton
-                                modalRef={modalRef}
-                                closer
-                                unstyled
-                                className="padding-105 text-center"
-                                data-testid={"editCompareCancelButton"}
-                            >
-                                Go back
-                            </ModalToggleButton>
-                            <ModalConfirmSaveButton
-                                uniquid={uniquid}
-                                handleClose={scopedConfirm}
-                                disabled={saveDisabled}
-                                data-testid={"editCompareSaveButton"}
-                            >
-                                Save
-                            </ModalConfirmSaveButton>
-                            <Button
-                                aria-label="Check the settings JSON syntax"
-                                key={`${uniquid}-validate-button`}
-                                data-uniquid={uniquid}
-                                onClick={onCheckSyntaxClick}
-                                type="button"
-                            >
-                                Check syntax
-                            </Button>
-                        </ButtonGroup>
-                    </ModalFooter>
-                </Modal>
-            </>
+                            Go back
+                        </ModalToggleButton>
+                        <ModalConfirmSaveButton
+                            uniquid={uniquid}
+                            handleClose={scopedConfirm}
+                            disabled={saveDisabled}
+                            data-testid={"editCompareSaveButton"}
+                        >
+                            Save
+                        </ModalConfirmSaveButton>
+                        <Button
+                            aria-label="Check the settings JSON syntax"
+                            key={`${uniquid}-validate-button`}
+                            data-uniquid={uniquid}
+                            onClick={onCheckSyntaxClick}
+                            type="button"
+                        >
+                            Check syntax
+                        </Button>
+                    </ButtonGroup>
+                </ModalFooter>
+            </Modal>
         );
     },
 );

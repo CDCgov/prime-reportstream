@@ -4,7 +4,6 @@ import { AxiosError, AxiosResponse } from "axios";
 import { renderApp } from "../../../utils/CustomRenderUtils";
 import { ValueSet } from "../../../config/endpoints/lookupTables";
 import { RSNetworkError } from "../../../utils/RSNetworkError";
-import { conditionallySuppressConsole } from "../../../utils/TestUtils";
 import {
     UseValueSetsMetaResult,
     UseValueSetsTableResult,
@@ -95,7 +94,6 @@ describe("ValueSetsIndex tests", () => {
         expect(within(firstContentRow).getByText("you")).toBeInTheDocument();
     });
     test("Error in query will render error UI instead of table", () => {
-        const restore = conditionallySuppressConsole("not-found: Test");
         mockUseValueSetsMeta = vi.fn(
             () =>
                 ({
@@ -109,14 +107,9 @@ describe("ValueSetsIndex tests", () => {
                 } as AxiosResponse),
             );
         });
-        /* Outputs a large error stack...should we consider hiding error stacks in page tests since we
-         * test them via the ErrorBoundary test? */
         renderApp(<ValueSetsIndexPage />);
         expect(
-            screen.getByText(
-                "Our apologies, there was an error loading this content.",
-            ),
+            screen.getByText("Unexpected Application Error!"),
         ).toBeInTheDocument();
-        restore();
     });
 });

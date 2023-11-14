@@ -1,7 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
-import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
+import { mockUseFeatureFlags } from "../../contexts/FeatureFlags/__mocks__";
 
 import { AdminDropdown } from "./DropdownNav";
 
@@ -48,8 +48,8 @@ vi.mock("../../pages/misc/FeatureFlags", async () => {
 });
 
 describe("AdminDropdownNav - value-sets", () => {
-    beforeEach(() => {
-        mockFeatureFlagContext.mockReturnValue({
+    beforeAll(() => {
+        mockUseFeatureFlags.mockReturnValue({
             dispatch: () => {},
             featureFlags: [],
             checkFlags: vi.fn((flag) => flag === "value-sets"),

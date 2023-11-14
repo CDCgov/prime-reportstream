@@ -1,7 +1,9 @@
 import { screen, fireEvent } from "@testing-library/react";
 
-import { FeatureFlagActionType } from "../../contexts/FeatureFlagContext";
-import { mockFeatureFlagContext } from "../../contexts/__mocks__/FeatureFlagContext";
+import {
+    FeatureFlagActionType,
+    useFeatureFlags,
+} from "../../contexts/FeatureFlags";
 import { renderApp } from "../../utils/CustomRenderUtils";
 
 import { FeatureFlagsPage } from "./FeatureFlags";
@@ -18,9 +20,11 @@ vi.mock("../../config", async () => {
     };
 });
 
+const mockUseFeatureFlags = vi.mocked(useFeatureFlags);
+
 describe("FeatureFlags", () => {
     test("displays a list of current feature flags", () => {
-        mockFeatureFlagContext.mockReturnValue({
+        mockUseFeatureFlags.mockReturnValue({
             dispatch: () => {},
             checkFlags: vi.fn(),
             featureFlags: ["flag-1", "flag-2", "flag-3"],
@@ -40,7 +44,7 @@ describe("FeatureFlags", () => {
         );
     });
     test("displays a remove button for feature flags not set at env level", () => {
-        mockFeatureFlagContext.mockReturnValue({
+        mockUseFeatureFlags.mockReturnValue({
             dispatch: () => {},
             checkFlags: vi.fn(),
             featureFlags: ["flag-1", "flag-2", "flag-3"],
@@ -58,7 +62,7 @@ describe("FeatureFlags", () => {
     });
     test("calls dispatch on add button click with new feature flag name", () => {
         const mockDispatch = vi.fn();
-        mockFeatureFlagContext.mockReturnValue({
+        mockUseFeatureFlags.mockReturnValue({
             dispatch: mockDispatch,
             checkFlags: vi.fn(),
             featureFlags: ["flag-1"],
@@ -77,7 +81,7 @@ describe("FeatureFlags", () => {
     });
     test("does not call dispatch on add button click if flag already exists", () => {
         const mockDispatch = vi.fn();
-        mockFeatureFlagContext.mockReturnValue({
+        mockUseFeatureFlags.mockReturnValue({
             dispatch: mockDispatch,
             checkFlags: vi.fn(() => true),
             featureFlags: ["flag-1"],

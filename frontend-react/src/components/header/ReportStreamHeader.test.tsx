@@ -1,8 +1,8 @@
 import { screen } from "@testing-library/react";
 
-import { mockSessionContext } from "../../contexts/__mocks__/SessionContext";
-import { SessionCtx } from "../../contexts/SessionContext";
+import { SessionCtx } from "../../contexts/Session";
 import { renderApp } from "../../utils/CustomRenderUtils";
+import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import ReportStreamHeader from "./ReportStreamHeader";
 
@@ -17,7 +17,7 @@ describe("SignInOrUser", () => {
     });
 
     test("renders Sender permissioned ReportStreamNavbar", () => {
-        mockSessionContext.mockReturnValue({
+        mockUseSessionContext.mockReturnValue({
             config: {
                 IS_PREVIEW: false,
             },
@@ -30,7 +30,7 @@ describe("SignInOrUser", () => {
     });
 
     test("renders Receiver permissioned ReportStreamNavbar", () => {
-        mockSessionContext.mockReturnValue({
+        mockUseSessionContext.mockReturnValue({
             config: {
                 IS_PREVIEW: false,
             },
@@ -43,7 +43,7 @@ describe("SignInOrUser", () => {
     });
 
     test("renders Receiver AND Sender (Transceiver) permissioned ReportStreamNavbar", () => {
-        mockSessionContext.mockReturnValue({
+        mockUseSessionContext.mockReturnValue({
             config: {
                 IS_PREVIEW: false,
             },
@@ -56,7 +56,7 @@ describe("SignInOrUser", () => {
     });
 
     test("renders Admin permissioned ReportStreamNavbar", () => {
-        mockSessionContext.mockReturnValue({
+        mockUseSessionContext.mockReturnValue({
             config: {
                 IS_PREVIEW: false,
             },

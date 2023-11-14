@@ -2,7 +2,6 @@ import { screen, within } from "@testing-library/react";
 
 import { renderApp } from "../../utils/CustomRenderUtils";
 import { Destination } from "../../resources/ActionDetailsResource";
-import { conditionallySuppressConsole } from "../../utils/TestUtils";
 import { ErrorCode, ResponseError } from "../../config/endpoints/waters";
 import { FileType } from "../../utils/TemporarySettingsAPITypes";
 
@@ -17,7 +16,6 @@ import {
 
 describe("RequestedChangesDisplay", () => {
     test("renders expected content", async () => {
-        const restore = conditionallySuppressConsole("failure:");
         renderApp(
             <RequestedChangesDisplay
                 title={RequestLevel.WARNING}
@@ -39,11 +37,9 @@ describe("RequestedChangesDisplay", () => {
 
         const table = screen.queryByRole("table");
         expect(table).not.toBeInTheDocument();
-        restore();
     });
 
     test("renders table when data is given", async () => {
-        const restore = conditionallySuppressConsole("failure:");
         // implicitly testing message truncation functionality here as well
         const fakeError1: ResponseError = {
             message: "first field error",
@@ -112,7 +108,6 @@ describe("RequestedChangesDisplay", () => {
 
         const fourthCells = await within(rows[4]).findAllByRole("cell");
         expect(fourthCells[0]).toHaveTextContent("fourth field error");
-        restore();
     });
 });
 

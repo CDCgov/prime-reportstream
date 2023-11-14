@@ -8,7 +8,7 @@ import { FeatureName } from "../../../utils/FeatureName";
 import {
     EventName,
     useAppInsightsContext,
-} from "../../../contexts/AppInsightsContext";
+} from "../../../contexts/AppInsights";
 
 import styles from "./ReportDetailsTable.module.scss";
 

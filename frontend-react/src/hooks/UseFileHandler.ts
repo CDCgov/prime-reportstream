@@ -114,62 +114,52 @@ function calculateFileSelectedState(
     payload: FileSelectedPayload,
 ): Partial<FileHandlerState> {
     const { file, fileContent } = payload;
-    try {
-        let uploadType;
-        if (file.type) {
-            uploadType = file.type;
-        } else {
-            // look at the filename extension.
-            // it's all we have to go off of for now
-            const fileNameArray = file.name.split(".");
-            uploadType = fileNameArray[fileNameArray.length - 1];
-        }
+    let uploadType;
+    if (file.type) {
+        uploadType = file.type;
+    } else {
+        // look at the filename extension.
+        // it's all we have to go off of for now
+        const fileNameArray = file.name.split(".");
+        uploadType = fileNameArray[fileNameArray.length - 1];
+    }
 
-        if (
-            uploadType !== "text/csv" &&
-            uploadType !== "csv" &&
-            uploadType !== "hl7"
-        ) {
-            return {
-                ...state,
-                localError: "The file type must be .csv or .hl7",
-            };
-        }
-
-        if (file.size > PAYLOAD_MAX_BYTES) {
-            return {
-                ...state,
-                localError: `The file '${file.name}' is too large. The maximum file size is ${PAYLOAD_MAX_KBYTES}k`,
-            };
-        }
-
-        // previously loading file contents here
-        // since this is an async action we'll do this in the calling component
-        // prior to dispatching into the reducer, and handle the file content in local state
-        const contentType =
-            uploadType === "csv" || uploadType === "text/csv"
-                ? ContentType.CSV
-                : ContentType.HL7;
-
-        const fileType = uploadType.match("hl7") ? FileType.HL7 : FileType.CSV;
+    if (
+        uploadType !== "text/csv" &&
+        uploadType !== "csv" &&
+        uploadType !== "hl7"
+    ) {
         return {
             ...state,
-            file,
-            fileContent,
-            fileType,
-            fileName: file.name,
-            contentType,
-            cancellable: true,
-        };
-    } catch (err: any) {
-        // todo: have central error reporting mechanism.
-        console.warn(err);
-        return {
-            ...state,
-            localError: `An unexpected error happened: '${err.toString()}'`,
-            cancellable: false,
+            localError: "The file type must be .csv or .hl7",
         };
     }
+
+    if (file.size > PAYLOAD_MAX_BYTES) {
+        return {
+            ...state,
+            localError: `The file '${file.name}' is too large. The maximum file size is ${PAYLOAD_MAX_KBYTES}k`,
+        };
+    }
+
+    // previously loading file contents here
+    // since this is an async action we'll do this in the calling component
+    // prior to dispatching into the reducer, and handle the file content in local state
+    const contentType =
+        uploadType === "csv" || uploadType === "text/csv"
+            ? ContentType.CSV
+            : ContentType.HL7;
+
+    const fileType = uploadType.match("hl7") ? FileType.HL7 : FileType.CSV;
+    return {
+        ...state,
+        file,
+        fileContent,
+        fileType,
+        fileName: file.name,
+        contentType,
+        cancellable: true,
+    };
 }
 
 // update state when API request is complete

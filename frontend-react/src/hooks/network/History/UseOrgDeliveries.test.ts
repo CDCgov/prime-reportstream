@@ -1,18 +1,16 @@
-import { mockSessionContentReturnValue } from "../../../contexts/__mocks__/SessionContext";
 import { deliveryServer } from "../../../__mocks__/DeliveriesMockServer";
 import { Organizations } from "../../UseAdminSafeOrganizationName";
 import { renderHook } from "../../../utils/CustomRenderUtils";
 import { MemberType } from "../../../utils/OrganizationUtils";
+import { mockUseSessionContext } from "../contexts/Session/__mocks__";
 
 import { useOrgDeliveries } from "./DeliveryHooks";
 
 describe("useReportsList", () => {
     describe("when requesting as a receiver", () => {
-        beforeAll(() => deliveryServer.listen());
-        afterEach(() => deliveryServer.resetHandlers());
-        afterAll(() => deliveryServer.close());
-        beforeEach(() => {
-            mockSessionContentReturnValue({
+        beforeAll(() => {
+            deliveryServer.listen();
+            mockUseSessionContext.mockReturnValue({
                 authState: {
                     accessToken: { accessToken: "TOKEN" },
                 } as any,
@@ -29,6 +27,8 @@ describe("useReportsList", () => {
                 } as any,
             });
         });
+        afterEach(() => deliveryServer.resetHandlers());
+        afterAll(() => deliveryServer.close());
 
         test("fetchResults returns an array of deliveries", async () => {
             const { result } = renderHook(() =>
@@ -41,11 +41,9 @@ describe("useReportsList", () => {
     });
 
     describe("when requesting as an admin", () => {
-        beforeAll(() => deliveryServer.listen());
-        afterEach(() => deliveryServer.resetHandlers());
-        afterAll(() => deliveryServer.close());
-        beforeEach(() => {
-            mockSessionContentReturnValue({
+        beforeAll(() => {
+            deliveryServer.listen();
+            mockUseSessionContext.mockReturnValue({
                 authState: {
                     accessToken: { accessToken: "TOKEN" },
                 } as any,
@@ -62,6 +60,8 @@ describe("useReportsList", () => {
                 } as any,
             });
         });
+        afterEach(() => deliveryServer.resetHandlers());
+        afterAll(() => deliveryServer.close());
 
         test("fetchResults returns an empty array", async () => {
             const { result } = renderHook(() =>

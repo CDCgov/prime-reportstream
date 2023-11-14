@@ -9,11 +9,11 @@ import {
 } from "@trussworks/react-uswds";
 import { Helmet } from "react-helmet-async";
 
-import { showAlertNotification } from "../../components/AlertNotifications";
+import { showToast } from "../../contexts/Toast";
 import {
     FeatureFlagActionType,
     useFeatureFlags,
-} from "../../contexts/FeatureFlagContext";
+} from "../../contexts/FeatureFlags";
 import config from "../../config";
 
 const { DEFAULT_FEATURE_FLAGS } = config;
@@ -31,10 +31,7 @@ export function FeatureFlagsPage() {
         const newFlag = newFlagInputText.current?.value || "";
         if (checkFlags(newFlag)) {
             // already added.
-            showAlertNotification(
-                "info",
-                `Item '${newFlag}' is already a feature flag.`,
-            );
+            showToast(`Item '${newFlag}' is already a feature flag.`, "info");
             return;
         }
         dispatch({
@@ -45,9 +42,9 @@ export function FeatureFlagsPage() {
         if (newFlagInputText.current?.value) {
             newFlagInputText.current.value = "";
         }
-        showAlertNotification(
-            "success",
+        showToast(
             `Feature flag '${newFlag}' added. You will now see UI related to this feature.`,
+            "success",
         );
     }, [newFlagInputText, checkFlags, dispatch]);
     const deleteFlagClick = useCallback(

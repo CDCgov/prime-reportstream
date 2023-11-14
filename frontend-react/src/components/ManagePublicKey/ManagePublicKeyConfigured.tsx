@@ -1,4 +1,5 @@
 import { USLink } from "../USLink";
+import site from "../../content/site.json";
 
 export default function ManagePublicKeyConfigured() {
     return (
@@ -8,7 +9,7 @@ export default function ManagePublicKeyConfigured() {
             </div>
             <div>
                 {" "}
-                <USLink href="/support/service-request">
+                <USLink href={site.forms.contactUs.url}>
                     Contact ReportStream
                 </USLink>{" "}
                 to upload a new public key.
