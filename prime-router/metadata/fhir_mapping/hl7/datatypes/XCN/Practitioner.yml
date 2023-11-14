@@ -12,14 +12,49 @@ identifier:
       type: STRING
       valueOf: XCN.1
       expressionType: HL7Spec
-    assigner:
-      condition: $xcn9 NOT_NULL
+    # Checking if HD is an Organization or a System by looking at the ID type.
+    # If ID type is null or ID type is not ISO or UUID, treat as organization.
+    # Otherwise, treat as system.
+    assigner_1:
+      condition: $xcn9-3 NULL
       valueOf: datatypes/HD/Organization
       expressionType: reference
-      generateList: true
       specs: XCN.9
       vars:
-        xcn9: XCN.9
+        xcn9-3: XCN.9.3
+    assigner_2:
+      condition: $xcn9-3 NOT_NULL && $xcn9-3 NOT_EQUALS ISO && $xcn9-3 NOT_EQUALS UUID
+      valueOf: datatypes/HD/Organization
+      expressionType: reference
+      specs: XCN.9
+      vars:
+        xcn9-3: XCN.9.3
+    system:
+      condition: $xcn9-3 EQUALS ISO || $xcn9-3 EQUALS UUID
+      vars:
+        xcn9-1: XCN.9.1
+        xcn9-3: XCN.9.3
+      expressions:
+        - condition: $xcn9-1 NOT_NULL
+          expressionType: HL7Spec
+          type: STRING
+          valueOf: XCN.9.1
+        - condition: $xcn9-1 NULL && $xcn9-3 EQUALS ISO
+          expressionType: HL7Spec
+          type: STRING
+          vars:
+            prefix: "urn:oid:"
+            uri: String, XCN.9.2
+            join: $prefix + $uri
+            valueOf: $join
+        - condition: $xcn9-1 NULL && $xcn9-3 EQUALS UUID
+          expressionType: HL7Spec
+          type: STRING
+          vars:
+            prefix: "urn:uuid:"
+            uri: String, XCN.9.2
+            join: $prefix + $uri
+            valueOf: $join
     extension_1-checkDigit:
       condition: $xcn11 NOT_NULL
       generateList: true
@@ -139,6 +174,7 @@ extension:
     xcn5: STRING_ALL, XCN.5
     xcn7: STRING_ALL, XCN.7
     xcn8: STRING_ALL, XCN.8
+    xcn9: STRING_ALL, XCN.9
     xcn10: STRING_ALL, XCN.10
     xcn15: STRING_ALL, XCN.12
     xcn16: STRING_ALL, XCN.16
@@ -203,6 +239,11 @@ extension:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
           specs: XCN.8
+    - expressionType: resource
+      condition: $xcn9 NOT_NULL
+      generateList: true
+      valueOf: datatypes/HD/ExtensionAssigningAuthority
+      specs: XCN.9
     - expressionType: nested
       condition: $xcn10 NOT_NULL
       expressionsMap:

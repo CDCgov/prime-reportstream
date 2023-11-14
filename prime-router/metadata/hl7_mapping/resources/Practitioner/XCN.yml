@@ -1,0 +1,107 @@
+elements:
+
+  - name: xcn-person-identifier
+    value: [ '%resource.identifier.value' ]
+    hl7Spec: [ '%{hl7XCNField}-1' ]
+
+  - name: xcn-family-name
+    resource: '%resource.family'
+    constants:
+      hl7fnField: '%{hl7XCNField}-2'
+    schema: ../../datatypes/HumanName/FN
+
+  - name: xcn-given-name
+    value: [ '%resource.extension(%`rsext-xcn3-given-name`).value' ]
+    hl7Spec: [ '%{hl7XCNField}-3' ]
+
+  - name: xcn-second-given-name
+    value: [ '%resource.extension(%`rsext-xcn4-second-given-name`).value' ]
+    hl7Spec: [ '%{hl7XCNField}-4' ]
+
+  - name: xcn-suffix
+    value: [ '%resource.extension(%`rsext-xcn5-suffix`).value' ]
+    hl7Spec: [ '%{hl7XCNField}-5' ]
+
+  - name: xcn-prefix
+    value: [ '%resource.name.prefix' ]
+    hl7Spec: [ '%{hl7XCNField}-6' ]
+
+  - name: xcn-degree
+    value: [ '%resource.extension(%`rsext-xcn7-degree`).value' ]
+    hl7Spec: [ '%{hl7XCNField}-7' ]
+
+  - name: xcn-source-table
+    resource: '%resource.extension(%`rsext-xcn8-source-table`).value'
+    constants:
+      cweFieldPath: '%{hl7XCNField}-8'
+    schema: ../codeableConcept/CWE
+
+  - name: xcn-assigning-authority
+    resource: '%resource.identifier.extension(%`rsext-assigning-authority`)'
+    constants:
+      hl7HDField: '%{hl7XCNField}-9'
+    schema: ../../datatypes/extensionAssigningAuthority/HD
+
+  - name: xcn-name-type-code
+    value: [ '%resource.extension(%`rsext-xcn10-name-type-code.value' ]
+    hl7Spec: [ '%{hl7XCNField}-10' ]
+
+  - name: xcn-check-digit
+    value: [ '%resource.identifier.extension(%`rsext-check-digit`).value' ]
+    hl7Spec: [ '%{hl7XCNField}-11' ]
+
+  - name: xcn-check-digit-scheme
+    value: [ '%resource.identifier.extension(%`rsext-check-digit-scheme`).value' ]
+    hl7Spec: [ '%{hl7XCNField}-12' ]
+
+  - name: xcn-assigning-facility
+    resource: '%resource.identifier.extension(%`rsext-assigning-facility`).value.resolve()'
+    constants:
+      hl7HDField: '%{hl7XCNField}-14'
+    schema: ../../resources/Location/HD
+
+  - name: xcn-name-representation-code
+    value: [ '%resource.extension(%`rsext-xcn15-name-representation-code.value' ]
+    hl7Spec: [ '%{hl7XCNField}-15' ]
+
+  - name: xcn-name-context
+    resource: '%resource.extension(%`rsext-xcn16-name-context`).value'
+    constants:
+      cweFieldPath: '%{hl7XCNField}-16'
+    schema: ../codeableConcept/CWE
+
+  - name: xcn-name-validity-range-start
+    value: [ '%resource.extension(%`rsext-xcn17-name-validity-range`).extension(%`rsext-xcn17-name-validity-start`).value' ]
+    hl7Spec: [ '%{hl7XCNField}-17-1' ]
+
+  - name: xcn-name-validity-range-end
+    value: [ '%resource.extension(%`rsext-xcn17-name-validity-range`).extension(%`rsext-xcn17-name-validity-end`).value' ]
+    hl7Spec: [ '%{hl7XCNField}-17-2' ]
+
+  - name: xcn-name-assembly-order
+    value: [ '%resource.extension(%`ext-humanname-assembly-order`).value' ]
+    hl7Spec: [ '%{hl7XCNField}-18' ]
+
+  - name: xcn-effective-date
+    value: [ '%resource.extension(%`rsext-xcn19-effective-date`).value' ]
+    hl7Spec: [ '%{hl7XCNField}-19' ]
+
+  - name: xcn-expiration-date
+    value: [ '%resource.extension(%`rsext-xcn20-expiration-date`).value' ]
+    hl7Spec: [ '%{hl7XCNField}-20' ]
+
+  - name: xcn-professional-suffix
+    value: [ '%resource.extension(%`rsext-xcn21-professional-suffix`).value' ]
+    hl7Spec: [ '%{hl7XCNField}-21' ]
+
+  - name: xcn-assigning-jurisdiction
+    resource: '%resource.extension(%`rsext-xcn22-assigning-jurisdiction`).value'
+    constants:
+      cweFieldPath: '%{hl7XCNField}-22'
+    schema: ../codeableConcept/CWE
+
+  - name: xcn-assigning-agency-or-department
+    resource: '%resource.extension(%`rsext-xcn23-assigning-agency-or-department`).value'
+    constants:
+      cweFieldPath: '%{hl7XCNField}-23'
+    schema: ../codeableConcept/CWE
