@@ -121,3 +121,13 @@ extension_7:
       type: STRING
       expressionType: HL7Spec
       valueOf: CX.12
+
+extension_8:
+  generateList: true
+  expressionType: nested
+  expressionsMap:
+    url:
+      type: SYSTEM_URL
+      value: cx-identifier
+    valueString:
+      value: "cx"

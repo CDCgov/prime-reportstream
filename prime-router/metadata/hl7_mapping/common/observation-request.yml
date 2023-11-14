@@ -5,7 +5,7 @@ elements:
 
   - name: placer-order
     resource: '%resource.identifier.where(type.coding.code = "PLAC")'
-    condition: '%resource.exists()'
+    condition: '%resource.exists() and (%resource.identifier.extension(%`rsext-cx-identifier`).exists().not() or %resource.identifier.extension(%`rsext-cx-identifier`).value = "cx")'
     constants:
       entityIdFieldPath: '%{fieldPath}(%{entityIdIndex})-2'
     schema: ./datatype/ei-entity-identifier
@@ -42,3 +42,10 @@ elements:
     constants:
       hl7NDLField: '%{fieldPath}-35'
     schema: ../resources/PractitionerRole/NDL
+
+  - name: alternate-placer-order-number
+    resource: '%resource.identifier'
+    condition: '(%resource.identifier.extension(%`rsext-cx-identifier`).exists() and %resource.identifier.extension(%`rsext-cx-identifier`).value = "cx")'
+    constants:
+      cxFieldPath: '%{fieldPath}-53'
+    schema: ../datatypes/identifier/CX

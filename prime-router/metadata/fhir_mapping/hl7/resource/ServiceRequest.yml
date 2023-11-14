@@ -113,6 +113,18 @@ identifier_5:
   expressionType: resource
   specs: ORC.21
 
+identifier_6:
+  condition: $valueIn NOT_NULL
+  valueOf: datatypes/CX/Identifier
+  generateList: true
+  expressionType: resource
+  specs: OBR.53
+  constants:
+    system: "http://terminology.hl7.org/CodeSystem/v2-0203"
+    code: "PLAC"
+  vars:
+    valueIn: OBR.53
+
 status:
   type: SERVICE_REQUEST_STATUS
   default: "unknown"

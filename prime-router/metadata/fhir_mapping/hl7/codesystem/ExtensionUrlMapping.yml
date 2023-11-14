@@ -518,3 +518,6 @@
 # Naming System Check Digit
 - id: "naming-system-check-digit"
   url: "http://hl7.org/fhir/StructureDefinition/namingsystem-checkDigit"
+# CX Identifier
+- id: "cx-identifier"
+  url: "http://hl7.org/fhir/StructureDefinition/cx-identifier"
