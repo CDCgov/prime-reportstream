@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useCallback, useEffect, useState } from "react";
 import { Icon, Tooltip } from "@trussworks/react-uswds";
 import classnames from "classnames";
 
@@ -37,30 +37,43 @@ interface CodeSnippetProps {
 
 export const CodeSnippet = ({ children }: CodeSnippetProps) => {
     const [isCopied, setIsCopied] = useState(false);
-    const tooltipText = isCopied ? "Copied" : "Copy to clipboard";
 
-    const copyToClipboard = (snippet: ReactNode) => {
-        navigator.clipboard.writeText(getNodeText(snippet));
-        setIsCopied(true);
-    };
+    /**
+     * Cached component that renders tooltip so that changing isCopied status
+     * causes it to remount (thus forcing tooltip position recalculation).
+     */
+    const CopyTooltip = useCallback(
+        ({ children }: any) => (
+            <Tooltip
+                className="fixed-tooltip"
+                position="top"
+                label={isCopied ? "Copied" : "Copy to clipboard"}
+                onClick={() => {
+                    navigator.clipboard.writeText(getNodeText(children));
+                    setIsCopied(true);
+                }}
+            >
+                {children}
+            </Tooltip>
+        ),
+        [isCopied],
+    );
 
     useEffect(() => {
+        let timeout: number | undefined;
         if (isCopied) {
-            setIsCopied(false);
+            setTimeout(() => setIsCopied(false), 3000);
         }
+
+        return () => clearTimeout(timeout);
     }, [isCopied]);
 
     return (
         <pre className={classnames(styles.CodeSnippet, "grid-row")}>
             <code className="tablet:grid-col code_snippet">{children}</code>
-            <Tooltip
-                className="fixed-tooltip"
-                position="top"
-                label={tooltipText}
-                onClick={() => copyToClipboard(children)}
-            >
+            <CopyTooltip>
                 <Icon.ContentCopy className="position" />
-            </Tooltip>
+            </CopyTooltip>
         </pre>
     );
 };
