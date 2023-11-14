@@ -7,6 +7,11 @@ id:
 
 identifier:
   expressionType: nested
+  vars:
+    xcnhd1: String, XCN.9.1
+    xcnhd3: String, XCN.9.3
+    xcn11: String, XCN.11
+    xcn12: String, XCN.12
   expressionsMap:
     value:
       type: STRING
@@ -16,45 +21,41 @@ identifier:
     # If ID type is null or ID type is not ISO or UUID, treat as organization.
     # Otherwise, treat as system.
     assigner_1:
-      condition: $xcn9-3 NULL
+      condition: $xcnhd3 NULL
       valueOf: datatypes/HD/Organization
       expressionType: reference
       specs: XCN.9
-      vars:
-        xcn9-3: XCN.9.3
     assigner_2:
-      condition: $xcn9-3 NOT_NULL && $xcn9-3 NOT_EQUALS ISO && $xcn9-3 NOT_EQUALS UUID
+      condition: $xcnhd3 NOT_NULL && $xcnhd3 NOT_EQUALS ISO && $xcnhd3 NOT_EQUALS UUID
       valueOf: datatypes/HD/Organization
       expressionType: reference
       specs: XCN.9
-      vars:
-        xcn9-3: XCN.9.3
     system:
-      condition: $xcn9-3 EQUALS ISO || $xcn9-3 EQUALS UUID
-      vars:
-        xcn9-1: XCN.9.1
-        xcn9-3: XCN.9.3
+      expressionType: nested
+      condition: $xcnhd3 EQUALS ISO || $xcnhd3 EQUALS UUID
       expressions:
-        - condition: $xcn9-1 NOT_NULL
+        - condition: $xcnhd1 NOT_NULL
           expressionType: HL7Spec
           type: STRING
           valueOf: XCN.9.1
-        - condition: $xcn9-1 NULL && $xcn9-3 EQUALS ISO
+        - condition: $xcnhd1 NULL && $xcnhd3 EQUALS ISO
           expressionType: HL7Spec
           type: STRING
-          vars:
+          constants:
             prefix: "urn:oid:"
+          vars:
             uri: String, XCN.9.2
             join: $prefix + $uri
-            valueOf: $join
-        - condition: $xcn9-1 NULL && $xcn9-3 EQUALS UUID
+          valueOf: $join
+        - condition: $xcnhd1 NULL && $xcnhd3 EQUALS UUID
           expressionType: HL7Spec
           type: STRING
-          vars:
+          constants:
             prefix: "urn:uuid:"
+          vars:
             uri: String, XCN.9.2
             join: $prefix + $uri
-            valueOf: $join
+          valueOf: $join
     extension_1-checkDigit:
       condition: $xcn11 NOT_NULL
       generateList: true
@@ -96,7 +97,7 @@ name:
           specs: XCN.2
         - expressionType: nested
           vars:
-            xcn18: STRING_ALL, XCN.18
+            xcn18: String, XCN.18
           condition: $xcn18 NOT_NULL
           expressionsMap:
             url:
@@ -137,55 +138,55 @@ name:
       type: NAME_USE
       valueOf: XCN.10
       expressionType: HL7Spec
-  # This needs to use variables because the message parses this field using NULLDT since it is deprecated which means that
-  # the values do not get correctly loaded and will not be mapped over correctly using a spec.
-  period_1:
-    vars:
-      xcn19: STRING_ALL, XCN.19
-      xcn20: STRING_ALL, XCN.20
-      start: STRING, XCN.17.1
-      end: STRING, XCN.17.2
-    condition: $xcn19 NULL && $xcn20 NULL
-    expressionType: resource
-    valueOf: datatypes/DR/Period
-  # XCN.17 is deprecated so the schema favors using XCN.19/20 if either are populated
-  period_2:
-    vars:
-      xcn19: STRING_ALL, XCN.19
-      xcn20: STRING_ALL, XCN.20
-    condition: $xcn19 NOT_NULL || $xcn20 NOT_NULL
-    expressionType: nested
-    expressionsMap:
-      start:
-        valueOf: "GeneralUtils.dateTimeWithZoneId(periodStart,ZONEID)"
-        expressionType: JEXL
-        vars:
-          periodStart: XCN.19
-      end:
-        valueOf: "GeneralUtils.dateTimeWithZoneId(periodEnd,ZONEID)"
-        expressionType: JEXL
-        vars:
-          periodEnd: XCN.20
+    # This needs to use variables because the message parses this field using NULLDT since it is deprecated which means that
+    # the values do not get correctly loaded and will not be mapped over correctly using a spec.
+    period_1:
+      vars:
+        xcn19: String, XCN.19
+        xcn20: String, XCN.20
+        start: String, XCN.17.1
+        end: String, XCN.17.2
+      condition: $xcn19 NULL && $xcn20 NULL
+      expressionType: resource
+      valueOf: datatypes/DR/Period
+    # XCN.17 is deprecated so the schema favors using XCN.19/20 if either are populated
+    period_2:
+      vars:
+        xcn19: String, XCN.19
+        xcn20: String, XCN.20
+      condition: $xcn19 NOT_NULL || $xcn20 NOT_NULL
+      expressionType: nested
+      expressionsMap:
+        start:
+          valueOf: "GeneralUtils.dateTimeWithZoneId(periodStart,ZONEID)"
+          expressionType: JEXL
+          vars:
+            periodStart: XCN.19
+        end:
+          valueOf: "GeneralUtils.dateTimeWithZoneId(periodEnd,ZONEID)"
+          expressionType: JEXL
+          vars:
+            periodEnd: XCN.20
 
 extension:
   vars:
-    xcn3: STRING_ALL, XCN.3
-    xcn4: STRING_ALL, XCN.4
-    xcn5: STRING_ALL, XCN.5
-    xcn7: STRING_ALL, XCN.7
-    xcn8: STRING_ALL, XCN.8
-    xcn9: STRING_ALL, XCN.9
-    xcn10: STRING_ALL, XCN.10
-    xcn15: STRING_ALL, XCN.12
-    xcn16: STRING_ALL, XCN.16
+    xcn3: String, XCN.3
+    xcn4: String, XCN.4
+    xcn5: String, XCN.5
+    xcn7: String, XCN.7
+    xcn8: String, XCN.8
+    xcn9: String, XCN.9
+    xcn10: String, XCN.10
+    xcn15: String, XCN.12
+    xcn16: String, XCN.16
     xcn17: STRING_ALL, XCN.17
-    xcn19: STRING_ALL, XCN.19
-    xcn20: STRING_ALL, XCN.20
-    xcn21: STRING_ALL, XCN.21
-    xcn22: STRING_ALL, XCN.22
-    xcn23: STRING_ALL, XCN.23
-    xcn24: STRING_ALL, XCN.24
-    xcn25: STRING_ALL, XCN.25
+    xcn19: String, XCN.19
+    xcn20: String, XCN.20
+    xcn21: String, XCN.21
+    xcn22: String, XCN.22
+    xcn23: String, XCN.23
+    xcn24: String, XCN.24
+    xcn25: String, XCN.25
   generateList: true
   expressionType: nested
   expressions:
@@ -239,11 +240,16 @@ extension:
           valueOf: datatypes/CWE/CodeableConcept
           expressionType: resource
           specs: XCN.8
-    - expressionType: resource
+    - expressionType: nested
       condition: $xcn9 NOT_NULL
-      generateList: true
-      valueOf: datatypes/HD/ExtensionAssigningAuthority
-      specs: XCN.9
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: xcn9-assigning-authority
+        value:
+          valueOf: datatypes/HD/ExtensionAssigningAuthority
+          expressionType: resource
+          specs: XCN.9
     - expressionType: nested
       condition: $xcn10 NOT_NULL
       expressionsMap:

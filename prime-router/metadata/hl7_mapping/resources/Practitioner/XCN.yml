@@ -34,7 +34,7 @@ elements:
     resource: '%resource.extension(%`rsext-xcn8-source-table`).value'
     constants:
       cweFieldPath: '%{hl7XCNField}-8'
-    schema: ../codeableConcept/CWE
+    schema: ../../datatypes/codeableConcept/CWE
 
   - name: xcn-assigning-authority
     resource: '%resource.identifier.extension(%`rsext-assigning-authority`)'
@@ -58,7 +58,7 @@ elements:
     resource: '%resource.identifier.extension(%`rsext-assigning-facility`).value.resolve()'
     constants:
       hl7HDField: '%{hl7XCNField}-14'
-    schema: ../../resources/Location/HD
+    schema: ../Location/HD
 
   - name: xcn-name-representation-code
     value: [ '%resource.extension(%`rsext-xcn15-name-representation-code.value' ]
@@ -68,7 +68,7 @@ elements:
     resource: '%resource.extension(%`rsext-xcn16-name-context`).value'
     constants:
       cweFieldPath: '%{hl7XCNField}-16'
-    schema: ../codeableConcept/CWE
+    schema: ../../datatypes/codeableConcept/CWE
 
   - name: xcn-name-validity-range-start
     value: [ '%resource.extension(%`rsext-xcn17-name-validity-range`).extension(%`rsext-xcn17-name-validity-start`).value' ]
@@ -98,10 +98,10 @@ elements:
     resource: '%resource.extension(%`rsext-xcn22-assigning-jurisdiction`).value'
     constants:
       cweFieldPath: '%{hl7XCNField}-22'
-    schema: ../codeableConcept/CWE
+    schema: ../../datatypes/codeableConcept/CWE
 
   - name: xcn-assigning-agency-or-department
     resource: '%resource.extension(%`rsext-xcn23-assigning-agency-or-department`).value'
     constants:
       cweFieldPath: '%{hl7XCNField}-23'
-    schema: ../codeableConcept/CWE
+    schema: ../../datatypes/codeableConcept/CWE
