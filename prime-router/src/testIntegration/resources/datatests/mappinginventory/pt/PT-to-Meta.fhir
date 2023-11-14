@@ -1,0 +1,120 @@
+{
+  "resourceType" : "Bundle",
+  "id" : "1699534322313556000.52ab7226-0f65-467a-9611-863080cdc5cd",
+  "meta" : {
+    "lastUpdated" : "2023-11-09T07:52:02.327-05:00"
+  },
+  "identifier" : {
+    "system" : "https://reportstream.cdc.gov/prime-router",
+    "value" : "3003786103_4988249_33033"
+  },
+  "type" : "message",
+  "timestamp" : "2023-05-01T10:25:31.000-04:00",
+  "entry" : [
+    {
+      "fullUrl" : "MessageHeader/0993dd0b-6ce5-3caf-a177-0b81cc780c18",
+      "resource" : {
+        "resourceType" : "MessageHeader",
+        "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
+        "meta" : {
+          "tag" : [
+            {
+              "system" : "http://terminology.hl7.org/CodeSystem/v2-0103",
+              "code" : "T"
+            },
+            {
+              "system" : "http://terminology.hl7.org/CodeSystem/v2-0207",
+              "code" : "T"
+            }
+          ]
+        },
+        "extension" : [
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
+            "valueString" : "^~\\&#"
+          },
+          {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
+            "valueString" : "UNICODE UTF-8"
+          }
+        ],
+        "eventCoding" : {
+          "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+          "code" : "R01",
+          "display" : "ORU^R01^ORU_R01"
+        },
+        "sender" : {
+          "reference" : "Organization/1699534322394263000.cdd4effd-6ea7-4c93-beec-7de7f96b93bb"
+        }
+      }
+    },
+    {
+      "fullUrl" : "Organization/1699534322394263000.cdd4effd-6ea7-4c93-beec-7de7f96b93bb",
+      "resource" : {
+        "resourceType" : "Organization",
+        "id" : "1699534322394263000.cdd4effd-6ea7-4c93-beec-7de7f96b93bb",
+        "address" : [
+          {
+            "country" : "USA"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Provenance/1699534322674003000.27ca4663-2af9-4d1b-99f9-0aff5f759681",
+      "resource" : {
+        "resourceType" : "Provenance",
+        "id" : "1699534322674003000.27ca4663-2af9-4d1b-99f9-0aff5f759681",
+        "recorded" : "2023-05-01T10:25:31-04:00",
+        "activity" : {
+          "coding" : [
+            {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                  "valueString" : "identifier"
+                }
+              ],
+              "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
+              "code" : "R01",
+              "display" : "ORU_R01"
+            }
+          ]
+        },
+        "agent" : [
+          {
+            "type" : {
+              "coding" : [
+                {
+                  "extension" : [
+                    {
+                      "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/code-index-name",
+                      "valueString" : "identifier"
+                    }
+                  ],
+                  "system" : "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+                  "code" : "author"
+                }
+              ]
+            }
+          }
+        ],
+        "entity" : [
+          {
+            "role" : "source",
+            "what" : {
+              "reference" : "Device/1699534322676121000.403b490e-441a-4903-b05c-fe61478befc8"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl" : "Device/1699534322676121000.403b490e-441a-4903-b05c-fe61478befc8",
+      "resource" : {
+        "resourceType" : "Device",
+        "id" : "1699534322676121000.403b490e-441a-4903-b05c-fe61478befc8"
+      }
+    }
+  ]
+}
