@@ -37,6 +37,7 @@ interface CodeSnippetProps {
 
 export const CodeSnippet = ({ children }: CodeSnippetProps) => {
     const [isCopied, setIsCopied] = useState(false);
+    const copyString = getNodeText(children);
 
     /**
      * Cached component that renders tooltip so that changing isCopied status
@@ -49,14 +50,14 @@ export const CodeSnippet = ({ children }: CodeSnippetProps) => {
                 position="top"
                 label={isCopied ? "Copied" : "Copy to clipboard"}
                 onClick={() => {
-                    navigator.clipboard.writeText(getNodeText(children));
+                    navigator.clipboard.writeText(copyString);
                     setIsCopied(true);
                 }}
             >
                 {children}
             </Tooltip>
         ),
-        [isCopied],
+        [isCopied, copyString],
     );
 
     useEffect(() => {
