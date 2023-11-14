@@ -16,22 +16,10 @@
       "resource" : {
         "resourceType" : "MessageHeader",
         "id" : "0993dd0b-6ce5-3caf-a177-0b81cc780c18",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "extension" : [
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/encoding-characters",
             "valueString" : "^~\\&#"
-          },
-          {
-            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/source-message-profile-id",
-            "valueIdentifier" : {}
           },
           {
             "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/character-set",
@@ -41,7 +29,7 @@
         "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "R01",
-          "display" : "ORU/ACK - Unsolicited transmission of an observation message"
+          "display" : "ORU^R01^ORU_R01"
         },
         "sender" : {
           "reference" : "Organization/1698246546047561000.5b172c80-1031-42f9-a526-c5b95389adda"
@@ -53,14 +41,6 @@
       "resource" : {
         "resourceType" : "Organization",
         "id" : "1698246546047561000.5b172c80-1031-42f9-a526-c5b95389adda",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "address" : [
           {
             "country" : "USA"
@@ -73,15 +53,13 @@
       "resource" : {
         "resourceType" : "Provenance",
         "id" : "1698246546337217000.fc616b95-8abc-44de-8e0d-01ae57a9ce65",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "recorded" : "2023-05-01T10:25:31-04:00",
+        "_recorded" : {
+          "extension" : [ {
+            "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+            "valueString" : "20230501102531-0400"
+          } ]
+        },
         "activity" : {
           "coding" : [
             {
@@ -129,15 +107,7 @@
       "fullUrl" : "Device/1698246546338826000.a66ed9bc-e939-4314-a578-17a72e95f6b8",
       "resource" : {
         "resourceType" : "Device",
-        "id" : "1698246546338826000.a66ed9bc-e939-4314-a578-17a72e95f6b8",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        }
+        "id" : "1698246546338826000.a66ed9bc-e939-4314-a578-17a72e95f6b8"
       }
     },
     {
@@ -145,14 +115,6 @@
       "resource" : {
         "resourceType" : "Patient",
         "id" : "1698246546381595000.d6ae6ce9-b0ca-4364-a876-73a74b28e55e",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "identifier" : [
           {
             "type" : {
@@ -191,14 +153,6 @@
       "resource" : {
         "resourceType" : "Organization",
         "id" : "1698246546380099000.8fd937f3-b994-42af-957e-85ac7f9f025c",
-        "meta" : {
-          "extension" : [
-            {
-              "url" : "http://ibm.com/fhir/cdm/StructureDefinition/source-data-model-version",
-              "valueString" : "2.5.1"
-            }
-          ]
-        },
         "contact" : [
           {
             "address" : {
@@ -237,7 +191,7 @@
                 },
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad13-effective-date",
-                  "valueDateTime" : "2022-05-01T10:25:31-04:00"
+                  "valueString" : "20220501102531-0400"
                 },
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad19-addressee",
@@ -245,7 +199,7 @@
                 },
                 {
                   "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xad14-expiration-date",
-                  "valueDateTime" : "2023-05-01T10:25:31-04:00"
+                  "valueString" : "20230501102531-0400"
                 }
               ],
               "use" : "billing",

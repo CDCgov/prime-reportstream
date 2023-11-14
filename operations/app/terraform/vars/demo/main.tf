@@ -151,7 +151,6 @@ module "function_app" {
   ai_connection_string              = module.application_insights.connection_string
   okta_base_url                     = local.init.okta_base_url
   okta_redirect_url                 = local.init.okta_redirect_url
-  fn_OKTA_clientId                  = local.init.fn_OKTA_clientId
   OKTA_scope                        = local.init.OKTA_scope
   terraform_caller_ip_address       = local.network.terraform_caller_ip_address
   use_cdc_managed_vnet              = local.network.use_cdc_managed_vnet
@@ -203,7 +202,7 @@ module "front_door" {
 } */
 
 module "sftp_container" {
-  count = local.init.environment != "prod" ? 1 : 0
+  count = local.init.sftp_container_module == true ? 1 : 0
 
   source                = "../../modules/sftp_container"
   environment           = local.init.environment

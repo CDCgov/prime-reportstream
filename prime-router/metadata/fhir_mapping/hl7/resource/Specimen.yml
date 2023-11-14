@@ -35,6 +35,23 @@ receivedTime:
   expressionType: JEXL
   vars:
     dateTimeIn: SPM.18 | OBR.14
+_receivedTime:
+  expressionType: nested
+  condition: $dateTimeIn NOT_NULL
+  vars:
+    dateTimeIn: SPM.18 | OBR.14
+  expressionsMap:
+    extension_1:
+      generateList: true
+      expressionType: nested
+      expressionsMap:
+        url:
+          type: SYSTEM_URL
+          value: hl7v2-date-time
+        valueString:
+          type: STRING
+          valueOf: $dateTimeIn
+          expressionType: HL7Spec
 
 collection:
   valueOf: secondary/Collection

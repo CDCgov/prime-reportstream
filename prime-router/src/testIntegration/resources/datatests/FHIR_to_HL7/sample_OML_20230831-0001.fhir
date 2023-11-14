@@ -103,7 +103,7 @@
         "eventCoding" : {
           "system" : "http://terminology.hl7.org/CodeSystem/v2-0003",
           "code" : "O21",
-          "display" : "OML - Laboratory order"
+          "display" : "OML^O21^OML_O21"
         },
         "destination" : [
           {
@@ -467,6 +467,14 @@
           "reference" : "Patient/1695669261532305000.bb1b87fc-3c3d-4e3e-ba3e-ba612f880655"
         },
         "authoredOn" : "2023-05-06T05:29:13-05:00",
+        "_authoredOn" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506052913-0500"
+            }
+          ]
+        },
         "requester" : {
           "reference" : "PractitionerRole/1695669261568047000.72f08cf4-2bc0-4be2-bc26-ad36f1f0da5b"
         }
@@ -496,10 +504,7 @@
               "code" : "P"
             }
           ]
-        },
-        "identifier" : [
-          {}
-        ]
+        }
       }
     },
     {
@@ -526,10 +531,7 @@
               "code" : "P"
             }
           ]
-        },
-        "identifier" : [
-          {}
-        ]
+        }
       }
     },
     {
@@ -863,6 +865,14 @@
           "reference" : "Patient/1695669261532305000.bb1b87fc-3c3d-4e3e-ba3e-ba612f880655"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueQuantity" : {
           "extension" : [
             {
@@ -964,6 +974,14 @@
           "reference" : "Patient/1695669261532305000.bb1b87fc-3c3d-4e3e-ba3e-ba612f880655"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueQuantity" : {
           "extension" : [
             {
@@ -1047,6 +1065,14 @@
           "reference" : "Patient/1695669261532305000.bb1b87fc-3c3d-4e3e-ba3e-ba612f880655"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -1133,6 +1159,14 @@
           "reference" : "Patient/1695669261532305000.bb1b87fc-3c3d-4e3e-ba3e-ba612f880655"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -1219,6 +1253,14 @@
           "reference" : "Patient/1695669261532305000.bb1b87fc-3c3d-4e3e-ba3e-ba612f880655"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -1305,6 +1347,14 @@
           "reference" : "Patient/1695669261532305000.bb1b87fc-3c3d-4e3e-ba3e-ba612f880655"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -1391,6 +1441,14 @@
           "reference" : "Patient/1695669261532305000.bb1b87fc-3c3d-4e3e-ba3e-ba612f880655"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -1477,6 +1535,14 @@
           "reference" : "Patient/1695669261532305000.bb1b87fc-3c3d-4e3e-ba3e-ba612f880655"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -1563,6 +1629,14 @@
           "reference" : "Patient/1695669261532305000.bb1b87fc-3c3d-4e3e-ba3e-ba612f880655"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueCodeableConcept" : {
           "coding" : [
             {
@@ -1647,6 +1721,14 @@
           "reference" : "Patient/1695669261532305000.bb1b87fc-3c3d-4e3e-ba3e-ba612f880655"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueString" : "Daniel Davis/218-555-1000"
       }
     },
@@ -1719,6 +1801,14 @@
           "reference" : "Patient/1695669261532305000.bb1b87fc-3c3d-4e3e-ba3e-ba612f880655"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueString" : "DAVIS, DANIEL, MD"
       }
     },
@@ -1791,6 +1881,14 @@
           "reference" : "Patient/1695669261532305000.bb1b87fc-3c3d-4e3e-ba3e-ba612f880655"
         },
         "effectiveDateTime" : "2023-05-06T05:00:00-05:00",
+        "_effectiveDateTime" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506050000-0500"
+            }
+          ]
+        },
         "valueString" : "Lakeridge Health Revere"
       }
     },
@@ -1884,6 +1982,14 @@
           ]
         },
         "recorded" : "2023-05-06T05:29:16-05:00",
+        "_recorded" : {
+          "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230506052916-0500"
+            }
+          ]
+        },
         "activity" : {
           "coding" : [
             {
@@ -2237,13 +2343,16 @@
               {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn9-any-text",
                 "valueString" : "(763)555-5555"
-              },{
+              },
+              {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn12-unformatted-telephone-number",
                 "valueString" : "(763)555-5555"
-              }, {
+              },
+              {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn3-telecom-equipment-type",
                 "valueString" : "PH"
-              }, {
+              },
+              {
                 "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xtn2-telecom-use-code",
                 "valueString" : "PRN"
               }
@@ -2257,6 +2366,10 @@
         "birthDate" : "2023-05-04",
         "_birthDate" : {
           "extension" : [
+            {
+              "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/hl7v2-date-time",
+              "valueString" : "20230504131023-0500"
+            },
             {
               "url" : "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
               "valueDateTime" : "2023-05-04T13:10:23-05:00"
@@ -2292,6 +2405,12 @@
               }
             ],
             "name" : {
+              "extension" : [
+                {
+                  "url" : "https://reportstream.cdc.gov/fhir/StructureDefinition/xpn2-given-name",
+                  "valueString" : "Leia"
+                }
+              ],
               "family" : "Organa",
               "given" : [
                 "Leia"
